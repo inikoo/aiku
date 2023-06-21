@@ -1,21 +1,21 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Sat, 11 Mar 2023 02:04:00 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Wed, 21 Jun 2023 08:43:57 Malaysia Time, Pantai Lembeng, Bali, Id
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Models\Leads;
+namespace App\Models\CRM;
 
 use App\Actions\Helpers\ReadableRandomStringGenerator;
 use App\Actions\Utils\Abbreviate;
-use App\Enums\Leads\Prospect\ProspectStateEnum;
-use App\Models\CRM\Customer;
+use App\Enums\CRM\Prospect\ProspectStateEnum;
 use App\Models\Helpers\Address;
 use App\Models\Market\Shop;
 use App\Models\Search\UniversalSearch;
 use App\Models\Traits\HasTenantAddress;
 use App\Models\Traits\HasUniversalSearch;
+use Database\Factories\CRM\ProspectFactory;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -29,7 +29,7 @@ use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
 /**
- * App\Models\Leads\Prospect
+ * App\Models\CRM\Prospect
  *
  * @property int $id
  * @property int $shop_id
@@ -44,7 +44,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $identity_document_number
  * @property string|null $contact_website
  * @property array $location
- * @property ProspectStateEnum $state
+ * @property \App\Enums\CRM\Prospect\ProspectStateEnum $state
  * @property array $data
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
@@ -54,7 +54,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Customer|null $customer
  * @property-read Shop $shop
  * @property-read UniversalSearch|null $universalSearch
- * @method static \Database\Factories\Leads\ProspectFactory factory($count = null, $state = [])
+ * @method static ProspectFactory factory($count = null, $state = [])
  * @method static Builder|Prospect newModelQuery()
  * @method static Builder|Prospect newQuery()
  * @method static Builder|Prospect onlyTrashed()

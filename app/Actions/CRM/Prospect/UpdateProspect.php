@@ -1,16 +1,16 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Sat, 11 Mar 2023 04:43:39 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Wed, 21 Jun 2023 08:45:00 Malaysia Time, Pantai Lembeng, Bali, Id
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Leads\Prospect;
+namespace App\Actions\CRM\Prospect;
 
-use App\Actions\Leads\Prospect\Hydrators\ProspectHydrateUniversalSearch;
+use App\Actions\CRM\Prospect\Hydrators\ProspectHydrateUniversalSearch;
 use App\Actions\WithActionUpdate;
 use App\Http\Resources\Lead\ProspectResource;
-use App\Models\Leads\Prospect;
+use App\Models\CRM\Prospect;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateProspect

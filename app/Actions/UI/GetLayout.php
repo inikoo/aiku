@@ -256,6 +256,16 @@ class GetLayout
 
                                 ]
                             ],
+                            [
+                                'label'   => __('prospects'),
+                                'tooltip' => __('Prospects'),
+                                'icon'    => ['fal', 'fa-user-plus'],
+                                'route'   => [
+                                    'all'      => ['crm.prospects.index'],
+                                    'selected' => ['crm.shops.show.prospects.index'],
+
+                                ]
+                            ],
 
 
                         ]

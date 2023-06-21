@@ -1,11 +1,11 @@
 <?php
 /*
- * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
- * Created: Thu, 16 Mar 2023 15:40:54 Central European Standard Time, Malaga, Spain
- * Copyright (c) 2023, Inikoo LTD
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Wed, 21 Jun 2023 08:45:00 Malaysia Time, Pantai Lembeng, Bali, Id
+ * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Leads\Prospect;
+namespace App\Actions\CRM\Prospect;
 
 use App\Actions\InertiaAction;
 use App\Actions\Market\Shop\UI\ShowShop;
@@ -13,7 +13,7 @@ use App\Actions\UI\Dashboard\Dashboard;
 use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Lead\ProspectResource;
 use App\InertiaTable\InertiaTable;
-use App\Models\Leads\Prospect;
+use App\Models\CRM\Prospect;
 use App\Models\Market\Shop;
 use App\Models\Tenancy\Tenant;
 use Closure;
@@ -103,7 +103,7 @@ class IndexProspects extends InertiaAction
         $parent = $request->route()->parameters() == [] ? app('currentTenant') : last($request->route()->parameters());
 
         return Inertia::render(
-            'Lead/Prospects',
+            'CRM/Prospects',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),

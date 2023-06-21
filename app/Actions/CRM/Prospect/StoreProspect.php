@@ -1,15 +1,15 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Mon, 17 Oct 2022 17:54:17 British Summer Time, Sheffield, UK
- *  Copyright (c) 2022, Raul A Perusquia Flores
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Wed, 21 Jun 2023 08:45:00 Malaysia Time, Pantai Lembeng, Bali, Id
+ * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Leads\Prospect;
+namespace App\Actions\CRM\Prospect;
 
+use App\Actions\CRM\Prospect\Hydrators\ProspectHydrateUniversalSearch;
 use App\Actions\Helpers\Address\StoreAddressAttachToModel;
-use App\Actions\Leads\Prospect\Hydrators\ProspectHydrateUniversalSearch;
-use App\Models\Leads\Prospect;
+use App\Models\CRM\Prospect;
 use App\Models\Market\Shop;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;

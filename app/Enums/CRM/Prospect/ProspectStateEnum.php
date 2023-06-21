@@ -1,15 +1,14 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Sat, 11 Mar 2023 02:05:37 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Wed, 21 Jun 2023 08:44:31 Malaysia Time, Pantai Lembeng, Bali, Id
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Enums\Leads\Prospect;
+namespace App\Enums\CRM\Prospect;
 
 use App\Enums\EnumHelperTrait;
 
-//enum('NoContacted','Contacted','NotInterested','Registered','Invoiced','Bounced')
 enum ProspectStateEnum: string
 {
     use EnumHelperTrait;

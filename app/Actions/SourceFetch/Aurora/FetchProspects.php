@@ -7,10 +7,10 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
+use App\Actions\CRM\Prospect\StoreProspect;
+use App\Actions\CRM\Prospect\UpdateProspect;
 use App\Actions\Helpers\Address\UpdateAddress;
-use App\Actions\Leads\Prospect\StoreProspect;
-use App\Actions\Leads\Prospect\UpdateProspect;
-use App\Models\Leads\Prospect;
+use App\Models\CRM\Prospect;
 use App\Services\Tenant\SourceTenantService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
