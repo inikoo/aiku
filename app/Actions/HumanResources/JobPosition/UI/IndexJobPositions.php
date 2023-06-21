@@ -23,6 +23,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexJobPositions extends InertiaAction
 {
+    /** @noinspection PhpUndefinedMethodInspection */
     public function handle(string $prefix = null): LengthAwarePaginator
     {
         if ($prefix) {
@@ -37,8 +38,17 @@ class IndexJobPositions extends InertiaAction
             });
         });
 
+        $queryBuilder=QueryBuilder::for(JobPosition::class);
+        foreach ($this->elementGroups as $key => $elementGroup) {
+            $queryBuilder->whereElementGroup(
+                prefix: $prefix,
+                key: $key,
+                allowedElements: array_keys($elementGroup['elements']),
+                engine: $elementGroup['engine']
+            );
+        }
 
-        return QueryBuilder::for(JobPosition::class)
+        return $queryBuilder
             ->defaultSort('job_positions.slug')
             ->select(['slug', 'id', 'name', 'number_employees'])
             ->allowedSorts(['slug', 'name', 'number_employees'])

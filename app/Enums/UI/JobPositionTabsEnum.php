@@ -16,10 +16,10 @@ enum JobPositionTabsEnum: string
     use HasTabs;
 
     case SHOWCASE                       = 'showcase';
-    case HISTORY                        = 'history';
-    case DATA                           = 'data';
     case EMPLOYEES                      = 'employees';
     case ROLES                          = 'roles';
+    case HISTORY                        = 'history';
+    case DATA                           = 'data';
 
     public function blueprint(): array
     {

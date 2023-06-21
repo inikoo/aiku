@@ -14,7 +14,9 @@ defineProps(['mailrooms', 'title', 'pageHead']);
 
 </script>
 
+<!--suppress HtmlUnknownAttribute -->
 <template layout="App">
+    <!--suppress HtmlRequiredTitleElement -->
     <Head :title="capitalize(title)"/>
     <PageHeading :data="pageHead"></PageHeading>
     <Table :resource="mailrooms" class="mt-5">

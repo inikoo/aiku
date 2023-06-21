@@ -107,8 +107,18 @@ class ShowWarehouseArea extends InertiaAction
                     : Inertia::lazy(fn () => GetWarehouseAreaShowcase::run($warehouseArea)),
 
                 WarehouseAreaTabsEnum::LOCATIONS->value => $this->tab == WarehouseAreaTabsEnum::LOCATIONS->value ?
-                    fn () => LocationResource::collection(IndexLocations::run($warehouseArea))
-                    : Inertia::lazy(fn () => LocationResource::collection(IndexLocations::run($warehouseArea))),
+                    fn () => LocationResource::collection(
+                        IndexLocations::run(
+                            parent: $warehouseArea,
+                            prefix: 'locations'
+                        )
+                    )
+                    : Inertia::lazy(fn () => LocationResource::collection(
+                        IndexLocations::run(
+                            parent: $warehouseArea,
+                            prefix: 'locations'
+                        )
+                    )),
 
                 WarehouseAreaTabsEnum::HISTORY->value => $this->tab == WarehouseAreaTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistories::run($warehouseArea))
@@ -116,16 +126,16 @@ class ShowWarehouseArea extends InertiaAction
 
             ]
         )->table(IndexLocations::make()->tableStructure(
-            /*modelOperations: [
-                'createLink' => $this->canEdit ? [
-                    'route' => [
-                        'name'       => 'inventory.warehouse-areas.show.locations.create',
-                        'parameters' => array_values($this->originalParameters)
-                    ],
-                    'label' => __('location')
-                ] : false,
-            ],
-            prefix: 'locations' */
+            //            modelOperations: [
+            //                'createLink' => $this->canEdit ? [
+            //                    'route' => [
+            //                        'name'       => 'inventory.warehouse-areas.show.locations.create',
+            //                        'parameters' => array_values($this->originalParameters)
+            //                    ],
+            //                    'label' => __('location')
+            //                ] : false,
+            //            ],
+            //            prefix: 'locations'
         ))->table(IndexHistories::make()->tableStructure());
     }
 
