@@ -11,6 +11,8 @@ use App\Actions\InertiaAction;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
+use Spatie\LaravelOptions\Options;
+use App\Enums\Marketing\Shop\ShopTypeEnum;
 
 /**
  * @property array $breadcrumbs
@@ -51,16 +53,26 @@ class CreateShopsBySpreadSheet extends InertiaAction
                         [
                             'id'       => 'code',
                             'name'     => __('Code'),
-                            'type'     => 'string',
+                            'columnType'     => 'string',
                             'prop'     => 'code',
                             'required' => true,
                         ],
                         [
                             'id'       => 'name',
                             'name'     => __('Label'),
-                            'type'     => 'string',
+                            'columnType'     => 'string',
                             'prop'     => 'name',
                             'required' => true,
+                        ],
+                        [
+                            'id'       => 'select',
+                            'name'     => __('Type'),
+                            'prop'     => 'type',
+                            'required' =>  false,
+                            'columnType' => "select",
+                            'options'    => Options::forEnum(ShopTypeEnum::class),
+                            'labelKey' => 'label',
+                            'valueKey'=> 'value',
                         ],
                     ],
                 ],

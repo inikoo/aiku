@@ -13,6 +13,8 @@ import { faSave, faPlus } from '@/../private/pro-regular-svg-icons';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { router } from '@inertiajs/vue3'
+import SelectTypePlugin from "@revolist/revogrid-column-select";
+import Date from "@revolist/revogrid-column-date";
 library.add(faSave,faPlus);
 const props = defineProps({
   actionRoute: Object,
@@ -22,6 +24,7 @@ const props = defineProps({
   },
 });
 
+const plugin = { 'select': new SelectTypePlugin(), 'date': new Date() };
 const addMultipleRows = () => {
   const result = [];
   const arrayData = cloneDeep(props.data.columns);
@@ -104,8 +107,15 @@ const setData = ref([]);
   </div>
 
   <div class="py-0.5">
-    <v-grid ref="vgrid" @beforeeditstart="onBeforeEditStart" @focusout="onFocusOut" :theme="theme" :source="setData"
-      :columns="props.data.columns" class="custom-grid" />
+    <v-grid 
+     ref="vgrid"
+     @beforeeditstart="onBeforeEditStart" 
+     @focusout="onFocusOut" 
+     theme='material' 
+     :source="setData"
+     :columns="props.data.columns" 
+     class="custom-grid" 
+     :columnTypes='plugin'/>
   </div>
 </template>
 
