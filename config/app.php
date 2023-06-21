@@ -181,6 +181,7 @@ return [
         Illuminate\View\ViewServiceProvider::class,
 
         \Matchish\ScoutElasticSearch\ElasticSearchServiceProvider::class,
+        Kreait\Laravel\Firebase\ServiceProvider::class,
 
         /*
          * Package Service Providers...
