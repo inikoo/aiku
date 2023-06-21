@@ -55,22 +55,22 @@ class StorePurchaseOrder
         ];
     }
 
-     public function afterValidator(Validator $validator): void
-     {
-         $numberPurchaseOrdersStateCreating = $this->parent->purchaseOrders()->where('state', PurchaseOrderStateEnum::CREATING)->count();
+    public function afterValidator(Validator $validator): void
+    {
+        $numberPurchaseOrdersStateCreating = $this->parent->purchaseOrders()->where('state', PurchaseOrderStateEnum::CREATING)->count();
 
-         if(!$this->force && $numberPurchaseOrdersStateCreating>= 1) {
-             $validator->errors()->add('purchase_order', 'Are you sure want to create new purchase order?');
-         }
+        if(!$this->force && $numberPurchaseOrdersStateCreating>= 1) {
+            $validator->errors()->add('purchase_order', 'Are you sure want to create new purchase order?');
+        }
 
-         if($this->parent->products->where('state', '<>', SupplierProductStateEnum::DISCONTINUED)->count() == 0) {
-             $message = match (class_basename($this->parent)) {
-                 'Agent'    => 'You can not create purchase order if the agent dont have any product',
-                 'Supplier' => 'You can not create purchase order if the supplier dont have any product',
-             };
-             $validator->errors()->add('purchase_order', $message);
-         }
-     }
+        if($this->parent->products->where('state', '<>', SupplierProductStateEnum::DISCONTINUED)->count() == 0) {
+            $message = match (class_basename($this->parent)) {
+                'Agent'    => 'You can not create purchase order if the agent dont have any product',
+                'Supplier' => 'You can not create purchase order if the supplier dont have any product',
+            };
+            $validator->errors()->add('purchase_order', $message);
+        }
+    }
 
     public function action(Agent|Supplier $parent, array $objectData, bool $force = false): \Illuminate\Http\RedirectResponse|PurchaseOrder
     {

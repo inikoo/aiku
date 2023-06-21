@@ -102,7 +102,7 @@ class IndexInvoices extends InertiaAction
         $routeParameters = $request->route()->parameters;
 
         return Inertia::render(
-            'Market/Invoices',
+            'Accounting/Invoices',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $routeName,

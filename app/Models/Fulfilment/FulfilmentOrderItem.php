@@ -34,7 +34,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property Carbon|null $updated_at
  * @property string|null $deleted_at
  * @property-read \App\Models\Fulfilment\FulfilmentOrder $FulfilmentOrder
- * @property-read \App\Models\CRM\Customer $customer
+ * @property-read Customer $customer
  * @property-read Shop $shop
  * @property-read Stock $stock
  * @method static Builder|FulfilmentOrderItem newModelQuery()

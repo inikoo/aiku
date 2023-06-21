@@ -45,13 +45,13 @@ use App\Models\Assets\Language;
 use App\Models\Assets\Timezone;
 use App\Models\Auth\Guest;
 use App\Models\CRM\Customer;
+use App\Models\CRM\Prospect;
 use App\Models\Dispatch\Shipper;
 use App\Models\Goods\TradeUnit;
 use App\Models\HumanResources\Employee;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\Stock;
 use App\Models\Inventory\Warehouse;
-use App\Models\Leads\Prospect;
 use App\Models\Mail\DispatchedEmail;
 use App\Models\Mail\Mailshot;
 use App\Models\Mail\Outbox;
@@ -75,8 +75,8 @@ trait WithAuroraParsers
 {
     protected function parseDate($value): ?string
     {
-        return ($value                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       != '' && $value != '0000-00-00 00:00:00'
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   && $value  != '2018-00-00 00:00:00') ? Carbon::parse($value)->format('Y-m-d') : null;
+        return ($value                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          != '' && $value != '0000-00-00 00:00:00'
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      && $value  != '2018-00-00 00:00:00') ? Carbon::parse($value)->format('Y-m-d') : null;
     }
 
 

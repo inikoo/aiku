@@ -67,10 +67,10 @@ class ShowSupplierDelivery extends InertiaAction
     }
 
 
-     public function jsonResponse(): SupplierDeliveryResource
-     {
-         return new SupplierDeliveryResource($this->supplierDelivery);
-     }
+    public function jsonResponse(): SupplierDeliveryResource
+    {
+        return new SupplierDeliveryResource($this->supplierDelivery);
+    }
 
     public function getBreadcrumbs(SupplierDelivery $supplierDelivery, $suffix = null): array
     {

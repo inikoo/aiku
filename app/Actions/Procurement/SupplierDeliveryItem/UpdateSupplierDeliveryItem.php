@@ -21,10 +21,10 @@ class UpdateSupplierDeliveryItem
         return $this->update($supplierDeliveryItem, $modelData, ['data']);
     }
 
-//    public function authorize(ActionRequest $request): bool
-//    {
-//        return $request->user()->hasPermissionTo("inventory.warehouses.edit");
-//    }
+    //    public function authorize(ActionRequest $request): bool
+    //    {
+    //        return $request->user()->hasPermissionTo("inventory.warehouses.edit");
+    //    }
 
     public function rules(): array
     {

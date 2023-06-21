@@ -57,9 +57,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $deleted_at
  * @property bool $with_refund
  * @property int|null $source_id
- * @property-read \App\Models\Accounting\PaymentAccount $paymentAccount
- * @property-read Customer $customer
  * @property-read Currency $currency
+ * @property-read Customer $customer
+ * @property-read \App\Models\Accounting\PaymentAccount $paymentAccount
  * @property-read Shop $shop
  * @property-read UniversalSearch|null $universalSearch
  * @method static \Database\Factories\Accounting\PaymentFactory factory($count = null, $state = [])

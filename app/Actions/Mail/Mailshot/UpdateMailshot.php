@@ -30,13 +30,13 @@ class UpdateMailshot
         }
         return $request->user()->hasPermissionTo("inventory.warehouses.edit");
     }
-//    public function rules(): array
-//    {
-//        return [
-//            'code'         => ['sometimes', 'required', 'unique:tenant.mailshots', 'between:2,256', 'alpha_dash'],
-//            'name'         => ['sometimes', 'required', 'max:250', 'string'],
-//        ];
-//    }
+    //    public function rules(): array
+    //    {
+    //        return [
+    //            'code'         => ['sometimes', 'required', 'unique:tenant.mailshots', 'between:2,256', 'alpha_dash'],
+    //            'name'         => ['sometimes', 'required', 'max:250', 'string'],
+    //        ];
+    //    }
 
     public function action(Mailshot $mailshot, $objectData): Mailshot
     {

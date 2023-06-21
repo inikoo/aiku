@@ -74,7 +74,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Market\ProductStats|null $stats
  * @property-read Collection<int, TradeUnit> $tradeUnits
  * @property-read UniversalSearch|null $universalSearch
- * @method static \Database\Factories\Marketing\ProductFactory factory($count = null, $state = [])
+ * @method static \Database\Factories\Market\ProductFactory factory($count = null, $state = [])
  * @method static Builder|Product newModelQuery()
  * @method static Builder|Product newQuery()
  * @method static Builder|Product onlyTrashed()
@@ -122,20 +122,20 @@ class Product extends Model implements HasMedia
             ->doNotGenerateSlugsOnUpdate()
             ->slugsShouldBeNoLongerThan(64);
     }
-/*
-    protected static function booted(): void
-    {
-        static::updated(function (Product $product) {
-            if ($product->wasChanged('state')) {
+    /*
+        protected static function booted(): void
+        {
+            static::updated(function (Product $product) {
+                if ($product->wasChanged('state')) {
 
-                if ($product->family_id) {
-                    FamilyHydrateProducts::dispatch($product->family);
-                 }
-                ShopHydrateProducts::dispatch($product->shop);
-            }
-        });
-    }
-*/
+                    if ($product->family_id) {
+                        FamilyHydrateProducts::dispatch($product->family);
+                     }
+                    ShopHydrateProducts::dispatch($product->shop);
+                }
+            });
+        }
+    */
 
     public function shop(): BelongsTo
     {
