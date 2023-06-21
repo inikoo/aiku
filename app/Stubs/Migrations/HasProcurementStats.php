@@ -9,6 +9,7 @@ namespace App\Stubs\Migrations;
 
 use App\Enums\Procurement\PurchaseOrderItem\PurchaseOrderItemStateEnum;
 use App\Enums\Procurement\PurchaseOrderItem\PurchaseOrderItemStatusEnum;
+use App\Enums\Procurement\Supplier\SupplierTypeEnum;
 use App\Enums\Procurement\SupplierDelivery\SupplierDeliveryStateEnum;
 use App\Enums\Procurement\SupplierDelivery\SupplierDeliveryStatusEnum;
 use App\Enums\Procurement\SupplierProduct\SupplierProductQuantityStatusEnum;
@@ -19,16 +20,26 @@ trait HasProcurementStats
 {
     public function agentStats(Blueprint $table): Blueprint
     {
-        $table->unsignedInteger('number_agents')->default(0)->comment('Number of active agents');
-        $table->unsignedInteger('agents_count')->default(0)->comment('Total number of agents records attached to tenant');
+        $table->unsignedInteger('number_agents')->default(0)->comment('Active agents, status=true');
+        $table->unsignedInteger('number_archived_agents')->default(0)->comment('Archived agents, status=false');
 
         return $table;
     }
 
     public function suppliersStats(Blueprint $table): Blueprint
     {
-        $table->unsignedInteger('number_suppliers')->default(0)->comment('Number of active suppliers');
-        $table->unsignedInteger('suppliers_count')->default(0)->comment('Total number of suppliers records attached to tenant');
+        $table->unsignedInteger('number_suppliers')->default(0)->comment('Active suppliers, status=true');
+        $table->unsignedInteger('number_archived_suppliers')->default(0)->comment('Archived suppliers status=false');
+
+
+
+        foreach (SupplierTypeEnum::cases() as $supplierType) {
+            $table->unsignedBigInteger('number_suppliers_type_'.$supplierType->snake())->default(0)
+                ->comment('Active suppliers. status=true,type='.$supplierType->value);
+            $table->unsignedBigInteger('number_archived_suppliers_type_'.$supplierType->snake())->default(0)
+                ->comment('Archived suppliers. status=false,type='.$supplierType->value);
+
+        }
 
         return $table;
     }

@@ -8,6 +8,7 @@
 namespace App\Models\Procurement;
 
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateProcurement;
+use App\Enums\Procurement\Supplier\SupplierTypeEnum;
 use App\Models\Assets\Currency;
 use App\Models\Helpers\GroupAddress;
 use App\Models\Helpers\Issue;
@@ -42,7 +43,7 @@ use Spatie\Sluggable\SlugOptions;
  * App\Models\Procurement\Supplier
  *
  * @property int $id
- * @property string $type sub-supplier: agents supplier
+ * @property SupplierTypeEnum $type sub-supplier: agents supplier
  * @property int|null $agent_id
  * @property bool $status
  * @property bool $is_private
@@ -109,6 +110,7 @@ class Supplier extends Model implements HasMedia, Auditable
         'settings'    => 'array',
         'location'    => 'array',
         'status'      => 'boolean',
+        'type'        => SupplierTypeEnum::class
     ];
 
     protected $attributes = [
@@ -156,14 +158,14 @@ class Supplier extends Model implements HasMedia, Auditable
 
     public function belongsToTenant(?Tenant $tenant): bool
     {
-        if(!$tenant) {
-            $tenant=app('currentTenant');
+        if (!$tenant) {
+            $tenant = app('currentTenant');
         }
 
-        if($this->type == 'sub-supplier') {
-            return $this->agent->owner_id===$tenant->id;
+        if ($this->type == 'sub-supplier') {
+            return $this->agent->owner_id === $tenant->id;
         } else {
-            return $this->owner_id===$tenant->id;
+            return $this->owner_id === $tenant->id;
         }
     }
 
@@ -191,10 +193,12 @@ class Supplier extends Model implements HasMedia, Auditable
     {
         return $this->belongsTo(Currency::class);
     }
+
     public function purchaseOrders(): MorphMany
     {
         return $this->morphMany(PurchaseOrder::class, 'provider');
     }
+
     public function supplierDeliveries(): MorphMany
     {
         return $this->morphMany(SupplierDelivery::class, 'provider');
@@ -202,7 +206,7 @@ class Supplier extends Model implements HasMedia, Auditable
 
     public function tenantIds(): array
     {
-        return  SupplierTenant::where('supplier_id', $this->id)->get()->pluck('tenant_id')->all();
+        return SupplierTenant::where('supplier_id', $this->id)->get()->pluck('tenant_id')->all();
     }
 
     public function owner(): MorphTo

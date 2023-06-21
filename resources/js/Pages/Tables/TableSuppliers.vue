@@ -9,12 +9,14 @@ import {Link} from '@inertiajs/vue3';
 import Table from '@/Components/Table/Table.vue';
 import {Supplier} from "@/types/supplier";
 import AddressLocation from "@/Components/Elements/Info/AddressLocation.vue";
+import {useLocaleStore} from '@/Stores/locale.js';
 
 const props = defineProps<{
     data: object,
     tab?: string
 }>()
 
+const locale = useLocaleStore();
 
 function supplierRoute(supplier: Supplier) {
     switch (route().current()) {
@@ -43,6 +45,9 @@ function supplierRoute(supplier: Supplier) {
         </template>
         <template #cell(supplier_locations)="{ item: supplier }">
             <AddressLocation :data="supplier['supplier_locations']"/>
+        </template>
+        <template #cell(number_supplier_products)="{ item: supplier }">
+            {{locale.number(supplier.number_supplier_products)}}
         </template>
     </Table>
 </template>

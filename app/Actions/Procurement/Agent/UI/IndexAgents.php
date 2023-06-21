@@ -37,6 +37,7 @@ class IndexAgents extends InertiaAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
+        /** @noinspection PhpUndefinedMethodInspection */
         return QueryBuilder::for(AgentTenant::class)
             ->defaultSort('agents.code')
             ->select(['code', 'name', 'slug', 'location', 'number_suppliers', 'number_purchase_orders', 'number_supplier_products'])
@@ -48,9 +49,9 @@ class IndexAgents extends InertiaAction
             ->withQueryString();
     }
 
-    public function tableStructure($parent, $prefix=null): Closure
+    public function tableStructure($prefix=null): Closure
     {
-        return function (InertiaTable $table) use ($parent, $prefix) {
+        return function (InertiaTable $table) use ($prefix) {
             if ($prefix) {
                 $table
                     ->name($prefix)
@@ -81,9 +82,7 @@ class IndexAgents extends InertiaAction
 
     public function asController(ActionRequest $request): LengthAwarePaginator
     {
-        $this->routeName = $request->route()->getName();
         $this->initialisation($request)->withTab(AgentTabsEnum::values());
-
         return $this->handle();
     }
 
@@ -94,36 +93,23 @@ class IndexAgents extends InertiaAction
     }
 
 
-    public function htmlResponse(LengthAwarePaginator $agents, ActionRequest $request): Response
+    public function htmlResponse(LengthAwarePaginator $agents): Response
     {
-        $parent = $request->route()->parameters() == [] ? app('currentTenant') : last($request->route()->parameters());
 
         return Inertia::render(
             'Procurement/Agents',
             [
-                'breadcrumbs' => $this->getBreadcrumbs(
-                    $request->route()->getName(),
-                    $request->route()->parameters
-                ),
+                'breadcrumbs' => $this->getBreadcrumbs(),
                 'title'       => __('agents'),
                 'pageHead'    => [
                     'title'  => __('agents'),
-                    /*
-                    'create' => $this->canEdit && $this->routeName == 'procurement.agents.index' ? [
-                        'route' => [
-                            'name'       => 'procurement.agents.create',
-                            'parameters' => array_values($this->originalParameters)
-                        ],
-                        'label' => __('agent')
-                    ] : false,
-                    */
                 ],
                 'data'        => AgentResource::collection($agents),
             ]
-        )->table($this->tableStructure($parent, prefix: 'agents'));
+        )->table($this->tableStructure());
     }
 
-    public function getBreadcrumbs(string $routeName, array $routeParameters): array
+    public function getBreadcrumbs(): array
     {
         return
             array_merge(
