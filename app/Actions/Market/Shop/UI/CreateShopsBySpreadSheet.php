@@ -68,7 +68,7 @@ class CreateShopsBySpreadSheet extends InertiaAction
                             'id'             => 'number',
                             'name'           => __('Number'),
                             'columnType'     => 'numeric',
-                            'prop'           => 'xxx',
+                            'prop'           => 'number',
                             'required'       => true,
                         ],
 

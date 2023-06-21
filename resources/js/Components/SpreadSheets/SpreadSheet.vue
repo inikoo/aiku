@@ -25,10 +25,21 @@ const props = defineProps({
   },
 });
 const numberInputed = ref(1)
+const columns = [
+  {
+    id: '*',
+    name: '*',
+    columnType: '*',
+    prop: '*',
+    readonly: true, // Set the column as readonly
+  },
+  ...props.data.columns,
+];
+
 
 const addMultipleRows = () => {
   const result = [];
-  const arrayData = cloneDeep(props.data.columns);
+  const arrayData = cloneDeep(columns);
   for (let i = 0; i < 20; i++) {
     const data = {};
     for (const field of arrayData) {
@@ -41,7 +52,7 @@ const addMultipleRows = () => {
 
 const addRows = () => {
   const result = [];
-  const arrayData = cloneDeep(props.data.columns);
+  const arrayData = cloneDeep(columns);
   for (let i = 0; i < numberInputed.value; i++) {
     const data = {};
     for (const field of arrayData) {
@@ -53,7 +64,7 @@ const addRows = () => {
 };
 
 
-let grid = ref()
+let vgrid = ref()
 let gRowIndex = ref(0)
 let gColName = ref('')
 
@@ -65,27 +76,30 @@ const onBeforeEditStart = (e: CustomEvent<{ rowIndex: number, prop: string }>) =
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const onFocusOut = async (e: any) => { // I don't know about this event, no docs
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-  let viewData = await grid.value.$el.getVisibleSource()
+  let viewData = await vgrid.value.$el.getVisibleSource()
   viewData[gRowIndex.value][gColName.value] = e.target.value
-  setData.value = grid.value.source;
+  setData.value = vgrid.value.source;
 }
 
 const handleSave = () => {
   const editableRows = [];
   for (const row of setData.value) {
     let isRowEditable = false;
+    const result = {}; // Initialize result as an empty object
     for (const column of props.data.columns) {
       if (row[column.prop] !== '') {
         isRowEditable = true;
-        break;
+        result[column.prop] = row[column.prop]; // Add non-empty values to result object
       }
     }
     if (isRowEditable) {
-      editableRows.push(row);
+      editableRows.push(result); // Push the result object to editableRows
     }
   }
+  console.log('datasend', editableRows);
   router.post(props.actionRoute.name, editableRows);
-};;
+};
+
 
 onBeforeMount(() => {
   addMultipleRows();
@@ -114,7 +128,7 @@ const setData = ref([]);
 
   <div class="py-0.5">
     <v-grid ref="vgrid" @beforeeditstart="onBeforeEditStart" @focusout="onFocusOut" theme='material' :source="setData"
-      :columns="props.data.columns" class="custom-grid" />
+      :columns="columns" class="custom-grid" />
 
   </div>
 

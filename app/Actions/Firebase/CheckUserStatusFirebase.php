@@ -7,7 +7,6 @@
 
 namespace App\Actions\Firebase;
 
-use App\Models\Auth\User;
 use Carbon\Carbon;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\AsObject;
