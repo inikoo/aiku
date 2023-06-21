@@ -622,7 +622,7 @@ const handleElementsChange = (data) => {
                         </div>
                     </slot>
                     
-                    <!-- Button: Filter -->
+                    <!-- Button: Filter table -->
                     <slot name="tableAddSearchRow" :has-search-inputs="queryBuilderProps.hasSearchInputs"
                         :has-search-inputs-without-value="queryBuilderProps.hasSearchInputsWithoutValue"
                         :search-inputs="queryBuilderProps.searchInputsWithoutGlobal" :on-add="showSearchInput">
@@ -633,7 +633,7 @@ const handleElementsChange = (data) => {
 
                     
 
-                    <!-- Button: Switch toggle filter the column of table -->
+                    <!-- Button: Switch toggle search the column of table -->
                     <slot name="tableColumns" :has-columns="queryBuilderProps.hasToggleableColumns"
                         :columns="queryBuilderProps.columns" :has-hidden-columns="queryBuilderProps.hasHiddenColumns"
                         :on-change="changeColumnStatus">
@@ -644,6 +644,7 @@ const handleElementsChange = (data) => {
                 </div>
             </div>
 
+            <!-- Field: search by column of table-->
             <slot name="tableSearchRows" :has-search-rows-with-value="queryBuilderProps.hasSearchInputsWithValue"
                 :search-inputs="queryBuilderProps.searchInputsWithoutGlobal"
                 :forced-visible-search-inputs="forcedVisibleSearchInputs" :on-change="changeSearchInputValue">
