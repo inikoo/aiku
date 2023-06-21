@@ -35,11 +35,11 @@ class IndexClockings extends InertiaAction
             });
         });
 
-
         if ($prefix) {
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
+        /**  @noinspection PhpUndefinedMethodInspection */
         return QueryBuilder::for(Clocking::class)
             ->defaultSort('clockings.slug')
             ->select(

@@ -26,6 +26,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexFamilies extends InertiaAction
 {
+    /** @noinspection PhpUndefinedMethodInspection */
     public function handle(Shop|ProductCategory|Tenant $parent, $prefix=null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -37,7 +38,18 @@ class IndexFamilies extends InertiaAction
         if ($prefix) {
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
-        return QueryBuilder::for(ProductCategory::class)
+
+        $queryBuilder=QueryBuilder::for(ProductCategory::class);
+        foreach ($this->elementGroups as $key => $elementGroup) {
+            $queryBuilder->whereElementGroup(
+                prefix: $prefix,
+                key: $key,
+                allowedElements: array_keys($elementGroup['elements']),
+                engine: $elementGroup['engine']
+            );
+        }
+
+        return $queryBuilder
             ->defaultSort('product_categories.code')
             ->select([
                 'product_categories.slug',
@@ -160,7 +172,7 @@ class IndexFamilies extends InertiaAction
         };
 
         return match ($routeName) {
-            'shops.show.families.index' =>
+            'shops.families.index' =>
             array_merge(
                 ShowShop::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(
@@ -171,7 +183,6 @@ class IndexFamilies extends InertiaAction
                     $suffix
                 )
             ),
-
             'shops.show.families.index' =>
             array_merge(
                 CatalogueHub::make()->getBreadcrumbs('shops', []),

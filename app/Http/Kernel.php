@@ -8,6 +8,7 @@
 namespace App\Http;
 
 use App\Http\Middleware\Authenticate;
+use App\Http\Middleware\LogUserFirebaseMiddleware;
 use App\Http\Middleware\LogUserRequestMiddleware;
 use App\Http\Middleware\EncryptCookies;
 use App\Http\Middleware\ForceJsonResponse;
@@ -95,7 +96,8 @@ class Kernel extends HttpKernel
             HandleInertiaRequests::class,
             EnsureValidTenantSession::class,
             SetLocale::class,
-            LogUserRequestMiddleware::class
+            LogUserRequestMiddleware::class,
+            LogUserFirebaseMiddleware::class
         ],
         // for use in cypress
         'web'     => [
@@ -109,7 +111,8 @@ class Kernel extends HttpKernel
             HandleInertiaRequests::class,
             EnsureValidTenantSession::class,
             SetLocale::class,
-            LogUserRequestMiddleware::class
+            LogUserRequestMiddleware::class,
+            LogUserFirebaseMiddleware::class
         ],
 
         'api'            => [

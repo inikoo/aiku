@@ -26,6 +26,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexWarehouseAreas extends InertiaAction
 {
+    /** @noinspection PhpUndefinedMethodInspection */
     public function handle(Warehouse|Tenant $parent, $prefix=null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -39,7 +40,17 @@ class IndexWarehouseAreas extends InertiaAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        return QueryBuilder::for(WarehouseArea::class)
+        $queryBuilder=QueryBuilder::for(WarehouseArea::class);
+        foreach ($this->elementGroups as $key => $elementGroup) {
+            $queryBuilder->whereElementGroup(
+                prefix: $prefix,
+                key: $key,
+                allowedElements: array_keys($elementGroup['elements']),
+                engine: $elementGroup['engine']
+            );
+        }
+
+        return $queryBuilder
             ->defaultSort('warehouse_areas.code')
             ->select(
                 [

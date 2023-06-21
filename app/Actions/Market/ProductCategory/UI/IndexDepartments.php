@@ -9,7 +9,7 @@ namespace App\Actions\Market\ProductCategory\UI;
 
 use App\Actions\InertiaAction;
 use App\Actions\Market\Shop\UI\IndexShops;
-use App\Actions\UI\Catalogue\CatalogueHub;
+//use App\Actions\UI\Catalogue\CatalogueHub;
 use App\Http\Resources\Market\DepartmentResource;
 use App\Models\Market\ProductCategory;
 use App\Models\Market\Shop;
@@ -26,6 +26,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexDepartments extends InertiaAction
 {
+    /** @noinspection PhpUndefinedMethodInspection */
     public function handle(Shop|Tenant $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -38,7 +39,17 @@ class IndexDepartments extends InertiaAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        return QueryBuilder::for(ProductCategory::class)
+        $queryBuilder=QueryBuilder::for(ProductCategory::class);
+        foreach ($this->elementGroups as $key => $elementGroup) {
+            $queryBuilder->whereElementGroup(
+                prefix: $prefix,
+                key: $key,
+                allowedElements: array_keys($elementGroup['elements']),
+                engine: $elementGroup['engine']
+            );
+        }
+
+        return $queryBuilder
             ->defaultSort('product_categories.code')
             ->select([
                 'product_categories.slug',

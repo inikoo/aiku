@@ -35,6 +35,7 @@ use Spatie\QueryBuilder\QueryBuilder;
  */
 class IndexShops extends InertiaAction
 {
+    /** @noinspection PhpUndefinedMethodInspection */
     public function handle($prefix=null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -48,8 +49,17 @@ class IndexShops extends InertiaAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
+        $queryBuilder=QueryBuilder::for(Shop::class);
+        foreach ($this->elementGroups as $key => $elementGroup) {
+            $queryBuilder->whereElementGroup(
+                prefix: $prefix,
+                key: $key,
+                allowedElements: array_keys($elementGroup['elements']),
+                engine: $elementGroup['engine']
+            );
+        }
 
-        return QueryBuilder::for(Shop::class)
+        return $queryBuilder
             ->defaultSort('shops.code')
             ->select(['code', 'id', 'name', 'slug','type','subtype'])
             ->allowedSorts(['code', 'name','type','subtype'])
@@ -67,7 +77,6 @@ class IndexShops extends InertiaAction
                     ->name($prefix)
                     ->pageName($prefix.'Page');
             }
-
 
             $table
                 ->withGlobalSearch()

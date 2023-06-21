@@ -27,6 +27,7 @@ use Spatie\QueryBuilder\QueryBuilder;
  */
 class IndexWarehouses extends InertiaAction
 {
+    /** @noinspection PhpUndefinedMethodInspection */
     public function handle($prefix=null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -35,11 +36,22 @@ class IndexWarehouses extends InertiaAction
                     ->orWhere('warehouses.code', 'LIKE', "%$value%");
             });
         });
+
         if ($prefix) {
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        return QueryBuilder::for(Warehouse::class)
+        $queryBuilder=QueryBuilder::for(Warehouse::class);
+        foreach ($this->elementGroups as $key => $elementGroup) {
+            $queryBuilder->whereElementGroup(
+                prefix: $prefix,
+                key: $key,
+                allowedElements: array_keys($elementGroup['elements']),
+                engine: $elementGroup['engine']
+            );
+        }
+
+        return $queryBuilder
             ->defaultSort('warehouses.code')
             ->select([
                 'warehouses.code as code',

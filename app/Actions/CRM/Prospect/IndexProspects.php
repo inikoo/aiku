@@ -10,7 +10,6 @@ namespace App\Actions\CRM\Prospect;
 use App\Actions\InertiaAction;
 use App\Actions\Market\Shop\UI\ShowShop;
 use App\Actions\UI\Dashboard\Dashboard;
-use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Lead\ProspectResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\CRM\Prospect;
@@ -27,7 +26,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexProspects extends InertiaAction
 {
-    public function handle(Shop|Tenant $parent): LengthAwarePaginator
+    public function handle(Shop|Tenant $parent, $prefix=null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -37,8 +36,12 @@ class IndexProspects extends InertiaAction
                     ->orWhere('prospects.website', '=', $value);
             });
         });
-        InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::PROSPECTS->value);
 
+        if ($prefix) {
+            InertiaTable::updateQueryBuilderParameters($prefix);
+        }
+
+        /** @noinspection PhpUndefinedMethodInspection */
         return QueryBuilder::for(Prospect::class)
             ->defaultSort('prospects.name')
             ->select([
@@ -59,27 +62,24 @@ class IndexProspects extends InertiaAction
             })
             ->allowedSorts(['name', 'email', 'phone', 'website'])
             ->allowedFilters([$globalSearch])
-            ->paginate(
-                perPage: $this->perPage ?? config('ui.table.records_per_page'),
-                pageName: TabsAbbreviationEnum::PROSPECTS->value.'Page'
-            )
+            ->withPaginator($prefix)
             ->withQueryString();
     }
 
-    public function tableStructure($parent): Closure
+    public function tableStructure($parent, $prefix=null): Closure
     {
-        return function (InertiaTable $table) use ($parent) {
-            $table
-                ->name(TabsAbbreviationEnum::PROSPECTS->value)
-                ->pageName(TabsAbbreviationEnum::PROSPECTS->value.'Page');
+        return function (InertiaTable $table) use ($parent, $prefix) {
 
-            $table->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
+            if ($prefix) {
+                $table
+                    ->name($prefix)
+                    ->pageName($prefix.'Page');
+            }
 
-            $table->column(key: 'email', label: __('email'), canBeHidden: false, sortable: true, searchable: true);
-
-            $table->column(key: 'phone', label: __('phone'), canBeHidden: false, sortable: true, searchable: true);
-
-            $table->column(key: 'website', label: __('website'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'email', label: __('email'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'phone', label: __('phone'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'website', label: __('website'), canBeHidden: false, sortable: true, searchable: true);
         };
     }
     public function authorize(ActionRequest $request): bool

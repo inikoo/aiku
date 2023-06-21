@@ -7,10 +7,14 @@
 
 namespace App\Actions\HumanResources\JobPosition\UI;
 
+use App\Actions\Helpers\History\IndexHistories;
+use App\Actions\HumanResources\Employee\UI\IndexEmployees;
 use App\Actions\InertiaAction;
 use App\Actions\UI\HumanResources\HumanResourcesDashboard;
 use App\Enums\UI\JobPositionTabsEnum;
+use App\Http\Resources\HumanResources\EmployeeResource;
 use App\Http\Resources\HumanResources\JobPositionResource;
+use App\Http\Resources\SysAdmin\HistoryResource;
 use App\Models\HumanResources\JobPosition;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -62,7 +66,43 @@ class ShowJobPosition extends InertiaAction
                 'tabs'        => [
                     'current'    => $this->tab,
                     'navigation' => JobPositionTabsEnum::navigation()
-                ]
+                ],
+
+                JobPositionTabsEnum::SHOWCASE->value => $this->tab == JobPositionTabsEnum::SHOWCASE->value ?
+                fn () => GetJobPositionShowcase::run($jobPosition)
+                : Inertia::lazy(fn () => GetJobPositionShowcase::run($jobPosition)),
+
+                JobPositionTabsEnum::EMPLOYEES->value       => $this->tab == JobPositionTabsEnum::EMPLOYEES->value ?
+                fn () => EmployeeResource::collection(
+                    IndexEmployees::run(
+                        prefix: 'employees'
+                    )
+                )
+                : Inertia::lazy(fn () => EmployeeResource::collection(
+                    IndexEmployees::run(
+                        prefix: 'employees'
+                    )
+                )),
+
+//               JobPositionTabsEnum::ROLES->value => $this->tab == JobPositionTabsEnum::ROLES->value
+//        ?
+//        fn () => RoleResource::collection(
+//            IndexRoles::run(
+//                parent: $jobPosition,
+//                prefix: 'roles'
+//            )
+//        )
+//        : Inertia::lazy(fn () => RoleResource::collection(
+//            IndexRoles::run(
+//                parent: $this->warehouse,
+//                prefix: 'roles'
+//            )
+//        )),
+
+
+                JobPositionTabsEnum::HISTORY->value => $this->tab == JobPositionTabsEnum::HISTORY->value ?
+                fn () => HistoryResource::collection(IndexHistories::run($jobPosition))
+                : Inertia::lazy(fn () => HistoryResource::collection(IndexHistories::run($jobPosition)))
             ]
         );
     }

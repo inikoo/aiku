@@ -11,9 +11,11 @@ use App\Actions\InertiaAction;
 use App\Actions\UI\Accounting\AccountingDashboard;
 use App\Http\Resources\Mail\MailroomResource;
 use App\Models\Mail\Mailroom;
+use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
+use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use App\InertiaTable\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
@@ -21,7 +23,8 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexMailrooms extends InertiaAction
 {
-    public function handle(): LengthAwarePaginator
+    /** @noinspection PhpUndefinedMethodInspection */
+    public function handle($prefix=null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -30,19 +33,53 @@ class IndexMailrooms extends InertiaAction
             });
         });
 
+        if ($prefix) {
+            InertiaTable::updateQueryBuilderParameters($prefix);
+        }
 
-        return QueryBuilder::for(Mailroom::class)
+        $queryBuilder=QueryBuilder::for(Mailroom::class);
+        foreach ($this->elementGroups as $key => $elementGroup) {
+            $queryBuilder->whereElementGroup(
+                prefix: $prefix,
+                key: $key,
+                allowedElements: array_keys($elementGroup['elements']),
+                engine: $elementGroup['engine']
+            );
+        }
+
+        return $queryBuilder
             ->defaultSort('mailrooms.code')
             ->select(['code', 'number_outboxes', 'number_mailshots', 'number_dispatched_emails'])
             ->leftJoin('mailroom_stats', 'mailrooms.id', 'mailroom_stats.mailroom_id')
             ->allowedSorts(['code', 'number_outboxes', 'number_mailshots', 'number_dispatched_emails'])
             ->allowedFilters([$globalSearch])
-            ->paginate($this->perPage ?? config('ui.table.records_per_page'))
+            ->withPaginator($prefix)
             ->withQueryString();
+    }
+
+    public function tableStructure($prefix=null): Closure
+    {
+        return function (InertiaTable $table) use ($prefix) {
+
+            if ($prefix) {
+                $table
+                    ->name($prefix)
+                    ->pageName($prefix.'Page');
+            }
+
+            $table
+                ->withGlobalSearch()
+                ->defaultSort('code')
+                ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'number_outboxes', label: __('outboxes'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'number_mailshots', label: __('mailshots'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'number_dispatched_emails', label: __('dispatched emails'), canBeHidden: false, sortable: true, searchable: true);
+        };
     }
 
     public function authorize(ActionRequest $request): bool
     {
+        $this->canEdit = $request->user()->can('mail.edit');
         return
             (
                 $request->user()->tokenCan('root') or
@@ -57,7 +94,7 @@ class IndexMailrooms extends InertiaAction
     }
 
 
-    public function htmlResponse(LengthAwarePaginator $mailroom)
+    public function htmlResponse(LengthAwarePaginator $mailroom): Response
     {
         return Inertia::render(
             'Mail/Mailrooms',
@@ -69,21 +106,8 @@ class IndexMailrooms extends InertiaAction
                 ],
                 'payment_service_providers' => MailroomResource::collection($mailroom),
 
-
             ]
-        )->table(function (InertiaTable $table) {
-            $table
-                ->withGlobalSearch()
-                ->defaultSort('code');
-
-            $table->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true);
-
-            $table->column(key: 'number_outboxes', label: __('outboxes'), canBeHidden: false, sortable: true, searchable: true);
-
-            $table->column(key: 'number_mailshots', label: __('mailshots'), canBeHidden: false, sortable: true, searchable: true);
-
-            $table->column(key: 'number_dispatched_emails', label: __('dispatched emails'), canBeHidden: false, sortable: true, searchable: true);
-        });
+        )->table($this->tableStructure());
     }
 
 

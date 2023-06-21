@@ -102,7 +102,8 @@ import {
 	faFolders,
 	faBrowser,
 	faBars,
-    faBuilding
+    faBuilding,
+    faCube
 } from "@/../private/pro-light-svg-icons"
 import { library } from "@fortawesome/fontawesome-svg-core"
 
@@ -125,7 +126,8 @@ library.add(
 	faFolders,
 	faBrowser,
 	faBars,
-    faBuilding
+    faBuilding,
+    faCube
 )
 const layout = useLayoutStore()
 

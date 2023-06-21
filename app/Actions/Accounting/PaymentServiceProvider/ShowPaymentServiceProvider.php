@@ -104,8 +104,30 @@ class ShowPaymentServiceProvider extends InertiaAction
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistories::run($paymentServiceProvider)))
             ]
         )
-        ->table(IndexPayments::make()->tableStructure())
-        ->table(IndexPaymentAccounts::make()->tableStructure())
+        ->table(IndexPayments::make()->tableStructure(
+            modelOperations: [
+                 'createLink' => $this->canEdit ? [
+                     'route' => [
+                        'name'       => 'accounting.payment-service-providers.show.payments.create',
+                        'parameters' => array_values($this->originalParameters)
+                     ],
+                     'label' => __('payment')
+                 ] : false,
+            ],
+            prefix: 'payments'
+        ))
+        ->table(IndexPaymentAccounts::make()->tableStructure(
+            modelOperations: [
+                'createLink' => $this->canEdit ? [
+                    'route' => [
+                        'name'       => 'accounting.payment-service-providers.show.payment-accounts.create',
+                        'parameters' => array_values($this->originalParameters)
+                    ],
+                    'label' => __('payment account')
+                ] : false,
+            ],
+            prefix: 'payments'
+        ))
         ->table(IndexHistories::make()->tableStructure());
     }
     public function jsonResponse(PaymentServiceProvider $paymentServiceProvider): PaymentServiceProviderResource
@@ -129,7 +151,7 @@ class ShowPaymentServiceProvider extends InertiaAction
                         'model' => [
                             'route' => [
                                 'name'       => 'accounting.payment-service-providers.show',
-                                'parameters' => $routeParameters
+                                'parameters' => $routeParameters['paymentServiceProvider']->slug
                             ],
                             'label' => $routeParameters['paymentServiceProvider']->slug,
                         ],

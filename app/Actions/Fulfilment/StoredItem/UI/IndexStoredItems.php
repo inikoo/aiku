@@ -9,7 +9,6 @@ namespace App\Actions\Fulfilment\StoredItem\UI;
 
 use App\Actions\InertiaAction;
 use App\Actions\UI\HumanResources\HumanResourcesDashboard;
-use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\HumanResources\EmployeeInertiaResource;
 use App\Http\Resources\HumanResources\EmployeeResource;
 use App\Models\HumanResources\Employee;
@@ -25,7 +24,8 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexStoredItems extends InertiaAction
 {
-    public function handle(): LengthAwarePaginator
+    /** @noinspection PhpUndefinedMethodInspection */
+    public function handle($prefix=null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -34,30 +34,41 @@ class IndexStoredItems extends InertiaAction
             });
         });
 
-        InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::EMPLOYEES->value);
+        if ($prefix) {
+            InertiaTable::updateQueryBuilderParameters($prefix);
+        }
 
-        return QueryBuilder::for(Employee::class)
+        $queryBuilder=QueryBuilder::for(Employee::class);
+        foreach ($this->elementGroups as $key => $elementGroup) {
+            $queryBuilder->whereElementGroup(
+                prefix: $prefix,
+                key: $key,
+                allowedElements: array_keys($elementGroup['elements']),
+                engine: $elementGroup['engine']
+            );
+        }
+
+        return $queryBuilder
             ->defaultSort('employees.slug')
             ->select(['slug', 'id', 'worker_number', 'name', 'state'])
             ->with('jobPositions')
             ->allowedSorts(['slug', 'state', 'name'])
             ->allowedFilters([$globalSearch, 'slug', 'name', 'state'])
-            ->paginate(
-                perPage: $this->perPage ?? config('ui.table.records_per_page'),
-                pageName: TabsAbbreviationEnum::EMPLOYEES->value.'Page'
-            )
+            ->withPaginator($prefix)
             ->withQueryString();
     }
 
-    public function tableStructure(): Closure
+    public function tableStructure($prefix=null): Closure
     {
-        return function (InertiaTable $table) {
+        return function (InertiaTable $table) use ($prefix) {
+            if($prefix) {
+                $table
+                    ->name($prefix)
+                    ->pageName($prefix.'Page');
+            }
             $table
-                ->name(TabsAbbreviationEnum::EMPLOYEES->value)
-                ->pageName(TabsAbbreviationEnum::EMPLOYEES->value.'Page')
                 ->withGlobalSearch()
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
-
                 ->defaultSort('code');
         };
     }

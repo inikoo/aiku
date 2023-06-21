@@ -35,7 +35,6 @@ const props = defineProps<{
     <PageHeading :data="pageHead"></PageHeading>
     <SpreadSheet
         :data="{ columns: props.sheetData.columns, value: [] }"
-        :theme="'material'"
         :actionRoute="saveRoute"
     ></SpreadSheet>
 </template>

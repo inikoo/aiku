@@ -10,7 +10,8 @@ import Table from '@/Components/Table/Table.vue';
 import {Prospect} from "@/types/prospect";
 
 const props = defineProps<{
-    data: object
+    data: object,
+    tab?: string
 }>()
 
 
@@ -30,7 +31,7 @@ function prospectRoute(prospect: Prospect) {
 </script>
 
 <template>
-    <Table :resource="data" :name="'pro'" class="mt-5">
+    <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(name)="{ item: prospect }">
             <Link :href="prospectRoute(prospect)">
                 {{ prospect['name'] }}

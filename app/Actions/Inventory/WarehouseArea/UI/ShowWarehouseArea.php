@@ -38,7 +38,6 @@ class ShowWarehouseArea extends InertiaAction
         return $warehouseArea;
     }
 
-    /** @noinspection PhpUnusedParameterInspection */
     public function inWarehouse(Warehouse $warehouse, WarehouseArea $warehouseArea, ActionRequest $request): WarehouseArea
     {
         $this->initialisation($request)->withTab(WarehouseAreaTabsEnum::values());
@@ -108,16 +107,36 @@ class ShowWarehouseArea extends InertiaAction
                     : Inertia::lazy(fn () => GetWarehouseAreaShowcase::run($warehouseArea)),
 
                 WarehouseAreaTabsEnum::LOCATIONS->value => $this->tab == WarehouseAreaTabsEnum::LOCATIONS->value ?
-                    fn () => LocationResource::collection(IndexLocations::run($warehouseArea))
-                    : Inertia::lazy(fn () => LocationResource::collection(IndexLocations::run($warehouseArea))),
+                    fn () => LocationResource::collection(
+                        IndexLocations::run(
+                            parent: $warehouseArea,
+                            prefix: 'locations'
+                        )
+                    )
+                    : Inertia::lazy(fn () => LocationResource::collection(
+                        IndexLocations::run(
+                            parent: $warehouseArea,
+                            prefix: 'locations'
+                        )
+                    )),
 
                 WarehouseAreaTabsEnum::HISTORY->value => $this->tab == WarehouseAreaTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistories::run($warehouseArea))
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistories::run($warehouseArea)))
 
             ]
-        )->table(IndexLocations::make()->tableStructure())
-            ->table(IndexHistories::make()->tableStructure());
+        )->table(IndexLocations::make()->tableStructure(
+            //            modelOperations: [
+            //                'createLink' => $this->canEdit ? [
+            //                    'route' => [
+            //                        'name'       => 'inventory.warehouse-areas.show.locations.create',
+            //                        'parameters' => array_values($this->originalParameters)
+            //                    ],
+            //                    'label' => __('location')
+            //                ] : false,
+            //            ],
+            //            prefix: 'locations'
+        ))->table(IndexHistories::make()->tableStructure());
     }
 
 

@@ -57,11 +57,11 @@ class StoreClocking
         ];
     }
 
-    public function asController(Workplace $workplace, ActionRequest $request): Clocking
+    public function asController(ClockingMachine|Workplace $parent, ActionRequest $request): Clocking
     {
         $request->validate();
 
-        return $this->handle($workplace, $request->validated());
+        return $this->handle($parent, $request->validated());
     }
 
 

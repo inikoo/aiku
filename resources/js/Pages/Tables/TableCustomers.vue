@@ -11,7 +11,7 @@ import {Customer} from "@/types/customer";
 
 const props = defineProps<{
     data: object,
-    tab?:tab
+    tab?: string
 }>()
 
 
@@ -46,9 +46,9 @@ function shopRoute(customer: Customer) {
 
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
-        <template #cell(reference)="{ item: customer }">
+        <template #cell(slug)="{ item: customer }">
             <Link :href="customerRoute(customer)">
-                {{ customer['reference'] }}
+                {{ customer['slug'] }}
             </Link>
         </template>
         <template #cell(shop)="{ item: customer }">
