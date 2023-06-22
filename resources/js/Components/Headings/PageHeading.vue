@@ -114,6 +114,15 @@ const locale = useLocaleStore();
                 </Link>
             </span>
 
+            <span v-if="data['backMulti']" class="">
+                <Link :href="route(data['backMulti']['route']['name'],data['backMulti']['route']['parameters'])">
+                <Button type='danger' action="cancel" class="capitalize">
+                   {{ trans('Back') }}
+                </Button>
+                </Link>
+            </span>
+
+
             <span v-if="data['exitEdit']"  class="">
                 <Link :href="route(data['exitEdit']['route']['name'],data['exitEdit']['route']['parameters'])">
                 <Button type="button"
