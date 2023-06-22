@@ -4,13 +4,48 @@
   - Copyright (c) 2023, Inikoo LTD
   -->
 
-<script setup>
-import {Head, Link} from '@inertiajs/vue3';
+<script setup lang="ts">
+import {Head} from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
-import Table from '@/Components/Table/Table.vue';
 import { capitalize } from "@/Composables/capitalize"
+import Tabs from "@/Components/Navigation/Tabs.vue";
+import { computed, ref } from "vue";
 
-defineProps(['mailrooms', 'title', 'pageHead']);
+import TableMailrooms from "@/Pages/Tables/TableMailrooms.vue";
+import TableOutboxes from "@/Pages/Tables/TableOutboxes.vue";
+import TableMailshots from "@/Pages/Tables/TableMailshots.vue";
+import TableDispatchedEmails from "@/Pages/Tables/TableDispatchedEmails.vue";
+import { useTabChange } from "@/Composables/tab-change";
+
+
+const props = defineProps <{
+    pageHead: object
+    tabs: {
+        current: string;
+        navigation: object;
+    },
+    title: string
+    mailrooms?: object
+    outboxes?: object
+    mailshots?: object
+    dispatched_emails?: object
+
+}>()
+
+let currentTab = ref(props.tabs.current);
+const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
+
+const component = computed(() => {
+
+    const components = {
+        mailrooms: TableMailrooms,
+        outboxes: TableOutboxes,
+        mailshots: TableMailshots,
+        dispatched_emails: TableDispatchedEmails,
+    };
+    return components[currentTab.value];
+
+});
 
 </script>
 
@@ -19,29 +54,7 @@ defineProps(['mailrooms', 'title', 'pageHead']);
     <!--suppress HtmlRequiredTitleElement -->
     <Head :title="capitalize(title)"/>
     <PageHeading :data="pageHead"></PageHeading>
-    <Table :resource="mailrooms" class="mt-5">
-
-
-        <template #cell(code)="{ item: mailroom }">
-            <Link :href="route('mail.mailrooms.show',[mailroom['slug']])">
-                {{ mailroom['slug'] }}
-            </Link>
-        </template>
-        <template #cell(number_outboxes)="{ item: mailroom }">
-            <Link :href="route('mail.mailrooms.show.outboxes.index',[mailroom['slug']])">
-                {{ mailroom['number_outboxes'] }}
-            </Link>
-        </template>
-        <template #cell(number_mailshots)="{ item: mailroom }">
-            <Link :href="route('mail.mailrooms.show.outboxes.show.mailshots.index',[mailroom['slug']])">
-                {{ mailroom['number_payments'] }}
-            </Link>
-        </template>
-        <template #cell(number_dispatched_emails)="{ item: mailroom }">
-            <Link :href="route('mail.mailrooms.show.outboxes.show.mailshots.show.dispatched_emails.index',[mailroom['slug']])">
-                {{ mailroom['number_dispatched_emails'] }}
-            </Link>
-        </template>
-    </Table>
+    <Tabs :current="currentTab" :navigation="tabs['navigation']"  @update:tab="handleTabUpdate"/>
+    <component :is="component" :tab="currentTab"  :data="props[currentTab]"></component>
 </template>
 

@@ -18,13 +18,14 @@ const props = defineProps<{
 function departmentRoute(department: Department) {
     switch (route().current()) {
         case 'shops.show':
+        case "shops.show.departments.index":
             return route(
                 'shops.show.departments.show',
                 [route().params['shop'], department.slug]);
         default:
             return route(
-                'shops.departments.show',
-                [department.slug]);
+                'shops.show.departments.show',
+                [department.shop_slug,department.slug]);
     }
 }
 
@@ -33,9 +34,9 @@ function departmentRoute(department: Department) {
 <template>
 
     <Table :resource="data" :name="tab" class="mt-5">
-        <template #cell(code)="{ item: department }">
+        <template #cell(slug)="{ item: department }">
             <Link :href="departmentRoute(department)">
-                {{ department['code'] }}
+                {{ department['slug'] }}
             </Link>
         </template>
     </Table>

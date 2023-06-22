@@ -74,9 +74,9 @@ class IndexMailshots extends InertiaAction
             ->withQueryString();
     }
 
-    public function tableStructure($parent, $prefix=null): Closure
+    public function tableStructure($parent, ?array $modelOperations = null, $prefix=null): Closure
     {
-        return function (InertiaTable $table) use ($parent, $prefix) {
+        return function (InertiaTable $table) use ($parent, $modelOperations, $prefix) {
 
             if ($prefix) {
                 $table
@@ -85,6 +85,8 @@ class IndexMailshots extends InertiaAction
             }
 
             $table
+                ->withGlobalSearch()
+                ->withModelOperations($modelOperations)
                 ->column(key: 'state', label: __('state'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'data', label: __('data'), canBeHidden: false, sortable: true, searchable: true);
         };

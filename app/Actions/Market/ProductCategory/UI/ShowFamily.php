@@ -11,7 +11,8 @@ use App\Actions\CRM\Customer\UI\IndexCustomers;
 use App\Actions\InertiaAction;
 use App\Actions\Mail\Mailshot\IndexMailshots;
 use App\Actions\Market\Product\UI\IndexProducts;
-use App\Actions\UI\Catalogue\CatalogueHub;
+use App\Actions\Market\Shop\UI\IndexShops;
+use App\Actions\Market\Shop\UI\ShowShop;
 use App\Enums\UI\DepartmentTabsEnum;
 use App\Http\Resources\Mail\MailshotResource;
 use App\Http\Resources\Market\DepartmentResource;
@@ -25,34 +26,34 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowFamily extends InertiaAction
 {
-    public function handle(ProductCategory $department): ProductCategory
+    public function handle(ProductCategory $family): ProductCategory
     {
-        return $department;
+        return $family;
     }
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('shops.departments.edit');
+        $this->canEdit = $request->user()->can('shops.families.edit');
 
-        return $request->user()->hasPermissionTo("shops.products.view");
+        return $request->user()->hasPermissionTo("shops.families.view");
     }
 
-    public function inTenant(ProductCategory $department, ActionRequest $request): ProductCategory
+    public function inTenant(ProductCategory $family, ActionRequest $request): ProductCategory
     {
         $this->initialisation($request)->withTab(DepartmentTabsEnum::values());
 
-        return $this->handle($department);
+        return $this->handle($family);
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inShop(Shop $shop, ProductCategory $department, ActionRequest $request): ProductCategory
+    public function inShop(Shop $shop, ProductCategory $family, ActionRequest $request): ProductCategory
     {
         $this->initialisation($request)->withTab(DepartmentTabsEnum::values());
 
-        return $this->handle($department);
+        return $this->handle($family);
     }
 
-    public function htmlResponse(ProductCategory $department, ActionRequest $request): Response
+    public function htmlResponse(ProductCategory $family, ActionRequest $request): Response
     {
         //        $this->validateAttributes();
 
@@ -65,11 +66,11 @@ class ShowFamily extends InertiaAction
                     $request->route()->parameters
                 ),
                 'navigation'                            => [
-                    'previous' => $this->getPrevious($department, $request),
-                    'next'     => $this->getNext($department, $request),
+                    'previous' => $this->getPrevious($family, $request),
+                    'next'     => $this->getNext($family, $request),
                 ],
                 'pageHead'                           => [
-                    'title' => $department->name,
+                    'title' => $family->name,
                     'icon'  => [
                         'icon'  => ['fal', 'fa-folders'],
                         'title' => __('department')
@@ -87,15 +88,15 @@ class ShowFamily extends InertiaAction
                 ],
 
                 DepartmentTabsEnum::SHOWCASE->value => $this->tab == DepartmentTabsEnum::SHOWCASE->value ?
-                    fn () => GetProductCategoryShowcase::run($department)
-                    : Inertia::lazy(fn () => GetProductCategoryShowcase::run($department)),
+                    fn () => GetProductCategoryShowcase::run($family)
+                    : Inertia::lazy(fn () => GetProductCategoryShowcase::run($family)),
 
                 DepartmentTabsEnum::CUSTOMERS->value => $this->tab == DepartmentTabsEnum::CUSTOMERS->value ?
-                    fn () => CustomerResource::collection(IndexCustomers::run($department))
-                    : Inertia::lazy(fn () => CustomerResource::collection(IndexCustomers::run($department))),
+                    fn () => CustomerResource::collection(IndexCustomers::run($family))
+                    : Inertia::lazy(fn () => CustomerResource::collection(IndexCustomers::run($family))),
                 DepartmentTabsEnum::MAILSHOTS->value => $this->tab == DepartmentTabsEnum::MAILSHOTS->value ?
-                    fn () => MailshotResource::collection(IndexMailshots::run($department))
-                    : Inertia::lazy(fn () => MailshotResource::collection(IndexMailshots::run($department))),
+                    fn () => MailshotResource::collection(IndexMailshots::run($family))
+                    : Inertia::lazy(fn () => MailshotResource::collection(IndexMailshots::run($family))),
 
                 /*
                 DepartmentTabsEnum::FAMILIES->value  => $this->tab == DepartmentTabsEnum::FAMILIES->value ?
@@ -126,25 +127,24 @@ class ShowFamily extends InertiaAction
 */
 
                 DepartmentTabsEnum::PRODUCTS->value  => $this->tab == DepartmentTabsEnum::PRODUCTS->value ?
-                    fn () => ProductResource::collection(IndexProducts::run($department))
-                    : Inertia::lazy(fn () => ProductResource::collection(IndexProducts::run($department))),
+                    fn () => ProductResource::collection(IndexProducts::run($family))
+                    : Inertia::lazy(fn () => ProductResource::collection(IndexProducts::run($family))),
 
             ]
-        )->table(IndexCustomers::make()->tableStructure($department))
-            ->table(IndexMailshots::make()->tableStructure($department))
-//            ->table(IndexFamilies::make()->tableStructure($department))
-            ->table(IndexProducts::make()->tableStructure($department));
+        )->table(IndexCustomers::make()->tableStructure($family))
+            ->table(IndexMailshots::make()->tableStructure($family))
+            ->table(IndexProducts::make()->tableStructure($family));
     }
 
 
-    public function jsonResponse(ProductCategory $department): DepartmentResource
+    public function jsonResponse(ProductCategory $family): DepartmentResource
     {
-        return new DepartmentResource($department);
+        return new DepartmentResource($family);
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters, $suffix = null): array
     {
-        $headCrumb = function (ProductCategory $department, array $routeParameters, $suffix) {
+        $headCrumb = function (ProductCategory $family, array $routeParameters, $suffix) {
             return [
 
                 [
@@ -156,7 +156,7 @@ class ShowFamily extends InertiaAction
                         ],
                         'model' => [
                             'route' => $routeParameters['model'],
-                            'label' => $department->slug,
+                            'label' => $family->slug,
                         ],
                     ],
                     'suffix'         => $suffix,
@@ -168,9 +168,9 @@ class ShowFamily extends InertiaAction
 
 
         return match ($routeName) {
-            'shops.show.families.show' =>
+            'shops.families.show' =>
             array_merge(
-                CatalogueHub::make()->getBreadcrumbs('shops', []),
+                IndexShops::make()->getBreadcrumbs(),
                 $headCrumb(
                     $routeParameters['family'],
                     [
@@ -188,21 +188,21 @@ class ShowFamily extends InertiaAction
                     $suffix
                 )
             ),
-            'shops.show.departments.show' =>
+            'shops.show.families.show' =>
             array_merge(
-                CatalogueHub::make()->getBreadcrumbs('shops.show.hub', ['shop' => $routeParameters['shop']]),
+                ShowShop::make()->getBreadcrumbs($routeParameters['shop']),
                 $headCrumb(
-                    $routeParameters['department'],
+                    $routeParameters['family'],
                     [
                         'index' => [
-                            'name'       => 'shops.show.departments.index',
+                            'name'       => 'shops.show.families.index',
                             'parameters' => [$routeParameters['shop']->slug]
                         ],
                         'model' => [
-                            'name'       => 'shops.show.departments.show',
+                            'name'       => 'shops.show.families.show',
                             'parameters' => [
                                 $routeParameters['shop']->slug,
-                                $routeParameters['department']->slug
+                                $routeParameters['family']->slug
                             ]
                         ]
                     ],
@@ -213,41 +213,41 @@ class ShowFamily extends InertiaAction
         };
     }
 
-    public function getPrevious(ProductCategory $department, ActionRequest $request): ?array
+    public function getPrevious(ProductCategory $family, ActionRequest $request): ?array
     {
-        $previous = ProductCategory::where('code', '<', $department->code)->orderBy('code', 'desc')->first();
+        $previous = ProductCategory::where('code', '<', $family->code)->orderBy('code', 'desc')->first();
         return $this->getNavigation($previous, $request->route()->getName());
 
     }
 
-    public function getNext(ProductCategory $department, ActionRequest $request): ?array
+    public function getNext(ProductCategory $family, ActionRequest $request): ?array
     {
-        $next = ProductCategory::where('code', '>', $department->code)->orderBy('code')->first();
+        $next = ProductCategory::where('code', '>', $family->code)->orderBy('code')->first();
         return $this->getNavigation($next, $request->route()->getName());
     }
 
-    private function getNavigation(?ProductCategory $department, string $routeName): ?array
+    private function getNavigation(?ProductCategory $family, string $routeName): ?array
     {
-        if(!$department) {
+        if(!$family) {
             return null;
         }
         return match ($routeName) {
-            'shops.show.departments.show'=> [
-                'label'=> $department->name,
+            'shops.families.show'=> [
+                'label'=> $family->name,
                 'route'=> [
                     'name'      => $routeName,
                     'parameters'=> [
-                        'department'=> $department->slug
+                        'department'=> $family->slug
                     ]
                 ]
             ],
-            'shops.show.departments.show'=> [
-                'label'=> $department->name,
+            'shops.show.families.show'=> [
+                'label'=> $family->name,
                 'route'=> [
                     'name'      => $routeName,
                     'parameters'=> [
-                        'shop'      => $department->shop->slug,
-                        'department'=> $department->slug
+                        'shop'      => $family->shop->slug,
+                        'department'=> $family->slug
                     ]
                 ]
             ],

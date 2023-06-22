@@ -60,8 +60,7 @@ Route::patch('/shop/{shop}', UpdateShop::class)->name('show.update');
 
 Route::patch('/customer/{customer}', UpdateCustomer::class)->name('customer.update');
 Route::post('/shop/{shop}/customer/', StoreCustomer::class)->name('show.customer.store');
-Route::post('/shop/{shop}/department/', [StoreProductCategory::class, 'inShop'])->name('show.department.store');
-Route::post('/shop/{shop}/departments/', [StoreProductCategories::class, 'inShop'])->name('show.department.store');
+Route::post('/shop/{shop}/department/', [StoreProductCategory::class, 'inShop'])->name('shop.show.department.store');
 
 
 Route::post('/shop/{shop}/product/', [StoreProduct::class, 'inShop'])->name('show.product.store');

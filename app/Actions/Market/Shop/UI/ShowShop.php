@@ -210,7 +210,7 @@ class ShowShop extends InertiaAction
                             'name'       => 'shops.show.departments.create',
                             'parameters' => array_values([$shop->slug])
                         ],
-                        'label' => __('products')
+                        'label' => __('departments')
                     ] : false
                 ],
                 prefix: 'departments'

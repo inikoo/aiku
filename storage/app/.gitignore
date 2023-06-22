@@ -1,4 +1,4 @@
 public/flags/*.gif
 group/
 tenants/
-aiku-firebase.json
+../../resources/private/firebase/aiku-firebase.json

@@ -144,27 +144,27 @@ class ShowWarehouse extends InertiaAction
 
             ]
         )->table(IndexLocations::make()->tableStructure(
-            //            modelOperations: [
-            //                'createLink' => $this->canEdit ? [
-            //                    'route' => [
-            //                        'name'       => 'inventory.warehouses.show.locations.create',
-            //                        'parameters' => array_values($this->originalParameters)
-            //                    ],
-            //                    'label' => __('location')
-            //                ] : false,
-            //            ],
-            //            prefix: 'locations'
+            /*modelOperations: [
+                'createLink' => $this->canEdit ? [
+                    'route' => [
+                        'name'       => 'inventory.warehouses.show.locations.create',
+                        'parameters' => array_values($this->originalParameters)
+                    ],
+                    'label' => __('location')
+                ] : false,
+            ],
+            prefix: 'locations' */
         ))->table(IndexWarehouseAreas::make()->tableStructure(
-            //            modelOperations: [
-            //                'createLink' => $this->canEdit ? [
-            //                    'route' => [
-            //                        'name'       => 'inventory.warehouses.show.warehouse-areas.create',
-            //                        'parameters' => array_values($this->originalParameters)
-            //                    ],
-            //                    'label' => __('area')
-            //                ] : false,
-            //            ],
-            //            prefix: 'warehouse_areas'
+            /* modelOperations: [
+                'createLink' => $this->canEdit ? [
+                    'route' => [
+                        'name'       => 'inventory.warehouses.show.warehouse-areas.create',
+                        'parameters' => array_values($this->originalParameters)
+                    ],
+                    'label' => __('area')
+                ] : false,
+            ],
+            prefix: 'warehouse_areas' */
         ))->table(IndexHistories::make()->tableStructure());
     }
 

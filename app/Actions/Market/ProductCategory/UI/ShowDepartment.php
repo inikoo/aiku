@@ -12,10 +12,12 @@ use App\Actions\Helpers\History\IndexHistories;
 use App\Actions\InertiaAction;
 use App\Actions\Mail\Mailshot\IndexMailshots;
 use App\Actions\Market\Product\UI\IndexProducts;
-use App\Actions\UI\Catalogue\CatalogueHub;
+use App\Actions\Market\Shop\UI\IndexShops;
+use App\Actions\Market\Shop\UI\ShowShop;
 use App\Enums\UI\DepartmentTabsEnum;
 use App\Http\Resources\Mail\MailshotResource;
 use App\Http\Resources\Market\DepartmentResource;
+use App\Http\Resources\Market\FamilyResource;
 use App\Http\Resources\Market\ProductResource;
 use App\Http\Resources\Sales\CustomerResource;
 use App\Http\Resources\SysAdmin\HistoryResource;
@@ -93,21 +95,58 @@ class ShowDepartment extends InertiaAction
                     : Inertia::lazy(fn () => GetProductCategoryShowcase::run($department)),
 
                 DepartmentTabsEnum::CUSTOMERS->value => $this->tab == DepartmentTabsEnum::CUSTOMERS->value ?
-                    fn () => CustomerResource::collection(\App\Actions\CRM\Customer\UI\IndexCustomers::run($department))
-                    : Inertia::lazy(fn () => CustomerResource::collection(IndexCustomers::run($department))),
-
+                    fn () => CustomerResource::collection(
+                        IndexCustomers::run(
+                            parent: $department->shop,
+                            prefix: 'customers'
+                        )
+                    )
+                    : Inertia::lazy(fn () => CustomerResource::collection(
+                        IndexCustomers::run(
+                            parent: $department->shop,
+                            prefix: 'customers'
+                        )
+                    )),
                 DepartmentTabsEnum::MAILSHOTS->value => $this->tab == DepartmentTabsEnum::MAILSHOTS->value ?
-                    fn () => MailshotResource::collection(IndexMailshots::run($department))
-                    : Inertia::lazy(fn () => MailshotResource::collection(IndexMailshots::run($department))),
+                    fn () => MailshotResource::collection(
+                        IndexMailshots::run(
+                            parent: $department,
+                            prefix: 'mailshots'
+                        )
+                    )
+                    : Inertia::lazy(fn () => MailshotResource::collection(
+                        IndexMailshots::run(
+                            parent: $department,
+                            prefix: 'mailshots'
+                        )
+                    )),
+                DepartmentTabsEnum::PRODUCTS->value  => $this->tab == DepartmentTabsEnum::PRODUCTS->value ?
+                    fn () => ProductResource::collection(
+                        IndexProducts::run(
+                            parent: $department,
+                            prefix: 'products'
+                        )
+                    )
+                    : Inertia::lazy(fn () => ProductResource::collection(
+                        IndexProducts::run(
+                            parent: $department,
+                            prefix: 'products'
+                        )
+                    )),
 
                 DepartmentTabsEnum::HISTORY->value => $this->tab == DepartmentTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistories::run($department))
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistories::run($department))),
 
-                /*
+
                 DepartmentTabsEnum::FAMILIES->value  => $this->tab == DepartmentTabsEnum::FAMILIES->value ?
                     fn () => [
-                        'table'             => FamilyResource::collection(IndexFamilies::run($this->department)),
+                        'table'             => FamilyResource::collection(
+                            IndexFamilies::run(
+                                parent: $department->shop,
+                                prefix: 'product_categories'
+                            )
+                        ),
                         'createInlineModel' => [
                             'buttonLabel' => __('family'),
                             'dialog'      => [
@@ -119,7 +158,12 @@ class ShowDepartment extends InertiaAction
                     ]
                     : Inertia::lazy(
                         fn () => [
-                            'table'             => FamilyResource::collection(IndexFamilies::run($this->department)),
+                            'table'             => FamilyResource::collection(
+                                IndexFamilies::run(
+                                    parent: $department->shop,
+                                    prefix: 'product_categories'
+                                )
+                            ),
                             'createInlineModel' => [
                                 'buttonLabel' => __('family'),
                                 'dialog'      => [
@@ -130,17 +174,37 @@ class ShowDepartment extends InertiaAction
                             ],
                         ]
                     ),
-*/
 
-                DepartmentTabsEnum::PRODUCTS->value  => $this->tab == DepartmentTabsEnum::PRODUCTS->value ?
-                    fn () => ProductResource::collection(IndexProducts::run($department))
-                    : Inertia::lazy(fn () => ProductResource::collection(IndexProducts::run($department))),
+
 
             ]
-        )->table(IndexCustomers::make()->tableStructure($department))
-            ->table(IndexMailshots::make()->tableStructure($department))
+        )->table(
+            IndexCustomers::make()->tableStructure(
+                parent: $department->shop,
+                prefix: 'customers'
+            )
+        )->table(
+            IndexMailshots::make()->tableStructure(
+                parent: $department->shop,
+                prefix: 'mailshots'
+            )
+        )
 //            ->table(IndexFamilies::make()->tableStructure($department))
-            ->table(IndexProducts::make()->tableStructure($department))
+            ->table(
+                IndexProducts::make()->tableStructure(
+                    parent: $department->shop,
+                    modelOperations: [
+                        'createLink' => $this->canEdit ? [
+                            'route' => [
+                                'name'       => 'shops.departments.show.products.create',
+                                'parameters' => array_values([$department->shop->slug])
+                            ],
+                            'label' => __('mailshot')
+                        ] : false
+                    ],
+                    prefix: 'products'
+                )
+            )
             ->table(IndexHistories::make()->tableStructure());
     }
 
@@ -174,20 +238,19 @@ class ShowDepartment extends InertiaAction
             ];
         };
 
-
         return match ($routeName) {
-            'shops.show.departments.show' =>
+            'shops.departments.show' =>
             array_merge(
-                CatalogueHub::make()->getBreadcrumbs('shops', []),
+                IndexShops::make()->getBreadcrumbs(),
                 $headCrumb(
                     $routeParameters['department'],
                     [
                         'index' => [
-                            'name'       => 'shops.show.departments.index',
+                            'name'       => 'shops.departments.index',
                             'parameters' => []
                         ],
                         'model' => [
-                            'name'       => 'shops.show.departments.show',
+                            'name'       => 'shops.departments.show',
                             'parameters' => [
                                 $routeParameters['department']->slug
                             ]
@@ -198,7 +261,7 @@ class ShowDepartment extends InertiaAction
             ),
             'shops.show.departments.show' =>
             array_merge(
-                CatalogueHub::make()->getBreadcrumbs('shops.show.hub', ['shop' => $routeParameters['shop']]),
+                ShowShop::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     $routeParameters['department'],
                     [
@@ -240,7 +303,7 @@ class ShowDepartment extends InertiaAction
             return null;
         }
         return match ($routeName) {
-            'shops.show.departments.show'=> [
+            'shops.departments.show'=> [
                 'label'=> $department->name,
                 'route'=> [
                     'name'      => $routeName,

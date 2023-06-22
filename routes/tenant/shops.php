@@ -33,7 +33,7 @@ Route::get('/export', ExportShops::class)->name('export');
 Route::get('/', IndexShops::class)->name('index');
 Route::get('/create', CreateShop::class)->name('create');
 Route::get('/create-multi', CreateShops::class)->name('create-multi');
-
+Route::get('/create-multi/clear', CreateShops::class)->name('create-multi-clear');
 Route::get('/{shop}', ShowShop::class)->name('show');
 Route::get('/{shop}/edit', EditShop::class)->name('edit');
 
@@ -46,21 +46,19 @@ Route::get('/departments', [IndexDepartments::class, 'inTenant'])->name('departm
 Route::get('/departments/{department}', [ShowDepartment::class, 'inTenant'])->name('departments.show');
 Route::get('/departments/{department}/edit', [EditDepartment::class, 'inTenant'])->name('departments.edit');
 Route::get('/families', [IndexFamilies::class, 'inTenant'])->name('families.index');
-Route::get('/families/{department}', [ShowDepartment::class, 'inTenant'])->name('families.show');
-Route::get('/families/{department}/edit', [EditDepartment::class, 'inTenant'])->name('families.edit');
+Route::get('/families/{family}', [ShowFamily::class, 'inTenant'])->name('families.show');
+Route::get('/families/{family}/edit', [EditFamily::class, 'inTenant'])->name('families.edit');
 
 Route::get('/products', [IndexProducts::class,'inTenant'])->name('products.index');
 Route::get('/products/{product}', [ShowProduct::class, 'inTenant'])->name('products.show');
 Route::get('/products/{product}/edit', [EditProduct::class, 'inTenant'])->name('products.edit');
 
 
-Route::get('/{shop}', ShowShop::class)->name('show');
 Route::get('/{shop}/products', [IndexProducts::class, 'inShop'])->name('show.products.index');
 Route::get('/shops/{shop}/products/create', CreateProduct::class)->name('show.products.create');
 
 Route::get('/{shop}/products/{product}', [ShowProduct::class, 'inShop'])->name('show.products.show');
 Route::get('/{shop}/products/{product}/edit', [EditProduct::class, 'inShop'])->name('show.products.edit');
-
 
 
 
