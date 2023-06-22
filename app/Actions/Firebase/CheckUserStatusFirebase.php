@@ -24,11 +24,11 @@ class CheckUserStatusFirebase
         $values = $reference->getValue();
 
         foreach ($values as $value) {
-            if(Carbon::make($value['timestamp'])->timestamp < now()->subMinutes(5)->timestamp && $value['is_active']) {
+            if(Carbon::make($value['last_active'])->timestamp < now()->subMinutes(5)->timestamp && $value['is_active']) {
                 $database->getReference($tenant->slug . '/' . $value['username'] . '/is_active')->set(false);
             }
 
-            if(Carbon::make($value['timestamp'])->timestamp < now()->subMinutes(120)->timestamp) {
+            if(Carbon::make($value['last_active'])->timestamp < now()->subMinutes(120)->timestamp) {
                 $reference->removeChildren([$value['username']]);
             }
         }

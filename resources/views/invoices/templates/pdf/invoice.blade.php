@@ -80,6 +80,7 @@
 </head>
 <body>
 <htmlpageheader name="myheader">
+    <br><br>
     <table width="100%" style="font-size: 9pt;">
         <tr>
             <td style="width:250px;padding-left:10px;">
@@ -114,7 +115,7 @@
 
 <sethtmlpageheader name="myheader" value="on" show-this-page="1"/>
 <sethtmlpagefooter name="myfooter" value="on"/>
-
+<br><br><br><br><br>
 <table width="100%" style="margin-top: 40px">
     <tr>
         <td>
@@ -124,23 +125,15 @@
         </td>
         <td style="text-align: right">
             <div>
-                Invoice Date:<b>20 Jun 2023</b>
+                Invoice Date: <b>20 Jun 2023</b>
             </div>
 
             <div style="text-align: right">
-                Tax liability date" <b>20 Jun 2023</b>
+                Tax liability date: <b>20 Jun 2023</b>
             </div>
 
             <div style="text-align: right">
                 Order Date: <b>20 Jun 2023</b>
-            </div>
-
-            <div style="text-align: right">
-                Invoice Number<b>Invoice ARi223123</b>
-            </div>
-
-            <div style="text-align: right">
-                Customer's PO Reference:<b>AR04063</b>
             </div>
         </td>
     </tr>
@@ -187,12 +180,30 @@
             <div>
                 The Firs Stone Lodge Lane
             </div>
+            <div>
+                Ipswich
+            </div>
+            <div>
+                IP2 9AR
+            </div>
+            <div>
+                United Kingdom
+            </div>
         </td>
         <td width="10%">&nbsp;</td>
         <td width="45%" style="border: 0.1mm solid #888888;">
             <span style="font-size: 7pt; color: #555555; font-family: sans-serif;">Delivery address:</span>
             <div>
                 The Firs Stone Lodge Lane
+            </div>
+            <div>
+                Ipswich
+            </div>
+            <div>
+                IP2 9AR
+            </div>
+            <div>
+                United Kingdom
             </div>
         </td>
     </tr>
@@ -250,24 +261,6 @@
         <td style="border:none" colspan="4"></td>
         <td>Shipping</td>
         <td>$4</td>
-    </tr>
-
-    <tr>
-        <td style="border:none" colspan="4"></td>
-        <td>Charges</td>
-        <td>$60</td>
-    </tr>
-
-    <tr>
-        <td style="border:none" colspan="4"></td>
-        <td>Insurance</td>
-        <td>$12</td>
-    </tr>
-
-    <tr>
-        <td style="border:none" colspan="4"></td>
-        <td>Adjusts</td>
-        <td>$120</td>
     </tr>
 
     <tr class="total_net">
@@ -339,7 +332,8 @@
 </div>
 
 <htmlpagefooter name="myfooter">
-    <div style="border-top: 1px solid #000000; font-size: 9pt; text-align: center; padding-top: 3mm; margin-top: 120px"></div>
+    <div
+        style="border-top: 1px solid #000000; font-size: 9pt; text-align: center; padding-top: 3mm; margin-top: 120px"></div>
     <table width="100%">
         <tr>
         <tr>
@@ -359,7 +353,7 @@
             </td>
         </tr>
     </table>
+    <br><br>
 </htmlpagefooter>
-
 </body>
 </html>
