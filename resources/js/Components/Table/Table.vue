@@ -666,7 +666,7 @@ const handleElementsChange = (data) => {
                                 <tr class="border-t border-gray-200">
                                     <HeaderCell v-for="column in queryBuilderProps.columns"
                                         :key="`table-${name}-header-${column.key}`" :cell="header(column.key)"
-                                        :type="columnsType[column.key]" />
+                                        :type="columnsType[column.key]" :abc="column"/>
                                 </tr>
                             </thead>
 
@@ -679,14 +679,15 @@ const handleElementsChange = (data) => {
                                             'hover:bg-gray-50': !striped,
                                         }">
                                         <td v-for="column in queryBuilderProps.columns" v-show="show(column.key)"
-                                            :key="`table-${name}-row-${key}-column-${column.key}`" :class="[
+                                            :key="`table-${name}-row-${key}-column-${column.key}`"
+                                            :class="[
                                                 typeof item[column.key] == 'number' ? 'text-right' : '',
-                                                column.key === 'avatar' ? 'flex justify-center items-center' : '',
-                                                'text-sm py-4 px-6 text-gray-500 whitespace-normal min-w-fit max-w-[450px]',
+                                                column.key === 'avatar' ? 'flex justify-center items-center' : 'px-6 min-w-fit max-w-[450px]',
+                                                'text-sm py-4 text-gray-500 whitespace-normal',
 
                                             ]">
                                             <slot :name="`cell(${column.key})`" :item="item">
-                                                <img v-if="column.key === 'avatar'" :src="`/media/group/${item[column.key]}`" class="w-5" alt=""/>
+                                                <img v-if="column.key === 'avatar'" :src="`/media/group/${item[column.key]}`" class="w-5 rounded-full"/>
                                                 <div v-else>{{ item[column.key] }}</div>
                                             </slot>
                                         </td>
