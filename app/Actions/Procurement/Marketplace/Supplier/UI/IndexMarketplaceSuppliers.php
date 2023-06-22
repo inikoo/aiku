@@ -10,7 +10,6 @@ namespace App\Actions\Procurement\Marketplace\Supplier\UI;
 use App\Actions\InertiaAction;
 use App\Actions\Procurement\Marketplace\Agent\UI\ShowMarketplaceAgent;
 use App\Actions\UI\Procurement\ProcurementDashboard;
-use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Procurement\MarketplaceSupplierResource;
 use App\Models\Procurement\Agent;
 use App\Models\Procurement\Supplier;
@@ -88,8 +87,6 @@ class IndexMarketplaceSuppliers extends InertiaAction
             }
 
             $table
-                ->name(TabsAbbreviationEnum::SUPPLIERS->value)
-                ->pageName(TabsAbbreviationEnum::SUPPLIERS->value.'Page')
                 ->withModelOperations($modelOperations)
                 ->withGlobalSearch()
                 ->column(key: 'adoption', label: [

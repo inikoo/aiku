@@ -11,7 +11,6 @@ use App\Actions\InertiaAction;
 use App\Actions\Procurement\Marketplace\Agent\UI\ShowMarketplaceAgent;
 use App\Actions\Procurement\Marketplace\Supplier\UI\ShowMarketplaceSupplier;
 use App\Actions\UI\Procurement\ProcurementDashboard;
-use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Procurement\MarketplaceSupplierProductResource;
 use App\Models\Procurement\Agent;
 use App\Models\Procurement\Supplier;
@@ -94,8 +93,6 @@ class IndexMarketplaceSupplierProducts extends InertiaAction
             }
 
             $table
-                ->name(TabsAbbreviationEnum::SUPPLIER_PRODUCTS->value)
-                ->pageName(TabsAbbreviationEnum::SUPPLIER_PRODUCTS->value.'Page')
                 ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
