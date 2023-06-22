@@ -1,24 +1,25 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import FooterTabLanguage from '@/Components/Footer/FooterTabLanguage.vue'
-import { useLocaleStore } from "@/Stores/locale";
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+import FooterTabActiveUsers from '@/Components/Footer/FooterTabActiveUsers.vue'
+import { useLocaleStore } from "@/Stores/locale"
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { faCircle } from "@/../private/pro-solid-svg-icons"
+import { library } from '@fortawesome/fontawesome-svg-core'
+library.add(faCircle)
+
+
+import { useDatabaseList, useDatabaseObject } from "vuefire"
+import { getDatabase, ref as dbRef } from "firebase/database"
+import { initializeApp } from "firebase/app"
+import serviceAccount from "/home/aiku/aiku/storage/app/aiku-firebase.json";
+const firebaseApp = initializeApp(serviceAccount);
+const db = getDatabase(firebaseApp)
+const activities = useDatabaseList(dbRef(db, 'aw'))
 
 const locale = useLocaleStore()
-// const tabLanguage = ref({
-//     'key': 'xx',
-//     'label': 'Change your language',
-//     'options': [
-//         'English (EN-US)',
-//         'Spanish (SP)',
-//         'Russians (RU)',
-//         'Bahasa Indonesia (ID)',
-//         'Chinese (CN)',
-//         'Japanese (JP)',
-//     ]
-// },)
-
 const isTabActive = ref(false)
+
 </script>
 
 <template>
@@ -39,27 +40,21 @@ const isTabActive = ref(false)
                 <div class="absolute bottom-5 right-0 w-40 min-w-min overflow-hidden rounded-t"
                     :class="[isTabActive == 'language' ? 'h-max' : 'h-0']"
                 >
-                    <FooterTabLanguage :active="isTabActive == 'language'" :options="locale.languageOptions" :selected="locale.language.id"
-                        @changeLanguage="(data) => { locale.language.id = Number(data[1]), locale.language.name = data[0].label }"
-                        
-                    />
+                    <FooterTabLanguage :active="isTabActive == 'language'" :data="locale.languageOptions" :selected="locale.language.id"
+                        @changeLanguage="(data) => { locale.language.id = Number(data[1]), locale.language.name = data[0].label }" />
                 </div>
             </div>
 
             <!-- Uncomment the code below to add tab -->
-            <!-- <div class="relative flex z-50 select-none justify-center px-8  cursor-pointer"
-                :class="[isTabActive == tabLanguage.key ? 'bg-gray-600' : 'bg-gray-800 hover:bg-gray-700']"
-                @click="isTabActive == tabLanguage.key ? isTabActive = !isTabActive : isTabActive = tabLanguage.key"
+            <div class="relative flex z-50 select-none justify-center items-center px-8 gap-x-1 cursor-pointer"
+                :class="[isTabActive == 'activeUsers' ? 'bg-gray-600' : 'bg-gray-800 hover:bg-gray-700']"
+                @click="isTabActive == 'activeUsers' ? isTabActive = !isTabActive : isTabActive = 'activeUsers'"
             >
-                <FontAwesomeIcon icon="fal fa-language" class="mr-1 h-5 text-gray-400"></FontAwesomeIcon>
-                <span class="font-thin text-sm">{{ locale.language.code }}</span>
-            
-                <div class="absolute bottom-5 right-0 w-40 min-w-min overflow-hidden rounded-t"
-                    :class="[isTabActive == tabLanguage.key ? 'h-max' : 'h-0']"
-                >
-                    <FooterTabLanguage :active="isTabActive == tabLanguage.key" :options="locale.languageOptions" />
+                <div class="text-sm text-gray-400 flex items-center gap-x-1"><div class="ring-1 h-2 aspect-square rounded-full" :class="[activities.length > 0 ? 'bg-green-400 ring-green-600' : 'bg-gray-400 ring-gray-600']" /> Active Users ({{ activities.length }})</div>
+                <div class="absolute bottom-5 right-0 w-40 min-w-min overflow-hidden rounded-t" :class="[isTabActive == 'activeUsers' ? 'h-max' : 'h-0']" >
+                    <FooterTabActiveUsers :active="isTabActive == 'activeUsers'" :data="activities" />
                 </div>
-            </div> -->
+            </div>
 
         </div>
     </footer>
