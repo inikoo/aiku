@@ -12,7 +12,7 @@ library.add(faCircle)
 import { useDatabaseList, useDatabaseObject } from "vuefire"
 import { getDatabase, ref as dbRef } from "firebase/database"
 import { initializeApp } from "firebase/app"
-import serviceAccount from "/home/aiku/aiku/storage/app/aiku-firebase.json";
+import serviceAccount from "@/../private/firebase/aiku-firebase.json"
 const firebaseApp = initializeApp(serviceAccount);
 const db = getDatabase(firebaseApp)
 const activities = useDatabaseList(dbRef(db, 'aw'))
