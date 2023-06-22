@@ -125,7 +125,7 @@ class ShowMarketplaceAgent extends InertiaAction
             ]
         )->table(
             IndexMarketplaceSuppliers::make()->tableStructure(
-                modelOperations: [
+                /* modelOperations: [
                     'createLink' => $this->canEdit ? [
                         'route' => [
                             'name'       => 'procurement.marketplace.agents.show.suppliers.create',
@@ -134,11 +134,11 @@ class ShowMarketplaceAgent extends InertiaAction
                         'label' => __('suppliers')
                     ] : false,
                 ],
-                prefix: 'suppliers'
+                prefix: 'suppliers' */
             )
         )
             ->table(IndexMarketplaceSupplierProducts::make()->tableStructure(
-                modelOperations: [
+                /* modelOperations: [
                     'createLink' => $this->canEdit ? [
                         'route' => [
                             'name'       => 'procurement.marketplace.agents.show.supplier-products.create',
@@ -147,7 +147,7 @@ class ShowMarketplaceAgent extends InertiaAction
                         'label' => __('product')
                     ] : false,
                 ],
-                prefix: 'supplier_products'
+                prefix: 'supplier_products' */
             ));
     }
 
