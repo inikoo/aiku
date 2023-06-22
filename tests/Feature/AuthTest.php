@@ -38,11 +38,11 @@ beforeAll(function () {
 beforeEach(function () {
     $tenant = Tenant::first();
     if (!$tenant) {
-        $group  = StoreGroup::make()->asAction(
+        $group = StoreGroup::make()->asAction(
             array_merge(
                 Group::factory()->definition(),
                 [
-                    'code'=> 'ACME'
+                    'code' => 'ACME'
                 ]
             )
         );
@@ -51,7 +51,7 @@ beforeEach(function () {
             array_merge(
                 Tenant::factory()->definition(),
                 [
-                    'code'=> 'AGB'
+                    'code' => 'AGB'
                 ]
             )
         );
@@ -60,7 +60,7 @@ beforeEach(function () {
             array_merge(
                 Tenant::factory()->definition(),
                 [
-                    'code'=> 'AUS'
+                    'code' => 'AUS'
                 ]
             )
         );
@@ -93,7 +93,7 @@ test('create user for guest', function ($guest) {
 
     $userData = User::factory()->definition();
 
-    $groupUser=StoreGroupUser::make()->action($userData);
+    $groupUser = StoreGroupUser::make()->action($userData);
     expect($groupUser)->toBeInstanceOf(GroupUser::class);
 
     /** @noinspection PhpUnhandledExceptionInspection */
@@ -103,6 +103,7 @@ test('create user for guest', function ($guest) {
     expect($user->password)->toBe('1234567')
         ->and($user->groupUser->password)->toBe('1234567')
         ->and($user->parent)->toBeInstanceOf(Guest::class);
+
     return $user;
 })->depends('create guest');
 
@@ -125,7 +126,6 @@ test('create user for guest with export username', function () {
 })->depends('create guest');
 
 test('update user password', function ($user) {
-
     Hash::shouldReceive('make')
         ->andReturn('hello1234');
 
@@ -146,7 +146,7 @@ test('update user password', function ($user) {
 
 test('update user username', function ($user) {
     expect($user->username)->toBe('hello');
-    $user        = UpdateUser::make()->action($user, [
+    $user = UpdateUser::make()->action($user, [
         'username' => 'aiku'
     ]);
 
@@ -169,7 +169,7 @@ test('attaching existing group user to another tenant guest', function ($user) {
     );
 
     /** @noinspection PhpUnhandledExceptionInspection */
-    $user2 = StoreUser::make()->action($guest, $groupUser, []);
+    $user2 = StoreUser::make()->action($guest, $groupUser);
     $this->assertModelExists($user2);
     $groupUser->fresh();
 
@@ -192,7 +192,7 @@ test('make sure a group user can be only attaches once in each tenant', function
 
     expect(function () use ($guest, $groupUser) {
         /** @noinspection PhpUnhandledExceptionInspection */
-        StoreUser::make()->action($guest, $groupUser, []);
+        StoreUser::make()->action($guest, $groupUser);
     })->toThrow(ValidationException::class);
 })->depends('update user password');
 
@@ -229,23 +229,14 @@ test('user change status if group user status is false  ', function ($user) {
 
 test('group status change status', function ($user) {
     $groupUser = $user->groupUser;
-
     expect($groupUser->status)->toBeTrue();
-
-    $groupUser = UpdateGroupUserStatus::make()->action($groupUser, [
-        'status' => false
-    ]);
-
+    $groupUser = UpdateGroupUserStatus::make()->action($groupUser, false);
     expect($groupUser->status)->toBeFalse();
 })->depends('update user password');
 
 test('delete group user', function ($user) {
     $groupUser = $user->groupUser;
-    $this->assertModelExists($groupUser);
-
-    DeleteGroupUser::make()->action($groupUser);
-
-    $groupUser = $user->groupUser;
-
+    expect($groupUser)->toBeInstanceOf(GroupUser::class);
+    $groupUser = DeleteGroupUser::make()->action($groupUser);
     expect($groupUser->deleted_at)->toBeInstanceOf(Carbon::class);
 })->depends('update user password');

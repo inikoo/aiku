@@ -36,7 +36,6 @@ class UpdateGroupUser
 
         foreach ($groupUser->tenants as $tenant) {
             $userID = $tenant->pivot->user_id;
-
             $tenant->execute(
                 function () use ($userID, $modelData) {
                     $user = User::find($userID);

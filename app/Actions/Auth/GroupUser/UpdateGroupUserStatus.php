@@ -7,7 +7,6 @@
 
 namespace App\Actions\Auth\GroupUser;
 
-use App\Actions\Auth\User\UpdateUserStatus;
 use App\Actions\WithActionUpdate;
 use App\Models\Auth\GroupUser;
 use App\Models\Auth\User;
@@ -25,15 +24,30 @@ class UpdateGroupUserStatus
 
     private bool $asAction = false;
 
-    public function handle(GroupUser $groupUser, array $modelData): GroupUser
+    public function handle(GroupUser $groupUser, bool $status): GroupUser
     {
-        $users = $groupUser->users()->get();
+        $groupUser->update(
+            [
+                'status' => $status
+            ]
+        );
 
-        foreach ($users as $user) {
-            UpdateUserStatus::run($user, $modelData);
+        if (!$status) {
+            foreach ($groupUser->tenants as $tenant) {
+                $userID = $tenant->pivot->user_id;
+                $tenant->execute(
+                    function () use ($userID, $status) {
+                        $user = User::find($userID);
+                        $user->update([
+                            'status' => $status
+                        ]);
+                    }
+                );
+            }
         }
 
-        return $this->update($groupUser, $modelData);
+
+        return $groupUser;
     }
 
     public function authorize(User $user, ActionRequest $request): bool
@@ -67,13 +81,11 @@ class UpdateGroupUserStatus
         return $this->handle($groupUser, $request->validated());
     }
 
-    public function action(GroupUser $groupUser, $objectData): GroupUser
+    public function action(GroupUser $groupUser, bool $status): GroupUser
     {
         $this->asAction = true;
-        $this->setRawAttributes($objectData);
-        $validatedData = $this->validateAttributes();
 
-        return $this->handle($groupUser, $validatedData);
+        return $this->handle($groupUser, $status);
     }
 
     public function htmlResponse(User $user): RedirectResponse

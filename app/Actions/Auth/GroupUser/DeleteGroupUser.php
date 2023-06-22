@@ -10,6 +10,7 @@ namespace App\Actions\Auth\GroupUser;
 use App\Actions\Auth\User\DeleteUser;
 use App\Actions\WithActionUpdate;
 use App\Models\Auth\GroupUser;
+use App\Models\Auth\User;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -22,22 +23,25 @@ class DeleteGroupUser
 
     public function handle(GroupUser $groupUser): GroupUser
     {
-        if (!$groupUser->status) {
-            $this->update($groupUser, [
-                'username' => $groupUser->username . '@deleted-' . $groupUser->id
-            ]);
+        $this->update($groupUser, [
+            'username' => $groupUser->username . '@deleted-' . $groupUser->id
+        ]);
 
-            foreach ($groupUser->users as $user) {
-                DeleteUser::make()->action($user);
-            }
-
-
-            $groupUser->delete();
-
-            return $groupUser;
+        foreach ($groupUser->tenants as $tenant) {
+            $userID = $tenant->pivot->user_id;
+            $tenant->execute(
+                function () use ($userID) {
+                    $user = User::find($userID);
+                    DeleteUser::run($user);
+                }
+            );
         }
 
+
+        $groupUser->delete();
+
         return $groupUser;
+
     }
 
     public function authorize(ActionRequest $request): bool
@@ -49,7 +53,7 @@ class DeleteGroupUser
         return $request->user()->hasPermissionTo("sysadmin.edit");
     }
 
-    public function asController(GroupUser $groupUser, ActionRequest $request): GroupUser
+    public function asController(GroupUser $groupUser): GroupUser
     {
         return $this->handle($groupUser);
     }

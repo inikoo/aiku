@@ -58,7 +58,12 @@ class FetchUsers extends FetchAction
 
             UserSyncRoles::make()->action($user, $userData['roles']);
             foreach ($userData['profile_images'] as $photoData) {
-                $this->saveGroupImage(model:$user->groupUser, imageData: $photoData, imageField: 'avatar_id', mediaCollection: 'profile');
+                $this->saveGroupImage(
+                    model:$user->groupUser,
+                    imageData: $photoData,
+                    imageField: 'avatar_id',
+                    mediaCollection: 'profile'
+                );
             }
 
 
