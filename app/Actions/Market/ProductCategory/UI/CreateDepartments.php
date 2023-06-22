@@ -40,7 +40,8 @@ class CreateDepartments extends InertiaAction
                 'pageHead'  => [
                     'title' => __('Upload departments'),
                 ],
-                'sheetData' => [
+                'documentName'=> $request->route()->getName().join($request->route()->originalParameters())    ,
+                'sheetData'   => [
 
                     'columns' => [
                         [
