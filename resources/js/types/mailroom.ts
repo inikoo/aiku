@@ -4,14 +4,11 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-export interface Department {
-    slug:string,
-    shop_slug: string,
-    code: string
-    name: string
+export interface Mailroom {
 
-    state: string
-    description: string
+    code:string,
+    data: string,
     created_at: string
     updated_at: string
+
 }

@@ -163,14 +163,17 @@ class IndexShops extends InertiaAction
                     : Inertia::lazy(fn () => ProductResource::collection(IndexProducts::run($scope))),
 
 
-
             ]
         )->table($this->tableStructure(prefix: 'shops'))
-            ->table(IndexDepartments::make()->tableStructure(parent:$scope, prefix: 'departments'))
+            ->table(
+                IndexDepartments::make()->tableStructure(
+                    parent:$scope,
+                    modelOperations: [],
+                    prefix: 'departments'
+                )
+            )
             ->table(IndexFamilies::make()->tableStructure(parent:$scope, prefix: 'families'))
             ->table(IndexDepartments::make()->tableStructure(parent:$scope, prefix: 'products'));
-
-
     }
 
     public function getBreadcrumbs($suffix=null): array

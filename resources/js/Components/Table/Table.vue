@@ -11,7 +11,6 @@ import TableSearchRows from '@/Components/Table/TableSearchRows.vue';
 import SearchReset from '@/Components/Table/SearchReset.vue';
 import Button from '@/Components/Elements/Buttons/Button.vue';
 import EmptyState from '@/Components/Common/EmptyState.vue'
-import TableDownload from '@/Components/Table/TableDownload.vue'
 import { Link } from "@inertiajs/vue3"
 
 import { computed, onMounted, ref, watch, onUnmounted, getCurrentInstance, Transition } from 'vue';
@@ -568,7 +567,7 @@ const handleElementsChange = (data) => {
                 <TableElements class="mb-2" v-if="queryBuilderProps.elementGroups?.length" :elements="queryBuilderProps.elementGroups" @changed="handleElementsChange" />
             </slot>
             <div class="grid grid-flow-col justify-between flex-nowrap px-4">
-                
+
                 <!-- Left Section: Records, -->
                 <div class="flex space-x-2">
                     <!-- Result Number -->
@@ -614,14 +613,15 @@ const handleElementsChange = (data) => {
                                 :on-change="changeGlobalSearchValue" />
                         </slot>
                     </div>
-                    
+
                     <!-- Button: Reset -->
+                    <!--suppress HtmlUnknownAttribute -->
                     <slot name="searchReset" can-be-reset="canBeReset" @resetSearch="() => resetQuery()">
                         <div v-if="canBeReset" class="order-3">
                             <SearchReset @resetSearch="() => resetQuery()" />
                         </div>
                     </slot>
-                    
+
                     <!-- Button: Filter table -->
                     <slot name="tableAddSearchRow" :has-search-inputs="queryBuilderProps.hasSearchInputs"
                         :has-search-inputs-without-value="queryBuilderProps.hasSearchInputsWithoutValue"
@@ -631,7 +631,7 @@ const handleElementsChange = (data) => {
                                 " :on-add="showSearchInput" />
                     </slot>
 
-                    
+
 
                     <!-- Button: Switch toggle search the column of table -->
                     <slot name="tableColumns" :has-columns="queryBuilderProps.hasToggleableColumns"
@@ -682,12 +682,12 @@ const handleElementsChange = (data) => {
                                             :key="`table-${name}-row-${key}-column-${column.key}`"
                                             :class="[
                                                 typeof item[column.key] == 'number' ? 'text-right' : '',
-                                                column.key == 'avatar' ? 'flex justify-center items-center' : 'px-6 min-w-fit max-w-[450px]',
+                                                column.key === 'avatar' ? 'flex justify-center items-center' : 'px-6 min-w-fit max-w-[450px]',
                                                 'text-sm py-4 text-gray-500 whitespace-normal',
 
                                             ]">
                                             <slot :name="`cell(${column.key})`" :item="item">
-                                                <img v-if="column.key == 'avatar'" :src="`/media/group/${item[column.key]}`" class="w-5 rounded-full"/>
+                                                <img v-if="column.key === 'avatar'" :src="`/media/group/${item[column.key]}`" class="w-5 rounded-full"/>
                                                 <div v-else>{{ item[column.key] }}</div>
                                             </slot>
                                         </td>
@@ -710,8 +710,9 @@ const handleElementsChange = (data) => {
     </Transition>
 </template>
 
+<!--suppress HtmlUnknownAttribute -->
 <style scope>
 fieldset {
-    margin-top: 0px !important;
+    margin-top: 0 !important;
 }
 </style>

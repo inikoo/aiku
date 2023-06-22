@@ -7,51 +7,50 @@
 <script setup lang="ts">
 import { ref, onBeforeMount, watch  } from 'vue';
 import VGrid from '@revolist/vue3-datagrid';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, get as getL } from 'lodash';
 import Button from '../Elements/Buttons/Button.vue';
 import { faSave, faPlus } from '@/../private/pro-regular-svg-icons';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-import { router } from '@inertiajs/vue3'
-import { useDatabaseList,  } from "vuefire"
 import { getDatabase, ref as dbRef, set, onValue, get } from 'firebase/database';
 import { initializeApp } from "firebase/app"
 import serviceAccount from "@/../private/firebase/aiku-firebase.json"
-// import serviceAccount from "../../../../storage/app/aiku-firebase.json";
+
+
 
 library.add(faSave, faPlus);
 
 const props = defineProps({
   actionRoute: Object,
   theme: String,
+  documentName : String,
   data: {
     type: Object,
   },
 });
-
+console.log(props)
 const numberInputed = ref(1);
 const firebaseApp = initializeApp(serviceAccount);
 const db = getDatabase(firebaseApp);
 const setData = ref([]); // Initialize with an empty array
-
+const hiddenColumns = props.data.hiddenColumns
 const updateData = async () => {
   try {
-    await set(dbRef(db, 'sheetCreate'), setData.value);
+    await set(dbRef(db, props.documentName ), setData.value);
     console.log('Data successfully updated!', setData.value);
   } catch (error) {
     console.error('Error updating data:', error);
   }
 };
-
 // Update `setData` with real-time data from Firebase
-onValue(dbRef(db, 'sheetCreate'), (snapshot) => {
+onValue(dbRef(db, props.documentName), (snapshot) => {
   const data = snapshot.val();
   setData.value = data ? Object.values(data) : [];
 });
 
 const fetchInitialData = async () => {
   try {
-    const snapshot = await get(dbRef(db, 'sheetCreate'));
+    const snapshot = await get(dbRef(db, props.documentName ));
     if (snapshot.exists()) {
       const data = snapshot.val();
       setData.value = Object.values(data);
@@ -64,11 +63,8 @@ const fetchInitialData = async () => {
 };
 
 
-
-
 watch(setData, updateData, { deep: true });
 
-console.log(setData);
 
 const columns = [
   {
@@ -78,19 +74,18 @@ const columns = [
     prop: '*',
     readonly: true, // Set the column as readonly
   },
-  ...props.data.columns,
+  ...props.data.columns.filter((item)=> getL(item,'hidden',false) == false),
 ];
 
 const addMultipleRows = () => {
-  console.log('masuk');
   const result = [];
   const arrayData = cloneDeep(columns);
   for (let i = 0; i < 5; i++) {
-    const data = {};
+    const dataRes = {};
     for (const field of arrayData) {
-      data[field.prop] = '';
+      dataRes[field.prop] = '';
     }
-    result.push(data);
+    result.push(dataRes);
   }
   setData.value = [...setData.value, ...result];
 };
@@ -123,24 +118,24 @@ const onFocusOut = async (e) => {
   setData.value = vgrid.value.source;
 };
 
-const handleSave = () => {
-  const editableRows = [];
-  for (const row of setData.value) {
-    let isRowEditable = false;
-    const result = {};
-    for (const column of props.data.columns) {
-      if (row[column.prop] !== '') {
-        isRowEditable = true;
-        result[column.prop] = row[column.prop];
-      }
-    }
-    if (isRowEditable) {
-      editableRows.push(result);
-    }
-  }
-  console.log('datasend', editableRows);
-  router.post(props.actionRoute.name, editableRows);
-};
+// const handleSave = () => {
+//   const editableRows = [];
+//   for (const row of setData.value) {
+//     let isRowEditable = false;
+//     const result = {};
+//     for (const column of props.data.columns) {
+//       if (row[column.prop] !== '') {
+//         isRowEditable = true;
+//         result[column.prop] = row[column.prop];
+//       }
+//     }
+//     if (isRowEditable) {
+//       editableRows.push(result);
+//     }
+//   }
+//   console.log('datasend', editableRows);
+//   router.post(props.actionRoute.name, editableRows);
+// };
 
 onBeforeMount(fetchInitialData);
 
@@ -167,8 +162,7 @@ onBeforeMount(fetchInitialData);
 
   <div class="py-0.5 revogrid-container">
     <v-grid ref="vgrid" @beforeeditstart="onBeforeEditStart" @focusout="onFocusOut" theme='material' :source="setData"
-      :columns="columns" class="custom-grid" />
-
+      :columns="columns" class="custom-grid" :hiddenColumns="hiddenColumns"/>
   </div>
 
   <div class="pt-4 pb-6 pl-1 pr-0 flex">

@@ -8,7 +8,7 @@
 import {Link} from '@inertiajs/vue3';
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {faEmptySet, faPeopleArrows} from '@/../private/pro-light-svg-icons';
-import {faPencil,faArrowLeft, faBorderAll} from '@/../private/pro-regular-svg-icons';
+import {faPencil,faArrowLeft, faBorderAll, faTrashAlt} from '@/../private/pro-regular-svg-icons';
 
 import {faPlus} from '@/../private/pro-solid-svg-icons';
 import Button from '@/Components/Elements/Buttons/Button.vue';
@@ -17,7 +17,7 @@ import {useLocaleStore} from '@/Stores/locale.js';
 import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome';
 import {trans} from 'laravel-vue-i18n';
 
-library.add(faEmptySet, faPeopleArrows, faPlus, faPencil,faArrowLeft, faBorderAll);
+library.add(faEmptySet, faPeopleArrows, faPlus, faPencil,faArrowLeft, faBorderAll, faTrashAlt);
 const props = defineProps(['data']);
 const locale = useLocaleStore();
 
@@ -114,22 +114,23 @@ const locale = useLocaleStore();
                 </Link>
             </span>
 
-            <span v-if="data['backMulti']" class="">
-                <Link :href="route(data['backMulti']['route']['name'],data['backMulti']['route']['parameters'])">
-                <Button type='danger' action="cancel" class="capitalize">
-                   {{ trans('Back') }}
-                </Button>
-                </Link>
-            </span>
-
-
             <span v-if="data['exitEdit']"  class="">
                 <Link :href="route(data['exitEdit']['route']['name'],data['exitEdit']['route']['parameters'])">
                 <Button type="button"
                         class="inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
                     <FontAwesomeIcon icon="far fa-arrow-left" class="-ml-1 mr-2 h-5 w-5 text-gray-500" aria-hidden="true"/>
-                     {{ trans('Exit edit') }}
+                    <span v-if="data['exitEdit']['label']">{{ trans(data['exitEdit']['label']) }}</span> 
+                    <span v-if="!data['exitEdit']['label']"> {{ trans('Exit edit') }}</span> 
                 </Button>
+                </Link>
+            </span>
+
+            <span v-if="data['clearMulti']" class="">
+                <Link :href="route(data['clearMulti']['route']['name'], data['clearMulti']['route']['parameters'])">
+                    <Button type="button"
+                        class="inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                        <FontAwesomeIcon icon="far fa-trash-alt" class="h-5 w-5 text-gray-500" aria-hidden="true"/>
+                    </Button>
                 </Link>
             </span>
 

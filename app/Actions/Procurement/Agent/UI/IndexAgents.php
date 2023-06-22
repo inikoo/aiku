@@ -24,6 +24,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexAgents extends InertiaAction
 {
+    /** @noinspection PhpUndefinedMethodInspection */
     public function handle($prefix=null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {

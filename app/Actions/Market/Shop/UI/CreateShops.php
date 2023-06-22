@@ -43,20 +43,24 @@ class CreateShops extends InertiaAction
             'CreateModelBySpreadSheet',
             [
                 'title'     => __('shops'),
+                'documentName'     => 'tes',
                 'pageHead'  => [
                     'title' => __('Upload shops'),
-                    'backMulti' => [
+                    'exitEdit' => [
+                        'label' => __('Back'),
                         'route' => [
                             'name'       => 'shops.index',
                             'parameters' => array_values($this->originalParameters)
                         ],
+                    ],
+                    'clearMulti' => [
+                        'route' => [
+                            'name'       => 'shops.create-multi-clear',
+                            'parameters' => array_values($this->originalParameters)
+                        ],
                     ]
                 ],
-
-                'documentName'=>$request->route()->getName().join($request->route()->originalParameters())    ,
-
                 'sheetData' => [
-
                     'columns' => [
                         [
                             'id'             => 'code',
@@ -72,8 +76,14 @@ class CreateShops extends InertiaAction
                             'prop'           => 'name',
                             'required'       => true,
                         ],
-
-
+                        [
+                            'id'             => 'hidden',
+                            'name'           => __('hidden'),
+                            'columnType'     => 'string',
+                            'prop'           => 'hidden',
+                            'required'       => true,
+                            'hidden'         => true
+                        ],
                     ],
                 ],
                 'saveRoute' => [
