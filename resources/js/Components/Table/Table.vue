@@ -568,20 +568,24 @@ const handleElementsChange = (data) => {
                 <TableElements class="mb-2" v-if="queryBuilderProps.elementGroups?.length" :elements="queryBuilderProps.elementGroups" @changed="handleElementsChange" />
             </slot>
             <div class="grid grid-flow-col justify-between flex-nowrap px-4">
-                <!-- Result Number -->
-                <div class="flex border border-indigo-100 rounded-lg">
-                    <div class="grid justify-end items-center text-base font-normal text-gray-700"
-                        title="Results">
-                        <div v-if="resourceMeta.total" class="px-2 ">{{ locale.number(resourceMeta.total) }} {{ $t(resourceMeta.total > 1 ? 'records' : 'record') }}</div>
-                        <div v-else class="px-2 ">{{ locale.number(0) }} {{ $t('record') }}</div>
-                    </div>
-                    <!-- Button -->
-                    <div v-if="queryBuilderProps.modelOperations.createLink">
-                        <Link :href="route(queryBuilderProps.modelOperations.createLink.route.name, queryBuilderProps.modelOperations.createLink.route.parameters[0])">
-                            <Button type='secondary' action="create" class="bg-indigo-100/60 hover:bg-indigo-100 capitalize focus:ring-offset-0 focus:ring-transparent rounded-l-none border-indigo-500">
-                                {{queryBuilderProps.modelOperations.createLink.label}}
-                            </Button>
-                        </Link>
+                
+                <!-- Left Section: Records, -->
+                <div class="flex space-x-2">
+                    <!-- Result Number -->
+                    <div class="flex border border-indigo-100 rounded-md">
+                        <div class="grid justify-end items-center text-base font-normal text-gray-700"
+                            title="Results">
+                            <div v-if="resourceMeta.total" class="px-2 ">{{ locale.number(resourceMeta.total) }} {{ $t(resourceMeta.total > 1 ? 'records' : 'record') }}</div>
+                            <div v-else class="px-2 ">{{ locale.number(0) }} {{ $t('record') }}</div>
+                        </div>
+                        <!-- Button -->
+                        <div v-if="queryBuilderProps.modelOperations.createLink">
+                            <Link :href="route(queryBuilderProps.modelOperations.createLink.route.name, queryBuilderProps.modelOperations.createLink.route.parameters[0])">
+                                <Button type='secondary' action="create" class="bg-indigo-100/60 hover:bg-indigo-100 capitalize focus:ring-offset-0 focus:ring-transparent rounded-l-none border-indigo-500">
+                                    {{queryBuilderProps.modelOperations.createLink.label}}
+                                </Button>
+                            </Link>
+                        </div>
                     </div>
                 </div>
 
@@ -597,9 +601,10 @@ const handleElementsChange = (data) => {
                                 :filters="queryBuilderProps.filters" :on-filter-change="changeFilterValue" />
                         </slot>
                     </div>
+
                     <!-- Search Input Button -->
                     <div v-if="queryBuilderProps.globalSearch"
-                        class="flex flex-row w-44 order-1 md:order-2 focus-within:w-64 md:focus-within:w-80 transition-all ease-in-out duration-100">
+                        class="flex flex-row w-64 order-1 md:order-2 transition-all ease-in-out duration-100">
                         <slot name="tableGlobalSearch" :has-global-search="queryBuilderProps.globalSearch"
                             :label="queryBuilderProps.globalSearch ? queryBuilderProps.globalSearch.label : null"
                             :value="queryBuilderProps.globalSearch ? queryBuilderProps.globalSearch.value : null"
@@ -609,13 +614,15 @@ const handleElementsChange = (data) => {
                                 :on-change="changeGlobalSearchValue" />
                         </slot>
                     </div>
-                    <!-- Reset Button (If already searching) -->
+                    
+                    <!-- Button: Reset -->
                     <slot name="searchReset" can-be-reset="canBeReset" @resetSearch="() => resetQuery()">
                         <div v-if="canBeReset" class="order-3">
                             <SearchReset @resetSearch="() => resetQuery()" />
                         </div>
                     </slot>
-                    <!-- Code/Name/State Button -->
+                    
+                    <!-- Button: Filter table -->
                     <slot name="tableAddSearchRow" :has-search-inputs="queryBuilderProps.hasSearchInputs"
                         :has-search-inputs-without-value="queryBuilderProps.hasSearchInputsWithoutValue"
                         :search-inputs="queryBuilderProps.searchInputsWithoutGlobal" :on-add="showSearchInput">
@@ -624,16 +631,9 @@ const handleElementsChange = (data) => {
                                 " :on-add="showSearchInput" />
                     </slot>
 
-                    <!-- Button: Download Table -->
-                    <slot name="tableDownload" :has-search-inputs="queryBuilderProps.hasSearchInputs"
-                        :has-search-inputs-without-value="queryBuilderProps.hasSearchInputsWithoutValue"
-                        :search-inputs="queryBuilderProps.searchInputsWithoutGlobal" :on-add="showSearchInput">
-                        <TableDownload v-if="queryBuilderProps.hasSearchInputs" class="order-4"
-                            :search-inputs="queryBuilderProps.searchInputsWithoutGlobal" :has-search-inputs-without-value="queryBuilderProps.hasSearchInputsWithoutValue
-                                " :on-add="showSearchInput" />
-                    </slot>
+                    
 
-                    <!-- Button: Switch toggle filter the column of table -->
+                    <!-- Button: Switch toggle search the column of table -->
                     <slot name="tableColumns" :has-columns="queryBuilderProps.hasToggleableColumns"
                         :columns="queryBuilderProps.columns" :has-hidden-columns="queryBuilderProps.hasHiddenColumns"
                         :on-change="changeColumnStatus">
@@ -644,6 +644,7 @@ const handleElementsChange = (data) => {
                 </div>
             </div>
 
+            <!-- Field: search by column of table-->
             <slot name="tableSearchRows" :has-search-rows-with-value="queryBuilderProps.hasSearchInputsWithValue"
                 :search-inputs="queryBuilderProps.searchInputsWithoutGlobal"
                 :forced-visible-search-inputs="forcedVisibleSearchInputs" :on-change="changeSearchInputValue">
@@ -680,11 +681,13 @@ const handleElementsChange = (data) => {
                                         <td v-for="column in queryBuilderProps.columns" v-show="show(column.key)"
                                             :key="`table-${name}-row-${key}-column-${column.key}`" :class="[
                                                 typeof item[column.key] == 'number' ? 'text-right' : '',
+                                                column.key == 'avatar' ? 'flex justify-center items-center' : '',
                                                 'text-sm py-4 px-6 text-gray-500 whitespace-normal min-w-fit max-w-[450px]',
 
                                             ]">
                                             <slot :name="`cell(${column.key})`" :item="item">
-                                                {{ item[column.key] }}
+                                                <img v-if="column.key == 'avatar'" :src="`/media/group/${item[column.key]}`" class="w-5"/>
+                                                <div v-else>{{ item[column.key] }}</div>
                                             </slot>
                                         </td>
                                     </tr>
@@ -693,6 +696,7 @@ const handleElementsChange = (data) => {
                         </table>
                     </slot>
 
+                    <!-- Pagination -->
                     <slot name="pagination" :on-click="visit" :has-data="hasData" :meta="resourceMeta"
                         v-if="resourceMeta.total > 15" :per-page-options="queryBuilderProps.perPageOptions"
                         :on-per-page-change="onPerPageChange">

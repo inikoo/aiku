@@ -1,9 +1,15 @@
 <template>
-  <nav v-if="hasPagination" class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+  <nav v-if="hasPagination"
+    class="bg-white px-4 py-3 flex items-center space-x-2 justify-between border-t border-gray-200 sm:px-4">
     <p v-if="!hasData || pagination.total < 1">
       {{ translations.no_results_found }}
     </p>
 
+    <!-- Button: Download Table -->
+    <slot name="tableDownload" class="">
+      <TableDownload />
+    </slot>
+    
     <!-- simple and mobile -->
     <div v-if="hasData" class="flex-1 flex justify-between" :class="{ 'sm:hidden': hasLinks }">
       <component :is="previousPageUrl ? 'a' : 'div'" :class="{
@@ -20,7 +26,7 @@
       </component>
 
       <PerPageSelector dusk="per-page-mobile" :value="perPage" :options="perPageOptions" :on-change="onPerPageChange" />
-      
+
       <component :is="nextPageUrl ? 'a' : 'div'" :class="{
         'cursor-not-allowed text-gray-400': !nextPageUrl,
         'text-gray-700 hover:text-gray-500': nextPageUrl
@@ -111,6 +117,7 @@
 <script setup>
 import PerPageSelector from "./PerPageSelector.vue";
 import { computed } from "vue";
+import TableDownload from '@/Components/Table/TableDownload.vue'
 import { getTranslations } from "./translations.js";
 
 const translations = getTranslations();
@@ -123,11 +130,11 @@ const props = defineProps({
   perPageOptions: {
     type: Array,
     default() {
-      return () => [10 , 15, 30, 50, 100, 500 , 1000];
+      return () => [10, 15, 30, 50, 100, 500, 1000];
     },
     required: false
-    },
-    onPerPageChange: {
+  },
+  onPerPageChange: {
     type: Function,
     default() {
       return () => { };

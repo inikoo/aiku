@@ -105,28 +105,28 @@ class ShowPaymentServiceProvider extends InertiaAction
             ]
         )
         ->table(IndexPayments::make()->tableStructure(
-            modelOperations: [
-                 'createLink' => $this->canEdit ? [
-                     'route' => [
-                        'name'       => 'accounting.payment-service-providers.show.payments.create',
-                        'parameters' => array_values($this->originalParameters)
-                     ],
-                     'label' => __('payment')
-                 ] : false,
-            ],
-            prefix: 'payments'
+            //            modelOperations: [
+            //                 'createLink' => $this->canEdit ? [
+            //                     'route' => [
+            //                        'name'       => 'accounting.payment-service-providers.show.payments.create',
+            //                        'parameters' => array_values($this->originalParameters)
+            //                     ],
+            //                     'label' => __('payment')
+            //                 ] : false,
+            //            ],
+            //            prefix: 'payments'
         ))
         ->table(IndexPaymentAccounts::make()->tableStructure(
-            modelOperations: [
-                'createLink' => $this->canEdit ? [
-                    'route' => [
-                        'name'       => 'accounting.payment-service-providers.show.payment-accounts.create',
-                        'parameters' => array_values($this->originalParameters)
-                    ],
-                    'label' => __('payment account')
-                ] : false,
-            ],
-            prefix: 'payments'
+            //            modelOperations: [
+            //                'createLink' => $this->canEdit ? [
+            //                    'route' => [
+            //                        'name'       => 'accounting.payment-service-providers.show.payment-accounts.create',
+            //                        'parameters' => array_values($this->originalParameters)
+            //                    ],
+            //                    'label' => __('payment account')
+            //                ] : false,
+            //            ],
+            //            prefix: 'payments'
         ))
         ->table(IndexHistories::make()->tableStructure());
     }
