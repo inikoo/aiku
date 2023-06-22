@@ -40,6 +40,7 @@ class CreateShopsBySpreadSheet extends InertiaAction
 
     public function htmlResponse(ActionRequest $request): Response
     {
+
         return Inertia::render(
             'CreateModelBySpreadSheet',
             [
@@ -47,6 +48,9 @@ class CreateShopsBySpreadSheet extends InertiaAction
                 'pageHead'  => [
                     'title' => __('Upload shops'),
                 ],
+
+                'documentName'=>$request->route()->getName().join($request->route()->originalParameters())    ,
+
                 'sheetData' => [
 
                     'columns' => [
