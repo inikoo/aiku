@@ -105,8 +105,18 @@ class ShowMarketplaceAgent extends InertiaAction
                     : Inertia::lazy(fn () => GetMarketplaceAgentShowcase::run($agent)),
 
                 MarketplaceAgentTabsEnum::SUPPLIERS->value => $this->tab == MarketplaceAgentTabsEnum::SUPPLIERS->value ?
-                    fn () => MarketplaceSupplierResource::collection(IndexMarketplaceSuppliers::run($agent))
-                    : Inertia::lazy(fn () => MarketplaceSupplierResource::collection(IndexMarketplaceSuppliers::run($agent))),
+                    fn () => MarketplaceSupplierResource::collection(
+                        IndexMarketplaceSuppliers::run(
+                            parent: $agent,
+                            prefix: 'suppliers'
+                        )
+                    )
+                    : Inertia::lazy(fn () => MarketplaceSupplierResource::collection(
+                        IndexMarketplaceSuppliers::run(
+                            parent: $agent,
+                            prefix: 'suppliers'
+                        )
+                    )),
 
                 MarketplaceAgentTabsEnum::SUPPLIER_PRODUCTS->value => $this->tab == MarketplaceAgentTabsEnum::SUPPLIER_PRODUCTS->value ?
                     fn () => MarketplaceSupplierProductResource::collection(IndexMarketplaceSupplierProducts::run($agent))
