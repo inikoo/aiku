@@ -75,7 +75,7 @@ class CreateDepartment extends InertiaAction
                         ],
                     'route' => match ($this->routeName) {
                         'shops.show.departments.create' => [
-                            'name'      => 'models.shop.department.store',
+                            'name'      => 'models.shop.show.department.store',
                             'arguments' => [$request->route()->parameters['shop']->slug]
                         ],
                         default => [

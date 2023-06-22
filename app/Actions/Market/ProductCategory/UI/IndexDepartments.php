@@ -33,7 +33,7 @@ class IndexDepartments extends InertiaAction
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
                 $query->whereAnyWordStartWith('product_categories.name', $value)
-                    ->orWhere('product_categories.code', 'ilike', "$value%");
+                    ->orWhere('product_categories.slug', 'ilike', "$value%");
             });
         });
         if ($prefix) {
@@ -51,7 +51,7 @@ class IndexDepartments extends InertiaAction
         }
 
         return $queryBuilder
-            ->defaultSort('product_categories.code')
+            ->defaultSort('product_categories.slug')
             ->select([
                 'product_categories.slug',
                 'product_categories.code',
@@ -72,7 +72,7 @@ class IndexDepartments extends InertiaAction
                     $query->addSelect('shops.slug as shop_slug');
                 }
             })
-            ->allowedSorts(['code', 'name'])
+            ->allowedSorts(['slug', 'name'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -88,10 +88,10 @@ class IndexDepartments extends InertiaAction
             }
 
             $table
-                ->defaultSort('code')
+                ->defaultSort('slug')
                 ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
-                ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'slug', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
         };
     }
@@ -171,7 +171,6 @@ class IndexDepartments extends InertiaAction
                 ]
             ];
         };
-
         return match ($routeName) {
             'shops.departments.index' =>
             array_merge(

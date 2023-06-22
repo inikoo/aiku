@@ -8,8 +8,15 @@
 namespace App\Actions\Mail\Mailroom;
 
 use App\Actions\InertiaAction;
-use App\Actions\UI\Accounting\AccountingDashboard;
+use App\Actions\Mail\DispatchedEmail\IndexDispatchedEmails;
+use App\Actions\Mail\Mailshot\IndexMailshots;
+use App\Actions\Mail\Outbox\IndexOutboxes;
+use App\Actions\UI\Dashboard\Dashboard;
+use App\Enums\UI\MailroomsTabsEnum;
+use App\Http\Resources\Mail\DispatchedEmailResource;
 use App\Http\Resources\Mail\MailroomResource;
+use App\Http\Resources\Mail\MailshotResource;
+use App\Http\Resources\Mail\OutboxResource;
 use App\Models\Mail\Mailroom;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -57,7 +64,7 @@ class IndexMailrooms extends InertiaAction
             ->withQueryString();
     }
 
-    public function tableStructure($prefix=null): Closure
+    public function tableStructure($prefix): Closure
     {
         return function (InertiaTable $table) use ($prefix) {
 
@@ -94,20 +101,51 @@ class IndexMailrooms extends InertiaAction
     }
 
 
-    public function htmlResponse(LengthAwarePaginator $mailroom): Response
+    public function htmlResponse(LengthAwarePaginator $mailroom, ActionRequest $request): Response
     {
+        $scope=app('currentTenant');
+
         return Inertia::render(
             'Mail/Mailrooms',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(),
                 'title'       => __('mailroom'),
                 'pageHead'    => [
-                    'title' => __('mailroom'),
+                    'title'   => __('mailroom'),
+                    'create'  => $this->canEdit && $this->routeName=='mail.mailrooms.index' ? [
+                        'route' => [
+                            'name'       => 'shops.create',
+                            'parameters' => array_values($this->originalParameters)
+                        ],
+                        'label'    => __('mailroom'),
+                    ] : false,
                 ],
-                'payment_service_providers' => MailroomResource::collection($mailroom),
+                'tabs' => [
+                    'current'    => $this->tab,
+                    'navigation' => MailroomsTabsEnum::navigation(),
+                ],
 
+
+                MailroomsTabsEnum::MAILROOMS->value => $this->tab == MailroomsTabsEnum::MAILROOMS->value ?
+                    fn () => MailroomResource::collection($mailroom)
+                    : Inertia::lazy(fn () => MailroomResource::collection($mailroom)),
+
+                MailroomsTabsEnum::OUTBOXES->value => $this->tab == MailroomsTabsEnum::OUTBOXES->value ?
+                    fn () => OutboxResource::collection(IndexOutboxes::run($scope, MailroomsTabsEnum::OUTBOXES->value))
+                    : Inertia::lazy(fn () => OutboxResource::collection(IndexOutboxes::run($scope, MailroomsTabsEnum::OUTBOXES->value))),
+
+                MailroomsTabsEnum::MAILSHOTS->value => $this->tab == MailroomsTabsEnum::MAILSHOTS->value ?
+                    fn () => MailshotResource::collection(IndexMailshots::run($scope))
+                    : Inertia::lazy(fn () => MailshotResource::collection(IndexMailshots::run($scope))),
+
+                MailroomsTabsEnum::DISPATCHED_EMAILS->value => $this->tab == MailroomsTabsEnum::DISPATCHED_EMAILS->value ?
+                    fn () => DispatchedEmailResource::collection(IndexDispatchedEmails::run($scope))
+                    : Inertia::lazy(fn () => DispatchedEmailResource::collection(IndexDispatchedEmails::run($scope))),
             ]
-        )->table($this->tableStructure());
+        )->table($this->tableStructure(prefix: 'mailrooms'))
+            ->table(IndexOutboxes::make()->tableStructure(parent:$scope, prefix: 'outboxes'))
+            ->table(IndexMailshots::make()->tableStructure(parent:$scope, prefix: 'mailshots'))
+            ->table(IndexDispatchedEmails::make()->tableStructure(parent:$scope, prefix: 'dispatched_emails'));
     }
 
 
@@ -123,17 +161,23 @@ class IndexMailrooms extends InertiaAction
         return $this->handle();
     }
 
-    public function getBreadcrumbs(): array
+    public function getBreadcrumbs($suffix=null): array
     {
         return array_merge(
-            AccountingDashboard::make()->getBreadcrumbs('accounting.dashboard', []),
+            (new Dashboard())->getBreadcrumbs(),
             [
-                'mail.mailrooms.index' => [
-                    'route'      => 'mail.mailrooms.index',
-                    'modelLabel' => [
-                        'label' => __('mailroom')
+                [
+                    'type'   => 'simple',
+                    'simple' => [
+                        'route' => [
+                            'name' => 'mail.mailrooms.index'
+                        ],
+                        'label' => __('mailrooms'),
+                        'icon'  => 'fal fa-bars'
                     ],
-                ],
+                    'suffix'=> $suffix
+
+                ]
             ]
         );
     }

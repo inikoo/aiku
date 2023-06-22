@@ -25,6 +25,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexSupplierProducts extends InertiaAction
 {
+    /** @noinspection PhpUndefinedMethodInspection */
     public function handle($parent, $prefix=null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -37,7 +38,16 @@ class IndexSupplierProducts extends InertiaAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        return QueryBuilder::for(SupplierProduct::class)
+        $queryBuilder=QueryBuilder::for(SupplierProduct::class);
+        foreach ($this->elementGroups as $key => $elementGroup) {
+            $queryBuilder->whereElementGroup(
+                prefix: $prefix,
+                key: $key,
+                allowedElements: array_keys($elementGroup['elements']),
+                engine: $elementGroup['engine']
+            );
+        }
+        return $queryBuilder
             ->defaultSort('supplier_products.code')
             ->select([
                 'supplier_products.code',
