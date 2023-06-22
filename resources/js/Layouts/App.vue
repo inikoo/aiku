@@ -118,7 +118,7 @@ const initialiseApp = () => {
 };
 
 const layout = initialiseApp();
-
+console.log(layout)
 const sidebarOpen = ref(false);
 
 const showSearchDialog = ref(false);
