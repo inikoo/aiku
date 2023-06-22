@@ -22,10 +22,11 @@ class GroupHydrateProcurement implements ShouldBeUnique
     public function handle(Group $group): void
     {
         $stats = [
-            'suppliers_count'          => Supplier::count(),
-            'number_suppliers'         => Supplier::where('suppliers.status', true)->count(),
-            'agents_count'             => Agent::count(),
-            'number_agents'            => Agent::where('agents.status', true)->count(),
+            'number_suppliers'          => Supplier::where('suppliers.status', true)->count(),
+            'number_archived_suppliers' => Supplier::where('suppliers.status', false)->count(),
+            'number_agents'             => Agent::where('agents.status', true)->count(),
+            'number_archived_agents'    => Agent::where('agents.status', false)->count(),
+
             'supplier_products_count'  => SupplierProduct::count(),
             'number_supplier_products' => SupplierProduct::where('supplier_products.state', '!=', SupplierProductStateEnum::DISCONTINUED)
                 ->count(),

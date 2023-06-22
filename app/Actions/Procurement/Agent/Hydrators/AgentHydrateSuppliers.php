@@ -20,8 +20,8 @@ class AgentHydrateSuppliers implements ShouldBeUnique
     public function handle(Agent $agent): void
     {
         $stats = [
-            'suppliers_count'  => Supplier::where('agent_id', $agent->id)->count(),
-            'number_suppliers' => Supplier::where('agent_id', $agent->id)->where('status', true)->count(),
+            'number_suppliers'          => Supplier::where('agent_id', $agent->id)->where('status', true)->count(),
+            'number_archived_suppliers' => Supplier::where('agent_id', $agent->id)->where('status', false)->count(),
         ];
         $agent->stats->update($stats);
     }

@@ -7,6 +7,7 @@
 
 namespace App\Services\Tenant\Aurora;
 
+use App\Enums\Procurement\Supplier\SupplierTypeEnum;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraSupplier extends FetchAurora
@@ -31,9 +32,9 @@ class FetchAuroraSupplier extends FetchAurora
 
             $this->parsedData['owner'] = $agent;
             $agentId                   = $this->parsedData['owner']->id;
-            $type                      = 'sub-supplier';
+            $type                      = SupplierTypeEnum::SUB_SUPPLIER;
         } else {
-            $type                      = 'supplier';
+            $type                      = SupplierTypeEnum::SUPPLIER;
             $this->parsedData['owner'] = app('currentTenant');
             $agentId                   = null;
 

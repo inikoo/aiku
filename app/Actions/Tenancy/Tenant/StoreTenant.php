@@ -65,6 +65,7 @@ class StoreTenant
         DB::statement("CREATE SCHEMA ".$tenant->schema());
         $tenant->execute(
             function (Tenant $tenant) {
+                SetTenantLogo::run($tenant);
                 $tenant->stats()->create();
                 $tenant->procurementStats()->create();
                 $tenant->inventoryStats()->create();

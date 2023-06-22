@@ -12,6 +12,7 @@ use App\Actions\Market\Product\UI\IndexProducts;
 use App\Actions\Market\Product\UI\ShowProduct;
 use App\Actions\Market\ProductCategory\ExportProductCategory;
 use App\Actions\Market\ProductCategory\UI\CreateDepartment;
+use App\Actions\Market\ProductCategory\UI\CreateDepartments;
 use App\Actions\Market\ProductCategory\UI\CreateFamily;
 use App\Actions\Market\ProductCategory\UI\EditDepartment;
 use App\Actions\Market\ProductCategory\UI\EditFamily;
@@ -23,7 +24,7 @@ use App\Actions\Market\Shop\ExportShops;
 use App\Actions\Market\Shop\UI\CreateShop;
 use App\Actions\Market\Shop\UI\EditShop;
 use App\Actions\Market\Shop\UI\IndexShops;
-use App\Actions\Market\Shop\UI\CreateShopsBySpreadSheet;
+use App\Actions\Market\Shop\UI\CreateShops;
 use App\Actions\Market\Shop\UI\ShowShop;
 use Illuminate\Support\Facades\Route;
 
@@ -31,7 +32,7 @@ Route::get('/export', ExportShops::class)->name('export');
 
 Route::get('/', IndexShops::class)->name('index');
 Route::get('/create', CreateShop::class)->name('create');
-Route::get('/create-multi', CreateShopsBySpreadSheet::class)->name('create-multi');
+Route::get('/create-multi', CreateShops::class)->name('create-multi');
 
 Route::get('/{shop}', ShowShop::class)->name('show');
 Route::get('/{shop}/edit', EditShop::class)->name('edit');
@@ -64,7 +65,12 @@ Route::get('/{shop}/products/{product}/edit', [EditProduct::class, 'inShop'])->n
 
 
 Route::get('/{shop}/departments/create', CreateDepartment::class)->name('show.departments.create');
+Route::get('/{shop}/departments/create-multi', CreateDepartments::class)->name('show.departments.create-multi');
+
+
 Route::get('/{shop}/departments', [IndexDepartments::class, 'inShop'])->name('show.departments.index');
+
+
 Route::get('/{shop}/departments/{department}', [ShowDepartment::class, 'inShop'])->name('show.departments.show');
 Route::get('/{shop}/departments/{department}/edit', [EditDepartment::class, 'inShop'])->name('show.departments.edit');
 

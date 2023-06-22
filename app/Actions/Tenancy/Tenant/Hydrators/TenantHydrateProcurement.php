@@ -8,6 +8,7 @@
 namespace App\Actions\Tenancy\Tenant\Hydrators;
 
 use App\Enums\Procurement\PurchaseOrderItem\PurchaseOrderItemStatusEnum;
+use App\Enums\Procurement\Supplier\SupplierTypeEnum;
 use App\Enums\Procurement\SupplierProduct\SupplierProductQuantityStatusEnum;
 use App\Enums\Procurement\SupplierProduct\SupplierProductStateEnum;
 use App\Models\Procurement\PurchaseOrder;
@@ -25,11 +26,12 @@ class TenantHydrateProcurement implements ShouldBeUnique
 
     public function handle(Tenant $tenant): void
     {
+
         $stats = [
-            'suppliers_count'          => $tenant->suppliers()->count(),
-            'number_suppliers'         => $tenant->suppliers()->where('suppliers.status', true)->count(),
-            'agents_count'             => $tenant->agents()->count(),
-            'number_agents'            => $tenant->agents()->where('agents.status', true)->count(),
+            'number_suppliers'          => $tenant->suppliers()->where('suppliers.status', true)->count(),
+            'number_archived_suppliers' => $tenant->suppliers()->where('suppliers.status', false)->count(),
+            'number_agents'             => $tenant->agents()->where('agents.status', true)->count(),
+            'number_archived_agents'    => $tenant->agents()->where('agents.status', false)->count(),
 
             'supplier_products_count'  => SupplierProductTenant::where('tenant_id', $tenant->id)->count(),
             'number_supplier_products' => SupplierProductTenant::where('tenant_id', $tenant->id)
@@ -39,6 +41,23 @@ class TenantHydrateProcurement implements ShouldBeUnique
 
             'number_purchase_orders' => PurchaseOrder::count()
         ];
+
+        $typeCounts = $tenant->suppliers()->selectRaw('suppliers.type as type, count(*) as total')
+            ->where('suppliers.status', true)
+            ->groupBy('suppliers.type')
+            ->pluck('total', 'type')->all();
+        foreach (SupplierTypeEnum::cases() as $supplierType) {
+            $stats['number_suppliers_type_'.$supplierType->snake()] = Arr::get($typeCounts, $supplierType->value, 0);
+        }
+
+        $typeCounts = $tenant->suppliers()->selectRaw('suppliers.type as type, count(*) as total')
+            ->where('suppliers.status', false)
+            ->groupBy('suppliers.type')
+            ->pluck('total', 'type')->all();
+        foreach (SupplierTypeEnum::cases() as $supplierType) {
+            $stats['number_archived_suppliers_type_'.$supplierType->snake()] = Arr::get($typeCounts, $supplierType->value, 0);
+        }
+
 
         $stateCounts = SupplierProduct::selectRaw('state, count(*) as total')
             ->groupBy('state')
