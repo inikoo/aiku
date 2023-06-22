@@ -5,7 +5,7 @@
   -->
 
 <script setup lang="ts">
-import { ref, onBeforeMount } from 'vue';
+import { ref, onBeforeMount, watch  } from 'vue';
 import VGrid from '@revolist/vue3-datagrid';
 import { cloneDeep } from 'lodash';
 import Button from '../Elements/Buttons/Button.vue';
@@ -13,7 +13,10 @@ import { faSave, faPlus } from '@/../private/pro-regular-svg-icons';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { router } from '@inertiajs/vue3'
-
+import { useDatabaseList,  } from "vuefire"
+import { getDatabase, ref as dbRef, set, onValue } from 'firebase/database';
+import { initializeApp } from "firebase/app"
+import serviceAccount from "../../../../storage/app/aiku-firebase.json";
 
 library.add(faSave, faPlus);
 
@@ -24,7 +27,25 @@ const props = defineProps({
     type: Object,
   },
 });
-const numberInputed = ref(1)
+
+const numberInputed = ref(1);
+const firebaseApp = initializeApp(serviceAccount);
+const db = getDatabase(firebaseApp);
+const setData = ref([]);
+
+const updateData = async () => {
+  try {
+    await set(dbRef(db, 'aiku_multi_create_'), setData.value);
+    console.log('Data successfully updated!');
+  } catch (error) {
+    console.error('Error updating data:', error);
+  }
+};
+
+watch(setData, updateData, { deep: true });
+
+console.log(setData);
+
 const columns = [
   {
     id: '*',
@@ -35,7 +56,6 @@ const columns = [
   },
   ...props.data.columns,
 ];
-
 
 const addMultipleRows = () => {
   const result = [];
@@ -63,48 +83,53 @@ const addRows = () => {
   setData.value = [...setData.value, ...result];
 };
 
+let vgrid = ref();
+let gRowIndex = ref(0);
+let gColName = ref('');
 
-let vgrid = ref()
-let gRowIndex = ref(0)
-let gColName = ref('')
+const onBeforeEditStart = (e) => {
+  gRowIndex.value = e.detail.rowIndex;
+  gColName.value = e.detail.prop;
+};
 
-const onBeforeEditStart = (e: CustomEvent<{ rowIndex: number, prop: string }>) => {
-  gRowIndex.value = e.detail.rowIndex
-  gColName.value = e.detail.prop
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const onFocusOut = async (e: any) => { // I don't know about this event, no docs
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-  let viewData = await vgrid.value.$el.getVisibleSource()
-  viewData[gRowIndex.value][gColName.value] = e.target.value
+const onFocusOut = async (e) => {
+  let viewData = await vgrid.value.$el.getVisibleSource();
+  viewData[gRowIndex.value][gColName.value] = e.target.value;
   setData.value = vgrid.value.source;
-}
+};
 
 const handleSave = () => {
   const editableRows = [];
   for (const row of setData.value) {
     let isRowEditable = false;
-    const result = {}; // Initialize result as an empty object
+    const result = {};
     for (const column of props.data.columns) {
       if (row[column.prop] !== '') {
         isRowEditable = true;
-        result[column.prop] = row[column.prop]; // Add non-empty values to result object
+        result[column.prop] = row[column.prop];
       }
     }
     if (isRowEditable) {
-      editableRows.push(result); // Push the result object to editableRows
+      editableRows.push(result);
     }
   }
   console.log('datasend', editableRows);
   router.post(props.actionRoute.name, editableRows);
 };
 
-
 onBeforeMount(() => {
-  addMultipleRows();
+  console.log('value', setData.value.length);
+  if (setData.value.length < 1) {
+    addMultipleRows();
+  }
 });
-const setData = ref([]);
+
+// Update `setData` with real-time data from Firebase
+onValue(dbRef(db, 'sheetCreate'), (snapshot) => {
+  const data = snapshot.val();
+  setData.value = data ? Object.values(data) : [];
+});
+
 </script>
 
 <template>
