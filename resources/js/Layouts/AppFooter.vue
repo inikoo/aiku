@@ -25,7 +25,7 @@ const isTabActive = ref(false)
 <template>
     <footer class="z-20 fixed w-screen bg-gray-800 bottom-0 right-0  text-white">
         <!-- Helper: Outer background (close popup purpose) -->
-        <div class="fixed z-40 right-0 top-0 bg-gray-800/30 w-screen h-screen" @click="isTabActive = !isTabActive"
+        <div class="fixed z-40 right-0 top-0 bg-transparent w-screen h-screen" @click="isTabActive = !isTabActive"
             :class="[isTabActive ? '' : 'hidden']"></div>
         <div class="flex justify-between">
             <!-- Left Section -->
@@ -40,7 +40,10 @@ const isTabActive = ref(false)
                     :class="[isTabActive == 'activeUsers' ? 'bg-gray-600' : 'bg-gray-800 hover:bg-gray-700']"
                     @click="isTabActive == 'activeUsers' ? isTabActive = !isTabActive : isTabActive = 'activeUsers'"
                 >
-                    <div class="text-sm text-gray-400 flex items-center gap-x-1"><div class="ring-1 h-2 aspect-square rounded-full" :class="[activities.length > 0 ? 'bg-green-400 ring-green-600' : 'bg-gray-400 ring-gray-600']" /> Active Users ({{ activities.length }})</div>
+                    <div class="text-sm text-gray-300 flex items-center gap-x-1">
+                        <div class="ring-1 h-2 aspect-square rounded-full" :class="[activities.length > 0 ? 'bg-green-400 ring-green-600' : 'bg-gray-400 ring-gray-600']" />
+                        Active Users ({{ activities.length }})
+                    </div>
                     <div class="absolute bottom-6 right-0 w-40 min-w-min overflow-hidden rounded-t" :class="[isTabActive == 'activeUsers' ? 'h-' : 'h-0']" >
                         <FooterTabActiveUsers :active="isTabActive == 'activeUsers'" :data="activities" />
                     </div>
@@ -51,8 +54,8 @@ const isTabActive = ref(false)
                     :class="[isTabActive == 'language' ? 'bg-gray-600' : 'bg-gray-800 hover:bg-gray-700']"
                     @click="isTabActive == 'language' ? isTabActive = !isTabActive : isTabActive = 'language'"
                 >
-                    <FontAwesomeIcon icon="fal fa-language" class="mr-1 h-5 text-gray-400"></FontAwesomeIcon>
-                    <span class="font-thin text-sm">{{ locale.language.code }}</span>
+                    <FontAwesomeIcon icon="fal fa-language" class="mr-1 h-5 text-gray-300"></FontAwesomeIcon>
+                    <div class="h-full font-extralight text-sm flex items-center leading-none text-gray-300">{{ locale.language.code }}</div>
                 
                     <!-- The popup -->
                     <div class="absolute bottom-6 right-0 w-40 min-w-min overflow-hidden rounded-t"
