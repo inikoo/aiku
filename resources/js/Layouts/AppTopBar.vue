@@ -1,8 +1,8 @@
 <template>
 	<div class="flex flex-1 items-center justify-between lg:justify-start">
-		<div class="md:pl-3 xl:pl-5 flex items-center h-full xl:w-56 space-x-2 mr-6 xl:mr-0">
-			<img class="h-7 hidden sm:inline" src="/art/logo-color-trimmed.png" alt="Aiku" />
-			<span class="font-logo hidden md:inline xl:hidden whitespace-nowrap text-xs">
+		<div class="md:pl-3 xl:pl-5 flex items-center h-full xl:w-56 xl:min-w-max space-x-3 mr-6 xl:mr-0">
+			<img class="h-6 hidden sm:inline shadow" src="/media/group/1" alt="Aiku" />
+			<span class="font-logo whitespace-nowrap text-lg text-indigo-700 pr-6">
 				{{ props.tenantName }}
 			</span>
 		</div>

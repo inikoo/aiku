@@ -71,9 +71,9 @@ const currentModule = computed(() => {
 <template>
 	<div class="w-8/12 mt-11 fixed md:border-r md:border-gray-200 md:bg-gray-100 md:flex md:flex-col md:inset-y-0 md:w-10 lg:mt-10 xl:w-56">
 		<div class="flex flex-grow bg-white flex-col h-full overflow-y-auto custom-hide-scrollbar border-r border-gray-200 pb-4">
-			<div class="font-logo md:hidden xl:block py-3 text-center">
+			<!-- <div class="font-logo md:hidden xl:block py-3 text-center">
 				{{ layout.tenant.name }}
-			</div>
+			</div> -->
 
 			<div class="flex flex-grow flex-col pb-16">
 				<nav class="flex-1 space-y-1" aria-label="Sidebar">
@@ -90,15 +90,25 @@ const currentModule = computed(() => {
 						]"
 						:aria-current="itemKey === currentModule ? 'page' : undefined"
 					>
-						<FontAwesomeIcon
-							aria-hidden="true"
-							:class="[
-								itemKey === currentModule
-									? 'text-indigo-500'
-									: 'text-gray-400 group-hover:text-gray-600',
-								'ml-2 mr-3 flex-shrink-0 h-4 w-4',
-							]"
-							:icon="item.icon" />
+						<div>
+							<img v-if="item.name == 'dashboard'" src="@/../art/favicons/favicon-purple-16x16.png" alt="" class="h-4 aspect-square"
+								:class="[ itemKey === currentModule
+											? 'text-indigo-500'
+											: 'text-gray-400 group-hover:text-gray-600',
+										'ml-2 mr-3 flex-shrink-0 h-4 w-4'
+								]"
+							>
+							<FontAwesomeIcon
+								v-else
+								aria-hidden="true"
+								:class="[
+									itemKey === currentModule
+										? 'text-indigo-500'
+										: 'text-gray-400 group-hover:text-gray-600',
+									'ml-2 mr-3 flex-shrink-0 h-4 w-4',
+								]"
+								:icon="item.icon" />
+						</div>
 						<span class="md:hidden xl:block capitalize">{{ item.name }}</span>
 					</Link>
 				</nav>
