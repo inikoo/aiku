@@ -6,6 +6,7 @@
  */
 
 
+use App\Actions\Accounting\Invoice\ExportInvoice;
 use App\Actions\Accounting\Invoice\ExportInvoices;
 use App\Actions\Accounting\Invoice\IndexInvoices;
 use App\Actions\Accounting\Invoice\ShowInvoice;
@@ -69,6 +70,7 @@ Route::get('/payments', [IndexPayments::class, $parent == 'tenant' ? 'inTenant' 
 Route::get('/payments/{payment}', [ShowPayment::class, $parent == 'tenant' ? 'inTenant' : 'inShop'])->name('payments.show');
 Route::get('/payments/{payment}/edit', [EditPayment::class, $parent == 'tenant' ? 'inTenant' : 'inShop'])->name('payments.edit');
 
+Route::get('/invoices/export/pdf', ExportInvoice::class)->name('invoices.download');
 Route::get('/invoices/export', ExportInvoices::class)->name('invoices.export');
 
 Route::get('/invoices', [IndexInvoices::class, $parent == 'tenant' ? 'inTenant' : 'inShop'])->name('invoices.index');
