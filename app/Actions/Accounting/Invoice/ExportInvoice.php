@@ -25,8 +25,8 @@ class ExportInvoice
      */
     public function handle(Invoice $invoice): Response
     {
-        $totalShipping = $invoice->order->sum('shipping');
-        $totalItemsNet = $invoice->order->sum('items_net');
+        $totalShipping = $invoice->order['shipping'];
+        $totalItemsNet = $invoice->order['items_net'];
 
         $totalNet = $totalItemsNet - $totalShipping;
 

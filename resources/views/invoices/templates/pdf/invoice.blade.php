@@ -146,7 +146,7 @@
         <td width="50%" style="vertical-align:bottom;border: 0mm solid #888888;">
             <div>
                 <div>
-                    Payment State: <b>Paid in full</b>
+                    Payment State: <b>{{ $invoice->order['payment'] }}</b>
                 </div>
                 <div>
                     Customer: <b>{{ $invoice->customer['name'] }}</b>
@@ -228,9 +228,9 @@
     </thead>
     <tbody>
 
-    @foreach($invoice->order->transactions as $order)
+    @foreach($invoice->order->transactions as $transaction)
     <tr class="@if($loop->last) last @endif">
-        <td style="text-align:left">EOKG-14</td>
+        <td style="text-align:left">{{ $transaction->item['name'] }}</td>
 
         <td style="text-align:left">
             1x Bergamot (FCF) Bulk Essential Oil (£50.00)
@@ -251,13 +251,13 @@
     <tr>
         <td style="border:none" colspan="3"></td>
         <td>Items Net</td>
-        <td>{{ $invoice->order->sum('items_net') }}</td>
+        <td>{{ $invoice->order['items_net'] }}</td>
     </tr>
 
     <tr>
         <td style="border:none" colspan="3"></td>
         <td>Shipping</td>
-        <td>{{ $invoice->order->sum('shipping') }}</td>
+        <td>{{ $invoice->order['shipping'] }}</td>
     </tr>
 
     <tr class="total_net">
@@ -269,13 +269,13 @@
     <tr>
         <td style="border:none" colspan="3"></td>
         <td class="totals">TAX <br> <small>GB-SR VAT 20%</small></td>
-        <td class="totals">{{ $invoice->order->sum('tax') }}</td>
+        <td class="totals">{{ $invoice->order['tax'] }}</td>
     </tr>
 
     <tr class="total">
         <td style="border:none" colspan="3"></td>
         <td><b>Total</b></td>
-        <td>{{ $invoice->order->sum('net') }}</td>
+        <td>{{ $invoice->order['net'] }}</td>
     </tr>
     </tbody>
 
@@ -303,7 +303,7 @@
             {{ $payment->paymentAccount['name'] }}
         </td>
         <td style="text-align:right">
-            {{ $payment->date }}
+            {{ $payment->updated_at->format('Y-m-d H:i') }}
         </td>
         <td style="text-align:left">{{ $payment->state }}</td>
         <td style="text-align:left">{{ $payment->reference }}</td>
