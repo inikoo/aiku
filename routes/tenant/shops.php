@@ -64,7 +64,12 @@ Route::get('/{shop}/products/{product}/edit', [EditProduct::class, 'inShop'])->n
 
 
 Route::get('/{shop}/departments/create', CreateDepartment::class)->name('show.departments.create');
+Route::get('/{shop}/departments/create-multi', CreateDepartments::class)->name('show.departments.create-multi');
+
+
 Route::get('/{shop}/departments', [IndexDepartments::class, 'inShop'])->name('show.departments.index');
+
+
 Route::get('/{shop}/departments/{department}', [ShowDepartment::class, 'inShop'])->name('show.departments.show');
 Route::get('/{shop}/departments/{department}/edit', [EditDepartment::class, 'inShop'])->name('show.departments.edit');
 
