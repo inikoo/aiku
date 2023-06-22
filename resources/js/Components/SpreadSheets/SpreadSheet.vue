@@ -14,9 +14,10 @@ import { library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { router } from '@inertiajs/vue3'
 import { useDatabaseList,  } from "vuefire"
-import { getDatabase, ref as dbRef, set, onValue } from 'firebase/database';
+import { getDatabase, ref as dbRef, set, onValue, get } from 'firebase/database';
 import { initializeApp } from "firebase/app"
-import serviceAccount from "../../../../storage/app/aiku-firebase.json";
+import serviceAccount from "@/../private/firebase/aiku-firebase.json"
+// import serviceAccount from "../../../../storage/app/aiku-firebase.json";
 
 library.add(faSave, faPlus);
 
@@ -31,16 +32,39 @@ const props = defineProps({
 const numberInputed = ref(1);
 const firebaseApp = initializeApp(serviceAccount);
 const db = getDatabase(firebaseApp);
-const setData = ref([]);
+const setData = ref([]); // Initialize with an empty array
 
 const updateData = async () => {
   try {
-    await set(dbRef(db, 'aiku_multi_create_'), setData.value);
-    console.log('Data successfully updated!');
+    await set(dbRef(db, 'sheetCreate'), setData.value);
+    console.log('Data successfully updated!', setData.value);
   } catch (error) {
     console.error('Error updating data:', error);
   }
 };
+
+// Update `setData` with real-time data from Firebase
+onValue(dbRef(db, 'sheetCreate'), (snapshot) => {
+  const data = snapshot.val();
+  setData.value = data ? Object.values(data) : [];
+});
+
+const fetchInitialData = async () => {
+  try {
+    const snapshot = await get(dbRef(db, 'sheetCreate'));
+    if (snapshot.exists()) {
+      const data = snapshot.val();
+      setData.value = Object.values(data);
+    } else {
+      addMultipleRows();
+    }
+  } catch (error) {
+    console.error('Error fetching initial data:', error);
+  }
+};
+
+
+
 
 watch(setData, updateData, { deep: true });
 
@@ -58,9 +82,10 @@ const columns = [
 ];
 
 const addMultipleRows = () => {
+  console.log('masuk');
   const result = [];
   const arrayData = cloneDeep(columns);
-  for (let i = 0; i < 20; i++) {
+  for (let i = 0; i < 5; i++) {
     const data = {};
     for (const field of arrayData) {
       data[field.prop] = '';
@@ -117,23 +142,12 @@ const handleSave = () => {
   router.post(props.actionRoute.name, editableRows);
 };
 
-onBeforeMount(() => {
-  console.log('value', setData.value.length);
-  if (setData.value.length < 1) {
-    addMultipleRows();
-  }
-});
-
-// Update `setData` with real-time data from Firebase
-onValue(dbRef(db, 'sheetCreate'), (snapshot) => {
-  const data = snapshot.val();
-  setData.value = data ? Object.values(data) : [];
-});
+onBeforeMount(fetchInitialData);
 
 </script>
 
 <template>
-  <div class="flex justify-end gap-x-3.5">
+  <!-- <div class="flex justify-end gap-x-3.5">
     <div class="py-4 px-0 ">
       <Button type="white">
         <span class="flex gap-2 items-center">
@@ -149,9 +163,9 @@ onValue(dbRef(db, 'sheetCreate'), (snapshot) => {
         </span>
       </Button>
     </div>
-  </div>
+  </div> -->
 
-  <div class="py-0.5">
+  <div class="py-0.5 revogrid-container">
     <v-grid ref="vgrid" @beforeeditstart="onBeforeEditStart" @focusout="onFocusOut" theme='material' :source="setData"
       :columns="columns" class="custom-grid" />
 
@@ -174,8 +188,7 @@ onValue(dbRef(db, 'sheetCreate'), (snapshot) => {
 </template>
 
 <style>
-revo-grid {
-  height: 650px;
+.revo-grid {
   box-shadow: 0 1px 0 0 #f1f1f1, 0 1px 0 0 #f1f1f1 inset;
 }
 
@@ -188,11 +201,21 @@ revo-grid {
 }
 
 .custom-grid revo-grid[theme="material"] revogr-data .rgRow {
-  box-shadow: 0 -1px 0 0 #f1f1f1 inset;
+  box-shadow: 0 1px 0 0 #f1f1f1 inset;
+}
+
+revo-grid[theme=material] revogr-header .header-rgRow:not(.group) {
+    box-shadow: 0 1px 0 0 #f1f1f1, 0 1px 0 0 #f1f1f1 inset;
 }
 
 .custom-input {
   border-left: none;
   width: 120px;
+}
+
+revo-grid .main-viewport {
+  min-height: 0px;
+  max-height: 650px;
+  height: 100%;
 }
 </style>

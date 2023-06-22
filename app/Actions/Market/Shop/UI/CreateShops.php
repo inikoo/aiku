@@ -45,6 +45,12 @@ class CreateShops extends InertiaAction
                 'title'     => __('shops'),
                 'pageHead'  => [
                     'title' => __('Upload shops'),
+                    'backMulti' => [
+                        'route' => [
+                            'name'       => 'shops.index',
+                            'parameters' => array_values($this->originalParameters)
+                        ],
+                    ]
                 ],
 
                 'documentName'=>$request->route()->getName().join($request->route()->originalParameters())    ,
