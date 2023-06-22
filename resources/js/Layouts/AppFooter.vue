@@ -28,8 +28,9 @@ const isTabActive = ref(false)
             :class="[isTabActive ? '' : 'hidden']"></div>
         <div class="flex justify-between">
             <!-- Left Section -->
-            <div class="pl-4 text-gray-300">
-                Aiku
+            <div class="pl-4 flex items-center gap-x-2">
+                <img src="@/../art/favicons/favicon-purple-16x16.png" alt="" class="h-3.5 aspect-square">
+                <span class="text-gray-300">Aiku</span>
             </div>
 
             <!-- Right Section -->

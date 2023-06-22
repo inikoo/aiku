@@ -45,14 +45,6 @@ class GetLayout
 
         $navigation = [];
 
-        $navigation['dashboard'] =
-            [
-                'name'  => __('dashboard'),
-                'icon'  => ['fal', 'fa-tachometer-alt-fast'],
-                'route' => 'dashboard.show'
-            ];
-
-
         if ($user->can('business-intelligence.view')) {
             $navigation['business_intelligence'] = [
                 'name'         => __('Business Intelligence'),

@@ -71,9 +71,10 @@ const currentModule = computed(() => {
 <template>
 	<div class="w-8/12 mt-11 fixed md:border-r md:border-gray-200 md:bg-gray-100 md:flex md:flex-col md:inset-y-0 md:w-10 lg:mt-10 xl:w-56">
 		<div class="flex flex-grow bg-white flex-col h-full overflow-y-auto custom-hide-scrollbar border-r border-gray-200 pb-4">
-			<!-- <div class="font-logo md:hidden xl:block py-3 text-center">
-				{{ layout.tenant.name }}
-			</div> -->
+			<Link :href="route('dashboard.show')" class="flex flex-col justify-center text-indigo-700 font-logo md:hidden xl:inline-flex py-3 text-center gap-y-2">
+				<img class="h-6" src="/media/group/1" alt="Aiku" />
+				<span>{{ layout.tenant.name }}</span>
+			</Link>
 
 			<div class="flex flex-grow flex-col pb-16">
 				<nav class="flex-1 space-y-1" aria-label="Sidebar">
