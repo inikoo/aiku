@@ -10,6 +10,7 @@ namespace App\Actions\Auth\GroupUser;
 use App\Actions\WithActionUpdate;
 use App\Enums\Auth\User\SynchronisableUserFields;
 use App\Models\Auth\GroupUser;
+use App\Models\Auth\User;
 use App\Rules\AlphaDashDot;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Hash;
@@ -28,19 +29,24 @@ class UpdateGroupUser
 
     public function handle(GroupUser $groupUser, array $modelData): GroupUser
     {
-
-        if(isset($modelData['password'])) {
+        if (isset($modelData['password'])) {
             $modelData['password'] = Hash::make($modelData['password']);
         }
         $updatedGroupUser = $this->update($groupUser, $modelData);
 
-        foreach ($groupUser->users as $user) {
-            $this->update($user, Arr::only($modelData, SynchronisableUserFields::values()));
+        foreach ($groupUser->tenants as $tenant) {
+            $userID = $tenant->pivot->user_id;
+
+            $tenant->execute(
+                function () use ($userID, $modelData) {
+                    $user = User::find($userID);
+                    $user->update(Arr::only($modelData, SynchronisableUserFields::values()));
+                }
+            );
         }
 
         return $updatedGroupUser;
     }
-
 
 
     public function rules(): array

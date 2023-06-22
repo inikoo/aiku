@@ -28,8 +28,6 @@ class FetchUsers extends FetchAction
     {
         if ($userData = $tenantSource->fetchuser($tenantSourceId)) {
             if ($user = User::withTrashed()->where('source_id', $userData['user']['source_id'])->first()) {
-
-
                 $user = UpdateUser::run($user, $userData['user']);
 
             } else {
@@ -42,7 +40,6 @@ class FetchUsers extends FetchAction
                         ]
                     );
                 }
-
 
                 $user = StoreUser::run(parent:$userData['parent'], groupUser:$groupUser, objectData:[
                     'source_id'=> $userData['user']['source_id'],
@@ -60,6 +57,9 @@ class FetchUsers extends FetchAction
             }
 
             UserSyncRoles::make()->action($user, $userData['roles']);
+            foreach ($userData['profile_images'] as $photoData) {
+                $this->saveGroupImage(model:$user->groupUser, imageData: $photoData, imageField: 'avatar_id', mediaCollection: 'profile');
+            }
 
 
             return $user;
