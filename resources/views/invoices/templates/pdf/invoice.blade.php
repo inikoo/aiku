@@ -214,7 +214,6 @@
     <thead>
     <tr>
         <td style="width:14%;text-align:left">Code</td>
-        <td style="width:14%;text-align:left">Origin</td>
 
         <td style="text-align:left">Description</td>
         <td style="text-align:left;width:20% ">Discount</td>
@@ -228,7 +227,6 @@
 
     <tr class="{if $smarty.foreach.products.last}last{/if}">
         <td style="text-align:left">EOKG-14</td>
-        <td style="text-align:left">Netherlands</td>
 
         <td style="text-align:left">
             1x Bergamot (FCF) Bulk Essential Oil (£50.00)
@@ -246,37 +244,37 @@
     </tbody>
     <tbody class="totals">
     <tr>
-        <td style="border:none" colspan="4"></td>
+        <td style="border:none" colspan="3"></td>
         <td>Items Net</td>
         <td>$50</td>
     </tr>
 
     <tr>
-        <td style="border:none" colspan="4"></td>
+        <td style="border:none" colspan="3"></td>
         <td>Refunds</td>
         <td>$40</td>
     </tr>
 
     <tr>
-        <td style="border:none" colspan="4"></td>
+        <td style="border:none" colspan="3"></td>
         <td>Shipping</td>
         <td>$4</td>
     </tr>
 
     <tr class="total_net">
-        <td style="border:none" colspan="4"></td>
+        <td style="border:none" colspan="3"></td>
         <td>Total Net</td>
         <td>$230</td>
     </tr>
 
     <tr>
-        <td style="border:none" colspan="4"></td>
+        <td style="border:none" colspan="3"></td>
         <td class="totals">TAX <br> <small>GB-SR VAT 20%</small></td>
         <td class="totals">$15</td>
     </tr>
 
     <tr class="total">
-        <td style="border:none" colspan="4"></td>
+        <td style="border:none" colspan="3"></td>
         <td><b>Total</b></td>
         <td>$200</td>
     </tr>
