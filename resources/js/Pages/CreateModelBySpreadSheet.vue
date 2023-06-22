@@ -13,8 +13,8 @@ import SpreadSheet from "@/Components/SpreadSheets/SpreadSheet.vue";
 const props = defineProps<{
     pageHead: object
     title: string
+    documentName : string,
     sheetData: {
-
         columns: Array<{
             id: string
             name: string
@@ -36,5 +36,6 @@ const props = defineProps<{
     <SpreadSheet
         :data="{ columns: props.sheetData.columns, value: [] }"
         :actionRoute="saveRoute"
+        :documentName="documentName"
     ></SpreadSheet>
 </template>

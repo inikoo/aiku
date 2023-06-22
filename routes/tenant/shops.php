@@ -33,7 +33,7 @@ Route::get('/export', ExportShops::class)->name('export');
 Route::get('/', IndexShops::class)->name('index');
 Route::get('/create', CreateShop::class)->name('create');
 Route::get('/create-multi', CreateShops::class)->name('create-multi');
-
+Route::get('/create-multi/clear', CreateShops::class)->name('create-multi-clear');
 Route::get('/{shop}', ShowShop::class)->name('show');
 Route::get('/{shop}/edit', EditShop::class)->name('edit');
 
