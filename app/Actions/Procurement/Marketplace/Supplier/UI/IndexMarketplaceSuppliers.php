@@ -77,9 +77,16 @@ class IndexMarketplaceSuppliers extends InertiaAction
             ->withQueryString();
     }
 
-    public function tableStructure(array $modelOperations = null): Closure
+    public function tableStructure(array $modelOperations = null, $prefix=null): Closure
     {
-        return function (InertiaTable $table) use ($modelOperations) {
+        return function (InertiaTable $table) use ($modelOperations, $prefix) {
+
+            if($prefix) {
+                $table
+                    ->name($prefix)
+                    ->pageName($prefix.'Page');
+            }
+
             $table
                 ->name(TabsAbbreviationEnum::SUPPLIERS->value)
                 ->pageName(TabsAbbreviationEnum::SUPPLIERS->value.'Page')
