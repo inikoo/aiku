@@ -36,10 +36,12 @@ function onClick() {
                    :dusk="cell.sortable ? `sort-${cell.key}` : null" @click.prevent="onClick">
       <span class="flex flex-row items-center">
         <slot name="label">
-            <template v-if="typeof cell.label === 'object'">
-                <font-awesome-icon v-if="cell.label.type==='icon'" :title="capitalize(cell.label.tooltip)" aria-hidden="true" :icon="cell.label.data" size="lg" />
+            <div v-if="typeof cell.label === 'object'">
+                <FontAwesomeIcon v-if="cell.label.type==='icon'" :title="capitalize(cell.label.tooltip)" aria-hidden="true" :icon="cell.label.data" size="lg" />
+                <FontAwesomeIcon v-else :title="'icon'" aria-hidden="true" :icon="cell.label" size="lg" />
 
-            </template>
+            </div>
+            
             <span v-else class="first-letter:uppercase">{{ cell.label }}</span>
         </slot>
 
