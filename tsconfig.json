@@ -11,5 +11,6 @@
     "include": [
         "env.d.ts",
         "resources/js/**/*",
+        "resources/private/**/*.json",
     ],
 }

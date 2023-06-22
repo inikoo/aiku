@@ -10,7 +10,6 @@ namespace App\Actions\Procurement\Marketplace\Supplier\UI;
 use App\Actions\InertiaAction;
 use App\Actions\Procurement\Marketplace\Agent\UI\ShowMarketplaceAgent;
 use App\Actions\UI\Procurement\ProcurementDashboard;
-use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Procurement\MarketplaceSupplierResource;
 use App\Models\Procurement\Agent;
 use App\Models\Procurement\Supplier;
@@ -32,8 +31,8 @@ class IndexMarketplaceSuppliers extends InertiaAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->where('suppliers.code', 'ILIKE', "%$value%")
-                    ->orWhere('suppliers.name', 'ILIKE', "%$value%");
+                $query->whereAnyWordStartWith('suppliers.contact_name', $value)
+                    ->orWhere('suppliers.slug', 'ILIKE', "$value%");
             });
         });
 
@@ -77,15 +76,24 @@ class IndexMarketplaceSuppliers extends InertiaAction
             ->withQueryString();
     }
 
-    public function tableStructure(array $modelOperations = null): Closure
+    public function tableStructure(array $modelOperations = null, $prefix=null): Closure
     {
-        return function (InertiaTable $table) use ($modelOperations) {
+        return function (InertiaTable $table) use ($modelOperations, $prefix) {
+
+            if($prefix) {
+                $table
+                    ->name($prefix)
+                    ->pageName($prefix.'Page');
+            }
+
             $table
-                ->name(TabsAbbreviationEnum::SUPPLIERS->value)
-                ->pageName(TabsAbbreviationEnum::SUPPLIERS->value.'Page')
                 ->withModelOperations($modelOperations)
                 ->withGlobalSearch()
-                ->column(key: 'adoption', label: 'z', canBeHidden: false)
+                ->column(key: 'adoption', label: [
+                    'type'   => 'icon',
+                    'data'   => ['fal','fa-yin-yang'],
+                    'tooltip'=> __('adoption')
+                ], canBeHidden: false)
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'location', label: __('location'), canBeHidden: false)

@@ -264,8 +264,8 @@ const user = ref(usePage().props.auth.user);
         </div>
 
 
-        <main class="relative flex flex-col pt-16 ml-0 md:ml-10 xl:ml-56">
-            <Breadcrumbs class="fixed top-11 lg:top-10 z-10 w-full"
+        <main class="relative flex flex-col pt-16 pb-5 ml-0 md:ml-10 xl:ml-56">
+            <Breadcrumbs class="fixed top-11 lg:top-10 z-[19] w-full"
                          :breadcrumbs="usePage().props.breadcrumbs??[]"
                          :navigation="usePage().props.navigation??[]"
             />

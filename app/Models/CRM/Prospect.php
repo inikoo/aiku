@@ -15,7 +15,6 @@ use App\Models\Market\Shop;
 use App\Models\Search\UniversalSearch;
 use App\Models\Traits\HasTenantAddress;
 use App\Models\Traits\HasUniversalSearch;
-use Database\Factories\CRM\ProspectFactory;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -44,17 +43,17 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $identity_document_number
  * @property string|null $contact_website
  * @property array $location
- * @property \App\Enums\CRM\Prospect\ProspectStateEnum $state
+ * @property ProspectStateEnum $state
  * @property array $data
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  * @property int|null $source_id
  * @property-read Collection<int, Address> $addresses
- * @property-read Customer|null $customer
+ * @property-read \App\Models\CRM\Customer|null $customer
  * @property-read Shop $shop
  * @property-read UniversalSearch|null $universalSearch
- * @method static ProspectFactory factory($count = null, $state = [])
+ * @method static \Database\Factories\CRM\ProspectFactory factory($count = null, $state = [])
  * @method static Builder|Prospect newModelQuery()
  * @method static Builder|Prospect newQuery()
  * @method static Builder|Prospect onlyTrashed()

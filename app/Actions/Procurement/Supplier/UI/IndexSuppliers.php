@@ -25,8 +25,27 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexSuppliers extends InertiaAction
 {
-    /** @noinspection PhpUndefinedMethodInspection */
-    public function handle(Agent|Tenant $parent, $prefix=null): LengthAwarePaginator
+    protected function getSupplierElementGroups(Tenant|Agent $parent): void
+    {
+        $this->elementGroups =
+            [
+                'status' => [
+                    'label'    => __('status'),
+                    'elements' => [
+                        'active'   => [__('active'), $parent->procurementStats->number_suppliers_type_supplier],
+                        'archived' => [__('archived'), $parent->procurementStats->number_archived_suppliers_type_supplier]
+                    ],
+
+                    'engine' => function ($query, $elements) {
+                        $query->whereIn('state', $elements);
+                    }
+
+                ],
+
+            ];
+    }
+
+    public function handle(Agent|Tenant $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -39,8 +58,12 @@ class IndexSuppliers extends InertiaAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        $queryBuilder=QueryBuilder::for(Supplier::class);
+        $parent->suppliers()->count();
+
+
+        $queryBuilder = QueryBuilder::for(Supplier::class);
         foreach ($this->elementGroups as $key => $elementGroup) {
+            /** @noinspection PhpUndefinedMethodInspection */
             $queryBuilder->whereElementGroup(
                 prefix: $prefix,
                 key: $key,
@@ -48,7 +71,7 @@ class IndexSuppliers extends InertiaAction
                 engine: $elementGroup['engine']
             );
         }
-
+        /** @noinspection PhpUndefinedMethodInspection */
         return $queryBuilder
             ->defaultSort('suppliers.code')
             ->select(['suppliers.code', 'suppliers.slug', 'suppliers.name', 'suppliers.location as supplier_locations', 'number_supplier_products', 'number_purchase_orders'])
@@ -69,13 +92,13 @@ class IndexSuppliers extends InertiaAction
 
                 }
             })
-            ->allowedSorts(['code', 'name', 'agent_name','supplier_locations','number_supplier_products', 'number_purchase_orders'])
+            ->allowedSorts(['code', 'name', 'agent_name', 'supplier_locations', 'number_supplier_products', 'number_purchase_orders'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
     }
 
-    public function tableStructure(array $modelOperations=null, $prefix=null): Closure
+    public function tableStructure(array $modelOperations = null, $prefix = null): Closure
     {
         return function (InertiaTable $table) use ($modelOperations, $prefix) {
             if ($prefix) {
@@ -83,15 +106,22 @@ class IndexSuppliers extends InertiaAction
                     ->name($prefix)
                     ->pageName($prefix.'Page');
             }
+            foreach ($this->elementGroups as $key => $elementGroup) {
+                $table->elementGroup(
+                    key: $key,
+                    label: $elementGroup['label'],
+                    elements: $elementGroup['elements']
+                );
+            }
+
             $table
                 ->withModelOperations($modelOperations)
                 ->withGlobalSearch()
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'agent_name', label: __('agent name'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'number_supplier_products', label: __('supplier products'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'number_purchase_orders', label: __('purchase orders'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'supplier_locations', label: __('location'), canBeHidden: false)
+                ->column(key: 'number_supplier_products', label: __('products'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'number_purchase_orders', label: __('purchase orders'), canBeHidden: false, sortable: true, searchable: true)
                 ->defaultSort('code');
         };
     }
@@ -99,6 +129,7 @@ class IndexSuppliers extends InertiaAction
     public function authorize(ActionRequest $request): bool
     {
         $this->canEdit = $request->user()->can('procurement.suppliers.edit');
+
         return
             (
                 $request->user()->tokenCan('root') or
@@ -109,12 +140,14 @@ class IndexSuppliers extends InertiaAction
     public function asController(ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($request);
+        $this->getSupplierElementGroups(app('currentTenant'));
         return $this->handle(app('currentTenant'));
     }
 
     public function inAgent(Agent $agent, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($request);
+        $this->getSupplierElementGroups($agent);
         return $this->handle($agent);
     }
 
@@ -124,7 +157,7 @@ class IndexSuppliers extends InertiaAction
     }
 
 
-    public function htmlResponse(LengthAwarePaginator $suppliers, ActionRequest $request): Response
+    public function htmlResponse(LengthAwarePaginator $suppliers): Response
     {
         return Inertia::render(
             'Procurement/Suppliers',
@@ -132,9 +165,9 @@ class IndexSuppliers extends InertiaAction
                 'breadcrumbs' => $this->getBreadcrumbs(),
                 'title'       => __('suppliers'),
                 'pageHead'    => [
-                    'title'   => __('suppliers'),
+                    'title' => __('suppliers'),
                 ],
-                'data'   => SupplierResource::collection($suppliers),
+                'data'        => SupplierResource::collection($suppliers),
 
 
             ]

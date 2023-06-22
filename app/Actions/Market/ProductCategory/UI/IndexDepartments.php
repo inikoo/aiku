@@ -10,6 +10,7 @@ namespace App\Actions\Market\ProductCategory\UI;
 use App\Actions\InertiaAction;
 use App\Actions\Market\Shop\UI\IndexShops;
 //use App\Actions\UI\Catalogue\CatalogueHub;
+use App\Actions\Market\Shop\UI\ShowShop;
 use App\Http\Resources\Market\DepartmentResource;
 use App\Models\Market\ProductCategory;
 use App\Models\Market\Shop;
@@ -186,11 +187,11 @@ class IndexDepartments extends InertiaAction
 
             'shops.show.departments.index' =>
             array_merge(
-                CatalogueHub::make()->getBreadcrumbs('shops', []),
+                ShowShop::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     [
                         'name'       => $routeName,
-                        'parameters' => []
+                        'parameters' => $routeParameters
                     ],
                     $suffix
                 )

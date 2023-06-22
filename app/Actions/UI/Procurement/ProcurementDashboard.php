@@ -45,19 +45,19 @@ class ProcurementDashboard
         return Inertia::render(
             'Procurement/ProcurementDashboard',
             [
-                'breadcrumbs' => $this->getBreadcrumbs(),
-                'title'       => __('procurement'),
-                'pageHead'    => [
+                'breadcrumbs'  => $this->getBreadcrumbs(),
+                'title'        => __('procurement'),
+                'pageHead'     => [
                     'title' => __('procurement'),
                 ],
                 'flatTreeMaps' => [
 
                     [
                         [
-                            'name'  => __('agents'),
-                            'icon'  => ['fal', 'fa-people-arrows'],
-                            'href'  => ['procurement.agents.index'],
-                            'index' => [
+                            'name'         => __('agents'),
+                            'icon'         => ['fal', 'fa-people-arrows'],
+                            'href'         => ['procurement.agents.index'],
+                            'index'        => [
                                 'number' => $this->tenant->procurementStats->number_agents
                             ],
                             'rightSubLink' => [
@@ -70,11 +70,11 @@ class ProcurementDashboard
 
                         ],
                         [
-                            'name'  => __('suppliers'),
-                            'icon'  => ['fal', 'fa-person-dolly'],
-                            'href'  => ['procurement.suppliers.index'],
-                            'index' => [
-                                'number' => $this->tenant->procurementStats->number_suppliers
+                            'name'         => __('suppliers'),
+                            'icon'         => ['fal', 'fa-person-dolly'],
+                            'href'         => ['procurement.suppliers.index'],
+                            'index'        => [
+                                'number' => $this->tenant->procurementStats->number_suppliers_type_supplier
                             ],
                             'rightSubLink' => [
                                 'tooltip'    => __('marketplace suppliers'),
@@ -86,10 +86,11 @@ class ProcurementDashboard
 
                         ],
                         [
-                            'name'  => __('Supplier Product'),
-                            'icon'  => ['fal', 'fa-box-usd'],
-                            'href'  => ['procurement.supplier-products.index'],
-                            'index' => [
+                            'name'         => __('supplier products'),
+                            'shortName'    => __('products'),
+                            'icon'         => ['fal', 'fa-box-usd'],
+                            'href'         => ['procurement.supplier-products.index'],
+                            'index'        => [
                                 'number' => $this->tenant->procurementStats->number_supplier_products
                             ],
                             'rightSubLink' => [
@@ -113,7 +114,8 @@ class ProcurementDashboard
                             ]
 
                         ],
-                        ['name'     => __('supplier deliveries'),
+                        [
+                            'name'  => __('supplier deliveries'),
                             'icon'  => ['fal', 'fa-truck-container'],
                             'href'  => ['procurement.supplier-deliveries.index'],
                             'index' => [

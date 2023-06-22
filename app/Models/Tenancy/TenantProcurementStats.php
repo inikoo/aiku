@@ -19,10 +19,14 @@ use Illuminate\Support\Carbon;
  *
  * @property int $id
  * @property int $tenant_id
- * @property int $number_agents Number of active agents
- * @property int $agents_count Total number of agents records attached to tenant
- * @property int $number_suppliers Number of active suppliers
- * @property int $suppliers_count Total number of suppliers records attached to tenant
+ * @property int $number_agents Active agents, status=true
+ * @property int $number_archived_agents Archived agents, status=false
+ * @property int $number_suppliers Active suppliers, status=true
+ * @property int $number_archived_suppliers Archived suppliers status=false
+ * @property int $number_suppliers_type_supplier Active suppliers. status=true,type=supplier
+ * @property int $number_archived_suppliers_type_supplier Archived suppliers. status=false,type=supplier
+ * @property int $number_suppliers_type_sub_supplier Active suppliers. status=true,type=sub-supplier
+ * @property int $number_archived_suppliers_type_sub_supplier Archived suppliers. status=false,type=sub-supplier
  * @property int $number_supplier_products Number supplier products (all excluding discontinued)
  * @property int $number_supplier_deliveries Number supplier deliveries (all excluding discontinued)
  * @property int $supplier_products_count Number supplier products

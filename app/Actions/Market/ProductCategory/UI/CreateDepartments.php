@@ -5,21 +5,14 @@
  * Copyright (c) 2023, Inikoo LTD
  */
 
-namespace App\Actions\Market\Shop\UI;
+namespace App\Actions\Market\ProductCategory\UI;
 
 use App\Actions\InertiaAction;
-use App\Enums\Market\Shop\ShopTypeEnum;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
-use Spatie\LaravelOptions\Options;
 
-/**
- * @property array $breadcrumbs
- * @property bool $canEdit
- * @property string $title
- */
-class CreateShopsBySpreadSheet extends InertiaAction
+class CreateDepartments extends InertiaAction
 {
     public function authorize(ActionRequest $request): bool
     {
@@ -32,7 +25,7 @@ class CreateShopsBySpreadSheet extends InertiaAction
             );
     }
 
-    public function asController(ActionRequest $request)
+    public function asController(ActionRequest $request): ActionRequest
     {
         return $request;
     }
@@ -43,11 +36,12 @@ class CreateShopsBySpreadSheet extends InertiaAction
         return Inertia::render(
             'CreateModelBySpreadSheet',
             [
-                'title'     => __('shops'),
+                'title'     => __('departments'),
                 'pageHead'  => [
-                    'title' => __('Upload shops'),
+                    'title' => __('Upload departments'),
                 ],
-                'sheetData' => [
+                'documentName'=> $request->route()->getName().join($request->route()->originalParameters())    ,
+                'sheetData'   => [
 
                     'columns' => [
                         [
@@ -59,29 +53,12 @@ class CreateShopsBySpreadSheet extends InertiaAction
                         ],
                         [
                             'id'             => 'name',
-                            'name'           => __('Label'),
+                            'name'           => __('Name'),
                             'columnType'     => 'string',
                             'prop'           => 'name',
                             'required'       => true,
                         ],
-                        [
-                            'id'             => 'number',
-                            'name'           => __('Number'),
-                            'columnType'     => 'numeric',
-                            'prop'           => 'number',
-                            'required'       => true,
-                        ],
 
-                        [
-                            'id'         => 'select',
-                            'name'       => __('Type'),
-                            'prop'       => 'type',
-                            'required'   => false,
-                            'columnType' => "select",
-                            'options'    => Options::forEnum(ShopTypeEnum::class),
-                            'labelKey'   => 'label',
-                            'valueKey'   => 'value',
-                        ],
 
                     ],
                 ],

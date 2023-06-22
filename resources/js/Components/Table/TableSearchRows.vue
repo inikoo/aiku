@@ -2,9 +2,9 @@
 import { computed, ref, watch, nextTick } from "vue";
 import find from "lodash-es/find";
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faSearch } from "@/../private/pro-regular-svg-icons"
+import { faFilter } from "@/../private/pro-regular-svg-icons"
 import { library } from '@fortawesome/fontawesome-svg-core'
-library.add(faSearch)
+library.add(faFilter)
 
 const skipUnwrap = { el: ref([]) };
 let el = computed(() => skipUnwrap.el.value);
@@ -61,7 +61,7 @@ watch(props.forcedVisibleSearchInputs, (inputs) => {
     <div class="flex rounded-md shadow-sm relative mt-3">
       <label :for="searchInput.key"
         class="inline-flex items-center px-4 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm capitalize">
-        <FontAwesomeIcon icon="far fa-search" class="h-4 w-4 mr-2 text-gray-400" aria-hidden="true" />
+        <FontAwesomeIcon icon="far fa-filter" class="h-4 w-4 mr-2 text-gray-400" aria-hidden="true" />
         <span>{{ searchInput.label }}</span></label>
       <input :id="searchInput.key" :ref="skipUnwrap.el" :key="searchInput.key" :name="searchInput.key"
         :value="searchInput.value" type="text"
