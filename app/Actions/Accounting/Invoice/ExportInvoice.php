@@ -8,9 +8,10 @@
 namespace App\Actions\Accounting\Invoice;
 
 use App\Actions\Traits\WithExportData;
+use App\Models\Accounting\Invoice;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
-use  Mccarlosen\LaravelMpdf\Facades\LaravelMpdf as PDF;
+use Mccarlosen\LaravelMpdf\Facades\LaravelMpdf as PDF;
 use Symfony\Component\HttpFoundation\Response;
 
 class ExportInvoice
@@ -22,18 +23,27 @@ class ExportInvoice
     /**
      * @throws \Mpdf\MpdfException
      */
-    public function handle(): Response
+    public function handle(Invoice $invoice): Response
     {
-        $pdf = PDF::loadView('invoices.templates.pdf.invoice');
+        $totalShipping = $invoice->order->sum('shipping');
+        $totalItemsNet = $invoice->order->sum('items_net');
 
-        return $pdf->stream('invoice.pdf');
+        $totalNet = $totalItemsNet - $totalShipping;
+
+        $filename = $invoice->slug . '-' . now()->format('Y-m-d');
+        $pdf = PDF::loadView('invoices.templates.pdf.invoice', [
+            'invoice' => $invoice,
+            'totalNet' => $totalNet
+        ]);
+
+        return $pdf->stream($filename . '.pdf');
     }
 
     /**
      * @throws \Mpdf\MpdfException
      */
-    public function asController(): Response
+    public function asController(Invoice $invoice): Response
     {
-        return $this->handle();
+        return $this->handle($invoice);
     }
 }

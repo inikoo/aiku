@@ -134,12 +134,11 @@ class Invoice extends Model
     /**
      * Relation to main order, usually the only one, used no avoid looping over orders
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
-     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function order(): BelongsToMany
+    public function order(): BelongsTo
     {
-        return $this->belongsToMany(Order::class);
+        return $this->belongsTo(Order::class);
     }
 
     public function invoiceTransactions(): HasMany

@@ -1,5 +1,6 @@
 <html>
 <head>
+    <title>{{ $invoice->slug }}</title>
     <style>
         body {
             font-family: sans-serif;
@@ -106,7 +107,7 @@
             </td>
 
             <td style="text-align: right;">Order Number<br/>
-                <b>00988412</b>
+                <b>{{ $invoice->order['number'] }}</b>
             </td>
 
         </tr>
@@ -115,17 +116,19 @@
 
 <sethtmlpageheader name="myheader" value="on" show-this-page="1"/>
 <sethtmlpagefooter name="myfooter" value="on"/>
+
 <br><br><br><br><br>
+
 <table width="100%" style="margin-top: 40px">
     <tr>
         <td>
             <h1>
-                Invoice ARi223123
+                Invoice {{ $invoice->number }}
             </h1>
         </td>
         <td style="text-align: right">
             <div>
-                Invoice Date: <b>20 Jun 2023</b>
+                Invoice Date: <b>{{ $invoice->created_at->format('j F Y') }}</b>
             </div>
 
             <div style="text-align: right">
@@ -146,15 +149,15 @@
                     Payment State: <b>Paid in full</b>
                 </div>
                 <div>
-                    Customer: <b>Emma Pratt</b>
-                    (6391)
+                    Customer: <b>{{ $invoice->customer['name'] }}</b>
+                    ({{ $invoice->customer['id'] }})
                 </div>
                 <div class=" {if !$customer->get('Customer Main Plain Mobile')}hide{/if}">
-                    <span class="address_label">Mobile:</span> <span class="address_value">+44 7710 689446</span>
+                    <span class="address_label">Mobile:</span> <span class="address_value">{{ $invoice->customer['phone'] }}</span>
                 </div>
 
                 <div class=" {if !$customer->get('Customer Main Plain Telephone')}hide{/if}">
-                    <span class="address_label">Phone:</span> <span class="address_value">+44 7710 689446</span>
+                    <span class="address_label">Phone:</span> <span class="address_value">{{ $invoice->customer['phone'] }}</span>
                 </div>
             </div>
         </td>
@@ -225,7 +228,8 @@
     </thead>
     <tbody>
 
-    <tr class="{if $smarty.foreach.products.last}last{/if}">
+    @foreach($invoice->order->transactions as $order)
+    <tr class="@if($loop->last) last @endif">
         <td style="text-align:left">EOKG-14</td>
 
         <td style="text-align:left">
@@ -240,43 +244,38 @@
 
         <td style="text-align:right">$50</td>
     </tr>
+    @endforeach
 
     </tbody>
     <tbody class="totals">
     <tr>
         <td style="border:none" colspan="3"></td>
         <td>Items Net</td>
-        <td>$50</td>
-    </tr>
-
-    <tr>
-        <td style="border:none" colspan="3"></td>
-        <td>Refunds</td>
-        <td>$40</td>
+        <td>{{ $invoice->order->sum('items_net') }}</td>
     </tr>
 
     <tr>
         <td style="border:none" colspan="3"></td>
         <td>Shipping</td>
-        <td>$4</td>
+        <td>{{ $invoice->order->sum('shipping') }}</td>
     </tr>
 
     <tr class="total_net">
         <td style="border:none" colspan="3"></td>
         <td>Total Net</td>
-        <td>$230</td>
+        <td>{{ $totalNet }}</td>
     </tr>
 
     <tr>
         <td style="border:none" colspan="3"></td>
         <td class="totals">TAX <br> <small>GB-SR VAT 20%</small></td>
-        <td class="totals">$15</td>
+        <td class="totals">{{ $invoice->order->sum('tax') }}</td>
     </tr>
 
     <tr class="total">
         <td style="border:none" colspan="3"></td>
         <td><b>Total</b></td>
-        <td>$200</td>
+        <td>{{ $invoice->order->sum('net') }}</td>
     </tr>
     </tbody>
 
@@ -298,18 +297,19 @@
     </tr>
 
     <tbody>
-    <tr class="{if $smarty.foreach.payments.last}last{/if}">
+    @foreach($invoice->order->payments as $payment)
+    <tr class="@if($loop->last) last @endif">
         <td style="text-align:left">
-            Credit Card
+            {{ $payment->paymentAccount['name'] }}
         </td>
-        <td style="text-align:right">Fri 16 Jun
-            2023 11:49
-            UTC
+        <td style="text-align:right">
+            {{ $payment->date }}
         </td>
-        <td style="text-align:left">Completed</td>
-        <td style="text-align:left">pay_dcxzgw4y4u42bddqotwouaag3y</td>
-        <td style="text-align:right">$200</td>
+        <td style="text-align:left">{{ $payment->state }}</td>
+        <td style="text-align:left">{{ $payment->reference }}</td>
+        <td style="text-align:right">{{ $payment->amount }}</td>
     </tr>
+    @endforeach
     </tbody>
 </table>
 <br>
