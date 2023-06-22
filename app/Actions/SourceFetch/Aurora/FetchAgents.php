@@ -55,6 +55,10 @@ class FetchAgents extends FetchAction
                 }
             }
 
+            foreach ($agentData['photo'] as $photoData) {
+                $this->saveGroupImage($agent, $photoData);
+            }
+
             return $agent;
         }
 

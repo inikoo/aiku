@@ -19,12 +19,12 @@ class GetSupplierShowcase
     {
         return [
             'contactCard' => [
-                'company' => $supplier->company_name,
-                'contact' => $supplier->contact_name,
-                'email'   => $supplier->email,
-                'phone'   => $supplier->phone,
-                'address' => AddressResource::make($supplier->getAddress())->getArray(),
-                'photo'   => $supplier->getPhoto()
+                'company'  => $supplier->company_name,
+                'contact'  => $supplier->contact_name,
+                'email'    => $supplier->email,
+                'phone'    => $supplier->phone,
+                'address'  => AddressResource::make($supplier->getAddress())->getArray(),
+                'image_id' => $supplier->image_id
             ],
             'stats'       => [
                 [

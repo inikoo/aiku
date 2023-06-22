@@ -7,9 +7,11 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
+use App\Actions\Auth\GroupUser\UpdateGroupUser;
 use App\Actions\WithTenantsArgument;
 use App\Actions\WithTenantSource;
 use App\Models\Market\Shop;
+use App\Models\Media\GroupMedia;
 use App\Models\Tenancy\Tenant;
 use App\Services\Tenant\SourceTenantService;
 use Exception;
@@ -217,4 +219,36 @@ class FetchAction
             ];
         }
     }
+
+    public function saveGroupImage($model, $imageData, $imageField = 'image_id', $mediaCollection = 'photo'): void
+    {
+        if (array_key_exists('image_path', $imageData) and file_exists($imageData['image_path'])) {
+            $image_path = $imageData['image_path'];
+            $filename   = $imageData['filename'];
+            $checksum   = md5_file($image_path);
+
+            if ($model->getMedia($mediaCollection, ['checksum' => $checksum])->count() == 0) {
+                /** @var GroupMedia $media */
+                $model->update([$imageField => null]);
+
+                $media = $model->addMedia($image_path)
+                    ->preservingOriginal()
+                    ->withCustomProperties(['checksum' => $checksum])
+                    ->usingName($filename)
+                    ->usingFileName($checksum.".".pathinfo($image_path, PATHINFO_EXTENSION))
+                    ->toMediaCollection($mediaCollection, 'group');
+                if (class_basename($model) == 'GroupUser') {
+                    UpdateGroupUser::run(
+                        $model,
+                        [
+                            'avatar_id' => $media->id
+                        ]
+                    );
+                } else {
+                    $model->update([$imageField => $media->id]);
+                }
+            }
+        }
+    }
+
 }

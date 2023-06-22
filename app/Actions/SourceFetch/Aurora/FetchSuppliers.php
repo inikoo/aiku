@@ -41,6 +41,9 @@ class FetchSuppliers extends FetchAction
             $supplier = $this->processIndependentSupplier($supplierData);
         }
 
+        foreach ($supplierData['photo'] as $photoData) {
+            $this->saveGroupImage($supplier, $photoData);
+        }
 
         return $supplier;
     }

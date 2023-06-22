@@ -12,7 +12,8 @@ import AddressLocation from "@/Components/Elements/Info/AddressLocation.vue";
 import ProcurementMarketplaceAdoption from "@/Components/Elements/Specialised/ProcurementMarketplaceAdoption.vue";
 
 const props = defineProps<{
-    data: object
+    data: object,
+    tab?:string
 }>()
 
 
@@ -36,7 +37,7 @@ function marketplacesAgentRoute(marketplaceAgent: MarketplaceAgent) {
 </script>
 
 <template>
-    <Table :resource="data" :name="'ag'" class="mt-5">
+    <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(adoption)="{ item: agent }">
             <ProcurementMarketplaceAdoption :value="agent['adoption']"/>
         </template>
