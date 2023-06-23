@@ -7,53 +7,8 @@ import { useLayoutStore } from '@/Stores/layout.js';
 import { router } from '@inertiajs/vue3';
 
 import { library } from "@fortawesome/fontawesome-svg-core";
-import {
-    faDollyFlatbedAlt,
-    faConveyorBeltAlt,
-    faUsers,
-    faUserHardHat,
-    faBars,
-    faUsersCog,
-    faTachometerAltFast,
-    faInventory,
-    faStoreAlt,
-    faUser,
-    faIndustry,
-    faParachuteBox,
-    faDollyEmpty,
-    faShoppingCart,
-    faAbacus,
-    faChevronDown,
-    faCube,
-    faGlobe,
-    faFileInvoiceDollar,
-    faTruck,
-    faUserPlus
-} from "@/../private/pro-light-svg-icons";
-library.add(
-    faDollyFlatbedAlt,
-    faConveyorBeltAlt,
-    faUsers,
-    faUserHardHat,
-    faBars,
-    faUsersCog,
-    faTachometerAltFast,
-    faInventory,
-    faStoreAlt,
-    faUser,
-    faIndustry,
-    faParachuteBox,
-    faDollyEmpty,
-    faShoppingCart,
-    faAbacus,
-    faChevronDown,
-    faCube,
-    faGlobe,
-    faFileInvoiceDollar,
-    faTruck,
-    faUserPlus
-
-);
+import { faChevronDown } from "@/../private/pro-light-svg-icons";
+library.add(faChevronDown);
 
 
 const layout = useLayoutStore();
@@ -68,8 +23,6 @@ const isCurrentRoute = (slug: string) => {
 }
 
 const handleClick = (option) => {
-    // console.log("=====================")
-    // console.log(option)
     layout.navigation[props.currentPage].currentData = option
 
     // if click 'All Inventories'

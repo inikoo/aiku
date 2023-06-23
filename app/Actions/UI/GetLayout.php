@@ -391,8 +391,8 @@ class GetLayout
 
                                 'route' =>
                                     [
-                                        'all'      => ['inventory.warehouses.index'],
-                                        'selected' => ['inventory.warehouses.show'],
+                                        'all'      => 'inventory.warehouses.index',
+                                        'selected' => 'inventory.warehouses.show',
 
                                     ]
                             ],
