@@ -8,7 +8,7 @@
 namespace App\Actions\Mail\Outbox\UI;
 
 use App\Actions\Mail\Mailroom\ShowMailroom;
-use App\Actions\UI\Mail\MailHub;
+use App\Actions\UI\Marketing\MarketingHub;
 use App\Models\Mail\Outbox;
 
 trait HasUIOutbox
@@ -38,7 +38,7 @@ trait HasUIOutbox
 
         return match ($routeName) {
             'mail.outboxes.show' => array_merge(
-                (new MailHub())->getBreadcrumbs(),
+                (new MarketingHub())->getBreadcrumbs(),
                 $headCrumb([$outbox->slug])
             ),
             'mail.mailrooms.show.outboxes.show' => array_merge(

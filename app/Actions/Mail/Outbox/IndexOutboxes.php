@@ -9,7 +9,7 @@ namespace App\Actions\Mail\Outbox;
 
 use App\Actions\InertiaAction;
 use App\Actions\Mail\Mailroom\ShowMailroom;
-use App\Actions\UI\Mail\MailHub;
+use App\Actions\UI\Marketing\MarketingHub;
 use App\Http\Resources\Mail\OutboxResource;
 use App\Models\Mail\Mailroom;
 use App\Models\Mail\Outbox;
@@ -150,7 +150,7 @@ class IndexOutboxes extends InertiaAction
         return match ($routeName) {
             'mail.outboxes.index' =>
             array_merge(
-                (new MailHub())->getBreadcrumbs(
+                (new MarketingHub())->getBreadcrumbs(
                     $routeName,
                     $this->originalParameters
                 ),
