@@ -11,6 +11,7 @@ use App\Actions\Assets\Language\UI\GetLanguagesOptions;
 use App\Actions\UI\GetLayout;
 use App\Http\Resources\Assets\LanguageResource;
 use App\Models\Assets\Language;
+use App\Models\Auth\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Session;
@@ -30,13 +31,13 @@ class HandleCentralInertiaRequests extends Middleware
     /**
      * Define the props that are shared by default.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param Request $request
      *
      * @return array
      */
     public function share(Request $request): array
     {
-        /** @var \App\Models\Auth\User $user */
+        /** @var User $user */
         $user = $request->user();
 
         if ($user) {

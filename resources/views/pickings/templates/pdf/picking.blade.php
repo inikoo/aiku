@@ -1,22 +1,50 @@
 <html>
 <head>
+    <title>{{ $invoice->slug }}</title>
     <style>
-        body {font-family: sans-serif;
-            font-size: 8pt;
+        body {
+            font-family: sans-serif;
+            font-size: 10pt;
         }
-        p {    margin: 0pt;
+
+        p {
+            margin: 0pt;
         }
-        td { vertical-align: top; }
+
+        h1 {
+            font-size: 14pt
+        }
+
+        td {
+            vertical-align: top;
+        }
+
         .items td {
             border-left: 0.1mm solid #000000;
             border-right: 0.1mm solid #000000;
-            border-bottom: 0.1mm solid #b0b0b0;
+            border-bottom: 0.1mm solid #cfcfcf;
+            padding-bottom: 4px;
+            padding-top: 5px;
         }
 
 
-        table thead td { background-color: #EEEEEE;
-            text-align: center;
-            border: 0.1mm solid #000000;
+        .items tbody.out_of_stock td {
+            color: #777;
+            font-style: italic
+        }
+
+        .items tbody.totals td {
+            text-align: right;
+            border: 0.1mm solid #222;
+        }
+
+        .items tr.total_net td {
+            border-top: 0.3mm solid #000;
+        }
+
+        .items tr.total td {
+            border-top: 0.3mm solid #000;
+            border-bottom: 0.3mm solid #000;
         }
 
         .items tr.last td {
@@ -24,21 +52,10 @@
             border-bottom: 0.1mm solid #000000;
         }
 
-        .items tr.even  td {
-
-            background-color: #FAFAFA;
-        }
-
-        .items tr.multiple_partsx td{
-            border-top: 0.5mm solid #000000;
-            border-bottom: 0.5mm solid #000000;
-
-        }
-
-        .items td.multiple_parts {
-            background-color: #FCFCFC;
-
-            border: 0.5mm solid #000000;
+        table thead td, table tr.title td {
+            background-color: #EEEEEE;
+            text-align: center;
+            border: 0.1mm solid #000000;
         }
 
         .items td.blanktotal {
@@ -47,182 +64,293 @@
             border-top: 0.1mm solid #000000;
             border-right: 0.1mm solid #000000;
         }
-        .items td.totals {
-            text-align: right;
-            border: 0.1mm solid #000000;
+
+
+        div.inline {
+            float: left;
         }
 
-        div.inline { float:left; }
-
-        div.clearBoth { clear:both; }
-
-
-        hr {
-            border-top: 0.1mm solid #000000;
-            height:1px;
-
+        .clearBoth {
+            clear: both;
         }
-        #order_pick_aid_data {width:100%; border-spacing:0; border-collapse:collapse;}
-        #order_pick_aid_data tr{border-bottom: 0.1mm solid #000000}
-        #order_pick_aid_data td{padding-bottom:4px;padding-top:5px}
-        #order_pick_aid_data td.label{border-bottom: 0.1mm solid #000000}
-        #order_pick_aid_data td.to_fill{border-bottom: 0.1mm solid #000000;}
 
-        .hide{display: none}
-
-        .address_label{font-size: 7pt; color: #555555; font-family: sans-serif;}
-
-        .address_value{font-size:12px;}
-
+        .hide {
+            display: none
+        }
     </style>
-
 </head>
 <body>
-
 <htmlpageheader name="myheader">
     <br><br>
-    <table width="100%"><tr>
-            <td width="50%" style="color:#000;"><span style="font-weight: bold; font-size: 14pt;">
-                    Order Pick Aid 008898934</span>
-                <br />
-                    (C00006) Ancient Wisdom Marketing Ltd
-                <br/>
+    <table width="100%" style="font-size: 9pt;">
+        <tr>
+            <td style="width:250px;padding-left:10px;">
+                AW-AromaticsAW
+                <div style="font-size:7pt">
+                    Aromatics Ltd
+                </div>
+                <div style="font-size:7pt">
+                    Unit 15
+                </div>
+                <div style="font-size:7pt">
+                    Parkwood Business Park
+                </div>
+                <div style="font-size:7pt">
+                    Parkwood Road
+                </div>
+                <div style="font-size:7pt">
+                    Sheffield S3 8AL
+                </div>
+                <div style="font-size:7pt">
+                    www.aw-aromatics.com
+                </div>
             </td>
 
-            <td width="50%" style="text-align: right;">
-                <div style="text-align: right">Order date: 20 Jun 23 15:24 UTC</div>
-                <div style="text-align: right">Delivery note date: 20 Jun 23 15:24 UTC</div>
+            <td style="text-align: right;">Order Number<br/>
+                <b>{{ $invoice->order['number'] }}</b>
             </td>
+
         </tr>
     </table>
 </htmlpageheader>
 
-<sethtmlpageheader name="myheader" value="on" show-this-page="1" />
-<sethtmlpagefooter name="myfooter" value="on" />
-<br>
-<table width="100%" style="font-family: sans-serif; margin-top: 40px;" cellpadding="10">
+<sethtmlpageheader name="myheader" value="on" show-this-page="1"/>
+<sethtmlpagefooter name="myfooter" value="on"/>
+
+<br><br><br><br><br>
+
+<table width="100%" style="margin-top: 40px">
     <tr>
-        <td width="45%" style="border: 0.1mm solid #888888;">
+        <td>
+            <h1>
+                Invoice {{ $invoice->number }}
+            </h1>
+        </td>
+        <td style="text-align: right">
             <div>
-                <div  class=" {if !$customer->get('Customer Main Plain Mobile')}hide{/if}">
-                    <span class="address_label">Mobile</span> <span class="address_value">
-                        +44 114 272 9165
-                    </span>
+                Invoice Date: <b>{{ $invoice->created_at->format('j F Y') }}</b>
+            </div>
+
+            <div style="text-align: right">
+                Tax liability date: <b>20 Jun 2023</b>
+            </div>
+
+            <div style="text-align: right">
+                Order Date: <b>20 Jun 2023</b>
+            </div>
+        </td>
+    </tr>
+</table>
+<table width="100%" style="font-family: sans-serif; margin-top: 20px" cellpadding="0">
+    <tr>
+        <td width="50%" style="vertical-align:bottom;border: 0mm solid #888888;">
+            <div>
+                <div>
+                    Payment State: <b>{{ $invoice->order['payment'] }}</b>
                 </div>
+                <div>
+                    Customer: <b>{{ $invoice->customer['name'] }}</b>
+                    ({{ $invoice->customer['id'] }})
+                </div>
+                <div class=" {if !$customer->get('Customer Main Plain Mobile')}hide{/if}">
+                    <span class="address_label">Mobile:</span> <span class="address_value">{{ $invoice->customer['phone'] }}</span>
+                </div>
+
                 <div class=" {if !$customer->get('Customer Main Plain Telephone')}hide{/if}">
-                    <span class="address_label">Phone</span> <span class="address_value">
-                        +44 114 272 9165
-                    </span>
+                    <span class="address_label">Phone:</span> <span class="address_value">{{ $invoice->customer['phone'] }}</span>
                 </div>
             </div>
+        </td>
+        <td width="50%" style="vertical-align:bottom;border: 0mm solid #888888;text-align: right">
 
-            <div class="data_field small {if $customer->get('Customer Main Plain Email')==''}hide{/if}" style="margin-top:5px">
-                <span class="address_label">Email</span>  <span class="address_value">purchasing@ancientwisdom.biz</span>
+            <div style="text-align:right;">
+                <b>1 box</b>
+            </div>
+            <div style="text-align: right">Weight: <b>2Kg</b></div>
+
+            <div style="text-align: right">
+                Courier: <b> <span
+                        id="formatted_consignment">XIWSKU</span></b>
             </div>
 
-            <div style="height: 5px;border:0px solid red;font-size: 5px">&nbsp;</div>
-
-            <div style="margin-top: 10px;padding-top: 10px;">
-                <span class="address_label">Delivery Address:</span><br />
+        </td>
+    </tr>
+</table>
+<table width="100%" style="font-family: sans-serif;" cellpadding="10">
+    <tr>
+        <td width="45%" style="border: 0.1mm solid #888888;"><span
+                style="font-size: 7pt; color: #555555; font-family: sans-serif;">Billing address:</span>
+            <div>
+                The Firs Stone Lodge Lane
             </div>
-            <div class="address_value">Bryant Dawson</div>
-            <div class="address_value">Ancient Wisdom Marketing Ltd</div>
-            <div class="address_value">Affinity Park</div>
-            <div class="address_value">Europa Drive</div>
-            <div class="address_value">SHEFFIELD</div>
-            <div class="address_value">S9 1XT</div>
+            <div>
+                Ipswich
+            </div>
+            <div>
+                IP2 9AR
+            </div>
+            <div>
+                United Kingdom
+            </div>
         </td>
         <td width="10%">&nbsp;</td>
-        <td width="45%" style="border: 0.1mm solid #888888;font-size:9pt">
-            <table id="order_pick_aid_data" cellspacing="0" cellpadding="0">
-                <tr>
-                    <td class="label">Picker:</td>
-                    <td class="to_fill"></td>
-                </tr>
-                <tr>
-                    <td class="label">Packer:</td>
-                    <td class="to_fill"></td>
-                </tr>
-                <tr>
-                    <td class="label">Weight:</td>
-                    <td class="to_fill">℮375Kg</td>
-                </tr>
-                <tr>
-                    <td class="label">Parcels:</td>
-                    <td class="to_fill"></td>
-                </tr>
-                <tr>
-                    <td class="label">Courier:</td>
-                    <td class="to_fill"></td>
-                </tr>
-                <tr>
-                    <td class="label">Consignment:</td>
-                    <td class="to_fill"></td>
-                </tr>
-            </table>
+        <td width="45%" style="border: 0.1mm solid #888888;">
+            <span style="font-size: 7pt; color: #555555; font-family: sans-serif;">Delivery address:</span>
+            <div>
+                The Firs Stone Lodge Lane
+            </div>
+            <div>
+                Ipswich
+            </div>
+            <div>
+                IP2 9AR
+            </div>
+            <div>
+                United Kingdom
+            </div>
+        </td>
     </tr>
 </table>
 <br>
 
-<div style="float:left;height:150px;border:0.2mm  solid #000;margin-bottom:20px;padding:10px;width: 143.5mm;">
-    <span style="font-size: 7pt; color: #555555; font-family: sans-serif;">Notes:</span>
-    <div style="padding-top: 1mm">
-        AWA01591
-    </div>
-</div>
-<barcode style="float:left;margin-left: 20px;border:0px solid #ccc" code="AAAAA" type="QR" />
-
-<div style=" clear:both;font-size: 9pt;margin-bottom:2pt"><b>4</b> items, 180 SKOs</div>
-
-<table class="items" width="100%" style="font-size: 7pt; border-collapse: collapse;" cellpadding="8">
+<table class="items" width="100%" style="font-size: 9pt; border-collapse: collapse;" cellpadding="8">
     <thead>
     <tr>
-        <td align="left" width="14%">Location</td>
-        <td align="center" width="14%">Reference</td>
-        <td align="left" width="14%">Alt Locations</td>
-        <td align="left">SKO description</td>
-        <td align="center" width="7%">SKOs</td>
-        <td align="left" width="16%">Notes</td>
+        <td style="width:14%;text-align:left">Code</td>
+
+        <td style="text-align:left">Description</td>
+        <td style="text-align:left;width:20% ">Discount</td>
+
+        <td style="text-align:left">Qty</td>
+
+        <td style="width:10%;text-align:right">Amount</td>
     </tr>
     </thead>
     <tbody>
 
-    <tr class="{if $smarty.foreach.products.last}last{/if} {if $smarty.foreach.products.iteration is even} even{/if} ">
-        <td style="padding: 0px">
-            <table style="width:100%; border-spacing:0; border-collapse:collapse;">
-                <tr>
+    @foreach($invoice->order->transactions as $transaction)
+    <tr class="@if($loop->last) last @endif">
+        <td style="text-align:left">{{ $transaction->item['name'] }}</td>
 
-                    <td style="padding-left:10px;border:none;padding-top:8px"><b>11V2</b></td>
-                    <td style="border:none;font-style: italic;padding-top:8px;text-align:right;padding-right: 10px"><span>39</span></td>
-                </tr>
-            </table>
+        <td style="text-align:left">
+            1x Bergamot (FCF) Bulk Essential Oil (£50.00)
+            Weight: 1Kg
+            Origin: Côte d’Ivoire (CIV)
+            Tariff Code: 3301294100
         </td>
-        <td align="center">ABPC-07</td>
+        <td style="text-align:left">0</td>
 
-        <td align="left" style="padding: 0px">
-            <table style="width:100%; border-spacing:0; border-collapse:collapse;">
+        <td style="text-align:right">100</td>
 
-                <tr>
+        <td style="text-align:right">$50</td>
+    </tr>
+    @endforeach
 
-                    <td style="padding-left:10px;border:none;{if $smarty.foreach.locations.first}padding-top:8px;{else}border-top:.1mm solid #b0b0b0{/if}">11W6</td>
-                    <td style="border:none;font-style: italic;{if $smarty.foreach.locations.first}padding-top:8px;{else}border-top:.1mm solid #b0b0b0;{/if}text-align:right;padding-right: 10px">60</td>
-                </tr>
-
-            </table>
-        </td>
-        <td align="left">Box of 5 Aromatherapy Bath Potion in Kraft Bags 350g - Stress Buster</td>
-        <td align="center" >50</td>
-        <td align="left" style="font-size: 6pt;"></td>
+    </tbody>
+    <tbody class="totals">
+    <tr>
+        <td style="border:none" colspan="3"></td>
+        <td>Items Net</td>
+        <td>{{ $invoice->order['items_net'] }}</td>
     </tr>
 
+    <tr>
+        <td style="border:none" colspan="3"></td>
+        <td>Shipping</td>
+        <td>{{ $invoice->order['shipping'] }}</td>
+    </tr>
+
+    <tr class="total_net">
+        <td style="border:none" colspan="3"></td>
+        <td>Total Net</td>
+        <td>{{ $totalNet }}</td>
+    </tr>
+
+    <tr>
+        <td style="border:none" colspan="3"></td>
+        <td class="totals">TAX <br> <small>GB-SR VAT 20%</small></td>
+        <td class="totals">{{ $invoice->order['tax'] }}</td>
+    </tr>
+
+    <tr class="total">
+        <td style="border:none" colspan="3"></td>
+        <td><b>Total</b></td>
+        <td>{{ $invoice->order['net'] }}</td>
+    </tr>
+    </tbody>
+
+</table>
+
+<br>
+
+<table class="items" width="100%" style="font-size: 9pt; border-collapse: collapse;" cellpadding="8">
+    <tr class="title">
+        <td colspan="5">Payments</td>
+    </tr>
+
+    <tr class="title">
+        <td style="width:40%;text-align:left">Method</td>
+        <td style="text-align:right">Date</td>
+        <td style="text-align:left">Status</td>
+        <td style="text-align:left">Reference</td>
+        <td style=";text-align:right">Amount</td>
+    </tr>
+
+    <tbody>
+    @foreach($invoice->order->payments as $payment)
+    <tr class="@if($loop->last) last @endif">
+        <td style="text-align:left">
+            {{ $payment->paymentAccount['name'] }}
+        </td>
+        <td style="text-align:right">
+            {{ $payment->updated_at->format('Y-m-d H:i') }}
+        </td>
+        <td style="text-align:left">{{ $payment->state }}</td>
+        <td style="text-align:left">{{ $payment->reference }}</td>
+        <td style="text-align:right">{{ $payment->amount }}</td>
+    </tr>
+    @endforeach
     </tbody>
 </table>
 <br>
+<br>
+
+<div style="text-align: center; font-style: italic;">
+    The exporter of products covered by this document GB356317102000 declares that, unless otherwise clearly
+    indicated, these products are of UK preferential origin. Such products are covered by the The EU-UK Trade and
+    Cooperation Agreement and MUST be regarded with a preferential 0% tariff code.
+</div>
+
+<br>
+
+<div style="text-align: center; font-style: italic;">
+    EORI: GB356317102000 XI EORI: XI356317102000 Thank you for your order. Bank Details:
+    Beneficiary: AW Aromatics Ltd Bank: HSBC UK Bank PLC Address: Carmel House, 49 - 63 Fargate,S1 2HD, Sheffield UK
+    Account Number: 70861278 Bank Code: 404157 Swift: HBUKGB4B IBAN: GB15HBUK40415770861278
+</div>
+
 <htmlpagefooter name="myfooter">
-    <small style="font-size: 7pt;">Created: 2023-06-22 08:20:11 UTC</small>
-    <div style="border-top: 1px solid #000000; font-size: 9pt; text-align: center; padding-top: 3mm; ">
-        Page 1 of 1
-    </div>
+    <div
+        style="border-top: 1px solid #000000; font-size: 9pt; text-align: center; padding-top: 3mm; margin-top: 120px"></div>
+    <table width="100%">
+        <tr>
+        <tr>
+            <td width="33%" style="color:#000;text-align: left;">
+                <small>AW Aromatics Limited<br> VAT Number:
+                    <b>GB356317102</b>
+                    <br>
+                    Registration Number: 1279117</small>
+            </td>
+            <td width="33%" style="color:#000;text-align: center">
+                Page 1 of 1
+            </td>
+            <td width="34%" style="text-align: right;">
+                <small>00441144384914<br>
+                    sales@aw-aromatics.com
+                </small>
+            </td>
+        </tr>
+    </table>
     <br><br>
 </htmlpagefooter>
 </body>

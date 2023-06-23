@@ -1,4 +1,5 @@
-<?php
+<?php /** @noinspection PhpUnused */
+
 /*
  *  Author: Raul Perusquia <raul@inikoo.com>
  *  Created: Sun, 30 Oct 2022 02:34:12 Greenwich Mean Time, Plane HK-KL
@@ -21,6 +22,7 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
+use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
@@ -72,7 +74,7 @@ class IndexWebUser extends InertiaAction
     }
 
 
-    public function htmlResponse(LengthAwarePaginator $shops)
+    public function htmlResponse(LengthAwarePaginator $shops): Response
     {
         return Inertia::render(
             'Web/WebUsers',

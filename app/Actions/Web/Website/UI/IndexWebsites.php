@@ -151,6 +151,7 @@ class IndexWebsites extends InertiaAction
     }
 
 
+    /** @noinspection PhpUnusedParameterInspection */
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
         $headCrumb = function (array $routeParameters = []) {

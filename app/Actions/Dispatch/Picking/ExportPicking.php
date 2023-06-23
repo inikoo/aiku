@@ -28,7 +28,8 @@ class ExportPicking
     {
         $filename = 'picking-' . now()->format('Y-m-d');
         $pdf = PDF::loadView('pickings.templates.pdf.picking', [
-            'picking' => $picking
+            'picking' => $picking,
+            'filename' => $filename
         ]);
 
         return $pdf->stream($filename . '.pdf');
