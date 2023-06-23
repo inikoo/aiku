@@ -1,4 +1,5 @@
-<?php
+<?php /** @noinspection PhpUnusedParameterInspection */
+
 /*
  * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
  * Created: Tue, 11 Apr 2023 08:24:46 Central European Summer, Malaga, Spain
@@ -45,12 +46,8 @@ class CreateLocation extends InertiaAction
                                 'code' => [
                                     'type'  => 'input',
                                     'label' => __('code'),
-                                    'value' => ''
-                                ],
-                                'flag' => [
-                                    'type'  => 'input',
-                                    'label' => __('flag'),
-                                    'value' => ''
+                                    'value' => '',
+                                    'required' => true
                                 ],
                             ]
                         ],
@@ -58,11 +55,6 @@ class CreateLocation extends InertiaAction
                             'title'  => __('capacity'),
                             'icon'   => 'fa-light fa-phone',
                             'fields' => [
-                                'quantity' => [
-                                    'type'  => 'input',
-                                    'label' => __('quantity'),
-                                    'value' => '',
-                                ],
                                 'max_weight' => [
                                     'type'  => 'input',
                                     'label' => __('max weight (kg)'),
@@ -75,20 +67,11 @@ class CreateLocation extends InertiaAction
                                 ],
                             ]
                         ],
-                        [
-                            'title'  => __('warehouse area'),
-                            'fields' => [
-                                'warehouse_area_slug' => [
-                                    'type'  => 'input',
-                                    'label' => __('area'),
-                                    'value' => '',
-                                ],
-                            ]
-                        ],
-                        [
+
+                       /* [
                             'title'  => __('picking pipelines'),
                             'fields' => [
-                                'dropshipping_area' => [
+                                'drop_shipping_area' => [
                                     'type'  => 'input',
                                     'label' => __('DS'),
                                     'value' => '',
@@ -104,7 +87,7 @@ class CreateLocation extends InertiaAction
                                     'value' => '',
                                 ],
                             ]
-                        ],
+                        ], */
 
 
                     ],

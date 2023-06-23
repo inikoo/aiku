@@ -24,6 +24,8 @@ return new class () extends Migration {
             $table->string('code', 64)->index()->collation('und_ns');
             $table->decimal('stock_value', 16)->default(0);
             $table->boolean('is_empty')->default(true);
+            $table->double('max_weight')->nullable();
+            $table->double('max_volume')->nullable();
             $table->jsonb('data');
             $table->dateTimeTz('audited_at')->nullable();
             $table->timestampsTz();
