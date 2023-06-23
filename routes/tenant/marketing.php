@@ -15,7 +15,7 @@ use App\Actions\Mail\Mailshot\UI\CreateMailshot;
 use App\Actions\Mail\Outbox\IndexOutboxes;
 use App\Actions\Mail\Outbox\ShowOutbox;
 use App\Actions\Mail\Outbox\UI\EditOutbox;
-use App\Actions\UI\Mail\MailHub;
+use App\Actions\UI\Marketing\MarketingHub;
 use Illuminate\Support\Facades\Route;
 
 //if (empty($parent)) {
@@ -24,7 +24,7 @@ $parent = 'tenant';
 
 Route::get('/mailshots/create', CreateMailshot::class)->name('mailshots.create');
 
-Route::get('/', [MailHub::class, $parent == 'tenant' ? 'inTenant' : 'inShop'])->name('hub');
+Route::get('/', [MarketingHub::class, $parent == 'tenant' ? 'inTenant' : 'inShop'])->name('hub');
 
 Route::get('/mailrooms', [IndexMailrooms::class, $parent == 'tenant' ? 'inTenant' : 'inShop'])->name('mailrooms.index');
 Route::get('/mailrooms/{mailroom}', [ShowMailroom::class, $parent == 'tenant' ? 'inTenant' : 'inShop'])->name('mailrooms.show');

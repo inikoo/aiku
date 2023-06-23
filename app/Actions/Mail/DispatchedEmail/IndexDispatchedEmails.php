@@ -9,7 +9,7 @@ namespace App\Actions\Mail\DispatchedEmail;
 
 use App\Actions\InertiaAction;
 use App\Actions\Mail\Mailroom\ShowMailroom;
-use App\Actions\UI\Mail\MailHub;
+use App\Actions\UI\Marketing\MarketingHub;
 use App\Http\Resources\Mail\DispatchedEmailResource;
 use App\Models\Mail\DispatchedEmail;
 use App\Models\Mail\Mailroom;
@@ -182,7 +182,7 @@ class IndexDispatchedEmails extends InertiaAction
         return match ($routeName) {
             'mail.dispatched-emails.index' =>
             array_merge(
-                (new MailHub())->getBreadcrumbs(
+                (new MarketingHub())->getBreadcrumbs(
                     $routeName,
                     $this->originalParameters
                 ),

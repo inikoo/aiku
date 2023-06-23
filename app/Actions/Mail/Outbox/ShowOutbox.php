@@ -9,7 +9,7 @@ namespace App\Actions\Mail\Outbox;
 
 use App\Actions\InertiaAction;
 use App\Actions\Mail\Mailroom\ShowMailroom;
-use App\Actions\UI\Mail\MailHub;
+use App\Actions\UI\Marketing\MarketingHub;
 use App\Http\Resources\Mail\OutboxResource;
 use App\Models\Mail\Mailroom;
 use App\Models\Mail\Outbox;
@@ -122,7 +122,7 @@ class ShowOutbox extends InertiaAction
 
         return match ($routeName) {
             'mail.outboxes.show' => array_merge(
-                (new MailHub())->getBreadcrumbs(),
+                (new MarketingHub())->getBreadcrumbs(),
                 $headCrumb([$outbox->slug])
             ),
             'mail.mailrooms.show.outboxes.show' => array_merge(

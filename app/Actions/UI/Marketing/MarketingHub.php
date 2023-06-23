@@ -5,10 +5,9 @@
  * Copyright (c) 2023, Inikoo LTD
  */
 
-namespace App\Actions\UI\Mail;
+namespace App\Actions\UI\Marketing;
 
 use App\Actions\InertiaAction;
-use App\Actions\Market\Shop\UI\ShowShop;
 use App\Actions\UI\Dashboard\Dashboard;
 use App\Models\Mail\Outbox;
 use App\Models\Market\Shop;
@@ -20,7 +19,7 @@ use Lorisleiva\Actions\ActionRequest;
  * @property Outbox $outbox
  * @property \App\Models\Auth\User $user
  */
-class MailHub extends InertiaAction
+class MarketingHub extends InertiaAction
 {
     public function authorize(ActionRequest $request): bool
     {
@@ -39,14 +38,15 @@ class MailHub extends InertiaAction
     public function inShop(Shop $shop, ActionRequest $request): ActionRequest
     {
         $this->initialisation($request);
+
         return $request;
     }
 
 
     public function htmlResponse(ActionRequest $request): Response
     {
-        $routeName      = $request->route()->getName();
-        $routeParameters= $request->route()->parameters();
+        $routeName       = $request->route()->getName();
+        $routeParameters = $request->route()->parameters();
 
 
         return Inertia::render(
@@ -63,7 +63,7 @@ class MailHub extends InertiaAction
 
 
                 'flatTreeMaps' => match ($routeName) {
-                    'shops.show.mail.hub'=>
+                    'shops.show.mail.hub' =>
                     [
                         [
                             [
@@ -159,38 +159,39 @@ class MailHub extends InertiaAction
 
     public function getBreadcrumbs($routeName, $routeParameters): array
     {
-        $headCrumb = function (array $route) {
-            return [
-                [
-                    'type'   => 'simple',
-                    'simple' => [
-                        'route' => $route,
-                        'label' => __('mailroom'),
-                        'icon'  => 'fal fa-mail-bulk'
-                    ],
-                ],
-            ];
-        };
-
         return match ($routeName) {
-            'mail.hub' => array_merge(
+            'marketing.hub' => array_merge(
                 Dashboard::make()->getBreadcrumbs(),
-                $headCrumb(
+                [
                     [
-                        'name'       => 'marketing.hub',
-                        'parameters' => []
-                    ]
-                )
+                        'type'   => 'simple',
+                        'simple' => [
+                            'route' => [
+                                'name' => 'marketing.hub'
+                            ],
+                            'label' => __('marketing').' ('.__('all shops').')',
+                            'icon'  => 'fal fa-bullhorn'
+                        ],
+                    ],
+                ]
+
             ),
-            'shops.show.mail.hub' =>
+            'marketing.shops.show.hub' =>
             array_merge(
-                (new ShowShop())->getBreadcrumbs($routeParameters),
-                $headCrumb(
+                Dashboard::make()->getBreadcrumbs(),
+                [
                     [
-                        'name'       => 'marketing.shops.show.mail.hub',
-                        'parameters' => $routeParameters['shop']->slug
-                    ]
-                )
+                        'type'   => 'simple',
+                        'simple' => [
+                            'route' => [
+                                'name'       => 'marketing.hub',
+                                'parameters' => $routeParameters['shop']->slug
+                            ],
+                            'label' => __('marketing').' ('.$routeParameters['shop']->code.')',
+                            'icon'  => 'fal fa-bullhorn'
+                        ],
+                    ],
+                ]
             ),
             default => []
         };
