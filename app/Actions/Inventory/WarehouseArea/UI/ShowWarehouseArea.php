@@ -50,33 +50,33 @@ class ShowWarehouseArea extends InertiaAction
         return Inertia::render(
             'Inventory/WarehouseArea',
             [
-                'title'                                 => __('warehouse area'),
-                'breadcrumbs'                           => $this->getBreadcrumbs(
+                'title' => __('warehouse area'),
+                'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
                     $request->route()->parameters
                 ),
-                'navigation'                            => [
+                'navigation' => [
                     'previous' => $this->getPrevious($warehouseArea, $request),
-                    'next'     => $this->getNext($warehouseArea, $request),
+                    'next' => $this->getNext($warehouseArea, $request),
                 ],
-                'pageHead'                              => [
-                    'icon'  =>
+                'pageHead' => [
+                    'icon' =>
                         [
-                            'icon'  => ['fal', 'fa-map-signs'],
+                            'icon' => ['fal', 'fa-map-signs'],
                             'title' => __('warehouse area')
                         ],
                     'title' => $warehouseArea->name,
-                    'edit'  => $this->canEdit ? [
+                    'edit' => $this->canEdit ? [
                         'route' => [
-                            'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
+                            'name' => preg_replace('/show$/', 'edit', $request->route()->getName()),
                             'parameters' => array_values($this->originalParameters)
                         ]
                     ] : false,
-                    'meta'  => [
+                    'meta' => [
                         [
-                            'name'     => trans_choice('location|locations', $warehouseArea->stats->number_locations),
-                            'number'   => $warehouseArea->stats->number_locations,
-                            'href'     =>
+                            'name' => trans_choice('location|locations', $warehouseArea->stats->number_locations),
+                            'number' => $warehouseArea->stats->number_locations,
+                            'href' =>
                                 match ($this->routeName) {
                                     'inventory.warehouses.show.warehouse-areas.show' => [
                                         'inventory.warehouses.show.warehouse-areas.show.locations.index',
@@ -91,29 +91,29 @@ class ShowWarehouseArea extends InertiaAction
 
                             ,
                             'leftIcon' => [
-                                'icon'    => 'fal fa-inventory',
+                                'icon' => 'fal fa-inventory',
                                 'tooltip' => __('locations')
                             ]
                         ]
                     ]
 
                 ],
-                'tabs'                                  => [
-                    'current'    => $this->tab,
+                'tabs' => [
+                    'current' => $this->tab,
                     'navigation' => WarehouseAreaTabsEnum::navigation()
                 ],
                 WarehouseAreaTabsEnum::SHOWCASE->value => $this->tab == WarehouseAreaTabsEnum::SHOWCASE->value ?
-                    fn () => GetWarehouseAreaShowcase::run($warehouseArea)
-                    : Inertia::lazy(fn () => GetWarehouseAreaShowcase::run($warehouseArea)),
+                    fn() => GetWarehouseAreaShowcase::run($warehouseArea)
+                    : Inertia::lazy(fn() => GetWarehouseAreaShowcase::run($warehouseArea)),
 
                 WarehouseAreaTabsEnum::LOCATIONS->value => $this->tab == WarehouseAreaTabsEnum::LOCATIONS->value ?
-                    fn () => LocationResource::collection(
+                    fn() => LocationResource::collection(
                         IndexLocations::run(
                             parent: $warehouseArea,
                             prefix: 'locations'
                         )
                     )
-                    : Inertia::lazy(fn () => LocationResource::collection(
+                    : Inertia::lazy(fn() => LocationResource::collection(
                         IndexLocations::run(
                             parent: $warehouseArea,
                             prefix: 'locations'
@@ -121,21 +121,37 @@ class ShowWarehouseArea extends InertiaAction
                     )),
 
                 WarehouseAreaTabsEnum::HISTORY->value => $this->tab == WarehouseAreaTabsEnum::HISTORY->value ?
-                    fn () => HistoryResource::collection(IndexHistories::run($warehouseArea))
-                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistories::run($warehouseArea)))
+                    fn() => HistoryResource::collection(IndexHistories::run($warehouseArea))
+                    : Inertia::lazy(fn() => HistoryResource::collection(IndexHistories::run($warehouseArea)))
 
             ]
         )->table(IndexLocations::make()->tableStructure(
-            //            modelOperations: [
-            //                'createLink' => $this->canEdit ? [
-            //                    'route' => [
-            //                        'name'       => 'inventory.warehouse-areas.show.locations.create',
-            //                        'parameters' => array_values($this->originalParameters)
-            //                    ],
-            //                    'label' => __('location')
-            //                ] : false,
-            //            ],
-            //            prefix: 'locations'
+            modelOperations: [
+                'createLink' => $this->canEdit ? [
+
+                    match ($request->route()->getName()) {
+                        'inventory.warehouses.show.warehouse-areas.show' =>
+                        [
+                            'route' => [
+                                'name' => 'inventory.warehouses.show.warehouse-areas.show.locations.create',
+                                'parameters' => array_values($this->originalParameters)
+                            ]
+                        ],
+            
+                        default =>
+                        [
+                            'route' => [
+                                'name' => 'inventory.warehouse-areas.show.locations.create',
+                                'parameters' => array_values($this->originalParameters)
+                            ]
+                        ],
+                    },
+
+
+                    'label' => __('location')
+                ] : false,
+            ],
+            prefix: 'locations'
         ))->table(IndexHistories::make()->tableStructure());
     }
 
@@ -150,7 +166,7 @@ class ShowWarehouseArea extends InertiaAction
         $headCrumb = function (WarehouseArea $warehouseArea, array $routeParameters, $suffix) {
             return [
                 [
-                    'type'           => 'modelWithIndex',
+                    'type' => 'modelWithIndex',
                     'modelWithIndex' => [
                         'index' => [
                             'route' => $routeParameters['index'],
@@ -161,7 +177,7 @@ class ShowWarehouseArea extends InertiaAction
                             'label' => $warehouseArea->slug,
                         ],
                     ],
-                    'suffix'         => $suffix,
+                    'suffix' => $suffix,
 
                 ],
             ];
@@ -175,11 +191,11 @@ class ShowWarehouseArea extends InertiaAction
                     $routeParameters['warehouseArea'],
                     [
                         'index' => [
-                            'name'       => 'inventory.warehouse-areas.index',
+                            'name' => 'inventory.warehouse-areas.index',
                             'parameters' => []
                         ],
                         'model' => [
-                            'name'       => 'inventory.warehouse-areas.show',
+                            'name' => 'inventory.warehouse-areas.show',
                             'parameters' => [
                                 $routeParameters['warehouseArea']->slug
                             ]
@@ -195,11 +211,11 @@ class ShowWarehouseArea extends InertiaAction
                     $routeParameters['warehouseArea'],
                     [
                         'index' => [
-                            'name'       => 'inventory.warehouses.show.warehouse-areas.index',
+                            'name' => 'inventory.warehouses.show.warehouse-areas.index',
                             'parameters' => [$routeParameters['warehouse']->slug]
                         ],
                         'model' => [
-                            'name'       => 'inventory.warehouses.show.warehouse-areas.show',
+                            'name' => 'inventory.warehouses.show.warehouse-areas.show',
                             'parameters' => [
                                 $routeParameters['warehouse']->slug,
                                 $routeParameters['warehouseArea']->slug
@@ -237,7 +253,7 @@ class ShowWarehouseArea extends InertiaAction
             'inventory.warehouse-areas.show' => [
                 'label' => $warehouseArea->name,
                 'route' => [
-                    'name'       => $routeName,
+                    'name' => $routeName,
                     'parameters' => [
                         'warehouseArea' => $warehouseArea->slug
                     ]
@@ -247,9 +263,9 @@ class ShowWarehouseArea extends InertiaAction
             'inventory.warehouses.show.warehouse-areas.show' => [
                 'label' => $warehouseArea->name,
                 'route' => [
-                    'name'       => $routeName,
+                    'name' => $routeName,
                     'parameters' => [
-                        'warehouse'     => $warehouseArea->warehouse->slug,
+                        'warehouse' => $warehouseArea->warehouse->slug,
                         'warehouseArea' => $warehouseArea->slug
                     ]
 
