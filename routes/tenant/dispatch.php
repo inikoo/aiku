@@ -5,10 +5,12 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
+use App\Actions\Dispatch\Picking\ExportPicking;
 use App\Actions\UI\Dispatch\ShowDispatchHub;
 
 if (empty($parent)) {
     $parent = 'tenant';
 }
 
+Route::get('/pickings/export', ExportPicking::class)->name('picking.export');
 Route::get('/', [ShowDispatchHub::class, $parent == 'tenant' ? 'inTenant' : 'inShop'])->name('hub');
