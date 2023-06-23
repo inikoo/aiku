@@ -120,7 +120,7 @@ class IndexLocations extends InertiaAction
     }
 
 
-    public function inWarehouseInWarehouseArea(Warehouse $warehouse, WarehouseArea $warehouseArea, ActionRequest $request): LengthAwarePaginator
+    public function inWarehouseInWarehouseArea(Warehouse $warehouse,WarehouseArea $warehouseArea, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($request);
 
