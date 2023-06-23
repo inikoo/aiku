@@ -17,8 +17,6 @@ const locale = useLocaleStore();
 const props = defineProps<{
     title: string,
     pageHead: object,
-    flatTreeMaps: object
-
 }>()
 
 
