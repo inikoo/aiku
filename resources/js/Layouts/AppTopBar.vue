@@ -80,9 +80,9 @@ const generateLink = (menu) => {
 
 <template>
 	<div class="flex flex-1 items-center justify-between lg:justify-start">
-		<Link :href="route('dashboard.show')" class="md:pl-3 flex items-center h-full xl:w-56 xl:min-w-max space-x-3 mr-6 xl:mr-0">
+		<Link :href="route('dashboard.show')" class="md:pl-3 flex items-center h-full xl:overflow-hidden space-x-2 mr-6 xl:w-56 xl:pr-2 xl:border-r-2 xl:border-gray-200 xl:mr-0">
 			<img class="h-7 md:h-5 shadow" src="/media/group/1" alt="Aiku" />
-			<span class="hidden md:inline font-logo whitespace-nowrap text-lg text-indigo-700 pr-6">
+			<span class="hidden leading-none md:inline font-logo text-indigo-700 xl:truncate">
 				{{ layout.tenant.name }}
 			</span>
 		</Link>
