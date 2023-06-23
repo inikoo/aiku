@@ -1,5 +1,5 @@
 <script setup lang="ts">
-
+import { onMounted } from 'vue';
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { trans } from 'laravel-vue-i18n';
@@ -67,8 +67,9 @@ const isCurrentRoute = (slug: string) => {
     return route().params[Object.keys(route().params)[0]] == slug ? true : false
 }
 
-
 const handleClick = (option) => {
+    // console.log("=====================")
+    // console.log(option)
     layout.navigation[props.currentPage].currentData = option
 
     // if click 'All Inventories'
@@ -87,6 +88,20 @@ const handleClick = (option) => {
     router.get(route(`${layout.navigation[props.currentPage].routeOption}`, option.slug))
 }
 
+onMounted(() => {
+    // To handle dropdown if the page is 'hard refresh'
+    if(route().params != null){
+        for (let i = 0; i < layout.navigation[props.currentPage].topMenu.dropdown.options.data.length; i++) {
+            if (layout.navigation[props.currentPage].topMenu.dropdown.options.data[i].slug === Object.values(route().params)[0]) {
+                layout.navigation[props.currentPage].currentData = {
+                    code: layout.navigation[props.currentPage].topMenu.dropdown.options.data[i].code,
+                    name: layout.navigation[props.currentPage].topMenu.dropdown.options.data[i].name,
+                    slug: layout.navigation[props.currentPage].topMenu.dropdown.options.data[i].slug
+                }
+            }
+        }
+    }
+})
 
 </script>
 
