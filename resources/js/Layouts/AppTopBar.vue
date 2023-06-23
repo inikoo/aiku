@@ -63,26 +63,32 @@ const currentRoute = ref()
 router.on("navigate", (event) => {
 	currentRoute.value = route().current()
 	currentUrl.value = event.detail.page.url.split("/")[1]
+	console.log(layout.navigation?.[currentUrl.value]?.topMenu.dropdown.subsections[0].route.selected[0])
+	console.log(layout.navigation?.[currentUrl.value]?.topMenu?.dropdown?.options?.data?.length >= 2)
+	// console.log(layout.navigation?.[currentUrl.value]?.topMenu.subSections.route.all)
+	// console.log(layout.navigation?.[currentUrl.value]?.topMenu.subSections.route.selected)
 })
 
 const generateLink = (menu) => {
-	return layout?.navigation?.[currentUrl]?.currentData.slug  // If the slug is not null
-		? route(menu.route?.selected, layout?.navigation?.[currentUrl]?.currentData.slug)  // Then the menu go to that slug
-		: currentRoute != layout?.navigation?.[currentUrl]?.route  // Check if active route is same as 'All List' slug
+	return layout?.navigation?.[currentUrl.value]?.currentData.slug  // If the slug is not null
+		? route(menu.route?.selected, layout?.navigation?.[currentUrl.value]?.currentData.slug)  // Then the menu go to that slug
+		: currentRoute != layout?.navigation?.[currentUrl.value]?.route  // Check if active route is same as 'All List' slug
 			? route().params[Object.keys(route().params)[0]]  // Check if there is active parameter (for subpage)
 				? route(menu.route?.selected, route().params)  // If parameter exist go to that slug
-				: route(menu.route?.all)  // If parameter doesn't exist then Link is 'All list'
-			: layout.navigation?.[currentUrl]?.topMenu?.dropdown.options.data.length == 1  // If list is only 1 data
-				? route(menu.route?.selected, layout.navigation?.[currentUrl]?.topMenu?.dropdown.options.data[0]?.slug)  // Link go to that 1 data
+				: layout.navigation?.[currentUrl.value]?.topMenu?.dropdown?.options?.data?.length > 1 // Check if data dropdown only 1
+					? route(menu.route?.all) //
+					: route(menu.route.selected, layout.navigation?.[currentUrl.value]?.topMenu?.dropdown?.selected)  // If parameter doesn't exist then Link is 'All list'
+			: layout.navigation?.[currentUrl.value]?.topMenu?.dropdown.options.data.length == 1  // If list is only 1 data
+				? route(menu.route?.selected, layout.navigation?.[currentUrl.value]?.topMenu?.dropdown.options.data[0]?.slug)  // Link go to that 1 data
 				: route(menu.route?.all)  // If data is above than 1 data then Link to 'All list'
 }
 </script>
 
 <template>
 	<div class="flex flex-1 items-center justify-between lg:justify-start">
-		<Link :href="route('dashboard.show')" class="md:pl-3 flex items-center h-full xl:w-56 xl:min-w-max space-x-3 mr-6 xl:mr-0">
+		<Link :href="route('dashboard.show')" class="md:pl-3 flex items-center h-full xl:overflow-hidden space-x-2 mr-6 xl:w-56 xl:pr-2 xl:border-r-2 xl:border-gray-200 xl:mr-0">
 			<img class="h-7 md:h-5 shadow" src="/media/group/1" alt="Aiku" />
-			<span class="hidden md:inline font-logo whitespace-nowrap text-lg text-indigo-700 pr-6">
+			<span class="hidden leading-none md:inline font-logo text-indigo-700 xl:truncate">
 				{{ layout.tenant.name }}
 			</span>
 		</Link>
@@ -135,7 +141,7 @@ const generateLink = (menu) => {
 					]"
 				>
 					<FontAwesomeIcon
-						v-if="menu.route.all == 'inventory.warehouses.index' && !layout?.navigation?.[currentUrl]?.currentData.slug"
+						v-if="menu.route.all == 'inventory.warehouses.index' && !layout?.navigation?.[currentUrl]?.currentData.slug && layout.navigation?.[currentUrl]?.topMenu?.dropdown?.options?.data?.length > 1"
 						icon="fal fa-bars"
 						class="w-auto pr-1 group-hover:opacity-100 opacity-70 transition duration-100 ease-in-out"
 						aria-hidden="true" />
