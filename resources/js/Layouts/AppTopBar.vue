@@ -27,7 +27,10 @@ import {
 	faBrowser,
 	faBars,
 	faBuilding,
-	faCube
+	faUserPlus,
+	faCube,
+	faTruck,
+	faFileInvoiceDollar,
 } from "@/../private/pro-light-svg-icons"
 import { library } from "@fortawesome/fontawesome-svg-core"
 
@@ -52,7 +55,10 @@ library.add(
 	faBrowser,
 	faBars,
 	faBuilding,
-	faCube
+	faUserPlus,
+	faCube,
+	faTruck,
+	faFileInvoiceDollar,
 )
 const layout = useLayoutStore()
 
