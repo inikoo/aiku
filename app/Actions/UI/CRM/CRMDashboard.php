@@ -117,8 +117,6 @@ class CRMDashboard
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
-
-
         return match ($routeName) {
             'crm.shops.show.dashboard' =>
             array_merge(

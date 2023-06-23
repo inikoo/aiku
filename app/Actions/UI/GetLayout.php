@@ -108,8 +108,8 @@ class GetLayout
                                 'tooltip'        => __('shops'),
                                 'icon'           => ['fal', 'fa-store-alt'],
                                 'route'          => [
-                                    'all'      => ['shops.index'],
-                                    'selected' => ['shops.show'],
+                                    'all'      => 'shops.index',
+                                    'selected' => 'shops.show',
 
                                 ]
                             ],
@@ -119,8 +119,8 @@ class GetLayout
                                 'tooltip' => __('Departments'),
                                 'icon'    => ['fal', 'fa-folders'],
                                 'route'   => [
-                                    'all'      => ['shops.departments.index'],
-                                    'selected' => ['shops.show.departments.index'],
+                                    'all'      => 'shops.departments.index',
+                                    'selected' => 'shops.show.departments.index',
                                 ]
                             ],
                             [
@@ -128,8 +128,8 @@ class GetLayout
                                 'tooltip' => __('Families'),
                                 'icon'    => ['fal', 'fa-folder'],
                                 'route'   => [
-                                    'all'      => ['shops.families.index'],
-                                    'selected' => ['shops.show.families.index'],
+                                    'all'      => 'shops.families.index',
+                                    'selected' => 'shops.show.families.index',
                                 ]
                             ],
                             [
@@ -137,8 +137,8 @@ class GetLayout
                                 'tooltip' => __('Products'),
                                 'icon'    => ['fal', 'fa-cube'],
                                 'route'   => [
-                                    'all'      => ['shops.products.index'],
-                                    'selected' => ['shops.show.products.index'],
+                                    'all'      => 'shops.products.index',
+                                    'selected' => 'shops.show.products.index',
                                 ]
                             ],
                         ]
@@ -391,8 +391,8 @@ class GetLayout
 
                                 'route' =>
                                     [
-                                        'all'      => ['inventory.warehouses.index'],
-                                        'selected' => ['inventory.warehouses.show'],
+                                        'all'      => 'inventory.warehouses.index',
+                                        'selected' => 'inventory.warehouses.show',
 
                                     ]
                             ],
@@ -513,9 +513,56 @@ class GetLayout
         }
         if ($user->can('accounting.view')) {
             $navigation['accounting'] = [
-                'name'  => __('Accounting'),
-                'icon'  => ['fal', 'fa-abacus'],
-                'route' => 'accounting.dashboard'
+                'name'         => __('Accounting'),
+                'icon'         => ['fal', 'fa-abacus'],
+                'route'        => 'accounting.dashboard',
+                'routeOption'  => 'xxx',
+                'labelShowAll' => __('All Accounting'),
+                'currentData'  => [
+                    'slug' => null,
+                    'name' => __('All shops'),
+                    'code' => __('All')
+                ],
+                'topMenu' => [
+                    'subSections' => [
+                        [
+                            'label' => __('Payment accounts'),
+                            'icon'  => ['fal', 'fa-money-check-alt'],
+                            'route' => [
+                                'name' => 'accounting.payment-accounts.index',
+                            ]
+                        ],
+                    ],
+                    'dropdown' => [
+                        'type'        => 'shops',
+                        'options'     => $shops,
+                        'subsections' => [
+
+                            [
+                                'label'   => __('customers'),
+                                'tooltip' => __('Customers'),
+                                'icon'    => ['fal', 'fa-user'],
+                                'route'   => [
+                                    'all'      => ['crm.customers.index'],
+                                    'selected' => ['crm.shops.show.customers.index'],
+
+                                ]
+                            ],
+                            [
+                                'label'   => __('prospects'),
+                                'tooltip' => __('Prospects'),
+                                'icon'    => ['fal', 'fa-user-plus'],
+                                'route'   => [
+                                    'all'      => ['crm.prospects.index'],
+                                    'selected' => ['crm.shops.show.prospects.index'],
+
+                                ]
+                            ],
+
+
+                        ]
+                    ]
+                ]
             ];
         }
 

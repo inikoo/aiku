@@ -1,5 +1,5 @@
 <script setup lang="ts">
-
+import { onMounted } from 'vue';
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { trans } from 'laravel-vue-i18n';
@@ -7,53 +7,8 @@ import { useLayoutStore } from '@/Stores/layout.js';
 import { router } from '@inertiajs/vue3';
 
 import { library } from "@fortawesome/fontawesome-svg-core";
-import {
-    faDollyFlatbedAlt,
-    faConveyorBeltAlt,
-    faUsers,
-    faUserHardHat,
-    faBars,
-    faUsersCog,
-    faTachometerAltFast,
-    faInventory,
-    faStoreAlt,
-    faUser,
-    faIndustry,
-    faParachuteBox,
-    faDollyEmpty,
-    faShoppingCart,
-    faAbacus,
-    faChevronDown,
-    faCube,
-    faGlobe,
-    faFileInvoiceDollar,
-    faTruck,
-    faUserPlus
-} from "@/../private/pro-light-svg-icons";
-library.add(
-    faDollyFlatbedAlt,
-    faConveyorBeltAlt,
-    faUsers,
-    faUserHardHat,
-    faBars,
-    faUsersCog,
-    faTachometerAltFast,
-    faInventory,
-    faStoreAlt,
-    faUser,
-    faIndustry,
-    faParachuteBox,
-    faDollyEmpty,
-    faShoppingCart,
-    faAbacus,
-    faChevronDown,
-    faCube,
-    faGlobe,
-    faFileInvoiceDollar,
-    faTruck,
-    faUserPlus
-
-);
+import { faChevronDown } from "@/../private/pro-light-svg-icons";
+library.add(faChevronDown);
 
 
 const layout = useLayoutStore();
@@ -66,7 +21,6 @@ const isCurrentRoute = (slug: string) => {
     // To check if the value from first key (of params from URL) is same as slug from selected dropdown
     return route().params[Object.keys(route().params)[0]] == slug ? true : false
 }
-
 
 const handleClick = (option) => {
     layout.navigation[props.currentPage].currentData = option
@@ -87,6 +41,20 @@ const handleClick = (option) => {
     router.get(route(`${layout.navigation[props.currentPage].routeOption}`, option.slug))
 }
 
+onMounted(() => {
+    // To handle dropdown if the page is 'hard refresh'
+    if(route().params != null){
+        for (let i = 0; i < layout.navigation[props.currentPage].topMenu.dropdown.options.data.length; i++) {
+            if (layout.navigation[props.currentPage].topMenu.dropdown.options.data[i].slug === Object.values(route().params)[0]) {
+                layout.navigation[props.currentPage].currentData = {
+                    code: layout.navigation[props.currentPage].topMenu.dropdown.options.data[i].code,
+                    name: layout.navigation[props.currentPage].topMenu.dropdown.options.data[i].name,
+                    slug: layout.navigation[props.currentPage].topMenu.dropdown.options.data[i].slug
+                }
+            }
+        }
+    }
+})
 
 </script>
 
@@ -106,7 +74,7 @@ const handleClick = (option) => {
             enter-to-class="transform opacity-100 scale-100" leave-active-class="transition ease-in duration-75"
             leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
             <MenuItems
-                class="absolute w-max lg:w-56 divide-y divide-gray-300 top-8 right-0 z-10 mt-1 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                class="absolute w-max lg:w-56 divide-y h-96 overflow-y-auto custom-hide-scrollbar divide-gray-300 top-8 right-0 z-10 mt-1 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                 <div class="py-1">
                     <MenuItem v-slot="{ active }" v-for="option in layout.navigation[props.currentPage].topMenu.dropdown.options.data" :key="option.slug">
                         <button @click="handleClick(option)"

@@ -7,6 +7,7 @@
 
 namespace App\Actions\OMS\UI;
 
+use App\Actions\UI\Dashboard\Dashboard;
 use App\Actions\UI\WithInertia;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -24,22 +25,24 @@ class OMSDashboard
     }
 
 
-    public function asController(ActionRequest $request): void
+    public function asController(ActionRequest $request): ActionRequest
     {
-
+        return $request;
     }
 
 
-    public function htmlResponse(): Response
+    public function htmlResponse(ActionRequest $request): Response
     {
         $this->validateAttributes();
-
 
 
         return Inertia::render(
             'OMS/OMSDashboard',
             [
-                'breadcrumbs' => $this->getBreadcrumbs(),
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
+                    $request->route()->parameters
+                ),
                 'title'       => 'OMS',
                 'pageHead'    => [
                     'title' => __('Order management system'),
@@ -50,14 +53,41 @@ class OMSDashboard
         );
     }
 
-
-    public function getBreadcrumbs(): array
+    public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
-        return [
-            'oms.hub' => [
-                'route' => 'oms.dashboard',
-                'name'  => 'OMS',
-            ]
-        ];
+        return match ($routeName) {
+            'oms.shops.show.dashboard' =>
+            array_merge(
+                Dashboard::make()->getBreadcrumbs(),
+                [
+                    [
+                        'type'   => 'simple',
+                        'simple' => [
+                            'route' => [
+                                'name'       => 'oms.shops.show.dashboard',
+                                'parameters' => $routeParameters
+                            ],
+                            'label' => __('OMS').' ('.$routeParameters['shop']->code.')',
+                        ]
+                    ]
+                ]
+            ),
+            default =>
+            array_merge(
+                Dashboard::make()->getBreadcrumbs(),
+                [
+                    [
+                        'type'   => 'simple',
+                        'simple' => [
+                            'route' => [
+                                'name' => 'oms.dashboard'
+                            ],
+                            'label' => __('OMS').' ('.__('all shops').')',
+                        ]
+                    ]
+                ]
+            )
+        };
     }
+
 }
