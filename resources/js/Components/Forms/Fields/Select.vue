@@ -20,7 +20,7 @@ const props = defineProps<{
         mode: string
     }
 }>()
-
+console.log(props)
 </script>
 
 <template>
