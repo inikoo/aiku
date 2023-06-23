@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onBeforeMount, watch, onMounted, onUnmounted, defineProps } from 'vue';
+import { ref, onBeforeMount, watch, onMounted, onUnmounted } from 'vue';
 import { cloneDeep, get as getL } from 'lodash';
 import Button from '../Elements/Buttons/Button.vue';
 import { faSave, faPlus } from '@/../private/pro-regular-svg-icons';
@@ -39,6 +39,7 @@ const firebaseApp = initializeApp(serviceAccount);
 const db = getDatabase(firebaseApp);
 const setData = ref([]);
 const focusedCellIndex = ref({ rowIndex: 0, columnIndex: 0 });
+
 
 const setFocus = () => {
   const { rowIndex, columnIndex } = focusedCellIndex.value;
@@ -121,7 +122,6 @@ const addRows = () => {
   setData.value = [...setData.value, ...result];
 };
 
-const tableRef = ref(null);
 
 onBeforeMount(fetchInitialData);
 
@@ -163,8 +163,42 @@ const handleKeyDown = (event) => {
         event.preventDefault();
       }
       break;
+    case 'Enter':
+      if (rowIndex < maxRowIndex) {
+        focusedCellIndex.value = { rowIndex: rowIndex + 1, columnIndex };
+        event.preventDefault();
+      }
+      break;
+    case 'c':
+      if (event.ctrlKey) {
+        // Copy the selected cell value to clipboard
+        const selectedCellValue = setData.value[rowIndex][columns[columnIndex].prop];
+        try {
+          navigator.clipboard.writeText(selectedCellValue);
+        } catch (error) {
+          console.error('Error copying to clipboard:', error);
+        }
+      }
+      break;
+    case 'v':
+      if (event.ctrlKey) {
+        // Paste the clipboard value to the selected cell
+        try {
+          navigator.clipboard.readText().then((clipboardText) => {
+            setData.value[rowIndex][columns[columnIndex].prop] = clipboardText;
+          });
+        } catch (error) {
+          console.error('Error pasting from clipboard:', error);
+        }
+      }
+      break;
   }
 };
+
+const setFocusedCell = (rowIndex, columnIndex) => {
+  focusedCellIndex.value = { rowIndex, columnIndex };
+};
+
 </script>
 
 <template>
@@ -179,24 +213,16 @@ const handleKeyDown = (event) => {
       </thead>
       <tbody>
         <tr v-for="(row, rowIndex) in setData" :key="rowIndex">
-          <td
-            v-for="(column, colIndex) in columns"
-            :key="colIndex"
-            class="px-4 py-2"
+          <td v-for="(column, colIndex) in columns" :key="colIndex" class="px-4 py-2"
             :tabindex="(rowIndex === focusedCellIndex.rowIndex && colIndex === focusedCellIndex.columnIndex) ? 0 : -1"
-            @focus="focusedCellIndex = { rowIndex, columnIndex: colIndex }"
-          >
+            @focus="setFocusedCell(rowIndex, colIndex)" @click="setFocusedCell(rowIndex, colIndex)">
             <div v-if="column.readonly">{{ row[column.prop] }}</div>
             <div v-if="column.columnType === 'string'">
-              <input type="text" v-model="row[column.prop]" class="input" />
+              <input type="text" v-model="row[column.prop]" class="input" @blur="updateDataAndSetFocus" />
             </div>
             <div v-if="column.columnType === 'select'">
-              <select v-model="row[column.prop]" class="input">
-                <option
-                  v-for="option in column.options"
-                  :value="option.label"
-                  :key="option.label"
-                >
+              <select v-model="row[column.prop]" class="input" @blur="updateDataAndSetFocus">
+                <option v-for="option in column.options" :value="option.label" :key="option.label">
                   {{ option.label }}
                 </option>
               </select>
@@ -207,19 +233,13 @@ const handleKeyDown = (event) => {
     </table>
   </div>
   <div class="pt-4 pb-6 pl-1 pr-0 flex">
-    <button
-      type="button"
-      @click="addRows"
-      class="flex rounded-r-none items-center gap-3 bg-white border border-gray-300 py-2 px-4 rounded"
-    >
+    <button type="button" @click="addRows"
+      class="flex rounded-r-none items-center gap-3 bg-white border border-gray-300 py-2 px-4 rounded">
       <FontAwesomeIcon icon="far fa-plus" />
       <span>Add Row</span>
     </button>
-    <input
-      type="number"
-      v-model="numberInputed"
-      class="border border-gray-300 px-4 py-2 rounded-l-none rounded rounded-l-none custom-input"
-    />
+    <input type="number" v-model="numberInputed"
+      class="border border-gray-300 px-4 py-2 rounded-l-none rounded rounded-l-none custom-input" />
   </div>
 </template>
 
@@ -238,7 +258,6 @@ const handleKeyDown = (event) => {
   padding-left: 1rem;
   padding-right: 1rem;
 }
-
 
 .table td {
   border: 1px solid #e2e8f0;
@@ -260,4 +279,9 @@ const handleKeyDown = (event) => {
   border-left: none;
   width: 120px;
 }
+
+.selected {
+  background-color: lightblue;
+}
 </style>
+
