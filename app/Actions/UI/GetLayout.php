@@ -646,7 +646,7 @@ class GetLayout
                             'label' => __('system settings'),
                             'icon'  => ['fal', 'fa-cog'],
                             'route' => [
-                                'name' => 'sysadmin.settings',
+                                'name' => 'sysadmin.settings.edit',
 
                             ]
                         ],

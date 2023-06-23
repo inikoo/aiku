@@ -18,11 +18,11 @@ use App\Actions\Auth\User\UI\IndexUsers;
 use App\Actions\Auth\User\UI\ShowUser;
 use App\Actions\UI\Dashboard\DashTV;
 use App\Actions\UI\SysAdmin\SysAdminDashboard;
-use App\Actions\UI\SysAdmin\SysAdminSettings;
+use App\Actions\UI\SysAdmin\EditSystemSettings;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', SysAdminDashboard::class)->name('dashboard');
-Route::get('/settings', SysAdminSettings::class)->name('settings');
+Route::get('/settings', EditSystemSettings::class)->name('settings.edit');
 
 Route::get('/users', IndexUsers::class)->name('users.index');
 Route::get('/users/export', ExportUsers::class)->name('users.export');

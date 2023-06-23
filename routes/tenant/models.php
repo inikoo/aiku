@@ -50,6 +50,7 @@ use App\Actions\Procurement\Supplier\StoreSupplier;
 use App\Actions\Procurement\Supplier\UpdateSupplier;
 use App\Actions\Procurement\SupplierDelivery\StoreSupplierDelivery;
 use App\Actions\Procurement\SupplierDelivery\UpdateSupplierDelivery;
+use App\Actions\Tenancy\Tenant\UpdateSystemSettings;
 use App\Actions\UI\Profile\UpdateProfile;
 use Illuminate\Support\Facades\Route;
 
@@ -139,3 +140,5 @@ Route::post('/supplier-delivery/', StoreSupplierDelivery::class)->name('supplier
 Route::patch('/marketplace-agent/{marketplaceAgent}', UpdateMarketplaceAgent::class)->name('marketplace-agent.update');
 
 Route::patch('/marketplace-supplier/{marketplaceSupplier}', UpdateMarketplaceSupplier::class)->name('marketplace-supplier.update');
+
+Route::patch('/tenant', UpdateSystemSettings::class)->name('tenant.update');

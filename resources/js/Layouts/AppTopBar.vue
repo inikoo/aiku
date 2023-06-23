@@ -26,7 +26,8 @@ import {
 	faBrowser,
 	faBars,
     faBuilding,
-    faCube
+    faCube,
+    faUserPlus
 } from "@/../private/pro-light-svg-icons"
 import { library } from "@fortawesome/fontawesome-svg-core"
 
@@ -50,7 +51,8 @@ library.add(
 	faBrowser,
 	faBars,
     faBuilding,
-    faCube
+    faCube,
+    faUserPlus
 )
 const layout = useLayoutStore()
 
@@ -63,10 +65,6 @@ const currentRoute = ref()
 router.on("navigate", (event) => {
 	currentRoute.value = route().current()
 	currentUrl.value = event.detail.page.url.split("/")[1]
-	console.log(layout.navigation?.[currentUrl.value]?.topMenu.dropdown.subsections[0].route.selected[0])
-	console.log(layout.navigation?.[currentUrl.value]?.topMenu?.dropdown?.options?.data?.length >= 2)
-	// console.log(layout.navigation?.[currentUrl.value]?.topMenu.subSections.route.all)
-	// console.log(layout.navigation?.[currentUrl.value]?.topMenu.subSections.route.selected)
 })
 
 const generateLink = (menu) => {
@@ -114,7 +112,7 @@ const generateLink = (menu) => {
 
 			<!-- Dropdown -->
 			<TopBarMenu v-if=" currentUrl && layout.navigation?.[currentUrl]?.topMenu && layout.navigation?.[currentUrl]?.topMenu.dropdown && layout.navigation?.[currentUrl]?.topMenu?.dropdown.options.data.length > 1" :currentPage="currentUrl" />
-			
+
 			<!-- Right Menu -->
 			<div
 				class="text-sm text-gray-600 inline-flex place-self-center rounded-r justify-center border-solid "
@@ -150,7 +148,7 @@ const generateLink = (menu) => {
 						:icon="menu.icon"
 						class="w-auto pr-1 group-hover:opacity-100 opacity-70 transition duration-100 ease-in-out"
 						aria-hidden="true" />
-						
+
 					<p v-if="menu.route.selected != 'inventory.warehouses.show'" class="hidden lg:inline capitalize">
 						<!-- To hide label for Warehouse route -->
 						{{ menu.label }}
