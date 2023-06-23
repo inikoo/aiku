@@ -99,13 +99,6 @@ const props = defineProps(
             },
             required: false,
         },
-        // elements: {
-        //     type: Array,
-        //     default: () => {
-        //         return [];
-        //     },
-        //     required: false,
-        // },
         modelOperations: {
             type: Array,
             default: () => {
@@ -563,8 +556,9 @@ const handleElementsChange = (data) => {
             <div class="my-2">
             <!-- Wrapper -->
 
+                
             <slot @changed="handleElementsChange">
-                <TableElements class="mb-2" v-if="queryBuilderProps.elementGroups?.length" :elements="queryBuilderProps.elementGroups" @changed="handleElementsChange" />
+                <TableElements class="mb-2" v-if="queryBuilderProps.elementGroups?.length && queryBuilderData.title" :elements="queryBuilderProps.elementGroups" @changed="handleElementsChange" :title="queryBuilderData.title" />
             </slot>
             <div class="grid grid-flow-col justify-between flex-nowrap px-4">
 

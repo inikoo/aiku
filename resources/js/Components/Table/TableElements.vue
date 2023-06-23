@@ -9,6 +9,10 @@ library.add(faChevronDown, faCheckSquare, faSquare)
 
 const props = defineProps<{
     elements: {},
+    title: {
+        title: string
+        leftIcon: any
+    }
 }>()
 // console.log(props.elements)
 
@@ -46,7 +50,11 @@ const doubleClick = (key: string, element: string) => {
 </script>
 
 <template>
-    <div class="px-4 py-2 -mt-2 flex items-center text-xs justify-end border-b border-gray-200">
+    <div class="px-4 py-2 -mt-2 flex items-center text-xs justify-between border-b border-gray-200">
+        <div class="text-2xl flex items-center py-1 gap-x-2">
+            <FontAwesomeIcon v-if="title.leftIcon" :icon="title.leftIcon" aria-hidden="true" />
+            <p class="inline font-semibold leading-none">{{ title.title }}</p>
+        </div>
         <div class="flex items-center justify-end border border-gray-200 divide-x divide-gray-200 rounded">
             <!-- List of element (checkbox) -->
             <div class="grid justify-items-center grid-flow-col auto-cols-auto divide-x-1 divide-gray-300 rounded overflow-hidden">

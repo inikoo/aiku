@@ -108,8 +108,8 @@ class GetLayout
                                 'tooltip'        => __('shops'),
                                 'icon'           => ['fal', 'fa-store-alt'],
                                 'route'          => [
-                                    'all'      => ['shops.index'],
-                                    'selected' => ['shops.show'],
+                                    'all'      => 'shops.index',
+                                    'selected' => 'shops.show',
 
                                 ]
                             ],
@@ -119,8 +119,8 @@ class GetLayout
                                 'tooltip' => __('Departments'),
                                 'icon'    => ['fal', 'fa-folders'],
                                 'route'   => [
-                                    'all'      => ['shops.departments.index'],
-                                    'selected' => ['shops.show.departments.index'],
+                                    'all'      => 'shops.departments.index',
+                                    'selected' => 'shops.show.departments.index',
                                 ]
                             ],
                             [
@@ -128,8 +128,8 @@ class GetLayout
                                 'tooltip' => __('Families'),
                                 'icon'    => ['fal', 'fa-folder'],
                                 'route'   => [
-                                    'all'      => ['shops.families.index'],
-                                    'selected' => ['shops.show.families.index'],
+                                    'all'      => 'shops.families.index',
+                                    'selected' => 'shops.show.families.index',
                                 ]
                             ],
                             [
@@ -137,8 +137,8 @@ class GetLayout
                                 'tooltip' => __('Products'),
                                 'icon'    => ['fal', 'fa-cube'],
                                 'route'   => [
-                                    'all'      => ['shops.products.index'],
-                                    'selected' => ['shops.show.products.index'],
+                                    'all'      => 'shops.products.index',
+                                    'selected' => 'shops.show.products.index',
                                 ]
                             ],
                         ]
