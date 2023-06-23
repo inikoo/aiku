@@ -513,9 +513,49 @@ class GetLayout
         }
         if ($user->can('accounting.view')) {
             $navigation['accounting'] = [
-                'name'  => __('Accounting'),
-                'icon'  => ['fal', 'fa-abacus'],
-                'route' => 'accounting.dashboard'
+                'name'    => __('Accounting'),
+                'icon'    => ['fal', 'fa-abacus'],
+                'route'   => 'accounting.dashboard',
+                'topMenu' => [
+                    'subSections' => [
+                        [
+                            'label' => __('Payment accounts'),
+                            'icon'  => ['fal', 'fa-money-check-alt'],
+                            'route' => [
+                                'name' => 'accounting.payment-accounts.index',
+                            ]
+                        ],
+                    ],
+                    'dropdown' => [
+                        'type'        => 'shops',
+                        'options'     => $shops,
+                        'subsections' => [
+
+                            [
+                                'label'   => __('customers'),
+                                'tooltip' => __('Customers'),
+                                'icon'    => ['fal', 'fa-user'],
+                                'route'   => [
+                                    'all'      => ['crm.customers.index'],
+                                    'selected' => ['crm.shops.show.customers.index'],
+
+                                ]
+                            ],
+                            [
+                                'label'   => __('prospects'),
+                                'tooltip' => __('Prospects'),
+                                'icon'    => ['fal', 'fa-user-plus'],
+                                'route'   => [
+                                    'all'      => ['crm.prospects.index'],
+                                    'selected' => ['crm.shops.show.prospects.index'],
+
+                                ]
+                            ],
+
+
+                        ]
+                    ]
+                ]
             ];
         }
 
