@@ -513,9 +513,16 @@ class GetLayout
         }
         if ($user->can('accounting.view')) {
             $navigation['accounting'] = [
-                'name'    => __('Accounting'),
-                'icon'    => ['fal', 'fa-abacus'],
-                'route'   => 'accounting.dashboard',
+                'name'         => __('Accounting'),
+                'icon'         => ['fal', 'fa-abacus'],
+                'route'        => 'accounting.dashboard',
+                'routeOption'  => 'xxx',
+                'labelShowAll' => __('All Accounting'),
+                'currentData'  => [
+                    'slug' => null,
+                    'name' => __('All shops'),
+                    'code' => __('All')
+                ],
                 'topMenu' => [
                     'subSections' => [
                         [
