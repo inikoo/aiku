@@ -126,11 +126,11 @@ const compCurrentSlug = computed(() => {
 				</div>
 
 				<div
-					class="text-sm text-gray-600 inline-flex place-self-center rounded-r justify-center border-solid border border-l-0 border-indigo-300">
+					class="text-sm inline-flex place-self-center rounded-r justify-center border-solid border border-l-0 border-indigo-300">
 					<Link v-for="fakeMarketplace in fakeMarketplaces" :href="route(fakeMarketplace.route)"
 						:title="fakeMarketplace.title"
-						class="group flex justify-center items-center cursor-pointer h-7 py-1 space-x-1 px-3 hover:text-indigo-600" :class="[
-							{'text-indigo-600': currentRoute == fakeMarketplace.route}
+						class="group text-gray-400 flex justify-center items-center cursor-pointer h-7 py-1 space-x-1 px-3" :class="[
+							[currentRoute == fakeMarketplace.route ? 'text-indigo-600' : 'hover:text-gray-600']
 						]">
 					<p class="hidden lg:inline capitalize">{{ fakeMarketplace.label }}</p>
 					</Link>
