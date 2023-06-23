@@ -20,6 +20,8 @@ class InertiaTable
     private Collection $filters;
     private string $defaultSort = '';
 
+    private array $title = [];
+
     private Collection $modelOperations;
 
     private static bool|string $defaultGlobalSearch = false;
@@ -123,7 +125,8 @@ class InertiaTable
             'pageName'                        => $this->pageName,
             'perPageOptions'                  => $this->perPageOptions,
             'elementGroups'                   => $this->transformElementGroups(),
-            'modelOperations'                 => $this->modelOperations
+            'modelOperations'                 => $this->modelOperations,
+            'title'                           => $this->title
         ];
     }
 
@@ -272,6 +275,16 @@ class InertiaTable
     public function withModelOperations(array $modelOperations = null): self
     {
         $this->modelOperations = collect($modelOperations);
+
+        return $this;
+    }
+
+    public function withTitle(string $title, array $leftIcon = null): self
+    {
+        $this->title = [
+            'title'    => $title,
+            'leftIcon' => $leftIcon
+        ];
 
         return $this;
     }
