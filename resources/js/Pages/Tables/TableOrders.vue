@@ -5,32 +5,33 @@
   -->
 
 <script setup lang="ts">
-import {Link} from '@inertiajs/vue3';
-import Table from '@/Components/Table/Table.vue';
-import {Order} from "@/types/order";
+import { Link } from "@inertiajs/vue3";
+import Table from "@/Components/Table/Table.vue";
+import { Order } from "@/types/order";
 
 const props = defineProps<{
     data: object
-}>()
+    tab?: string
+}>();
 
 
 function orderRoute(order: Order) {
     switch (route().current()) {
-        case 'shops.show.customers.show':
+        case "shops.show.customers.show":
             return route(
-                'shops.show.customers.show.orders.show',
-                [route().params['shop'],route().params['customer'], order.slug]);
-        case 'customers.show':
+                "shops.show.customers.show.orders.show",
+                [route().params["shop"], route().params["customer"], order.slug]);
+        case "customers.show":
             return route(
-                'customers.show.orders.show',
-                [route().params['customer'], order.slug]);
-        case 'shops.show.orders.index':
+                "customers.show.orders.show",
+                [route().params["customer"], order.slug]);
+        case "shops.show.orders.index":
             return route(
-                'shops.show.orders.show',
+                "shops.show.orders.show",
                 [order.shop_slug, order.slug]);
         default:
             return route(
-                'orders.show',
+                "orders.show",
                 [order.slug]);
     }
 }
@@ -39,7 +40,7 @@ function shopRoute(order: Order) {
     switch (route().current()) {
         default:
             return route(
-                'shops.show',
+                "shops.show",
                 [order.shop_slug]);
     }
 }
@@ -48,17 +49,18 @@ function shopRoute(order: Order) {
 </script>
 
 <template>
-    <Table :resource="data" :name="'o'" class="mt-5">
-        <template #cell(number)="{ item: order }">
-            <Link :href="orderRoute(order)">
-                {{ order['number'] }}
-            </Link>
-        </template>
-        <template #cell(shop)="{ item: order }">
-            <Link :href="shopRoute(order)">
-                {{ order['shop'] }}
-            </Link>
-        </template>
+    <Table :resource="data :name=" tab
+    " class="mt-5">
+    <template #cell(number)="{ item: order }">
+        <Link :href="orderRoute(order)">
+            {{ order["number"] }}
+        </Link>
+    </template>
+    <template #cell(shop)="{ item: order }">
+        <Link :href="shopRoute(order)">
+            {{ order["shop"] }}
+        </Link>
+    </template>
     </Table>
 </template>
 
