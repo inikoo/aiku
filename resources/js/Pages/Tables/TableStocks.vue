@@ -10,6 +10,7 @@ import Table from '@/Components/Table/Table.vue';
 import {Stock} from "@/types/stock";
 const props = defineProps<{
     data: object
+    tab?: string
 }>()
 
 
@@ -45,7 +46,7 @@ function stockFamilyRoute(stock: Stock) {
 </script>
 
 <template>
-    <Table :resource="data" :name="'sm'" class="mt-5">
+    <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(code)="{ item: stock }">
             <Link :href="stockRoute(stock)">
                 {{ stock['code'] }}

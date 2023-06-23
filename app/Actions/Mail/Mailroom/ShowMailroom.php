@@ -8,7 +8,7 @@
 namespace App\Actions\Mail\Mailroom;
 
 use App\Actions\InertiaAction;
-use App\Actions\UI\Mail\MailHub;
+use App\Actions\UI\Marketing\MarketingHub;
 use App\Http\Resources\Mail\MailroomResource;
 use App\Models\Mail\Mailroom;
 use Inertia\Inertia;
@@ -110,7 +110,7 @@ class ShowMailroom extends InertiaAction
     public function getBreadcrumbs(Mailroom $mailroom): array
     {
         return array_merge(
-            (new MailHub())->getBreadcrumbs(),
+            (new MarketingHub())->getBreadcrumbs(),
             [
                 'mail.mailrooms.show' => [
                     'route'           => 'mail.mailrooms.show',

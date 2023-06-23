@@ -13,6 +13,7 @@ import ProcurementMarketplaceAdoption from "@/Components/Elements/Specialised/Pr
 
 const props = defineProps<{
     data: object
+    tab?:string
 }>()
 
 
@@ -37,7 +38,7 @@ function marketplaceSupplierRoute(marketplaceSupplier: MarketplaceSupplier) {
 
 <template>
 
-    <Table :resource="data" :name="'su'" class="mt-5">
+    <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(adoption)="{ item: supplier }">
             <ProcurementMarketplaceAdoption :value="supplier['adoption']"/>
         </template>

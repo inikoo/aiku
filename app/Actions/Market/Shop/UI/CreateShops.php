@@ -11,6 +11,8 @@ use App\Actions\InertiaAction;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
+use App\Actions\Assets\Language\UI\GetLanguagesOptions;
+use App\Enums\Market\Shop\ShopTypeEnum;
 
 /**
  * @property array $breadcrumbs
@@ -75,6 +77,14 @@ class CreateShops extends InertiaAction
                             'columnType'     => 'string',
                             'prop'           => 'name',
                             'required'       => true,
+                        ],
+                        [
+                            'id'             => 'type',
+                            'name'           => __('type'),
+                            'columnType'     => 'select',
+                            'prop'           => 'type',
+                            'required'       => true,
+                            'options'        => GetLanguagesOptions::make()->all(),
                         ],
                         [
                             'id'             => 'hidden',

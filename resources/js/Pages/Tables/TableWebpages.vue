@@ -11,6 +11,7 @@ import {Webpage} from "@/types/webpage";
 
 const props = defineProps<{
     data: object
+    tab?: string
 }>()
 
 
@@ -26,7 +27,7 @@ function webpageRoute(webpage: Webpage) {
 </script>
 
 <template>
-    <Table :resource="data" :name="'web'" class="mt-5">
+    <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(code)="{ item: webpage }">
             <Link :href="webpageRoute(webpage)">
                 {{ webpage.code }}

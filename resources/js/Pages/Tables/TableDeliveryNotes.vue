@@ -5,32 +5,33 @@
   -->
 
 <script setup lang="ts">
-import {Link} from '@inertiajs/vue3';
-import Table from '@/Components/Table/Table.vue';
-import {DeliveryNote} from "@/types/delivery-note";
+import { Link } from "@inertiajs/vue3";
+import Table from "@/Components/Table/Table.vue";
+import { DeliveryNote } from "@/types/delivery-note";
 
 const props = defineProps<{
     data: object
-}>()
+    tab?: string
+}>();
 
 
 function deliveryNoteRoute(deliveryNote: DeliveryNote) {
     switch (route().current()) {
-        case 'shops.show.orders.show':
+        case "shops.show.orders.show":
             return route(
-                'shops.show.orders.show.delivery-notes.show',
-                [route().params['shop'],route().params['order'],deliveryNote.slug]);
-        case 'orders.show':
+                "shops.show.orders.show.delivery-notes.show",
+                [route().params["shop"], route().params["order"], deliveryNote.slug]);
+        case "orders.show":
             return route(
-                'orders.show,delivery-notes.show',
-                [route().params['order'],deliveryNote.slug]);
-        case 'shops.show.delivery-notes.index':
+                "orders.show,delivery-notes.show",
+                [route().params["order"], deliveryNote.slug]);
+        case "shops.show.delivery-notes.index":
             return route(
-                'shops.show.delivery-notes.show',
+                "shops.show.delivery-notes.show",
                 [deliveryNote.shop_id, deliveryNote.slug]);
         default:
             return route(
-                'delivery-notes.show',
+                "delivery-notes.show",
                 [deliveryNote.slug]);
     }
 }
@@ -38,10 +39,10 @@ function deliveryNoteRoute(deliveryNote: DeliveryNote) {
 </script>
 
 <template>
-    <Table :resource="data" :name="'dn'" class="mt-5">
+    <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(number)="{ item: deliveryNote }">
             <Link :href="deliveryNoteRoute(deliveryNote)">
-                {{ deliveryNote['number'] }}
+                {{ deliveryNote["number"] }}
             </Link>
         </template>
     </Table>

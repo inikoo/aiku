@@ -22,12 +22,12 @@ class GetLayout
 
     public function handle(User $user): array
     {
-        $tenant              = app('currentTenant');
-        $shopCount           = $tenant->marketingStats->number_shops;
-        $currentShopInstance = null;
-        if ($shopCount == 1) {
-            $currentShopInstance = Shop::first();
-        }
+        //$tenant              = app('currentTenant');
+        //$shopCount           = $tenant->marketingStats->number_shops;
+        //$currentShopInstance = null;
+        //if ($shopCount == 1) {
+        //    $currentShopInstance = Shop::first();
+        //}
 
 
         $shops = ShopsNavigationResource::collection(Shop::with('website')->get()->all());
@@ -209,7 +209,7 @@ class GetLayout
 
         if ($user->can('crm.view')) {
             $navigation['crm'] = [
-                'name'         => _('Customers'),
+                'name'         => __('Customers'),
                 'icon'         => ['fal', 'fa-user'],
                 'route'        => 'crm.dashboard',
                 'routeOption'  => 'crm.shops.show.dashboard',
@@ -268,7 +268,7 @@ class GetLayout
 
         if ($user->can('oms.view')) {
             $navigation['oms'] = [
-                'name'         => _('Orders'),
+                'name'         => __('Orders'),
                 'icon'         => ['fal', 'fa-shopping-cart'],
                 'route'        => 'oms.dashboard',
                 'routeOption'  => 'oms.shops.show.dashboard',

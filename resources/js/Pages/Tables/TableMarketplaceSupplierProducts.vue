@@ -11,6 +11,7 @@ import { SupplierProduct } from "@/types/supplier-product";
 
 const props = defineProps<{
     data: object
+    tab?:string
 }>();
 
 
@@ -38,7 +39,7 @@ function supplierProductRoute(supplierProduct: SupplierProduct) {
 </script>
 
 <template>
-    <Table :resource="data" :name="'sp'" class="mt-5">
+    <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(code)="{ item: supplier_product }">
             <Link :href="supplierProductRoute(supplier_product)">
                 {{ supplier_product["code"] }}

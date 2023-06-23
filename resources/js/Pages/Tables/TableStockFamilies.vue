@@ -12,6 +12,7 @@ import {useLocaleStore} from '@/Stores/locale.js';
 
 const props = defineProps<{
     data: object
+    tab?: string
 }>()
 
 const locale = useLocaleStore();
@@ -28,7 +29,7 @@ function stockFamilyRoute(stockFamily: StockFamily) {
 </script>
 
 <template>
-    <Table :resource="data" :name="'sf'" class="mt-5">
+    <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(code)="{ item: stockFamily }">
             <Link :href="stockFamilyRoute(stockFamily)">
                 {{ stockFamily['code'] }}

@@ -8,7 +8,7 @@
 namespace App\Actions\Mail\Mailshot\UI;
 
 use App\Actions\Mail\Mailroom\ShowMailroom;
-use App\Actions\UI\Mail\MailHub;
+use App\Actions\UI\Marketing\MarketingHub;
 use App\Models\Mail\Mailroom;
 use App\Models\Mail\Outbox;
 use App\Models\Tenancy\Tenant;
@@ -32,7 +32,7 @@ trait HasUIMailshots
         return match ($routeName) {
             'mail.mailshots.index' =>
             array_merge(
-                (new MailHub())->getBreadcrumbs(),
+                (new MarketingHub())->getBreadcrumbs(),
                 $headCrumb()
             ),
             'mail.mailrooms.show.mailshots.show' =>

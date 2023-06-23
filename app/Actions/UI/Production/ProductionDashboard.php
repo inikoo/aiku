@@ -7,6 +7,7 @@
 
 namespace App\Actions\UI\Production;
 
+use App\Actions\UI\Dashboard\Dashboard;
 use App\Actions\UI\WithInertia;
 use App\Models\Tenancy\Tenant;
 use Inertia\Inertia;
@@ -65,14 +66,24 @@ class ProductionDashboard
         );
     }
 
-
     public function getBreadcrumbs(): array
     {
-        return [
-            'production.dashboard' => [
-                'route' => 'production.dashboard',
-                'name'  => __('production'),
-            ]
-        ];
+        return
+            array_merge(
+                Dashboard::make()->getBreadcrumbs(),
+                [
+                    [
+                        'type'   => 'simple',
+                        'simple' => [
+                            'route' => [
+                                'name' => 'production.dashboard'
+                            ],
+                            'label' => __('production'),
+                        ]
+                    ]
+                ]
+            );
     }
+
+
 }
