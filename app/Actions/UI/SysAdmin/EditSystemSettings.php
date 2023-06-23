@@ -9,7 +9,7 @@ namespace App\Actions\UI\SysAdmin;
 
 use App\Actions\UI\Dashboard\Dashboard;
 use App\Actions\UI\WithInertia;
-use App\Models\Tenancy\Tenant;
+use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -26,15 +26,16 @@ class EditSystemSettings
     }
 
 
-    public function asController(): Tenant
+    public function asController()
     {
-        return app('currentTenant');
+
     }
 
 
-    public function htmlResponse(Tenant $tenant): Response
+    public function htmlResponse(): Response
     {
 
+        $tenant= app('currentTenant');
         return Inertia::render(
             'EditModel',
             [
@@ -50,10 +51,10 @@ class EditSystemSettings
                             "title"  => __("branding"),
                             "icon"   => "fa-light fa-copyright",
                             "fields" => [
-                                "label" => [
-                                    "type"  => "string",
+                                "name" => [
+                                    "type"  => "input",
                                     "label" => __("Name"),
-                                    "value" => "",
+                                    "value" => Arr::get($tenant->settings, 'ui.name', $tenant->name)
                                 ],
                                 "logo" => [
                                     "type"  => "avatar",
@@ -81,7 +82,7 @@ class EditSystemSettings
                     ],
                     "args"      => [
                         "updateRoute" => [
-                            "name"       => "models.tenant-settings.update"
+                            "name"       => "models.system-settings.update"
                         ],
                     ],
                 ],

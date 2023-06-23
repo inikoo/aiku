@@ -21,6 +21,7 @@ use App\Models\Tenancy\Group;
 use App\Models\Tenancy\Tenant;
 use Exception;
 use Illuminate\Console\Command;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -46,6 +47,8 @@ class StoreTenant
 
         $modelData['ulid'] = Str::ulid();
         /** @var Tenant $tenant */
+
+        data_set($modelData, 'settings.ui.name', Arr::get($modelData, 'name'));
         $tenant = $group->tenants()->create($modelData);
 
 

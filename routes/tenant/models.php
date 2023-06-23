@@ -141,4 +141,4 @@ Route::patch('/marketplace-agent/{marketplaceAgent}', UpdateMarketplaceAgent::cl
 
 Route::patch('/marketplace-supplier/{marketplaceSupplier}', UpdateMarketplaceSupplier::class)->name('marketplace-supplier.update');
 
-Route::patch('/tenant', UpdateSystemSettings::class)->name('tenant.update');
+Route::patch('/system-settings', UpdateSystemSettings::class)->name('system-settings.update');

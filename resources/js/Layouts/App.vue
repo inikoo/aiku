@@ -61,6 +61,7 @@ library.add(
     faInventory,
     faStoreAlt,
     faUser,
+    faUser,
     faIndustry,
     faParachuteBox,
     faDollyEmpty,
@@ -124,7 +125,6 @@ const sidebarOpen = ref(false);
 const showSearchDialog = ref(false);
 
 const user = ref(usePage().props.auth.user);
-
 
 </script>
 

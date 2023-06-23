@@ -98,13 +98,15 @@ class Tenant extends SpatieTenant implements HasMedia
 
 
     protected $casts = [
-        'data'   => 'array',
-        'source' => 'array',
+        'data'     => 'array',
+        'settings' => 'array',
+        'source'   => 'array',
     ];
 
     protected $attributes = [
-        'data'   => '{}',
-        'source' => '{}',
+        'data'     => '{}',
+        'settings' => '{}',
+        'source'   => '{}',
     ];
 
     protected $guarded = [];
@@ -121,7 +123,6 @@ class Tenant extends SpatieTenant implements HasMedia
     {
         return 'slug';
     }
-
 
 
     public function schema(): string
@@ -216,7 +217,7 @@ class Tenant extends SpatieTenant implements HasMedia
     {
         return $this->belongsToMany(Agent::class)
             ->using(AgentTenant::class)
-            ->withPivot(['source_id','status'])
+            ->withPivot(['source_id', 'status'])
             ->withTimestamps();
     }
 
@@ -224,7 +225,7 @@ class Tenant extends SpatieTenant implements HasMedia
     {
         return $this->belongsToMany(SupplierProduct::class)
             ->using(SupplierProductTenant::class)
-            ->withPivot(['source_id','status'])
+            ->withPivot(['source_id', 'status'])
             ->withTimestamps();
     }
 

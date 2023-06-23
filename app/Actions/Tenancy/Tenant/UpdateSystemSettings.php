@@ -18,9 +18,10 @@ class UpdateSystemSettings
 
     public function handle(array $modelData): void
     {
-        $tenant=app('currentTenant');
-        $this->update($tenant, $modelData, ['data', 'settings']);
+        $tenant = app('currentTenant');
 
+
+        $this->update($tenant, $modelData, ['data', 'settings']);
     }
 
     public function authorize(ActionRequest $request): bool
@@ -35,8 +36,7 @@ class UpdateSystemSettings
     public function rules(): array
     {
         return [
-            'code' => ['sometimes', 'required', 'unique:tenant.warehouses', 'between:2,4', 'alpha'],
-            'name' => ['sometimes', 'required', 'max:250', 'string'],
+            'name' => ['sometimes', 'required', 'max:24', 'string'],
         ];
     }
 
@@ -45,8 +45,20 @@ class UpdateSystemSettings
     {
         $this->fillFromRequest($request);
 
+        $modelData = [];
+        foreach ($this->validateAttributes() as $key => $value) {
+            data_set(
+                $modelData,
+                match ($key) {
+                    'name'  => 'settings.ui.name',
+                    default => $key
+                },
+                $value
+            );
+        }
+
         $this->handle(
-            modelData: $this->validateAttributes()
+            modelData: $modelData
         );
     }
 

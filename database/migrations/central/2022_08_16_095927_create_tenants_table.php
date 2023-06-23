@@ -23,6 +23,7 @@ return new class () extends Migration {
             $table->string('email')->nullable();
             $table->boolean('status')->default(true);
             $table->jsonb('data');
+            $table->jsonb('settings');
             $table->jsonb('source');
             $table->unsignedSmallInteger('country_id');
             $table->foreign('country_id')->references('id')->on('public.countries');
