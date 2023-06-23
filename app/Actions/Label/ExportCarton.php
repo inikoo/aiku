@@ -27,8 +27,13 @@ class ExportCarton
     {
         $width  = $request->get('width');
         $height = $request->get('height');
+        $customText = $request->get('custom_text');
+        $withImage = $request->get('with_image');
+
+        $filename = 'carton-' . now()->format('Y-m-d');
 
         $config = [
+            'title' => $filename,
             'format' => [$width, $height],
             'margin_left' => 2,
             'margin_right' => 2,
@@ -39,32 +44,36 @@ class ExportCarton
         ];
 
         $headerFontSize  = 2.5;
-        $contentFontSize = 2.0;
+        $contentFontSize = 2;
         $labelFontSize   = 1.5;
-        $barcodeSize     = 0.5;
+        $barcodeSize     = 1;
+        $imageSize       = 12;
 
         if($width == 63) {
             $config['default_font_size'] = '2';
             $headerFontSize  = 1.0;
             $contentFontSize = 0.8;
-            $labelFontSize   = 0.5;
+            $labelFontSize   = 0.6;
             $barcodeSize     = 0.3;
+            $imageSize       = 8;
         }
 
         if($width == 63.5) {
             $config['default_font_size'] = '2';
             $headerFontSize  = 1.0;
             $contentFontSize = 0.8;
-            $labelFontSize   = 0.5;
+            $labelFontSize   = 0.6;
             $barcodeSize     = 0.3;
+            $imageSize       = 8;
         }
 
         if($width == 70) {
             $config['default_font_size'] = '2';
             $headerFontSize  = 1.0;
             $contentFontSize = 0.8;
-            $labelFontSize   = 0.5;
+            $labelFontSize   = 0.6;
             $barcodeSize     = 0.3;
+            $imageSize       = 8;
         }
 
         if($width == 125) {
@@ -72,6 +81,8 @@ class ExportCarton
             $headerFontSize  = 1.5;
             $contentFontSize = 1.0;
             $labelFontSize   = 1.0;
+            $barcodeSize     = 0.3;
+            $imageSize       = 12;
         }
 
         if($width == 130) {
@@ -80,19 +91,33 @@ class ExportCarton
             $contentFontSize = 2.0;
             $labelFontSize   = 1.5;
             $barcodeSize     = 1.0;
+            $imageSize       = 20;
         }
 
         if($width == 140) {
-            $config['default_font_size'] = '20';
+            $config['default_font_size'] = '30';
+            $headerFontSize  = 3.5;
+            $contentFontSize = 3.0;
+            $labelFontSize   = 2.5;
+            $barcodeSize     = 2;
+            $imageSize       = 24;
         }
 
-        $filename = 'carton-' . now()->format('Y-m-d');
+        $material = 'Zea Mays (Corn Starch) , Polyvinyl Alcohol , Aqua , Sodium Dodecyl Sulphate ,
+            Cocamide DEA , Propylene Glycol , Paraffinum Liquidum , Parfum ,
+            Methylisothiazolinone , (+/- CI 16035 , CI 19140 , CI 42090 , CI 18050 , CI 16255 , CI
+            45430 , CI 15985)';
+
         $pdf = PDF::loadView('labels.templates.pdf.carton', [
             'filename' => $filename,
             'headerFontSize' => $headerFontSize,
             'contentFontSize' => $contentFontSize,
             'labelFontSize' => $labelFontSize,
-            'barcodeSize' => $barcodeSize
+            'barcodeSize' => $barcodeSize,
+            'customText' => $customText,
+            'material' => $material,
+            'withImage' => $withImage,
+            'imageSize' => $imageSize
         ], [], $config);
 
         return $pdf->stream($filename . '.pdf');
