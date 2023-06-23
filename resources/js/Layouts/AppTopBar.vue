@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Link } from "@inertiajs/vue3"
-import { ref } from "vue"
+import { ref, computed } from "vue"
 import { router } from "@inertiajs/vue3"
 import TopBarMenu from "@/Components/Navigation/TopBarMenu.vue"
 import { capitalize } from "@/Composables/capitalize"
@@ -94,6 +94,10 @@ const fakeMarketplaces = [
 	},
 ]
 
+const compCurrentSlug = computed(() => {
+	return layout.navigation?.[currentUrl.value]?.currentData?.slug
+})
+
 </script>
 
 <template>
@@ -166,19 +170,20 @@ const fakeMarketplaces = [
 						menu.route.all == 'inventory.warehouses.index' && !layout?.navigation?.[currentUrl]?.currentData.slug ? 'border-l-4 border-l-transparent' : '',
 						route(currentRoute, route().params) == generateLink(menu) ? 'text-indigo-600' : 'text-gray-600'
 					]">
-				<FontAwesomeIcon
-					v-if="menu.route.all == 'inventory.warehouses.index' && !layout?.navigation?.[currentUrl]?.currentData.slug && layout.navigation?.[currentUrl]?.topMenu?.dropdown?.options?.data?.length > 1"
-					icon="fal fa-bars"
-					class="w-auto pr-1 group-hover:opacity-100 opacity-70 transition duration-100 ease-in-out"
-					aria-hidden="true" />
-				<FontAwesomeIcon v-else :icon="menu.icon"
-					class="w-auto pr-1 group-hover:opacity-100 opacity-70 transition duration-100 ease-in-out"
-					aria-hidden="true" />
+					<FontAwesomeIcon
+						v-if="menu.route.all == 'inventory.warehouses.index' && !layout?.navigation?.[currentUrl]?.currentData.slug && layout.navigation?.[currentUrl]?.topMenu?.dropdown?.options?.data?.length > 1"
+						icon="fal fa-bars"
+						class="w-auto pr-1 group-hover:opacity-100 opacity-70 transition duration-100 ease-in-out"
+						aria-hidden="true" />
+					<FontAwesomeIcon v-else :icon="menu.icon"
+						class="w-auto pr-1 group-hover:opacity-100 opacity-70 transition duration-100 ease-in-out"
+						aria-hidden="true" />
 
-				<p v-if="menu.route.selected != 'inventory.warehouses.show'" class="hidden lg:inline capitalize">
-					<!-- To hide label for Warehouse route -->
-					{{ menu.label }}
-				</p>
+					<!-- If Menu != Warehouses then don't show the label (only icon) -->
+					<p v-if="menu.route.selected != 'inventory.warehouses.show'" class="hidden lg:inline capitalize">
+						<!-- If menu linked to Shop Dashboard then label = 'Shop' instead default (Shops) -->
+						{{ layout.navigation?.[currentUrl]?.currentData?.slug ? menu.route.selected == 'shops.show' ? 'Shop' : menu.label : menu.label}}
+					</p>
 				</Link>
 			</div>
 		</div>
