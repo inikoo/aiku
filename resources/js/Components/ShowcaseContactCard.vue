@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { trans } from 'laravel-vue-i18n'
 import AddressLocation from '@/Components/AddressLocation.vue'
 import {
     faEnvelope, faPhone,
@@ -39,7 +40,7 @@ const props = defineProps<{
                 }
             }
         }
-        photo?: string
+        image_id?: any
     }
 }>();
 
@@ -56,10 +57,9 @@ const copyText = (text: string) => {
 
 <template>
     <div class="grid md:grid-flow-col w-fit">
-
         <!-- Images -->
-        <div class="relative place-self-center md:place-self-start rounded-md h-40 w-40 shadow overflow-hidden grid justify-center">
-            <img class="object-fit" src="https://source.unsplash.com/featured/300x300" alt="">
+        <div v-if="props.data.image_id" class="relative place-self-center md:place-self-start rounded-md h-40 w-40 shadow overflow-hidden grid justify-center text-xs items-center bg-gray-300">
+            <img class="object-fit" :src="`/media/group/${props.data.image_id}`" :alt="trans('Supplier Photo')">
         </div>
 
         <!-- Contact Section -->

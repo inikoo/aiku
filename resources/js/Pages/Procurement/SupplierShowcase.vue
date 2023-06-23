@@ -16,7 +16,7 @@ const props = defineProps<{
       email?: string
       phone?: string
       address?: string
-      photo?: string
+      image_id?: any
     },
     stats: [{
       label: string,
