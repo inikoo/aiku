@@ -15,12 +15,16 @@ const countryCode=props.data[0]
 const countryName=props.data[1]
 const addressLocation=props.data[2]??''
 
-const flag= '/flags/'+countryCode.toLowerCase()+'.png'  ;
+let flag=null;
+if(countryCode){
+    flag= '/flags/'+countryCode.toLowerCase()+'.png'  ;
+}
+
 
 </script>
 
 <template>
-    <img class="inline pr-1" :src='flag' :alt="countryCode"   :title='capitalize(countryName)'  /> {{addressLocation}}
+    <img v-if="flag" class="inline pr-1" :src='flag' :alt="countryCode"   :title='capitalize(countryName)'  /> {{addressLocation}}
 </template>
 
 

@@ -42,6 +42,7 @@ use App\Actions\OMS\Order\StoreOrder;
 use App\Actions\OMS\Order\UpdateOrder;
 use App\Actions\Procurement\Agent\StoreAgent;
 use App\Actions\Procurement\Agent\UpdateAgent;
+use App\Actions\Procurement\Marketplace\Agent\DeleteMarketplaceAgent;
 use App\Actions\Procurement\Marketplace\Agent\UpdateMarketplaceAgent;
 use App\Actions\Procurement\Marketplace\Supplier\UpdateMarketplaceSupplier;
 use App\Actions\Procurement\PurchaseOrder\StorePurchaseOrder;
@@ -138,6 +139,7 @@ Route::patch('/purchase-order/{purchaseOrder}', UpdatePurchaseOrder::class)->nam
 Route::patch('/supplier-delivery/{supplierDelivery}', UpdateSupplierDelivery::class)->name('supplier-delivery.update');
 Route::post('/supplier-delivery/', StoreSupplierDelivery::class)->name('supplier-delivery.store');
 Route::patch('/marketplace-agent/{marketplaceAgent}', UpdateMarketplaceAgent::class)->name('marketplace-agent.update');
+Route::delete('/marketplace-agent/{marketplaceAgent}', DeleteMarketplaceAgent::class)->name('marketplace-agent.delete');
 
 Route::patch('/marketplace-supplier/{marketplaceSupplier}', UpdateMarketplaceSupplier::class)->name('marketplace-supplier.update');
 

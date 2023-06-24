@@ -24,7 +24,7 @@ const locale = useLocaleStore();
 </script>
 <template>
     <div class="mx-4 my-4 md:my-2 grid grid-flow-col justify-between items-center">
-        <div class="">
+        <div >
             <h2 class="font-bold text-gray-900 text-2xl tracking-tight capitalize">
 
                 <span v-if="data.container" class="text-indigo-500 font-medium mr-2">
@@ -67,7 +67,14 @@ const locale = useLocaleStore();
 
         <!-- Button Add -->
         <div class="flex items-center gap-2">
-             <span v-if="data['edit']"  class="">
+
+               <span v-if="data['delete']" >
+                <Link as="button"  :href="route(data['delete']['route']['name'],data['delete']['route']['parameters'])">
+                 <FontAwesomeIcon class="text-red-500 hover:text-red-700 mr-3"  icon="far fa-trash-alt" />
+                </Link>
+            </span>
+
+             <span v-if="data['edit']"  >
                 <Link :href="route(data['edit']['route']['name'],data['edit']['route']['parameters'])">
                 <Button type="button"
                         class="inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
@@ -90,7 +97,9 @@ const locale = useLocaleStore();
                 </Link>
             </div>
 
-            <span v-if="data['create'] && !data['create']['withMulti']" class="">
+
+
+            <span v-if="data['create'] && !data['create']['withMulti']" >
                 <Link :href="route(data['create']['route']['name'], data['create']['route']['parameters'])">
                    <Button type='secondary' action="create" class="capitalize">
                       {{ data['create']['label'] }}
@@ -98,7 +107,7 @@ const locale = useLocaleStore();
                 </Link>
             </span>
 
-            <span v-if="data['create_direct']" class="">
+            <span v-if="data['create_direct']" >
                 <Link as="button" method="post" :href="route(data['create_direct']['route']['name'],data['create_direct']['route']['parameters'])">
                 <Button type='secondary' action="create" class="capitalize">
                  {{data['create_direct']['label']}}
@@ -106,7 +115,7 @@ const locale = useLocaleStore();
                 </Link>
             </span>
 
-            <span v-if="data['cancelCreate']" class="">
+            <span v-if="data['cancelCreate']" >
                 <Link :href="route(data['cancelCreate']['route']['name'],data['cancelCreate']['route']['parameters'])">
                 <Button type='danger' action="cancel" class="capitalize">
                    {{ trans('Cancel') }}
@@ -114,18 +123,18 @@ const locale = useLocaleStore();
                 </Link>
             </span>
 
-            <span v-if="data['exitEdit']"  class="">
+            <span v-if="data['exitEdit']"  >
                 <Link :href="route(data['exitEdit']['route']['name'],data['exitEdit']['route']['parameters'])">
                 <Button type="button"
                         class="inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
                     <FontAwesomeIcon icon="far fa-arrow-left" class="-ml-1 mr-2 h-5 w-5 text-gray-500" aria-hidden="true"/>
-                    <span v-if="data['exitEdit']['label']">{{ trans(data['exitEdit']['label']) }}</span> 
-                    <span v-if="!data['exitEdit']['label']"> {{ trans('Exit edit') }}</span> 
+                    <span v-if="data['exitEdit']['label']">{{ trans(data['exitEdit']['label']) }}</span>
+                    <span v-if="!data['exitEdit']['label']"> {{ trans('Exit edit') }}</span>
                 </Button>
                 </Link>
             </span>
 
-            <span v-if="data['clearMulti']" class="">
+            <span v-if="data['clearMulti']" >
                 <Link :href="route(data['clearMulti']['route']['name'], data['clearMulti']['route']['parameters'])">
                     <Button type="button"
                         class="inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">

@@ -21,6 +21,8 @@ use App\Http\Resources\Procurement\SupplierProductResource;
 use App\Http\Resources\Procurement\SupplierResource;
 use App\Http\Resources\SysAdmin\HistoryResource;
 use App\Models\Procurement\Agent;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -39,8 +41,11 @@ class ShowAgent extends InertiaAction
         return $request->user()->hasPermissionTo("procurement.view");
     }
 
-    public function asController(Agent $agent, ActionRequest $request): Agent
+    public function asController(Agent $agent, ActionRequest $request): RedirectResponse|Agent
     {
+        if ($agent->trashed()) {
+            return Redirect::route($request->route()->getName(), $request->route()->originalParameters());
+        }
         $this->initialisation($request)->withTab(AgentTabsEnum::values());
 
         return $this->handle($agent);
@@ -48,7 +53,6 @@ class ShowAgent extends InertiaAction
 
     public function htmlResponse(Agent $agent, ActionRequest $request): Response
     {
-
         return Inertia::render(
             'Procurement/Agent',
             [
@@ -56,9 +60,9 @@ class ShowAgent extends InertiaAction
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->parameters
                 ),
-                'navigation'    => [
-                    'previous'  => $this->getPrevious($agent, $request),
-                    'next'      => $this->getNext($agent, $request),
+                'navigation'  => [
+                    'previous' => $this->getPrevious($agent, $request),
+                    'next'     => $this->getNext($agent, $request),
                 ],
                 'pageHead'    => [
                     'icon'          =>
@@ -112,72 +116,93 @@ class ShowAgent extends InertiaAction
                     : Inertia::lazy(fn () => GetAgentShowcase::run($agent)),
 
 
-                AgentTabsEnum::PURCHASE_ORDERS->value => $this->tab == AgentTabsEnum::PURCHASE_ORDERS->value ?
-                    fn () => PurchaseOrderResource::collection(IndexSupplierPurchaseOrders::run(
-                        parent: $agent,
-                        prefix: 'purchase_orders'
-                    ))
-                    : Inertia::lazy(fn () => PurchaseOrderResource::collection(IndexSupplierPurchaseOrders::run(
-                        parent: $agent,
-                        prefix: 'purchase_orders'
-                    ))),
-                AgentTabsEnum::SUPPLIER_PRODUCTS->value => $this->tab == AgentTabsEnum::SUPPLIER_PRODUCTS->value ?
-                    fn () => SupplierProductResource::collection(IndexSupplierProducts::run(
-                        parent: $agent,
-                        prefix: 'supplier_products'
-                    ))
-                    : Inertia::lazy(fn () => SupplierProductResource::collection(IndexSupplierProducts::run(
-                        parent: $agent,
-                        prefix: 'supplier_products'
-                    ))),
-                AgentTabsEnum::SUPPLIERS->value => $this->tab == AgentTabsEnum::SUPPLIERS->value ?
-                    fn () => SupplierResource::collection(IndexSuppliers::run(
-                        parent: $agent,
-                        prefix: 'suppliers'
-                    ))
-                    : Inertia::lazy(fn () => SupplierResource::collection(IndexSuppliers::run(
-                        parent: $agent,
-                        prefix: 'suppliers'
-                    ))),
+                AgentTabsEnum::PURCHASE_ORDERS->value   => $this->tab == AgentTabsEnum::PURCHASE_ORDERS->value
+                    ?
+                    fn () => PurchaseOrderResource::collection(
+                        IndexSupplierPurchaseOrders::run(
+                            parent: $agent,
+                            prefix: 'purchase_orders'
+                        )
+                    )
+                    : Inertia::lazy(fn () => PurchaseOrderResource::collection(
+                        IndexSupplierPurchaseOrders::run(
+                            parent: $agent,
+                            prefix: 'purchase_orders'
+                        )
+                    )),
+                AgentTabsEnum::SUPPLIER_PRODUCTS->value => $this->tab == AgentTabsEnum::SUPPLIER_PRODUCTS->value
+                    ?
+                    fn () => SupplierProductResource::collection(
+                        IndexSupplierProducts::run(
+                            parent: $agent,
+                            prefix: 'supplier_products'
+                        )
+                    )
+                    : Inertia::lazy(fn () => SupplierProductResource::collection(
+                        IndexSupplierProducts::run(
+                            parent: $agent,
+                            prefix: 'supplier_products'
+                        )
+                    )),
+                AgentTabsEnum::SUPPLIERS->value         => $this->tab == AgentTabsEnum::SUPPLIERS->value
+                    ?
+                    fn () => SupplierResource::collection(
+                        IndexSuppliers::run(
+                            parent: $agent,
+                            prefix: 'suppliers'
+                        )
+                    )
+                    : Inertia::lazy(fn () => SupplierResource::collection(
+                        IndexSuppliers::run(
+                            parent: $agent,
+                            prefix: 'suppliers'
+                        )
+                    )),
 
                 AgentTabsEnum::HISTORY->value => $this->tab == AgentTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistories::run($agent))
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistories::run($agent)))
             ]
-        )->table(IndexPurchaseOrders::make()->tableStructure(
-            modelOperations: [
-                'createLink' => $this->canEdit ? [
-                    'route' => [
-                        'name'       => 'procurement.agents.show.purchase-orders.create',
-                        'parameters' => array_values([$agent->slug])
-                    ],
-                    'label' => __('purchase_orders')
-                ] : false
-            ],
-            prefix: 'purchase_orders'
-        ))->table(IndexSupplierProducts::make()->tableStructure(
-            modelOperations: [
-                'createLink' => $this->canEdit ? [
-                    'route' => [
-                        'name'       => 'procurement.agents.show.supplier-products-orders.create',
-                        'parameters' => array_values([$agent->slug])
-                    ],
-                    'label' => __('supplier products')
-                ] : false
-            ],
-            prefix: 'supplier_products'
-        ))->table(IndexSuppliers::make()->tableStructure(
-            modelOperations: [
-                'createLink' => $this->canEdit ? [
-                    'route' => [
-                        'name'       => 'procurement.agents.show.suppliers.create',
-                        'parameters' => array_values([$agent->slug])
-                    ],
-                    'label' => __('suppliers')
-                ] : false
-            ],
-            prefix: 'suppliers'
-        ))->table(IndexHistories::make()->tableStructure());
+        )->table(
+            IndexPurchaseOrders::make()->tableStructure(
+                modelOperations: [
+                    'createLink' => $this->canEdit ? [
+                        'route' => [
+                            'name'       => 'procurement.agents.show.purchase-orders.create',
+                            'parameters' => array_values([$agent->slug])
+                        ],
+                        'label' => __('purchase_orders')
+                    ] : false
+                ],
+                prefix: 'purchase_orders'
+            )
+        )->table(
+            IndexSupplierProducts::make()->tableStructure(
+                modelOperations: [
+                    'createLink' => $this->canEdit ? [
+                        'route' => [
+                            'name'       => 'procurement.agents.show.supplier-products-orders.create',
+                            'parameters' => array_values([$agent->slug])
+                        ],
+                        'label' => __('supplier products')
+                    ] : false
+                ],
+                prefix: 'supplier_products'
+            )
+        )->table(
+            IndexSuppliers::make()->tableStructure(
+                modelOperations: [
+                    'createLink' => $this->canEdit ? [
+                        'route' => [
+                            'name'       => 'procurement.agents.show.suppliers.create',
+                            'parameters' => array_values([$agent->slug])
+                        ],
+                        'label' => __('suppliers')
+                    ] : false
+                ],
+                prefix: 'suppliers'
+            )
+        )->table(IndexHistories::make()->tableStructure());
     }
 
 
@@ -218,28 +243,30 @@ class ShowAgent extends InertiaAction
     public function getPrevious(Agent $agent, ActionRequest $request): ?array
     {
         $previous = Agent::where('code', '<', $agent->code)->orderBy('code', 'desc')->first();
-        return $this->getNavigation($previous, $request->route()->getName());
 
+        return $this->getNavigation($previous, $request->route()->getName());
     }
 
     public function getNext(Agent $agent, ActionRequest $request): ?array
     {
         $next = Agent::where('code', '>', $agent->code)->orderBy('code')->first();
+
         return $this->getNavigation($next, $request->route()->getName());
     }
 
     private function getNavigation(?Agent $agent, string $routeName): ?array
     {
-        if(!$agent) {
+        if (!$agent) {
             return null;
         }
+
         return match ($routeName) {
-            'procurement.agents.show'=> [
-                'label'=> $agent->name,
-                'route'=> [
-                    'name'      => $routeName,
-                    'parameters'=> [
-                        'agent'=> $agent->slug
+            'procurement.agents.show' => [
+                'label' => $agent->name,
+                'route' => [
+                    'name'       => $routeName,
+                    'parameters' => [
+                        'agent' => $agent->slug
                     ]
 
                 ]

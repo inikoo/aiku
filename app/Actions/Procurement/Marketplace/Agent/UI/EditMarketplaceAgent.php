@@ -8,6 +8,8 @@
 namespace App\Actions\Procurement\Marketplace\Agent\UI;
 
 use App\Actions\Assets\Country\UI\GetAddressData;
+use App\Actions\Assets\Country\UI\GetCountriesOptions;
+use App\Actions\Assets\Currency\UI\GetCurrenciesOptions;
 use App\Actions\InertiaAction;
 use App\Actions\Procurement\Agent\UI\ShowAgent;
 use App\Http\Resources\Helpers\AddressResource;
@@ -27,6 +29,7 @@ class EditMarketplaceAgent extends InertiaAction
     public function authorize(ActionRequest $request): bool
     {
         $this->canEdit = $request->user()->can('procurement.edit');
+
         return $request->user()->hasPermissionTo("procurement.view");
     }
 
@@ -47,8 +50,8 @@ class EditMarketplaceAgent extends InertiaAction
                     $request->route()->parameters
                 ),
                 'pageHead'    => [
-                    'title'     => $agent->code,
-                    'exitEdit'  => [
+                    'title'    => $agent->code,
+                    'exitEdit' => [
                         'route' => [
                             'name'       => preg_replace('/edit$/', 'show', $this->routeName),
                             'parameters' => array_values($this->originalParameters)
@@ -60,51 +63,87 @@ class EditMarketplaceAgent extends InertiaAction
 
                 'formData' => [
                     'blueprint' => [
+
+
                         [
-                            'title'  => __('id'),
+                            'title'  => __('ID/contact details'),
+                            'icon'   => ['fal', 'fa-address-book'],
                             'fields' => [
-                                'code' => [
+                                'code'         => [
                                     'type'  => 'input',
                                     'label' => __('code'),
                                     'value' => $agent->code
                                 ],
-                                'name' => [
+                                'company_name' => [
                                     'type'  => 'input',
-                                    'label' => __('label'),
-                                    'value' => $agent->name
+                                    'label' => __('company_name'),
+                                    'value' => $agent->company_name
+                                ],
+                                'email'        => [
+                                    'type'    => 'input',
+                                    'label'   => __('email'),
+                                    'value'   => $agent->email,
+                                    'options' => [
+                                        'inputType' => 'email'
+                                    ]
+                                ],
+                                'address'      => [
+                                    'type'    => 'address',
+                                    'label'   => __('Address'),
+                                    'value'   => AddressResource::make($agent->getAddress())->getArray(),
+                                    'options' => [
+                                        'countriesAddressData' => GetAddressData::run()
+
+                                    ]
                                 ],
                             ]
-                        ]
+                        ],
+                        [
+                            'title'  => __('settings'),
+                            'icon'   => 'fa-light fa-cog',
+                            'fields' => [
+
+                                'currency_id' => [
+                                    'type'        => 'select',
+                                    'label'       => __('currency'),
+                                    'placeholder' => 'Select a Currency',
+                                    'options'     => GetCurrenciesOptions::run(),
+                                    'required'    => true,
+                                    'mode'        => 'single'
+                                ],
+
+                                'default_product_country_origin' => [
+                                    'type'        => 'select',
+                                    'label'       => __("Product's country of origin"),
+                                    'placeholder' => 'Select a Country',
+                                    'options'     => GetCountriesOptions::run(),
+                                    'mode'        => 'single'
+                                ],
+                            ]
+                        ],
+                        [
+                            'title'     => __('delete'),
+                            'icon'      => 'fa-light fa-trash-alt',
+                            'operation' => [
+                                [
+                                    'component' => 'deleteModel',
+                                    'data'      => [
+                                        'route' => [
+                                            'models.market-place-agent.delete'
+                                        ]
+                                    ]
+                                ],
+
+
+                            ]
+                        ],
 
                     ],
-                    [
-                        'title'  => __('contact'),
-                        'icon'   => 'fa-light fa-phone',
-                        'fields' => [
-                            'email'   => [
-                                'type'    => 'input',
-                                'label'   => __('email'),
-                                'value'   => $agent->email,
-                                'options' => [
-                                    'inputType' => 'email'
-                                ]
-                            ],
-                            'address' => [
-                                'type'    => 'address',
-                                'label'   => __('Address'),
-                                'value'   => AddressResource::make($agent->getAddress())->getArray(),
-                                'options' => [
-                                    'countriesAddressData' => GetAddressData::run()
 
-                                ]
-                            ],
-
-                        ]
-                    ],
                     'args' => [
                         'updateRoute' => [
-                            'name'      => 'models.marketplace-agent.update',
-                            'parameters'=> $agent->slug
+                            'name'       => 'models.marketplace-agent.update',
+                            'parameters' => $agent->slug
 
                         ],
                     ]

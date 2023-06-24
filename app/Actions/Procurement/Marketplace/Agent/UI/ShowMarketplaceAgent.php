@@ -29,20 +29,27 @@ class ShowMarketplaceAgent extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('procurement.edit');
+        $this->canEdit   = $request->user()->can('procurement.edit');
+        $this->canDelete = $request->user()->can('procurement.edit');
+
 
         return $request->user()->hasPermissionTo("procurement.view");
     }
 
+
     public function asController(Agent $agent, ActionRequest $request): Agent
     {
         $this->initialisation($request)->withTab(MarketplaceAgentTabsEnum::values());
-
         return $this->handle($agent);
     }
 
+
     public function htmlResponse(Agent $agent, ActionRequest $request): Response
     {
+        if($agent->trashed()) {
+            return $this->deletedHtmlResponse($agent, $request);
+        }
+
         return Inertia::render(
             'Procurement/MarketplaceAgent',
             [
@@ -66,6 +73,13 @@ class ShowMarketplaceAgent extends InertiaAction
                             'name'       => preg_replace('/show$/', 'edit', $this->routeName),
                             'parameters' => array_values($this->originalParameters)
                         ]
+                    ] : false,
+                    'delete' => $this->canDelete ? [
+                        'route' => [
+                            'name'       => 'procurement.marketplace.agents.remove',
+                            'parameters' => array_values($this->originalParameters)
+                        ],
+                        'label' => __('supplier')
                     ] : false,
                     'create' => $this->canEdit ? [
                         'route' => [
@@ -94,6 +108,87 @@ class ShowMarketplaceAgent extends InertiaAction
                             ],
                         ]
                     ]
+
+                ],
+                'tabs'                                     => [
+                    'current'    => $this->tab,
+                    'navigation' => MarketplaceAgentTabsEnum::navigation()
+                ],
+                MarketplaceAgentTabsEnum::SHOWCASE->value => $this->tab == MarketplaceAgentTabsEnum::SHOWCASE->value ?
+                    fn () => GetMarketplaceAgentShowcase::run($agent)
+                    : Inertia::lazy(fn () => GetMarketplaceAgentShowcase::run($agent)),
+
+                MarketplaceAgentTabsEnum::SUPPLIERS->value => $this->tab == MarketplaceAgentTabsEnum::SUPPLIERS->value ?
+                    fn () => MarketplaceSupplierResource::collection(
+                        IndexMarketplaceSuppliers::run(
+                            parent: $agent,
+                            prefix: 'suppliers'
+                        )
+                    )
+                    : Inertia::lazy(fn () => MarketplaceSupplierResource::collection(
+                        IndexMarketplaceSuppliers::run(
+                            parent: $agent,
+                            prefix: 'suppliers'
+                        )
+                    )),
+
+                MarketplaceAgentTabsEnum::SUPPLIER_PRODUCTS->value => $this->tab == MarketplaceAgentTabsEnum::SUPPLIER_PRODUCTS->value ?
+                    fn () => MarketplaceSupplierProductResource::collection(IndexMarketplaceSupplierProducts::run($agent))
+                    : Inertia::lazy(fn () => MarketplaceSupplierProductResource::collection(IndexMarketplaceSupplierProducts::run($agent))),
+
+            ]
+        )->table(
+            IndexMarketplaceSuppliers::make()->tableStructure(
+                /* modelOperations: [
+                    'createLink' => $this->canEdit ? [
+                        'route' => [
+                            'name'       => 'procurement.marketplace.agents.show.suppliers.create',
+                            'parameters' => array_values($this->originalParameters)
+                        ],
+                        'label' => __('suppliers')
+                    ] : false,
+                ],
+                prefix: 'suppliers' */
+            )
+        )
+            ->table(IndexMarketplaceSupplierProducts::make()->tableStructure(
+                /* modelOperations: [
+                    'createLink' => $this->canEdit ? [
+                        'route' => [
+                            'name'       => 'procurement.marketplace.agents.show.supplier-products.create',
+                            'parameters' => array_values($this->originalParameters)
+                        ],
+                        'label' => __('product')
+                    ] : false,
+                ],
+                prefix: 'supplier_products' */
+            ));
+    }
+
+
+    public function deletedHtmlResponse(Agent $agent, ActionRequest $request): Response
+    {
+
+        return Inertia::render(
+            'Procurement/DeletedMarketplaceAgent',
+            [
+                'title'                                    => __("agent"),
+                'breadcrumbs'                              => $this->getBreadcrumbs(
+                    $request->route()->parameters
+                ),
+                'navigation'    => [
+                    'previous'  => $this->getPrevious($agent, $request),
+                    'next'      => $this->getNext($agent, $request),
+                ],
+                'pageHead'                                 => [
+                    'icon'          =>
+                        [
+                            'icon'  => ['fal', 'people-arrows'],
+                            'title' => __('agent')
+                        ],
+                    'title'  => $agent->name,
+
+
 
                 ],
                 'tabs'                                     => [
