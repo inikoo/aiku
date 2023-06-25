@@ -51,7 +51,7 @@ class UpdateCustomer
         return [
             'contact_name'             => ['sometimes'],
             'company_name'             => ['sometimes'],
-            'phone'                    => 'sometimes|phone:AUTO',
+            'phone'                    => ['sometimes', 'nullable', 'phone:AUTO'],
             'identity_document_number' => ['sometimes', 'nullable', 'string'],
             'contact_website'          => ['sometimes', 'nullable', 'active_url'],
             'email'                    => ['sometimes', 'nullable', 'email'],

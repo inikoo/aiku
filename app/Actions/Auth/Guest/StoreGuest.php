@@ -52,7 +52,7 @@ class StoreGuest
         return [
             'contact_name'             => ['required', 'string', 'max:255'],
             'email'                    => ['nullable', 'email'],
-            'phone'                    => ['nullable'],
+            'phone'                    => ['nullable', 'phone:AUTO'],
             'identity_document_number' => ['nullable', 'string'],
             'identity_document_type'   => ['nullable', 'string'],
             'type'                     => ['required', Rule::in(GuestTypeEnum::values())],

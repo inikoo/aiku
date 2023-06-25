@@ -29,7 +29,8 @@ class StoreSupplier
 {
     use AsAction;
     use WithAttributes;
-    private bool $asAction=false;
+
+    private bool $asAction = false;
 
 
     public function handle(Tenant|Agent $owner, array $modelData, array $addressData = []): Supplier
@@ -86,12 +87,12 @@ class StoreSupplier
     public function rules(): array
     {
         return [
-            'code'                      => ['required', 'unique:group.agents', 'between:2,9', 'alpha'],
-            'contact_name'              => ['nullable', 'string', 'max:255'],
-            'company_name'              => ['nullable', 'string', 'max:255'],
-            'email'                     => ['nullable', 'email'],
-            'phone'                     => ['nullable', 'string'],
-            'currency_id'               => ['required', 'exists:currencies,id'],
+            'code'         => ['required', 'unique:group.agents', 'between:2,9', 'alpha'],
+            'contact_name' => ['nullable', 'string', 'max:255'],
+            'company_name' => ['nullable', 'string', 'max:255'],
+            'email'        => ['nullable', 'email'],
+            'phone'        => ['nullable', 'phone:AUTO'],
+            'currency_id'  => ['required', 'exists:currencies,id'],
         ];
     }
 
@@ -104,7 +105,7 @@ class StoreSupplier
 
     public function action(Tenant|Agent $owner, $objectData): Supplier
     {
-        $this->asAction=true;
+        $this->asAction = true;
         $this->setRawAttributes($objectData);
         $validatedData = $this->validateAttributes();
 
@@ -128,9 +129,8 @@ class StoreSupplier
 
     public function htmlResponse(Supplier $supplier): RedirectResponse
     {
-        if($supplier->owner_type=='Agent') {
+        if ($supplier->owner_type == 'Agent') {
             return Redirect::route('procurement.marketplace.agents.show.suppliers.index', $supplier->owner->slug);
-
         }
 
         return Redirect::route('procurement.marketplace.suppliers.show', $supplier->slug);

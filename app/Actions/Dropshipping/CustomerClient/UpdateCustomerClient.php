@@ -23,6 +23,7 @@ class UpdateCustomerClient
     {
         $customerClient = $this->update($customerClient, $modelData, ['data']);
         CustomerClientHydrateUniversalSearch::dispatch($customerClient);
+
         return $customerClient;
     }
 
@@ -31,6 +32,7 @@ class UpdateCustomerClient
         if ($this->asAction) {
             return true;
         }
+
         return $request->user()->hasPermissionTo("shops.customers.edit");
     }
 
@@ -40,14 +42,15 @@ class UpdateCustomerClient
             'reference'    => ['sometimes', 'string'],
             'contact_name' => ['sometimes', 'string'],
             'company_name' => ['sometimes', 'string'],
-            'phone'        => ['sometimes', 'phone:AUTO'],
-            'email'        => ['sometimes', 'email'],
+            'phone'        => ['sometimes', 'nullable', 'phone:AUTO'],
+            'email'        => ['sometimes', 'nullable', 'email'],
         ];
     }
 
     public function asController(CustomerClient $customerClient, ActionRequest $request): CustomerClient
     {
         $request->validate();
+
         return $this->handle($customerClient, $request->all());
     }
 

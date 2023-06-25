@@ -9,39 +9,34 @@
 import {faExclamationCircle, faCheckCircle} from '@/../private/pro-solid-svg-icons';
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome';
-
-library.add(faExclamationCircle, faCheckCircle);
-
-const props = defineProps(['form', 'fieldName', 'options', 'fieldData']);
-
 import {VueTelInput} from 'vue-tel-input';
 import 'vue-tel-input/vue-tel-input.css';
 import {ref} from 'vue';
+library.add(faExclamationCircle, faCheckCircle);
+
+const props = defineProps(['form', 'fieldName', 'options', 'fieldData']);
 
 let defaultCountry = null;
 if (props.options !== undefined && props.options.defaultCountry) {
     defaultCountry = props.options.defaultCountry;
 }
 
-const handleChange = (e) => {
-    props.form.phone = e.target.value.replace(/\s/g, '');
+const handleChange = (number,phoneObject) => {
+    props.form.phone = phoneObject.number
 };
 
 const phone = ref(props.form[props['fieldName']]);
-
 
 </script>
 
 <template>
     <div class="mt-1 relative rounded-md shadow-sm">
-
         <VueTelInput
-            @input="handleChange"
+            @on-input="handleChange"
             v-model="phone"
             inputOptions.placeholder="''"
             :defaultCountry="defaultCountry"
         ></VueTelInput>
-
 
         <div v-if="form.errors[fieldName] || form.recentlySuccessful " class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
             <FontAwesomeIcon icon="fas fa-exclamation-circle" v-if="form.errors[fieldName]" class="h-5 w-5 text-red-500" aria-hidden="true"/>

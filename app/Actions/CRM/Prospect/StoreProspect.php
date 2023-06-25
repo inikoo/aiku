@@ -48,7 +48,7 @@ class StoreProspect
             'contact_name'    => ['required', 'nullable', 'string', 'max:255'],
             'company_name'    => ['required', 'nullable', 'string', 'max:255'],
             'email'           => ['required', 'nullable', 'email'],
-            'phone'           => ['required', 'nullable', 'string'],
+            'phone'           => ['required', 'nullable', 'phone:AUTO'],
             'contact_website' => ['required', 'nullable', 'active_url'],
         ];
     }

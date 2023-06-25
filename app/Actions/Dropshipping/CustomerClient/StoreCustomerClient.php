@@ -21,7 +21,7 @@ class StoreCustomerClient
     use AsAction;
     use WithAttributes;
 
-    private bool $asAction=false;
+    private bool $asAction = false;
 
     public function handle(Customer $customer, array $modelData, array $addressesData = []): CustomerClient
     {
@@ -40,9 +40,10 @@ class StoreCustomerClient
 
     public function authorize(ActionRequest $request): bool
     {
-        if($this->asAction) {
+        if ($this->asAction) {
             return true;
         }
+
         return $request->user()->hasPermissionTo("shops.customers.edit");
     }
 
@@ -50,17 +51,17 @@ class StoreCustomerClient
     {
         return [
 
-            'reference'                 => ['required', 'nullable', 'string', ],
-            'contact_name'              => ['required', 'nullable', 'string', 'max:255'],
-            'company_name'              => ['required', 'nullable', 'string', 'max:255'],
-            'email'                     => ['required', 'nullable', 'email'],
-            'phone'                     => ['required', 'nullable', 'string'],
+            'reference'    => ['required', 'nullable', 'string',],
+            'contact_name' => ['required', 'nullable', 'string', 'max:255'],
+            'company_name' => ['required', 'nullable', 'string', 'max:255'],
+            'email'        => ['required', 'nullable', 'email'],
+            'phone'        => ['required', 'nullable', 'phone:AUTO'],
         ];
     }
 
     public function action(Customer $customer, array $objectData, array $addressesData): CustomerClient
     {
-        $this->asAction=true;
+        $this->asAction = true;
         $this->setRawAttributes($objectData);
         $validatedData = $this->validateAttributes();
 
