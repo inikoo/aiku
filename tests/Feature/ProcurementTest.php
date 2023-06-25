@@ -11,6 +11,7 @@ use App\Actions\Procurement\Agent\ChangeAgentOwner;
 use App\Actions\Procurement\Agent\UpdateAgent;
 use App\Actions\Procurement\Agent\UpdateAgentIsPrivate;
 use App\Actions\Procurement\Marketplace\Agent\StoreMarketplaceAgent;
+use App\Actions\Procurement\Marketplace\Supplier\StoreMarketplaceSupplier;
 use App\Actions\Procurement\PurchaseOrder\AddItemPurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\DeletePurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\StorePurchaseOrder;
@@ -25,14 +26,12 @@ use App\Actions\Procurement\PurchaseOrder\UpdateStateToReceivedPurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\UpdateStateToSettledPurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\UpdateStateToSubmittedPurchaseOrder;
 use App\Actions\Procurement\Supplier\GetSupplier;
-use App\Actions\Procurement\Supplier\StoreSupplier;
 use App\Actions\Procurement\SupplierProduct\StoreSupplierProduct;
 use App\Actions\Procurement\SupplierProduct\SyncSupplierProductTradeUnits;
 use App\Actions\Tenancy\Group\StoreGroup;
 use App\Actions\Tenancy\Tenant\StoreTenant;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Models\Goods\TradeUnit;
-use App\Models\Helpers\Address;
 use App\Models\Procurement\Agent;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\Procurement\PurchaseOrderItem;
@@ -83,11 +82,9 @@ beforeEach(function () {
 });
 
 test('create agent', function () {
-
-    $modelData           =Agent::factory()->definition();
-    $modelData['address']=Address::factory()->definition();
-    $agent               = StoreMarketplaceAgent::make()->action(
-        tenant:app('currentTenant'),
+    $modelData = Agent::factory()->definition();
+    $agent     = StoreMarketplaceAgent::make()->action(
+        tenant: app('currentTenant'),
         objectData: $modelData
     );
 
@@ -98,12 +95,10 @@ test('create agent', function () {
 });
 
 
-
 test('create another agent', function () {
-    $modelData           =Agent::factory()->definition();
-    $modelData['address']=Address::factory()->definition();
-    $agent               = StoreMarketplaceAgent::make()->action(
-        tenant:app('currentTenant'),
+    $modelData = Agent::factory()->definition();
+    $agent     = StoreMarketplaceAgent::make()->action(
+        tenant: app('currentTenant'),
         objectData: $modelData
     );
 
@@ -152,7 +147,10 @@ test('check if last tenant cant update', function ($agent) {
 })->depends('create agent');
 
 test('create independent supplier', function () {
-    $supplier = StoreSupplier::make()->action(app('currentTenant'), Arr::prepend(Supplier::factory()->definition(), 'supplier', 'type'));
+    $supplier = StoreMarketplaceSupplier::make()->action(
+        app('currentTenant'),
+        Arr::prepend(Supplier::factory()->definition(), 'supplier', 'type')
+    );
     $this->assertModelExists($supplier);
 
     return $supplier;
@@ -163,7 +161,7 @@ test('number independent supplier should be one', function () {
 });
 
 test('create independent supplier 2', function () {
-    $supplier = StoreSupplier::make()->action(app('currentTenant'), Arr::prepend(Supplier::factory()->definition(), 'supplier', 'type'));
+    $supplier = StoreMarketplaceSupplier::make()->action(app('currentTenant'), Arr::prepend(Supplier::factory()->definition(), 'supplier', 'type'));
     $this->assertModelExists($supplier);
 
     return $supplier;
@@ -175,7 +173,7 @@ test('number independent supplier should be two', function () {
 
 test('create supplier in agent', function ($agent) {
     expect($agent->stats->number_suppliers)->toBe(0);
-    $supplier = StoreSupplier::make()->action($agent, Arr::prepend(Supplier::factory()->definition(), 'sub-supplier', 'type'));
+    $supplier = StoreMarketplaceSupplier::make()->action($agent, Arr::prepend(Supplier::factory()->definition(), 'sub-supplier', 'type'));
     $agent->refresh();
     expect($supplier)->toBeInstanceOf(Supplier::class)
         ->and($agent->stats->number_suppliers)->toBe(1);
@@ -242,7 +240,7 @@ test('add items to purchase order', function ($purchaseOrder) {
 
 
 test('delete purchase order', function () {
-    $supplier = StoreSupplier::make()->action(app('currentTenant'), Arr::prepend(Supplier::factory()->definition(), 'supplier', 'type'));
+    $supplier = StoreMarketplaceSupplier::make()->action(app('currentTenant'), Arr::prepend(Supplier::factory()->definition(), 'supplier', 'type'));
     StoreSupplierProduct::make()->action($supplier, SupplierProduct::factory()->definition());
 
     $purchaseOrder = StorePurchaseOrder::make()->action($supplier, PurchaseOrder::factory()->definition());

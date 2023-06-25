@@ -9,7 +9,7 @@ namespace App\Actions\SourceFetch\Aurora;
 
 use App\Actions\Helpers\GroupAddress\StoreGroupAddressAttachToModel;
 use App\Actions\Helpers\GroupAddress\UpdateGroupAddress;
-use App\Actions\Procurement\Supplier\StoreSupplier;
+use App\Actions\Procurement\Marketplace\Supplier\StoreMarketplaceSupplier;
 use App\Actions\Procurement\Supplier\UpdateSupplier;
 use App\Actions\Tenancy\Tenant\AttachSupplier;
 use App\Actions\Utils\StoreImage;
@@ -71,7 +71,7 @@ class FetchSuppliers extends FetchAction
                 );
             } else {
                 $supplierData['supplier']['source_type'] = $tenant->slug;
-                $supplier                                = StoreSupplier::run(
+                $supplier                                = StoreMarketplaceSupplier::run(
                     owner: $tenant,
                     modelData: $supplierData['supplier'],
                     addressData: $supplierData['address']
@@ -113,7 +113,7 @@ class FetchSuppliers extends FetchAction
                     ]
                 );
             } else {
-                $supplier = StoreSupplier::run(
+                $supplier = StoreMarketplaceSupplier::run(
                     owner: $supplierData['owner'],
                     modelData: $supplierData['supplier'],
                     addressData: $supplierData['address']

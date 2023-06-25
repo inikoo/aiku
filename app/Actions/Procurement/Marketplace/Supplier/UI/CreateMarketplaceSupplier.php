@@ -8,19 +8,32 @@
 namespace App\Actions\Procurement\Marketplace\Supplier\UI;
 
 use App\Actions\Assets\Country\UI\GetAddressData;
+use App\Actions\Assets\Country\UI\GetCountriesOptions;
+use App\Actions\Assets\Currency\UI\GetCurrenciesOptions;
 use App\Actions\InertiaAction;
 use App\Actions\Procurement\Marketplace\Agent\UI\ShowMarketplaceAgent;
 use App\Http\Resources\Helpers\AddressFormFieldsResource;
 use App\Models\Helpers\Address;
 use App\Models\Procurement\Agent;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
 class CreateMarketplaceSupplier extends InertiaAction
 {
-    public function handle(ActionRequest $request): Response
+    public function handle(Tenant|Agent $owner, ActionRequest $request): Response
     {
+        $container = null;
+        if (class_basename($owner) == 'Agent') {
+            $container = [
+                'icon'    => ['fal', 'fa-people-arrows'],
+                'tooltip' => __('Shop'),
+                'label'   => Str::possessive($owner->name)
+            ];
+        }
+
         return Inertia::render(
             'CreateModel',
             [
@@ -31,6 +44,7 @@ class CreateMarketplaceSupplier extends InertiaAction
                 'title'       => __('new supplier'),
                 'pageHead'    => [
                     'title'        => __('new supplier'),
+                    'container'    => $container,
                     'cancelCreate' => [
                         'route' => match ($request->route()->getName()) {
                             'procurement.marketplace.agents.show.suppliers.create' =>
@@ -51,54 +65,24 @@ class CreateMarketplaceSupplier extends InertiaAction
                 'formData'    => [
                     'blueprint' => [
                         [
-                            'title'  => __('id'),
+                            'title'  => __('ID/contact details'),
+                            'icon'   => 'fal fa-address-book',
                             'fields' => [
 
-                                'code' => [
+                                'code'         => [
                                     'type'     => 'input',
                                     'label'    => __('code'),
                                     'value'    => '',
                                     'required' => true,
                                 ],
-                            ]
-                        ],
-                        [
-                            'title'  => __('type'),
-                            'fields' => [
-
-                                'delivery_type' => [
+                                'company_name' => [
                                     'type'  => 'input',
-                                    'label' => __('delivery type'),
+                                    'label' => __('company'),
                                     'value' => ''
                                 ],
-                            ]
-                        ],
-                        /*
-                        [
-                            'title'  => __('our id in supplier records'),
-                            'fields' => [
-
-                                'account number' => [
-                                    'type'  => 'input',
-                                    'label' => __('account number'),
-                                    'value' => ''
-                                ],
-                            ]
-                        ],
-                        */
-
-                        [
-                            'title'  => __('contact'),
-                            'icon'   => 'fa-light fa-phone',
-                            'fields' => [
                                 'contact_name' => [
                                     'type'  => 'input',
                                     'label' => __('contact name'),
-                                    'value' => ''
-                                ],
-                                'company_name' => [
-                                    'type'  => 'input',
-                                    'label' => __('company name'),
                                     'value' => ''
                                 ],
                                 'email'        => [
@@ -109,13 +93,21 @@ class CreateMarketplaceSupplier extends InertiaAction
                                         'inputType' => 'email'
                                     ]
                                 ],
+                                'phone'        => [
+                                    'type'    => 'phone',
+                                    'label'   => __('phone'),
+                                    'value'   => '',
+                                    'options' => [
+                                        'defaultCountry' => class_basename($owner) == 'Agent' ? $owner->getAddress()->country->code : null
+                                    ]
+                                ],
                                 'address'      => [
                                     'type'    => 'address',
                                     'label'   => __('Address'),
                                     'value'   => AddressFormFieldsResource::make(
                                         new Address(
                                             [
-                                                'country_id' => app('currentTenant')->country_id,
+                                                'country_id' => class_basename($owner) == 'Agent' ? $owner->getAddress()->country_id : app('currentTenant')->country_id,
 
                                             ]
                                         )
@@ -128,27 +120,7 @@ class CreateMarketplaceSupplier extends InertiaAction
 
                             ]
                         ],
-                        [
-                            'title'  => __('telephones'),
-                            'fields' => [
 
-                                'mobile'    => [
-                                    'type'  => 'input',
-                                    'label' => __('mobile'),
-                                    'value' => ''
-                                ],
-                                'telephone' => [
-                                    'type'  => 'input',
-                                    'label' => __('telephone'),
-                                    'value' => ''
-                                ],
-                                'fax'       => [
-                                    'type'  => 'input',
-                                    'label' => __('fax'),
-                                    'value' => ''
-                                ],
-                            ]
-                        ],
                         /*
                         [
                             'title'  => __("supplier's products settings"),
@@ -241,13 +213,13 @@ class CreateMarketplaceSupplier extends InertiaAction
                             ]
 
                         ],
-                        */
+
 
                         [
                             'title'  => __('currency'),
                             'fields' => [
 
-                                'currency_id'    => [
+                                'currency_id' => [
                                     'type'  => 'currencies',
                                     'label' => __('currency'),
                                     'value' => ''
@@ -255,10 +227,47 @@ class CreateMarketplaceSupplier extends InertiaAction
 
                             ]
                         ],
+                        */
+
+                        [
+                            'title'  => __('settings'),
+                            'icon'   => 'fa-light fa-cog',
+                            'fields' => [
+                                'currency_id' => [
+                                    'type'        => 'select',
+                                    'label'       => __('currency'),
+                                    'placeholder' => __('Select a Currency'),
+                                    'options'     => GetCurrenciesOptions::run(),
+                                    'value'       => class_basename($owner) == 'Agent' ? $owner->currency_id : null,
+                                    'required'    => true,
+                                    'mode'        => 'single'
+                                ],
+
+                                'default_product_country_origin' => [
+                                    'type'        => 'select',
+                                    'label'       => __("Product's country of origin"),
+                                    'placeholder' => __('Select a Country'),
+                                    'value'       => class_basename($owner) == 'Agent' ? Arr::get($owner->shared_data, 'default_product_country_origin') : null,
+                                    'options'     => GetCountriesOptions::run(),
+                                    'mode'        => 'single'
+                                ],
+                            ]
+                        ]
+
+
                     ],
-                    'route'     => [
-                        'name' => 'models.supplier.store',
-                    ]
+                    'route'     =>
+                        match (class_basename($owner)) {
+                            'Agent' => [
+                                'name'       => 'models.agent.supplier.store',
+                                'arguments'  => $owner->slug
+                            ],
+                            default => [
+                                'name' => 'models.supplier.store',
+                            ]
+                        }
+
+
                 ],
 
             ]
@@ -275,15 +284,14 @@ class CreateMarketplaceSupplier extends InertiaAction
     {
         $this->initialisation($request);
 
-        return $this->handle($request);
+        return $this->handle(owner: app('currentTenant'), request: $request);
     }
 
-    /** @noinspection PhpUnusedParameterInspection */
     public function inAgent(Agent $agent, ActionRequest $request): Response
     {
         $this->initialisation($request);
 
-        return $this->handle($request);
+        return $this->handle(owner: $agent, request: $request);
     }
 
 

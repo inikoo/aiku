@@ -40,7 +40,8 @@ class CreateMarketplaceAgent extends InertiaAction
                 'formData' => [
                     'blueprint' => [
                         [
-                            'title'  => __('id'),
+                            'title'  => __('ID/contact details'),
+                            'icon'   => 'fal fa-address-book',
                             'fields' => [
 
                                 'code' => [
@@ -55,13 +56,6 @@ class CreateMarketplaceAgent extends InertiaAction
                                     'value'   => '',
                                     'required'=> true
                                 ],
-
-                            ]
-                        ],
-                        [
-                            'title'  => __('contact'),
-                            'icon'   => 'fa-light fa-phone',
-                            'fields' => [
 
                                 'contact_name' => [
                                     'type'    => 'input',

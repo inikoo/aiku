@@ -7,9 +7,9 @@
 
 namespace Tests\Feature;
 
+use App\Actions\Procurement\Marketplace\Supplier\StoreMarketplaceSupplier;
 use App\Actions\Procurement\PurchaseOrder\AddItemPurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\StorePurchaseOrder;
-use App\Actions\Procurement\Supplier\StoreSupplier;
 use App\Actions\Procurement\SupplierDelivery\StoreSupplierDelivery;
 use App\Actions\Procurement\SupplierDelivery\UpdateStateToCheckedSupplierDelivery;
 use App\Actions\Procurement\SupplierDelivery\UpdateStateToDispatchSupplierDelivery;
@@ -52,7 +52,7 @@ test('create independent supplier', function () {
         'currency_id'   => 1,
     ];
 
-    $supplier = StoreSupplier::make()->action(app('currentTenant'), Arr::prepend($arrayData, 'supplier', 'type'));
+    $supplier = StoreMarketplaceSupplier::make()->action(app('currentTenant'), Arr::prepend($arrayData, 'supplier', 'type'));
 
     expect($supplier->code)->toBe($arrayData['code'])->and($supplier->currency_id)->toBeNumeric(1);
 

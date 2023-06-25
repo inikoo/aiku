@@ -8,7 +8,7 @@
 namespace App\Actions\SourceFetch\Aurora;
 
 use App\Actions\Helpers\GroupAddress\UpdateGroupAddress;
-use App\Actions\Procurement\Supplier\StoreSupplier;
+use App\Actions\Procurement\Marketplace\Supplier\StoreMarketplaceSupplier;
 use App\Actions\Procurement\Supplier\UpdateSupplier;
 use App\Models\Procurement\Supplier;
 use App\Models\Tenancy\Tenant;
@@ -49,7 +49,7 @@ class FetchDeletedSuppliers extends FetchAction
                                 $supplier->save();
                             }
                         } else {
-                            $supplier = StoreSupplier::run(
+                            $supplier = StoreMarketplaceSupplier::run(
                                 owner: $deletedSupplierData['owner'],
                                 modelData: $deletedSupplierData['supplier'],
                                 addressData: $deletedSupplierData['address']

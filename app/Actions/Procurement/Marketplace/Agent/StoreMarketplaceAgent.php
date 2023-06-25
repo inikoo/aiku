@@ -29,6 +29,16 @@ class StoreMarketplaceAgent
     use AsAction;
     use WithAttributes;
 
+    private bool $asAction = false;
+
+    public function authorize(ActionRequest $request): bool
+    {
+        if ($this->asAction) {
+            return true;
+        }
+        return $request->user()->hasPermissionTo("procurement.edit");
+    }
+
     public function handle(Tenant $owner, array $modelData, array $addressData = []): Agent
     {
         $modelData['owner_type'] = 'Agent';
@@ -78,13 +88,14 @@ class StoreMarketplaceAgent
 
     public function action(Tenant $tenant, $objectData): Agent
     {
+        $this->asAction = true;
         $this->setRawAttributes($objectData);
         $validatedData = $this->validateAttributes();
 
         return $this->handle(
             owner: $tenant,
             modelData: Arr::except($validatedData, 'address'),
-            addressData: Arr::only($validatedData, 'address')['address']
+            addressData: Arr::get($validatedData, 'address')
         );
 
 
@@ -99,7 +110,7 @@ class StoreMarketplaceAgent
         return $this->handle(
             owner: app('currentTenant'),
             modelData: Arr::except($validatedData, 'address'),
-            addressData: Arr::only($validatedData, 'address')['address']
+            addressData: Arr::get($validatedData, 'address')
         );
     }
 

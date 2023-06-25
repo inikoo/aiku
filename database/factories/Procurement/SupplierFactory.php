@@ -1,21 +1,19 @@
 <?php
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Reviewed: Sun, 25 Jun 2023 14:22:58 Malaysia Time, Sanur, Bali, Indonesia
+ * Copyright (c) 2023, Raul A Perusquia Flores
+ */
 
 namespace Database\Factories\Procurement;
 
 use App\Models\Assets\Currency;
+use App\Models\Helpers\Address;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-/**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Procurement\Supplier>
- */
 class SupplierFactory extends Factory
 {
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
-    public function definition()
+    public function definition(): array
     {
         $currency = Currency::where('code', 'USD')->firstOrFail();
 
@@ -26,7 +24,7 @@ class SupplierFactory extends Factory
             'contact_name' => fake()->name,
             'email'        => fake()->email,
             'currency_id'  => $currency->id,
-            'address_id'   => 1
+            'address'      => Address::factory()->definition()
         ];
     }
 }

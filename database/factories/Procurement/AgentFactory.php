@@ -8,6 +8,7 @@
 namespace Database\Factories\Procurement;
 
 use App\Models\Assets\Currency;
+use App\Models\Helpers\Address;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class AgentFactory extends Factory
@@ -23,6 +24,8 @@ class AgentFactory extends Factory
             'contact_name' => fake()->name,
             'email'        => fake()->email,
             'currency_id'  => $currency->id,
+            'address'      => Address::factory()->definition()
+
         ];
     }
 }
