@@ -1,11 +1,11 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Wed, 26 Oct 2022 09:56:46 British Summer Time, Sheffield, UK
- *  Copyright (c) 2022, Raul A Perusquia Flores
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Sun, 25 Jun 2023 09:32:07 Malaysia Time, Pantai Lembeng, Bali, Id
+ * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Procurement\Agent;
+namespace App\Actions\Procurement\Marketplace\Agent;
 
 use App\Actions\Assets\Currency\SetCurrencyHistoricFields;
 use App\Actions\Helpers\GroupAddress\StoreGroupAddressAttachToModel;
@@ -15,20 +15,23 @@ use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateProcurement;
 use App\Enums\Procurement\AgentTenant\AgentTenantStatusEnum;
 use App\Models\Procurement\Agent;
 use App\Models\Tenancy\Tenant;
+use App\Rules\ValidAddress;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class StoreAgent
+class StoreMarketplaceAgent
 {
     use AsAction;
     use WithAttributes;
 
     public function handle(Tenant $owner, array $modelData, array $addressData = []): Agent
     {
-        $modelData['owner_type']='Agent';
+        $modelData['owner_type'] = 'Agent';
         /** @var Agent $agent */
         $agent = $owner->myAgents()->create($modelData);
         $agent->stats()->create();
@@ -57,27 +60,47 @@ class StoreAgent
     {
         return [
             'code'         => ['required', 'unique:group.agents', 'between:2,9', 'alpha_dash'],
-            'name'         => ['required', 'max:250', 'string'],
-            'company_name' => ['sometimes', 'required'],
-            'contact_name' => ['sometimes', 'required'],
-            'email'        => ['sometimes', 'required'],
+            'contact_name' => ['nullable', 'string', 'max:255'],
+            'company_name' => ['nullable', 'string', 'max:255'],
+            'email'        => ['nullable', 'email'],
+            'phone'        => ['nullable', 'phone:AUTO'],
+            'address'      => ['required', new ValidAddress()],
             'currency_id'  => ['required', 'exists:central.currencies,id'],
         ];
     }
 
-    public function action(Tenant $owner, $objectData, $addressData): Agent
+    public function afterValidator(Validator $validator): void
+    {
+        if (!$this->get('contact_name') and !$this->get('company_name')) {
+            $validator->errors()->add('company_name', 'contact name or company name required');
+        }
+    }
+
+    public function action(Tenant $tenant, $objectData): Agent
     {
         $this->setRawAttributes($objectData);
         $validatedData = $this->validateAttributes();
 
-        return $this->handle($owner, $validatedData, $addressData);
+        return $this->handle(
+            owner: $tenant,
+            modelData: Arr::except($validatedData, 'address'),
+            addressData: Arr::only($validatedData, 'address')['address']
+        );
+
+
     }
+
 
     public function asController(ActionRequest $request): Agent
     {
+        $this->fillFromRequest($request);
         $request->validate();
-
-        return $this->handle(app('currentTenant'), $request->validated());
+        $validatedData=$request->validated();
+        return $this->handle(
+            owner: app('currentTenant'),
+            modelData: Arr::except($validatedData, 'address'),
+            addressData: Arr::only($validatedData, 'address')['address']
+        );
     }
 
     public function htmlResponse(Agent $agent): RedirectResponse

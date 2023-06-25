@@ -23,7 +23,6 @@ class FetchAuroraAgent extends FetchAurora
 
         $this->parsedData['agent'] =
             [
-                'name'         => $this->auroraModelData->{'Agent Name'},
                 'code'         => preg_replace('/\s/', '-', $this->auroraModelData->{'Agent Code'}),
                 'company_name' => $this->auroraModelData->{'Agent Company Name'},
                 'contact_name' => $this->auroraModelData->{'Agent Main Contact Name'},

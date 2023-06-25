@@ -1,4 +1,9 @@
 <?php
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Reviewed: Sun, 25 Jun 2023 11:12:57 Malaysia Time, Sanur, Bali, Indonesia
+ * Copyright (c) 2023, Raul A Perusquia Flores
+ */
 
 namespace Database\Factories\Helpers;
 
@@ -12,13 +17,13 @@ class AddressFactory extends Factory
         $country = Country::latest()->first();
 
         return [
-            'address_line_1'      => fake()->address,
-            'address_line_2'      => fake()->address,
-            'sorting_code'        => '12-34-56',
+            'address_line_1'      => fake()->streetAddress,
+            'address_line_2'      => fake()->buildingNumber,
+            'sorting_code'        => '',
             'postal_code'         => fake()->postcode,
-            'locality'            => fake()->locale,
-            'dependant_locality'  => 'Hometown',
-            'administrative_area' => 'Apartment',
+            'locality'            => fake()->city,
+            'dependant_locality'  => '',
+            'administrative_area' => fake('en_US')->state() ,
             'country_id'          => $country->id
         ];
     }

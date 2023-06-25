@@ -119,8 +119,18 @@ class Agent extends Model implements HasMedia, Auditable
 
     protected static function booted(): void
     {
+        static::creating(
+            function (Agent $agent) {
+                $agent->name = $agent->company_name == '' ? $agent->contact_name : $agent->company_name;
+            }
+        );
+
         static::updated(function (Agent $agent) {
             if (!$agent->wasRecentlyCreated) {
+                if ($agent->wasChanged(['contact_name', 'company_name'])) {
+                    $agent->name = $agent->company_name == '' ? $agent->contact_name : $agent->company_name;
+                }
+
                 if ($agent->wasChanged('status')) {
                     TenantHydrateProcurement::dispatch(app('currentTenant'));
                     GroupHydrateProcurement::run(app('currentTenant')->group);
@@ -166,6 +176,7 @@ class Agent extends Model implements HasMedia, Auditable
     {
         return 'slug';
     }
+
     public function purchaseOrders(): MorphMany
     {
         return $this->morphMany(PurchaseOrder::class, 'provider');
@@ -178,7 +189,7 @@ class Agent extends Model implements HasMedia, Auditable
 
     public function tenantIds(): array
     {
-        return  AgentTenant::where('agent_id', $this->id)->get()->pluck('tenant_id')->all();
+        return AgentTenant::where('agent_id', $this->id)->get()->pluck('tenant_id')->all();
     }
 
 }

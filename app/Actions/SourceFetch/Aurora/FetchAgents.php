@@ -8,8 +8,8 @@
 namespace App\Actions\SourceFetch\Aurora;
 
 use App\Actions\Helpers\GroupAddress\UpdateGroupAddress;
-use App\Actions\Procurement\Agent\StoreAgent;
 use App\Actions\Procurement\Agent\UpdateAgent;
+use App\Actions\Procurement\Marketplace\Agent\StoreMarketplaceAgent;
 use App\Actions\Tenancy\Tenant\AttachAgent;
 use App\Enums\Procurement\AgentTenant\AgentTenantStatusEnum;
 use App\Models\Procurement\Agent;
@@ -45,7 +45,7 @@ class FetchAgents extends FetchAction
                     );
                 } else {
                     $agentData['agent']['source_type'] = $tenant->slug;
-                    $agent                             = StoreAgent::run(
+                    $agent                             = StoreMarketplaceAgent::run(
                         owner: $tenant,
                         modelData: $agentData['agent'],
                         addressData: $agentData['address']

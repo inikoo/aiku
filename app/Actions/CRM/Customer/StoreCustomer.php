@@ -12,6 +12,7 @@ use App\Actions\Helpers\SerialReference\GetSerialReference;
 use App\Actions\Market\Shop\Hydrators\ShopHydrateCustomerInvoices;
 use App\Actions\Market\Shop\Hydrators\ShopHydrateCustomers;
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateCustomers;
+use App\Enums\CRM\Customer\CustomerStatusEnum;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Enums\Market\Shop\ShopSubtypeEnum;
 use App\Models\CRM\Customer;
@@ -52,13 +53,13 @@ class StoreCustomer
             'status',
             Arr::get($shop->settings, 'registration_type', 'open') == 'approval-only'
                 ?
-                \App\Enums\CRM\Customer\CustomerStatusEnum::PENDING_APPROVAL
+                CustomerStatusEnum::PENDING_APPROVAL
                 :
-                \App\Enums\CRM\Customer\CustomerStatusEnum::APPROVED
+                CustomerStatusEnum::APPROVED
         );
 
         $customer = DB::transaction(function () use ($shop, $customerData) {
-            /** @var \App\Models\CRM\Customer $customer */
+            /** @var Customer $customer */
             $customer = $shop->customers()->create($customerData);
             if ($customer->reference == null) {
                 $reference = GetSerialReference::run(container: $shop, modelType: SerialReferenceModelEnum::CUSTOMER);
@@ -82,6 +83,7 @@ class StoreCustomer
         ShopHydrateCustomers::dispatch($customer->shop)->delay($this->hydratorsDelay);
         ShopHydrateCustomerInvoices::dispatch($customer->shop)->delay($this->hydratorsDelay);
         TenantHydrateCustomers::dispatch(app('currentTenant'))->delay($this->hydratorsDelay);
+
         //        CustomerHydrateUniversalSearch::dispatch($customer);
 
 

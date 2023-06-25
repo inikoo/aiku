@@ -8,8 +8,9 @@
 namespace App\Actions\Procurement\Marketplace\Agent\UI;
 
 use App\Actions\Assets\Country\UI\GetAddressData;
+use App\Actions\Assets\Country\UI\GetCountriesOptions;
+use App\Actions\Assets\Currency\UI\GetCurrenciesOptions;
 use App\Actions\InertiaAction;
-use App\Enums\Procurement\AgentTenant\AgentTypeEnum;
 use App\Http\Resources\Helpers\AddressFormFieldsResource;
 use App\Models\Helpers\Address;
 use Inertia\Inertia;
@@ -43,26 +44,32 @@ class CreateMarketplaceAgent extends InertiaAction
                             'fields' => [
 
                                 'code' => [
-                                    'type'  => 'input',
-                                    'label' => __('code'),
-                                    'value' => ''
+                                    'type'    => 'input',
+                                    'label'   => __('code'),
+                                    'value'   => '',
+                                    'required'=> true
                                 ],
-                                'name' => [
-                                    'type'  => 'input',
-                                    'label' => __('name'),
-                                    'value' => ''
+                                'company_name' => [
+                                    'type'    => 'input',
+                                    'label'   => __('company'),
+                                    'value'   => '',
+                                    'required'=> true
                                 ],
-                                'company name' => [
-                                    'type'  => 'input',
-                                    'label' => __('company name'),
-                                    'value' => ''
-                                ],
+
                             ]
                         ],
                         [
                             'title'  => __('contact'),
                             'icon'   => 'fa-light fa-phone',
                             'fields' => [
+
+                                'contact_name' => [
+                                    'type'    => 'input',
+                                    'label'   => __('contact name'),
+                                    'value'   => '',
+                                    'required'=> true
+                                ],
+
                                 'email' => [
                                     'type'    => 'input',
                                     'label'   => __('email'),
@@ -70,6 +77,11 @@ class CreateMarketplaceAgent extends InertiaAction
                                     'options' => [
                                         'inputType' => 'email'
                                     ]
+                                ],
+                                'phone' => [
+                                    'type'  => 'phone',
+                                    'label' => __('phone'),
+                                    'value' => ''
                                 ],
                                 'address' => [
                                     'type'  => 'address',
@@ -91,118 +103,31 @@ class CreateMarketplaceAgent extends InertiaAction
                             ]
                         ],
                         [
-                            'title'  => __('telephones'),
+                            'title'  => __('settings'),
+                            'icon'   => 'fa-light fa-cog',
                             'fields' => [
+                                'currency_id' => [
+                                    'type'        => 'select',
+                                    'label'       => __('currency'),
+                                    'placeholder' => 'Select a Currency',
+                                    'options'     => GetCurrenciesOptions::run(),
+                                    'required'    => true,
+                                    'mode'        => 'single'
+                                ],
 
-                                'mobile' => [
-                                    'type'  => 'input',
-                                    'label' => __('mobile'),
-                                    'value' => ''
-                                ],
-                                'telephone' => [
-                                    'type'  => 'input',
-                                    'label' => __('telephone'),
-                                    'value' => ''
-                                ],
-                                'fax' => [
-                                    'type'  => 'input',
-                                    'label' => __('fax'),
-                                    'value' => ''
+                                'default_product_country_origin' => [
+                                    'type'        => 'select',
+                                    'label'       => __("Product's country of origin"),
+                                    'placeholder' => 'Select a Country',
+                                    'options'     => GetCountriesOptions::run(),
+                                    'mode'        => 'single'
                                 ],
                             ]
-                        ],
-                        [
-                            'title'  => __("supplier's products settings"),
-                            'fields' => [
+                        ]
 
-                                'products origin country code' => [
-                                    'type'  => 'input',
-                                    'label' => __('products origin country code'),
-                                    'value' => ''
-                                ],
-                            ]
-                        ],
-                        [
-                            'title'  => __('waiting times'),
-                            'fields' => [
 
-                                'delivery time' => [
-                                    'type'  => 'input',
-                                    'label' => __('delivery time (days)'),
-                                    'value' => ''
-                                ],
-                            ]
-                        ],
-                        [
-                            'title'  => __('payment'),
-                            'fields' => [
 
-                                'incoterm' => [
-                                    'type'  => 'input',
-                                    'label' => __('incoterm'),
-                                    'value' => ''
-                                ],
-                                'currency' => [
-                                    'type'  => 'input',
-                                    'label' => __('currency'),
-                                    'value' => ''
-                                ],
-                                'payment terms' => [
-                                    'type'  => 'input',
-                                    'label' => __('payment terms'),
-                                    'value' => ''
-                                ],
-                            ]
-                        ],
-                        [
-                            'title'  => __('delivery'),
-                            'fields' => [
 
-                                'port of export' => [
-                                    'type'  => 'input',
-                                    'label' => __('port of export'),
-                                    'value' => ''
-                                ],
-                                'port of import' => [
-                                    'type'  => 'input',
-                                    'label' => __('port of import'),
-                                    'value' => ''
-                                ],
-                            ]
-                        ],
-                        [
-                            'title'  => __('terms and conditions'),
-                            'fields' => [
-                                't&c' => [
-                                    'type'  => 'input',
-                                    'label' => __('t&c'),
-                                    'value' => ''
-                                ],
-                                'include general t&c' => [
-                                    'type'         => 'select',
-                                    'label'        => __('include general t&c'),
-                                    'value'        => '',
-                                    'placeholder'  => 'select your options',
-                                    'options'      => AgentTypeEnum::optionLabels()
-                                ],
-                            ]
-                        ],
-                        [
-                            'title'  => __('purchase order settings'),
-                            'fields' => [
-
-                                'order number format' => [
-                                    'type'  => 'input',
-                                    'label' => __('order number format'),
-                                    'value' => ''
-                                ],
-                                'last incremental order number' => [
-                                    'type'  => 'input',
-                                    'label' => __('last incremental order number'),
-                                    'value' => ''
-                                ],
-                            ]
-                        ],
 
                     ],
                     'route' => [

@@ -8,9 +8,9 @@
 
 use App\Actions\Goods\TradeUnit\StoreTradeUnit;
 use App\Actions\Procurement\Agent\ChangeAgentOwner;
-use App\Actions\Procurement\Agent\StoreAgent;
 use App\Actions\Procurement\Agent\UpdateAgent;
 use App\Actions\Procurement\Agent\UpdateAgentIsPrivate;
+use App\Actions\Procurement\Marketplace\Agent\StoreMarketplaceAgent;
 use App\Actions\Procurement\PurchaseOrder\AddItemPurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\DeletePurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\StorePurchaseOrder;
@@ -83,24 +83,34 @@ beforeEach(function () {
 });
 
 test('create agent', function () {
-    $agent = StoreAgent::make()->action(app('currentTenant'), Agent::factory()->definition(), Address::factory()->definition());
-    $this->assertModelExists($agent);
+
+    $modelData           =Agent::factory()->definition();
+    $modelData['address']=Address::factory()->definition();
+    $agent               = StoreMarketplaceAgent::make()->action(
+        tenant:app('currentTenant'),
+        objectData: $modelData
+    );
+
+    expect($agent)->toBeInstanceOf(Agent::class)
+        ->and(app('currentTenant')->procurementStats->number_agents)->toBe(1);
 
     return $agent;
 });
 
-test('number of agents should be one', function () {
-    $this->assertEquals(1, app('currentTenant')->procurementStats->number_agents);
-})->depends('create agent');
+
 
 test('create another agent', function () {
-    $agent = StoreAgent::make()->action(app('currentTenant'), Agent::factory()->definition(), Address::factory()->definition());
-    $this->assertModelExists($agent);
+    $modelData           =Agent::factory()->definition();
+    $modelData['address']=Address::factory()->definition();
+    $agent               = StoreMarketplaceAgent::make()->action(
+        tenant:app('currentTenant'),
+        objectData: $modelData
+    );
+
+    expect($agent)->toBeInstanceOf(Agent::class)
+        ->and(app('currentTenant')->procurementStats->number_agents)->toBe(2);
 });
 
-test('number of agents should be two', function () {
-    $this->assertEquals(2, app('currentTenant')->procurementStats->number_agents);
-})->depends('create agent', 'create another agent');
 
 test('check if agent match with tenant', function ($agent) {
     $agent = $agent->where('owner_id', app('currentTenant')->id)->first();
