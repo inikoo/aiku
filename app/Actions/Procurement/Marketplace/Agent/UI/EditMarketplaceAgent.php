@@ -124,12 +124,13 @@ class EditMarketplaceAgent extends InertiaAction
                             'icon'      => 'fa-light fa-trash-alt',
                             'operation' => [
                                 [
-                                    'component' => 'deleteModel',
-                                    'data'      => [
-                                        'route' => [
-                                            'models.market-place-agent.delete'
+                                    'component' => 'removeModelAction',
+                                    'data'      => RemoveMarketplaceAgent::make()->getAction(
+                                        route:[
+                                            'name'       => 'models.marketplace-agent.delete',
+                                            'parameters' => array_values($this->originalParameters)
                                         ]
-                                    ]
+                                    )
                                 ],
 
 
