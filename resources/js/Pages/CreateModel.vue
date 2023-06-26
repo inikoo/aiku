@@ -88,7 +88,7 @@ const handleFormSubmit = () => {
             </div>
             <div class="mt-2 pt-4 sm:pt-5 ">
 
-                <div v-for="(fieldData, fieldName, index ) in sectionData.fields" :key="fieldName + index" class="mt-1 divide-y divide-red-200">
+                <div v-for="(fieldData, fieldName, index ) in sectionData.fields" :key="index" class="mt-1 divide-y divide-red-200">
                     <dl class="divide-y divide-green-200  ">
                         <div class="pb-4 sm:pb-5 sm:grid sm:grid-cols-3 sm:gap-4 ">
                             <dt class="text-sm font-medium text-gray-500 capitalize">
@@ -106,7 +106,7 @@ const handleFormSubmit = () => {
                                             :fieldName="fieldName"
                                             :options="fieldData['options']"
                                             :fieldData="fieldData"
-                                            :key="fieldName + index"
+                                            :key="index"
                                         >
                                         </component>
                                     </div>
