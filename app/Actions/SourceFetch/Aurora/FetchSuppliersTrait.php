@@ -57,7 +57,9 @@ trait FetchSuppliersTrait
                 UpdateGroupAddress::run($supplier->getAddress('contact'), $supplierData['address']);
                 $supplier->location = $supplier->getLocation();
                 $supplier->save();
-            } elseif (SupplierTenant::where('source_id', $supplierData['supplier']['source_id'])->count() == 0) {
+            } elseif (SupplierTenant::where('source_id', $supplierData['supplier']['source_id'])
+                    ->where('tenant_id', $tenant->id)
+                    ->count() == 0) {
                 AttachSupplier::run(
                     $tenant,
                     $supplier,
@@ -101,7 +103,9 @@ trait FetchSuppliersTrait
                 }
                 $supplier->location = $supplier->getLocation();
                 $supplier->save();
-            } elseif (SupplierTenant::where('source_id', $supplierData['supplier']['source_id'])->count() == 0) {
+            } elseif (SupplierTenant::where('source_id', $supplierData['supplier']['source_id'])
+                    ->where('tenant_id', $tenant->id)
+                    ->count() == 0) {
                 AttachSupplier::run(
                     $tenant,
                     $supplier,
