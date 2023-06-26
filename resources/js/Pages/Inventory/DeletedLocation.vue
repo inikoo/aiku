@@ -1,25 +1,23 @@
+
 <!--
-  -  Author: Raul Perusquia <raul@inikoo.com>
-  -  Created: Sat, 17 Sept 2022 02:06:31 Malaysia Time, Kuala Lumpur, Malaysia
-  -  Copyright (c) 2022, Raul A Perusquia Flores
+  - Author: Raul Perusquia <raul@inikoo.com>
+  - Created: Sat, 24 Jun 2023 19:49:19 Malaysia Time, Sanur, Bali, Indonesia
+  - Copyright (c) 2023, Raul A Perusquia Flores
   -->
+
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
-import {library} from '@fortawesome/fontawesome-svg-core';
-import { faBox, faExchange, faInventory } from "@/../private/pro-light-svg-icons";
-import { computed, defineAsyncComponent, ref } from "vue";
-import { useTabChange } from "@/Composables/tab-change";
-import ModelDetails from "@/Pages/ModelDetails.vue";
-import TableHistories from "@/Pages/Tables/TableHistories.vue";
 import Tabs from "@/Components/Navigation/Tabs.vue";
+import {computed, defineAsyncComponent, ref} from "vue";
+import ModelDetails from "@/Pages/ModelDetails.vue";
+import {useTabChange} from "@/Composables/tab-change";
+import {library} from '@fortawesome/fontawesome-svg-core';
+import {
+    faInventory,faExchange, faBox
+} from "@/../private/pro-light-svg-icons";
+import LocationShowcase from "@/Pages/Inventory/LocationShowcase.vue";
 import { capitalize } from "@/Composables/capitalize"
-
-library.add(
-    faInventory,
-    faExchange,
-    faBox,
-);
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Pages/ModelChangelog.vue'))
 
@@ -30,9 +28,17 @@ const props = defineProps<{
         current: string;
         navigation: object;
     },
-    history: object
-
+    showcase?: object
+    details?: object
+    history?: object,
 }>()
+
+
+library.add(
+    faInventory,
+    faExchange,
+    faBox,
+);
 
 let currentTab = ref(props.tabs.current);
 const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
@@ -40,12 +46,14 @@ const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
 const component = computed(() => {
 
     const components = {
+        showcase: LocationShowcase,
         details: ModelDetails,
-        history: TableHistories,
+        history: ModelChangelog
     };
     return components[currentTab.value];
 
 });
+
 </script>
 
 <!--suppress HtmlUnknownAttribute -->

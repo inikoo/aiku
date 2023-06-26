@@ -41,6 +41,7 @@ class EditLocation extends InertiaAction
     public function inWarehouse(Warehouse $warehouse, Location $location, ActionRequest $request): Location
     {
         $this->initialisation($request);
+
         return $this->handle($location);
     }
 
