@@ -104,6 +104,10 @@ const compCurrentSlug = computed(() => {
 	return layout.navigation?.[currentUrl.value]?.currentData?.slug
 })
 
+const urlPath = (url: string) => {
+	// To return the pathname (/some/path/name/) from the url  
+	return new URL(route(url)).pathname
+}
 </script>
 
 <template>
@@ -119,9 +123,9 @@ const compCurrentSlug = computed(() => {
 		<div class="flex">
 			<!-- For Procurement -->
 			<div v-if="currentUrl === 'procurement'" class="ml-4 flex items-center overflow-hidden">
-				<div class="bg-indigo-500 px-2 h-full flex justify-center items-center rounded-l border border-indigo-300">
+				<div class="px-2 h-full flex justify-center items-center rounded-l border border-indigo-300">
 					<FontAwesomeIcon icon="fal fa-store"
-						class="w-auto text-white"
+						class="w-auto text-indigo-500"
 						aria-hidden="true" />
 				</div>
 
@@ -144,12 +148,13 @@ const compCurrentSlug = computed(() => {
 					v-if="currentUrl && layout.navigation?.[currentUrl]?.topMenu && layout.navigation?.[currentUrl]?.topMenu?.subSections"
 					v-for="menu in layout.navigation?.[currentUrl]?.topMenu.subSections" :href="route(menu.route.name)"
 					class="group flex justify-end items-center cursor-pointer py-1 space-x-1 px-4 md:px-4 lg:px-4"
-					:class="[currentRoute == menu.route.name ? 'text-indigo-600' : 'text-gray-600']"
+					:class="[(route(route().current(), route().params)).includes(urlPath(menu.route.name)) ? 'text-indigo-600' : 'text-gray-600']"
 					:title="capitalize(menu.label)">
-				<FontAwesomeIcon :icon="menu.icon"
-					class="h-5 lg:h-3.5 w-auto group-hover:opacity-100 opacity-70 transition duration-100 ease-in-out"
-					aria-hidden="true" />
-				<span class="hidden lg:inline capitalize">{{ menu.label }}</span>
+					<FontAwesomeIcon :icon="menu.icon"
+						class="h-5 lg:h-3.5 w-auto group-hover:opacity-100 opacity-70 transition duration-100 ease-in-out"
+						aria-hidden="true" />
+					<span class="hidden lg:inline capitalize">{{ menu.label }}</span>
+					<!-- {{ (route(route().current(), route().params)).includes(urlPath(menu.route.name)) }} -->
 				</Link>
 			</div>
 

@@ -22,6 +22,7 @@ use App\Actions\HumanResources\Employee\StoreEmployee;
 use App\Actions\HumanResources\Employee\UpdateEmployee;
 use App\Actions\HumanResources\WorkingPlace\StoreWorkingPlace;
 use App\Actions\HumanResources\WorkingPlace\UpdateWorkingPlace;
+use App\Actions\Inventory\Location\DeleteLocation;
 use App\Actions\Inventory\Location\StoreLocation;
 use App\Actions\Inventory\Location\UpdateLocation;
 use App\Actions\Inventory\Stock\UpdateStock;
@@ -100,6 +101,9 @@ Route::post('/warehouse/{warehouse}/area/', StoreWarehouseArea::class)->name('wa
 Route::patch('/area/{warehouseArea}', UpdateWarehouseArea::class)->name('warehouse-area.update');
 
 Route::patch('/location/{location}', UpdateLocation::class)->name('location.update');
+Route::delete('/location/{location}', DeleteLocation::class)->name('location.delete');
+Route::delete('/warehouse/{warehouse}/location/{location}',DeleteLocation::class, 'inWarehouse')->name('warehouse.location.delete');
+Route::delete('/warehouse/{warehouse}/area/{warehouseArea}/location/{location}',DeleteLocation::class, 'inWarehouseInWarehouseArea')->name('warehouse.warehouse-area.location.delete');
 
 Route::post('/warehouse/{warehouse}/location', StoreLocation::class)->name('warehouse.location.store');
 Route::post('/area/{warehouseArea}/location', [StoreLocation::class, 'inWarehouseArea'])->name('warehouse-area.location.store');

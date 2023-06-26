@@ -17,7 +17,9 @@ use App\Http\Resources\SysAdmin\HistoryResource;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -34,12 +36,18 @@ class ShowLocation extends InertiaAction
     public function authorize(ActionRequest $request): bool
     {
         $this->canEdit = $request->user()->can('inventory.locations.edit');
+        $this->canDelete = $request->user()->can('inventory.locations.edit');
+
         return $request->user()->hasPermissionTo("inventory.view");
     }
 
 
-    public function inTenant(Location $location, ActionRequest $request): Location
+    public function inTenant(Location $location, ActionRequest $request): RedirectResponse|Location
     {
+        if ($location->trashed()) {
+            return Redirect::route($request->route()->getName(), $request->route()->originalParameters());
+        }
+
         $this->initialisation($request)->withTab(LocationTabsEnum::values());
         return $this->handle($location);
     }
@@ -67,7 +75,6 @@ class ShowLocation extends InertiaAction
 
     public function htmlResponse(Location $location, ActionRequest $request): Response
     {
-
         return Inertia::render(
             'Inventory/Location',
             [
@@ -93,12 +100,35 @@ class ShowLocation extends InertiaAction
                             'parameters' => array_values($this->originalParameters)
                         ]
                     ] : false,
-
+                    'delete' => $this->canDelete ?
+                        match ($this->routeName){
+                            'inventory.locations.show' => [
+                                'route' => [
+                                    'name' => 'inventory.locations.remove',
+                                    'parameters' => array_values($this->originalParameters)
+                                ],
+                                'label' => __('delete location')
+                            ],
+                            'inventory.warehouses.show.locations.show' => [
+                                'route' => [
+                                    'name' => 'inventory.warehouses.show.locations.remove',
+                                    'parameters' => array_values($this->originalParameters)
+                                ],
+                                'label' => __('delete location')
+                            ],
+                            'inventory.warehouses.show.warehouse-areas.show.locations.show' => [
+                                'route' => [
+                                    'name' => 'inventory.warehouses.show.warehouse-areas.show.locations.remove',
+                                    'parameters' => array_values($this->originalParameters)
+                                ],
+                                'label' => __('delete location')
+                            ]
+                        }
+                    : false,
                 ],
                 'tabs' => [
                     'current'    => $this->tab,
                     'navigation' => LocationTabsEnum::navigation()
-
                 ],
 
                 LocationTabsEnum::SHOWCASE->value => $this->tab == LocationTabsEnum::SHOWCASE->value ?
