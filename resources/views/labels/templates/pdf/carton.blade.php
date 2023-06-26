@@ -1,12 +1,9 @@
-<!--
- About:
- Author: Raul Perusquia <raul@inikoo.com>
- Created: 14 March 2019 at 14:13:56 GMT+8, Ubud, Bali, Indonesia
- Refurbished:  01 May 2020  21:34::26  +0800, Kuala Lumpur, Malaysialabe
- Copyright (c) 2018, Inikoo
-
- Version 3
--->
+{{--
+* Author: Artha <artha@aw-advantage.com>
+* Created: Fri, 23 Jun 2023 11:43:59 Central Indonesia Time, Sanur, Bali, Indonesia
+* Copyright (c) 2023, Raul A Perusquia Flores
+*/
+--}}
 
 <style>
     .top td {
