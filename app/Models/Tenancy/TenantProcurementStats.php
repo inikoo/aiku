@@ -21,12 +21,16 @@ use Illuminate\Support\Carbon;
  * @property int $tenant_id
  * @property int $number_agents Active agents, status=true
  * @property int $number_archived_agents Archived agents, status=false
+ * @property int $number_agents_status_owner
+ * @property int $number_agents_status_adopted
+ * @property int $number_agents_status_available
  * @property int $number_suppliers Active suppliers, status=true
  * @property int $number_archived_suppliers Archived suppliers status=false
- * @property int $number_suppliers_type_supplier Active suppliers. status=true,type=supplier
- * @property int $number_archived_suppliers_type_supplier Archived suppliers. status=false,type=supplier
- * @property int $number_suppliers_type_sub_supplier Active suppliers. status=true,type=sub-supplier
- * @property int $number_archived_suppliers_type_sub_supplier Archived suppliers. status=false,type=sub-supplier
+ * @property int $number_suppliers_status_owner
+ * @property int $number_suppliers_status_adopted
+ * @property int $number_suppliers_status_available
+ * @property int $number_suppliers_in_agents Active suppliers, status=true
+ * @property int $number_archived_suppliers_in_agents Archived suppliers status=false
  * @property int $number_supplier_products Number supplier products (all excluding discontinued)
  * @property int $number_supplier_deliveries Number supplier deliveries (all excluding discontinued)
  * @property int $supplier_products_count Number supplier products

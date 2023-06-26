@@ -20,7 +20,6 @@ use App\Models\Procurement\SupplierProductTenant;
 use App\Models\Procurement\SupplierTenant;
 use App\Models\SysAdmin\SysUser;
 use App\Models\TenantWebStats;
-use Database\Factories\Tenancy\TenantFactory;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -52,25 +51,28 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $email
  * @property bool $status
  * @property array $data
+ * @property array $settings
  * @property array $source
  * @property int $country_id
  * @property int $language_id
  * @property int $timezone_id
  * @property int $currency_id tenant accounting currency
+ * @property int|null $logo_id
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property string|null $deleted_at
  * @property-read \App\Models\Tenancy\TenantAccountingStats|null $accountingStats
  * @property-read Collection<int, Agent> $agents
  * @property-read Collection<int, CentralDomain> $centralDomains
- * @property-read MediaCollection<int, CentralMedia> $centralMedia
  * @property-read \App\Models\Tenancy\TenantCRMStats|null $crmStats
  * @property-read Currency $currency
  * @property-read \App\Models\Tenancy\TenantFulfilmentStats|null $fulfilmentStats
  * @property-read \App\Models\Tenancy\Group $group
  * @property-read \App\Models\Tenancy\TenantInventoryStats|null $inventoryStats
+ * @property-read CentralMedia|null $logo
  * @property-read \App\Models\Tenancy\TenantMailStats|null $mailStats
  * @property-read \App\Models\Tenancy\TenantMarketingStats|null $marketingStats
+ * @property-read MediaCollection<int, \App\Models\Media\GroupMedia> $media
  * @property-read Collection<int, Agent> $myAgents
  * @property-read Collection<int, Supplier> $mySuppliers
  * @property-read \App\Models\Tenancy\TenantProcurementStats|null $procurementStats
@@ -83,7 +85,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read SysUser|null $sysUser
  * @property-read TenantWebStats|null $webStats
  * @method static TenantCollection<int, static> all($columns = ['*'])
- * @method static TenantFactory factory($count = null, $state = [])
+ * @method static \Database\Factories\Tenancy\TenantFactory factory($count = null, $state = [])
  * @method static TenantCollection<int, static> get($columns = ['*'])
  * @method static Builder|Tenant newModelQuery()
  * @method static Builder|Tenant newQuery()

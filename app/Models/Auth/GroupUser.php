@@ -13,7 +13,6 @@ use App\Models\Tenancy\Tenant;
 use App\Models\Traits\UsesGroupConnection;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -46,7 +45,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read CentralMedia|null $avatar
  * @property-read MediaCollection<int, GroupMedia> $media
  * @property-read TenantCollection<int, Tenant> $tenants
- * @property-read Collection<int, \App\Models\Auth\User> $users
  * @method static Builder|GroupUser newModelQuery()
  * @method static Builder|GroupUser newQuery()
  * @method static Builder|GroupUser onlyTrashed()
