@@ -123,9 +123,9 @@ const urlPath = (url: string) => {
 		<div class="flex">
 			<!-- For Procurement -->
 			<div v-if="currentUrl === 'procurement'" class="ml-4 flex items-center overflow-hidden">
-				<div class="bg-indigo-500 px-2 h-full flex justify-center items-center rounded-l border border-indigo-300">
+				<div class="px-2 h-full flex justify-center items-center rounded-l border border-indigo-300">
 					<FontAwesomeIcon icon="fal fa-store"
-						class="w-auto text-white"
+						class="w-auto text-indigo-500"
 						aria-hidden="true" />
 				</div>
 
