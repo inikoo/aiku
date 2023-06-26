@@ -19,14 +19,12 @@ class CreateGuest extends InertiaAction
     /**
      * @throws \Exception
      */
-    public function handle(ActionRequest $request): Response
+    public function handle(): Response
     {
         return Inertia::render(
             'CreateModel',
             [
-                'breadcrumbs' => $this->getBreadcrumbs(
-                    $request->route()->getName(),
-                ),
+                'breadcrumbs' => $this->getBreadcrumbs(),
                 'title'       => __('new guest'),
                 'pageHead'    => [
                     'title'        => __('new guest'),
@@ -38,67 +36,84 @@ class CreateGuest extends InertiaAction
                     ]
 
                 ],
-                'formData' => [
+                'formData'    => [
                     'blueprint' => [
                         [
-                            'title'  => __('Type/Login credentials'),
+                            'title' => __('Type/Login credentials'),
 
                             'fields' => [
-                                'type' => [
-                                    'type'         => 'radio',
-                                    'label'        => __('type'),
-                                    'value'        => GuestTypeEnum::CONTRACTOR->value,
-                                    'options'      => Options::forEnum(GuestTypeEnum::class)
+                                'type'             => [
+                                    'type'    => 'radio',
+                                    'label'   => __('type'),
+                                    'value'   => GuestTypeEnum::CONTRACTOR->value,
+                                    'options' => Options::forEnum(GuestTypeEnum::class)
                                 ],
-                                'group_type' => [
-                                    'type'         => 'fork_type_group_user',
-                                    'label'        => '',
-                                    'value'        => GuestTypeEnum::CONTRACTOR->value,
-                                    'options'      => [
-                                        [
-                                            'label'      => __('Create new user'),
-                                            'value'      => 'newGroupUser',
-                                            'route'      => [
-                                                'name'       => 'models.group-user.guest.store',
-                                            ]
-                                        ],
-                                        [
-                                        'label'=> __('Use existing user from other aiku account'),
-                                        'value'=> 'existingGroupUser'
-                                        ]
-                                    ]
-                                ],
-                                /*
-                                'username' => [
-                                    'type'   => 'input',
-                                    'label'  => __('username'),
-                                    'value'  => '',
-                                    'required'=>true,
-                                ],
-                                */
+                                'guestCredentials' => [
+                                    'type'    => 'guest-credentials',
+                                    'label'   => '',
+                                    'value'   => 'newGroupUser',
+                                    'options' => [
+                                        'newGroupUser' => [
+                                            'label'             => __('Create new user'),
+                                            'hooks'             => [
+                                                'route' => [
+                                                    'name' => 'models.guest.store',
+                                                ],
+                                                'field' => [
+                                                    'username' => [
+                                                        'type'     => 'input',
+                                                        'label'    => __('username'),
+                                                        'value'    => '',
+                                                        'required' => true,
+                                                    ],
+                                                ]
+                                            ],
+                                            'existingGroupUser' => [
+                                                'label' => __('Use existing user from other aiku account'),
+                                                'hooks' => [
+                                                    'route' => [
+                                                        'name' => 'models.group-user.guest.store',
+                                                    ],
+                                                ],
+                                                'field' => [
+                                                    'group_user_id' => [
+                                                        'type'     => 'async-combobox',
+                                                        'label'    => __('user'),
+                                                        'value'    => '',
+                                                        'required' => true,
+                                                    ],
+                                                ]
 
-                            ]
+
+                                            ]
+                                        ]
+                                    ],
+
+
+                                ]
+                            ],
+
                         ],
                         [
                             'title'  => __('personal information'),
                             'fields' => [
                                 'company_name' => [
-                                    'type'   => 'input',
-                                    'label'  => __('company'),
-                                    'value'  => '',
+                                    'type'  => 'input',
+                                    'label' => __('company'),
+                                    'value' => '',
                                 ],
                                 'contact_name' => [
-                                    'type'    => 'input',
-                                    'label'   => __('name'),
-                                    'value'   => '',
-                                    'required'=> true
+                                    'type'     => 'input',
+                                    'label'    => __('name'),
+                                    'value'    => '',
+                                    'required' => true
                                 ],
-                                'phone' => [
+                                'phone'        => [
                                     'type'  => 'phone',
                                     'label' => __('phone'),
                                     'value' => ''
                                 ],
-                                'email' => [
+                                'email'        => [
                                     'type'  => 'input',
                                     'label' => __('email'),
                                     'value' => ''
@@ -107,8 +122,8 @@ class CreateGuest extends InertiaAction
                         ],
 
                     ],
-                    'route'      => [
-                        'name'       => 'models.guest.store',
+                    'route'     => [
+                        'name' => 'models.guest.store',
 
                     ]
 
@@ -125,23 +140,25 @@ class CreateGuest extends InertiaAction
     }
 
 
+    /**
+     * @throws \Exception
+     */
     public function asController(ActionRequest $request): Response
     {
         $this->initialisation($request);
 
-        return $this->handle($request);
+        return $this->handle();
     }
 
-    public function getBreadcrumbs($suffix = null): array
+    public function getBreadcrumbs(): array
     {
         return array_merge(
-            IndexGuest::make()->getBreadcrumbs(
-            ),
+            IndexGuest::make()->getBreadcrumbs(),
             [
                 [
                     'type'          => 'creatingModel',
                     'creatingModel' => [
-                        'label' => __('creating user'),
+                        'label' => __('creating guest'),
                     ]
                 ]
             ]
