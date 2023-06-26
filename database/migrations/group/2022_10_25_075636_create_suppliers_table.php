@@ -17,7 +17,6 @@ return new class () extends Migration {
     {
         Schema::create('suppliers', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('type')->index()->comment('sub-supplier: agents supplier');
             $table->unsignedSmallInteger('agent_id')->nullable();
             $table->foreign('agent_id')->references('id')->on('agents');
             $this->procurementSubject($table);

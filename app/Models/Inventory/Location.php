@@ -38,6 +38,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $code
  * @property string $stock_value
  * @property bool $is_empty
+ * @property float|null $max_weight
+ * @property float|null $max_volume
  * @property array $data
  * @property Carbon|null $audited_at
  * @property Carbon|null $created_at

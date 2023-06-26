@@ -106,7 +106,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, \App\Models\Market\ShippingZoneSchema> $shippingZoneSchemas
  * @property-read \App\Models\Market\ShopStats|null $stats
  * @property-read TaxNumber|null $taxNumber
- * @property-read \App\Models\Assets\Timezone|null $timezone
+ * @property-read Timezone $timezone
  * @property-read UniversalSearch|null $universalSearch
  * @property-read Website|null $website
  * @method static \Database\Factories\Market\ShopFactory factory($count = null, $state = [])

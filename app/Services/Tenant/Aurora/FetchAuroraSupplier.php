@@ -7,7 +7,6 @@
 
 namespace App\Services\Tenant\Aurora;
 
-use App\Enums\Procurement\Supplier\SupplierTypeEnum;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraSupplier extends FetchAurora
@@ -16,29 +15,27 @@ class FetchAuroraSupplier extends FetchAurora
 
     protected function parseModel(): void
     {
+
         $agentData = Db::connection('aurora')->table('Agent Supplier Bridge')
             ->select('Agent Supplier Agent Key')
             ->where('Agent Supplier Supplier Key', $this->auroraModelData->{'Supplier Key'})->first();
 
 
+
+        $agentId = null;
+
         if ($agentData) {
-
-
-            $agent=$this->parseAgent($agentData->{'Agent Supplier Agent Key'});
-            if(!$agent) {
-                //print "agent not found ".$agentData->{'Agent Supplier Agent Key'}." \n";
+            $agent = $this->parseAgent($agentData->{'Agent Supplier Agent Key'});
+            if (!$agent) {
+                print "agent not found ".$agentData->{'Agent Supplier Agent Key'}." \n";
                 return;
             }
-
-            $this->parsedData['owner'] = $agent;
-            $agentId                   = $this->parsedData['owner']->id;
-            $type                      = SupplierTypeEnum::SUB_SUPPLIER;
-        } else {
-            $type                      = SupplierTypeEnum::SUPPLIER;
-            $this->parsedData['owner'] = app('currentTenant');
-            $agentId                   = null;
+            $this->parsedData['agent']=$agent;
+            $agentId                  = $agent->id;
 
         }
+        $this->parsedData['owner'] = app('currentTenant');
+
 
         $deleted_at = $this->parseDate($this->auroraModelData->{'Supplier Valid To'});
         if ($this->auroraModelData->{'Supplier Type'} != 'Archived') {
@@ -57,7 +54,6 @@ class FetchAuroraSupplier extends FetchAurora
 
         $this->parsedData['supplier'] =
             [
-                'type'         => $type,
                 'name'         => $name,
                 'agent_id'     => $agentId,
                 'code'         => preg_replace('/\s/', '-', $this->auroraModelData->{'Supplier Code'}),

@@ -9,7 +9,7 @@ namespace App\Actions\Auth\Guest\UI;
 
 use App\Actions\InertiaAction;
 use App\Actions\UI\SysAdmin\SysAdminDashboard;
-use App\Http\Resources\SysAdmin\GuestInertiaResource;
+use App\Enums\Auth\Guest\GuestTypeEnum;
 use App\Http\Resources\SysAdmin\GuestResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Auth\Guest;
@@ -24,8 +24,32 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexGuest extends InertiaAction
 {
+    protected function getElementGroups(): void
+    {
+        $this->elementGroups =
+            [
+                'status' => [
+                    'label'    => __('Status'),
+                    'elements' => ['active' => __('Active'), 'suspended' => __('Suspended')],
+                    'engine'   => function ($query, $elements) {
+                        $query->where('users.status', array_pop($elements) === 'active');
+                    }
+
+                ],
+                'type'   => [
+                    'label'    => __('Type'),
+                    'elements' => GuestTypeEnum::labels(),
+                    'engine'   => function ($query, $elements) {
+                        $query->whereIn('guests.type', $elements);
+                    }
+
+                ],
+            ];
+    }
+
+
     /** @noinspection PhpUndefinedMethodInspection */
-    public function handle($prefix=null): LengthAwarePaginator
+    public function handle($prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -38,7 +62,15 @@ class IndexGuest extends InertiaAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        $queryBuilder=QueryBuilder::for(Guest::class);
+        $queryBuilder = QueryBuilder::for(Guest::class)
+            ->leftJoin(
+                'users',
+                function ($leftJoin) {
+                    $leftJoin
+                        ->on('users.parent_id', '=', 'guests.id')
+                        ->where('users.parent_type', '=', 'Guest');
+                }
+            )->leftJoin('user_stats', 'user_stats.user_id', 'users.id');
         foreach ($this->elementGroups as $key => $elementGroup) {
             $queryBuilder->whereElementGroup(
                 prefix: $prefix,
@@ -50,8 +82,8 @@ class IndexGuest extends InertiaAction
 
         return $queryBuilder
             ->defaultSort('guests.slug')
-            ->select(['id', 'slug', 'contact_name',])
-            ->allowedSorts(['slug', 'contact_name'])
+            ->select(['guests.id', 'slug', 'guests.contact_name','guests.email','number_logins','last_login_at','number_failed_logins','last_failed_login_at'])
+            ->allowedSorts(['slug', 'contact_name','email','number_logins','last_login_at','number_failed_logins','last_failed_login_at'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -69,6 +101,8 @@ class IndexGuest extends InertiaAction
                 ->withGlobalSearch()
                 ->column(key: 'slug', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'contact_name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'email', label: __('email'), canBeHidden: false, sortable: true, searchable: true)
+
                 ->defaultSort('slug');
         };
     }
@@ -93,7 +127,6 @@ class IndexGuest extends InertiaAction
 
     public function htmlResponse(LengthAwarePaginator $guests): Response
     {
-
         return Inertia::render(
             'SysAdmin/Guests',
             [
@@ -109,7 +142,7 @@ class IndexGuest extends InertiaAction
                         'label' => __('guest')
                     ] : false,
                 ],
-                'data'        => GuestInertiaResource::collection($guests),
+                'data'        => GuestResource::collection($guests),
             ]
         )->table($this->tableStructure());
     }
@@ -118,6 +151,7 @@ class IndexGuest extends InertiaAction
     public function asController(ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($request);
+
         return $this->handle();
     }
 

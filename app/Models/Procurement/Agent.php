@@ -19,7 +19,6 @@ use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasPhoto;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\UsesGroupConnection;
-use Database\Factories\Procurement\AgentFactory;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -45,8 +44,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property bool $is_private
  * @property string $slug
  * @property string $code
+ * @property string $owner_type Who can edit this model Tenant|Agent|Supplier
  * @property int $owner_id
- * @property string $owner_type
  * @property string|null $name
  * @property int|null $image_id
  * @property string|null $contact_name
@@ -79,7 +78,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, \App\Models\Procurement\SupplierDelivery> $supplierDeliveries
  * @property-read Collection<int, \App\Models\Procurement\Supplier> $suppliers
  * @property-read UniversalSearch|null $universalSearch
- * @method static AgentFactory factory($count = null, $state = [])
+ * @method static \Database\Factories\Procurement\AgentFactory factory($count = null, $state = [])
  * @method static Builder|Agent newModelQuery()
  * @method static Builder|Agent newQuery()
  * @method static Builder|Agent onlyTrashed()

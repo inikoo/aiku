@@ -41,7 +41,7 @@ class StoreMarketplaceAgent
 
     public function handle(Tenant $owner, array $modelData, array $addressData = []): Agent
     {
-        $modelData['owner_type'] = 'Agent';
+        $modelData['owner_type'] = 'Tenant';
         /** @var Agent $agent */
         $agent = $owner->myAgents()->create($modelData);
         $agent->stats()->create();

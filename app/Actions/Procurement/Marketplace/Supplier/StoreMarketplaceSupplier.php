@@ -43,27 +43,29 @@ class StoreMarketplaceSupplier
         return $request->user()->hasPermissionTo("procurement.edit");
     }
 
-    public function handle(Tenant|Agent $owner, array $modelData, array $addressData = []): Supplier
+    public function handle(Tenant|Agent $owner, ?Agent $agent, array $modelData, array $addressData = []): Supplier
     {
+        $modelData['owner_type'] = class_basename($owner);
+        $modelData['owner_id']   = $owner->id;
+
+
         /** @var Supplier $supplier */
-        if (class_basename($owner) == 'Agent') {
-            $modelData['type']       = 'sub-supplier';
-            $modelData['owner_type'] = 'Agent';
-            $modelData['owner_id']   = $owner->id;
-            $supplier                = $owner->suppliers()->create($modelData);
+        if ($agent) {
+
+            $supplier = $agent->suppliers()->create($modelData);
 
             AttachSupplier::run(
                 tenant: app('currentTenant'),
                 supplier: $supplier,
                 pivotData: [
-                    'type'   => 'sub-supplier',
-                    'status' => SupplierTenantStatusEnum::OWNER
+                    'agent_id'   => $agent->id,
+                    'status'     => SupplierTenantStatusEnum::OWNER
                 ]
             );
+
+
         } else {
-            $modelData['type']       = 'supplier';
-            $modelData['owner_type'] = 'Agent';
-            $supplier                = $owner->mySuppliers()->create($modelData);
+            $supplier = $owner->mySuppliers()->create($modelData);
             $owner->suppliers()->attach(
                 $supplier,
                 [
@@ -97,7 +99,7 @@ class StoreMarketplaceSupplier
     public function rules(): array
     {
         return [
-            'code'         => ['required', 'unique:group.agents', 'between:2,9', 'alpha'],
+            'code'         => ['required', 'unique:group.suppliers', 'between:2,9', 'alpha'],
             'contact_name' => ['nullable', 'string', 'max:255'],
             'company_name' => ['nullable', 'string', 'max:255'],
             'email'        => ['nullable', 'email'],
@@ -114,14 +116,15 @@ class StoreMarketplaceSupplier
         }
     }
 
-    public function action(Tenant|Agent $owner, $objectData): Supplier
+    public function action(Tenant|Agent $owner, ?Agent $agent, $modelData): Supplier
     {
         $this->asAction = true;
-        $this->setRawAttributes($objectData);
+        $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 
         return $this->handle(
             owner: $owner,
+            agent: $agent,
             modelData: Arr::except($validatedData, 'address'),
             addressData: Arr::get($validatedData, 'address')
         );
@@ -131,9 +134,11 @@ class StoreMarketplaceSupplier
     {
         $this->fillFromRequest($request);
         $request->validate();
-        $validatedData=$request->validated();
+        $validatedData = $request->validated();
+
         return $this->handle(
             owner: app('currentTenant'),
+            agent: null,
             modelData: Arr::except($validatedData, 'address'),
             addressData: Arr::get($validatedData, 'address')
         );
@@ -143,9 +148,11 @@ class StoreMarketplaceSupplier
     {
         $this->fillFromRequest($request);
         $request->validate();
-        $validatedData=$request->validated();
+        $validatedData = $request->validated();
+
         return $this->handle(
-            owner: $agent,
+            owner: app('currentTenant'),
+            agent: $agent,
             modelData: Arr::except($validatedData, 'address'),
             addressData: Arr::get($validatedData, 'address')
         );
@@ -156,6 +163,7 @@ class StoreMarketplaceSupplier
         if ($supplier->owner_type == 'Agent') {
             /** @var Agent $agent */
             $agent = $supplier->owner;
+
             return Redirect::route('procurement.marketplace.agents.show.suppliers.index', $agent->slug);
         }
 

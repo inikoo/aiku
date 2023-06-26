@@ -40,9 +40,9 @@ class FetchAuroraGuest extends FetchAurora
 
             'slug'                     => strtolower($this->auroraModelData->{'Staff Alias'}),
             'contact_name'             => $this->auroraModelData->{'Staff Name'},
-            'email'                    => $this->auroraModelData->{'Staff Email'},
-            'phone'                    => $this->auroraModelData->{'Staff Telephone'},
-            'identity_document_number' => $this->auroraModelData->{'Staff Official ID'},
+            'email'                    => $this->auroraModelData->{'Staff Email'} ?: null,
+            'phone'                    => $this->auroraModelData->{'Staff Telephone'} ?: null,
+            'identity_document_number' => $this->auroraModelData->{'Staff Official ID'} ?: null,
             'date_of_birth'            => $this->parseDate($this->auroraModelData->{'Staff Birthday'}),
             'created_at'               => $this->auroraModelData->{'Staff Valid From'},
             'data'                     => $data,

@@ -28,7 +28,6 @@ class DeliveryNoteFactory extends Factory
             'state'  => DeliveryNoteStateEnum::PACKING,
             'status' => DeliveryNoteStatusEnum::HANDLING,
             'email'  => fake()->email,
-            'phone'  => fake()->phoneNumber,
             'date'   => fake()->date
         ];
     }

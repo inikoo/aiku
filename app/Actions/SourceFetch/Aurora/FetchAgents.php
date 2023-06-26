@@ -52,12 +52,19 @@ class FetchAgents extends FetchAction
                     );
 
                     $tenant->agents()->updateExistingPivot($agent, ['source_id' => $agentData['agent']['source_id']]);
+
                 }
             }
 
             foreach ($agentData['photo'] as $photoData) {
                 $this->saveGroupImage($agent, $photoData);
             }
+
+
+
+            DB::connection('aurora')->table('Agent Dimension')
+                ->where('Agent Key', $agentData['agent']['source_id'])
+                ->update(['aiku_id' => $agent->id]);
 
             return $agent;
         }

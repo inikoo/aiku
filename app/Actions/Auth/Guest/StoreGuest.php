@@ -7,13 +7,20 @@
 
 namespace App\Actions\Auth\Guest;
 
+use App\Actions\Auth\GroupUser\StoreGroupUser;
+use App\Actions\Auth\User\StoreUser;
+use App\Actions\Tenancy\Tenant\HydrateTenant;
 use App\Enums\Auth\Guest\GuestTypeEnum;
+use App\Models\Auth\GroupUser;
 use App\Models\Auth\Guest;
 use App\Models\Tenancy\Tenant;
-use Exception;
+use App\Rules\AlphaDashDot;
 use Illuminate\Console\Command;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -28,7 +35,10 @@ class StoreGuest
 
     public function handle(array $modelData): Guest
     {
-        return Guest::create($modelData);
+        $guest = Guest::create($modelData);
+        HydrateTenant::make()->guestsStats();
+
+        return $guest;
     }
 
     public function authorize(ActionRequest $request): bool
@@ -50,12 +60,13 @@ class StoreGuest
     public function rules(): array
     {
         return [
-            'contact_name'             => ['required', 'string', 'max:255'],
-            'email'                    => ['nullable', 'email'],
-            'phone'                    => ['nullable', 'phone:AUTO'],
-            'identity_document_number' => ['nullable', 'string'],
-            'identity_document_type'   => ['nullable', 'string'],
-            'type'                     => ['required', Rule::in(GuestTypeEnum::values())],
+            'type'         => ['required', Rule::in(GuestTypeEnum::values())],
+            'username'     => ['sometimes','nullable', new AlphaDashDot(), 'unique:App\Models\SysAdmin\SysUser,username', Rule::notIn(['export', 'create'])],
+            'company_name' => ['nullable', 'string', 'max:255'],
+            'contact_name' => ['required', 'string', 'max:255'],
+            'phone'        => ['nullable', 'phone:AUTO'],
+            'email'        => ['nullable', 'email'],
+
 
         ];
     }
@@ -64,7 +75,42 @@ class StoreGuest
     {
         $request->validate();
 
-        return $this->handle($request->validated());
+        $modelData = $request->validated();
+
+        $guest = $this->handle(Arr::except($modelData, ['username']));
+
+        $groupUser = GroupUser::where('username', Arr::get($modelData, 'username'))->first();
+        if (!$groupUser) {
+            $groupUser = StoreGroupUser::run(
+                array_merge(
+                    [
+                        'username' => Arr::get($modelData, 'username'),
+                        'password' => (app()->isLocal() ? 'hello' : wordwrap(Str::random(), 4, '-', true))
+
+                    ]
+                )
+            );
+        }
+        StoreUser::run(
+            parent: $guest,
+            groupUser: $groupUser,
+        );
+
+        return $guest;
+    }
+
+    public function inGroupUser(GroupUser $groupUser, ActionRequest $request): Guest
+    {
+        $request->validate();
+        $modelData = $request->validated();
+        $guest     = $this->handle($modelData);
+
+        StoreUser::run(
+            parent: $guest,
+            groupUser: $groupUser,
+        );
+
+        return $guest;
     }
 
 
@@ -79,25 +125,20 @@ class StoreGuest
 
     public string $commandSignature = 'create:guest {tenant : tenant slug} {name} {type : Guest type contractor|external_employee|external_administrator} {--e|email=} {--t|phone=}  {--identity_document_number=} {--identity_document_type=}';
 
+    /**
+     * @throws ModelNotFoundException
+     */
     public function asCommand(Command $command): int
     {
         $this->trusted = true;
-        try {
-            $tenant = Tenant::where('slug', $command->argument('tenant'))->firstOrFail();
-        } catch (Exception) {
-            $command->error("Tenant {$command->argument('tenant')} not found");
-
-            return 1;
-        }
+        $tenant        = Tenant::where('slug', $command->argument('tenant'))->firstOrFail();
         $tenant->makeCurrent();
 
         $this->fill([
-            'type'                     => $command->argument('type'),
-            'contact_name'             => $command->argument('name'),
-            'email'                    => $command->option('email'),
-            'phone'                    => $command->option('phone'),
-            'identity_document_number' => $command->option('identity_document_number'),
-            'identity_document_type'   => $command->option('identity_document_type'),
+            'type'         => $command->argument('type'),
+            'contact_name' => $command->argument('name'),
+            'email'        => $command->option('email'),
+            'phone'        => $command->option('phone'),
         ]);
 
 
