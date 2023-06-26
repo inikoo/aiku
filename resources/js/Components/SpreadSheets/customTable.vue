@@ -8,7 +8,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { getDatabase, ref as dbRef, set, onValue, get } from 'firebase/database';
 import { initializeApp } from "firebase/app"
 import serviceAccount from "@/../private/firebase/aiku-firebase.json"
-import Multiselect from "@vueform/multiselect"
+import { usePage } from "@inertiajs/vue3";
 
 library.add(faSave, faPlus);
 
@@ -34,11 +34,15 @@ const columns = [
   ...props.data.columns.filter((item) => getL(item, 'hidden', false) === false),
 ];
 
+const user = ref(usePage().props.auth.user);
 const numberInputed = ref(1);
 const firebaseApp = initializeApp(serviceAccount);
 const db = getDatabase(firebaseApp);
 const setData = ref([]);
 const focusedCellIndex = ref({ rowIndex: 0, columnIndex: 0 });
+const focusedCellMulti = ref([]);
+
+console.log('sad',user)
 
 
 const setFocus = () => {
@@ -69,6 +73,11 @@ onValue(dbRef(db, props.documentName), (snapshot) => {
   setData.value = data ? Object.values(data) : [];
 });
 
+onValue(dbRef(db, 'focusedIndex'), (snapshot) => {
+  const data = snapshot.val();
+  focusedCellMulti.value = data ? Object.values(data) : [];
+});
+
 watch(setData, updateData, { deep: true });
 
 watch(focusedCellIndex, setFocus);
@@ -78,13 +87,24 @@ const updateDataAndSetFocus = () => {
   setFocus();
 };
 
-watch([setData, focusedCellIndex], updateDataAndSetFocus, { deep: true });
+watch([setData, focusedCellIndex,], updateDataAndSetFocus, { deep: true });
 
 const fetchInitialData = async () => {
   try {
-    const snapshot = await get(dbRef(db, props.documentName));
-    if (snapshot.exists()) {
-      const data = snapshot.val();
+    const focusedCellRef = dbRef(db, 'focusedIndex');
+
+    // Fetch initial data for focusedCellMulti
+    await get(focusedCellRef).then((snapshot) => {
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+        focusedCellMulti.value = Object.values(data);
+      }
+    });
+
+    // Fetch initial data for setData
+    const documentSnapshot = await get(dbRef(db, props.documentName));
+    if (documentSnapshot.exists()) {
+      const data = documentSnapshot.val();
       setData.value = Object.values(data);
     } else {
       addMultipleRows();
@@ -93,6 +113,8 @@ const fetchInitialData = async () => {
     console.error('Error fetching initial data:', error);
   }
 };
+
+
 
 const addMultipleRows = () => {
   const result = [];
@@ -133,10 +155,13 @@ onUnmounted(() => {
   document.removeEventListener('keydown', handleKeyDown);
 });
 
-const handleKeyDown = (event) => {
+const handleKeyDown = async (event) => {
   const { rowIndex, columnIndex } = focusedCellIndex.value;
   const maxRowIndex = setData.value.length - 1;
   const maxColumnIndex = columns.length - 1;
+  const data = focusedCellMulti.value;
+  const focusedCellRef = dbRef(db, 'focusedIndex');
+  const index = data.findIndex((item) => item.username === user.value.username);
 
   switch (event.key) {
     case 'ArrowUp':
@@ -169,40 +194,60 @@ const handleKeyDown = (event) => {
         event.preventDefault();
       }
       break;
-    case 'c':
-      if (event.ctrlKey) {
-        // Copy the selected cell value to clipboard
-        const selectedCellValue = setData.value[rowIndex][columns[columnIndex].prop];
-        try {
-          navigator.clipboard.writeText(selectedCellValue);
-        } catch (error) {
-          console.error('Error copying to clipboard:', error);
-        }
-      }
-      break;
-    case 'v':
-      if (event.ctrlKey) {
-        // Paste the clipboard value to the selected cell
-        try {
-          navigator.clipboard.readText().then((clipboardText) => {
-            setData.value[rowIndex][columns[columnIndex].prop] = clipboardText;
-          });
-        } catch (error) {
-          console.error('Error pasting from clipboard:', error);
-        }
-      }
-      break;
+  }
+
+  if (index > -1) {
+    data[index] = { focusedCellIndex: focusedCellIndex.value, ...user.value };
+  } else {
+    data.push({ focusedCellIndex: focusedCellIndex.value, ...user.value });
+  }
+
+  try {
+    await set(focusedCellRef, data);
+    console.log('Data successfully updated!');
+  } catch (error) {
+    console.error('Error updating data:', error);
   }
 };
 
-const setFocusedCell = (rowIndex, columnIndex) => {
+
+const setFocusedCell = async (rowIndex, columnIndex) => {
   focusedCellIndex.value = { rowIndex, columnIndex };
+  const data = focusedCellMulti.value;
+  const index = data.findIndex((item) => item.username === user.value.username);
+  if (index > -1) {
+    // User already exists in the array, update the item
+    console.log(data[index])
+    data[index] = { focusedCellIndex: focusedCellIndex.value, ...user.value };
+  } else {
+    // User doesn't exist in the array, add a new item
+    data.push({ focusedCellIndex: focusedCellIndex.value, ...user.value });
+  }
+  const focusedCellRef = dbRef(db, 'focusedIndex');
+  
+  try {
+    await set(focusedCellRef, data);
+    console.log('Data successfully updated!');
+  } catch (error) {
+    console.error('Error updating data:', error);
+  }
+};
+
+const selected = (row, column) => {
+  const data = focusedCellMulti.value.filter((item) => item.username !== user.value.username);
+  for (const item of data) {
+    if (item.focusedCellIndex.rowIndex === row && item.focusedCellIndex.columnIndex === column) {
+      return true;
+    }
+  }
+  
+  return false;
 };
 
 </script>
 
 <template>
-  <div>
+   <div>
     <table class="table">
       <thead>
         <tr>
@@ -213,12 +258,17 @@ const setFocusedCell = (rowIndex, columnIndex) => {
       </thead>
       <tbody>
         <tr v-for="(row, rowIndex) in setData" :key="rowIndex">
-          <td v-for="(column, colIndex) in columns" :key="colIndex" class="px-4 py-2"
+          <td v-for="(column, colIndex) in columns" :key="colIndex"
+            :class="{
+              'px-4': true,
+              'py-2': true,
+              'selected': selected(rowIndex,colIndex)
+            }"
             :tabindex="(rowIndex === focusedCellIndex.rowIndex && colIndex === focusedCellIndex.columnIndex) ? 0 : -1"
             @focus="setFocusedCell(rowIndex, colIndex)" @click="setFocusedCell(rowIndex, colIndex)">
             <div v-if="column.readonly">{{ row[column.prop] }}</div>
             <div v-if="column.columnType === 'string'">
-              <input type="text" v-model="row[column.prop]" class="input" @blur="updateDataAndSetFocus" />
+              <input type="text" v-model="row[column.prop]" class="input" @blur="updateDataAndSetFocus"  :disabled="selected(rowIndex,colIndex)"  />
             </div>
             <div v-if="column.columnType === 'select'">
               <select v-model="row[column.prop]" class="input" @blur="updateDataAndSetFocus">
@@ -261,13 +311,14 @@ const setFocusedCell = (rowIndex, columnIndex) => {
 
 .table td {
   border: 1px solid #e2e8f0;
-  padding: 0;
+  padding: 4px;
 }
 
 .py-2 {
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
 }
+
 
 .input {
   border: 0px;
@@ -281,7 +332,7 @@ const setFocusedCell = (rowIndex, columnIndex) => {
 }
 
 .selected {
-  background-color: lightblue;
+  background-color: red;
 }
 </style>
 
