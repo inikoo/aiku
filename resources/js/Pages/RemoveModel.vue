@@ -21,14 +21,17 @@ const props = defineProps<{
             }
         }
     },
-    "actions": Array<{
-        type: string,
+    "data": {
+        buttonLabel?: string,
+        title?:string,
+        text?:string,
+
         route: {
             name: string
             parameters: string[]
         }
 
-    }>
+    }
 
 
 }>();
@@ -39,6 +42,6 @@ const props = defineProps<{
 
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead"></PageHeading>
-    <RemoveModelAction class="ml-4 mb-6" v-for="action in actions" :action="action"></RemoveModelAction>
+    <RemoveModelAction class="ml-4 mb-6" :action="data"></RemoveModelAction>
 
 </template>

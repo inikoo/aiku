@@ -33,6 +33,16 @@ class RemoveMarketplaceAgent extends InertiaAction
         return $this->handle($agent);
     }
 
+    public function getAction($route): array
+    {
+        return  [
+            'buttonLabel' => __('Delete'),
+            'title'       => __('Delete agent'),
+            'text'        => __("This action will delete this agent and all it's suppliers & products"),
+            'route'       => $route
+        ];
+    }
+
     public function htmlResponse(Agent $agent, ActionRequest $request): Response
     {
         return Inertia::render(
@@ -53,24 +63,20 @@ class RemoveMarketplaceAgent extends InertiaAction
                     'exitEdit' => [
                         'label' => __('Cancel'),
                         'route' => [
-                            'name'       => preg_replace('/edit$/', 'show', $this->routeName),
+                            'name'       => preg_replace('/remove$/', 'show', $this->routeName),
                             'parameters' => array_values($this->originalParameters)
                         ]
                     ],
-
-
                 ],
-                'actions'     =>
-                    [
-                        [
-                            'type'        => 'softDelete',
-                            'buttonLabel' => __('Bin Agent'),
-                            'route'       => [
-                                'name'       => 'models.marketplace-agent.delete',
-                                'parameters' => array_values($this->originalParameters)
-                            ]
-                        ]
+                'data'     => $this->getAction(
+                    route:[
+                        'name'       => 'models.marketplace-agent.delete',
+                        'parameters' => array_values($this->originalParameters)
                     ]
+                )
+
+
+
 
             ]
         );

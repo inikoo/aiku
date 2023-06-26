@@ -22,6 +22,8 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowMarketplaceAgent extends InertiaAction
 {
+    use DeletedMarketplaceAgentTrait;
+
     public function handle(Agent $agent): Agent
     {
         return $agent;
@@ -79,7 +81,7 @@ class ShowMarketplaceAgent extends InertiaAction
                             'name'       => 'procurement.marketplace.agents.remove',
                             'parameters' => array_values($this->originalParameters)
                         ],
-                        'label' => __('supplier')
+                        'label' => __('delete agent')
                     ] : false,
                     'create' => $this->canEdit ? [
                         'route' => [
@@ -88,6 +90,7 @@ class ShowMarketplaceAgent extends InertiaAction
                         ],
                         'label' => __('supplier')
                     ] : false,
+                    /*
                     'meta'   => [
                         [
                             'href'     => ['procurement.marketplace.agents.show.suppliers.index', $agent->slug],
@@ -108,6 +111,7 @@ class ShowMarketplaceAgent extends InertiaAction
                             ],
                         ]
                     ]
+                    */
 
                 ],
                 'tabs'                                     => [
@@ -165,86 +169,6 @@ class ShowMarketplaceAgent extends InertiaAction
             ));
     }
 
-
-    public function deletedHtmlResponse(Agent $agent, ActionRequest $request): Response
-    {
-
-        return Inertia::render(
-            'Procurement/DeletedMarketplaceAgent',
-            [
-                'title'                                    => __("agent"),
-                'breadcrumbs'                              => $this->getBreadcrumbs(
-                    $request->route()->parameters
-                ),
-                'navigation'    => [
-                    'previous'  => $this->getPrevious($agent, $request),
-                    'next'      => $this->getNext($agent, $request),
-                ],
-                'pageHead'                                 => [
-                    'icon'          =>
-                        [
-                            'icon'  => ['fal', 'people-arrows'],
-                            'title' => __('agent')
-                        ],
-                    'title'  => $agent->name,
-
-
-
-                ],
-                'tabs'                                     => [
-                    'current'    => $this->tab,
-                    'navigation' => MarketplaceAgentTabsEnum::navigation()
-                ],
-                MarketplaceAgentTabsEnum::SHOWCASE->value => $this->tab == MarketplaceAgentTabsEnum::SHOWCASE->value ?
-                    fn () => GetMarketplaceAgentShowcase::run($agent)
-                    : Inertia::lazy(fn () => GetMarketplaceAgentShowcase::run($agent)),
-
-                MarketplaceAgentTabsEnum::SUPPLIERS->value => $this->tab == MarketplaceAgentTabsEnum::SUPPLIERS->value ?
-                    fn () => MarketplaceSupplierResource::collection(
-                        IndexMarketplaceSuppliers::run(
-                            parent: $agent,
-                            prefix: 'suppliers'
-                        )
-                    )
-                    : Inertia::lazy(fn () => MarketplaceSupplierResource::collection(
-                        IndexMarketplaceSuppliers::run(
-                            parent: $agent,
-                            prefix: 'suppliers'
-                        )
-                    )),
-
-                MarketplaceAgentTabsEnum::SUPPLIER_PRODUCTS->value => $this->tab == MarketplaceAgentTabsEnum::SUPPLIER_PRODUCTS->value ?
-                    fn () => MarketplaceSupplierProductResource::collection(IndexMarketplaceSupplierProducts::run($agent))
-                    : Inertia::lazy(fn () => MarketplaceSupplierProductResource::collection(IndexMarketplaceSupplierProducts::run($agent))),
-
-            ]
-        )->table(
-            IndexMarketplaceSuppliers::make()->tableStructure(
-                /* modelOperations: [
-                    'createLink' => $this->canEdit ? [
-                        'route' => [
-                            'name'       => 'procurement.marketplace.agents.show.suppliers.create',
-                            'parameters' => array_values($this->originalParameters)
-                        ],
-                        'label' => __('suppliers')
-                    ] : false,
-                ],
-                prefix: 'suppliers' */
-            )
-        )
-            ->table(IndexMarketplaceSupplierProducts::make()->tableStructure(
-                /* modelOperations: [
-                    'createLink' => $this->canEdit ? [
-                        'route' => [
-                            'name'       => 'procurement.marketplace.agents.show.supplier-products.create',
-                            'parameters' => array_values($this->originalParameters)
-                        ],
-                        'label' => __('product')
-                    ] : false,
-                ],
-                prefix: 'supplier_products' */
-            ));
-    }
 
 
     public function jsonResponse(Agent $agent): AgentResource
