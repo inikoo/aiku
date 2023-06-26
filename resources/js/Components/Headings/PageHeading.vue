@@ -86,14 +86,15 @@ const locale = useLocaleStore();
                 </Link>
             </span>
 
+            <!-- If the button is more than 1 in one component -->
             <div v-if="data['create'] && data['create']['withMulti']" class="flex">
                 <Link :href="route(data['create']['withMulti']['route']['name'],data['create']['withMulti']['route']['parameters'])">
-                    <Button type="secondary"  class="capitalize rounded-r-none">
-                        <FontAwesomeIcon icon="far fa-border-all" />
+                    <Button type="secondary" class="capitalize rounded-r-none">
+                        <FontAwesomeIcon icon="far fa-border-all" class="text-xl" />
                     </Button>
                  </Link>
                 <Link :href="route(data['create']['route']['name'], data['create']['route']['parameters'])">
-                    <Button type='secondary' action="create" class="capitalize rounded-l-none">
+                    <Button button="xs" type='secondary' action="create" class="capitalize rounded-l-none text-sm">
                         {{ data['create']['label'] }}
                     </Button>
                 </Link>
