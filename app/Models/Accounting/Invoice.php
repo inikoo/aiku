@@ -58,7 +58,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Currency $currency
  * @property-read Customer $customer
  * @property-read Collection<int, \App\Models\Accounting\InvoiceTransaction> $invoiceTransactions
- * @property-read Collection<int, Order> $order
+ * @property-read Order|null $order
  * @property-read Collection<int, Order> $orders
  * @property-read Shop $shop
  * @property-read \App\Models\Accounting\InvoiceStats|null $stats

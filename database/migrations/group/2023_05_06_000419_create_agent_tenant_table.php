@@ -5,6 +5,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
+use App\Enums\Procurement\AgentTenant\AgentTenantStatusEnum;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -18,7 +19,7 @@ return new class () extends Migration {
             $table->foreign('agent_id')->references('id')->on('agents');
             $table->unsignedSmallInteger('tenant_id');
             $table->foreign('tenant_id')->references('id')->on('public.tenants');
-            $table->string('status');
+            $table->string('status')->default(AgentTenantStatusEnum::ADOPTED->value);
             $table->timestampsTz();
             $table->unsignedInteger('source_id')->index()->nullable();
 

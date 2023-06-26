@@ -18,7 +18,7 @@ class SupplierFactory extends Factory
         $currency = Currency::where('code', 'USD')->firstOrFail();
 
         return [
-            'code'         => 'supplier',
+            'code'         => fake()->lexify(),
             'name'         => fake()->name,
             'company_name' => fake()->company,
             'contact_name' => fake()->name,

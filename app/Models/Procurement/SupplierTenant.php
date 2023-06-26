@@ -21,7 +21,7 @@ use Illuminate\Support\Carbon;
  * @property int $id
  * @property int $supplier_id
  * @property int $tenant_id
- * @property string $type sub-supplier: agents supplier
+ * @property int|null $agent_id
  * @property SupplierTenantStatusEnum $status
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at

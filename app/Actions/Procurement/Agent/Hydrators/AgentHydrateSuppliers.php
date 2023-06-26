@@ -9,10 +9,9 @@ namespace App\Actions\Procurement\Agent\Hydrators;
 
 use App\Models\Procurement\Agent;
 use App\Models\Procurement\Supplier;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class AgentHydrateSuppliers implements ShouldBeUnique
+class AgentHydrateSuppliers
 {
     use AsAction;
 
@@ -26,8 +25,5 @@ class AgentHydrateSuppliers implements ShouldBeUnique
         $agent->stats->update($stats);
     }
 
-    public function getJobUniqueId(Agent $agent): int
-    {
-        return $agent->id;
-    }
+
 }

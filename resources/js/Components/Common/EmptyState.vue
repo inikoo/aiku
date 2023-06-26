@@ -1,17 +1,21 @@
 <script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faPlus, faCactus, faIslandTropical, faSkullCow } from "@/../private/pro-regular-svg-icons"
+import { faPlus, faCactus, faIslandTropical, faSkullCow } from "@/../private/pro-light-svg-icons"
 import { library } from '@fortawesome/fontawesome-svg-core'
 library.add(faPlus, faCactus, faIslandTropical, faSkullCow)
+import {trans} from 'laravel-vue-i18n';
+
 
 </script>
 
 <template>
     <div class="text-center border-gray-200 pt-14">
-        <FontAwesomeIcon icon="far fa-cactus" class="mx-auto h-12 w-12 text-gray-500" aria-hidden="true" />
-        <FontAwesomeIcon icon="far fa-island-tropical" class="mx-auto h-12 w-12 text-gray-500" aria-hidden="true" />
-        <FontAwesomeIcon icon="far fa-skull-cow" class="mx-auto h-12 w-12 text-gray-500" aria-hidden="true" />
-        <h3 class="mt-2 text-sm font-semibold text-gray-800">No records</h3>
+
+        <FontAwesomeIcon icon="fal fa-cactus" class="mx-auto h-9 text-gray-400" aria-hidden="true" />
+        <FontAwesomeIcon icon="fal fa-skull-cow" class="mx-7   h-12 w-12 text-gray-500" aria-hidden="true" />
+        <FontAwesomeIcon icon="fal fa-cactus" class="mx-auto h-8  text-gray-400" aria-hidden="true" />
+
+        <h3 class="mt-3 text-sm font-semibold text-gray-800">{{trans('No records')}}</h3>
         <p class="mt-1 text-sm text-gray-500">Get started by creating a new project.</p>
         <div class="mt-6">
             <button

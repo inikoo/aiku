@@ -109,6 +109,7 @@ class IndexWebsites extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
+        $this->canEdit = $request->user()->can('webpages.edit');
         return
             (
                 $request->user()->tokenCan('root') or

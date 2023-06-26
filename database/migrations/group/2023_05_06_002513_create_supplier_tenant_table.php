@@ -5,6 +5,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
+use App\Enums\Procurement\SupplierTenant\SupplierTenantStatusEnum;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -18,8 +19,9 @@ return new class () extends Migration {
             $table->foreign('supplier_id')->references('id')->on('suppliers');
             $table->unsignedSmallInteger('tenant_id');
             $table->foreign('tenant_id')->references('id')->on('public.tenants');
-            $table->enum('type', ['supplier', 'sub-supplier'])->default('supplier')->index()->comment('sub-supplier: agents supplier');
-            $table->string('status');
+            $table->unsignedSmallInteger('agent_id')->nullable();
+            $table->foreign('agent_id')->references('id')->on('agents');
+            $table->string('status')->default(SupplierTenantStatusEnum::ADOPTED->value);
             $table->timestampsTz();
             $table->unsignedInteger('source_id')->index()->nullable();
             $table->index(['tenant_id','source_id']);

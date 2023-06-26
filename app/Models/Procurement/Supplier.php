@@ -8,7 +8,6 @@
 namespace App\Models\Procurement;
 
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateProcurement;
-use App\Enums\Procurement\Supplier\SupplierTypeEnum;
 use App\Models\Assets\Currency;
 use App\Models\Helpers\GroupAddress;
 use App\Models\Helpers\Issue;
@@ -43,14 +42,13 @@ use Spatie\Sluggable\SlugOptions;
  * App\Models\Procurement\Supplier
  *
  * @property int $id
- * @property SupplierTypeEnum $type sub-supplier: agents supplier
  * @property int|null $agent_id
  * @property bool $status
  * @property bool $is_private
  * @property string $slug
  * @property string $code
+ * @property string $owner_type Who can edit this model Tenant|Agent|Supplier
  * @property int $owner_id
- * @property string $owner_type
  * @property string|null $name
  * @property int|null $image_id
  * @property string|null $contact_name
@@ -110,7 +108,6 @@ class Supplier extends Model implements HasMedia, Auditable
         'settings'    => 'array',
         'location'    => 'array',
         'status'      => 'boolean',
-        'type'        => SupplierTypeEnum::class
     ];
 
     protected $attributes = [
@@ -162,7 +159,7 @@ class Supplier extends Model implements HasMedia, Auditable
             $tenant = app('currentTenant');
         }
 
-        if ($this->type == 'sub-supplier') {
+        if ($this->agent_id) {
             return $this->agent->owner_id === $tenant->id;
         } else {
             return $this->owner_id === $tenant->id;

@@ -27,7 +27,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 class IndexMarketplaceSuppliers extends InertiaAction
 {
     /** @noinspection PhpUndefinedMethodInspection */
-    public function handle(Agent|Tenant $parent, $prefix=null): LengthAwarePaginator
+    public function handle(Agent|Tenant $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -40,7 +40,7 @@ class IndexMarketplaceSuppliers extends InertiaAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        $queryBuilder=QueryBuilder::for(Supplier::class);
+        $queryBuilder = QueryBuilder::for(Supplier::class);
         foreach ($this->elementGroups as $key => $elementGroup) {
             $queryBuilder->whereElementGroup(
                 prefix: $prefix,
@@ -62,12 +62,12 @@ class IndexMarketplaceSuppliers extends InertiaAction
             ])
             ->when($parent, function ($query) use ($parent) {
                 if (class_basename($parent) == 'Agent') {
-                    $query->where('suppliers.owner_type', 'Agent');
-                    $query->where('suppliers.owner_id', $parent->id);
+
+                    $query->where('suppliers.agent_id', $parent->id);
                     $query->leftJoin('agents', 'suppliers.owner_id', 'agents.id');
                     $query->addSelect('agents.slug as agent_slug');
                 } else {
-                    $query->where('suppliers.type', 'supplier');
+                    $query->whereNull('suppliers.agent_id');
                 }
             })
             ->allowedSorts(['code', 'name', 'number_supplier_products'])
@@ -76,11 +76,10 @@ class IndexMarketplaceSuppliers extends InertiaAction
             ->withQueryString();
     }
 
-    public function tableStructure(array $modelOperations = null, $prefix=null): Closure
+    public function tableStructure(array $modelOperations = null, $prefix = null): Closure
     {
         return function (InertiaTable $table) use ($modelOperations, $prefix) {
-
-            if($prefix) {
+            if ($prefix) {
                 $table
                     ->name($prefix)
                     ->pageName($prefix.'Page');
@@ -90,9 +89,9 @@ class IndexMarketplaceSuppliers extends InertiaAction
                 ->withModelOperations($modelOperations)
                 ->withGlobalSearch()
                 ->column(key: 'adoption', label: [
-                    'type'   => 'icon',
-                    'data'   => ['fal','fa-yin-yang'],
-                    'tooltip'=> __('adoption')
+                    'type'    => 'icon',
+                    'data'    => ['fal', 'fa-yin-yang'],
+                    'tooltip' => __('adoption')
                 ], canBeHidden: false)
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
