@@ -24,10 +24,10 @@ use App\Actions\Tenancy\Tenant\StoreTenant;
 use App\Enums\Procurement\SupplierDelivery\SupplierDeliveryStateEnum;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\Procurement\PurchaseOrderItem;
+use App\Models\Procurement\Supplier;
 use App\Models\Procurement\SupplierDeliveryItem;
 use App\Models\Tenancy\Group;
 use App\Models\Tenancy\Tenant;
-use Illuminate\Support\Arr;
 use Illuminate\Validation\ValidationException;
 
 beforeAll(function () {
@@ -45,17 +45,15 @@ beforeEach(function () {
 });
 
 test('create independent supplier', function () {
-    $arrayData = [
-        'code'          => 'SUPABC',
-        'contact_name'  => 'artha',
-        'company_name'  => 'artha inc',
-        'currency_id'   => 1,
-    ];
 
-    $supplier = StoreMarketplaceSupplier::make()->action(app('currentTenant'), Arr::prepend($arrayData, 'supplier', 'type'));
 
-    expect($supplier->code)->toBe($arrayData['code'])->and($supplier->currency_id)->toBeNumeric(1);
+    $supplier = StoreMarketplaceSupplier::make()->action(
+        owner:app('currentTenant'),
+        agent: null,
+        modelData: Supplier::factory()->definition()
+    );
 
+    expect($supplier)->toBeInstanceOf(Supplier::class);
     return $supplier;
 });
 

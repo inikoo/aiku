@@ -31,8 +31,13 @@ class ShowMarketplaceAgent extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit   = $request->user()->can('procurement.edit');
-        $this->canDelete = $request->user()->can('procurement.edit');
+        /** @var \App\Models\Tenancy\Tenant $tenant */
+        $tenant      = app('currentTenant');
+        $agentID     =$request->route()->parameters()['agent']->id;
+        $agentIsOwned=$tenant->myAgents->contains($agentID);
+
+        $this->canEdit   = $agentIsOwned and $request->user()->can('procurement.edit') ;
+        $this->canDelete = $agentIsOwned and $request->user()->can('procurement.edit');
 
 
         return $request->user()->hasPermissionTo("procurement.view");
@@ -42,29 +47,30 @@ class ShowMarketplaceAgent extends InertiaAction
     public function asController(Agent $agent, ActionRequest $request): Agent
     {
         $this->initialisation($request)->withTab(MarketplaceAgentTabsEnum::values());
+
         return $this->handle($agent);
     }
 
 
     public function htmlResponse(Agent $agent, ActionRequest $request): Response
     {
-        if($agent->trashed()) {
+        if ($agent->trashed()) {
             return $this->deletedHtmlResponse($agent, $request);
         }
 
         return Inertia::render(
             'Procurement/MarketplaceAgent',
             [
-                'title'                                    => __("agent"),
-                'breadcrumbs'                              => $this->getBreadcrumbs(
+                'title'                                   => __("agent"),
+                'breadcrumbs'                             => $this->getBreadcrumbs(
                     $request->route()->parameters
                 ),
-                'navigation'    => [
-                    'previous'  => $this->getPrevious($agent, $request),
-                    'next'      => $this->getNext($agent, $request),
+                'navigation'                              => [
+                    'previous' => $this->getPrevious($agent, $request),
+                    'next'     => $this->getNext($agent, $request),
                 ],
-                'pageHead'                                 => [
-                    'icon'          =>
+                'pageHead'                                => [
+                    'icon'   =>
                         [
                             'icon'  => ['fal', 'people-arrows'],
                             'title' => __('agent')
@@ -114,7 +120,7 @@ class ShowMarketplaceAgent extends InertiaAction
                     */
 
                 ],
-                'tabs'                                     => [
+                'tabs'                                    => [
                     'current'    => $this->tab,
                     'navigation' => MarketplaceAgentTabsEnum::navigation()
                 ],
@@ -122,7 +128,8 @@ class ShowMarketplaceAgent extends InertiaAction
                     fn () => GetMarketplaceAgentShowcase::run($agent)
                     : Inertia::lazy(fn () => GetMarketplaceAgentShowcase::run($agent)),
 
-                MarketplaceAgentTabsEnum::SUPPLIERS->value => $this->tab == MarketplaceAgentTabsEnum::SUPPLIERS->value ?
+                MarketplaceAgentTabsEnum::SUPPLIERS->value => $this->tab == MarketplaceAgentTabsEnum::SUPPLIERS->value
+                    ?
                     fn () => MarketplaceSupplierResource::collection(
                         IndexMarketplaceSuppliers::run(
                             parent: $agent,
@@ -155,20 +162,21 @@ class ShowMarketplaceAgent extends InertiaAction
                 prefix: 'suppliers' */
             )
         )
-            ->table(IndexMarketplaceSupplierProducts::make()->tableStructure(
-                /* modelOperations: [
-                    'createLink' => $this->canEdit ? [
-                        'route' => [
-                            'name'       => 'procurement.marketplace.agents.show.supplier-products.create',
-                            'parameters' => array_values($this->originalParameters)
-                        ],
-                        'label' => __('product')
-                    ] : false,
-                ],
-                prefix: 'supplier_products' */
-            ));
+            ->table(
+                IndexMarketplaceSupplierProducts::make()->tableStructure(
+                    /* modelOperations: [
+                        'createLink' => $this->canEdit ? [
+                            'route' => [
+                                'name'       => 'procurement.marketplace.agents.show.supplier-products.create',
+                                'parameters' => array_values($this->originalParameters)
+                            ],
+                            'label' => __('product')
+                        ] : false,
+                    ],
+                    prefix: 'supplier_products' */
+                )
+            );
     }
-
 
 
     public function jsonResponse(Agent $agent): AgentResource
@@ -208,28 +216,30 @@ class ShowMarketplaceAgent extends InertiaAction
     public function getPrevious(Agent $agent, ActionRequest $request): ?array
     {
         $previous = Agent::where('code', '<', $agent->code)->orderBy('code', 'desc')->first();
-        return $this->getNavigation($previous, $request->route()->getName());
 
+        return $this->getNavigation($previous, $request->route()->getName());
     }
 
     public function getNext(Agent $agent, ActionRequest $request): ?array
     {
         $next = Agent::where('code', '>', $agent->code)->orderBy('code')->first();
+
         return $this->getNavigation($next, $request->route()->getName());
     }
 
     private function getNavigation(?Agent $agent, string $routeName): ?array
     {
-        if(!$agent) {
+        if (!$agent) {
             return null;
         }
+
         return match ($routeName) {
-            'procurement.marketplace.agents.show'=> [
-                'label'=> $agent->name,
-                'route'=> [
-                    'name'      => $routeName,
-                    'parameters'=> [
-                        'agent'=> $agent->slug
+            'procurement.marketplace.agents.show' => [
+                'label' => $agent->name,
+                'route' => [
+                    'name'       => $routeName,
+                    'parameters' => [
+                        'agent' => $agent->slug
                     ]
 
                 ]
