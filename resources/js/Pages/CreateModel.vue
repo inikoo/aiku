@@ -32,6 +32,7 @@ import Phone from '@/Components/Forms/Fields/Phone.vue';
 import Date from '@/Components/Forms/Fields/Date.vue';
 import {trans} from "laravel-vue-i18n";
 import Address from "@/Components/Forms/Fields/Address.vue";
+import Radio from '@/Components/Forms/Fields/Radio.vue'
 import Country from "@/Components/Forms/Fields/Country.vue";
 import Currency from "@/Components/Forms/Fields/Currency.vue";
 import { capitalize } from "@/Composables/capitalize"
@@ -43,6 +44,7 @@ const getComponent = (componentName: string) => {
         'date': Date,
         'select': Select,
         'address':Address,
+        'radio': Radio,
         'country': Country,
         'currency': Currency,
     };
@@ -86,7 +88,7 @@ const handleFormSubmit = () => {
             </div>
             <div class="mt-2 pt-4 sm:pt-5 ">
 
-                <div v-for="(fieldData,fieldName ) in sectionData.fields" class="mt-1 divide-y divide-red-200">
+                <div v-for="(fieldData, fieldName, index ) in sectionData.fields" :key="fieldName + index" class="mt-1 divide-y divide-red-200">
                     <dl class="divide-y divide-green-200  ">
                         <div class="pb-4 sm:pb-5 sm:grid sm:grid-cols-3 sm:gap-4 ">
                             <dt class="text-sm font-medium text-gray-500 capitalize">
@@ -104,6 +106,7 @@ const handleFormSubmit = () => {
                                             :fieldName="fieldName"
                                             :options="fieldData['options']"
                                             :fieldData="fieldData"
+                                            :key="fieldName + index"
                                         >
                                         </component>
                                     </div>
