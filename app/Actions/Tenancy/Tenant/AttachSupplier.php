@@ -20,10 +20,10 @@ class AttachSupplier
     public function handle(Tenant $tenant, Supplier $supplier, array $pivotData = []): Tenant
     {
         return $tenant->execute(function (Tenant $tenant) use ($supplier, $pivotData) {
+
             $tenant->suppliers()->attach($supplier, $pivotData);
             TenantHydrateProcurement::dispatch($tenant);
             SupplierHydrateUniversalSearch::dispatch($supplier);
-
             foreach ($supplier->products as $product) {
                 AttachSupplierProduct::run($tenant, $product);
             }

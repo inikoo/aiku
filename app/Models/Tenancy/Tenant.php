@@ -204,7 +204,7 @@ class Tenant extends SpatieTenant implements HasMedia
     {
         return $this->belongsToMany(Supplier::class)
             ->using(SupplierTenant::class)
-            ->withPivot(['source_id'])
+            ->withPivot(['source_id','agent_id','status'])
             ->withTimestamps();
     }
 

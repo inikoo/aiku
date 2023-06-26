@@ -21,7 +21,7 @@ use Illuminate\Support\Facades\DB;
 
 class FetchSuppliers extends FetchAction
 {
-    public string $commandSignature = 'fetch:suppliers {tenants?*} {--s|source_id=} {--d|db_suffix=}';
+    public string $commandSignature = 'fetch:suppliers {tenants?*} {--s|source_id=} {--d|db_suffix=} {--N|only_new : Fetch only new}';
 
 
     public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Supplier
@@ -32,17 +32,18 @@ class FetchSuppliers extends FetchAction
             return null;
         }
 
-
-        if ($supplierData['supplier']['type'] == 'sub-supplier') {
-            if ($supplierData['owner']->owner_id == app('currentTenant')->id) {
+        if ($supplierData['supplier']['agent_id']) {
+            if ($supplierData['owner']->id == app('currentTenant')->id) {
                 $supplier = $this->processAgentSupplier($supplierData);
             }
         } else {
             $supplier = $this->processIndependentSupplier($supplierData);
         }
 
-        foreach ($supplierData['photo'] as $photoData) {
-            $this->saveGroupImage($supplier, $photoData);
+        if($supplier) {
+            foreach ($supplierData['photo'] as $photoData) {
+                $this->saveGroupImage($supplier, $photoData);
+            }
         }
 
         return $supplier;
@@ -73,11 +74,17 @@ class FetchSuppliers extends FetchAction
                 $supplierData['supplier']['source_type'] = $tenant->slug;
                 $supplier                                = StoreMarketplaceSupplier::run(
                     owner: $tenant,
+                    agent: null,
                     modelData: $supplierData['supplier'],
                     addressData: $supplierData['address']
                 );
 
                 $tenant->suppliers()->updateExistingPivot($supplier, ['source_id' => $supplierData['supplier']['source_id']]);
+
+                DB::connection('aurora')->table('Supplier Dimension')
+                    ->where('Supplier Key', $supplier->source_id)
+                    ->update(['aiku_id' => $supplier->id]);
+
             }
         }
 
@@ -102,23 +109,30 @@ class FetchSuppliers extends FetchAction
         } else {
             $supplier = Supplier::withTrashed()->where('code', $supplierData['supplier']['code'])->first();
 
+
+
             if ($supplier) {
                 AttachSupplier::run(
                     $tenant,
                     $supplier,
                     [
-                        'type'      => 'sub-supplier',
+                        'agent_id'  => $supplierData['agent']->id,
                         'source_id' => $supplierData['supplier']['source_id'],
-                        'status'    => SupplierTenantStatusEnum::ADOPTED
                     ]
                 );
             } else {
                 $supplier = StoreMarketplaceSupplier::run(
                     owner: $supplierData['owner'],
+                    agent: $supplierData['agent'],
                     modelData: $supplierData['supplier'],
                     addressData: $supplierData['address']
                 );
                 $tenant->suppliers()->updateExistingPivot($supplier, ['source_id' => $supplierData['supplier']['source_id']]);
+
+                DB::connection('aurora')->table('Supplier Dimension')
+                    ->where('Supplier Key', $supplier->source_id)
+                    ->update(['aiku_id' => $supplier->id]);
+
             }
         }
 
@@ -135,20 +149,31 @@ class FetchSuppliers extends FetchAction
 
     public function getModelsQuery(): Builder
     {
-        return DB::connection('aurora')
+        $query = DB::connection('aurora')
             ->table('Supplier Dimension')
             ->leftJoin('Agent Supplier Bridge', 'Agent Supplier Supplier Key', 'Supplier Key')
             ->select('Supplier Key as source_id')
             ->where('aiku_ignore', 'No')
             ->orderBy('source_id');
+
+        if ($this->onlyNew) {
+            $query->whereNull('aiku_id');
+        }
+
+        return $query;
     }
 
     public function count(): ?int
     {
-        return DB::connection('aurora')
+        $query = DB::connection('aurora')
             ->table('Supplier Dimension')
             ->leftJoin('Agent Supplier Bridge', 'Agent Supplier Supplier Key', 'Supplier Key')
-            ->where('aiku_ignore', 'No')
-            ->count();
+            ->where('aiku_ignore', 'No');
+
+        if ($this->onlyNew) {
+            $query->whereNull('aiku_id');
+        }
+
+        return $query->count();
     }
 }

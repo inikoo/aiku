@@ -7,13 +7,14 @@
 
 namespace App\Stubs\Migrations;
 
+use App\Enums\Procurement\AgentTenant\AgentTenantStatusEnum;
 use App\Enums\Procurement\PurchaseOrderItem\PurchaseOrderItemStateEnum;
 use App\Enums\Procurement\PurchaseOrderItem\PurchaseOrderItemStatusEnum;
-use App\Enums\Procurement\Supplier\SupplierTypeEnum;
 use App\Enums\Procurement\SupplierDelivery\SupplierDeliveryStateEnum;
 use App\Enums\Procurement\SupplierDelivery\SupplierDeliveryStatusEnum;
 use App\Enums\Procurement\SupplierProduct\SupplierProductQuantityStatusEnum;
 use App\Enums\Procurement\SupplierProduct\SupplierProductStateEnum;
+use App\Enums\Procurement\SupplierTenant\SupplierTenantStatusEnum;
 use Illuminate\Database\Schema\Blueprint;
 
 trait HasProcurementStats
@@ -22,6 +23,10 @@ trait HasProcurementStats
     {
         $table->unsignedInteger('number_agents')->default(0)->comment('Active agents, status=true');
         $table->unsignedInteger('number_archived_agents')->default(0)->comment('Archived agents, status=false');
+
+        foreach (AgentTenantStatusEnum::cases() as $agentTenantStatus) {
+            $table->unsignedInteger('number_agents_status_'.$agentTenantStatus->snake())->default(0);
+        }
 
         return $table;
     }
@@ -32,14 +37,15 @@ trait HasProcurementStats
         $table->unsignedInteger('number_archived_suppliers')->default(0)->comment('Archived suppliers status=false');
 
 
-
-        foreach (SupplierTypeEnum::cases() as $supplierType) {
-            $table->unsignedBigInteger('number_suppliers_type_'.$supplierType->snake())->default(0)
-                ->comment('Active suppliers. status=true,type='.$supplierType->value);
-            $table->unsignedBigInteger('number_archived_suppliers_type_'.$supplierType->snake())->default(0)
-                ->comment('Archived suppliers. status=false,type='.$supplierType->value);
-
+        foreach (SupplierTenantStatusEnum::cases() as $supplierTenantStatus) {
+            $table->unsignedInteger('number_suppliers_status_'.$supplierTenantStatus->snake())->default(0);
         }
+
+        if($table->getTable()!='agent_stats') {
+            $table->unsignedInteger('number_suppliers_in_agents')->default(0)->comment('Active suppliers, status=true');
+            $table->unsignedInteger('number_archived_suppliers_in_agents')->default(0)->comment('Archived suppliers status=false');
+        }
+
 
         return $table;
     }

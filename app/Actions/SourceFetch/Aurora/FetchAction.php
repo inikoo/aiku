@@ -100,7 +100,8 @@ class FetchAction
                     'fetch:invoices',
                     'fetch:customers',
                     'fetch:delivery-notes',
-                    'fetch:purchase-orders'
+                    'fetch:purchase-orders',
+                    'fetch:suppliers'
 
                 ])) {
                     $this->onlyNew = (bool)$command->option('only_new');
