@@ -51,9 +51,6 @@ class FetchUsers extends FetchAction
                     ->where('User Key', $user->source_id)
                     ->update(['aiku_id' => $user->id]);
 
-
-
-
             }
 
             UserSyncRoles::make()->action($user, $userData['roles']);

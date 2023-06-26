@@ -80,7 +80,7 @@ test('create customer', function ($shop) {
             'contact_name'             => 'vica',
             'company_name'             => 'aw advantage',
             'email'                    => 'vica@awadvantage.com',
-            'phone'                    => '+62345555'
+            'phone'                    => '+62081353890000',
         ];
 
         $createdCustomer = StoreCustomer::make()->action($shop, $arrayData, Address::factory()->definition());
@@ -111,12 +111,12 @@ test('create order', function ($createdCustomer) {
 test('create delivery note', function ($createdOrder) {
     try {
         $arrayData = [
-            'number' => 123456,
-            'state'  => DeliveryNoteStateEnum::SUBMITTED,
-            'status' => DeliveryNoteStatusEnum::HANDLING,
-            'email'  => 'test@email.com',
-            'phone'  => '+0246578658',
-            'date'   => date('Y-m-d')
+            'number'                => 123456,
+            'state'                 => DeliveryNoteStateEnum::SUBMITTED,
+            'status'                => DeliveryNoteStatusEnum::HANDLING,
+            'email'                 => 'test@email.com',
+            'phone'                 => '+62081353890000',
+            'date'                  => date('Y-m-d')
         ];
 
         $deliveryNote         = StoreDeliveryNote::make()->action($createdOrder, $arrayData, Address::make());
@@ -132,12 +132,12 @@ test('create delivery note', function ($createdOrder) {
 
 test('update delivery note', function ($lastDeliveryNote) {
     $arrayData = [
-        'number' => 2321321,
-        'state'  => DeliveryNoteStateEnum::PICKING,
-        'status' => DeliveryNoteStatusEnum::DISPATCHED,
-        'email'  => 'test@email.com',
-        'phone'  => '+0246578658',
-        'date'   => date('Y-m-d')
+        'number'                => 2321321,
+        'state'                 => DeliveryNoteStateEnum::PICKING,
+        'status'                => DeliveryNoteStatusEnum::DISPATCHED,
+        'email'                 => 'test@email.com',
+        'phone'                 => '+62081353890000',
+        'date'                  => date('Y-m-d')
     ];
 
     $updatedDeliveryNote = UpdateDeliveryNote::make()->action($lastDeliveryNote, $arrayData);

@@ -27,7 +27,6 @@ class ShipperFactory extends Factory
             'contact_name' => fake()->name,
             'company_name' => fake()->company,
             'email'        => fake()->email,
-            'phone'        => fake()->phoneNumber,
             'website'      => fake()->url,
             'tracking_url' => fake()->url,
         ];

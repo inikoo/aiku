@@ -52,10 +52,10 @@ class StoreCustomerClient
         return [
 
             'reference'    => ['required', 'nullable', 'string',],
-            'contact_name' => ['required', 'nullable', 'string', 'max:255'],
-            'company_name' => ['required', 'nullable', 'string', 'max:255'],
-            'email'        => ['required', 'nullable', 'email'],
-            'phone'        => ['required', 'nullable', 'phone:AUTO'],
+            'contact_name' => ['nullable', 'string', 'max:255'],
+            'company_name' => ['nullable', 'string', 'max:255'],
+            'email'        => ['nullable', 'email'],
+            'phone'        => ['nullable', 'phone:AUTO'],
         ];
     }
 

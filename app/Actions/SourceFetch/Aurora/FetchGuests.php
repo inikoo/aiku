@@ -14,13 +14,12 @@ use App\Models\Auth\Guest;
 use App\Services\Tenant\SourceTenantService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
-use JetBrains\PhpStorm\NoReturn;
 
 class FetchGuests extends FetchAction
 {
     public string $commandSignature = 'fetch:guests {tenants?*} {--s|source_id=} {--d|db_suffix=}';
 
-    #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Guest
+    public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Guest
     {
         if ($guestData = $tenantSource->fetchGuest($tenantSourceId)) {
             if ($guest = Guest::where('source_id', $guestData['guest']['source_id'])->first()) {

@@ -14,16 +14,17 @@ use JsonSerializable;
 
 class GuestResource extends JsonResource
 {
-    /** @noinspection PhpUndefinedFieldInspection */
     public function toArray($request): array|Arrayable|JsonSerializable
     {
+        /** @var \App\Models\Auth\Guest $guest */
         $guest = $this;
 
         return [
             'id'           => $guest->id,
             'slug'         => $guest->slug,
             'contact_name' => $guest->contact_name,
-            'user'         => $guest->user?->only('username', 'status'),
+            'email'        => $guest->email,
+            'user'         => GuestResource::collection($this->whenLoaded('users')),
             'created_at'   => $guest->created_at,
             'updated_at'   => $guest->updated_at,
         ];

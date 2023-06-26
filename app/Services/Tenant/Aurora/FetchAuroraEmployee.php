@@ -70,16 +70,16 @@ class FetchAuroraEmployee extends FetchAurora
         $this->parsedData['employee'] = [
 
             'contact_name'                     => $this->auroraModelData->{'Staff Name'},
-            'email'                            => $this->auroraModelData->{'Staff Email'},
-            'phone'                            => $this->auroraModelData->{'Staff Telephone'},
-            'identity_document_number'         => $this->auroraModelData->{'Staff Official ID'},
+            'email'                            => $this->auroraModelData->{'Staff Email'} ?: null,
+            'phone'                            => $this->auroraModelData->{'Staff Telephone'} ?: null,
+            'identity_document_number'         => $this->auroraModelData->{'Staff Official ID'} ?: null,
             'date_of_birth'                    => $this->parseDate($this->auroraModelData->{'Staff Birthday'}),
-            'worker_number'                    => $this->auroraModelData->{'Staff ID'},
+            'worker_number'                    => $this->auroraModelData->{'Staff ID'} ?: null,
             'slug'                             => strtolower($this->auroraModelData->{'Staff Alias'}),
             'employment_start_at'              => $this->parseDate($this->auroraModelData->{'Staff Valid From'}),
             'created_at'                       => $this->auroraModelData->{'Staff Valid From'},
-            'emergency_contact'                => $this->auroraModelData->{'Staff Next of Kind'},
-            'job_title'                        => $this->auroraModelData->{'Staff Job Title'},
+            'emergency_contact'                => $this->auroraModelData->{'Staff Next of Kind'} ?: null,
+            'job_title'                        => $this->auroraModelData->{'Staff Job Title'} ?: null,
             'salary'                           => $salary,
 
             'employment_end_at' => $this->parseDate($this->auroraModelData->{'Staff Valid To'}),

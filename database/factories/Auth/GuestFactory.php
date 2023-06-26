@@ -7,6 +7,7 @@
 
 namespace Database\Factories\Auth;
 
+use App\Enums\Auth\Guest\GuestTypeEnum;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class GuestFactory extends Factory
@@ -16,10 +17,9 @@ class GuestFactory extends Factory
         return [
             'contact_name'             => fake()->company(),
             'email'                    => fake()->email,
-            'phone'                    => fake()->phoneNumber,
             'identity_document_number' => fake('en_GB')->vat(),
             'identity_document_type'   => 'passport',
-            'type'                     => \App\Enums\Auth\Guest\GuestTypeEnum::CONTRACTOR->value,
+            'type'                     => GuestTypeEnum::CONTRACTOR->value,
         ];
     }
 }
