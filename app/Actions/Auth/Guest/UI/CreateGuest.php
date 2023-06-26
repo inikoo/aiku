@@ -16,6 +16,9 @@ use Spatie\LaravelOptions\Options;
 
 class CreateGuest extends InertiaAction
 {
+    /**
+     * @throws \Exception
+     */
     public function handle(ActionRequest $request): Response
     {
         return Inertia::render(
@@ -23,7 +26,6 @@ class CreateGuest extends InertiaAction
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
-                    $request->route()->parameters
                 ),
                 'title'       => __('new guest'),
                 'pageHead'    => [
@@ -39,15 +41,57 @@ class CreateGuest extends InertiaAction
                 'formData' => [
                     'blueprint' => [
                         [
+                            'title'  => __('Type/Login credentials'),
+
+                            'fields' => [
+                                'type' => [
+                                    'type'         => 'radio',
+                                    'label'        => __('type'),
+                                    'value'        => GuestTypeEnum::CONTRACTOR->value,
+                                    'options'      => Options::forEnum(GuestTypeEnum::class)
+                                ],
+                                'group_type' => [
+                                    'type'         => 'fork_type_group_user',
+                                    'label'        => '',
+                                    'value'        => GuestTypeEnum::CONTRACTOR->value,
+                                    'options'      => [
+                                        [
+                                            'label'      => __('Create new user'),
+                                            'value'      => 'newGroupUser',
+                                            'route'      => [
+                                                'name'       => 'models.group-user.guest.store',
+                                            ]
+                                        ],
+                                        [
+                                        'label'=> __('Use existing user from other aiku account'),
+                                        'value'=> 'existingGroupUser'
+                                        ]
+                                    ]
+                                ],
+                                /*
+                                'username' => [
+                                    'type'   => 'input',
+                                    'label'  => __('username'),
+                                    'value'  => '',
+                                    'required'=>true,
+                                ],
+                                */
+
+                            ]
+                        ],
+                        [
                             'title'  => __('personal information'),
                             'fields' => [
-                                'contact_name' => [
+                                'company_name' => [
                                     'type'   => 'input',
-                                    'label'  => __('name'),
+                                    'label'  => __('company'),
                                     'value'  => '',
-                                    'options'=> [
-                                        'counter'=> true
-                                    ]
+                                ],
+                                'contact_name' => [
+                                    'type'    => 'input',
+                                    'label'   => __('name'),
+                                    'value'   => '',
+                                    'required'=> true
                                 ],
                                 'phone' => [
                                     'type'  => 'phone',
@@ -61,18 +105,7 @@ class CreateGuest extends InertiaAction
                                 ],
                             ]
                         ],
-                        [
-                            'title'  => __('type'),
-                            'fields' => [
-                                'type' => [
-                                    'type'         => 'select',
-                                    'label'        => __('type'),
-                                    'value'        => '',
-                                    'placeholder'  => 'Select a Type',
-                                    'options'      => Options::forEnum(GuestTypeEnum::class)
-                                ],
-                            ]
-                        ]
+
                     ],
                     'route'      => [
                         'name'       => 'models.guest.store',

@@ -163,7 +163,7 @@ test('attaching existing group user to another tenant guest', function ($user) {
     $tenant->makeCurrent();
 
     $guestData = Guest::factory()->definition();
-    Arr::set($guestData, 'phone', '+6081212120000');
+    Arr::set($guestData, 'phone', '+62081353890000');
     $guest = StoreGuest::make()->action(
         $guestData
     );
@@ -183,7 +183,7 @@ test('make sure a group user can be only attaches once in each tenant', function
     $tenant->makeCurrent();
 
     $guestData = Guest::factory()->definition();
-    Arr::set($guestData, 'phone', '+6081212120000');
+    Arr::set($guestData, 'phone', '+62081353890001');
     $guest = StoreGuest::make()->action(
         $guestData
     );

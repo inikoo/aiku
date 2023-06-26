@@ -131,6 +131,7 @@ Route::patch('/profile', UpdateProfile::class)->name('profile.update');
 
 Route::patch('/guest/{guest}', UpdateGuest::class)->name('guest.update');
 Route::post('/guest/', StoreGuest::class)->name('guest.store');
+Route::post('/group-user/{GroupUser}guest/', [StoreGuest::class, 'inGroupUser'])->name('group-user.guest.store');
 
 Route::patch('/outbox/{outbox}', UpdateOutbox::class)->name('outbox.update');
 

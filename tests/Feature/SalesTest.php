@@ -73,18 +73,21 @@ beforeEach(function () {
 test('create shop', function () {
     $shop = StoreShop::make()->action(Shop::factory()->definition());
     expect($shop)->toBeInstanceOf(Shop::class);
+
     return $shop;
 });
 
+
 test('create prospect', function ($shop) {
     $prospect = StoreProspect::make()->action($shop, [
-        'contact_name'          => 'check123',
-        'company_name'          => 'check123',
-        'email'                 => 'test@gmail.com',
-        'phone'                 => '+12345678',
-        'contact_website'       => 'https://google.com'
+        'contact_name'    => 'check123',
+        'company_name'    => 'check123',
+        'email'           => 'test@gmail.com',
+        'phone'           => '+62081353890000',
+        'contact_website' => 'https://google.com'
     ], Address::factory()->definition());
     $this->assertModelExists($prospect);
+
     return $prospect;
 })->depends('create shop');
 
@@ -97,25 +100,17 @@ test('update prospect', function () {
 
 
 test('create customer', function ($shop) {
-    try {
-        $customer = StoreCustomer::make()->action(
-            $shop,
-            Customer::factory()->definition(),
-            Address::factory()->definition()
-        );
-
-
-    } catch (Throwable) {
-        $customer=null;
-    }
+    $customer = StoreCustomer::make()->action(
+        $shop,
+        Customer::factory()->definition(),
+        Address::factory()->definition()
+    );
 
     expect($customer)->toBeInstanceOf(Customer::class)
         ->and($customer->reference)->toBe('000001')
         ->and($customer->status)->toBe(CustomerStatusEnum::APPROVED);
 
     return $customer;
-
-
 })->depends('create shop');
 
 test('create other customer', function ($shop) {
@@ -126,7 +121,7 @@ test('create other customer', function ($shop) {
             Address::factory()->definition()
         );
     } catch (Throwable) {
-        $customer=null;
+        $customer = null;
     }
     expect($customer)->toBeInstanceOf(Customer::class)
         ->and($customer->reference)->toBe('000002')
@@ -162,8 +157,6 @@ test('update shipping zone', function ($shippingZone) {
 
 
 test('create order', function ($customer) {
-
-
     $billingAddress  = Address::first();
     $shipmentAddress = Address::latest()->first();
     $order           = StoreOrder::make()->action($customer, Order::factory()->definition(), $billingAddress, $shipmentAddress);
@@ -186,7 +179,6 @@ test('update transaction', function ($transaction) {
 
     $this->assertModelExists($order);
 })->depends('create transaction');
-
 
 
 test('update order', function ($order) {
@@ -298,6 +290,7 @@ test('create customer client', function () {
     $this->assertModelExists($customerClient);
     expect($customerClient->shop->code)->toBe($shop->code)
         ->and($customerClient->customer->reference)->toBe($customer->reference);
+
     return $customerClient;
 });
 

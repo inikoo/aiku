@@ -17,7 +17,6 @@ class CustomerFactory extends Factory
             'contact_name'             => fake()->name,
             'company_name'             => fake()->company,
             'email'                    => fake()->email,
-            'phone'                    => fake()->phoneNumber,
             'identity_document_number' => fake('en_GB')->vat(),
             'website'                  => fake()->url,
         ];
