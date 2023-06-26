@@ -6,6 +6,7 @@
 
 <script setup lang="ts">
 import {Head, useForm} from '@inertiajs/vue3';
+import { Link } from "@inertiajs/vue3";
 
 import Select from '@/Components/Forms/Fields/Select.vue'
 import PageHeading from '@/Components/Headings/PageHeading.vue';
@@ -74,69 +75,98 @@ const handleFormSubmit = () => {
 <template layout="App">
     <Head :title="capitalize(title)"/>
     <PageHeading :data="pageHead"></PageHeading>
+<div class="rounded-lg bg-white shadow">
+        <div class="divide-y divide-gray-200 lg:grid grid-flow-col lg:grid-cols-12 lg:divide-y-0 lg:divide-x">
 
-    <form class="space-y-8 pb-32 px-5" @submit.prevent="handleFormSubmit">
+            <!-- Left Tab: Navigation -->
+            <aside class="py-0 lg:col-span-3 lg:h-full">
+                    <Link v-for="(item, key) in formData['blueprint']" :href="`#field${key}`"
+                        :class="[
+                            key == current
+                                ? 'bg-indigo-200 border-indigo-500 text-indigo-700 hover:bg-indigo-50 hover:text-indigo-700'
+                                : 'border-transparent text-gray-600 hover:bg-indigo-100 hover:text-indigo-700',
+                            'cursor-pointer group border-l-4 px-3 py-2 flex items-center text-sm font-medium',
+                        ]"
+                        :aria-current="key === current ? 'page' : undefined"
+                    >
+                        <FontAwesomeIcon v-if="item.icon" aria-hidden="true"
+                        :class="[
+                            key === current
+                                ? 'text-indigo-500 group-hover:text-indigo-500'
+                                : 'text-gray-400 group-hover:text-gray-500',
+                            'flex-shrink-0 -ml-1 mr-3 h-6 w-6',
+                        ]"
+                        :icon="item.icon" />
 
-        <div v-for="(sectionData,sectionIdx ) in formData['blueprint']" :key="sectionIdx" class="mt-10 divide-y divide-blue-200">
-            <div class="space-y-1">
-                <h3 class="text-lg leading-6 font-medium text-gray-900 capitalize">
-                    {{ sectionData.title }}
-                </h3>
-                <p v-show="sectionData['subtitle']" class="max-w-2xl text-sm text-gray-500">
-                    {{ sectionData['subtitle'] }}
-                </p>
-            </div>
-            <div class="mt-2 pt-4 sm:pt-5 ">
+                        <span class="capitalize truncate">{{ item.title }}</span>
+                    </Link>
+            </aside>
 
-                <div v-for="(fieldData, fieldName, index ) in sectionData.fields" :key="index" class="mt-1 divide-y divide-red-200">
-                    <dl class="divide-y divide-green-200  ">
-                        <div class="pb-4 sm:pb-5 sm:grid sm:grid-cols-3 sm:gap-4 ">
-                            <dt class="text-sm font-medium text-gray-500 capitalize">
-                                <div class="inline-flex items-start leading-none"><FontAwesomeIcon v-if="fieldData.required" :icon="['fas', 'asterisk']" class="font-light text-[12px] text-red-400 mr-1"/>{{ fieldData.label }}</div>
-                            </dt>
+            <!-- Main form -->
+            <form class="px-4 sm:px-6 md:px-10 col-span-9 gap-y-8 pb-8 divide-y divide-blue-200 " @submit.prevent="handleFormSubmit">
+                <div v-for="(sectionData,sectionIdx ) in formData['blueprint']" :key="sectionIdx" class="relative py-4">
+                    <!-- Helper: Section click -->
+                    <div class="sr-only absolute -top-28" :id="`field${sectionIdx}`" />
+                    <div v-if="sectionData.title || sectionData.subtitle" class="space-y-1">
+                        <h3 class="text-lg leading-6 font-medium text-gray-900 capitalize">
+                            {{ sectionData.title }}
+                        </h3>
+                        <p v-show="sectionData['subtitle']" class="max-w-2xl text-sm text-gray-500">
+                            {{ sectionData.subtitle }}
+                        </p>
+                    </div>
 
-                            <dd class="sm:col-span-2  ">
-                                <div class="mt-1 flex text-sm text-gray-900 sm:mt-0">
-                                    <div class=" relative  flex-grow">
+                    <div class="mt-2 pt-4 sm:pt-5">
+                        <div v-for="(fieldData, fieldName, index ) in sectionData.fields" :key="index" class="mt-1 ">
+                            <dl class="divide-y divide-green-200  ">
+                                <div class="pb-4 sm:pb-5 sm:grid sm:grid-cols-3 sm:gap-4 max-w-2xl">
+                                    <dt class="text-sm font-medium text-gray-500 capitalize">
+                                        <div class="inline-flex items-start leading-none">
+                                            <!-- Icon: Required -->
+                                            <FontAwesomeIcon v-if="fieldData.required" :icon="['fas', 'asterisk']" class="font-light text-[12px] text-red-400 mr-1"/>
+                                            <span>{{ fieldData.label }}</span>
+                                        </div>
+                                    </dt>
+                                    <dd class="sm:col-span-2">
+                                        <div class="mt-1 flex text-sm text-gray-800 sm:mt-0">
+                                            <div class="relative flex-grow">
+                                                <!-- sdadsadsa -->
+                                                <!-- Dynamic component -->
+                                                <component
+                                                    :is="getComponent(fieldData['type'])"
+                                                    :form="form"
+                                                    :fieldName="fieldName"
+                                                    :options="fieldData['options']"
+                                                    :fieldData="fieldData"
+                                                    :key="index"
+                                                >
+                                                </component>
+                                            </div>
+                                            <!-- <span class="ml-4 flex-shrink-0 w-5 bg-red-500">
 
-                                        <!-- Dynamic component -->
-                                        <component
-                                            :is="getComponent(fieldData['type'])"
-                                            :form="form"
-                                            :fieldName="fieldName"
-                                            :options="fieldData['options']"
-                                            :fieldData="fieldData"
-                                            :key="index"
-                                        >
-                                        </component>
-                                    </div>
-                                    <span class="ml-4 flex-shrink-0 w-5 ">
+                                            </span>
+                                            <span class="ml-2 flex-shrink-0">
 
-                                    </span>
-                                    <span class="ml-2 flex-shrink-0">
-
-                                     </span>
+                                            </span> -->
+                                        </div>
+                                    </dd>
                                 </div>
-
-                            </dd>
+                            </dl>
                         </div>
-                    </dl>
+                    </div>
                 </div>
 
-            </div>
-        </div>
+                <div class="pt-5 border-t-2 border-indigo-500">
+                    <div class="flex justify-end">
 
-        <div class="pt-5 border-t-2 border-indigo-500">
-            <div class="flex justify-end">
+                        <button type="submit" :disabled="form.processing"
+                                class="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            {{ trans('Save') }}
+                        </button>
+                    </div>
+                </div>
 
-                <button type="submit" :disabled="form.processing"
-                        class="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                    {{ trans('Save') }}
-                </button>
-            </div>
-        </div>
-
-    </form>
-
+            </form>
+</div></div>
 </template>
 
