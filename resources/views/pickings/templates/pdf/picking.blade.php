@@ -1,3 +1,10 @@
+{{--
+* Author: Artha <artha@aw-advantage.com>
+* Created: Fri, 23 Jun 2023 11:43:59 Central Indonesia Time, Sanur, Bali, Indonesia
+* Copyright (c) 2023, Raul A Perusquia Flores
+*/
+--}}
+
 <html>
 <head>
     <title>{{ $invoice->slug }}</title>
