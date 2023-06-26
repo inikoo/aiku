@@ -22,7 +22,8 @@ class InertiaAction
     protected ?string $tab              = null;
     protected array $elementGroups      = [];
 
-    protected bool $canEdit = false;
+    protected bool $canEdit  = false;
+    protected bool $canDelete= false;
 
     protected int $perPage = 50;
     private array $rawInputs;

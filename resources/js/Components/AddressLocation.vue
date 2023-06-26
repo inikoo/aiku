@@ -1,13 +1,3 @@
-<template>
-    <FontAwesomeIcon fixed-width icon="fal fa-map-marker-alt" class="text-gray-400 mr-4 mt-1" aria-hidden="true" />
-    <p class="">
-        <!-- <pre>{{ props.data.address }}</pre> -->
-        {{ props.data.address_line_1 ? props.data.address_line_1 : '' }} <span v-if="props.data.address_line_2">({{ props.data.address_line_2}})<br /></span>
-        {{ props.data.locality }}<span v-if="props.data.administrative_area">{{ ', ' + props.data.administrative_area}}<br /></span>
-        {{ props.data.country.data.name }} <span v-if="props.data.postal_code">{{ ', ' + props.data.postal_code }}</span>
-    </p>
-</template>
-
 <script setup lang="ts">
 import { faMapMarkerAlt } from "../../../resources/private/pro-light-svg-icons";
 import { library } from "@fortawesome/fontawesome-svg-core";
@@ -41,6 +31,16 @@ const props = defineProps<{
 }>()
 
 
+
 </script>
 
-<style lang="scss" scoped></style>
+<template>
+    <FontAwesomeIcon fixed-width icon="fal fa-map-marker-alt" class="text-gray-400 mr-4 mt-1" aria-hidden="true" />
+    <p class="">
+        {{ props.data.address_line_1 ? props.data.address_line_1 : '' }} <span v-if="props.data.address_line_2">({{ props.data.address_line_2}})<br /></span>
+        {{ props.data.locality }}<span v-if="props.data.administrative_area">{{ ', ' + props.data.administrative_area}}<br /></span>
+        <span v-if="data.country">{{ props.data.country.data.name }}</span> <span v-if="props.data.postal_code">{{ ', ' + props.data.postal_code }}</span>
+    </p>
+</template>
+
+
