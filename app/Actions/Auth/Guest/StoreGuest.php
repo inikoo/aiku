@@ -12,6 +12,7 @@ use App\Models\Auth\Guest;
 use App\Models\Tenancy\Tenant;
 use Exception;
 use Illuminate\Console\Command;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
@@ -53,8 +54,6 @@ class StoreGuest
             'contact_name'             => ['required', 'string', 'max:255'],
             'email'                    => ['nullable', 'email'],
             'phone'                    => ['nullable', 'phone:AUTO'],
-            'identity_document_number' => ['nullable', 'string'],
-            'identity_document_type'   => ['nullable', 'string'],
             'type'                     => ['required', Rule::in(GuestTypeEnum::values())],
 
         ];
@@ -63,7 +62,6 @@ class StoreGuest
     public function asController(ActionRequest $request): Guest
     {
         $request->validate();
-
         return $this->handle($request->validated());
     }
 
@@ -79,16 +77,13 @@ class StoreGuest
 
     public string $commandSignature = 'create:guest {tenant : tenant slug} {name} {type : Guest type contractor|external_employee|external_administrator} {--e|email=} {--t|phone=}  {--identity_document_number=} {--identity_document_type=}';
 
+    /**
+     * @throws ModelNotFoundException
+     */
     public function asCommand(Command $command): int
     {
         $this->trusted = true;
-        try {
-            $tenant = Tenant::where('slug', $command->argument('tenant'))->firstOrFail();
-        } catch (Exception) {
-            $command->error("Tenant {$command->argument('tenant')} not found");
-
-            return 1;
-        }
+        $tenant = Tenant::where('slug', $command->argument('tenant'))->firstOrFail();
         $tenant->makeCurrent();
 
         $this->fill([
@@ -96,8 +91,6 @@ class StoreGuest
             'contact_name'             => $command->argument('name'),
             'email'                    => $command->option('email'),
             'phone'                    => $command->option('phone'),
-            'identity_document_number' => $command->option('identity_document_number'),
-            'identity_document_type'   => $command->option('identity_document_type'),
         ]);
 
 

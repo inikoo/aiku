@@ -66,7 +66,9 @@ class ShowGuest extends InertiaAction
                     'current'    => $this->tab,
                     'navigation' => GuestTabsEnum::navigation()
                 ],
-
+                GuestTabsEnum::SHOWCASE->value => $this->tab == GuestTabsEnum::SHOWCASE->value ?
+                    fn () => GetGuestShowcase::run($guest)
+                    : Inertia::lazy(fn () => GetGuestShowcase::run($guest)),
                 GuestTabsEnum::HISTORY->value => $this->tab == GuestTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistories::run($guest))
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistories::run($guest)))
