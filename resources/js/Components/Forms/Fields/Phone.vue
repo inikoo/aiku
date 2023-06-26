@@ -30,7 +30,7 @@ const phone = ref(props.form[props['fieldName']]);
 </script>
 
 <template>
-    <div class="mt-1 relative rounded-md shadow-sm">
+    <div class="relative rounded-md shadow-sm">
         <VueTelInput
             @on-input="handleChange"
             v-model="phone"
