@@ -6,7 +6,9 @@
 
 <script setup lang="ts">
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import { Link } from "@inertiajs/vue3";
+import { Link } from "@inertiajs/vue3"
+import { ref, onMounted, onUnmounted } from 'vue'
+import { router } from '@inertiajs/vue3'
 import { library } from "@fortawesome/fontawesome-svg-core"
 import {
 	faHome,
@@ -66,11 +68,42 @@ const currentModule = computed(() => {
     return route.substring(0, route.indexOf("."))
 });
 
+const isHover = ref(false)
+
+const currentIndexModule = computed(() => {
+	return Object.keys(layout.navigation).indexOf(currentModule.value)
+})
+
+onMounted(() => {
+  window.addEventListener('keydown', handleKey)
+})
+onUnmounted(() => {
+	window.removeEventListener('keydown', handleKey)
+})
+
+// console.log(Object.keys(layout.navigation).length)
+
+const handleKey = (event: any) => {
+	// If Arrow Up key is pressed and the element is hovered and not the first index
+	if (event.key === 'ArrowUp' && isHover.value && currentIndexModule.value != 0) {
+	  const prevTab = ref(layout.navigation[Object.keys(layout.navigation)[currentIndexModule.value-1]])
+	  router.get(route(prevTab.value.route, prevTab.value.routeParameters))
+  	}
+	// If Arrow Down key is pressed and the element is hovered and not the last index
+	else if (event.key === 'ArrowDown' && isHover.value && currentIndexModule.value != Object.keys(layout.navigation).length -1) {
+		const nextTab = ref(layout.navigation[Object.keys(layout.navigation)[currentIndexModule.value+1]])
+		router.get(route(nextTab.value.route, nextTab.value.routeParameters))
+  	}
+}
+
+
 </script>
 
 <template>
-	<div class="w-8/12 mt-11 fixed md:border-r md:border-gray-200 md:bg-gray-100 md:flex md:flex-col md:inset-y-0 md:w-10 lg:mt-10 xl:w-56">
-		<div class="flex flex-grow bg-white flex-col h-full overflow-y-auto custom-hide-scrollbar border-r border-gray-200 pb-4">
+	<div class="w-8/12 mt-11 fixed md:border-r md:border-gray-200 md:bg-white md:flex md:flex-col md:inset-y-0 md:w-10 lg:mt-10 xl:w-56"
+		@mouseenter="isHover = true" @mouseleave="isHover = false"	
+	>
+		<div class="flex flex-grow flex-col h-full overflow-y-auto custom-hide-scrollbar border-r border-gray-200 pb-4">
 			<Link :href="route('dashboard.show')" class="flex flex-col justify-center text-indigo-700 font-logo md:hidden py-3 text-center gap-y-2">
 				<img class="h-6" :src="`/media/group/${layout.tenant.logo_id}`" :alt="layout.tenant.code" />
 				<span>{{ layout.tenant.name }}</span>
@@ -82,7 +115,7 @@ const currentModule = computed(() => {
 					<Link
 						v-for="(item, itemKey) in layout.navigation"
 						:key="itemKey"
-						:href="route(item.route, item['routeParameters'])"
+						:href="route(item.route, item.routeParameters)"
 						:class="[
 							itemKey === currentModule
 								? 'border-indigo-600 bg-indigo-50 text-indigo-600'
