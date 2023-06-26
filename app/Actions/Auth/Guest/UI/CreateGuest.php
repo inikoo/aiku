@@ -16,9 +16,6 @@ use Spatie\LaravelOptions\Options;
 
 class CreateGuest extends InertiaAction
 {
-    /**
-     * @throws \Exception
-     */
     public function handle(ActionRequest $request): Response
     {
         return Inertia::render(
@@ -44,13 +41,18 @@ class CreateGuest extends InertiaAction
                         [
                             'title'  => __('personal information'),
                             'fields' => [
-                                'name' => [
+                                'contact_name' => [
                                     'type'   => 'input',
                                     'label'  => __('name'),
                                     'value'  => '',
                                     'options'=> [
                                         'counter'=> true
                                     ]
+                                ],
+                                'phone' => [
+                                    'type'  => 'phone',
+                                    'label' => __('phone'),
+                                    'value' => ''
                                 ],
                                 'email' => [
                                     'type'  => 'input',
