@@ -14,7 +14,7 @@ use Lorisleiva\Actions\Concerns\WithAttributes;
 use Mccarlosen\LaravelMpdf\Facades\LaravelMpdf as PDF;
 use Symfony\Component\HttpFoundation\Response;
 
-class ExportCarton
+class ExportUnit
 {
     use AsAction;
     use WithAttributes;
@@ -30,7 +30,7 @@ class ExportCarton
         $customText = $request->get('custom_text');
         $withImage = $request->get('with_image');
 
-        $filename = 'carton-' . now()->format('Y-m-d');
+        $filename = 'unit-' . now()->format('Y-m-d');
 
         $config = [
             'title' => $filename,
@@ -47,7 +47,10 @@ class ExportCarton
         $contentFontSize = 2;
         $labelFontSize   = 1.5;
         $barcodeSize     = 1;
-        $imageSize       = 12;
+        $imageSize       = "120px";
+        $signature_font_size = "10px";
+        $font_size = "16px";
+        $text_margin = "4px";
 
         if($width == 63) {
             $config['default_font_size'] = '2';
@@ -55,7 +58,6 @@ class ExportCarton
             $contentFontSize = 0.8;
             $labelFontSize   = 0.6;
             $barcodeSize     = 0.3;
-            $imageSize       = 8;
         }
 
         if($width == 63.5) {
@@ -64,7 +66,6 @@ class ExportCarton
             $contentFontSize = 0.8;
             $labelFontSize   = 0.6;
             $barcodeSize     = 0.3;
-            $imageSize       = 8;
         }
 
         if($width == 70) {
@@ -73,7 +74,6 @@ class ExportCarton
             $contentFontSize = 0.8;
             $labelFontSize   = 0.6;
             $barcodeSize     = 0.3;
-            $imageSize       = 8;
         }
 
         if($width == 125) {
@@ -82,7 +82,6 @@ class ExportCarton
             $contentFontSize = 1.0;
             $labelFontSize   = 1.0;
             $barcodeSize     = 0.3;
-            $imageSize       = 12;
         }
 
         if($width == 130) {
@@ -91,7 +90,7 @@ class ExportCarton
             $contentFontSize = 2.0;
             $labelFontSize   = 1.5;
             $barcodeSize     = 1.0;
-            $imageSize       = 20;
+            $signature_font_size = "12px";
         }
 
         if($width == 140) {
@@ -100,7 +99,9 @@ class ExportCarton
             $contentFontSize = 3.0;
             $labelFontSize   = 2.5;
             $barcodeSize     = 2;
-            $imageSize       = 24;
+            $signature_font_size = "18px";
+            $font_size = "26px";
+            $text_margin = "8px";
         }
 
         $material = 'Zea Mays (Corn Starch) , Polyvinyl Alcohol , Aqua , Sodium Dodecyl Sulphate ,
@@ -108,7 +109,7 @@ class ExportCarton
             Methylisothiazolinone , (+/- CI 16035 , CI 19140 , CI 42090 , CI 18050 , CI 16255 , CI
             45430 , CI 15985)';
 
-        $pdf = PDF::loadView('labels.templates.pdf.carton', [
+        $pdf = PDF::loadView('labels.templates.pdf.unit', [
             'filename' => $filename,
             'headerFontSize' => $headerFontSize,
             'contentFontSize' => $contentFontSize,
@@ -116,6 +117,9 @@ class ExportCarton
             'barcodeSize' => $barcodeSize,
             'customText' => $customText,
             'material' => $material,
+            'signature_font_size' => $signature_font_size,
+            'font_size' => $font_size,
+            'text_margin' => $text_margin,
             'withImage' => $withImage == "true",
             'imageSize' => $imageSize
         ], [], $config);

@@ -68,32 +68,35 @@ const locale = useLocaleStore();
         <!-- Button Add -->
         <div class="flex items-center gap-2">
 
-               <span v-if="data['delete']" >
+            <span v-if="data['delete']" >
                 <Link as="button"  :href="route(data['delete']['route']['name'],data['delete']['route']['parameters'])">
-                 <FontAwesomeIcon class="text-red-500 hover:text-red-700 mr-3"  icon="far fa-trash-alt" />
+                    <FontAwesomeIcon class="text-red-500 hover:text-red-700 mr-3"  icon="far fa-trash-alt" />
                 </Link>
             </span>
 
              <span v-if="data['edit']"  >
                 <Link :href="route(data['edit']['route']['name'],data['edit']['route']['parameters'])">
-                <Button type="button"
-                        class="inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-                    <FontAwesomeIcon icon="far fa-pencil" class="-ml-1 mr-2 h-5 w-5 text-gray-500" aria-hidden="true"/>
-                    {{ trans('Edit') }}
-                </Button>
+                    <Button
+                        size="xs"
+                        type="button"
+                        class="inline-flex items-center rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                        <FontAwesomeIcon icon="far fa-pencil" class="-ml-1 mr-2 text-gray-500" aria-hidden="true"/>
+                        {{ trans('Edit') }}
+                    </Button>
                 </Link>
             </span>
 
+            <!-- If the button is more than 1 in one component -->
             <div v-if="data['create'] && data['create']['withMulti']" class="flex">
                 <Link :href="route(data['create']['withMulti']['route']['name'],data['create']['withMulti']['route']['parameters'])">
-            <Button type="secondary"  class="capitalize rounded-r-none custom-button">
-                <FontAwesomeIcon icon="far fa-border-all" />
-            </Button>
+                    <Button type="secondary" class="capitalize rounded-r-none">
+                        <FontAwesomeIcon icon="far fa-border-all" class="text-xl" />
+                    </Button>
                  </Link>
                 <Link :href="route(data['create']['route']['name'], data['create']['route']['parameters'])">
-            <Button type='secondary' action="create" class="capitalize rounded-l-none">
-                {{ data['create']['label'] }}
-            </Button>
+                    <Button button="xs" type='secondary' action="create" class="capitalize rounded-l-none text-sm">
+                        {{ data['create']['label'] }}
+                    </Button>
                 </Link>
             </div>
 
@@ -101,7 +104,7 @@ const locale = useLocaleStore();
 
             <span v-if="data['create'] && !data['create']['withMulti']" >
                 <Link :href="route(data['create']['route']['name'], data['create']['route']['parameters'])">
-                   <Button type='secondary' action="create" class="capitalize">
+                   <Button size="xs" type='secondary' action="create" class="capitalize">
                       {{ data['create']['label'] }}
                    </Button>
                 </Link>
@@ -109,28 +112,28 @@ const locale = useLocaleStore();
 
             <span v-if="data['create_direct']" >
                 <Link as="button" method="post" :href="route(data['create_direct']['route']['name'],data['create_direct']['route']['parameters'])">
-                <Button type='secondary' action="create" class="capitalize">
-                 {{data['create_direct']['label']}}
-                </Button>
+                    <Button type='secondary' action="create" class="capitalize">
+                        {{data['create_direct']['label']}}
+                    </Button>
                 </Link>
             </span>
 
             <span v-if="data['cancelCreate']" >
                 <Link :href="route(data['cancelCreate']['route']['name'],data['cancelCreate']['route']['parameters'])">
-                <Button type='danger' action="cancel" class="capitalize">
-                   {{ trans('Cancel') }}
-                </Button>
+                    <Button type='danger' action="cancel" class="capitalize">
+                        {{ trans('Cancel') }}
+                    </Button>
                 </Link>
             </span>
 
             <span v-if="data['exitEdit']"  >
                 <Link :href="route(data['exitEdit']['route']['name'],data['exitEdit']['route']['parameters'])">
-                <Button type="button"
-                        class="inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-                    <FontAwesomeIcon icon="far fa-arrow-left" class="-ml-1 mr-2 h-5 w-5 text-gray-500" aria-hidden="true"/>
-                    <span v-if="data['exitEdit']['label']">{{ trans(data['exitEdit']['label']) }}</span>
-                    <span v-if="!data['exitEdit']['label']"> {{ trans('Exit edit') }}</span>
-                </Button>
+                    <Button type="button"
+                            class="inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                        <FontAwesomeIcon icon="far fa-arrow-left" class="-ml-1 mr-2 h-5 w-5 text-gray-500" aria-hidden="true"/>
+                        <span v-if="data['exitEdit']['label']">{{ trans(data['exitEdit']['label']) }}</span>
+                        <span v-if="!data['exitEdit']['label']"> {{ trans('Exit edit') }}</span>
+                    </Button>
                 </Link>
             </span>
 
@@ -167,12 +170,10 @@ const locale = useLocaleStore();
 
         </div>
     </div>
+    <hr />
 </template>
 
 <style>
-.custom-button{
-    font-size: 1.24rem;
-    }
 </style>
 
 

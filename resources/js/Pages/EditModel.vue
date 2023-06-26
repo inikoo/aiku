@@ -90,19 +90,17 @@ const current = ref(0)
 
             <!-- Content of forms -->
             <div class="px-4 sm:px-6 md:px-4 col-span-9">
-                <div class="pb-6">
-                    <div class="mt-10 divide-y divide-grey-200">
-                        <div class="space-y-1 mb-6 ">
-                            <h3 class="text-lg leading-6 font-medium text-gray-900 capitalize">
-                                {{ formData['blueprint'][current].title }}
-                            </h3>
-                            <p v-show="formData['blueprint'][current]['subtitle']" class="max-w-2xl text-sm text-gray-500 capitalize">
-                                {{ formData['blueprint'][current]['subtitle'] }}
-                            </p>
-                        </div>
-                        <FieldForm class=" pt-4 sm:pt-5 px-6 " v-for="(fieldData, field ) in formData.blueprint[current].fields"
-                         :key="field" :field="field" :fieldData="fieldData" :args="formData.args" />
-                    </div>
+                <div class="divide-y divide-grey-200">
+                    <!-- <div class="space-y-1 mb-6 ">
+                        <h3 class="text-lg leading-6 font-medium text-gray-900 capitalize">
+                            {{ formData['blueprint'][current].title }}
+                        </h3>
+                        <p v-show="formData['blueprint'][current]['subtitle']" class="max-w-2xl text-sm text-gray-500 capitalize">
+                            {{ formData['blueprint'][current]['subtitle'] }}
+                        </p>
+                    </div> -->
+                    <FieldForm class=" pt-4 sm:pt-5 px-6 " v-for="(fieldData, field ) in formData.blueprint[current].fields"
+                        :key="field" :field="field" :fieldData="fieldData" :args="formData.args" />
                 </div>
             </div>
         </div>
