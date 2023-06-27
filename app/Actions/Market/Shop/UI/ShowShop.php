@@ -72,6 +72,18 @@ class ShowShop extends InertiaAction
                 'pageHead'     => [
                     'title'     => $shop->name,
                     'container' => $container,
+                    'actions'   => [
+
+                        [
+                            'type'  => 'button',
+                            'style' => 'edit',
+                            'route' => [
+                                'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
+                                'parameters' => $request->route()->originalParameters()
+                            ]
+
+                        ]
+                    ],
                     'edit'      => $this->canEdit ? [
                         'route' => [
                             'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),

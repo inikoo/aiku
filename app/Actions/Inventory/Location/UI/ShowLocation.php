@@ -29,6 +29,7 @@ use Lorisleiva\Actions\ActionRequest;
  */
 class ShowLocation extends InertiaAction
 {
+    use DeletedLocationTrait;
     public function handle(Location $location): Location
     {
         return $location;
@@ -169,7 +170,6 @@ class ShowLocation extends InertiaAction
                 ],
             ];
         };
-
         return match ($routeName) {
             'inventory.locations.show' =>
             array_merge(

@@ -13,7 +13,6 @@ use App\Actions\Assets\Language\UI\GetLanguagesOptions;
 use App\Actions\Assets\TimeZone\UI\GetTimeZonesOptions;
 use App\Actions\InertiaAction;
 use App\Enums\Market\Shop\ShopSubtypeEnum;
-use App\Enums\Market\Shop\ShopTypeEnum;
 use Exception;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -49,30 +48,20 @@ class CreateShop extends InertiaAction
                             'fields' => [
 
                                 'code' => [
-                                    'type'  => 'input',
-                                    'label' => __('code'),
+                                    'type'         => 'input',
+                                    'label'        => __('code'),
+                                    'required'     => true,
                                 ],
                                 'name' => [
-                                    'type'   => 'input',
-                                    'label'  => __('name'),
-                                    'value'  => '',
-                                    'options'=> [
-                                        'counter'=> true
-                                    ]
+                                    'type'         => 'input',
+                                    'label'        => __('name'),
+                                    'required'     => true,
+                                    'value'        => '',
                                 ],
-                                'type' => [
-                                    'type'         => 'select',
-                                    'label'        => __('type'),
-                                    'placeholder'  => 'Select a Type',
-                                    'options'      => Options::forEnum(ShopTypeEnum::class),
-                                    'mode'         => 'single',
-                                    'required'     => true
 
-                                ],
                                 'subtype' => [
-                                    'type'         => 'select',
-                                    'label'        => __('subtype'),
-                                    'placeholder'  => 'Select a Subtype',
+                                    'type'         => 'radio',
+                                    'label'        => __('type'),
                                     'options'      => Options::forEnum(ShopSubtypeEnum::class),
                                     'required'     => true,
                                     'mode'         => 'single'

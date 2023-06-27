@@ -113,7 +113,7 @@ class IndexWebsites extends InertiaAction
         return
             (
                 $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo('webpages.view')
+                $request->user()->hasPermissionTo('websites.view')
             );
     }
 

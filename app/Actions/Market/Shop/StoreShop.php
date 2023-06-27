@@ -95,6 +95,19 @@ class StoreShop
         return $request->user()->hasPermissionTo("shops.edit");
     }
 
+    public function prepareForValidation(ActionRequest $request): void
+    {
+        $request->merge(
+            [
+                'type' => match ($this->get('subtype')) {
+                    'fulfilment'=> 'fulfilment-house',
+                    'b2b','b2c','dropshipping'=>'shop',
+
+                }
+            ]
+        );
+    }
+
     public function rules(): array
     {
         return [
@@ -115,12 +128,6 @@ class StoreShop
         ];
     }
 
-    public function getValidationMessages(): array
-    {
-        return [
-            'validation.phone' => 'xxx',
-        ];
-    }
 
     public function afterValidator(Validator $validator, ActionRequest $request): void
     {
@@ -143,9 +150,12 @@ class StoreShop
 
     public function asController(ActionRequest $request): Shop
     {
+        $this->fillFromRequest($request);
         $request->validate();
+
         return $this->handle($request->validated());
     }
+
     public function htmlResponse(Shop $shop): RedirectResponse
     {
         return Redirect::route('shops.show', $shop->slug);
