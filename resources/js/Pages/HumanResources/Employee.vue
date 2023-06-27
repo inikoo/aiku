@@ -14,6 +14,15 @@ import { capitalize } from "@/Composables/capitalize"
 
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 
+
+import { computed, defineAsyncComponent, ref } from "vue";
+import { useTabChange } from "@/Composables/tab-change";
+import ModelDetails from "@/Pages/ModelDetails.vue";
+import DataModel from "@/Pages/DataModel.vue";
+
+import Tabs from "@/Components/Navigation/Tabs.vue";
+import TableHistories from "@/Pages/Tables/TableHistories.vue";
+
 library.add(
     faIdCard,
     faUser,
@@ -32,12 +41,6 @@ library.add(
     faTimes,
     faCameraRetro
 )
-import { computed, defineAsyncComponent, ref } from "vue";
-import { useTabChange } from "@/Composables/tab-change";
-import ModelDetails from "@/Pages/ModelDetails.vue";
-import Tabs from "@/Components/Navigation/Tabs.vue";
-import TableHistories from "@/Pages/Tables/TableHistories.vue";
-
 
 const createEmployeeUser = () =>{
     router.post(route('hr.employees.show.user.store',props['employee'].data.id), {})
@@ -52,7 +55,8 @@ const props = defineProps<{
         current: string;
         navigation: object;
     },
-    history: object
+    history?: object
+    data?:object
 
 }>()
 
@@ -64,6 +68,7 @@ const component = computed(() => {
     const components = {
         details: ModelDetails,
         history: TableHistories,
+        data: DataModel
     };
     return components[currentTab.value];
 

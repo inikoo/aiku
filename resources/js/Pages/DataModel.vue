@@ -6,19 +6,19 @@
 
   <script setup lang="ts">
   import { ref } from 'vue';
-  
+
   const props = defineProps<{
+      data:object
   }>()
-  
-  
+
+
   const current = ref(0)
   </script>
-  
-  
+
+
   <template layout="App">
-      <div>dsfhsdfhuisdfh</div>
+      <div>{{data}}</div>
   </template>
-  
-  
-  
-  
+
+
+
