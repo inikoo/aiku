@@ -30,6 +30,7 @@ class StoreCentralDomain
             ]
         );
         SetIrisDomain::run($centralDomain);
+        AddCentralDomainCloudflare::run($centralDomain);
 
         return $centralDomain;
     }
