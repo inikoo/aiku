@@ -28,13 +28,17 @@ class CreateGuest extends InertiaAction
                 'title'       => __('new guest'),
                 'pageHead'    => [
                     'title'        => __('new guest'),
-                    'cancelCreate' => [
-                        'route' => [
-                            'name'       => 'sysadmin.guests.index',
-                            'parameters' => array_values($this->originalParameters)
-                        ],
+                    'actions' => [
+                        [
+                            'type'=>'button',
+                            'style'=>'cancelCreate',
+                            'label' => __('cancel'),
+                            'route' => [
+                                'name'       => 'sysadmin.guests.index',
+                                'parameters' => array_values($this->originalParameters)
+                            ],
+                        ]
                     ]
-
                 ],
                 'formData'    => [
                     'blueprint' => [
