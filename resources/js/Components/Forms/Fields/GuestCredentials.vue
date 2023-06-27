@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import Select from '@/Components/Forms/Fields/Select.vue'
+import Combobox from '@/Components/Forms/Fields/Combobox.vue'
 import PrimitiveInput from '@/Components/Elements/Fields/PrimitiveInput.vue'
 const props = defineProps<{
     form: any,
@@ -14,6 +14,29 @@ const props = defineProps<{
 }>()
 
 const userType = ref('New User')
+
+
+const comboboxOptions = [
+    { id: 1, name: 'Wade Cooper' },
+    { id: 2, name: 'Arlene Mccoy' },
+    { id: 3, name: 'Devon Webb' },
+    { id: 4, name: 'Tom Cook' },
+    { id: 5, name: 'Tanya Fox' },
+    { id: 6, name: 'Hellen Schmidt' },
+]
+const comboboxValue = ref(comboboxOptions[0])
+// console.log(location.href + "?query=" + query)
+
+const loadOptions = (query, setOptions) => {
+    fetch(location.href + "?query=" + query)
+        .then(response => {
+            response.json()})   
+        .then(results => {
+            console.log(results)
+        })
+        .catch(err => console.log(err))
+}
+
 </script>
 
 <template>
@@ -36,12 +59,12 @@ const userType = ref('New User')
             </div>
         </div>
 
-        <!-- Conditional: Input-Select -->
+        <!-- Conditional: Input-Combobox -->
         <div v-if="userType == 'New User'" class="relative">
             <PrimitiveInput v-model="form[fieldName]" :showStats="false" type="text" :form="form" :fieldName="fieldName" :placeholder="fieldData.placeholder"/>
         </div>
         <div v-else>
-            <Select :form="form" :fieldName="fieldName" :options="fieldData['options']" :fieldData="fieldData" />
+            <Combobox v-model="comboboxValue" :form="form" :fieldName="fieldName" :loadOptions="loadOptions" :fieldData="fieldData" />
         </div>
     </div>
 
