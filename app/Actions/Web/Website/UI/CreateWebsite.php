@@ -83,7 +83,8 @@ class CreateWebsite extends InertiaAction
 
                     ],
                     'route'     => [
-                        'name' => 'models.shop.store',
+                        'name'     => 'models.shop.website.create',
+                        'arguments'=> [$shop->slug]
                     ]
                 ],
 
