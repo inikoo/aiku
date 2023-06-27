@@ -48,22 +48,20 @@ class CreateShop extends InertiaAction
                             'fields' => [
 
                                 'code' => [
-                                    'type'  => 'input',
-                                    'label' => __('code'),
+                                    'type'         => 'input',
+                                    'label'        => __('code'),
+                                    'required'     => true,
                                 ],
                                 'name' => [
-                                    'type'   => 'input',
-                                    'label'  => __('name'),
-                                    'value'  => '',
-                                    'options'=> [
-                                        'counter'=> true
-                                    ]
+                                    'type'         => 'input',
+                                    'label'        => __('name'),
+                                    'required'     => true,
+                                    'value'        => '',
                                 ],
 
                                 'subtype' => [
                                     'type'         => 'radio',
                                     'label'        => __('type'),
-                                    'placeholder'  => 'Select a Subtype',
                                     'options'      => Options::forEnum(ShopSubtypeEnum::class),
                                     'required'     => true,
                                     'mode'         => 'single'
