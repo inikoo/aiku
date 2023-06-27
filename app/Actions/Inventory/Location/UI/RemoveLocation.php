@@ -8,7 +8,6 @@
 namespace App\Actions\Inventory\Location\UI;
 
 use App\Actions\InertiaAction;
-use App\Actions\Procurement\Agent\UI\ShowAgent;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
@@ -38,6 +37,7 @@ class RemoveLocation extends InertiaAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inWarehouse(Warehouse $warehouse, Location $location, ActionRequest $request): Location
     {
+
         $this->initialisation($request);
 
         return $this->handle($location);
