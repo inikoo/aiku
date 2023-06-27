@@ -143,6 +143,12 @@ class IndexWarehouseAreas extends InertiaAction
                             'name'       => 'inventory.warehouses.show.warehouse-areas.create',
                             'parameters' => array_values($this->originalParameters)
                         ],
+                        'withMulti'=> [
+                            'route' => [
+                                'name'       => 'inventory.warehouses.show.warehouse-areas.create-multi',
+                                'parameters' => array_values($this->originalParameters)
+                            ],
+                        ],
                         'label' => __('warehouse area')
                     ] : false,
                 ],
