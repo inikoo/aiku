@@ -9,6 +9,7 @@ namespace App\Actions\Mail\EmailAddress;
 
 use App\Actions\Mail\EmailAddress\Traits\AwsClient;
 use App\Actions\Mail\EmailAddress\Traits\WithCloudflareDns;
+use App\Actions\Web\Domain\AddDomainDnsRecord;
 use Illuminate\Console\Command;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -18,16 +19,16 @@ class VerifyDomainEmailAddress
     use AwsClient;
     use WithCloudflareDns;
 
-    public string $commandSignature   = 'domain:verify {domain}';
+    public string $commandSignature   = 'domain:verify {domain} {zone}';
     public string $commandDescription = 'Verify Domain In AWS to Cloudflare';
 
-    public function handle(string $domain): void
+    public function handle(string $domain, string $zoneId): void
     {
         $result = $this->getSesClient()->verifyDomainIdentity([
             'Domain' => $domain,
         ]);
 
-        $this->addDnsRecords(env('CLOUDFLARE_ZONE_ID'), [
+        AddDomainDnsRecord::run($zoneId, [
             [
                 'type' => 'TXT',
                 'name' => $domain,
@@ -45,6 +46,6 @@ class VerifyDomainEmailAddress
 
     public function asCommand(Command $command): void
     {
-        $this->handle($command->argument('domain'));
+        $this->handle($command->argument('domain'), $command->argument('zone'));
     }
 }
