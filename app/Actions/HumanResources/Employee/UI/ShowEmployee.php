@@ -137,7 +137,7 @@ class ShowEmployee extends InertiaAction
                                 'name'       => 'hr.employees.show',
                                 'parameters' => [$employee->slug]
                             ],
-                            'label' => $employee->worker_number,
+                            'label' => $employee->slug,
                         ],
                     ],
                     'suffix'         => $suffix,
