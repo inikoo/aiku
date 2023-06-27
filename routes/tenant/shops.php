@@ -27,6 +27,7 @@ use App\Actions\Market\Shop\UI\IndexShops;
 use App\Actions\Market\Shop\UI\CreateShops;
 use App\Actions\Market\Shop\UI\ShowShop;
 use App\Actions\Web\Website\UI\CreateWebsite;
+use App\Actions\Web\Website\UI\ShowWebsite;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/export', ExportShops::class)->name('export');
@@ -37,7 +38,8 @@ Route::get('/create-multi', CreateShops::class)->name('create-multi');
 Route::get('/create-multi/clear', CreateShops::class)->name('create-multi-clear');
 Route::get('/{shop}', ShowShop::class)->name('show');
 Route::get('/{shop}/edit', EditShop::class)->name('edit');
-Route::get('/{shop}/website/create', CreateWebsite::class)->name('website.create');
+Route::get('/{shop}/website/create', CreateWebsite::class)->name('show.websites.create');
+Route::get('/{shop}/website/{website}', ShowWebsite::class)->name('show.websites.show');
 
 
 

@@ -106,13 +106,6 @@ const props = defineProps(
             },
             required: false,
         },
-        // prefix:{
-        //     type: String,
-        //     default: () => {
-        //         return '';
-        //     },
-        //     required: false,
-        // }
     });
 
 const app = getCurrentInstance();
@@ -556,7 +549,7 @@ const handleElementsChange = (data) => {
             <div class="my-2">
             <!-- Wrapper -->
 
-                
+
             <slot @changed="handleElementsChange">
                 <TableElements class="mb-2" v-if="queryBuilderProps.elementGroups?.length && queryBuilderData.title" :elements="queryBuilderProps.elementGroups" @changed="handleElementsChange" :title="queryBuilderData.title" />
             </slot>
@@ -681,7 +674,7 @@ const handleElementsChange = (data) => {
 
                                             ]">
                                             <slot :name="`cell(${column.key})`" :item="item">
-                                                <img v-if="column.key === 'avatar'" :src="`/media/group/${item[column.key]}`" class="w-5 rounded-full"/>
+                                                <img v-if="column.key === 'avatar'" :src="`/media/group/${item[column.key]}`" class="w-5 rounded-full" alt="avatar"/>
                                                 <div v-else>{{ item[column.key] }}</div>
                                             </slot>
                                         </td>

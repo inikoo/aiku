@@ -65,7 +65,7 @@ class StoreClocking
     }
 
 
-    public function inClockingMachine(ClockingMachine $clockingMachine, ActionRequest $request): Clocking
+    public function inClockingMachine(ClockingMachine $clockingMachine,Clocking $clocking,ActionRequest $request): Clocking
     {
         $request->validate();
 

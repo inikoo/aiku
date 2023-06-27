@@ -1,3 +1,4 @@
+<!--suppress JSDeprecatedSymbols -->
 <script setup lang="ts">
 import { trans } from 'laravel-vue-i18n'
 import AddressLocation from '@/Components/AddressLocation.vue'
@@ -7,7 +8,7 @@ import {
     faPersonDolly, faBoxFull,
     faBan, faArrowUp,
     faBuilding, faMale
-} from "../../../resources/private/pro-light-svg-icons";
+} from "../../private/pro-light-svg-icons";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 

@@ -16,6 +16,7 @@ use App\Http\Resources\Procurement\AgentResource;
 use App\Http\Resources\Procurement\MarketplaceSupplierProductResource;
 use App\Http\Resources\Procurement\MarketplaceSupplierResource;
 use App\Models\Procurement\Agent;
+use App\Models\Tenancy\Tenant;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -31,7 +32,7 @@ class ShowMarketplaceAgent extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        /** @var \App\Models\Tenancy\Tenant $tenant */
+        /** @var Tenant $tenant */
         $tenant      = app('currentTenant');
         $agentID     =$request->route()->parameters()['agent']->id;
         $agentIsOwned=$tenant->myAgents->contains($agentID);

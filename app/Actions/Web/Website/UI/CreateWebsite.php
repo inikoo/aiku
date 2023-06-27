@@ -11,6 +11,8 @@ use App\Actions\InertiaAction;
 use App\Actions\Market\Shop\UI\ShowShop;
 use App\Models\Market\Shop;
 use Exception;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -83,7 +85,7 @@ class CreateWebsite extends InertiaAction
 
                     ],
                     'route'     => [
-                        'name'     => 'models.shop.website.create',
+                        'name'     => 'models.shop.website.store',
                         'arguments'=> [$shop->slug]
                     ]
                 ],
@@ -101,9 +103,14 @@ class CreateWebsite extends InertiaAction
     /**
      * @throws Exception
      */
-    public function asController(Shop $shop, ActionRequest $request): Response
+    public function asController(Shop $shop, ActionRequest $request): Response | RedirectResponse
     {
         $this->initialisation($request);
+        if ($shop->website) {
+            return Redirect::route('websites.show', [
+                $shop->website->slug
+            ]);
+        }
 
         return $this->handle($shop, $request);
     }
