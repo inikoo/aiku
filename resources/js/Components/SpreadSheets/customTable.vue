@@ -9,6 +9,8 @@ import { getDatabase, ref as dbRef, set, onValue, get } from 'firebase/database'
 import { initializeApp } from "firebase/app"
 import serviceAccount from "@/../private/firebase/aiku-firebase.json"
 import { usePage } from "@inertiajs/vue3";
+import ColumsComponents from './Colums.vue';
+
 
 library.add(faSave, faPlus);
 
@@ -151,8 +153,23 @@ onMounted(() => {
   document.addEventListener('keydown', handleKeyDown);
 });
 
-onUnmounted(() => {
+onUnmounted(async () => {
   document.removeEventListener('keydown', handleKeyDown);
+
+  const data = focusedCellMulti.value;
+  const focusedCellRef = dbRef(db, 'focusedIndex');
+  const index = data.findIndex((item) => item.username === user.value.username);
+
+  if (index > -1) {
+    data.splice(index, 1);
+  }
+
+  try {
+    await set(focusedCellRef, data);
+    console.log('Data successfully updated!');
+  } catch (error) {
+    console.error('Error updating data:', error);
+  }
 });
 
 const handleKeyDown = async (event) => {
@@ -244,10 +261,31 @@ const selected = (row, column) => {
   return false;
 };
 
+const onCopyAll=(position)=>{
+  const selectedCellValue = setData.value[position.rowIndex][columns[position.colIndex].prop];
+  for(const c of setData.value){
+    c[position.column.prop] = selectedCellValue
+  }
+}
+
+const onCopyRow = (position) => {
+  const selectedCellValue = setData.value[position.column.rowIndex][columns[position.column.colIndex].prop];
+  for (let c = position.startColumnIndex; c <= position.endColumnIndex; c++) {
+    console.log(setData.value[c][position.column.column.prop])
+  }
+};
+
+const onCopyAllEmpty = (position) => {
+  const selectedCellValue = setData.value[position.rowIndex][columns[position.colIndex].prop];
+  for(const c of setData.value){
+    if( c[position.column.prop] == "") c[position.column.prop] = selectedCellValue
+  }
+}
+
 </script>
 
 <template>
-   <div>
+  <div>
     <table class="table">
       <thead>
         <tr>
@@ -258,28 +296,28 @@ const selected = (row, column) => {
       </thead>
       <tbody>
         <tr v-for="(row, rowIndex) in setData" :key="rowIndex">
-          <td v-for="(column, colIndex) in columns" :key="colIndex"
-            :class="{
-              'px-4': true,
-              'py-2': true,
-              'selected': selected(rowIndex,colIndex)
-            }"
-            :tabindex="(rowIndex === focusedCellIndex.rowIndex && colIndex === focusedCellIndex.columnIndex) ? 0 : -1"
+          <td v-for="(column, colIndex) in columns" :key="colIndex" :class="{
+            'px-4': true,
+            'py-2': true,
+            'selected': selected(rowIndex, colIndex)
+          }" :tabindex="(rowIndex === focusedCellIndex.rowIndex && colIndex === focusedCellIndex.columnIndex) ? 0 : -1"
             @focus="setFocusedCell(rowIndex, colIndex)" @click="setFocusedCell(rowIndex, colIndex)">
-            <div v-if="column.readonly">{{ row[column.prop] }}</div>
-            <div v-if="column.columnType === 'string'">
-              <input type="text" v-model="row[column.prop]" class="input" @blur="updateDataAndSetFocus"  :disabled="selected(rowIndex,colIndex)"  />
-            </div>
-            <div v-if="column.columnType === 'select'">
-              <select v-model="row[column.prop]" class="input" @blur="updateDataAndSetFocus">
-                <option v-for="option in column.options" :value="option.label" :key="option.label">
-                  {{ option.label }}
-                </option>
-              </select>
-            </div>
+           <ColumsComponents 
+           :onCopyAll = "onCopyAll"
+           :onCopyRow = "onCopyRow"
+           :rowIndex = "rowIndex"
+           :colIndex = "colIndex"
+           :column = "column"
+           :setData = "setData"
+           :row = "row"
+           :updateDataAndSetFocus = "updateDataAndSetFocus"
+           :onCopyAllEmpty="onCopyAllEmpty"
+           :isDisable = "selected(rowIndex,colIndex)"
+           />
           </td>
         </tr>
       </tbody>
+
     </table>
   </div>
   <div class="pt-4 pb-6 pl-1 pr-0 flex">
@@ -290,6 +328,7 @@ const selected = (row, column) => {
     </button>
     <input type="number" v-model="numberInputed"
       class="border border-gray-300 px-4 py-2 rounded-l-none rounded rounded-l-none custom-input" />
+
   </div>
 </template>
 
@@ -334,5 +373,17 @@ const selected = (row, column) => {
 .selected {
   background-color: red;
 }
+
+:root {
+  --popper-theme-background-color: #ffffff;
+  --popper-theme-background-color-hover: #ffffff;
+  --popper-theme-text-color: #333333;
+  --popper-theme-border-width: 1px;
+  --popper-theme-border-style: solid;
+  --popper-theme-border-color: #eeeeee;
+  --popper-theme-border-radius: 6px;
+  --popper-theme-padding: 10px;
+  --popper-theme-box-shadow: 0 6px 30px -6px rgba(0, 0, 0, 0.25);
+  }
 </style>
 
