@@ -29,3 +29,5 @@ prod-diff.sh
 /hash
 /create_aurora_tenants.sh
 load_aurora_db.sh
+/initialise_aurora_migration.sh
+/load_migration.sh
