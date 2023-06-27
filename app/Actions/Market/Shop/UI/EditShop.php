@@ -122,8 +122,20 @@ class EditShop extends InertiaAction
                                     'options'       => GetLanguagesOptions::make()->all(),
                                 ],
 
-                            ]
+                            ],
+                        ],
+                        [
+                        'title'  => __('websites'),
+                        'icon'   => 'fa-light fa-globe',
+                        'fields' => [
+                            'website'  => [
+                                'type'          => 'shopWebsite',
+                                'label'         => __('website'),
+                                'value'         => $shop->website->id,
+                                'options'       => GetCountriesOptions::run(),
+                            ],
                         ]
+                    ]
 
                     ],
                     'args'      => [
