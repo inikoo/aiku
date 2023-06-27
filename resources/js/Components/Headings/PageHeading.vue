@@ -33,6 +33,8 @@ const getActionLabel = function(action) {
                 return trans("exit edit");
             case "cancelCreate":
                 return trans("cancel");
+            case "delete":
+                return trans("delete");
             default:
                 return "";
         }
@@ -53,6 +55,8 @@ const getActionIcon = function(action) {
                 return ["fas", "fa-plus"];
             case "cancel":
             case "cancelCreate":
+                return ["far", "fa-arrow-left"];
+            case "delete":
                 return ["far", "fa-arrow-left"];
             default:
                 return null;

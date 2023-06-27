@@ -54,6 +54,7 @@ class ShowGuest extends InertiaAction
                 ],
                 'pageHead'    => [
                     'title'     => $guest->contact_name,
+
                     'edit'      => $this->canEdit ? [
                         'route' => [
                             'name'       => preg_replace('/show$/', 'edit', $this->routeName),
