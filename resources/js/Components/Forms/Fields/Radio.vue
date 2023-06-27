@@ -2,7 +2,7 @@
     <div>
         <!-- <label class="text-base font-semibold text-gray-800 capitalize">{{ fieldName }}</label> -->
         <!-- <p class="text-xs text-gray-500 capitalize italic">{{ form[fieldName] }}</p> -->
-        <fieldset class="mt-4 select-none">
+        <fieldset class="select-none">
             <legend class="sr-only"></legend>
             <div class="space-y-2">
                 <div v-for="(option, index) in fieldData.options" :key="option.label + index" class="flex items-center">

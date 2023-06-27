@@ -8,7 +8,6 @@
 import {Head, useForm} from '@inertiajs/vue3';
 import { Link } from "@inertiajs/vue3";
 
-import Select from '@/Components/Forms/Fields/Select.vue'
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faExclamationCircle, faCheckCircle, faAsterisk } from "@/../private/pro-solid-svg-icons"
@@ -28,18 +27,21 @@ const props = defineProps<{
 }>()
 
 
-import Input from '@/Components/Forms/Fields/Input.vue';
-import Phone from '@/Components/Forms/Fields/Phone.vue';
-import Date from '@/Components/Forms/Fields/Date.vue';
-import {trans} from "laravel-vue-i18n";
-import Address from "@/Components/Forms/Fields/Address.vue";
+import Input from '@/Components/Forms/Fields/Input.vue'
+import Select from '@/Components/Forms/Fields/Select.vue'
+import Phone from '@/Components/Forms/Fields/Phone.vue'
+import GuestCredentials from '@/Components/Forms/Fields/GuestCredentials.vue'
+import Date from '@/Components/Forms/Fields/Date.vue'
+import {trans} from "laravel-vue-i18n"
+import Address from "@/Components/Forms/Fields/Address.vue"
 import Radio from '@/Components/Forms/Fields/Radio.vue'
-import Country from "@/Components/Forms/Fields/Country.vue";
-import Currency from "@/Components/Forms/Fields/Currency.vue";
+import Country from "@/Components/Forms/Fields/Country.vue"
+import Currency from "@/Components/Forms/Fields/Currency.vue"
 import { capitalize } from "@/Composables/capitalize"
 
 const getComponent = (componentName: string) => {
     const components = {
+        'guest-credentials': GuestCredentials,
         'input': Input,
         'phone': Phone,
         'date': Date,
@@ -128,7 +130,7 @@ const handleFormSubmit = () => {
                                         </div>
                                     </dt>
                                     <dd class="sm:col-span-2">
-                                        <div class="mt-1 flex text-sm text-gray-800 sm:mt-0">
+                                        <div class="mt-1 flex text-sm text-gray-700 sm:mt-0">
                                             <div class="relative flex-grow">
                                                 <!-- sdadsadsa -->
                                                 <!-- Dynamic component -->

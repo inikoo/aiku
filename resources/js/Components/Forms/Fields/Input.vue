@@ -17,21 +17,21 @@ const props = defineProps<{
     }
 }>()
 
-let type = 'text'
-if (props.options !== undefined && props.options.type) {
-    type = props.options.type
-}
+// let type = 'text'
+// if (props.options !== undefined && props.options.type) {
+//     type = props.options.type
+// }
 
-// For Letters and Words Counter
-let showStats = false
-if(props.options){
-    showStats = props.options.counter
-}
+// // For Letters and Words Counter
+// let showStats = false
+// if(props.options){
+//     showStats = props.options.counter
+// }
 
 </script>
 <template>
     <div class="relative">
-        <PrimitiveInput v-model="form[fieldName]" :showStats="showStats" :type="type" :form="form" :fieldName="fieldName" :placeholder="fieldData.placeholder"/>
+        <PrimitiveInput v-model="form[fieldName]" :showStats="props.options?.counter ?? false" :type="props.options?.type ?? 'text'" :form="form" :fieldName="fieldName" :placeholder="fieldData.placeholder"/>
     </div>
     <p v-if="form.errors[fieldName]" class="mt-2 text-sm text-red-600" id="email-error">{{ form.errors[fieldName] }}</p>
 </template>

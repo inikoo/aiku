@@ -31,10 +31,10 @@ const props = defineProps<{
 				:class="{ 'pr-8': form.errors[fieldName] || form.recentlySuccessful }"
 				:options="props.options"
 				:placeholder="props.fieldData.placeholder ?? 'Select your option'"
-				:canClear="!!props.fieldData.required"
+				:canClear="!props.fieldData.required"
 				:mode="props.fieldData.mode ? props.fieldData.mode : 'single'"
 				:closeOnSelect="props.fieldData.mode == 'multiple' ? false : true"
-				:canDeselect="!!props.fieldData.required"
+				:canDeselect="!props.fieldData.required"
 				:hideSelected="false" />
 			<div
 				v-if="form.errors[fieldName] || form.recentlySuccessful"
