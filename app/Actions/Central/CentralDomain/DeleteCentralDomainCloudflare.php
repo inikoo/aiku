@@ -24,7 +24,7 @@ class DeleteCentralDomainCloudflare
 
     public function handle(CentralDomain $centralDomain): string
     {
-        $this->registerDomain($centralDomain->cloudflare_id);
+        $this->destroyDomain($centralDomain->cloudflare_id);
 
         $centralDomain->update([
             'cloudflare_id' => null,

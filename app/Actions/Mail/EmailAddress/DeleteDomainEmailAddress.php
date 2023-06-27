@@ -9,6 +9,7 @@ namespace App\Actions\Mail\EmailAddress;
 
 use App\Actions\Mail\EmailAddress\Traits\AwsClient;
 use App\Actions\Mail\EmailAddress\Traits\WithCloudflareDns;
+use App\Actions\Web\Domain\DeleteDomainDnsRecord;
 use Illuminate\Console\Command;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -18,20 +19,20 @@ class DeleteDomainEmailAddress
     use AwsClient;
     use WithCloudflareDns;
 
-    public string $commandSignature   = 'domain:delete {domain}';
-    public string $commandDescription = 'Delete Domain In AWS to Cloudflare';
+    public string $commandSignature   = 'dns:delete {domain} {zone}';
+    public string $commandDescription = 'Delete domain In AWS to Cloudflare';
 
-    public function handle(string $domain): void
+    public function handle(string $domain, string $zone): void
     {
         $this->getSesClient()->deleteIdentity([
-            'Identity' => $domain,
+            'Identity' => $domain
         ]);
 
-        $this->deleteDnsRecords(env('CLOUDFLARE_ZONE_ID'), ['004fafe1450900392c8d541a686e594a']);
+        DeleteDomainDnsRecord::run($zone, []);
     }
 
     public function asCommand(Command $command): void
     {
-        $this->handle($command->argument('domain'));
+        $this->handle($command->argument('domain'), $command->argument('zone'));
     }
 }
