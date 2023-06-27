@@ -13,7 +13,6 @@ use App\Actions\Assets\Language\UI\GetLanguagesOptions;
 use App\Actions\Assets\TimeZone\UI\GetTimeZonesOptions;
 use App\Actions\InertiaAction;
 use App\Enums\Market\Shop\ShopSubtypeEnum;
-use App\Enums\Market\Shop\ShopTypeEnum;
 use Exception;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -60,18 +59,10 @@ class CreateShop extends InertiaAction
                                         'counter'=> true
                                     ]
                                 ],
-                                'type' => [
-                                    'type'         => 'select',
-                                    'label'        => __('type'),
-                                    'placeholder'  => 'Select a Type',
-                                    'options'      => Options::forEnum(ShopTypeEnum::class),
-                                    'mode'         => 'single',
-                                    'required'     => true
 
-                                ],
                                 'subtype' => [
-                                    'type'         => 'select',
-                                    'label'        => __('subtype'),
+                                    'type'         => 'radio',
+                                    'label'        => __('type'),
                                     'placeholder'  => 'Select a Subtype',
                                     'options'      => Options::forEnum(ShopSubtypeEnum::class),
                                     'required'     => true,
