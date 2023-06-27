@@ -96,7 +96,6 @@ class ShowLocation extends InertiaAction
                         ],
                     'title' => $location->code,
                     'actions' => [
-                        [
                             $this->canEdit ? [
                                 'type'=>'button',
                                 'style'=>'edit',
@@ -110,7 +109,6 @@ class ShowLocation extends InertiaAction
                                     'inventory.locations.show' => [
                                         'type'=>'button',
                                         'style'=>'delete',
-                                        'label' => __('delete location'),
                                         'route' => [
                                             'name' => 'inventory.locations.remove',
                                             'parameters' => array_values($this->originalParameters)
@@ -124,7 +122,6 @@ class ShowLocation extends InertiaAction
                                             'name' => 'inventory.warehouses.show.locations.remove',
                                             'parameters' => array_values($this->originalParameters)
                                         ],
-                                        'label' => __('delete location')
                                     ],
                                     'inventory.warehouses.show.warehouse-areas.show.locations.show' => [
                                         'type'=>'button',
@@ -132,38 +129,11 @@ class ShowLocation extends InertiaAction
                                         'route' => [
                                             'name' => 'inventory.warehouses.show.warehouse-areas.show.locations.remove',
                                             'parameters' => array_values($this->originalParameters)
-                                        ],
-                                        'label' => __('delete location')
+                                        ]
                                     ]
                                 }
                                 : false
-                        ]
                     ],
-                    'delete' => $this->canDelete ?
-                        match ($this->routeName){
-                            'inventory.locations.show' => [
-                                'route' => [
-                                    'name' => 'inventory.locations.remove',
-                                    'parameters' => array_values($this->originalParameters)
-                                ],
-                                'label' => __('delete location')
-                            ],
-                            'inventory.warehouses.show.locations.show' => [
-                                'route' => [
-                                    'name' => 'inventory.warehouses.show.locations.remove',
-                                    'parameters' => array_values($this->originalParameters)
-                                ],
-                                'label' => __('delete location')
-                            ],
-                            'inventory.warehouses.show.warehouse-areas.show.locations.show' => [
-                                'route' => [
-                                    'name' => 'inventory.warehouses.show.warehouse-areas.show.locations.remove',
-                                    'parameters' => array_values($this->originalParameters)
-                                ],
-                                'label' => __('delete location')
-                            ]
-                        }
-                    : false,
                 ],
                 'tabs' => [
                     'current'    => $this->tab,

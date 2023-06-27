@@ -81,21 +81,13 @@ class RemoveLocation extends InertiaAction
                     'actions'=>[
                         [
                             'type'=>'button',
-                            'style'=>'exitEdit',
+                            'style'=>'cancel',
                             'route' => [
-                                'name'       => preg_replace('/edit$/', 'show', $this->routeName),
+                                'name'       => preg_replace('/remove$/', 'show', $this->routeName),
                                 'parameters' => array_values($this->originalParameters)
                             ]
                         ]
-                    ],
-
-                    'exitEdit' => [
-                        'label' => __('Cancel'),
-                        'route' => [
-                            'name'       => preg_replace('/remove$/', 'show', $this->routeName),
-                            'parameters' => array_values($this->originalParameters)
-                        ]
-                    ],
+                    ]
                 ],
                 'data'      => $this->getAction(
                     route:
