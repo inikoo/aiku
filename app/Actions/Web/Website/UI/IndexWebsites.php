@@ -73,7 +73,7 @@ class IndexWebsites extends InertiaAction
         return $queryBuilder
             ->defaultSort('websites.code')
             ->select(['websites.code', 'websites.name', 'websites.slug', 'websites.domain', 'in_maintenance', 'websites.state'])
-            ->allowedSorts(['code', 'name'])
+            ->allowedSorts(['slug','code', 'name'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -100,10 +100,10 @@ class IndexWebsites extends InertiaAction
                 ->withModelOperations($modelOperations)
                 ->withGlobalSearch()
                 ->column(key: 'state', label: ['fal', 'fa-yin-yang'], sortable: true)
-                ->column(key: 'code', label: __('code'), sortable: true)
+                ->column(key: 'slug', label: __('code'), sortable: true)
                 ->column(key: 'name', label: __('name'), sortable: true)
                 ->column(key: 'domain', label: __('domain'), sortable: true)
-                ->defaultSort('code');
+                ->defaultSort('slug');
         };
     }
 
