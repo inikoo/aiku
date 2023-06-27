@@ -14,6 +14,7 @@ use App\Enums\UI\EmployeeTabsEnum;
 use App\Http\Resources\HumanResources\EmployeeResource;
 use App\Http\Resources\SysAdmin\HistoryResource;
 use App\Models\HumanResources\Employee;
+use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -36,6 +37,7 @@ class ShowEmployee extends InertiaAction
     public function asController(Employee $employee, ActionRequest $request): Employee
     {
         $this->initialisation($request)->withTab(EmployeeTabsEnum::values());
+
         return $this->handle($employee);
     }
 
@@ -44,9 +46,9 @@ class ShowEmployee extends InertiaAction
         return Inertia::render(
             'HumanResources/Employee',
             [
-                'title'                                 => __('employee'),
-                'breadcrumbs'                           => $this->getBreadcrumbs($employee),
-                'navigation'                            => [
+                'title'       => __('employee'),
+                'breadcrumbs' => $this->getBreadcrumbs($employee),
+                'navigation'  => [
                     'previous' => $this->getPrevious($employee, $request),
                     'next'     => $this->getNext($employee, $request),
                 ],
@@ -95,6 +97,10 @@ class ShowEmployee extends InertiaAction
                     'navigation' => EmployeeTabsEnum::navigation()
                 ],
 
+                EmployeeTabsEnum::DATA->value => $this->tab == EmployeeTabsEnum::DATA->value ?
+                    fn () => $this->getData($employee)
+                    : Inertia::lazy(fn () => $this->getData($employee)),
+
                 EmployeeTabsEnum::HISTORY->value => $this->tab == EmployeeTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistories::run($employee))
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistories::run($employee)))
@@ -102,6 +108,10 @@ class ShowEmployee extends InertiaAction
         )->table(IndexHistories::make()->tableStructure());
     }
 
+    public function getData(Employee $employee): array
+    {
+        return Arr::except($employee->toArray(), ['id', 'source_id']);
+    }
 
     public function jsonResponse(Employee $employee): EmployeeResource
     {
@@ -140,28 +150,30 @@ class ShowEmployee extends InertiaAction
     public function getPrevious(Employee $employee, ActionRequest $request): ?array
     {
         $previous = Employee::where('slug', '<', $employee->slug)->orderBy('slug', 'desc')->first();
-        return $this->getNavigation($previous, $request->route()->getName());
 
+        return $this->getNavigation($previous, $request->route()->getName());
     }
 
     public function getNext(Employee $employee, ActionRequest $request): ?array
     {
         $next = Employee::where('slug', '>', $employee->slug)->orderBy('slug')->first();
+
         return $this->getNavigation($next, $request->route()->getName());
     }
 
     private function getNavigation(?Employee $employee, string $routeName): ?array
     {
-        if(!$employee) {
+        if (!$employee) {
             return null;
         }
+
         return match ($routeName) {
-            'hr.employees.show'=> [
-                'label'=> $employee->contact_name,
-                'route'=> [
-                    'name'      => $routeName,
-                    'parameters'=> [
-                        'employee'=> $employee->slug
+            'hr.employees.show' => [
+                'label' => $employee->contact_name,
+                'route' => [
+                    'name'       => $routeName,
+                    'parameters' => [
+                        'employee' => $employee->slug
                     ]
 
                 ]

@@ -77,7 +77,6 @@ class IndexWarehouseAreas extends InertiaAction
 
     public function tableStructure(?array $modelOperations = null, $prefix = null): Closure
     {
-
         return function (InertiaTable $table) use ($modelOperations, $prefix) {
             if($prefix) {
                 $table
@@ -91,7 +90,6 @@ class IndexWarehouseAreas extends InertiaAction
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'number_locations', label: __('locations'), canBeHidden: false, sortable: true)
                 ->defaultSort('code');
-
         };
     }
 

@@ -38,4 +38,7 @@ Route::get('/guests/export', ExportGuests::class)->name('guests.export');
 Route::get('/guests/{guest}', ShowGuest::class)->name('guests.show');
 Route::get('/guests/{guest}/edit', EditGuest::class)->name('guests.edit');
 
+
+
+
 Route::get('/dashtv', DashTV::class)->name('dashtv');

@@ -9,14 +9,15 @@ namespace App\Enums\Auth\User;
 
 use App\Enums\EnumHelperTrait;
 
-enum SynchronisableUserFields: string
+enum SynchronisableUserFieldsEnum: string
 {
     use EnumHelperTrait;
 
-    case USERNAME              = 'username';
-    case PASSWORD              = 'password';
-    case EMAIL                 = 'email';
-    case ABOUT                 = 'about';
-    case AVATAR                = 'avatar_id';
+    case USERNAME = 'username';
+    case PASSWORD = 'password';
+    case EMAIL = 'email';
+    case NAME = 'name';
+    case ABOUT = 'about';
+    case AVATAR = 'avatar_id';
 
 }

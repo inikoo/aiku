@@ -8,7 +8,7 @@
 namespace App\Actions\Auth\GroupUser;
 
 use App\Actions\WithActionUpdate;
-use App\Enums\Auth\User\SynchronisableUserFields;
+use App\Enums\Auth\User\SynchronisableUserFieldsEnum;
 use App\Models\Auth\GroupUser;
 use App\Models\Auth\User;
 use App\Rules\AlphaDashDot;
@@ -39,7 +39,7 @@ class UpdateGroupUser
             $tenant->execute(
                 function () use ($userID, $modelData) {
                     $user = User::find($userID);
-                    $user->update(Arr::only($modelData, SynchronisableUserFields::values()));
+                    $user->update(Arr::only($modelData, SynchronisableUserFieldsEnum::values()));
                 }
             );
         }

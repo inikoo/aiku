@@ -80,7 +80,7 @@ const updateDataAndSetFocus = () => {
                     <SettingColums :onCopyAll="onCopyAll" :column="{ rowIndex, colIndex, column }" 
                         :lengthData="setData.length" :onCopyAllEmpty="onCopyAllEmpty" :onCopyRow ="onCopyRow" />
                 </template>
-              <div>
+              <div class="setting" >
                 <font-awesome-icon :icon="['far', 'ellipsis-v']" />
               </div>  
             </Popper>
@@ -88,5 +88,10 @@ const updateDataAndSetFocus = () => {
     </div>
 </template>
   
-  
-  
+<style>
+.setting {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+</style>
