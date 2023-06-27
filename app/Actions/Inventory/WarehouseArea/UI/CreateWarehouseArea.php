@@ -38,44 +38,25 @@ class CreateWarehouseArea extends InertiaAction
                 'formData'    => [
                     'blueprint' => [
                         [
-                            'title'  => __('create warehouse'),
+                            'title'  => __('ID/Name'),
                             'fields' => [
 
                                 'code' => [
                                     'type'  => 'input',
                                     'label' => __('code'),
-                                    'value' => ''
+                                    'value' => '',
+                                    'required'=>true
                                 ],
                                 'name' => [
                                     'type'  => 'input',
                                     'label' => __('name'),
-                                    'value' => ''
+                                    'value' => '',
+                                    'required'=>true
                                 ],
 
                             ]
                         ],
-                        [
-                            'title'  => __('locations'),
-                            'fields' => [
-
-                                'area_type' => [
-                                    'type'  => 'input',
-                                    'label' => __('area type'),
-                                    'value' => ''
-                                ],
-                            ]
-                        ],
-                        [
-                            'title'  => __('operations'),
-                            'fields' => [
-
-                                'delete_at' => [
-                                    'type'  => 'input',
-                                    'label' => __('delete'),
-                                    'value' => ''
-                                ],
-                            ]
-                        ],
+                      
                     ],
                     'route'     => [
                         'name'      => 'models.warehouse.warehouse-area.store',
