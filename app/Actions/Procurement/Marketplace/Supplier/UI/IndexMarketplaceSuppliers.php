@@ -62,10 +62,7 @@ class IndexMarketplaceSuppliers extends InertiaAction
             ])
             ->when($parent, function ($query) use ($parent) {
                 if (class_basename($parent) == 'Agent') {
-
                     $query->where('suppliers.agent_id', $parent->id);
-                    $query->leftJoin('agents', 'suppliers.owner_id', 'agents.id');
-                    $query->addSelect('agents.slug as agent_slug');
                 } else {
                     $query->whereNull('suppliers.agent_id');
                 }

@@ -17,7 +17,9 @@ const props = defineProps <{
 }>()
 </script>
 
+<!--suppress HtmlUnknownAttribute -->
 <template layout="App">
+    <!--suppress HtmlRequiredTitleElement -->
     <Head :title="capitalize(title)"/>
     <PageHeading :data="pageHead"></PageHeading>
     <TableMarketplaceAgents :data="data" />

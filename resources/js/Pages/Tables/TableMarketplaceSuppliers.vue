@@ -22,7 +22,7 @@ function marketplaceSupplierRoute(marketplaceSupplier: MarketplaceSupplier) {
         case 'procurement.marketplace.agents.show':
             return route(
                 'procurement.marketplace.agents.show.suppliers.show',
-                [marketplaceSupplier.agent_slug,marketplaceSupplier.slug]);
+                [route().params['agent'],marketplaceSupplier.slug]);
         case 'procurement.marketplace.suppliers.index':
             return route(
                 'procurement.marketplace.suppliers.show',

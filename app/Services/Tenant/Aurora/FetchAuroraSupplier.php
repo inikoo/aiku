@@ -22,7 +22,8 @@ class FetchAuroraSupplier extends FetchAurora
 
 
 
-        $agentId = null;
+        $agentId                   = null;
+        $this->parsedData['owner'] = app('currentTenant');
 
         if ($agentData) {
             $agent = $this->parseAgent($agentData->{'Agent Supplier Agent Key'});
@@ -34,7 +35,6 @@ class FetchAuroraSupplier extends FetchAurora
             $agentId                  = $agent->id;
 
         }
-        $this->parsedData['owner'] = app('currentTenant');
 
 
         $deleted_at = $this->parseDate($this->auroraModelData->{'Supplier Valid To'});

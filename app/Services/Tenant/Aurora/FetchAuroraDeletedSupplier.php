@@ -7,7 +7,6 @@
 
 namespace App\Services\Tenant\Aurora;
 
-use App\Models\Procurement\AgentTenant;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraDeletedSupplier extends FetchAurora
@@ -16,6 +15,22 @@ class FetchAuroraDeletedSupplier extends FetchAurora
     {
         $auroraDeletedData = json_decode(gzuncompress($this->auroraModelData->{'Supplier Deleted Metadata'}));
 
+        $agentData = Db::connection('aurora')->table('Agent Supplier Bridge')
+            ->select('Agent Supplier Agent Key')
+            ->where('Agent Supplier Supplier Key', $auroraDeletedData->{'Supplier Key'})->first();
+
+        $agentId                   = null;
+        $this->parsedData['owner'] = app('currentTenant');
+
+        if ($agentData) {
+            $agent = $this->parseAgent($agentData->{'Agent Supplier Agent Key'});
+            if (!$agent) {
+                print "agent not found ".$agentData->{'Agent Supplier Agent Key'}." \n";
+                return;
+            }
+            $this->parsedData['agent']=$agent;
+            $agentId                  = $agent->id;
+        }
 
         $phone = $auroraDeletedData->{'Supplier Main Plain Mobile'} ?? null;
         if ($phone == '') {
@@ -24,38 +39,11 @@ class FetchAuroraDeletedSupplier extends FetchAurora
 
         $deleted_at = $this->auroraModelData->{'Supplier Deleted Date'};
 
-
-        $type                      = 'supplier';
-        $this->parsedData['owner'] = app('currentTenant');
-        $agentId                   = null;
-
-
-        $agentData = Db::connection('aurora')->table('Agent Supplier Bridge')
-            ->select('Agent Supplier Agent Key')
-            ->where('Agent Supplier Supplier Key', $auroraDeletedData->{'Supplier Key'})->first();
-
-
-        if ($agentData) {
-
-            $agentTenant=AgentTenant::where('source_id', $agentData->{'Agent Supplier Agent Key'})
-                ->where('tenant_id', app('currentTenant')->id)->first();
-
-            $this->parsedData['owner']=$agentTenant->agent;
-
-            if (!$this->parsedData['owner']) {
-                print "agent not found ".$agentData->{'Agent Supplier Agent Key'}." \n";
-            }
-            $agentId = $this->parsedData['owner']->id;
-            $type    = 'sub-supplier';
-        }
-
         $this->parsedData['supplier'] =
             [
-                'type'     => $type,
-                'agent_id' => $agentId,
-                'name'     => $auroraDeletedData->{'Supplier Nickname'} ?? $auroraDeletedData->{'Supplier Name'},
-                'code'     => preg_replace('/\s/', '-', $auroraDeletedData->{'Supplier Code'}),
-
+                'agent_id'     => $agentId,
+                'name'         => $auroraDeletedData->{'Supplier Nickname'} ?? $auroraDeletedData->{'Supplier Name'},
+                'code'         => preg_replace('/\s/', '-', $auroraDeletedData->{'Supplier Code'}),
                 'company_name' => $auroraDeletedData->{'Supplier Company Name'},
                 'contact_name' => $auroraDeletedData->{'Supplier Main Contact Name'},
                 'email'        => $auroraDeletedData->{'Supplier Main Plain Email'},
