@@ -19,7 +19,7 @@ class DeleteCentralDomainCloudflare
     use AsAction;
     use WithCloudflareDns;
 
-    public string $commandSignature   = 'domain:destroy {domain}';
+    public string $commandSignature   = 'domain:delete {domain}';
     public string $commandDescription = 'Delete domain from Cloudflare';
 
     public function handle(CentralDomain $centralDomain): string
