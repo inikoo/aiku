@@ -37,6 +37,7 @@ Route::get('/create-multi', CreateShops::class)->name('create-multi');
 Route::get('/create-multi/clear', CreateShops::class)->name('create-multi-clear');
 Route::get('/{shop}', ShowShop::class)->name('show');
 Route::get('/{shop}/edit', EditShop::class)->name('edit');
+Route::get('/{shop}/website/create', CreateWebsite::class)->name('website.create');
 
 
 
