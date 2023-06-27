@@ -4,6 +4,7 @@
   -  Copyright (c) 2022, Raul A Perusquia Flores
   -->
 
+<!--suppress ALL -->
 <script setup>
 import { Link } from "@inertiajs/vue3";
 import { library } from "@fortawesome/fontawesome-svg-core";

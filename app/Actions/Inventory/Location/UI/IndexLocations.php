@@ -157,12 +157,16 @@ class IndexLocations extends InertiaAction
                 'title'       => __('Locations'),
                 'pageHead'    => [
                     'title'  => __('locations'),
-                    'create' => $this->canEdit
-                    && (
-                        $this->routeName == 'inventory.warehouses.show.locations.index' or
-                        $this->routeName == 'inventory.warehouses.show.warehouse-areas.show.locations.index'
-                    )
-                        ? [
+                    'actions'=> [
+                        $this->canEdit
+                        && (
+                            $this->routeName == 'inventory.warehouses.show.locations.index' or
+                            $this->routeName == 'inventory.warehouses.show.warehouse-areas.show.locations.index'
+                        )
+                            ? [
+                            'type'=>'button',
+                            'style'=>'create',
+                            'label' => __('locations'),
                             'route' => match ($this->routeName) {
                                 'inventory.warehouses.show.locations.index' => [
                                     'name'       => 'inventory.warehouses.show.locations.create',
@@ -172,12 +176,11 @@ class IndexLocations extends InertiaAction
                                     'name'       => 'inventory.warehouses.show.warehouse-areas.show.locations.create',
                                     'parameters' => array_values($this->originalParameters)
                                 ]
-                            },
-                            'label' => __('locations')
-                        ] : false,
+                            }
+                        ] : false
+                    ]
                 ],
                 'data'        => LocationResource::collection($locations),
-
 
             ]
         )->table($this->tableStructure());

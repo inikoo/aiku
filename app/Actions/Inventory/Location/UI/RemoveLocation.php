@@ -78,6 +78,16 @@ class RemoveLocation extends InertiaAction
                             'title' => __('location')
                         ],
                     'title' => $location->slug,
+                    'actions'=>[
+                        [
+                            'type'=>'button',
+                            'style'=>'exitEdit',
+                            'route' => [
+                                'name'       => preg_replace('/edit$/', 'show', $this->routeName),
+                                'parameters' => array_values($this->originalParameters)
+                            ]
+                        ]
+                    ],
 
                     'exitEdit' => [
                         'label' => __('Cancel'),

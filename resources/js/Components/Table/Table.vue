@@ -1,3 +1,4 @@
+<!--suppress JSUnresolvedReference -->
 <script setup>
 import Pagination from '@/Components/Table/Pagination.vue';
 import HeaderCell from '@/Components/Table/HeaderCell.vue';
@@ -543,6 +544,7 @@ const handleElementsChange = (data) => {
 </script>
 
 <template>
+
     <Transition>
         <EmptyState v-if="resourceMeta.total === 0" />
         <fieldset v-else ref="tableFieldset" :key="`table-${name}`" :dusk="`table-${name}`" class="min-w-0" :class="{ 'opacity-75': isVisiting }">

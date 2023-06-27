@@ -58,9 +58,6 @@ class EditUser extends InertiaAction
                           ]
                       ]
                     ],
-
-
-
                 ],
 
                 'formData' => [
