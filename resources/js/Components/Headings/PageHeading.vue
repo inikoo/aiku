@@ -47,7 +47,7 @@ const getActionIcon = function(action) {
             case "exitEdit":
                 return ["far", "fa-arrow-left"];
             case "create":
-                return ["fal", "fa-plus"];
+                return ["fas", "fa-plus"];
             default:
                 return null;
         }
