@@ -50,7 +50,7 @@ class CreateGuest extends InertiaAction
                                 ],
                                 'guestCredentials' => [
                                     'type'    => 'guest-credentials',
-                                    'label'   => '',
+                                    'label'   => 'Guest Credentials',
                                     'value'   => 'newGroupUser',
                                     'options' => [
                                         'newGroupUser' => [

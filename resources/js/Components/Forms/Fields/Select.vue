@@ -18,6 +18,7 @@ const props = defineProps<{
         placeholder: string
         required: boolean
         mode: string
+		searchable: boolean
     }
 }>()
 // console.log(props)
@@ -31,11 +32,12 @@ const props = defineProps<{
 				:class="{ 'pr-8': form.errors[fieldName] || form.recentlySuccessful }"
 				:options="props.options"
 				:placeholder="props.fieldData.placeholder ?? 'Select your option'"
-				:canClear="!!props.fieldData.required"
+				:canClear="!props.fieldData.required"
 				:mode="props.fieldData.mode ? props.fieldData.mode : 'single'"
 				:closeOnSelect="props.fieldData.mode == 'multiple' ? false : true"
-				:canDeselect="!!props.fieldData.required"
-				:hideSelected="false" />
+				:canDeselect="!props.fieldData.required"
+				:hideSelected="false"
+				:searchable="!!props.fieldData.searchable" />
 			<div
 				v-if="form.errors[fieldName] || form.recentlySuccessful"
 				class="absolute inset-y-2/4 right-0 pr-3 flex items-center pointer-events-none bg-red-500">

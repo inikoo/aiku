@@ -9,7 +9,8 @@ namespace App\Actions\Mail\EmailAddress\Traits;
 
 use Illuminate\Support\Facades\Http;
 
-trait WithCloudflareDns {
+trait WithCloudflareDns
+{
     public function addDnsRecords(string $zoneId, array $dnsRecords): void
     {
         foreach ($dnsRecords as $dnsRecord) {
@@ -34,5 +35,30 @@ trait WithCloudflareDns {
                 'Authorization' => 'Bearer ' . env('CLOUDFLARE_API_TOKEN'),
             ])->delete(env('CLOUDFLARE_API_URL') . "/zones/{$zoneId}/dns_records/{$dnsRecordId}");
         }
+    }
+
+    public function registerDomain(string $domain): array
+    {
+        $response = Http::withHeaders([
+            'Content-Type' => 'application/json',
+            'Authorization' => 'Bearer ' . env('CLOUDFLARE_API_TOKEN'),
+        ])->post(env('CLOUDFLARE_API_URL') . "/zones", [
+            "name" => $domain,
+            "account" => [
+                "id" => env("CLOUDFLARE_ACCOUNT_ID")
+            ]
+        ]);
+
+        return $response->json();
+    }
+
+    public function destroyDomain(string $zoneId): array
+    {
+        $response = Http::withHeaders([
+            'Content-Type' => 'application/json',
+            'Authorization' => 'Bearer ' . env('CLOUDFLARE_API_TOKEN'),
+        ])->delete(env('CLOUDFLARE_API_URL') . "/zones/" . $zoneId);
+
+        return $response->json();
     }
 }
