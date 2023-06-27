@@ -9,7 +9,7 @@
 
 namespace App\Actions\Central\CentralDomain;
 
-use App\Actions\Mail\EmailAddress\Traits\WithCloudflareDns;
+use App\Actions\Web\Domain\RegisterDomainCloudflare;
 use App\Models\Central\CentralDomain;
 use Illuminate\Console\Command;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -17,14 +17,13 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class AddCentralDomainCloudflare
 {
     use AsAction;
-    use WithCloudflareDns;
 
     public string $commandSignature   = 'domain:register {domain}';
     public string $commandDescription = 'Register Domain to Cloudflare';
 
     public function handle(CentralDomain $centralDomain): string
     {
-        $response = $this->registerDomain($centralDomain->domain);
+        $response = RegisterDomainCloudFlare::run($centralDomain->domain);
 
         $centralDomain->update([
             'cloudflare_id' => $response['result']['id'],

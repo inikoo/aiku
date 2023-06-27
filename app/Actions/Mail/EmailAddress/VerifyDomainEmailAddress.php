@@ -8,8 +8,7 @@
 namespace App\Actions\Mail\EmailAddress;
 
 use App\Actions\Mail\EmailAddress\Traits\AwsClient;
-use App\Actions\Mail\EmailAddress\Traits\WithCloudflareDns;
-use App\Actions\Web\Domain\AddDomainDnsRecord;
+use App\Actions\Web\Domain\AddDomainDnsRecordCloudflare;
 use Illuminate\Console\Command;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -17,7 +16,6 @@ class VerifyDomainEmailAddress
 {
     use AsAction;
     use AwsClient;
-    use WithCloudflareDns;
 
     public string $commandSignature   = 'domain:verify {domain} {zone}';
     public string $commandDescription = 'Verify Domain In AWS to Cloudflare';
@@ -28,7 +26,7 @@ class VerifyDomainEmailAddress
             'Domain' => $domain,
         ]);
 
-        AddDomainDnsRecord::run($zoneId, [
+        AddDomainDnsRecordCloudflare::run($zoneId, [
             [
                 'type' => 'TXT',
                 'name' => $domain,
