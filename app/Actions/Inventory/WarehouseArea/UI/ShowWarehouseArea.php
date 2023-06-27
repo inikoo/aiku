@@ -38,6 +38,7 @@ class ShowWarehouseArea extends InertiaAction
         return $warehouseArea;
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
     public function inWarehouse(Warehouse $warehouse, WarehouseArea $warehouseArea, ActionRequest $request): WarehouseArea
     {
         $this->initialisation($request)->withTab(WarehouseAreaTabsEnum::values());
@@ -126,7 +127,7 @@ class ShowWarehouseArea extends InertiaAction
 
             ]
         )->table(IndexLocations::make()->tableStructure(
-            modelOperations: [
+            /* modelOperations: [
                 'createLink' => $this->canEdit ? [
 
                     match ($request->route()->getName()) {
@@ -137,7 +138,7 @@ class ShowWarehouseArea extends InertiaAction
                                 'parameters' => array_values($this->originalParameters)
                             ]
                         ],
-            
+
                         default =>
                         [
                             'route' => [
@@ -151,7 +152,7 @@ class ShowWarehouseArea extends InertiaAction
                     'label' => __('location')
                 ] : false,
             ],
-            prefix: 'locations'
+            prefix: 'locations' */
         ))->table(IndexHistories::make()->tableStructure());
     }
 
