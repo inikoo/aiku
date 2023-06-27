@@ -30,13 +30,17 @@ class CreateEmployee extends InertiaAction
                 'title'       => __('new employee'),
                 'pageHead'    => [
                     'title'        => __('new employee'),
-                    'cancelCreate' => [
-                        'route' => [
-                            'name'       => 'hr.employees.index',
-                            'parameters' => array_values($this->originalParameters)
-                        ],
+                    'actions' => [
+                        [
+                            'type'=>'button',
+                            'style'=>'cancelCreate',
+                            'label' => __('cancel'),
+                            'route' => [
+                                'name'       => 'hr.employees.index',
+                                'parameters' => array_values($this->originalParameters)
+                            ],
+                        ]
                     ]
-
                 ],
                 'formData' => [
                     'blueprint' => [
