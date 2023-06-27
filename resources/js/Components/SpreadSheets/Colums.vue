@@ -1,0 +1,97 @@
+<!--
+  - Author: Raul Perusquia <raul@inikoo.com>
+  - Created: Tue, 20 Jun 2023 10:16:56 Malaysia Time, Pantai Lembeng, Bali, Id
+  - Copyright (c) 2023, Raul A Perusquia Flores
+  -->
+
+<script setup lang="ts">
+import { ref, onBeforeMount, watch, onMounted, onUnmounted } from 'vue';
+import Popper from "vue3-popper";
+import SettingColums from './settingColums.vue';
+import { faEllipsisV } from '@/../private/pro-regular-svg-icons';
+import { library } from '@fortawesome/fontawesome-svg-core';
+
+library.add(faEllipsisV);
+
+const props = defineProps({
+    onCopyAll: {
+        type: String,
+        required: true
+    },
+    onCopyRow: {
+        type: String,
+        required: true
+    },
+    updateDataAndSetFocus: {
+        type: String,
+        required: true
+    },
+    selected: {
+        type: String,
+        required: true
+    },
+    onCopyAllEmpty:{
+        type: String,
+        required: true
+    },
+    column: Object,
+    colIndex: Object,
+    rowIndex: Object,
+    setData: Array,
+    row: Object,
+    isDisable:Boolean,
+});
+
+const emits = defineEmits(['copyAll', 'copyRow', 'updateDataAndSetFocus','onCopyAllEmpty']);
+
+const onCopyAll = (column) => {
+    emits('copyAll', column);
+};
+
+// const onCopyAllEmpty = (column) => {
+//     emits('onCopyAllEmpty', column);
+// };
+
+const onCopyRow = (position) => {
+    emits('copyRow', position);
+};
+
+const updateDataAndSetFocus = () => {
+    emits('updateDataAndSetFocus');
+};
+
+
+
+</script>
+  
+<template>
+    <div class="flex">
+        <div class="w-11/12" v-if="column.readonly">{{ row[column.prop] }}</div>
+        <div class="w-11/12" v-if="column.columnType === 'string'">
+            <input type="text" v-model="row[column.prop]" class="input" @blur="updateDataAndSetFocus"
+                :disabled="isDisable" />
+        </div>
+        <div class="w-11/12" v-if="column.columnType === 'select'">
+            <select v-model="row[column.prop]" class="input" @blur="updateDataAndSetFocus"  :disabled="isDisable">
+                <option v-for="option in column.options" :value="option.label" :key="option.label">
+                    {{ option.label }}
+                </option>
+            </select>
+        </div>
+        <div class="w-1/12 flex justify-center items-center">
+            <Popper v-if="!column.readonly" arrow class="w-full border-0">
+                <template #content>
+                    <SettingColums :onCopyAll="onCopyAll" :column="{ rowIndex, colIndex, column }" :onCopyRow="onCopyRow"
+                        :lengthData="setData.length" :onCopyAllEmpty="props.onCopyAllEmpty" />
+                </template>
+              <div>
+                <!-- <FontAwesomeIcon icon="far ellipsis-v" /> -->
+                :::
+              </div>  
+            </Popper>
+        </div>
+    </div>
+</template>
+  
+  
+  
