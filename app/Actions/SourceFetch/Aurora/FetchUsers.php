@@ -28,6 +28,8 @@ class FetchUsers extends FetchAction
     {
         if ($userData = $tenantSource->fetchuser($tenantSourceId)) {
             if ($user = User::withTrashed()->where('source_id', $userData['user']['source_id'])->first()) {
+
+                dd($userData['user']);
                 $user = UpdateUser::run($user, $userData['user']);
 
             } else {

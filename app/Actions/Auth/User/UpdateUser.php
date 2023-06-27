@@ -9,7 +9,7 @@ namespace App\Actions\Auth\User;
 
 use App\Actions\Auth\GroupUser\UpdateGroupUser;
 use App\Actions\WithActionUpdate;
-use App\Enums\Auth\User\SynchronisableUserFields;
+use App\Enums\Auth\User\SynchronisableUserFieldsEnum;
 use App\Models\Auth\User;
 use App\Rules\AlphaDashDot;
 use Illuminate\Http\RedirectResponse;
@@ -29,11 +29,11 @@ class UpdateUser
     {
         UpdateGroupUser::run(
             $user->groupUser,
-            Arr::only($modelData, SynchronisableUserFields::values())
+            Arr::only($modelData, SynchronisableUserFieldsEnum::values())
         );
 
         $user->refresh();
-        return $this->update($user, Arr::except($modelData, SynchronisableUserFields::values()), ['profile', 'settings']);
+        return $this->update($user, Arr::except($modelData, SynchronisableUserFieldsEnum::values()), ['profile', 'settings']);
     }
 
     public function authorize(ActionRequest $request): bool
