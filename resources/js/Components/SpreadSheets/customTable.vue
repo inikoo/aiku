@@ -269,12 +269,12 @@ const onCopyAll=(position)=>{
   }
 }
 
-// const onCopyRow = (position) => {
-//   const selectedCellValue = setData.value[position.column.rowIndex][columns[position.column.colIndex].prop];
-//   for (let c = position.startColumnIndex; c <= position.endColumnIndex; c++) {
-//     console.log(setData.value[c][position.column.column.prop])
-//   }
-// };
+const onCopyRow = (position) => {
+  const selectedCellValue = setData.value[position.column.rowIndex][columns[position.column.colIndex].prop];
+  for (let c = position.startColumnIndex; c <= position.endColumnIndex; c++) {
+    setData.value[c][position.column.column.prop]  = selectedCellValue
+  }
+};
 
 const onCopyAllEmpty = (position) => {
   const selectedCellValue = setData.value[position.rowIndex][columns[position.colIndex].prop];
@@ -305,7 +305,7 @@ const onCopyAllEmpty = (position) => {
             @focus="setFocusedCell(rowIndex, colIndex)" @click="setFocusedCell(rowIndex, colIndex)">
            <ColumsComponents 
            :onCopyAll = "onCopyAll"
-           
+           :onCopyRow ="onCopyRow"
            :rowIndex = "rowIndex"
            :colIndex = "colIndex"
            :column = "column"

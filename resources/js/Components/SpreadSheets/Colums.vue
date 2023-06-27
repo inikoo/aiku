@@ -18,10 +18,10 @@ const props = defineProps({
         type: Function, 
         required: true
     },
-    // onCopyRow: {
-    //     type: String,
-    //     required: true
-    // },
+    onCopyRow: {
+        type: Function,
+        required: true
+    },
     updateDataAndSetFocus: {
         type: Function,
         required: true
@@ -48,9 +48,9 @@ const onCopyAllEmpty = (column) => {
   props.onCopyAllEmpty(column);
 };
 
-// const onCopyRow = (position) => {
-//     emits('copyRow', position);
-// };
+const onCopyRow = (position) => {
+    props.onCopyRow(position)
+};
 
 const updateDataAndSetFocus = () => {
     emits('updateDataAndSetFocus');
@@ -78,7 +78,7 @@ const updateDataAndSetFocus = () => {
             <Popper v-if="!column.readonly" arrow class="w-full border-0">
                 <template #content>
                     <SettingColums :onCopyAll="onCopyAll" :column="{ rowIndex, colIndex, column }" 
-                        :lengthData="setData.length" :onCopyAllEmpty="onCopyAllEmpty" />
+                        :lengthData="setData.length" :onCopyAllEmpty="onCopyAllEmpty" :onCopyRow ="onCopyRow" />
                 </template>
               <div>
                 <font-awesome-icon :icon="['far', 'ellipsis-v']" />
