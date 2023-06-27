@@ -36,6 +36,8 @@ const getActionLabel = function(action) {
                 return trans("cancel");
             case "delete":
                 return trans("delete");
+            case "withMulti":
+                return trans("");
             default:
                 return "";
         }
@@ -59,6 +61,8 @@ const getActionIcon = function(action) {
                 return ["far", "fa-arrow-left"];
             case "delete":
                 return ["far", "fa-trash-alt"];
+            case "withMulti":
+                return ["far", "fa-border-all"];
             default:
                 return null;
         }
