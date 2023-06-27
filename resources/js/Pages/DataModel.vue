@@ -10,7 +10,7 @@
   const props = defineProps<{
       data:object
   }>()
-
+  console.log(props)
 
   const current = ref(0)
   </script>
