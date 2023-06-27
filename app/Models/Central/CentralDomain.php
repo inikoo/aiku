@@ -30,6 +30,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $website_id
  * @property string $domain
  * @property string $state
+ * @property string $cloudflare_id
+ * @property string $cloudflare_status
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
