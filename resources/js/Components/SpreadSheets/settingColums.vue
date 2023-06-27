@@ -10,22 +10,18 @@
   
   const props = defineProps({
     onCopyAll: {
-      type: String,
-      required: true
-    },
-    onCopyRow: {
-      type: String,
+    type: Function, 
       required: true
     },
     onCopyAllEmpty: {
-      type: String,
+    type: Function, 
       required: true
     },
     column: Object,
     lengthData: Number,
   });
 
-  const emits = defineEmits(['copyAll', 'copyRow', 'onCopyAllEmpty']);
+  const emits = defineEmits(['copyAll']);
 
 //   const startColumnIndex = ref(cloneDeep(props.column).rowIndex + 1);
 //   const endColumnIndex = ref(cloneDeep(props.lengthData));
@@ -36,12 +32,11 @@
 };
 
 const onCopyAllEmpty = (column) => {
-  emits('onCopyAllEmpty', column);
+  props.onCopyAllEmpty(column);
 };
-
-const onCopyRow = (position) => {
-    emits('copyRow', position);
-};
+// const onCopyRow = (position) => {
+//     emits('copyRow', position);
+// };
   
   </script>
   
@@ -49,7 +44,7 @@ const onCopyRow = (position) => {
     <div>
       <ul class="list-none">
         <li @click="() =>onCopyAll(column)">Replace to all</li>
-        <li @click="props.onCopyAllEmpty(column)">Replace to the empty Fields</li>
+        <li @click="() =>onCopyAllEmpty(column)">Replace to the empty Fields</li>
         <!-- <li @click="onCopyRow({endColumnIndex : endColumnIndex , startColumnIndex : startColumnIndex, column})">
           Copy to column 
           <input type="number" class="input-setting" v-model="startColumnIndex" @click.stop  :min="1" />
@@ -60,7 +55,7 @@ const onCopyRow = (position) => {
     </div>
   </template>
   
-  <style>
+  <!-- <style>
   .input-setting {
     height: 24px;
     width: 100px;
@@ -69,6 +64,6 @@ const onCopyRow = (position) => {
   .popper[data-v-5784ed69] {
     font-size: 15px;
   }
-  </style>
+  </style> -->
   
   

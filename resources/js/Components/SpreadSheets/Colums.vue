@@ -15,46 +15,42 @@ library.add(faEllipsisV);
 
 const props = defineProps({
     onCopyAll: {
-        type: String,
+        type: Function, 
         required: true
     },
-    onCopyRow: {
-        type: String,
-        required: true
-    },
+    // onCopyRow: {
+    //     type: String,
+    //     required: true
+    // },
     updateDataAndSetFocus: {
-        type: String,
-        required: true
-    },
-    selected: {
-        type: String,
+        type: Function,
         required: true
     },
     onCopyAllEmpty:{
-        type: String,
+        type: Function,
         required: true
     },
     column: Object,
-    colIndex: Object,
-    rowIndex: Object,
+    colIndex: Number,
+    rowIndex: Number,
     setData: Array,
     row: Object,
     isDisable:Boolean,
 });
 
-const emits = defineEmits(['copyAll', 'copyRow', 'updateDataAndSetFocus','onCopyAllEmpty']);
+const emits = defineEmits(['copyAll', 'copyRow', 'updateDataAndSetFocus']);
 
 const onCopyAll = (column) => {
     emits('copyAll', column);
 };
 
-// const onCopyAllEmpty = (column) => {
-//     emits('onCopyAllEmpty', column);
-// };
-
-const onCopyRow = (position) => {
-    emits('copyRow', position);
+const onCopyAllEmpty = (column) => {
+  props.onCopyAllEmpty(column);
 };
+
+// const onCopyRow = (position) => {
+//     emits('copyRow', position);
+// };
 
 const updateDataAndSetFocus = () => {
     emits('updateDataAndSetFocus');
@@ -81,8 +77,8 @@ const updateDataAndSetFocus = () => {
         <div class="w-1/12 flex justify-center items-center">
             <Popper v-if="!column.readonly" arrow class="w-full border-0">
                 <template #content>
-                    <SettingColums :onCopyAll="onCopyAll" :column="{ rowIndex, colIndex, column }" :onCopyRow="onCopyRow"
-                        :lengthData="setData.length" :onCopyAllEmpty="props.onCopyAllEmpty" />
+                    <SettingColums :onCopyAll="onCopyAll" :column="{ rowIndex, colIndex, column }" 
+                        :lengthData="setData.length" :onCopyAllEmpty="onCopyAllEmpty" />
                 </template>
               <div>
                 <font-awesome-icon :icon="['far', 'ellipsis-v']" />

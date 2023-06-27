@@ -23,7 +23,6 @@ const props = defineProps({
   },
 });
 
-console.log(props)
 
 const columns = [
   {
@@ -44,9 +43,6 @@ const setData = ref([]);
 const focusedCellIndex = ref({ rowIndex: 0, columnIndex: 0 });
 const focusedCellMulti = ref([]);
 
-console.log('sad',user)
-
-
 const setFocus = () => {
   const { rowIndex, columnIndex } = focusedCellIndex.value;
   const cells = document.querySelectorAll('.table tbody tr td');
@@ -63,7 +59,6 @@ const setFocus = () => {
 const updateData = async () => {
   try {
     await set(dbRef(db, props.documentName), setData.value);
-    console.log('Data successfully updated!', setData.value);
   } catch (error) {
     console.error('Error updating data:', error);
   }
@@ -127,7 +122,6 @@ const addMultipleRows = () => {
       if (field.columnType == 'string') dataRes[field.prop] = '';
       if (field.columnType == 'select') dataRes[field.prop] = { label: '' };
     }
-    console.log(dataRes)
     result.push(dataRes);
   }
   setData.value = [...setData.value, ...result];
@@ -153,7 +147,7 @@ const handleBeforeUnload = (event) => {
   leavePage();
 };
 
-const leavePage = async() => {
+const leavePage = async () => {
   const data = focusedCellMulti.value;
   const focusedCellRef = dbRef(db, 'focusedIndex');
   const index = data.findIndex((item) => item.username === user.value.username);
@@ -164,7 +158,6 @@ const leavePage = async() => {
 
   try {
     await set(focusedCellRef, data);
-    console.log('Data successfully updated!');
   } catch (error) {
     console.error('Error updating data:', error);
   }
@@ -179,8 +172,8 @@ onUnmounted(async () => {
   document.removeEventListener('keydown', handleKeyDown);
   window.removeEventListener('beforeunload', handleBeforeUnload);
 
-  // Additional cleanup actions when the component is unmounted
-  leavePage();
+  // Call the leavePage function before the component is unmounted
+  await leavePage();
 });
 
 const handleKeyDown = async (event) => {
@@ -232,7 +225,6 @@ const handleKeyDown = async (event) => {
 
   try {
     await set(focusedCellRef, data);
-    console.log('Data successfully updated!');
   } catch (error) {
     console.error('Error updating data:', error);
   }
@@ -245,7 +237,6 @@ const setFocusedCell = async (rowIndex, columnIndex) => {
   const index = data.findIndex((item) => item.username === user.value.username);
   if (index > -1) {
     // User already exists in the array, update the item
-    console.log(data[index])
     data[index] = { focusedCellIndex: focusedCellIndex.value, ...user.value };
   } else {
     // User doesn't exist in the array, add a new item
@@ -255,7 +246,6 @@ const setFocusedCell = async (rowIndex, columnIndex) => {
   
   try {
     await set(focusedCellRef, data);
-    console.log('Data successfully updated!');
   } catch (error) {
     console.error('Error updating data:', error);
   }
@@ -279,12 +269,12 @@ const onCopyAll=(position)=>{
   }
 }
 
-const onCopyRow = (position) => {
-  const selectedCellValue = setData.value[position.column.rowIndex][columns[position.column.colIndex].prop];
-  for (let c = position.startColumnIndex; c <= position.endColumnIndex; c++) {
-    console.log(setData.value[c][position.column.column.prop])
-  }
-};
+// const onCopyRow = (position) => {
+//   const selectedCellValue = setData.value[position.column.rowIndex][columns[position.column.colIndex].prop];
+//   for (let c = position.startColumnIndex; c <= position.endColumnIndex; c++) {
+//     console.log(setData.value[c][position.column.column.prop])
+//   }
+// };
 
 const onCopyAllEmpty = (position) => {
   const selectedCellValue = setData.value[position.rowIndex][columns[position.colIndex].prop];
@@ -315,7 +305,7 @@ const onCopyAllEmpty = (position) => {
             @focus="setFocusedCell(rowIndex, colIndex)" @click="setFocusedCell(rowIndex, colIndex)">
            <ColumsComponents 
            :onCopyAll = "onCopyAll"
-           :onCopyRow = "onCopyRow"
+           
            :rowIndex = "rowIndex"
            :colIndex = "colIndex"
            :column = "column"
