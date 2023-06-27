@@ -32,9 +32,9 @@ function websiteRoute(website: Website) {
 
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
-        <template #cell(code)="{ item: website }">
+        <template #cell(slug)="{ item: website }">
             <Link :href="websiteRoute(website)">
-                {{ website['code'] }}
+                {{ website['slug'] }}
             </Link>
         </template>
     </Table>
