@@ -5,10 +5,10 @@
   -->
 
 <script setup lang="ts">
-import {Head, useForm} from '@inertiajs/vue3';
-import { Link } from "@inertiajs/vue3";
+import {Head, useForm} from '@inertiajs/vue3'
+import { jumpToElement } from "@/Composables/jumpToElement"
 
-import PageHeading from '@/Components/Headings/PageHeading.vue';
+import PageHeading from '@/Components/Headings/PageHeading.vue'
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faExclamationCircle, faCheckCircle, faAsterisk } from "@/../private/pro-solid-svg-icons"
 import { library } from "@fortawesome/fontawesome-svg-core"
@@ -71,18 +71,18 @@ const handleFormSubmit = () => {
 ));
 };
 
-
 </script>
 
 <template layout="App">
     <Head :title="capitalize(title)"/>
     <PageHeading :data="pageHead"></PageHeading>
-<div class="rounded-lg bg-white shadow">
+    <div class="rounded-lg bg-white shadow">
         <div class="divide-y divide-gray-200 lg:grid grid-flow-col lg:grid-cols-12 lg:divide-y-0 lg:divide-x">
 
             <!-- Left Tab: Navigation -->
             <aside class="py-0 lg:col-span-3 lg:h-full">
-                    <Link v-for="(item, key) in formData['blueprint']" :href="`#field${key}`"
+                <div class="sticky top-16">
+                    <div v-for="(item, key) in formData['blueprint']" @click="jumpToElement(`field${key}`)"
                         :class="[
                             key == current
                                 ? 'bg-indigo-200 border-indigo-500 text-indigo-700 hover:bg-indigo-50 hover:text-indigo-700'
@@ -99,16 +99,16 @@ const handleFormSubmit = () => {
                             'flex-shrink-0 -ml-1 mr-3 h-6 w-6',
                         ]"
                         :icon="item.icon" />
-
                         <span class="capitalize truncate">{{ item.title }}</span>
-                    </Link>
+                    </div>
+                </div>
             </aside>
 
             <!-- Main form -->
             <form class="px-4 sm:px-6 md:px-10 col-span-9 gap-y-8 pb-8 divide-y divide-blue-200 " @submit.prevent="handleFormSubmit">
-                <div v-for="(sectionData,sectionIdx ) in formData['blueprint']" :key="sectionIdx" class="relative py-4">
+                <div v-for="(sectionData, sectionIdx ) in formData['blueprint']" :key="sectionIdx" class="relative py-4">
                     <!-- Helper: Section click -->
-                    <div class="sr-only absolute -top-28" :id="`field${sectionIdx}`" />
+                    <div class="sr-only absolute -top-16" :id="`field${sectionIdx}`" />
                     <div v-if="sectionData.title || sectionData.subtitle" class="space-y-1">
                         <h3 class="text-lg leading-6 font-medium text-gray-900 capitalize">
                             {{ sectionData.title }}
