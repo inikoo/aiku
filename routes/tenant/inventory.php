@@ -29,6 +29,7 @@ use App\Actions\Inventory\Warehouse\UI\IndexWarehouses;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\Inventory\WarehouseArea\ExportWarehouseAreas;
 use App\Actions\Inventory\WarehouseArea\UI\CreateWarehouseArea;
+use App\Actions\Inventory\WarehouseArea\UI\CreateWarehouseAreas;
 use App\Actions\Inventory\WarehouseArea\UI\EditWarehouseArea;
 use App\Actions\Inventory\WarehouseArea\UI\IndexWarehouseAreas;
 use App\Actions\Inventory\WarehouseArea\UI\RemoveWarehouseArea;
@@ -53,6 +54,7 @@ Route::get('/areas/create', CreateWarehouseArea::class)->name('warehouse-areas.c
 Route::get('/areas/{warehouseArea}', [ShowWarehouseArea::class, 'inTenant'])->name('warehouse-areas.show');
 Route::get('/areas/{warehouseArea}/edit', [EditWarehouseArea::class, 'inTenant'])->name('warehouse-areas.edit');
 Route::get('/areas/{warehouseArea}/delete', [RemoveWarehouseArea::class, 'inTenant'])->name('warehouse-areas.remove');
+Route::get('/warehouses/{warehouse}/areas/create-multi',CreateWarehouseAreas::class)->name('warehouses.show.warehouse-areas.create-multi');
 
 Route::get('/locations/export', ExportLocations::class)->name('locations.export');
 
@@ -73,7 +75,6 @@ Route::scopeBindings()->group(function () {
     Route::get('/warehouses/{warehouse}/areas/{warehouseArea}', [ShowWarehouseArea::class, 'inWarehouse'])->name('warehouses.show.warehouse-areas.show');
     Route::get('/warehouses/{warehouse}/areas/{warehouseArea}/edit', [EditWarehouseArea::class, 'inWarehouse'])->name('warehouses.show.warehouse-areas.edit');
     Route::get('/warehouses/{warehouse}/areas/{warehouseArea}/delete', [RemoveWarehouseArea::class, 'inWarehouse'])->name('warehouses.show.warehouse-areas.remove');
-
 
 
     Route::get('/warehouses/{warehouse}/areas/{warehouseArea}/locations', [IndexLocations::class, 'inWarehouseInWarehouseArea'])->name('warehouses.show.warehouse-areas.show.locations.index');
