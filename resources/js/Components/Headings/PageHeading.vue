@@ -28,7 +28,8 @@ const getActionLabel = function(action) {
         switch (action.style) {
             case "edit":
                 return trans("edit");
-                break;
+            case "exitEdit":
+                return trans("exit edit");
             default:
                 return "";
         }
@@ -42,10 +43,11 @@ const getActionIcon = function(action) {
         switch (action.style) {
             case "edit":
                 return ["far", "fa-pencil"];
-                break;
+            case "exit":
+            case "exitEdit":
+                return ["far", "fa-arrow-left"];
             case "create":
                 return ["fal", "fa-plus"];
-                break;
             default:
                 return null;
         }
@@ -104,7 +106,7 @@ const getActionIcon = function(action) {
                          <Button
                              size="xs"
                              type="button"
-                             class="inline-flex items-center rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                             class="capitalize inline-flex items-center rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
                         <FontAwesomeIcon v-if="getActionIcon(action)" :icon="getActionIcon(action)" class="-ml-1 mr-2 text-gray-500" aria-hidden="true" />
                         {{ getActionLabel(action) }}
                      </Button>
