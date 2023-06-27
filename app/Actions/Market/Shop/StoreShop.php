@@ -99,7 +99,7 @@ class StoreShop
     {
         $request->merge(
             [
-                'type' => match ($request->input('subtype')) {
+                'type' => match ($this->get('subtype')) {
                     'fulfilment'=> 'fulfilment-house',
                     'b2b','b2c','dropshipping'=>'shop',
 
@@ -150,6 +150,7 @@ class StoreShop
 
     public function asController(ActionRequest $request): Shop
     {
+        $this->fillFromRequest($request);
         $request->validate();
 
         return $this->handle($request->validated());
