@@ -19,7 +19,6 @@ use App\Http\Resources\Market\FamilyResource;
 use App\Http\Resources\Market\ProductResource;
 use App\Http\Resources\Market\ShopResource;
 use App\Models\Market\Shop;
-use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -51,13 +50,6 @@ class ShowShop extends InertiaAction
 
     public function htmlResponse(Shop $shop, ActionRequest $request): Response
     {
-
-        $container = [
-            'icon'    => ['fal', 'fa-store-alt'],
-            'tooltip' => __('Shop'),
-            'label'   => Str::possessive($shop->name)
-        ];
-
         return Inertia::render(
             'Market/Shop',
             [
@@ -70,11 +62,25 @@ class ShowShop extends InertiaAction
                     'next'     => $this->getNext($shop, $request),
                 ],
                 'pageHead'     => [
-                    'title'     => $shop->name,
-                    'container' => $container,
-                    'actions'   => [
+                    'title'   => $shop->name,
+                    'icon'    => [
+                        'title' => __('Shop'),
+                        'icon'  => 'fal fa-store-alt'
+                    ],
+                    'actions' => [
 
                         [
+                            'type'  => 'button',
+                            'style' => 'create',
+                            'label' => __('website'),
+                            'route' => [
+                                'name'       => 'shops.show.website.create',
+                                'parameters' => $request->route()->originalParameters()
+                            ]
+
+                        ],
+
+                        $this->canEdit ? [
                             'type'  => 'button',
                             'style' => 'edit',
                             'route' => [
@@ -82,14 +88,9 @@ class ShowShop extends InertiaAction
                                 'parameters' => $request->route()->originalParameters()
                             ]
 
-                        ]
+                        ] : false
                     ],
-                    'edit'      => $this->canEdit ? [
-                        'route' => [
-                            'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
-                            'parameters' => $request->route()->originalParameters()
-                        ]
-                    ] : false,
+
                 ],
                 'flatTreeMaps' => [
                     [
@@ -170,7 +171,8 @@ class ShowShop extends InertiaAction
                     'navigation' => ShopTabsEnum::navigation()
                 ],
 
-                ShopTabsEnum::DEPARTMENTS->value => $this->tab == ShopTabsEnum::DEPARTMENTS->value ?
+                ShopTabsEnum::DEPARTMENTS->value => $this->tab == ShopTabsEnum::DEPARTMENTS->value
+                    ?
                     fn () => DepartmentResource::collection(
                         IndexDepartments::run(
                             parent: $shop,
@@ -184,7 +186,8 @@ class ShowShop extends InertiaAction
                         )
                     )),
 
-                ShopTabsEnum::FAMILIES->value => $this->tab == ShopTabsEnum::FAMILIES->value ?
+                ShopTabsEnum::FAMILIES->value => $this->tab == ShopTabsEnum::FAMILIES->value
+                    ?
                     fn () => FamilyResource::collection(
                         IndexFamilies::run(
                             parent: $shop,
@@ -198,7 +201,8 @@ class ShowShop extends InertiaAction
                         )
                     )),
 
-                ShopTabsEnum::PRODUCTS->value => $this->tab == ShopTabsEnum::PRODUCTS->value ?
+                ShopTabsEnum::PRODUCTS->value => $this->tab == ShopTabsEnum::PRODUCTS->value
+                    ?
                     fn () => ProductResource::collection(
                         IndexProducts::run(
                             parent: $shop,
