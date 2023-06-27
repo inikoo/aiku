@@ -10,7 +10,7 @@ import Popper from "vue3-popper";
 import SettingColums from './settingColums.vue';
 import { faEllipsisV } from '@/../private/pro-regular-svg-icons';
 import { library } from '@fortawesome/fontawesome-svg-core';
-
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 library.add(faEllipsisV);
 
 const props = defineProps({
@@ -85,8 +85,7 @@ const updateDataAndSetFocus = () => {
                         :lengthData="setData.length" :onCopyAllEmpty="props.onCopyAllEmpty" />
                 </template>
               <div>
-                <!-- <FontAwesomeIcon icon="far ellipsis-v" /> -->
-                :::
+                <font-awesome-icon :icon="['far', 'ellipsis-v']" />
               </div>  
             </Popper>
         </div>
