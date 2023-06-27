@@ -15,11 +15,13 @@ class AddDomainDnsRecord
     use AsAction;
     use WithCloudflareDns;
 
-    public string $commandSignature   = 'dns:delete {domain}';
+    public string $commandSignature   = 'dns:add {domain}';
     public string $commandDescription = 'Delete dns from Cloudflare';
 
     public function handle(string $zoneId, array $dnsRecords): void
     {
-        $this->addDnsRecords($zoneId, $dnsRecords);
+        foreach ($dnsRecords as $dnsRecord) {
+            $this->addDnsRecords($zoneId, $dnsRecord);
+        }
     }
 }

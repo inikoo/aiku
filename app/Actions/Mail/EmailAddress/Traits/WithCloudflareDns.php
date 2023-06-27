@@ -11,30 +11,26 @@ use Illuminate\Support\Facades\Http;
 
 trait WithCloudflareDns
 {
-    public function addDnsRecords(string $zoneId, array $dnsRecords): void
+    public function addDnsRecords(string $zoneId, array $dnsRecord): void
     {
-        foreach ($dnsRecords as $dnsRecord) {
-            Http::withHeaders([
-                'Content-Type' => 'application/json',
-                'Authorization' => 'Bearer ' . env('CLOUDFLARE_API_TOKEN'),
-            ])->post(env('CLOUDFLARE_API_URL') . "/zones/{$zoneId}/dns_records", [
-                'type' => $dnsRecord['type'],
-                'name' => $dnsRecord['name'],
-                'content' => $dnsRecord['content'],
-                'ttl' => 1,
-                'proxied' => $dnsRecord['proxied']
-            ]);
-        }
+        Http::withHeaders([
+            'Content-Type' => 'application/json',
+            'Authorization' => 'Bearer ' . env('CLOUDFLARE_API_TOKEN'),
+        ])->post(env('CLOUDFLARE_API_URL') . "/zones/{$zoneId}/dns_records", [
+            'type' => $dnsRecord['type'],
+            'name' => $dnsRecord['name'],
+            'content' => $dnsRecord['content'],
+            'ttl' => 1,
+            'proxied' => $dnsRecord['proxied']
+        ]);
     }
 
-    public function deleteDnsRecords(string $zoneId, array $dnsRecordIds): void
+    public function deleteDnsRecords(string $zoneId, string $dnsRecordId): void
     {
-        foreach ($dnsRecordIds as $dnsRecordId) {
-            Http::withHeaders([
-                'Content-Type' => 'application/json',
-                'Authorization' => 'Bearer ' . env('CLOUDFLARE_API_TOKEN'),
-            ])->delete(env('CLOUDFLARE_API_URL') . "/zones/{$zoneId}/dns_records/{$dnsRecordId}");
-        }
+        Http::withHeaders([
+            'Content-Type' => 'application/json',
+            'Authorization' => 'Bearer ' . env('CLOUDFLARE_API_TOKEN'),
+        ])->delete(env('CLOUDFLARE_API_URL') . "/zones/{$zoneId}/dns_records/{$dnsRecordId}");
     }
 
     public function registerDomain(string $domain): array
