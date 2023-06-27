@@ -70,13 +70,11 @@ class EditShop extends InertiaAction
                                     'type'     => 'input',
                                     'label'    => __('code'),
                                     'value'    => $shop->code,
-                                    'required' => true
                                 ],
                                 'name' => [
                                     'type'     => 'input',
                                     'label'    => __('label'),
                                     'value'    => $shop->name,
-                                    'required' => true
                                 ],
                                 'type' => [
                                     'type'         => 'select',
@@ -86,6 +84,7 @@ class EditShop extends InertiaAction
                                     'options'      => Options::forEnum(ShopTypeEnum::class),
                                     'required'     => true,
                                     'mode'         => 'single',
+                                    'searchable'   => true
                                 ],
                                 'subtype' => [
                                     'type'         => 'select',
@@ -95,6 +94,7 @@ class EditShop extends InertiaAction
                                     'options'      => Options::forEnum(ShopSubtypeEnum::class),
                                     'required'     => true,
                                     'mode'         => 'single',
+                                    'searchable'   => true
                                 ],
                             ]
                         ],
@@ -108,7 +108,7 @@ class EditShop extends InertiaAction
                                     'placeholder'   => __('Select your country'),
                                     'value'         => $shop->country_id,
                                     'options'       => GetCountriesOptions::run(),
-                                    'required'      => true,
+                                    'searchable'    => true
                                 ],
                                 'currency_id' => [
                                     'type'          => 'select',
@@ -116,7 +116,7 @@ class EditShop extends InertiaAction
                                     'placeholder'   => __('Select your currency'),
                                     'value'         => $shop->currency_id,
                                     'options'       => GetCurrenciesOptions::run(),
-                                    'required'      => true,
+                                    'searchable'    => true
                                 ],
                                 'language_id' => [
                                     'type'          => 'select',
@@ -124,7 +124,7 @@ class EditShop extends InertiaAction
                                     'placeholder'   => __('Select your language'),
                                     'value'         => $shop->language_id,
                                     'options'       => GetLanguagesOptions::make()->all(),
-                                    'required'      => true
+                                    'searchable'    => true
                                 ],
 
                             ],
