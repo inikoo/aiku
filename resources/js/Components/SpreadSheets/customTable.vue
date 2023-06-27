@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onBeforeMount, watch, onMounted, onUnmounted } from 'vue';
+import { ref, onBeforeMount, watch, onMounted, onUnmounted} from 'vue';
 import { cloneDeep, get as getL } from 'lodash';
 import Button from '../Elements/Buttons/Button.vue';
 import { faSave, faPlus } from '@/../private/pro-regular-svg-icons';
@@ -149,13 +149,11 @@ const addRows = () => {
 
 onBeforeMount(fetchInitialData);
 
-onMounted(() => {
-  document.addEventListener('keydown', handleKeyDown);
-});
+const handleBeforeUnload = (event) => {
+  leavePage();
+};
 
-onUnmounted(async () => {
-  document.removeEventListener('keydown', handleKeyDown);
-
+const leavePage = async() => {
   const data = focusedCellMulti.value;
   const focusedCellRef = dbRef(db, 'focusedIndex');
   const index = data.findIndex((item) => item.username === user.value.username);
@@ -170,6 +168,19 @@ onUnmounted(async () => {
   } catch (error) {
     console.error('Error updating data:', error);
   }
+};
+
+onMounted(() => {
+  document.addEventListener('keydown', handleKeyDown);
+  window.addEventListener('beforeunload', handleBeforeUnload);
+});
+
+onUnmounted(async () => {
+  document.removeEventListener('keydown', handleKeyDown);
+  window.removeEventListener('beforeunload', handleBeforeUnload);
+
+  // Additional cleanup actions when the component is unmounted
+  leavePage();
 });
 
 const handleKeyDown = async (event) => {
