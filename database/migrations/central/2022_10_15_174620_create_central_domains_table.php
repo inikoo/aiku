@@ -19,6 +19,8 @@ return new class () extends Migration {
             $table->foreign('tenant_id')->references('id')->on('tenants')->onUpdate('cascade')->onDelete('cascade');
             $table->unsignedSmallInteger('website_id')->index();
             $table->string('domain')->index();
+            $table->string('cloudflare_id')->index()->nullable();
+            $table->string('cloudflare_status')->nullable();
             $table->enum('state', ['created','iris-enabled'])->default('created');
             $table->timestampsTz();
             $table->softDeletesTz();
