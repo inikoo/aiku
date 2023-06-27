@@ -45,7 +45,6 @@ class RemoveMarketplaceAgent extends InertiaAction
 
     public function htmlResponse(Agent $agent, ActionRequest $request): Response
     {
-
         return Inertia::render(
             'RemoveModel',
             [

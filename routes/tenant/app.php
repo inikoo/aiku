@@ -85,7 +85,9 @@ Route::middleware([
         Route::prefix("media")
             ->name("media.")
             ->group(__DIR__."/media.php");
-
+        Route::prefix("json")
+            ->name("json.")
+            ->group(__DIR__."/json.php");
 
 
     });

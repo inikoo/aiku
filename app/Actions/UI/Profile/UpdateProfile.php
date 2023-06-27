@@ -9,7 +9,7 @@ namespace App\Actions\UI\Profile;
 
 use App\Actions\Auth\GroupUser\UpdateGroupUser;
 use App\Actions\WithActionUpdate;
-use App\Enums\Auth\User\SynchronisableUserFields;
+use App\Enums\Auth\User\SynchronisableUserFieldsEnum;
 use App\Models\Auth\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\UploadedFile;
@@ -36,7 +36,7 @@ class UpdateProfile
 
         UpdateGroupUser::run(
             $user->groupUser,
-            Arr::only($modelData, SynchronisableUserFields::values())
+            Arr::only($modelData, SynchronisableUserFieldsEnum::values())
         );
 
         if ($avatar) {
@@ -52,7 +52,7 @@ class UpdateProfile
 
 
 
-        return $this->update($user, Arr::except($modelData, SynchronisableUserFields::values()), ['profile', 'settings']);
+        return $this->update($user, Arr::except($modelData, SynchronisableUserFieldsEnum::values()), ['profile', 'settings']);
     }
 
 

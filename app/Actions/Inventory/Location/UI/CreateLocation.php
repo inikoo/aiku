@@ -29,13 +29,17 @@ class CreateLocation extends InertiaAction
                 'title'    => __('new location'),
                 'pageHead' => [
                     'title'        => __('new location'),
-                    'cancelCreate' => [
-                        'route' => [
-                            'name'       => 'inventory.warehouses.show.locations.index',
-                            'parameters' => array_values($this->originalParameters)
-                        ],
+                    'actions' => [
+                        [
+                            'type'=>'button',
+                            'style'=>'cancelCreate',
+                            'label' => __('cancel'),
+                            'route' => [
+                                'name'       => 'inventory.warehouses.show.locations.index',
+                                'parameters' => array_values($this->originalParameters)
+                            ],
+                        ]
                     ]
-
                 ],
                 'formData' => [
                     'blueprint' => [

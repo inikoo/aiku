@@ -26,13 +26,17 @@ class CreateUser extends InertiaAction
                 'title'       => __('new user'),
                 'pageHead'    => [
                     'title'        => __('new user'),
-                    'cancelCreate' => [
-                        'route' => [
-                            'name'       => 'sysadmin.users.index',
-                            'parameters' => array_values($this->originalParameters)
-                        ],
+                    'actions' => [
+                        [
+                            'type'=>'button',
+                            'style'=>'cancelCreate',
+                            'label' => __('cancel'),
+                            'route' => [
+                                'name'       => 'sysadmin.users.index',
+                                'parameters' => array_values($this->originalParameters)
+                            ],
+                        ]
                     ]
-
                 ],
                 'formData' => [
                     'blueprint' => [

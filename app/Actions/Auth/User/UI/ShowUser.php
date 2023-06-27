@@ -49,39 +49,43 @@ class ShowUser extends InertiaAction
         return Inertia::render(
             'SysAdmin/User',
             [
-                'title'       => __('user'),
+                'title' => __('user'),
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
                     $request->route()->parameters
                 ),
-                'navigation'                            => [
+                'navigation' => [
                     'previous' => $this->getPrevious($user, $request),
-                    'next'     => $this->getNext($user, $request),
+                    'next' => $this->getNext($user, $request),
                 ],
-                'pageHead'    => [
-                    'title'     => $user->username,
-                    'edit'      => $this->canEdit ? [
-                        'route' => [
-                            'name'       => preg_replace('/show$/', 'edit', $this->routeName),
-                            'parameters' => array_values($this->originalParameters)
-                        ]
-                    ] : false,
-                    'capitalize'=> false
+                'pageHead' => [
+                    'title' => $user->username,
+                    'actions' => [
+                        $this->canEdit ? [
+                            'type'=>'button',
+                            'style'=>'edit',
+                            'route' => [
+                                'name' => preg_replace('/show$/', 'edit', $this->routeName),
+                                'parameters' => array_values($this->originalParameters)
+                            ]
+                        ] : false,
+                    ],
+                    'capitalize' => false
 
                 ],
-                'tabs'=> [
-                    'current'    => $this->tab,
+                'tabs' => [
+                    'current' => $this->tab,
                     'navigation' => UserTabsEnum::navigation()
                 ],
 
                 UserTabsEnum::REQUEST_LOGS->value => $this->tab == UserTabsEnum::REQUEST_LOGS->value ?
-                    fn () => UserRequestLogsResource::collection(ShowUserRequestLogs::run($user->username))
-                    : Inertia::lazy(fn () => UserRequestLogsResource::collection(ShowUserRequestLogs::run($user->username))),
+                    fn() => UserRequestLogsResource::collection(ShowUserRequestLogs::run($user->username))
+                    : Inertia::lazy(fn() => UserRequestLogsResource::collection(ShowUserRequestLogs::run($user->username))),
 
 
                 UserTabsEnum::HISTORY->value => $this->tab == UserTabsEnum::HISTORY->value ?
-                    fn () => HistoryResource::collection(IndexHistories::run($user))
-                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistories::run($user)))
+                    fn() => HistoryResource::collection(IndexHistories::run($user))
+                    : Inertia::lazy(fn() => HistoryResource::collection(IndexHistories::run($user)))
 
             ]
         )->table(ShowUserRequestLogs::make()->tableStructure())
@@ -95,7 +99,7 @@ class ShowUser extends InertiaAction
             return [
                 [
 
-                    'type'           => 'modelWithIndex',
+                    'type' => 'modelWithIndex',
                     'modelWithIndex' => [
                         'index' => [
                             'route' => $routeParameters['index'],
@@ -107,7 +111,7 @@ class ShowUser extends InertiaAction
                         ],
 
                     ],
-                    'suffix'=> $suffix
+                    'suffix' => $suffix
 
                 ],
             ];
@@ -123,11 +127,11 @@ class ShowUser extends InertiaAction
                     $routeParameters['user'],
                     [
                         'index' => [
-                            'name'       => 'sysadmin.users.index',
+                            'name' => 'sysadmin.users.index',
                             'parameters' => []
                         ],
                         'model' => [
-                            'name'       => 'sysadmin.users.show',
+                            'name' => 'sysadmin.users.show',
                             'parameters' => [$routeParameters['user']->username]
                         ]
                     ],
@@ -156,16 +160,16 @@ class ShowUser extends InertiaAction
 
     private function getNavigation(?User $user, string $routeName): ?array
     {
-        if(!$user) {
+        if (!$user) {
             return null;
         }
         return match ($routeName) {
-            'sysadmin.users.show'=> [
-                'label'=> $user->username,
-                'route'=> [
-                    'name'      => $routeName,
-                    'parameters'=> [
-                        'user'=> $user->username
+            'sysadmin.users.show' => [
+                'label' => $user->username,
+                'route' => [
+                    'name' => $routeName,
+                    'parameters' => [
+                        'user' => $user->username
                     ]
 
                 ]

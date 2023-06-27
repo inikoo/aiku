@@ -95,37 +95,45 @@ class ShowLocation extends InertiaAction
                             'title' => __('location')
                         ],
                     'title' => $location->code,
-                    'edit'  => $this->canEdit ? [
-                        'route' => [
-                            'name'       => preg_replace('/show$/', 'edit', $this->routeName),
-                            'parameters' => array_values($this->originalParameters)
-                        ]
-                    ] : false,
-                    'delete' => $this->canDelete ?
-                        match ($this->routeName){
-                            'inventory.locations.show' => [
+                    'actions' => [
+                            $this->canEdit ? [
+                                'type'=>'button',
+                                'style'=>'edit',
                                 'route' => [
-                                    'name' => 'inventory.locations.remove',
+                                    'name' => preg_replace('/show$/', 'edit', $this->routeName),
                                     'parameters' => array_values($this->originalParameters)
-                                ],
-                                'label' => __('delete location')
-                            ],
-                            'inventory.warehouses.show.locations.show' => [
-                                'route' => [
-                                    'name' => 'inventory.warehouses.show.locations.remove',
-                                    'parameters' => array_values($this->originalParameters)
-                                ],
-                                'label' => __('delete location')
-                            ],
-                            'inventory.warehouses.show.warehouse-areas.show.locations.show' => [
-                                'route' => [
-                                    'name' => 'inventory.warehouses.show.warehouse-areas.show.locations.remove',
-                                    'parameters' => array_values($this->originalParameters)
-                                ],
-                                'label' => __('delete location')
-                            ]
-                        }
-                    : false,
+                                ]
+                            ] : false,
+                            $this->canDelete ?
+                                match ($this->routeName){
+                                    'inventory.locations.show' => [
+                                        'type'=>'button',
+                                        'style'=>'delete',
+                                        'route' => [
+                                            'name' => 'inventory.locations.remove',
+                                            'parameters' => array_values($this->originalParameters)
+                                        ],
+
+                                    ],
+                                    'inventory.warehouses.show.locations.show' => [
+                                        'type'=>'button',
+                                        'style'=>'delete',
+                                        'route' => [
+                                            'name' => 'inventory.warehouses.show.locations.remove',
+                                            'parameters' => array_values($this->originalParameters)
+                                        ],
+                                    ],
+                                    'inventory.warehouses.show.warehouse-areas.show.locations.show' => [
+                                        'type'=>'button',
+                                        'style'=>'delete',
+                                        'route' => [
+                                            'name' => 'inventory.warehouses.show.warehouse-areas.show.locations.remove',
+                                            'parameters' => array_values($this->originalParameters)
+                                        ]
+                                    ]
+                                }
+                                : false
+                    ],
                 ],
                 'tabs' => [
                     'current'    => $this->tab,

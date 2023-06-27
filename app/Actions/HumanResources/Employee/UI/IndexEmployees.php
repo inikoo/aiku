@@ -152,13 +152,17 @@ class IndexEmployees extends InertiaAction
                 'title'       => __('employees'),
                 'pageHead'    => [
                     'title'  => __('employees'),
-                    'create' => $this->canEdit ? [
-                        'route' => [
-                            'name'       => 'hr.employees.create',
-                            'parameters' => array_values($this->originalParameters)
-                        ],
-                        'label' => __('employee')
-                    ] : false,
+                    'actions'=> [
+                        $this->canEdit ? [
+                            'type'=>'button',
+                            'style'=>'create',
+                            'route' => [
+                                'name'       => 'hr.employees.create',
+                                'parameters' => array_values($this->originalParameters)
+                            ],
+                            'label' => __('employee')
+                        ] : false
+                    ]
                 ],
                 'data'        => EmployeeInertiaResource::collection($employees),
             ]

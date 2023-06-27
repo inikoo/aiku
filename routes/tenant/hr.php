@@ -22,6 +22,7 @@ use App\Actions\HumanResources\Employee\ExportEmployees;
 use App\Actions\HumanResources\Employee\UI\CreateEmployee;
 use App\Actions\HumanResources\Employee\UI\EditEmployee;
 use App\Actions\HumanResources\Employee\UI\IndexEmployees;
+use App\Actions\HumanResources\Employee\UI\RemoveEmployee;
 use App\Actions\HumanResources\Employee\UI\ShowEmployee;
 use App\Actions\HumanResources\JobPosition\UI\CreateJobPosition;
 use App\Actions\HumanResources\JobPosition\UI\EditJobPosition;
@@ -44,6 +45,7 @@ Route::get('/employees/export', ExportEmployees::class)->name('employees.export'
 
 Route::get('/employees/{employee}', ShowEmployee::class)->name('employees.show');
 Route::get('/employees/{employee}/edit', EditEmployee::class)->name('employees.edit');
+Route::get('/employees/{employee}/delete', RemoveEmployee::class)->name('employees.remove');
 
 Route::post('/employees/{employee}/user', ShowEmployee::class)->name('employees.show.user');
 Route::post('/employees/{employee}/user', CreateUserFromEmployee::class)->name('employees.show.user.store');

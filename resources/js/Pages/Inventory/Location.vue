@@ -30,6 +30,7 @@ const props = defineProps<{
         current: string;
         navigation: object;
     },
+    details: object,
     history: object
 
 }>()

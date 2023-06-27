@@ -61,14 +61,16 @@ class EditWarehouseArea extends InertiaAction
                 ),
                 'pageHead'    => [
                     'title'     => $warehouseArea->code,
-                    'exitEdit'  => [
-                        'route' => [
-                            'name'       => preg_replace('/edit$/', 'show', $this->routeName),
-                            'parameters' => array_values($this->originalParameters)
+                    'actions'=>[
+                        [
+                            'type'=>'button',
+                            'style'=>'exitEdit',
+                            'route' => [
+                                'name'       => preg_replace('/edit$/', 'show', $this->routeName),
+                                'parameters' => array_values($this->originalParameters)
+                            ]
                         ]
-                    ],
-
-
+                    ]
                 ],
                 'formData' => [
                     'blueprint' => [

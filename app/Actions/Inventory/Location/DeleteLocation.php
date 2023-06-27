@@ -10,7 +10,6 @@ namespace App\Actions\Inventory\Location;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
-use App\Models\Procurement\Agent;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
@@ -41,7 +40,7 @@ class DeleteLocation
         return $this->handle($location);
     }
 
-    /** @noinspection PhpUnusedParameterInspection */
+
     public function inWarehouse(Warehouse $warehouse, Location $location, ActionRequest $request): Location
     {
         $request->validate();
@@ -49,7 +48,6 @@ class DeleteLocation
         return $this->handle($location);
     }
 
-    /** @noinspection PhpUnusedParameterInspection */
     public function inWarehouseInWarehouseArea(Warehouse $warehouse, WarehouseArea $warehouseArea, Location $location, ActionRequest $request): Location
     {
         $request->validate();
@@ -57,8 +55,10 @@ class DeleteLocation
         return $this->handle($location);
     }
 
+
     public function htmlResponse(Location $location): RedirectResponse
     {
+        dd($location);
         return Redirect::route('inventory.locations.show', $location->slug);
     }
 

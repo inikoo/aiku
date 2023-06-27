@@ -27,13 +27,17 @@ class CreateWarehouseArea extends InertiaAction
                 'title'       => __('new warehouse area'),
                 'pageHead'    => [
                     'title'        => __('new warehouse area'),
-                    'cancelCreate' => [
-                        'route' => [
-                            'name'       => 'inventory.warehouse-areas.index',
-                            'parameters' => array_values($this->originalParameters)
-                        ],
+                    'actions' => [
+                        [
+                            'type'=>'button',
+                            'style'=>'cancelCreate',
+                            'label' => __('cancel'),
+                            'route' => [
+                                'name'       => preg_replace('/create$/', 'index', $this->routeName),
+                                'parameters' => array_values($this->originalParameters)
+                            ],
+                        ]
                     ]
-
                 ],
                 'formData'    => [
                     'blueprint' => [
@@ -56,7 +60,7 @@ class CreateWarehouseArea extends InertiaAction
 
                             ]
                         ],
-                      
+
                     ],
                     'route'     => [
                         'name'      => 'models.warehouse.warehouse-area.store',
@@ -74,6 +78,7 @@ class CreateWarehouseArea extends InertiaAction
     }
 
 
+    /** @noinspection PhpUnusedParameterInspection */
     public function asController(Warehouse $warehouse, ActionRequest $request): Response
     {
         $this->initialisation($request);
