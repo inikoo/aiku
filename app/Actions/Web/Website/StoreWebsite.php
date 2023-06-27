@@ -72,7 +72,6 @@ class StoreWebsite
 
     public function afterValidator(Validator $validator, ActionRequest $request): void
     {
-//        dd($this->shop->website);
         if ($this->shop->website) {
             $validator->errors()->add('domain', 'This shop already have a website');
         }
@@ -85,7 +84,7 @@ class StoreWebsite
                 $website->slug
             ]);
         } else {
-            return Redirect::route('shops.show.websites.show', [
+            return Redirect::route('websites.show', [
                 $website->shop->slug,
                 $website->slug
             ]);

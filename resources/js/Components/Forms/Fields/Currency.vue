@@ -7,8 +7,8 @@
                 :class="{ 'pr-8': form.errors[fieldName] || form.recentlySuccessful }"
                 :placeholder="props.fieldData.placeholder ?? 'Select your currency'"
                 :searchable="true"
-                :canClear="!!props.fieldData.required"
-                :canDeselect="!!props.fieldData.required"
+                :canClear="!props.fieldData.required"
+                :canDeselect="!props.fieldData.required"
             />
             <div v-if="form.errors[fieldName] || form.recentlySuccessful"
                 class="absolute inset-y-2/4 right-0 pr-3 flex items-center pointer-events-none bg-red-500">
