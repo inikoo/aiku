@@ -70,8 +70,8 @@ class StoreMarketplaceAgent
     {
         return [
             'code'         => ['required', 'unique:group.agents', 'between:2,9', 'alpha_dash'],
-            'contact_name' => ['nullable', 'string', 'max:255'],
-            'company_name' => ['nullable', 'string', 'max:255'],
+            'contact_name' => ['required', 'string', 'max:255'],
+            'company_name' => ['required', 'string', 'max:255'],
             'email'        => ['nullable', 'email'],
             'phone'        => ['nullable', 'phone:AUTO'],
             'address'      => ['required', new ValidAddress()],
