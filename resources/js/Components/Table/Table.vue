@@ -1,4 +1,4 @@
-<!--suppress JSUnresolvedReference -->
+<!--suppress JSUnresolvedReference, JSIncompatibleTypesComparison -->
 <script setup>
 import Pagination from '@/Components/Table/Pagination.vue';
 import HeaderCell from '@/Components/Table/HeaderCell.vue';
@@ -395,7 +395,7 @@ function dataForNewQueryString() {
         queryData.sort = sort;
     }
     if (elementFilter) {
-        queryData.elements = elementFilter // the begining of add new filter
+        queryData.elements = elementFilter // the beginning of add new filter
     }
     return queryData;
 }
@@ -415,7 +415,7 @@ function generateNewQueryString() {
         if (key === 'page') {
             queryStringData[pageName.value] = value;
         } else if (key === 'perPage') {
-            queryStringData.perPage = value;
+            queryStringData.perPage[prefix + key] = value;
         } else {
             queryStringData[prefix + key] = value;
         }
@@ -547,6 +547,7 @@ const handleElementsChange = (data) => {
 
     <Transition>
         <EmptyState v-if="resourceMeta.total === 0" />
+        <!--suppress HtmlUnknownAttribute -->
         <fieldset v-else ref="tableFieldset" :key="`table-${name}`" :dusk="`table-${name}`" class="min-w-0" :class="{ 'opacity-75': isVisiting }">
             <div class="my-2">
             <!-- Wrapper -->
