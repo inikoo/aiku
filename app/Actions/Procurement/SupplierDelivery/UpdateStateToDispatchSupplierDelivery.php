@@ -21,7 +21,7 @@ class UpdateStateToDispatchSupplierDelivery
     use HasHydrators;
 
     /**
-     * @throws \Illuminate\Validation\ValidationException
+     * @throws ValidationException
      */
     public function handle(SupplierDelivery $supplierDelivery): SupplierDelivery
     {
@@ -46,7 +46,7 @@ class UpdateStateToDispatchSupplierDelivery
     }
 
     /**
-     * @throws \Illuminate\Validation\ValidationException
+     * @throws ValidationException
      */
     public function action(SupplierDelivery $supplierDelivery): SupplierDelivery
     {
@@ -54,7 +54,7 @@ class UpdateStateToDispatchSupplierDelivery
     }
 
     /**
-     * @throws \Illuminate\Validation\ValidationException
+     * @throws ValidationException
      */
     public function asController(SupplierDelivery $supplierDelivery): SupplierDelivery
     {

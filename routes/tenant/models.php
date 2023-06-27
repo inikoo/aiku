@@ -54,6 +54,7 @@ use App\Actions\Procurement\SupplierDelivery\StoreSupplierDelivery;
 use App\Actions\Procurement\SupplierDelivery\UpdateSupplierDelivery;
 use App\Actions\Tenancy\Tenant\UpdateSystemSettings;
 use App\Actions\UI\Profile\UpdateProfile;
+use App\Actions\Web\Website\StoreWebsite;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/shop/', StoreShop::class)->name('shop.store');
@@ -64,6 +65,7 @@ Route::patch('/shop/{shop}', UpdateShop::class)->name('show.update');
 Route::patch('/customer/{customer}', UpdateCustomer::class)->name('customer.update');
 Route::post('/shop/{shop}/customer/', StoreCustomer::class)->name('show.customer.store');
 Route::post('/shop/{shop}/department/', [StoreProductCategory::class, 'inShop'])->name('shop.show.department.store');
+Route::post('/shop/{shop}/website/', StoreWebsite::class)->name('shop.website.store');
 
 
 Route::post('/shop/{shop}/product/', [StoreProduct::class, 'inShop'])->name('show.product.store');
@@ -102,8 +104,8 @@ Route::patch('/area/{warehouseArea}', UpdateWarehouseArea::class)->name('warehou
 
 Route::patch('/location/{location}', UpdateLocation::class)->name('location.update');
 Route::delete('/location/{location}', DeleteLocation::class)->name('location.delete');
-Route::delete('/warehouse/{warehouse}/location/{location}',DeleteLocation::class, 'inWarehouse')->name('warehouse.location.delete');
-Route::delete('/warehouse/{warehouse}/area/{warehouseArea}/location/{location}',DeleteLocation::class, 'inWarehouseInWarehouseArea')->name('warehouse.warehouse-area.location.delete');
+Route::delete('/warehouse/{warehouse}/location/{location}', DeleteLocation::class, 'inWarehouse')->name('warehouse.location.delete');
+Route::delete('/warehouse/{warehouse}/area/{warehouseArea}/location/{location}', DeleteLocation::class, 'inWarehouseInWarehouseArea')->name('warehouse.warehouse-area.location.delete');
 
 Route::post('/warehouse/{warehouse}/location', StoreLocation::class)->name('warehouse.location.store');
 Route::post('/area/{warehouseArea}/location', [StoreLocation::class, 'inWarehouseArea'])->name('warehouse-area.location.store');

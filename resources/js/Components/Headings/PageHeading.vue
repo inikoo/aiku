@@ -68,6 +68,17 @@ const locale = useLocaleStore();
         <!-- Button Add -->
         <div class="flex items-center gap-2">
 
+            <span v-for="action in data.actions">
+                 <Link v-if="action.type==='button'" :href="route(action['route']['name'],action['route']['parameters'])"
+                        as="button"
+                        size="xs"
+                        type="button"
+                        class="inline-flex items-center rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                        <FontAwesomeIcon v-if="action.icon"  :icon="action.icon" class="-ml-1 mr-2 text-gray-500" aria-hidden="true"/>
+                        {{action.label}}
+                </Link>
+            </span>
+
             <span v-if="data['delete']" >
                 <Link as="button"  :href="route(data['delete']['route']['name'],data['delete']['route']['parameters'])">
                     <FontAwesomeIcon class="text-red-500 hover:text-red-700 mr-3"  icon="far fa-trash-alt" />
