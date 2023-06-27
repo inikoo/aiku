@@ -9,7 +9,7 @@
 
 namespace App\Actions\Central\CentralDomain;
 
-use App\Actions\Mail\EmailAddress\Traits\WithCloudflareDns;
+use App\Actions\Web\Domain\DestroyDomainCloudflare;
 use App\Models\Central\CentralDomain;
 use Illuminate\Console\Command;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -17,14 +17,13 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class DeleteCentralDomainCloudflare
 {
     use AsAction;
-    use WithCloudflareDns;
 
     public string $commandSignature   = 'domain:delete {domain}';
     public string $commandDescription = 'Delete domain from Cloudflare';
 
     public function handle(CentralDomain $centralDomain): string
     {
-        $this->destroyDomain($centralDomain->cloudflare_id);
+        DestroyDomainCloudflare::run($centralDomain->cloudflare_id);
 
         $centralDomain->update([
             'cloudflare_id' => null,
