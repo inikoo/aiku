@@ -47,8 +47,13 @@ class StoreUser
                 'username'      => $groupUser->username,
                 'password'      => $groupUser->password,
                 'contact_name'  => $parent->contact_name,
-                'avatar_id'     => $groupUser->avatar_id
+                'auth_type'     => $groupUser->auth_type,
+                'about'         => $groupUser->about,
+                'avatar_id'     => $groupUser->avatar_id,
+
             ];
+
+
 
             $user = $parent->user()->create(
                 array_merge($objectData, $dataFromGroupUser)
@@ -111,7 +116,7 @@ class StoreUser
     /**
      * @throws \Throwable
      */
-    public function action(Guest|Employee $parent, ?GroupUser $groupUser, array $objectData=[]): User|ValidationException
+    public function action(Guest|Employee $parent, ?GroupUser $groupUser, array $objectData = []): User|ValidationException
     {
         $this->asAction  = true;
         $this->groupUser = $groupUser;

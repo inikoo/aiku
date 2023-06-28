@@ -28,37 +28,37 @@ class FetchUsers extends FetchAction
     {
         if ($userData = $tenantSource->fetchuser($tenantSourceId)) {
             if ($user = User::withTrashed()->where('source_id', $userData['user']['source_id'])->first()) {
-
-                dd($userData['user']);
                 $user = UpdateUser::run($user, $userData['user']);
-
             } else {
                 $groupUser = GroupUser::where('username', $userData['user']['username'])->first();
                 if (!$groupUser) {
                     $groupUser = StoreGroupUser::run(
                         [
-                            'username' => $userData['user']['username'],
-                            'password' => (app()->isLocal() ? 'hello' : wordwrap(Str::random(), 4, '-', true))
+                            'username'     => $userData['user']['username'],
+                            'password'     => (app()->isLocal() ? 'hello' : wordwrap(Str::random(), 4, '-', true)),
+                            'contact_name' => $userData['user']['contact_name'],
+                            'auth_type'    => UserAuthTypeEnum::AURORA
+
+
                         ]
                     );
                 }
 
-                $user = StoreUser::run(parent:$userData['parent'], groupUser:$groupUser, objectData:[
-                    'source_id'=> $userData['user']['source_id'],
-                    'auth_type'=> UserAuthTypeEnum::AURORA
+                $user = StoreUser::run(parent: $userData['parent'], groupUser: $groupUser, objectData: [
+                    'source_id' => $userData['user']['source_id'],
+                    'auth_type' => UserAuthTypeEnum::AURORA
                 ]);
 
 
                 DB::connection('aurora')->table('User Dimension')
                     ->where('User Key', $user->source_id)
                     ->update(['aiku_id' => $user->id]);
-
             }
 
             UserSyncRoles::make()->action($user, $userData['roles']);
             foreach ($userData['profile_images'] as $photoData) {
                 $this->saveGroupImage(
-                    model:$user->groupUser,
+                    model: $user->groupUser,
                     imageData: $photoData,
                     imageField: 'avatar_id',
                     mediaCollection: 'profile'

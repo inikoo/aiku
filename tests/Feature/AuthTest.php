@@ -20,6 +20,7 @@ use App\Actions\Auth\User\UserRemoveRoles;
 use App\Actions\Auth\User\UserSyncRoles;
 use App\Actions\Tenancy\Group\StoreGroup;
 use App\Actions\Tenancy\Tenant\StoreTenant;
+use App\Enums\Auth\User\UserAuthTypeEnum;
 use App\Models\Auth\GroupUser;
 use App\Models\Auth\Guest;
 use App\Models\Auth\User;
@@ -38,7 +39,7 @@ beforeAll(function () {
 beforeEach(function () {
     $tenant = Tenant::first();
     if (!$tenant) {
-        $group = StoreGroup::make()->asAction(
+        $group  = StoreGroup::make()->asAction(
             array_merge(
                 Group::factory()->definition(),
                 [
@@ -91,16 +92,15 @@ test('update guest', function ($guest) {
 test('create user for guest', function ($guest) {
     Hash::shouldReceive('make')->andReturn('1234567');
 
-    $userData = User::factory()->definition();
-
+    $userData  = User::factory()->definition();
     $groupUser = StoreGroupUser::make()->action($userData);
-    expect($groupUser)->toBeInstanceOf(GroupUser::class);
+    expect($groupUser)->toBeInstanceOf(GroupUser::class)
+        ->and($groupUser->auth_type)->toBe(UserAuthTypeEnum::DEFAULT);
 
     /** @noinspection PhpUnhandledExceptionInspection */
     $user = StoreUser::make()->action($guest, $groupUser);
-
-    $this->assertModelExists($user);
-    expect($user->password)->toBe('1234567')
+    expect($user)->toBeInstanceOf(User::class)
+        ->and($user->password)->toBe('1234567')
         ->and($user->groupUser->password)->toBe('1234567')
         ->and($user->parent)->toBeInstanceOf(Guest::class);
 

@@ -6,6 +6,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
+use App\Enums\Auth\User\UserAuthTypeEnum;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -17,8 +18,9 @@ return new class () extends Migration {
             $table->smallIncrements('id');
             $table->string('username')->unique();
             $table->string('password');
-            $table->string('email')->nullable();
-            $table->string('name')->nullable();
+            $table->string('auth_type')->default(UserAuthTypeEnum::DEFAULT->value);
+            $table->string('contact_name')->nullable()->collation('und_ns')->comment('no-normalised depends on parent');
+            $table->string('email')->nullable()->collation('und_ns')->comment('mirror group_users.email');
             $table->string('about')->nullable();
             $table->boolean('status')->default(true)->index();
             $table->unsignedInteger('avatar_id')->nullable();
