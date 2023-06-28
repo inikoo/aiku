@@ -83,6 +83,7 @@ class IndexWarehouses extends InertiaAction
                         'title' => __('no warehouses'),
                         'description' => $this->canEdit ? __('Get started by creating a new warehouse.') : null,
                         'action' => $this->canEdit ? [
+                            'count' => app('currentTenant')->inventoryStats->number_warehouses,
                             'type' => 'button',
                             'style' => 'create',
                             'tooltip' => __('new warehouse'),
