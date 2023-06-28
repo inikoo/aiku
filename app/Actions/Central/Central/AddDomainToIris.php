@@ -7,6 +7,7 @@
 
 namespace App\Actions\Central\Central;
 
+use App\Enums\Central\Domain\DomainIrisStatusEnum;
 use App\Models\Central\Domain;
 use GuzzleHttp\Promise\PromiseInterface;
 use Illuminate\Console\Command;
@@ -14,11 +15,11 @@ use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class SetIrisDomain
+class AddDomainToIris
 {
     use AsAction;
 
-    public string $commandSignature = 'iris:set-domain {--d|domain= : domain slug}';
+    public string $commandSignature = 'domain:add-iris {--d|domain= : domain slug} {--f|force=}';
 
     public function handle(Domain $domain): PromiseInterface|Response
     {
@@ -50,24 +51,31 @@ class SetIrisDomain
 
     public function asCommand(Command $command): int
     {
+
+        $irisStatus=[DomainIrisStatusEnum::PENDING->value];
+
+        if ($command->option('force')) {
+
+            $irisStatus[]=DomainIrisStatusEnum::ACTIVE->value;
+        }
+
         if ($command->option('domain')) {
             /** @var Domain $domain */
             $domain = Domain::where('slug', ($command->option('domain')))->firstOrFail();
-            if ($domain->state == 'created' or $domain->state == 'iris-enabled') {
+            if (in_array($domain->irs_status,$irisStatus)) {
                 $response = $this->handle($domain);
                 if (!($response->status() == 201 or $response->status() == 200)) {
                     $command->error($response->status());
-
                     return 1;
                 }
 
                 return 0;
             }
-            $command->error('The domain has state:'.$domain->state);
+            $command->error('Skip, domain has status:'.$domain->irs_status);
 
             return 1;
         } else {
-            foreach (Domain::whereIn('state', ['created', 'iris-enabled'])->get() as $domain) {
+            foreach (Domain::whereIn('iris_status',$irisStatus)->get() as $domain) {
                 $this->handle($domain);
             }
         }

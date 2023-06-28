@@ -29,7 +29,7 @@ class StoreDomain
                 'password'=> wordwrap(Str::random(), 4, '-', true)
             ]
         );
-        SetIrisDomain::run($domain);
+        AddDomainToIris::run($domain);
         AddDomainToCloudflare::run($domain);
 
         return $domain;

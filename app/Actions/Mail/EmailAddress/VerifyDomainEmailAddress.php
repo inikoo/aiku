@@ -9,7 +9,7 @@ namespace App\Actions\Mail\EmailAddress;
 
 use App\Actions\Mail\EmailAddress\Traits\AwsClient;
 use App\Actions\Web\Domain\AddDomainDnsRecordCloudflare;
-use App\Enums\Cenntral\Domain\DnsCloudflareTypeEnum;
+use App\Enums\Central\Domain\DnsCloudflareTypeEnum;
 use Illuminate\Console\Command;
 use Lorisleiva\Actions\Concerns\AsAction;
 

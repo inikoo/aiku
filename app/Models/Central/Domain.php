@@ -21,7 +21,6 @@ use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
-
 /**
  * App\Models\Central\Domain
  *
@@ -32,7 +31,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $domain
  * @property string|null $cloudflare_id
  * @property string|null $cloudflare_status
- * @property string|null $irs_status
+ * @property string|null $iris_status
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at

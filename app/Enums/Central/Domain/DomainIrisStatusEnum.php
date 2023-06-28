@@ -5,7 +5,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Enums\Cenntral\Domain;
+namespace App\Enums\Central\Domain;
 
 use App\Enums\EnumHelperTrait;
 

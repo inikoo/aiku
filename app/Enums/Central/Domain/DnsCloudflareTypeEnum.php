@@ -5,7 +5,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Enums\Cenntral\Domain;
+namespace App\Enums\Central\Domain;
 
 use App\Enums\EnumHelperTrait;
 
@@ -13,8 +13,8 @@ enum DnsCloudflareTypeEnum: string
 {
     use EnumHelperTrait;
 
-    case MX = 'MX';
+    case MX    = 'MX';
     case CNAME = 'CNAME';
-    case A = 'A';
-    case TXT = 'TXT';
+    case A     = 'A';
+    case TXT   = 'TXT';
 }

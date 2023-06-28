@@ -5,8 +5,6 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-
-
 namespace App\Actions\Central\Central;
 
 use App\Actions\Web\Domain\RegisterDomainCloudflare;
@@ -18,7 +16,7 @@ class AddDomainToCloudflare
 {
     use AsAction;
 
-    public string $commandSignature   = 'domain:register {domain}';
+    public string $commandSignature   = 'domain:add-cloudflare {domain}';
     public string $commandDescription = 'Register Domain to Cloudflare';
 
     public function handle(Domain $domain): string
@@ -26,7 +24,7 @@ class AddDomainToCloudflare
         $response = RegisterDomainCloudFlare::run($domain->domain);
 
         $domain->update([
-            'cloudflare_id' => $response['result']['id'],
+            'cloudflare_id'     => $response['result']['id'],
             'cloudflare_status' => $response['result']['status'],
         ]);
 

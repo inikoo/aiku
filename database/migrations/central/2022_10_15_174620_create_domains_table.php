@@ -5,8 +5,8 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-use App\Enums\Cenntral\Domain\DomainCloudflareStatusEnum;
-use App\Enums\Cenntral\Domain\DomainIrisStatusEnum;
+use App\Enums\Central\Domain\DomainCloudflareStatusEnum;
+use App\Enums\Central\Domain\DomainIrisStatusEnum;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -23,7 +23,7 @@ return new class () extends Migration {
             $table->string('domain')->index();
             $table->string('cloudflare_id')->index()->nullable();
             $table->string('cloudflare_status')->nullable()->default(DomainCloudflareStatusEnum::PENDING->value);
-            $table->string('irs_status')->nullable()->default(DomainIrisStatusEnum::PENDING->value);
+            $table->string('iris_status')->nullable()->default(DomainIrisStatusEnum::PENDING->value);
             $table->timestampsTz();
             $table->softDeletesTz();
         });
