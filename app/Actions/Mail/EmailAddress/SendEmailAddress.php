@@ -28,7 +28,7 @@ class SendEmailAddress
         });
     }
 
-    public function attachments(array|string $attachments)
+    public function attachments(array|string|null $attachments)
     {
         if(is_array($attachments)) {
             foreach ($attachments as $attach) {
