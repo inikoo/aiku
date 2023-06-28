@@ -40,14 +40,16 @@ class EditWarehouse extends InertiaAction
                 'breadcrumbs' => $this->getBreadcrumbs($warehouse),
                 'pageHead'    => [
                     'title'     => $warehouse->code,
-                    'exitEdit'  => [
-                        'route' => [
-                            'name'       => preg_replace('/edit$/', 'show', $this->routeName),
-                            'parameters' => array_values($this->originalParameters)
+                    'actions'=>[
+                        [
+                            'type'=>'button',
+                            'style'=>'exitEdit',
+                            'route' => [
+                                'name'       => preg_replace('/edit$/', 'show', $this->routeName),
+                                'parameters' => array_values($this->originalParameters)
+                            ]
                         ]
-                    ],
-
-
+                    ]
                 ],
 
                 'formData' => [

@@ -137,7 +137,7 @@ class IndexWarehouses extends InertiaAction
                 'pageHead' => [
                     'title' => __('warehouses'),
                     'actions'=> [
-                        $this->canEdit && $this->routeName == 'sysadmin.guests.index' ? [
+                        $this->canEdit && $this->routeName == 'inventory.warehouses.index' ? [
                             'type' => 'button',
                             'style' => 'create',
                             'tooltip' => __('new warehouse'),

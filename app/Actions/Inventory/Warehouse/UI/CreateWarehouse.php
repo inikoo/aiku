@@ -23,13 +23,17 @@ class CreateWarehouse extends InertiaAction
                 'title'       => __('new warehouse'),
                 'pageHead'    => [
                     'title'        => __('new warehouse'),
-                    'cancelCreate' => [
-                        'route' => [
-                            'name'       => 'inventory.warehouses.index',
-                            'parameters' => array_values($this->originalParameters)
-                        ],
+                    'actions' => [
+                        [
+                            'type'=>'button',
+                            'style'=>'cancel',
+                            'label' => __('cancel'),
+                            'route' => [
+                                'name'       => 'inventory.warehouses.index',
+                                'parameters' => array_values($this->originalParameters)
+                            ],
+                        ]
                     ]
-
                 ],
                 'formData' => [
                     'blueprint' => [
