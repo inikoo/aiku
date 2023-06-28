@@ -5,42 +5,42 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\HumanResources\Employee;
+namespace App\Actions\Auth\Guest;
 
-use App\Models\HumanResources\Employee;
+use App\Models\Auth\Guest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsController;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class DeleteEmployee
+class DeleteGuest
 {
     use AsController;
     use WithAttributes;
 
-    public function handle(Employee $employee): Employee
+    public function handle(Guest $guest): Guest
     {
-        $employee->delete();
+        $guest->delete();
 
-        return $employee;
+        return $guest;
     }
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("hr.edit");
+        return $request->user()->hasPermissionTo("sysadmin.edit");
     }
 
-    public function asController(Employee $employee, ActionRequest $request): Employee
+    public function asController(Guest $guest, ActionRequest $request): Guest
     {
         $request->validate();
 
-        return $this->handle($employee);
+        return $this->handle($guest);
     }
 
     public function htmlResponse(): RedirectResponse
     {
-        return Redirect::route('hr.employees.index');
+        return Redirect::route('sysadmin.guests.index');
     }
 
 }

@@ -32,7 +32,7 @@ class ShowWarehouse extends InertiaAction
     public function authorize(ActionRequest $request): bool
     {
         $this->canEdit = $request->user()->can('inventory.warehouses.edit');
-
+        $this->canDelete = $request->user()->can('inventory.warehouses.edit');
         return $request->user()->hasPermissionTo("inventory.view");
     }
 
@@ -62,14 +62,24 @@ class ShowWarehouse extends InertiaAction
                             'title' => __('warehouse')
                         ],
                     'title' => $this->warehouse->name,
-                    'edit'  => $this->canEdit ? [
-                        'route' => [
-                            'name'       => preg_replace('/show$/', 'edit', $this->routeName),
-                            'parameters' => array_values($this->originalParameters)
-                        ]
-                    ] : false,
-
-
+                    'actions' => [
+                        $this->canEdit ? [
+                            'type'=>'button',
+                            'style'=>'edit',
+                            'route' => [
+                                'name' => preg_replace('/show$/', 'edit', $this->routeName),
+                                'parameters' => array_values($this->originalParameters)
+                            ]
+                        ] : false,
+                        $this->canDelete ? [
+                            'type'=>'button',
+                            'style'=>'delete',
+                            'route' => [
+                                'name' => 'inventory.warehouses.remove',
+                                'parameters' => array_values($this->originalParameters)
+                            ]
+                        ] : false
+                    ],
                     'meta' => [
                         [
                             'name'     => trans_choice('warehouse area|warehouse areas', $this->warehouse->stats->number_warehouse_areas),

@@ -110,7 +110,7 @@ class ShowEmployee extends InertiaAction
 
     public function getData(Employee $employee): array
     {
-        return Arr::except($employee->toArray(), ['id', 'source_id']);
+        return Arr::except($employee->toArray(), ['id', 'source_id','working_hours','errors','salary','data','job_position_scopes']);
     }
 
     public function jsonResponse(Employee $employee): EmployeeResource

@@ -5,42 +5,44 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\HumanResources\Employee;
+namespace App\Actions\Inventory\Warehouse;
 
-use App\Models\HumanResources\Employee;
+use App\Models\Inventory\Warehouse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsController;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class DeleteEmployee
+class DeleteWarehouse
 {
     use AsController;
     use WithAttributes;
 
-    public function handle(Employee $employee): Employee
+    public function handle(Warehouse $warehouse): Warehouse
     {
-        $employee->delete();
+        $warehouse->locations()->delete();
+        $warehouse->warehouseAreas()->delete();
+        $warehouse->delete();
 
-        return $employee;
+        return $warehouse;
     }
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("hr.edit");
+        return $request->user()->hasPermissionTo("inventory.edit");
     }
 
-    public function asController(Employee $employee, ActionRequest $request): Employee
+    public function asController(Warehouse $warehouse, ActionRequest $request): Warehouse
     {
         $request->validate();
 
-        return $this->handle($employee);
+        return $this->handle($warehouse);
     }
 
     public function htmlResponse(): RedirectResponse
     {
-        return Redirect::route('hr.employees.index');
+        return Redirect::route('inventory.warehouses.index');
     }
 
 }

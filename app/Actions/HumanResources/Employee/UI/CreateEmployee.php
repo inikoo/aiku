@@ -30,10 +30,10 @@ class CreateEmployee extends InertiaAction
                 'title'       => __('new employee'),
                 'pageHead'    => [
                     'title'        => __('new employee'),
-                    'actions' => [
+                    'actions'      => [
                         [
-                            'type'=>'button',
-                            'style'=>'cancelCreate',
+                            'type'  => 'button',
+                            'style' => 'cancel',
                             'label' => __('cancel'),
                             'route' => [
                                 'name'       => 'hr.employees.index',
