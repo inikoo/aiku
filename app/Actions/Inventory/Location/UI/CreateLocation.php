@@ -32,7 +32,7 @@ class CreateLocation extends InertiaAction
                     'actions' => [
                         [
                             'type'=>'button',
-                            'style'=>'cancelCreate',
+                            'style'=>'cancel',
                             'label' => __('cancel'),
                             'route' => [
                                 'name'       => 'inventory.warehouses.show.locations.index',

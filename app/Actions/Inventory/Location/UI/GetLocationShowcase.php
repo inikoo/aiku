@@ -17,9 +17,12 @@ class GetLocationShowcase
     public function handle(Location $location): array
     {
         return [
-            [
-
-            ]
+            'contactCard' => [
+                'max_volume'            => $location->max_volume,
+                'max_weight'            => $location->max_weight,
+                'number_stock_slots'    => $location->stats->number_stock_slots,
+                'empty_stock_slots'     => $location->stats->number_empty_stock_slots,
+            ],
         ];
     }
 }

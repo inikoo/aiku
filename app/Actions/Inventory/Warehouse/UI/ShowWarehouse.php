@@ -147,7 +147,6 @@ class ShowWarehouse extends InertiaAction
                         )
                     )),
 
-
                 WarehouseTabsEnum::HISTORY->value => $this->tab == WarehouseTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistories::run($this->warehouse))
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistories::run($this->warehouse)))

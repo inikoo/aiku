@@ -90,6 +90,7 @@ class IndexWarehouseAreas extends InertiaAction
                     [
                         'title'       => __('no warehouses area'),
                         'description' => $this->canEdit ? __('Get started by creating a new warehouse area.') : null,
+                        'count'       => app('currentTenant')->inventoryStats->number_warehouse_area,
                         'action'      => $this->canEdit ? [
                             'type'    => 'button',
                             'style'   => 'create',

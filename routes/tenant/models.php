@@ -33,6 +33,7 @@ use App\Actions\Inventory\StockFamily\UpdateStockFamily;
 use App\Actions\Inventory\Warehouse\DeleteWarehouse;
 use App\Actions\Inventory\Warehouse\StoreWarehouse;
 use App\Actions\Inventory\Warehouse\UpdateWarehouse;
+use App\Actions\Inventory\WarehouseArea\DeleteWarehouseArea;
 use App\Actions\Inventory\WarehouseArea\StoreWarehouseArea;
 use App\Actions\Inventory\WarehouseArea\StoreWarehouseAreas;
 use App\Actions\Inventory\WarehouseArea\UpdateWarehouseArea;
@@ -99,7 +100,7 @@ Route::post('/working-place/{workplace}/clocking-machine', StoreClockingMachine:
 Route::patch('/clocking/{clocking}', UpdateClocking::class)->name('clocking.update');
 Route::post('/clocking', StoreClocking::class)->name('clocking.store');
 Route::post('/working-place/{workplace}/clocking', StoreClocking::class)->name('working-place.clocking.store');
-Route::post('/clocking-machine/{clockingMachine}/clocking', StoreClocking::class, 'inClockingMachine')->name('clocking-machine.clocking.store');
+Route::post('/clocking-machine/{clockingMachine}/clocking', [StoreClocking::class, 'inClockingMachine'])->name('clocking-machine.clocking.store');
 Route::post('/working-place/{workplace}/clocking-machine/{clockingMachine}/clocking', StoreClocking::class)->name('working-place.clocking-machine.clocking.store');
 
 Route::post('/warehouse/', StoreWarehouse::class)->name('warehouse.store');
@@ -110,11 +111,13 @@ Route::post('/warehouse/{warehouse}/area/', StoreWarehouseArea::class)->name('wa
 Route::post('/warehouse/{warehouse}/areas/', StoreWarehouseAreas::class)->name('warehouse.warehouse-areas.store');
 
 Route::patch('/area/{warehouseArea}', UpdateWarehouseArea::class)->name('warehouse-area.update');
+Route::delete('/area/{warehouseArea}', DeleteWarehouseArea::class)->name('warehouse-area.delete');
+Route::delete('/warehouse/{warehouse}/area/{warehouseArea}', [DeleteWarehouseArea::class,'inWarehouse'])->name('warehouse.warehouse-area.delete');
 
 Route::patch('/location/{location}', UpdateLocation::class)->name('location.update');
 Route::delete('/location/{location}', DeleteLocation::class)->name('location.delete');
-Route::delete('/warehouse/{warehouse}/location/{location}', DeleteLocation::class, 'inWarehouse')->name('warehouse.location.delete');
-Route::delete('/warehouse/{warehouse}/area/{warehouseArea}/location/{location}', DeleteLocation::class, 'inWarehouseInWarehouseArea')->name('warehouse.warehouse-area.location.delete');
+Route::delete('/warehouse/{warehouse}/location/{location}', [DeleteLocation::class, 'inWarehouse'])->name('warehouse.location.delete');
+Route::delete('/warehouse/{warehouse}/area/{warehouseArea}/location/{location}', [DeleteLocation::class, 'inWarehouseInWarehouseArea'])->name('warehouse.warehouse-area.location.delete');
 
 Route::post('/warehouse/{warehouse}/location', StoreLocation::class)->name('warehouse.location.store');
 Route::post('/area/{warehouseArea}/location', [StoreLocation::class, 'inWarehouseArea'])->name('warehouse-area.location.store');

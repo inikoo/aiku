@@ -44,12 +44,14 @@ class CreateWarehouse extends InertiaAction
                                 'code' => [
                                     'type'  => 'input',
                                     'label' => __('code'),
-                                    'value' => ''
+                                    'value' => '',
+                                    'required' => true
                                 ],
                                 'name' => [
                                     'type'  => 'input',
                                     'label' => __('name'),
-                                    'value' => ''
+                                    'value' => '',
+                                    'required' => true
                                 ],
 
                             ]
