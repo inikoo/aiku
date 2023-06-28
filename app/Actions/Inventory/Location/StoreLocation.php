@@ -60,8 +60,8 @@ class StoreLocation
     {
         return [
             'code'          => ['required', 'unique:tenant.locations', 'between:2,64', 'alpha_dash', new CaseSensitive('locations')],
-            'max_weight'    => ['numeric','min:0.1','max:1000000'],
-            'max_volume'    => ['numeric','min:0.1','max:1000000']
+            'max_weight'    => ['nullable','numeric','min:0.1','max:1000000'],
+            'max_volume'    => ['nullable','numeric','min:0.1','max:1000000']
         ];
     }
 
