@@ -86,6 +86,22 @@ class IndexWarehouseAreas extends InertiaAction
             $table
                 ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
+                ->withEmptyState(
+                    [
+                        'title' => __('no warehouses area'),
+                        'description' => $this->canEdit ? __('Get started by creating a new warehouse area.') : null,
+                        'action' => $this->canEdit ? [
+                            'type' => 'button',
+                            'style' => 'create',
+                            'tooltip' => __('new warehouse area'),
+                            'label' => __('warehouse area'),
+                            'route' => [
+                                'name' => 'inventory.warehouse-areas.create',
+                                'parameters' => array_values($this->originalParameters)
+                            ]
+                        ] : null
+                    ]
+                )
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'number_locations', label: __('locations'), canBeHidden: false, sortable: true)
