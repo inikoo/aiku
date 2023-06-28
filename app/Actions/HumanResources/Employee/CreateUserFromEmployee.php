@@ -9,6 +9,7 @@ namespace App\Actions\HumanResources\Employee;
 
 use App\Actions\Auth\GroupUser\StoreGroupUser;
 use App\Actions\Auth\User\StoreUser;
+use App\Enums\Auth\User\UserAuthTypeEnum;
 use App\Models\Auth\User;
 use App\Models\HumanResources\Employee;
 use App\Models\Tenancy\Tenant;
@@ -40,15 +41,17 @@ class CreateUserFromEmployee
     {
         $this->newPassword = $password ?? (app()->isProduction() ? wordwrap(Str::random(), 4, '-', true) : 'hello');
         $modelData         = [
-            'username' => $username ?? $employee->slug,
-            'password' => $this->newPassword
+            'username'    => $username ?? $employee->slug,
+            'password'    => $this->newPassword,
+            'contact_name'=> $employee->contact_name,
+            'email'       => $employee->work_email,
+            'auth_type'   => UserAuthTypeEnum::DEFAULT
         ];
 
 
-        $centralUser = StoreGroupUser::run($modelData);
-
+        $groupUser = StoreGroupUser::run($modelData);
         /** @var User $user */
-        $user = StoreUser::run($employee, $centralUser);
+        $user = StoreUser::run($employee, $groupUser);
         foreach ($employee->jobPositions as $jobPosition) {
             $user->assignJoBPositionRoles($jobPosition);
         }

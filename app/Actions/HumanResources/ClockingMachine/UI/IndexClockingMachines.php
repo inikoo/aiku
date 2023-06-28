@@ -122,13 +122,17 @@ class IndexClockingMachines extends InertiaAction
                 'title'       => __('clocking machines'),
                 'pageHead'    => [
                     'title'  => __('clocking machines'),
-                    'create' => $this->canEdit && $this->routeName == 'hr.working-places.show.clocking-machines.index' ? [
-                        'route' => [
-                            'name'       => 'hr.working-places.show.clocking-machines.create',
-                            'parameters' => array_values($this->originalParameters)
-                        ],
-                        'label' => __('clocking machine')
-                    ] : false,
+                    'actions'=> [
+                        $this->canEdit && $this->routeName == 'inventory.warehouses.show.warehouse-areas.index' ? [
+                            'type'=>'button',
+                            'style'=>'create',
+                            'label' => __('warehouse area'),
+                            'route' => [
+                                'name'       => 'inventory.warehouses.show.warehouse-areas.create',
+                                'parameters' => array_values($this->originalParameters)
+                            ],
+                        ] : false
+                    ]
                 ],
                 'data'        => ClockingMachineResource::collection($clockingMachines)
 

@@ -28,7 +28,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 class IndexWarehouses extends InertiaAction
 {
     /** @noinspection PhpUndefinedMethodInspection */
-    public function handle($prefix=null): LengthAwarePaginator
+    public function handle($prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -41,7 +41,7 @@ class IndexWarehouses extends InertiaAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        $queryBuilder=QueryBuilder::for(Warehouse::class);
+        $queryBuilder = QueryBuilder::for(Warehouse::class);
         foreach ($this->elementGroups as $key => $elementGroup) {
             $queryBuilder->whereElementGroup(
                 prefix: $prefix,
@@ -74,10 +74,26 @@ class IndexWarehouses extends InertiaAction
             if ($prefix) {
                 $table
                     ->name($prefix)
-                    ->pageName($prefix.'Page');
+                    ->pageName($prefix . 'Page');
             }
             $table
                 ->withGlobalSearch()
+                ->withEmptyState(
+                    [
+                        'title' => __('no warehouses'),
+                        'description' => $this->canEdit ? __('Get started by creating a new warehouse.') : null,
+                        'action' => $this->canEdit ? [
+                            'type' => 'button',
+                            'style' => 'create',
+                            'tooltip' => __('new warehouse'),
+                            'label' => __('warehouse'),
+                            'route' => [
+                                'name' => 'inventory.warehouses.create',
+                                'parameters' => array_values($this->originalParameters)
+                            ]
+                        ] : null
+                    ]
+                )
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'number_warehouse_areas', label: __('warehouse areas'), canBeHidden: false, sortable: true)
@@ -111,44 +127,50 @@ class IndexWarehouses extends InertiaAction
 
     public function htmlResponse(LengthAwarePaginator $warehouses, ActionRequest $request): Response
     {
+
         $parent = $request->route()->parameters() == [] ? app('currentTenant') : last($request->route()->parameters());
         return Inertia::render(
             'Inventory/Warehouses',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(),
-                'title'       => __('warehouses'),
-                'pageHead'    => [
-                    'title'   => __('warehouses'),
-                    'create'  => $this->canEdit && $this->routeName=='inventory.warehouses.index' ? [
-                        'route' => [
-                            'name'       => 'inventory.warehouses.create',
-                            'parameters' => array_values($this->originalParameters)
-                        ],
-                        'label'=> __('warehouse')
-                    ] : false,
+                'title' => __('warehouses'),
+                'pageHead' => [
+                    'title' => __('warehouses'),
+                    'actions'=> [
+                        $this->canEdit && $this->routeName == 'sysadmin.guests.index' ? [
+                            'type' => 'button',
+                            'style' => 'create',
+                            'tooltip' => __('new warehouse'),
+                            'label' => __('warehouse'),
+                            'route' => [
+                                'name' => 'inventory.warehouses.create',
+                                'parameters' => array_values($this->originalParameters)
+                            ]
+                        ] : false,
+                    ]
                 ],
-                'data'  => WarehouseResource::collection($warehouses),
+                'data' => WarehouseResource::collection($warehouses),
 
 
             ]
         )->table($this->tableStructure($parent));
     }
 
-    public function getBreadcrumbs($suffix=null): array
+    public function getBreadcrumbs($suffix = null): array
     {
         return array_merge(
             (new InventoryDashboard())->getBreadcrumbs(),
             [
                 [
-                    'type'   => 'simple',
+                    'type' => 'simple',
                     'simple' => [
                         'route' => [
                             'name' => 'inventory.warehouses.index'
                         ],
                         'label' => __('warehouses'),
-                        'icon'  => 'fal fa-bars',
+                        'icon' => 'fal fa-bars',
                     ],
-                    'suffix'=> $suffix
+                    'suffix' => $suffix
 
                 ]
             ]

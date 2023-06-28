@@ -58,7 +58,6 @@ class DeleteLocation
 
     public function htmlResponse(Location $location): RedirectResponse
     {
-        dd($location);
         return Redirect::route('inventory.locations.show', $location->slug);
     }
 

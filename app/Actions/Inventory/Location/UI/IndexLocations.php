@@ -93,6 +93,22 @@ class IndexLocations extends InertiaAction
             $table
                 ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
+                ->withEmptyState(
+                    [
+                        'title' => __('no locations'),
+                        'description' => $this->canEdit ? __('Get started by creating a new locations.') : null,
+                        'action' => $this->canEdit ? [
+                            'type' => 'button',
+                            'style' => 'create',
+                            'tooltip' => __('new location'),
+                            'label' => __('location'),
+                            'route' => [
+                                'name' => 'inventory.warehouses.show.locations.create',
+                                'parameters' => array_values($this->originalParameters)
+                            ]
+                        ] : null
+                    ]
+                )
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->defaultSort('code');
         };
@@ -120,7 +136,8 @@ class IndexLocations extends InertiaAction
     }
 
 
-    public function inWarehouseInWarehouseArea(Warehouse $warehouse,WarehouseArea $warehouseArea, ActionRequest $request): LengthAwarePaginator
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inWarehouseInWarehouseArea(Warehouse $warehouse, WarehouseArea $warehouseArea, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($request);
 

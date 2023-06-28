@@ -94,10 +94,26 @@ class EditLocation extends InertiaAction
                                     'label' => __('code'),
                                     'value' => $location->code
                                 ],
-                            ]
+                            ],
+                            [
+                                'title'  => __('capacity'),
+                                'icon'   => 'fa-light fa-phone',
+                                'fields' => [
+                                    'max_weight' => [
+                                        'type'  => 'input',
+                                        'label' => __('max weight (kg)'),
+                                        'value' => '',
+                                    ],
+                                    'max_volume' => [
+                                        'type'  => 'input',
+                                        'label' => __('max volume (m³)'),
+                                        'value' => '',
+                                    ],
+                                ]
+                            ],
                         ]
-
                     ],
+
                     'args' => [
                         'updateRoute' => [
                             'name'       => 'models.location.update',

@@ -10,7 +10,6 @@ namespace App\Models\Auth;
 use App\Actions\Tenancy\Tenant\HydrateTenant;
 use App\Models\Media\GroupMedia;
 use App\Models\Traits\HasHistory;
-use Database\Factories\Auth\GuestFactory;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -50,7 +49,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read array $es_audits
  * @property-read MediaCollection<int, GroupMedia> $media
  * @property-read \App\Models\Auth\User|null $user
- * @method static GuestFactory factory($count = null, $state = [])
+ * @method static \Database\Factories\Auth\GuestFactory factory($count = null, $state = [])
  * @method static Builder|Guest newModelQuery()
  * @method static Builder|Guest newQuery()
  * @method static Builder|Guest onlyTrashed()

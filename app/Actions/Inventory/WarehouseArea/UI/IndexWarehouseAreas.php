@@ -27,7 +27,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 class IndexWarehouseAreas extends InertiaAction
 {
     /** @noinspection PhpUndefinedMethodInspection */
-    public function handle(Warehouse|Tenant $parent, $prefix=null): LengthAwarePaginator
+    public function handle(Warehouse|Tenant $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -40,7 +40,7 @@ class IndexWarehouseAreas extends InertiaAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        $queryBuilder=QueryBuilder::for(WarehouseArea::class);
+        $queryBuilder = QueryBuilder::for(WarehouseArea::class);
         foreach ($this->elementGroups as $key => $elementGroup) {
             $queryBuilder->whereElementGroup(
                 prefix: $prefix,
@@ -78,7 +78,7 @@ class IndexWarehouseAreas extends InertiaAction
     public function tableStructure(?array $modelOperations = null, $prefix = null): Closure
     {
         return function (InertiaTable $table) use ($modelOperations, $prefix) {
-            if($prefix) {
+            if ($prefix) {
                 $table
                     ->name($prefix)
                     ->pageName($prefix.'Page');
@@ -86,6 +86,22 @@ class IndexWarehouseAreas extends InertiaAction
             $table
                 ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
+                ->withEmptyState(
+                    [
+                        'title'       => __('no warehouses area'),
+                        'description' => $this->canEdit ? __('Get started by creating a new warehouse area.') : null,
+                        'action'      => $this->canEdit ? [
+                            'type'    => 'button',
+                            'style'   => 'create',
+                            'tooltip' => __('new warehouse area'),
+                            'label'   => __('warehouse area'),
+                            'route'   => [
+                                'name'       => 'inventory.warehouse-areas.create',
+                                'parameters' => array_values($this->originalParameters)
+                            ]
+                        ] : null
+                    ]
+                )
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'number_locations', label: __('locations'), canBeHidden: false, sortable: true)
@@ -137,31 +153,45 @@ class IndexWarehouseAreas extends InertiaAction
                 ),
                 'title'       => __('warehouse areas'),
                 'pageHead'    => [
-                    'title'  => __('warehouse areas'),
-                    'create' => $this->canEdit && $this->routeName == 'inventory.warehouses.show.warehouse-areas.index' ? [
-                        'route' => [
+                    'title'   => __('warehouse areas'),
+                    'create'  => $this->canEdit && $this->routeName == 'inventory.warehouses.show.warehouse-areas.index' ? [
+                        'route'     => [
                             'name'       => 'inventory.warehouses.show.warehouse-areas.create',
                             'parameters' => array_values($this->originalParameters)
                         ],
-                        'withMulti'=> [
+                        'withMulti' => [
                             'route' => [
                                 'name'       => 'inventory.warehouses.show.warehouse-areas.create-multi',
                                 'parameters' => array_values($this->originalParameters)
                             ],
                         ],
-                        'label' => __('warehouse area')
+                        'label'     => __('warehouse area')
                     ] : false,
-                'actions'=> [
-                    $this->canEdit && $this->routeName == 'inventory.warehouses.show.warehouse-areas.index' ? [
-                        'type'=>'button',
-                        'style'=>'create',
-                        'label' => __('warehouse area'),
-                        'route' => [
-                            'name'       => 'inventory.warehouses.show.warehouse-areas.create',
-                            'parameters' => array_values($this->originalParameters)
-                        ]
-                    ] : false
-                ]
+                    'actions' => [
+                        $this->canEdit && $this->routeName == 'inventory.warehouses.show.warehouse-areas.index' ? [
+                            'type' => 'buttonGroup',
+
+                            'buttons' => [
+                                [
+                                    'style' => 'icon',
+                                    'icon'  => ['fal', 'fa-border-all'],
+                                    'label' => '',
+                                    'route' => [
+                                        'name'       => 'inventory.warehouses.show.warehouse-areas.create-multi',
+                                        'parameters' => array_values($this->originalParameters)
+                                    ],
+                                ],
+                                [
+                                    'style' => 'create',
+                                    'label' => __('warehouse area'),
+                                    'route' => [
+                                        'name'       => 'inventory.warehouses.show.warehouse-areas.create',
+                                        'parameters' => array_values($this->originalParameters)
+                                    ],
+                                ]
+                            ]
+                        ] : false
+                    ]
                 ],
                 'data'        => WarehouseAreaResource::collection($warehouseAreas)
             ]
