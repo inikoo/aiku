@@ -107,8 +107,15 @@ const props = defineProps(
             },
             required: false,
         },
+        emptyState: {
+            type: Object,
+            default: () => {
+                return [];
+            },
+            required: false,
+        },
     });
-
+console.log(props)
 const app = getCurrentInstance();
 const $inertia = app ? app.appContext.config.globalProperties.$inertia : props.inertia;
 const updates = ref(0);
@@ -541,12 +548,13 @@ const handleElementsChange = (data) => {
     //queryBuilderData.value.elements[0].checked=true
 
 }
+console.log(props.emptyState)
 </script>
 
 <template>
 
     <Transition>
-        <EmptyState v-if="resourceMeta.total === 0" />
+        <EmptyState :data="emptyState" v-if="resourceMeta.total === 0" />
         <!--suppress HtmlUnknownAttribute -->
         <fieldset v-else ref="tableFieldset" :key="`table-${name}`" :dusk="`table-${name}`" class="min-w-0" :class="{ 'opacity-75': isVisiting }">
             <div class="my-2">
