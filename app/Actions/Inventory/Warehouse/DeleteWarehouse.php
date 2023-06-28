@@ -7,7 +7,6 @@
 
 namespace App\Actions\Inventory\Warehouse;
 
-use App\Models\HumanResources\Employee;
 use App\Models\Inventory\Warehouse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
