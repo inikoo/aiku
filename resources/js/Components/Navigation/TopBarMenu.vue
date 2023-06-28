@@ -74,7 +74,7 @@ onMounted(() => {
             enter-to-class="transform opacity-100 scale-100" leave-active-class="transition ease-in duration-75"
             leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
             <MenuItems
-                class="absolute w-max lg:w-56 divide-y h-96 overflow-y-auto custom-hide-scrollbar divide-gray-300 top-8 right-0 z-10 mt-1 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                class="absolute w-max lg:w-56 divide-y h-auto max-h-96 overflow-y-auto custom-hide-scrollbar divide-gray-300 top-8 right-0 z-10 mt-1 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                 <div class="py-1">
                     <MenuItem v-slot="{ active }" v-for="option in layout.navigation[props.currentPage].topMenu.dropdown.options.data" :key="option.slug">
                         <button @click="handleClick(option)"

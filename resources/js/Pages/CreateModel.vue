@@ -38,11 +38,13 @@ import Radio from '@/Components/Forms/Fields/Radio.vue'
 import Country from "@/Components/Forms/Fields/Country.vue"
 import Currency from "@/Components/Forms/Fields/Currency.vue"
 import { capitalize } from "@/Composables/capitalize"
+import InputWithAddOn from '@/Components/Forms/Fields/InputWithAddOn.vue'
 
 const getComponent = (componentName: string) => {
     const components = {
         'guest-credentials': GuestCredentials,
         'input': Input,
+        'inputWithAddOn': InputWithAddOn,
         'phone': Phone,
         'date': Date,
         'select': Select,
