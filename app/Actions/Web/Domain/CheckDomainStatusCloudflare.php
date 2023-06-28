@@ -7,9 +7,8 @@
 
 namespace App\Actions\Web\Domain;
 
-use GuzzleHttp\Promise\PromiseInterface;
-use Illuminate\Console\Command;
-use Illuminate\Http\Client\Response;
+use App\Enums\Domain\DomainCloudflareStatusEnum;
+use App\Models\Central\CentralDomain;
 use Illuminate\Support\Facades\Http;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -17,20 +16,26 @@ class CheckDomainStatusCloudflare
 {
     use AsAction;
 
-    public string $commandSignature   = 'domain:check {zone}';
+    public string $commandSignature = 'domain:check';
 
-    public function handle(string $zoneId): PromiseInterface|Response|array
+    public function handle(): void
     {
-        $response = Http::withHeaders([
-            'Content-Type' => 'application/json',
-            'Authorization' => 'Bearer ' . env('CLOUDFLARE_API_TOKEN'),
-        ])->get(env('CLOUDFLARE_API_URL') . "/zones/{$zoneId}");
+        $centralDomains = CentralDomain::where('cloudflare_status', DomainCloudflareStatusEnum::PENDING->value)->get();
 
-        return $response->json();
+        foreach ($centralDomains as $centralDomain) {
+            $response = Http::withHeaders([
+                'Content-Type' => 'application/json',
+                'Authorization' => 'Bearer ' . env('CLOUDFLARE_API_TOKEN'),
+            ])->get(env('CLOUDFLARE_API_URL') . "/zones/{$centralDomain->cloudflare_id}")->json();
+
+            CentralDomain::where('cloudflare_id', $response['result']['id'])->update([
+                'cloudflare_status' => $response['result']['status']
+            ]);
+        }
     }
 
-    public function asCommand(Command $command): void
+    public function asCommand(): void
     {
-        $this->handle($command->argument('zone'));
+        $this->handle();
     }
 }
