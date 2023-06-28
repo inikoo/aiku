@@ -85,7 +85,7 @@ class IndexCalendars extends InertiaAction
     public function htmlResponse(LengthAwarePaginator $employees): \Inertia\Response
     {
         return Inertia::render(
-            'HumanResources/Employees',
+            'HumanResources/Calendar',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(),
                 'title'       => __('employees'),
