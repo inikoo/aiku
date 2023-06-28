@@ -548,13 +548,13 @@ const handleElementsChange = (data) => {
 
 }
 
-console.log(queryBuilderProps.value.emptyState)
+// console.log(queryBuilderProps.value.emptyState.action.count)
 </script>
 
 <template>
 
     <Transition>
-        <EmptyState :data="queryBuilderProps.emptyState" v-if="resourceMeta.total === 0" />
+        <EmptyState :data="queryBuilderProps.emptyState" v-if="queryBuilderProps.emptyState?.count === 0 && resourceMeta.total === 0" />
         <!--suppress HtmlUnknownAttribute -->
         <fieldset v-else ref="tableFieldset" :key="`table-${name}`" :dusk="`table-${name}`" class="min-w-0" :class="{ 'opacity-75': isVisiting }">
             <div class="my-2">
@@ -585,8 +585,6 @@ console.log(queryBuilderProps.value.emptyState)
                         </div>
                     </div>
                 </div>
-
-<!--               <pre>{{queryBuilderProps.modelOperations}}</pre>-->
 
                 <!-- Search Group -->
                 <div class="flex flex-row justify-end items-start flex-nowrap space-x-2">
