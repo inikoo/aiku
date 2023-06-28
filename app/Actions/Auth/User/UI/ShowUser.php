@@ -69,9 +69,7 @@ class ShowUser extends InertiaAction
                                 'parameters' => array_values($this->originalParameters)
                             ]
                         ] : false,
-                    ],
-                    'capitalize' => false
-
+                    ]
                 ],
                 'tabs' => [
                     'current' => $this->tab,

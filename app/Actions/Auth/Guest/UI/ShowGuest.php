@@ -54,7 +54,45 @@ class ShowGuest extends InertiaAction
                 ],
                 'pageHead'    => [
                     'title'     => $guest->contact_name,
+                    'actions' => [
+                        $this->canEdit ? [
+                            'type'=>'button',
+                            'style'=>'edit',
+                            'route' => [
+                                'name' => preg_replace('/show$/', 'edit', $this->routeName),
+                                'parameters' => array_values($this->originalParameters)
+                            ]
+                        ] : false,
+                        $this->canDelete ?
+                            match ($this->routeName){
+                                'sysadmin.locations.show' => [
+                                    'type'=>'button',
+                                    'style'=>'delete',
+                                    'route' => [
+                                        'name' => 'inventory.locations.remove',
+                                        'parameters' => array_values($this->originalParameters)
+                                    ],
 
+                                ],
+                                'inventory.warehouses.show.locations.show' => [
+                                    'type'=>'button',
+                                    'style'=>'delete',
+                                    'route' => [
+                                        'name' => 'inventory.warehouses.show.locations.remove',
+                                        'parameters' => array_values($this->originalParameters)
+                                    ],
+                                ],
+                                'inventory.warehouses.show.warehouse-areas.show.locations.show' => [
+                                    'type'=>'button',
+                                    'style'=>'delete',
+                                    'route' => [
+                                        'name' => 'inventory.warehouses.show.warehouse-areas.show.locations.remove',
+                                        'parameters' => array_values($this->originalParameters)
+                                    ]
+                                ]
+                            }
+                            : false
+                    ],
                     'edit'      => $this->canEdit ? [
                         'route' => [
                             'name'       => preg_replace('/show$/', 'edit', $this->routeName),

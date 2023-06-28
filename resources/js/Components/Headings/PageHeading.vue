@@ -34,15 +34,11 @@ const getActionLabel = function(action) {
                 return trans("exit edit")
 
             case "cancelCreate":
-
             case "cancel":
                 return trans("cancel")
 
             case "delete":
                 return trans("delete")
-
-            case "withMulti":
-                return trans("")
 
             default:
                 return ""
@@ -133,7 +129,7 @@ const getActionIcon = function(action) {
 
         <div class="flex items-center gap-2">
             <span v-for="action in data.actions">
-                
+
                 <!-- Button: Dynamic -->
                  <Link v-if="action.type === 'button'" :href="route(action['route']['name'], action['route']['parameters'])">
                     <Button
