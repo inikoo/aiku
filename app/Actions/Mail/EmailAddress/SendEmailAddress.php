@@ -7,9 +7,6 @@
 
 namespace App\Actions\Mail\EmailAddress;
 
-use App\Mail\TestEmail;
-use Illuminate\Console\Command;
-use Illuminate\Mail\SentMessage;
 use Illuminate\Support\Facades\Mail;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -17,16 +14,32 @@ class SendEmailAddress
 {
     use AsAction;
 
-    public string $commandSignature   = 'mail:send {to}';
-    public string $commandDescription = 'Sending Email Test Email';
+    public mixed $message;
 
-    public function handle(string $to): SentMessage
+    public function handle(array $from, string $content, string $subject, string|array $to, $attach = null, $type = 'html'): void
     {
-        return Mail::to($to)->send(new TestEmail());
+        Mail::$type($content, function ($message) use ($from, $to, $subject, $attach) {
+            $this->message = $message;
+            $this->attachments($attach);
+
+            $message->from($from['email'], $from['name'])
+                ->to($to)
+                ->subject($subject);
+        });
     }
 
-    public function asCommand(Command $command): void
+    public function attachments(array|string $attachments)
     {
-        $this->handle($command->argument('to'));
+        if(is_array($attachments)) {
+            foreach ($attachments as $attach) {
+                $this->message->attach($attach);
+            }
+        }
+
+        if(is_string($attachments)) {
+            $this->message->attach($attachments);
+        }
+
+        return $this->message;
     }
 }
