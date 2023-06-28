@@ -80,15 +80,18 @@ const generateLink = (menu) => {
 		: currentRoute != layout?.navigation?.[currentUrl.value]?.route  // Check if active route is same as 'All List' slug
 			? route().v().params?.[Object.keys(route().params)[0]]  // Check if there is active parameter (for subpage)
 				? route(menu.route?.selected, route().v().params)  // If parameter exist go to that slug
-				: layout.navigation?.[currentUrl.value]?.topMenu?.dropdown?.options?.data?.length > 1 // Check if data dropdown only 1
-					? route(menu.route?.all) //
-					: route(menu.route.selected, layout.navigation?.[currentUrl.value]?.topMenu?.dropdown?.selected)  // If parameter doesn't exist then Link is 'All list'
+				: layout.navigation?.[currentUrl.value]?.topMenu?.dropdown?.options?.data?.length == 0 // Check if data is zero
+					? route(menu.route?.all)
+					: layout.navigation?.[currentUrl.value]?.topMenu?.dropdown?.options?.data?.length > 0 // Check if data is more than 1
+						? route(menu.route.selected, layout.navigation?.[currentUrl.value]?.topMenu?.dropdown?.selected)
+						: route(menu.route?.all)  // If data is 1 then Link is 'All list'
+
 			: layout.navigation?.[currentUrl.value]?.topMenu?.dropdown.options.data.length == 1  // If list is only 1 data
 				? route(menu.route?.selected, layout.navigation?.[currentUrl.value]?.topMenu?.dropdown.options.data[0]?.slug)  // Link go to that 1 data
 				: route(menu.route?.all)  // If data is above than 1 data then Link to 'All list'
 }
 
-const helperMarketplace = [
+const helperMarketplaces = [
 	{
 		title: 'Agents Marketplace',
 		label: 'Agents',
@@ -122,6 +125,8 @@ const checkRight = (abcdef) => {
 
 <template>
 	<div class="flex flex-1 items-center justify-between lg:justify-start">
+
+		<!-- Tenant Logo and Name -->
 		<Link :href="route('dashboard.show')"
 			class="md:pl-3 flex items-center h-full xl:overflow-hidden space-x-2 mr-6 xl:w-56 xl:pr-2 xl:border-r-2 xl:border-gray-200 xl:mr-0">
 		<img class="h-7 md:h-5 shadow" :src="`/media/group/${layout.tenant.logo_id}`" :alt="layout.tenant.code" />
@@ -141,12 +146,12 @@ const checkRight = (abcdef) => {
 
 				<div
 					class="text-sm inline-flex place-self-center rounded-r justify-center border-solid border border-l-0 border-indigo-300">
-					<Link v-for="fakeMarketplace in helperMarketplace" :href="route(fakeMarketplace.route)"
-						:title="fakeMarketplace.title"
+					<Link v-for="helperMarketplace in helperMarketplaces" :href="route(helperMarketplace.route)"
+						:title="helperMarketplace.title"
 						class="group text-gray-400 flex justify-center items-center cursor-pointer h-7 py-1 space-x-1 px-3" :class="[
-							[currentRoute == fakeMarketplace.route ? 'text-indigo-600' : 'hover:text-gray-600']
+							[currentRoute == helperMarketplace.route ? 'text-indigo-600' : 'hover:text-gray-600']
 						]">
-					<p class="hidden lg:inline capitalize">{{ fakeMarketplace.label }}</p>
+					<p class="hidden lg:inline capitalize">{{ helperMarketplace.label }}</p>
 					</Link>
 				</div>
 			</div>
@@ -163,7 +168,7 @@ const checkRight = (abcdef) => {
 					<FontAwesomeIcon :icon="menu.icon"
 						class="h-5 lg:h-3.5 w-auto group-hover:opacity-100 opacity-70 transition duration-100 ease-in-out"
 						aria-hidden="true" />
-					<span class="hidden lg:inline capitalize">{{ menu.label }}</span>
+					<span class="hidden lg:inline capitalize whitespace-nowrap">{{ menu.label }}</span>
 					<!-- {{ (route(route().current(), route().params)) }} -- {{ urlPath(menu.route.name) }} -->
 					<!-- {{ (route(route().current(), route().params)).includes(urlPath(menu.route.name)) }} -->
 				</Link>
@@ -185,7 +190,8 @@ const checkRight = (abcdef) => {
 				<Link v-if="currentUrl &&
 					layout.navigation?.[currentUrl]?.topMenu &&
 					layout.navigation?.[currentUrl]?.topMenu.dropdown?.subsections"
-					v-for="(menu, index) in layout.navigation?.[currentUrl]?.topMenu.dropdown.subsections" :href="generateLink(menu)"
+					v-for="(menu, index) in layout.navigation?.[currentUrl]?.topMenu.dropdown.subsections"
+					:href="generateLink(menu)"
 					:title="capitalize(menu.tooltip)"
 					class="group flex justify-center items-center cursor-pointer h-7 py-1 space-x-1 px-4"
 					:class="[
@@ -199,7 +205,7 @@ const checkRight = (abcdef) => {
 					]"
 				>
 					<FontAwesomeIcon
-						v-if="menu.route.all == 'inventory.warehouses.index' && !layout?.navigation?.[currentUrl]?.currentData.slug && layout.navigation?.[currentUrl]?.topMenu?.dropdown?.options?.data?.length > 1"
+						v-if="menu.route.all == 'inventory.warehouses.index' && !layout?.navigation?.[currentUrl]?.currentData.slug && layout.navigation?.[currentUrl]?.topMenu?.dropdown?.options?.data?.length != 1"
 						icon="fal fa-bars"
 						class="w-auto pr-1 group-hover:opacity-100 opacity-70 transition duration-100 ease-in-out"
 						aria-hidden="true" />
@@ -208,9 +214,9 @@ const checkRight = (abcdef) => {
 						aria-hidden="true" />
 
 					<!-- If Menu != Warehouses then don't show the label (only icon) -->
-					<p v-if="menu.route.selected != 'inventory.warehouses.show'" class="hidden lg:inline capitalize">
+					<p v-if="menu.route.selected != 'inventory.warehouses.show'" class="hidden lg:inline capitalize whitespace-nowrap">
 						<!-- If menu linked to Shop Dashboard then label = 'Shop' instead default (Shops) -->
-						{{ layout.navigation?.[currentUrl]?.currentData?.slug ? menu.route.selected == 'shops.show' ? 'Shop' : menu.label : menu.label}}
+						{{ layout.navigation?.[currentUrl]?.currentData?.slug ? menu.route.selected == 'shops.show' ? 'Shop' : menu.label : menu.label }}
 					</p>
 				</Link>
 			</div>
