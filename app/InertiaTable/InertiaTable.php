@@ -22,6 +22,7 @@ class InertiaTable
 
     private array $title = [];
 
+    private Collection $emptyState;
     private Collection $modelOperations;
 
     private static bool|string $defaultGlobalSearch = false;
@@ -35,6 +36,7 @@ class InertiaTable
         $this->elementGroups   = new Collection();
         $this->filters         = new Collection();
         $this->modelOperations = new Collection();
+        $this->emptyState      = new Collection();
 
         if (static::$defaultGlobalSearch !== false) {
             $this->withGlobalSearch(static::$defaultGlobalSearch);
@@ -126,6 +128,7 @@ class InertiaTable
             'perPageOptions'                  => $this->perPageOptions,
             'elementGroups'                   => $this->transformElementGroups(),
             'modelOperations'                 => $this->modelOperations,
+            'emptyState'                      => $this->emptyState,
             'title'                           => $this->title
         ];
     }
@@ -275,6 +278,13 @@ class InertiaTable
     public function withModelOperations(array $modelOperations = null): self
     {
         $this->modelOperations = collect($modelOperations);
+
+        return $this;
+    }
+
+    public function withEmptyState(array $emptyState = null): self
+    {
+        $this->emptyState = collect($emptyState);
 
         return $this;
     }

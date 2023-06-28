@@ -136,32 +136,40 @@ class IndexWarehouseAreas extends InertiaAction
                     $request->route()->parameters
                 ),
                 'title'       => __('warehouse areas'),
-                'pageHead'    => [
-                    'title'  => __('warehouse areas'),
-                    'create' => $this->canEdit && $this->routeName == 'inventory.warehouses.show.warehouse-areas.index' ? [
-                        'route' => [
-                            'name'       => 'inventory.warehouses.show.warehouse-areas.create',
-                            'parameters' => array_values($this->originalParameters)
-                        ],
-                        'withMulti'=> [
+                    'pageHead'    => [
+                        'title'  => __('warehouse areas'),
+                        'create' => $this->canEdit && $this->routeName == 'inventory.warehouses.show.warehouse-areas.index' ? [
                             'route' => [
-                                'name'       => 'inventory.warehouses.show.warehouse-areas.create-multi',
+                                'name'       => 'inventory.warehouses.show.warehouse-areas.create',
                                 'parameters' => array_values($this->originalParameters)
                             ],
-                        ],
-                        'label' => __('warehouse area')
-                    ] : false,
-                'actions'=> [
-                    $this->canEdit && $this->routeName == 'inventory.warehouses.show.warehouse-areas.index' ? [
-                        'type'=>'button',
-                        'style'=>'create',
-                        'label' => __('warehouse area'),
-                        'route' => [
-                            'name'       => 'inventory.warehouses.show.warehouse-areas.create',
-                            'parameters' => array_values($this->originalParameters)
-                        ]
-                    ] : false
-                ]
+                            'withMulti'=> [
+                                'route' => [
+                                    'name'       => 'inventory.warehouses.show.warehouse-areas.create-multi',
+                                    'parameters' => array_values($this->originalParameters)
+                                ],
+                            ],
+                            'label' => __('warehouse area')
+                        ] : false,
+                    'actions'=> [
+                        $this->canEdit && $this->routeName == 'inventory.warehouses.show.warehouse-areas.index' ? [
+                            'type'=>'button',
+                            'style'=>'create',
+                            'label' => __('warehouse area'),
+                            'route' => [
+                                'name'       => 'inventory.warehouses.show.warehouse-areas.create',
+                                'parameters' => array_values($this->originalParameters)
+                            ],
+                            'withMulti'=> [
+                                'type'=>'button',
+                                'style'=>'withMulti',
+                                'route' => [
+                                    'name'       => 'inventory.warehouses.show.warehouse-areas.create-multi',
+                                    'parameters' => array_values($this->originalParameters)
+                                ],
+                            ],
+                        ] : false
+                    ]
                 ],
                 'data'        => WarehouseAreaResource::collection($warehouseAreas)
             ]

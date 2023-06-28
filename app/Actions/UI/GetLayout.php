@@ -516,7 +516,7 @@ class GetLayout
                 'name'         => __('Accounting'),
                 'icon'         => ['fal', 'fa-abacus'],
                 'route'        => 'accounting.dashboard',
-                'routeOption'  => 'xxx',
+                'routeOption'  => 'shops.show',
                 'labelShowAll' => __('All Accounting'),
                 'currentData'  => [
                     'slug' => null,
