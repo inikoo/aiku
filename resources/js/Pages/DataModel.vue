@@ -70,25 +70,25 @@ const current = ref(0);
 
 <template>
     
-    <div class="flex flex-col md:flex-row p-4 gap-4">
+    <div class="flex flex-col md:flex-row p-4">
       <div class="w-full">
-        <table class="table-auto w-full">
+        <table class="table-auto w-full table">
           <tbody>
             <slot>
               <tr
                 v-for="(row, rowIndex) in newData.slice(0, Math.ceil(newData.length / 2))"
                 :key="rowIndex"
-                class="bg-white divide-gray-200"
+                class="bg-white divide-gray-200 border-r-2  md:border-r-0"
               >
-                <td class="px-4 py-2 border border-gray-200 p-6 bg-gray-50">{{ row.label }}</td>
-                <td class="px-4 py-2 border border-gray-200">{{ row.value == null ? '-' : row.value }}</td>
+                <td class="px-4 py-2 border border-gray-200 p-6 bg-gray-50 title">{{ row.label }}</td>
+                <td class="px-4 py-2 border border-gray-200 border-r-2 md:border-r-0 ">{{ row.value == null ? '-' : row.value }}</td>
               </tr>
             </slot>
           </tbody>
         </table>
       </div>
       <div class="w-full">
-        <table class="table-auto w-full">
+        <table class="table-auto w-full table">
           <tbody>
             <slot>
               <tr
@@ -96,7 +96,7 @@ const current = ref(0);
                 :key="rowIndex"
                 class="bg-white divide-gray-200"
               >
-                <td class="px-4 py-2 border border-gray-200 p-6 bg-gray-50">{{ row.label }}</td>
+                <td class="px-4 py-2 border border-gray-200 p-6 bg-gray-50 title" >{{ row.label }}</td>
                 <td class="px-4 py-2 border border-gray-200">{{ row.value == null ? '-' : row.value }}</td>
               </tr>
             </slot>
@@ -110,7 +110,11 @@ const current = ref(0);
 
 <style>
 .table td {
-    border: 1px solid #f0f0f0;
     font-size: 14px;
+}
+
+.title {
+    font-weight: 500;
+    width: 400px;
 }
 </style>
