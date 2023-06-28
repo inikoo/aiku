@@ -66,7 +66,7 @@ class RemoveEmployee extends InertiaAction
                             'style'=>'cancel',
                             'route' => [
                                 'name'       => preg_replace('/remove$/', 'show', $this->routeName),
-                                'parameters' => $employee
+                                'parameters' => $employee->slug
                             ]
                         ]
                     ]

@@ -38,9 +38,9 @@ class DeleteEmployee
         return $this->handle($employee);
     }
 
-    public function htmlResponse(Employee $employee): RedirectResponse
+    public function htmlResponse(): RedirectResponse
     {
-        return Redirect::route('hr.employees.show', $employee->slug);
+        return Redirect::route('hr.employees.index');
     }
 
 }
