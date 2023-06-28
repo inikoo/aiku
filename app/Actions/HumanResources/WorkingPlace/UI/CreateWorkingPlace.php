@@ -32,13 +32,17 @@ class CreateWorkingPlace extends InertiaAction
                 'title'       => __('new workplace'),
                 'pageHead'    => [
                     'title'        => __('new workplace'),
-                    'cancelCreate' => [
-                        'route' => [
-                            'name'       => 'hr.working-places.index',
-                            'parameters' => array_values($this->originalParameters)
-                        ],
+                    'actions' => [
+                        [
+                            'type'=>'button',
+                            'style'=>'cancelCreate',
+                            'label' => __('cancel'),
+                            'route' => [
+                                'name'       => 'hr.working-places.index',
+                                'parameters' => array_values($this->originalParameters)
+                            ],
+                        ]
                     ]
-
                 ],
                 'formData' => [
                     'blueprint' => [

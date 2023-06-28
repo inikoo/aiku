@@ -33,6 +33,7 @@ use App\Actions\HumanResources\TimeSheet\ShowTimeSheet;
 use App\Actions\HumanResources\WorkingPlace\UI\CreateWorkingPlace;
 use App\Actions\HumanResources\WorkingPlace\UI\EditWorkingPlace;
 use App\Actions\HumanResources\WorkingPlace\UI\IndexWorkingPlaces;
+use App\Actions\HumanResources\WorkingPlace\UI\RemoveWorkingPlace;
 use App\Actions\HumanResources\WorkingPlace\UI\ShowWorkingPlace;
 use App\Actions\UI\HumanResources\HumanResourcesDashboard;
 use Illuminate\Support\Facades\Route;
@@ -67,6 +68,7 @@ Route::get('/working-places/create', CreateWorkingPlace::class)->name('working-p
 Route::get('/working-places/export', ExportWorkingPlaces::class)->name('working-places.export');
 Route::get('/working-places/{workplace}', ShowWorkingPlace::class)->name('working-places.show');
 Route::get('/working-places/{workplace}/edit', EditWorkingPlace::class)->name('working-places.edit');
+Route::get('/working-places/{workplace}/delete', RemoveWorkingPlace::class)->name('working-places.remove');
 
 Route::scopeBindings()->group(function () {
 
@@ -86,7 +88,6 @@ Route::scopeBindings()->group(function () {
     Route::get('/working-places/{workplace}/clocking-machines/{clockingMachine}/clockings/{clocking}', [ShowClocking::class, 'inWorkplaceInClockingMachine'])->name('working-places.show.clocking-machines.show.clockings.show');
 
     Route::get('/working-places/{workplace}/clockings', [IndexClockings::class, 'inWorkplace'])->name('working-places.show.clockings.index');
-    Route::get('/working-places/{workplace}/clockings/create', CreateClocking::class, 'inWorkplace')->name('working-places.show.clockings.create');
     Route::get('/working-places/{workplace}/clockings/{clocking}', [ShowClocking::class, 'inWorkplace'])->name('working-places.show.clockings.show');
     Route::get('/working-places/{workplace}/clockings/{clocking}/edit', [EditClocking::class, 'inWorkplace'])->name('working-places.show.clockings.edit');
 

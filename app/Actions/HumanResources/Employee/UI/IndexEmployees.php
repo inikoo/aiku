@@ -156,11 +156,11 @@ class IndexEmployees extends InertiaAction
                         $this->canEdit ? [
                             'type'=>'button',
                             'style'=>'create',
+                            'label' => __('employee'),
                             'route' => [
                                 'name'       => 'hr.employees.create',
                                 'parameters' => array_values($this->originalParameters)
-                            ],
-                            'label' => __('employee')
+                            ]
                         ] : false
                     ]
                 ],

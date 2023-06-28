@@ -25,6 +25,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexWorkingPlaces extends InertiaAction
 {
+    /** @noinspection PhpUndefinedMethodInspection */
     public function handle($prefix=null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -38,7 +39,18 @@ class IndexWorkingPlaces extends InertiaAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        return QueryBuilder::for(Workplace::class)
+        $queryBuilder=QueryBuilder::for(Workplace::class);
+        foreach ($this->elementGroups as $key => $elementGroup) {
+            /** @noinspection PhpUndefinedMethodInspection */
+            $queryBuilder->whereElementGroup(
+                prefix: $prefix,
+                key: $key,
+                allowedElements: array_keys($elementGroup['elements']),
+                engine: $elementGroup['engine']
+            );
+        }
+
+        return $queryBuilder
             ->defaultSort('slug')
             ->select(['slug', 'id', 'name', 'type'])
             ->allowedSorts(['slug','name'])
@@ -94,13 +106,17 @@ class IndexWorkingPlaces extends InertiaAction
                 'title'       => __('working places'),
                 'pageHead'    => [
                     'title'  => __('working places'),
-                    'create' => $this->canEdit ? [
-                        'route' => [
-                            'name'       => 'hr.working-places.create',
-                            'parameters' => array_values($this->originalParameters)
-                        ],
-                        'label' => __('working place')
-                    ] : false,
+                    'actions'=> [
+                        $this->canEdit ? [
+                            'type'=>'button',
+                            'style'=>'create',
+                            'label' => __('working place'),
+                            'route' => [
+                                'name'       => 'hr.working-places.create',
+                                'parameters' => array_values($this->originalParameters)
+                            ]
+                        ] : false
+                    ]
                 ],
                 'tabs' => [
                     'current'    => $this->tab,

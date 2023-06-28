@@ -30,6 +30,7 @@ class CreateClocking extends InertiaAction
                 'title'    => __('new clocking'),
                 'pageHead' => [
                     'title'        => __('new clocking'),
+
                     'cancelCreate' => [
                         'route' => [
                             'name'       => 'hr.working-places.show.clockings.index',
@@ -88,13 +89,6 @@ class CreateClocking extends InertiaAction
         return $request->user()->can('hr');
     }
 
-
-    public function inWorkplace(Workplace $workplace, ActionRequest $request): Response
-    {
-        $this->initialisation($request);
-
-        return $this->handle($request);
-    }
 
     public function inWorkplaceInClockingMachine(Workplace $workplace, ClockingMachine $clockingMachine, ActionRequest $request): Response
     {
