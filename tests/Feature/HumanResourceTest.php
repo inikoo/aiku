@@ -12,6 +12,7 @@ use App\Actions\HumanResources\Employee\UpdateEmployee;
 use App\Actions\HumanResources\WorkingPlace\UpdateWorkingPlace;
 use App\Actions\Tenancy\Group\StoreGroup;
 use App\Actions\Tenancy\Tenant\StoreTenant;
+use App\Models\Auth\User;
 use App\Models\Helpers\Address;
 use App\Models\HumanResources\Workplace;
 use App\Models\Tenancy\Group;
@@ -71,10 +72,10 @@ test('update employee working hours', function () {
 
 test('create user from employee', function () {
     $lastEmployee = Employee::latest()->first();
-
-    $createdEmployee = CreateUserFromEmployee::run($lastEmployee);
-
-    expect($createdEmployee->contact_name)->toBe($lastEmployee->contact_name);
+    expect($lastEmployee)->toBeInstanceOf(Employee::class);
+    $user = CreateUserFromEmployee::run($lastEmployee);
+    expect($user)->toBeInstanceOf(User::class)
+        ->and($user->contact_name)->toBe($lastEmployee->contact_name);
 });
 
 test('create working place successful', function () {

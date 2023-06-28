@@ -7,6 +7,7 @@
 
 namespace App\Actions\Auth\GroupUser;
 
+use App\Enums\Auth\User\UserAuthTypeEnum;
 use App\Models\Auth\GroupUser;
 use App\Models\Tenancy\Group;
 use App\Rules\AlphaDashDot;
@@ -30,11 +31,16 @@ class StoreGroupUser
 
     public function handle(array $modelData): GroupUser
     {
-        $modelData['password']  = Hash::make($modelData['password']);
-        $centralUser            = GroupUser::create($modelData);
+        $modelData['password'] = Hash::make($modelData['password']);
 
-        return SetGroupUserAvatar::run($centralUser);
+        data_set($modelData, 'auth_type', UserAuthTypeEnum::DEFAULT, overwrite: false);
+
+
+        $groupUser = GroupUser::create($modelData);
+
+        return SetGroupUserAvatar::run($groupUser);
     }
+
     public function authorize(ActionRequest $request): bool
     {
         if ($this->trusted) {
@@ -43,6 +49,7 @@ class StoreGroupUser
 
         return $request->user()->hasPermissionTo("sysadmin.edit");
     }
+
     public function rules(): array
     {
         return [
@@ -72,24 +79,24 @@ class StoreGroupUser
             $group = Group::where('slug', $command->argument('group_slug'))->firstOrFail();
         } catch (Exception) {
             $command->error("Group {$command->argument('group_slug')} not found");
+
             return 1;
         }
 
 
-        if($group->tenants()->count()==0) {
+        if ($group->tenants()->count() == 0) {
             $command->error("Group {$command->argument('group_slug')} dont have any tenant,  please add one");
+
             return 1;
         }
 
         $group->owner->makeCurrent();
 
 
-
         if ($command->option('autoPassword')) {
             $password = (app()->isProduction() ? wordwrap(Str::random(), 4, '-', true) : 'hello');
         } else {
             $password = $command->secret('What is the password?');
-
         }
 
 
@@ -104,7 +111,7 @@ class StoreGroupUser
         $validatedData = $this->validateAttributes();
 
 
-        $groupUser=$this->handle($validatedData);
+        $groupUser = $this->handle($validatedData);
 
 
         $command->info("Group User <fg=yellow>$groupUser->username</> created 👍");

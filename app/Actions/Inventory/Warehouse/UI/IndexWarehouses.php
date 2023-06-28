@@ -136,19 +136,18 @@ class IndexWarehouses extends InertiaAction
                 'title' => __('warehouses'),
                 'pageHead' => [
                     'title' => __('warehouses'),
-                    'actions' =>
-                        [
-                            $this->canEdit ? [
-                                'type' => 'button',
-                                'style' => 'create',
-                                'tooltip' => __('new warehouse'),
-                                'label' => __('warehouse'),
-                                'route' => [
-                                    'name' => 'inventory.warehouses.create',
-                                    'parameters' => array_values($this->originalParameters)
-                                ]
-                            ] : null
-                        ]
+                    'actions'=> [
+                        $this->canEdit && $this->routeName == 'sysadmin.guests.index' ? [
+                            'type' => 'button',
+                            'style' => 'create',
+                            'tooltip' => __('new warehouse'),
+                            'label' => __('warehouse'),
+                            'route' => [
+                                'name' => 'inventory.warehouses.create',
+                                'parameters' => array_values($this->originalParameters)
+                            ]
+                        ] : false,
+                    ]
                 ],
                 'data' => WarehouseResource::collection($warehouses),
 

@@ -41,30 +41,30 @@ class CreateShop extends InertiaAction
                     ]
 
                 ],
-                'formData' => [
+                'formData'    => [
                     'blueprint' => [
                         [
                             'title'  => __('detail'),
                             'fields' => [
 
                                 'code' => [
-                                    'type'         => 'input',
-                                    'label'        => __('code'),
-                                    'required'     => true,
+                                    'type'     => 'input',
+                                    'label'    => __('code'),
+                                    'required' => true,
                                 ],
                                 'name' => [
-                                    'type'         => 'input',
-                                    'label'        => __('name'),
-                                    'required'     => true,
-                                    'value'        => '',
+                                    'type'     => 'input',
+                                    'label'    => __('name'),
+                                    'required' => true,
+                                    'value'    => '',
                                 ],
 
                                 'subtype' => [
-                                    'type'         => 'radio',
-                                    'label'        => __('type'),
-                                    'options'      => Options::forEnum(ShopSubtypeEnum::class),
-                                    'required'     => true,
-                                    'mode'         => 'single'
+                                    'type'     => 'radio',
+                                    'label'    => __('type'),
+                                    'options'  => Options::forEnum(ShopSubtypeEnum::class),
+                                    'required' => true,
+                                    'mode'     => 'single'
                                 ],
                             ]
                         ],
@@ -78,22 +78,7 @@ class CreateShop extends InertiaAction
                                     'label'       => __('country'),
                                     'placeholder' => 'Select a Country',
                                     'options'     => GetCountriesOptions::run(),
-                                    'required'    => true,
-                                    'mode'        => 'single'
-                                ],
-                                'currency_id' => [
-                                    'type'        => 'select',
-                                    'label'       => __('currency'),
-                                    'placeholder' => 'Select a Currency',
-                                    'options'     => GetCurrenciesOptions::run(),
-                                    'required'    => true,
-                                    'mode'        => 'single'
-                                ],
-                                'timezone_id' => [
-                                    'type'        => 'select',
-                                    'label'       => __('timezone'),
-                                    'placeholder' => 'Select a Timezone',
-                                    'options'     => GetTimeZonesOptions::run(),
+                                    'value'       => app('currentTenant')->country_id,
                                     'required'    => true,
                                     'mode'        => 'single'
                                 ],
@@ -102,25 +87,45 @@ class CreateShop extends InertiaAction
                                     'label'       => __('language'),
                                     'placeholder' => 'Select a Language',
                                     'options'     => GetLanguagesOptions::make()->all(),
+                                    'value'       => app('currentTenant')->language_id,
                                     'required'    => true,
                                     'mode'        => 'single'
                                 ],
+                                'currency_id' => [
+                                    'type'        => 'select',
+                                    'label'       => __('currency'),
+                                    'placeholder' => 'Select a Currency',
+                                    'options'     => GetCurrenciesOptions::run(),
+                                    'value'       => app('currentTenant')->currency_id,
+                                    'required'    => true,
+                                    'mode'        => 'single'
+                                ],
+                                'timezone_id' => [
+                                    'type'        => 'select',
+                                    'label'       => __('timezone'),
+                                    'placeholder' => 'Select a Timezone',
+                                    'options'     => GetTimeZonesOptions::run(),
+                                    'value'       => app('currentTenant')->timezone_id,
+                                    'required'    => true,
+                                    'mode'        => 'single'
+                                ],
+
                             ]
                         ],
                         [
                             'title'  => __('contact/details'),
                             'fields' => [
                                 'contact_name' => [
-                                    'type'    => 'input',
-                                    'label'   => __('contact name'),
-                                    'value'   => '',
+                                    'type'  => 'input',
+                                    'label' => __('contact name'),
+                                    'value' => '',
                                 ],
                                 'company_name' => [
-                                    'type'    => 'input',
-                                    'label'   => __('company name'),
-                                    'value'   => '',
+                                    'type'  => 'input',
+                                    'label' => __('company name'),
+                                    'value' => '',
                                 ],
-                                'email' => [
+                                'email'        => [
                                     'type'    => 'input',
                                     'label'   => __('email'),
                                     'value'   => '',
@@ -128,7 +133,7 @@ class CreateShop extends InertiaAction
                                         'inputType' => 'email'
                                     ]
                                 ],
-                                'phone' => [
+                                'phone'        => [
                                     'type'  => 'input',
                                     'label' => __('telephone'),
                                     'value' => ''
@@ -136,7 +141,7 @@ class CreateShop extends InertiaAction
                             ]
                         ],
                     ],
-                    'route' => [
+                    'route'     => [
                         'name' => 'models.shop.store',
                     ]
                 ],

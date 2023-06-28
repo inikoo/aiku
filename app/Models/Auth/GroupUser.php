@@ -7,6 +7,7 @@
 
 namespace App\Models\Auth;
 
+use App\Enums\Auth\User\UserAuthTypeEnum;
 use App\Models\Central\CentralMedia;
 use App\Models\Media\GroupMedia;
 use App\Models\Tenancy\Tenant;
@@ -31,8 +32,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $id
  * @property string $username
  * @property string $password
- * @property string|null $email
- * @property string|null $name
+ * @property UserAuthTypeEnum $auth_type
+ * @property string|null $contact_name no-normalised depends on parent
+ * @property string|null $email mirror group_users.email
  * @property string|null $about
  * @property bool $status
  * @property int|null $avatar_id
@@ -61,7 +63,9 @@ class GroupUser extends Model implements HasMedia
     use SoftDeletes;
 
     protected $casts = [
-        'data' => 'array',
+        'data'      => 'array',
+        'status'    => 'boolean',
+        'auth_type' => UserAuthTypeEnum::class
     ];
 
     protected $attributes = [

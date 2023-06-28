@@ -23,7 +23,7 @@ class IndexGroupUsersOtherTenants
     {
 
         return QueryBuilder::for(GroupUser::class)
-            ->select('group_users.id', 'username', 'status', 'name', 'email')
+            ->select('group_users.id', 'username', 'status', 'contact_name', 'email')
             ->leftJoin('public.group_user_tenant', 'public.group_user_tenant.group_user_id', 'group_users.id')
             ->where('tenant_id', '!=', app('currentTenant')->id)
             ->groupBy('group_users.id')
