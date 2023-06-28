@@ -31,52 +31,59 @@ const props = defineProps(
         'action': {
             type: String,
         },
-    });
+    })
 
-let typeClass = '';
-let iconClass = '';
-let sizeClass = '';
-switch (props.type) {
-    case 'white':
-        typeClass = 'border-gray-300 bg-white text-gray-700  hover:bg-gray-50 ';
-        break;
-    case 'secondary':
-        typeClass = 'border-transparent bg-indigo-100 text-indigo-700 hover:bg-indigo-200';
-        break;
-    case 'primary':
-        typeClass = 'border-transparent bg-indigo-600 text-white hover:bg-indigo-700';
-        break;
-    case 'danger':
-        typeClass = 'border-red-400 text-red-600 hover:text-red-800 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2';
-        break;
-}
+let typeClass = ''
+let iconClass = ''
+let sizeClass = ''
 
+// Styling depends on the Type props
+if(props.type == 'edit' || props.type == 'exitEdit') typeClass = 'border-gray-300 bg-white text-gray-700 hover:bg-gray-100/70 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2'
+else if (props.type == 'create') typeClass = 'border-transparent bg-indigo-600 text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2'
+else if (props.type == 'secondary') typeClass = 'border-transparent bg-indigo-100 text-indigo-700 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2'
+else if (props.type == 'delete') typeClass = 'border-red-400 text-red-600 hover:text-red-800 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2'
 
+// switch (props.type) {
+//     case 'edit':
+//         typeClass = 'border-gray-300 bg-white text-gray-700 hover:bg-gray-100/70 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2'
+//         break
+
+//     case 'create':
+//         typeClass = 'border-transparent bg-indigo-600 text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2'
+//         break
+
+//     case 'secondary':
+//         typeClass = 'border-transparent bg-indigo-100 text-indigo-700 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2'
+//         break
+
+//     case 'delete':
+//         typeClass = 'border-red-400 text-red-600 hover:text-red-800 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2'
+//         break
+// }
+
+// Styling depends on the Size props
 switch (props.size) {
     case 'xs':
-        sizeClass = 'rounded px-2.5 py-1.5 text-xs';
-        iconClass= '-ml-0.5 mr-2 h-3 w-3 ';
-        break;
+        sizeClass = 'rounded px-2.5 py-1.5 text-xs'
+        iconClass= '-ml-0.5 mr-2 h-3 w-3 '
+        break
     case 's':
-        sizeClass = 'rounded-md px-3 py-2 text-sm';
-        iconClass= '-ml-0.5 mr-2 h-4 w-4';
-        break;
+        sizeClass = 'rounded-md px-3 py-2 text-sm'
+        iconClass= '-ml-0.5 mr-2 h-4 w-4'
+        break
     case 'm':
-        sizeClass = 'rounded-md x-4 py-2 text-sm';
-        iconClass= '-ml-1 mr-2 ';
-        break;
+        sizeClass = 'rounded-md x-4 py-2 text-sm'
+        iconClass= '-ml-1 mr-2 '
+        break
     case 'l':
-        sizeClass = 'rounded-md px-4 py-2 text-base';
-        iconClass= '-ml-1 mr-3 h-5 w-5';
-        break;
+        sizeClass = 'rounded-md px-4 py-2 text-base'
+        iconClass= '-ml-1 mr-3 h-5 w-5'
+        break
     case 'xl':
-        sizeClass = 'rounded-md px-6 py-3 text-base';
-        iconClass= 'ml-1 mr-3 h-5 w-5';
-        break;
+        sizeClass = 'rounded-md px-6 py-3 text-base'
+        iconClass= 'ml-1 mr-3 h-5 w-5'
+        break
 }
-
-
-
 
 </script>
 
@@ -85,18 +92,17 @@ switch (props.size) {
     <button
         type="button"
         :class="[
-        'px-5 border inline-flex items-center font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2',
-        typeClass,sizeClass]"
+            'px-5 border inline-flex items-center font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2',
+            typeClass,
+            sizeClass
+        ]"
     >
-
-
         <FontAwesomeIcon
             v-if="action==='create'"
             aria-hidden="true"
             icon="fas fa-plus"
             size="sm"
             :class="[iconClass]"/>
-
         <FontAwesomeIcon
             v-if="leftIcon"
             :title="leftIcon['tooltip']"

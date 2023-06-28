@@ -19,57 +19,75 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { trans } from "laravel-vue-i18n";
 
 library.add(faEmptySet, faMoneyCheckAlt, faPeopleArrows, faPlus, faPencil, faArrowLeft, faBorderAll, faTrashAlt);
-const props = defineProps(["data"]);
-const locale = useLocaleStore();
+const props = defineProps(["data"])
+const locale = useLocaleStore()
 
 const getActionLabel = function(action) {
     if (action.hasOwnProperty("label")) {
-        return action.label;
+        return action.label
     } else {
         switch (action.style) {
             case "edit":
-                return trans("edit");
+                return trans("edit")
+
             case "exitEdit":
-                return trans("exit edit");
+                return trans("exit edit")
+
             case "cancelCreate":
+
             case "cancel":
-                return trans("cancel");
+                return trans("cancel")
+
             case "delete":
-                return trans("delete");
+                return trans("delete")
+
             case "withMulti":
-                return trans("");
+                return trans("")
+
             default:
-                return "";
+                return ""
         }
     }
 };
 
+
+// Set icon depends on the Style props
 const getActionIcon = function(action) {
     if (action.hasOwnProperty("icon")) {
-        return action.label;
+        return action.label
     } else {
         switch (action.style) {
             case "edit":
-                return ["far", "fa-pencil"];
+                return ["far", "fa-pencil"]
+
             case "exit":
+
             case "exitEdit":
-                return ["far", "fa-arrow-left"];
+                return ["far", "fa-arrow-left"]
+
             case "create":
-                return ["fas", "fa-plus"];
+                return ["fas", "fa-plus"]
+
             case "cancel":
+
             case "cancelCreate":
-                return ["far", "fa-arrow-left"];
+                return ["far", "fa-arrow-left"]
+
             case "delete":
-                return ["far", "fa-trash-alt"];
+                return ["far", "fa-trash-alt"]
+
             case "withMulti":
-                return ["far", "fa-border-all"];
+                return ["far", "fa-border-all"]
+
             default:
-                return null;
+                return null
         }
     }
-};
+}
 
 </script>
+
+
 <template>
     <div class="mx-4 my-4 md:my-2 grid grid-flow-col justify-between items-center">
         <div>
@@ -112,23 +130,25 @@ const getActionIcon = function(action) {
                 </div>
             </div>
         </div>
+<pre>{{ data }}</pre>
 
-        <!-- Button Add -->
         <div class="flex items-center gap-2">
-
             <span v-for="action in data.actions">
-                 <Link v-if="action.type==='button'" :href="route(action['route']['name'],action['route']['parameters'])">
-                         <Button
-                             size="xs"
-                             type="button"
-                             class="capitalize inline-flex items-center rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-                        <FontAwesomeIcon v-if="getActionIcon(action)" :icon="getActionIcon(action)" class="-ml-1 mr-2 text-gray-500" aria-hidden="true" />
+                
+                <!-- Button: Dynamic -->
+                 <Link v-if="action.type === 'button'" :href="route(action['route']['name'], action['route']['parameters'])">
+                    <Button
+                        size="xs"
+                        :type="action.style"
+                        class="capitalize inline-flex items-center rounded-md border text-sm font-medium shadow-sm "
+                    >
+                        <FontAwesomeIcon v-if="getActionIcon(action)" :icon="getActionIcon(action)" class="-ml-1 mr-2" aria-hidden="true" />
                         {{ getActionLabel(action) }}
                      </Button>
                 </Link>
             </span>
 
-            <span v-if="data['delete']">
+            <!-- <span v-if="data['delete']">
                 <Link as="button" :href="route(data['delete']['route']['name'],data['delete']['route']['parameters'])">
                     <FontAwesomeIcon class="text-red-500 hover:text-red-700 mr-3" icon="far fa-trash-alt" />
                 </Link>
@@ -144,10 +164,10 @@ const getActionIcon = function(action) {
                         {{ trans("Edit") }}
                     </Button>
                 </Link>
-            </span>
+            </span> -->
 
             <!-- If the button is more than 1 in one component -->
-            <div v-if="data['create'] && data['create']['withMulti']" class="flex">
+            <!-- <div v-if="data['create'] && data['create']['withMulti']" class="flex">
                 <Link :href="route(data['create']['withMulti']['route']['name'],data['create']['withMulti']['route']['parameters'])">
                     <Button type="secondary" class="capitalize rounded-r-none">
                         <FontAwesomeIcon icon="far fa-border-all" class="text-xl" />
@@ -203,7 +223,7 @@ const getActionIcon = function(action) {
                         <FontAwesomeIcon icon="far fa-trash-alt" class="h-5 w-5 text-gray-500" aria-hidden="true" />
                     </Button>
                 </Link>
-            </span>
+            </span> -->
 
             <!-- Dropdown -->
             <!-- <Menu as="div" class="relative ml-3 sm:hidden">
