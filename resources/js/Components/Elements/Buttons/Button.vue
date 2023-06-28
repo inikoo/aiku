@@ -42,7 +42,7 @@ if(props.type == 'edit' || props.type == 'exitEdit') typeClass = 'border-gray-30
 else if (props.type == 'create') typeClass = 'border-transparent bg-indigo-600 text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2'
 else if (props.type == 'secondary') typeClass = 'border-transparent bg-indigo-100 text-indigo-700 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2'
 else if (props.type == 'delete') typeClass = 'border-red-400 text-red-600 hover:text-red-800 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2'
-
+else (typeClass = 'border-red-400 text-red-600 hover:text-red-800 hover:bg-green-500 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2')
 // switch (props.type) {
 //     case 'edit':
 //         typeClass = 'border-gray-300 bg-white text-gray-700 hover:bg-gray-100/70 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2'

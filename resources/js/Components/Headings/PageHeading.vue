@@ -130,7 +130,6 @@ const getActionIcon = function(action) {
                 </div>
             </div>
         </div>
-<pre>{{ data }}</pre>
 
         <div class="flex items-center gap-2">
             <span v-for="action in data.actions">
