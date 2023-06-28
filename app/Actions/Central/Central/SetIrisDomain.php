@@ -5,9 +5,9 @@
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Central\CentralDomain;
+namespace App\Actions\Central\Central;
 
-use App\Models\Central\CentralDomain;
+use App\Models\Central\Domain;
 use GuzzleHttp\Promise\PromiseInterface;
 use Illuminate\Console\Command;
 use Illuminate\Http\Client\Response;
@@ -18,17 +18,17 @@ class SetIrisDomain
 {
     use AsAction;
 
-    public string $commandSignature = 'iris:set-domain {--d|domain= : central domain slug}';
+    public string $commandSignature = 'iris:set-domain {--d|domain= : domain slug}';
 
-    public function handle(CentralDomain $centralDomain): PromiseInterface|Response
+    public function handle(Domain $domain): PromiseInterface|Response
     {
-        $token = $centralDomain->sysUser->createToken(
+        $token = $domain->sysUser->createToken(
             'iris',
             ['iris'],
         );
 
         $parameters = [
-            'central_domain_id' => $centralDomain->id,
+            'central_domain_id' => $domain->id,
             'aiku_token'        => $token->plainTextToken,
             'soft'              => true,
         ];
@@ -41,8 +41,8 @@ class SetIrisDomain
             );
 
         if ($response->status() == 201 or $response->status() == 200) {
-            $centralDomain->update(['state' => 'iris-enabled']);
-            $centralDomain->sysUser->tokens()->where('id', '!=', $token->accessToken->id)->delete();
+            $domain->update(['state' => 'iris-enabled']);
+            $domain->sysUser->tokens()->where('id', '!=', $token->accessToken->id)->delete();
         }
 
         return $response;
@@ -51,9 +51,10 @@ class SetIrisDomain
     public function asCommand(Command $command): int
     {
         if ($command->option('domain')) {
-            $centralDomain = CentralDomain::where('slug', ($command->option('domain')))->firstOrFail();
-            if ($centralDomain->state == 'created' or $centralDomain->state == 'iris-enabled') {
-                $response = $this->handle($centralDomain);
+            /** @var Domain $domain */
+            $domain = Domain::where('slug', ($command->option('domain')))->firstOrFail();
+            if ($domain->state == 'created' or $domain->state == 'iris-enabled') {
+                $response = $this->handle($domain);
                 if (!($response->status() == 201 or $response->status() == 200)) {
                     $command->error($response->status());
 
@@ -62,12 +63,12 @@ class SetIrisDomain
 
                 return 0;
             }
-            $command->error('Central domain has state:'.$centralDomain->state);
+            $command->error('The domain has state:'.$domain->state);
 
             return 1;
         } else {
-            foreach (CentralDomain::whereIn('state', ['created','iris-enabled'])->get() as $centralDomain) {
-                $this->handle($centralDomain);
+            foreach (Domain::whereIn('state', ['created', 'iris-enabled'])->get() as $domain) {
+                $this->handle($domain);
             }
         }
 

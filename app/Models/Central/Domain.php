@@ -21,8 +21,9 @@ use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
+
 /**
- * App\Models\Central\CentralDomain
+ * App\Models\Central\Domain
  *
  * @property int $id
  * @property string $slug
@@ -31,22 +32,22 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $domain
  * @property string|null $cloudflare_id
  * @property string|null $cloudflare_status
- * @property string $state
+ * @property string|null $irs_status
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
- * @property-read \App\Models\Central\CentralDomainStats|null $stats
+ * @property-read \App\Models\Central\DomainStats|null $stats
  * @property-read SysUser|null $sysUser
  * @property-read Tenant $tenant
- * @method static Builder|CentralDomain newModelQuery()
- * @method static Builder|CentralDomain newQuery()
- * @method static Builder|CentralDomain onlyTrashed()
- * @method static Builder|CentralDomain query()
- * @method static Builder|CentralDomain withTrashed()
- * @method static Builder|CentralDomain withoutTrashed()
+ * @method static Builder|Domain newModelQuery()
+ * @method static Builder|Domain newQuery()
+ * @method static Builder|Domain onlyTrashed()
+ * @method static Builder|Domain query()
+ * @method static Builder|Domain withTrashed()
+ * @method static Builder|Domain withoutTrashed()
  * @mixin Eloquent
  */
-class CentralDomain extends Model
+class Domain extends Model
 {
     use HasSlug;
     use SoftDeletes;
@@ -72,7 +73,7 @@ class CentralDomain extends Model
 
     public function stats(): HasOne
     {
-        return $this->hasOne(CentralDomainStats::class);
+        return $this->hasOne(DomainStats::class);
     }
 
     protected $guarded = [];

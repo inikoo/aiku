@@ -7,8 +7,7 @@
 
 namespace App\Actions\Web\Domain;
 
-use App\Enums\Domain\DomainCloudflareStatusEnum;
-use App\Models\Central\CentralDomain;
+use App\Models\Central\Domain;
 use Illuminate\Support\Facades\Http;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -20,15 +19,15 @@ class CheckDomainStatusCloudflare
 
     public function handle(): void
     {
-        $centralDomains = CentralDomain::where('cloudflare_status', DomainCloudflareStatusEnum::PENDING->value)->get();
+        $domains = Domain::where('cloudflare_status', \App\Enums\Cenntral\Domain\DomainCloudflareStatusEnum::PENDING->value)->get();
 
-        foreach ($centralDomains as $centralDomain) {
+        foreach ($domains as $domain) {
             $response = Http::withHeaders([
-                'Content-Type' => 'application/json',
+                'Content-Type'  => 'application/json',
                 'Authorization' => 'Bearer ' . env('CLOUDFLARE_API_TOKEN'),
-            ])->get(env('CLOUDFLARE_API_URL') . "/zones/{$centralDomain->cloudflare_id}")->json();
+            ])->get(env('CLOUDFLARE_API_URL') . "/zones/{$domain->cloudflare_id}")->json();
 
-            CentralDomain::where('cloudflare_id', $response['result']['id'])->update([
+            Domain::where('cloudflare_id', $response['result']['id'])->update([
                 'cloudflare_status' => $response['result']['status']
             ]);
         }

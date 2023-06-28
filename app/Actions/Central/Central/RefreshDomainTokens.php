@@ -5,24 +5,24 @@
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Central\CentralDomain;
+namespace App\Actions\Central\Central;
 
-use App\Models\Central\CentralDomain;
+use App\Models\Central\Domain;
 use GuzzleHttp\Promise\PromiseInterface;
 use Illuminate\Console\Command;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class RefreshCentralDomainTokens
+class RefreshDomainTokens
 {
     use AsAction;
 
-    public string $commandSignature = 'maintenance:refresh-domain-tokens {--d|domain= : central domain slug}';
+    public string $commandSignature = 'maintenance:refresh-domain-tokens {--d|domain= : domain slug}';
 
-    public function handle(CentralDomain $centralDomain): PromiseInterface|Response
+    public function handle(Domain $domain): PromiseInterface|Response
     {
-        $token = $centralDomain->sysUser->createToken(
+        $token = $domain->sysUser->createToken(
             'iris',
             ['iris'],
         );
@@ -30,14 +30,14 @@ class RefreshCentralDomainTokens
         $response = Http::acceptJson()
             ->withToken(config('iris.token'))
             ->patch(
-                config('iris.url').'/api/domains/'.$centralDomain->slug,
+                config('iris.url').'/api/domains/'.$domain->slug,
                 [
                     'aiku_token' => $token->plainTextToken
                 ]
             );
 
         if ($response->status() == 200) {
-            $centralDomain->sysUser->tokens()->where('id', '!=', $token->accessToken->id)->delete();
+            $domain->sysUser->tokens()->where('id', '!=', $token->accessToken->id)->delete();
         }
 
         return $response;
@@ -46,27 +46,27 @@ class RefreshCentralDomainTokens
     public function asCommand(Command $command): int
     {
         if ($command->option('domain')) {
-            $centralDomain = CentralDomain::where('slug', ($command->option('domain')))->firstOrFail();
-            if ($centralDomain->state == 'iris-enabled') {
-                $response = $this->handle($centralDomain);
+            $domain = Domain::where('slug', ($command->option('domain')))->firstOrFail();
+            if ($domain->state == 'iris-enabled') {
+                $response = $this->handle($domain);
                 if (!($response->status() == 201 or $response->status() == 200)) {
                     $command->error($response->status());
 
                     return 1;
                 }
-                $command->line("Token for $centralDomain->slug updated 👌");
+                $command->line("Token for $domain->slug updated 👌");
                 return 0;
             }
-            $command->error('Central domain has state:'.$centralDomain->state);
+            $command->error('The domain has state:'.$domain->state);
 
             return 1;
         } else {
-            foreach (CentralDomain::where('state', 'iris-enabled')->get() as $centralDomain) {
-                $response=$this->handle($centralDomain);
+            foreach (Domain::where('state', 'iris-enabled')->get() as $domain) {
+                $response=$this->handle($domain);
                 if (!($response->status() == 201 or $response->status() == 200)) {
-                    $command->error($centralDomain->slug.': 😭 '.$response->status());
+                    $command->error($domain->slug.': 😭 '.$response->status());
                 } else {
-                    $command->line("Token for $centralDomain->slug updated 👌");
+                    $command->line("Token for $domain->slug updated 👌");
                 }
             }
         }

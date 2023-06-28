@@ -13,7 +13,6 @@ use App\Models\Assets\Language;
 use App\Models\Tenancy\Tenant;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasRoles;
-use Database\Factories\Auth\UserFactory;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -70,7 +69,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property-read \App\Models\Auth\UserStats|null $stats
  * @property-read Tenant $tenant
  * @property-read Collection<int, PersonalAccessToken> $tokens
- * @method static UserFactory factory($count = null, $state = [])
+ * @method static \Database\Factories\Auth\UserFactory factory($count = null, $state = [])
  * @method static Builder|User newModelQuery()
  * @method static Builder|User newQuery()
  * @method static Builder|User onlyTrashed()

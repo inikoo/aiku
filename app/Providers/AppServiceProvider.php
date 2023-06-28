@@ -51,7 +51,7 @@ class AppServiceProvider extends ServiceProvider
                 'HistoricProduct' => 'App\Models\Market\HistoricProduct',
                 'Supplier'        => 'App\Models\Procurement\Supplier',
                 'WebUser'         => 'App\Models\Web\WebUser',
-                'CentralDomain'   => 'App\Models\Central\CentralDomain',
+                'Domain'          => 'App\Models\Central\Domain',
                 'Order'           => 'App\Models\OMS\Order',
                 'Agent'           => 'App\Models\Procurement\Agent',
                 'Location'        => 'App\Models\Inventory\Location',

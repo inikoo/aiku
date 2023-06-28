@@ -7,36 +7,36 @@
 
 
 
-namespace App\Actions\Central\CentralDomain;
+namespace App\Actions\Central\Central;
 
 use App\Actions\Web\Domain\RegisterDomainCloudflare;
-use App\Models\Central\CentralDomain;
+use App\Models\Central\Domain;
 use Illuminate\Console\Command;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class AddCentralDomainCloudflare
+class AddDomainToCloudflare
 {
     use AsAction;
 
     public string $commandSignature   = 'domain:register {domain}';
     public string $commandDescription = 'Register Domain to Cloudflare';
 
-    public function handle(CentralDomain $centralDomain): string
+    public function handle(Domain $domain): string
     {
-        $response = RegisterDomainCloudFlare::run($centralDomain->domain);
+        $response = RegisterDomainCloudFlare::run($domain->domain);
 
-        $centralDomain->update([
+        $domain->update([
             'cloudflare_id' => $response['result']['id'],
             'cloudflare_status' => $response['result']['status'],
         ]);
 
-        return $centralDomain;
+        return $domain;
     }
 
     public function asCommand(Command $command): string
     {
-        $centralDomain = CentralDomain::where('domain', $command->argument('domain'))->first();
+        $domain = Domain::where('domain', $command->argument('domain'))->first();
 
-        return $this->handle($centralDomain);
+        return $this->handle($domain);
     }
 }

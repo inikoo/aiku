@@ -5,14 +5,16 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
+use App\Enums\Cenntral\Domain\DomainCloudflareStatusEnum;
+use App\Enums\Cenntral\Domain\DomainIrisStatusEnum;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
-    public function up()
+    public function up(): void
     {
-        Schema::create('central_domains', function (Blueprint $table) {
+        Schema::create('domains', function (Blueprint $table) {
             $table->smallIncrements('id');
             $table->string('slug')->unique()->collation('und_ns');
             $table->unsignedSmallInteger('tenant_id');
@@ -20,16 +22,16 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('website_id')->index();
             $table->string('domain')->index();
             $table->string('cloudflare_id')->index()->nullable();
-            $table->string('cloudflare_status')->nullable();
-            $table->enum('state', ['created','iris-enabled'])->default('created');
+            $table->string('cloudflare_status')->nullable()->default(DomainCloudflareStatusEnum::PENDING->value);
+            $table->string('irs_status')->nullable()->default(DomainIrisStatusEnum::PENDING->value);
             $table->timestampsTz();
             $table->softDeletesTz();
         });
     }
 
 
-    public function down()
+    public function down(): void
     {
-        Schema::dropIfExists('central_domains');
+        Schema::dropIfExists('domains');
     }
 };
