@@ -19,11 +19,11 @@ class GroupUserResource extends JsonResource
         $groupUser = $this;
 
         return [
-            'id'       => $groupUser->id,
-            'username' => $groupUser->username,
-            'name'     => $groupUser->name,
-            'email'    => $groupUser->email,
-            'status'   => $groupUser->status,
+            'id'           => $groupUser->id,
+            'username'     => $groupUser->username,
+            'contact_name' => $groupUser->contact_name,
+            'email'        => $groupUser->email,
+            'status'       => $groupUser->status,
         ];
     }
 }
