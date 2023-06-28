@@ -115,20 +115,19 @@ const props = defineProps(
             required: false,
         },
     });
-console.log(props)
-const app = getCurrentInstance();
-const $inertia = app ? app.appContext.config.globalProperties.$inertia : props.inertia;
-const updates = ref(0);
-
-const queryBuilderProps = computed(() => {
-    let data = $inertia.page.props.queryBuilderProps
-        ? $inertia.page.props.queryBuilderProps[props.name] || {}
-        : {};
-
-    data._updates = updates.value;
-
-    return data;
-});
+    const app = getCurrentInstance();
+    const $inertia = app ? app.appContext.config.globalProperties.$inertia : props.inertia;
+    const updates = ref(0);
+    
+    const queryBuilderProps = computed(() => {
+        let data = $inertia.page.props.queryBuilderProps
+            ? $inertia.page.props.queryBuilderProps[props.name] || {}
+            : {};
+    
+        data._updates = updates.value;
+    
+        return data;
+    });
 
 
 const queryBuilderData = ref(queryBuilderProps.value);
@@ -548,13 +547,14 @@ const handleElementsChange = (data) => {
     //queryBuilderData.value.elements[0].checked=true
 
 }
-console.log(props.emptyState)
+
+console.log(queryBuilderProps.value.emptyState)
 </script>
 
 <template>
 
     <Transition>
-        <EmptyState :data="emptyState" v-if="resourceMeta.total === 0" />
+        <EmptyState :data="queryBuilderProps.emptyState" v-if="resourceMeta.total === 0" />
         <!--suppress HtmlUnknownAttribute -->
         <fieldset v-else ref="tableFieldset" :key="`table-${name}`" :dusk="`table-${name}`" class="min-w-0" :class="{ 'opacity-75': isVisiting }">
             <div class="my-2">
