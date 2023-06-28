@@ -39,8 +39,8 @@ class RemoveWarehouse extends InertiaAction
     {
         return  [
             'buttonLabel' => __('Delete'),
-            'title'       => __('Delete Employee'),
-            'text'        => __("This action will delete this Employee"),
+            'title'       => __('Delete Warehouse'),
+            'text'        => __("This action will delete this Warehouse and its Warehouse Areas and Locations"),
             'route'       => $route
         ];
     }
