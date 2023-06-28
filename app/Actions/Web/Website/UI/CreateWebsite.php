@@ -54,8 +54,11 @@ class CreateWebsite extends InertiaAction
                             'fields' => [
 
                                 'domain' => [
-                                    'type'     => 'input',
-                                    'label'    => __('domain'),
+                                    'type'      => 'inputWithAddOn',
+                                    'label'     => __('domain'),
+                                    'leftAddOn' => [
+                                        'label'=> 'http://www.'
+                                    ],
                                     'required' => true,
                                 ],
 

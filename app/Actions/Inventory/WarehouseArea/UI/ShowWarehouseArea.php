@@ -27,7 +27,7 @@ class ShowWarehouseArea extends InertiaAction
     public function authorize(ActionRequest $request): bool
     {
         $this->canEdit = $request->user()->can('inventory.warehouse-areas.edit');
-
+        $this->canDelete = $request->user()->can('inventory.warehouse-areas.edit');
         return $request->user()->hasPermissionTo("inventory.view");
     }
 
@@ -67,12 +67,25 @@ class ShowWarehouseArea extends InertiaAction
                             'title' => __('warehouse area')
                         ],
                     'title' => $warehouseArea->name,
-                    'edit' => $this->canEdit ? [
-                        'route' => [
-                            'name' => preg_replace('/show$/', 'edit', $request->route()->getName()),
-                            'parameters' => array_values($this->originalParameters)
-                        ]
-                    ] : false,
+                    'actions' => [
+                        $this->canEdit ? [
+                            'type'=>'button',
+                            'style'=>'edit',
+                            'route' => [
+                                'name' => preg_replace('/show$/', 'edit', $request->route()->getName()),
+                                'parameters' => array_values($this->originalParameters)
+                            ]
+                        ] : false,
+                        $this->canDelete ? [
+                            'type'=>'button',
+                            'style'=>'delete',
+                            'route' => [
+                                'name' => 'inventory.warehouses.show.warehouse-areas.remove',
+                                'parameters' => array_values($this->originalParameters)
+                            ]
+
+                        ] : false
+                    ],
                     'meta' => [
                         [
                             'name' => trans_choice('location|locations', $warehouseArea->stats->number_locations),
@@ -184,7 +197,7 @@ class ShowWarehouseArea extends InertiaAction
             ];
         };
 
-        return match ($routeName) {
+        return match ($routeName)  {
             'inventory.warehouse-areas.show' =>
             array_merge(
                 (new InventoryDashboard())->getBreadcrumbs(),
@@ -207,13 +220,15 @@ class ShowWarehouseArea extends InertiaAction
             ),
             'inventory.warehouses.show.warehouse-areas.show' =>
             array_merge(
-                (new ShowWarehouse())->getBreadcrumbs($routeParameters['warehouse']),
+                (new ShowWarehouse())->getBreadcrumbs( $routeParameters['warehouse']),
                 $headCrumb(
                     $routeParameters['warehouseArea'],
                     [
                         'index' => [
                             'name' => 'inventory.warehouses.show.warehouse-areas.index',
-                            'parameters' => [$routeParameters['warehouse']->slug]
+                            'parameters' => [
+                                $routeParameters['warehouse']->slug
+                            ]
                         ],
                         'model' => [
                             'name' => 'inventory.warehouses.show.warehouse-areas.show',

@@ -80,15 +80,16 @@ class IndexWarehouses extends InertiaAction
                 ->withGlobalSearch()
                 ->withEmptyState(
                     [
-                        'title' => __('no warehouses'),
+                        'title'       => __('no warehouses'),
                         'description' => $this->canEdit ? __('Get started by creating a new warehouse.') : null,
-                        'action' => $this->canEdit ? [
-                            'type' => 'button',
-                            'style' => 'create',
+                        'count'       => app('currentTenant')->inventoryStats->number_warehouses,
+                        'action'      => $this->canEdit ? [
+                            'type'    => 'button',
+                            'style'   => 'create',
                             'tooltip' => __('new warehouse'),
-                            'label' => __('warehouse'),
-                            'route' => [
-                                'name' => 'inventory.warehouses.create',
+                            'label'   => __('warehouse'),
+                            'route'   => [
+                                'name'       => 'inventory.warehouses.create',
                                 'parameters' => array_values($this->originalParameters)
                             ]
                         ] : null
@@ -133,17 +134,17 @@ class IndexWarehouses extends InertiaAction
             'Inventory/Warehouses',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(),
-                'title' => __('warehouses'),
-                'pageHead' => [
-                    'title' => __('warehouses'),
+                'title'       => __('warehouses'),
+                'pageHead'    => [
+                    'title'  => __('warehouses'),
                     'actions'=> [
                         $this->canEdit && $this->routeName == 'inventory.warehouses.index' ? [
-                            'type' => 'button',
-                            'style' => 'create',
+                            'type'    => 'button',
+                            'style'   => 'create',
                             'tooltip' => __('new warehouse'),
-                            'label' => __('warehouse'),
-                            'route' => [
-                                'name' => 'inventory.warehouses.create',
+                            'label'   => __('warehouse'),
+                            'route'   => [
+                                'name'       => 'inventory.warehouses.create',
                                 'parameters' => array_values($this->originalParameters)
                             ]
                         ] : false,
@@ -162,13 +163,13 @@ class IndexWarehouses extends InertiaAction
             (new InventoryDashboard())->getBreadcrumbs(),
             [
                 [
-                    'type' => 'simple',
+                    'type'   => 'simple',
                     'simple' => [
                         'route' => [
                             'name' => 'inventory.warehouses.index'
                         ],
                         'label' => __('warehouses'),
-                        'icon' => 'fal fa-bars',
+                        'icon'  => 'fal fa-bars',
                     ],
                     'suffix' => $suffix
 

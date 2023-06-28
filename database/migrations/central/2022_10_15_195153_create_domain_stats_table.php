@@ -10,19 +10,19 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
-    public function up()
+    public function up(): void
     {
-        Schema::create('central_domain_stats', function (Blueprint $table) {
+        Schema::create('domain_stats', function (Blueprint $table) {
             $table->smallIncrements('id');
-            $table->unsignedSmallInteger('central_domain_id');
-            $table->foreign('central_domain_id')->references('id')->on('public.central_domains')->onDelete('cascade');
+            $table->unsignedSmallInteger('domain_id');
+            $table->foreign('domain_id')->references('id')->on('public.domains')->onDelete('cascade');
             $table->timestampsTz();
         });
     }
 
 
-    public function down()
+    public function down(): void
     {
-        Schema::dropIfExists('central_domain_stats');
+        Schema::dropIfExists('central_stats');
     }
 };

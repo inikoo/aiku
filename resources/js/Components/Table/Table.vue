@@ -107,21 +107,27 @@ const props = defineProps(
             },
             required: false,
         },
+        emptyState: {
+            type: Array,
+            default: () => {
+                return [];
+            },
+            required: false,
+        }
     });
+    const app = getCurrentInstance();
+    const $inertia = app ? app.appContext.config.globalProperties.$inertia : props.inertia;
+    const updates = ref(0);
 
-const app = getCurrentInstance();
-const $inertia = app ? app.appContext.config.globalProperties.$inertia : props.inertia;
-const updates = ref(0);
+    const queryBuilderProps = computed(() => {
+        let data = $inertia.page.props.queryBuilderProps
+            ? $inertia.page.props.queryBuilderProps[props.name] || {}
+            : {};
 
-const queryBuilderProps = computed(() => {
-    let data = $inertia.page.props.queryBuilderProps
-        ? $inertia.page.props.queryBuilderProps[props.name] || {}
-        : {};
+        data._updates = updates.value;
 
-    data._updates = updates.value;
-
-    return data;
-});
+        return data;
+    });
 
 
 const queryBuilderData = ref(queryBuilderProps.value);
@@ -544,9 +550,9 @@ const handleElementsChange = (data) => {
 </script>
 
 <template>
-
     <Transition>
-        <EmptyState v-if="resourceMeta.total === 0" />
+        <!--suppress JSValidateTypes -->
+        <EmptyState :data="queryBuilderProps.emptyState" v-if="queryBuilderProps.emptyState?.count === 0 && resourceMeta.total === 0" />
         <!--suppress HtmlUnknownAttribute -->
         <fieldset v-else ref="tableFieldset" :key="`table-${name}`" :dusk="`table-${name}`" class="min-w-0" :class="{ 'opacity-75': isVisiting }">
             <div class="my-2">
@@ -570,6 +576,7 @@ const handleElementsChange = (data) => {
                         <!-- Button -->
                         <div v-if="queryBuilderProps.modelOperations.createLink">
                             <Link :href="route(queryBuilderProps.modelOperations.createLink.route.name, queryBuilderProps.modelOperations.createLink.route.parameters[0])">
+                                <!--suppress HtmlWrongAttributeValue -->
                                 <Button type='secondary' action="create" class="bg-indigo-100/60 hover:bg-indigo-100 capitalize focus:ring-offset-0 focus:ring-transparent rounded-l-none border-indigo-500">
                                     {{queryBuilderProps.modelOperations.createLink.label}}
                                 </Button>
@@ -577,8 +584,6 @@ const handleElementsChange = (data) => {
                         </div>
                     </div>
                 </div>
-
-<!--               <pre>{{queryBuilderProps.modelOperations}}</pre>-->
 
                 <!-- Search Group -->
                 <div class="flex flex-row justify-end items-start flex-nowrap space-x-2">

@@ -30,14 +30,17 @@ class CreateClocking extends InertiaAction
                 'title'    => __('new clocking'),
                 'pageHead' => [
                     'title'        => __('new clocking'),
-
-                    'cancelCreate' => [
-                        'route' => [
-                            'name'       => 'hr.working-places.show.clockings.index',
-                            'parameters' => array_values($this->originalParameters)
-                        ],
+                    'actions' => [
+                        [
+                            'type'=>'button',
+                            'style'=>'cancel',
+                            'label' => __('cancel'),
+                            'route' => [
+                                'name'       => 'hr.working-places.show.clockings.index',
+                                'parameters' => array_values($this->originalParameters)
+                            ],
+                        ]
                     ]
-
                 ],
                 'formData' => [
                     'blueprint' => [
@@ -49,7 +52,8 @@ class CreateClocking extends InertiaAction
                                     'label'       => __('employee'),
                                     'placeholder' => 'Select A Employee',
                                     'options'     => Options::forModels(Employee::class, 'contact_name', 'id'),
-                                    'required'    => true
+                                    'required'    => true,
+                                    'searchable'  => true
                                 ],
                                 'date' => [
                                     'type'     => 'date',

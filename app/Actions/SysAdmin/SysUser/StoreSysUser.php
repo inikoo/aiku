@@ -9,7 +9,7 @@ namespace App\Actions\SysAdmin\SysUser;
 
 use App\Models\Assets\Language;
 use App\Models\Assets\Timezone;
-use App\Models\Central\CentralDomain;
+use App\Models\Central\Domain;
 use App\Models\SysAdmin\Admin;
 use App\Models\SysAdmin\SysUser;
 use App\Models\Tenancy\Tenant;
@@ -28,7 +28,7 @@ class StoreSysUser
     use WithAttributes;
 
 
-    public function handle(Admin|Tenant|CentralDomain $userable, array $userData): SysUser
+    public function handle(Admin|Tenant|Domain $userable, array $userData): SysUser
     {
         if (empty($userData['language_id'])) {
             $language                = Language::where('code', config('app.locale'))->firstOrFail();
@@ -56,7 +56,7 @@ class StoreSysUser
         ];
     }
 
-    public function asAction(Admin|Tenant|CentralDomain $userable, $modelData): SysUser
+    public function asAction(Admin|Tenant|Domain $userable, $modelData): SysUser
     {
         $this->fill($modelData);
         $validatedData = $this->validateAttributes();
@@ -66,7 +66,7 @@ class StoreSysUser
 
 
     public string $commandSignature = 'create:sys-user
-    {userable : type of userable model: Admin|Tenant|CentralDomain }
+    {userable : type of userable model: Admin|Tenant|Domain }
     {userable_slug : userable model slug/code}
     {--u|username= : use instead of slug/code argument}
     {--a|autoPassword : generate random password}';
@@ -82,7 +82,7 @@ class StoreSysUser
             $userable = match ($command->argument('userable')) {
                 'Admin'         => Admin::where('slug', $command->argument('userable_slug'))->firstOrFail(),
                 'Tenant'        => Tenant::where('slug', $command->argument('userable_slug'))->firstOrFail(),
-                'CentralDomain' => CentralDomain::where('slug', $command->argument('userable_slug'))->firstOrFail(),
+                'Domain'        => Domain::where('slug', $command->argument('userable_slug'))->firstOrFail(),
                 default         => null
             };
         } catch (Exception $e) {
@@ -104,7 +104,7 @@ class StoreSysUser
             if ($userable instanceof Admin) {
                 $prefix = 'root-';
             }
-            if ($userable instanceof CentralDomain) {
+            if ($userable instanceof Domain) {
                 $prefix = 'domain-';
             }
 
@@ -123,7 +123,7 @@ class StoreSysUser
         ]);
 
 
-        if (!$userable instanceof CentralDomain) {
+        if (!$userable instanceof Domain) {
             $this->attributes['email'] = $userable->email;
         }
 

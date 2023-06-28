@@ -72,7 +72,8 @@ class EditWorkingPlace extends InertiaAction
                                     'type'          => 'input',
                                     'label'         => __('name'),
                                     'placeholder'   => __('Input your name'),
-                                    'value'         => $workplace->name
+                                    'value'         => $workplace->name,
+                                    'required'    => true
                                 ],
                                 'type' => [
                                     'type'        => 'select',
@@ -80,7 +81,9 @@ class EditWorkingPlace extends InertiaAction
                                     'options'     => Options::forEnum(WorkplaceTypeEnum::class),
                                     'placeholder' => 'Select a type',
                                     'mode'        => 'single',
-                                    'value'       => $workplace->type
+                                    'value'       => $workplace->type,
+                                    'required'    => true,
+                                    'searchable'  => true
                                 ],
                                 'address'      => [
                                     'type'    => 'address',
@@ -97,6 +100,7 @@ class EditWorkingPlace extends InertiaAction
                                         'countriesAddressData' => GetAddressData::run()
 
                                     ],
+                                    'required'    => true
                                 ]
                             ]
                         ],

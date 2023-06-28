@@ -42,7 +42,6 @@ class RemoveWarehouse extends InertiaAction
         ];
     }
 
-    /** @noinspection PhpUnusedParameterInspection */
     public function htmlResponse(Warehouse $warehouse, ActionRequest $request): Response
     {
         return Inertia::render(
@@ -73,7 +72,7 @@ class RemoveWarehouse extends InertiaAction
                 'data'      => $this->getAction(
                     route:[
                         'name' => 'models.warehouse.delete',
-                        'parameters' => array_values($this->originalParameters)
+                        'parameters' => $request->route()->originalParameters()
                     ]
                 )
             ]
