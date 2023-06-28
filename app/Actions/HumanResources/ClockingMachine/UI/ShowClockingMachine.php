@@ -38,6 +38,7 @@ class ShowClockingMachine extends InertiaAction
         return $clockingMachine;
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
     public function inWorkplace(Workplace $workplace, ClockingMachine $clockingMachine, ActionRequest $request): ClockingMachine
     {
         $this->initialisation($request)->withTab(ClockingMachineTabsEnum::values());
@@ -85,12 +86,6 @@ class ShowClockingMachine extends InertiaAction
 
                         ] : false
                     ],
-                    'edit'  => $this->canEdit ? [
-                        'route' => [
-                            'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
-                            'parameters' => array_values($this->originalParameters)
-                        ]
-                    ] : false,
                     'meta'  => [
                         [
                             'name'     => trans_choice('clocking|clockings', 0/*$clockingMachine->stats->number_clockings*/),
