@@ -35,7 +35,7 @@ class ShowGuest extends InertiaAction
     public function authorize(ActionRequest $request): bool
     {
         $this->canEdit = $request->user()->can('sysadmin.users.edit');
-        $this->canDelete = $request->user()->can('sysadmin.edit');
+        $this->canDelete = $request->user()->can('sysadmin.users.edit');
         return $request->user()->hasPermissionTo("sysadmin.view");
     }
 
@@ -72,14 +72,7 @@ class ShowGuest extends InertiaAction
                                 'parameters' => array_values($this->originalParameters)
                             ]
                         ] : false
-                    ],
-                    'edit'      => $this->canEdit ? [
-                        'route' => [
-                            'name'       => preg_replace('/show$/', 'edit', $this->routeName),
-                            'parameters' => array_values($this->originalParameters)
-                        ]
-                    ] : false,
-
+                    ]
                 ],
                 'tabs'        => [
                     'current'    => $this->tab,

@@ -30,6 +30,7 @@ use App\Actions\Inventory\Location\StoreLocation;
 use App\Actions\Inventory\Location\UpdateLocation;
 use App\Actions\Inventory\Stock\UpdateStock;
 use App\Actions\Inventory\StockFamily\UpdateStockFamily;
+use App\Actions\Inventory\Warehouse\DeleteWarehouse;
 use App\Actions\Inventory\Warehouse\StoreWarehouse;
 use App\Actions\Inventory\Warehouse\UpdateWarehouse;
 use App\Actions\Inventory\WarehouseArea\StoreWarehouseArea;
@@ -103,6 +104,7 @@ Route::post('/working-place/{workplace}/clocking-machine/{clockingMachine}/clock
 
 Route::post('/warehouse/', StoreWarehouse::class)->name('warehouse.store');
 Route::patch('/warehouse/{warehouse}', UpdateWarehouse::class)->name('warehouse.update');
+Route::delete('/warehouse/{warehouse}', DeleteWarehouse::class)->name('warehouse.delete');
 
 Route::post('/warehouse/{warehouse}/area/', StoreWarehouseArea::class)->name('warehouse.warehouse-area.store');
 Route::post('/warehouse/{warehouse}/areas/', StoreWarehouseAreas::class)->name('warehouse.warehouse-areas.store');
