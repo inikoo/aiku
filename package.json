@@ -48,6 +48,7 @@
         "firebase": "^9.22.2",
         "laravel-vue-i18n": "^2.2.2",
         "lodash-es": "^4.17.21",
+        "moment": "^2.29.4",
         "pinia": "^2.0.20",
         "qs": "^6.11.1",
         "vue-cookies": "^1.8.1",

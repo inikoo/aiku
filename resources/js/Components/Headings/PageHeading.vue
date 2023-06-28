@@ -48,16 +48,15 @@ const getActionLabel = function(action) {
 
 
 // Set icon depends on the Style props
-const getActionIcon = function(action) {
+const getActionIcon = (action) => {
     if (action.hasOwnProperty("icon")) {
-        return action.label
+        return action.icon
     } else {
         switch (action.style) {
             case "edit":
                 return ["far", "fa-pencil"]
 
             case "exit":
-
             case "exitEdit":
                 return ["far", "fa-arrow-left"]
 
@@ -130,17 +129,35 @@ const getActionIcon = function(action) {
         <div class="flex items-center gap-2">
             <span v-for="action in data.actions">
 
-                <!-- Button: Dynamic -->
+                <!-- Button -->
                  <Link v-if="action.type === 'button'" :href="route(action['route']['name'], action['route']['parameters'])">
+                    
                     <Button
                         size="xs"
                         :type="action.style"
-                        class="capitalize inline-flex items-center rounded-md border text-sm font-medium shadow-sm "
+                        class="capitalize inline-flex items-center rounded-md border text-sm font-medium shadow-sm gap-x-2"
                     >
-                        <FontAwesomeIcon v-if="getActionIcon(action)" :icon="getActionIcon(action)" class="-ml-1 mr-2" aria-hidden="true" />
+                        <FontAwesomeIcon v-if="getActionIcon(action)" :icon="getActionIcon(action)" class="" aria-hidden="true" />
                         {{ getActionLabel(action) }}
                      </Button>
                 </Link>
+
+                <!-- Button Group () -->
+                <div v-if="action.type === 'buttonGroup'" class="first:rounded-l-md overflow-hidden last:rounded-r-md">
+                    <Link v-for="button in action.buttons" :href="route(button['route']['name'], button['route']['parameters'])" class="">
+                        <Button
+                            size="xs"
+                            :type="button.style"
+                            class="capitalize inline-flex items-center rounded-none border text-sm font-medium shadow-sm "
+                        >
+                            <div class="">
+                                <FontAwesomeIcon v-if="getActionIcon(button)" :icon="getActionIcon(button)" class="" aria-hidden="true" />
+                                <span v-if="button.label" class="ml-2">{{ getActionLabel(button) }}</span>
+                            </div>
+                         </Button>
+                    </Link>
+                </div>
+
             </span>
 
             <!-- <span v-if="data['delete']">
