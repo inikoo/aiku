@@ -1,6 +1,7 @@
 <script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faPlus, faCactus, faIslandTropical, faSkullCow } from "@/../private/pro-light-svg-icons"
+import { faCactus, faIslandTropical, faSkullCow } from "@/../private/pro-light-svg-icons"
+import { faPlus } from "@/../private/pro-regular-svg-icons"
 import { library } from '@fortawesome/fontawesome-svg-core'
 library.add(faPlus, faCactus, faIslandTropical, faSkullCow)
 import {trans} from 'laravel-vue-i18n';
