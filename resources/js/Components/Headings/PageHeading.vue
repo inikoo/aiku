@@ -33,7 +33,6 @@ const getActionLabel = function(action) {
             case "exitEdit":
                 return trans("exit edit")
 
-            case "cancelCreate":
             case "cancel":
                 return trans("cancel")
 
@@ -64,8 +63,6 @@ const getActionIcon = (action) => {
                 return ["fas", "fa-plus"]
 
             case "cancel":
-
-            case "cancelCreate":
                 return ["far", "fa-arrow-left"]
 
             case "delete":
@@ -131,7 +128,7 @@ const getActionIcon = (action) => {
 
                 <!-- Button -->
                  <Link v-if="action.type === 'button'" :href="route(action['route']['name'], action['route']['parameters'])">
-                    
+
                     <Button
                         size="xs"
                         :type="action.style"

@@ -10,6 +10,7 @@ use App\Actions\Auth\Guest\ExportGuests;
 use App\Actions\Auth\Guest\UI\CreateGuest;
 use App\Actions\Auth\Guest\UI\EditGuest;
 use App\Actions\Auth\Guest\UI\IndexGuest;
+use App\Actions\Auth\Guest\UI\RemoveGuest;
 use App\Actions\Auth\Guest\UI\ShowGuest;
 use App\Actions\Auth\User\ExportUsers;
 use App\Actions\Auth\User\UI\CreateUser;
@@ -37,6 +38,7 @@ Route::get('/guests/export', ExportGuests::class)->name('guests.export');
 
 Route::get('/guests/{guest}', ShowGuest::class)->name('guests.show');
 Route::get('/guests/{guest}/edit', EditGuest::class)->name('guests.edit');
+Route::get('/guests/{guest}/delete', RemoveGuest::class)->name('guests.remove');
 
 
 
