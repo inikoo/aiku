@@ -36,8 +36,8 @@ class ShowLocation extends InertiaAction
     }
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('inventory.locations.edit');
-        $this->canDelete = $request->user()->can('inventory.locations.edit');
+        $this->canEdit = $request->user()->can('inventory.edit');
+        $this->canDelete = $request->user()->can('inventory.edit');
 
         return $request->user()->hasPermissionTo("inventory.view");
     }
@@ -131,8 +131,7 @@ class ShowLocation extends InertiaAction
                                             'parameters' => array_values($this->originalParameters)
                                         ]
                                     ]
-                                }
-                                : false
+                                } : false
                     ],
                 ],
                 'tabs' => [
@@ -250,8 +249,9 @@ class ShowLocation extends InertiaAction
                 (new ShowWarehouseArea())->getBreadcrumbs(
                     'inventory.warehouses.show.warehouse-areas.show',
                     [
-                      'warehouse'     => $routeParameters['warehouse'],
-                      'warehouseArea' => $routeParameters['warehouseArea'],
+                      'warehouse'     => $routeParameters['warehouse']->slug,
+                      'warehouseArea' => $routeParameters['warehouseArea']->slug,
+                      'location'      => $routeParameters['location']->slug
                     ]
                 ),
                 $headCrumb(

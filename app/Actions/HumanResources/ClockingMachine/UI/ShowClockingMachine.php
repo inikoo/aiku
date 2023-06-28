@@ -26,8 +26,8 @@ class ShowClockingMachine extends InertiaAction
 {
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('hr.clocking-machines.edit');
-
+        $this->canEdit = $request->user()->can('hr.edit');
+        $this->canDelete = $request->user()->can('hr.edit');
         return $request->user()->hasPermissionTo("hr.view");
     }
 
@@ -66,6 +66,25 @@ class ShowClockingMachine extends InertiaAction
                             'title' => __('clocking machines')
                         ],
                     'title' => $clockingMachine->code,
+                    'actions' => [
+                        $this->canEdit ? [
+                            'type'=>'button',
+                            'style'=>'edit',
+                            'route' => [
+                                'name' => preg_replace('/show$/', 'edit', $this->routeName),
+                                'parameters' => array_values($this->originalParameters)
+                            ]
+                        ] : false,
+                        $this->canDelete ? [
+                            'type'=>'button',
+                            'style'=>'delete',
+                            'route' => [
+                                'name' => 'hr.working-places.show.clocking-machines.remove',
+                                'parameters' => array_values($this->originalParameters)
+                            ]
+
+                        ] : false
+                    ],
                     'edit'  => $this->canEdit ? [
                         'route' => [
                             'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),

@@ -29,7 +29,7 @@ class CreateUser extends InertiaAction
                     'actions' => [
                         [
                             'type'=>'button',
-                            'style'=>'cancelCreate',
+                            'style'=>'cancel',
                             'label' => __('cancel'),
                             'route' => [
                                 'name'       => 'sysadmin.users.index',

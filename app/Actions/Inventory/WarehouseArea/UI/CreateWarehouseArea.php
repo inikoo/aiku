@@ -30,7 +30,7 @@ class CreateWarehouseArea extends InertiaAction
                     'actions' => [
                         [
                             'type'=>'button',
-                            'style'=>'cancelCreate',
+                            'style'=>'cancel',
                             'label' => __('cancel'),
                             'route' => [
                                 'name'       => preg_replace('/create$/', 'index', $this->routeName),

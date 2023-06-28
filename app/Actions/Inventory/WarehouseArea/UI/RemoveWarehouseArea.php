@@ -8,8 +8,6 @@
 namespace App\Actions\Inventory\WarehouseArea\UI;
 
 use App\Actions\InertiaAction;
-use App\Actions\Procurement\Agent\UI\ShowAgent;
-use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
 use Inertia\Inertia;
@@ -48,8 +46,8 @@ class RemoveWarehouseArea extends InertiaAction
     {
         return  [
             'buttonLabel' => __('Delete'),
-            'title'       => __('Delete warehouse area'),
-            'text'        => __("This action will delete this warehouse area and all it's locations"),
+            'title'       => __('Delete Warehouse Area'),
+            'text'        => __("This action will delete this Warehouse Area and all it's Locations"),
             'route'       => $route
         ];
     }
@@ -62,6 +60,7 @@ class RemoveWarehouseArea extends InertiaAction
             [
                 'title'       => __('delete warehouse area'),
                 'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
                     $request->route()->parameters
                 ),
                 'pageHead'    => [
@@ -71,20 +70,31 @@ class RemoveWarehouseArea extends InertiaAction
                             'title' => __('warehouse area')
                         ],
                     'title' => $warehouseArea->slug,
-
-                    'exitEdit' => [
-                        'label' => __('Cancel'),
-                        'route' => [
-                            'name'       => preg_replace('/remove$/', 'show', $this->routeName),
-                            'parameters' => array_values($this->originalParameters)
+                    'actions'=>[
+                        [
+                            'type'=>'button',
+                            'style'=>'cancel',
+                            'label' => __('cancel'),
+                            'route' => [
+                                'name'       => preg_replace('/remove$/', 'show', $this->routeName),
+                                'parameters' => array_values($this->originalParameters)
+                            ]
                         ]
-                    ],
+                    ]
                 ],
                 'data'     => $this->getAction(
-                    route:[
-                        'name'       => 'models.warehouse-area.delete',
-                        'parameters' => array_values($this->originalParameters)
-                    ]
+                    route:
+                    match ($this->routeName) {
+                        'inventory.warehouse-areas.remove' => [
+                            'name'       => 'models.warehouse-area.delete',
+                            'parameters' => $request->route()->originalParameters()
+                        ],
+                        'inventory.warehouses.show.warehouse-areas.remove' => [
+                            'name' => 'models.warehouse.warehouse-area.delete',
+                            'parameters' => $request->route()->originalParameters()
+                        ]
+                    }
+
                 )
 
 
@@ -95,9 +105,10 @@ class RemoveWarehouseArea extends InertiaAction
     }
 
 
-    public function getBreadcrumbs(array $routeParameters): array
+    public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
-        return ShowAgent::make()->getBreadcrumbs(
+        return ShowWarehouseArea::make()->getBreadcrumbs(
+            $routeName,
             routeParameters: $routeParameters,
             suffix: '('.__('deleting').')'
         );

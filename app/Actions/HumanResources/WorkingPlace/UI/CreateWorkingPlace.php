@@ -35,7 +35,7 @@ class CreateWorkingPlace extends InertiaAction
                     'actions' => [
                         [
                             'type'=>'button',
-                            'style'=>'cancelCreate',
+                            'style'=>'cancel',
                             'label' => __('cancel'),
                             'route' => [
                                 'name'       => 'hr.working-places.index',
@@ -53,6 +53,7 @@ class CreateWorkingPlace extends InertiaAction
                                     'type'          => 'input',
                                     'label'         => __('name'),
                                     'placeholder'   => __(''),
+                                    'required'      => true
                                 ],
                                 'type' => [
                                     'type'        => 'select',
@@ -60,6 +61,8 @@ class CreateWorkingPlace extends InertiaAction
                                     'options'     => Options::forEnum(WorkplaceTypeEnum::class),
                                     'placeholder' => 'Select a type',
                                     'mode'        => 'single',
+                                    'required'    => true,
+                                    'searchable'  => true,
                                 ],
                                 'address'      => [
                                     'type'    => 'address',
@@ -76,6 +79,7 @@ class CreateWorkingPlace extends InertiaAction
                                         'countriesAddressData' => GetAddressData::run()
 
                                     ],
+                                    'required'    => true,
                                 ]
                             ]
                         ]

@@ -61,11 +61,11 @@ class StoreClocking
     {
         $request->validate();
 
-        return $this->handle($parent, $request->validated());
+        return $this->handle($parent,  $request->validated());
     }
 
 
-    public function inClockingMachine(ClockingMachine $clockingMachine,Clocking $clocking,ActionRequest $request): Clocking
+    public function inClockingMachine(ClockingMachine $clockingMachine,ActionRequest $request): Clocking
     {
         $request->validate();
 

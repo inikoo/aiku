@@ -41,6 +41,7 @@ class DeleteLocation
     }
 
 
+    /** @noinspection PhpUnusedParameterInspection */
     public function inWarehouse(Warehouse $warehouse, Location $location, ActionRequest $request): Location
     {
         $request->validate();
@@ -48,6 +49,7 @@ class DeleteLocation
         return $this->handle($location);
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
     public function inWarehouseInWarehouseArea(Warehouse $warehouse, WarehouseArea $warehouseArea, Location $location, ActionRequest $request): Location
     {
         $request->validate();
@@ -56,9 +58,26 @@ class DeleteLocation
     }
 
 
-    public function htmlResponse(Location $location): RedirectResponse
+    public function htmlResponse(Warehouse | WarehouseArea | Location $parent): RedirectResponse
     {
-        return Redirect::route('inventory.locations.show', $location->slug);
+        if (class_basename($parent::class) == 'WarehouseArea') {
+            return Redirect::route(
+                route: 'inventory.warehouse-areas.show.locations.index',
+                parameters: [
+                    'warehouseArea' => $parent->slug
+                ]
+            );
+        } elseif (class_basename($parent::class) == 'Warehouse') {
+            return Redirect::route(
+                route: 'inventory.warehouses.show.warehouse-areas.show.locations.index',
+                parameters: [
+                    'warehouse' => $parent->warehouse->slug,
+                    'warehouseArea' => $parent->slug
+                ]
+            );
+        } else {
+            return Redirect::route('inventory.locations.index');
+        }
     }
 
 }

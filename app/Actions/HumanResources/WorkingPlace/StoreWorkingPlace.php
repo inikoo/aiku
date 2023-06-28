@@ -56,7 +56,6 @@ class StoreWorkingPlace
         $request->validate();
         $validated=$request->validated();
 
-
         return $this->handle(
             modelData: Arr::except($validated, 'address'),
             addressData: Arr::only($validated, 'address')['address']

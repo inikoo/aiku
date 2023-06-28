@@ -143,7 +143,7 @@ const getActionIcon = (action) => {
                     <Link v-for="button in action.buttons" :href="route(button['route']['name'], button['route']['parameters'])" class="">
                         <Button
                             size="xs"
-                            :type="button.style"
+                            :style="button.style"
                             class="capitalize inline-flex items-center rounded-none border text-sm font-medium shadow-sm "
                         >
                             <div class="">
