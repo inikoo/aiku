@@ -48,10 +48,10 @@ class EditUser extends InertiaAction
                 ),
                 'pageHead'    => [
                     'title'     => $user->username,
-                    'actions'=>[
+                    'actions'   => [
                       [
-                          'type'=>'button',
-                          'style'=>'exitEdit',
+                          'type'  => 'button',
+                          'style' => 'exitEdit',
                           'route' => [
                               'name'       => preg_replace('/edit$/', 'show', $this->routeName),
                               'parameters' => array_values($this->originalParameters)
@@ -92,6 +92,19 @@ class EditUser extends InertiaAction
                                 ],
                             ]
                         ],
+                        'permissions'   => [
+                            'title'   => __('Permissions'),
+                            'icon'    => 'fa-light fa-user-lock',
+                            'current' => false,
+                            'fields'  => [
+                                'password' => [
+                                    'type'  => 'permissions',
+                                    'label' => __('permissions'),
+                                    'value' => []
+                                ],
+                            ]
+                        ],
+
                     ],
                     'args' => [
                         'updateRoute' => [

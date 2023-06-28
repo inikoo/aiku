@@ -9,7 +9,7 @@ namespace App\Models\Tenancy;
 
 use App\Models\Accounting\PaymentServiceProvider;
 use App\Models\Assets\Currency;
-use App\Models\Central\CentralDomain;
+use App\Models\Central\Domain;
 use App\Models\Central\CentralMedia;
 use App\Models\Inventory\Stock;
 use App\Models\Procurement\Agent;
@@ -63,9 +63,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $deleted_at
  * @property-read \App\Models\Tenancy\TenantAccountingStats|null $accountingStats
  * @property-read Collection<int, Agent> $agents
- * @property-read Collection<int, CentralDomain> $centralDomains
  * @property-read \App\Models\Tenancy\TenantCRMStats|null $crmStats
  * @property-read Currency $currency
+ * @property-read Collection<int, Domain> $domains
  * @property-read \App\Models\Tenancy\TenantFulfilmentStats|null $fulfilmentStats
  * @property-read \App\Models\Tenancy\Group $group
  * @property-read \App\Models\Tenancy\TenantInventoryStats|null $inventoryStats
@@ -192,9 +192,9 @@ class Tenant extends SpatieTenant implements HasMedia
         return $this->belongsTo(Currency::class);
     }
 
-    public function centralDomains(): HasMany
+    public function domains(): HasMany
     {
-        return $this->hasMany(CentralDomain::class);
+        return $this->hasMany(Domain::class);
     }
 
     public function mySuppliers(): MorphMany

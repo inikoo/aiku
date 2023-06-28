@@ -7,7 +7,7 @@
 
 namespace App\Actions\Web\Website;
 
-use App\Actions\Central\CentralDomain\StoreCentralDomain;
+use App\Actions\Central\Central\StoreDomain;
 use App\Models\Market\Shop;
 use App\Models\Web\Website;
 use App\Rules\CaseSensitive;
@@ -17,7 +17,6 @@ use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\Concerns\WithAttributes;
-
 
 class StoreWebsite
 {
@@ -34,17 +33,15 @@ class StoreWebsite
 
     public function handle(Shop $shop, array $modelData): Website
     {
-
         /** @var Website $website */
         $website = $shop->website()->create($modelData);
         $website->stats()->create();
-        if ($website->state != 'closed') {
-            StoreCentralDomain::run(app('currentTenant'), [
-                'website_id' => $website->id,
-                'slug' => $website->code,
-                'domain' => $website->domain
-            ]);
-        }
+        StoreDomain::run(app('currentTenant'), [
+            'website_id' => $website->id,
+            'slug'       => $website->code,
+            'domain'     => $website->domain
+        ]);
+
         $website->webStats()->create();
 
         return $website;
@@ -54,12 +51,13 @@ class StoreWebsite
     {
         return $request->user()->hasPermissionTo("shops.edit");
     }
+
     public function rules(): array
     {
         return [
-            'domain'        => ['required', new CaseSensitive('websites')],
-            'code'          => ['required', 'unique:tenant.websites'],
-            'name'          => ['required']
+            'domain' => ['required', new CaseSensitive('websites')],
+            'code'   => ['required', 'unique:tenant.websites'],
+            'name'   => ['required']
         ];
     }
 
@@ -67,6 +65,7 @@ class StoreWebsite
     {
         $this->shop = $shop;
         $request->validate();
+
         return $this->handle($shop, $request->validated());
     }
 
@@ -79,7 +78,7 @@ class StoreWebsite
 
     public function htmlResponse(Website $website): RedirectResponse
     {
-        if(!$website->shop_id) {
+        if (!$website->shop_id) {
             return Redirect::route('websites.show', [
                 $website->slug
             ]);
@@ -93,7 +92,7 @@ class StoreWebsite
 
     public function action(Shop $parent, array $objectData): Website
     {
-        $this->asAction=true;
+        $this->asAction = true;
         $this->setRawAttributes($objectData);
         $validatedData = $this->validateAttributes();
 

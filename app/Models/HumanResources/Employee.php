@@ -40,6 +40,7 @@ use Spatie\Sluggable\SlugOptions;
  *
  * @property int $id
  * @property string $slug
+ * @property string|null $work_email
  * @property string|null $contact_name
  * @property string|null $email
  * @property string|null $phone

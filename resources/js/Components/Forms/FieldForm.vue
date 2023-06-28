@@ -29,6 +29,7 @@ import Address from "@/Components/Forms/Fields/Address.vue";
 import Country from "@/Components/Forms/Fields/Country.vue";
 import Currency from "@/Components/Forms/Fields/Currency.vue";
 import Language from "@/Components/Forms/Fields/Language.vue";
+import Permissions from "@/Components/Forms/Fields/Permissions.vue";
 
 
 const props = defineProps<{
@@ -68,6 +69,7 @@ const components = {
     'country': Country,
     'currency': Currency,
     'language': Language,
+    'permissions':Permissions
 };
 
 const getComponent = (componentName) => {
