@@ -40,11 +40,11 @@ const props = defineProps<{
 let newData = ref([])
 
 const setValue = (key) => {
-  if (key.endsWith('_at')) {
-    const date = moment(props.data[key]).format('MMMM Do YYYY, h:mm')
-    return date == 'Invalid date' ? '-' : date
-  }
-  return props.data[key];
+    if (key.endsWith('_at')) {
+        const date = moment(props.data[key]).format('MMMM Do YYYY, h:mm')
+        return date == 'Invalid date' ? '-' : date
+    }
+    return props.data[key];
 };
 
 
@@ -69,52 +69,19 @@ const current = ref(0);
 </script>
 
 <template>
-    
-    <div class="flex flex-col md:flex-row p-4">
-      <div class="w-full">
-        <table class="table-auto w-full table">
-          <tbody>
-            <slot>
-              <tr
-                v-for="(row, rowIndex) in newData.slice(0, Math.ceil(newData.length / 2))"
-                :key="rowIndex"
-                class="bg-white divide-gray-200 border-r-2  md:border-r-0"
-              >
-                <td class="px-4 py-2 border border-gray-200 p-6 bg-gray-50 title">{{ row.label }}</td>
-                <td class="px-4 py-2 border border-gray-200 border-r-2 md:border-r-0 ">{{ row.value == null ? '-' : row.value }}</td>
-              </tr>
-            </slot>
-          </tbody>
-        </table>
-      </div>
-      <div class="w-full">
-        <table class="table-auto w-full table">
-          <tbody>
-            <slot>
-              <tr
-                v-for="(row, rowIndex) in newData.slice(Math.ceil(newData.length / 2))"
-                :key="rowIndex"
-                class="bg-white divide-gray-200"
-              >
-                <td class="px-4 py-2 border border-gray-200 p-6 bg-gray-50 title" >{{ row.label }}</td>
-                <td class="px-4 py-2 border border-gray-200">{{ row.value == null ? '-' : row.value }}</td>
-              </tr>
-            </slot>
-          </tbody>
-        </table>
-      </div>
+   <div class="px-7">
+    <div class="border-t-0 border-gray-100 w-full  md:w-2/5">
+      <dl class="divide-y divide-gray-100">
+        <div v-for="(item, key) in newData" :key="item.label" class="px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+          <dt class="text-sm font-medium leading-6 text-gray-900">{{ item.label }}</dt>
+          <dd class="mt-1 text-sm leading-6 text-gray-500 sm:col-span-2 sm:mt-0">{{ item.value == null ? '-' : item.value }}</dd>
+        </div>
+      </dl>
     </div>
-  </template>
+  </div>
+
+</template>
   
   
 
-<style>
-.table td {
-    font-size: 14px;
-}
 
-.title {
-    font-weight: 500;
-    width: 400px;
-}
-</style>
