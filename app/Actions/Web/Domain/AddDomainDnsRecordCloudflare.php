@@ -11,10 +11,12 @@ use GuzzleHttp\Promise\PromiseInterface;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 use Lorisleiva\Actions\Concerns\AsAction;
+use Lorisleiva\Actions\Concerns\WithAttributes;
 
 class AddDomainDnsRecordCloudflare
 {
     use AsAction;
+    use WithAttributes;
 
     public function handle(string $zoneId, array $dnsRecord): PromiseInterface|Response
     {
@@ -25,7 +27,7 @@ class AddDomainDnsRecordCloudflare
             'type' => $dnsRecord['type'],
             'name' => $dnsRecord['name'],
             'content' => $dnsRecord['content'],
-            'ttl' => 1,
+            'ttl' => $dnsRecord['ttl'] ?? 1,
             'proxied' => $dnsRecord['proxied']
         ]);
     }

@@ -9,6 +9,7 @@ namespace App\Actions\Mail\EmailAddress;
 
 use App\Actions\Mail\EmailAddress\Traits\AwsClient;
 use App\Actions\Web\Domain\AddDomainDnsRecordCloudflare;
+use App\Enums\Domain\DnsCloudflareTypeEnum;
 use Illuminate\Console\Command;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -28,13 +29,13 @@ class VerifyDomainEmailAddress
 
         AddDomainDnsRecordCloudflare::run($zoneId, [
             [
-                'type' => 'TXT',
+                'type' => DnsCloudflareTypeEnum::TXT->value,
                 'name' => $domain,
                 'content' => $result['VerificationToken'],
                 'proxied' => false
             ],
             [
-                'type' => 'A',
+                'type' => DnsCloudflareTypeEnum::A->value,
                 'name' => $domain,
                 'content' => '65.109.156.41',
                 'proxied' => true
