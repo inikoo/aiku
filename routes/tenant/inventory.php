@@ -26,6 +26,7 @@ use App\Actions\Inventory\Warehouse\ExportWarehouses;
 use App\Actions\Inventory\Warehouse\UI\CreateWarehouse;
 use App\Actions\Inventory\Warehouse\UI\EditWarehouse;
 use App\Actions\Inventory\Warehouse\UI\IndexWarehouses;
+use App\Actions\Inventory\Warehouse\UI\RemoveWarehouse;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\Inventory\WarehouseArea\ExportWarehouseAreas;
 use App\Actions\Inventory\WarehouseArea\UI\CreateWarehouseArea;
@@ -46,6 +47,7 @@ Route::get('/warehouses/create', CreateWarehouse::class)->name('warehouses.creat
 Route::get('/warehouses/{warehouse}', ShowWarehouse::class)->name('warehouses.show');
 
 Route::get('/warehouses/{warehouse}/edit', EditWarehouse::class)->name('warehouses.edit');
+Route::get('/warehouses/{warehouse}/delete', RemoveWarehouse::class)->name('warehouses.remove');
 
 Route::get('/areas/export', ExportWarehouseAreas::class)->name('warehouse-areas.export');
 
