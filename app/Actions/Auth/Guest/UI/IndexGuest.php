@@ -99,6 +99,23 @@ class IndexGuest extends InertiaAction
             }
             $table
                 ->withGlobalSearch()
+                ->withEmptyState(
+                    [
+                        'title' => __('no guest'),
+                        'description' => $this->canEdit ? __('Get started by creating a new guest.') : null,
+                        'count'       => app('currentTenant')->stats->number_guests_status_active,
+                        'action' => $this->canEdit ? [
+                            'type' => 'button',
+                            'style' => 'create',
+                            'tooltip' => __('new guest'),
+                            'label' => __('guest'),
+                            'route' => [
+                                'name'       => 'sysadmin.guests.create',
+                                'parameters' => array_values($this->originalParameters)
+                            ]
+                        ] : null
+                    ]
+                )
                 ->column(key: 'slug', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'contact_name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'email', label: __('email'), canBeHidden: false, sortable: true, searchable: true)

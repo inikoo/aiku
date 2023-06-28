@@ -96,7 +96,8 @@ class IndexLocations extends InertiaAction
                 ->withEmptyState(
                     [
                         'title' => __('no locations'),
-                        'description' => $this->canEdit ? __('Get started by creating a new locations.') : null,
+                        'description' => $this->canEdit ? __('Get started by creating a new location.') : null,
+                        'count'       => app('currentTenant')->inventoryStats->number_locations,
                         'action' => $this->canEdit ? [
                             'type' => 'button',
                             'style' => 'create',

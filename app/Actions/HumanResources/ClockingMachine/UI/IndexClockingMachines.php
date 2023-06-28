@@ -72,6 +72,23 @@ class IndexClockingMachines extends InertiaAction
             $table
                 ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
+                ->withEmptyState(
+                    [
+                        'title' => __('no clocking machines'),
+                        'description' => $this->canEdit ? __('Get started by creating a new clocking machine.') : null,
+                        'count'       => app('currentTenant')->stats->number_clocking_machines,
+                        'action' => $this->canEdit ? [
+                            'type' => 'button',
+                            'style' => 'create',
+                            'tooltip' => __('new clocking machine'),
+                            'label' => __('clocking machine'),
+                            'route' => [
+                                'name'       => 'hr.clocking-machines.create',
+                                'parameters' => array_values($this->originalParameters)
+                            ]
+                        ] : null
+                    ]
+                )
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->defaultSort('code');
         };
@@ -123,12 +140,12 @@ class IndexClockingMachines extends InertiaAction
                 'pageHead'    => [
                     'title'  => __('clocking machines'),
                     'actions'=> [
-                        $this->canEdit && $this->routeName == 'inventory.warehouses.show.warehouse-areas.index' ? [
+                        $this->canEdit && $this->routeName == 'hr.working-places.show.clocking-machines.index' ? [
                             'type'=>'button',
                             'style'=>'create',
-                            'label' => __('warehouse area'),
+                            'label' => __('clocking machine'),
                             'route' => [
-                                'name'       => 'inventory.warehouses.show.warehouse-areas.create',
+                                'name'       => 'hr.working-places.show.clocking-machines.create',
                                 'parameters' => array_values($this->originalParameters)
                             ],
                         ] : false
