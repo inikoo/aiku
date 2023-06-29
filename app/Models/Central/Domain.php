@@ -28,9 +28,11 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $slug
  * @property int $tenant_id
  * @property int $website_id
+ * @property int $shop_id
  * @property string $domain
  * @property string|null $cloudflare_id
  * @property string|null $cloudflare_status
+ * @property int|null $iris_id
  * @property string|null $iris_status
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at

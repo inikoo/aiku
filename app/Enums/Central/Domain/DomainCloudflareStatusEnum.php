@@ -13,6 +13,8 @@ enum DomainCloudflareStatusEnum: string
 {
     use EnumHelperTrait;
 
+    case NOT_SET = 'not-set';
+
     case PENDING = 'pending';
     case ACTIVE  = 'active';
 }

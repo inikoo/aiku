@@ -20,9 +20,11 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('tenant_id');
             $table->foreign('tenant_id')->references('id')->on('tenants')->onUpdate('cascade')->onDelete('cascade');
             $table->unsignedSmallInteger('website_id')->index();
+            $table->unsignedSmallInteger('shop_id')->index();
             $table->string('domain')->index();
             $table->string('cloudflare_id')->index()->nullable();
-            $table->string('cloudflare_status')->nullable()->default(DomainCloudflareStatusEnum::PENDING->value);
+            $table->string('cloudflare_status')->nullable()->default(DomainCloudflareStatusEnum::NOT_SET->value);
+            $table->unsignedSmallInteger('iris_id')->index()->nullable();
             $table->string('iris_status')->nullable()->default(DomainIrisStatusEnum::PENDING->value);
             $table->timestampsTz();
             $table->softDeletesTz();

@@ -7,6 +7,7 @@
 
 namespace App\Actions\Tenancy\Tenant\Hydrators;
 
+use App\Enums\Web\Website\WebsiteEngineEnum;
 use App\Enums\Web\Website\WebsiteStateEnum;
 use App\Models\Tenancy\Tenant;
 use App\Models\Web\WebpageVariant;
@@ -34,6 +35,14 @@ class TenantHydrateWeb implements ShouldBeUnique
 
         foreach (WebsiteStateEnum::cases() as $websiteState) {
             $stats['number_websites_state_'.$websiteState->snake()] = Arr::get($websiteStateCount, $websiteState->value, 0);
+        }
+
+        $websiteEngineCount = Website::selectRaw('engine, count(*) as total')
+            ->groupBy('engine')
+            ->pluck('total', 'engine')->all();
+
+        foreach (WebsiteEngineEnum::cases() as $websiteEngine) {
+            $stats['number_websites_engine_'.$websiteEngine->snake()] = Arr::get($websiteEngineCount, $websiteEngine->value, 0);
         }
 
 

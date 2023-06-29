@@ -20,7 +20,6 @@ use App\Models\Procurement\SupplierProductTenant;
 use App\Models\Procurement\SupplierTenant;
 use App\Models\SysAdmin\SysUser;
 use App\Models\TenantWebStats;
-use Database\Factories\Tenancy\TenantFactory;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -86,7 +85,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read SysUser|null $sysUser
  * @property-read TenantWebStats|null $webStats
  * @method static TenantCollection<int, static> all($columns = ['*'])
- * @method static TenantFactory factory($count = null, $state = [])
+ * @method static \Database\Factories\Tenancy\TenantFactory factory($count = null, $state = [])
  * @method static TenantCollection<int, static> get($columns = ['*'])
  * @method static Builder|Tenant newModelQuery()
  * @method static Builder|Tenant newQuery()

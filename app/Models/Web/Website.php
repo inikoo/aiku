@@ -7,6 +7,8 @@
 
 namespace App\Models\Web;
 
+use App\Enums\Web\Website\WebsiteEngineEnum;
+use App\Enums\Web\Website\WebsiteStateEnum;
 use App\Models\Market\Shop;
 use App\Models\Traits\HasHistory;
 use Eloquent;
@@ -29,7 +31,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $id
  * @property string $slug
  * @property int $shop_id
- * @property string $state
+ * @property WebsiteStateEnum $state
+ * @property WebsiteEngineEnum $engine
  * @property string $code
  * @property string $domain
  * @property string $name
@@ -69,6 +72,8 @@ class Website extends Model implements Auditable
         'data'      => 'array',
         'settings'  => 'array',
         'structure' => 'array',
+        'state'     => WebsiteStateEnum::class,
+        'engine'    => WebsiteEngineEnum::class
     ];
 
     protected $attributes = [

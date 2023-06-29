@@ -25,6 +25,9 @@ use Illuminate\Support\Carbon;
  * @property int $number_websites_state_in_process
  * @property int $number_websites_state_live
  * @property int $number_websites_state_closed
+ * @property int $number_websites_engine_aurora
+ * @property int $number_websites_engine_iris
+ * @property int $number_websites_engine_other
  * @property int $number_webpages
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at

@@ -34,7 +34,6 @@ class FetchWebsites extends FetchAction
                     shop:      $websiteData['shop'],
                     modelData: $websiteData['website'],
                 );
-                usleep(1000000);
             }
 
             return $website;

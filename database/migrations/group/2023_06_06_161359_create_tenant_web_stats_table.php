@@ -5,6 +5,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
+use App\Enums\Web\Website\WebsiteEngineEnum;
 use App\Enums\Web\Website\WebsiteStateEnum;
 use App\Stubs\Migrations\HasWebStats;
 use Illuminate\Database\Migrations\Migration;
@@ -24,6 +25,10 @@ return new class () extends Migration {
             foreach (WebsiteStateEnum::cases() as $websiteState) {
                 $table->unsignedInteger('number_websites_state_'.$websiteState->snake())->default(0);
             }
+            foreach (WebsiteEngineEnum::cases() as $websiteEngine) {
+                $table->unsignedInteger('number_websites_engine_'.$websiteEngine->snake())->default(0);
+            }
+
             $table=$this->webStats($table);
             $table->timestampsTz();
         });
