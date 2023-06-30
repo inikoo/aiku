@@ -7,14 +7,12 @@
 
 declare(strict_types=1);
 
-use App\Actions\Mail\EmailAddress\GetNotificationSnsEmailAddress;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware([
     "app",
 ])->group(function () {
 
-    Route::post('webhook/sns/email', GetNotificationSnsEmailAddress::class);
 
     Route::middleware(["auth"])->group(function () {
         Route::get('/', function () {
