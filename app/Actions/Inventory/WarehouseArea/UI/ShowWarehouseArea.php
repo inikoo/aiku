@@ -220,7 +220,7 @@ class ShowWarehouseArea extends InertiaAction
             ),
             'inventory.warehouses.show.warehouse-areas.show' =>
             array_merge(
-                (new ShowWarehouse())->getBreadcrumbs( $routeParameters['warehouse']),
+                (new ShowWarehouse())->getBreadcrumbs($routeParameters['warehouse']),
                 $headCrumb(
                     $routeParameters['warehouseArea'],
                     [

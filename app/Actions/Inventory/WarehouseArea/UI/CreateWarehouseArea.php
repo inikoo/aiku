@@ -48,8 +48,9 @@ class CreateWarehouseArea extends InertiaAction
                                 'code' => [
                                     'type'  => 'input',
                                     'label' => __('code'),
+                                    'placeholder' => __('maximum 4 character long'),
                                     'value' => '',
-                                    'required'=>true
+                                    'required'=>true,
                                 ],
                                 'name' => [
                                     'type'  => 'input',

@@ -46,6 +46,7 @@ class RemoveClockingMachine extends InertiaAction
 
     public function htmlResponse(ClockingMachine $clockingMachine, ActionRequest $request): Response
     {
+
         return Inertia::render(
             'RemoveModel',
             [
@@ -75,7 +76,7 @@ class RemoveClockingMachine extends InertiaAction
                 'data'      => $this->getAction(
                     route:[
                         'name' => 'models.clocking-machine.delete',
-                        'parameters' => array_values($this->originalParameters)
+                        'parameters' => $request->route()->originalParameters()
                     ]
                 )
             ]

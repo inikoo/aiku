@@ -5,6 +5,7 @@
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
+use App\Enums\Web\Website\WebsiteEngineEnum;
 use App\Enums\Web\Website\WebsiteStateEnum;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -19,7 +20,7 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('shop_id')->index();
             $table->foreign('shop_id')->references('id')->on('shops');
             $table->string('state')->default(WebsiteStateEnum::IN_PROCESS->value)->index();
-            //$table->string('engine')->default(::IN_PROCESS->value)->index();
+            $table->string('engine')->default(WebsiteEngineEnum::IRIS->value)->index();
             $table->string('code')->unique()->collation('und_ns');
             $table->string('domain')->unique()->collation('und_ns');
             $table->string('name')->unique()->collation('und_ns');

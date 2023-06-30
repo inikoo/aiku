@@ -7,6 +7,7 @@
 
 namespace App\Services\Tenant\Aurora;
 
+use App\Enums\Web\Website\WebsiteEngineEnum;
 use App\Enums\Web\Website\WebsiteStateEnum;
 use Illuminate\Support\Facades\DB;
 
@@ -32,7 +33,7 @@ class FetchAuroraWebsite extends FetchAurora
 
         $this->parsedData['website'] =
             [
-
+                'engine'      => WebsiteEngineEnum::AURORA,
                 'name'        => $this->auroraModelData->{'Website Name'},
                 'code'        => $code,
                 'domain'      => $domain,

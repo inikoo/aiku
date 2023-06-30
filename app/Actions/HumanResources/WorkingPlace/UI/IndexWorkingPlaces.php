@@ -71,6 +71,22 @@ class IndexWorkingPlaces extends InertiaAction
 
             $table
                 ->withGlobalSearch()
+                ->withEmptyState(
+                    [
+                        'title' => __('no working places'),
+                        'description' => $this->canEdit ? __('Get started by creating a new working place.') : null,
+                        'action' => $this->canEdit ? [
+                            'type' => 'button',
+                            'style' => 'create',
+                            'tooltip' => __('new working place'),
+                            'label' => __('working place'),
+                            'route' => [
+                                'name'       => 'hr.working-places.create',
+                                'parameters' => array_values($this->originalParameters)
+                            ]
+                        ] : null
+                    ]
+                )
                 ->column(key: 'slug', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'type', label: __('type'), canBeHidden: false, sortable: true, searchable: true)

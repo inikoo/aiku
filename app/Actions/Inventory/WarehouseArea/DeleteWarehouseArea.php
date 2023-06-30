@@ -7,7 +7,6 @@
 
 namespace App\Actions\Inventory\WarehouseArea;
 
-use App\Models\HumanResources\Employee;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
 use Illuminate\Http\RedirectResponse;
@@ -24,6 +23,7 @@ class DeleteWarehouseArea
     public function handle(WarehouseArea $warehouseArea): WarehouseArea
     {
         $warehouseArea->locations()->delete();
+        $warehouseArea->stats()->delete();
         $warehouseArea->delete();
 
         return $warehouseArea;
@@ -41,6 +41,7 @@ class DeleteWarehouseArea
         return $this->handle($warehouseArea);
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
     public function inWarehouse(Warehouse $warehouse, WarehouseArea $warehouseArea, ActionRequest $request): WarehouseArea
     {
         $request->validate();

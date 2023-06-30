@@ -117,6 +117,23 @@ class IndexEmployees extends InertiaAction
             $table
                 ->withModelOperations($modelOperations)
                 ->withGlobalSearch()
+                ->withEmptyState(
+                    [
+                        'title' => __('no employees'),
+                        'description' => $this->canEdit ? __('Get started by creating a new employee.') : null,
+                        'count'       => app('currentTenant')->stats->number_employees,
+                        'action' => $this->canEdit ? [
+                            'type' => 'button',
+                            'style' => 'create',
+                            'tooltip' => __('new employee'),
+                            'label' => __('employee'),
+                            'route' => [
+                                'name'       => 'hr.employees.create',
+                                'parameters' => array_values($this->originalParameters)
+                            ]
+                        ] : null
+                    ]
+                )
                 ->column(key: 'slug', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'contact_name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'job_title', label: __('position'), canBeHidden: false)

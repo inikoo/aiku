@@ -36,8 +36,7 @@ class StoreWebsite
         /** @var Website $website */
         $website = $shop->website()->create($modelData);
         $website->stats()->create();
-        StoreDomain::run(app('currentTenant'), [
-            'website_id' => $website->id,
+        StoreDomain::run(app('currentTenant'), $website, [
             'slug'       => $website->code,
             'domain'     => $website->domain
         ]);
