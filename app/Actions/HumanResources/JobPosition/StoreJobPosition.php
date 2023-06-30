@@ -8,6 +8,7 @@
 namespace App\Actions\HumanResources\JobPosition;
 
 use App\Models\HumanResources\JobPosition;
+use App\Rules\CaseSensitive;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
@@ -33,9 +34,8 @@ class StoreJobPosition
     public function rules(): array
     {
         return [
-            'code'      => ['required', 'max:8'],
+            'code'      => ['required', 'max:8', 'alpha_dash', New CaseSensitive('job_positions')],
             'name'      => ['required', 'max:255'],
-
         ];
     }
 
@@ -48,6 +48,6 @@ class StoreJobPosition
 
     public function htmlResponse(JobPosition $jobPosition): RedirectResponse
     {
-        return Redirect::route('hr.employees.show', $jobPosition->slug);
+        return Redirect::route('hr.job-positions.show', $jobPosition->slug);
     }
 }

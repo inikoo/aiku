@@ -33,7 +33,7 @@ class IndexJobPositions extends InertiaAction
 
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->whereAnyWordStartWith('job_positions.contact_name', $value)
+                $query->whereAnyWordStartWith('job_positions.name', $value)
                     ->orWhere('job_positions.slug', 'ILIKE', "$value%");
             });
         });
@@ -59,6 +59,7 @@ class IndexJobPositions extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
+        $this->canEdit = $request->user()->can('hr.edit');
         return
             (
                 $request->user()->tokenCan('root') or
@@ -85,6 +86,23 @@ class IndexJobPositions extends InertiaAction
             $table
                 ->withModelOperations($modelOperations)
                 ->withGlobalSearch()
+                ->withEmptyState(
+                    [
+                        'title' => __('no job positions'),
+                        'description' => $this->canEdit ? __('Get started by creating a new job position.') : null,
+                        'count'       => app('currentTenant')->stats->number_job_position,
+                        'action' => $this->canEdit ? [
+                            'type' => 'button',
+                            'style' => 'create',
+                            'tooltip' => __('new job position'),
+                            'label' => __('job position'),
+                            'route' => [
+                                'name'       => 'hr.job-positions.create',
+                                'parameters' => array_values($this->originalParameters)
+                            ]
+                        ] : null
+                    ]
+                )
                 ->column(key: 'slug', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'number_employees', label: __('employees'), canBeHidden: false, sortable: true, searchable: true)
@@ -101,6 +119,17 @@ class IndexJobPositions extends InertiaAction
                 'title'       => __('job positions'),
                 'pageHead'    => [
                     'title' => __('positions'),
+                    'actions'=> [
+                        $this->canEdit ? [
+                            'type'=>'button',
+                            'style'=>'create',
+                            'label' => __('job position'),
+                            'route' => [
+                                'name'       => 'hr.job-positions.create',
+                                'parameters' => array_values($this->originalParameters)
+                            ]
+                        ] : false
+                    ]
                 ],
                 'data'        => JobPositionResource::collection($jobPositions),
 

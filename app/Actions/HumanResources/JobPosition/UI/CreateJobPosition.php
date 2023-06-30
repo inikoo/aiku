@@ -10,6 +10,7 @@ namespace App\Actions\HumanResources\JobPosition\UI;
 use App\Actions\InertiaAction;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
 use App\Models\HumanResources\JobPosition;
+use App\Models\Market\ProductCategory;
 use Exception;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -29,12 +30,18 @@ class CreateJobPosition extends InertiaAction
                 'breadcrumbs' => $this->getBreadcrumbs(),
                 'title'       => __('new job position'),
                 'pageHead'    => [
-                    'title'        => __('new employee'),
-                    'cancelCreate' => [
-                        'route' => [
-                            'name'       => 'hr.employees.index',
-                            'parameters' => array_values($this->originalParameters)
-                        ],
+                    'title'        => __('new job position'),
+
+                    'actions'      => [
+                        [
+                            'type'  => 'button',
+                            'style' => 'cancel',
+                            'label' => __('cancel'),
+                            'route' => [
+                                'name'       => 'hr.job-positions.index',
+                                'parameters' => array_values($this->originalParameters)
+                            ],
+                        ]
                     ]
 
                 ],
@@ -43,36 +50,29 @@ class CreateJobPosition extends InertiaAction
                         [
                             'title'  => __('creating job positions'),
                             'fields' => [
+                                'code' => [
+                                    'type'  => 'input',
+                                    'label' => __('code'),
+                                    'required'  => true
+                                ],
                                 'name' => [
                                     'type'  => 'input',
                                     'label' => __('name'),
+                                    'required'  => true
                                 ],
-                                'date_of_birth' => [
-                                    'type'  => 'date',
-                                    'label' => __('date of birth'),
-                                    'value' => ''
-                                ],
-                                'job_title' => [
+                                'department' => [
                                     'type'        => 'select',
-                                    'label'       => __('position'),
-                                    'options'     => Options::forModels(JobPosition::class, label: 'name', value: 'name'),
-                                    'placeholder' => 'Select a Position',
-                                    'mode'        => 'single'
-                                ],
-                                'state' => [
-                                    'type'        => 'select',
-                                    'label'       => __('state'),
-                                    'options'     => Options::forEnum(EmployeeStateEnum::class),
-                                    'placeholder' => 'Select a State',
-                                    'mode'        => 'single'
+                                    'label'       => __('department'),
+                                    'options'     => Options::forModels(ProductCategory::class, label: 'name', value: 'name'),
+                                    'placeholder' => 'Select a Department',
+                                    'mode'        => 'single',
                                 ]
-
                             ]
                         ]
 
                     ],
                     'route'      => [
-                            'name'       => 'models.employee.store',
+                            'name'       => 'models.job-position.store',
 
                     ]
 

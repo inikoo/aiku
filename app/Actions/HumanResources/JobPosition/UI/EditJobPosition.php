@@ -7,11 +7,9 @@
 
 namespace App\Actions\HumanResources\JobPosition\UI;
 
-use App\Actions\HumanResources\Employee\UI\ShowEmployee;
 use App\Actions\InertiaAction;
-use App\Enums\HumanResources\Employee\EmployeeStateEnum;
-use App\Models\HumanResources\Employee;
 use App\Models\HumanResources\JobPosition;
+use App\Models\Market\ProductCategory;
 use Exception;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -20,9 +18,9 @@ use Spatie\LaravelOptions\Options;
 
 class EditJobPosition extends InertiaAction
 {
-    public function handle(Employee $employee): Employee
+    public function handle(JobPosition $jobPosition): JobPosition
     {
-        return $employee;
+        return $jobPosition;
     }
 
     public function authorize(ActionRequest $request): bool
@@ -30,67 +28,62 @@ class EditJobPosition extends InertiaAction
         return $request->user()->hasPermissionTo("hr.edit");
     }
 
-    public function asController(Employee $employee, ActionRequest $request): Employee
+    public function asController(JobPosition $jobPosition, ActionRequest $request): JobPosition
     {
         $this->initialisation($request);
 
-        return $this->handle($employee);
+        return $this->handle($jobPosition);
     }
 
 
     /**
      * @throws Exception
      */
-    public function htmlResponse(Employee $employee): Response
+    public function htmlResponse(JobPosition $jobPosition): Response
     {
         return Inertia::render(
             'EditModel',
             [
-                'title'       => __('employee'),
-                'breadcrumbs' => $this->getBreadcrumbs($employee),
+                'title'       => __('job position'),
+                'breadcrumbs' => $this->getBreadcrumbs($jobPosition),
                 'pageHead'    => [
-                    'title'    => $employee->contact_name,
-                    'exitEdit' => [
-                        'route' => [
-                            'name'       => preg_replace('/edit$/', 'show', $this->routeName),
-                            'parameters' => array_values($this->originalParameters),
+                    'title'    => $jobPosition->name,
+                    'actions'=>[
+                        [
+                            'type'=>'button',
+                            'style'=>'exitEdit',
+                            'route' => [
+                                'name'       => preg_replace('/edit$/', 'show', $this->routeName),
+                                'parameters' => array_values($this->originalParameters)
+                            ]
                         ]
-                    ],
+                    ]
                 ],
 
                 'formData' => [
                     'blueprint' => [
                         [
-                            'title'  => __('personal information'),
+                            'title'  => __('edit job position'),
                             'fields' => [
-
-                                'contact_name' => [
-                                    'type'        => 'input',
-                                    'label'       => __('name'),
-                                    'placeholder' => 'Name',
-                                    'value'       => $employee->contact_name
+                                'code' => [
+                                    'type'      => 'input',
+                                    'label'     => __('code'),
+                                    'required'  => true,
+                                    'value'     => $jobPosition->code
                                 ],
-                                'date_of_birth' => [
-                                    'type'        => 'date',
-                                    'label'       => __('date of birth'),
-                                    'placeholder' => 'Date Of Birth',
-                                    'value'       => $employee->date_of_birth
+                                'name' => [
+                                    'type'      => 'input',
+                                    'label'     => __('name'),
+                                    'required'  => true,
+                                    'value'     => $jobPosition->name
                                 ],
-                                'job_title' => [
+                                'department' => [
                                     'type'        => 'select',
-                                    'label'       => __('position'),
-                                    'options'     => Options::forModels(JobPosition::class, label: 'name', value: 'name'),
-                                    'placeholder' => 'Select a Position',
+                                    'label'       => __('department'),
+                                    'options'     => Options::forModels(ProductCategory::class, label: 'name', value: 'name'),
+                                    'placeholder' => 'Select a Department',
                                     'mode'        => 'single',
-                                    'value'       => $employee->job_title
-                                ],
-                                'state' => [
-                                    'type'        => 'select',
-                                    'label'       => __('state'),
-                                    'options'     => Options::forEnum(EmployeeStateEnum::class),
-                                    'placeholder' => 'Select a State',
-                                    'mode'        => 'single',
-                                    'value'       => $employee->state
+                                    'value'     => $jobPosition->department
                                 ]
                             ]
                         ]
@@ -98,8 +91,8 @@ class EditJobPosition extends InertiaAction
                     ],
                     'args'      => [
                         'updateRoute' => [
-                            'name'       => 'models.employee.update',
-                            'parameters' => $employee->slug
+                            'name'       => 'models.job-position.update',
+                            'parameters' => $jobPosition->slug
 
                         ],
                     ]
@@ -110,8 +103,8 @@ class EditJobPosition extends InertiaAction
         );
     }
 
-    public function getBreadcrumbs(Employee $employee): array
+    public function getBreadcrumbs(JobPosition $jobPosition): array
     {
-        return ShowEmployee::make()->getBreadcrumbs(employee:$employee, suffix: '('.__('editing').')');
+        return ShowJobPosition::make()->getBreadcrumbs(jobPosition:$jobPosition, suffix: '('.__('editing').')');
     }
 }

@@ -5,7 +5,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\HumanResources\JobPosition\UI;
+namespace App\Actions\HumanResources\JobPosition;
 
 use App\Actions\WithActionUpdate;
 use App\Http\Resources\HumanResources\JobPositionResource;
@@ -30,8 +30,8 @@ class UpdateJobPosition
     public function rules(): array
     {
         return [
-            'code'      => ['sometimes', 'max:8'],
-            'name'      => ['sometimes', 'max:255'],
+            'code'      => ['sometimes','required', 'max:8'],
+            'name'      => ['sometimes','required', 'max:255'],
         ];
     }
 
