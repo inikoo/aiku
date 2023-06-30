@@ -23,10 +23,10 @@ class CreateWarehouse extends InertiaAction
                 'title'       => __('new warehouse'),
                 'pageHead'    => [
                     'title'        => __('new warehouse'),
-                    'actions' => [
+                    'actions'      => [
                         [
-                            'type'=>'button',
-                            'style'=>'cancel',
+                            'type'  => 'button',
+                            'style' => 'cancel',
                             'label' => __('cancel'),
                             'route' => [
                                 'name'       => 'inventory.warehouses.index',
@@ -42,15 +42,15 @@ class CreateWarehouse extends InertiaAction
                             'fields' => [
 
                                 'code' => [
-                                    'type'  => 'input',
-                                    'label' => __('code'),
-                                    'value' => '',
+                                    'type'     => 'input',
+                                    'label'    => __('code'),
+                                    'value'    => '',
                                     'required' => true
                                 ],
                                 'name' => [
-                                    'type'  => 'input',
-                                    'label' => __('name'),
-                                    'value' => '',
+                                    'type'     => 'input',
+                                    'label'    => __('name'),
+                                    'value'    => '',
                                     'required' => true
                                 ],
 

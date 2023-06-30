@@ -9,14 +9,15 @@ namespace App\Actions\Mail\EmailAddress\Traits;
 
 use Aws\Ses\SesClient;
 
-trait AwsClient {
+trait AwsClient
+{
     public function getSesClient(): SesClient
     {
         return new SesClient([
-            'version' => 'latest',
-            'region' => env('AWS_DEFAULT_REGION'),
+            'version'     => 'latest',
+            'region'      => env('AWS_DEFAULT_REGION'),
             'credentials' => [
-                'key' => env('AWS_ACCESS_KEY_ID'),
+                'key'    => env('AWS_ACCESS_KEY_ID'),
                 'secret' => env('AWS_SECRET_ACCESS_KEY'),
             ],
         ]);

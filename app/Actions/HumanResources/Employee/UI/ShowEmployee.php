@@ -29,7 +29,7 @@ class ShowEmployee extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('hr.edit');
+        $this->canEdit   = $request->user()->can('hr.edit');
         $this->canDelete = $request->user()->can('hr.edit');
         return $request->user()->hasPermissionTo("hr.view");
     }
@@ -74,18 +74,18 @@ class ShowEmployee extends InertiaAction
                     ],
                     'actions' => [
                         $this->canEdit ? [
-                            'type'=>'button',
-                            'style'=>'edit',
+                            'type'  => 'button',
+                            'style' => 'edit',
                             'route' => [
-                                'name' => preg_replace('/show$/', 'edit', $this->routeName),
+                                'name'       => preg_replace('/show$/', 'edit', $this->routeName),
                                 'parameters' => array_values($this->originalParameters)
                             ]
                         ] : false,
                         $this->canDelete ? [
-                            'type'=>'button',
-                            'style'=>'delete',
+                            'type'  => 'button',
+                            'style' => 'delete',
                             'route' => [
-                                'name' => 'hr.employees.remove',
+                                'name'       => 'hr.employees.remove',
                                 'parameters' => array_values($this->originalParameters)
                             ]
 

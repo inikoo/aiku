@@ -9,7 +9,6 @@ namespace App\Actions\Market\ProductCategory;
 
 use App\Actions\Traits\WithExportData;
 use App\Exports\Marketing\ProductCategoriesExport;
-use App\Exports\Marketing\ShopsExport;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
@@ -28,7 +27,7 @@ class ExportProductCategory
     {
         $type = $objectData['type'];
 
-        return $this->export(new ProductCategoriesExport, 'departments', $type);
+        return $this->export(new ProductCategoriesExport(), 'departments', $type);
     }
 
     /**

@@ -48,8 +48,9 @@ class CreateEmployee extends InertiaAction
                             'title'  => __('personal information'),
                             'fields' => [
                                 'contact_name' => [
-                                    'type'  => 'input',
-                                    'label' => __('name'),
+                                    'type'     => 'input',
+                                    'label'    => __('name'),
+                                    'required' => true,
                                 ],
                                 'date_of_birth' => [
                                     'type'  => 'date',

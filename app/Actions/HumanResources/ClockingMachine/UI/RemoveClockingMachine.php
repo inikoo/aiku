@@ -61,11 +61,11 @@ class RemoveClockingMachine extends InertiaAction
                             'icon'  => ['fal', 'fa-chess-clock'],
                             'title' => __('clocking machine')
                         ],
-                    'title' => $clockingMachine->slug,
-                    'actions'=>[
+                    'title'  => $clockingMachine->slug,
+                    'actions'=> [
                         [
-                            'type'=>'button',
-                            'style'=>'cancel',
+                            'type'  => 'button',
+                            'style' => 'cancel',
                             'route' => [
                                 'name'       => preg_replace('/remove$/', 'show', $this->routeName),
                                 'parameters' => $clockingMachine->slug
@@ -75,7 +75,7 @@ class RemoveClockingMachine extends InertiaAction
                 ],
                 'data'      => $this->getAction(
                     route:[
-                        'name' => 'models.clocking-machine.delete',
+                        'name'       => 'models.clocking-machine.delete',
                         'parameters' => $request->route()->originalParameters()
                     ]
                 )

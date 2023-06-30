@@ -14,12 +14,12 @@ class LogUserFirebaseMiddleware
      */
     public function handle(Request $request, Closure $next)
     {
-        $user = $request->user();
+        $user   = $request->user();
         $tenant = app('currentTenant');
 
         $route = [
-            'module' => explode('.', request()->route()->getName())[0],
-            'name' => request()->route()->getName(),
+            'module'    => explode('.', request()->route()->getName())[0],
+            'name'      => request()->route()->getName(),
             'arguments' => request()->route()->originalParameters()
         ];
 

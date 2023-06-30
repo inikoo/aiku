@@ -32,10 +32,10 @@ class CreateWorkingPlace extends InertiaAction
                 'title'       => __('new workplace'),
                 'pageHead'    => [
                     'title'        => __('new workplace'),
-                    'actions' => [
+                    'actions'      => [
                         [
-                            'type'=>'button',
-                            'style'=>'cancel',
+                            'type'  => 'button',
+                            'style' => 'cancel',
                             'label' => __('cancel'),
                             'route' => [
                                 'name'       => 'hr.working-places.index',

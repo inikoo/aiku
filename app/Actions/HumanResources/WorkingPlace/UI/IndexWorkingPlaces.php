@@ -73,14 +73,14 @@ class IndexWorkingPlaces extends InertiaAction
                 ->withGlobalSearch()
                 ->withEmptyState(
                     [
-                        'title' => __('no working places'),
+                        'title'       => __('no working places'),
                         'description' => $this->canEdit ? __('Get started by creating a new working place.') : null,
-                        'action' => $this->canEdit ? [
-                            'type' => 'button',
-                            'style' => 'create',
+                        'action'      => $this->canEdit ? [
+                            'type'    => 'button',
+                            'style'   => 'create',
                             'tooltip' => __('new working place'),
-                            'label' => __('working place'),
-                            'route' => [
+                            'label'   => __('working place'),
+                            'route'   => [
                                 'name'       => 'hr.working-places.create',
                                 'parameters' => array_values($this->originalParameters)
                             ]
@@ -124,8 +124,8 @@ class IndexWorkingPlaces extends InertiaAction
                     'title'  => __('working places'),
                     'actions'=> [
                         $this->canEdit ? [
-                            'type'=>'button',
-                            'style'=>'create',
+                            'type'  => 'button',
+                            'style' => 'create',
                             'label' => __('working place'),
                             'route' => [
                                 'name'       => 'hr.working-places.create',

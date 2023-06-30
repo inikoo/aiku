@@ -28,6 +28,7 @@ use App\Actions\HumanResources\Employee\UI\ShowEmployee;
 use App\Actions\HumanResources\JobPosition\UI\CreateJobPosition;
 use App\Actions\HumanResources\JobPosition\UI\EditJobPosition;
 use App\Actions\HumanResources\JobPosition\UI\IndexJobPositions;
+use App\Actions\HumanResources\JobPosition\UI\RemoveJobPosition;
 use App\Actions\HumanResources\JobPosition\UI\ShowJobPosition;
 use App\Actions\HumanResources\TimeSheet\IndexTimesheets;
 use App\Actions\HumanResources\TimeSheet\ShowTimeSheet;
@@ -56,6 +57,7 @@ Route::get('/positions', IndexJobPositions::class)->name('job-positions.index');
 Route::get('/positions/create', CreateJobPosition::class)->name('job-positions.create');
 Route::get('/positions/{jobPosition}', ShowJobPosition::class)->name('job-positions.show');
 Route::get('/positions/{jobPosition}/edit', EditJobPosition::class)->name('job-positions.edit');
+Route::get('/positions/{jobPosition}/delete', RemoveJobPosition::class)->name('job-positions.remove');
 
 
 Route::get('/calendars', IndexCalendars::class)->name('calendars.index');

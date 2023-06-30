@@ -69,11 +69,11 @@ class RemoveWarehouseArea extends InertiaAction
                             'icon'  => ['fal', 'fa-map-signs'],
                             'title' => __('warehouse area')
                         ],
-                    'title' => $warehouseArea->slug,
-                    'actions'=>[
+                    'title'  => $warehouseArea->slug,
+                    'actions'=> [
                         [
-                            'type'=>'button',
-                            'style'=>'cancel',
+                            'type'  => 'button',
+                            'style' => 'cancel',
                             'label' => __('cancel'),
                             'route' => [
                                 'name'       => preg_replace('/remove$/', 'show', $this->routeName),
@@ -90,11 +90,10 @@ class RemoveWarehouseArea extends InertiaAction
                             'parameters' => $request->route()->originalParameters()
                         ],
                         'inventory.warehouses.show.warehouse-areas.remove' => [
-                            'name' => 'models.warehouse.warehouse-area.delete',
+                            'name'       => 'models.warehouse.warehouse-area.delete',
                             'parameters' => $request->route()->originalParameters()
                         ]
                     }
-
                 )
 
 

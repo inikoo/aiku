@@ -5,25 +5,25 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\HumanResources\WorkingPlace;
+namespace App\Actions\HumanResources\JobPosition;
 
-use App\Models\HumanResources\Workplace;
+use App\Models\HumanResources\JobPosition;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsController;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class DeleteWorkingPlace
+class DeleteJobPosition
 {
     use AsController;
     use WithAttributes;
 
-    public function handle(Workplace $workplace): Workplace
+    public function handle(JobPosition $jobPosition): JobPosition
     {
-        $workplace->delete();
+        $jobPosition->delete();
 
-        return $workplace;
+        return $jobPosition;
     }
 
     public function authorize(ActionRequest $request): bool
@@ -31,16 +31,16 @@ class DeleteWorkingPlace
         return $request->user()->hasPermissionTo("hr.edit");
     }
 
-    public function asController(Workplace $workplace, ActionRequest $request): Workplace
+    public function asController(JobPosition $jobPosition, ActionRequest $request): JobPosition
     {
         $request->validate();
 
-        return $this->handle($workplace);
+        return $this->handle($jobPosition);
     }
 
-    public function htmlResponse(Workplace $workplace): RedirectResponse
+    public function htmlResponse(): RedirectResponse
     {
-        return Redirect::route('hr.working-places.show', $workplace->slug);
+        return Redirect::route('hr.job-positions.index');
     }
 
 }

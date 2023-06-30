@@ -66,13 +66,17 @@ class Kernel extends HttpKernel
      */
     protected $middlewareGroups = [
 
-
+        'webhooks-api' => [
+            ForceJsonResponse::class,
+            EnsureFrontendRequestsAreStateful::class,
+            SubstituteBindings::class,
+        ],
         'central-api' => [
             ForceJsonResponse::class,
             EnsureFrontendRequestsAreStateful::class,
             'throttle:api',
             SubstituteBindings::class,
-            'auth:api-admin-user'
+           'auth:api-admin-user'
         ],
 
         'central-web' => [

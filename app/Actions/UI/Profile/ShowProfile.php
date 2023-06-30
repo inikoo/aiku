@@ -112,6 +112,32 @@ class ShowProfile
                             ],
                         ],
                     ],
+                    [
+                        "title"  => __("notifications"),
+                        "icon"   => "fa-light fa-bell",
+                        "fields" => [
+                            "notifications" => [
+                                "type"  => "myNotifications",
+                                "label" => __("notifications"),
+                                "value" => [],
+                                "data"  => [
+                                    [
+                                        'type' => 'new-order',
+                                        'label'=> __('new order'),
+                                    ],
+                                    [
+                                        'type' => 'new re',
+                                        'label'=> __('new order'),
+                                    ],
+                                    [
+                                        'type' => 'new user',
+                                        'label'=> __('new order'),
+                                    ],
+                                ]
+                            ],
+
+                        ],
+                    ],
                 ],
                 "args"      => [
                     "updateRoute" => [

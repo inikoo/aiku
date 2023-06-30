@@ -12,7 +12,6 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use App\Actions\Assets\Language\UI\GetLanguagesOptions;
-use App\Enums\Market\Shop\ShopTypeEnum;
 
 /**
  * @property array $breadcrumbs
@@ -44,10 +43,10 @@ class CreateShops extends InertiaAction
         return Inertia::render(
             'CreateModelBySpreadSheet',
             [
-                'title'     => __('shops'),
+                'title'            => __('shops'),
                 'documentName'     => 'tes',
-                'pageHead'  => [
-                    'title' => __('Upload shops'),
+                'pageHead'         => [
+                    'title'    => __('Upload shops'),
                     'exitEdit' => [
                         'label' => __('Back'),
                         'route' => [

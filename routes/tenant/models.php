@@ -22,6 +22,9 @@ use App\Actions\HumanResources\ClockingMachine\UpdateClockingMachine;
 use App\Actions\HumanResources\Employee\DeleteEmployee;
 use App\Actions\HumanResources\Employee\StoreEmployee;
 use App\Actions\HumanResources\Employee\UpdateEmployee;
+use App\Actions\HumanResources\JobPosition\DeleteJobPosition;
+use App\Actions\HumanResources\JobPosition\StoreJobPosition;
+use App\Actions\HumanResources\JobPosition\UpdateJobPosition;
 use App\Actions\HumanResources\WorkingPlace\DeleteWorkingPlace;
 use App\Actions\HumanResources\WorkingPlace\StoreWorkingPlace;
 use App\Actions\HumanResources\WorkingPlace\UpdateWorkingPlace;
@@ -88,6 +91,10 @@ Route::patch('/order/{order}', UpdateOrder::class)->name('order.update');
 Route::patch('/employee/{employee}', UpdateEmployee::class)->name('employee.update');
 Route::post('/employee/', StoreEmployee::class)->name('employee.store');
 Route::delete('/employee/{employee}', DeleteEmployee::class)->name('employee.delete');
+
+Route::patch('/position/{employee}', UpdateJobPosition::class)->name('job-position.update');
+Route::post('/position/', StoreJobPosition::class)->name('job-position.store');
+Route::delete('/position/{employee}', DeleteJobPosition::class)->name('job-position.delete');
 
 Route::patch('/working-place/{workplace}', UpdateWorkingPlace::class)->name('working-place.update');
 Route::post('/working-place/', StoreWorkingPlace::class)->name('working-place.store');

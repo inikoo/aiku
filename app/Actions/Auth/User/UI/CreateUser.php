@@ -26,10 +26,10 @@ class CreateUser extends InertiaAction
                 'title'       => __('new user'),
                 'pageHead'    => [
                     'title'        => __('new user'),
-                    'actions' => [
+                    'actions'      => [
                         [
-                            'type'=>'button',
-                            'style'=>'cancel',
+                            'type'  => 'button',
+                            'style' => 'cancel',
                             'label' => __('cancel'),
                             'route' => [
                                 'name'       => 'sysadmin.users.index',

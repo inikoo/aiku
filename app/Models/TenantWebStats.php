@@ -22,6 +22,11 @@ use Illuminate\Support\Carbon;
  * @property int $tenant_id
  * @property int $number_websites
  * @property int $number_websites_under_maintenance
+ * @property int $number_websites_type_info
+ * @property int $number_websites_type_b2b
+ * @property int $number_websites_type_b2c
+ * @property int $number_websites_type_dropshipping
+ * @property int $number_websites_type_fulfilment
  * @property int $number_websites_state_in_process
  * @property int $number_websites_state_live
  * @property int $number_websites_state_closed

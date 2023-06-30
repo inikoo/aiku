@@ -19,7 +19,7 @@ class DestroyDomainCloudflare
     public function handle(string $zoneId): PromiseInterface|Response|array
     {
         $response = Http::withHeaders([
-            'Content-Type' => 'application/json',
+            'Content-Type'  => 'application/json',
             'Authorization' => 'Bearer ' . env('CLOUDFLARE_API_TOKEN'),
         ])->delete(env('CLOUDFLARE_API_URL') . "/zones/" . $zoneId);
 
