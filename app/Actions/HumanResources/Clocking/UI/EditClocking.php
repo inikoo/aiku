@@ -26,8 +26,8 @@ class EditClocking extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('hr.clocking.edit');
-        return $request->user()->hasPermissionTo("hr..view");
+        $this->canEdit = $request->user()->can('hr.edit');
+        return $request->user()->hasPermissionTo("hr.view");
     }
 
     public function inTenant(Clocking $clocking, ActionRequest $request): Clocking
@@ -71,14 +71,16 @@ class EditClocking extends InertiaAction
                 ),
                 'pageHead' => [
                     'title'    => $clocking->slug,
-                    'exitEdit' => [
-                        'route' => [
-                            'name'       => preg_replace('/edit$/', 'show', $this->routeName),
-                            'parameters' => array_values($this->originalParameters)
+                    'actions'  => [
+                        [
+                            'type'  => 'button',
+                            'style' => 'exitEdit',
+                            'route' => [
+                                'name'       => preg_replace('/edit$/', 'show', $this->routeName),
+                                'parameters' => array_values($this->originalParameters)
+                            ]
                         ]
-                    ],
-
-
+                    ]
                 ],
 
                 'formData' => [

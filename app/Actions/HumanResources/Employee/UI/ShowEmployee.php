@@ -78,7 +78,7 @@ class ShowEmployee extends InertiaAction
                             'style' => 'edit',
                             'route' => [
                                 'name'       => preg_replace('/show$/', 'edit', $this->routeName),
-                                'parameters' => array_values($this->originalParameters)
+                                'parameters' => $request->route()->originalParameters()
                             ]
                         ] : false,
                         $this->canDelete ? [
@@ -86,7 +86,7 @@ class ShowEmployee extends InertiaAction
                             'style' => 'delete',
                             'route' => [
                                 'name'       => 'hr.employees.remove',
-                                'parameters' => array_values($this->originalParameters)
+                                'parameters' => $request->route()->originalParameters()
                             ]
 
                         ] : false

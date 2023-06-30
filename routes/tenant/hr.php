@@ -11,6 +11,7 @@ use App\Actions\HumanResources\Calendar\ShowCalendar;
 use App\Actions\HumanResources\Clocking\UI\CreateClocking;
 use App\Actions\HumanResources\Clocking\UI\EditClocking;
 use App\Actions\HumanResources\Clocking\UI\IndexClockings;
+use App\Actions\HumanResources\Clocking\UI\RemoveClocking;
 use App\Actions\HumanResources\Clocking\UI\ShowClocking;
 use App\Actions\HumanResources\ClockingMachine\ExportWorkingPlaces;
 use App\Actions\HumanResources\ClockingMachine\UI\CreateClockingMachine;
@@ -90,10 +91,13 @@ Route::scopeBindings()->group(function () {
     Route::get('/working-places/{workplace}/clocking-machines/{clockingMachine}/clockings/create', [CreateClocking::class, 'inWorkplaceInClockingMachine'])->name('working-places.show.clocking-machines.show.clockings.create');
     Route::get('/working-places/{workplace}/clocking-machines/{clockingMachine}/clockings/{clocking}/edit', [EditClocking::class, 'inWorkplaceInClockingMachine'])->name('working-places.show.clocking-machines.show.clockings.edit');
     Route::get('/working-places/{workplace}/clocking-machines/{clockingMachine}/clockings/{clocking}', [ShowClocking::class, 'inWorkplaceInClockingMachine'])->name('working-places.show.clocking-machines.show.clockings.show');
+    Route::get('/working-places/{workplace}/clocking-machines/{clockingMachine}/clockings/{clocking}/delete', [RemoveClocking::class, 'inWorkplaceInClockingMachine'])->name('working-places.show.clocking-machines.show.clockings.remove');
 
     Route::get('/working-places/{workplace}/clockings', [IndexClockings::class, 'inWorkplace'])->name('working-places.show.clockings.index');
+    Route::get('/working-places/{workplace}/clockings/create', [CreateClocking::class, 'inWorkplace'])->name('working-places.show.clockings.create');
     Route::get('/working-places/{workplace}/clockings/{clocking}', [ShowClocking::class, 'inWorkplace'])->name('working-places.show.clockings.show');
     Route::get('/working-places/{workplace}/clockings/{clocking}/edit', [EditClocking::class, 'inWorkplace'])->name('working-places.show.clockings.edit');
+    Route::get('/working-places/{workplace}/clockings/{clocking}/delete', [RemoveClocking::class, 'inWorkplace'])->name('working-places.show.clockings.remove');
 
 });
 
@@ -101,8 +105,10 @@ Route::get('/clocking-machines', [IndexClockingMachines::class, 'inTenant'])->na
 Route::get('/clocking-machines/create', CreateClockingMachine::class)->name('clocking-machines.create');
 Route::get('/clocking-machines/{clockingMachine}', ShowClockingMachine::class)->name('clocking-machines.show');
 Route::get('/clocking-machines/{clockingMachine}/edit', EditClockingMachine::class)->name('clocking-machines.edit');
+Route::get('/clocking-machines/{clockingMachine}/delete', RemoveClockingMachine::class)->name('clocking-machines.remove');
 
 Route::get('/clocking', IndexClockings::class)->name('clockings.index');
 Route::get('/clocking/create', CreateClocking::class)->name('clockings.create');
 Route::get('/clocking/{clocking}', ShowClocking::class)->name('clockings.show');
 Route::get('/clocking/{clocking}/edit', EditClocking::class)->name('clockings.edit');
+Route::get('/clocking/{clocking}/delete', RemoveClocking::class)->name('clockings.remove');

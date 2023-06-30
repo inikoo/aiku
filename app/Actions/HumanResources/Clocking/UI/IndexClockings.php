@@ -27,6 +27,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexClockings extends InertiaAction
 {
+    /** @noinspection PhpUndefinedMethodInspection */
     public function handle($parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -38,9 +39,17 @@ class IndexClockings extends InertiaAction
         if ($prefix) {
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
+        $queryBuilder=QueryBuilder::for(Clocking::class);
+        foreach ($this->elementGroups as $key => $elementGroup) {
+            $queryBuilder->whereElementGroup(
+                prefix: $prefix,
+                key: $key,
+                allowedElements: array_keys($elementGroup['elements']),
+                engine: $elementGroup['engine']
+            );
+        }
 
-        /**  @noinspection PhpUndefinedMethodInspection */
-        return QueryBuilder::for(Clocking::class)
+        return $queryBuilder
             ->defaultSort('clockings.slug')
             ->select(
                 [
@@ -82,6 +91,23 @@ class IndexClockings extends InertiaAction
             $table
                 ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
+                ->withEmptyState(
+                    [
+                        'title'       => __('no clockings'),
+                        'description' => $this->canEdit ? __('Get started by creating a new clocking.') : null,
+                        'count'       => app('currentTenant')->stats->number_clockings,
+                        'action'      => $this->canEdit ? [
+                            'type'    => 'button',
+                            'style'   => 'create',
+                            'tooltip' => __('new clocking'),
+                            'label'   => __('clocking'),
+                            'route'   => [
+                                'name'       => 'hr.working-places.show.clockings.create',
+                                'parameters' => array_values($this->originalParameters)
+                            ]
+                        ] : null
+                    ]
+                )
                 ->column(key: 'slug', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->defaultSort('slug');
         };
@@ -109,6 +135,7 @@ class IndexClockings extends InertiaAction
     }
 
 
+    /** @noinspection PhpUnusedParameterInspection */
     public function inWorkplaceInClockingMachine(Workplace $workplace, ClockingMachine $clockingMachine, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($request);
@@ -146,24 +173,29 @@ class IndexClockings extends InertiaAction
                 'title'       => __('Clockings'),
                 'pageHead'    => [
                     'title'  => __('clockings'),
-                    'create' => $this->canEdit
-                    && (
-                        $this->routeName == 'hr.working-places.show.clockings.index' or
-                        $this->routeName == 'hr.working-places.show.clocking-machines.show.clockings.index'
-                    )
-                        ? [
-                            'route' => match ($this->routeName) {
-                                'hr.working-places.show.clockings.index' => [
-                                    'name'       => 'hr.working-places.show.clockings.create',
-                                    'parameters' => array_values($this->originalParameters)
-                                ],
-                                default => [
-                                    'name'       => 'hr.working-places.show.clocking-machines.show.clockings.create',
-                                    'parameters' => array_values($this->originalParameters)
-                                ]
-                            },
-                            'label' => __('clockings')
-                        ] : false,
+                    'actions'=> [
+                        $this->canEdit
+                        && (
+                            $this->routeName == 'hr.working-places.show.clockings.index' or
+                            $this->routeName == 'hr.working-places.show.clocking-machines.show.clockings.index'
+                        )
+                            ? [
+                            'type'  => 'button',
+                            'style' => 'create',
+                            'label' => __('clockings'),
+                            'route' =>
+                                match ($this->routeName) {
+                                    'hr.working-places.show.clocking.index' => [
+                                        'name'       => 'hr.working-places.show.clockings.create',
+                                        'parameters' => $request->route()->originalParameters()
+                                    ],
+                                    default => [
+                                        'name'       => 'hr.working-places.show.clocking-machines.show.clockings.create',
+                                        'parameters' => $request->route()->originalParameters()
+                                    ]
+                                }
+                        ] : false
+                    ]
                 ],
                 'data'        => ClockingResource::collection($clockings),
 

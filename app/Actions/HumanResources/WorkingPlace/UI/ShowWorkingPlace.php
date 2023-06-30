@@ -48,6 +48,7 @@ class ShowWorkingPlace extends InertiaAction
 
     public function htmlResponse(Workplace $workplace, ActionRequest $request): Response
     {
+
         return Inertia::render(
             'HumanResources/WorkingPlace',
             [
@@ -70,7 +71,7 @@ class ShowWorkingPlace extends InertiaAction
                             'style' => 'edit',
                             'route' => [
                                 'name'       => preg_replace('/show$/', 'edit', $this->routeName),
-                                'parameters' => array_values($this->originalParameters)
+                                'parameters' => $request->route()->originalParameters()
                             ]
                         ] : false,
                         $this->canDelete ? [
@@ -78,7 +79,7 @@ class ShowWorkingPlace extends InertiaAction
                             'style' => 'delete',
                             'route' => [
                                 'name'       => 'hr.working-places.remove',
-                                'parameters' => array_values($this->originalParameters)
+                                'parameters' => $request->route()->originalParameters()
                             ]
 
                         ] : false
@@ -146,7 +147,7 @@ class ShowWorkingPlace extends InertiaAction
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistories::run($workplace)))
             ]
         )->table(IndexClockings::make()->tableStructure(
-            modelOperations:[
+            /* modelOperations:[
                     'createLink' => $this->canEdit ? [
                         'route' => [
                             'name'       => 'hr.working-places.show.clockings.create',
@@ -155,10 +156,10 @@ class ShowWorkingPlace extends InertiaAction
                         'label' => __('clocking')
                     ] : false,
                 ],
-            prefix: 'clockings'
+            prefix: 'clockings' */
         ))->table(
             IndexClockingMachines::make()->tableStructure(
-                modelOperations: [
+                /* modelOperations: [
                         'createLink' => $this->canEdit ? [
                             'route' => [
                                 'name'       => 'hr.working-places.show.clocking-machines.create',
@@ -167,7 +168,7 @@ class ShowWorkingPlace extends InertiaAction
                             'label' => __('clocking machine')
                         ] : false,
                     ],
-                prefix: 'clocking_machines'
+                prefix: 'clocking_machines' */
             )
         )->table(IndexHistories::make()->tableStructure());
     }

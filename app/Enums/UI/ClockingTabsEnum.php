@@ -49,7 +49,7 @@ enum ClockingTabsEnum: string
                 'icon'  => 'fal fa-database',
             ],
             ClockingTabsEnum::SHOWCASE => [
-                'title' => __('location'),
+                'title' => __('clocking'),
                 'icon'  => 'fas fa-info-circle',
             ],
         };

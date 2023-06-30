@@ -11,21 +11,19 @@ use App\Actions\Helpers\History\IndexHistories;
 use App\Actions\HumanResources\ClockingMachine\UI\ShowClockingMachine;
 use App\Actions\HumanResources\WorkingPlace\UI\ShowWorkingPlace;
 use App\Actions\InertiaAction;
-use App\Actions\UI\Inventory\InventoryDashboard;
+use App\Actions\UI\HumanResources\HumanResourcesDashboard;
 use App\Enums\UI\ClockingTabsEnum;
-use App\Enums\UI\LocationTabsEnum;
 use App\Http\Resources\SysAdmin\HistoryResource;
 use App\Models\HumanResources\Clocking;
 use App\Models\HumanResources\ClockingMachine;
 use App\Models\HumanResources\Workplace;
-use App\Models\Inventory\Location;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
 /**
- * @property Location $location
+ * @property Clocking $clocking
  */
 class ShowClocking extends InertiaAction
 {
@@ -35,7 +33,8 @@ class ShowClocking extends InertiaAction
     }
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('hr.clockings.edit');
+        $this->canEdit   = $request->user()->can('hr.edit');
+        $this->canDelete = $request->user()->can('hr.edit');
         return $request->user()->hasPermissionTo("hr.view");
     }
 
@@ -46,12 +45,14 @@ class ShowClocking extends InertiaAction
         return $this->handle($clocking);
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
     public function inWorkplace(Workplace $workplace, Clocking $clocking, ActionRequest $request): Clocking
     {
         $this->initialisation($request)->withTab(ClockingTabsEnum::values());
         return $this->handle($clocking);
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
     public function inClockingMachine(ClockingMachine $clockingMachine, Clocking $clocking, ActionRequest $request): Clocking
     {
         $this->initialisation($request)->withTab(ClockingTabsEnum::values());
@@ -59,7 +60,8 @@ class ShowClocking extends InertiaAction
     }
 
 
-    public function inWorkplaceInClockingMachine(Workplace $warehouse, ClockingMachine $clockingMachine, Clocking $clocking, ActionRequest $request): Clocking
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inWorkplaceInClockingMachine(Workplace $workplace, ClockingMachine $clockingMachine, Clocking $clocking, ActionRequest $request): Clocking
     {
         $this->initialisation($request)->withTab(ClockingTabsEnum::values());
         return $this->handle($clocking);
@@ -83,29 +85,60 @@ class ShowClocking extends InertiaAction
                 'pageHead'    => [
                     'icon'  =>
                         [
-                            'icon'  => ['fal', 'fa-inventory'],
-                            'title' => __('location')
+                            'icon'  => ['fal', 'fa-clock'],
+                            'title' => __('clocking')
                         ],
-                    'title' => $clocking->slug,
-                    'edit'  => $this->canEdit ? [
-                        'route' => [
-                            'name'       => preg_replace('/show$/', 'edit', $this->routeName),
-                            'parameters' => array_values($this->originalParameters)
-                        ]
-                    ] : false,
+                    'title'   => $clocking->slug,
+                    'actions' => [
+                        $this->canEdit ? [
+                            'type'  => 'button',
+                            'style' => 'edit',
+                            'route' => [
+                                'name'       => preg_replace('/show$/', 'edit', $this->routeName),
+                                'parameters' => array_values($this->originalParameters)
+                            ]
+                        ] : false,
+                        $this->canDelete ?
+                            match ($this->routeName) {
+                                'hr.clockings.show' => [
+                                    'type'  => 'button',
+                                    'style' => 'delete',
+                                    'route' => [
+                                        'name'       => 'hr.clockings.remove',
+                                        'parameters' => $request->route()->originalParameters()
+                                    ],
 
+                                ],
+                                'hr.working-places.show.clockings.show' => [
+                                    'type'  => 'button',
+                                    'style' => 'delete',
+                                    'route' => [
+                                        'name'       => 'hr.working-places.show.clockings.remove',
+                                        'parameters' => $request->route()->originalParameters()
+                                    ],
+                                ],
+                                'hr.working-places.show.clocking-machines.show.clockings.show' => [
+                                    'type'  => 'button',
+                                    'style' => 'delete',
+                                    'route' => [
+                                        'name'       => 'hr.working-places.show.clocking-machines.show.clockings.remove',
+                                        'parameters' => $request->route()->originalParameters()
+                                    ]
+                                ]
+                            } : false
+                    ]
                 ],
                 'tabs' => [
                     'current'    => $this->tab,
-                    'navigation' => LocationTabsEnum::navigation()
+                    'navigation' => ClockingTabsEnum::navigation()
 
                 ],
 
-                LocationTabsEnum::SHOWCASE->value => $this->tab == LocationTabsEnum::SHOWCASE->value ?
+                ClockingTabsEnum::SHOWCASE->value => $this->tab == ClockingTabsEnum::SHOWCASE->value ?
                     fn () => GetClockingShowcase::run($clocking)
                     : Inertia::lazy(fn () => GetClockingShowcase::run($clocking)),
 
-                LocationTabsEnum::HISTORY->value => $this->tab == LocationTabsEnum::HISTORY->value ?
+                ClockingTabsEnum::HISTORY->value => $this->tab == ClockingTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistories::run($clocking))
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistories::run($clocking)))
             ]
@@ -143,7 +176,7 @@ class ShowClocking extends InertiaAction
         return match ($routeName) {
             'hr.clockings.show' =>
             array_merge(
-                InventoryDashboard::make()->getBreadcrumbs(),
+                HumanResourcesDashboard::make()->getBreadcrumbs(),
                 $headCrumb(
                     $routeParameters['clocking'],
                     [
@@ -286,46 +319,46 @@ class ShowClocking extends InertiaAction
             return null;
         }
         return match ($routeName) {
-            'inventory.clockings.show'=> [
+            'hr.clockings.show'=> [
                 'label'=> $clocking->slug,
                 'route'=> [
                     'name'      => $routeName,
                     'parameters'=> [
-                        'location'  => $clocking->slug
+                        'clocking'  => $clocking->slug
                     ]
 
                 ]
             ],
-            'inventory.warehouse-areas.show.clockings.show' => [
+            'hr.clocking-machines.show.clockings.show' => [
                 'label'=> $clocking->slug,
                 'route'=> [
                     'name'      => $routeName,
                     'parameters'=> [
-                        'warehouseArea' => $clocking->clockingMachine->slug,
-                        'location'      => $clocking->slug
+                        'clockingMachine'   => $clocking->clockingMachine->slug,
+                        'clocking'          => $clocking->slug
                     ]
 
                 ]
             ],
-            'inventory.warehouses.show.clockings.show'=> [
+            'hr.working-places.show.clockings.show'=> [
                 'label'=> $clocking->slug,
                 'route'=> [
                     'name'      => $routeName,
                     'parameters'=> [
-                        'warehouse' => $clocking->workplace->slug,
-                        'location'  => $clocking->slug
+                        'workplace' => $clocking->workplace->slug,
+                        'clocking'  => $clocking->slug
                     ]
 
                 ]
             ],
-            'inventory.warehouses.show.warehouse-areas.show.clockings.show' => [
+            'hr.working-places.show.clocking-machines.show.clockings.show' => [
                 'label'=> $clocking->slug,
                 'route'=> [
                     'name'      => $routeName,
                     'parameters'=> [
-                        'warehouse'     => $clocking->workplace->slug,
-                        'warehouseArea' => $clocking->clockingMachine->slug,
-                        'location'      => $clocking->slug
+                        'workplace'         => $clocking->workplace->slug,
+                        'clockingMachine'   => $clocking->clockingMachine->slug,
+                        'clocking'          => $clocking->slug
                     ]
 
                 ]
