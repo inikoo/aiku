@@ -11,6 +11,7 @@ use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateUsers;
 use App\Enums\Auth\User\UserAuthTypeEnum;
 use App\Models\Assets\Language;
 use App\Models\Tenancy\Tenant;
+use App\Models\Traits\Fcmable;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasRoles;
 use Eloquent;
@@ -61,6 +62,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property-read Collection<int, \OwenIt\Auditing\Models\Audit> $audits
  * @property-read array $es_audits
  * @property-read \App\Models\Auth\GroupUser|null $groupUser
+ * @property-read \App\Models\Notifications\FcmToken|null $fcmTokens
  * @property-read Language $language
  * @property-read DatabaseNotificationCollection<int, DatabaseNotification> $notifications
  * @property-read Model|\Eloquent $parent
@@ -90,6 +92,7 @@ class User extends Authenticatable implements Auditable
     use UsesTenantConnection;
     use HasFactory;
     use HasHistory;
+    use Fcmable;
 
     protected $guarded = [
     ];
@@ -112,6 +115,10 @@ class User extends Authenticatable implements Auditable
         'settings' => '{}',
     ];
 
+    public function routeNotificationForFcm(): array
+    {
+        return $this->fcmTokens->pluck('fcm_token')->toArray();
+    }
 
     public static function boot(): void
     {

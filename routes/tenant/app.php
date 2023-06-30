@@ -90,6 +90,9 @@ Route::middleware([
         Route::prefix("json")
             ->name("json.")
             ->group(__DIR__."/json.php");
+        Route::prefix("firebase")
+            ->name("firebase.")
+            ->group(__DIR__."/firebase.php");
 
 
     });
