@@ -33,12 +33,13 @@ class StoreWebsite
 
     public function handle(Shop $shop, array $modelData): Website
     {
+        data_set($modelData, 'type', $shop->subtype);
         /** @var Website $website */
         $website = $shop->website()->create($modelData);
         $website->stats()->create();
         StoreDomain::run(app('currentTenant'), $website, [
-            'slug'       => $website->code,
-            'domain'     => $website->domain
+            'slug'   => $website->code,
+            'domain' => $website->domain
         ]);
 
         $website->webStats()->create();
@@ -68,7 +69,7 @@ class StoreWebsite
         return $this->handle($shop, $request->validated());
     }
 
-    public function afterValidator(Validator $validator, ActionRequest $request): void
+    public function afterValidator(Validator $validator): void
     {
         if ($this->shop->website) {
             $validator->errors()->add('domain', 'This shop already have a website');

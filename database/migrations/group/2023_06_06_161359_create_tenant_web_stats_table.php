@@ -7,6 +7,7 @@
 
 use App\Enums\Web\Website\WebsiteEngineEnum;
 use App\Enums\Web\Website\WebsiteStateEnum;
+use App\Enums\Web\Website\WebsiteTypeEnum;
 use App\Stubs\Migrations\HasWebStats;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -22,6 +23,10 @@ return new class () extends Migration {
             $table->foreign('tenant_id')->references('id')->on('public.tenants')->onUpdate('cascade')->onDelete('cascade');
             $table->unsignedInteger('number_websites')->default(0);
             $table->unsignedInteger('number_websites_under_maintenance')->default(0);
+
+            foreach (WebsiteTypeEnum::cases() as $websiteType) {
+                $table->unsignedInteger('number_websites_type_'.$websiteType->snake())->default(0);
+            }
             foreach (WebsiteStateEnum::cases() as $websiteState) {
                 $table->unsignedInteger('number_websites_state_'.$websiteState->snake())->default(0);
             }

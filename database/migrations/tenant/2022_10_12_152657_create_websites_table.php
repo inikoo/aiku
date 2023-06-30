@@ -19,6 +19,7 @@ return new class () extends Migration {
             $table->string('slug')->unique()->collation('und_ns');
             $table->unsignedSmallInteger('shop_id')->index();
             $table->foreign('shop_id')->references('id')->on('shops');
+            $table->string('type');
             $table->string('state')->default(WebsiteStateEnum::IN_PROCESS->value)->index();
             $table->string('engine')->default(WebsiteEngineEnum::IRIS->value)->index();
             $table->string('code')->unique()->collation('und_ns');
