@@ -15,6 +15,7 @@ use App\Actions\Auth\Guest\UpdateGuest;
 use App\Actions\Auth\User\UpdateUser;
 use App\Actions\CRM\Customer\StoreCustomer;
 use App\Actions\CRM\Customer\UpdateCustomer;
+use App\Actions\HumanResources\Clocking\DeleteClocking;
 use App\Actions\HumanResources\Clocking\StoreClocking;
 use App\Actions\HumanResources\Clocking\UpdateClocking;
 use App\Actions\HumanResources\ClockingMachine\DeleteClockingMachine;
@@ -112,6 +113,9 @@ Route::post('/clocking', StoreClocking::class)->name('clocking.store');
 Route::post('/working-place/{workplace}/clocking', StoreClocking::class)->name('working-place.clocking.store');
 Route::post('/clocking-machine/{clockingMachine}/clocking', [StoreClocking::class, 'inClockingMachine'])->name('clocking-machine.clocking.store');
 Route::post('/working-place/{workplace}/clocking-machine/{clockingMachine}/clocking', StoreClocking::class)->name('working-place.clocking-machine.clocking.store');
+Route::delete('/working-place/{workplace}/clocking/{clocking}', [ DeleteClocking::class, 'inWorkplace'])->name('working-place.clocking.delete');
+Route::delete('/clocking-machine/{clockingMachine}/clocking/{clocking}', [ DeleteClocking::class, 'inClockingMachine'])->name('clocking-machine.clocking.delete');
+Route::delete('/working-place/{workplace}/clocking-machine/{clockingMachine}/clocking/{clocking}', [ DeleteClocking::class, 'inWorkplaceInClockingMachine'])->name('working-place.clocking-machine.clocking.delete');
 
 Route::post('/warehouse/', StoreWarehouse::class)->name('warehouse.store');
 Route::patch('/warehouse/{warehouse}', UpdateWarehouse::class)->name('warehouse.update');

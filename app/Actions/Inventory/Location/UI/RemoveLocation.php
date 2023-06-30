@@ -69,6 +69,7 @@ class RemoveLocation extends InertiaAction
             [
                 'title'       => __('delete location'),
                 'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
                     $request->route()->parameters
                 ),
                 'pageHead'    => [
@@ -111,10 +112,10 @@ class RemoveLocation extends InertiaAction
     }
 
 
-    public function getBreadcrumbs(array $routeParameters): array
+    public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
         return ShowLocation::make()->getBreadcrumbs(
-            $this->routeName,
+            $routeName,
             routeParameters: $routeParameters,
             suffix: '('.__('deleting').')'
         );

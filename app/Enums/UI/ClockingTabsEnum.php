@@ -17,8 +17,6 @@ enum ClockingTabsEnum: string
 
 
     case SHOWCASE           = 'showcase';
-    case PARTS              = 'parts';
-    case STOCK_MOVEMENTS    = 'stock_movements';
 
     case HISTORY            = 'history';
     case DATA               = 'data';
@@ -28,14 +26,6 @@ enum ClockingTabsEnum: string
     public function blueprint(): array
     {
         return match ($this) {
-            ClockingTabsEnum::PARTS => [
-                'title' => __('parts'),
-                'icon'  => 'fal fa-box',
-            ],
-            ClockingTabsEnum::STOCK_MOVEMENTS => [
-                'title' => __('stock movements'),
-                'icon'  => 'fal fa-exchange',
-            ],
             ClockingTabsEnum::HISTORY => [
                 'title' => __('history'),
                 'icon'  => 'fal fa-clock',

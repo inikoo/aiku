@@ -7,9 +7,9 @@
 
 namespace App\Actions\HumanResources\Clocking;
 
-use App\Models\Inventory\Location;
-use App\Models\Inventory\Warehouse;
-use App\Models\Inventory\WarehouseArea;
+use App\Models\HumanResources\Clocking;
+use App\Models\HumanResources\ClockingMachine;
+use App\Models\HumanResources\Workplace;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
@@ -21,11 +21,11 @@ class DeleteClocking
     use AsController;
     use WithAttributes;
 
-    public function handle(Location $location): Location
+    public function handle(Clocking $clocking): Clocking
     {
-        $location->delete();
+        $clocking->delete();
 
-        return $location;
+        return $clocking;
     }
 
     public function authorize(ActionRequest $request): bool
@@ -33,50 +33,58 @@ class DeleteClocking
         return $request->user()->hasPermissionTo("inventory.edit");
     }
 
-    public function asController(Location $location, ActionRequest $request): Location
+    public function asController(Clocking $clocking, ActionRequest $request): Clocking
     {
         $request->validate();
 
-        return $this->handle($location);
+        return $this->handle($clocking);
     }
 
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inWarehouse(Warehouse $warehouse, Location $location, ActionRequest $request): Location
+    public function inWorkplace(Workplace $workplace, Clocking $clocking, ActionRequest $request): Clocking
     {
         $request->validate();
 
-        return $this->handle($location);
+        return $this->handle($clocking);
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inWarehouseInWarehouseArea(Warehouse $warehouse, WarehouseArea $warehouseArea, Location $location, ActionRequest $request): Location
+    public function inClockingMachine(ClockingMachine $clockingMachine, Clocking $clocking, ActionRequest $request): Clocking
     {
         $request->validate();
 
-        return $this->handle($location);
+        return $this->handle($clocking);
+    }
+
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inWorkplaceInClockingMachine(Workplace $workplace, ClockingMachine $clockingMachine, Clocking $clocking, ActionRequest $request): Clocking
+    {
+        $request->validate();
+
+        return $this->handle($clocking);
     }
 
 
-    public function htmlResponse(Warehouse | WarehouseArea | Location $parent): RedirectResponse
+    public function htmlResponse(Workplace | ClockingMachine | Clocking $parent): RedirectResponse
     {
-        if (class_basename($parent::class) == 'WarehouseArea') {
+        if (class_basename($parent::class) == 'ClockingMachine') {
             return Redirect::route(
-                route: 'inventory.warehouse-areas.show.locations.index',
+                route: 'hr.clocking-machines.show.clockings.index',
                 parameters: [
-                    'warehouseArea' => $parent->slug
+                    'clockingMachine' => $parent->slug
                 ]
             );
-        } elseif (class_basename($parent::class) == 'Warehouse') {
+        } elseif (class_basename($parent::class) == 'Workplace') {
             return Redirect::route(
-                route: 'inventory.warehouses.show.warehouse-areas.show.locations.index',
+                route: 'hr.working-place.show.clocking-machines.show.clockings.index',
                 parameters: [
-                    'warehouse'     => $parent->warehouse->slug,
-                    'warehouseArea' => $parent->slug
+                    'workplace'         => $parent->workplace->slug,
+                    'clockingMachine'   => $parent->slug
                 ]
             );
         } else {
-            return Redirect::route('inventory.locations.index');
+            return Redirect::route('hr.clockings.index');
         }
     }
 

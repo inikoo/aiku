@@ -42,6 +42,13 @@ class RemoveClocking extends InertiaAction
         return $this->handle($clocking);
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inClockingMachine(ClockingMachine $clockingMachine, Clocking $clocking, ActionRequest $request): Clocking
+    {
+        $this->initialisation($request);
+
+        return $this->handle($clocking);
+    }
 
     /** @noinspection PhpUnusedParameterInspection */
     public function inWorkplaceInClockingMachine(Workplace $workplace, ClockingMachine $clockingMachine, Clocking $clocking, ActionRequest $request): Clocking
@@ -69,6 +76,7 @@ class RemoveClocking extends InertiaAction
             [
                 'title'       => __('delete clocking'),
                 'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
                     $request->route()->parameters
                 ),
                 'pageHead'    => [
@@ -82,27 +90,32 @@ class RemoveClocking extends InertiaAction
                         [
                             'type'  => 'button',
                             'style' => 'cancel',
+                            'label' => __('cancel'),
                             'route' => [
                                 'name'       => preg_replace('/remove$/', 'show', $this->routeName),
-                                'parameters' => $clocking->slug
+                                'parameters' => array_values($this->originalParameters)
                             ]
                         ]
                     ]
                 ],
-                'data'      => $this->getAction(
+                'data'     => $this->getAction(
                     route:
                     match ($this->routeName) {
                         'hr.clockings.remove' => [
-                                'name'       => 'models.clocking.delete',
-                                'parameters' => $request->route()->originalParameters()
+                            'name'       => 'models.clocking.delete',
+                            'parameters' => $request->route()->originalParameters()
                         ],
                         'hr.working-places.show.clockings.remove' => [
-                                'name'       => 'models.working-place.clocking.delete',
-                                'parameters' => $request->route()->originalParameters()
+                            'name'       => 'models.working-place.clocking.delete',
+                            'parameters' => $request->route()->originalParameters()
+                        ],
+                        'hr.clocking-machines.show.clockings.remove' => [
+                            'name'       => 'models.clocking-machine.clocking.delete',
+                            'parameters' => $request->route()->originalParameters()
                         ],
                         'hr.working-places.show.clocking-machines.show.clockings.remove' => [
-                                'name'       => 'models.working-place.clocking-machine.clocking.delete',
-                                'parameters' => $request->route()->originalParameters()
+                            'name'       => 'models.working-place.clocking-machine.clocking.delete',
+                            'parameters' => $request->route()->originalParameters()
                         ]
                     }
                 )
@@ -111,10 +124,10 @@ class RemoveClocking extends InertiaAction
     }
 
 
-    public function getBreadcrumbs(array $routeParameters): array
+    public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
         return ShowClocking::make()->getBreadcrumbs(
-            $this->routeName,
+            $routeName,
             routeParameters: $routeParameters,
             suffix: '('.__('deleting').')'
         );

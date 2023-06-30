@@ -80,6 +80,7 @@ Route::scopeBindings()->group(function () {
     Route::get('/clocking-machines/{clockingMachine}/clockings/create', [CreateClocking::class, 'inClockingMachine'])->name('clocking-machines.show.clockings.create');
     Route::get('/clocking-machines/{clockingMachine}/clockings/{clocking}', [ShowClocking::class, 'inClockingMachine'])->name('clocking-machines.show.clockings.show');
     Route::get('/clocking-machines/{clockingMachine}/clockings/{clocking}/edit', [EditClocking::class, 'inClockingMachine'])->name('clocking-machines.show.clockings.edit');
+    Route::get('/clocking-machines/{clockingMachine}/clockings/{clocking}/delete', [RemoveClocking::class, 'inClockingMachine'])->name('clocking-machines.show.clockings.remove');
 
     Route::get('/working-places/{workplace}/clocking-machines', [IndexClockingMachines::class, 'inWorkplace'])->name('working-places.show.clocking-machines.index');
     Route::get('/working-places/{workplace}/clocking-machines/create', CreateClockingMachine::class)->name('working-places.show.clocking-machines.create');

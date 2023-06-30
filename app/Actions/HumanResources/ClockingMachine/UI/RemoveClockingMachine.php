@@ -9,6 +9,7 @@ namespace App\Actions\HumanResources\ClockingMachine\UI;
 
 use App\Actions\InertiaAction;
 use App\Models\HumanResources\ClockingMachine;
+use App\Models\HumanResources\Workplace;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -22,11 +23,18 @@ class RemoveClockingMachine extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('hr.edit');
-        return $request->user()->hasPermissionTo("hr.view");
+        return $request->user()->hasPermissionTo("hr.edit");
     }
 
     public function asController(ClockingMachine $clockingMachine, ActionRequest $request): ClockingMachine
+    {
+        $this->initialisation($request);
+
+        return $this->handle($clockingMachine);
+    }
+
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inWorkplace(Workplace $workplace, ClockingMachine $clockingMachine, ActionRequest $request): ClockingMachine
     {
         $this->initialisation($request);
 
@@ -39,21 +47,20 @@ class RemoveClockingMachine extends InertiaAction
         return  [
             'buttonLabel' => __('Delete'),
             'title'       => __('Delete Clocking Machine'),
-            'text'        => __("This action will delete this Clocking Machine and its all Clocking"),
+            'text'        => __("This action will delete this Clocking Machine and all it's Clockings"),
             'route'       => $route
         ];
     }
 
     public function htmlResponse(ClockingMachine $clockingMachine, ActionRequest $request): Response
     {
-
         return Inertia::render(
             'RemoveModel',
             [
                 'title'       => __('delete clocking machine'),
                 'breadcrumbs' => $this->getBreadcrumbs(
-                    $clockingMachine,
-                    $request->route()->originalParameters()
+                    $request->route()->getName(),
+                    $request->route()->parameters
                 ),
                 'pageHead'    => [
                     'icon'  =>
@@ -66,26 +73,38 @@ class RemoveClockingMachine extends InertiaAction
                         [
                             'type'  => 'button',
                             'style' => 'cancel',
+                            'label' => __('cancel'),
                             'route' => [
                                 'name'       => preg_replace('/remove$/', 'show', $this->routeName),
-                                'parameters' => $clockingMachine->slug
+                                'parameters' => array_values($this->originalParameters)
                             ]
                         ]
                     ]
                 ],
-                'data'      => $this->getAction(
-                    route:[
-                        'name'       => 'models.clocking-machine.delete',
-                        'parameters' => $request->route()->originalParameters()
-                    ]
+                'data'     => $this->getAction(
+                    route:
+                    match ($this->routeName) {
+                        'hr.clocking-machines.remove' => [
+                            'name'       => 'models.clocking-machine.delete',
+                            'parameters' => $request->route()->originalParameters()
+                        ],
+                        'hr.working-places.show.clocking-machines.remove' => [
+                            'name'       => 'models.working-place.clocking-machine.delete',
+                            'parameters' => $request->route()->originalParameters()
+                        ]
+                    }
                 )
             ]
         );
     }
 
 
-    public function getBreadcrumbs(ClockingMachine $clockingMachine, array $routeParameters): array
+    public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
-        return ShowClockingMachine::make()->getBreadcrumbs($clockingMachine, $routeParameters, suffix: '('.__('deleting').')');
+        return ShowClockingMachine::make()->getBreadcrumbs(
+            $routeName,
+            routeParameters: $routeParameters,
+            suffix: '('.__('deleting').')'
+        );
     }
 }
