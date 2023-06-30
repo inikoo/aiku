@@ -134,7 +134,6 @@ const handleFormSubmit = () => {
                                     <dd class="sm:col-span-2">
                                         <div class="mt-1 flex text-sm text-gray-700 sm:mt-0">
                                             <div class="relative flex-grow">
-                                                <!-- sdadsadsa -->
                                                 <!-- Dynamic component -->
                                                 <component
                                                     :is="getComponent(fieldData['type'])"
