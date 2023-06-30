@@ -158,9 +158,8 @@ const checkRight = (abcdef) => {
 
 
 			<!-- Left Menu -->
-			<div class="text-sm flex items-center divide-x divide-gray-300 justify-center overflow-hidden">
+			<div v-if="currentUrl && layout.navigation?.[currentUrl]?.topMenu && layout.navigation?.[currentUrl]?.topMenu?.subSections" class="text-sm flex items-center divide-x divide-gray-300 justify-center overflow-hidden">
 				<Link
-					v-if="currentUrl && layout.navigation?.[currentUrl]?.topMenu && layout.navigation?.[currentUrl]?.topMenu?.subSections"
 					v-for="menu in layout.navigation?.[currentUrl]?.topMenu.subSections" :href="route(menu.route.name)"
 					class="group flex justify-end items-center cursor-pointer py-1 space-x-1 px-4 md:px-4 lg:px-4"
 					:class="[(route(currentRoute, route().params)).includes(urlPath(menu.route.name)) ? 'text-indigo-600' : 'text-gray-600']"
@@ -181,7 +180,11 @@ const checkRight = (abcdef) => {
 
 			<!-- Right Menu -->
 			<div class="text-sm text-gray-600 inline-flex place-self-center rounded-r justify-center border-solid "
-				:class="[layout.navigation?.[currentUrl]?.topMenu?.dropdown?.options?.data?.length > 1 ? 'border border-l-0 border-indigo-300' : 'border-l border-gray-300 divide-x divide-gray-300 ']">
+				:class="[
+					layout.navigation?.[currentUrl]?.topMenu?.dropdown?.options?.data?.length > 1 
+						? 'border border-l-0 border-indigo-300' 
+						: currentUrl && layout.navigation?.[currentUrl]?.topMenu && layout.navigation?.[currentUrl]?.topMenu?.subSections 
+							? 'border-l border-gray-300 divide-x divide-gray-300 ' : ' divide-x divide-gray-300']">
 				<!-- href:
 					If the slug is initial state (which is null) then the menu will show all shop,
 					but if current route is contain params (slug of options) then the links is linkselected with that params (handle for refresh page that the state is back to null),
