@@ -102,7 +102,7 @@ class RemoveLocation extends InertiaAction
                         ],
                         'inventory.warehouses.show.warehouse-areas.show.locations.remove' => [
                                 'name'       => 'models.warehouse.warehouse-area.location.delete',
-                                'parameters' => $request->route()->originalParameters()
+                                'parameters' => array_values($this->originalParameters)
                         ]
                     }
                 )

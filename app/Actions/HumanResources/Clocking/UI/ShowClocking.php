@@ -69,7 +69,6 @@ class ShowClocking extends InertiaAction
 
     public function htmlResponse(Clocking $clocking, ActionRequest $request): Response
     {
-
         return Inertia::render(
             'HumanResources/Clocking',
             [
