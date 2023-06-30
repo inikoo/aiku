@@ -30,7 +30,7 @@ class ShowJobPosition extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('hr.edit');
+        $this->canEdit   = $request->user()->can('hr.edit');
         $this->canDelete = $request->user()->can('hr.edit');
         return $request->user()->hasPermissionTo("hr.view");
     }
@@ -54,21 +54,21 @@ class ShowJobPosition extends InertiaAction
                     'next'     => $this->getNext($jobPosition, $request),
                 ],
                 'pageHead'    => [
-                    'title' => $jobPosition->name,
+                    'title'   => $jobPosition->name,
                     'actions' => [
                         $this->canEdit ? [
-                            'type'=>'button',
-                            'style'=>'edit',
+                            'type'  => 'button',
+                            'style' => 'edit',
                             'route' => [
-                                'name' => preg_replace('/show$/', 'edit', $this->routeName),
+                                'name'       => preg_replace('/show$/', 'edit', $this->routeName),
                                 'parameters' => $request->route()->originalParameters()
                             ]
                         ] : false,
                         $this->canDelete ? [
-                            'type'=>'button',
-                            'style'=>'delete',
+                            'type'  => 'button',
+                            'style' => 'delete',
                             'route' => [
-                                'name' => 'hr.job-positions.remove',
+                                'name'       => 'hr.job-positions.remove',
                                 'parameters' => $request->route()->originalParameters()
                             ]
 

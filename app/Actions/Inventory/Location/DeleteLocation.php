@@ -71,7 +71,7 @@ class DeleteLocation
             return Redirect::route(
                 route: 'inventory.warehouses.show.warehouse-areas.show.locations.index',
                 parameters: [
-                    'warehouse' => $parent->warehouse->slug,
+                    'warehouse'     => $parent->warehouse->slug,
                     'warehouseArea' => $parent->slug
                 ]
             );

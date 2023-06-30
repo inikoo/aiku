@@ -21,13 +21,13 @@ class AddDomainDnsRecordCloudflare
     public function handle(string $zoneId, array $dnsRecord): PromiseInterface|Response
     {
         return Http::withHeaders([
-            'Content-Type' => 'application/json',
+            'Content-Type'  => 'application/json',
             'Authorization' => 'Bearer ' . env('CLOUDFLARE_API_TOKEN'),
         ])->post(env('CLOUDFLARE_API_URL') . "/zones/{$zoneId}/dns_records", [
-            'type' => $dnsRecord['type'],
-            'name' => $dnsRecord['name'],
+            'type'    => $dnsRecord['type'],
+            'name'    => $dnsRecord['name'],
             'content' => $dnsRecord['content'],
-            'ttl' => $dnsRecord['ttl'] ?? 1,
+            'ttl'     => $dnsRecord['ttl'] ?? 1,
             'proxied' => $dnsRecord['proxied']
         ]);
     }

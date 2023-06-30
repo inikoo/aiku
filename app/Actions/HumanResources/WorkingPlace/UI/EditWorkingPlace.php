@@ -51,10 +51,10 @@ class EditWorkingPlace extends InertiaAction
                 'breadcrumbs' => $this->getBreadcrumbs($workplace),
                 'pageHead'    => [
                     'title'    => $workplace->name,
-                    'actions'=>[
+                    'actions'  => [
                         [
-                            'type'=>'button',
-                            'style'=>'exitEdit',
+                            'type'  => 'button',
+                            'style' => 'exitEdit',
                             'route' => [
                                 'name'       => preg_replace('/edit$/', 'show', $this->routeName),
                                 'parameters' => array_values($this->originalParameters)
@@ -73,7 +73,7 @@ class EditWorkingPlace extends InertiaAction
                                     'label'         => __('name'),
                                     'placeholder'   => __('Input your name'),
                                     'value'         => $workplace->name,
-                                    'required'    => true
+                                    'required'      => true
                                 ],
                                 'type' => [
                                     'type'        => 'select',

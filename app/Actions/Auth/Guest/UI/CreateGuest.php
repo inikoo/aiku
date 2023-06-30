@@ -28,10 +28,10 @@ class CreateGuest extends InertiaAction
                 'title'       => __('new guest'),
                 'pageHead'    => [
                     'title'        => __('new guest'),
-                    'actions' => [
+                    'actions'      => [
                         [
-                            'type'=>'button',
-                            'style'=>'cancel',
+                            'type'  => 'button',
+                            'style' => 'cancel',
                             'label' => __('cancel'),
                             'route' => [
                                 'name'       => 'sysadmin.guests.index',

@@ -101,15 +101,15 @@ class IndexGuest extends InertiaAction
                 ->withGlobalSearch()
                 ->withEmptyState(
                     [
-                        'title' => __('no guest'),
+                        'title'       => __('no guest'),
                         'description' => $this->canEdit ? __('Get started by creating a new guest.') : null,
                         'count'       => app('currentTenant')->stats->number_guests_status_active,
-                        'action' => $this->canEdit ? [
-                            'type' => 'button',
-                            'style' => 'create',
+                        'action'      => $this->canEdit ? [
+                            'type'    => 'button',
+                            'style'   => 'create',
                             'tooltip' => __('new guest'),
-                            'label' => __('guest'),
-                            'route' => [
+                            'label'   => __('guest'),
+                            'route'   => [
                                 'name'       => 'sysadmin.guests.create',
                                 'parameters' => array_values($this->originalParameters)
                             ]
@@ -153,8 +153,8 @@ class IndexGuest extends InertiaAction
                     'title'  => __('guests'),
                     'actions'=> [
                         $this->canEdit && $this->routeName == 'sysadmin.guests.index' ? [
-                            'type'=>'button',
-                            'style'=>'create',
+                            'type'  => 'button',
+                            'style' => 'create',
                             'label' => __('guest'),
                             'route' => [
 

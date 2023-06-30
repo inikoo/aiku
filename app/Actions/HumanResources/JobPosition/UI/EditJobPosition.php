@@ -48,10 +48,10 @@ class EditJobPosition extends InertiaAction
                 'breadcrumbs' => $this->getBreadcrumbs($jobPosition),
                 'pageHead'    => [
                     'title'    => $jobPosition->name,
-                    'actions'=>[
+                    'actions'  => [
                         [
-                            'type'=>'button',
-                            'style'=>'exitEdit',
+                            'type'  => 'button',
+                            'style' => 'exitEdit',
                             'route' => [
                                 'name'       => preg_replace('/edit$/', 'show', $this->routeName),
                                 'parameters' => array_values($this->originalParameters)
@@ -83,7 +83,7 @@ class EditJobPosition extends InertiaAction
                                     'options'     => Options::forModels(ProductCategory::class, label: 'name', value: 'name'),
                                     'placeholder' => 'Select a Department',
                                     'mode'        => 'single',
-                                    'value'     => $jobPosition->department
+                                    'value'       => $jobPosition->department
                                 ]
                             ]
                         ]

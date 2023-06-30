@@ -27,10 +27,10 @@ class CreateWarehouseArea extends InertiaAction
                 'title'       => __('new warehouse area'),
                 'pageHead'    => [
                     'title'        => __('new warehouse area'),
-                    'actions' => [
+                    'actions'      => [
                         [
-                            'type'=>'button',
-                            'style'=>'cancel',
+                            'type'  => 'button',
+                            'style' => 'cancel',
                             'label' => __('cancel'),
                             'route' => [
                                 'name'       => preg_replace('/create$/', 'index', $this->routeName),
@@ -46,17 +46,17 @@ class CreateWarehouseArea extends InertiaAction
                             'fields' => [
 
                                 'code' => [
-                                    'type'  => 'input',
-                                    'label' => __('code'),
+                                    'type'        => 'input',
+                                    'label'       => __('code'),
                                     'placeholder' => __('maximum 4 character long'),
-                                    'value' => '',
-                                    'required'=>true,
+                                    'value'       => '',
+                                    'required'    => true,
                                 ],
                                 'name' => [
-                                    'type'  => 'input',
-                                    'label' => __('name'),
-                                    'value' => '',
-                                    'required'=>true
+                                    'type'    => 'input',
+                                    'label'   => __('name'),
+                                    'value'   => '',
+                                    'required'=> true
                                 ],
 
                             ]

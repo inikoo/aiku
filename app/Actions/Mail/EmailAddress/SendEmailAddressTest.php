@@ -8,7 +8,6 @@
 namespace App\Actions\Mail\EmailAddress;
 
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Mail;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class SendEmailAddressTest
@@ -20,8 +19,10 @@ class SendEmailAddressTest
 
     public function handle(string $to): void
     {
-        SendEmailAddress::run(['name' => 'AWA', 'email' => 'aw@aiku-devels.uk'],
-            'hello', 'subject',
+        SendEmailAddress::run(
+            ['name' => 'AWA', 'email' => 'aw@aiku-devels.uk'],
+            'hello',
+            'subject',
             $to,
             [
                 storage_path('app/public/devices/mobile.png'),

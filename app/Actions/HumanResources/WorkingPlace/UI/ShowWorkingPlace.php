@@ -33,7 +33,7 @@ class ShowWorkingPlace extends InertiaAction
     }
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('hr.edit');
+        $this->canEdit   = $request->user()->can('hr.edit');
         $this->canDelete = $request->user()->can('hr.edit');
         return $request->user()->hasPermissionTo("hr.view");
     }
@@ -63,21 +63,21 @@ class ShowWorkingPlace extends InertiaAction
                             'icon'  => ['fal', 'building'],
                             'title' => __('working place')
                         ],
-                    'title' => $workplace->name,
+                    'title'   => $workplace->name,
                     'actions' => [
                         $this->canEdit ? [
-                            'type'=>'button',
-                            'style'=>'edit',
+                            'type'  => 'button',
+                            'style' => 'edit',
                             'route' => [
-                                'name' => preg_replace('/show$/', 'edit', $this->routeName),
+                                'name'       => preg_replace('/show$/', 'edit', $this->routeName),
                                 'parameters' => array_values($this->originalParameters)
                             ]
                         ] : false,
                         $this->canDelete ? [
-                            'type'=>'button',
-                            'style'=>'delete',
+                            'type'  => 'button',
+                            'style' => 'delete',
                             'route' => [
-                                'name' => 'hr.working-places.remove',
+                                'name'       => 'hr.working-places.remove',
                                 'parameters' => array_values($this->originalParameters)
                             ]
 

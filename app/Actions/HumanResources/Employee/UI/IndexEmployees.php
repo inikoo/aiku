@@ -119,15 +119,15 @@ class IndexEmployees extends InertiaAction
                 ->withGlobalSearch()
                 ->withEmptyState(
                     [
-                        'title' => __('no employees'),
+                        'title'       => __('no employees'),
                         'description' => $this->canEdit ? __('Get started by creating a new employee.') : null,
                         'count'       => app('currentTenant')->stats->number_employees,
-                        'action' => $this->canEdit ? [
-                            'type' => 'button',
-                            'style' => 'create',
+                        'action'      => $this->canEdit ? [
+                            'type'    => 'button',
+                            'style'   => 'create',
                             'tooltip' => __('new employee'),
-                            'label' => __('employee'),
-                            'route' => [
+                            'label'   => __('employee'),
+                            'route'   => [
                                 'name'       => 'hr.employees.create',
                                 'parameters' => array_values($this->originalParameters)
                             ]
@@ -171,8 +171,8 @@ class IndexEmployees extends InertiaAction
                     'title'  => __('employees'),
                     'actions'=> [
                         $this->canEdit ? [
-                            'type'=>'button',
-                            'style'=>'create',
+                            'type'  => 'button',
+                            'style' => 'create',
                             'label' => __('employee'),
                             'route' => [
                                 'name'       => 'hr.employees.create',

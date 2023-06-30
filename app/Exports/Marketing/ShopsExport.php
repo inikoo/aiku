@@ -2,7 +2,6 @@
 
 namespace App\Exports\Marketing;
 
-use App\Models\Market\Product;
 use App\Models\Market\Shop;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Database\Query\Builder;

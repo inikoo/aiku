@@ -30,10 +30,10 @@ class CreateClocking extends InertiaAction
                 'title'    => __('new clocking'),
                 'pageHead' => [
                     'title'        => __('new clocking'),
-                    'actions' => [
+                    'actions'      => [
                         [
-                            'type'=>'button',
-                            'style'=>'cancel',
+                            'type'  => 'button',
+                            'style' => 'cancel',
                             'label' => __('cancel'),
                             'route' => [
                                 'name'       => 'hr.working-places.show.clockings.index',

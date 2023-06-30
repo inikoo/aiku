@@ -8,7 +8,6 @@
 namespace App\Actions\Dispatch\Picking;
 
 use App\Actions\Traits\WithExportData;
-use App\Models\Accounting\Invoice;
 use App\Models\Dispatch\Picking;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
@@ -27,8 +26,8 @@ class ExportPicking
     public function handle(?Picking $picking): Response
     {
         $filename = 'picking-' . now()->format('Y-m-d');
-        $pdf = PDF::loadView('pickings.templates.pdf.picking', [
-            'picking' => $picking,
+        $pdf      = PDF::loadView('pickings.templates.pdf.picking', [
+            'picking'  => $picking,
             'filename' => $filename
         ]);
 

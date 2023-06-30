@@ -60,11 +60,11 @@ class RemoveGuest extends InertiaAction
                             'icon'  => ['fal', 'fa-user-alien'],
                             'title' => __('guest')
                         ],
-                    'title' => $guest->slug,
-                    'actions'=>[
+                    'title'  => $guest->slug,
+                    'actions'=> [
                         [
-                            'type'=>'button',
-                            'style'=>'cancel',
+                            'type'  => 'button',
+                            'style' => 'cancel',
                             'route' => [
                                 'name'       => preg_replace('/remove$/', 'show', $this->routeName),
                                 'parameters' => $guest->slug
@@ -74,7 +74,7 @@ class RemoveGuest extends InertiaAction
                 ],
                 'data'      => $this->getAction(
                     route:[
-                        'name' => 'models.guest.delete',
+                        'name'       => 'models.guest.delete',
                         'parameters' => array_values($this->originalParameters)
                     ]
                 )

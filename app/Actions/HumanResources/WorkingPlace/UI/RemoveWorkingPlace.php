@@ -59,11 +59,11 @@ class RemoveWorkingPlace extends InertiaAction
                             'icon'  => ['fal', 'fa-building'],
                             'title' => __('working place')
                         ],
-                    'title' => $workplace->slug,
-                    'actions'=>[
+                    'title'  => $workplace->slug,
+                    'actions'=> [
                         [
-                            'type'=>'button',
-                            'style'=>'cancel',
+                            'type'  => 'button',
+                            'style' => 'cancel',
                             'route' => [
                                 'name'       => preg_replace('/remove$/', 'show', $this->routeName),
                                 'parameters' => $workplace
@@ -73,7 +73,7 @@ class RemoveWorkingPlace extends InertiaAction
                 ],
                 'data'      => $this->getAction(
                     route:[
-                        'name' => 'models.working-place.delete',
+                        'name'       => 'models.working-place.delete',
                         'parameters' => array_values($this->originalParameters)
                     ]
                 )

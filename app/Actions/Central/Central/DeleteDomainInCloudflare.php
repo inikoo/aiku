@@ -5,8 +5,6 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-
-
 namespace App\Actions\Central\Central;
 
 use App\Actions\Web\Domain\DestroyDomainCloudflare;
@@ -26,7 +24,7 @@ class DeleteDomainInCloudflare
         DestroyDomainCloudflare::run($domain->cloudflare_id);
 
         $domain->update([
-            'cloudflare_id' => null,
+            'cloudflare_id'     => null,
             'cloudflare_status' => null,
         ]);
 

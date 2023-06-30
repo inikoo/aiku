@@ -36,7 +36,7 @@ class ShowLocation extends InertiaAction
     }
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('inventory.edit');
+        $this->canEdit   = $request->user()->can('inventory.edit');
         $this->canDelete = $request->user()->can('inventory.edit');
 
         return $request->user()->hasPermissionTo("inventory.view");
@@ -94,40 +94,40 @@ class ShowLocation extends InertiaAction
                             'icon'  => ['fal', 'fa-inventory'],
                             'title' => __('location')
                         ],
-                    'title' => $location->code,
+                    'title'   => $location->code,
                     'actions' => [
                             $this->canEdit ? [
-                                'type'=>'button',
-                                'style'=>'edit',
+                                'type'  => 'button',
+                                'style' => 'edit',
                                 'route' => [
-                                    'name' => preg_replace('/show$/', 'edit', $this->routeName),
+                                    'name'       => preg_replace('/show$/', 'edit', $this->routeName),
                                     'parameters' => array_values($this->originalParameters)
                                 ]
                             ] : false,
                             $this->canDelete ?
-                                match ($this->routeName){
+                                match ($this->routeName) {
                                     'inventory.locations.show' => [
-                                        'type'=>'button',
-                                        'style'=>'delete',
+                                        'type'  => 'button',
+                                        'style' => 'delete',
                                         'route' => [
-                                            'name' => 'inventory.locations.remove',
+                                            'name'       => 'inventory.locations.remove',
                                             'parameters' => array_values($this->originalParameters)
                                         ],
 
                                     ],
                                     'inventory.warehouses.show.locations.show' => [
-                                        'type'=>'button',
-                                        'style'=>'delete',
+                                        'type'  => 'button',
+                                        'style' => 'delete',
                                         'route' => [
-                                            'name' => 'inventory.warehouses.show.locations.remove',
+                                            'name'       => 'inventory.warehouses.show.locations.remove',
                                             'parameters' => array_values($this->originalParameters)
                                         ],
                                     ],
                                     'inventory.warehouses.show.warehouse-areas.show.locations.show' => [
-                                        'type'=>'button',
-                                        'style'=>'delete',
+                                        'type'  => 'button',
+                                        'style' => 'delete',
                                         'route' => [
-                                            'name' => 'inventory.warehouses.show.warehouse-areas.show.locations.remove',
+                                            'name'       => 'inventory.warehouses.show.warehouse-areas.show.locations.remove',
                                             'parameters' => array_values($this->originalParameters)
                                         ]
                                     ]

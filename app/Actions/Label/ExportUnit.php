@@ -25,83 +25,83 @@ class ExportUnit
      */
     public function handle(ActionRequest $request): Response
     {
-        $width  = $request->get('width');
-        $height = $request->get('height');
+        $width      = $request->get('width');
+        $height     = $request->get('height');
         $customText = $request->get('custom_text');
-        $withImage = $request->get('with_image');
+        $withImage  = $request->get('with_image');
 
         $filename = 'unit-' . now()->format('Y-m-d');
 
         $config = [
-            'title' => $filename,
-            'format' => [$width, $height],
-            'margin_left' => 2,
-            'margin_right' => 2,
-            'margin_top' => 2,
-            'margin_bottom' => 2,
-            'auto_page_break' => true,
+            'title'                  => $filename,
+            'format'                 => [$width, $height],
+            'margin_left'            => 2,
+            'margin_right'           => 2,
+            'margin_top'             => 2,
+            'margin_bottom'          => 2,
+            'auto_page_break'        => true,
             'auto_page_break_margin' => 10
         ];
 
-        $headerFontSize  = 2.5;
-        $contentFontSize = 2;
-        $labelFontSize   = 1.5;
-        $barcodeSize     = 1;
-        $imageSize       = "120px";
+        $headerFontSize      = 2.5;
+        $contentFontSize     = 2;
+        $labelFontSize       = 1.5;
+        $barcodeSize         = 1;
+        $imageSize           = "120px";
         $signature_font_size = "10px";
-        $font_size = "16px";
-        $text_margin = "4px";
+        $font_size           = "16px";
+        $text_margin         = "4px";
 
         if($width == 63) {
             $config['default_font_size'] = '2';
-            $headerFontSize  = 1.0;
-            $contentFontSize = 0.8;
-            $labelFontSize   = 0.6;
-            $barcodeSize     = 0.3;
+            $headerFontSize              = 1.0;
+            $contentFontSize             = 0.8;
+            $labelFontSize               = 0.6;
+            $barcodeSize                 = 0.3;
         }
 
         if($width == 63.5) {
             $config['default_font_size'] = '2';
-            $headerFontSize  = 1.0;
-            $contentFontSize = 0.8;
-            $labelFontSize   = 0.6;
-            $barcodeSize     = 0.3;
+            $headerFontSize              = 1.0;
+            $contentFontSize             = 0.8;
+            $labelFontSize               = 0.6;
+            $barcodeSize                 = 0.3;
         }
 
         if($width == 70) {
             $config['default_font_size'] = '2';
-            $headerFontSize  = 1.0;
-            $contentFontSize = 0.8;
-            $labelFontSize   = 0.6;
-            $barcodeSize     = 0.3;
+            $headerFontSize              = 1.0;
+            $contentFontSize             = 0.8;
+            $labelFontSize               = 0.6;
+            $barcodeSize                 = 0.3;
         }
 
         if($width == 125) {
             $config['default_font_size'] = '3';
-            $headerFontSize  = 1.5;
-            $contentFontSize = 1.0;
-            $labelFontSize   = 1.0;
-            $barcodeSize     = 0.3;
+            $headerFontSize              = 1.5;
+            $contentFontSize             = 1.0;
+            $labelFontSize               = 1.0;
+            $barcodeSize                 = 0.3;
         }
 
         if($width == 130) {
             $config['default_font_size'] = '4';
-            $headerFontSize  = 2.5;
-            $contentFontSize = 2.0;
-            $labelFontSize   = 1.5;
-            $barcodeSize     = 1.0;
-            $signature_font_size = "12px";
+            $headerFontSize              = 2.5;
+            $contentFontSize             = 2.0;
+            $labelFontSize               = 1.5;
+            $barcodeSize                 = 1.0;
+            $signature_font_size         = "12px";
         }
 
         if($width == 140) {
             $config['default_font_size'] = '30';
-            $headerFontSize  = 3.5;
-            $contentFontSize = 3.0;
-            $labelFontSize   = 2.5;
-            $barcodeSize     = 2;
-            $signature_font_size = "18px";
-            $font_size = "26px";
-            $text_margin = "8px";
+            $headerFontSize              = 3.5;
+            $contentFontSize             = 3.0;
+            $labelFontSize               = 2.5;
+            $barcodeSize                 = 2;
+            $signature_font_size         = "18px";
+            $font_size                   = "26px";
+            $text_margin                 = "8px";
         }
 
         $material = 'Zea Mays (Corn Starch) , Polyvinyl Alcohol , Aqua , Sodium Dodecyl Sulphate ,
@@ -110,18 +110,18 @@ class ExportUnit
             45430 , CI 15985)';
 
         $pdf = PDF::loadView('labels.templates.pdf.unit', [
-            'filename' => $filename,
-            'headerFontSize' => $headerFontSize,
-            'contentFontSize' => $contentFontSize,
-            'labelFontSize' => $labelFontSize,
-            'barcodeSize' => $barcodeSize,
-            'customText' => $customText,
-            'material' => $material,
+            'filename'            => $filename,
+            'headerFontSize'      => $headerFontSize,
+            'contentFontSize'     => $contentFontSize,
+            'labelFontSize'       => $labelFontSize,
+            'barcodeSize'         => $barcodeSize,
+            'customText'          => $customText,
+            'material'            => $material,
             'signature_font_size' => $signature_font_size,
-            'font_size' => $font_size,
-            'text_margin' => $text_margin,
-            'withImage' => $withImage == "true",
-            'imageSize' => $imageSize
+            'font_size'           => $font_size,
+            'text_margin'         => $text_margin,
+            'withImage'           => $withImage == "true",
+            'imageSize'           => $imageSize
         ], [], $config);
 
         return $pdf->stream($filename . '.pdf');

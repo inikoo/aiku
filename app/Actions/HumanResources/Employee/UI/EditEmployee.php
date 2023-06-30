@@ -49,10 +49,10 @@ class EditEmployee extends InertiaAction
                 'breadcrumbs' => $this->getBreadcrumbs($employee),
                 'pageHead'    => [
                     'title'    => $employee->contact_name,
-                    'actions'=>[
+                    'actions'  => [
                         [
-                            'type'=>'button',
-                            'style'=>'exitEdit',
+                            'type'  => 'button',
+                            'style' => 'exitEdit',
                             'route' => [
                                 'name'       => preg_replace('/edit$/', 'show', $this->routeName),
                                 'parameters' => array_values($this->originalParameters)

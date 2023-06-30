@@ -44,7 +44,7 @@ class RemoveLocation extends InertiaAction
 
 
     /** @noinspection PhpUnusedParameterInspection */
-    function inWarehouseInWarehouseArea(Warehouse $warehouse, WarehouseArea $warehouseArea, Location $location, ActionRequest $request): Location
+    public function inWarehouseInWarehouseArea(Warehouse $warehouse, WarehouseArea $warehouseArea, Location $location, ActionRequest $request): Location
     {
         $this->initialisation($request);
 
@@ -77,11 +77,11 @@ class RemoveLocation extends InertiaAction
                             'icon'  => ['fal', 'fa-inventory'],
                             'title' => __('location')
                         ],
-                    'title' => $location->slug,
-                    'actions'=>[
+                    'title'  => $location->slug,
+                    'actions'=> [
                         [
-                            'type'=>'button',
-                            'style'=>'cancel',
+                            'type'  => 'button',
+                            'style' => 'cancel',
                             'route' => [
                                 'name'       => preg_replace('/remove$/', 'show', $this->routeName),
                                 'parameters' => $location->slug
@@ -93,15 +93,15 @@ class RemoveLocation extends InertiaAction
                     route:
                     match ($this->routeName) {
                         'inventory.locations.remove' => [
-                                'name' => 'models.location.delete',
+                                'name'       => 'models.location.delete',
                                 'parameters' => $request->route()->originalParameters()
                         ],
                         'inventory.warehouses.show.locations.remove' => [
-                                'name' => 'models.warehouse.location.delete',
+                                'name'       => 'models.warehouse.location.delete',
                                 'parameters' => $request->route()->originalParameters()
                         ],
                         'inventory.warehouses.show.warehouse-areas.show.locations.remove' => [
-                                'name' => 'models.warehouse.warehouse-area.location.delete',
+                                'name'       => 'models.warehouse.warehouse-area.location.delete',
                                 'parameters' => $request->route()->originalParameters()
                         ]
                     }

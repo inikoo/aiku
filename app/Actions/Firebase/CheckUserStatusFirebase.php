@@ -18,7 +18,7 @@ class CheckUserStatusFirebase
 
     public function handle($tenant): void
     {
-        $database = app('firebase.database');
+        $database  = app('firebase.database');
         $reference = $database->getReference($tenant->slug);
 
         $values = $reference->getValue();
