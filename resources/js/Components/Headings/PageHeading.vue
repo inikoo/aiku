@@ -39,6 +39,12 @@ const getActionLabel = function(action) {
             case "delete":
                 return trans("delete")
 
+            case "workshop":
+                return trans("workshop")
+
+            case "setting":
+                return trans("setting")
+
             default:
                 return ""
         }
@@ -67,6 +73,10 @@ const getActionIcon = (action) => {
 
             case "delete":
                 return ["far", "fa-trash-alt"]
+            case "workshop":
+                return ["fal", "fa-drafting-compass"]
+            case "setting":
+                return ["fal", "fa-fa-sliders-h"]
 
             case "withMulti":
                 return ["far", "fa-border-all"]

@@ -20,8 +20,6 @@ enum WebsiteTabsEnum: string
     case WEBPAGES             = 'webpages';
     case ANALYTICS            = 'analytics';
     case USERS                = 'users';
-    case WORKSHOP             = 'workshop';
-    case SETTINGS             = 'settings';
 
     case CHANGELOG            = 'changelog';
 
@@ -46,14 +44,6 @@ enum WebsiteTabsEnum: string
             WebsiteTabsEnum::USERS => [
                 'title' => __('users'),
                 'icon'  => 'fal fa-users-class',
-            ],
-            WebsiteTabsEnum::WORKSHOP => [
-                'title' => __('workshop'),
-                'icon'  => 'fal fa-drafting-compass',
-            ],
-            WebsiteTabsEnum::SETTINGS => [
-                'title' => __('settings'),
-                'icon'  => 'fal fa-sliders-h',
             ],
             WebsiteTabsEnum::DATA => [
                 'title' => __('data'),

@@ -27,7 +27,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 /**
  * @property Website $website
  */
-class ShowWebsite extends InertiaAction
+class WorkshopWebsite extends InertiaAction
 {
     use AsAction;
     use WithInertia;
@@ -37,7 +37,7 @@ class ShowWebsite extends InertiaAction
     {
         $this->canEdit   = $request->user()->can('websites.edit');
         $this->canDelete = $request->user()->can('websites.edit');
-        return $request->user()->hasPermissionTo("shops.websites.view");
+        return $request->user()->hasPermissionTo("websites.view");
     }
 
     public function asController(Website $website, ActionRequest $request): Website
@@ -61,9 +61,9 @@ class ShowWebsite extends InertiaAction
 
 
         return Inertia::render(
-            'Web/Website',
+            'Web/Workshop',
             [
-                'title'       => __('Website'),
+                'title'       => __('Workshop'),
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
                     $request->route()->parameters
@@ -73,7 +73,7 @@ class ShowWebsite extends InertiaAction
                     'actions' => [
                         $this->canEdit ? [
                             'type'  => 'button',
-                            'style' => 'setting',
+                            'style' => 'create',
                             'route' => [
                                 'name'       => preg_replace('/show$/', 'edit', $this->routeName),
                                 'parameters' => array_values($this->originalParameters)
@@ -84,6 +84,14 @@ class ShowWebsite extends InertiaAction
                             'style' => 'workshop',
                             'route' => [
                                 'name'       => preg_replace('/show$/', 'workshop', $this->routeName),
+                                'parameters' => array_values($this->originalParameters)
+                            ]
+                        ] : false,
+                        $this->canDelete ? [
+                            'type'  => 'button',
+                            'style' => 'delete',
+                            'route' => [
+                                'name'       => 'show.remove',
                                 'parameters' => array_values($this->originalParameters)
                             ]
                         ] : false
