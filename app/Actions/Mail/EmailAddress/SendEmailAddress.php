@@ -16,15 +16,15 @@ class SendEmailAddress
 
     public mixed $message;
 
-    public function handle(array $from, string $content, string $subject, string|array $to, $attach = null, $type = 'html'): void
+    public function handle(array $content, string|array $to, $attach = null, $type = 'html'): void
     {
-        Mail::$type($content, function ($message) use ($from, $to, $subject, $attach) {
+        Mail::$type($content['body'], function ($message) use ($to, $content, $attach) {
             $this->message = $message;
             $this->attachments($attach);
 
-            $message->from($from['email'], $from['name'])
+            $message->from(env('MAIL_FROM_ADDRESS'), env('MAIL_FROM_NAME'))
                 ->to($to)
-                ->subject($subject);
+                ->subject($content['title']);
         });
     }
 

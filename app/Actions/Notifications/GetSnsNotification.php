@@ -18,7 +18,6 @@ class GetSnsNotification
 
     public function asController(): void
     {
-
         $message   = Message::fromRawPostData();
         $validator = new MessageValidator();
 
@@ -31,6 +30,5 @@ class GetSnsNotification
                 // use $subject and $messageData and take relevant action
             }
         }
-
     }
 }
