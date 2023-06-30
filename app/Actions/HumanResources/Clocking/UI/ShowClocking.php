@@ -240,9 +240,9 @@ class ShowClocking extends InertiaAction
                     $suffix
                 ),
             ),
-            'hr.clocking-machines.show.clocking-machines.show.clockings.show' => array_merge(
+            'hr.working-places.show.clocking-machines.show.clockings.show' => array_merge(
                 (new ShowClockingMachine())->getBreadcrumbs(
-                    'hr.clocking-machines.show.clocking-machines.show',
+                    'hr.working-places.show.clocking-machines.show',
                     [
                       'workplace'       => $routeParameters['workplace'],
                       'clockingMachine' => $routeParameters['clockingMachine'],
@@ -252,14 +252,14 @@ class ShowClocking extends InertiaAction
                     $routeParameters['clocking'],
                     [
                         'index' => [
-                            'name'       => 'hr.clocking-machines.show.clocking-machines.show.clockings.index',
+                            'name'       => 'hr.working-places.show.clocking-machines.show.clockings.index',
                             'parameters' => [
                                 $routeParameters['workplace']->slug,
                                 $routeParameters['clockingMachine']->slug,
                             ]
                         ],
                         'model' => [
-                            'name'       => 'hr.clocking-machines.show.clocking-machines.show.clockings.show',
+                            'name'       => 'hr.working-places.show.clocking-machines.show.clockings.show',
                             'parameters' => [
                                 $routeParameters['workplace']->slug,
                                 $routeParameters['clockingMachine']->slug,

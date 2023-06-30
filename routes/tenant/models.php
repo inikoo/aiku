@@ -131,6 +131,7 @@ Route::delete('/warehouse/{warehouse}/area/{warehouseArea}', [DeleteWarehouseAre
 Route::patch('/location/{location}', UpdateLocation::class)->name('location.update');
 Route::delete('/location/{location}', DeleteLocation::class)->name('location.delete');
 Route::delete('/warehouse/{warehouse}/location/{location}', [DeleteLocation::class, 'inWarehouse'])->name('warehouse.location.delete');
+Route::delete('/area/{warehouseArea}/location/{location}', [DeleteLocation::class, 'inWarehouseArea'])->name('warehouse-area.location.delete');
 Route::delete('/warehouse/{warehouse}/area/{warehouseArea}/location/{location}', [DeleteLocation::class, 'inWarehouseInWarehouseArea'])->name('warehouse.warehouse-area.location.delete');
 
 Route::post('/warehouse/{warehouse}/location', StoreLocation::class)->name('warehouse.location.store');

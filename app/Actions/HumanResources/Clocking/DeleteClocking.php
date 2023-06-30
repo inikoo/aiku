@@ -30,7 +30,7 @@ class DeleteClocking
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("inventory.edit");
+        return $request->user()->hasPermissionTo("hr.edit");
     }
 
     public function asController(Clocking $clocking, ActionRequest $request): Clocking
@@ -70,17 +70,17 @@ class DeleteClocking
     {
         if (class_basename($parent::class) == 'ClockingMachine') {
             return Redirect::route(
-                route: 'hr.clocking-machines.show.clockings.index',
-                parameters: [
-                    'clockingMachine' => $parent->slug
-                ]
-            );
-        } elseif (class_basename($parent::class) == 'Workplace') {
-            return Redirect::route(
                 route: 'hr.working-place.show.clocking-machines.show.clockings.index',
                 parameters: [
                     'workplace'         => $parent->workplace->slug,
                     'clockingMachine'   => $parent->slug
+                ]
+            );
+        } elseif (class_basename($parent::class) == 'Workplace') {
+            return Redirect::route(
+                route: 'hr.clocking-machines.show.clockings.index',
+                parameters: [
+                    'workplace' => $parent->slug
                 ]
             );
         } else {
