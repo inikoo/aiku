@@ -35,7 +35,7 @@ function clockingRoute(clocking: Clocking) {
                 [clocking.clocking_machine_slug, clocking.slug]);
         case 'hr.working-places.show.clocking-machines.show.clockings.index':
             return route(
-                'hr.warehouses.show.clocking-machines.show.clockings.show',
+                'hr.working-places.show.clocking-machines.show.clockings.show',
                 [clocking.workplace_slug, clocking.clocking_machine_slug, clocking.slug]
             )
         default:

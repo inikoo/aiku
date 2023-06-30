@@ -97,10 +97,11 @@ class EditUser extends InertiaAction
                             'icon'    => 'fa-light fa-user-lock',
                             'current' => false,
                             'fields'  => [
-                                'password' => [
+                                'permissions' => [
                                     'type'  => 'permissions',
                                     'label' => __('permissions'),
-                                    'value' => []
+                                    'value' => [],
+                                    'fullComponentArea' => true,
                                 ],
                             ]
                         ],

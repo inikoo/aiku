@@ -7,7 +7,8 @@
 
 namespace App\Actions\HumanResources\ClockingMachine;
 
-use App\Models\HumanResources\Employee;
+use App\Models\HumanResources\ClockingMachine;
+use App\Models\HumanResources\Workplace;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
@@ -19,11 +20,12 @@ class DeleteClockingMachine
     use AsController;
     use WithAttributes;
 
-    public function handle(Employee $employee): Employee
+    public function handle(ClockingMachine $clockingMachine): ClockingMachine
     {
-        $employee->delete();
+        $clockingMachine->clockings()->delete();
+        $clockingMachine->delete();
 
-        return $employee;
+        return $clockingMachine;
     }
 
     public function authorize(ActionRequest $request): bool
@@ -31,16 +33,28 @@ class DeleteClockingMachine
         return $request->user()->hasPermissionTo("hr.edit");
     }
 
-    public function asController(Employee $employee, ActionRequest $request): Employee
+    public function asController(ClockingMachine $clockingMachine, ActionRequest $request): ClockingMachine
     {
         $request->validate();
 
-        return $this->handle($employee);
+        return $this->handle($clockingMachine);
     }
 
-    public function htmlResponse(): RedirectResponse
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inWorkplace(Workplace $workplace, ClockingMachine $clockingMachine, ActionRequest $request): ClockingMachine
     {
-        return Redirect::route('hr.employees.index');
+        $request->validate();
+
+        return $this->handle($clockingMachine);
     }
+
+
+
+    public function htmlResponse(ClockingMachine $clockingMachine): RedirectResponse
+    {
+        return Redirect::route('hr.working-places.show', $clockingMachine->workplace->slug);
+    }
+
+
 
 }

@@ -22,7 +22,7 @@ class RemoveWorkingPlace extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("inventory.edit");
+        return $request->user()->hasPermissionTo("hr.edit");
     }
 
     public function asController(Workplace $workplace, ActionRequest $request): Workplace
@@ -43,7 +43,6 @@ class RemoveWorkingPlace extends InertiaAction
         ];
     }
 
-    /** @noinspection PhpUnusedParameterInspection */
     public function htmlResponse(Workplace $workplace, ActionRequest $request): Response
     {
         return Inertia::render(
@@ -66,7 +65,7 @@ class RemoveWorkingPlace extends InertiaAction
                             'style' => 'cancel',
                             'route' => [
                                 'name'       => preg_replace('/remove$/', 'show', $this->routeName),
-                                'parameters' => $workplace
+                                'parameters' => $request->route()->originalParameters()
                             ]
                         ]
                     ]
@@ -74,7 +73,7 @@ class RemoveWorkingPlace extends InertiaAction
                 'data'      => $this->getAction(
                     route:[
                         'name'       => 'models.working-place.delete',
-                        'parameters' => array_values($this->originalParameters)
+                        'parameters' => $request->route()->originalParameters()
                     ]
                 )
             ]

@@ -81,7 +81,7 @@ class EditLocation extends InertiaAction
                                 'parameters' => array_values($this->originalParameters)
                             ]
                         ]
-                    ],
+                    ]
                 ],
 
                 'formData' => [

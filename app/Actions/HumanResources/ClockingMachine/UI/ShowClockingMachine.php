@@ -73,7 +73,7 @@ class ShowClockingMachine extends InertiaAction
                             'style' => 'edit',
                             'route' => [
                                 'name'       => preg_replace('/show$/', 'edit', $this->routeName),
-                                'parameters' => array_values($this->originalParameters)
+                                'parameters' => $request->route()->originalParameters()
                             ]
                         ] : false,
                         $this->canDelete ? [
@@ -81,7 +81,7 @@ class ShowClockingMachine extends InertiaAction
                             'style' => 'delete',
                             'route' => [
                                 'name'       => 'hr.working-places.show.clocking-machines.remove',
-                                'parameters' => array_values($this->originalParameters)
+                                'parameters' => $request->route()->originalParameters()
                             ]
 
                         ] : false

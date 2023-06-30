@@ -39,6 +39,7 @@ const props = defineProps<{
         label: string,
         value: any,
         required: boolean
+        fullComponentArea : boolean
 
     },
     args: {
@@ -106,7 +107,8 @@ form['fieldType'] = 'edit';
 
 <template>
     <form @submit.prevent="form.patch(route(updateRoute.name, updateRoute.parameters))">
-        <dl class="divide-y divide-gray-200 max-w-2xl ">
+        <!-- labelingcomponents -->
+        <dl v-if="!props.fieldData.fullComponentArea" class="divide-y divide-gray-200 max-w-2xl ">
             <div class="pb-4 sm:pb-5 sm:grid sm:grid-cols-3 sm:gap-4 ">
                 <dt class="text-sm font-medium text-gray-500 capitalize">
                     <div class="inline-flex items-start leading-none"><FontAwesomeIcon v-if="fieldData.required" :icon="['fas', 'asterisk']" class="font-light text-[12px] text-red-400 mr-1"/>{{ fieldData.label }}</div>
@@ -129,5 +131,19 @@ form['fieldType'] = 'edit';
                 </dd>
             </div>
         </dl>
+
+        <!-- full area components -->
+        <dl v-if="props.fieldData.fullComponentArea" class="divide-y divide-gray-200">
+                <dd class="sm:col-span-2  ">
+                    <div class="mt-1 flex items-start text-sm text-gray-900 sm:mt-0">
+                        <div class="relative  flex-grow">
+                            <component :is="getComponent(fieldData['type'])" :form=form :fieldName=field
+                                :options="fieldData['options']" :fieldData="fieldData">
+                            </component>
+                        </div>
+                    </div>
+                </dd>
+        </dl>
+
     </form>
 </template>

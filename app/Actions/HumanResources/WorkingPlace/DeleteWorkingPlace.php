@@ -38,9 +38,9 @@ class DeleteWorkingPlace
         return $this->handle($workplace);
     }
 
-    public function htmlResponse(Workplace $workplace): RedirectResponse
+    public function htmlResponse(): RedirectResponse
     {
-        return Redirect::route('hr.working-places.show', $workplace->slug);
+        return Redirect::route('hr.working-places.index');
     }
 
 }
