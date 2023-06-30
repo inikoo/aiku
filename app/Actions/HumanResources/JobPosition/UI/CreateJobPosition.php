@@ -8,8 +8,6 @@
 namespace App\Actions\HumanResources\JobPosition\UI;
 
 use App\Actions\InertiaAction;
-use App\Enums\HumanResources\Employee\EmployeeStateEnum;
-use App\Models\HumanResources\JobPosition;
 use App\Models\Market\ProductCategory;
 use Exception;
 use Inertia\Inertia;
@@ -51,13 +49,13 @@ class CreateJobPosition extends InertiaAction
                             'title'  => __('creating job positions'),
                             'fields' => [
                                 'code' => [
-                                    'type'  => 'input',
-                                    'label' => __('code'),
+                                    'type'      => 'input',
+                                    'label'     => __('code'),
                                     'required'  => true
                                 ],
                                 'name' => [
-                                    'type'  => 'input',
-                                    'label' => __('name'),
+                                    'type'      => 'input',
+                                    'label'     => __('name'),
                                     'required'  => true
                                 ],
                                 'department' => [

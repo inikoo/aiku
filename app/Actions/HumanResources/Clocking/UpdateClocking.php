@@ -24,7 +24,7 @@ class UpdateClocking
         $clocking =  $this->update($clocking, $modelData, ['data']);
 
         ClockingHydrateUniversalSearch::dispatch($clocking);
-        HydrateClocking::run($clocking);
+        //        HydrateClocking::run($clocking);
 
         return $clocking;
     }
@@ -56,6 +56,8 @@ class UpdateClocking
         $request->validate();
         return $this->handle($clocking, $request->all());
     }
+
+
 
 
     public function jsonResponse(Clocking $clocking): LocationResource

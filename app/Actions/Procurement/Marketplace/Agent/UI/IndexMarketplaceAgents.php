@@ -76,6 +76,23 @@ class IndexMarketplaceAgents extends InertiaAction
 
             $table
                 ->withGlobalSearch()
+                ->withEmptyState(
+                    [
+                        'title'       => __('no agents'),
+                        'description' => $this->canEdit ? __('Get started by creating a new agent.') : null,
+                        'count'       => app('currentTenant')->stats->number_agents,
+                        'action'      => $this->canEdit ? [
+                            'type'    => 'button',
+                            'style'   => 'create',
+                            'tooltip' => __('new agent'),
+                            'label'   => __('agent'),
+                            'route'   => [
+                                'name'       => 'procurement.marketplace.agents.create',
+                                'parameters' => array_values($this->originalParameters)
+                            ]
+                        ] : null
+                    ]
+                )
                 ->column(key: 'adoption', label: [
                     'type'   => 'icon',
                     'data'   => ['fal','fa-yin-yang'],
@@ -127,13 +144,18 @@ class IndexMarketplaceAgents extends InertiaAction
                 'title'       => __("agent's marketplace"),
                 'pageHead'    => [
                     'title'  => __("agent's marketplace"),
-                    'create' => $this->canEdit && $this->routeName == 'procurement.marketplace.agents.index' ? [
-                        'route' => [
-                            'name'       => 'procurement.marketplace.agents.create',
-                            'parameters' => array_values($this->originalParameters)
-                        ],
-                        'label' => __('agent')
-                    ] : false,
+                    'actions'=> [
+                        $this->canEdit && $this->routeName == 'procurement.marketplace.agents.index' ? [
+                            'type'    => 'button',
+                            'style'   => 'create',
+                            'tooltip' => __('new agent'),
+                            'label'   => __('agent'),
+                            'route'   => [
+                                'name'       => 'procurement.marketplace.agents.create',
+                                'parameters' => array_values($this->originalParameters)
+                            ]
+                        ] : false,
+                    ]
                 ],
                 'data'        => MarketplaceAgentResource::collection($agent),
             ]

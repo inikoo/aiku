@@ -5,57 +5,57 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Inventory\Location\UI;
+namespace App\Actions\HumanResources\Clocking\UI;
 
 use App\Actions\InertiaAction;
-use App\Actions\Inventory\WarehouseArea\UI\ShowWarehouseArea;
-use App\Models\Inventory\Location;
-use App\Models\Inventory\Warehouse;
-use App\Models\Inventory\WarehouseArea;
+use App\Models\HumanResources\Clocking;
+use App\Models\HumanResources\ClockingMachine;
+use App\Models\HumanResources\Workplace;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class RemoveLocation extends InertiaAction
+class RemoveClocking extends InertiaAction
 {
-    public function handle(Location $location): Location
+    public function handle(Clocking $clocking): Clocking
     {
-        return $location;
+        return $clocking;
     }
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("inventory.edit");
+        return $request->user()->hasPermissionTo("hr.edit");
     }
 
-    public function asController(Location $location, ActionRequest $request): Location
+    public function asController(Clocking $clocking, ActionRequest $request): Clocking
     {
         $this->initialisation($request);
 
-        return $this->handle($location);
-    }
-
-    /** @noinspection PhpUnusedParameterInspection */
-    public function inWarehouse(Warehouse $warehouse, Location $location, ActionRequest $request): Location
-    {
-        $this->initialisation($request);
-
-        return $this->handle($location);
+        return $this->handle($clocking);
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inWarehouseArea(WarehouseArea $warehouseArea, Location $location, ActionRequest $request): Location
+    public function inWorkplace(Workplace $workplace, Clocking $clocking, ActionRequest $request): Clocking
     {
         $this->initialisation($request);
 
-        return $this->handle($location);
+        return $this->handle($clocking);
     }
 
-    public function inWarehouseInWarehouseArea(Warehouse $warehouse, WarehouseArea $warehouseArea, Location $location, ActionRequest $request): Location
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inClockingMachine(ClockingMachine $clockingMachine, Clocking $clocking, ActionRequest $request): Clocking
     {
         $this->initialisation($request);
 
-        return $this->handle($location);
+        return $this->handle($clocking);
+    }
+
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inWorkplaceInClockingMachine(Workplace $workplace, ClockingMachine $clockingMachine, Clocking $clocking, ActionRequest $request): Clocking
+    {
+        $this->initialisation($request);
+
+        return $this->handle($clocking);
     }
 
 
@@ -63,19 +63,18 @@ class RemoveLocation extends InertiaAction
     {
         return  [
             'buttonLabel' => __('Delete'),
-            'title'       => __('Delete Location'),
-            'text'        => __("This action will delete this Locations"),
+            'title'       => __('Delete Clocking'),
+            'text'        => __("This action will delete this Clocking"),
             'route'       => $route
         ];
     }
 
-    public function htmlResponse(Location $location, ActionRequest $request): Response
+    public function htmlResponse(Clocking $clocking, ActionRequest $request): Response
     {
-
         return Inertia::render(
             'RemoveModel',
             [
-                'title'       => __('delete location'),
+                'title'       => __('delete clocking'),
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
                     $request->route()->parameters
@@ -83,10 +82,10 @@ class RemoveLocation extends InertiaAction
                 'pageHead'    => [
                     'icon'  =>
                         [
-                            'icon'  => ['fal', 'fa-inventory'],
-                            'title' => __('location')
+                            'icon'  => ['fal', 'fa-clock'],
+                            'title' => __('clocking')
                         ],
-                    'title'  => $location->slug,
+                    'title'  => $clocking->slug,
                     'actions'=> [
                         [
                             'type'  => 'button',
@@ -102,28 +101,24 @@ class RemoveLocation extends InertiaAction
                 'data'     => $this->getAction(
                     route:
                     match ($this->routeName) {
-                        'inventory.locations.remove' => [
-                            'name'       => 'models.location.delete',
+                        'hr.clockings.remove' => [
+                            'name'       => 'models.clocking.delete',
                             'parameters' => $request->route()->originalParameters()
                         ],
-                        'inventory.warehouses.show.locations.remove' => [
-                            'name'       => 'models.warehouse.location.delete',
+                        'hr.working-places.show.clockings.remove' => [
+                            'name'       => 'models.working-place.clocking.delete',
                             'parameters' => $request->route()->originalParameters()
                         ],
-                        'inventory.warehouse-areas.show.locations.remove' => [
-                            'name'       => 'models.warehouse-area.location.delete',
+                        'hr.clocking-machines.show.clockings.remove' => [
+                            'name'       => 'models.clocking-machine.clocking.delete',
                             'parameters' => $request->route()->originalParameters()
                         ],
-                        'inventory.warehouses.show.warehouse-areas.show.locations.remove' => [
-                            'name'       => 'models.warehouse.warehouse-area.location.delete',
+                        'hr.working-places.show.clocking-machines.show.clockings.remove' => [
+                            'name'       => 'models.working-place.clocking-machine.clocking.delete',
                             'parameters' => $request->route()->originalParameters()
                         ]
                     }
                 )
-
-
-
-
             ]
         );
     }
@@ -131,7 +126,7 @@ class RemoveLocation extends InertiaAction
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
-        return ShowWarehouseArea::make()->getBreadcrumbs(
+        return ShowClocking::make()->getBreadcrumbs(
             $routeName,
             routeParameters: $routeParameters,
             suffix: '('.__('deleting').')'

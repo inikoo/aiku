@@ -59,11 +59,11 @@ class RemoveEmployee extends InertiaAction
                             'icon'  => ['fal', 'fa-inventory'],
                             'title' => __('employee')
                         ],
-                    'title' => $employee->slug,
-                    'actions'=>[
+                    'title'  => $employee->slug,
+                    'actions'=> [
                         [
-                            'type'=>'button',
-                            'style'=>'cancel',
+                            'type'  => 'button',
+                            'style' => 'cancel',
                             'route' => [
                                 'name'       => preg_replace('/remove$/', 'show', $this->routeName),
                                 'parameters' => array_values($this->originalParameters)
@@ -73,7 +73,7 @@ class RemoveEmployee extends InertiaAction
                 ],
                 'data'      => $this->getAction(
                     route:[
-                        'name' => 'models.employee.delete',
+                        'name'       => 'models.employee.delete',
                         'parameters' => array_values($this->originalParameters)
                     ]
                 )

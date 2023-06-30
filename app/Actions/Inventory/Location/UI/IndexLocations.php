@@ -95,16 +95,16 @@ class IndexLocations extends InertiaAction
                 ->withModelOperations($modelOperations)
                 ->withEmptyState(
                     [
-                        'title' => __('no locations'),
+                        'title'       => __('no locations'),
                         'description' => $this->canEdit ? __('Get started by creating a new location.') : null,
                         'count'       => app('currentTenant')->inventoryStats->number_locations,
-                        'action' => $this->canEdit ? [
-                            'type' => 'button',
-                            'style' => 'create',
+                        'action'      => $this->canEdit ? [
+                            'type'    => 'button',
+                            'style'   => 'create',
                             'tooltip' => __('new location'),
-                            'label' => __('location'),
-                            'route' => [
-                                'name' => 'inventory.warehouses.show.locations.create',
+                            'label'   => __('location'),
+                            'route'   => [
+                                'name'       => 'inventory.warehouses.show.locations.create',
                                 'parameters' => array_values($this->originalParameters)
                             ]
                         ] : null
@@ -182,8 +182,8 @@ class IndexLocations extends InertiaAction
                             $this->routeName == 'inventory.warehouses.show.warehouse-areas.show.locations.index'
                         )
                             ? [
-                            'type'=>'button',
-                            'style'=>'create',
+                            'type'  => 'button',
+                            'style' => 'create',
                             'label' => __('locations'),
                             'route' => match ($this->routeName) {
                                 'inventory.warehouses.show.locations.index' => [

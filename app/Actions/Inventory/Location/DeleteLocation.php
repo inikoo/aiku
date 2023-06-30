@@ -7,7 +7,6 @@
 
 namespace App\Actions\Inventory\Location;
 
-use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
 use Illuminate\Http\RedirectResponse;
@@ -15,6 +14,7 @@ use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsController;
 use Lorisleiva\Actions\Concerns\WithAttributes;
+use App\Models\Inventory\Location;
 
 class DeleteLocation
 {
@@ -50,6 +50,14 @@ class DeleteLocation
     }
 
     /** @noinspection PhpUnusedParameterInspection */
+    public function inWarehouseArea(WarehouseArea $warehouseArea, Location $location, ActionRequest $request): Location
+    {
+        $request->validate();
+
+        return $this->handle($location);
+    }
+
+    /** @noinspection PhpUnusedParameterInspection */
     public function inWarehouseInWarehouseArea(Warehouse $warehouse, WarehouseArea $warehouseArea, Location $location, ActionRequest $request): Location
     {
         $request->validate();
@@ -62,17 +70,18 @@ class DeleteLocation
     {
         if (class_basename($parent::class) == 'WarehouseArea') {
             return Redirect::route(
-                route: 'inventory.warehouse-areas.show.locations.index',
+                route: 'hr.working-place.show.clocking-machines.show.locations.index',
                 parameters: [
-                    'warehouseArea' => $parent->slug
+                    'warehouse'       => $parent->warehouse->slug,
+                    'warehouseArea'   => $parent->slug
                 ]
             );
+
         } elseif (class_basename($parent::class) == 'Warehouse') {
             return Redirect::route(
-                route: 'inventory.warehouses.show.warehouse-areas.show.locations.index',
+                route: 'inventory.warehouse-areas.show.locations.index',
                 parameters: [
-                    'warehouse' => $parent->warehouse->slug,
-                    'warehouseArea' => $parent->slug
+                    'warehouse' => $parent->slug
                 ]
             );
         } else {

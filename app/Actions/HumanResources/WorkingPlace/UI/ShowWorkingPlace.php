@@ -33,7 +33,7 @@ class ShowWorkingPlace extends InertiaAction
     }
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('hr.edit');
+        $this->canEdit   = $request->user()->can('hr.edit');
         $this->canDelete = $request->user()->can('hr.edit');
         return $request->user()->hasPermissionTo("hr.view");
     }
@@ -48,6 +48,7 @@ class ShowWorkingPlace extends InertiaAction
 
     public function htmlResponse(Workplace $workplace, ActionRequest $request): Response
     {
+
         return Inertia::render(
             'HumanResources/WorkingPlace',
             [
@@ -63,22 +64,22 @@ class ShowWorkingPlace extends InertiaAction
                             'icon'  => ['fal', 'building'],
                             'title' => __('working place')
                         ],
-                    'title' => $workplace->name,
+                    'title'   => $workplace->name,
                     'actions' => [
                         $this->canEdit ? [
-                            'type'=>'button',
-                            'style'=>'edit',
+                            'type'  => 'button',
+                            'style' => 'edit',
                             'route' => [
-                                'name' => preg_replace('/show$/', 'edit', $this->routeName),
-                                'parameters' => array_values($this->originalParameters)
+                                'name'       => preg_replace('/show$/', 'edit', $this->routeName),
+                                'parameters' => $request->route()->originalParameters()
                             ]
                         ] : false,
                         $this->canDelete ? [
-                            'type'=>'button',
-                            'style'=>'delete',
+                            'type'  => 'button',
+                            'style' => 'delete',
                             'route' => [
-                                'name' => 'hr.working-places.remove',
-                                'parameters' => array_values($this->originalParameters)
+                                'name'       => 'hr.working-places.remove',
+                                'parameters' => $request->route()->originalParameters()
                             ]
 
                         ] : false
@@ -146,7 +147,7 @@ class ShowWorkingPlace extends InertiaAction
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistories::run($workplace)))
             ]
         )->table(IndexClockings::make()->tableStructure(
-            modelOperations:[
+            /* modelOperations:[
                     'createLink' => $this->canEdit ? [
                         'route' => [
                             'name'       => 'hr.working-places.show.clockings.create',
@@ -155,10 +156,10 @@ class ShowWorkingPlace extends InertiaAction
                         'label' => __('clocking')
                     ] : false,
                 ],
-            prefix: 'clockings'
+            prefix: 'clockings' */
         ))->table(
             IndexClockingMachines::make()->tableStructure(
-                modelOperations: [
+                /* modelOperations: [
                         'createLink' => $this->canEdit ? [
                             'route' => [
                                 'name'       => 'hr.working-places.show.clocking-machines.create',
@@ -167,7 +168,7 @@ class ShowWorkingPlace extends InertiaAction
                             'label' => __('clocking machine')
                         ] : false,
                     ],
-                prefix: 'clocking_machines'
+                prefix: 'clocking_machines' */
             )
         )->table(IndexHistories::make()->tableStructure());
     }

@@ -74,15 +74,15 @@ class IndexClockingMachines extends InertiaAction
                 ->withModelOperations($modelOperations)
                 ->withEmptyState(
                     [
-                        'title' => __('no clocking machines'),
+                        'title'       => __('no clocking machines'),
                         'description' => $this->canEdit ? __('Get started by creating a new clocking machine.') : null,
                         'count'       => app('currentTenant')->stats->number_clocking_machines,
-                        'action' => $this->canEdit ? [
-                            'type' => 'button',
-                            'style' => 'create',
+                        'action'      => $this->canEdit ? [
+                            'type'    => 'button',
+                            'style'   => 'create',
                             'tooltip' => __('new clocking machine'),
-                            'label' => __('clocking machine'),
-                            'route' => [
+                            'label'   => __('clocking machine'),
+                            'route'   => [
                                 'name'       => 'hr.clocking-machines.create',
                                 'parameters' => array_values($this->originalParameters)
                             ]
@@ -141,8 +141,8 @@ class IndexClockingMachines extends InertiaAction
                     'title'  => __('clocking machines'),
                     'actions'=> [
                         $this->canEdit && $this->routeName == 'hr.working-places.show.clocking-machines.index' ? [
-                            'type'=>'button',
-                            'style'=>'create',
+                            'type'  => 'button',
+                            'style' => 'create',
                             'label' => __('clocking machine'),
                             'route' => [
                                 'name'       => 'hr.working-places.show.clocking-machines.create',

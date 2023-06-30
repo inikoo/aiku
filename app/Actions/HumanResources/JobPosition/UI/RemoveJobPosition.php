@@ -59,11 +59,11 @@ class RemoveJobPosition extends InertiaAction
                             'icon'  => ['fal', 'fa-inventory'],
                             'title' => __('job position')
                         ],
-                    'title' => $jobPosition->slug,
-                    'actions'=>[
+                    'title'  => $jobPosition->slug,
+                    'actions'=> [
                         [
-                            'type'=>'button',
-                            'style'=>'cancel',
+                            'type'  => 'button',
+                            'style' => 'cancel',
                             'route' => [
                                 'name'       => preg_replace('/remove$/', 'show', $this->routeName),
                                 'parameters' => array_values($this->originalParameters)
@@ -73,7 +73,7 @@ class RemoveJobPosition extends InertiaAction
                 ],
                 'data'      => $this->getAction(
                     route:[
-                        'name' => 'models.job-position.delete',
+                        'name'       => 'models.job-position.delete',
                         'parameters' => array_values($this->originalParameters)
                     ]
                 )

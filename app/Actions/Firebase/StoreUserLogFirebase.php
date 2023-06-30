@@ -19,17 +19,17 @@ class StoreUserLogFirebase
 
     public function handle(User $user, Tenant $tenant, array $route): void
     {
-        $database = app('firebase.database');
+        $database  = app('firebase.database');
         $reference = $database->getReference($tenant->slug . '/' . $user->username);
 
         $reference->set([
             'user' => [
-                'username' => $user->username,
+                'username'     => $user->username,
                 'contact_name' => $user->contact_name,
-                'avatar_id' => $user->avatar_id
+                'avatar_id'    => $user->avatar_id
             ],
-            'is_active' => true,
-            'route' => $route,
+            'is_active'   => true,
+            'route'       => $route,
             'last_active' => now()
         ]);
 

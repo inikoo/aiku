@@ -49,41 +49,41 @@ class ShowUser extends InertiaAction
         return Inertia::render(
             'SysAdmin/User',
             [
-                'title' => __('user'),
+                'title'       => __('user'),
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
                     $request->route()->parameters
                 ),
                 'navigation' => [
                     'previous' => $this->getPrevious($user, $request),
-                    'next' => $this->getNext($user, $request),
+                    'next'     => $this->getNext($user, $request),
                 ],
                 'pageHead' => [
-                    'title' => $user->username,
+                    'title'   => $user->username,
                     'actions' => [
                         $this->canEdit ? [
-                            'type'=>'button',
-                            'style'=>'edit',
+                            'type'  => 'button',
+                            'style' => 'edit',
                             'route' => [
-                                'name' => preg_replace('/show$/', 'edit', $this->routeName),
+                                'name'       => preg_replace('/show$/', 'edit', $this->routeName),
                                 'parameters' => array_values($this->originalParameters)
                             ]
                         ] : false,
                     ]
                 ],
                 'tabs' => [
-                    'current' => $this->tab,
+                    'current'    => $this->tab,
                     'navigation' => UserTabsEnum::navigation()
                 ],
 
                 UserTabsEnum::REQUEST_LOGS->value => $this->tab == UserTabsEnum::REQUEST_LOGS->value ?
-                    fn() => UserRequestLogsResource::collection(ShowUserRequestLogs::run($user->username))
-                    : Inertia::lazy(fn() => UserRequestLogsResource::collection(ShowUserRequestLogs::run($user->username))),
+                    fn () => UserRequestLogsResource::collection(ShowUserRequestLogs::run($user->username))
+                    : Inertia::lazy(fn () => UserRequestLogsResource::collection(ShowUserRequestLogs::run($user->username))),
 
 
                 UserTabsEnum::HISTORY->value => $this->tab == UserTabsEnum::HISTORY->value ?
-                    fn() => HistoryResource::collection(IndexHistories::run($user))
-                    : Inertia::lazy(fn() => HistoryResource::collection(IndexHistories::run($user)))
+                    fn () => HistoryResource::collection(IndexHistories::run($user))
+                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistories::run($user)))
 
             ]
         )->table(ShowUserRequestLogs::make()->tableStructure())
@@ -97,7 +97,7 @@ class ShowUser extends InertiaAction
             return [
                 [
 
-                    'type' => 'modelWithIndex',
+                    'type'           => 'modelWithIndex',
                     'modelWithIndex' => [
                         'index' => [
                             'route' => $routeParameters['index'],
@@ -125,11 +125,11 @@ class ShowUser extends InertiaAction
                     $routeParameters['user'],
                     [
                         'index' => [
-                            'name' => 'sysadmin.users.index',
+                            'name'       => 'sysadmin.users.index',
                             'parameters' => []
                         ],
                         'model' => [
-                            'name' => 'sysadmin.users.show',
+                            'name'       => 'sysadmin.users.show',
                             'parameters' => [$routeParameters['user']->username]
                         ]
                     ],
@@ -165,7 +165,7 @@ class ShowUser extends InertiaAction
             'sysadmin.users.show' => [
                 'label' => $user->username,
                 'route' => [
-                    'name' => $routeName,
+                    'name'       => $routeName,
                     'parameters' => [
                         'user' => $user->username
                     ]

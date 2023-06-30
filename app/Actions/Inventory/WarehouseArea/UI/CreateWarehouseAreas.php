@@ -20,10 +20,10 @@ class CreateWarehouseAreas extends InertiaAction
         return Inertia::render(
             'CreateModelBySpreadSheet',
             [
-                'title'     => __('Create warehouse areas'),
+                'title'            => __('Create warehouse areas'),
                 'documentName'     => 'inventory',
-                'pageHead'  => [
-                    'title' => __('Create warehouse areas'),
+                'pageHead'         => [
+                    'title'    => __('Create warehouse areas'),
                     'exitEdit' => [
                         'label' => __('Back'),
                         'route' => [

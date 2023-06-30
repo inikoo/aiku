@@ -1,4 +1,6 @@
-<?php /** @noinspection PhpUnusedParameterInspection */
+<?php
+
+/** @noinspection PhpUnusedParameterInspection */
 
 /*
  * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
@@ -29,10 +31,10 @@ class CreateLocation extends InertiaAction
                 'title'    => __('new location'),
                 'pageHead' => [
                     'title'        => __('new location'),
-                    'actions' => [
+                    'actions'      => [
                         [
-                            'type'=>'button',
-                            'style'=>'cancel',
+                            'type'  => 'button',
+                            'style' => 'cancel',
                             'label' => __('cancel'),
                             'route' => [
                                 'name'       => 'inventory.warehouses.show.locations.index',
@@ -48,9 +50,9 @@ class CreateLocation extends InertiaAction
                             'fields' => [
 
                                 'code' => [
-                                    'type'  => 'input',
-                                    'label' => __('code'),
-                                    'value' => '',
+                                    'type'     => 'input',
+                                    'label'    => __('code'),
+                                    'value'    => '',
                                     'required' => true
                                 ],
                             ]

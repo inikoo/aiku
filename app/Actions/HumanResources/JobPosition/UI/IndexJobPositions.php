@@ -88,15 +88,15 @@ class IndexJobPositions extends InertiaAction
                 ->withGlobalSearch()
                 ->withEmptyState(
                     [
-                        'title' => __('no job positions'),
+                        'title'       => __('no job positions'),
                         'description' => $this->canEdit ? __('Get started by creating a new job position.') : null,
                         'count'       => app('currentTenant')->stats->number_job_position,
-                        'action' => $this->canEdit ? [
-                            'type' => 'button',
-                            'style' => 'create',
+                        'action'      => $this->canEdit ? [
+                            'type'    => 'button',
+                            'style'   => 'create',
                             'tooltip' => __('new job position'),
-                            'label' => __('job position'),
-                            'route' => [
+                            'label'   => __('job position'),
+                            'route'   => [
                                 'name'       => 'hr.job-positions.create',
                                 'parameters' => array_values($this->originalParameters)
                             ]
@@ -118,11 +118,11 @@ class IndexJobPositions extends InertiaAction
                 'breadcrumbs' => $this->getBreadcrumbs(),
                 'title'       => __('job positions'),
                 'pageHead'    => [
-                    'title' => __('positions'),
+                    'title'  => __('positions'),
                     'actions'=> [
                         $this->canEdit ? [
-                            'type'=>'button',
-                            'style'=>'create',
+                            'type'  => 'button',
+                            'style' => 'create',
                             'label' => __('job position'),
                             'route' => [
                                 'name'       => 'hr.job-positions.create',

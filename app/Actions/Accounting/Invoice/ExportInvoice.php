@@ -31,8 +31,8 @@ class ExportInvoice
         $totalNet = $totalItemsNet - $totalShipping;
 
         $filename = $invoice->slug . '-' . now()->format('Y-m-d');
-        $pdf = PDF::loadView('invoices.templates.pdf.invoice', [
-            'invoice' => $invoice,
+        $pdf      = PDF::loadView('invoices.templates.pdf.invoice', [
+            'invoice'  => $invoice,
             'totalNet' => $totalNet
         ]);
 

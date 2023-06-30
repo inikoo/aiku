@@ -151,8 +151,6 @@ class IndexWarehouses extends InertiaAction
                     ]
                 ],
                 'data' => WarehouseResource::collection($warehouses),
-
-
             ]
         )->table($this->tableStructure($parent));
     }

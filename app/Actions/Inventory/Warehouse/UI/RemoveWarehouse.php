@@ -6,6 +6,7 @@
  */
 
 namespace App\Actions\Inventory\Warehouse\UI;
+
 use App\Actions\InertiaAction;
 use App\Models\Inventory\Warehouse;
 use Inertia\Inertia;
@@ -57,11 +58,11 @@ class RemoveWarehouse extends InertiaAction
                             'icon'  => ['fal', 'fa-inventory'],
                             'title' => __('employee')
                         ],
-                    'title' => $warehouse->slug,
-                    'actions'=>[
+                    'title'  => $warehouse->slug,
+                    'actions'=> [
                         [
-                            'type'=>'button',
-                            'style'=>'cancel',
+                            'type'  => 'button',
+                            'style' => 'cancel',
                             'route' => [
                                 'name'       => preg_replace('/remove$/', 'show', $this->routeName),
                                 'parameters' => $warehouse->slug
@@ -71,7 +72,7 @@ class RemoveWarehouse extends InertiaAction
                 ],
                 'data'      => $this->getAction(
                     route:[
-                        'name' => 'models.warehouse.delete',
+                        'name'       => 'models.warehouse.delete',
                         'parameters' => $request->route()->originalParameters()
                     ]
                 )

@@ -56,7 +56,7 @@ Route::get('/areas/create', CreateWarehouseArea::class)->name('warehouse-areas.c
 Route::get('/areas/{warehouseArea}', [ShowWarehouseArea::class, 'inTenant'])->name('warehouse-areas.show');
 Route::get('/areas/{warehouseArea}/edit', [EditWarehouseArea::class, 'inTenant'])->name('warehouse-areas.edit');
 Route::get('/areas/{warehouseArea}/delete', [RemoveWarehouseArea::class, 'inTenant'])->name('warehouse-areas.remove');
-Route::get('/warehouses/{warehouse}/areas/create-multi',CreateWarehouseAreas::class)->name('warehouses.show.warehouse-areas.create-multi');
+Route::get('/warehouses/{warehouse}/areas/create-multi', CreateWarehouseAreas::class)->name('warehouses.show.warehouse-areas.create-multi');
 
 Route::get('/locations/export', ExportLocations::class)->name('locations.export');
 
@@ -71,6 +71,7 @@ Route::scopeBindings()->group(function () {
     Route::get('/areas/{warehouseArea}/locations/{location}', [ShowLocation::class, 'inWarehouseArea'])->name('warehouse-areas.show.locations.show');
     Route::get('/areas/{warehouseArea}/locations/create', [CreateLocation::class, 'inWarehouseArea'])->name('warehouse-areas.show.locations.create');
     Route::get('/areas/{warehouseArea}/locations/{location}/edit', [EditLocation::class, 'inWarehouseArea'])->name('warehouse-areas.show.locations.edit');
+    Route::get('/areas/{warehouseArea}/locations/{location}/delete', [RemoveLocation::class, 'inWarehouseArea'])->name('warehouse-areas.show.locations.remove');
 
     Route::get('/warehouses/{warehouse}/areas', [IndexWarehouseAreas::class, 'inWarehouse'])->name('warehouses.show.warehouse-areas.index');
     Route::get('/warehouses/{warehouse}/areas/create', CreateWarehouseArea::class)->name('warehouses.show.warehouse-areas.create');

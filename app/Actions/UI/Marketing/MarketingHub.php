@@ -174,7 +174,6 @@ class MarketingHub extends InertiaAction
                         ],
                     ],
                 ]
-
             ),
             'marketing.shops.show.hub' =>
             array_merge(

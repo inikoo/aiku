@@ -32,3 +32,4 @@ prod-diff.sh
 load_aurora_db.sh
 /initialise_aurora_migration.sh
 /load_migration.sh
+/load_my_snapshot.sh

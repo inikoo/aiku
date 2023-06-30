@@ -34,7 +34,7 @@ class StoreJobPosition
     public function rules(): array
     {
         return [
-            'code'      => ['required', 'max:8', 'alpha_dash', New CaseSensitive('job_positions')],
+            'code'      => ['required', 'max:8', 'alpha_dash', new CaseSensitive('job_positions')],
             'name'      => ['required', 'max:255'],
         ];
     }

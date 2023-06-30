@@ -19,10 +19,10 @@ class RegisterDomainCloudflare
     public function handle(string $domain): PromiseInterface|Response|array
     {
         $response = Http::withHeaders([
-            'Content-Type' => 'application/json',
+            'Content-Type'  => 'application/json',
             'Authorization' => 'Bearer ' . env('CLOUDFLARE_API_TOKEN'),
         ])->post(env('CLOUDFLARE_API_URL') . "/zones", [
-            "name" => $domain,
+            "name"    => $domain,
             "account" => [
                 "id" => env("CLOUDFLARE_ACCOUNT_ID")
             ]
