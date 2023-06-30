@@ -99,6 +99,23 @@ class IndexWebsites extends InertiaAction
             $table
                 ->withModelOperations($modelOperations)
                 ->withGlobalSearch()
+                ->withEmptyState(
+                    [
+                        'title'       => __('no websites'),
+                        'description' => $this->canEdit ? __('Get started by creating a new website.') : null,
+                        'count'       => app('currentTenant')->stats->number_websites,
+                        'action'      => $this->canEdit ? [
+                            'type'    => 'button',
+                            'style'   => 'create',
+                            'tooltip' => __('new website'),
+                            'label'   => __('website'),
+                            'route'   => [
+                                'name'       => 'websites.show.websites.create',
+                                'parameters' => array_values($this->originalParameters)
+                            ]
+                        ] : null
+                    ]
+                )
                 ->column(key: 'state', label: ['fal', 'fa-yin-yang'], sortable: true)
                 ->column(key: 'slug', label: __('code'), sortable: true)
                 ->column(key: 'name', label: __('name'), sortable: true)
@@ -135,7 +152,30 @@ class IndexWebsites extends InertiaAction
                 ),
                 'title'       => __('websites'),
                 'pageHead'    => [
-                    'title' => __('websites'),
+                    'title'  => __('websites'),
+                    'actions'=> [
+                        $this->canEdit && $this->routeName == 'websites.index' ? [
+                            'type'    => 'button',
+                            'style'   => 'create',
+                            'tooltip' => __('new website'),
+                            'label'   => __('setting'),
+                            'route'   => [
+                                'name'       => 'websites.edit',
+                                'parameters' => array_values($this->originalParameters)
+                            ]
+                        ] : false,
+                        $this->canEdit && $this->routeName == 'websites.index' ? [
+                            'type'    => 'button',
+                            'style'   => 'create',
+                            'tooltip' => __('new setting'),
+                            'label'   => __('workshop'),
+                            'route'   => [
+                                'name'       => 'websites.show.edit',
+                                'parameters' => array_values($this->originalParameters)
+                            ]
+                        ] : false,
+
+                    ]
                 ],
                 'data'        => WebsiteResource::collection($websites),
 
