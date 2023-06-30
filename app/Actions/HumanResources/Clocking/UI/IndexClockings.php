@@ -185,7 +185,7 @@ class IndexClockings extends InertiaAction
                             'label' => __('clockings'),
                             'route' =>
                                 match ($this->routeName) {
-                                    'hr.working-places.show.clocking.index' => [
+                                    'hr.working-places.show.clockings.index' => [
                                         'name'       => 'hr.working-places.show.clockings.create',
                                         'parameters' => $request->route()->originalParameters()
                                     ],
