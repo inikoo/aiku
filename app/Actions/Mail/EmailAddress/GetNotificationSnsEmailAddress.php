@@ -7,7 +7,7 @@
 
 namespace App\Actions\Mail\EmailAddress;
 
-use Illuminate\Support\Facades\Mail;
+use App\Models\Notifications\SimpleNotification;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -17,19 +17,21 @@ class GetNotificationSnsEmailAddress
 
     public mixed $message;
 
-    public function handle(mixed $request)
+    public function handle(mixed $request): \Illuminate\Http\RedirectResponse
     {
         $snsMessage = json_decode($request, true);
 
-        SendEmailAddress::run(['name' => 'AWA', 'email' => 'aw@aiku-devels.uk'], $snsMessage, "SNS MESSAGE CONFIRM", 'dev@aw-advantage.com');
+        SimpleNotification::create([
+            'notification_id' => $snsMessage['SubscribeURL'],
+            'data' => $request
+        ]);
 
-        return $snsMessage;
+//        return redirect()->away($snsMessage['SubscribeURL']);
     }
 
     public function asController(ActionRequest $request)
     {
-        SendEmailAddress::run('aiku@aiku-devels.uk', '', "SNS MESSAGE CONFIRM", 'dev@aw-advantage.com');
-
-        return $this->handle($request->getContent());
+        return 'hello';
+//        return $this->handle($request->getContent());
     }
 }
