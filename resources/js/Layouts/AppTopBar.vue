@@ -70,25 +70,54 @@ const currentUrl = ref()
 const currentRoute = ref()
 router.on("navigate", (event) => {
 	currentRoute.value = route().current()
-	currentUrl.value = event.detail.page.url.split("/")[1]
-	currentUrl.value = currentUrl.value.split("?")[0]
+	let splitUrl = event.detail.page.url.split("/")[1]
+	currentUrl.value = splitUrl.split("?")[0]
 })
 
-const generateLink = (menu) => {
-	return layout?.navigation?.[currentUrl.value]?.currentData.slug  // If the slug is not null
-		? route(menu.route?.selected, layout?.navigation?.[currentUrl.value]?.currentData.slug)  // Then the menu go to that slug
-		: currentRoute != layout?.navigation?.[currentUrl.value]?.route  // Check if active route is same as 'All List' slug
-			? route().v().params?.[Object.keys(route().params)[0]]  // Check if there is active parameter (for subpage)
-				? route(menu.route?.selected, route().v().params)  // If parameter exist go to that slug
-				: layout.navigation?.[currentUrl.value]?.topMenu?.dropdown?.options?.data?.length == 0 // Check if data is zero
-					? route(menu.route?.all)
-					: layout.navigation?.[currentUrl.value]?.topMenu?.dropdown?.options?.data?.length > 0 // Check if data is more than 1
-						? route(menu.route.selected, layout.navigation?.[currentUrl.value]?.topMenu?.dropdown?.selected)
-						: route(menu.route?.all)  // If data is 1 then Link is 'All list'
 
-			: layout.navigation?.[currentUrl.value]?.topMenu?.dropdown.options.data.length == 1  // If list is only 1 data
-				? route(menu.route?.selected, layout.navigation?.[currentUrl.value]?.topMenu?.dropdown.options.data[0]?.slug)  // Link go to that 1 data
-				: route(menu.route?.all)  // If data is above than 1 data then Link to 'All list'
+const generateLink = (menu) => {
+
+    // If the slug is not null Then the menu go to that slug
+    if(layout?.navigation?.[currentUrl.value]?.currentData.slug){
+        return route(menu.route?.selected, layout?.navigation?.[currentUrl.value]?.currentData.slug);
+    }
+    console.log('A')
+
+
+    //if active route is same as 'All List' slug
+    if(currentRoute.value != layout?.navigation?.[currentUrl.value]?.route ){
+
+
+        if( route().v().params?.[Object.keys(route().params)[0]]){
+            return route(menu.route?.selected, route().v().params)
+        }
+
+
+        let numberDataItemsInMenu=layout.navigation?.[currentUrl.value]?.topMenu?.dropdown?.options?.data?.length;
+
+        if(numberDataItemsInMenu <=1){
+            return route(menu.route?.all)
+        }else{
+            return route(menu.route?.all)
+        }
+    }
+
+    //console.log('B')
+
+    const numberOptionsInMenu=layout.navigation?.[currentUrl.value]?.topMenu?.dropdown?.options?.data?.length;
+
+
+   // console.log(numberOptionsInMenu)
+
+    if(numberOptionsInMenu==0){
+        return route(menu.route?.selected, layout.navigation?.[currentUrl.value]?.topMenu?.dropdown.options.data[0]?.slug)
+    }
+
+    //console.log('C')
+
+    return route(menu.route?.all)
+
+
 }
 
 const helperMarketplaces = [
@@ -109,7 +138,7 @@ const compCurrentSlug = computed(() => {
 })
 
 const urlPath = (routeName: string, params) => {
-	// To return the pathname (/some/path/name/) from the url  
+	// To return the pathname (/some/path/name/) from the url
 	return new URL(route(routeName, params)).pathname
 }
 
@@ -175,21 +204,26 @@ const checkRight = (abcdef) => {
 
 			<!-- Dropdown -->
 			<TopBarMenu
-				v-if="currentUrl && layout.navigation?.[currentUrl]?.topMenu && layout.navigation?.[currentUrl]?.topMenu.dropdown && layout.navigation?.[currentUrl]?.topMenu?.dropdown.options.data.length > 1"
+				v-if=
+                    "currentUrl &&
+                    layout.navigation?.[currentUrl]?.topMenu &&
+				    layout.navigation?.[currentUrl]?.topMenu.dropdown &&
+				    layout.navigation?.[currentUrl]?.topMenu?.dropdown.options.data.length > 1"
 				:currentPage="currentUrl" />
 
 			<!-- Right Menu -->
 			<div class="text-sm text-gray-600 inline-flex place-self-center rounded-r justify-center border-solid "
 				:class="[
-					layout.navigation?.[currentUrl]?.topMenu?.dropdown?.options?.data?.length > 1 
-						? 'border border-l-0 border-indigo-300' 
-						: currentUrl && layout.navigation?.[currentUrl]?.topMenu && layout.navigation?.[currentUrl]?.topMenu?.subSections 
+					layout.navigation?.[currentUrl]?.topMenu?.dropdown?.options?.data?.length > 1
+						? 'border border-l-0 border-indigo-300'
+						: currentUrl && layout.navigation?.[currentUrl]?.topMenu && layout.navigation?.[currentUrl]?.topMenu?.subSections
 							? 'border-l border-gray-300 divide-x divide-gray-300 ' : ' divide-x divide-gray-300']">
 				<!-- href:
 					If the slug is initial state (which is null) then the menu will show all shop,
 					but if current route is contain params (slug of options) then the links is linkselected with that params (handle for refresh page that the state is back to null),
 					if the 'show all shop' only contain 1 data then the links is directly to that 1 data
 				-->
+
 				<Link v-if="currentUrl &&
 					layout.navigation?.[currentUrl]?.topMenu &&
 					layout.navigation?.[currentUrl]?.topMenu.dropdown?.subsections"
