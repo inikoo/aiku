@@ -6,17 +6,34 @@
  */
 
 
+use App\Actions\CRM\Customer\UI\EditCustomer;
 use App\Actions\CRM\Customer\UI\IndexCustomers;
+use App\Actions\CRM\Customer\UI\ShowCustomer;
 use App\Actions\CRM\Prospect\IndexProspects;
+use App\Actions\OMS\Order\UI\ShowOrder;
 use App\Actions\UI\CRM\CRMDashboard;
+use App\Actions\Web\WebUser\IndexWebUser;
+use App\Actions\Web\WebUser\ShowWebUser;
 
 Route::get('/', [CRMDashboard::class,'inTenant'])->name('dashboard');
 Route::get('/customers', [IndexCustomers::class, 'inTenant'])->name('customers.index');
+Route::get('/customers/{customer}', [ShowCustomer::class, 'inTenant'])->name('customers.show');
+Route::get('/customers/{customer}/orders/{order}', [ShowOrder::class,'inCustomerInTenant'])->name('customers.show.orders.show');
+Route::get('/customers/{customer}/web-users', [IndexWebUser::class, 'inCustomerInTenant'])->name('customers.show.web-users.index');
+Route::get('/customers/{customer}/web-users/{webUser}', [ShowWebUser::class, 'inCustomerInTenant'])->name('customers.show.web-users.show');
+
+
 Route::get('/prospects', [IndexProspects::class, 'inTenant'])->name('prospects.index');
 
 
-Route::get('/{shop}', [CRMDashboard::class,'inShop'])->name('shops.show.dashboard');
+Route::get('/shop/{shop}', [CRMDashboard::class,'inShop'])->name('shops.show.dashboard');
 
-Route::get('/{shop}/customers', [IndexCustomers::class, 'inShop'])->name('shops.show.customers.index');
+Route::get('/shop/{shop}/customers', [IndexCustomers::class, 'inShop'])->name('shops.show.customers.index');
+Route::get('/shop/{shop}/customers/{customer}', [ShowCustomer::class, 'inShop'])->name('shops.show.customers.show');
+Route::get('/shop/{shop}/customers/{customer}/edit', [EditCustomer::class, 'inShop'])->name('edit');
+Route::get('/shop/{shop}/customers/{customer}/orders/{order}', [ShowOrder::class,'inCustomerInShop'])->name('show.orders.show');
+Route::get('/shop/{shop}/customers/{customer}/web-users', [IndexWebUser::class, 'inCustomerInShop'])->name('show.web-users.index');
+Route::get('/shop/{shop}/customers/{customer}/web-users/{webUser}', [ShowWebUser::class, 'inCustomerInShop'])->name('show.web-users.show');
 
-Route::get('/{shop}/prospects', [IndexProspects::class, 'inShop'])->name('shops.show.prospects.index');
+
+Route::get('/shop/{shop}/prospects', [IndexProspects::class, 'inShop'])->name('shops.show.prospects.index');

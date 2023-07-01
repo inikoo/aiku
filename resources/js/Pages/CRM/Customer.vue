@@ -15,7 +15,7 @@ import {
     faGraduationCap,
     faMoneyBill,
     faPaperclip, faPaperPlane, faStickyNote,
-    faTags
+    faTags,faCube
 } from "../../../private/pro-light-svg-icons";
 import ModelDetails from "@/Pages/ModelDetails.vue";
 import TableOrders from "@/Pages/Tables/TableOrders.vue";
@@ -34,6 +34,7 @@ library.add(
     faCodeCommit,
     faPaperclip,
     faPaperPlane,
+    faCube
 )
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Pages/ModelChangelog.vue'))

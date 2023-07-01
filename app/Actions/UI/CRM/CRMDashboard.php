@@ -78,7 +78,7 @@ class CRMDashboard
 
                                 [
                                     'name'  => __('customers'),
-                                    'icon'  => ['fal', 'fa-money-check-alt'],
+                                    'icon'  => ['fal', 'fa-user'],
                                     'href'  => ['crm.shops.show.customers.index', $scope->slug],
                                     'index' => [
                                         'number' => $scope->crmStats->number_customers
@@ -94,7 +94,7 @@ class CRMDashboard
 
                                 [
                                     'name'  => __('customers'),
-                                    'icon'  => ['fal', 'fa-cash-register'],
+                                    'icon'  => ['fal', 'fa-user'],
                                     'href'  => ['crm.customers.index'],
                                     'index' => [
                                         'number' => $scope->crmStats->number_customers

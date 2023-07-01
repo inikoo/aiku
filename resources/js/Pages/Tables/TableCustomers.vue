@@ -19,11 +19,11 @@ function customerRoute(customer: Customer) {
     switch (route().current()) {
         case 'shops.show.customers.index':
             return route(
-                'shops.show.customers.show',
+                'crm.shops.show.customers.show',
                 [customer.shop_slug, customer.slug]);
         default:
             return route(
-                'customers.show',
+                'crm.customers.show',
                 [customer.slug]);
     }
 }

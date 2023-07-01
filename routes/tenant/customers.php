@@ -30,7 +30,5 @@ Route::get('/', [IndexCustomers::class , $parent == 'tenant' ? 'inTenant' : 'inS
 Route::get('/{customer}', [ShowCustomer::class , $parent == 'tenant' ? 'inTenant' : 'inShop'])->name('show');
 Route::get('/{customer}/edit', [EditCustomer::class, $parent == 'tenant' ? 'inTenant' : 'inShop'])->name('edit');
 Route::get('/{customer}/orders/{order}', [ShowOrder::class,$parent == 'tenant' ? 'inCustomerInTenant' : 'inCustomerInShop'])->name('show.orders.show');
-
-
 Route::get('/{customer}/web-users', [IndexWebUser::class, $parent == 'tenant' ? 'inCustomerInTenant' : 'inCustomerInShop'])->name('show.web-users.index');
 Route::get('/{customer}/web-users/{webUser}', [ShowWebUser::class, $parent == 'tenant' ? 'inCustomerInTenant' : 'inCustomerInShop'])->name('show.web-users.show');
