@@ -147,7 +147,9 @@ const user = ref(usePage().props.auth.user);
                                 </div>
                             </button>
                             <!-- Menu -->
+                            <!--
                             <AppTopBar :tenantName="layout.tenant.name"/>
+                            -->
                         </div>
 
                         <!-- Avatar Group -->
