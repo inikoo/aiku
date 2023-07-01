@@ -51,6 +51,7 @@ class ShowWebUser extends InertiaAction
     public function inCustomerInTenant(Customer $customer, WebUser $webUser, ActionRequest $request): WebUser
     {
         $this->initialisation($request);
+
         return $this->handle($webUser);
     }
 
@@ -73,11 +74,10 @@ class ShowWebUser extends InertiaAction
 
     public function htmlResponse(WebUser $webUser, ActionRequest $request): Response
     {
-
         //dd($request->route()->getName());
-        $scope=match($request->route()->getName()) {
-            'crm.customers.show.web-users.show'=> $request->route()->parameters()['customer'],
-            default                            => app('currentTenant')
+        $scope = match ($request->route()->getName()) {
+            'crm.customers.show.web-users.show' => $request->route()->parameters()['customer'],
+            default                             => app('currentTenant')
         };
 
         $container = null;
@@ -98,12 +98,12 @@ class ShowWebUser extends InertiaAction
                     $request->route()->parameters
                 ),
                 'pageHead'    => [
-                    'title'    => __('web user'),
-                    'container'=> $container,
-                    'meta'     => [
-                            [
-                                'name'=> $webUser->username
-                            ]
+                    'title'     => __('web user'),
+                    'container' => $container,
+                    'meta'      => [
+                        [
+                            'name' => $webUser->username
+                        ]
                     ]
 
                 ],
@@ -144,17 +144,18 @@ class ShowWebUser extends InertiaAction
                         ],
 
                     ],
-                    'suffix'=> $suffix
+                    'suffix'         => $suffix
 
                 ],
             ];
         };
+
         return match ($routeName) {
-            'crm.customers.show.web-users.show'=>
+            'crm.customers.show.web-users.show' =>
             array_merge(
                 ShowCustomer::make()->getBreadcrumbs(
                     'crm.customers.show',
-                    ['customer'=> $routeParameters['customer']]
+                    ['customer' => $routeParameters['customer']]
                 ),
                 $headCrumb(
                     $routeParameters['webUser'],
@@ -202,37 +203,4 @@ class ShowWebUser extends InertiaAction
     }
 
 
-    public function getBreadcrumbsold(string $routeName, WebUser $webUser): array
-    {
-        $headCrumb = function (array $routeParameters = []) use ($webUser, $routeName) {
-            $indexRouteParameters = $routeParameters;
-            array_pop($indexRouteParameters);
-
-            return [
-                $routeName => [
-                    'route'           => $routeName,
-                    'routeParameters' => $routeParameters,
-                    'name'            => $webUser->slug,
-                    'index'           => [
-                        'route'           => preg_replace('/show$/', 'index', $routeName),
-                        'routeParameters' => $indexRouteParameters,
-                        'overlay'         => __('web users list')
-                    ],
-                    'modelLabel'      => [
-                        'label' => __('web user')
-                    ]
-                ],
-            ];
-        };
-
-        return match ($routeName) {
-            'customers.show' => $headCrumb([$webUser->shop->slug]),
-
-            'shops.show.customers.show.web-users.show' => array_merge(
-                (new ShowCustomer())->getBreadcrumbs('shops.show.customers.show', $webUser->customer),
-                $headCrumb([$webUser->customer->shop->slug, $webUser->customer->slug, $webUser->slug])
-            ),
-            default => []
-        };
-    }
 }
