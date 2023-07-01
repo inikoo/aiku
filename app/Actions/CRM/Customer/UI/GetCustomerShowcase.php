@@ -17,7 +17,24 @@ class GetCustomerShowcase
     public function handle(Customer $customer): array
     {
         return [
-            []
+
+                'blueprint' => [
+                    'contact' => [
+                        'title' => __('contact'),
+                        'icon'  => ['fal', 'fa-user-circle']
+                    ],
+                    'sales'   => [
+                        'title' => __('sales'),
+                        'icon'  => ['fal', 'fa-usd-circle']
+                    ],
+                    'webUsers'   => [
+                        'title' => __('webusers'),
+                        'icon'  => ['fal', 'fa-usd-globe']
+                    ]
+                ],
+                'current'=> 'contact'
+
+
         ];
     }
 }

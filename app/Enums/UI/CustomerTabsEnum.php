@@ -15,65 +15,46 @@ enum CustomerTabsEnum: string
     use EnumHelperTrait;
     use HasTabs;
 
-    case SHOWCASE            = 'showcase';
+    case SHOWCASE = 'showcase';
 
-    case HISTORY_NOTES       = 'history_notes';
-    case PORTFOLIO           = 'portfolio';
-    case PRODUCTS            = 'products';
-    case ORDERS              = 'orders';
-    case SALES               = 'sales';
-    case INSIGHTS            = 'insights';
-    case DISCOUNTS           = 'discounts';
-    case CREDITS             = 'credits';
+    case TIMELINE  = 'timeline';
+    case PORTFOLIO = 'portfolio';
+    case ORDERS    = 'orders';
 
-    case DATA                = 'data';
-    case ATTACHMENTS         = 'attachments';
-    case DISPATCHED_EMAILS   = 'dispatched_emails';
-
+    case DATA              = 'data';
+    case ATTACHMENTS       = 'attachments';
+    case DISPATCHED_EMAILS = 'dispatched_emails';
 
 
     public function blueprint(): array
     {
         return match ($this) {
-            CustomerTabsEnum::HISTORY_NOTES     => [
-                'title' => __('history , notes'),
-                'icon'  => 'fal fa-sticky-note',
+            CustomerTabsEnum::TIMELINE => [
+                'title' => __('timeline'),
+                'icon'  => 'fal fa-code-branch',
             ],
-            CustomerTabsEnum::DATA     => [
+            CustomerTabsEnum::DATA => [
                 'align' => 'right',
                 'type'  => 'icon',
                 'title' => __('data'),
                 'icon'  => 'fal fa-database',
             ],
-            CustomerTabsEnum::PORTFOLIO             => [
+            CustomerTabsEnum::PORTFOLIO => [
                 'title' => __('portfolio'),
                 'icon'  => 'fal fa-store-alt',
             ],
-            CustomerTabsEnum::PRODUCTS => [
-                'title' => __('products'),
-                'icon'  => 'fal fa-cube',
-            ],
-            CustomerTabsEnum::ORDERS     => [
+
+            CustomerTabsEnum::ORDERS => [
                 'title' => __('orders'),
                 'icon'  => 'fal fa-shopping-cart',
-            ],CustomerTabsEnum::SALES     => [
-                'title' => __('sales'),
-                'icon'  => 'fal fa-money-bill',
-            ],CustomerTabsEnum::INSIGHTS     => [
-                'title' => __('insights'),
-                'icon'  => 'fal fa-graduation-cap',
-            ],CustomerTabsEnum::DISCOUNTS     => [
-                'title' => __('discounts'),
-                'icon'  => 'fal fa-tags',
-            ],CustomerTabsEnum::CREDITS     => [
-                'title' => __('credit blockchains'),
-                'icon'  => 'fal fa-code-commit',
-            ],CustomerTabsEnum::ATTACHMENTS     => [
+            ],
+            CustomerTabsEnum::ATTACHMENTS => [
                 'align' => 'right',
                 'title' => __('attachments'),
                 'icon'  => 'fal fa-paperclip',
                 'type'  => 'icon'
-            ],CustomerTabsEnum::DISPATCHED_EMAILS  => [
+            ],
+            CustomerTabsEnum::DISPATCHED_EMAILS => [
                 'align' => 'right',
                 'title' => __('dispatched emails'),
                 'icon'  => 'fal fa-paper-plane',

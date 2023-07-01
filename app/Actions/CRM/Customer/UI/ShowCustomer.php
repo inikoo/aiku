@@ -162,9 +162,11 @@ class ShowCustomer extends InertiaAction
                     fn () => OrderResource::collection(IndexOrders::run($customer))
                     : Inertia::lazy(fn () => OrderResource::collection(IndexOrders::run($customer))),
 
+                /*
                 CustomerTabsEnum::PRODUCTS->value => $this->tab == CustomerTabsEnum::PRODUCTS->value ?
                     fn () => ProductResource::collection(IndexProducts::run($customer))
                     : Inertia::lazy(fn () => ProductResource::collection(IndexProducts::run($customer))),
+                */
 
                 CustomerTabsEnum::DISPATCHED_EMAILS->value => $this->tab == CustomerTabsEnum::DISPATCHED_EMAILS->value ?
                     fn () => DispatchedEmailResource::collection(IndexDispatchedEmails::run($customer))
@@ -172,7 +174,7 @@ class ShowCustomer extends InertiaAction
 
             ]
         )->table(IndexOrders::make()->tableStructure($customer))
-            ->table(IndexProducts::make()->tableStructure($customer))
+        //    ->table(IndexProducts::make()->tableStructure($customer))
             ->table(IndexDispatchedEmails::make()->tableStructure($customer));
     }
 
@@ -206,8 +208,8 @@ class ShowCustomer extends InertiaAction
             ];
         };
         return match ($routeName) {
-            'customers.show',
-            'customers.edit' =>
+            'crm.customers.show',
+            'crm.customers.edit' =>
 
             array_merge(
                 Dashboard::make()->getBreadcrumbs(),
@@ -215,11 +217,11 @@ class ShowCustomer extends InertiaAction
                     $routeParameters['customer'],
                     [
                         'index' => [
-                            'name'       => 'customers.index',
+                            'name'       => 'crm.customers.index',
                             'parameters' => []
                         ],
                         'model' => [
-                            'name'       => 'customers.show',
+                            'name'       => 'crm.customers.show',
                             'parameters' => [$routeParameters['customer']->slug]
                         ]
                     ],
@@ -228,21 +230,21 @@ class ShowCustomer extends InertiaAction
             ),
 
 
-            'shops.show.customers.show',
-            'shops.show.customers.edit'
+            'crm.shops.show.customers.show',
+            'crm.shops.show.customers.edit'
             => array_merge(
                 (new ShowShop())->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     $routeParameters['customer'],
                     [
                         'index' => [
-                            'name'       => 'shops.show.customers.index',
+                            'name'       => 'crm.shops.show.customers.index',
                             'parameters' => [
                                 $routeParameters['shop']->slug,
                             ]
                         ],
                         'model' => [
-                            'name'       => 'shops.show.customers.show',
+                            'name'       => 'crm.shops.show.customers.show',
                             'parameters' => [
                                 $routeParameters['shop']->slug,
                                 $routeParameters['customer']->slug

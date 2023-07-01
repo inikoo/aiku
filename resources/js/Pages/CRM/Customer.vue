@@ -15,7 +15,7 @@ import {
     faGraduationCap,
     faMoneyBill,
     faPaperclip, faPaperPlane, faStickyNote,
-    faTags,faCube
+    faTags,faCube,faCodeBranch
 } from "../../../private/pro-light-svg-icons";
 import ModelDetails from "@/Pages/ModelDetails.vue";
 import TableOrders from "@/Pages/Tables/TableOrders.vue";
@@ -23,6 +23,8 @@ import {useTabChange} from "@/Composables/tab-change";
 import {computed, defineAsyncComponent, ref} from "vue";
 import Tabs from "@/Components/Navigation/Tabs.vue";
 import TableProducts from "@/Pages/Tables/TableProducts.vue";
+import CustomerShowcase from "@/Pages/CRM/CustomerShowcase.vue";
+
 import TableDispatchedEmails from "@/Pages/Tables/TableDispatchedEmails.vue";
 
 library.add(
@@ -34,7 +36,8 @@ library.add(
     faCodeCommit,
     faPaperclip,
     faPaperPlane,
-    faCube
+    faCube,
+    faCodeBranch
 )
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Pages/ModelChangelog.vue'))
@@ -46,6 +49,7 @@ const props = defineProps<{
         current: string;
         navigation: object;
     }
+    showcase?:object
     orders?: object
     products?: object
     dispatched_emails?: object
@@ -56,6 +60,7 @@ const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
 const component = computed(() => {
 
     const components = {
+        showcase: CustomerShowcase,
         products: TableProducts,
         orders: TableOrders,
         details: ModelDetails,
@@ -73,6 +78,7 @@ import {
     TransitionChild,
     TransitionRoot,
 } from "@headlessui/vue";
+import AgentShowcase from "@/Pages/Procurement/AgentShowcase.vue";
 
 
 const isOpen = ref(false);
