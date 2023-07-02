@@ -79,6 +79,9 @@ Route::post('/shop/{shop}/customer/', StoreCustomer::class)->name('show.customer
 Route::post('/shop/{shop}/department/', [StoreProductCategory::class, 'inShop'])->name('shop.show.department.store');
 Route::post('/shop/{shop}/website/', StoreWebsite::class)->name('shop.website.store');
 
+Route::patch('/web-user/{webUser}', UpdateWebUser::class)->name('web-user.update');
+
+
 
 Route::post('/shop/{shop}/product/', [StoreProduct::class, 'inShop'])->name('show.product.store');
 Route::post('/shop/{shop}/order/', [StoreOrder::class, 'inShop'])->name('show.order.store');

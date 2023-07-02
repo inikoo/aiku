@@ -7,10 +7,9 @@
 
 namespace App\Services\Tenant\Aurora;
 
-use App\Enums\Web\WebUser\WebUserLoginVersionEnum;
-use App\Enums\Web\WebUser\WebUserTypeEnum;
+use App\Enums\Auth\WebUser\WebUserAuthTypeEnum;
+use App\Enums\Auth\WebUser\WebUserTypeEnum;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 
 class FetchAuroraWebUser extends FetchAurora
 {
@@ -18,36 +17,42 @@ class FetchAuroraWebUser extends FetchAurora
     {
         $data = [];
 
+
         $hasPassword = $this->isSha256($this->auroraModelData->{'Website User Password'});
 
-        $password = wordwrap(Str::random(), 4, '-', true);
-
         if ($hasPassword) {
-            $data         = [
-                'au_auth' => [
-                    'password'     => $this->auroraModelData->{'Website User Password'},
-                    'tmp_password' => $password
-                ]
-            ];
-            $loginVersion = WebUserLoginVersionEnum::AURORA;
+            $authType = WebUserAuthTypeEnum::AURORA;
+
+            $legacyPassword = $this->auroraModelData->{'Website User Password'};
+            if (app()->isLocal() || app()->environment('testing')) {
+                //$legacyPassword = hash('sha256', 'hello');
+            }
+
+            $data['legacy_password'] = $legacyPassword;
+            $password                = null;
         } else {
-            $loginVersion = WebUserLoginVersionEnum::AIKU;
+            $authType = WebUserAuthTypeEnum::DEFAULT;
+            $password = (app()->isLocal() || app()->environment('testing') ? 'hello' : wordwrap(\Illuminate\Support\Str::random(), 4, '-', true));
         }
 
 
         $this->parsedData['customer'] = $this->parseCustomer($this->auroraModelData->{'Website User Customer Key'});
         $this->parsedData['webUser']  =
             [
-                'status'        => $this->auroraModelData->{'Website User Active'} == 'Yes',
-                'type'          => WebUserTypeEnum::WEB,
-                'login_version' => $loginVersion,
-                'source_id'     => $this->auroraModelData->{'Website User Key'},
-                'password'      => $password,
-                'data'          => $data,
-                'username'      => $this->auroraModelData->{'Website User Handle'},
-                'email'         => $this->auroraModelData->{'Website User Handle'},
-                'created_at'    => $this->parseDate($this->auroraModelData->{'Website User Created'})
+                'status'     => $this->auroraModelData->{'Website User Active'} == 'Yes',
+                'type'       => WebUserTypeEnum::WEB,
+                'auth_type'  => $authType,
+                'source_id'  => $this->auroraModelData->{'Website User Key'},
+                'data'       => $data,
+                'username'   => $this->auroraModelData->{'Website User Handle'},
+                'email'      => $this->auroraModelData->{'Website User Handle'},
+                'created_at' => $this->parseDate($this->auroraModelData->{'Website User Created'})
             ];
+
+        if($password) {
+            data_set($this->parsedData, 'webUser.password', $password);
+        }
+
     }
 
     protected function isSha256($hash): bool

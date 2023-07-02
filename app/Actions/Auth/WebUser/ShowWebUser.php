@@ -29,7 +29,9 @@ class ShowWebUser extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("shops.customers.view");
+        $this->canEdit   = $request->user()->can('crm.customers.edit');
+        $this->canDelete = $request->user()->can('crm.customers.edit');
+        return $request->user()->hasPermissionTo("crm.customers.view");
     }
 
     public function inTenant(WebUser $webUser, ActionRequest $request): WebUser
@@ -55,22 +57,6 @@ class ShowWebUser extends InertiaAction
         return $this->handle($webUser);
     }
 
-    /*
-    private function makeRoute($suffix='',$parameters=[]): array
-    {
-
-        $route=$this->routeName;
-        $routeParameters=[];
-        if($this->routeName=='customers.show'){
-
-
-
-        }
-
-        return [$route,$routeParameters];
-
-    }
-*/
 
     public function htmlResponse(WebUser $webUser, ActionRequest $request): Response
     {
@@ -104,7 +90,18 @@ class ShowWebUser extends InertiaAction
                         [
                             'name' => $webUser->username
                         ]
-                    ]
+                    ],
+                    'actions' => [
+                        $this->canEdit ? [
+                            'type'  => 'button',
+                            'style' => 'edit',
+                            'route' => [
+                                'name'       => preg_replace('/show$/', 'edit', $this->routeName),
+                                'parameters' => array_values($this->originalParameters)
+                            ]
+                        ] : false,
+
+                    ],
 
                 ],
                 'webUser'     => new WebUserResource($webUser)

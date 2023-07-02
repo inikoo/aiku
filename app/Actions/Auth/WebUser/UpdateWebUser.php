@@ -8,6 +8,7 @@
 namespace App\Actions\Auth\WebUser;
 
 use App\Actions\WithActionUpdate;
+use App\Enums\Auth\WebUser\WebUserAuthTypeEnum;
 use App\Models\Auth\WebUser;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Hash;
@@ -24,7 +25,10 @@ class UpdateWebUser
     public function handle(WebUser $webUser, array $modelData): WebUser
     {
         if (Arr::exists($modelData, 'password')) {
-            $modelData['password']=Hash::make($modelData['password']);
+            $modelData['password'] = Hash::make($modelData['password']);
+            data_set($modelData, 'password', Hash::make($modelData['password']));
+            data_set($modelData, 'auth_type', WebUserAuthTypeEnum::DEFAULT);
+            data_set($modelData, 'data.legacy_password', null);
         }
 
         return $this->update($webUser, $modelData, ['data', 'settings']);
@@ -35,18 +39,15 @@ class UpdateWebUser
         if ($this->asAction) {
             return true;
         }
-        return  $request->user()->can('crm.customers.edit');
 
+        return $request->user()->can('crm.customers.edit');
     }
 
     public function rules(): array
     {
-
-
-
         return [
             'username' => ['sometimes', 'required', 'email', 'unique:App\Models\Auth\WebUser,username'],
-            'password' => ['sometimes', 'required', app()->isLocal()  || app()->environment('testing') ? null : Password::min(8)->uncompromised()],
+            'password' => ['sometimes', 'required', app()->isLocal() || app()->environment('testing') ? null : Password::min(8)->uncompromised()],
             //'email'    => 'sometimes|required|email|unique:App\Models\Auth\GroupUser,email'
         ];
     }
@@ -54,6 +55,7 @@ class UpdateWebUser
     public function asController(WebUser $webUser, ActionRequest $request): WebUser
     {
         $request->validate();
+
         return $this->handle($webUser, $request->validated());
     }
 
@@ -62,10 +64,9 @@ class UpdateWebUser
         $this->asAction = true;
         $this->setRawAttributes($objectData);
         $validatedData = $this->validateAttributes();
+
         return $this->handle($webUser, $validatedData);
-
     }
-
 
 
 }

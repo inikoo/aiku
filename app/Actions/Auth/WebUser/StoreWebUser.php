@@ -20,11 +20,15 @@ class StoreWebUser
 
     public function handle(Customer $customer, array $modelData = []): Webuser
     {
+
+
+
         if (!$customer->shop->website) {
             abort(422, 'Website not set up');
         }
-
-        $modelData['password'] = Hash::make($modelData['password']);
+        if(Arr::exists($modelData, 'password')) {
+            $modelData['password'] = Hash::make($modelData['password']);
+        }
         /** @var WebUser $webUser */
         $webUser = $customer->webUsers()->create(
             array_merge(

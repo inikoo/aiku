@@ -8,7 +8,7 @@
 namespace App\Models\Auth;
 
 use App\Actions\CRM\Customer\Hydrators\CustomerHydrateWebUsers;
-use App\Enums\Auth\User\UserAuthTypeEnum;
+use App\Enums\Auth\WebUser\WebUserAuthTypeEnum;
 use App\Enums\Auth\WebUser\WebUserTypeEnum;
 use App\Models\CRM\Customer;
 use Eloquent;
@@ -37,7 +37,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $email
  * @property string|null $email_verified_at
  * @property string|null $password
- * @property UserAuthTypeEnum $auth_type
+ * @property WebUserAuthTypeEnum $auth_type
  * @property string|null $remember_token
  * @property int $number_api_tokens
  * @property array $data
@@ -77,7 +77,7 @@ class WebUser extends Authenticatable
         'data'      => 'array',
         'settings'  => 'array',
         'state'     => WebUserTypeEnum::class,
-        'auth_type' => UserAuthTypeEnum::class,
+        'auth_type' => WebUserAuthTypeEnum::class,
     ];
 
 
