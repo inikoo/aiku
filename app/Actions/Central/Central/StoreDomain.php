@@ -9,6 +9,7 @@ namespace App\Actions\Central\Central;
 
 use App\Actions\SysAdmin\SysUser\StoreSysUser;
 use App\Enums\Web\Website\WebsiteEngineEnum;
+use App\Enums\Web\Website\WebsiteStateEnum;
 use App\Models\Central\Domain;
 use App\Models\Tenancy\Tenant;
 use App\Models\Web\Website;
@@ -35,10 +36,13 @@ class StoreDomain
                 'password'=> wordwrap(Str::random(), 4, '-', true)
             ]
         );
-        AddDomainToIris::run(
-            domain:$domain,
-            resetIris:true
-        );
+
+        if($website->state!=WebsiteStateEnum::CLOSED) {
+            AddDomainToIris::run(
+                domain: $domain,
+                resetIris: true
+            );
+        }
         if($website->engine==WebsiteEngineEnum::IRIS) {
             AddDomainToCloudflare::run($domain);
 
