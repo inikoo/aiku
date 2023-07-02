@@ -7,10 +7,13 @@
 
 namespace App\Models\Tenancy;
 
+use Illuminate\Database\Eloquent\Builder;
+use Laravel\Sanctum\PersonalAccessToken;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
+
 /**
- * App\Models\Tenancy\PersonalAccessToken
+ * App\Models\Tenancy\TenantPersonalAccessToken
  *
  * @property int $id
  * @property string $tokenable_type
@@ -23,12 +26,16 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Model|\Eloquent $tokenable
- * @method static \Illuminate\Database\Eloquent\Builder|PersonalAccessToken newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|PersonalAccessToken newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|PersonalAccessToken query()
+ * @method static Builder|TenantPersonalAccessToken newModelQuery()
+ * @method static Builder|TenantPersonalAccessToken newQuery()
+ * @method static Builder|TenantPersonalAccessToken query()
  * @mixin \Eloquent
  */
-class PersonalAccessToken extends \Laravel\Sanctum\PersonalAccessToken
+class TenantPersonalAccessToken extends PersonalAccessToken
 {
     use UsesTenantConnection;
+
+    protected $table = 'personal_access_tokens';
+
+
 }

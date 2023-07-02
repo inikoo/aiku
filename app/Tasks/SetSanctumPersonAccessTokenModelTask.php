@@ -7,21 +7,21 @@
 
 namespace App\Tasks;
 
-use App\Models\Tenancy\PersonalAccessToken;
+use App\Models\Tenancy\TenantPersonalAccessToken;
 use Laravel\Sanctum\Sanctum;
 use Spatie\Multitenancy\Models\Tenant;
 use Spatie\Multitenancy\Tasks\SwitchTenantTask;
-use Laravel\Sanctum\PersonalAccessToken as BasePersonalAccessToken;
+use Laravel\Sanctum\PersonalAccessToken;
 
 class SetSanctumPersonAccessTokenModelTask implements SwitchTenantTask
 {
     public function makeCurrent(Tenant $tenant): void
     {
-        Sanctum::usePersonalAccessTokenModel(PersonalAccessToken::class);
+        Sanctum::usePersonalAccessTokenModel(TenantPersonalAccessToken::class);
     }
 
     public function forgetCurrent(): void
     {
-        Sanctum::usePersonalAccessTokenModel(BasePersonalAccessToken::class);
+        Sanctum::usePersonalAccessTokenModel(PersonalAccessToken::class);
     }
 }

@@ -47,7 +47,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $source_id
  * @property WebUserTypeEnum $state
  * @property-read Customer $customer
- * @property-read Collection<int, \App\Models\Tenancy\PersonalAccessToken> $tokens
+ * @property-read Collection<int, \App\Models\Tenancy\TenantPersonalAccessToken> $tokens
  * @method static Builder|WebUser newModelQuery()
  * @method static Builder|WebUser newQuery()
  * @method static Builder|WebUser onlyTrashed()

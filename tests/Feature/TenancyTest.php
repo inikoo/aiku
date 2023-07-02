@@ -5,15 +5,44 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
+use App\Actions\SysAdmin\Admin\StoreAdmin;
+use App\Actions\SysAdmin\SysUser\CreateSysUserAccessToken;
 use App\Actions\SysAdmin\SysUser\StoreSysUser;
 use App\Actions\Tenancy\Group\StoreGroup;
 use App\Actions\Tenancy\Tenant\StoreTenant;
 use App\Enums\Mail\Mailroom\MailroomCodeEnum;
 use App\Models\Mail\Mailroom;
+use App\Models\SysAdmin\Admin;
+use App\Models\SysAdmin\SysUser;
 use App\Models\Tenancy\Tenant;
+use Laravel\Sanctum\PersonalAccessToken;
+use Laravel\Sanctum\Sanctum;
 
 beforeAll(function () {
     loadDB('test_base_database.dump');
+    Sanctum::usePersonalAccessTokenModel(PersonalAccessToken::class);
+});
+
+
+test('create a system admin', function () {
+    $admin = StoreAdmin::make()->asAction(Admin::factory()->definition());
+    $this->assertModelExists($admin);
+});
+
+test('create a system admin user', function () {
+    $admin   = StoreAdmin::make()->asAction(Admin::factory()->definition());
+    $sysUser = StoreSysUser::make()->asAction($admin, SysUser::factory()->definition());
+    $this->assertModelExists($sysUser);
+    expect($sysUser)->toBeInstanceOf(SysUser::class)
+        ->and($sysUser->userable)->toBeInstanceOf(Admin::class);
+});
+
+test('create a system admin user access token', function () {
+    $admin   = StoreAdmin::make()->asAction(Admin::factory()->definition());
+    $sysUser = StoreSysUser::make()->asAction($admin, SysUser::factory()->definition());
+
+    $token   = CreateSysUserAccessToken::run($sysUser, 'admin', ['*']);
+    expect($token)->toBeString();
 });
 
 
