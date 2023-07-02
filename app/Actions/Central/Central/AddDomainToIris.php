@@ -67,16 +67,14 @@ class AddDomainToIris
 
 
         if ($getResponse->notFound() or $deleted) {
-            $token = $domain->sysUser->createToken(
+            $token = $domain->shop->apiTenantUser->createToken(
                 'iris',
                 [
-                    'iris',
-                    'domain-'.$domain->slug,
-                    'domain-'.$domain->id,
-                    'website-'.$domain->website_id,
-                    'shop-'.$domain->shop_id
+                    'iris'
                 ],
             );
+
+            //print $token->plainTextToken."\n";
 
             $parameters = [
                 'aiku_token' => $token->plainTextToken,
@@ -105,7 +103,7 @@ class AddDomainToIris
                         'iris_status' => DomainIrisStatusEnum::ACTIVE
                     ]
                 );
-                $domain->sysUser->tokens()->where('id', '!=', $token->accessToken->id)->delete();
+                $domain->shop->apiTenantUser->tokens()->where('id', '!=', $token->accessToken->id)->delete();
             } else {
                 $result = 'error_'.$response->status().' '.$response->json('message');
             }
@@ -126,10 +124,12 @@ class AddDomainToIris
             /** @var Domain $domain */
             $domain = Domain::where('slug', ($command->option('domain')))->firstOrFail();
             if (in_array($domain->iris_status, $irisStatus)) {
-                $result = $this->handle($domain, $command->option('reset_iris'));
+                $result = $domain->tenant->execute(fn () => $this->handle($domain, $command->option('reset_iris')));
+
+
+                //$result = $this->handle($domain, $command->option('reset_iris'));
                 if (preg_match('/error|none/', $result)) {
                     $command->error($result);
-
                     return 1;
                 } else {
                     $command->line($result);
@@ -142,7 +142,15 @@ class AddDomainToIris
             return 1;
         } else {
             foreach (Domain::whereIn('iris_status', $irisStatus)->get() as $domain) {
-                $this->handle($domain, $command->option('reset_iris'));
+
+                $result = $domain->tenant->execute(fn () => $this->handle($domain, $command->option('reset_iris')));
+                if (preg_match('/error|none/', $result)) {
+                    $command->error($result);
+                    return 1;
+                } else {
+                    $command->line($result);
+                }
+
             }
         }
 

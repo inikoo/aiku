@@ -7,6 +7,7 @@
 
 use App\Models\Tenancy\Tenant;
 use App\Resolver\TenantResolver;
+use App\Tasks\SetSanctumPersonAccessTokenModelTask;
 use App\Tasks\SetupFilesystemsTask;
 use App\Tasks\SwitchTenantDatabaseSchemaTask;
 use Illuminate\Broadcasting\BroadcastEvent;
@@ -50,6 +51,7 @@ return [
         SwitchTenantDatabaseSchemaTask::class,
         SetupFilesystemsTask::class,
         PrefixCacheTask::class,
+        SetSanctumPersonAccessTokenModelTask::class
         // \Spatie\Multitenancy\Tasks\SwitchRouteCacheTask::class,
     ],
 

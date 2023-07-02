@@ -20,6 +20,7 @@ use App\Models\Accounting\PaymentServiceProviderShop;
 use App\Models\Assets\Country;
 use App\Models\Assets\Currency;
 use App\Models\Assets\Timezone;
+use App\Models\Auth\ApiTenantUser;
 use App\Models\CRM\Customer;
 use App\Models\CRM\Prospect;
 use App\Models\CRM\ShopCRMStats;
@@ -85,6 +86,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $source_id
  * @property-read \App\Models\Market\ShopAccountingStats|null $accountingStats
  * @property-read Collection<int, Address> $addresses
+ * @property-read ApiTenantUser|null $apiTenantUser
  * @property-read Country $country
  * @property-read ShopCRMStats|null $crmStats
  * @property-read Currency $currency
@@ -309,6 +311,11 @@ class Shop extends Model
     public function serialReferences(): MorphMany
     {
         return $this->morphMany(SerialReference::class, 'container')->where('tenant_id', app('currentTenant')->id);
+    }
+
+    public function apiTenantUser(): MorphOne
+    {
+        return $this->morphOne(ApiTenantUser::class, 'userable');
     }
 
 }

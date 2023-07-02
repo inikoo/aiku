@@ -55,7 +55,8 @@ class AppServiceProvider extends ServiceProvider
                 'Order'           => 'App\Models\OMS\Order',
                 'Agent'           => 'App\Models\Procurement\Agent',
                 'Location'        => 'App\Models\Inventory\Location',
-                'TradeUnit'       => 'App\Models\Goods\TradeUnit'
+                'TradeUnit'       => 'App\Models\Goods\TradeUnit',
+                'ApiTenantUser'   => 'App\Models\Auth\ApiTenantUser'
             ]
         );
     }

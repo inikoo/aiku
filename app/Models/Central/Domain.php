@@ -7,8 +7,10 @@
 
 namespace App\Models\Central;
 
+use App\Models\Market\Shop;
 use App\Models\SysAdmin\SysUser;
 use App\Models\Tenancy\Tenant;
+use App\Models\Web\Website;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -37,9 +39,11 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
+ * @property-read Shop|null $shop
  * @property-read \App\Models\Central\DomainStats|null $stats
  * @property-read SysUser|null $sysUser
  * @property-read Tenant $tenant
+ * @property-read Website|null $website
  * @method static Builder|Domain newModelQuery()
  * @method static Builder|Domain newQuery()
  * @method static Builder|Domain onlyTrashed()
@@ -75,6 +79,16 @@ class Domain extends Model
     public function stats(): HasOne
     {
         return $this->hasOne(DomainStats::class);
+    }
+
+    public function website(): BelongsTo
+    {
+        return $this->belongsTo(Website::class);
+    }
+
+    public function shop(): BelongsTo
+    {
+        return $this->belongsTo(Shop::class);
     }
 
     protected $guarded = [];

@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Auth\ApiTenantUser;
 use App\Models\Auth\User;
 use App\Models\Auth\WebUser;
 use App\Models\SysAdmin\SysUser;
@@ -54,6 +55,11 @@ return [
             'provider' => 'web-user',
             'hash'     => false,
         ],
+        'api-tenant-user' => [
+            'driver'   => 'sanctum',
+            'provider' => 'api-tenant-user',
+            'hash'     => false,
+        ],
 
     ],
 
@@ -82,6 +88,10 @@ return [
         'admin-user' => [
             'driver' => 'eloquent',
             'model'  => SysUser::class,
+        ],
+        'api-tenant-user' => [
+            'driver' => 'eloquent',
+            'model'  => ApiTenantUser::class,
         ],
         'web-user'   => [
             'driver' => 'eloquent',

@@ -119,29 +119,15 @@ class Kernel extends HttpKernel
             LogUserFirebaseMiddleware::class
         ],
 
-        'api'            => [
+        'api-tenant'            => [
+            NeedsTenant::class,
             'throttle:api',
             SubstituteBindings::class,
-            'auth:admin-user'
+            'auth:api-tenant-user'
         ],
-        /*
-        'api-admin-user' => [
-            'throttle:api',
-            SubstituteBindings::class,
-            LogRequest::class,
-            'auth:api-admin-user'
-        ],
-*/
 
 
-        /*
-        'api-tenant' => [
-            'throttle:api',
-            SubstituteBindings::class,
-            LogRequest::class,
-            'auth:tenant'
-        ],
-        */
+
     ];
 
     /**
