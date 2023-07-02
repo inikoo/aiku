@@ -25,7 +25,7 @@ class FetchAuroraWebUser extends FetchAurora
 
             $legacyPassword = $this->auroraModelData->{'Website User Password'};
             if (app()->isLocal() || app()->environment('testing')) {
-                //$legacyPassword = hash('sha256', 'hello');
+                $legacyPassword = hash('sha256', 'hello');
             }
 
             $data['legacy_password'] = $legacyPassword;
