@@ -23,7 +23,6 @@ class EditUser extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('sysadmin.edit');
         return $request->user()->hasPermissionTo("sysadmin.view");
     }
 
@@ -98,9 +97,9 @@ class EditUser extends InertiaAction
                             'current' => false,
                             'fields'  => [
                                 'permissions' => [
-                                    'type'  => 'permissions',
-                                    'label' => __('permissions'),
-                                    'value' => [],
+                                    'type'              => 'permissions',
+                                    'label'             => __('permissions'),
+                                    'value'             => [],
                                     'fullComponentArea' => true,
                                 ],
                             ]
