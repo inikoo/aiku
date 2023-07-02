@@ -17,7 +17,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Support\Carbon;
 use Laravel\Sanctum\HasApiTokens;
-use Laravel\Sanctum\PersonalAccessToken;
 use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -42,7 +41,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
- * @property-read Collection<int, PersonalAccessToken> $tokens
+ * @property-read Collection<int, \App\Models\Tenancy\PersonalAccessToken> $tokens
  * @property-read Model|\Eloquent $userable
  * @method static \Database\Factories\SysAdmin\SysUserFactory factory($count = null, $state = [])
  * @method static Builder|SysUser newModelQuery()
