@@ -32,6 +32,10 @@ class FetchAuroraUser extends FetchAurora
 
     protected function parseModel(): void
     {
+        $legacyPassword = $this->auroraModelData->{'User Password'};
+        if (app()->isLocal()) {
+            //$legacyPassword=hash('sha256','hello');
+        }
 
         $this->parsedData['user'] = [
             'contact_name'    => $this->auroraModelData->{'Staff Name'} ?: null,
@@ -39,14 +43,11 @@ class FetchAuroraUser extends FetchAurora
             'username'        => Str::lower($this->auroraModelData->{'User Handle'}),
             'status'          => $this->auroraModelData->{'User Active'} == 'Yes',
             'created_at'      => $this->auroraModelData->{'User Created'},
-            'source_password' => $this->auroraModelData->{'User Password'},
+            'legacy_password' => $legacyPassword,
             'language_id'     => $this->parseLanguageID($this->auroraModelData->{'User Preferred Locale'}),
         ];
 
         $this->parsedData['parent'] = null;
-
-
-        //   print_r($this->auroraModelData);
 
 
         if ($this->auroraModelData->{'Staff Type'} == 'Contractor') {

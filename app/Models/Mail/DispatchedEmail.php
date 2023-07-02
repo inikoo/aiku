@@ -24,6 +24,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property int|null $outbox_id
  * @property int|null $mailshot_id
  * @property int|null $email_address_id
+ * @property string $ses_id
  * @property string|null $recipient_type
  * @property int|null $recipient_id
  * @property DispatchedEmailStateEnum $state
