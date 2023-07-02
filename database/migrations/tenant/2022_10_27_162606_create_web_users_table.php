@@ -41,7 +41,6 @@ return new class () extends Migration {
             $table->unique(['website_id', 'username']);
             $table->string('login_version')->index()->default(WebUserLoginVersionEnum::AIKU->value);
             $table->unsignedInteger('source_id')->nullable()->unique();
-            $table->string('source_password')->nullable()->index()->comment('source password');
 
         });
     }

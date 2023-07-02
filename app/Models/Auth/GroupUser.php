@@ -31,7 +31,7 @@ use Spatie\Sluggable\SlugOptions;
  *
  * @property int $id
  * @property string $username
- * @property string $password
+ * @property string|null $password
  * @property UserAuthTypeEnum $auth_type
  * @property string|null $contact_name no-normalised depends on parent
  * @property string|null $email mirror group_users.email
@@ -44,6 +44,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
+ * @property string|null $legacy_password source password
  * @property-read CentralMedia|null $avatar
  * @property-read MediaCollection<int, GroupMedia> $media
  * @property-read TenantCollection<int, Tenant> $tenants

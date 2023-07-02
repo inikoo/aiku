@@ -9,6 +9,7 @@ namespace App\Actions\Auth\GroupUser;
 
 use App\Actions\WithActionUpdate;
 use App\Enums\Auth\User\SynchronisableUserFieldsEnum;
+use App\Enums\Auth\User\UserAuthTypeEnum;
 use App\Models\Auth\GroupUser;
 use App\Models\Auth\User;
 use App\Rules\AlphaDashDot;
@@ -30,7 +31,9 @@ class UpdateGroupUser
     public function handle(GroupUser $groupUser, array $modelData): GroupUser
     {
         if (isset($modelData['password'])) {
-            $modelData['password'] = Hash::make($modelData['password']);
+            data_set($modelData, 'password', Hash::make($modelData['password']));
+            data_set($modelData, 'auth_type', UserAuthTypeEnum::DEFAULT);
+            data_set($modelData, 'legacy_password', null);
         }
         $updatedGroupUser = $this->update($groupUser, $modelData);
 

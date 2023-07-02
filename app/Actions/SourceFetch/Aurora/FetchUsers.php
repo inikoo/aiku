@@ -16,8 +16,8 @@ use App\Models\Auth\GroupUser;
 use App\Models\Auth\User;
 use App\Services\Tenant\SourceTenantService;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 
 class FetchUsers extends FetchAction
 {
@@ -28,16 +28,22 @@ class FetchUsers extends FetchAction
     {
         if ($userData = $tenantSource->fetchuser($tenantSourceId)) {
             if ($user = User::withTrashed()->where('source_id', $userData['user']['source_id'])->first()) {
+
+                if($user->auth_type==UserAuthTypeEnum::DEFAULT) {
+                    Arr::forget($userData, 'auth_type');
+                    Arr::forget($userData, 'legacy_password');
+                }
+
                 $user = UpdateUser::run($user, $userData['user']);
             } else {
                 $groupUser = GroupUser::where('username', $userData['user']['username'])->first();
                 if (!$groupUser) {
                     $groupUser = StoreGroupUser::run(
                         [
-                            'username'     => $userData['user']['username'],
-                            'password'     => (app()->isLocal() ? 'hello' : wordwrap(Str::random(), 4, '-', true)),
-                            'contact_name' => $userData['user']['contact_name'],
-                            'auth_type'    => UserAuthTypeEnum::AURORA
+                            'username'        => $userData['user']['username'],
+                            'legacy_password' => $userData['user']['legacy_password'],
+                            'contact_name'    => $userData['user']['contact_name'],
+                            'auth_type'       => UserAuthTypeEnum::AURORA
 
 
                         ]

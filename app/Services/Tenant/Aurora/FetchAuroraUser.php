@@ -34,7 +34,7 @@ class FetchAuroraUser extends FetchAurora
     {
         $legacyPassword = $this->auroraModelData->{'User Password'};
         if (app()->isLocal()) {
-            //$legacyPassword=hash('sha256','hello');
+            $legacyPassword=hash('sha256', 'hello');
         }
 
         $this->parsedData['user'] = [

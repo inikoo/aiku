@@ -43,16 +43,16 @@ class StoreUser
             /** @var \App\Models\Auth\User $user */
 
             $dataFromGroupUser = [
-                'group_user_id' => $groupUser->id,
-                'username'      => $groupUser->username,
-                'password'      => $groupUser->password,
-                'contact_name'  => $parent->contact_name,
-                'auth_type'     => $groupUser->auth_type,
-                'about'         => $groupUser->about,
-                'avatar_id'     => $groupUser->avatar_id,
+                'group_user_id'   => $groupUser->id,
+                'username'        => $groupUser->username,
+                'password'        => $groupUser->password,
+                'legacy_password' => $groupUser->legacy_password,
+                'contact_name'    => $parent->contact_name,
+                'auth_type'       => $groupUser->auth_type,
+                'about'           => $groupUser->about,
+                'avatar_id'       => $groupUser->avatar_id,
 
             ];
-
 
 
             $user = $parent->user()->create(

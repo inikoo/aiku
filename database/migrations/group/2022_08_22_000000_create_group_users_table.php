@@ -17,7 +17,7 @@ return new class () extends Migration {
         Schema::create('group_users', function (Blueprint $table) {
             $table->smallIncrements('id');
             $table->string('username')->unique();
-            $table->string('password');
+            $table->string('password')->nullable();
             $table->string('auth_type')->default(UserAuthTypeEnum::DEFAULT->value);
             $table->string('contact_name')->nullable()->collation('und_ns')->comment('no-normalised depends on parent');
             $table->string('email')->nullable()->collation('und_ns')->comment('mirror group_users.email');
@@ -30,6 +30,8 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('number_active_users')->default(0);
             $table->timestampsTz();
             $table->softDeletesTz();
+            $table->string('legacy_password')->nullable()->index()->comment('source password');
+
         });
     }
 

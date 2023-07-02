@@ -9,7 +9,21 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
- * @property string $fcm_token;
+ * App\Models\Notifications\FcmToken
+ *
+ * @property int $id
+ * @property string $token_id
+ * @property string $fcmable_type
+ * @property int $fcmable_id
+ * @property string $fcm_token
+ * @property string|null $platform
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read Model|\Eloquent $fcmable
+ * @property-read string $token
+ * @method static \Illuminate\Database\Eloquent\Builder|FcmToken newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|FcmToken newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|FcmToken query()
  * @mixin Eloquent
  */
 class FcmToken extends Model
@@ -22,7 +36,7 @@ class FcmToken extends Model
     {
         parent::boot();
 
-        self::creating(function($model) {
+        self::creating(function ($model) {
             $parsedUserAgent = (new Browser())->parse(request()->server('HTTP_USER_AGENT'));
             $model->platform = $parsedUserAgent;
         });

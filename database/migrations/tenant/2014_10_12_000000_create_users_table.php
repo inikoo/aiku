@@ -18,7 +18,7 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('group_user_id');
             $table->boolean('status')->default(true);
             $table->string('username')->unique()->collation('und_ns')->comment('mirror group_users.username');
-            $table->string('password')->comment('mirror group_users.password');
+            $table->string('password')->nullable()->comment('mirror group_users.password');
             $table->string('auth_type')->default(UserAuthTypeEnum::DEFAULT->value);
             $table->string('contact_name')->nullable()->collation('und_ns')->comment('no-normalised depends on parent');
             $table->string('email')->nullable()->collation('und_ns')->comment('mirror group_users.email');
@@ -34,7 +34,7 @@ return new class () extends Migration {
             $table->timestampsTz();
             $table->softDeletesTz();
             $table->unsignedInteger('source_id')->nullable()->unique();
-            $table->string('source_password')->nullable()->index()->comment('source password');
+            $table->string('legacy_password')->nullable()->index()->comment('source password');
             $table->unique(['parent_type','parent_id']);
 
         });

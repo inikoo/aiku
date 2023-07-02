@@ -42,7 +42,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property int $group_user_id
  * @property bool $status
  * @property string $username mirror group_users.username
- * @property string $password mirror group_users.password
+ * @property string|null $password mirror group_users.password
  * @property UserAuthTypeEnum $auth_type
  * @property string|null $contact_name no-normalised depends on parent
  * @property string|null $email mirror group_users.email
@@ -58,11 +58,12 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  * @property int|null $source_id
- * @property string|null $source_password source password
+ * @property string|null $legacy_password source password
  * @property-read Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read \App\Models\Notifications\FcmToken|null $fcmToken
+ * @property-read Collection<int, \App\Models\Notifications\FcmToken> $fcmTokens
  * @property-read array $es_audits
  * @property-read \App\Models\Auth\GroupUser|null $groupUser
- * @property-read \App\Models\Notifications\FcmToken|null $fcmTokens
  * @property-read Language $language
  * @property-read DatabaseNotificationCollection<int, DatabaseNotification> $notifications
  * @property-read Model|\Eloquent $parent

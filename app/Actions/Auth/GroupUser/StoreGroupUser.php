@@ -13,6 +13,7 @@ use App\Models\Tenancy\Group;
 use App\Rules\AlphaDashDot;
 use Exception;
 use Illuminate\Console\Command;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -31,8 +32,9 @@ class StoreGroupUser
 
     public function handle(array $modelData): GroupUser
     {
-        $modelData['password'] = Hash::make($modelData['password']);
-
+        if(Arr::has($modelData, 'password')) {
+            $modelData['password'] = Hash::make($modelData['password']);
+        }
         data_set($modelData, 'auth_type', UserAuthTypeEnum::DEFAULT, overwrite: false);
 
 
