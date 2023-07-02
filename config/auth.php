@@ -1,8 +1,8 @@
 <?php
 
 use App\Models\Auth\User;
+use App\Models\Auth\WebUser;
 use App\Models\SysAdmin\SysUser;
-use App\Models\Web\WebUser;
 
 return [
 

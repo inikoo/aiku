@@ -50,7 +50,7 @@ class AppServiceProvider extends ServiceProvider
                 'Product'         => 'App\Models\Market\Product',
                 'HistoricProduct' => 'App\Models\Market\HistoricProduct',
                 'Supplier'        => 'App\Models\Procurement\Supplier',
-                'WebUser'         => 'App\Models\Web\WebUser',
+                'WebUser'         => 'App\Models\Auth\WebUser',
                 'Domain'          => 'App\Models\Central\Domain',
                 'Order'           => 'App\Models\OMS\Order',
                 'Agent'           => 'App\Models\Procurement\Agent',

@@ -13,6 +13,7 @@ use App\Actions\Auth\Guest\DeleteGuest;
 use App\Actions\Auth\Guest\StoreGuest;
 use App\Actions\Auth\Guest\UpdateGuest;
 use App\Actions\Auth\User\UpdateUser;
+use App\Actions\Auth\WebUser\UpdateWebUser;
 use App\Actions\CRM\Customer\StoreCustomer;
 use App\Actions\CRM\Customer\UpdateCustomer;
 use App\Actions\HumanResources\Clocking\DeleteClocking;

@@ -1,15 +1,16 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Thu, 27 Oct 2022 21:10:04 British Summer Time, Sheffield, UK
- *  Copyright (c) 2022, Raul A Perusquia Flores
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Sun, 02 Jul 2023 12:56:22 Malaysia Time, Sanur, Indonesia
+ * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Web\WebUser;
+namespace App\Actions\Auth\WebUser;
 
 use App\Actions\CRM\Customer\Hydrators\CustomerHydrateWebUsers;
+use App\Models\Auth\WebUser;
 use App\Models\CRM\Customer;
-use App\Models\Web\WebUser;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Hash;
 use Lorisleiva\Actions\Concerns\AsAction;
 

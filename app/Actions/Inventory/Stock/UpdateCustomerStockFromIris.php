@@ -9,8 +9,8 @@ namespace App\Actions\Inventory\Stock;
 
 use App\Actions\fromIris;
 use App\Http\Resources\Inventory\StockResource;
+use App\Models\Auth\WebUser;
 use App\Models\Inventory\Stock;
-use App\Models\Web\WebUser;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\ValidationException;

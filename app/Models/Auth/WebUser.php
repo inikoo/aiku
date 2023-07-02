@@ -1,15 +1,15 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Thu, 27 Oct 2022 20:51:13 British Summer Time, Sheffield, UK
- *  Copyright (c) 2022, Raul A Perusquia Flores
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Sun, 02 Jul 2023 12:55:25 Malaysia Time, Sanur, Indonesia
+ * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Models\Web;
+namespace App\Models\Auth;
 
 use App\Actions\CRM\Customer\Hydrators\CustomerHydrateWebUsers;
-use App\Enums\Web\WebUser\WebUserLoginVersionEnum;
-use App\Enums\Web\WebUser\WebUserTypeEnum;
+use App\Enums\Auth\User\UserAuthTypeEnum;
+use App\Enums\Auth\WebUser\WebUserTypeEnum;
 use App\Models\CRM\Customer;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
@@ -25,7 +25,7 @@ use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
 /**
- * App\Models\Web\WebUser
+ * App\Models\Auth\WebUser
  *
  * @property int $id
  * @property string $slug
@@ -37,6 +37,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $email
  * @property string|null $email_verified_at
  * @property string|null $password
+ * @property UserAuthTypeEnum $auth_type
  * @property string|null $remember_token
  * @property int $number_api_tokens
  * @property array $data
@@ -44,9 +45,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
- * @property WebUserLoginVersionEnum $login_version
  * @property int|null $source_id
- * @property string|null $source_password source password
  * @property WebUserTypeEnum $state
  * @property-read Customer $customer
  * @property-read Collection<int, PersonalAccessToken> $tokens
@@ -75,10 +74,10 @@ class WebUser extends Authenticatable
 
     protected $casts = [
 
-        'data'          => 'array',
-        'settings'      => 'array',
-        'state'         => WebUserTypeEnum::class,
-        'login_version' => WebUserLoginVersionEnum::class,
+        'data'      => 'array',
+        'settings'  => 'array',
+        'state'     => WebUserTypeEnum::class,
+        'auth_type' => UserAuthTypeEnum::class,
     ];
 
 

@@ -6,14 +6,15 @@
  */
 
 
+use App\Actions\Auth\WebUser\EditWebUser;
+use App\Actions\Auth\WebUser\IndexWebUser;
+use App\Actions\Auth\WebUser\ShowWebUser;
 use App\Actions\CRM\Customer\UI\EditCustomer;
 use App\Actions\CRM\Customer\UI\IndexCustomers;
 use App\Actions\CRM\Customer\UI\ShowCustomer;
 use App\Actions\CRM\Prospect\IndexProspects;
 use App\Actions\OMS\Order\UI\ShowOrder;
 use App\Actions\UI\CRM\CRMDashboard;
-use App\Actions\Web\WebUser\IndexWebUser;
-use App\Actions\Web\WebUser\ShowWebUser;
 
 Route::get('/', [CRMDashboard::class,'inTenant'])->name('dashboard');
 Route::get('/customers', [IndexCustomers::class, 'inTenant'])->name('customers.index');

@@ -9,8 +9,8 @@
 
 namespace App\Actions\CRM\Customer;
 
-use App\Actions\Web\WebUser\HydrateWebUser;
-use App\Actions\Web\WebUser\StoreWebUser;
+use App\Actions\Auth\WebUser\HydrateWebUser;
+use App\Actions\Auth\WebUser\StoreWebUser;
 use App\Models\CRM\Customer;
 use App\Models\Tenancy\Tenant;
 use Illuminate\Console\Command;

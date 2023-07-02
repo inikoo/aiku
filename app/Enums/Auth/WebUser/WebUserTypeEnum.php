@@ -1,11 +1,11 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Fri, 24 Mar 2023 15:06:39 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Sun, 02 Jul 2023 12:57:15 Malaysia Time, Sanur, Indonesia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Enums\Web\WebUser;
+namespace App\Enums\Auth\WebUser;
 
 use App\Enums\EnumHelperTrait;
 

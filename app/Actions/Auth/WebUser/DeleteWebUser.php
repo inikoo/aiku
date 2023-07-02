@@ -1,16 +1,16 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 21 Feb 2023 22:05:55 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Sun, 02 Jul 2023 12:56:23 Malaysia Time, Sanur, Indonesia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Web\WebUser;
+namespace App\Actions\Auth\WebUser;
 
 use App\Actions\CRM\Customer\Hydrators\CustomerHydrateWebUsers;
 use App\Actions\WithActionUpdate;
 use App\Actions\WithTenantArgument;
-use App\Models\Web\WebUser;
+use App\Models\Auth\WebUser;
 use Illuminate\Console\Command;
 
 class DeleteWebUser

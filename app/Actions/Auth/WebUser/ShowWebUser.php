@@ -1,19 +1,19 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Wed, 23 Nov 2022 07:45:29 Malaysia Time, KLIA, Malaysia
- *  Copyright (c) 2022, Raul A Perusquia Flores
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Sun, 02 Jul 2023 12:56:22 Malaysia Time, Sanur, Indonesia
+ * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Web\WebUser;
+namespace App\Actions\Auth\WebUser;
 
 use App\Actions\CRM\Customer\UI\ShowCustomer;
 use App\Actions\InertiaAction;
 use App\Actions\Market\Shop\UI\ShowShop;
-use App\Http\Resources\Web\WebUserResource;
+use App\Http\Resources\Auth\WebUserResource;
+use App\Models\Auth\WebUser;
 use App\Models\CRM\Customer;
 use App\Models\Market\Shop;
-use App\Models\Web\WebUser;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
