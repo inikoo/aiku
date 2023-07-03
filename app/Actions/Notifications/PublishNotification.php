@@ -25,7 +25,7 @@ class PublishNotification
     public string $commandSignature   = 'notification:publish';
     public string $commandDescription = 'Publish push notification';
 
-    public function handle(Collection $users, $content, $target = ['mail']): void
+    public function handle(Collection $users, $content, $target = ['mail', 'fcm']): void
     {
         foreach ($users as $user) {
             if(in_array('fcm', $target)) {

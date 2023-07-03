@@ -8,6 +8,7 @@
 namespace App\Actions\Mail\Ses;
 
 use App\Actions\Mail\EmailAddress\Traits\AwsClient;
+use App\Models\Auth\User;
 use Aws\Result;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -53,11 +54,18 @@ class SendSesEmail
         }
 
         return $this->getSesClient()->sendEmail([
-            'Source' => env('MAIL_FROM_ADDRESS'),
+            'Source' => $this->generateSenderEmail(),
             'Destination' => [
                 'ToAddresses' => [$to],
             ],
             'Message' => $message['Message']
         ]);
+    }
+
+    public function generateSenderEmail(): string
+    {
+        $user = request()->user();
+
+        return $user?->username ?? 'aiku' . '@' . app('currentTenant')->slug . env('MAIL_MAIN_URL');
     }
 }

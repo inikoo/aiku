@@ -10,7 +10,6 @@ namespace App\Actions\Mail\EmailAddress;
 use App\Actions\Mail\DispatchedEmail\StoreDispatchEmail;
 use App\Actions\Mail\Ses\SendSesEmail;
 use App\Models\Mail\Outbox;
-use Illuminate\Support\Facades\Mail;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class SendEmailAddress
@@ -25,7 +24,8 @@ class SendEmailAddress
         $response = SendSesEmail::run($content, $emailAddress->email, $attach, $type);
 
         $modelData = [
-            'ses_id' => $response['MessageId']
+            'ses_id' => $response['MessageId'],
+            'sent_at' => now()
         ];
 
         $outbox = Outbox::find(1); // TODO U need implement the real one, this just for test
