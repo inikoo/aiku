@@ -56,7 +56,26 @@ class WebUser extends Authenticatable
     use IsWebUser;
     use UsesTenantConnection;
 
+    protected $guarded = [
+    ];
 
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+
+    protected $casts = [
+
+        'data'      => 'array',
+        'settings'  => 'array',
+        'state'     => WebUserTypeEnum::class,
+        'auth_type' => WebUserAuthTypeEnum::class,
+    ];
+
+    protected $attributes = [
+        'data'     => '{}',
+        'settings' => '{}',
+    ];
 
     protected static function booted(): void
     {

@@ -7,8 +7,6 @@
 
 namespace App\Models\Auth;
 
-use App\Enums\Auth\WebUser\WebUserAuthTypeEnum;
-use App\Enums\Auth\WebUser\WebUserTypeEnum;
 use App\Models\CRM\Customer;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -22,27 +20,6 @@ trait IsWebUser
     use SoftDeletes;
     use HasSlug;
 
-    protected $guarded = [
-    ];
-
-    protected $hidden = [
-        'password',
-        'remember_token',
-    ];
-
-    protected $casts = [
-
-        'data'      => 'array',
-        'settings'  => 'array',
-        'state'     => WebUserTypeEnum::class,
-        'auth_type' => WebUserAuthTypeEnum::class,
-    ];
-
-
-    protected $attributes = [
-        'data'     => '{}',
-        'settings' => '{}',
-    ];
 
     public function getSlugOptions(): SlugOptions
     {
