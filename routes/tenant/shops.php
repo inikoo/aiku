@@ -25,6 +25,7 @@ use App\Actions\Market\Shop\UI\CreateShop;
 use App\Actions\Market\Shop\UI\EditShop;
 use App\Actions\Market\Shop\UI\IndexShops;
 use App\Actions\Market\Shop\UI\CreateShops;
+use App\Actions\Market\Shop\UI\RemoveShop;
 use App\Actions\Market\Shop\UI\ShowShop;
 use App\Actions\Web\Website\UI\CreateWebsite;
 use Illuminate\Support\Facades\Route;
@@ -37,6 +38,7 @@ Route::get('/create-multi', CreateShops::class)->name('create-multi');
 Route::get('/create-multi/clear', CreateShops::class)->name('create-multi-clear');
 Route::get('/{shop}', ShowShop::class)->name('show');
 Route::get('/{shop}/edit', EditShop::class)->name('edit');
+Route::get('/{shop}/delete', RemoveShop::class)->name('remove');
 Route::get('/{shop}/website/create', CreateWebsite::class)->name('show.website.create');
 
 
@@ -45,6 +47,7 @@ Route::get('/{shop}/website/create', CreateWebsite::class)->name('show.website.c
 Route::get('/departments/export', ExportProductCategory::class)->name('departments.export');
 
 Route::get('/departments', [IndexDepartments::class, 'inTenant'])->name('departments.index');
+Route::get('/departments/create', ExportProductCategory::class)->name('departments.create');
 Route::get('/departments/{department}', [ShowDepartment::class, 'inTenant'])->name('departments.show');
 Route::get('/departments/{department}/edit', [EditDepartment::class, 'inTenant'])->name('departments.edit');
 Route::get('/families', [IndexFamilies::class, 'inTenant'])->name('families.index');

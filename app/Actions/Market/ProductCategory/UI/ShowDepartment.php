@@ -78,6 +78,7 @@ class ShowDepartment extends InertiaAction
                         'icon'  => ['fal', 'fa-folders'],
                         'title' => __('department')
                     ],
+
                     'edit'  => $this->canEdit ? [
                         'route' => [
                             'name'       => preg_replace('/show$/', 'edit', $this->routeName),

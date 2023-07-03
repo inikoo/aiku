@@ -124,11 +124,11 @@ class WorkshopWebsite extends InertiaAction
 
     public function getBreadcrumbs(string $routeName, array $routeParameters, string $suffix = ''): array
     {
-        $headCrumb = function (string $type, Website $website, array $routeParameters, string $suffix) {
+        $headCrumb = function (Website $website, array $routeParameters, string $suffix) {
             return [
                 [
 
-                    'type'           => $type,
+                    'type'           => 'website',
                     'modelWithIndex' => [
                         'index' => [
                             'route' => $routeParameters['index'],
@@ -158,7 +158,6 @@ class WorkshopWebsite extends InertiaAction
         return match ($routeName) {
             'websites.show',
             'websites.edit' =>
-
             array_merge(
                 Dashboard::make()->getBreadcrumbs(),
                 $headCrumb(

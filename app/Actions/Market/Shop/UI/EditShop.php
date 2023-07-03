@@ -12,7 +12,6 @@ use App\Actions\Assets\Currency\UI\GetCurrenciesOptions;
 use App\Actions\Assets\Language\UI\GetLanguagesOptions;
 use App\Actions\InertiaAction;
 use App\Enums\Market\Shop\ShopSubtypeEnum;
-use App\Enums\Market\Shop\ShopTypeEnum;
 use App\Models\Market\Shop;
 use Exception;
 use Inertia\Inertia;
@@ -49,15 +48,17 @@ class EditShop extends InertiaAction
                 'title'       => __('edit shop'),
                 'breadcrumbs' => $this->getBreadcrumbs($shop),
                 'pageHead'    => [
-                    'title'    => $shop->name,
-                    'exitEdit' => [
-                        'route' => [
-                            'name'       => preg_replace('/edit$/', 'show', $this->routeName),
-                            'parameters' => array_values($this->originalParameters)
+                    'title'     => $shop->name,
+                    'actions'   => [
+                        [
+                            'type'  => 'button',
+                            'style' => 'exitEdit',
+                            'route' => [
+                                'name'       => preg_replace('/edit$/', 'show', $this->routeName),
+                                'parameters' => array_values($this->originalParameters)
+                            ]
                         ]
-                    ],
-
-
+                    ]
                 ],
 
                 'formData' => [
@@ -67,35 +68,27 @@ class EditShop extends InertiaAction
                             'icon'   => 'fa-light fa-id-card',
                             'fields' => [
                                 'code' => [
-                                    'type'     => 'input',
-                                    'label'    => __('code'),
-                                    'value'    => $shop->code,
+                                    'type'         => 'input',
+                                    'label'        => __('code'),
+                                    'value'        => $shop->code,
+                                    'required'     => true,
                                 ],
                                 'name' => [
-                                    'type'     => 'input',
-                                    'label'    => __('label'),
-                                    'value'    => $shop->name,
-                                ],
-                                'type' => [
-                                    'type'         => 'select',
-                                    'label'        => __('type'),
-                                    'value'        => $shop->type,
-                                    'placeholder'  => 'Select a Type',
-                                    'options'      => Options::forEnum(ShopTypeEnum::class),
+                                    'type'         => 'input',
+                                    'label'        => __('name'),
+                                    'value'        => $shop->name,
                                     'required'     => true,
-                                    'mode'         => 'single',
-                                    'searchable'   => true
                                 ],
                                 'subtype' => [
                                     'type'         => 'select',
-                                    'label'        => __('subtype'),
+                                    'label'        => __('type'),
                                     'value'        => $shop->subtype,
-                                    'placeholder'  => 'Select a Subtype',
+                                    'placeholder'  => 'Select a Type',
                                     'options'      => Options::forEnum(ShopSubtypeEnum::class),
                                     'required'     => true,
                                     'mode'         => 'single',
                                     'searchable'   => true
-                                ],
+                                ]
                             ]
                         ],
                         [
@@ -125,23 +118,38 @@ class EditShop extends InertiaAction
                                     'value'         => $shop->language_id,
                                     'options'       => GetLanguagesOptions::make()->all(),
                                     'searchable'    => true
-                                ],
-
+                                ]
                             ],
+
                         ],
                         [
-                        'title'  => __('websites'),
-                        'icon'   => 'fa-light fa-globe',
-                        'fields' => [
-                            'website'  => [
-                                'type'          => 'shopWebsite',
-                                'label'         => __('website'),
-                                'value'         => $shop->website->id,
-                                'options'       => GetCountriesOptions::run(),
-                            ],
-                        ]
-                    ]
-
+                            'title'  => __('contact/details'),
+                            'fields' => [
+                                'contact_name' => [
+                                    'type'  => 'input',
+                                    'label' => __('contact name'),
+                                    'value' => $shop->contact_name,
+                                ],
+                                'company_name' => [
+                                    'type'  => 'input',
+                                    'label' => __('company name'),
+                                    'value' => $shop->company_name,
+                                ],
+                                'email'        => [
+                                    'type'    => 'input',
+                                    'label'   => __('email'),
+                                    'value'   => $shop->email,
+                                    'options' => [
+                                        'inputType' => 'email'
+                                    ]
+                                ],
+                                'phone'        => [
+                                    'type'  => 'phone',
+                                    'label' => __('telephone'),
+                                    'value' => $shop->phone,
+                                ],
+                            ]
+                        ],
                     ],
                     'args'      => [
                         'updateRoute' => [
@@ -150,7 +158,8 @@ class EditShop extends InertiaAction
 
                         ],
                     ]
-                ]
+                ],
+
             ]
         );
     }

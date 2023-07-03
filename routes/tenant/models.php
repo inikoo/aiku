@@ -48,6 +48,7 @@ use App\Actions\Market\Product\StoreProduct;
 use App\Actions\Market\Product\UpdateProduct;
 use App\Actions\Market\ProductCategory\StoreProductCategory;
 use App\Actions\Market\ProductCategory\UpdateProductCategory;
+use App\Actions\Market\Shop\DeleteShop;
 use App\Actions\Market\Shop\StoreShop;
 use App\Actions\Market\Shop\StoreShops;
 use App\Actions\Market\Shop\UpdateShop;
@@ -72,7 +73,8 @@ use Illuminate\Support\Facades\Route;
 Route::post('/shop/', StoreShop::class)->name('shop.store');
 Route::post('/shops/', StoreShops::class)->name('shop.store-multi');
 
-Route::patch('/shop/{shop}', UpdateShop::class)->name('show.update');
+Route::patch('/shop/{shop}', UpdateShop::class)->name('shop.update');
+Route::delete('/shop/{shop}', DeleteShop::class)->name('shop.delete');
 
 Route::patch('/customer/{customer}', UpdateCustomer::class)->name('customer.update');
 Route::post('/shop/{shop}/customer/', StoreCustomer::class)->name('show.customer.store');
