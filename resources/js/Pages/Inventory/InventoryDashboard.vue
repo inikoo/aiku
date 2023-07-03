@@ -16,7 +16,9 @@ library.add(faInventory, faWarehouse, faMapSigns, faBox, faBoxesAlt)
 
 </script>
 
+<!--suppress HtmlUnknownAttribute -->
 <template layout="App">
+    <!--suppress HtmlRequiredTitleElement -->
     <Head :title="capitalize(title)"/>
     <PageHeading :data="pageHead"></PageHeading>
     <FlatTreeMap class="mx-4" v-for="(treeMap,idx) in flatTreeMaps" :key="idx" :nodes="treeMap"/>

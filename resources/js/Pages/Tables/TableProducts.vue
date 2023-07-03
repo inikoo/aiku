@@ -17,14 +17,18 @@ const props = defineProps<{
 
 function productRoute(product: Product) {
     switch (route().current()) {
-        case 'shops.show.hub.products.index':
+        case 'shops.products.index':
+            return route(
+                'shops.products.show',
+                product.slug);
+        case 'shops.show.products.index' :
             return route(
                 'shops.show.products.show',
-                [route().params['shop'], product.slug]);
+                [route().params['shop'],product.slug]);
         default:
             return route(
                 'shops.show.products.show',
-                [product.slug]);
+                [route().params['shop'],product.slug]);
     }
 }
 
@@ -34,9 +38,9 @@ function productRoute(product: Product) {
 
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
-        <template #cell(code)="{ item: product }">
+        <template #cell(slug)="{ item: product }">
             <Link :href="productRoute(product)">
-                {{ product['code'] }}
+                {{ product['slug'] }}
             </Link>
         </template>
     </Table>
