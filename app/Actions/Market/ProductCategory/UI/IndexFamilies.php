@@ -8,8 +8,8 @@
 namespace App\Actions\Market\ProductCategory\UI;
 
 use App\Actions\InertiaAction;
+use App\Actions\Market\Shop\UI\IndexShops;
 use App\Actions\Market\Shop\UI\ShowShop;
-use App\Actions\UI\Catalogue\CatalogueHub;
 use App\Http\Resources\Market\DepartmentResource;
 use App\Models\Market\ProductCategory;
 use App\Models\Market\Shop;
@@ -89,6 +89,7 @@ class IndexFamilies extends InertiaAction
                 ->defaultSort('code')
                 ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
+
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
         };
@@ -138,16 +139,19 @@ class IndexFamilies extends InertiaAction
                 ),
                 'title'       => __('Departments'),
                 'pageHead'    => [
-                    'title'  => __('departments'),
-                    'create' => $this->canEdit &&
-                        $this->routeName == 'shops.show.departments.index'
-                    ? [
-                        'route' => [
-                            'name'       => 'shops.show.departments.create',
-                            'parameters' => array_values($this->originalParameters)
-                        ],
-                        'label' => __('departments')
-                    ] : false,
+                    'title'  => __('families'),
+                    'actions'=> [
+                        $this->canEdit && $this->routeName == 'shops.show.families.index' ? [
+                            'type'    => 'button',
+                            'style'   => 'create',
+                            'tooltip' => __('new shop'),
+                            'label'   => __('family'),
+                            'route'   => [
+                                'name'       => 'shops.show.families.create',
+                                'parameters' => $request->route()->originalParameters()
+                            ]
+                        ] : false,
+                    ]
                 ],
                 'data'        => DepartmentResource::collection($departments),
             ]
@@ -174,7 +178,7 @@ class IndexFamilies extends InertiaAction
         return match ($routeName) {
             'shops.families.index' =>
             array_merge(
-                ShowShop::make()->getBreadcrumbs($routeParameters),
+                IndexShops::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     [
                         'name'       => $routeName,
@@ -185,11 +189,11 @@ class IndexFamilies extends InertiaAction
             ),
             'shops.show.families.index' =>
             array_merge(
-                CatalogueHub::make()->getBreadcrumbs('shops', []),
+                ShowShop::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     [
                         'name'       => $routeName,
-                        'parameters' => []
+                        'parameters' => $routeParameters
                     ],
                     $suffix
                 )
