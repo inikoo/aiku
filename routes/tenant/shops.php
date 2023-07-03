@@ -18,6 +18,7 @@ use App\Actions\Market\ProductCategory\UI\EditDepartment;
 use App\Actions\Market\ProductCategory\UI\EditFamily;
 use App\Actions\Market\ProductCategory\UI\IndexDepartments;
 use App\Actions\Market\ProductCategory\UI\IndexFamilies;
+use App\Actions\Market\ProductCategory\UI\RemoveDepartment;
 use App\Actions\Market\ProductCategory\UI\ShowDepartment;
 use App\Actions\Market\ProductCategory\UI\ShowFamily;
 use App\Actions\Market\Shop\ExportShops;
@@ -50,6 +51,7 @@ Route::get('/departments', [IndexDepartments::class, 'inTenant'])->name('departm
 Route::get('/departments/create', ExportProductCategory::class)->name('departments.create');
 Route::get('/departments/{department}', [ShowDepartment::class, 'inTenant'])->name('departments.show');
 Route::get('/departments/{department}/edit', [EditDepartment::class, 'inTenant'])->name('departments.edit');
+Route::get('/departments/{department}/delete', [RemoveDepartment::class,'inTenant'])->name('departments.remove');
 Route::get('/families', [IndexFamilies::class, 'inTenant'])->name('families.index');
 Route::get('/families/{family}', [ShowFamily::class, 'inTenant'])->name('families.show');
 Route::get('/families/{family}/edit', [EditFamily::class, 'inTenant'])->name('families.edit');
@@ -76,6 +78,7 @@ Route::get('/{shop}/departments', [IndexDepartments::class, 'inShop'])->name('sh
 
 Route::get('/{shop}/departments/{department}', [ShowDepartment::class, 'inShop'])->name('show.departments.show');
 Route::get('/{shop}/departments/{department}/edit', [EditDepartment::class, 'inShop'])->name('show.departments.edit');
+Route::get('/{shop}/departments/{department}/delete', [RemoveDepartment::class, 'inShop'])->name('show.departments.remove');
 
 Route::get('/{shop}/families/create', CreateFamily::class)->name('show.families.create');
 Route::get('/{shop}/families', [IndexFamilies::class, 'inShop'])->name('show.families.index');

@@ -59,7 +59,6 @@ class UpdateProductCategory
     public function asController(ProductCategory $productCategory, ActionRequest $request): ProductCategory
     {
         $productCategory = $productCategory::where('slug', $request->route()->parameters)->first();
-        //        $request->validate();
         return $this->handle($productCategory, $request->all());
     }
 

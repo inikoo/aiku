@@ -24,9 +24,9 @@ class EditDepartment extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('shops.products.edit');
+        $this->canEdit = $request->user()->can('shops.edit');
 
-        return $request->user()->hasPermissionTo("shops.products.edit");
+        return $request->user()->hasPermissionTo("shops.edit");
     }
 
     public function inTenant(ProductCategory $department, ActionRequest $request): ProductCategory
@@ -55,13 +55,17 @@ class EditDepartment extends InertiaAction
                     $request->route()->parameters
                 ),
                 'pageHead'    => [
-                    'title'    => $department->code,
-                    'exitEdit' => [
-                        'route' => [
-                            'name'       => preg_replace('/edit$/', 'show', $this->routeName),
-                            'parameters' => array_values($this->originalParameters)
+                    'title'    => $department->name,
+                    'actions'  => [
+                        [
+                            'type'  => 'button',
+                            'style' => 'exitEdit',
+                            'route' => [
+                                'name'       => preg_replace('/edit$/', 'show', $this->routeName),
+                                'parameters' => array_values($this->originalParameters)
+                            ]
                         ]
-                    ],
+                    ]
                 ],
 
                 'formData' => [
