@@ -11,8 +11,6 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { faSave } from '@/../private/pro-light-svg-icons';
 import { faAsterisk } from '@/../private/pro-solid-svg-icons';
 import { library } from '@fortawesome/fontawesome-svg-core';
-
-library.add(faSave, faAsterisk);
 import Input from '@/Components/Forms/Fields/Input.vue';
 import Phone from '@/Components/Forms/Fields/Phone.vue';
 import Date from '@/Components/Forms/Fields/Date.vue';
@@ -31,6 +29,9 @@ import Currency from "@/Components/Forms/Fields/Currency.vue";
 import Language from "@/Components/Forms/Fields/Language.vue";
 import Permissions from "@/Components/Forms/Fields/Permissions.vue";
 
+import InputWithAddOn from '@/Components/Forms/Fields/InputWithAddOn.vue'
+
+library.add(faSave, faAsterisk);
 
 const props = defineProps<{
     field: string,
@@ -56,6 +57,7 @@ const updateRoute = props['fieldData']['updateRoute'] ?? props.args['updateRoute
 const components = {
     'select': Select,
     'input': Input,
+    'inputWithAddOn': InputWithAddOn,
     'phone': Phone,
     'date': Date,
     'theme': Theme,
@@ -65,7 +67,7 @@ const components = {
     'textarea': Textarea,
     'toggle': Toggle,
     'radio': Radio,
-    'texteditor': TextEditor,
+    'textEditor': TextEditor,
     'address': Address,
     'country': Country,
     'currency': Currency,
@@ -77,22 +79,9 @@ const getComponent = (componentName) => {
     return components[componentName] ?? null;
 };
 
-let formFields = {};
 
-/*
-if (props['fieldData']['type'] === 'address') {
-    formFields['country_id'] = props.fieldData.value.country_id;
-    formFields['administrative_area'] = props['fieldData'].value.administrative_area;
-    formFields['dependant_locality'] = props['fieldData'].value.dependant_locality;
-    formFields['locality'] = props['fieldData'].value.locality;
-    formFields['postal_code'] = props['fieldData'].value.postal_code;
-    formFields['sorting_code'] = props['fieldData'].value.sorting_code;
-    formFields['address_line_2'] = props['fieldData'].value.address_line_2;
-    formFields['address_line_1'] = props['fieldData'].value.address_line_1;
-} else {
 
- */
-formFields = {
+let formFields = {
     [props['field']]: props['fieldData'].value,
 };
 
@@ -107,7 +96,6 @@ form['fieldType'] = 'edit';
 
 <template>
     <form @submit.prevent="form.patch(route(updateRoute.name, updateRoute.parameters))">
-        <!-- labelingcomponents -->
         <dl v-if="!props.fieldData.fullComponentArea" class="divide-y divide-gray-200 max-w-2xl ">
             <div class="pb-4 sm:pb-5 sm:grid sm:grid-cols-3 sm:gap-4 ">
                 <dt class="text-sm font-medium text-gray-500 capitalize">
