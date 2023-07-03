@@ -151,7 +151,6 @@ class ShowProduct extends InertiaAction
 
             ];
         };
-
         return match ($routeName) {
             'shops.products.show' =>
             array_merge(
