@@ -49,7 +49,7 @@ import {
 } from "@/../private/pro-light-svg-icons";
 
 import AppLeftSideBar from "@/Layouts/AppLeftSideBar.vue";
-import AppTopBar from "@/Layouts/AppTopBar.vue";
+import AppTopBar from "@/Layouts/TopBar/AppTopBar.vue";
 
 library.add(
     faHome,
@@ -147,9 +147,9 @@ const user = ref(usePage().props.auth.user);
                                 </div>
                             </button>
                             <!-- Menu -->
-                            <!--
+
                             <AppTopBar :tenantName="layout.tenant.name"/>
-                            -->
+
                         </div>
 
                         <!-- Avatar Group -->
