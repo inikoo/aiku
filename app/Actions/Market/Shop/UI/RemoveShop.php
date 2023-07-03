@@ -5,31 +5,31 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Inventory\Warehouse\UI;
+namespace App\Actions\Market\Shop\UI;
 
 use App\Actions\InertiaAction;
-use App\Models\Inventory\Warehouse;
+use App\Models\Market\Shop;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class RemoveWarehouse extends InertiaAction
+class RemoveShop extends InertiaAction
 {
-    public function handle(Warehouse $warehouse): Warehouse
+    public function handle(Shop $shop): Shop
     {
-        return $warehouse;
+        return $shop;
     }
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("inventory.edit");
+        return $request->user()->hasPermissionTo("shops.edit");
     }
 
-    public function asController(Warehouse $warehouse, ActionRequest $request): Warehouse
+    public function asController(Shop $shop, ActionRequest $request): Shop
     {
         $this->initialisation($request);
 
-        return $this->handle($warehouse);
+        return $this->handle($shop);
     }
 
 
@@ -37,42 +37,40 @@ class RemoveWarehouse extends InertiaAction
     {
         return  [
             'buttonLabel' => __('Delete'),
-            'title'       => __('Delete Warehouse'),
-            'text'        => __("This action will delete this Warehouse and its Warehouse Areas and Locations"),
+            'title'       => __('Delete Shop'),
+            'text'        => __("This action will delete this Shop and its all Departments, Families  and Products"),
             'route'       => $route
         ];
     }
 
-    public function htmlResponse(Warehouse $warehouse, ActionRequest $request): Response
+    public function htmlResponse(Shop $shop, ActionRequest $request): Response
     {
         return Inertia::render(
             'RemoveModel',
             [
-                'title'       => __('delete warehouse'),
-                'breadcrumbs' => $this->getBreadcrumbs(
-                    $warehouse
-                ),
+                'title'       => __('delete s'),
+                'breadcrumbs' => $this->getBreadcrumbs($shop),
                 'pageHead'    => [
                     'icon'  =>
                         [
-                            'icon'  => ['fal', 'fa-warehouse'],
-                            'title' => __('warehouse')
+                            'icon'  => ['fal', 'fa-store-alt'],
+                            'title' => __('employee')
                         ],
-                    'title'  => $warehouse->slug,
+                    'title'  => $shop->slug,
                     'actions'=> [
                         [
                             'type'  => 'button',
                             'style' => 'cancel',
                             'route' => [
                                 'name'       => preg_replace('/remove$/', 'show', $this->routeName),
-                                'parameters' => $warehouse->slug
+                                'parameters' => $shop->slug
                             ]
                         ]
                     ]
                 ],
                 'data'      => $this->getAction(
                     route:[
-                        'name'       => 'models.warehouse.delete',
+                        'name'       => 'models.shop.delete',
                         'parameters' => $request->route()->originalParameters()
                     ]
                 )
@@ -81,8 +79,8 @@ class RemoveWarehouse extends InertiaAction
     }
 
 
-    public function getBreadcrumbs(Warehouse $warehouse): array
+    public function getBreadcrumbs(Shop $shop): array
     {
-        return ShowWarehouse::make()->getBreadcrumbs($warehouse, suffix: '('.__('deleting').')');
+        return ShowShop::make()->getBreadcrumbs(['shop' => $shop], suffix: '('.__('deleting').')');
     }
 }

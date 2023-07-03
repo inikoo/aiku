@@ -46,8 +46,10 @@ use App\Actions\Inventory\WarehouseArea\UpdateWarehouseArea;
 use App\Actions\Mail\Outbox\UpdateOutbox;
 use App\Actions\Market\Product\StoreProduct;
 use App\Actions\Market\Product\UpdateProduct;
+use App\Actions\Market\ProductCategory\DeleteProductCategory;
 use App\Actions\Market\ProductCategory\StoreProductCategory;
 use App\Actions\Market\ProductCategory\UpdateProductCategory;
+use App\Actions\Market\Shop\DeleteShop;
 use App\Actions\Market\Shop\StoreShop;
 use App\Actions\Market\Shop\StoreShops;
 use App\Actions\Market\Shop\UpdateShop;
@@ -72,12 +74,14 @@ use Illuminate\Support\Facades\Route;
 Route::post('/shop/', StoreShop::class)->name('shop.store');
 Route::post('/shops/', StoreShops::class)->name('shop.store-multi');
 
-Route::patch('/shop/{shop}', UpdateShop::class)->name('show.update');
+Route::patch('/shop/{shop}', UpdateShop::class)->name('shop.update');
+Route::delete('/shop/{shop}', DeleteShop::class)->name('shop.delete');
 
 Route::patch('/customer/{customer}', UpdateCustomer::class)->name('customer.update');
 Route::post('/shop/{shop}/customer/', StoreCustomer::class)->name('show.customer.store');
 Route::post('/shop/{shop}/department/', [StoreProductCategory::class, 'inShop'])->name('shop.show.department.store');
 Route::post('/shop/{shop}/website/', StoreWebsite::class)->name('shop.website.store');
+Route::delete('/shop/{shop}/department/{department}', [DeleteProductCategory::class, 'inShop'])->name('shop.department.delete');
 
 Route::patch('/web-user/{webUser}', UpdateWebUser::class)->name('web-user.update');
 
@@ -90,6 +94,7 @@ Route::post('/product/', StoreProduct::class)->name('product.store');
 Route::patch('/product/{product}', UpdateProduct::class)->name('product.update');
 
 Route::patch('/department/{department}', UpdateProductCategory::class)->name('department.update');
+Route::delete('/department/{department}', DeleteProductCategory::class)->name('department.delete');
 
 Route::post('/order/', StoreOrder::class)->name('order.store');
 Route::patch('/order/{order}', UpdateOrder::class)->name('order.update');

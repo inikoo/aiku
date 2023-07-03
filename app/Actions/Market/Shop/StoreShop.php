@@ -42,6 +42,7 @@ class StoreShop
         $shop->crmStats()->create();
         $shop->apiTenantUser()->create();
 
+        /** @noinspection DuplicatedCode */
         $shop->serialReferences()->create(
             [
                 'model'     => SerialReferenceModelEnum::CUSTOMER,

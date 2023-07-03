@@ -29,6 +29,7 @@ class CreateDepartment extends InertiaAction
         return $request;
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
     public function inShop(Shop $shop, ActionRequest $request): Response
     {
         $this->initialisation($request);
@@ -63,12 +64,14 @@ class CreateDepartment extends InertiaAction
                                 'title'  => __('department'),
                                 'fields' => [
                                     'code' => [
-                                        'type'  => 'input',
-                                        'label' => __('code')
+                                        'type'     => 'input',
+                                        'label'    => __('code'),
+                                        'required' => true
                                     ],
                                     'name' => [
-                                        'type'  => 'input',
-                                        'label' => __('name')
+                                        'type'     => 'input',
+                                        'label'    => __('name'),
+                                        'required' => true
                                     ],
                                 ]
                             ]
