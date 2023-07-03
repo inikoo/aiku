@@ -9,6 +9,7 @@
 use App\Actions\Market\Product\UI\CreateProduct;
 use App\Actions\Market\Product\UI\EditProduct;
 use App\Actions\Market\Product\UI\IndexProducts;
+use App\Actions\Market\Product\UI\RemoveProduct;
 use App\Actions\Market\Product\UI\ShowProduct;
 use App\Actions\Market\ProductCategory\ExportProductCategory;
 use App\Actions\Market\ProductCategory\UI\CreateDepartment;
@@ -67,6 +68,7 @@ Route::get('/shops/{shop}/products/create', CreateProduct::class)->name('show.pr
 
 Route::get('/{shop}/products/{product}', [ShowProduct::class, 'inShop'])->name('show.products.show');
 Route::get('/{shop}/products/{product}/edit', [EditProduct::class, 'inShop'])->name('show.products.edit');
+Route::get('/{shop}/products/{product}/delete', [RemoveProduct::class, 'inShop'])->name('show.products.remove');
 
 
 

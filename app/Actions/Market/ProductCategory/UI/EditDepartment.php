@@ -106,7 +106,7 @@ class EditDepartment extends InertiaAction
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
         return ShowDepartment::make()->getBreadcrumbs(
-            routeName: preg_replace('/edit$/', 'show', $routeName),
+            routeName: $routeName,
             routeParameters: $routeParameters,
             suffix: '('.__('editing').')'
         );

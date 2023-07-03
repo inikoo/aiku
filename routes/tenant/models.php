@@ -44,6 +44,7 @@ use App\Actions\Inventory\WarehouseArea\StoreWarehouseArea;
 use App\Actions\Inventory\WarehouseArea\StoreWarehouseAreas;
 use App\Actions\Inventory\WarehouseArea\UpdateWarehouseArea;
 use App\Actions\Mail\Outbox\UpdateOutbox;
+use App\Actions\Market\Product\DeleteProduct;
 use App\Actions\Market\Product\StoreProduct;
 use App\Actions\Market\Product\UpdateProduct;
 use App\Actions\Market\ProductCategory\DeleteFamily;
@@ -81,7 +82,7 @@ Route::delete('/shop/{shop}', DeleteShop::class)->name('shop.delete');
 
 Route::patch('/customer/{customer}', UpdateCustomer::class)->name('customer.update');
 Route::post('/shop/{shop}/customer/', StoreCustomer::class)->name('show.customer.store');
-Route::post('/shop/{shop}/department/', [StoreProductCategory::class, 'inShop'])->name('shop.show.department.store');
+Route::post('/shop/{shop}/department/', [StoreProductCategory::class, 'inShop'])->name('shop.department.store');
 Route::post('/shop/{shop}/website/', StoreWebsite::class)->name('shop.website.store');
 Route::delete('/shop/{shop}/department/{department}', [DeleteProductCategory::class, 'inShop'])->name('shop.department.delete');
 
@@ -94,6 +95,8 @@ Route::post('/shop/{shop}/order/', [StoreOrder::class, 'inShop'])->name('show.or
 
 Route::post('/product/', StoreProduct::class)->name('product.store');
 Route::patch('/product/{product}', UpdateProduct::class)->name('product.update');
+Route::delete('/product/{product}', UpdateProduct::class)->name('product.delete');
+Route::delete('/shop/{shop}/product/{product}', [DeleteProduct::class, 'inShop'])->name('shop.product.delete');
 
 Route::patch('/department/{department}', UpdateProductCategory::class)->name('department.update');
 Route::delete('/department/{department}', DeleteProductCategory::class)->name('department.delete');

@@ -117,7 +117,7 @@ class GetLayout
                             [
                                 'label'   => __('departments'),
                                 'tooltip' => __('Departments'),
-                                'icon'    => ['fal', 'fa-folders'],
+                                'icon'    => ['fal', 'fa-folder-tree'],
                                 'route'   => [
                                     'all'      => 'shops.departments.index',
                                     'selected' => 'shops.show.departments.index',

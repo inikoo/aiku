@@ -8,11 +8,13 @@
 namespace App\Actions\Market\Product\UI;
 
 use App\Actions\InertiaAction;
+use App\Enums\Market\Product\ProductTypeEnum;
 use App\Models\Market\Product;
 use App\Models\Market\Shop;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
+use Spatie\LaravelOptions\Options;
 
 class EditProduct extends InertiaAction
 {
@@ -43,6 +45,9 @@ class EditProduct extends InertiaAction
         return $this->handle($product);
     }
 
+    /**
+     * @throws \Exception
+     */
     public function htmlResponse(Product $product, ActionRequest $request): Response
     {
         return Inertia::render(
@@ -55,14 +60,16 @@ class EditProduct extends InertiaAction
                 ),
                 'pageHead'    => [
                     'title'    => $product->code,
-                    'exitEdit' => [
-                        'route' => [
-                            'name'       => preg_replace('/edit$/', 'show', $this->routeName),
-                            'parameters' => array_values($this->originalParameters)
+                    'actions'  => [
+                        [
+                            'type'  => 'button',
+                            'style' => 'exitEdit',
+                            'route' => [
+                                'name'       => preg_replace('/edit$/', 'show', $this->routeName),
+                                'parameters' => array_values($this->originalParameters)
+                            ]
                         ]
-                    ],
-
-
+                    ]
                 ],
                 'formData'    => [
                     'blueprint' => [
@@ -79,6 +86,31 @@ class EditProduct extends InertiaAction
                                     'label' => __('label'),
                                     'value' => $product->name
                                 ],
+                                'description' => [
+                                    'type'  => 'input',
+                                    'label' => __('description'),
+                                    'value' => $product->description
+                                ],
+                                'units' => [
+                                    'type'  => 'input',
+                                    'label' => __('units'),
+                                    'value' => $product->units
+                                ],
+                                'price' => [
+                                    'type'    => 'input',
+                                    'label'   => __('price'),
+                                    'required'=> true,
+                                    'value'   => $product->price
+                                ],
+                                'type' => [
+                                    'type'          => 'select',
+                                    'label'         => __('type'),
+                                    'placeholder'   => 'Select a Product Type',
+                                    'options'       => Options::forEnum(ProductTypeEnum::class)->toArray(),
+                                    'required'      => true,
+                                    'mode'          => 'single',
+                                    'value'         => $product->type
+                                ]
                             ]
                         ]
 
@@ -99,7 +131,7 @@ class EditProduct extends InertiaAction
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
-        return \App\Actions\CRM\Customer\UI\ShowCustomer::make()->getBreadcrumbs(
+        return ShowProduct::make()->getBreadcrumbs(
             routeName: preg_replace('/edit$/', 'show', $routeName),
             routeParameters: $routeParameters,
             suffix: '('.__('editing').')'

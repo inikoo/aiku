@@ -10,8 +10,12 @@ namespace App\Actions\Market\Product;
 use App\Actions\Market\Shop\Hydrators\ShopHydrateProducts;
 use App\Actions\WithActionUpdate;
 use App\Models\Market\Product;
+use App\Models\Market\Shop;
 use App\Models\Tenancy\Tenant;
 use Illuminate\Console\Command;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Redirect;
+use Lorisleiva\Actions\ActionRequest;
 
 class DeleteProduct
 {
@@ -37,11 +41,34 @@ class DeleteProduct
         return $product;
     }
 
+    public function authorize(ActionRequest $request): bool
+    {
+        return $request->user()->hasPermissionTo("shops.edit");
+    }
+
+    public function asController(Product $product, ActionRequest $request): Product
+    {
+        $request->validate();
+
+        return $this->handle($product);
+    }
+
+    public function inShop(Shop $shop, Product $product, ActionRequest $request): Product
+    {
+        $request->validate();
+
+        return $this->handle($product);
+    }
 
     public function asCommand(Command $command): int
     {
         Tenant::where('slug', $command->argument('tenant'))->first()->makeCurrent();
         $this->handle(Product::findOrFail($command->argument('id')));
         return 0;
+    }
+
+    public function htmlResponse(Product $product): RedirectResponse
+    {
+        return Redirect::route('shops.show', $product->shop->slug);
     }
 }

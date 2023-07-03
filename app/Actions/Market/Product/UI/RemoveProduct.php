@@ -5,20 +5,20 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Market\ProductCategory\UI;
+namespace App\Actions\Market\Product\UI;
 
 use App\Actions\InertiaAction;
-use App\Models\Market\ProductCategory;
+use App\Models\Market\Product;
 use App\Models\Market\Shop;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class RemoveDepartment extends InertiaAction
+class RemoveProduct extends InertiaAction
 {
-    public function handle(ProductCategory $department): ProductCategory
+    public function handle(Product $product): Product
     {
-        return $department;
+        return $product;
     }
 
     public function authorize(ActionRequest $request): bool
@@ -26,26 +26,26 @@ class RemoveDepartment extends InertiaAction
         return $request->user()->hasPermissionTo("shops.edit");
     }
 
-    public function inTenant(ProductCategory $department, ActionRequest $request): ProductCategory
+    public function inTenant(Product $product, ActionRequest $request): Product
     {
         $this->initialisation($request);
 
-        return $this->handle($department);
+        return $this->handle($product);
     }
 
-    public function asController(ProductCategory $department, ActionRequest $request): ProductCategory
+    public function asController(Product $product, ActionRequest $request): Product
     {
         $this->initialisation($request);
 
-        return $this->handle($department);
+        return $this->handle($product);
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inShop(Shop $shop, ProductCategory $department, ActionRequest $request): ProductCategory
+    public function inShop(Shop $shop, Product $product, ActionRequest $request): Product
     {
         $this->initialisation($request);
 
-        return $this->handle($department);
+        return $this->handle($product);
     }
 
 
@@ -53,19 +53,19 @@ class RemoveDepartment extends InertiaAction
     {
         return  [
             'buttonLabel' => __('Delete'),
-            'title'       => __('Delete Department'),
-            'text'        => __("This action will delete this Department and all it's dependent"),
+            'title'       => __('Delete Product'),
+            'text'        => __("This action will delete this Product and all it's dependent"),
             'route'       => $route
         ];
     }
 
-    public function htmlResponse(ProductCategory $department, ActionRequest $request): Response
+    public function htmlResponse(Product $product, ActionRequest $request): Response
     {
 
         return Inertia::render(
             'RemoveModel',
             [
-                'title'       => __('delete department'),
+                'title'       => __('delete product'),
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
                     $request->route()->parameters
@@ -73,10 +73,10 @@ class RemoveDepartment extends InertiaAction
                 'pageHead'    => [
                     'icon'  =>
                         [
-                            'icon'  => ['fal', 'fa-folder-tree'],
-                            'title' => __('department')
+                            'icon'  => ['fal', 'fa-cube'],
+                            'title' => __('product')
                         ],
-                    'title'  => $department->slug,
+                    'title'  => $product->slug,
                     'actions'=> [
                         [
                             'type'  => 'button',
@@ -92,12 +92,12 @@ class RemoveDepartment extends InertiaAction
                 'data'     => $this->getAction(
                     route:
                     match ($this->routeName) {
-                        'shops.departments.remove' => [
-                            'name'       => 'models.department.delete',
+                        'shops.products.remove' => [
+                            'name'       => 'models.product.delete',
                             'parameters' => $request->route()->originalParameters()
                         ],
-                        'shops.show.departments.remove' => [
-                            'name'       => 'models.shop.department.delete',
+                        'shops.show.products.remove' => [
+                            'name'       => 'models.shop.product.delete',
                             'parameters' => $request->route()->originalParameters()
                         ]
                     }
@@ -113,7 +113,7 @@ class RemoveDepartment extends InertiaAction
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
-        return ShowDepartment::make()->getBreadcrumbs(
+        return ShowProduct::make()->getBreadcrumbs(
             routeName: preg_replace('/remove$/', 'show', $routeName),
             routeParameters: $routeParameters,
             suffix: '('.__('deleting').')'

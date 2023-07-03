@@ -31,17 +31,19 @@ class StoreProduct
 
     public function handle(Shop|ProductCategory $parent, array $modelData, bool $skipHistoric = false): Product
     {
-
         if(class_basename($parent)=='Shop') {
             $modelData['shop_id']    =$parent->id;
             $modelData['parent_id']  =$parent->id;
-            $modelData['parent_type']='Shop';
+            $modelData['parent_type']= $parent->type;
+            $modelData['owner_id']   = $parent->id;
+            $modelData['owner_type'] = $parent->type;
 
         } else {
-            $modelData['shop_id']=$parent->shop_id;
+            $modelData['shop_id']    =$parent->shop_id;
+            $modelData['owner_id']   = $parent->parent_id;
+            $modelData['owner_type'] = $parent->shop->type;
 
         }
-
         /** @var Product $product */
         $product = $parent->products()->create($modelData);
         $product->stats()->create();
@@ -73,16 +75,14 @@ class StoreProduct
     public function rules(): array
     {
         return [
-            'code'        => ['required', 'unique:tenant.products', 'between:2,9', 'alpha', new CaseSensitive('products')],
+            'code'        => ['required', 'unique:tenant.products', 'between:2,9', 'alpha_dash', new CaseSensitive('products')],
             'family_id'   => ['sometimes', 'required', 'exists:families,id'],
             'units'       => ['sometimes', 'required', 'numeric'],
             'image_id'    => ['sometimes', 'required', 'exists:media,id'],
-            'price'       => ['sometimes', 'required', 'numeric'],
+            'price'       => ['required', 'numeric'],
             'rrp'         => ['sometimes', 'required', 'numeric'],
             'name'        => ['required', 'max:250', 'string'],
             'state'       => ['sometimes', 'required'],
-            'owner_id'    => ['required', 'numeric'],
-            'owner_type'  => ['required'],
             'type'        => ['required'],
             'description' => ['sometimes', 'required', 'max:1500'],
         ];
@@ -90,6 +90,7 @@ class StoreProduct
 
     public function action(Shop|Product $parent, array $objectData): Product
     {
+
         $this->setRawAttributes($objectData);
         $validatedData = $this->validateAttributes();
 
@@ -99,7 +100,6 @@ class StoreProduct
     public function inShop(Shop $shop, ActionRequest $request): RedirectResponse
     {
         $request->validate();
-
         $this->handle($shop, $request->all());
         return  Redirect::route('shops.show.products.index', $shop);
     }

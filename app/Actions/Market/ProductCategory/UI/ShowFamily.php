@@ -36,7 +36,7 @@ class ShowFamily extends InertiaAction
         $this->canEdit   = $request->user()->can('shops.edit');
         $this->canDelete = $request->user()->can('shops.edit');
 
-        return $request->user()->hasPermissionTo("shops.view");
+        return $request->user()->hasPermissionTo("shops.families.view");
     }
 
     public function inTenant(ProductCategory $family, ActionRequest $request): ProductCategory
@@ -73,7 +73,7 @@ class ShowFamily extends InertiaAction
                 'pageHead'                           => [
                     'title' => $family->name,
                     'icon'  => [
-                        'icon'  => ['fal', 'fa-folders'],
+                        'icon'  => ['fal', 'fa-folder'],
                         'title' => __('department')
                     ],
                     'actions' => [

@@ -35,14 +35,19 @@ class CreateProduct extends InertiaAction
                 'title'       => __('new product'),
                 'pageHead'    => [
                     'title'        => __('new product'),
-                    'cancelCreate' => [
-                        'route' => [
-                            'name' => match ($this->routeName) {
-                                'shops.show.products.create'    => 'shops.show.products.index',
-                                'shops.products.create'         => 'shops',
-                                default                         => preg_replace('/create$/', 'index', $this->routeName)
-                            },
-                            'parameters' => array_values($this->originalParameters)
+                    'actions'      => [
+                        [
+                            'type'  => 'button',
+                            'style' => 'cancel',
+                            'label' => __('cancel'),
+                            'route' => [
+                                'name' => match ($this->routeName) {
+                                    'shops.show.products.create'    => 'shops.show.products.index',
+                                    'shops.products.create'         => 'shops',
+                                    default                         => preg_replace('/create$/', 'index', $this->routeName)
+                                },
+                                'parameters' => array_values($this->originalParameters)
+                            ],
                         ]
                     ]
 
@@ -54,12 +59,14 @@ class CreateProduct extends InertiaAction
                                 'title'  => __('name'),
                                 'fields' => [
                                     'code' => [
-                                        'type'  => 'input',
-                                        'label' => __('code')
+                                        'type'      => 'input',
+                                        'label'     => __('code'),
+                                        'required'  => true
                                     ],
                                     'name' => [
-                                        'type'  => 'input',
-                                        'label' => __('name')
+                                        'type'      => 'input',
+                                        'label'     => __('name'),
+                                        'required'  => true
                                     ],
 
                                     'description' => [
@@ -71,23 +78,17 @@ class CreateProduct extends InertiaAction
                                         'label' => __('units')
                                     ],
                                     'price' => [
-                                        'type'  => 'input',
-                                        'label' => __('price')
-                                    ],
-                                    'owner_id' => [
-                                        'type'  => 'input',
-                                        'label' => __('owner id')
-                                    ],
-                                    'owner_type' => [
-                                        'type'  => 'input',
-                                        'label' => __('owner type')
+                                        'type'    => 'input',
+                                        'label'   => __('price'),
+                                        'required'=> true,
                                     ],
                                     'type' => [
-                                        'type'    => 'select',
-                                        'label'   => __('type'),
-                                        'options' => Options::forEnum(ProductTypeEnum::class)->toArray(),
-                                        'required'=> true,
-                                        'mode'    => 'single'
+                                        'type'          => 'select',
+                                        'label'         => __('type'),
+                                        'placeholder'   => 'Select a Product Type',
+                                        'options'       => Options::forEnum(ProductTypeEnum::class)->toArray(),
+                                        'required'      => true,
+                                        'mode'          => 'single'
                                     ]
 
                                 ]
@@ -95,7 +96,7 @@ class CreateProduct extends InertiaAction
                         ],
                     'route' => match ($this->routeName) {
                         'shops.show.products.create' => [
-                            'name'      => 'models.shop.product.store',
+                            'name'      => 'models.show.product.store',
                             'arguments' => [$shop->slug]
                         ],
                         default => [

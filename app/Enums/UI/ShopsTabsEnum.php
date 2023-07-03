@@ -29,7 +29,7 @@ enum ShopsTabsEnum: string
             ],
             ShopsTabsEnum::DEPARTMENTS => [
                 'title' => __('departments'),
-                'icon'  => 'fal fa-folders',
+                'icon'  => 'fal fa-folder-tree',
             ],
             ShopsTabsEnum::FAMILIES => [
                 'title' => __('families'),

@@ -7,9 +7,12 @@
 
 namespace App\Actions\Market\Product\UI;
 
+use App\Actions\CRM\Customer\UI\IndexCustomers;
 use App\Actions\InertiaAction;
 use App\Actions\Mail\Mailshot\IndexMailshots;
-use App\Actions\UI\Catalogue\CatalogueHub;
+use App\Actions\Market\Shop\UI\IndexShops;
+use App\Actions\Market\Shop\UI\ShowShop;
+use App\Actions\OMS\Order\UI\IndexOrders;
 use App\Enums\UI\ProductTabsEnum;
 use App\Http\Resources\Mail\MailshotResource;
 use App\Http\Resources\Market\ProductResource;
@@ -30,7 +33,8 @@ class ShowProduct extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('shops.products.edit');
+        $this->canEdit   = $request->user()->can('shops.products.edit');
+        $this->canDelete = $request->user()->can('shops.products.edit');
 
         return $request->user()->hasPermissionTo("shops.products.view");
     }
@@ -65,15 +69,25 @@ class ShowProduct extends InertiaAction
                     'next'     => $this->getNext($product, $request),
                 ],
                 'pageHead'    => [
-                    'title' => $product->code,
-                    'edit'  => $this->canEdit ? [
-                        'route' => [
-                            'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
-                            'parameters' => array_values($request->route()->originalParameters())
-                        ]
-                    ] : false,
-
-
+                    'title'   => $product->code,
+                    'actions' => [
+                        $this->canEdit ? [
+                            'type'  => 'button',
+                            'style' => 'edit',
+                            'route' => [
+                                'name'       => preg_replace('/show$/', 'edit', $this->routeName),
+                                'parameters' => $request->route()->originalParameters()
+                            ]
+                        ] : false,
+                        $this->canDelete ? [
+                            'type'  => 'button',
+                            'style' => 'delete',
+                            'route' => [
+                                'name'       => 'shops.show.products.remove',
+                                'parameters' => $request->route()->originalParameters()
+                            ]
+                        ] : false
+                    ]
                 ],
                 'tabs'=> [
                     'current'    => $this->tab,
@@ -86,12 +100,12 @@ class ShowProduct extends InertiaAction
                     : Inertia::lazy(fn () => GetProductShowcase::run($product)),
 
                 ProductTabsEnum::ORDERS->value => $this->tab == ProductTabsEnum::ORDERS->value ?
-                    fn () => OrderResource::collection(\App\Actions\OMS\Order\UI\IndexOrders::run($product))
-                    : Inertia::lazy(fn () => OrderResource::collection(\App\Actions\OMS\Order\UI\IndexOrders::run($product))),
+                    fn () => OrderResource::collection(IndexOrders::run($product))
+                    : Inertia::lazy(fn () => OrderResource::collection(IndexOrders::run($product))),
 
                 ProductTabsEnum::CUSTOMERS->value => $this->tab == ProductTabsEnum::CUSTOMERS->value ?
-                    fn () => CustomerResource::collection(\App\Actions\CRM\Customer\UI\IndexCustomers::run($product))
-                    : Inertia::lazy(fn () => CustomerResource::collection(\App\Actions\CRM\Customer\UI\IndexCustomers::run($product))),
+                    fn () => CustomerResource::collection(IndexCustomers::run($product))
+                    : Inertia::lazy(fn () => CustomerResource::collection(IndexCustomers::run($product))),
 
                 ProductTabsEnum::MAILSHOTS->value => $this->tab == ProductTabsEnum::MAILSHOTS->value ?
                     fn () => MailshotResource::collection(IndexMailshots::run($product))
@@ -104,8 +118,8 @@ class ShowProduct extends InertiaAction
                 */
 
             ]
-        )->table(\App\Actions\OMS\Order\UI\IndexOrders::make()->tableStructure($product))
-            ->table(\App\Actions\CRM\Customer\UI\IndexCustomers::make()->tableStructure($product))
+        )->table(IndexOrders::make()->tableStructure($product))
+            ->table(IndexCustomers::make()->tableStructure($product))
             ->table(IndexMailshots::make()->tableStructure($product));
     }
 
@@ -138,11 +152,10 @@ class ShowProduct extends InertiaAction
             ];
         };
 
-
         return match ($routeName) {
             'shops.products.show' =>
             array_merge(
-                CatalogueHub::make()->getBreadcrumbs('shops', []),
+                IndexShops::make()->getBreadcrumbs([]),
                 $headCrumb(
                     $routeParameters['product'],
                     [
@@ -162,7 +175,7 @@ class ShowProduct extends InertiaAction
             ),
             'shops.show.products.show' =>
             array_merge(
-                CatalogueHub::make()->getBreadcrumbs('shops.show.hub', ['shop' => $routeParameters['shop']]),
+                ShowShop::make()->getBreadcrumbs(['shop' => $routeParameters['shop']]),
                 $headCrumb(
                     $routeParameters['product'],
                     [
@@ -187,14 +200,14 @@ class ShowProduct extends InertiaAction
 
     public function getPrevious(Product $product, ActionRequest $request): ?array
     {
-        $previous = Product::where('code', '<', $product->code)->orderBy('code', 'desc')->first();
+        $previous = Product::where('slug', '<', $product->slug)->orderBy('slug', 'desc')->first();
         return $this->getNavigation($previous, $request->route()->getName());
 
     }
 
     public function getNext(Product $product, ActionRequest $request): ?array
     {
-        $next = Product::where('code', '>', $product->code)->orderBy('code')->first();
+        $next = Product::where('slug', '>', $product->slug)->orderBy('slug')->first();
         return $this->getNavigation($next, $request->route()->getName());
     }
 
