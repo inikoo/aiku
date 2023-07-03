@@ -72,6 +72,7 @@ use App\Actions\Procurement\SupplierDelivery\UpdateSupplierDelivery;
 use App\Actions\Tenancy\Tenant\UpdateSystemSettings;
 use App\Actions\UI\Profile\UpdateProfile;
 use App\Actions\Web\Website\StoreWebsite;
+use App\Actions\Web\Website\UpdateWebsite;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/shop/', StoreShop::class)->name('shop.store');
@@ -86,6 +87,9 @@ Route::post('/shop/{shop}/department/', [StoreProductCategory::class, 'inShop'])
 Route::post('/shop/{shop}/website/', StoreWebsite::class)->name('shop.website.store');
 Route::delete('/shop/{shop}/department/{department}', [DeleteProductCategory::class, 'inShop'])->name('shop.department.delete');
 
+
+
+Route::patch('/website/{website}', UpdateWebsite::class)->name('website.update');
 Route::patch('/web-user/{webUser}', UpdateWebUser::class)->name('web-user.update');
 
 

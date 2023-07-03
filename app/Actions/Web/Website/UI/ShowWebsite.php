@@ -73,7 +73,9 @@ class ShowWebsite extends InertiaAction
                     'actions' => [
                         $this->canEdit ? [
                             'type'  => 'button',
-                            'style' => 'setting',
+                            'style' => 'edit',
+                            'label' => __('settings'),
+                            'icon'  => ["fal", "fa-sliders-h"],
                             'route' => [
                                 'name'       => preg_replace('/show$/', 'edit', $this->routeName),
                                 'parameters' => array_values($this->originalParameters)
@@ -81,7 +83,9 @@ class ShowWebsite extends InertiaAction
                         ] : false,
                         $this->canEdit ? [
                             'type'  => 'button',
-                            'style' => 'workshop',
+                            'style' => 'edit',
+                            'label' => __('workshop'),
+                            'icon'  => ["fal", "fa-drafting-compass"],
                             'route' => [
                                 'name'       => preg_replace('/show$/', 'workshop', $this->routeName),
                                 'parameters' => array_values($this->originalParameters)

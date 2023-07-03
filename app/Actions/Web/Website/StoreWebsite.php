@@ -56,7 +56,7 @@ class StoreWebsite
     {
         return [
             'domain' => ['required', new CaseSensitive('websites')],
-            'code'   => ['required', 'unique:tenant.websites'],
+            'code'   => ['required', 'unique:tenant.websites','max:8'],
             'name'   => ['required']
         ];
     }
