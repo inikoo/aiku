@@ -61,18 +61,25 @@ library.add(
 )
 
 const layout = useLayoutStore()
-const props = defineProps(["currentRoute"])
+//const props = defineProps(["currentRoute"])
 
+/*
 const currentModule = computed(() => {
     const route=props['currentRoute'];
     return route.substring(0, route.indexOf("."))
 });
 
+ */
+
+//const currentModule=layout.currentModule;
+
 const isHover = ref(false)
 
 const currentIndexModule = computed(() => {
-	return Object.keys(layout.navigation).indexOf(currentModule.value)
+	return Object.keys(layout.navigation).indexOf(layout.currentModule)
 })
+
+
 
 onMounted(() => {
   window.addEventListener('keydown', handleKey)
@@ -101,7 +108,7 @@ const handleKey = (event: any) => {
 
 <template>
 	<div class="w-8/12 mt-11 fixed md:border-r md:border-gray-200 md:bg-white md:flex md:flex-col md:inset-y-0 md:w-10 lg:mt-10 xl:w-56"
-		@mouseenter="isHover = true" @mouseleave="isHover = false"	
+		@mouseenter="isHover = true" @mouseleave="isHover = false"
 	>
 		<div class="flex flex-grow flex-col h-full overflow-y-auto custom-hide-scrollbar border-r border-gray-200 pb-4">
 			<Link :href="route('dashboard.show')" class="flex flex-col justify-center text-indigo-700 font-logo md:hidden py-3 text-center gap-y-2">
@@ -117,16 +124,16 @@ const handleKey = (event: any) => {
 						:key="itemKey"
 						:href="route(item.route, item.routeParameters)"
 						:class="[
-							itemKey === currentModule
+							itemKey === layout.currentModule
 								? 'border-indigo-600 bg-indigo-50 text-indigo-600'
 								: 'border-transparent text-gray-600 hover:bg-gray-100 hover:text-gray-900',
 							'group flex items-center border-l-4 text-sm font-medium px-0 xl:px-3 py-2',
 						]"
-						:aria-current="itemKey === currentModule ? 'page' : undefined"
+						:aria-current="itemKey === layout.currentModule ? 'page' : undefined"
 					>
 						<div>
 							<img v-if="item.name == 'dashboard'" src="@/../art/favicons/favicon-purple-16x16.png" alt="" class="h-4 aspect-square"
-								:class="[ itemKey === currentModule
+								:class="[ itemKey === layout.currentModule
 											? 'text-indigo-500'
 											: 'text-gray-400 group-hover:text-gray-600',
 										'ml-2 mr-3 flex-shrink-0 h-4 w-4'
@@ -136,7 +143,7 @@ const handleKey = (event: any) => {
 								v-else
 								aria-hidden="true"
 								:class="[
-									itemKey === currentModule
+									itemKey === layout.currentModule
 										? 'text-indigo-500'
 										: 'text-gray-400 group-hover:text-gray-600',
 									'ml-2 mr-3 flex-shrink-0 h-4 w-4',
