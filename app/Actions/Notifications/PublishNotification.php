@@ -25,7 +25,7 @@ class PublishNotification
     public string $commandSignature   = 'notification:publish';
     public string $commandDescription = 'Publish push notification';
 
-    public function handle(Collection $users, $content, $target = ['mail', 'fcm']): void
+    public function handle(Collection $users, $content, $target = ['mail']): void
     {
         foreach ($users as $user) {
             if(in_array('fcm', $target)) {
@@ -33,7 +33,7 @@ class PublishNotification
             }
 
             if(in_array('mail', $target)) {
-//                SendEmailAddress::dispatch($content, $user);
+                SendEmailAddress::run($content, $user->email);
             }
         }
     }
@@ -41,7 +41,7 @@ class PublishNotification
     public function asCommand(): void
     {
         Tenant::where('slug', 'aw')->first()->makeCurrent();
-        $users = User::get();
+        $users = User::where('username', 'aiku')->get();
         $content = [
             'title' => 'Subject/Title',
             'body' => 'Hello'
