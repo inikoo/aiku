@@ -49,13 +49,17 @@ class CreateDepartment extends InertiaAction
                 'title'       => __('New Department'),
                 'pageHead'    => [
                     'title'        => __('new department'),
-                    'cancelCreate' => [
-                        'route' => [
-                            'name'       => 'shops.show.departments.index',
-                            'parameters' => array_values($this->originalParameters)
-                        ],
+                    'actions'      => [
+                        [
+                            'type'  => 'button',
+                            'style' => 'cancel',
+                            'label' => __('cancel'),
+                            'route' => [
+                                'name'       => 'shops.show.departments.index',
+                                'parameters' => array_values($this->originalParameters)
+                            ],
+                        ]
                     ]
-
                 ],
                 'formData'    => [
                     'blueprint' =>

@@ -14,11 +14,11 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class RemoveDepartment extends InertiaAction
+class RemoveFamily extends InertiaAction
 {
-    public function handle(ProductCategory $department): ProductCategory
+    public function handle(ProductCategory $family): ProductCategory
     {
-        return $department;
+        return $family;
     }
 
     public function authorize(ActionRequest $request): bool
@@ -26,26 +26,26 @@ class RemoveDepartment extends InertiaAction
         return $request->user()->hasPermissionTo("shops.edit");
     }
 
-    public function inTenant(ProductCategory $department, ActionRequest $request): ProductCategory
+    public function inTenant(ProductCategory $family, ActionRequest $request): ProductCategory
     {
         $this->initialisation($request);
 
-        return $this->handle($department);
+        return $this->handle($family);
     }
 
-    public function asController(ProductCategory $department, ActionRequest $request): ProductCategory
+    public function asController(ProductCategory $family, ActionRequest $request): ProductCategory
     {
         $this->initialisation($request);
 
-        return $this->handle($department);
+        return $this->handle($family);
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inShop(Shop $shop, ProductCategory $department, ActionRequest $request): ProductCategory
+    public function inShop(Shop $shop, ProductCategory $family, ActionRequest $request): ProductCategory
     {
         $this->initialisation($request);
 
-        return $this->handle($department);
+        return $this->handle($family);
     }
 
 
@@ -53,8 +53,8 @@ class RemoveDepartment extends InertiaAction
     {
         return  [
             'buttonLabel' => __('Delete'),
-            'title'       => __('Delete Department'),
-            'text'        => __("This action will delete this Department and all it's dependent"),
+            'title'       => __('Delete Family'),
+            'text'        => __("This action will delete this Family and all it's dependent"),
             'route'       => $route
         ];
     }
@@ -65,7 +65,7 @@ class RemoveDepartment extends InertiaAction
         return Inertia::render(
             'RemoveModel',
             [
-                'title'       => __('delete department'),
+                'title'       => __('delete family'),
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
                     $request->route()->parameters
@@ -73,8 +73,8 @@ class RemoveDepartment extends InertiaAction
                 'pageHead'    => [
                     'icon'  =>
                         [
-                            'icon'  => ['fal', 'fa-map-signs'],
-                            'title' => __('department')
+                            'icon'  => ['fal', 'fa-folder'],
+                            'title' => __('family')
                         ],
                     'title'  => $department->slug,
                     'actions'=> [
@@ -92,12 +92,12 @@ class RemoveDepartment extends InertiaAction
                 'data'     => $this->getAction(
                     route:
                     match ($this->routeName) {
-                        'shops.departments.remove' => [
-                            'name'       => 'models.department.delete',
+                        'shops.families.remove' => [
+                            'name'       => 'models.family.delete',
                             'parameters' => $request->route()->originalParameters()
                         ],
-                        'shops.show.departments.remove' => [
-                            'name'       => 'models.shop.department.delete',
+                        'shops.show.families.remove' => [
+                            'name'       => 'models.shop.family.delete',
                             'parameters' => $request->route()->originalParameters()
                         ]
                     }
@@ -113,7 +113,7 @@ class RemoveDepartment extends InertiaAction
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
-        return ShowDepartment::make()->getBreadcrumbs(
+        return ShowFamily::make()->getBreadcrumbs(
             routeName: preg_replace('/remove$/', 'show', $routeName),
             routeParameters: $routeParameters,
             suffix: '('.__('deleting').')'

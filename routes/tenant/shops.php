@@ -19,6 +19,7 @@ use App\Actions\Market\ProductCategory\UI\EditFamily;
 use App\Actions\Market\ProductCategory\UI\IndexDepartments;
 use App\Actions\Market\ProductCategory\UI\IndexFamilies;
 use App\Actions\Market\ProductCategory\UI\RemoveDepartment;
+use App\Actions\Market\ProductCategory\UI\RemoveFamily;
 use App\Actions\Market\ProductCategory\UI\ShowDepartment;
 use App\Actions\Market\ProductCategory\UI\ShowFamily;
 use App\Actions\Market\Shop\ExportShops;
@@ -84,6 +85,7 @@ Route::get('/{shop}/families/create', CreateFamily::class)->name('show.families.
 Route::get('/{shop}/families', [IndexFamilies::class, 'inShop'])->name('show.families.index');
 Route::get('/{shop}/families/{family}', [ShowFamily::class, 'inShop'])->name('show.families.show');
 Route::get('/{shop}/families/{family}/edit', [EditFamily::class, 'inShop'])->name('show.families.edit');
+Route::get('/{shop}/families/{family}/delete', [RemoveFamily::class, 'inShop'])->name('show.families.remove');
 
 
 //Route::get('/departments/{department}/families', [IndexFamilies::class, $parent == 'tenant' ? 'inDepartment' : 'inDepartmentInShop'])->name('departments.show.families.index');

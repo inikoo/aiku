@@ -33,9 +33,10 @@ class ShowFamily extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('shops.families.edit');
+        $this->canEdit   = $request->user()->can('shops.edit');
+        $this->canDelete = $request->user()->can('shops.edit');
 
-        return $request->user()->hasPermissionTo("shops.families.view");
+        return $request->user()->hasPermissionTo("shops.view");
     }
 
     public function inTenant(ProductCategory $family, ActionRequest $request): ProductCategory
@@ -75,12 +76,24 @@ class ShowFamily extends InertiaAction
                         'icon'  => ['fal', 'fa-folders'],
                         'title' => __('department')
                     ],
-                    'edit'  => $this->canEdit ? [
-                        'route' => [
-                            'name'       => preg_replace('/show$/', 'edit', $this->routeName),
-                            'parameters' => array_values($this->originalParameters)
-                        ]
-                    ] : false,
+                    'actions' => [
+                        $this->canEdit ? [
+                            'type'  => 'button',
+                            'style' => 'edit',
+                            'route' => [
+                                'name'       => preg_replace('/show$/', 'edit', $this->routeName),
+                                'parameters' => $request->route()->originalParameters()
+                            ]
+                        ] : false,
+                        $this->canDelete ? [
+                            'type'  => 'button',
+                            'style' => 'delete',
+                            'route' => [
+                                'name'       => 'shops.show.families.remove',
+                                'parameters' => $request->route()->originalParameters()
+                            ]
+                        ] : false
+                    ]
                 ],
                 'tabs'                               => [
                     'current'    => $this->tab,

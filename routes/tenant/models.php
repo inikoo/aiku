@@ -46,8 +46,10 @@ use App\Actions\Inventory\WarehouseArea\UpdateWarehouseArea;
 use App\Actions\Mail\Outbox\UpdateOutbox;
 use App\Actions\Market\Product\StoreProduct;
 use App\Actions\Market\Product\UpdateProduct;
+use App\Actions\Market\ProductCategory\DeleteFamily;
 use App\Actions\Market\ProductCategory\DeleteProductCategory;
 use App\Actions\Market\ProductCategory\StoreProductCategory;
+use App\Actions\Market\ProductCategory\UpdateFamily;
 use App\Actions\Market\ProductCategory\UpdateProductCategory;
 use App\Actions\Market\Shop\DeleteShop;
 use App\Actions\Market\Shop\StoreShop;
@@ -95,6 +97,11 @@ Route::patch('/product/{product}', UpdateProduct::class)->name('product.update')
 
 Route::patch('/department/{department}', UpdateProductCategory::class)->name('department.update');
 Route::delete('/department/{department}', DeleteProductCategory::class)->name('department.delete');
+
+Route::post('/family/', StoreProductCategory::class)->name('family.store');
+Route::post('/shop/{shop}/family/', [StoreProductCategory::class, 'inShop'])->name('shop.family.store');
+Route::patch('/family/{family}', UpdateFamily::class)->name('family.update');
+Route::delete('/family/{family}', DeleteFamily::class)->name('family.delete');
 
 Route::post('/order/', StoreOrder::class)->name('order.store');
 Route::patch('/order/{order}', UpdateOrder::class)->name('order.update');
