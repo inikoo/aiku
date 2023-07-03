@@ -25,6 +25,7 @@ Route::get('/webpages', IndexWebpageVariants::class)->name('webpages.index');
 
 
 Route::get('/{website}', ShowWebsite::class)->name('show');
+Route::get('/{website}/workshop', ShowWebsite::class)->name('show.workshope.remove');
 Route::get('/{website}/edit', EditWebsite::class)->name('edit');
 Route::get('/{website}/workshop', WorkshopWebsite::class)->name('workshop');
 Route::get('/{website}/delete', RemoveWebsite::class)->name('show.remove');

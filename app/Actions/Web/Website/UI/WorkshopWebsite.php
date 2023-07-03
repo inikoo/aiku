@@ -69,24 +69,6 @@ class WorkshopWebsite extends InertiaAction
                 ),
                 'pageHead'    => [
                     'title'   => $website->name,
-                    'actions' => [
-                        $this->canEdit ? [
-                            'type'  => 'button',
-                            'style' => 'create',
-                            'route' => [
-                                'name'       => preg_replace('/show$/', 'edit', $this->routeName),
-                                'parameters' => array_values($this->originalParameters)
-                            ]
-                        ] : false,
-                        $this->canDelete ? [
-                            'type'  => 'button',
-                            'style' => 'delete',
-                            'route' => [
-                                'name'       => 'show.workshop.remove',
-                                'parameters' => array_values($this->originalParameters)
-                            ]
-                        ] : false
-                    ],
 
                 ],
                 'tabs'                                => [
