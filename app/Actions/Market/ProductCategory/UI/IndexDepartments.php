@@ -91,6 +91,23 @@ class IndexDepartments extends InertiaAction
                 ->defaultSort('slug')
                 ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
+                ->withEmptyState(
+                    [
+                        'title'       => __('no departments'),
+                        'description' => $this->canEdit ? __('Get started by creating a new department.') : null,
+                        'count'       => app('currentTenant')->stats->number_shops,
+                        'action'      => $this->canEdit ? [
+                            'type'    => 'button',
+                            'style'   => 'create',
+                            'tooltip' => __('new department'),
+                            'label'   => __('department'),
+                            'route'   => [
+                                'name'       => 'shops.departments.create',
+                                'parameters' => array_values($this->originalParameters)
+                            ]
+                        ] : null
+                    ]
+                )
                 ->column(key: 'slug', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
         };
@@ -141,14 +158,18 @@ class IndexDepartments extends InertiaAction
                 'title'       => __('Departments'),
                 'pageHead'    => [
                     'title'  => __('departments'),
-                    'create' => $this->canEdit && $this->routeName == 'shops.show.departments.index'
-                        ? [
-                            'route' => [
+                    'actions'=> [
+                        $this->canEdit && $this->routeName == 'shops.show.departments.index' ? [
+                            'type'    => 'button',
+                            'style'   => 'create',
+                            'tooltip' => __('new shop'),
+                            'label'   => __('department'),
+                            'route'   => [
                                 'name'       => 'shops.show.departments.create',
-                                'parameters' => array_values($this->originalParameters)
-                            ],
-                            'label' => __('departments')
+                                'parameters' => $request->route()->originalParameters()
+                            ]
                         ] : false,
+                    ]
                 ],
                 'data'        => DepartmentResource::collection($departments),
             ]
