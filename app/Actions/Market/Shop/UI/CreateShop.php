@@ -33,13 +33,17 @@ class CreateShop extends InertiaAction
                 'title'       => __('new shop'),
                 'pageHead'    => [
                     'title'        => __('new shop'),
-                    'cancelCreate' => [
-                        'route' => [
-                            'name'       => 'shops.index',
-                            'parameters' => array_values($this->originalParameters)
-                        ],
+                    'actions'      => [
+                        [
+                            'type'  => 'button',
+                            'style' => 'cancel',
+                            'label' => __('cancel'),
+                            'route' => [
+                                'name'       => 'shops.index',
+                                'parameters' => array_values($this->originalParameters)
+                            ],
+                        ]
                     ]
-
                 ],
                 'formData'    => [
                     'blueprint' => [
@@ -58,13 +62,14 @@ class CreateShop extends InertiaAction
                                     'required' => true,
                                     'value'    => '',
                                 ],
-
                                 'subtype' => [
-                                    'type'     => 'radio',
-                                    'label'    => __('type'),
-                                    'options'  => Options::forEnum(ShopSubtypeEnum::class),
-                                    'required' => true,
-                                    'mode'     => 'single'
+                                    'type'         => 'select',
+                                    'label'        => __('type'),
+                                    'placeholder'  => 'Select a Type',
+                                    'options'      => Options::forEnum(ShopSubtypeEnum::class),
+                                    'required'     => true,
+                                    'mode'         => 'single',
+                                    'searchable'   => true
                                 ],
                             ]
                         ],
@@ -134,7 +139,7 @@ class CreateShop extends InertiaAction
                                     ]
                                 ],
                                 'phone'        => [
-                                    'type'  => 'input',
+                                    'type'  => 'phone',
                                     'label' => __('telephone'),
                                     'value' => ''
                                 ],

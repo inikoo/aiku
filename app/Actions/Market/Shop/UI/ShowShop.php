@@ -36,7 +36,8 @@ class ShowShop extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('shops.edit');
+        $this->canEdit   = $request->user()->can('shops.edit');
+        $this->canDelete = $request->user()->can('shops.edit');
 
         return $request->user()->hasPermissionTo("shops.view");
     }
@@ -68,7 +69,6 @@ class ShowShop extends InertiaAction
                         'icon'  => 'fal fa-store-alt'
                     ],
                     'actions' => [
-
                         [
                             'type'  => 'button',
                             'style' => 'create',
@@ -79,18 +79,23 @@ class ShowShop extends InertiaAction
                             ]
 
                         ],
-
                         $this->canEdit ? [
                             'type'  => 'button',
                             'style' => 'edit',
                             'route' => [
-                                'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
+                                'name'       => preg_replace('/show$/', 'edit', $this->routeName),
                                 'parameters' => $request->route()->originalParameters()
                             ]
-
+                        ] : false,
+                        $this->canDelete ? [
+                            'type'  => 'button',
+                            'style' => 'delete',
+                            'route' => [
+                                'name'       => 'shops.remove',
+                                'parameters' => $request->route()->originalParameters()
+                            ]
                         ] : false
-                    ],
-
+                    ]
                 ],
                 'flatTreeMaps' => [
                     [

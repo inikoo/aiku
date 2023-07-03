@@ -1,21 +1,20 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Thu, 27 Apr 2023 16:36:34 Malaysia Time, Sanur, Bali, Indonesia
+ * Created: Sat, 24 Jun 2023 10:58:06 Malaysia Time, Pantai Lembeng, Bali, Id
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
 namespace App\Actions\Market\ProductCategory\UI;
 
 use App\Actions\InertiaAction;
-use App\Http\Resources\Market\DepartmentResource;
 use App\Models\Market\ProductCategory;
 use App\Models\Market\Shop;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class EditDepartment extends InertiaAction
+class RemoveDepartment extends InertiaAction
 {
     public function handle(ProductCategory $department): ProductCategory
     {
@@ -24,12 +23,17 @@ class EditDepartment extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('shops.edit');
-
         return $request->user()->hasPermissionTo("shops.edit");
     }
 
     public function inTenant(ProductCategory $department, ActionRequest $request): ProductCategory
+    {
+        $this->initialisation($request);
+
+        return $this->handle($department);
+    }
+
+    public function asController(ProductCategory $department, ActionRequest $request): ProductCategory
     {
         $this->initialisation($request);
 
@@ -44,71 +48,75 @@ class EditDepartment extends InertiaAction
         return $this->handle($department);
     }
 
+
+    public function getAction($route): array
+    {
+        return  [
+            'buttonLabel' => __('Delete'),
+            'title'       => __('Delete Department'),
+            'text'        => __("This action will delete this Department and all it's dependent"),
+            'route'       => $route
+        ];
+    }
+
     public function htmlResponse(ProductCategory $department, ActionRequest $request): Response
     {
+
         return Inertia::render(
-            'EditModel',
+            'RemoveModel',
             [
-                'title'       => __('department'),
+                'title'       => __('delete department'),
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
                     $request->route()->parameters
                 ),
                 'pageHead'    => [
-                    'title'    => $department->name,
-                    'actions'  => [
+                    'icon'  =>
+                        [
+                            'icon'  => ['fal', 'fa-folder-tree'],
+                            'title' => __('department')
+                        ],
+                    'title'  => $department->slug,
+                    'actions'=> [
                         [
                             'type'  => 'button',
-                            'style' => 'exitEdit',
+                            'style' => 'cancel',
+                            'label' => __('cancel'),
                             'route' => [
-                                'name'       => preg_replace('/edit$/', 'show', $this->routeName),
+                                'name'       => preg_replace('/remove$/', 'show', $this->routeName),
                                 'parameters' => array_values($this->originalParameters)
                             ]
                         ]
                     ]
                 ],
-
-                'formData' => [
-                    'blueprint' => [
-                        [
-                            'title'  => __('id'),
-                            'fields' => [
-                                'code' => [
-                                    'type'  => 'input',
-                                    'label' => __('code'),
-                                    'value' => $department->code
-                                ],
-                                'name' => [
-                                    'type'  => 'input',
-                                    'label' => __('name'),
-                                    'value' => $department->name
-                                ],
-                            ]
-                        ]
-
-                    ],
-                    'args'      => [
-                        'updateRoute' => [
-                            'name'       => 'models.department.update',
-                            'parameters' => $department->slug
+                'data'     => $this->getAction(
+                    route:
+                    match ($this->routeName) {
+                        'shops.departments.remove' => [
+                            'name'       => 'models.department.delete',
+                            'parameters' => $request->route()->originalParameters()
                         ],
-                    ]
-                ]
+                        'shops.show.departments.remove' => [
+                            'name'       => 'models.shop.department.delete',
+                            'parameters' => $request->route()->originalParameters()
+                        ]
+                    }
+                )
+
+
+
+
             ]
         );
     }
 
-    public function jsonResponse(ProductCategory $department): DepartmentResource
-    {
-        return new DepartmentResource($department);
-    }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
         return ShowDepartment::make()->getBreadcrumbs(
-            routeName: preg_replace('/edit$/', 'show', $routeName),
+            routeName: preg_replace('/remove$/', 'show', $routeName),
             routeParameters: $routeParameters,
-            suffix: '('.__('editing').')'
+            suffix: '('.__('deleting').')'
         );
     }
 }

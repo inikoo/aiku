@@ -1,0 +1,122 @@
+<?php
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Sat, 24 Jun 2023 10:58:06 Malaysia Time, Pantai Lembeng, Bali, Id
+ * Copyright (c) 2023, Raul A Perusquia Flores
+ */
+
+namespace App\Actions\Market\ProductCategory\UI;
+
+use App\Actions\InertiaAction;
+use App\Models\Market\ProductCategory;
+use App\Models\Market\Shop;
+use Inertia\Inertia;
+use Inertia\Response;
+use Lorisleiva\Actions\ActionRequest;
+
+class RemoveFamily extends InertiaAction
+{
+    public function handle(ProductCategory $family): ProductCategory
+    {
+        return $family;
+    }
+
+    public function authorize(ActionRequest $request): bool
+    {
+        return $request->user()->hasPermissionTo("shops.edit");
+    }
+
+    public function inTenant(ProductCategory $family, ActionRequest $request): ProductCategory
+    {
+        $this->initialisation($request);
+
+        return $this->handle($family);
+    }
+
+    public function asController(ProductCategory $family, ActionRequest $request): ProductCategory
+    {
+        $this->initialisation($request);
+
+        return $this->handle($family);
+    }
+
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inShop(Shop $shop, ProductCategory $family, ActionRequest $request): ProductCategory
+    {
+        $this->initialisation($request);
+
+        return $this->handle($family);
+    }
+
+
+    public function getAction($route): array
+    {
+        return  [
+            'buttonLabel' => __('Delete'),
+            'title'       => __('Delete Family'),
+            'text'        => __("This action will delete this Family and all it's dependent"),
+            'route'       => $route
+        ];
+    }
+
+    public function htmlResponse(ProductCategory $department, ActionRequest $request): Response
+    {
+
+        return Inertia::render(
+            'RemoveModel',
+            [
+                'title'       => __('delete family'),
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
+                    $request->route()->parameters
+                ),
+                'pageHead'    => [
+                    'icon'  =>
+                        [
+                            'icon'  => ['fal', 'fa-folder'],
+                            'title' => __('family')
+                        ],
+                    'title'  => $department->slug,
+                    'actions'=> [
+                        [
+                            'type'  => 'button',
+                            'style' => 'cancel',
+                            'label' => __('cancel'),
+                            'route' => [
+                                'name'       => preg_replace('/remove$/', 'show', $this->routeName),
+                                'parameters' => array_values($this->originalParameters)
+                            ]
+                        ]
+                    ]
+                ],
+                'data'     => $this->getAction(
+                    route:
+                    match ($this->routeName) {
+                        'shops.families.remove' => [
+                            'name'       => 'models.family.delete',
+                            'parameters' => $request->route()->originalParameters()
+                        ],
+                        'shops.show.families.remove' => [
+                            'name'       => 'models.shop.family.delete',
+                            'parameters' => $request->route()->originalParameters()
+                        ]
+                    }
+                )
+
+
+
+
+            ]
+        );
+    }
+
+
+    public function getBreadcrumbs(string $routeName, array $routeParameters): array
+    {
+        return ShowFamily::make()->getBreadcrumbs(
+            routeName: preg_replace('/remove$/', 'show', $routeName),
+            routeParameters: $routeParameters,
+            suffix: '('.__('deleting').')'
+        );
+    }
+}

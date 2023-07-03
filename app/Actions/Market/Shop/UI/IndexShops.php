@@ -81,6 +81,23 @@ class IndexShops extends InertiaAction
             $table
                 ->withGlobalSearch()
                 ->withModelOperations()
+                ->withEmptyState(
+                    [
+                        'title'       => __('no shops'),
+                        'description' => $this->canEdit ? __('Get started by creating a new shop.') : null,
+                        'count'       => app('currentTenant')->stats->number_shops,
+                        'action'      => $this->canEdit ? [
+                            'type'    => 'button',
+                            'style'   => 'create',
+                            'tooltip' => __('new shop'),
+                            'label'   => __('shop'),
+                            'route'   => [
+                                'name'       => 'shops.create',
+                                'parameters' => array_values($this->originalParameters)
+                            ]
+                        ] : null
+                    ]
+                )
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'type', label: __('type'), canBeHidden: false, sortable: true, searchable: true)
@@ -124,20 +141,18 @@ class IndexShops extends InertiaAction
                 'title'       => __('shops'),
                 'pageHead'    => [
                     'title'   => __('shops'),
-                    'create'  => $this->canEdit && $this->routeName=='shops.index' ? [
-                        'route' => [
-                            'name'       => 'shops.create',
-                            'parameters' => array_values($this->originalParameters)
-                        ],
-                        'label'    => __('shop'),
-                        'withMulti'=> [
-                            'route' => [
-                                'name'       => 'shops.create-multi',
-                                'parameters' => array_values($this->originalParameters)
-                            ],
-                        ]
-                    ] : false,
-
+                    'actions' => [
+                        $this->canEdit && $this->routeName=='shops.index' ? [
+                            'type'    => 'button',
+                            'style'   => 'create',
+                            'tooltip' => __('new shop'),
+                            'label'   => __('shop'),
+                            'route'   => [
+                                'name'       => 'shops.create',
+                                'parameters' => $request->route()->originalParameters()
+                            ]
+                        ] : false,
+                    ]
                 ],
 
                 'tabs' => [

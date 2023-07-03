@@ -36,6 +36,7 @@ use App\Models\Search\UniversalSearch;
 use App\Models\Traits\HasTenantAddress;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Web\Website;
+use Database\Factories\Market\ShopFactory;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -111,7 +112,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Timezone $timezone
  * @property-read UniversalSearch|null $universalSearch
  * @property-read Website|null $website
- * @method static \Database\Factories\Market\ShopFactory factory($count = null, $state = [])
+ * @method static ShopFactory factory($count = null, $state = [])
  * @method static Builder|Shop newModelQuery()
  * @method static Builder|Shop newQuery()
  * @method static Builder|Shop onlyTrashed()

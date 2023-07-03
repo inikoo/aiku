@@ -47,7 +47,7 @@ class UpdateShop
             'contact_name'             => ['sometimes', 'nullable', 'string', 'max:255'],
             'company_name'             => ['sometimes', 'nullable', 'string', 'max:255'],
             'email'                    => ['sometimes', 'nullable', 'email'],
-            'phone'                    => 'sometimes|nullable',
+            'phone'                    => ['sometimes','nullable'],
             'identity_document_number' => ['sometimes', 'nullable', 'string'],
             'identity_document_type'   => ['sometimes', 'nullable', 'string'],
             'type'                     => ['sometimes', 'required', Rule::in(ShopTypeEnum::values())],

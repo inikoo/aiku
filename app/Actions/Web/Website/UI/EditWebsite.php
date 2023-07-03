@@ -35,13 +35,16 @@ class EditWebsite extends InertiaAction
     /**
      * @throws Exception
      */
-    public function htmlResponse(Website $website): Response
+    public function htmlResponse(Website $website, ActionRequest $request): Response
     {
         return Inertia::render(
             'EditModel',
             [
                 'title'       => __('edit website'),
-                'breadcrumbs' => $this->getBreadcrumbs($website),
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
+                    $request->route()->parameters()
+                ),
                 'pageHead'    => [
                     'title'     => $website->name,
                     'actions'   => [
@@ -57,51 +60,57 @@ class EditWebsite extends InertiaAction
                 ],
                 'formData' => [
                     'blueprint' => [
+
                         [
-                            'title'  => __('Detail'),
+                            'title'  => __('ID/domain'),
                             'icon'   => 'fa-light fa-id-card',
                             'fields' => [
+                                'code' => [
+                                    'type'     => 'input',
+                                    'label'    => __('code'),
+                                    'value'    => $website->code,
+                                    'required' => true,
+
+                                ],
+                                'name' => [
+                                    'type'     => 'input',
+                                    'label'    => __('name'),
+                                    'value'    => $website->name,
+                                    'required' => true,
+
+                                ],
                                 'domain' => [
                                     'type'      => 'inputWithAddOn',
                                     'label'     => __('domain'),
                                     'leftAddOn' => [
                                         'label'=> 'http://www.'
                                     ],
-                                    'value'    => $website->domain
+                                    'value'    => $website->domain,
+                                    'required' => true,
+
                                 ],
+
+
+
+
                             ]
                         ],
-                        [
-                            'title'  => __('ID/name'),
-                            'fields' => [
-                                'code' => [
-                                    'type'  => 'input',
-                                    'label' => __('code'),
-                                    'value' => $website->code
-                                ],
-                                'name' => [
-                                    'type'     => 'input',
-                                    'label'    => __('name'),
-                                    'value'    => $website->name
-                                ],
-                            ]
+                    ],
+                    'args'      => [
+                        'updateRoute' => [
+                            'name'       => 'models.website.update',
+                            'parameters' => $website->slug
                         ],
                     ]
                 ],
-                'args'      => [
-                    'updateRoute' => [
-                        'name'       => 'models.website.update',
-                        'parameters' => $website->slug
-                    ],
-                ]
+
             ]
         );
     }
 
 
-    public function getBreadcrumbs(Website $website): array
+    public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
-        $routeParameters = ['website' => $website];
-        return ShowWebsite::make()->getBreadcrumbs($website, $routeParameters, suffix: '('.__('editing').')');
+        return ShowWebsite::make()->getBreadcrumbs($routeName, $routeParameters, suffix: '('.__('editing').')');
     }
 }

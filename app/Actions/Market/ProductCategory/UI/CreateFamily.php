@@ -29,6 +29,7 @@ class CreateFamily extends InertiaAction
         return $request;
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
     public function inShop(Shop $shop, ActionRequest $request): Response
     {
         $this->initialisation($request);
@@ -45,41 +46,47 @@ class CreateFamily extends InertiaAction
                     $request->route()->getName(),
                     $request->route()->parameters
                 ),
-                'title'       => __('New Department'),
+                'title'       => __('New Family'),
                 'pageHead'    => [
-                    'title'        => __('new department'),
-                    'cancelCreate' => [
-                        'route' => [
-                            'name'       => 'shops.show.departments.index',
-                            'parameters' => array_values($this->originalParameters)
-                        ],
+                    'title'        => __('new family'),
+                    'actions'      => [
+                        [
+                            'type'  => 'button',
+                            'style' => 'cancel',
+                            'label' => __('cancel'),
+                            'route' => [
+                                'name'       => 'shops.show.families.index',
+                                'parameters' => array_values($this->originalParameters)
+                            ],
+                        ]
                     ]
-
                 ],
                 'formData'    => [
                     'blueprint' =>
                         [
                             [
-                                'title'  => __('department'),
+                                'title'  => __('family'),
                                 'fields' => [
                                     'code' => [
-                                        'type'  => 'input',
-                                        'label' => __('code')
+                                        'type'     => 'input',
+                                        'label'    => __('code'),
+                                        'required' => true
                                     ],
                                     'name' => [
-                                        'type'  => 'input',
-                                        'label' => __('name')
+                                        'type'     => 'input',
+                                        'label'    => __('name'),
+                                        'required' => true
                                     ],
                                 ]
                             ]
                         ],
                     'route' => match ($this->routeName) {
-                        'shops.show.departments.create' => [
-                            'name'      => 'models.shop.department.store',
+                        'shops.show.families.create' => [
+                            'name'      => 'models.shop.family.store',
                             'arguments' => [$request->route()->parameters['shop']->slug]
                         ],
                         default => [
-                            'name' => 'models.department.store'
+                            'name' => 'models.family.store'
                         ]
                     }
                 ]
@@ -92,7 +99,7 @@ class CreateFamily extends InertiaAction
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
         return array_merge(
-            IndexDepartments::make()->getBreadcrumbs(
+            IndexFamilies::make()->getBreadcrumbs(
                 routeName: preg_replace('/create$/', 'index', $routeName),
                 routeParameters: $routeParameters,
             ),
@@ -100,7 +107,7 @@ class CreateFamily extends InertiaAction
                 [
                     'type'         => 'creatingModel',
                     'creatingModel'=> [
-                        'label'=> __('creating department'),
+                        'label'=> __('creating family'),
                     ]
                 ]
             ]

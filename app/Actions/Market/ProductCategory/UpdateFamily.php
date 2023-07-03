@@ -13,7 +13,7 @@ use App\Http\Resources\Market\DepartmentResource;
 use App\Models\Market\ProductCategory;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdateProductCategory
+class UpdateFamily
 {
     use WithActionUpdate;
 

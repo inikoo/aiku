@@ -29,6 +29,7 @@ class CreateDepartment extends InertiaAction
         return $request;
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
     public function inShop(Shop $shop, ActionRequest $request): Response
     {
         $this->initialisation($request);
@@ -48,13 +49,17 @@ class CreateDepartment extends InertiaAction
                 'title'       => __('New Department'),
                 'pageHead'    => [
                     'title'        => __('new department'),
-                    'cancelCreate' => [
-                        'route' => [
-                            'name'       => 'shops.show.departments.index',
-                            'parameters' => array_values($this->originalParameters)
-                        ],
+                    'actions'      => [
+                        [
+                            'type'  => 'button',
+                            'style' => 'cancel',
+                            'label' => __('cancel'),
+                            'route' => [
+                                'name'       => 'shops.show.departments.index',
+                                'parameters' => array_values($this->originalParameters)
+                            ],
+                        ]
                     ]
-
                 ],
                 'formData'    => [
                     'blueprint' =>
@@ -63,19 +68,21 @@ class CreateDepartment extends InertiaAction
                                 'title'  => __('department'),
                                 'fields' => [
                                     'code' => [
-                                        'type'  => 'input',
-                                        'label' => __('code')
+                                        'type'     => 'input',
+                                        'label'    => __('code'),
+                                        'required' => true
                                     ],
                                     'name' => [
-                                        'type'  => 'input',
-                                        'label' => __('name')
+                                        'type'     => 'input',
+                                        'label'    => __('name'),
+                                        'required' => true
                                     ],
                                 ]
                             ]
                         ],
                     'route' => match ($this->routeName) {
                         'shops.show.departments.create' => [
-                            'name'      => 'models.shop.show.department.store',
+                            'name'      => 'models.shop.department.store',
                             'arguments' => [$request->route()->parameters['shop']->slug]
                         ],
                         default => [

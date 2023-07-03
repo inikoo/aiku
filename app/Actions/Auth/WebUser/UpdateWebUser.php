@@ -25,7 +25,6 @@ class UpdateWebUser
     public function handle(WebUser $webUser, array $modelData): WebUser
     {
         if (Arr::exists($modelData, 'password')) {
-            $modelData['password'] = Hash::make($modelData['password']);
             data_set($modelData, 'password', Hash::make($modelData['password']));
             data_set($modelData, 'auth_type', WebUserAuthTypeEnum::DEFAULT);
             data_set($modelData, 'data.legacy_password', null);

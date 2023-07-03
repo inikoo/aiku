@@ -1,3 +1,8 @@
+<!--
+  -  Author: Raul Perusquia <raul@inikoo.com>
+  -  Created: Tue, 08 Nov 2022 22:50:49 Malaysia Time, Sheffield, UK
+  -  Copyright (c) 2022, Raul A Perusquia Flores
+  -->
 <script setup>
 import {onMounted, ref} from 'vue';
 import {library} from '@fortawesome/fontawesome-svg-core';

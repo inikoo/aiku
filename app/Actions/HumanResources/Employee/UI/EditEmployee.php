@@ -84,7 +84,8 @@ class EditEmployee extends InertiaAction
                                     'options'     => Options::forModels(JobPosition::class, label: 'name', value: 'name'),
                                     'placeholder' => 'Select a Position',
                                     'mode'        => 'single',
-                                    'value'       => $employee->job_title
+                                    'value'       => $employee->job_title,
+                                    'searchable'  => true
                                 ],
                                 'state' => [
                                     'type'        => 'select',
@@ -92,7 +93,8 @@ class EditEmployee extends InertiaAction
                                     'options'     => Options::forEnum(EmployeeStateEnum::class),
                                     'placeholder' => 'Select a State',
                                     'mode'        => 'single',
-                                    'value'       => $employee->state
+                                    'value'       => $employee->state,
+                                    'searchable'  => true
                                 ]
                             ]
                         ]

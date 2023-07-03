@@ -36,8 +36,8 @@ class ShowDepartment extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('shops.departments.edit');
-
+        $this->canEdit   = $request->user()->can('shops.edit');
+        $this->canDelete = $request->user()->can('shops.edit');
         return $request->user()->hasPermissionTo("shops.products.view");
     }
 
@@ -58,8 +58,6 @@ class ShowDepartment extends InertiaAction
 
     public function htmlResponse(ProductCategory $department, ActionRequest $request): Response
     {
-        //        $this->validateAttributes();
-
         return Inertia::render(
             'Market/Department',
             [
@@ -75,15 +73,27 @@ class ShowDepartment extends InertiaAction
                 'pageHead'                           => [
                     'title' => $department->name,
                     'icon'  => [
-                        'icon'  => ['fal', 'fa-folders'],
+                        'icon'  => ['fal', 'fa-folder-tree'],
                         'title' => __('department')
                     ],
-                    'edit'  => $this->canEdit ? [
-                        'route' => [
-                            'name'       => preg_replace('/show$/', 'edit', $this->routeName),
-                            'parameters' => array_values($this->originalParameters)
-                        ]
-                    ] : false,
+                    'actions' => [
+                        $this->canEdit ? [
+                            'type'  => 'button',
+                            'style' => 'edit',
+                            'route' => [
+                                'name'       => preg_replace('/show$/', 'edit', $this->routeName),
+                                'parameters' => $request->route()->originalParameters()
+                            ]
+                        ] : false,
+                        $this->canDelete ? [
+                            'type'  => 'button',
+                            'style' => 'delete',
+                            'route' => [
+                                'name'       => 'shops.show.departments.remove',
+                                'parameters' => $request->route()->originalParameters()
+                            ]
+                        ] : false
+                    ]
                 ],
                 'tabs'                               => [
                     'current'    => $this->tab,
