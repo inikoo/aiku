@@ -14,14 +14,9 @@ use App\Models\CRM\Customer;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Support\Carbon;
-use Laravel\Sanctum\HasApiTokens;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
-use Spatie\Sluggable\HasSlug;
-use Spatie\Sluggable\SlugOptions;
 
 /**
  * App\Models\Auth\WebUser
@@ -58,47 +53,10 @@ use Spatie\Sluggable\SlugOptions;
  */
 class WebUser extends Authenticatable
 {
+    use IsWebUser;
     use UsesTenantConnection;
-    use HasApiTokens;
-    use SoftDeletes;
-    use HasSlug;
-
-    protected $guarded = [
-    ];
-
-    protected $hidden = [
-        'password',
-        'remember_token',
-    ];
-
-    protected $casts = [
-
-        'data'      => 'array',
-        'settings'  => 'array',
-        'state'     => WebUserTypeEnum::class,
-        'auth_type' => WebUserAuthTypeEnum::class,
-    ];
 
 
-    protected $attributes = [
-        'data'     => '{}',
-        'settings' => '{}',
-    ];
-
-    public function getSlugOptions(): SlugOptions
-    {
-        return SlugOptions::create()
-            ->generateSlugsFrom(function () {
-                $slug = $this->username;
-                if (filter_var($this->username, FILTER_VALIDATE_EMAIL)) {
-                    $slug = strstr($this->username, '@', true);
-                }
-
-                return $slug;
-            })
-            ->doNotGenerateSlugsOnUpdate()
-            ->saveSlugsTo('slug')->slugsShouldBeNoLongerThan(12);
-    }
 
     protected static function booted(): void
     {
@@ -109,13 +67,5 @@ class WebUser extends Authenticatable
         });
     }
 
-    public function customer(): BelongsTo
-    {
-        return $this->belongsTo(Customer::class);
-    }
 
-    public function getRouteKeyName(): string
-    {
-        return 'slug';
-    }
 }
