@@ -70,6 +70,11 @@ class ShowProduct extends InertiaAction
                 ],
                 'pageHead'    => [
                     'title'   => $product->code,
+                    'icon'    =>
+                        [
+                            'icon'  => ['fal', 'fa-cube'],
+                            'title' => __('product')
+                        ],
                     'actions' => [
                         $this->canEdit ? [
                             'type'  => 'button',

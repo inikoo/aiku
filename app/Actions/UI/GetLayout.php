@@ -533,7 +533,7 @@ class GetLayout
                 'icon'         => ['fal', 'fa-abacus'],
                 'route'        => [
                     'all'      => 'accounting.dashboard',
-                    'selected' => 'accounting.shops.show.dashboard',
+                    'selected' => 'accounting.dashboard',
                 ],
 
 

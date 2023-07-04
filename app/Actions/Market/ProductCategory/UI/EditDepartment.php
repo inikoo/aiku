@@ -53,6 +53,10 @@ class EditDepartment extends InertiaAction
                     $request->route()->getName(),
                     $request->route()->parameters
                 ),
+                'navigation'                            => [
+                    'previous' => $this->getPrevious($department, $request),
+                    'next'     => $this->getNext($department, $request),
+                ],
                 'pageHead'    => [
                     'title'    => $department->name,
                     'actions'  => [
@@ -70,7 +74,7 @@ class EditDepartment extends InertiaAction
                 'formData' => [
                     'blueprint' => [
                         [
-                            'title'  => __('id'),
+                            'title'  => __('edit department'),
                             'fields' => [
                                 'code' => [
                                     'type'  => 'input',
@@ -106,5 +110,46 @@ class EditDepartment extends InertiaAction
             routeParameters: $routeParameters,
             suffix: '('.__('editing').')'
         );
+    }
+
+    public function getPrevious(ProductCategory $department, ActionRequest $request): ?array
+    {
+        $previous = ProductCategory::where('code', '<', $department->code)->orderBy('code', 'desc')->first();
+        return $this->getNavigation($previous, $request->route()->getName());
+
+    }
+
+    public function getNext(ProductCategory $department, ActionRequest $request): ?array
+    {
+        $next = ProductCategory::where('code', '>', $department->code)->orderBy('code')->first();
+        return $this->getNavigation($next, $request->route()->getName());
+    }
+
+    private function getNavigation(?ProductCategory $department, string $routeName): ?array
+    {
+        if(!$department) {
+            return null;
+        }
+        return match ($routeName) {
+            'shops.departments.edit'=> [
+                'label'=> $department->name,
+                'route'=> [
+                    'name'      => $routeName,
+                    'parameters'=> [
+                        'department'=> $department->slug
+                    ]
+                ]
+            ],
+            'shops.show.departments.edit'=> [
+                'label'=> $department->name,
+                'route'=> [
+                    'name'      => $routeName,
+                    'parameters'=> [
+                        'shop'      => $department->shop->slug,
+                        'department'=> $department->slug
+                    ]
+                ]
+            ],
+        };
     }
 }
