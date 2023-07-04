@@ -34,7 +34,7 @@ enum ShopTabsEnum: string
             ],
             ShopTabsEnum::DEPARTMENTS => [
                 'title' => __('departments'),
-                'icon'  => 'fal fa-folder-tree',
+                'icon'  => 'fal fa-folders',
             ],
             ShopTabsEnum::FAMILIES => [
                 'title' => __('families'),

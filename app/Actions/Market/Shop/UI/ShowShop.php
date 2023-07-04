@@ -231,7 +231,8 @@ class ShowShop extends InertiaAction
                             'name'       => 'shops.show.departments.create',
                             'parameters' => array_values([$shop->slug])
                         ],
-                        'label' => __('departments')
+                        'label' => __('departments'),
+                        'style' => 'edit'
                     ] : false
                 ],
                 prefix: 'departments'
@@ -245,7 +246,7 @@ class ShowShop extends InertiaAction
                             'name'       => 'shops.show.families.create',
                             'parameters' => array_values([$shop->slug])
                         ],
-                        'label' => __('families')
+                        'label' => __('families'),
                     ] : false
                 ],
                 prefix: 'families'
@@ -259,7 +260,7 @@ class ShowShop extends InertiaAction
                             'name'       => 'shops.show.products.create',
                             'parameters' => array_values([$shop->slug])
                         ],
-                        'label' => __('product')
+                        'label' => __('product'),
                     ] : false
                 ],
                 prefix: 'products'

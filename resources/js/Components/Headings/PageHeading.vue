@@ -4,7 +4,6 @@
   -  Copyright (c) 2022, Raul A Perusquia Flores
   -->
 
-<!--suppress ALL -->
 <script setup>
 import { Link } from "@inertiajs/vue3";
 import { library } from "@fortawesome/fontawesome-svg-core";
@@ -38,7 +37,6 @@ const getActionLabel = function(action) {
 
             case "delete":
                 return trans("delete")
-
             default:
                 return ""
         }
@@ -113,7 +111,7 @@ const getActionIcon = (action) => {
                         </Link>
                         <template v-else-if="item['emptyWithCreateAction']">
                             <FontAwesomeIcon icon="fal fa-empty-set" class="mr-2" />
-                            <Button type="primary" size="xs" action="create">
+                            <Button type="submit" size="xs" action="create">
                                 {{ item["emptyWithCreateAction"]["label"] }}
                             </Button>
                         </template>
@@ -139,6 +137,7 @@ const getActionIcon = (action) => {
                 </Link>
 
                 <!-- Button Group () -->
+                <!--suppress HtmlUnknownTag -->
                 <div v-if="action.type === 'buttonGroup'" class="first:rounded-l-md overflow-hidden last:rounded-r-md">
                     <Link v-for="button in action.buttons" :href="route(button['route']['name'], button['route']['parameters'])" class="">
                         <Button

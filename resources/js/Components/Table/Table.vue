@@ -577,7 +577,7 @@ const handleElementsChange = (data) => {
                         <div v-if="queryBuilderProps.modelOperations.createLink">
                             <Link :href="route(queryBuilderProps.modelOperations.createLink.route.name, queryBuilderProps.modelOperations.createLink.route.parameters[0])">
                                 <!--suppress HtmlWrongAttributeValue -->
-                                <Button type='secondary' action="create" class="bg-indigo-100/60 hover:bg-indigo-100 capitalize focus:ring-offset-0 focus:ring-transparent rounded-l-none border-indigo-500">
+                                <Button action="create" class="capitalize bg-indigo-700 hover:bg-indigo-500 text-white font-semibold hover:text-white py-2 px-4 border border-transparent hover:border-transparent rounded">
                                     {{queryBuilderProps.modelOperations.createLink.label}}
                                 </Button>
                             </Link>

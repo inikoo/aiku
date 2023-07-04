@@ -73,7 +73,7 @@ class ShowDepartment extends InertiaAction
                 'pageHead'                           => [
                     'title' => $department->name,
                     'icon'  => [
-                        'icon'  => ['fal', 'fa-folder-tree'],
+                        'icon'  => ['fal', 'fa-folders'],
                         'title' => __('department')
                     ],
                     'actions' => [

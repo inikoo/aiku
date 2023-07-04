@@ -7,15 +7,11 @@
 
 namespace App\Actions\Web\Website\UI;
 
-use App\Actions\Helpers\History\IndexHistories;
 use App\Actions\InertiaAction;
 use App\Actions\UI\WithInertia;
-use App\Actions\Web\WebpageVariant\IndexWebpageVariants;
 use App\Enums\UI\WebsiteTabsEnum;
 use App\Enums\UI\WorkshopTabsEnum;
-use App\Http\Resources\Market\WebpageResource;
 use App\Http\Resources\Market\WebsiteResource;
-use App\Http\Resources\SysAdmin\HistoryResource;
 use App\Models\Market\Shop;
 use App\Models\Web\Website;
 use Inertia\Inertia;
@@ -69,24 +65,22 @@ class WorkshopWebsite extends InertiaAction
                 ),
                 'pageHead'    => [
                     'title'   => $website->name,
-
                 ],
                 'tabs'                                => [
                     'current'    => $this->tab,
                     'navigation' => WorkshopTabsEnum::navigation()
                 ],
                 WorkshopTabsEnum::HEADER->value => $this->tab == WorkshopTabsEnum::HEADER->value ?
-                    fn () => WebpageResource::collection(IndexWebpageVariants::run($this->website))
-                    : Inertia::lazy(fn () => WebpageResource::collection(IndexWebpageVariants::run($this->website))),
+                    fn () => WebsiteResource::collection(IndexWebsitesHeader::run($website))
+                    : Inertia::lazy(fn () => WebsiteResource::collection(IndexWebsitesHeader::run($website))),
                 WorkshopTabsEnum::MENU->value => $this->tab == WorkshopTabsEnum::MENU->value ?
-                    fn () => HistoryResource::collection(IndexHistories::run($website))
-                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistories::run($website))),
+                    fn () => WebsiteResource::collection(IndexWebsitesMenu::run($website))
+                    : Inertia::lazy(fn () => WebsiteResource::collection(IndexWebsitesMenu::run($website))),
                 WorkshopTabsEnum::FOOTER->value => $this->tab == WorkshopTabsEnum::FOOTER->value ?
-                    fn () => HistoryResource::collection(IndexHistories::run($website))
-                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistories::run($website)))
+                    fn () => WebsiteResource::collection(IndexWebsitesFooter::run($website))
+                    : Inertia::lazy(fn () => WebsiteResource::collection(IndexWebsitesFooter::run($website)))
             ]
-        )->table(IndexWebpageVariants::make()->tableStructure($website))
-            ->table(IndexHistories::make()->tableStructure());
+        );
     }
 
 
