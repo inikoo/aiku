@@ -47,22 +47,20 @@ class GetLayout
 
         if ($user->can('business-intelligence.view')) {
             $navigation['business_intelligence'] = [
-                'name'         => __('Business Intelligence'),
-                'icon'         => ['fal', 'fa-lightbulb'],
-                'route'        => 'business_intelligence.dashboard',
-                'routeOption'  => 'business_intelligence.shop.dashboard',
-                'labelShowAll' => __('All shops'),
-                'currentData'  => [
-                    'slug' => null,
-                    'name' => __('All shops'),
-                    'code' => __('All')
+                'label' => __('Business Intelligence'),
+
+                'scope' => 'shops',
+                'icon'  => ['fal', 'fa-lightbulb'],
+
+                'route' => [
+                    'all'      => 'business_intelligence.dashboard',
+                    'selected' => 'business_intelligence.shops.show.dashboard'
                 ],
-                'topMenu'      => [
+
+                'topMenu' => [
 
                     'dropdown' => [
-                        'type'        => 'shops',
-                        'options'     => $shops,
-                        'subsections' => [
+                        'links' => [
                             [
                                 'label'   => __('dashboard'),
                                 'tooltip' => __('Dashboard'),
@@ -86,32 +84,34 @@ class GetLayout
 
         if ($user->can('shops.view')) {
             $navigation['shops'] = [
-                'name'         => __('Shops'),
-                'icon'         => ['fal', 'fa-store-alt'],
-                'route'        => 'shops.index',
-                'routeOption'  => 'shops.show',
-                'labelShowAll' => __('All shops'),
-                'currentData'  => [
-                    'slug' => null,
-                    'name' => __('All shops'),
-                    'code' => __('All')
+                'scope' => 'shops',
+                'icon'  => ['fal', 'fa-store-alt'],
+
+                'label' => [
+                    'all'      => __('Shops'),
+                    'selected' => __('Shop')
+
                 ],
+                'route' => [
+                    'all'      => 'shops.index',
+                    'selected' => 'shops.show'
+                ],
+
 
                 'topMenu' => [
 
                     'dropdown' => [
-                        'scope' => 'shops',
                         'links' => [
 
                             [
-                                'tooltip'        => __('shops'),
-                                'icon'           => ['fal', 'fa-store-alt'],
-                                'route'          => [
+                                'tooltip' => __('shops'),
+                                'icon'    => ['fal', 'fa-store-alt'],
+                                'route'   => [
                                     'all'      => 'shops.index',
                                     'selected' => 'shops.show',
 
                                 ],
-                                'label'          => [
+                                'label'   => [
                                     'all'      => __('Shops'),
                                     'selected' => __('Shop'),
 
@@ -156,19 +156,21 @@ class GetLayout
 
         if ($user->can('websites.view')) {
             $navigation['websites'] = [
-                'name'         => __('Websites'),
-                'icon'         => ['fal', 'fa-globe'],
-                'route'        => 'websites.dashboard',
-                'routeOption'  => 'websites.show',
-                'labelShowAll' => __('All websites'),
-                'currentData'  => [
-                    'slug' => null,
-                    'name' => __('All websites'),
-                    'code' => __('All')
+                'scope' => 'websites',
+                'icon'  => ['fal', 'fa-globe'],
+                'label' => [
+                    'all'      => __('Websites'),
+                    'selected' => __('Website')
+
                 ],
-                'topMenu'      => [
+                'route' => [
+                    'all'      => 'websites.index',
+                    'selected' => 'websites.show'
+                ],
+
+
+                'topMenu' => [
                     'dropdown' => [
-                        'scope' => 'websites',
 
                         'links' => [
                             [
@@ -205,13 +207,14 @@ class GetLayout
 
         if ($user->can('marketing.view')) {
             $navigation['marketing'] = [
-                'name'    => __('Marketing'),
+                'scope'   => 'shops',
+                'label'   => __('Marketing'),
                 'icon'    => ['fal', 'fa-bullhorn'],
                 'route'   => 'marketing.hub',
                 'topMenu' => [
                     'subSections' => [],
                     'dropdown'    => [
-                        'scope' => 'shops',
+
                         'links' => []
                     ]
                 ]
@@ -221,32 +224,28 @@ class GetLayout
 
         if ($user->can('crm.view')) {
             $navigation['crm'] = [
-                'name'         => __('Customers'),
-                'icon'         => ['fal', 'fa-user'],
-                'route'        => 'crm.dashboard',
-                'routeOption'  => 'crm.shops.show.dashboard',
-                'labelShowAll' => __('All shops'),
-                'currentData'  => [
-                    'slug' => null,
-                    'name' => __('All shops'),
-                    'code' => __('All')
+                'scope' => 'shops',
+                'label' => __('Customers'),
+                'icon'  => ['fal', 'fa-user'],
+
+                'route' => [
+                    'all'      => 'crm.dashboard',
+                    'selected' => 'crm.shops.show.dashboard',
                 ],
-                'topMenu'      => [
+
+                'topMenu' => [
 
                     'dropdown' => [
-                        'scope' => 'shops',
+
                         'links' => [
                             [
                                 'label'   => __('dashboard'),
                                 'tooltip' => __('Dashboard'),
-
-
-                                'icon'  => ['fal', 'fa-tasks-alt'],
-                                'route' =>
+                                'icon'    => ['fal', 'fa-tasks-alt'],
+                                'route'   =>
                                     [
                                         'all'      => ['crm.dashboard'],
                                         'selected' => ['crm.shops.show.dashboard'],
-
                                     ]
                             ],
                             [
@@ -280,21 +279,15 @@ class GetLayout
 
         if ($user->can('oms.view')) {
             $navigation['oms'] = [
-                'name'         => __('Orders'),
-                'icon'         => ['fal', 'fa-shopping-cart'],
-                'route'        => 'oms.dashboard',
-                'routeOption'  => 'oms.shops.show.dashboard',
-                'labelShowAll' => __('All shops'),
-                'currentData'  => [
-                    'slug' => null,
-                    'name' => __('All shops'),
-                    'code' => __('All')
+                'scope'   => 'shops',
+                'label'   => __('Orders'),
+                'icon'    => ['fal', 'fa-shopping-cart'],
+                'route'   => [
+                    'all'      => 'oms.dashboard',
+                    'selected' => 'oms.shops.show.dashboard',
                 ],
-                'topMenu'      => [
-
-
+                'topMenu' => [
                     'dropdown' => [
-                        'scope' => 'shops',
                         'links' => [
                             [
                                 'label'   => 'OMS',
@@ -351,7 +344,7 @@ class GetLayout
 
         if ($user->can('dispatch.view')) {
             $navigation['dispatch'] = [
-                'name'    => __('Dispatch'),
+                'label'   => __('Dispatch'),
                 'icon'    => ['fal', 'fa-conveyor-belt-alt'],
                 'route'   => 'dispatch.hub',
                 'topMenu' => [
@@ -362,17 +355,14 @@ class GetLayout
 
         if ($user->can('inventory.view')) {
             $navigation['inventory'] = [
-                'name'         => __('inventory'),
-                'icon'         => ['fal', 'fa-inventory'],
-                'route'        => 'inventory.dashboard',
-                'routeOption'  => 'inventory.warehouses.show',
-                'labelShowAll' => __('All warehouses'),
-                'currentData'  => [
-                    'slug' => null,
-                    'name' => __('All warehouses'),
-                    'code' => __('All')
+                'scope'   => 'warehouses',
+                'label'   => __('inventory'),
+                'icon'    => ['fal', 'fa-inventory'],
+                'route'   => [
+                    'all'      => 'inventory.dashboard',
+                    'selected' => 'inventory.warehouses.show',
                 ],
-                'topMenu'      => [
+                'topMenu' => [
                     'subSections' => [
                         [
                             'label' => __('Dashboard'),
@@ -401,26 +391,23 @@ class GetLayout
                     ],
 
                     'dropdown' => [
-                        'scope' => 'warehouses',
                         'links' => [
 
 
-
                             [
-                                'tooltip'        => __('warehouses'),
-                                'icon'           => ['fal', 'fa-store-alt'],
-                                'route'          => [
+                                'tooltip' => __('warehouses'),
+                                'icon'    => ['fal', 'fa-store-alt'],
+                                'route'   => [
                                     'all'      => 'inventory.warehouses.index',
                                     'selected' => 'inventory.warehouses.show',
 
                                 ],
-                                'label'          => [
+                                'label'   => [
                                     'all'      => __('Warehouses'),
                                     'selected' => __('Warehouse'),
 
                                 ]
                             ],
-
 
 
                             [
@@ -453,7 +440,7 @@ class GetLayout
 
         if ($user->can('production.view')) {
             $navigation['production'] = [
-                'name'    => __('production'),
+                'label'   => __('production'),
                 'icon'    => ['fal', 'fa-industry'],
                 'route'   => 'production.dashboard',
                 'topMenu' => [
@@ -506,7 +493,7 @@ class GetLayout
 
         if ($user->can('procurement.view')) {
             $navigation['procurement'] = [
-                'name'    => __('procurement'),
+                'label'   => __('procurement'),
                 'icon'    => ['fal', 'fa-box-usd'],
                 'route'   => 'procurement.dashboard',
                 'topMenu' => [
@@ -541,16 +528,15 @@ class GetLayout
         }
         if ($user->can('accounting.view')) {
             $navigation['accounting'] = [
-                'name'         => __('Accounting'),
+                'scope'        => 'shops',
+                'label'        => __('Accounting'),
                 'icon'         => ['fal', 'fa-abacus'],
-                'route'        => 'accounting.dashboard',
-                'routeOption'  => 'shops.show',
-                'labelShowAll' => __('All Accounting'),
-                'currentData'  => [
-                    'slug' => null,
-                    'name' => __('All shops'),
-                    'code' => __('All')
+                'route'        => [
+                    'all'      => 'accounting.dashboard',
+                    'selected' => 'accounting.shops.show.dashboard',
                 ],
+
+
                 'topMenu'      => [
                     'subSections' => [
                         [
@@ -562,9 +548,7 @@ class GetLayout
                         ],
                     ],
                     'dropdown'    => [
-                        'type'        => 'shops',
-                        'options'     => $shops,
-                        'subsections' => [
+                        'links' => [
 
                             [
                                 'label'   => __('customers'),
@@ -597,10 +581,10 @@ class GetLayout
 
         if ($user->can('hr.view')) {
             $navigation['hr'] = [
-                'name'    => __('human resources'),
-                'icon'    => ['fal', 'fa-user-hard-hat'],
-                'route'   => 'hr.dashboard',
-                'topMenu' => [
+                'label'    => __('human resources'),
+                'icon'     => ['fal', 'fa-user-hard-hat'],
+                'route'    => 'hr.dashboard',
+                'topMenu'  => [
                     'subSections' => [
                         [
                             'label' => __('job positions'),
@@ -649,10 +633,10 @@ class GetLayout
 
         if ($user->can('sysadmin.view')) {
             $navigation['sysadmin'] = [
-                'name'    => __('sysadmin'),
-                'icon'    => ['fal', 'fa-users-cog'],
-                'route'   => 'sysadmin.dashboard',
-                'topMenu' => [
+                'label'    => __('sysadmin'),
+                'icon'     => ['fal', 'fa-users-cog'],
+                'route'    => 'sysadmin.dashboard',
+                'topMenu'  => [
                     'subSections' => [
                         [
                             'label' => __('users'),

@@ -22,7 +22,7 @@ const layout = useLayoutStore();
 
 const dropDownData = computed(() => {
 
-    const scope = layout.navigation?.[layout.currentModule]?.topMenu.dropdown.scope;
+    const scope = layout.navigation?.[layout.currentModule]?.scope;
     if (scope == "shops") {
         return {
             selectedOption: layout.currentShopData.slug,
