@@ -103,23 +103,6 @@ class IndexPayments extends InertiaAction
             $table
                 ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
-                ->withEmptyState(
-                    [
-                        'title'       => __('no payments'),
-                        'description' => $this->canEdit ? __('Get started by creating a new payment.') : null,
-                        'count'       => app('currentTenant')->inventoryStats->number_locations,
-                        'action'      => $this->canEdit ? [
-                            'type'    => 'button',
-                            'style'   => 'create',
-                            'tooltip' => __('new payment'),
-                            'label'   => __('payment'),
-                            'route'   => [
-                                'name'       => 'accounting.payment-service-providers.show.payments.create',
-                                'parameters' => array_values($this->originalParameters)
-                            ]
-                        ] : null
-                    ]
-                )
                 ->defaultSort('reference')
                 ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'status', label: __('status'), canBeHidden: false, sortable: true, searchable: true)
@@ -161,13 +144,6 @@ class IndexPayments extends InertiaAction
         return $this->handle($paymentAccount);
     }
 
-    /** @noinspection PhpUnused */
-    public function inPaymentAccountInShop(Shop $shop, PaymentAccount $paymentAccount, ActionRequest $request): LengthAwarePaginator
-    {
-        $this->initialisation($request);
-
-        return $this->handle($paymentAccount);
-    }
 
     /** @noinspection PhpUnusedParameterInspection */
     public function inPaymentAccountInPaymentServiceProvider(PaymentServiceProvider $paymentServiceProvider, PaymentAccount $paymentAccount, ActionRequest $request): LengthAwarePaginator
@@ -206,37 +182,13 @@ class IndexPayments extends InertiaAction
                 'pageHead'    => [
                     'title'     => __('payments'),
                     'container' => match ($routeName) {
-                        'shops.show.accounting.payments.index' => [
+                        'accounting.shops.show.payments.index' => [
                             'icon'    => ['fal', 'fa-store-alt'],
                             'tooltip' => __('Shop'),
                             'label'   => Str::possessive($routeParameters['shop']->name)
                         ],
                         default => null
                     },
-                    'actions'=> [
-                        $this->canEdit
-                        && (
-                            $this->routeName == 'accounting.payment-accounts.show.payments.index' or
-                            $this->routeName == 'accounting.payment-service-providers.show.payment-accounts.show.payments.index'
-                        )
-                            ? [
-                            'type'  => 'button',
-                            'style' => 'create',
-                            'label' => __('payments'),
-                            'route' => match ($this->routeName) {
-                                'accounting.payment-accounts.show.payments.index' =>
-                                [
-                                    'name'       => 'accounting.payment-accounts.show.payments.create',
-                                    'parameters' => array_values($this->originalParameters)
-                                ],
-                                'accounting.payment-service-providers.show.payment-accounts.show.payments.index' =>
-                                [
-                                    'name'       => 'accounting.payment-service-providers.show.payment-accounts.show.payments.create',
-                                    'parameters' => array_values($this->originalParameters)
-                                ]
-                            }
-                        ] : false
-                    ]
                 ],
                 'data'        => PaymentResource::collection($payments),
 
@@ -266,9 +218,9 @@ class IndexPayments extends InertiaAction
         };
 
         return match ($routeName) {
-            'shops.show.accounting.payments.index' =>
+            'accounting.shops.show.payments.index' =>
             array_merge(
-                AccountingDashboard::make()->getBreadcrumbs('shops.show.accounting.dashboard', $routeParameters),
+                AccountingDashboard::make()->getBreadcrumbs('accounting.shops.show.dashboard', $routeParameters),
                 $headCrumb()
             ),
             'accounting.payments.index' =>
@@ -278,7 +230,7 @@ class IndexPayments extends InertiaAction
             ),
             'accounting.payment-service-providers.show.payments.index' =>
             array_merge(
-                (new ShowPaymentServiceProvider())->getBreadcrumbs($routeParameters),
+                (new ShowPaymentServiceProvider())->getBreadcrumbs($routeParameters['paymentServiceProvider']),
                 $headCrumb()
             ),
             'accounting.payment-service-providers.show.payment-accounts.show.payments.index' =>

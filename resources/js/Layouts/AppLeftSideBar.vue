@@ -104,6 +104,58 @@ const handleKey = (event: any) => {
 }
 
 
+const generateRoute = (item) => {
+
+    const scope=item.scope
+    if (scope && typeof item.route === "object" && item.route !== null) {
+
+        if (scope == "shops") {
+            if (layout.currentShopData.slug) {
+                return route(item.route.selected, layout.currentShopData.slug);
+            }
+            return route(item.route.all);
+        }
+        if (scope == "websites") {
+            if (layout.currentWebsiteData.slug) {
+                return route(item.route.selected, layout.currentWebsiteData.slug);
+            }
+            return route(item.route.all);
+        }
+        if (scope == "warehouses") {
+            if (layout.currentWarehouseData.slug) {
+                return route(item.route.selected, layout.currentWarehouseData.slug);
+            }
+            return route(item.route.all);
+        }
+
+    }
+    return route(item.route, item.routeParameters);
+
+
+
+};
+
+const generateLabel = (item) => {
+
+
+    const scope=item.scope;
+
+    if (typeof item.label === "object" && item.label !== null) {
+        if (
+            (scope == "shops" && layout.currentShopData.slug) ||
+            (scope == "websites" && layout.currentWebsiteData.slug) ||
+            (scope == "warehouses" && layout.currentWarehouseData.slug)
+
+        ) {
+            return item.label.selected;
+        }
+        return item.label.all;
+
+    }
+    return item.label;
+
+};
+
 </script>
 
 <template>
@@ -116,14 +168,13 @@ const handleKey = (event: any) => {
 				<img class="h-6" :src="`/media/group/${layout.tenant.logo_id}`" :alt="layout.tenant.code" />
 				<span>{{ layout.tenant.name }}</span>
 			</Link>
-<!--            {{layout.currentWarehouseData}}-->
 			<div class="flex flex-grow flex-col pb-16">
 				<nav class="flex-1 space-y-1" aria-label="Sidebar">
 					<!-- LeftSide Links -->
 					<Link
 						v-for="(item, itemKey) in layout.navigation"
 						:key="itemKey"
-						:href="route(item.route, item.routeParameters)"
+						:href="generateRoute(item)"
 						:class="[
 							itemKey === layout.currentModule
 								? 'border-indigo-600 bg-indigo-50 text-indigo-600'
@@ -151,7 +202,7 @@ const handleKey = (event: any) => {
 								]"
 								:icon="item.icon" />
 						</div>
-						<span class="md:hidden xl:block capitalize">{{ item.name }}</span>
+						<span class="md:hidden xl:block capitalize">{{ generateLabel(item) }}</span>
 					</Link>
 				</nav>
 			</div>

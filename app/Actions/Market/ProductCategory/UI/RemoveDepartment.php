@@ -73,10 +73,10 @@ class RemoveDepartment extends InertiaAction
                 'pageHead'    => [
                     'icon'  =>
                         [
-                            'icon'  => ['fal', 'fa-folders'],
+                            'icon'  => ['fal', 'fa-folder-tree'],
                             'title' => __('department')
                         ],
-                    'title'  => $department->slug,
+                    'title'  => $department->name,
                     'actions'=> [
                         [
                             'type'  => 'button',

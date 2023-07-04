@@ -79,7 +79,7 @@ const getScopeCount = (scope) => {
     return 0;
 };
 
-const scope = computed(() => layout.navigation?.[layout.currentModule]?.topMenu.dropdown.scope);
+const scope = computed(() => layout.navigation?.[layout.currentModule]?.scope);
 const menuLinks = computed(() => layout.navigation?.[layout.currentModule]?.topMenu.dropdown.links);
 
 

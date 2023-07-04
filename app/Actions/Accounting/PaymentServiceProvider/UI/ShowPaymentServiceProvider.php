@@ -49,8 +49,8 @@ class ShowPaymentServiceProvider extends InertiaAction
         return Inertia::render(
             'Accounting/PaymentServiceProvider',
             [
-                'title'       => __('payment service provider'),
-                'breadcrumbs' => $this->getBreadcrumbs($paymentServiceProvider),
+                'title'                                 => __('payment service provider'),
+                'breadcrumbs'                           => $this->getBreadcrumbs($paymentServiceProvider),
                 'navigation'                            => [
                     'previous' => $this->getPrevious($paymentServiceProvider, $request),
                     'next'     => $this->getNext($paymentServiceProvider, $request),
@@ -62,7 +62,7 @@ class ShowPaymentServiceProvider extends InertiaAction
                             'title' => __('payment service provider')
                         ],
                     'title' => $paymentServiceProvider->slug,
-                    'actions' => [
+                   /* 'actions' => [
                         $this->canEdit ? [
                             'type'  => 'button',
                             'style' => 'edit',
@@ -79,7 +79,7 @@ class ShowPaymentServiceProvider extends InertiaAction
                                 'parameters' => array_values($this->originalParameters)
                             ]
                         ] : false
-                    ],
+                    ], */
                     'meta'  => [
                         [
                             'name'     => trans_choice('account | accounts', $paymentServiceProvider->stats->number_accounts),

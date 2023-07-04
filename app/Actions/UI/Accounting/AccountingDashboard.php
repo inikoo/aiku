@@ -80,7 +80,7 @@ class AccountingDashboard
                                 [
                                     'name'  => __('accounts'),
                                     'icon'  => ['fal', 'fa-money-check-alt'],
-                                    'href'  => ['shops.show.accounting.payment-accounts.index', $scope->slug],
+                                    'href'  => ['accounting.shops.show.payment-accounts.index', $scope->slug],
                                     'index' => [
                                         'number' => $scope->accountingStats->number_payment_accounts
                                     ]
@@ -89,7 +89,7 @@ class AccountingDashboard
                                 [
                                     'name'  => __('payments'),
                                     'icon'  => ['fal', 'fa-coins'],
-                                    'href'  => ['shops.show.accounting.payments.index', $scope->slug],
+                                    'href'  => ['accounting.shops.show.payments.index', $scope->slug],
                                     'index' => [
                                         'number' => $scope->accountingStats->number_payments
                                     ]
@@ -98,7 +98,7 @@ class AccountingDashboard
                                 [
                                     'name'  => __('invoices'),
                                     'icon'  => ['fal', 'fa-file-invoice-dollar'],
-                                    'href'  => ['shops.show.accounting.invoices.index', $scope->slug],
+                                    'href'  => ['accounting.shops.show.invoices.index', $scope->slug],
                                     'index' => [
                                         'number' => $scope->accountingStats->number_invoices
                                     ]
@@ -157,7 +157,7 @@ class AccountingDashboard
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
         return match ($routeName) {
-            'shops.show.accounting.dashboard' =>
+            'accounting.shops.show.dashboard' =>
             array_merge(
                 ShowShop::make()->getBreadcrumbs($routeParameters),
                 [
@@ -165,7 +165,7 @@ class AccountingDashboard
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name'       => 'shops.show.accounting.dashboard',
+                                'name'       => 'accounting.shops.show.dashboard',
                                 'parameters' => $routeParameters
                             ],
                             'label' => __('accounting'),

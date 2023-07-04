@@ -53,6 +53,10 @@ class EditWebsite extends InertiaAction
                     ],
                     'pageHead'    => [
                         'title'     => $website->name,
+                        'icon'      => [
+                            'title' => __('website'),
+                            'icon'  => 'fal fa-globe'
+                        ],
                         'actions'   => [
                             [
                                 'type'  => 'button',

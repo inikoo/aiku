@@ -43,7 +43,7 @@ class EditFamily extends InertiaAction
         return $this->handle($department);
     }
 
-    public function htmlResponse(ProductCategory $department, ActionRequest $request): Response
+    public function htmlResponse(ProductCategory $family, ActionRequest $request): Response
     {
         return Inertia::render(
             'EditModel',
@@ -53,8 +53,12 @@ class EditFamily extends InertiaAction
                     $request->route()->getName(),
                     $request->route()->parameters
                 ),
+                'navigation'                            => [
+                    'previous' => $this->getPrevious($family, $request),
+                    'next'     => $this->getNext($family, $request),
+                ],
                 'pageHead'    => [
-                    'title'    => $department->code,
+                    'title'    => $family->code,
                     'actions'  => [
                         [
                             'type'  => 'button',
@@ -75,12 +79,12 @@ class EditFamily extends InertiaAction
                                 'code' => [
                                     'type'  => 'input',
                                     'label' => __('code'),
-                                    'value' => $department->code
+                                    'value' => $family->code
                                 ],
                                 'name' => [
                                     'type'  => 'input',
                                     'label' => __('name'),
-                                    'value' => $department->name
+                                    'value' => $family->name
                                 ],
                             ]
                         ]
@@ -89,7 +93,7 @@ class EditFamily extends InertiaAction
                     'args'      => [
                         'updateRoute' => [
                             'name'       => 'models.department.update',
-                            'parameters' => $department->slug
+                            'parameters' => $family->slug
                         ],
                     ]
                 ]
@@ -100,10 +104,51 @@ class EditFamily extends InertiaAction
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
-        return ShowDepartment::make()->getBreadcrumbs(
+        return ShowFamily::make()->getBreadcrumbs(
             routeName: preg_replace('/edit$/', 'show', $routeName),
             routeParameters: $routeParameters,
             suffix: '('.__('editing').')'
         );
+    }
+
+    public function getPrevious(ProductCategory $family, ActionRequest $request): ?array
+    {
+        $previous = ProductCategory::where('code', '<', $family->code)->orderBy('code', 'desc')->first();
+        return $this->getNavigation($previous, $request->route()->getName());
+
+    }
+
+    public function getNext(ProductCategory $family, ActionRequest $request): ?array
+    {
+        $next = ProductCategory::where('code', '>', $family->code)->orderBy('code')->first();
+        return $this->getNavigation($next, $request->route()->getName());
+    }
+
+    private function getNavigation(?ProductCategory $family, string $routeName): ?array
+    {
+        if(!$family) {
+            return null;
+        }
+        return match ($routeName) {
+            'shops.families.edit'=> [
+                'label'=> $family->name,
+                'route'=> [
+                    'name'      => $routeName,
+                    'parameters'=> [
+                        'department'=> $family->slug
+                    ]
+                ]
+            ],
+            'shops.show.families.edit'=> [
+                'label'=> $family->name,
+                'route'=> [
+                    'name'      => $routeName,
+                    'parameters'=> [
+                        'shop'      => $family->shop->slug,
+                        'department'=> $family->slug
+                    ]
+                ]
+            ],
+        };
     }
 }

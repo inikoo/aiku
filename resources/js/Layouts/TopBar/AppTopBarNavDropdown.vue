@@ -22,7 +22,7 @@ const layout = useLayoutStore();
 
 const dropDownData = computed(() => {
 
-    const scope = layout.navigation?.[layout.currentModule]?.topMenu.dropdown.scope;
+    const scope = layout.navigation?.[layout.currentModule]?.scope;
     if (scope == "shops") {
         return {
             selectedOption: layout.currentShopData.slug,
@@ -58,68 +58,79 @@ const dropDownData = computed(() => {
 const shopHandleClick = (option) => {
     layout.currentShopData = option;
 
-    if (layout.currentRoute.startsWith("shops")) {
 
-        if (layout.currentRoute.startsWith("shops.show")) {
+    if (layout.currentRoute.startsWith("shops.show")) {
 
-            router.get(
-                option.slug ?
-                    route("shops.show", [option.slug]) :
-                    route("shops.index", [option.slug])
-            );
-        } else if (layout.currentRoute.startsWith("shops.index")) {
-            router.get(route("shops.show", [option.slug]));
-        }
+        router.get(
+            option.slug ?
+                route("shops.show", [option.slug]) :
+                route("shops.index", [option.slug])
+        );
+    } else if (layout.currentRoute.startsWith("shops.index")) {
+        router.get(route("shops.show", [option.slug]));
+    } else {
 
+        layout.currentShopData = option.slug ? layout.shops[option.slug] :
+            {
+                slug: null,
+                name: trans("All shops"),
+                code: trans("All")
+            };
     }
+
+
 };
 
 const websiteHandleClick = (option) => {
     layout.currentShopData = option;
 
-    if (layout.currentRoute.startsWith("websites")) {
 
-        if (layout.currentRoute.startsWith("websites.show")) {
+    if (layout.currentRoute.startsWith("websites.show")) {
 
-            router.get(
-                option.slug ?
-                    route("websites.show", [option.slug]) :
-                    route("websites.index", [option.slug])
-            );
-        } else if (layout.currentRoute.startsWith("websites.index")) {
-            router.get(route("websites.show", [option.slug]));
-        }
+        router.get(
+            option.slug ?
+                route("websites.show", [option.slug]) :
+                route("websites.index", [option.slug])
+        );
+    } else if (layout.currentRoute.startsWith("websites.index")) {
+        router.get(route("websites.show", [option.slug]));
+    }else{
 
+        layout.currentWebsiteData = option.slug ? layout.websites[option.slug] :
+            {
+                slug: null,
+                name: trans("All websites"),
+                code: trans("All")
+            };
     }
+
+
 };
 
 const warehouseHandleClick = (option) => {
     layout.currentShopData = option;
 
-    console.log(layout.currentRoute);
-    if (layout.currentRoute.startsWith("inventory")) {
 
-        if (layout.currentRoute.startsWith("inventory.warehouses.show")) {
+    if (layout.currentRoute.startsWith("inventory.warehouses.show")) {
 
-            router.get(
-                option.slug ?
-                    route("inventory.warehouses.show", [option.slug]) :
-                    route("inventory.warehouses.index", [option.slug])
-            );
-        } else if (layout.currentRoute.startsWith("inventory.warehouses.index")) {
-            router.get(route("inventory.warehouses.show", [option.slug]));
-        } else {
+        router.get(
+            option.slug ?
+                route("inventory.warehouses.show", [option.slug]) :
+                route("inventory.warehouses.index", [option.slug])
+        );
+    } else if (layout.currentRoute.startsWith("inventory.warehouses.index")) {
+        router.get(route("inventory.warehouses.show", [option.slug]));
+    } else {
 
-
-            layout.currentWarehouseData = option.slug ? layout.warehouses[option.slug] :
-                {
-                    slug: null,
-                    name: trans("All warehouses"),
-                    code: trans("All")
-                };
-        }
-
+        layout.currentWarehouseData = option.slug ? layout.warehouses[option.slug] :
+            {
+                slug: null,
+                name: trans("All warehouses"),
+                code: trans("All")
+            };
     }
+
+
 };
 
 

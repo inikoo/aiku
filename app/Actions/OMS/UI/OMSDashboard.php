@@ -9,6 +9,9 @@ namespace App\Actions\OMS\UI;
 
 use App\Actions\UI\Dashboard\Dashboard;
 use App\Actions\UI\WithInertia;
+use App\Models\Market\Shop;
+use App\Models\Tenancy\Tenant;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -25,16 +28,28 @@ class OMSDashboard
     }
 
 
-    public function asController(ActionRequest $request): ActionRequest
+    public function asController()
     {
-        return $request;
+        return app('currentTenant');
+    }
+
+    public function inShop(Shop $shop, ActionRequest $request): Shop
+    {
+        return $shop;
     }
 
 
-    public function htmlResponse(ActionRequest $request): Response
+    public function htmlResponse(Tenant|Shop $scope, ActionRequest $request): Response
     {
-        $this->validateAttributes();
 
+        $container = null;
+        if (class_basename($scope) == 'Shop') {
+            $container = [
+                'icon'    => ['fal', 'fa-store-alt'],
+                'tooltip' => __('Shop'),
+                'label'   => Str::possessive($scope->name)
+            ];
+        }
 
         return Inertia::render(
             'OMS/OMSDashboard',
@@ -45,7 +60,9 @@ class OMSDashboard
                 ),
                 'title'       => 'OMS',
                 'pageHead'    => [
-                    'title' => __('Order management system'),
+                    'title'     => __('Order management system'),
+                    'container' => $container
+
                 ],
 
 
@@ -55,6 +72,8 @@ class OMSDashboard
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
+
+        // dd($routeParameters);
         return match ($routeName) {
             'oms.shops.show.dashboard' =>
             array_merge(

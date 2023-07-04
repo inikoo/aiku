@@ -152,7 +152,11 @@ class IndexWebsites extends InertiaAction
                 ),
                 'title'       => __('websites'),
                 'pageHead'    => [
-                    'title'  => __('websites'),
+                    'title'   => __('websites'),
+                    'icon'    => [
+                        'title' => __('website'),
+                        'icon'  => 'fal fa-globe'
+                    ],
                     'actions'=> [
                         $this->canEdit && $this->routeName == 'websites.index' ? [
                             'type'    => 'button',

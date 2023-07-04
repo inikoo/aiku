@@ -18,7 +18,7 @@ use App\Actions\OMS\Order\UI\ShowOrder;
 use App\Actions\OMS\UI\OMSDashboard;
 
 Route::get('/', OMSDashboard::class)->name('dashboard');
-Route::get('/shops/{shop}', OMSDashboard::class)->name('shops.show.dashboard');
+Route::get('/shops/{shop}', [OMSDashboard::class,'inShop'])->name('shops.show.dashboard');
 
 Route::get('/create', CreateOrder::class)->name('orders/create');
 

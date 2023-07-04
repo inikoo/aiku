@@ -40,15 +40,23 @@ class EditShop extends InertiaAction
     /**
      * @throws Exception
      */
-    public function htmlResponse(Shop $shop): Response
+    public function htmlResponse(Shop $shop, ActionRequest $request): Response
     {
         return Inertia::render(
             'EditModel',
             [
-                'title'       => __('edit shop'),
-                'breadcrumbs' => $this->getBreadcrumbs($shop),
+                'title'        => __('edit shop'),
+                'breadcrumbs'  => $this->getBreadcrumbs($shop),
+                'navigation'   => [
+                    'previous' => $this->getPrevious($shop, $request),
+                    'next'     => $this->getNext($shop, $request),
+                ],
                 'pageHead'    => [
                     'title'     => $shop->name,
+                    'icon'      => [
+                        'title' => __('Shop'),
+                        'icon'  => 'fal fa-store-alt'
+                    ],
                     'actions'   => [
                         [
                             'type'  => 'button',
@@ -169,5 +177,39 @@ class EditShop extends InertiaAction
     {
         $routeParameters = ['shop' => $shop];
         return ShowShop::make()->getBreadcrumbs($routeParameters, suffix: '('.__('editing').')');
+    }
+
+    public function getPrevious(Shop $shop, ActionRequest $request): ?array
+    {
+        $previous = Shop::where('code', '<', $shop->code)->orderBy('code', 'desc')->first();
+
+        return $this->getNavigation($previous, $request->route()->getName());
+    }
+
+    public function getNext(Shop $shop, ActionRequest $request): ?array
+    {
+        $next = Shop::where('code', '>', $shop->code)->orderBy('code')->first();
+
+        return $this->getNavigation($next, $request->route()->getName());
+    }
+
+    private function getNavigation(?Shop $shop, string $routeName): ?array
+    {
+        if (!$shop) {
+            return null;
+        }
+
+        return match ($routeName) {
+            'shops.edit' => [
+                'label' => $shop->name,
+                'route' => [
+                    'name'       => $routeName,
+                    'parameters' => [
+                        'shop' => $shop->slug
+                    ]
+
+                ]
+            ]
+        };
     }
 }
