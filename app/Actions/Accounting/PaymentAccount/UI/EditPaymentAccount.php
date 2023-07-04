@@ -8,7 +8,6 @@
 namespace App\Actions\Accounting\PaymentAccount\UI;
 
 use App\Actions\InertiaAction;
-use App\Http\Resources\Accounting\PaymentAccountResource;
 use App\Models\Accounting\PaymentAccount;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -87,11 +86,6 @@ class EditPaymentAccount extends InertiaAction
                 ]
             ]
         );
-    }
-
-    public function jsonResponse(PaymentAccount $paymentAccount): PaymentAccountResource
-    {
-        return new PaymentAccountResource($paymentAccount);
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array

@@ -12,7 +12,6 @@ use App\Actions\Assets\Country\UI\GetCountriesOptions;
 use App\Actions\Assets\Currency\UI\GetCurrenciesOptions;
 use App\Actions\InertiaAction;
 use App\Http\Resources\Helpers\AddressResource;
-use App\Http\Resources\Procurement\AgentResource;
 use App\Models\Procurement\Agent;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -151,10 +150,6 @@ class EditMarketplaceAgent extends InertiaAction
         );
     }
 
-    public function jsonResponse(Agent $agent): AgentResource
-    {
-        return new AgentResource($agent);
-    }
 
     public function getBreadcrumbs(array $routeParameters): array
     {

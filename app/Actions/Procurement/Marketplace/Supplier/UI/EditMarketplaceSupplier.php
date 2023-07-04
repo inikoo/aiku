@@ -8,11 +8,9 @@
 namespace App\Actions\Procurement\Marketplace\Supplier\UI;
 
 use App\Actions\InertiaAction;
-use App\Http\Resources\Procurement\SupplierResource;
 use App\Models\Procurement\Supplier;
 use Inertia\Inertia;
 use Inertia\Response;
-use JetBrains\PhpStorm\Pure;
 use Lorisleiva\Actions\ActionRequest;
 
 class EditMarketplaceSupplier extends InertiaAction
@@ -43,7 +41,7 @@ class EditMarketplaceSupplier extends InertiaAction
             'EditModel',
             [
                 'title'       => __('edit marketplace supplier'),
-                'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $supplier),
+                'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $this->originalParameters),
                 'pageHead'    => [
                     'title'     => $supplier->code,
                     'exitEdit'  => [
@@ -87,8 +85,12 @@ class EditMarketplaceSupplier extends InertiaAction
         );
     }
 
-    #[Pure] public function jsonResponse(Supplier $supplier): SupplierResource
+    public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
-        return new SupplierResource($supplier);
+        return ShowMarketplaceSupplier::make()->getBreadcrumbs(
+            routeName: preg_replace('/edit$/', 'show', $routeName),
+            routeParameters: $routeParameters,
+            suffix: '('.__('editing').')'
+        );
     }
 }

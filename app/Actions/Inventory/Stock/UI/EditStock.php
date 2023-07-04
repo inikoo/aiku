@@ -8,7 +8,6 @@
 namespace App\Actions\Inventory\Stock\UI;
 
 use App\Actions\InertiaAction;
-use App\Http\Resources\Inventory\StockResource;
 use App\Models\Inventory\Stock;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -68,8 +67,8 @@ class EditStock extends InertiaAction
                                 ],
                                 'quantity' => [
                                     'type'  => 'input',
-                                    'label' => __('quantity'),
-                                    'value' => $stock->quantity
+                                    'label' => __('location'),
+                                    'value' => $stock->locations
                                 ],
                             ]
                         ]
@@ -85,10 +84,5 @@ class EditStock extends InertiaAction
                 ]
             ]
         );
-    }
-
-    public function jsonResponse(Stock $stock): StockResource
-    {
-        return new StockResource($stock);
     }
 }

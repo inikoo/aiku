@@ -8,7 +8,6 @@
 namespace App\Actions\Inventory\WarehouseArea\UI;
 
 use App\Actions\InertiaAction;
-use App\Http\Resources\Inventory\WarehouseAreaResource;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
 use Inertia\Inertia;
@@ -102,11 +101,6 @@ class EditWarehouseArea extends InertiaAction
 
             ]
         );
-    }
-
-    public function jsonResponse(WarehouseArea $warehouseArea): WarehouseAreaResource
-    {
-        return new WarehouseAreaResource($warehouseArea);
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array

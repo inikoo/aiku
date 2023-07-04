@@ -8,7 +8,6 @@
 namespace App\Actions\HumanResources\ClockingMachine\UI;
 
 use App\Actions\InertiaAction;
-use App\Http\Resources\HumanResources\ClockingMachineResource;
 use App\Models\HumanResources\ClockingMachine;
 use App\Models\HumanResources\Workplace;
 use Inertia\Inertia;
@@ -42,6 +41,7 @@ class EditClockingMachine extends InertiaAction
         return $this->handle($clockingMachine);
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
     public function inWorkplace(Workplace $workplace, ClockingMachine $clockingMachine, ActionRequest $request): ClockingMachine
     {
         $this->initialisation($request);
@@ -98,11 +98,6 @@ class EditClockingMachine extends InertiaAction
 
             ]
         );
-    }
-
-    public function jsonResponse(ClockingMachine $clockingMachine): ClockingMachineResource
-    {
-        return new ClockingMachineResource($clockingMachine);
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array

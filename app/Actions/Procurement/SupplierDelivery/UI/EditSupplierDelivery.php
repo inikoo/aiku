@@ -8,11 +8,9 @@
 namespace App\Actions\Procurement\SupplierDelivery\UI;
 
 use App\Actions\InertiaAction;
-use App\Http\Resources\Procurement\SupplierDeliveryResource;
 use App\Models\Procurement\SupplierDelivery;
 use Inertia\Inertia;
 use Inertia\Response;
-use JetBrains\PhpStorm\Pure;
 use Lorisleiva\Actions\ActionRequest;
 
 class EditSupplierDelivery extends InertiaAction
@@ -79,10 +77,5 @@ class EditSupplierDelivery extends InertiaAction
                 ]
             ]
         );
-    }
-
-    #[Pure] public function jsonResponse(SupplierDelivery $supplierDelivery): SupplierDeliveryResource
-    {
-        return new SupplierDeliveryResource($supplierDelivery);
     }
 }

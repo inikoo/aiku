@@ -8,11 +8,9 @@
 namespace App\Actions\Procurement\PurchaseOrder\UI;
 
 use App\Actions\InertiaAction;
-use App\Http\Resources\Procurement\PurchaseOrderResource;
 use App\Models\Procurement\PurchaseOrder;
 use Inertia\Inertia;
 use Inertia\Response;
-use JetBrains\PhpStorm\Pure;
 use Lorisleiva\Actions\ActionRequest;
 
 class EditPurchaseOrder extends InertiaAction
@@ -79,10 +77,5 @@ class EditPurchaseOrder extends InertiaAction
                 ]
             ]
         );
-    }
-
-    #[Pure] public function jsonResponse(PurchaseOrder $purchaseOrder): PurchaseOrderResource
-    {
-        return new PurchaseOrderResource($purchaseOrder);
     }
 }

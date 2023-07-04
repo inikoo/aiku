@@ -8,7 +8,6 @@
 namespace App\Actions\Auth\User\UI;
 
 use App\Actions\InertiaAction;
-use App\Http\Resources\SysAdmin\UserResource;
 use App\Models\Auth\User;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -116,11 +115,6 @@ class EditUser extends InertiaAction
                 ]
             ]
         );
-    }
-
-    public function jsonResponse(User $user): UserResource
-    {
-        return new UserResource($user);
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array

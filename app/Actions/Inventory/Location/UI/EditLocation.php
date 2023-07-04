@@ -9,7 +9,6 @@ namespace App\Actions\Inventory\Location\UI;
 
 use App\Actions\InertiaAction;
 use App\Enums\UI\LocationTabsEnum;
-use App\Http\Resources\Inventory\LocationResource;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
@@ -124,11 +123,6 @@ class EditLocation extends InertiaAction
                 ]
             ]
         );
-    }
-
-    public function jsonResponse(Location $location): LocationResource
-    {
-        return new LocationResource($location);
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array

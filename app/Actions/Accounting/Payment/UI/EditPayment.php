@@ -9,11 +9,8 @@ namespace App\Actions\Accounting\Payment\UI;
 
 use App\Actions\InertiaAction;
 use App\Enums\UI\PaymentTabsEnum;
-use App\Http\Resources\Accounting\PaymentResource;
 use App\Models\Accounting\Payment;
-use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentServiceProvider;
-use App\Models\Market\Shop;
 use App\Models\OMS\Order;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -46,19 +43,8 @@ class EditPayment extends InertiaAction
         return $this->handle($payment);
     }
 
-    /** @noinspection PhpUnusedParameterInspection */
-    public function inOrderInShop(Shop $shop, Order $order, Payment $payment, ActionRequest $request): Payment
-    {
-        $this->initialisation($request)->withTab(PaymentTabsEnum::values());
-        return $this->handle($payment);
-    }
 
-    /** @noinspection PhpUnusedParameterInspection */
-    public function inPaymentAccountInShop(Shop $shop, PaymentAccount $paymentAccount, Payment $payment, ActionRequest $request): Payment
-    {
-        $this->initialisation($request)->withTab(PaymentTabsEnum::values());
-        return $this->handle($payment);
-    }
+
 
     /** @noinspection PhpUnusedParameterInspection */
     public function inOrder(Order $order, Payment $payment, ActionRequest $request): Payment
@@ -67,13 +53,6 @@ class EditPayment extends InertiaAction
         return $this->handle($payment);
     }
 
-    /** @noinspection PhpUnusedParameterInspection */
-    public function inShop(Shop $shop, Payment $payment, ActionRequest $request): Payment
-    {
-        $this->initialisation($request);
-
-        return $this->handle($payment);
-    }
 
     public function htmlResponse(Payment $payment, ActionRequest $request): Response
     {
@@ -123,10 +102,5 @@ class EditPayment extends InertiaAction
                 ]
             ]
         );
-    }
-
-    public function jsonResponse(Payment $payment): PaymentResource
-    {
-        return new PaymentResource($payment);
     }
 }

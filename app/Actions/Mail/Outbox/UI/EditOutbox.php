@@ -8,7 +8,6 @@
 namespace App\Actions\Mail\Outbox\UI;
 
 use App\Actions\InertiaAction;
-use App\Http\Resources\Mail\OutboxResource;
 use App\Models\Mail\Outbox;
 use App\Models\Market\Shop;
 use Inertia\Inertia;
@@ -38,11 +37,12 @@ class EditOutbox extends InertiaAction
         return $this->handle($outbox);
     }
 
-    public function inShop(Shop $shop, ActionRequest $request): Outbox
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inShop(Shop $shop, Outbox $outbox, ActionRequest $request): Outbox
     {
         $this->initialisation($request);
 
-        return $this->handle($shop);
+        return $this->handle($outbox);
     }
 
     public function htmlResponse(Outbox $outbox): Response
@@ -94,10 +94,5 @@ class EditOutbox extends InertiaAction
 
             ]
         );
-    }
-
-    public function jsonResponse(Outbox $outbox): OutboxResource
-    {
-        return new OutboxResource($outbox);
     }
 }

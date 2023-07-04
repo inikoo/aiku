@@ -91,10 +91,6 @@ class EditWebsite extends InertiaAction
                                     'required' => true,
 
                                 ],
-
-
-
-
                             ]
                         ],
                     ],
@@ -113,6 +109,10 @@ class EditWebsite extends InertiaAction
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
-        return ShowWebsite::make()->getBreadcrumbs($routeName, $routeParameters, suffix: '('.__('editing').')');
+        return ShowWebsite::make()->getBreadcrumbs(
+            $routeName,
+            $routeParameters,
+            suffix: '('.__('editing').')'
+        );
     }
 }

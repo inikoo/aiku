@@ -8,7 +8,6 @@
 namespace App\Actions\Auth\Guest\UI;
 
 use App\Actions\InertiaAction;
-use App\Http\Resources\SysAdmin\GuestResource;
 use App\Models\Auth\Guest;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -98,11 +97,6 @@ class EditGuest extends InertiaAction
                 ]
             ]
         );
-    }
-
-    public function jsonResponse(Guest $guest): GuestResource
-    {
-        return new GuestResource($guest);
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array

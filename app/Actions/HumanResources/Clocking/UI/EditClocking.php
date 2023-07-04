@@ -9,7 +9,6 @@ namespace App\Actions\HumanResources\Clocking\UI;
 
 use App\Actions\InertiaAction;
 use App\Enums\UI\LocationTabsEnum;
-use App\Http\Resources\HumanResources\ClockingResource;
 use App\Models\HumanResources\Clocking;
 use App\Models\HumanResources\ClockingMachine;
 use App\Models\HumanResources\Workplace;
@@ -107,11 +106,6 @@ class EditClocking extends InertiaAction
                 ]
             ]
         );
-    }
-
-    public function jsonResponse(Clocking $clocking): ClockingResource
-    {
-        return new ClockingResource($clocking);
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array

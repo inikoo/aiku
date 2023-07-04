@@ -8,7 +8,6 @@
 namespace App\Actions\Market\ProductCategory\UI;
 
 use App\Actions\InertiaAction;
-use App\Http\Resources\Market\DepartmentResource;
 use App\Models\Market\ProductCategory;
 use App\Models\Market\Shop;
 use Inertia\Inertia;
@@ -98,10 +97,7 @@ class EditDepartment extends InertiaAction
         );
     }
 
-    public function jsonResponse(ProductCategory $department): DepartmentResource
-    {
-        return new DepartmentResource($department);
-    }
+
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
