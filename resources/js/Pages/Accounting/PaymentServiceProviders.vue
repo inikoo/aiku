@@ -15,6 +15,7 @@ defineProps(['payment_service_providers', 'title', 'pageHead']);
 </script>
 
 <template layout="App">
+    <!--suppress HtmlRequiredTitleElement -->
     <Head :title="capitalize(title)"/>
     <PageHeading :data="pageHead"></PageHeading>
     <Table :resource="payment_service_providers" class="mt-5">

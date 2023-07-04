@@ -5,11 +5,12 @@
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Accounting\PaymentServiceProvider;
+namespace App\Actions\Accounting\PaymentServiceProvider\UI;
 
 use App\Actions\InertiaAction;
 use App\Actions\UI\Accounting\AccountingDashboard;
 use App\Http\Resources\Accounting\PaymentServiceProviderResource;
+use App\InertiaTable\InertiaTable;
 use App\Models\Accounting\PaymentServiceProvider;
 use App\Models\Market\Shop;
 use App\Models\Tenancy\Tenant;
@@ -19,7 +20,6 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
-use App\InertiaTable\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
@@ -87,6 +87,7 @@ class IndexPaymentServiceProviders extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
+        $this->canEdit = $request->user()->can('accounting.edit');
         return
             (
                 $request->user()->tokenCan('root') or
@@ -110,6 +111,7 @@ class IndexPaymentServiceProviders extends InertiaAction
                 'title'       => __('Payment Service Providers'),
                 'pageHead'    => [
                     'title' => __('Payment Service Providers'),
+
                 ],
                 'payment_service_providers' => PaymentServiceProviderResource::collection($paymentServiceProviders),
 

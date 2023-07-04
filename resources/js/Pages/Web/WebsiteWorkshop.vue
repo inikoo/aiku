@@ -11,14 +11,16 @@ import PageHeading from '@/Components/Headings/PageHeading.vue';
 import { computed, defineAsyncComponent, ref } from "vue";
 import { useTabChange } from "@/Composables/tab-change";
 import Tabs from "@/Components/Navigation/Tabs.vue";
-import TableWebsites from "@/Pages/Tables/TableWebsites.vue";
+import IrisWorkshopHeader from "@/Pages/Iris/IrisWorkshopHeader.vue";
+import IrisWorkshopMenu from "@/Pages/Iris/IrisWorkshopMenu.vue";
+import IrisWorkshopFooter from "@/Pages/Iris/IrisWorkshopFooter.vue";
 import { capitalize } from "@/Composables/capitalize"
 
 library.add(
     faArrowAltToTop,
     faArrowAltToBottom,
     faBars,
-    faBrowser,
+    faBrowser
 );
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Pages/ModelChangelog.vue'))
@@ -30,9 +32,9 @@ const props = defineProps<{
         current: string;
         navigation: object;
     }
-    header: string;
-    menu: string;
-    footer: string;
+    header?: object;
+    menu?: object;
+    footer?: object;
 }>()
 
 let currentTab = ref(props.tabs.current);
@@ -41,9 +43,9 @@ const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
 const component = computed(() => {
 
     const components = {
-        header: TableWebsites,
-        menu: TableWebsites,
-        footer: TableWebsites,
+        header: IrisWorkshopHeader,
+        menu: IrisWorkshopMenu,
+        footer: IrisWorkshopFooter,
     };
     return components[currentTab.value];
 
@@ -52,9 +54,7 @@ const component = computed(() => {
 </script>
 
 
-<!--suppress HtmlUnknownAttribute -->
 <template layout="App">
-    <!--suppress HtmlRequiredTitleElement -->
     <Head :title="capitalize(title)"/>
     <PageHeading :data="pageHead"></PageHeading>
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate"/>

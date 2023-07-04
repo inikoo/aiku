@@ -14,7 +14,7 @@ use App\Actions\Web\Website\UI\EditWebsite;
 use App\Actions\Web\Website\UI\IndexWebsites;
 use App\Actions\Web\Website\UI\RemoveWebsite;
 use App\Actions\Web\Website\UI\ShowWebsite;
-use App\Actions\Web\Website\UI\WorkshopWebsite;
+use App\Actions\Web\Website\UI\ShowWebsiteWorkshop;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/dashboard', WebsitesDashboard::class)->name('dashboard');
@@ -25,10 +25,9 @@ Route::get('/webpages', IndexWebpageVariants::class)->name('webpages.index');
 
 
 Route::get('/{website}', ShowWebsite::class)->name('show');
-Route::get('/{website}/workshop', ShowWebsite::class)->name('show.workshope.remove');
 Route::get('/{website}/edit', EditWebsite::class)->name('edit');
-Route::get('/{website}/workshop', WorkshopWebsite::class)->name('workshop');
-Route::get('/{website}/delete', RemoveWebsite::class)->name('show.remove');
+Route::get('/{website}/workshop', ShowWebsiteWorkshop::class)->name('workshop');
+Route::get('/{website}/delete', RemoveWebsite::class)->name('remove');
 Route::get('/{website}/dashboard', WebsiteDashboard::class)->name('show.dashboard');
 
 

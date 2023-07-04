@@ -8,7 +8,7 @@
 namespace App\Actions\Accounting\PaymentAccount\UI;
 
 use App\Actions\Accounting\Payment\UI\IndexPayments;
-use App\Actions\Accounting\PaymentServiceProvider\ShowPaymentServiceProvider;
+use App\Actions\Accounting\PaymentServiceProvider\UI\ShowPaymentServiceProvider;
 use App\Actions\Helpers\History\IndexHistories;
 use App\Actions\InertiaAction;
 use App\Actions\UI\Accounting\AccountingDashboard;
@@ -182,20 +182,20 @@ class ShowPaymentAccount extends InertiaAction
         };
 
         return match ($routeName) {
-            'shops.show.accounting.payment-accounts.show' =>
+            'accounting.shops.show.payment-accounts.show' =>
             array_merge(
-                (new  AccountingDashboard())->getBreadcrumbs('shops.show.accounting.dashboard', $routeParameters),
+                (new  AccountingDashboard())->getBreadcrumbs('accounting.shops.show.dashboard', $routeParameters),
                 $headCrumb(
                     $routeParameters['paymentAccount'],
                     [
                         'index' => [
-                            'name'       => 'shops.show.accounting.payment-accounts.index',
+                            'name'       => 'accounting.shops.show.payment-accounts.index',
                             'parameters' => [
                                 $routeParameters['shop']->slug,
                             ]
                         ],
                         'model' => [
-                            'name'       => 'shops.show.accounting.payment-accounts.show',
+                            'name'       => 'accounting.shops.show.payment-accounts.show',
                             'parameters' => [
                                 $routeParameters['shop']->slug,
                                 $routeParameters['paymentAccount']->slug

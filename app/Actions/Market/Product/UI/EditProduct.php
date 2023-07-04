@@ -58,8 +58,17 @@ class EditProduct extends InertiaAction
                     $request->route()->getName(),
                     $request->route()->parameters
                 ),
+                'navigation'                            => [
+                    'previous' => $this->getPrevious($product, $request),
+                    'next'     => $this->getNext($product, $request),
+                ],
                 'pageHead'    => [
                     'title'    => $product->code,
+                    'icon'     =>
+                        [
+                            'icon'  => ['fal', 'fa-cube'],
+                            'title' => __('product')
+                        ],
                     'actions'  => [
                         [
                             'type'  => 'button',
@@ -128,7 +137,6 @@ class EditProduct extends InertiaAction
         );
     }
 
-
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
         return ShowProduct::make()->getBreadcrumbs(
@@ -136,5 +144,48 @@ class EditProduct extends InertiaAction
             routeParameters: $routeParameters,
             suffix: '('.__('editing').')'
         );
+    }
+
+    public function getPrevious(Product $product, ActionRequest $request): ?array
+    {
+        $previous = Product::where('slug', '<', $product->slug)->orderBy('slug', 'desc')->first();
+        return $this->getNavigation($previous, $request->route()->getName());
+
+    }
+
+    public function getNext(Product $product, ActionRequest $request): ?array
+    {
+        $next = Product::where('slug', '>', $product->slug)->orderBy('slug')->first();
+        return $this->getNavigation($next, $request->route()->getName());
+    }
+
+    private function getNavigation(?Product $product, string $routeName): ?array
+    {
+        if(!$product) {
+            return null;
+        }
+        return match ($routeName) {
+            'shops.products.edit'=> [
+                'label'=> $product->name,
+                'route'=> [
+                    'name'      => $routeName,
+                    'parameters'=> [
+                        'product'=> $product->slug
+                    ]
+
+                ]
+            ],
+            'shops.show.products.edit'=> [
+                'label'=> $product->name,
+                'route'=> [
+                    'name'      => $routeName,
+                    'parameters'=> [
+                        'shop'   => $product->shop->slug,
+                        'product'=> $product->slug
+                    ]
+
+                ]
+            ],
+        };
     }
 }

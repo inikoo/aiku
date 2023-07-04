@@ -9,6 +9,8 @@ namespace App\Actions\Accounting\PaymentServiceProvider;
 
 use App\Enums\Accounting\PaymentServiceProvider\PaymentServiceProviderTypeEnum;
 use App\Models\Accounting\PaymentServiceProvider;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -51,5 +53,17 @@ class StorePaymentServiceProvider
         $validatedData = $this->validateAttributes();
 
         return $this->handle($validatedData);
+    }
+
+    public function asController(ActionRequest $request): PaymentServiceProvider
+    {
+        $request->validate();
+
+        return $this->handle($request->validated());
+    }
+
+    public function htmlResponse(PaymentServiceProvider $paymentServiceProvider): RedirectResponse
+    {
+        return Redirect::route('accounting.payment-service-providers.show', $paymentServiceProvider->slug);
     }
 }

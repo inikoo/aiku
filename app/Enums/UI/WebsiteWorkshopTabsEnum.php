@@ -10,7 +10,7 @@ namespace App\Enums\UI;
 use App\Enums\EnumHelperTrait;
 use App\Enums\HasTabs;
 
-enum WorkshopTabsEnum: string
+enum WebsiteWorkshopTabsEnum: string
 {
     use EnumHelperTrait;
     use HasTabs;
@@ -25,15 +25,15 @@ enum WorkshopTabsEnum: string
     public function blueprint(): array
     {
         return match ($this) {
-            WorkshopTabsEnum::HEADER => [
+            WebsiteWorkshopTabsEnum::HEADER => [
                 'title' => __('header'),
                 'icon'  => 'fal fa-arrow-alt-to-top',
             ],
-            WorkshopTabsEnum::MENU => [
+            WebsiteWorkshopTabsEnum::MENU => [
                 'title' => __('menu'),
                 'icon'  => 'fal fa-bars',
             ],
-            WorkshopTabsEnum::FOOTER => [
+            WebsiteWorkshopTabsEnum::FOOTER => [
                 'title' => __('footer'),
                 'icon'  => 'fal fa-arrow-alt-to-bottom',
             ],

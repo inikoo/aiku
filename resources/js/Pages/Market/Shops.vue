@@ -18,11 +18,11 @@ import TableFamilies from "@/Pages/Tables/TableFamilies.vue";
 import TableProducts from "@/Pages/Tables/TableProducts.vue";
 import { useTabChange } from "@/Composables/tab-change";
 import {
-    faCube,faFolder,faFolders
+    faCube,faFolder,faFolderTree
 } from "@/../private/pro-light-svg-icons";
 
 library.add(
-    faCube,faFolder,faFolders
+    faCube,faFolder,faFolderTree
 );
 
 const props = defineProps <{

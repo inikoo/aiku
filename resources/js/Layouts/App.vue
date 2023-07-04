@@ -86,6 +86,14 @@ const initialiseApp = () => {
                 layout.shopsInDropDown = usePage().props.layout.shopsInDropDown.data ??
                     {};
             }
+            if (usePage().props.layout.websitesInDropDown) {
+                layout.websitesInDropDown = usePage().props.layout.websitesInDropDown.data ??
+                    {};
+            }
+            if (usePage().props.layout.warehousesInDropDown) {
+                layout.warehousesInDropDown = usePage().props.layout.warehousesInDropDown.data ??
+                    {};
+            }
         }
 
         if (usePage().props.layoutCurrentShopSlug) {
@@ -96,13 +104,31 @@ const initialiseApp = () => {
             }
         }
 
-        if (usePage().props.layoutShopsList) {
-            layout.shops = usePage().props.layoutShopsList;
-        }
 
         if (usePage().props.localeData) {
             locale.language = usePage().props.localeData.language;
             locale.languageOptions = usePage().props.localeData.languageOptions;
+        }
+
+        if (usePage().props.tenant) {
+            layout.tenant = usePage().props.tenant ?? null;
+        }
+
+        layout.currentRouteParameters=route().params;
+        layout.currentRoute=route().current();
+        layout.currentModule=layout.currentRoute.substring(0, layout.currentRoute.indexOf("."));
+
+
+        if (usePage().props.layoutShopsList) {
+            layout.shops = usePage().props.layoutShopsList;
+        }
+
+        if (usePage().props.layoutWebsitesList) {
+            layout.websites = usePage().props.layoutWebsitesList;
+        }
+
+        if (usePage().props.layoutWarehousesList) {
+            layout.warehouses = usePage().props.layoutWarehousesList;
         }
 
         layout.currentShopData = layout.shops[layout.currentShopSlug] ?? {
@@ -111,12 +137,43 @@ const initialiseApp = () => {
             code: trans("All")
         };
 
-        if (usePage().props.tenant) {
-            layout.tenant = usePage().props.tenant ?? null;
+        layout.currentWebsiteData = layout.websites[layout.currentWebsiteSlug] ?? {
+            slug: null,
+            name: trans("All websites"),
+            code: trans("All")
+        };
+
+
+
+        layout.currentWarehouseData = layout.warehouses[layout.currentWarehouseSlug] ??
+        Object.keys(layout.warehouses).length===1?
+            {
+                slug: layout.warehouses[Object.keys(layout.warehouses)[0]].slug,
+                name: layout.warehouses[Object.keys(layout.warehouses)[0]].name,
+                code: layout.warehouses[Object.keys(layout.warehouses)[0]].code,
+            }
+            :
+            {
+            slug: null,
+            name: trans("All warehouses"),
+            code: trans("All")
+        };
+
+
+
+        if(layout.currentRouteParameters.hasOwnProperty('shop')){
+            layout.currentShopData=layout.shops[layout.currentRouteParameters.shop]
         }
 
-        layout.currentRoute=route().current()
-        layout.currentModule=layout.currentRoute.substring(0, layout.currentRoute.indexOf("."))
+        if(layout.currentRouteParameters.hasOwnProperty('website')){
+            layout.currentWebsiteData=layout.websites[layout.currentRouteParameters.website]
+        }
+
+        if(layout.currentRouteParameters.hasOwnProperty('warehouse')){
+            layout.currentShopData=layout.warehouses[layout.currentRouteParameters.warehouse]
+        }
+
+
     });
     return layout;
 };

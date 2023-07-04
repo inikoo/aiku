@@ -5,19 +5,19 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Web\Website\UI;
+namespace App\Actions\Accounting\PaymentServiceProvider\UI;
 
 use App\Actions\InertiaAction;
-use App\Models\Web\Website;
+use App\Models\Accounting\PaymentServiceProvider;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class RemoveWebsite extends InertiaAction
+class RemovePaymentServiceProvider extends InertiaAction
 {
-    public function handle(Website $website): Website
+    public function handle(PaymentServiceProvider $warehouse): PaymentServiceProvider
     {
-        return $website;
+        return $warehouse;
     }
 
     public function authorize(ActionRequest $request): bool
@@ -25,11 +25,11 @@ class RemoveWebsite extends InertiaAction
         return $request->user()->hasPermissionTo("inventory.edit");
     }
 
-    public function asController(Website $website, ActionRequest $request): Website
+    public function asController(PaymentServiceProvider $warehouse, ActionRequest $request): PaymentServiceProvider
     {
         $this->initialisation($request);
 
-        return $this->handle($website);
+        return $this->handle($warehouse);
     }
 
 
@@ -37,40 +37,40 @@ class RemoveWebsite extends InertiaAction
     {
         return  [
             'buttonLabel' => __('Delete'),
-            'title'       => __('Delete Website'),
-            'text'        => __("This action will delete this Website and its dependent"),
+            'title'       => __('Delete PaymentServiceProvider'),
+            'text'        => __("This action will delete this PaymentServiceProvider and its PaymentServiceProvider Areas and Locations"),
             'route'       => $route
         ];
     }
 
-    public function htmlResponse(Website $website, ActionRequest $request): Response
+    public function htmlResponse(PaymentServiceProvider $paymentServiceProvider, ActionRequest $request): Response
     {
         return Inertia::render(
             'RemoveModel',
             [
-                'title'       => __('delete employee'),
-                'breadcrumbs' => $this->getBreadcrumbs(),
+                'title'       => __('delete payment service provider'),
+                'breadcrumbs' => $this->getBreadcrumbs($this->originalParameters),
                 'pageHead'    => [
                     'icon'  =>
                         [
-                            'icon'  => ['fal', 'fa-inventory'],
-                            'title' => __('employee')
+                            'icon'  => ['fal', 'fa-cash-register'],
+                            'title' => __('payment service provider')
                         ],
-                    'title'  => $website->slug,
+                    'title'  => $paymentServiceProvider->slug,
                     'actions'=> [
                         [
                             'type'  => 'button',
                             'style' => 'cancel',
                             'route' => [
                                 'name'       => preg_replace('/remove$/', 'show', $this->routeName),
-                                'parameters' => $website->slug
+                                'parameters' => $paymentServiceProvider->slug
                             ]
                         ]
                     ]
                 ],
                 'data'      => $this->getAction(
                     route:[
-                        'name'       => 'models.website.delete',
+                        'name'       => 'models.payment-service-provider.delete',
                         'parameters' => $request->route()->originalParameters()
                     ]
                 )
@@ -79,8 +79,8 @@ class RemoveWebsite extends InertiaAction
     }
 
 
-    public function getBreadcrumbs(): array
+    public function getBreadcrumbs(PaymentServiceProvider $paymentServiceProvider): array
     {
-        return ShowWebsite::make()->getBreadcrumbs($this->routeName, $this->originalParameters, suffix: '('.__('deleting').')');
+        return ShowPaymentServiceProvider::make()->getBreadcrumbs($paymentServiceProvider, suffix: '('.__('deleting').')');
     }
 }

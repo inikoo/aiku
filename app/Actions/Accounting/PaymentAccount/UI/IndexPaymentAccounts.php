@@ -7,10 +7,11 @@
 
 namespace App\Actions\Accounting\PaymentAccount\UI;
 
-use App\Actions\Accounting\PaymentServiceProvider\ShowPaymentServiceProvider;
+use App\Actions\Accounting\PaymentServiceProvider\UI\ShowPaymentServiceProvider;
 use App\Actions\InertiaAction;
 use App\Actions\UI\Accounting\AccountingDashboard;
 use App\Http\Resources\Accounting\PaymentAccountResource;
+use App\InertiaTable\InertiaTable;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentServiceProvider;
 use App\Models\Market\Shop;
@@ -22,7 +23,6 @@ use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
-use App\InertiaTable\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
@@ -158,7 +158,7 @@ class IndexPaymentAccounts extends InertiaAction
                         'label' => __('payment account')
                     ] : false,
                     'container' => match ($routeName) {
-                        'shops.show.accounting.payment-accounts.index' => [
+                        'accounting.shops.show.payment-accounts.index' => [
                             'icon'    => ['fal', 'fa-store-alt'],
                             'tooltip' => __('Shop'),
                             'label'   => Str::possessive($routeParameters['shop']->name)
@@ -196,9 +196,9 @@ class IndexPaymentAccounts extends InertiaAction
         };
 
         return match ($routeName) {
-            'shops.show.accounting.payment-accounts.index' =>
+            'accounting.shops.show.payment-accounts.index' =>
             array_merge(
-                AccountingDashboard::make()->getBreadcrumbs('shops.show.accounting.dashboard', $routeParameters),
+                AccountingDashboard::make()->getBreadcrumbs('accounting.shops.show.dashboard', $routeParameters),
                 $headCrumb($routeParameters)
             ),
             'accounting.payment-accounts.index' =>

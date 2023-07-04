@@ -9,6 +9,9 @@
 use App\Actions\Accounting\Payment\UpdatePayment;
 use App\Actions\Accounting\PaymentAccount\StorePaymentAccount;
 use App\Actions\Accounting\PaymentAccount\UpdatePaymentAccount;
+use App\Actions\Accounting\PaymentServiceProvider\DeletePaymentServiceProvider;
+use App\Actions\Accounting\PaymentServiceProvider\StorePaymentServiceProvider;
+use App\Actions\Accounting\PaymentServiceProvider\UpdatePaymentServiceProvider;
 use App\Actions\Auth\Guest\DeleteGuest;
 use App\Actions\Auth\Guest\StoreGuest;
 use App\Actions\Auth\Guest\UpdateGuest;
@@ -71,6 +74,7 @@ use App\Actions\Procurement\SupplierDelivery\StoreSupplierDelivery;
 use App\Actions\Procurement\SupplierDelivery\UpdateSupplierDelivery;
 use App\Actions\Tenancy\Tenant\UpdateSystemSettings;
 use App\Actions\UI\Profile\UpdateProfile;
+use App\Actions\Web\Website\DeleteWebsite;
 use App\Actions\Web\Website\StoreWebsite;
 use App\Actions\Web\Website\UpdateWebsite;
 use Illuminate\Support\Facades\Route;
@@ -90,6 +94,7 @@ Route::delete('/shop/{shop}/department/{department}', [DeleteProductCategory::cl
 
 
 Route::patch('/website/{website}', UpdateWebsite::class)->name('website.update');
+Route::delete('/website/{website}', DeleteWebsite::class)->name('website.delete');
 Route::patch('/web-user/{webUser}', UpdateWebUser::class)->name('web-user.update');
 
 
@@ -175,6 +180,11 @@ Route::post('/agent/{supplier}/purchase-order', [StorePurchaseOrder::class, 'inS
 Route::post('/supplier/', StoreMarketplaceSupplier::class)->name('supplier.store');
 Route::post('/agent/{agent}/supplier', [StoreMarketplaceSupplier::class, 'inAgent'])->name('agent.supplier.store');
 Route::post('/supplier/{supplier}/purchase-order', [StorePurchaseOrder::class, 'inSupplier'])->name('supplier.purchase-order.store');
+
+
+Route::post('/provider', StorePaymentServiceProvider::class)->name('payment-service-provider.store');
+Route::patch('/provider/{paymentServiceProvider}', UpdatePaymentServiceProvider::class)->name('payment-service-provider.update');
+Route::delete('/provider/{paymentServiceProvider}', DeletePaymentServiceProvider::class)->name('payment-service-provider.delete');
 
 Route::patch('/payment/{payment}', UpdatePayment::class)->name('payment.update');
 

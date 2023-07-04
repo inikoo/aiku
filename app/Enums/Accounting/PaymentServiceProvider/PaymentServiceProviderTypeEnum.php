@@ -19,4 +19,16 @@ enum PaymentServiceProviderTypeEnum: string
     case CASH_ON_DELIVERY             = 'cash_on_delivery';
     case BUY_NOW_PAY_LATER            = 'buy_now_pay_later';
 
+    public static function labels(): array
+    {
+        return [
+            'account'                       => __('Account'),
+            'cash'                          => __('Cash'),
+            'bank'                          => __('Bank'),
+            'electronic_payment_service'    => __('Electronic Payment Service'),
+            'cash_on_delivery'              => __('Cash On Delivery'),
+            'buy_now_pay_later'             => __('Buy Now Pay Later'),
+        ];
+    }
+
 }

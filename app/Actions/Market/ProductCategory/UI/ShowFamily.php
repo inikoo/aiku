@@ -179,7 +179,6 @@ class ShowFamily extends InertiaAction
             ];
         };
 
-
         return match ($routeName) {
             'shops.families.show' =>
             array_merge(
