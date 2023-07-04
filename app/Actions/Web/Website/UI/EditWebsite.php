@@ -62,7 +62,6 @@ class EditWebsite extends InertiaAction
                 ],
                 'formData' => [
                     'blueprint' => [
-
                         [
                             'title'  => __('ID/domain'),
                             'icon'   => 'fa-light fa-id-card',
@@ -72,14 +71,12 @@ class EditWebsite extends InertiaAction
                                     'label'    => __('code'),
                                     'value'    => $website->code,
                                     'required' => true,
-
                                 ],
                                 'name' => [
                                     'type'     => 'input',
                                     'label'    => __('name'),
                                     'value'    => $website->name,
                                     'required' => true,
-
                                 ],
                                 'domain' => [
                                     'type'      => 'inputWithAddOn',
@@ -89,8 +86,78 @@ class EditWebsite extends InertiaAction
                                     ],
                                     'value'    => $website->domain,
                                     'required' => true,
-
                                 ],
+                            ]
+                        ],
+                        [
+                            'title'  => __('Registrations'),
+                            'icon'   => 'fa-light fa-id-card',
+                            'fields' => [
+                                'registrations_type' => [
+                                    'type'     => 'radio',
+                                    'label'    => __('Registration Type'),
+                                    'value'    => 'typeB',
+                                    'required' => true,
+                                    'options'  => [
+                                        [
+                                            'label' => "type A",
+                                            'value' => "typeA",
+                                        ],
+                                        [
+                                            'label' => "type B",
+                                            'value' => "typeB",
+                                        ],
+                                    ]
+                                ],
+                                'web_registrations' => [
+                                    'type'     => 'webRegistrations',
+                                    'label'    => __('Web Registration'),
+                                    'value'    => [
+                                        [
+                                            'name'      => __('telephone'),
+                                            'show'      => true,
+                                            'required'  => false,
+                                        ],
+                                        [
+                                            'name'      => __('address'),
+                                            'show'      => false,
+                                            'required'  => false,
+                                        ],
+                                        [
+                                            'name'      => __('username'),
+                                            'show'      => true,
+                                            'required'  => true,
+                                        ],
+                                        [
+                                            'name'      => __('password'),
+                                            'show'      => true,
+                                            'required'  => true,
+                                        ],
+                                ],
+                                    'required' => true,
+                                    'options'  => [
+                                            [
+                                                'name'      => __('telephone'),
+                                                'show'      => true,
+                                                'required'  => false,
+                                            ],
+                                            [
+                                                'name'      => __('address'),
+                                                'show'      => false,
+                                                'required'  => false,
+                                            ],
+                                            [
+                                                'name'      => __('username'),
+                                                'show'      => true,
+                                                'required'  => true,
+                                            ],
+                                            [
+                                                'name'      => __('password'),
+                                                'show'      => true,
+                                                'required'  => true,
+                                            ],
+                                    ]
+                                ]
                             ]
                         ],
                     ],

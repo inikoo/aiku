@@ -28,6 +28,7 @@ import Country from "@/Components/Forms/Fields/Country.vue";
 import Currency from "@/Components/Forms/Fields/Currency.vue";
 import Language from "@/Components/Forms/Fields/Language.vue";
 import Permissions from "@/Components/Forms/Fields/Permissions.vue";
+import WebRegistrations from "@/Components/Forms/Fields/WebRegistrations.vue";
 
 import InputWithAddOn from '@/Components/Forms/Fields/InputWithAddOn.vue'
 
@@ -72,17 +73,16 @@ const components = {
     'country': Country,
     'currency': Currency,
     'language': Language,
-    'permissions':Permissions
+    'permissions': Permissions,
+    'webRegistrations': WebRegistrations,
 };
 
 const getComponent = (componentName) => {
     return components[componentName] ?? null;
 };
 
-
-
 let formFields = {
-    [props['field']]: props['fieldData'].value,
+    [props.field]: props.fieldData.value,
 };
 
 if (props['fieldData']['hasOther']) {
