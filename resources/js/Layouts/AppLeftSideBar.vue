@@ -33,7 +33,7 @@ import {
     faBullhorn,
     faLightbulb
 } from "@/../private/pro-light-svg-icons"
-import { useLayoutStore } from "@/Stores/layout"
+import { useLayoutStore } from "@/Stores/layout.js"
 import { computed } from "vue";
 
 library.add(

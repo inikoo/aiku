@@ -1,32 +1,35 @@
 <?php
 /*
- * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Mon, 29 May 2023 12:18:51 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
+ * Created: Tue, 14 Mar 2023 15:31:00 Central European Standard Time, Malaga, Spain
+ * Copyright (c) 2023, Inikoo LTD
  */
 
 namespace App\Actions\Web\Website\UI;
 
+use App\Actions\Helpers\History\IndexHistories;
 use App\Actions\InertiaAction;
-use App\Actions\UI\WithInertia;
-use App\Enums\UI\WebsiteTabsEnum;
-use App\Enums\UI\WorkshopTabsEnum;
-use App\Http\Resources\Market\WebsiteResource;
-use App\Models\Market\Shop;
+use App\Actions\Inventory\Location\UI\IndexLocations;
+use App\Actions\Inventory\WarehouseArea\UI\IndexWarehouseAreas;
+use App\Actions\UI\Inventory\InventoryDashboard;
+use App\Enums\UI\WarehouseTabsEnum;
+use App\Enums\UI\WebsiteWorkshopTabsEnum;
+use App\Http\Resources\Inventory\LocationResource;
+use App\Http\Resources\Inventory\WarehouseAreaResource;
+use App\Http\Resources\Inventory\WarehouseResource;
+use App\Http\Resources\SysAdmin\HistoryResource;
+use App\Models\Inventory\Warehouse;
 use App\Models\Web\Website;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsAction;
 
 /**
- * @property Website $website
+ * @property \App\Models\Web\Website $website
  */
 class WorkshopWebsite extends InertiaAction
 {
-    use AsAction;
-    use WithInertia;
-
+    private ActionRequest $request;
 
     public function authorize(ActionRequest $request): bool
     {
@@ -35,107 +38,213 @@ class WorkshopWebsite extends InertiaAction
         return $request->user()->hasPermissionTo("websites.view");
     }
 
-    public function asController(Website $website, ActionRequest $request): Website
+    public function asController(Website $website, ActionRequest $request): void
     {
-        $this->initialisation($request)->withTab(WebsiteTabsEnum::values());
-
-        return $website;
+        $this->initialisation($request)->withTab(WebsiteWorkshopTabsEnum::values());
+        $this->website   = $website;
+        $this->request   = $request;
     }
 
-    /** @noinspection PhpUnusedParameterInspection */
-    public function inShop(Shop $shop, Website $website, ActionRequest $request): Website
+
+    public function htmlResponse(): Response
     {
-        $this->initialisation($request)->withTab(WebsiteTabsEnum::values());
-
-        return $website;
-    }
-
-    public function htmlResponse(Website $website, ActionRequest $request): Response
-    {
-        $this->validateAttributes();
-
-
         return Inertia::render(
-            'Web/Workshop',
+            'Web/WebsiteWorkshop',
             [
-                'title'       => __('Workshop'),
-                'breadcrumbs' => $this->getBreadcrumbs(
-                    $request->route()->getName(),
-                    $request->route()->parameters
-                ),
-                'pageHead'    => [
-                    'title'   => $website->name,
+                'title'                            => __('workshop'),
+                'breadcrumbs'                      => $this->getBreadcrumbs($this->website),
+                'navigation'                       => [
+                    'previous' => $this->getPrevious($this->website, $this->request),
+                    'next'     => $this->getNext($this->website, $this->request),
                 ],
-                'tabs'                                => [
+                'pageHead'                         => [
+                    'icon'  =>
+                        [
+                            'icon'  => ['fal', 'website'],
+                            'title' => __('website')
+                        ],
+                    'title'   => $this->website->name,
+                    'actions' => [
+                        $this->canEdit ? [
+                            'type'  => 'button',
+                            'style' => 'edit',
+                            'route' => [
+                                'name'       => preg_replace('/show$/', 'edit', $this->routeName),
+                                'parameters' => array_values($this->originalParameters)
+                            ]
+                        ] : false,
+                        $this->canDelete ? [
+                            'type'  => 'button',
+                            'style' => 'delete',
+                            'route' => [
+                                'name'       => 'inventory.websites.remove',
+                                'parameters' => array_values($this->originalParameters)
+                            ]
+                        ] : false
+                    ],
+                    'meta' => [
+                        [
+                            'name'     => trans_choice('website area|website areas', $this->website->stats->number_website_areas),
+                            'number'   => $this->website->stats->number_website_areas,
+                            'href'     => [
+                                'inventory.websites.show.website-areas.index',
+                                $this->website->slug
+                            ],
+                            'leftIcon' => [
+                                'icon'    => 'fal fa-map-signs',
+                                'tooltip' => __('website areas')
+                            ]
+                        ],
+                        [
+                            'name'     => trans_choice('location|locations', $this->website->stats->number_locations),
+                            'number'   => $this->website->stats->number_locations,
+                            'href'     => [
+                                'inventory.websites.show.locations.index',
+                                $this->website->slug
+                            ],
+                            'leftIcon' => [
+                                'icon'    => 'fal fa-inventory',
+                                'tooltip' => __('locations')
+                            ]
+                        ]
+                    ]
+
+                ],
+                'tabs'                                   => [
+
                     'current'    => $this->tab,
-                    'navigation' => WorkshopTabsEnum::navigation()
+                    'navigation' => WebsiteWorkshopTabsEnum::navigation(),
+
+
                 ],
-                WorkshopTabsEnum::HEADER->value => $this->tab == WorkshopTabsEnum::HEADER->value ?
-                    fn () => WebsiteResource::collection(IndexWebsitesHeader::run($website))
-                    : Inertia::lazy(fn () => WebsiteResource::collection(IndexWebsitesHeader::run($website))),
-                WorkshopTabsEnum::MENU->value => $this->tab == WorkshopTabsEnum::MENU->value ?
-                    fn () => WebsiteResource::collection(IndexWebsitesMenu::run($website))
-                    : Inertia::lazy(fn () => WebsiteResource::collection(IndexWebsitesMenu::run($website))),
-                WorkshopTabsEnum::FOOTER->value => $this->tab == WorkshopTabsEnum::FOOTER->value ?
-                    fn () => WebsiteResource::collection(IndexWebsitesFooter::run($website))
-                    : Inertia::lazy(fn () => WebsiteResource::collection(IndexWebsitesFooter::run($website)))
+
+
+                WebsiteWorkshopTabsEnum::HEADER->value       => $this->tab == WebsiteWorkshopTabsEnum::HEADER->value ?
+                    fn () => LocationResource::collection(
+                        IndexLocations::run(
+                            parent: $this->website,
+                            prefix: 'locations'
+                        )
+                    )
+                    : Inertia::lazy(fn () => LocationResource::collection(
+                        IndexLocations::run(
+                            parent: $this->website,
+                            prefix: 'locations'
+                        )
+                    )),
+                WarehouseTabsEnum::Menu->value => $this->tab == WarehouseTabsEnum::WAREHOUSE_AREAS->value
+                    ?
+                    fn () => WarehouseAreaResource::collection(
+                        IndexWarehouseAreas::run(
+                            parent: $this->website,
+                            prefix: 'website_areas'
+                        )
+                    )
+                    : Inertia::lazy(fn () => WarehouseAreaResource::collection(
+                        IndexWarehouseAreas::run(
+                            parent: $this->website,
+                            prefix: 'website_areas'
+                        )
+                    )),
+
+                WarehouseTabsEnum::HISTORY->value => $this->tab == WarehouseTabsEnum::HISTORY->value ?
+                    fn () => HistoryResource::collection(IndexHistories::run($this->website))
+                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistories::run($this->website)))
+
+            ]
+        )->table(IndexLocations::make()->tableStructure(
+            //            modelOperations: [
+            //                'createLink' => $this->canEdit ? [
+            //                    'route' => [
+            //                        'name'       => 'inventory.websites.show.locations.create',
+            //                        'parameters' => array_values($this->originalParameters)
+            //                    ],
+            //                    'label' => __('location')
+            //                ] : false,
+            //            ],
+            //            prefix: 'locations'
+        ))->table(IndexWarehouseAreas::make()->tableStructure(
+            //            modelOperations: [
+            //                'createLink' => $this->canEdit ? [
+            //                    'route' => [
+            //                        'name'       => 'inventory.websites.show.website-areas.create',
+            //                        'parameters' => array_values($this->originalParameters)
+            //                    ],
+            //                    'label' => __('area')
+            //                ] : false,
+            //            ],
+            //            prefix: 'website_areas'
+        ))->table(IndexHistories::make()->tableStructure());
+    }
+
+
+    public function jsonResponse(): WarehouseResource
+    {
+        return new WarehouseResource($this->website);
+    }
+
+    public function getBreadcrumbs(Website $website, $suffix = null): array
+    {
+        return array_merge(
+            (new InventoryDashboard())->getBreadcrumbs(),
+            [
+                [
+                    'type'           => 'modelWithIndex',
+                    'modelWithIndex' => [
+                        'index' => [
+                            'route' => [
+                                'name' => 'inventory.websites.index',
+                            ],
+                            'label' => __('website'),
+                            'icon'  => 'fal fa-bars'
+                        ],
+                        'model' => [
+                            'route' => [
+                                'name'       => 'inventory.websites.show',
+                                'parameters' => [$website->slug]
+                            ],
+                            'label' => $website->code,
+                            'icon'  => 'fal fa-bars'
+                        ],
+                    ],
+                    'suffix'         => $suffix,
+
+                ],
             ]
         );
     }
 
-
-    public function jsonResponse(Website $website): WebsiteResource
+    public function getPrevious(Warehouse $website, ActionRequest $request): ?array
     {
-        return new WebsiteResource($website);
+        $previous = Warehouse::where('code', '<', $website->code)->orderBy('code', 'desc')->first();
+
+        return $this->getNavigation($previous, $request->route()->getName());
     }
 
-
-
-    public function getBreadcrumbs(string $routeName, array $routeParameters, string $suffix = ''): array
+    public function getNext(Warehouse $website, ActionRequest $request): ?array
     {
-        $headCrumb = function (Website $website, array $routeParameters, string $suffix) {
-            return [
-                [
+        $next = Warehouse::where('code', '>', $website->code)->orderBy('code')->first();
 
-                    'type'           => 'website',
-                    'modelWithIndex' => [
-                        'index' => [
-                            'route' => $routeParameters['index'],
-                            'label' => __('websites')
-                        ],
-                        'model' => [
-                            'route' => $routeParameters['model'],
-                            'label' => $website->name,
-                        ],
+        return $this->getNavigation($next, $request->route()->getName());
+    }
 
-                    ],
-                    'simple'=> [
-                        'route' => $routeParameters['model'],
-                        'label' => $website->name
-                    ],
-
-
-                    'suffix'=> $suffix
-
-                ],
-            ];
-        };
+    private function getNavigation(?Warehouse $website, string $routeName): ?array
+    {
+        if (!$website) {
+            return null;
+        }
 
         return match ($routeName) {
-            'shops.show.websites.show',
-            'shops.show.websites.edit'
-            => array_merge(
-                ShowWebsite::make()->getBreadcrumbs(
-                    $routeName,
-                    $routeParameters
-                ),
-                $headCrumb(
-                    $this->website,
-                    $routeParameters['website'],
-                    $suffix
-                )
-            ),
-            default => []
+            'inventory.websites.show' => [
+                'label' => $website->name,
+                'route' => [
+                    'name'       => $routeName,
+                    'parameters' => [
+                        'website' => $website->slug
+                    ]
+
+                ]
+            ]
         };
     }
 }
