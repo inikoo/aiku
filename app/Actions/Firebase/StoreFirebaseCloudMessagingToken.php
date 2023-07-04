@@ -8,6 +8,7 @@
 namespace App\Actions\Firebase;
 
 use App\Models\Notifications\FcmToken;
+use App\Models\Tenancy\Tenant;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\AsObject;
@@ -19,11 +20,13 @@ class StoreFirebaseCloudMessagingToken
 
     public function handle(ActionRequest $request): void
     {
+        Tenant::where('slug', 'aw')->first()->makeCurrent();
+
         $token = FcmToken::firstOrNew([
             'token_id' => $request->user()->currentAccessToken()->token
         ]);
 
-        $token->fcm_token = $request->get('token');
+        $token->fcm_token = $request->input('token');
 
         $request->user()->fcmToken()->save($token);
     }
