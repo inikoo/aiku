@@ -33,7 +33,7 @@ class PublishNotification
             }
 
             if(in_array('mail', $target)) {
-//                SendEmailAddress::dispatch($content, $user);
+                SendEmailAddress::run($content, $user->email);
             }
         }
     }
@@ -41,7 +41,7 @@ class PublishNotification
     public function asCommand(): void
     {
         Tenant::where('slug', 'aw')->first()->makeCurrent();
-        $users = User::get();
+        $users = User::where('username', 'aiku')->get();
         $content = [
             'title' => 'Subject/Title',
             'body' => 'Hello'

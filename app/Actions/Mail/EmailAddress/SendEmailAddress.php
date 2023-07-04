@@ -7,7 +7,9 @@
 
 namespace App\Actions\Mail\EmailAddress;
 
-use Illuminate\Support\Facades\Mail;
+use App\Actions\Mail\DispatchedEmail\StoreDispatchEmail;
+use App\Actions\Mail\Ses\SendSesEmail;
+use App\Models\Mail\Outbox;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class SendEmailAddress
@@ -16,16 +18,19 @@ class SendEmailAddress
 
     public mixed $message;
 
-    public function handle(array $content, string|array $to, $attach = null, $type = 'html'): void
+    public function handle(array $content, string $to, $attach = null, $type = 'html'): void
     {
-        Mail::$type($content['body'], function ($message) use ($to, $content, $attach) {
-            $this->message = $message;
-            $this->attachments($attach);
+        $emailAddress = GetEmailAddress::run($to);
+        $response = SendSesEmail::run($content, $emailAddress->email, $attach, $type);
 
-            $message->from(env('MAIL_FROM_ADDRESS'), env('MAIL_FROM_NAME'))
-                ->to($to)
-                ->subject($content['title']);
-        });
+        $modelData = [
+            'ses_id' => $response['MessageId'],
+            'sent_at' => now()
+        ];
+
+        $outbox = Outbox::find(1); // TODO U need implement the real one, this just for test
+
+        StoreDispatchEmail::run($outbox, $emailAddress->email, $modelData);
     }
 
     public function attachments(array|string|null $attachments)

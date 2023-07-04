@@ -7,6 +7,9 @@
 
 namespace App\Actions\Notifications;
 
+use App\Actions\Mail\DispatchedEmail\UpdateDispatchedEmail;
+use App\Models\Mail\DispatchedEmail;
+use App\Models\Tenancy\Tenant;
 use Aws\Sns\Message;
 use Aws\Sns\MessageValidator;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -14,7 +17,6 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class GetSnsNotification
 {
     use AsAction;
-
 
     public function asController(): void
     {
@@ -25,9 +27,20 @@ class GetSnsNotification
             if ($message['Type'] == 'SubscriptionConfirmation') {
                 file_get_contents($message['SubscribeURL']);
             } elseif ($message['Type'] === 'Notification') {
-                $subject     = $message['Subject'];
-                $messageData = json_decode($message['Message']);
-                // use $subject and $messageData and take relevant action
+                $messageData = json_decode($message['Message'], true);
+
+                $messageId = $messageData['mail']['messageId'];
+                $timestamp = $messageData['mail']['timestamp'];
+
+                $currentTenant =  explode('.', explode('@', $messageData['mail']['source'])[1])[0];
+
+                Tenant::where('slug', $currentTenant)->first()->makeCurrent();
+
+                $dispatchedEmail = DispatchedEmail::where('ses_id', $messageId)->first();
+                UpdateDispatchedEmail::run($dispatchedEmail, [
+                    'first_read_at' => $timestamp,
+                    'last_read_at' => $timestamp
+                ]);
             }
         }
     }
