@@ -20,8 +20,11 @@ use App\Actions\Accounting\PaymentAccount\UI\CreatePaymentAccount;
 use App\Actions\Accounting\PaymentAccount\UI\IndexPaymentAccounts;
 use App\Actions\Accounting\PaymentAccount\UI\ShowPaymentAccount;
 use App\Actions\Accounting\PaymentServiceProvider\ExportPaymentServiceProviders;
-use App\Actions\Accounting\PaymentServiceProvider\IndexPaymentServiceProviders;
-use App\Actions\Accounting\PaymentServiceProvider\ShowPaymentServiceProvider;
+use App\Actions\Accounting\PaymentServiceProvider\UI\CreatePaymentServiceProvider;
+use App\Actions\Accounting\PaymentServiceProvider\UI\EditPaymentServiceProvider;
+use App\Actions\Accounting\PaymentServiceProvider\UI\IndexPaymentServiceProviders;
+use App\Actions\Accounting\PaymentServiceProvider\UI\RemovePaymentServiceProvider;
+use App\Actions\Accounting\PaymentServiceProvider\UI\ShowPaymentServiceProvider;
 use App\Actions\UI\Accounting\AccountingDashboard;
 use Illuminate\Support\Facades\Route;
 
@@ -37,10 +40,13 @@ if ($parent == 'tenant') {
     Route::get('/providers/{paymentServiceProvider}/payments/create', [IndexPayments::class, 'inPaymentServiceProvider'])->name('payment-service-providers.show.payments.create');
 
 
+
     Route::get('/providers', IndexPaymentServiceProviders::class)->name('payment-service-providers.index');
+    Route::get('/providers/create', CreatePaymentServiceProvider::class)->name('payment-service-providers.create');
     Route::get('/providers/export', ExportPaymentServiceProviders::class)->name('payment-service-providers.export');
     Route::get('/providers/{paymentServiceProvider}', ShowPaymentServiceProvider::class)->name('payment-service-providers.show');
-    Route::get('/providers/{paymentServiceProvider}', ShowPaymentServiceProvider::class)->name('payment-service-providers.show');
+    Route::get('/providers/{paymentServiceProvider}/edit', EditPaymentServiceProvider::class)->name('payment-service-providers.edit');
+    Route::get('/providers/{paymentServiceProvider}/delete', RemovePaymentServiceProvider::class)->name('payment-service-providers.remove');
     Route::get('/providers/{paymentServiceProvider}/accounts', [IndexPaymentAccounts::class, 'inPaymentServiceProvider'])->name('payment-service-providers.show.payment-accounts.index');
     Route::get('/providers/{paymentServiceProvider}/accounts/{paymentAccount}', [ShowPaymentAccount::class, 'inPaymentServiceProvider'])->name('payment-service-providers.show.payment-accounts.show');
     Route::get('/providers/{paymentServiceProvider}/accounts/{paymentAccount}/payments', [IndexPayments::class, 'inPaymentAccountInPaymentServiceProvider'])->name('payment-service-providers.show.payment-accounts.show.payments.index');

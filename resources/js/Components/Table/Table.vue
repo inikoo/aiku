@@ -574,6 +574,7 @@ const handleElementsChange = (data) => {
                             <div v-else class="px-2 ">{{ locale.number(0) }} {{ $t('record') }}</div>
                         </div>
                         <!-- Button -->
+                        {{ queryBuilderProps.modelOperations }}
                         <div v-if="queryBuilderProps.modelOperations.createLink">
                             <Link :href="route(queryBuilderProps.modelOperations.createLink.route.name, queryBuilderProps.modelOperations.createLink.route.parameters[0])">
                                 <!--suppress HtmlWrongAttributeValue -->

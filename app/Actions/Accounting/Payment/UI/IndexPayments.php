@@ -8,10 +8,11 @@
 namespace App\Actions\Accounting\Payment\UI;
 
 use App\Actions\Accounting\PaymentAccount\UI\ShowPaymentAccount;
-use App\Actions\Accounting\PaymentServiceProvider\ShowPaymentServiceProvider;
+use App\Actions\Accounting\PaymentServiceProvider\UI\ShowPaymentServiceProvider;
 use App\Actions\InertiaAction;
 use App\Actions\UI\Accounting\AccountingDashboard;
 use App\Http\Resources\Accounting\PaymentResource;
+use App\InertiaTable\InertiaTable;
 use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentServiceProvider;
@@ -24,7 +25,6 @@ use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
-use App\InertiaTable\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
@@ -103,6 +103,23 @@ class IndexPayments extends InertiaAction
             $table
                 ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
+                ->withEmptyState(
+                    [
+                        'title'       => __('no payments'),
+                        'description' => $this->canEdit ? __('Get started by creating a new payment.') : null,
+                        'count'       => app('currentTenant')->inventoryStats->number_locations,
+                        'action'      => $this->canEdit ? [
+                            'type'    => 'button',
+                            'style'   => 'create',
+                            'tooltip' => __('new payment'),
+                            'label'   => __('payment'),
+                            'route'   => [
+                                'name'       => 'accounting.payment-service-providers.show.payments.create',
+                                'parameters' => array_values($this->originalParameters)
+                            ]
+                        ] : null
+                    ]
+                )
                 ->defaultSort('reference')
                 ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'status', label: __('status'), canBeHidden: false, sortable: true, searchable: true)
@@ -196,31 +213,30 @@ class IndexPayments extends InertiaAction
                         ],
                         default => null
                     },
-                    'create'    => $this->canEdit
-                    && (
-                        $this->routeName == 'accounting.payment-accounts.show.payments.index' or
-                        $this->routeName == 'accounting.payment-service-providers.show.payment-accounts.show.payments.index'
-                    )
-
-                        ? [
-                            'route' =>
-                                match ($this->routeName) {
-                                    'accounting.payment-accounts.show.payments.index' =>
-                                    [
-                                        'name'       => 'accounting.payment-accounts.show.payments.create',
-                                        'parameters' => array_values($this->originalParameters)
-                                    ],
-                                    'accounting.payment-service-providers.show.payment-accounts.show.payments.index' =>
-                                    [
-                                        'name'       => 'accounting.payment-service-providers.show.payment-accounts.show.payments.create',
-                                        'parameters' => array_values($this->originalParameters)
-                                    ]
-                                }
-
-
-                            ,
-                            'label' => __('payments')
-                        ] : false,
+                    'actions'=> [
+                        $this->canEdit
+                        && (
+                            $this->routeName == 'accounting.payment-accounts.show.payments.index' or
+                            $this->routeName == 'accounting.payment-service-providers.show.payment-accounts.show.payments.index'
+                        )
+                            ? [
+                            'type'  => 'button',
+                            'style' => 'create',
+                            'label' => __('payments'),
+                            'route' => match ($this->routeName) {
+                                'accounting.payment-accounts.show.payments.index' =>
+                                [
+                                    'name'       => 'accounting.payment-accounts.show.payments.create',
+                                    'parameters' => array_values($this->originalParameters)
+                                ],
+                                'accounting.payment-service-providers.show.payment-accounts.show.payments.index' =>
+                                [
+                                    'name'       => 'accounting.payment-service-providers.show.payment-accounts.show.payments.create',
+                                    'parameters' => array_values($this->originalParameters)
+                                ]
+                            }
+                        ] : false
+                    ]
                 ],
                 'data'        => PaymentResource::collection($payments),
 

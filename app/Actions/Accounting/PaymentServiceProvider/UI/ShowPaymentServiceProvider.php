@@ -5,10 +5,11 @@
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Accounting\PaymentServiceProvider;
+namespace App\Actions\Accounting\PaymentServiceProvider\UI;
 
 use App\Actions\Accounting\Payment\UI\IndexPayments;
 use App\Actions\Accounting\PaymentAccount\UI\IndexPaymentAccounts;
+use App\Actions\Accounting\PaymentServiceProvider\GetPaymentServiceProviderShowcase;
 use App\Actions\Helpers\History\IndexHistories;
 use App\Actions\InertiaAction;
 use App\Actions\UI\Accounting\AccountingDashboard;
@@ -28,24 +29,28 @@ class ShowPaymentServiceProvider extends InertiaAction
     {
         return $paymentServiceProvider;
     }
+
     public function authorize(ActionRequest $request): bool
     {
+        $this->canEdit   = $request->user()->can('accounting.edit');
+        $this->canDelete = $request->user()->can('accounting.edit');
+
         return $request->user()->hasPermissionTo("accounting.view");
     }
+
     public function asController(PaymentServiceProvider $paymentServiceProvider, ActionRequest $request): PaymentServiceProvider
     {
         $this->initialisation($request)->withTab(PaymentServiceProviderTabsEnum::values());
         return $this->handle($paymentServiceProvider);
     }
+
     public function htmlResponse(PaymentServiceProvider $paymentServiceProvider, ActionRequest $request): Response
     {
         return Inertia::render(
             'Accounting/PaymentServiceProvider',
             [
                 'title'       => __('payment service provider'),
-                'breadcrumbs' => $this->getBreadcrumbs(
-                    $request->route()->parameters
-                ),
+                'breadcrumbs' => $this->getBreadcrumbs($paymentServiceProvider),
                 'navigation'                            => [
                     'previous' => $this->getPrevious($paymentServiceProvider, $request),
                     'next'     => $this->getNext($paymentServiceProvider, $request),
@@ -57,6 +62,24 @@ class ShowPaymentServiceProvider extends InertiaAction
                             'title' => __('payment service provider')
                         ],
                     'title' => $paymentServiceProvider->slug,
+                    'actions' => [
+                        $this->canEdit ? [
+                            'type'  => 'button',
+                            'style' => 'edit',
+                            'route' => [
+                                'name'       => preg_replace('/show$/', 'edit', $this->routeName),
+                                'parameters' => array_values($this->originalParameters)
+                            ]
+                        ] : false,
+                        $this->canDelete ? [
+                            'type'  => 'button',
+                            'style' => 'delete',
+                            'route' => [
+                                'name'       => 'accounting.payment-service-providers.remove',
+                                'parameters' => array_values($this->originalParameters)
+                            ]
+                        ] : false
+                    ],
                     'meta'  => [
                         [
                             'name'     => trans_choice('account | accounts', $paymentServiceProvider->stats->number_accounts),
@@ -92,30 +115,54 @@ class ShowPaymentServiceProvider extends InertiaAction
                     fn () => GetPaymentServiceProviderShowcase::run($paymentServiceProvider)
                     : Inertia::lazy(fn () => GetPaymentServiceProviderShowcase::run($paymentServiceProvider)),
 
-                PaymentServiceProviderTabsEnum::PAYMENTS->value => $this->tab == PaymentServiceProviderTabsEnum::PAYMENTS->value ?
-                    fn () => PaymentResource::collection(IndexPayments::run($paymentServiceProvider))
-                    : Inertia::lazy(fn () => PaymentResource::collection(IndexPayments::run($paymentServiceProvider))),
-                PaymentServiceProviderTabsEnum::PAYMENT_ACCOUNTS->value => $this->tab == PaymentServiceProviderTabsEnum::PAYMENT_ACCOUNTS->value ?
-                    fn () => PaymentAccountResource::collection(IndexPaymentAccounts::run($paymentServiceProvider))
-                    : Inertia::lazy(fn () => PaymentAccountResource::collection(IndexPaymentAccounts::run($paymentServiceProvider))),
+                PaymentServiceProviderTabsEnum::PAYMENTS->value => $this->tab == PaymentServiceProviderTabsEnum::PAYMENTS->value
+                    ?
+                    fn () => PaymentResource::collection(
+                        IndexPayments::run(
+                            parent: $paymentServiceProvider,
+                            prefix: 'payments'
+                        )
+                    )
+                    : Inertia::lazy(fn () => PaymentResource::collection(
+                        IndexPayments::run(
+                            parent: $paymentServiceProvider,
+                            prefix: 'payments'
+                        )
+                    )),
+                PaymentServiceProviderTabsEnum::PAYMENT_ACCOUNTS->value => $this->tab == PaymentServiceProviderTabsEnum::PAYMENT_ACCOUNTS->value
+                    ?
+                    fn () => PaymentAccountResource::collection(
+                        IndexPaymentAccounts::run(
+                            parent: $paymentServiceProvider,
+                            prefix: 'payment_accounts'
+                        )
+                    )
+                    : Inertia::lazy(fn () => PaymentAccountResource::collection(
+                        IndexPaymentAccounts::run(
+                            parent: $paymentServiceProvider,
+                            prefix: 'payment_accounts'
+                        )
+                    )),
 
                 PaymentServiceProviderTabsEnum::HISTORY->value => $this->tab == PaymentServiceProviderTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistories::run($paymentServiceProvider))
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistories::run($paymentServiceProvider)))
             ]
         )
-        ->table(IndexPayments::make()->tableStructure(
-            //            modelOperations: [
-            //                 'createLink' => $this->canEdit ? [
-            //                     'route' => [
-            //                        'name'       => 'accounting.payment-service-providers.show.payments.create',
-            //                        'parameters' => array_values($this->originalParameters)
-            //                     ],
-            //                     'label' => __('payment')
-            //                 ] : false,
-            //            ],
-            //            prefix: 'payments'
-        ))
+        ->table(
+            IndexPayments::make()->tableStructure(
+                modelOperations: [
+                     'createLink' => $this->canEdit ? [
+                         'route' => [
+                            'name'       => 'accounting.payment-service-providers.show.payments.create',
+                            'parameters' => array_values($this->originalParameters)
+                         ],
+                         'label' => __('payment')
+                     ] : false,
+                ],
+                prefix: 'payments'
+            )
+        )
         ->table(IndexPaymentAccounts::make()->tableStructure(
             //            modelOperations: [
             //                'createLink' => $this->canEdit ? [
@@ -134,7 +181,7 @@ class ShowPaymentServiceProvider extends InertiaAction
     {
         return new PaymentServiceProviderResource($paymentServiceProvider);
     }
-    public function getBreadcrumbs(array $routeParameters, $suffix = null): array
+    public function getBreadcrumbs(PaymentServiceProvider $paymentServiceProvider, $suffix = null): array
     {
         return array_merge(
             AccountingDashboard::make()->getBreadcrumbs('accounting.dashboard', []),
@@ -151,9 +198,9 @@ class ShowPaymentServiceProvider extends InertiaAction
                         'model' => [
                             'route' => [
                                 'name'       => 'accounting.payment-service-providers.show',
-                                'parameters' => $routeParameters['paymentServiceProvider']->slug
+                                'parameters' => [$paymentServiceProvider->slug]
                             ],
-                            'label' => $routeParameters['paymentServiceProvider']->slug,
+                            'label' => $paymentServiceProvider->slug,
                         ],
                     ],
                     'suffix'         => $suffix,

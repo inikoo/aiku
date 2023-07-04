@@ -162,7 +162,7 @@ class IndexDepartments extends InertiaAction
                         $this->canEdit && $this->routeName == 'shops.show.departments.index' ? [
                             'type'    => 'button',
                             'style'   => 'create',
-                            'tooltip' => __('new shop'),
+                            'tooltip' => __('new department'),
                             'label'   => __('department'),
                             'route'   => [
                                 'name'       => 'shops.show.departments.create',

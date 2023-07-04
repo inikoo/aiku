@@ -9,6 +9,7 @@
 use App\Actions\Accounting\Payment\UpdatePayment;
 use App\Actions\Accounting\PaymentAccount\StorePaymentAccount;
 use App\Actions\Accounting\PaymentAccount\UpdatePaymentAccount;
+use App\Actions\Accounting\PaymentServiceProvider\StorePaymentServiceProvider;
 use App\Actions\Auth\Guest\DeleteGuest;
 use App\Actions\Auth\Guest\StoreGuest;
 use App\Actions\Auth\Guest\UpdateGuest;
@@ -175,6 +176,9 @@ Route::post('/agent/{supplier}/purchase-order', [StorePurchaseOrder::class, 'inS
 Route::post('/supplier/', StoreMarketplaceSupplier::class)->name('supplier.store');
 Route::post('/agent/{agent}/supplier', [StoreMarketplaceSupplier::class, 'inAgent'])->name('agent.supplier.store');
 Route::post('/supplier/{supplier}/purchase-order', [StorePurchaseOrder::class, 'inSupplier'])->name('supplier.purchase-order.store');
+
+
+Route::post('/provider', StorePaymentServiceProvider::class)->name('payment-service-provider.store');
 
 Route::patch('/payment/{payment}', UpdatePayment::class)->name('payment.update');
 

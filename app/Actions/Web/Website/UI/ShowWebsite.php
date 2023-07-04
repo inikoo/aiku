@@ -59,7 +59,6 @@ class ShowWebsite extends InertiaAction
     {
         $this->validateAttributes();
 
-
         return Inertia::render(
             'Web/Website',
             [

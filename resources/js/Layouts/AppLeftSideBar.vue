@@ -116,7 +116,7 @@ const handleKey = (event: any) => {
 				<img class="h-6" :src="`/media/group/${layout.tenant.logo_id}`" :alt="layout.tenant.code" />
 				<span>{{ layout.tenant.name }}</span>
 			</Link>
-            {{layout.currentWarehouseData}}
+<!--            {{layout.currentWarehouseData}}-->
 			<div class="flex flex-grow flex-col pb-16">
 				<nav class="flex-1 space-y-1" aria-label="Sidebar">
 					<!-- LeftSide Links -->

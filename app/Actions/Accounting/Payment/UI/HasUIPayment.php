@@ -8,7 +8,7 @@
 namespace App\Actions\Accounting\Payment\UI;
 
 use App\Actions\Accounting\PaymentAccount\UI\ShowPaymentAccount;
-use App\Actions\Accounting\PaymentServiceProvider\ShowPaymentServiceProvider;
+use App\Actions\Accounting\PaymentServiceProvider\UI\ShowPaymentServiceProvider;
 use App\Actions\OMS\Order\UI\ShowOrder;
 use App\Actions\UI\Accounting\AccountingDashboard;
 

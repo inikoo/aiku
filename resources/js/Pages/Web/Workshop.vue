@@ -11,7 +11,9 @@ import PageHeading from '@/Components/Headings/PageHeading.vue';
 import { computed, defineAsyncComponent, ref } from "vue";
 import { useTabChange } from "@/Composables/tab-change";
 import Tabs from "@/Components/Navigation/Tabs.vue";
-import TableWebsites from "@/Pages/Tables/TableWebsites.vue";
+import IrisWorkshopHeader from "@/Pages/Iris/IrisWorkshopHeader.vue";
+import IrisWorkshopMenu from "@/Pages/Iris/IrisWorkshopMenu.vue";
+import IrisWorkshopFooter from "@/Pages/Iris/IrisWorkshopFooter.vue";
 import { capitalize } from "@/Composables/capitalize"
 
 library.add(
@@ -41,9 +43,9 @@ const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
 const component = computed(() => {
 
     const components = {
-        header: TableWebsites,
-        menu: TableWebsites,
-        footer: TableWebsites,
+        header: IrisWorkshopHeader,
+        menu: IrisWorkshopMenu,
+        footer: IrisWorkshopFooter,
     };
     return components[currentTab.value];
 
