@@ -11,11 +11,19 @@ import TableShops from "@/Pages/Tables/TableShops.vue";
 import { capitalize } from "@/Composables/capitalize"
 import Tabs from "@/Components/Navigation/Tabs.vue";
 import { computed, ref } from "vue";
+import { library } from "@fortawesome/fontawesome-svg-core";
 
 import TableDepartments from "@/Pages/Tables/TableDepartments.vue";
 import TableFamilies from "@/Pages/Tables/TableFamilies.vue";
 import TableProducts from "@/Pages/Tables/TableProducts.vue";
 import { useTabChange } from "@/Composables/tab-change";
+import {
+    faCube,faFolder,faFolders
+} from "@/../private/pro-light-svg-icons";
+
+library.add(
+    faCube,faFolder,faFolders
+);
 
 const props = defineProps <{
     pageHead: object

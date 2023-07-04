@@ -7,6 +7,7 @@
 <script setup lang="ts">
 import { Link } from "@inertiajs/vue3";
 import { useLayoutStore } from "@/Stores/layout";
+import AppTopBarNavs from "@/Layouts/TopBar/AppTopBarNavs.vue";
 
 const layout = useLayoutStore();
 
@@ -21,6 +22,8 @@ const layout = useLayoutStore();
 			{{ layout.tenant.name }}
 		</span>
         </Link>
+        <AppTopBarNavs/>
+
     </div>
 </template>
 

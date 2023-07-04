@@ -23,7 +23,9 @@ class EditWebsite extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
+        $this->canEdit = $request->user()->can('websites.edit');
         return $request->user()->hasPermissionTo("websites.edit");
+
     }
 
     public function asController(Website $website, ActionRequest $request): Website

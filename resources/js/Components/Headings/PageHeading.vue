@@ -8,7 +8,7 @@
 <script setup>
 import { Link } from "@inertiajs/vue3";
 import { library } from "@fortawesome/fontawesome-svg-core";
-import { faEmptySet, faMoneyCheckAlt, faPeopleArrows } from "@/../private/pro-light-svg-icons";
+import { faEmptySet, faMoneyCheckAlt, faPeopleArrows,faSlidersH } from "@/../private/pro-light-svg-icons";
 import { faPencil, faArrowLeft, faBorderAll, faTrashAlt } from "@/../private/pro-regular-svg-icons";
 
 import { faPlus } from "@/../private/pro-solid-svg-icons";
@@ -18,7 +18,7 @@ import { useLocaleStore } from "@/Stores/locale.js";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { trans } from "laravel-vue-i18n";
 
-library.add(faEmptySet, faMoneyCheckAlt, faPeopleArrows, faPlus, faPencil, faArrowLeft, faBorderAll, faTrashAlt);
+library.add(faEmptySet, faMoneyCheckAlt, faPeopleArrows, faSlidersH,faPlus, faPencil, faArrowLeft, faBorderAll, faTrashAlt);
 const props = defineProps(["data"])
 const locale = useLocaleStore()
 
@@ -38,12 +38,6 @@ const getActionLabel = function(action) {
 
             case "delete":
                 return trans("delete")
-
-            case "workshop":
-                return trans("workshop")
-
-            case "setting":
-                return trans("setting")
 
             default:
                 return ""
@@ -73,10 +67,6 @@ const getActionIcon = (action) => {
 
             case "delete":
                 return ["far", "fa-trash-alt"]
-            case "workshop":
-                return ["fal", "fa-drafting-compass"]
-            case "setting":
-                return ["fal", "fa-fa-sliders-h"]
 
             case "withMulti":
                 return ["far", "fa-border-all"]

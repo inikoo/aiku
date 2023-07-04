@@ -9,11 +9,10 @@ namespace App\Actions\Web\Website\UI;
 
 use App\Actions\Helpers\History\IndexHistories;
 use App\Actions\InertiaAction;
-use App\Actions\Market\Shop\UI\ShowShop;
-use App\Actions\UI\Dashboard\Dashboard;
 use App\Actions\UI\WithInertia;
 use App\Actions\Web\WebpageVariant\IndexWebpageVariants;
 use App\Enums\UI\WebsiteTabsEnum;
+use App\Enums\UI\WorkshopTabsEnum;
 use App\Http\Resources\Market\WebpageResource;
 use App\Http\Resources\Market\WebsiteResource;
 use App\Http\Resources\SysAdmin\HistoryResource;
@@ -79,19 +78,11 @@ class WorkshopWebsite extends InertiaAction
                                 'parameters' => array_values($this->originalParameters)
                             ]
                         ] : false,
-                        $this->canEdit ? [
-                            'type'  => 'button',
-                            'style' => 'workshop',
-                            'route' => [
-                                'name'       => preg_replace('/show$/', 'workshop', $this->routeName),
-                                'parameters' => array_values($this->originalParameters)
-                            ]
-                        ] : false,
                         $this->canDelete ? [
                             'type'  => 'button',
                             'style' => 'delete',
                             'route' => [
-                                'name'       => 'show.remove',
+                                'name'       => 'show.workshop.remove',
                                 'parameters' => array_values($this->originalParameters)
                             ]
                         ] : false
@@ -100,13 +91,15 @@ class WorkshopWebsite extends InertiaAction
                 ],
                 'tabs'                                => [
                     'current'    => $this->tab,
-                    'navigation' => WebsiteTabsEnum::navigation()
+                    'navigation' => WorkshopTabsEnum::navigation()
                 ],
-                WebsiteTabsEnum::WEBPAGES->value => $this->tab == WebsiteTabsEnum::WEBPAGES->value ?
+                WorkshopTabsEnum::HEADER->value => $this->tab == WorkshopTabsEnum::HEADER->value ?
                     fn () => WebpageResource::collection(IndexWebpageVariants::run($this->website))
                     : Inertia::lazy(fn () => WebpageResource::collection(IndexWebpageVariants::run($this->website))),
-
-                WebsiteTabsEnum::CHANGELOG->value => $this->tab == WebsiteTabsEnum::CHANGELOG->value ?
+                WorkshopTabsEnum::MENU->value => $this->tab == WorkshopTabsEnum::MENU->value ?
+                    fn () => HistoryResource::collection(IndexHistories::run($website))
+                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistories::run($website))),
+                WorkshopTabsEnum::FOOTER->value => $this->tab == WorkshopTabsEnum::FOOTER->value ?
                     fn () => HistoryResource::collection(IndexHistories::run($website))
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistories::run($website)))
             ]
@@ -152,54 +145,17 @@ class WorkshopWebsite extends InertiaAction
             ];
         };
 
-
-
-
         return match ($routeName) {
-            'websites.show',
-            'websites.edit' =>
-            array_merge(
-                Dashboard::make()->getBreadcrumbs(),
-                $headCrumb(
-                    'modelWithIndex',
-                    $routeParameters['website'],
-                    [
-                        'index' => [
-                            'name'       => 'websites.index',
-                            'parameters' => []
-                        ],
-                        'model' => [
-                            'name'       => 'websites.show',
-                            'parameters' => [$routeParameters['website']->slug]
-                        ]
-                    ],
-                    $suffix
-                ),
-            ),
-
-
             'shops.show.websites.show',
             'shops.show.websites.edit'
             => array_merge(
-                ShowShop::make()->getBreadcrumbs($routeParameters),
+                ShowWebsite::make()->getBreadcrumbs(
+                    $routeName,
+                    $routeParameters
+                ),
                 $headCrumb(
-                    'simple',
+                    $this->website,
                     $routeParameters['website'],
-                    [
-                        'index' => [
-                            'name'       => 'shops.show.websites.index',
-                            'parameters' => [
-                                $routeParameters['shop']->slug,
-                            ]
-                        ],
-                        'model' => [
-                            'name'       => 'shops.show.websites.show',
-                            'parameters' => [
-                                $routeParameters['shop']->slug,
-                                $routeParameters['website']->slug
-                            ]
-                        ]
-                    ],
                     $suffix
                 )
             ),

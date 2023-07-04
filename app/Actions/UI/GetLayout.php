@@ -200,9 +200,12 @@ class GetLayout
 
         if ($user->can('marketing.view')) {
             $navigation['marketing'] = [
-                'name'  => __('Marketing'),
-                'icon'  => ['fal', 'fa-bullhorn'],
-                'route' => 'marketing.hub'
+                'name'    => __('Marketing'),
+                'icon'    => ['fal', 'fa-bullhorn'],
+                'route'   => 'marketing.hub',
+                'topMenu' => [
+                    'subSections' => []
+                ]
             ];
         }
 
@@ -338,9 +341,12 @@ class GetLayout
 
         if ($user->can('dispatch.view')) {
             $navigation['dispatch'] = [
-                'name'  => __('Dispatch'),
-                'icon'  => ['fal', 'fa-conveyor-belt-alt'],
-                'route' => 'dispatch.hub'
+                'name'    => __('Dispatch'),
+                'icon'    => ['fal', 'fa-conveyor-belt-alt'],
+                'route'   => 'dispatch.hub',
+                'topMenu' => [
+                    'subSections' => []
+                ]
             ];
         }
 
@@ -523,7 +529,7 @@ class GetLayout
                     'name' => __('All shops'),
                     'code' => __('All')
                 ],
-                'topMenu' => [
+                'topMenu'      => [
                     'subSections' => [
                         [
                             'label' => __('Payment accounts'),
@@ -533,7 +539,7 @@ class GetLayout
                             ]
                         ],
                     ],
-                    'dropdown' => [
+                    'dropdown'    => [
                         'type'        => 'shops',
                         'options'     => $shops,
                         'subsections' => [
