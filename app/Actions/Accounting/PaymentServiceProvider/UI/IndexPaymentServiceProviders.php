@@ -78,23 +78,6 @@ class IndexPaymentServiceProviders extends InertiaAction
             }
             $table
                 ->withGlobalSearch()
-                ->withEmptyState(
-                    [
-                        'title'       => __('no providers'),
-                        'description' => $this->canEdit ? __('Get started by creating a new provider.') : null,
-                        'count'       => app('currentTenant')->stats->number_shops,
-                        'action'      => $this->canEdit ? [
-                            'type'    => 'button',
-                            'style'   => 'create',
-                            'tooltip' => __('new provider'),
-                            'label'   => __('provider'),
-                            'route'   => [
-                                'name'       => 'accounting.payment-service-providers.create',
-                                'parameters' => array_values($this->originalParameters)
-                            ]
-                        ] : null
-                    ]
-                )
                 ->defaultSort('code')
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'number_accounts', label: __('accounts'), canBeHidden: false, sortable: true, searchable: true)
@@ -128,18 +111,7 @@ class IndexPaymentServiceProviders extends InertiaAction
                 'title'       => __('Payment Service Providers'),
                 'pageHead'    => [
                     'title' => __('Payment Service Providers'),
-                    'actions'=> [
-                        $this->canEdit && $this->routeName == 'accounting.payment-service-providers.index' ? [
-                            'type'    => 'button',
-                            'style'   => 'create',
-                            'tooltip' => __('new payment service provider'),
-                            'label'   => __('payment service provider'),
-                            'route'   => [
-                                'name'       => 'accounting.payment-service-providers.create',
-                                'parameters' => array_values($this->originalParameters)
-                            ]
-                        ] : false,
-                    ]
+
                 ],
                 'payment_service_providers' => PaymentServiceProviderResource::collection($paymentServiceProviders),
 

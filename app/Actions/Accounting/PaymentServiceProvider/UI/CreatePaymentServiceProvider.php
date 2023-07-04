@@ -57,7 +57,8 @@ class CreatePaymentServiceProvider extends InertiaAction
                                     'options'     => Options::forEnum(PaymentServiceProviderTypeEnum::class),
                                     'searchable'  => true,
                                     'placeholder' => __('select a type'),
-                                    'required'    => true
+                                    'required'    => true,
+                                    'mode'        => 'single'
                                 ],
                             ]
                         ]

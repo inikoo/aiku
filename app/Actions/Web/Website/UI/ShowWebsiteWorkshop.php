@@ -45,6 +45,10 @@ class ShowWebsiteWorkshop extends InertiaAction
                     $request->route()->getName(),
                     $request->route()->parameters
                 ),
+                'navigation'   => [
+                    'previous' => $this->getPrevious($website, $request),
+                    'next'     => $this->getNext($website, $request),
+                ],
 
                 'pageHead'                         => [
                     'icon'  =>
@@ -53,15 +57,10 @@ class ShowWebsiteWorkshop extends InertiaAction
                             'title' => __('website')
                         ],
                     'title'   => $website->name,
-
-
                 ],
                 'tabs'                                   => [
-
                     'current'    => $this->tab,
                     'navigation' => WebsiteWorkshopTabsEnum::navigation(),
-
-
                 ],
 
 
@@ -168,5 +167,36 @@ class ShowWebsiteWorkshop extends InertiaAction
         };
     }
 
+    public function getPrevious(Website $website, ActionRequest $request): ?array
+    {
+        $previous = Website::where('code', '<', $website->code)->orderBy('code', 'desc')->first();
+
+        return $this->getNavigation($previous, $request->route()->getName());
+    }
+
+    public function getNext(Website $website, ActionRequest $request): ?array
+    {
+        $next = Website::where('code', '>', $website->code)->orderBy('code')->first();
+
+        return $this->getNavigation($next, $request->route()->getName());
+    }
+
+    private function getNavigation(?Website $website, string $routeName): ?array
+    {
+        if (!$website) {
+            return null;
+        }
+        return match ($routeName) {
+            'websites.workshop' => [
+                'label' => $website->name,
+                'route' => [
+                    'name'       => $routeName,
+                    'parameters' => [
+                        'website' => $website->slug
+                    ]
+                ]
+            ]
+        };
+    }
 
 }

@@ -110,22 +110,19 @@ class AccountingDashboard
                         default => [
                             [
 
-
-                                [
-                                    'name'  => __('providers'),
-                                    'icon'  => ['fal', 'fa-cash-register'],
-                                    'href'  => ['accounting.payment-service-providers.index'],
-                                    'index' => [
-                                        'number' => $scope->accountingStats->number_payment_service_providers
-                                    ]
-
-                                ],
                                 [
                                     'name'  => __('accounts'),
                                     'icon'  => ['fal', 'fa-money-check-alt'],
                                     'href'  => ['accounting.payment-accounts.index'],
                                     'index' => [
                                         'number' => $scope->accountingStats->number_payment_accounts
+                                    ],
+                                    'rightSubLink' => [
+                                        'tooltip'    => __('payment methods'),
+                                        'icon'       => ['fal', 'fa-cash-register'],
+                                        'labelStyle' => 'bordered',
+                                        'href'       => ['accounting.payment-service-providers.index'],
+
                                     ]
 
                                 ],
@@ -138,9 +135,6 @@ class AccountingDashboard
                                     ]
 
                                 ],
-
-                            ],
-                            [
                                 [
                                     'name'  => __('invoices'),
                                     'icon'  => ['fal', 'fa-file-invoice-dollar'],

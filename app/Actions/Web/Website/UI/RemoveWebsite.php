@@ -8,17 +8,16 @@
 namespace App\Actions\Web\Website\UI;
 
 use App\Actions\InertiaAction;
-use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
-use App\Models\Inventory\Warehouse;
+use App\Models\Web\Website;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
 class RemoveWebsite extends InertiaAction
 {
-    public function handle(Warehouse $warehouse): Warehouse
+    public function handle(Website $website): Website
     {
-        return $warehouse;
+        return $website;
     }
 
     public function authorize(ActionRequest $request): bool
@@ -26,11 +25,11 @@ class RemoveWebsite extends InertiaAction
         return $request->user()->hasPermissionTo("inventory.edit");
     }
 
-    public function asController(Warehouse $warehouse, ActionRequest $request): Warehouse
+    public function asController(Website $website, ActionRequest $request): Website
     {
         $this->initialisation($request);
 
-        return $this->handle($warehouse);
+        return $this->handle($website);
     }
 
 
@@ -38,42 +37,40 @@ class RemoveWebsite extends InertiaAction
     {
         return  [
             'buttonLabel' => __('Delete'),
-            'title'       => __('Delete Warehouse'),
-            'text'        => __("This action will delete this Warehouse and its Warehouse Areas and Locations"),
+            'title'       => __('Delete Website'),
+            'text'        => __("This action will delete this Website and its dependent"),
             'route'       => $route
         ];
     }
 
-    public function htmlResponse(Warehouse $warehouse, ActionRequest $request): Response
+    public function htmlResponse(Website $website, ActionRequest $request): Response
     {
         return Inertia::render(
             'RemoveModel',
             [
                 'title'       => __('delete employee'),
-                'breadcrumbs' => $this->getBreadcrumbs(
-                    $warehouse
-                ),
+                'breadcrumbs' => $this->getBreadcrumbs(),
                 'pageHead'    => [
                     'icon'  =>
                         [
                             'icon'  => ['fal', 'fa-inventory'],
                             'title' => __('employee')
                         ],
-                    'title'  => $warehouse->slug,
+                    'title'  => $website->slug,
                     'actions'=> [
                         [
                             'type'  => 'button',
                             'style' => 'cancel',
                             'route' => [
                                 'name'       => preg_replace('/remove$/', 'show', $this->routeName),
-                                'parameters' => $warehouse->slug
+                                'parameters' => $website->slug
                             ]
                         ]
                     ]
                 ],
                 'data'      => $this->getAction(
                     route:[
-                        'name'       => 'models.warehouse.delete',
+                        'name'       => 'models.website.delete',
                         'parameters' => $request->route()->originalParameters()
                     ]
                 )
@@ -82,8 +79,8 @@ class RemoveWebsite extends InertiaAction
     }
 
 
-    public function getBreadcrumbs(Warehouse $warehouse): array
+    public function getBreadcrumbs(): array
     {
-        return ShowWarehouse::make()->getBreadcrumbs($warehouse, suffix: '('.__('deleting').')');
+        return ShowWebsite::make()->getBreadcrumbs($this->routeName, $this->originalParameters, suffix: '('.__('deleting').')');
     }
 }

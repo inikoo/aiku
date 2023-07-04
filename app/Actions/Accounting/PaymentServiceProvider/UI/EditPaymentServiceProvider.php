@@ -73,7 +73,8 @@ class EditPaymentServiceProvider extends InertiaAction
                                     'options'     => Options::forEnum(PaymentServiceProviderTypeEnum::class),
                                     'searchable'  => true,
                                     'placeholder' => __('select a type'),
-                                    'value'       => $paymentServiceProvider->type
+                                    'value'       => $paymentServiceProvider->type,
+                                    'mode'        => 'single'
                                 ],
                             ]
                         ]
@@ -95,6 +96,9 @@ class EditPaymentServiceProvider extends InertiaAction
 
     public function getBreadcrumbs(PaymentServiceProvider $paymentServiceProvider): array
     {
-        return ShowPaymentServiceProvider::make()->getBreadcrumbs(paymentServiceProvider: $paymentServiceProvider, suffix: '('.__('editing').')');
+        return ShowPaymentServiceProvider::make()->getBreadcrumbs(
+            paymentServiceProvider: $paymentServiceProvider,
+            suffix: '('.__('editing').')'
+        );
     }
 }

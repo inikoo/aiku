@@ -24,9 +24,6 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-/**
- * @property Website $website
- */
 class ShowWebsite extends InertiaAction
 {
     use AsAction;
@@ -67,6 +64,10 @@ class ShowWebsite extends InertiaAction
                     $request->route()->getName(),
                     $request->route()->parameters
                 ),
+                'navigation'   => [
+                    'previous' => $this->getPrevious($website, $request),
+                    'next'     => $this->getNext($website, $request),
+                ],
                 'pageHead'    => [
                     'title'   => $website->name,
                     'actions' => [
@@ -89,7 +90,15 @@ class ShowWebsite extends InertiaAction
                                 'name'       => preg_replace('/show$/', 'workshop', $this->routeName),
                                 'parameters' => array_values($this->originalParameters)
                             ]
-                        ] : false
+                        ] : false,
+                        /*$this->canDelete ? [
+                            'type'  => 'button',
+                            'style' => 'delete',
+                            'route' => [
+                                'name'       => 'websites.remove',
+                                'parameters' => array_values($this->originalParameters)
+                            ]
+                        ] : false */
                     ],
 
                 ],
@@ -97,16 +106,24 @@ class ShowWebsite extends InertiaAction
                     'current'    => $this->tab,
                     'navigation' => WebsiteTabsEnum::navigation()
                 ],
-                WebsiteTabsEnum::WEBPAGES->value => $this->tab == WebsiteTabsEnum::WEBPAGES->value ?
-                    fn () => WebpageResource::collection(IndexWebpageVariants::run($this->website))
-                    : Inertia::lazy(fn () => WebpageResource::collection(IndexWebpageVariants::run($this->website))),
+                WebsiteTabsEnum::WEBPAGES->value => $this->tab == WebsiteTabsEnum::WEBPAGES->value
+                    ?
+                    fn () => WebpageResource::collection(
+                        IndexWebpageVariants::run($website)
+                    )
+                    : Inertia::lazy(fn () => WebpageResource::collection(
+                        IndexWebpageVariants::run($website)
+                    )),
 
                 WebsiteTabsEnum::CHANGELOG->value => $this->tab == WebsiteTabsEnum::CHANGELOG->value ?
                     fn () => HistoryResource::collection(IndexHistories::run($website))
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistories::run($website)))
             ]
-        )->table(IndexWebpageVariants::make()->tableStructure($website))
-            ->table(IndexHistories::make()->tableStructure());
+        )->table(
+            IndexWebpageVariants::make()->tableStructure(
+                $website
+            )
+        )->table(IndexHistories::make()->tableStructure());
     }
 
 
@@ -197,6 +214,39 @@ class ShowWebsite extends InertiaAction
                 )
             ),
             default => []
+        };
+    }
+
+    public function getPrevious(Website $website, ActionRequest $request): ?array
+    {
+        $previous = Website::where('code', '<', $website->code)->orderBy('code', 'desc')->first();
+
+        return $this->getNavigation($previous, $request->route()->getName());
+    }
+
+    public function getNext(Website $website, ActionRequest $request): ?array
+    {
+        $next = Website::where('code', '>', $website->code)->orderBy('code')->first();
+
+        return $this->getNavigation($next, $request->route()->getName());
+    }
+
+    private function getNavigation(?Website $website, string $routeName): ?array
+    {
+        if (!$website) {
+            return null;
+        }
+
+        return match ($routeName) {
+            'websites.show' => [
+                'label' => $website->name,
+                'route' => [
+                    'name'       => $routeName,
+                    'parameters' => [
+                        'website' => $website->slug
+                    ]
+                ]
+            ]
         };
     }
 }
