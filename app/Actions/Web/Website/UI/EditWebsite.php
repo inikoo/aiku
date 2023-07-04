@@ -95,17 +95,27 @@ class EditWebsite extends InertiaAction
                             'fields' => [
                                 'registrations_type' => [
                                     'type'     => 'radio',
+                                    'mode'     => 'card',
                                     'label'    => __('Registration Type'),
-                                    'value'    => 'typeB',
+                                    'value'    => [
+                                            'title'        => "type B",
+                                            'description'  => 'This user able to create and delete',
+                                            'label'        => '17 users left',
+                                            'value'        => "typeB",
+                                        ],
                                     'required' => true,
                                     'options'  => [
                                         [
-                                            'label' => "type A",
-                                            'value' => "typeA",
+                                            'title'        => "type A",
+                                            'description'  => 'This user able to edit',
+                                            'label'        => '425 users left',
+                                            'value'        => "typeA",
                                         ],
                                         [
-                                            'label' => "type B",
-                                            'value' => "typeB",
+                                            'title'        => "type B",
+                                            'description'  => 'This user able to create and delete',
+                                            'label'        => '17 users left',
+                                            'value'        => "typeB",
                                         ],
                                     ]
                                 ],

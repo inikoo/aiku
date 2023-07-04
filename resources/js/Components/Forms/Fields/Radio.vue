@@ -1,3 +1,35 @@
+<script setup lang="ts">
+// T3
+import { ref } from 'vue'
+import { RadioGroup, RadioGroupLabel, RadioGroupOption } from '@headlessui/vue'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { faCheck } from '@/../private/pro-regular-svg-icons'
+import { library } from '@fortawesome/fontawesome-svg-core'
+library.add(faCheck)
+const props = defineProps(['form', 'fieldName', 'fieldData'])
+
+const compareObjects = (objA, objB) => {
+    // Get the keys of objA and objB
+    const keysA = Object.keys(objA);
+    const keysB = Object.keys(objB);
+
+    // Check if the number of keys is the same
+    if (keysA.length !== keysB.length) {
+        return false;
+    }
+
+    // Check if the values for each key are equal
+    for (let key of keysA) {
+        if (objA[key] !== objB[key]) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+</script>
+
 <template>
     <div>
         <!-- <label class="text-base font-semibold text-gray-800 capitalize">{{ fieldName }}</label> -->
@@ -8,7 +40,7 @@
                 <!-- Mode Radio: Normal -->
                 <div v-if="fieldData.mode === 'compact'">
                     <RadioGroup v-model="form[fieldName]" class="mt-2">
-                        <RadioGroupLabel class="sr-only">Choose a memory option</RadioGroupLabel>
+                        <RadioGroupLabel class="sr-only">Choose the radio</RadioGroupLabel>
                         <div class="flex gap-x-1.5 gap-y-1 flex-wrap">
                             <RadioGroupOption as="template" v-for="(option, index) in fieldData.options" :key="option.value"
                                 :value="option" v-slot="{ active, checked }">
@@ -24,6 +56,35 @@
                         </div>
                     </RadioGroup>
                 </div>
+
+                <!-- Radio: Card -->
+                <div v-else-if="fieldData.mode === 'card'">
+                <!-- <pre>{{ form[fieldName] }}</pre> -->
+                    <RadioGroup v-model="form[fieldName]">
+                        <RadioGroupLabel class="text-base font-semibold leading-6 text-gray-700 sr-only">Select the radio</RadioGroupLabel>
+                        <div class="flex gap-x-4 justify-around">
+                        <RadioGroupOption as="template" v-for="(option, index) in fieldData.options" :key="option.value" :value="option" v-slot="{ active, checked }">
+                            <div :class="[
+                                'relative flex cursor-pointer rounded-lg border bg-white py-2 px-3 shadow-sm focus:outline-none',
+                                active ? 'border-indigo-600 ring-2 ring-indigo-600' : 'border-gray-300'
+                            ]">
+                            <!-- {{ compareObjects(form[fieldName], option) }} -->
+                                <span class="flex flex-1">
+                                    <span class="flex flex-col">
+                                    <RadioGroupLabel as="span" class="block text-sm font-medium text-gray-700 capitalize">{{ option.title }}</RadioGroupLabel>
+                                    <RadioGroupDescription as="span" class="mt-1 flex items-center text-xs text-gray-400">{{ option.description }}</RadioGroupDescription>
+                                    <RadioGroupDescription as="span" class="mt-6 text-xs font-medium text-gray-600">{{ option.label }}</RadioGroupDescription>
+                                    </span>
+                                </span>
+                                <!-- <FontAwesomeIcon icon='far fa-check' :class="[!checked ? 'invisible' : '', 'h-4 w-4 text-indigo-600']" aria-hidden="true" /> -->
+                                <span :class="[active ? 'border' : 'border-2', compareObjects(form[fieldName], option) ? 'border-indigo-600' : 'border-transparent', 'pointer-events-none absolute -inset-px rounded-lg']" aria-hidden="true" />
+                            </div>
+                        </RadioGroupOption>
+                        </div>
+                    </RadioGroup>
+                </div>
+
+                <!-- Radio: Default -->
                 <div v-else v-for="(option, index) in fieldData.options"
                     :key="option.label + index" class="inline-flex gap-x-2.5 items-center">
                     <input v-model="form[fieldName]" :id="option.label + index" :key="option.label + index"
@@ -43,13 +104,3 @@
         </fieldset>
     </div>
 </template>
-  
-<script setup lang="ts">
-// T3
-import { ref } from 'vue'
-import { RadioGroup, RadioGroupLabel, RadioGroupOption } from '@headlessui/vue'
-const props = defineProps(['form', 'fieldName', 'fieldData'])
-
-
-
-</script>
