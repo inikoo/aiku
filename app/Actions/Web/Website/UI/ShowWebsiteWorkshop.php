@@ -1,119 +1,88 @@
 <?php
 /*
- * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Mon, 29 May 2023 12:18:51 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
+ * Created: Tue, 14 Mar 2023 15:31:00 Central European Standard Time, Malaga, Spain
+ * Copyright (c) 2023, Inikoo LTD
  */
 
 namespace App\Actions\Web\Website\UI;
 
-use App\Actions\Helpers\History\IndexHistories;
 use App\Actions\InertiaAction;
 use App\Actions\Market\Shop\UI\ShowShop;
 use App\Actions\UI\Dashboard\Dashboard;
-use App\Actions\UI\WithInertia;
-use App\Actions\Web\WebpageVariant\IndexWebpageVariants;
-use App\Enums\UI\WebsiteTabsEnum;
-use App\Http\Resources\Market\WebpageResource;
-use App\Http\Resources\Market\WebsiteResource;
-use App\Http\Resources\SysAdmin\HistoryResource;
-use App\Models\Market\Shop;
+use App\Actions\Web\Website\GetWebsiteWorkshopFooter;
+use App\Actions\Web\Website\GetWebsiteWorkshopHeader;
+use App\Actions\Web\Website\GetWebsiteWorkshopMenu;
+use App\Enums\UI\WebsiteWorkshopTabsEnum;
 use App\Models\Web\Website;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsAction;
 
-/**
- * @property Website $website
- */
-class ShowWebsite extends InertiaAction
+class ShowWebsiteWorkshop extends InertiaAction
 {
-    use AsAction;
-    use WithInertia;
-
-
     public function authorize(ActionRequest $request): bool
     {
         $this->canEdit   = $request->user()->can('websites.edit');
         $this->canDelete = $request->user()->can('websites.edit');
-        return $request->user()->hasPermissionTo("shops.websites.view");
+        return $request->user()->hasPermissionTo("websites.view");
     }
 
     public function asController(Website $website, ActionRequest $request): Website
     {
-        $this->initialisation($request)->withTab(WebsiteTabsEnum::values());
-
+        $this->initialisation($request)->withTab(WebsiteWorkshopTabsEnum::values());
         return $website;
     }
 
-    /** @noinspection PhpUnusedParameterInspection */
-    public function inShop(Shop $shop, Website $website, ActionRequest $request): Website
-    {
-        $this->initialisation($request)->withTab(WebsiteTabsEnum::values());
-
-        return $website;
-    }
 
     public function htmlResponse(Website $website, ActionRequest $request): Response
     {
-        $this->validateAttributes();
-
         return Inertia::render(
-            'Web/Website',
+            'Web/WebsiteWorkshop',
             [
-                'title'       => __('Website'),
-                'breadcrumbs' => $this->getBreadcrumbs(
+                'title'                            => __('workshop'),
+                'breadcrumbs'                      => $this->getBreadcrumbs(
                     $request->route()->getName(),
                     $request->route()->parameters
                 ),
-                'pageHead'    => [
+
+                'pageHead'                         => [
+                    'icon'  =>
+                        [
+                            'icon'  => ['fal', 'globe'],
+                            'title' => __('website')
+                        ],
                     'title'   => $website->name,
-                    'actions' => [
-                        $this->canEdit ? [
-                            'type'  => 'button',
-                            'style' => 'edit',
-                            'label' => __('settings'),
-                            'icon'  => ["fal", "fa-sliders-h"],
-                            'route' => [
-                                'name'       => preg_replace('/show$/', 'edit', $this->routeName),
-                                'parameters' => array_values($this->originalParameters)
-                            ]
-                        ] : false,
-                        $this->canEdit ? [
-                            'type'  => 'button',
-                            'style' => 'edit',
-                            'label' => __('workshop'),
-                            'icon'  => ["fal", "fa-drafting-compass"],
-                            'route' => [
-                                'name'       => preg_replace('/show$/', 'workshop', $this->routeName),
-                                'parameters' => array_values($this->originalParameters)
-                            ]
-                        ] : false
-                    ],
+
 
                 ],
-                'tabs'                                => [
+                'tabs'                                   => [
+
                     'current'    => $this->tab,
-                    'navigation' => WebsiteTabsEnum::navigation()
+                    'navigation' => WebsiteWorkshopTabsEnum::navigation(),
+
+
                 ],
-                WebsiteTabsEnum::WEBPAGES->value => $this->tab == WebsiteTabsEnum::WEBPAGES->value ?
-                    fn () => WebpageResource::collection(IndexWebpageVariants::run($this->website))
-                    : Inertia::lazy(fn () => WebpageResource::collection(IndexWebpageVariants::run($this->website))),
 
-                WebsiteTabsEnum::CHANGELOG->value => $this->tab == WebsiteTabsEnum::CHANGELOG->value ?
-                    fn () => HistoryResource::collection(IndexHistories::run($website))
-                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistories::run($website)))
+
+                WebsiteWorkshopTabsEnum::HEADER->value       => $this->tab == WebsiteWorkshopTabsEnum::HEADER->value ?
+                    fn () => GetWebsiteWorkshopHeader::run($website)
+                    : Inertia::lazy(
+                        fn () => GetWebsiteWorkshopHeader::run($website)
+                    ),
+                WebsiteWorkshopTabsEnum::MENU->value => $this->tab == WebsiteWorkshopTabsEnum::MENU->value
+                    ?
+                    fn () => GetWebsiteWorkshopMenu::run($website)
+                    : Inertia::lazy(fn () => GetWebsiteWorkshopMenu::run($website)),
+
+                WebsiteWorkshopTabsEnum::FOOTER->value => $this->tab == WebsiteWorkshopTabsEnum::FOOTER->value ?
+                    fn () => GetWebsiteWorkshopFooter::run($website)
+                    : Inertia::lazy(fn () => GetWebsiteWorkshopFooter::run($website)),
+
             ]
-        )->table(IndexWebpageVariants::make()->tableStructure($website))
-            ->table(IndexHistories::make()->tableStructure());
+        );
     }
 
-
-    public function jsonResponse(Website $website): WebsiteResource
-    {
-        return new WebsiteResource($website);
-    }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters, string $suffix = ''): array
     {
@@ -148,8 +117,7 @@ class ShowWebsite extends InertiaAction
 
 
         return match ($routeName) {
-            'websites.show',
-            'websites.edit' =>
+            'websites.workshop' =>
 
             array_merge(
                 Dashboard::make()->getBreadcrumbs(),
@@ -199,4 +167,6 @@ class ShowWebsite extends InertiaAction
             default => []
         };
     }
+
+
 }

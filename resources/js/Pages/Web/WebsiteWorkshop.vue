@@ -20,7 +20,7 @@ library.add(
     faArrowAltToTop,
     faArrowAltToBottom,
     faBars,
-    faBrowser,
+    faBrowser
 );
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Pages/ModelChangelog.vue'))
@@ -32,9 +32,9 @@ const props = defineProps<{
         current: string;
         navigation: object;
     }
-    header: string;
-    menu: string;
-    footer: string;
+    header?: object;
+    menu?: object;
+    footer?: object;
 }>()
 
 let currentTab = ref(props.tabs.current);
@@ -54,9 +54,7 @@ const component = computed(() => {
 </script>
 
 
-<!--suppress HtmlUnknownAttribute -->
 <template layout="App">
-    <!--suppress HtmlRequiredTitleElement -->
     <Head :title="capitalize(title)"/>
     <PageHeading :data="pageHead"></PageHeading>
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate"/>
