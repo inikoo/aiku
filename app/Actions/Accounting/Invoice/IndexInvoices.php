@@ -112,7 +112,7 @@ class IndexInvoices extends InertiaAction
                 'pageHead'    => [
                     'title'     => __('invoices'),
                     'container' => match ($routeName) {
-                        'shops.show.accounting.invoices.index' => [
+                        'accounting.shops.show.invoices.index' => [
                             'icon'    => ['fal', 'fa-store-alt'],
                             'tooltip' => __('Shop'),
                             'label'   => Str::possessive($routeParameters['shop']->name)
@@ -162,9 +162,9 @@ class IndexInvoices extends InertiaAction
         };
 
         return match ($routeName) {
-            'shops.show.accounting.invoices.index' =>
+            'accounting.shops.show.invoices.index' =>
             array_merge(
-                AccountingDashboard::make()->getBreadcrumbs('shops.show.accounting.dashboard', $routeParameters),
+                AccountingDashboard::make()->getBreadcrumbs('accounting.shops.show.dashboard', $routeParameters),
                 $headCrumb()
             ),
             'accounting.invoices.index' =>
