@@ -129,6 +129,8 @@ class StoreCustomer
         return $this->handle($shop, $request->validated());
     }
 
+
+
     public function htmlResponse(Customer $customer): RedirectResponse
     {
         return Redirect::route('shops.show.customers.show', [$customer->shop->slug, $customer->slug]);

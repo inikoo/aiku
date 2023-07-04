@@ -89,6 +89,23 @@ class IndexCustomers extends InertiaAction
             $table
                 ->withModelOperations($modelOperations)
                 ->withGlobalSearch()
+                ->withEmptyState(
+                    [
+                        'title'       => __('no customers'),
+                        'description' => $this->canEdit ? __('Get started by creating a new customer.') : null,
+                        'count'       => app('currentTenant')->stats->number_employees,
+                        'action'      => $this->canEdit ? [
+                            'type'    => 'button',
+                            'style'   => 'create',
+                            'tooltip' => __('new customer'),
+                            'label'   => __('customer'),
+                            'route'   => [
+                                'name'       => 'crm.customers.create',
+                                'parameters' => array_values($this->originalParameters)
+                            ]
+                        ] : null
+                    ]
+                )
                 ->column(key: 'slug', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
             if (class_basename($parent) == 'Shop' and $parent->subtype == 'dropshipping') {
@@ -143,35 +160,13 @@ class IndexCustomers extends InertiaAction
                 ),
                 'title'       => __('customers'),
                 'pageHead'    => [
-                    'title'  => __('customers'),
-                    'create' => $this->canEdit
-                    && (
-                        $this->routeName == 'shops.show.customers.index'
-                    )
-
-                        ? [
-                            'route' =>
-                                match ($this->routeName) {
-                                    'shops.show.customers.index' =>
-                                    [
-                                        'name'       => 'shops.show.customers.create',
-                                        'parameters' => array_values($this->originalParameters)
-                                    ],
-                                    'customers.index' =>
-                                    [
-                                        'name'       => 'customers.create',
-                                        'parameters' => array_values($this->originalParameters)
-                                    ]
-                                }
-
-
-                            ,
-                            'label' => __('customers')
-                        ] : false,
-
+                    'title'   => __('customers'),
+                    'icon'    => [
+                        'icon'  => ['fal', 'fa-user'],
+                        'title' => __('customer')
+                    ]
                 ],
                 'data'        => CustomerResource::collection($customers),
-
 
             ]
         )->table($this->tableStructure($parent));

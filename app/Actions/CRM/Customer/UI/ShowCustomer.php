@@ -32,7 +32,8 @@ class ShowCustomer extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('crm.customers.edit');
+        $this->canEdit   = $request->user()->can('crm.customers.edit');
+        $this->canDelete = $request->user()->can('crm.customers.edit');
 
         return $request->user()->hasPermissionTo("shops.customers.view");
     }
@@ -133,18 +134,34 @@ class ShowCustomer extends InertiaAction
                     'next'     => $this->getNext($customer, $request),
                 ],
                 'pageHead'    => [
-                    'title' => $customer->name,
+                    'title'   => $customer->name,
+                    'icon'    => [
+                        'icon'  => ['fal', 'fa-user'],
+                        'title' => __('customer')
+                    ],
                     'meta'  => array_filter([
                         $shopMeta,
                         $webUsersMeta
                     ]),
-                    'edit'  => $this->canEdit ? [
-                        'route' => [
-                            'name'       => preg_replace('/show$/', 'edit', $this->routeName),
-                            'parameters' => array_values($this->originalParameters)
-                        ]
-                    ] : false,
+                    'actions' => [
+                        $this->canEdit ? [
+                            'type'  => 'button',
+                            'style' => 'edit',
+                            'route' => [
+                                'name'       => preg_replace('/show$/', 'edit', $this->routeName),
+                                'parameters' => $request->route()->originalParameters()
+                            ]
+                        ] : false,
+                        $this->canDelete ? [
+                            'type'  => 'button',
+                            'style' => 'delete',
+                            'route' => [
+                                'name'       => 'crm.customers.remove',
+                                'parameters' => $request->route()->originalParameters()
+                            ]
 
+                        ] : false
+                    ]
                 ],
                 'tabs'        => [
                     'current'    => $this->tab,
@@ -205,11 +222,11 @@ class ShowCustomer extends InertiaAction
                 ],
             ];
         };
+
         return match ($routeName) {
             'crm.customers.show',
-            'crm.customers.edit' =>
-
-            array_merge(
+            'crm.customers.edit'
+            => array_merge(
                 Dashboard::make()->getBreadcrumbs(),
                 $headCrumb(
                     $routeParameters['customer'],
@@ -226,7 +243,6 @@ class ShowCustomer extends InertiaAction
                     $suffix
                 ),
             ),
-
 
             'crm.shops.show.customers.show',
             'crm.shops.show.customers.edit'

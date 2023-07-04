@@ -30,13 +30,22 @@ class CreateCustomer extends InertiaAction
                 'title'       => __('new customer'),
                 'pageHead'    => [
                     'title'        => __('new customer'),
-                    'cancelCreate' => [
-                        'route' => [
-                            'name'       => match ($this->routeName) {
-                                'shops.show.customers.create' => 'shops.show.customers.index',
-                                default                       => preg_replace('/create$/', 'index', $this->routeName)
-                            },
-                            'parameters' => array_values($this->originalParameters)
+                    'icon'         => [
+                        'icon'  => ['fal', 'fa-user'],
+                        'title' => __('customer')
+                    ],
+                    'actions'      => [
+                        [
+                            'type'  => 'button',
+                            'style' => 'cancel',
+                            'label' => __('cancel'),
+                            'route' => [
+                                'name'       => match ($this->routeName) {
+                                    'shops.show.customers.create' => 'shops.show.customers.index',
+                                    default                       => preg_replace('/create$/', 'index', $this->routeName)
+                                },
+                                'parameters' => array_values($this->originalParameters)
+                            ],
                         ]
                     ]
                 ],
