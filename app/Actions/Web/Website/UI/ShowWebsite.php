@@ -70,6 +70,10 @@ class ShowWebsite extends InertiaAction
                 ],
                 'pageHead'    => [
                     'title'   => $website->name,
+                    'icon'    => [
+                        'title' => __('website'),
+                        'icon'  => 'fal fa-globe'
+                    ],
                     'actions' => [
                         $this->canEdit ? [
                             'type'  => 'button',

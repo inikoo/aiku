@@ -53,6 +53,10 @@ class EditShop extends InertiaAction
                 ],
                 'pageHead'    => [
                     'title'     => $shop->name,
+                    'icon'      => [
+                        'title' => __('Shop'),
+                        'icon'  => 'fal fa-store-alt'
+                    ],
                     'actions'   => [
                         [
                             'type'  => 'button',
