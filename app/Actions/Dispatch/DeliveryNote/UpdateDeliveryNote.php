@@ -11,6 +11,7 @@ use App\Actions\Dispatch\DeliveryNote\Hydrators\DeliveryNoteHydrateUniversalSear
 use App\Actions\WithActionUpdate;
 use App\Enums\Dispatch\DeliveryNote\DeliveryNoteStateEnum;
 use App\Enums\Dispatch\DeliveryNote\DeliveryNoteStatusEnum;
+use App\Http\Resources\Delivery\DeliveryNoteResource;
 use App\Models\Dispatch\DeliveryNote;
 use Illuminate\Validation\Rules\Enum;
 
@@ -43,5 +44,10 @@ class UpdateDeliveryNote
         $validatedData = $this->validateAttributes();
 
         return $this->handle($deliveryNote, $validatedData);
+    }
+
+    public function jsonResponse(DeliveryNote $deliveryNote): DeliveryNoteResource
+    {
+        return new DeliveryNoteResource($deliveryNote);
     }
 }

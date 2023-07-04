@@ -57,9 +57,6 @@ class UpdateClocking
         return $this->handle($clocking, $request->all());
     }
 
-
-
-
     public function jsonResponse(Clocking $clocking): LocationResource
     {
         return new LocationResource($clocking);

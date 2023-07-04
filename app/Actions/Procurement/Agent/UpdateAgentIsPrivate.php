@@ -7,6 +7,7 @@
 
 namespace App\Actions\Procurement\Agent;
 
+use App\Http\Resources\Procurement\AgentResource;
 use App\Models\Procurement\Agent;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\ValidationException;
@@ -54,5 +55,8 @@ class UpdateAgentIsPrivate
         return $this->handle($agent, Arr::get($validatedData, 'is_private'));
     }
 
-
+    public function jsonResponse(Agent $agent): AgentResource
+    {
+        return new AgentResource($agent);
+    }
 }

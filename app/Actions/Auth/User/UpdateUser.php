@@ -10,11 +10,10 @@ namespace App\Actions\Auth\User;
 use App\Actions\Auth\GroupUser\UpdateGroupUser;
 use App\Actions\WithActionUpdate;
 use App\Enums\Auth\User\SynchronisableUserFieldsEnum;
+use App\Http\Resources\SysAdmin\UserResource;
 use App\Models\Auth\User;
 use App\Rules\AlphaDashDot;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\ActionRequest;
@@ -79,8 +78,8 @@ class UpdateUser
 
     }
 
-    public function htmlResponse(User $user): RedirectResponse
+    public function jsonResponse(User $user): UserResource
     {
-        return Redirect::route('sysadmin.users.edit', $user->username);
+        return new UserResource($user);
     }
 }

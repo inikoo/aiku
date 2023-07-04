@@ -64,7 +64,6 @@ class UpdateWorkingPlace
         }
     }
 
-
     public function jsonResponse(Workplace $workplace): WorkPlaceResource
     {
         return new WorkPlaceResource($workplace);

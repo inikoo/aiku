@@ -48,7 +48,6 @@ class UpdateClockingMachine
         return $this->handle($clockingMachine, $request->all());
     }
 
-
     public function jsonResponse(ClockingMachine $clockingMachine): ClockingMachineResource
     {
         return new ClockingMachineResource($clockingMachine);

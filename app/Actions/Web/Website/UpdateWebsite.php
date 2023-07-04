@@ -8,6 +8,7 @@
 namespace App\Actions\Web\Website;
 
 use App\Actions\WithActionUpdate;
+use App\Http\Resources\Market\WebsiteResource;
 use App\Models\Market\Shop;
 use App\Models\Web\Website;
 use Lorisleiva\Actions\ActionRequest;
@@ -51,5 +52,10 @@ class UpdateWebsite
         $request->validate();
 
         return $this->handle($website, $request->all());
+    }
+
+    public function jsonResponse(Website $website): WebsiteResource
+    {
+        return new WebsiteResource($website);
     }
 }

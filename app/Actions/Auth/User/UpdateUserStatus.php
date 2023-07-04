@@ -8,9 +8,8 @@
 namespace App\Actions\Auth\User;
 
 use App\Actions\WithActionUpdate;
+use App\Http\Resources\SysAdmin\UserResource;
 use App\Models\Auth\User;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\ActionRequest;
@@ -31,6 +30,7 @@ class UpdateUserStatus
     {
         $groupUser = $user->groupUser()->first();
 
+        /** @noinspection PhpPossiblePolymorphicInvocationInspection */
         if(!$groupUser->status) {
             throw ValidationException::withMessages(["You can't change your status"]);
         }
@@ -64,11 +64,17 @@ class UpdateUserStatus
     }
 
 
+    /**
+     * @throws \Illuminate\Validation\ValidationException
+     */
     public function asController(User $user, ActionRequest $request): User
     {
         return $this->handle($user, $request->validated());
     }
 
+    /**
+     * @throws \Illuminate\Validation\ValidationException
+     */
     public function action(User $user, $objectData): User
     {
         $this->asAction = true;
@@ -79,8 +85,8 @@ class UpdateUserStatus
 
     }
 
-    public function htmlResponse(User $user): RedirectResponse
+    public function jsonResponse(User $user): UserResource
     {
-        return Redirect::route('account.users.edit', $user->id);
+        return new UserResource($user);
     }
 }

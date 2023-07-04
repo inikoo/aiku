@@ -48,7 +48,6 @@ class UpdateEmployee
         return $this->handle($employee, $request->all());
     }
 
-
     public function jsonResponse(Employee $employee): EmployeeResource
     {
         return new EmployeeResource($employee);

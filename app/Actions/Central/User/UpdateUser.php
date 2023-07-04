@@ -9,6 +9,7 @@ namespace App\Actions\Central\User;
 
 use App\Actions\Central\User\Hydrators\UserHydrateUniversalSearch;
 use App\Actions\WithActionUpdate;
+use App\Http\Resources\SysAdmin\UserResource;
 use App\Models\Central\User;
 
 class UpdateUser
@@ -20,5 +21,10 @@ class UpdateUser
         $user = $this->update($user, $modelData, ['data']);
         UserHydrateUniversalSearch::dispatch($user);
         return $user;
+    }
+
+    public function jsonResponse(User $user): UserResource
+    {
+        return new UserResource($user);
     }
 }

@@ -9,6 +9,7 @@ namespace App\Actions\Procurement\SupplierProduct;
 
 use App\Actions\Procurement\SupplierProduct\Hydrators\SupplierProductHydrateUniversalSearch;
 use App\Actions\WithActionUpdate;
+use App\Http\Resources\Procurement\SupplierProductResource;
 use App\Models\Procurement\SupplierProduct;
 
 class UpdateSupplierProduct
@@ -18,6 +19,7 @@ class UpdateSupplierProduct
     public function handle(SupplierProduct $supplierProduct, array $modelData, bool $skipHistoric=false): SupplierProduct
     {
         $supplierProduct= $this->update($supplierProduct, $modelData, ['data', 'settings']);
+        /** @noinspection PhpStatementHasEmptyBodyInspection */
         if (!$skipHistoric and $supplierProduct->wasChanged(
             ['price', 'code','name','units']
         )) {
@@ -43,5 +45,10 @@ class UpdateSupplierProduct
         $validatedData = $this->validateAttributes();
 
         return $this->handle($supplierProduct, $validatedData, $skipHistoric);
+    }
+
+    public function jsonResponse(SupplierProduct $supplierProduct): SupplierProductResource
+    {
+        return new SupplierProductResource($supplierProduct);
     }
 }
