@@ -96,20 +96,24 @@ class GetLayout
                     'name' => __('All shops'),
                     'code' => __('All')
                 ],
-                'topMenu'      => [
+
+                'topMenu' => [
+
                     'dropdown' => [
-                        'type'        => 'shops',
-                        'options'     => $shops,
-                        'subsections' => [
+                        'scope' => 'shops',
+                        'links' => [
 
                             [
-                                'hideOnSelected' => true,
-                                'label'          => __('shops'),
                                 'tooltip'        => __('shops'),
                                 'icon'           => ['fal', 'fa-store-alt'],
                                 'route'          => [
                                     'all'      => 'shops.index',
                                     'selected' => 'shops.show',
+
+                                ],
+                                'label'          => [
+                                    'all'      => __('Shops'),
+                                    'selected' => __('Shop'),
 
                                 ]
                             ],
@@ -142,7 +146,9 @@ class GetLayout
                                 ]
                             ],
                         ]
-                    ]
+                    ],
+
+
                 ],
             ];
         }
@@ -161,12 +167,10 @@ class GetLayout
                     'code' => __('All')
                 ],
                 'topMenu'      => [
-
                     'dropdown' => [
+                        'scope' => 'websites',
 
-                        'type'        => 'websites',
-                        'options'     => $websites,
-                        'subsections' => [
+                        'links' => [
                             [
                                 'label'   => __('dashboard'),
                                 'tooltip' => __('Dashboard'),
@@ -193,7 +197,8 @@ class GetLayout
 
                         ]
                     ]
-                ],
+                ]
+
 
             ];
         }
@@ -204,7 +209,11 @@ class GetLayout
                 'icon'    => ['fal', 'fa-bullhorn'],
                 'route'   => 'marketing.hub',
                 'topMenu' => [
-                    'subSections' => []
+                    'subSections' => [],
+                    'dropdown'    => [
+                        'scope' => 'shops',
+                        'links' => []
+                    ]
                 ]
             ];
         }
@@ -225,9 +234,8 @@ class GetLayout
                 'topMenu'      => [
 
                     'dropdown' => [
-                        'type'        => 'shops',
-                        'options'     => $shops,
-                        'subsections' => [
+                        'scope' => 'shops',
+                        'links' => [
                             [
                                 'label'   => __('dashboard'),
                                 'tooltip' => __('Dashboard'),
@@ -265,7 +273,8 @@ class GetLayout
 
                         ]
                     ]
-                ],
+                ]
+
             ];
         }
 
@@ -283,10 +292,10 @@ class GetLayout
                 ],
                 'topMenu'      => [
 
+
                     'dropdown' => [
-                        'type'        => 'shops',
-                        'options'     => $shops,
-                        'subsections' => [
+                        'scope' => 'shops',
+                        'links' => [
                             [
                                 'label'   => 'OMS',
                                 'tooltip' => 'OMS',
@@ -334,7 +343,8 @@ class GetLayout
 
                         ]
                     ]
-                ],
+
+                ]
             ];
         }
 
@@ -365,6 +375,14 @@ class GetLayout
                 'topMenu'      => [
                     'subSections' => [
                         [
+                            'label' => __('Dashboard'),
+                            'icon'  => ['fal', 'fa-tachometer'],
+                            'route' => [
+                                'name' => 'inventory.dashboard',
+                            ]
+                        ],
+
+                        [
                             'label' => __('SKUs'),
                             'icon'  => ['fal', 'fa-box'],
                             'route' => [
@@ -381,27 +399,30 @@ class GetLayout
                         ],
 
                     ],
-                    'dropdown'    => [
 
-                        'type'        => 'warehouses',
-                        'options'     => WarehousesNavigationResource::collection($warehouses),
-                        'selected'    => $selectedWarehouse,
-                        'optionRoute' => 'inventory.warehouses.show',
-                        'subsections' => [
+                    'dropdown' => [
+                        'scope' => 'warehouses',
+                        'links' => [
+
+
+
                             [
-                                'label'           => __('warehouse'),
-                                'tooltip'         => __('Warehouse'),
-                                'labelSelected'   => __('warehouse'),
-                                'tooltipSelected' => __('Warehouse'),
-                                'icon'            => ['fal', 'fa-warehouse'],
+                                'tooltip'        => __('warehouses'),
+                                'icon'           => ['fal', 'fa-store-alt'],
+                                'route'          => [
+                                    'all'      => 'inventory.warehouses.index',
+                                    'selected' => 'inventory.warehouses.show',
 
-                                'route' =>
-                                    [
-                                        'all'      => 'inventory.warehouses.index',
-                                        'selected' => 'inventory.warehouses.show',
+                                ],
+                                'label'          => [
+                                    'all'      => __('Warehouses'),
+                                    'selected' => __('Warehouse'),
 
-                                    ]
+                                ]
                             ],
+
+
+
                             [
                                 'label'   => __('warehouse areas'),
                                 'tooltip' => __('Warehouse Areas'),
@@ -424,7 +445,8 @@ class GetLayout
                             ],
                         ]
                     ]
-                ],
+
+                ]
             ];
         }
 
@@ -686,6 +708,7 @@ class GetLayout
             'navigation'           => $navigation,
             'secondaryNavigation'  => $secondaryNavigation,
             'shopsInDropDown'      => ShopsNavigationResource::collection(Shop::all()),
+            'websitesInDropDown'   => WebsitesNavigationResource::collection(Website::all()),
             'warehousesInDropDown' => WarehousesNavigationResource::collection(Warehouse::all()),
 
         ];

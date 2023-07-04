@@ -11,13 +11,13 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import {
     faPeopleArrows,faPersonDolly,faClipboardList,faTerminal,faUserAlien,faCog,faNetworkWired,faCalendar,faStopwatch,faChessClock,
-    faBuilding
+    faBuilding,faBox,faBoxesAlt,faTachometer
 } from "../../../private/pro-light-svg-icons"
 import { useLayoutStore } from "@/Stores/layout";
 import { capitalize } from "@/Composables/capitalize";
 
 library.add(faPeopleArrows,faPersonDolly,faClipboardList,faTerminal,faUserAlien,faCog,faNetworkWired,faCalendar,faStopwatch,faChessClock,
-    faBuilding
+    faBuilding,faBox,faBoxesAlt,faTachometer
 );
 
 const layout = useLayoutStore();

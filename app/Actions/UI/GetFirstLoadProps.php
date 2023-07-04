@@ -54,6 +54,20 @@ class GetFirstLoadProps
                     return [];
                 }
             },
+            'layoutWebsitesList' => function () use ($user) {
+                if ($user) {
+                    return GetWebsites::run($user);
+                } else {
+                    return [];
+                }
+            },
+            'layoutWarehousesList' => function () use ($user) {
+                if ($user) {
+                    return GetWarehouses::run($user);
+                } else {
+                    return [];
+                }
+            },
 
             'layout' => function () use ($user) {
                 if ($user) {

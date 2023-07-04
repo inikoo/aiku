@@ -107,6 +107,7 @@ const handleKey = (event: any) => {
 </script>
 
 <template>
+
 	<div class="w-8/12 mt-11 fixed md:border-r md:border-gray-200 md:bg-white md:flex md:flex-col md:inset-y-0 md:w-10 lg:mt-10 xl:w-56"
 		@mouseenter="isHover = true" @mouseleave="isHover = false"
 	>
@@ -115,7 +116,7 @@ const handleKey = (event: any) => {
 				<img class="h-6" :src="`/media/group/${layout.tenant.logo_id}`" :alt="layout.tenant.code" />
 				<span>{{ layout.tenant.name }}</span>
 			</Link>
-
+            {{layout.currentWarehouseData}}
 			<div class="flex flex-grow flex-col pb-16">
 				<nav class="flex-1 space-y-1" aria-label="Sidebar">
 					<!-- LeftSide Links -->
