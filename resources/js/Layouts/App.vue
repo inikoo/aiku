@@ -146,7 +146,7 @@ const initialiseApp = () => {
 
 
         layout.currentWarehouseData = layout.warehouses[layout.currentWarehouseSlug] ??
-        Object.keys(layout.warehouses).length==1?
+        Object.keys(layout.warehouses).length===1?
             {
                 slug: layout.warehouses[Object.keys(layout.warehouses)[0]].slug,
                 name: layout.warehouses[Object.keys(layout.warehouses)[0]].name,
