@@ -59,6 +59,11 @@ class EditDepartment extends InertiaAction
                 ],
                 'pageHead'    => [
                     'title'    => $department->name,
+                    'icon'     =>
+                        [
+                            'icon'  => ['fal', 'fa-folder-tree'],
+                            'title' => __('department')
+                        ],
                     'actions'  => [
                         [
                             'type'  => 'button',
