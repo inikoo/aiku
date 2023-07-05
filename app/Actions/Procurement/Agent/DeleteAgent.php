@@ -5,7 +5,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Procurement\Marketplace\Agent;
+namespace App\Actions\Procurement\Agent;
 
 use App\Models\Procurement\Agent;
 use Illuminate\Http\RedirectResponse;
@@ -14,16 +14,16 @@ use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsController;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class DeleteMarketplaceAgent
+class DeleteAgent
 {
     use AsController;
     use WithAttributes;
 
-    public function handle(Agent $marketplaceAgent): Agent
+    public function handle(Agent $agent): Agent
     {
-        $marketplaceAgent->delete();
+        $agent->delete();
 
-        return $marketplaceAgent;
+        return $agent;
     }
 
     public function authorize(ActionRequest $request): bool
@@ -31,16 +31,16 @@ class DeleteMarketplaceAgent
         return $request->user()->hasPermissionTo("procurement.edit");
     }
 
-    public function asController(Agent $marketplaceAgent, ActionRequest $request): Agent
+    public function asController(Agent $agent, ActionRequest $request): Agent
     {
         $request->validate();
 
-        return $this->handle($marketplaceAgent);
+        return $this->handle($agent);
     }
 
     public function htmlResponse(): RedirectResponse
     {
-        return Redirect::route('procurement.marketplace.agents.index');
+        return Redirect::route('procurement.agents.index');
     }
 
 }

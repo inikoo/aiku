@@ -5,9 +5,8 @@
  * Copyright (c) 2023, Inikoo LTD
  */
 
-namespace App\Actions\Procurement\Marketplace\Agent\UI;
+namespace App\Actions\Procurement\Agent\UI;
 
-use App\Actions\Assets\Country\UI\GetAddressData;
 use App\Actions\Assets\Country\UI\GetCountriesOptions;
 use App\Actions\Assets\Currency\UI\GetCurrenciesOptions;
 use App\Actions\InertiaAction;
@@ -16,8 +15,9 @@ use App\Models\Helpers\Address;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
+use App\Actions\Assets\Country\UI\GetAddressData;
 
-class CreateMarketplaceAgent extends InertiaAction
+class CreateAgent extends InertiaAction
 {
     public function handle(): Response
     {
@@ -35,7 +35,7 @@ class CreateMarketplaceAgent extends InertiaAction
                             'style' => 'cancel',
                             'label' => __('cancel'),
                             'route' => [
-                                'name'       => 'procurement.marketplace.agents.index',
+                                'name'       => 'procurement.agents.index',
                                 'parameters' => array_values($this->originalParameters)
                             ],
                         ]
@@ -44,12 +44,12 @@ class CreateMarketplaceAgent extends InertiaAction
                 'formData' => [
                     'blueprint' => [
                         [
-                            'title'  => __('ID/contact details'),
+                            'title'  => __('ID/contact details '),
                             'icon'   => 'fal fa-address-book',
                             'fields' => [
                                 'code' => [
                                     'type'    => 'input',
-                                    'label'   => __('code'),
+                                    'label'   => __('code '),
                                     'value'   => '',
                                     'required'=> true
                                 ],
@@ -123,11 +123,6 @@ class CreateMarketplaceAgent extends InertiaAction
                                 ],
                             ]
                         ]
-
-
-
-
-
                     ],
                     'route' => [
                         'name' => 'models.agent.store',
@@ -153,7 +148,7 @@ class CreateMarketplaceAgent extends InertiaAction
     public function getBreadcrumbs(): array
     {
         return array_merge(
-            IndexMarketplaceAgents::make()->getBreadcrumbs(),
+            IndexAgents::make()->getBreadcrumbs(),
             [
                 [
                     'type'          => 'creatingModel',

@@ -15,6 +15,7 @@ use App\Actions\Procurement\Marketplace\Agent\UI\ShowMarketplaceAgent;
 use App\Http\Resources\Helpers\AddressFormFieldsResource;
 use App\Models\Helpers\Address;
 use App\Models\Procurement\Agent;
+use App\Models\Tenancy\Tenant;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
@@ -45,22 +46,24 @@ class CreateMarketplaceSupplier extends InertiaAction
                 'pageHead'    => [
                     'title'        => __('new supplier'),
                     'container'    => $container,
-                    'cancelCreate' => [
-                        'route' => match ($request->route()->getName()) {
-                            'procurement.marketplace.agents.show.suppliers.create' =>
-                            [
-                                'name'       => 'procurement.marketplace.agents.show',
-                                'parameters' => array_values($this->originalParameters)
-                            ],
-                            default => [
-                                'name'       => 'procurement.marketplace.suppliers.index',
-                                'parameters' => array_values($this->originalParameters)
-                            ],
-                        }
-
-
+                    'actions'      => [
+                        [
+                            'type'  => 'button',
+                            'style' => 'cancel',
+                            'label' => __('cancel'),
+                            'route' => match ($request->route()->getName()) {
+                                'procurement.marketplace.agents.show.suppliers.create' =>
+                                [
+                                    'name'       => 'procurement.marketplace.agents.show',
+                                    'parameters' => array_values($this->originalParameters)
+                                ],
+                                default => [
+                                    'name'       => 'procurement.marketplace.suppliers.index',
+                                    'parameters' => array_values($this->originalParameters)
+                                ],
+                            }
+                        ]
                     ]
-
                 ],
                 'formData'    => [
                     'blueprint' => [
@@ -240,6 +243,7 @@ class CreateMarketplaceSupplier extends InertiaAction
                                     'options'     => GetCurrenciesOptions::run(),
                                     'value'       => class_basename($owner) == 'Agent' ? $owner->currency_id : null,
                                     'required'    => true,
+                                    'searchable'  => true,
                                     'mode'        => 'single'
                                 ],
 
@@ -249,6 +253,7 @@ class CreateMarketplaceSupplier extends InertiaAction
                                     'placeholder' => __('Select a Country'),
                                     'value'       => class_basename($owner) == 'Agent' ? Arr::get($owner->shared_data, 'default_product_country_origin') : null,
                                     'options'     => GetCountriesOptions::run(),
+                                    'searchable'  => true,
                                     'mode'        => 'single'
                                 ],
                             ]

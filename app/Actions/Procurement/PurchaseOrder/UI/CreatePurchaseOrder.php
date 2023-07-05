@@ -8,6 +8,7 @@
 namespace App\Actions\Procurement\PurchaseOrder\UI;
 
 use App\Actions\InertiaAction;
+use App\Models\Procurement\Supplier;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -22,13 +23,17 @@ class CreatePurchaseOrder extends InertiaAction
                 'title'       => __('new purchase order'),
                 'pageHead'    => [
                     'title'        => __('new purchase order'),
-                    'cancelCreate' => [
-                        'route' => [
-                            'name'       => 'procurement.purchase-orders.index',
-                            'parameters' => array_values($this->originalParameters)
-                        ],
+                    'actions'      => [
+                        [
+                            'type'  => 'button',
+                            'style' => 'cancel',
+                            'label' => __('cancel'),
+                            'route' => [
+                                'name'       => 'procurement.purchase-orders.index',
+                                'parameters' => array_values($this->originalParameters)
+                            ],
+                        ]
                     ]
-
                 ],
                 'formData' => [
                     'blueprint' => [
@@ -59,6 +64,13 @@ class CreatePurchaseOrder extends InertiaAction
 
 
     public function asController(ActionRequest $request): Response
+    {
+        $this->initialisation($request);
+
+        return $this->handle();
+    }
+
+    public function inSupplier(Supplier $supplier, ActionRequest $request): Response
     {
         $this->initialisation($request);
 
