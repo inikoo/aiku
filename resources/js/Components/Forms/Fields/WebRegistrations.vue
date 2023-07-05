@@ -27,10 +27,10 @@ const props = defineProps<{
                             <th scope="col" class="py-2 pl-6 pr-3 text-left text-sm font-semibold">
                                 Components
                             </th>
-                            <th scope="col" class="hidden px-3 py-2 text-center text-sm font-semibold lg:table-cell">
+                            <th scope="col" class="px-3 py-2 text-center text-sm font-semibold lg:table-cell">
                                 Show
                             </th>
-                            <th scope="col" class="hidden px-3 py-2 text-center text-sm font-semibold sm:table-cell">
+                            <th scope="col" class="px-3 py-2 text-center text-sm font-semibold sm:table-cell">
                                 Required
                             </th>
                         </tr>
@@ -53,7 +53,8 @@ const props = defineProps<{
                     <!-- {{ componentList }} -->
                 </table>
             </div>
+        </div>
     </div>
-</div></template>
+</template>
 
 <style scoped></style>
