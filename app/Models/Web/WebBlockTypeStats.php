@@ -7,6 +7,7 @@
 
 namespace App\Models\Web;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
@@ -14,10 +15,18 @@ use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
 /**
  * App\Models\Web\WebBlockTypeStats
  *
- * @property-read \App\Models\Web\WebBlockType|null $webBlockType
- * @method static \Illuminate\Database\Eloquent\Builder|WebBlockTypeStats newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|WebBlockTypeStats newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|WebBlockTypeStats query()
+ * @property int $id
+ * @property int $web_block_type_id
+ * @property int $number_tenants
+ * @property int $number_web_blocks
+ * @property int $number_websites
+ * @property int $number_webpages
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\Web\WebBlockType $webBlockType
+ * @method static Builder|WebBlockTypeStats newModelQuery()
+ * @method static Builder|WebBlockTypeStats newQuery()
+ * @method static Builder|WebBlockTypeStats query()
  * @mixin \Eloquent
  */
 class WebBlockTypeStats extends Model

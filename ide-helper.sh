@@ -1,4 +1,4 @@
-php artisan tenants:artisan "ide-helper:models  -Wr  --ignore='App\Models\Web\WebBlockTypeStats,App\Models\Web\WebBlockType,App\Models\Central\Group,App\Models\Helpers\CurrencyExchange,App\Models\Assets\TariffCode,App\Models\Assets\Country,App\Models\Assets\Currency,App\Models\Assets\Language,App\Models\Assets\Timezone,App\Models\Tenancy\Tenant,App\Models\Central\User,App\Models\Central\Admin,App\Models\Central\AdminUser,App\Models\Central\Deployment'" --tenant=aroma
+php artisan tenants:artisan "ide-helper:models  -Wr  --ignore='App\Models\Web\WebBlockStats,App\Models\Web\WebBlock,App\Models\Web\WebBlockTypeStats,App\Models\Web\WebBlockType,App\Models\Central\Group,App\Models\Helpers\CurrencyExchange,App\Models\Assets\TariffCode,App\Models\Assets\Country,App\Models\Assets\Currency,App\Models\Assets\Language,App\Models\Assets\Timezone,App\Models\Tenancy\Tenant,App\Models\Central\User,App\Models\Central\Admin,App\Models\Central\AdminUser,App\Models\Central\Deployment'" --tenant=aroma
 php artisan ide-helper:models -Wr 'App\Models\Assets\Country'
 php artisan ide-helper:models -Wr 'App\Models\Assets\Currency'
 php artisan ide-helper:models -Wr 'App\Models\Assets\Language'
@@ -14,5 +14,6 @@ php artisan ide-helper:models -Wr 'App\Models\Helpers\CurrencyExchange'
 php artisan ide-helper:models -Wr 'App\Models\Tenancy\Group'
 php artisan ide-helper:models -Wr 'App\Models\Web\WebBlockType'
 php artisan ide-helper:models -Wr 'App\Models\Web\WebBlockTypeStats'
-
+php artisan ide-helper:models -Wr 'App\Models\Web\WebBlock'
+php artisan ide-helper:models -Wr 'App\Models\Web\WebBlockStats'
 

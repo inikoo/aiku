@@ -1,17 +1,15 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Wed, 05 Jul 2023 14:36:10 Malaysia Time, Pantai Lembeng, Bali, Id
+ * Created: Wed, 05 Jul 2023 15:29:01 Malaysia Time, Pantai Lembeng, Bali, Id
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
 namespace App\Models\Web;
 
-use App\Enums\Web\WebBlockType\WebBlockTypeClassEnum;
-use App\Enums\Web\WebBlockType\WebBlockTypeScopeEnum;
-use Illuminate\Database\Eloquent\Builder;
+use App\Enums\Web\WebBlock\WebBlockScopeEnum;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
@@ -19,29 +17,30 @@ use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
 /**
- * App\Models\Web\WebBlockType
+ * App\Models\Web\WebBlock
  *
  * @property int $id
- * @property WebBlockTypeScopeEnum $scope
  * @property string $slug
+ * @property WebBlockScopeEnum $scope
  * @property string $code
  * @property string $name
- * @property WebBlockTypeClassEnum $class
+ * @property string|null $description
+ * @property int $web_block_type_id
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property-read \App\Models\Web\WebBlockTypeStats|null $stats
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Web\WebBlock> $webBlock
- * @method static Builder|WebBlockType newModelQuery()
- * @method static Builder|WebBlockType newQuery()
- * @method static Builder|WebBlockType onlyTrashed()
- * @method static Builder|WebBlockType query()
- * @method static Builder|WebBlockType withTrashed()
- * @method static Builder|WebBlockType withoutTrashed()
+ * @property-read \App\Models\Web\WebBlockStats|null $stats
+ * @property-read \App\Models\Web\WebBlockType $webBlockType
+ * @method static \Illuminate\Database\Eloquent\Builder|WebBlock newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|WebBlock newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|WebBlock onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|WebBlock query()
+ * @method static \Illuminate\Database\Eloquent\Builder|WebBlock withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|WebBlock withoutTrashed()
  * @mixin \Eloquent
  */
-class WebBlockType extends Model
+class WebBlock extends Model
 {
     use UsesLandlordConnection;
     use SoftDeletes;
@@ -49,14 +48,13 @@ class WebBlockType extends Model
 
     protected $casts = [
         'data'  => 'array',
-        'class' => WebBlockTypeClassEnum::class,
-        'scope' => WebBlockTypeScopeEnum::class,
+        'scope' => WebBlockScopeEnum::class,
+
     ];
 
     protected $attributes = [
         'data' => '{}',
     ];
-
 
     protected $guarded = [];
 
@@ -68,14 +66,15 @@ class WebBlockType extends Model
             ->saveSlugsTo('slug');
     }
 
-    public function webBlock(): HasMany
+    public function webBlockType(): BelongsTo
     {
-        return $this->hasMany(WebBlock::class);
+        return $this->belongsTo(WebBlockType::class);
     }
 
     public function stats(): HasOne
     {
-        return $this->hasOne(WebBlockTypeStats::class);
+        return $this->hasOne(WebBlockStats::class);
     }
+
 
 }
