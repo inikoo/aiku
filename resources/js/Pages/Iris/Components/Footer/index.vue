@@ -1,6 +1,8 @@
 <template>
     <div>
-        <component :is="component[theme]" />
+        <component :is="component[theme]" :columSelected="columSelected" :social="props.social"
+            :navigation="props.navigation" :changeColums="props.changeColums"
+            :selectedColums="selectedColums" :saveItemTitle="saveItemTitle" :saveTextArea="saveTextArea" />
     </div>
 </template>
 
@@ -10,17 +12,24 @@ import FooterTheme2 from './FooterTheme2.vue'
 import FooterTheme3 from './FooterTheme3.vue'
 
 const props = defineProps<{
-    theme: number
+    theme: number,
+    social: Object,
+    navigation: Object,
+    changeColums: Function,
+    selectedColums: Function,
+    columSelected: Object
+    saveItemTitle: Function
+    saveTextArea:Function
 }>()
 
+console.log(props)
+
 const component = {
-    1: FooterTheme1, 
-    2: FooterTheme2, 
-    3: FooterTheme3, 
+    1: FooterTheme1,
+    2: FooterTheme2,
+    3: FooterTheme3,
 }
 
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>
