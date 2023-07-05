@@ -8,6 +8,7 @@
 namespace App\Models\Web;
 
 use App\Enums\Web\WebBlock\WebBlockScopeEnum;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -32,12 +33,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property-read \App\Models\Web\WebBlockStats|null $stats
  * @property-read \App\Models\Web\WebBlockType $webBlockType
- * @method static \Illuminate\Database\Eloquent\Builder|WebBlock newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|WebBlock newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|WebBlock onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|WebBlock query()
- * @method static \Illuminate\Database\Eloquent\Builder|WebBlock withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|WebBlock withoutTrashed()
+ * @method static Builder|WebBlock newModelQuery()
+ * @method static Builder|WebBlock newQuery()
+ * @method static Builder|WebBlock onlyTrashed()
+ * @method static Builder|WebBlock query()
+ * @method static Builder|WebBlock withTrashed()
+ * @method static Builder|WebBlock withoutTrashed()
  * @mixin \Eloquent
  */
 class WebBlock extends Model
