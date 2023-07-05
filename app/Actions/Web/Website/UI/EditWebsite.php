@@ -101,6 +101,12 @@ class EditWebsite extends InertiaAction
                             'title'  => __('Registrations'),
                             'icon'   => 'fa-light fa-id-card',
                             'fields' => [
+                                'approval' => [
+                                    'type'     => 'toggle',
+                                    'label'    => __('Registrations Approval'),
+                                    'value'    => false,
+                                    'required' => true,
+                                ],
                                 'registrations_type' => [
                                     'type'     => 'radio',
                                     'mode'     => 'card',
