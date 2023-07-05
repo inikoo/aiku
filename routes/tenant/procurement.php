@@ -7,7 +7,9 @@
 
 
 use App\Actions\Procurement\Agent\ExportAgents;
+use App\Actions\Procurement\Agent\UI\EditAgent;
 use App\Actions\Procurement\Agent\UI\IndexAgents;
+use App\Actions\Procurement\Agent\UI\RemoveAgent;
 use App\Actions\Procurement\Agent\UI\ShowAgent;
 use App\Actions\Procurement\PurchaseOrder\ExportPurchaseOrders;
 use App\Actions\Procurement\PurchaseOrder\UI\CreatePurchaseOrder;
@@ -43,6 +45,8 @@ Route::get('/agents/export', ExportAgents::class)->name('agents.export');
 
 Route::get('/agents', IndexAgents::class)->name('agents.index');
 Route::get('/agents/{agent}', ShowAgent::class)->name('agents.show');
+Route::get('/agents/{agent}/edit', EditAgent::class)->name('agents.edit');
+Route::get('/agents/{agent}/delete', RemoveAgent::class)->name('agents.remove');
 
 Route::get('/agents/{agent}/suppliers', [IndexSuppliers::class, 'inAgent'])->name('agents.show.suppliers.index');
 Route::get('/agents/{agent}/suppliers/{supplier}', [ShowSupplier::class, 'inAgent'])->name('agents.show.suppliers.show');

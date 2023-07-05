@@ -120,7 +120,7 @@ class ShowSupplierDelivery extends InertiaAction
             return null;
         }
         return match ($routeName) {
-            'hr.employees.show'=> [
+            'procurement.supplier-deliveries.show'=> [
                 'label'=> $supplierDelivery->number,
                 'route'=> [
                     'name'      => $routeName,

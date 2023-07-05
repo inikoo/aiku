@@ -4,7 +4,7 @@
 import {Head} from '@inertiajs/vue3';
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {
-    faArrowAltToTop, faArrowAltToBottom, faBars,faBrowser
+    faArrowAltToTop, faArrowAltToBottom, faBars,faBrowser,faCube,faPalette,faCookieBite
 } from "@/../private/pro-light-svg-icons";
 
 import PageHeading from '@/Components/Headings/PageHeading.vue';
@@ -20,7 +20,10 @@ library.add(
     faArrowAltToTop,
     faArrowAltToBottom,
     faBars,
-    faBrowser
+    faBrowser,
+    faCube,
+    faPalette,
+    faCookieBite
 );
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Pages/ModelChangelog.vue'))
@@ -32,9 +35,12 @@ const props = defineProps<{
         current: string;
         navigation: object;
     }
+    color_scheme?: object;
     header?: object;
     menu?: object;
     footer?: object;
+    category?: object;
+    product?: object;
 }>()
 
 let currentTab = ref(props.tabs.current);
@@ -43,6 +49,7 @@ const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
 const component = computed(() => {
 
     const components = {
+
         header: IrisWorkshopHeader,
         menu: IrisWorkshopMenu,
         footer: IrisWorkshopFooter,
@@ -55,6 +62,7 @@ const component = computed(() => {
 
 
 <template layout="App">
+    <!--suppress HtmlRequiredTitleElement -->
     <Head :title="capitalize(title)"/>
     <PageHeading :data="pageHead"></PageHeading>
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate"/>
