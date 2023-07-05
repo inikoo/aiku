@@ -1,0 +1,23 @@
+<?php
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Wed, 05 Jul 2023 14:40:23 Malaysia Time, Pantai Lembeng, Bali, Id
+ * Copyright (c) 2023, Raul A Perusquia Flores
+ */
+
+namespace App\Enums\Web\WebBlockType;
+
+use App\Enums\EnumHelperTrait;
+
+enum WebBlockTypeClassEnum: string
+{
+    use EnumHelperTrait;
+
+
+    case PRODUCT  = 'product';
+    case CATEGORY = 'category';
+    case BASKET   = 'basket';
+    case CHECKOUT = 'checkout';
+
+
+}

@@ -13,19 +13,17 @@ use Illuminate\Support\Facades\Artisan;
 
 class DatabaseSeeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
         $this->call([
-                        CountrySeeder::class,
-                        CurrencySeeder::class,
-                        TimezoneSeeder::class,
-                        LanguageSeeder::class,
-                        //PermissionSeeder::class,
-                        //JobPositionSeeder::class,
-                    ]);
+            WebBlockTypeSeeder::class,
+            CountrySeeder::class,
+            CurrencySeeder::class,
+            TimezoneSeeder::class,
+            LanguageSeeder::class,
+        ]);
 
 
         Artisan::call('import:tariff_codes harmonized-system.csv');
-
     }
 }
