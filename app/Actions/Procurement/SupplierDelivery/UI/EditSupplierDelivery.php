@@ -33,14 +33,16 @@ class EditSupplierDelivery extends InertiaAction
         return $this->handle($supplierDelivery);
     }
 
-
-
-    public function htmlResponse(SupplierDelivery $supplierDelivery): Response
+    public function htmlResponse(SupplierDelivery $supplierDelivery, ActionRequest $request): Response
     {
         return Inertia::render(
             'EditModel',
             [
-                'title'       => __('supplier delivery'),
+                'title'                                 => __('supplier delivery'),
+                'navigation'                            => [
+                    'previous' => $this->getPrevious($supplierDelivery, $request),
+                    'next'     => $this->getNext($supplierDelivery, $request),
+                ],
                 'pageHead'    => [
                     'title'     => $supplierDelivery->number,
                     'exitEdit'  => [
@@ -77,5 +79,37 @@ class EditSupplierDelivery extends InertiaAction
                 ]
             ]
         );
+    }
+
+    public function getPrevious(SupplierDelivery $supplierDelivery, ActionRequest $request): ?array
+    {
+        $previous = SupplierDelivery::where('number', '<', $supplierDelivery->number)->orderBy('number', 'desc')->first();
+        return $this->getNavigation($previous, $request->route()->getName());
+
+    }
+
+    public function getNext(SupplierDelivery $supplierDelivery, ActionRequest $request): ?array
+    {
+        $next = SupplierDelivery::where('number', '>', $supplierDelivery->number)->orderBy('number')->first();
+        return $this->getNavigation($next, $request->route()->getName());
+    }
+
+    private function getNavigation(?SupplierDelivery $supplierDelivery, string $routeName): ?array
+    {
+        if(!$supplierDelivery) {
+            return null;
+        }
+        return match ($routeName) {
+            'procurement.supplier-deliveries.edit'=> [
+                'label'=> $supplierDelivery->number,
+                'route'=> [
+                    'name'      => $routeName,
+                    'parameters'=> [
+                        'employee'=> $supplierDelivery->number
+                    ]
+
+                ]
+            ]
+        };
     }
 }

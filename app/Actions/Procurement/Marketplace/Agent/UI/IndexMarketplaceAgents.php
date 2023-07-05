@@ -144,6 +144,7 @@ class IndexMarketplaceAgents extends InertiaAction
                 'title'       => __("agent's marketplace"),
                 'pageHead'    => [
                     'title'  => __("agent's marketplace"),
+
                     'actions'=> [
                         $this->canEdit && $this->routeName == 'procurement.marketplace.agents.index' ? [
                             'type'    => 'button',
