@@ -2,10 +2,10 @@
 // T3
 import { ref } from 'vue'
 import { RadioGroup, RadioGroupLabel, RadioGroupOption } from '@headlessui/vue'
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faCheck } from '@/../private/pro-regular-svg-icons'
-import { library } from '@fortawesome/fontawesome-svg-core'
-library.add(faCheck)
+// import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+// import { faCheck } from '@/../private/pro-regular-svg-icons'
+// import { library } from '@fortawesome/fontawesome-svg-core'
+// library.add(faCheck)
 const props = defineProps(['form', 'fieldName', 'fieldData'])
 
 const compareObjects = (objA, objB) => {

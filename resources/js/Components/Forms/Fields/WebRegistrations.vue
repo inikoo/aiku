@@ -37,7 +37,7 @@ const props = defineProps<{
                     </thead>
                     <tbody class="divide-y divide-gray-200 bg-white text-gray-600 last:border-b last:border-gray-200">
                         <tr v-for="(component, index) in fieldData.options" :key="index">
-                            <td class="whitespace-nowrap py-1.5 pl-4 pr-3 text-sm sm:pl-6">
+                            <td class="whitespace-nowrap py-1.5 pl-4 pr-3 text-sm sm:pl-6 capitalize">
                                 {{ component.name }}
                             </td>
                             <td class="whitespace-nowrap px-3 py-1.5 text-sm text-gray-500 text-center">
