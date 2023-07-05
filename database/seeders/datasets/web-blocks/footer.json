@@ -1,0 +1,147 @@
+{
+    "code": "footer",
+    "name": "Website footer",
+    "class": "footer",
+    "data": {
+        "defaultParameters": {
+            "navigations": [
+                {
+                    "title": "solutions",
+                    "data": [
+                        {
+                            "name": "Marketing",
+                            "href": "#"
+                        },
+                        {
+                            "name": "Analytics",
+                            "href": "#"
+                        },
+                        {
+                            "name": "Commerce",
+                            "href": "#"
+                        },
+                        {
+                            "name": "Insights",
+                            "href": "#"
+                        }
+                    ]
+                },
+                {
+                    "title": "support",
+                    "data": [
+                        {
+                            "name": "Pricing",
+                            "href": "#"
+                        },
+                        {
+                            "name": "Documentation",
+                            "href": "#"
+                        },
+                        {
+                            "name": "Guides",
+                            "href": "#"
+                        },
+                        {
+                            "name": "API Status",
+                            "href": "#"
+                        }
+                    ]
+                },
+                {
+                    "title": "company",
+                    "data": [
+                        {
+                            "name": "About",
+                            "href": "#"
+                        },
+                        {
+                            "name": "Blog",
+                            "href": "#"
+                        },
+                        {
+                            "name": "Jobs",
+                            "href": "#"
+                        },
+                        {
+                            "name": "Press",
+                            "href": "#"
+                        },
+                        {
+                            "name": "Partners",
+                            "href": "#"
+                        }
+                    ]
+                },
+                {
+                    "title": "legal",
+                    "data": [
+                        {
+                            "name": "Claim",
+                            "href": "#"
+                        },
+                        {
+                            "name": "Privacy",
+                            "href": "#"
+                        },
+                        {
+                            "name": "Terms",
+                            "href": "#"
+                        }
+                    ]
+                }
+            ],
+            "socials": [
+                {
+                    "title": "Facebook",
+                    "icon": [
+                        "fab",
+                        "fa-facebook"
+                    ]
+                },
+                {
+                    "title": "Instagram",
+                    "icon": [
+                        "fab",
+                        "fa-instagram"
+                    ]
+                },
+                {
+                    "title": "Twitter",
+                    "icon": [
+                        "fab",
+                        "fa-twitter"
+                    ]
+                },
+                {
+                    "title": "Github",
+                    "icon": [
+                        "fab",
+                        "fa-github"
+                    ]
+                },
+                {
+                    "title": "Youtube",
+                    "icon": [
+                        "fab",
+                        "fa-youtube"
+                    ]
+                }
+            ]
+        }
+    },
+    "scope": "website",
+    "webBlocks": [
+        {
+            "code": "FooterTheme1",
+            "name": "Footer 1"
+        },
+        {
+            "code": "FooterTheme2",
+            "name": "Footer 2"
+        },
+        {
+            "code": "FooterTheme3",
+            "name": "Footer 3"
+        }
+    ]
+}

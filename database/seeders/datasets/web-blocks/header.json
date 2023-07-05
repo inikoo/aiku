@@ -1,0 +1,177 @@
+{
+    "code": "header",
+    "name": "Website header",
+    "class": "header",
+    "data": {
+        "defaultParameters": {
+            "navigation": {
+                "categories": [
+                    {
+                        "name": "Home",
+                        "featured": [
+                            {
+                                "name": "About us",
+                                "href": "#"
+                            },
+                            {
+                                "name": "Contact",
+                                "href": "#"
+                            },
+                            {
+                                "name": "ShowRoom",
+                                "href": "#"
+                            },
+                            {
+                                "name": "Trems & Conditions",
+                                "href": "#"
+                            },
+                            {
+                                "name": "Delivery",
+                                "href": "#"
+                            },
+                            {
+                                "name": "Operation Hours",
+                                "href": "#"
+                            },
+                            {
+                                "name": "Freedom Fund",
+                                "href": "#"
+                            },
+                            {
+                                "name": "Business Ethics",
+                                "href": "#"
+                            },
+                            {
+                                "name": "Catalogue",
+                                "href": "#"
+                            },
+                            {
+                                "name": "Retruns Policy",
+                                "href": "#"
+                            },
+                            {
+                                "name": "Dropshiping Sevices",
+                                "href": "#"
+                            },
+                            {
+                                "name": "Working with local businesses",
+                                "href": "#"
+                            },
+                            {
+                                "name": "sustainable palm oil",
+                                "href": "#"
+                            },
+                            {
+                                "name": "Privacy Policy",
+                                "href": "#"
+                            },
+                            {
+                                "name": "Cookies Policy",
+                                "href": "#"
+                            },
+                            {
+                                "name": "Travel Blog",
+                                "href": "#"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "Departements",
+                        "featured": [
+                            {
+                                "name": "New Arrivals",
+                                "href": "#"
+                            },
+                            {
+                                "name": "Basic Tees",
+                                "href": "#"
+                            },
+                            {
+                                "name": "Accessories",
+                                "href": "#"
+                            },
+                            {
+                                "name": "Carry",
+                                "href": "#"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "Incentives & Inspiration",
+                        "featured": [
+                            {
+                                "name": "New Arrivals",
+                                "href": "#"
+                            },
+                            {
+                                "name": "Basic Tees",
+                                "href": "#"
+                            },
+                            {
+                                "name": "Accessories",
+                                "href": "#"
+                            },
+                            {
+                                "name": "Carry",
+                                "href": "#"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "Delivery",
+                        "featured": [
+                            {
+                                "name": "New Arrivals",
+                                "href": "#"
+                            },
+                            {
+                                "name": "Basic Tees",
+                                "href": "#"
+                            },
+                            {
+                                "name": "Accessories",
+                                "href": "#"
+                            },
+                            {
+                                "name": "Carry",
+                                "href": "#"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "New & Notetable",
+                        "featured": [
+                            {
+                                "name": "New Arrivals",
+                                "href": "#"
+                            },
+                            {
+                                "name": "Basic Tees",
+                                "href": "#"
+                            },
+                            {
+                                "name": "Accessories",
+                                "href": "#"
+                            },
+                            {
+                                "name": "Carry",
+                                "href": "#"
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+    },
+    "scope": "website",
+    "webBlocks": [
+        {
+            "code": "DarkHeader",
+            "name": "Header 1"
+        },
+        {
+            "code": "LightHeader",
+            "name": "Header 2"
+        }
+    ]
+}

@@ -21,7 +21,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property int $webpage_id
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read \App\Models\Web\WebpageVariant $webpage
+ * @property-read \App\Models\Web\Webpage $webpage
  * @method static Builder|WebpageStats newModelQuery()
  * @method static Builder|WebpageStats newQuery()
  * @method static Builder|WebpageStats query()

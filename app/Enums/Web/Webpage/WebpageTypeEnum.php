@@ -14,13 +14,13 @@ enum WebpageTypeEnum: string
     use EnumHelperTrait;
 
 
-    case STOREFRONT    = 'storefront';
-    case PRODUCT       = 'product';
-    case CATEGORY      = 'category';
-    case SHOPPING_CART = 'shopping-cart';
-    case CHECKOUT      = 'checkout';
-    case SHOP_INFO     = 'shop-info';
-    case ENGAGEMENT    = 'engagement';
+    case STOREFRONT = 'storefront';
+    case PRODUCT    = 'product';
+    case CATEGORY   = 'category';
+    case BASKET     = 'basket';
+    case CHECKOUT   = 'checkout';
+    case SHOP_INFO  = 'shop-info';
+    case ENGAGEMENT = 'engagement';
 
 
 }

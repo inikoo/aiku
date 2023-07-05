@@ -27,7 +27,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property array $components
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read \App\Models\Web\WebpageStats|null $stats
+ * @property-read \App\Models\Web\WebpageVariantStats|null $stats
  * @property-read \App\Models\Web\Webpage $webpage
  * @method static Builder|WebpageVariant newModelQuery()
  * @method static Builder|WebpageVariant newQuery()
