@@ -76,27 +76,34 @@ class ShowMarketplaceAgent extends InertiaAction
                             'icon'  => ['fal', 'people-arrows'],
                             'title' => __('agent')
                         ],
-                    'title'  => $agent->name,
-                    'edit'   => $this->canEdit ? [
-                        'route' => [
-                            'name'       => preg_replace('/show$/', 'edit', $this->routeName),
-                            'parameters' => array_values($this->originalParameters)
-                        ]
-                    ] : false,
-                    'delete' => $this->canDelete ? [
-                        'route' => [
-                            'name'       => 'procurement.marketplace.agents.remove',
-                            'parameters' => array_values($this->originalParameters)
-                        ],
-                        'label' => __('delete agent')
-                    ] : false,
-                    'create' => $this->canEdit ? [
-                        'route' => [
-                            'name'       => 'procurement.marketplace.agents.show.suppliers.create',
-                            'parameters' => array_values($this->originalParameters)
-                        ],
-                        'label' => __('supplier')
-                    ] : false,
+                    'title'   => $agent->name,
+                    'actions' => [
+                        $this->canEdit ? [
+                            'type'  => 'button',
+                            'style' => 'edit',
+                            'route' => [
+                                'name'       => preg_replace('/show$/', 'edit', $this->routeName),
+                                'parameters' => array_values($this->originalParameters)
+                            ]
+                        ] : false,
+                        $this->canDelete ? [
+                            'type'  => 'button',
+                            'style' => 'delete',
+                            'route' => [
+                                'name'       => 'procurement.marketplace.agents.remove',
+                                'parameters' => array_values($this->originalParameters)
+                            ]
+                        ] : false,
+                        $this->canEdit ? [
+                            'type'  => 'button',
+                            'style' => 'create',
+                            'route' => [
+                                'name'       => 'procurement.marketplace.agents.show.suppliers.create',
+                                'parameters' => array_values($this->originalParameters)
+                            ],
+                            'label' => __('supplier')
+                        ] : false,
+                    ],
                     /*
                     'meta'   => [
                         [

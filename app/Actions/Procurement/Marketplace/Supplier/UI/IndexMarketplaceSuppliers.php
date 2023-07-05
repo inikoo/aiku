@@ -19,6 +19,7 @@ use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
+use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use App\InertiaTable\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
@@ -85,6 +86,23 @@ class IndexMarketplaceSuppliers extends InertiaAction
             $table
                 ->withModelOperations($modelOperations)
                 ->withGlobalSearch()
+                ->withEmptyState(
+                    [
+                        'title'       => __('no suppliers'),
+                        'description' => $this->canEdit ? __('Get started by creating a new supplier.') : null,
+                        'count'       => app('currentTenant')->stats->number_agents,
+                        'action'      => $this->canEdit ? [
+                            'type'    => 'button',
+                            'style'   => 'create',
+                            'tooltip' => __('new supplier'),
+                            'label'   => __('supplier'),
+                            'route'   => [
+                                'name'       => 'procurement.marketplace.suppliers.create',
+                                'parameters' => array_values($this->originalParameters)
+                            ]
+                        ] : null
+                    ]
+                )
                 ->column(key: 'adoption', label: [
                     'type'    => 'icon',
                     'data'    => ['fal', 'fa-yin-yang'],
@@ -130,7 +148,7 @@ class IndexMarketplaceSuppliers extends InertiaAction
     }
 
 
-    public function htmlResponse(LengthAwarePaginator $suppliers, ActionRequest $request)
+    public function htmlResponse(LengthAwarePaginator $suppliers, ActionRequest $request): Response
     {
         $parent = $request->route()->parameters == []
             ?
@@ -153,23 +171,25 @@ class IndexMarketplaceSuppliers extends InertiaAction
                 'title'       => $title,
                 'pageHead'    => [
                     'title'  => $title,
-                    'create' => $this->canEdit ? [
-                        'route' =>
-
-                            match (class_basename($parent)) {
-                                'Agent' => [
-                                    'name'       => 'procurement.marketplace.agents.show.suppliers.create',
-                                    'parameters' => array_values($this->originalParameters)
-                                ],
-                                default => [
-                                    'name'       => 'procurement.marketplace.suppliers.create',
-                                    'parameters' => array_values($this->originalParameters)
-                                ],
-                            },
-
-
-                        'label' => __('supplier')
-                    ] : false,
+                    'actions'=> [
+                        $this->canEdit ? [
+                            'type'    => 'button',
+                            'style'   => 'create',
+                            'tooltip' => __('new supplier'),
+                            'label'   => __('supplier'),
+                            'route'   =>
+                                match (class_basename($parent)) {
+                                    'Agent' => [
+                                        'name'       => 'procurement.marketplace.agents.show.suppliers.create',
+                                        'parameters' => array_values($this->originalParameters)
+                                    ],
+                                    default => [
+                                        'name'       => 'procurement.marketplace.suppliers.create',
+                                        'parameters' => array_values($this->originalParameters)
+                                    ],
+                                },
+                        ] : false,
+                    ]
                 ],
                 'data'        => MarketplaceSupplierResource::collection($suppliers),
 

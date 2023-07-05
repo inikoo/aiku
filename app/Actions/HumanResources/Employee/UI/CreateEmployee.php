@@ -84,9 +84,6 @@ class CreateEmployee extends InertiaAction
                     ]
 
                 ],
-
-
-
             ]
         );
     }

@@ -39,6 +39,8 @@ import Country from "@/Components/Forms/Fields/Country.vue"
 import Currency from "@/Components/Forms/Fields/Currency.vue"
 import { capitalize } from "@/Composables/capitalize"
 import InputWithAddOn from '@/Components/Forms/Fields/InputWithAddOn.vue'
+import WebRegistrations from "@/Components/Forms/Fields/WebRegistrations.vue"
+
 
 const getComponent = (componentName: string) => {
     const components = {
@@ -52,6 +54,7 @@ const getComponent = (componentName: string) => {
         'radio': Radio,
         'country': Country,
         'currency': Currency,
+        'webRegistrations': WebRegistrations
     };
     return components[componentName] ?? null;
 

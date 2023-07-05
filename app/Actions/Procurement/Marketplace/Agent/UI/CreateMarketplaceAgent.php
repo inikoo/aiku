@@ -43,7 +43,6 @@ class CreateMarketplaceAgent extends InertiaAction
                             'title'  => __('ID/contact details'),
                             'icon'   => 'fal fa-address-book',
                             'fields' => [
-
                                 'code' => [
                                     'type'    => 'input',
                                     'label'   => __('code'),
@@ -106,7 +105,8 @@ class CreateMarketplaceAgent extends InertiaAction
                                     'placeholder' => 'Select a Currency',
                                     'options'     => GetCurrenciesOptions::run(),
                                     'required'    => true,
-                                    'mode'        => 'single'
+                                    'mode'        => 'single',
+                                    'searchable'  => true
                                 ],
 
                                 'default_product_country_origin' => [
@@ -114,7 +114,8 @@ class CreateMarketplaceAgent extends InertiaAction
                                     'label'       => __("Product's country of origin"),
                                     'placeholder' => 'Select a Country',
                                     'options'     => GetCountriesOptions::run(),
-                                    'mode'        => 'single'
+                                    'mode'        => 'single',
+                                    'searchable'  => true
                                 ],
                             ]
                         ]

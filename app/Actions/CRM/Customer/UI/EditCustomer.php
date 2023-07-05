@@ -53,6 +53,10 @@ class EditCustomer extends InertiaAction
                     $request->route()->getName(),
                     $request->route()->parameters
                 ),
+                'navigation'                            => [
+                    'previous' => $this->getPrevious($customer, $request),
+                    'next'     => $this->getNext($customer, $request),
+                ],
                 'pageHead'    => [
                     'title'    => $customer->name,
                     'exitEdit' => [
@@ -111,5 +115,60 @@ class EditCustomer extends InertiaAction
             routeParameters: $routeParameters,
             suffix: '('.__('editing').')'
         );
+    }
+
+    public function getPrevious(Customer $customer, ActionRequest $request): ?array
+    {
+
+        $previous = Customer::where('slug', '<', $customer->slug)->when(true, function ($query) use ($customer, $request) {
+            if ($request->route()->getName() == 'shops.show.customers.show') {
+                $query->where('customers.shop_id', $customer->shop_id);
+            }
+        })->orderBy('slug', 'desc')->first();
+
+        return $this->getNavigation($previous, $request->route()->getName());
+
+    }
+
+    public function getNext(Customer $customer, ActionRequest $request): ?array
+    {
+        $next = Customer::where('slug', '>', $customer->slug)->when(true, function ($query) use ($customer, $request) {
+            if ($request->route()->getName() == 'shops.show.customers.show') {
+                $query->where('customers.shop_id', $customer->shop_id);
+            }
+        })->orderBy('slug')->first();
+
+        return $this->getNavigation($next, $request->route()->getName());
+    }
+
+    private function getNavigation(?Customer $customer, string $routeName): ?array
+    {
+        if(!$customer) {
+            return null;
+        }
+
+        return match ($routeName) {
+            'crm.customers.edit' => [
+                'label'=> $customer->name,
+                'route'=> [
+                    'name'      => $routeName,
+                    'parameters'=> [
+                        'customer'=> $customer->slug
+                    ]
+
+                ]
+            ],
+            'crm.shops.show.customers.edit'=> [
+                'label'=> $customer->name,
+                'route'=> [
+                    'name'      => $routeName,
+                    'parameters'=> [
+                        'shop'    => $customer->shop->slug,
+                        'customer'=> $customer->slug
+                    ]
+
+                ]
+            ]
+        };
     }
 }

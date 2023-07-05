@@ -69,6 +69,23 @@ class IndexAgents extends InertiaAction
             }
             $table
                 ->withGlobalSearch()
+                ->withEmptyState(
+                    [
+                        'title'       => __('no agents'),
+                        'description' => $this->canEdit ? __('Get started by creating a new agent.') : null,
+                        'count'       => app('currentTenant')->stats->number_agents,
+                        'action'      => $this->canEdit ? [
+                            'type'    => 'button',
+                            'style'   => 'create',
+                            'tooltip' => __('new agent'),
+                            'label'   => __('agent'),
+                            'route'   => [
+                                'name'       => 'procurement.marketplace.agents.create',
+                                'parameters' => array_values($this->originalParameters)
+                            ]
+                        ] : null
+                    ]
+                )
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'number_suppliers', label: __('suppliers'), canBeHidden: false, sortable: true, searchable: true)
@@ -112,7 +129,12 @@ class IndexAgents extends InertiaAction
                 'breadcrumbs' => $this->getBreadcrumbs(),
                 'title'       => __('agents'),
                 'pageHead'    => [
-                    'title'  => __('agents'),
+                    'title'   => __('agents'),
+                    'icon'    => [
+                        'title' => __('website'),
+                        'icon'  => 'fal fa-people-arrows'
+                    ],
+
                 ],
                 'data'        => AgentResource::collection($agents),
             ]

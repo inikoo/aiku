@@ -5,7 +5,7 @@
  * Copyright (c) 2023, Inikoo LTD
  */
 
-namespace App\Actions\Procurement\Marketplace\Agent\UI;
+namespace App\Actions\Procurement\Agent\UI;
 
 use App\Actions\Assets\Country\UI\GetAddressData;
 use App\Actions\Assets\Country\UI\GetCountriesOptions;
@@ -17,7 +17,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class EditMarketplaceAgent extends InertiaAction
+class EditAgent extends InertiaAction
 {
     public function handle(Agent $agent): Agent
     {
@@ -42,37 +42,37 @@ class EditMarketplaceAgent extends InertiaAction
         return Inertia::render(
             'EditModel',
             [
-                'title'       => __('edit marketplace agent'),
+                'title'       => __('edit agent'),
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->parameters
                 ),
-                'navigation'                              => [
+                'navigation'  => [
                     'previous' => $this->getPrevious($agent, $request),
                     'next'     => $this->getNext($agent, $request),
                 ],
                 'pageHead'    => [
-                    'title'    => $agent->code,
-                    'exitEdit' => [
-                        'route' => [
-                            'name'       => preg_replace('/edit$/', 'show', $this->routeName),
-                            'parameters' => array_values($this->originalParameters)
+                    'title'     => $agent->code,
+                    'actions'   => [
+                        [
+                            'type'  => 'button',
+                            'style' => 'exitEdit',
+                            'route' => [
+                                'name'       => preg_replace('/edit$/', 'show', $this->routeName),
+                                'parameters' => array_values($this->originalParameters)
+                            ]
                         ]
-                    ],
-
-
+                    ]
                 ],
 
                 'formData' => [
                     'blueprint' => [
-
-
                         [
-                            'title'  => __('ID/contact details'),
+                            'title'  => __('ID/contact details '),
                             'icon'   => ['fal', 'fa-address-book'],
                             'fields' => [
                                 'code'         => [
                                     'type'  => 'input',
-                                    'label' => __('code'),
+                                    'label' => __('code '),
                                     'value' => $agent->code
                                 ],
                                 'company_name' => [
@@ -128,9 +128,9 @@ class EditMarketplaceAgent extends InertiaAction
                             'operation' => [
                                 [
                                     'component' => 'removeModelAction',
-                                    'data'      => RemoveMarketplaceAgent::make()->getAction(
+                                    'data'      => RemoveAgent::make()->getAction(
                                         route:[
-                                            'name'       => 'models.marketplace-agent.delete',
+                                            'name'       => 'models.agent.delete',
                                             'parameters' => array_values($this->originalParameters)
                                         ]
                                     )
@@ -157,7 +157,7 @@ class EditMarketplaceAgent extends InertiaAction
 
     public function getBreadcrumbs(array $routeParameters): array
     {
-        return ShowMarketplaceAgent::make()->getBreadcrumbs(
+        return ShowAgent::make()->getBreadcrumbs(
             routeParameters: $routeParameters,
             suffix: '('.__('editing').')'
         );
@@ -184,7 +184,7 @@ class EditMarketplaceAgent extends InertiaAction
         }
 
         return match ($routeName) {
-            'procurement.marketplace.agents.edit' => [
+            'procurement.agents.edit' => [
                 'label' => $agent->name,
                 'route' => [
                     'name'       => $routeName,

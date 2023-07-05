@@ -86,7 +86,7 @@ Route::patch('/shop/{shop}', UpdateShop::class)->name('shop.update');
 Route::delete('/shop/{shop}', DeleteShop::class)->name('shop.delete');
 
 Route::patch('/customer/{customer}', UpdateCustomer::class)->name('customer.update');
-Route::post('/shop/{shop}/customer/', StoreCustomer::class)->name('show.customer.store');
+Route::post('/shop/{shop}/customer/', StoreCustomer::class)->name('shop.customer.store');
 Route::post('/shop/{shop}/department/', [StoreProductCategory::class, 'inShop'])->name('shop.department.store');
 Route::post('/shop/{shop}/website/', StoreWebsite::class)->name('shop.website.store');
 Route::delete('/shop/{shop}/department/{department}', [DeleteProductCategory::class, 'inShop'])->name('shop.department.delete');

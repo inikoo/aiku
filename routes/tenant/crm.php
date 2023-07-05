@@ -9,8 +9,10 @@
 use App\Actions\Auth\WebUser\EditWebUser;
 use App\Actions\Auth\WebUser\IndexWebUser;
 use App\Actions\Auth\WebUser\ShowWebUser;
+use App\Actions\CRM\Customer\UI\CreateCustomer;
 use App\Actions\CRM\Customer\UI\EditCustomer;
 use App\Actions\CRM\Customer\UI\IndexCustomers;
+use App\Actions\CRM\Customer\UI\RemoveCustomer;
 use App\Actions\CRM\Customer\UI\ShowCustomer;
 use App\Actions\CRM\Prospect\IndexProspects;
 use App\Actions\OMS\Order\UI\ShowOrder;
@@ -18,7 +20,10 @@ use App\Actions\UI\CRM\CRMDashboard;
 
 Route::get('/', [CRMDashboard::class,'inTenant'])->name('dashboard');
 Route::get('/customers', [IndexCustomers::class, 'inTenant'])->name('customers.index');
+Route::get('/customers/create', CreateCustomer::class)->name('customers.create');
 Route::get('/customers/{customer}', [ShowCustomer::class, 'inTenant'])->name('customers.show');
+Route::get('/customers/{customer}/edit', [EditCustomer::class, 'inTenant'])->name('customers.edit');
+Route::get('/customers/{customer}/delete', RemoveCustomer::class)->name('customers.remove');
 Route::get('/customers/{customer}/orders/{order}', [ShowOrder::class,'inCustomerInTenant'])->name('customers.show.orders.show');
 Route::get('/customers/{customer}/web-users', [IndexWebUser::class, 'inCustomerInTenant'])->name('customers.show.web-users.index');
 Route::get('/customers/{customer}/web-users/{webUser}', [ShowWebUser::class, 'inCustomerInTenant'])->name('customers.show.web-users.show');

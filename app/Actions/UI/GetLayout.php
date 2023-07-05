@@ -232,11 +232,8 @@ class GetLayout
                     'all'      => 'crm.dashboard',
                     'selected' => 'crm.shops.show.dashboard',
                 ],
-
                 'topMenu' => [
-
                     'dropdown' => [
-
                         'links' => [
                             [
                                 'label'   => __('dashboard'),
@@ -292,10 +289,8 @@ class GetLayout
                             [
                                 'label'   => 'OMS',
                                 'tooltip' => 'OMS',
-
-
-                                'icon'  => ['fal', 'fa-tasks-alt'],
-                                'route' =>
+                                'icon'    => ['fal', 'fa-tasks-alt'],
+                                'route'   =>
                                     [
                                         'all'      => ['oms.dashboard'],
                                         'selected' => ['oms.shops.show.dashboard'],

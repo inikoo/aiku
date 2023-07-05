@@ -5,65 +5,65 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Procurement\Marketplace\Agent\UI;
+namespace App\Actions\CRM\Customer\UI;
 
 use App\Actions\InertiaAction;
-use App\Actions\Procurement\Agent\UI\ShowAgent;
-use App\Models\Procurement\Agent;
+use App\Models\CRM\Customer;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class RemoveMarketplaceAgent extends InertiaAction
+class RemoveCustomer extends InertiaAction
 {
-    public function handle(Agent $agent): Agent
+    public function handle(Customer $customer): Customer
     {
-        return $agent;
+        return $customer;
     }
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("procurement.edit");
+        return $request->user()->hasPermissionTo("crm.customers.edit");
     }
 
-    public function asController(Agent $agent, ActionRequest $request): Agent
+    public function asController(Customer $customer, ActionRequest $request): Customer
     {
         $this->initialisation($request);
 
-        return $this->handle($agent);
+        return $this->handle($customer);
     }
+
 
     public function getAction($route): array
     {
         return  [
             'buttonLabel' => __('Delete'),
-            'title'       => __('Delete agent'),
-            'text'        => __("This action will delete this agent and all it's suppliers & products"),
+            'title'       => __('Delete Customer'),
+            'text'        => __("This action will delete this Customer and its dependent"),
             'route'       => $route
         ];
     }
 
-    public function htmlResponse(Agent $agent, ActionRequest $request): Response
+    public function htmlResponse(Customer $customer, ActionRequest $request): Response
     {
         return Inertia::render(
             'RemoveModel',
             [
-                'title'       => __('delete marketplace agent'),
+                'title'       => __('delete customer'),
                 'breadcrumbs' => $this->getBreadcrumbs(
-                    $request->route()->parameters
+                    $request->route()->getName(),
+                    $request->route()->originalParameters()
                 ),
                 'pageHead'    => [
                     'icon'  =>
                         [
-                            'icon'  => ['fal', 'people-arrows'],
-                            'title' => __('agent')
+                            'icon'  => ['fal', 'fa-inventory'],
+                            'title' => __('customer')
                         ],
-                    'title'  => $agent->name,
+                    'title'  => $customer->slug,
                     'actions'=> [
                         [
                             'type'  => 'button',
                             'style' => 'cancel',
-                            'label' => __('cancel'),
                             'route' => [
                                 'name'       => preg_replace('/remove$/', 'show', $this->routeName),
                                 'parameters' => array_values($this->originalParameters)
@@ -71,24 +71,21 @@ class RemoveMarketplaceAgent extends InertiaAction
                         ]
                     ]
                 ],
-                'data'     => $this->getAction(
+                'data'      => $this->getAction(
                     route:[
-                        'name'       => 'models.marketplace-agent.delete',
+                        'name'       => 'models.customer.delete',
                         'parameters' => array_values($this->originalParameters)
                     ]
                 )
-
-
-
-
             ]
         );
     }
 
 
-    public function getBreadcrumbs(array $routeParameters): array
+    public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
-        return ShowAgent::make()->getBreadcrumbs(
+        return ShowCustomer::make()->getBreadcrumbs(
+            routeName: preg_replace('/remove$/', 'show', $routeName),
             routeParameters: $routeParameters,
             suffix: '('.__('deleting').')'
         );

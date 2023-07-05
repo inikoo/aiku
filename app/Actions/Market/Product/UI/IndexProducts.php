@@ -139,7 +139,11 @@ class IndexProducts extends InertiaAction
                 ),
                 'title'       => __('Products'),
                 'pageHead'    => [
-                    'title'  => __('products'),
+                    'title'   => __('products'),
+                    'icon'    => [
+                        'icon'  => ['fal', 'fa-cube'],
+                        'title' => __('product')
+                    ],
                     'actions'=> [
                         $this->canEdit && $this->routeName == 'shops.show.products.index' ? [
                             'type'    => 'button',
