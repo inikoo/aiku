@@ -36,7 +36,8 @@ class ShowAgent extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('procurement.agents.edit');
+        $this->canEdit   = $request->user()->can('procurement.agents.edit');
+        $this->canDelete = $request->user()->can('procurement.agents.edit');
 
         return $request->user()->hasPermissionTo("procurement.view");
     }
@@ -78,6 +79,25 @@ class ShowAgent extends InertiaAction
                         ],
                         'label' => __('purchase order')
                     ] : false,
+                    'actions' => [
+                        $this->canEdit ? [
+                            'type'  => 'button',
+                            'style' => 'edit',
+                            'route' => [
+                                'name'       => preg_replace('/show$/', 'edit', $this->routeName),
+                                'parameters' => array_values($this->originalParameters)
+                            ]
+                        ] : false,
+                        $this->canDelete ? [
+                            'type'  => 'button',
+                            'style' => 'delete',
+                            'route' => [
+                                'name'       => 'procurement.agents.remove',
+                                'parameters' => array_values($this->originalParameters)
+                            ]
+                        ] : false
+                    ],
+
                     'meta'          => [
                         [
                             'name'     => trans_choice('supplier|suppliers', $agent->stats->number_suppliers),

@@ -5,16 +5,15 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Procurement\Marketplace\Agent\UI;
+namespace App\Actions\Procurement\Agent\UI;
 
 use App\Actions\InertiaAction;
-use App\Actions\Procurement\Agent\UI\ShowAgent;
 use App\Models\Procurement\Agent;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class RemoveMarketplaceAgent extends InertiaAction
+class RemoveAgent extends InertiaAction
 {
     public function handle(Agent $agent): Agent
     {

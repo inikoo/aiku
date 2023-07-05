@@ -11,6 +11,7 @@ use App\Actions\Procurement\Agent\Hydrators\AgentHydrateUniversalSearch;
 use App\Actions\WithActionUpdate;
 use App\Http\Resources\Procurement\AgentResource;
 use App\Models\Procurement\Agent;
+use App\Rules\ValidAddress;
 use Lorisleiva\Actions\ActionRequest;
 use Illuminate\Validation\Validator;
 
@@ -41,8 +42,13 @@ class UpdateMarketplaceAgent
     public function rules(): array
     {
         return [
-            'code' => ['sometimes', 'required'],
-            'name' => ['sometimes', 'required'],
+            'code'         => ['sometimes', 'required', 'unique:group.agents', 'between:2,9', 'alpha_dash'],
+            'contact_name' => ['sometimes', 'required', 'string', 'max:255'],
+            'company_name' => ['sometimes', 'required', 'string', 'max:255'],
+            'email'        => ['nullable', 'email'],
+            'phone'        => ['nullable', 'phone:AUTO'],
+            'address'      => ['sometimes', 'required', new ValidAddress()],
+            'currency_id'  => ['sometimes', 'required', 'exists:central.currencies,id'],
         ];
     }
 
@@ -61,7 +67,10 @@ class UpdateMarketplaceAgent
     {
 
         if($this->agent->owner_id !== app('currentTenant')->id) {
-            $validator->errors()->add('agent', 'You can not update the agent.');
+            $validator->errors()->add('code', 'You can not update the agent.');
+            $validator->errors()->add('company_name', 'You can not update the agent.');
+            $validator->errors()->add('email', 'You can not update the agent.');
+            $validator->errors()->add('address', 'You can not update the agent.');
         }
 
     }
