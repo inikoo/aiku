@@ -13,16 +13,10 @@ importScripts("https://www.gstatic.com/firebasejs/8.2.5/firebase-messaging.js");
 // Initialize the Firebase app in the service worker by passing in
 // your app's Firebase config object.
 // https://firebase.google.com/docs/web/setup#config-object
-firebase.initializeApp({
-    "apiKey": "AIzaSyDPdSOx28j6cJNuY1i2RsSW-Xy27uOOAsE",
-    "authDomain": "aw-advantage.firebaseapp.com",
-    "databaseURL": "https://aw-advantage-default-rtdb.asia-southeast1.firebasedatabase.app",
-    "projectId": "aw-advantage",
-    "storageBucket": "aw-advantage.appspot.com",
-    "messagingSenderId": "19378435869",
-    "appId": "1:19378435869:web:2ec64bc8f143b9ebf8d3f4",
-    "measurementId": "G-7PZD284PCJ"
-});
+
+const firebaseCredential = require("../resources/private/firebase/aiku-firebase.json")
+
+firebase.initializeApp(firebaseCredential);
 
 // Retrieve an instance of Firebase Messaging so that it can handle background
 // messages.
