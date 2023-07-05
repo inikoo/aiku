@@ -56,27 +56,58 @@ const dropDownData = computed(() => {
 });
 
 const shopHandleClick = (option) => {
-    layout.currentShopData = option;
 
 
-    if (layout.currentRoute.startsWith("shops.show")) {
 
-        router.get(
-            option.slug ?
-                route("shops.show", [option.slug]) :
-                route("shops.index", [option.slug])
-        );
-    } else if (layout.currentRoute.startsWith("shops.index")) {
-        router.get(route("shops.show", [option.slug]));
-    } else {
 
-        layout.currentShopData = option.slug ? layout.shops[option.slug] :
-            {
-                slug: null,
-                name: trans("All shops"),
-                code: trans("All")
-            };
+
+
+    if (layout.currentRoute.startsWith("shops")) {
+
+        if (layout.currentRoute.startsWith("shops.show")) {
+
+            router.get(
+                option.slug ?
+                    route("shops.show", [option.slug]) :
+                    route("shops.index")
+            );
+            return;
+        } else if (layout.currentRoute.startsWith("shops.index")) {
+            router.get(
+                option.slug ?
+                    route("shops.show", [option.slug]) :
+                    route("shops.index")
+            );
+            return;
+        }
+
     }
+
+    if (layout.currentRoute.startsWith("oms")) {
+
+        if (layout.currentRoute.startsWith("oms.shops.show.dashboard")) {
+            console.log(option.slug)
+            router.get(
+                option.slug ?
+                    route("oms.shops.show.dashboard", [option.slug]) :
+                    route("oms.dashboard")
+            );
+        } else if (layout.currentRoute.startsWith("oms.dashboard")) {
+            router.get(
+                option.slug ?
+                    route("oms.shops.show.dashboard", [option.slug]) :
+                    route("oms.dashboard")
+            );
+        }
+
+    }
+
+    layout.currentShopData = option.slug ? layout.shops[option.slug] :
+        {
+            slug: null,
+            name: trans("All shops"),
+            code: trans("All")
+        };
 
 
 };
@@ -94,7 +125,7 @@ const websiteHandleClick = (option) => {
         );
     } else if (layout.currentRoute.startsWith("websites.index")) {
         router.get(route("websites.show", [option.slug]));
-    }else{
+    } else {
 
         layout.currentWebsiteData = option.slug ? layout.websites[option.slug] :
             {

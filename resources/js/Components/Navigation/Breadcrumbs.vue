@@ -102,7 +102,7 @@ router.on('navigate', (event) => {
                     <div class="flex items-center">
                         <!-- Shorter Breadcrumb on Mobile size -->
                         <div v-if="breadcrumbs.length > 2 && breadcrumbIdx != 0" class="md:hidden">
-                            <font-awesome-icon
+                            <FontAwesomeIcon
                                 v-if="breadcrumbIdx !== 0"
                                 class="flex-shrink-0 h-3 w-3 mx-3 opacity-50"
                                 icon="fa-regular fa-chevron-right"
@@ -111,7 +111,7 @@ router.on('navigate', (event) => {
                         </div>
 
                         <template v-if="breadcrumb.type === 'simple'">
-                            <font-awesome-icon
+                            <FontAwesomeIcon
                                 v-if="breadcrumbIdx !== 0"
                                 class="flex-shrink-0 h-3 w-3 mx-3 opacity-50"
                                 icon="fa-regular fa-chevron-right"
@@ -127,7 +127,7 @@ router.on('navigate', (event) => {
 										  )
 										: ''
 								">
-                                <font-awesome-icon
+                                <FontAwesomeIcon
                                     v-if="breadcrumb.simple.icon"
                                     :class="breadcrumb.simple.label ? 'mr-1' : ''"
                                     class="flex-shrink-0 h-3.5 w-3.5"
@@ -137,7 +137,7 @@ router.on('navigate', (event) => {
                             </component>
                         </template>
                         <template v-else-if="breadcrumb.type === 'creatingModel'">
-                            <font-awesome-icon
+                            <FontAwesomeIcon
                                 class="flex-shrink-0 h-3.5 w-3.5 mr-1 text-yellow-500 ml-2"
                                 icon="fas fa-sparkles"
                                 aria-hidden="true" />
@@ -147,7 +147,7 @@ router.on('navigate', (event) => {
                         </template>
                         <template v-else-if="breadcrumb.type === 'modelWithIndex'">
                             <div class="hidden md:inline-flex">
-                                <font-awesome-icon
+                                <FontAwesomeIcon
                                     v-if="breadcrumbIdx !== 0"
                                     class="flex-shrink-0 h-3 w-3 mx-3 opacity-50 place-self-center"
                                     icon="fa-regular fa-chevron-right"
@@ -160,7 +160,7 @@ router.on('navigate', (event) => {
 											breadcrumb.modelWithIndex.index.route.parameters
 										)
 									">
-                                    <font-awesome-icon
+                                    <FontAwesomeIcon
                                         :icon="['fal', 'bars']"
                                         class="flex-shrink-0 h-3.5 w-3.5 mr-1"
                                         aria-hidden="true" />
@@ -169,7 +169,7 @@ router.on('navigate', (event) => {
                                         }}</span>
                                 </Link>
                             </div>
-                            <span class="mx-3">→</span>
+                            <span class="mx-3 select-none">→</span>
                             <Link
                                 class="text-indigo-400 hover:text-indigo-500"
                                 :href="
@@ -225,14 +225,14 @@ router.on('navigate', (event) => {
 									"
                                     :style="{ paddingLeft: 12 + breadcrumbIdx * 7 + 'px' }">
                                     <!-- Icon Section -->
-                                    <font-awesome-icon
+                                    <FontAwesomeIcon
                                         v-if="breadcrumb.simple.icon && breadcrumbIdx == 0"
                                         class="flex-shrink-0 h-3.5 w-3.5"
                                         :icon="breadcrumb.simple.icon"
                                         aria-hidden="true" />
 
                                     <!-- Icon Arrow -->
-                                    <font-awesome-icon
+                                    <FontAwesomeIcon
                                         v-if="breadcrumbIdx != 0"
                                         class="flex-shrink-0 h-3.5 w-3.5 text-gray-300"
                                         icon="fa fa-arrow-from-left"
@@ -248,7 +248,7 @@ router.on('navigate', (event) => {
 									</span>
 
                                     <!-- Icon List (Simple) -->
-                                    <font-awesome-icon
+                                    <FontAwesomeIcon
                                         v-if="breadcrumb.simple.icon && breadcrumbIdx != 0"
                                         class="flex-shrink-0 h-3.5 w-3.5"
                                         :icon="breadcrumb.simple.icon"
@@ -271,7 +271,7 @@ router.on('navigate', (event) => {
 											)
 										"
                                         :style="{ paddingLeft: 12 + breadcrumbIdx * 7 + 'px' }">
-                                        <font-awesome-icon
+                                        <FontAwesomeIcon
                                             class="flex-shrink-0 h-3.5 w-3.5 text-gray-300"
                                             icon="fa fa-arrow-from-left"
                                             aria-hidden="true" />
@@ -280,7 +280,7 @@ router.on('navigate', (event) => {
 										</span>
 
                                         <!-- Icon List -->
-                                        <font-awesome-icon
+                                        <FontAwesomeIcon
                                             :icon="['fal', 'bars']"
                                             class="flex-shrink-0 h-3.5 w-3.5"
                                             aria-hidden="true" />
@@ -298,7 +298,7 @@ router.on('navigate', (event) => {
                                         :style="{
 											paddingLeft: 12 + (breadcrumbIdx + 1) * 7 + 'px',
 										}">
-                                        <font-awesome-icon
+                                        <FontAwesomeIcon
                                             class="flex-shrink-0 h-3.5 w-3.5 mr-1 text-gray-300"
                                             icon="fa fa-arrow-from-left"
                                             aria-hidden="true" />

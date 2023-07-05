@@ -138,49 +138,105 @@ class EditWebsite extends InertiaAction
                                     'label'    => __('Web Registration'),
                                     'value'    => [
                                         [
+                                            'key'       => 'telephone',
                                             'name'      => __('telephone'),
                                             'show'      => true,
                                             'required'  => false,
                                         ],
                                         [
+                                            'key'       => 'address',
                                             'name'      => __('address'),
                                             'show'      => false,
                                             'required'  => false,
                                         ],
                                         [
-                                            'name'      => __('username'),
-                                            'show'      => true,
-                                            'required'  => true,
+                                            'key'       => 'company',
+                                            'name'      => __('company'),
+                                            'show'      => false,
+                                            'required'  => false,
                                         ],
                                         [
-                                            'name'      => __('password'),
+                                            'key'       => 'contact_name',
+                                            'name'      => __('contact_name'),
+                                            'show'      => false,
+                                            'required'  => false,
+                                        ],
+                                        [
+                                            'key'       => 'registration_number',
+                                            'name'      => __('registration number'),
                                             'show'      => true,
-                                            'required'  => true,
+                                            'required'  => false,
+                                        ],
+                                        [
+                                            'key'       => 'tax_number',
+                                            'name'      => __('tax number'),
+                                            'show'      => false,
+                                            'required'  => false,
+                                        ],
+                                        [
+                                            'key'       => 'terms_and_conditions',
+                                            'name'      => __('terms and conditions'),
+                                            'show'      => true,
+                                            'required'  => false,
+                                        ],
+                                        [
+                                            'key'       => 'marketing',
+                                            'name'      => __('marketing'),
+                                            'show'      => false,
+                                            'required'  => false,
                                         ],
                                 ],
                                     'required' => true,
                                     'options'  => [
-                                            [
-                                                'name'      => __('telephone'),
-                                                'show'      => true,
-                                                'required'  => false,
-                                            ],
-                                            [
-                                                'name'      => __('address'),
-                                                'show'      => false,
-                                                'required'  => false,
-                                            ],
-                                            [
-                                                'name'      => __('username'),
-                                                'show'      => true,
-                                                'required'  => true,
-                                            ],
-                                            [
-                                                'name'      => __('password'),
-                                                'show'      => true,
-                                                'required'  => true,
-                                            ],
-                                    ]
+                                        [
+                                            'key'       => 'telephone',
+                                            'name'      => __('telephone'),
+                                            'show'      => true,
+                                            'required'  => false,
+                                        ],
+                                        [
+                                            'key'       => 'address',
+                                            'name'      => __('address'),
+                                            'show'      => false,
+                                            'required'  => false,
+                                        ],
+                                        [
+                                            'key'       => 'company',
+                                            'name'      => __('company'),
+                                            'show'      => false,
+                                            'required'  => false,
+                                        ],
+                                        [
+                                            'key'       => 'contact_name',
+                                            'name'      => __('contact name'),
+                                            'show'      => false,
+                                            'required'  => false,
+                                        ],
+                                        [
+                                            'key'       => 'registration_number',
+                                            'name'      => __('registration number'),
+                                            'show'      => true,
+                                            'required'  => false,
+                                        ],
+                                        [
+                                            'key'       => 'tax_number',
+                                            'name'      => __('tax number'),
+                                            'show'      => false,
+                                            'required'  => false,
+                                        ],
+                                        [
+                                            'key'       => 'terms_and_conditions',
+                                            'name'      => __('terms and conditions'),
+                                            'show'      => true,
+                                            'required'  => false,
+                                        ],
+                                        [
+                                            'key'       => 'marketing',
+                                            'name'      => __('marketing'),
+                                            'show'      => false,
+                                            'required'  => false,
+                                        ],
+                                ]
                                 ]
                             ]
                         ],

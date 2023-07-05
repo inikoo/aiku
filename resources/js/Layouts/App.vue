@@ -96,6 +96,7 @@ const initialiseApp = () => {
             }
         }
 
+        /*
         if (usePage().props.layoutCurrentShopSlug) {
             layout.currentShopSlug = usePage().props.layoutCurrentShopSlug;
         } else {
@@ -103,7 +104,7 @@ const initialiseApp = () => {
                 layout.currentShopSlug = route().params["shop"];
             }
         }
-
+*/
 
         if (usePage().props.localeData) {
             locale.language = usePage().props.localeData.language;
@@ -131,52 +132,70 @@ const initialiseApp = () => {
             layout.warehouses = usePage().props.layoutWarehousesList;
         }
 
-        layout.currentShopData = layout.shops[layout.currentShopSlug] ?? {
-            slug: null,
-            name: trans("All shops"),
-            code: trans("All")
-        };
-
-        layout.currentWebsiteData = layout.websites[layout.currentWebsiteSlug] ?? {
-            slug: null,
-            name: trans("All websites"),
-            code: trans("All")
-        };
 
 
+        if(!layout.currentShopData.hasOwnProperty('slug')){
 
-        layout.currentWarehouseData = layout.warehouses[layout.currentWarehouseSlug] ??
-        Object.keys(layout.warehouses).length===1?
-            {
-                slug: layout.warehouses[Object.keys(layout.warehouses)[0]].slug,
-                name: layout.warehouses[Object.keys(layout.warehouses)[0]].name,
-                code: layout.warehouses[Object.keys(layout.warehouses)[0]].code,
+            if(Object.keys(layout.shops).length===1){
+                layout.currentShopData={
+                    slug: layout.shops[Object.keys(layout.shops)[0]].slug,
+                    name: layout.shops[Object.keys(layout.shops)[0]].name,
+                    code: layout.shops[Object.keys(layout.shops)[0]].code,
+                };
             }
-            :
-            {
-            slug: null,
-            name: trans("All warehouses"),
-            code: trans("All")
-        };
-
-
-
-        if(layout.currentRouteParameters.hasOwnProperty('shop')){
-            layout.currentShopData=layout.shops[layout.currentRouteParameters.shop]
         }
 
-        if(layout.currentRouteParameters.hasOwnProperty('website')){
-            layout.currentWebsiteData=layout.websites[layout.currentRouteParameters.website]
+        if(!layout.currentWebsiteData.hasOwnProperty('slug')){
+
+            if(Object.keys(layout.websites).length===1){
+                layout.currentWebsiteData={
+                    slug: layout.websites[Object.keys(layout.websites)[0]].slug,
+                    name: layout.websites[Object.keys(layout.websites)[0]].name,
+                    code: layout.websites[Object.keys(layout.websites)[0]].code,
+                };
+            }
         }
 
-        if(layout.currentRouteParameters.hasOwnProperty('warehouse')){
-            layout.currentShopData=layout.warehouses[layout.currentRouteParameters.warehouse]
+        if(!layout.currentWarehouseData.hasOwnProperty('slug')){
+
+            if(Object.keys(layout.warehouses).length===1){
+                layout.currentShopData={
+                    slug: layout.warehouses[Object.keys(layout.warehouses)[0]].slug,
+                    name: layout.warehouses[Object.keys(layout.warehouses)[0]].name,
+                    code: layout.warehouses[Object.keys(layout.warehouses)[0]].code,
+                };
+            }
         }
+
+
+
+
+
+
+
+
 
 
     });
     return layout;
 };
+
+import { router } from '@inertiajs/vue3'
+
+router.on('navigate', () => {
+
+
+    if(route().params.hasOwnProperty('shop')){
+        layout.currentShopData=layout.shops[route().params['shop']]
+    }
+    if(route().params.hasOwnProperty('website')){
+        layout.currentWebsiteData=layout.websites[route().params['website']]
+    }
+    if(route().params.hasOwnProperty('warehouse')){
+        layout.currentWarehouseData=layout.warehouses[route().params['warehouse']]
+    }
+
+})
 
 const layout = initialiseApp();
 
