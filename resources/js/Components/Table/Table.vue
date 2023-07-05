@@ -678,12 +678,12 @@ const handleElementsChange = (data) => {
                                             :class="[
                                                 typeof item[column.key] == 'number' ? 'text-right' : '',
                                                 column.key === 'avatar' ? 'flex justify-center items-center' : 'px-6 min-w-fit max-w-[450px]',
-                                                'text-sm py-4 text-gray-500 whitespace-normal',
+                                                'text-sm py-4 text-gray-800 whitespace-normal',
 
                                             ]">
                                             <slot :name="`cell(${column.key})`" :item="item">
                                                 <img v-if="column.key === 'avatar'" :src="`/media/group/${item[column.key]}`" class="w-5 rounded-full" alt="avatar"/>
-                                                <div v-else>{{ item[column.key] }}</div>
+                                                <div v-else class="text-gray-500">{{ item[column.key] }}</div>
                                             </slot>
                                         </td>
                                     </tr>
