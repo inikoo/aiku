@@ -18,6 +18,8 @@ enum WebBlockTypeClassEnum: string
     case CATEGORY = 'category';
     case BASKET   = 'basket';
     case CHECKOUT = 'checkout';
+    case FOOTER   = 'footer';
+    case HEADER   = 'header';
 
 
 }

@@ -1,0 +1,27 @@
+{
+    "code": "product",
+    "name": "Product showcase",
+    "class": "product",
+    "data": {
+        "defaultParameters": {}
+    },
+    "scope": "webpage",
+    "webBlocks": [
+        {
+            "code": "product",
+            "name": "Product showcase A"
+        },
+        {
+            "code": "product",
+            "name": "Product showcase A"
+        },
+        {
+            "code": "product",
+            "name": "Product showcase A"
+        },
+        {
+            "code": "product",
+            "name": "Product showcase A"
+        }
+    ]
+}
