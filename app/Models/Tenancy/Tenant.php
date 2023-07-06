@@ -20,7 +20,6 @@ use App\Models\Procurement\SupplierProductTenant;
 use App\Models\Procurement\SupplierTenant;
 use App\Models\SysAdmin\SysUser;
 use App\Models\TenantWebStats;
-use Database\Factories\Tenancy\TenantFactory;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -72,7 +71,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Tenancy\TenantInventoryStats|null $inventoryStats
  * @property-read CentralMedia|null $logo
  * @property-read \App\Models\Tenancy\TenantMailStats|null $mailStats
- * @property-read \App\Models\Tenancy\TenantMarketingStats|null $marketingStats
+ * @property-read \App\Models\Tenancy\TenantMarketStats|null $marketStats
  * @property-read MediaCollection<int, \App\Models\Media\GroupMedia> $media
  * @property-read Collection<int, Agent> $myAgents
  * @property-read Collection<int, Supplier> $mySuppliers
@@ -86,7 +85,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read SysUser|null $sysUser
  * @property-read TenantWebStats|null $webStats
  * @method static TenantCollection<int, static> all($columns = ['*'])
- * @method static TenantFactory factory($count = null, $state = [])
+ * @method static \Database\Factories\Tenancy\TenantFactory factory($count = null, $state = [])
  * @method static TenantCollection<int, static> get($columns = ['*'])
  * @method static Builder|Tenant newModelQuery()
  * @method static Builder|Tenant newQuery()
@@ -158,9 +157,9 @@ class Tenant extends SpatieTenant implements HasMedia
         return $this->hasOne(TenantFulfilmentStats::class);
     }
 
-    public function marketingStats(): HasOne
+    public function marketStats(): HasOne
     {
-        return $this->hasOne(TenantMarketingStats::class);
+        return $this->hasOne(TenantMarketStats::class);
     }
 
     public function mailStats(): HasOne

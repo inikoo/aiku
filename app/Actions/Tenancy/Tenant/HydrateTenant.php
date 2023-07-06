@@ -12,20 +12,16 @@ use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateAccounting;
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateCustomers;
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateEmployees;
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateInventory;
+use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateMarket;
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateOrders;
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateProcurement;
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateUsers;
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateWarehouse;
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateWeb;
 use App\Actions\Traits\WithNormalise;
-use App\Enums\Market\Shop\ShopStateEnum;
-use App\Enums\Market\Shop\ShopSubtypeEnum;
-use App\Enums\Market\Shop\ShopTypeEnum;
 use App\Models\Auth\Guest;
-use App\Models\Market\Shop;
 use App\Models\Tenancy\Tenant;
 use Illuminate\Console\Command;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 
 class HydrateTenant extends HydrateModel
@@ -43,7 +39,7 @@ class HydrateTenant extends HydrateModel
         $this->guestsStats();
         TenantHydrateWarehouse::run($tenant);
         TenantHydrateInventory::run($tenant);
-        $this->marketingStats();
+        TenantHydrateMarket::run($tenant);
         $this->fulfilmentStats();
         TenantHydrateUsers::run($tenant);
         TenantHydrateAccounting::run($tenant);
@@ -59,56 +55,6 @@ class HydrateTenant extends HydrateModel
         $tenant = app('currentTenant');
     }
 
-
-    public function marketingStats()
-    {
-        /** @var Tenant $tenant */
-        $tenant = app('currentTenant');
-
-        $stats = [
-            'number_shops' => Shop::count()
-        ];
-
-
-        $shopStatesCount = Shop::selectRaw('state, count(*) as total')
-            ->groupBy('state')
-            ->pluck('total', 'state')->all();
-        foreach (ShopStateEnum::cases() as $shopState) {
-            $stats['number_shops_state_'.$shopState->snake()] = Arr::get($shopStatesCount, $shopState->value, 0);
-        }
-
-
-        $shopTypesCount = Shop::selectRaw('type, count(*) as total')
-            ->groupBy('type')
-            ->pluck('total', 'type')->all();
-
-
-        foreach (ShopTypeEnum::cases() as $shopType) {
-            $stats['number_shops_type_'.$shopType->snake()] = Arr::get($shopTypesCount, $shopType->value, 0);
-        }
-
-        $shopSubtypesCount = Shop::selectRaw('subtype, count(*) as total')
-            ->groupBy('subtype')
-            ->pluck('total', 'subtype')->all();
-
-
-        foreach (ShopSubtypeEnum::cases() as $shopSubtype) {
-            $stats['number_shops_subtype_'.$shopSubtype->snake()] = Arr::get($shopSubtypesCount, $shopSubtype->value, 0);
-        }
-
-        $shopStatesSubtypesCount = Shop::selectRaw("concat(state,'_',subtype) as state_subtype, count(*) as total")
-            ->groupBy('state', 'state_subtype')
-            ->pluck('total', 'state_subtype')->all();
-
-
-        foreach (ShopStateEnum::cases() as $shopState) {
-            foreach (ShopSubtypeEnum::cases() as $shopSubtype) {
-                $stats['number_shops_state_subtype_'.$shopState->snake().'_'.$shopSubtype->snake()] = Arr::get($shopStatesSubtypesCount, $shopState->value.'_'.$shopSubtype->value, 0);
-            }
-        }
-
-        $tenant->marketingStats->update($stats);
-    }
 
     public function guestsStats(): void
     {

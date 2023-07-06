@@ -134,7 +134,8 @@ const initialiseApp = () => {
 
 
 
-        if(!layout.currentShopData.hasOwnProperty('slug')){
+        if(!layout.booted){
+
 
             if(Object.keys(layout.shops).length===1){
                 layout.currentShopData={
@@ -145,7 +146,7 @@ const initialiseApp = () => {
             }
         }
 
-        if(!layout.currentWebsiteData.hasOwnProperty('slug')){
+        if(!layout.booted){
 
             if(Object.keys(layout.websites).length===1){
                 layout.currentWebsiteData={
@@ -156,7 +157,7 @@ const initialiseApp = () => {
             }
         }
 
-        if(!layout.currentWarehouseData.hasOwnProperty('slug')){
+        if(!layout.booted){
 
             if(Object.keys(layout.warehouses).length===1){
                 layout.currentShopData={
@@ -169,7 +170,7 @@ const initialiseApp = () => {
 
 
 
-
+        layout.booted=true;
 
 
 

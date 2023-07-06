@@ -10,8 +10,8 @@ import { trans } from "laravel-vue-i18n";
 export const useLayoutStore = defineStore("layout", {
     state: () => (
         {
+            booted:  false,
             navigation            : [],
-
             shopsInDropDown       : {},
             shops                 : {},
             currentShopSlug       : null,
@@ -20,7 +20,6 @@ export const useLayoutStore = defineStore("layout", {
                 name: trans("All shops"),
                 code: trans("All")
             },
-
             websitesInDropDown       : {},
             websites                 : {},
             currentWebsiteSlug       : null,
@@ -29,7 +28,6 @@ export const useLayoutStore = defineStore("layout", {
                 name: trans("All websites"),
                 code: trans("All")
             },
-
             warehousesInDropDown       : {},
             warehouses                 : {},
             currentWarehouseSlug       : null,
@@ -38,8 +36,6 @@ export const useLayoutStore = defineStore("layout", {
                 name: trans("All warehouses"),
                 code: trans("All")
             },
-
-
             tenant                : {},
             currentRoute          : "",
             currentRouteParameters: {},

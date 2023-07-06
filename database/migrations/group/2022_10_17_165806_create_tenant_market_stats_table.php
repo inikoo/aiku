@@ -8,14 +8,17 @@
 use App\Enums\Market\Shop\ShopStateEnum;
 use App\Enums\Market\Shop\ShopSubtypeEnum;
 use App\Enums\Market\Shop\ShopTypeEnum;
+use App\Stubs\Migrations\HasCatalogueStats;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
+    use HasCatalogueStats;
+
     public function up(): void
     {
-        Schema::create('tenant_marketing_stats', function (Blueprint $table) {
+        Schema::create('tenant_market_stats', function (Blueprint $table) {
             $table->smallIncrements('id');
             $table->unsignedSmallInteger('tenant_id');
             $table->foreign('tenant_id')->references('id')->on('public.tenants')->onUpdate('cascade')->onDelete('cascade');
@@ -38,7 +41,8 @@ return new class () extends Migration {
                 }
             }
 
-            $table->unsignedInteger('number_orphan_families')->default(0);
+            $table = $this->catalogueStats($table);
+
 
             $table->timestampsTz();
         });
@@ -47,6 +51,6 @@ return new class () extends Migration {
 
     public function down(): void
     {
-        Schema::dropIfExists('tenant_marketing_stats');
+        Schema::dropIfExists('tenant_market_stats');
     }
 };

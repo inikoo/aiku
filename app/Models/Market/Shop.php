@@ -7,7 +7,6 @@
 
 namespace App\Models\Market;
 
-use App\Actions\Tenancy\Tenant\HydrateTenant;
 use App\Enums\Market\Shop\ShopStateEnum;
 use App\Enums\Market\Shop\ShopSubtypeEnum;
 use App\Enums\Market\Shop\ShopTypeEnum;
@@ -149,28 +148,6 @@ class Shop extends Model
     public function getRouteKeyName(): string
     {
         return 'slug';
-    }
-
-    protected static function booted(): void
-    {
-        static::created(
-            function () {
-                HydrateTenant::make()->marketingStats();
-            }
-        );
-        static::deleted(
-            function () {
-                HydrateTenant::make()->marketingStats();
-            }
-        );
-
-        static::updated(function (Shop $shop) {
-            if (!$shop->wasRecentlyCreated) {
-                if ($shop->wasChanged(['type', 'subtype', 'state'])) {
-                    HydrateTenant::make()->marketingStats();
-                }
-            }
-        });
     }
 
     public function getSlugOptions(): SlugOptions

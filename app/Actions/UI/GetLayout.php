@@ -23,7 +23,7 @@ class GetLayout
     public function handle(User $user): array
     {
         //$tenant              = app('currentTenant');
-        //$shopCount           = $tenant->marketingStats->number_shops;
+        //$shopCount           = $tenant->marketStats->number_shops;
         //$currentShopInstance = null;
         //if ($shopCount == 1) {
         //    $currentShopInstance = Shop::first();
