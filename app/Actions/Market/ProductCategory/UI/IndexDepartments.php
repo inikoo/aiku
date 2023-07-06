@@ -27,8 +27,35 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexDepartments extends InertiaAction
 {
+    private Shop|ProductCategory|Tenant $parent;
+
+    public function authorize(ActionRequest $request): bool
+    {
+        $this->canEdit = $request->user()->can('shops.products.edit');
+
+        return
+            (
+                $request->user()->tokenCan('root') or
+                $request->user()->hasPermissionTo('shops.products.view')
+            );
+    }
+
+    public function inTenant(ActionRequest $request): LengthAwarePaginator
+    {
+        $this->initialisation($request);
+        $this->parent = app('currentTenant');
+        return $this->handle(parent: app('currentTenant'));
+    }
+
+    public function inShop(Shop $shop, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->initialisation($request);
+        $this->parent = $shop;
+        return $this->handle(parent: $shop);
+    }
+
     /** @noinspection PhpUndefinedMethodInspection */
-    public function handle(Shop|Tenant $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Shop|ProductCategory|Tenant $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -92,6 +119,26 @@ class IndexDepartments extends InertiaAction
                 ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
                 ->withEmptyState(
+                    match (class_basename($parent)) {
+                        'Tenant' => [
+                            'title'       => __("No departments found"),
+                            'description' => $this->canEdit && app('currentTenant')->marketStats->number_shops==0 ? __('Get started by creating a new shop. ✨')
+                                : __("In fact, is no even a shop yet 🤷🏽‍♂️"),
+                            'count'       => app('currentTenant')->marketStats->number_departments,
+                            'action'      => $this->canEdit && app('currentTenant')->marketStats->number_shops==0 ? [
+                                'type'    => 'button',
+                                'style'   => 'create',
+                                'tooltip' => __('new shop'),
+                                'label'   => __('shop'),
+                                'route'   => [
+                                    'name'       => 'shops.create',
+                                    'parameters' => array_values($this->originalParameters)
+                                ]
+                            ] : null
+                        ],
+                        default => null
+                    }
+                    /*
                     [
                         'title'       => __('no departments'),
                         'description' => $this->canEdit ? __('Get started by creating a new department.') : null,
@@ -107,35 +154,11 @@ class IndexDepartments extends InertiaAction
                             ]
                         ] : null
                     ]
+                    */
                 )
                 ->column(key: 'slug', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
         };
-    }
-
-    public function authorize(ActionRequest $request): bool
-    {
-        $this->canEdit = $request->user()->can('shops.products.edit');
-
-        return
-            (
-                $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo('shops.products.view')
-            );
-    }
-
-    public function inTenant(ActionRequest $request): LengthAwarePaginator
-    {
-        $this->initialisation($request);
-
-        return $this->handle(parent: app('currentTenant'));
-    }
-
-    public function inShop(Shop $shop, ActionRequest $request): LengthAwarePaginator
-    {
-        $this->initialisation($request);
-
-        return $this->handle(parent: $shop);
     }
 
     public function jsonResponse(LengthAwarePaginator $departments): AnonymousResourceCollection
@@ -143,10 +166,8 @@ class IndexDepartments extends InertiaAction
         return DepartmentResource::collection($departments);
     }
 
-
     public function htmlResponse(LengthAwarePaginator $departments, ActionRequest $request): Response
     {
-        $parent = $request->route()->parameters() == [] ? app('currentTenant') : last($request->route()->parameters());
 
         return Inertia::render(
             'Market/Departments',
@@ -157,7 +178,11 @@ class IndexDepartments extends InertiaAction
                 ),
                 'title'       => __('Departments'),
                 'pageHead'    => [
-                    'title'  => __('departments'),
+                    'title'   => __('departments'),
+                    'icon'    => [
+                        'icon'  => ['fal', 'fa-folder-tree'],
+                        'title' => __('department')
+                    ],
                     'actions'=> [
                         $this->canEdit && $this->routeName == 'shops.show.departments.index' ? [
                             'type'    => 'button',
@@ -173,9 +198,8 @@ class IndexDepartments extends InertiaAction
                 ],
                 'data'        => DepartmentResource::collection($departments),
             ]
-        )->table($this->tableStructure($parent));
+        )->table($this->tableStructure($this->parent));
     }
-
 
     public function getBreadcrumbs(string $routeName, array $routeParameters, string $suffix = null): array
     {

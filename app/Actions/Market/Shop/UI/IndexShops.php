@@ -28,13 +28,25 @@ use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
-/**
- * @property array $breadcrumbs
- * @property bool $canEdit
- * @property string $title
- */
 class IndexShops extends InertiaAction
 {
+    public function authorize(ActionRequest $request): bool
+    {
+        $this->canEdit = $request->user()->can('shops');
+
+        return
+            (
+                $request->user()->tokenCan('root') or
+                $request->user()->hasPermissionTo('shops.view')
+            );
+    }
+
+    public function asController(ActionRequest $request): LengthAwarePaginator
+    {
+        $this->initialisation($request)->withTab(ShopsTabsEnum::values());
+        return $this->handle();
+    }
+
     /** @noinspection PhpUndefinedMethodInspection */
     public function handle($prefix=null): LengthAwarePaginator
     {
@@ -83,9 +95,9 @@ class IndexShops extends InertiaAction
                 ->withModelOperations()
                 ->withEmptyState(
                     [
-                        'title'       => __('no shops'),
-                        'description' => $this->canEdit ? __('Get started by creating a new shop.') : null,
-                        'count'       => app('currentTenant')->stats->number_shops,
+                        'title'       => __('No shops found'),
+                        'description' => $this->canEdit ? __('Get started by creating a new shop. ✨') : null,
+                        'count'       => app('currentTenant')->marketStats->number_shops,
                         'action'      => $this->canEdit ? [
                             'type'    => 'button',
                             'style'   => 'create',
@@ -106,28 +118,10 @@ class IndexShops extends InertiaAction
         };
     }
 
-    public function authorize(ActionRequest $request): bool
-    {
-        $this->canEdit = $request->user()->can('shops');
-
-        return
-            (
-                $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo('shops.view')
-            );
-    }
-
-    public function asController(ActionRequest $request): LengthAwarePaginator
-    {
-        $this->initialisation($request)->withTab(ShopsTabsEnum::values());
-        return $this->handle();
-    }
-
     public function jsonResponse(): AnonymousResourceCollection
     {
         return ShopResource::collection($this->handle());
     }
-
 
     public function htmlResponse(LengthAwarePaginator $shops, ActionRequest $request): Response
     {
@@ -141,6 +135,10 @@ class IndexShops extends InertiaAction
                 'title'       => __('shops'),
                 'pageHead'    => [
                     'title'   => __('shops'),
+                    'icon'    => [
+                        'icon'  => ['fal', 'fa-store-alt'],
+                        'title' => __('shop')
+                    ],
                     'actions' => [
                         $this->canEdit && $this->routeName=='shops.index' ? [
                             'type'    => 'button',

@@ -14,7 +14,6 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
-
     use HasCatalogueStats;
 
     public function up(): void
@@ -42,7 +41,8 @@ return new class () extends Migration {
                 }
             }
 
-            $table->unsignedInteger('number_orphan_families')->default(0);
+            $table = $this->catalogueStats($table);
+
 
             $table->timestampsTz();
         });

@@ -12,7 +12,9 @@ use App\Actions\Market\Shop\UI\IndexShops;
 use App\Actions\Market\Shop\UI\ShowShop;
 use App\Http\Resources\Market\ProductResource;
 use App\Models\Market\Product;
+use App\Models\Market\ProductCategory;
 use App\Models\Market\Shop;
+use App\Models\Tenancy\Tenant;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -25,8 +27,35 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexProducts extends InertiaAction
 {
+    private Shop|ProductCategory|Tenant $parent;
+
+    public function authorize(ActionRequest $request): bool
+    {
+        $this->canEdit = $request->user()->can('shops.products.edit');
+
+        return
+            (
+                $request->user()->tokenCan('root') or
+                $request->user()->hasPermissionTo('shops.products.view')
+            );
+    }
+
+    public function inTenant(ActionRequest $request): LengthAwarePaginator
+    {
+        $this->initialisation($request);
+        $this->parent = app('currentTenant');
+        return $this->handle(app('currentTenant'));
+    }
+
+    public function inShop(Shop $shop, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->initialisation($request);
+        $this->parent = $shop;
+        return $this->handle($shop);
+    }
+
     /** @noinspection PhpUndefinedMethodInspection */
-    public function handle($parent, $prefix = null): LengthAwarePaginator
+    public function handle(Shop|ProductCategory|Tenant $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -39,7 +68,7 @@ class IndexProducts extends InertiaAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        $queryBuilder=QueryBuilder::for(Product::class);
+        $queryBuilder = QueryBuilder::for(Product::class);
         foreach ($this->elementGroups as $key => $elementGroup) {
             $queryBuilder->whereElementGroup(
                 prefix: $prefix,
@@ -75,10 +104,10 @@ class IndexProducts extends InertiaAction
             ->withQueryString();
     }
 
-    public function tableStructure($parent, ?array $modelOperations = null, $prefix=null): Closure
+    public function tableStructure(Shop|ProductCategory|Tenant $parent, ?array $modelOperations = null, $prefix = null): Closure
     {
         return function (InertiaTable $table) use ($parent, $modelOperations, $prefix) {
-            if($prefix) {
+            if ($prefix) {
                 $table
                     ->name($prefix)
                     ->pageName($prefix.'Page');
@@ -87,6 +116,27 @@ class IndexProducts extends InertiaAction
                 ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
                 ->withEmptyState(
+                    match (class_basename($parent)) {
+                        'Tenant' => [
+                            'title'       => __("No products found"),
+                            'description' => $this->canEdit && app('currentTenant')->marketStats->number_shops==0 ? __('Get started by creating a new shop. ✨')
+                                : __("In fact, is no even a shop yet 🤷🏽‍♂️"),
+                            'count'       => app('currentTenant')->marketStats->number_products,
+                            'action'      => $this->canEdit ? [
+                                'type'    => 'button',
+                                'style'   => 'create',
+                                'tooltip' => __('new shop'),
+                                'label'   => __('shop'),
+                                'route'   => [
+                                    'name'       => 'shops.create',
+                                    'parameters' => array_values($this->originalParameters)
+                                ]
+                            ] : null
+                        ],
+                        default => null
+                    }
+
+                    /*
                     [
                         'title'       => __('no products'),
                         'description' => $this->canEdit ? __('Get started by creating a new product.') : null,
@@ -101,34 +151,20 @@ class IndexProducts extends InertiaAction
                                 'parameters' => array_values($this->originalParameters)
                             ]
                         ] : null
-                    ]
+                    ]*/
                 )
                 ->column(key: 'slug', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
         };
     }
 
-    public function authorize(ActionRequest $request): bool
-    {
-        $this->canEdit = $request->user()->can('shops.products.edit');
-
-        return
-            (
-                $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo('shops.products.view')
-            );
-    }
-
-
     public function jsonResponse(LengthAwarePaginator $products): AnonymousResourceCollection
     {
         return ProductResource::collection($products);
     }
 
-
     public function htmlResponse(LengthAwarePaginator $products, ActionRequest $request): Response
     {
-        $parent = $request->route()->parameters() == [] ? app('currentTenant') : last($request->route()->parameters());
 
         return Inertia::render(
             'Market/Products',
@@ -144,7 +180,7 @@ class IndexProducts extends InertiaAction
                         'icon'  => ['fal', 'fa-cube'],
                         'title' => __('product')
                     ],
-                    'actions'=> [
+                    'actions' => [
                         $this->canEdit && $this->routeName == 'shops.show.products.index' ? [
                             'type'    => 'button',
                             'style'   => 'create',
@@ -161,25 +197,8 @@ class IndexProducts extends InertiaAction
 
 
             ]
-        )->table($this->tableStructure($parent));
+        )->table($this->tableStructure($this->parent));
     }
-
-
-    public function inTenant(ActionRequest $request): LengthAwarePaginator
-    {
-        $this->routeName = $request->route()->getName();
-        $this->initialisation($request);
-
-        return $this->handle(app('currentTenant'));
-    }
-
-    public function inShop(Shop $shop, ActionRequest $request): LengthAwarePaginator
-    {
-        $this->initialisation($request);
-
-        return $this->handle($shop);
-    }
-
 
     public function getBreadcrumbs(string $routeName, array $routeParameters, string $suffix = null): array
     {
@@ -196,6 +215,7 @@ class IndexProducts extends InertiaAction
                 ]
             ];
         };
+
         return match ($routeName) {
             'shops.show.products.index' =>
             array_merge(
@@ -211,7 +231,7 @@ class IndexProducts extends InertiaAction
 
             'shops.products.index' =>
             array_merge(
-                IndexShops::make()->getBreadcrumbs('shops', []),
+                IndexShops::make()->getBreadcrumbs(),
                 $headCrumb(
                     [
                         'name'       => $routeName,
