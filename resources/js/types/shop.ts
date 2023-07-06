@@ -8,10 +8,10 @@ export interface Shop {
     id:string,
     slug: string,
     state: string,
-    code: string
-    domain: string
-    name: string
-    created_at: string
-    updated_at: string
+    code: string,
+    domain: string,
+    name: string,
+    created_at: string,
+    updated_at: string,
 
 }

@@ -54,7 +54,7 @@ class IndexWarehouseAreas extends InertiaAction
             ->defaultSort('warehouse_areas.code')
             ->select(
                 [
-                    'warehouse_areas.code as code',
+                    'warehouse_areas.code',
                     'warehouse_areas.id',
                     'warehouse_areas.name',
                     'number_locations',
@@ -155,7 +155,10 @@ class IndexWarehouseAreas extends InertiaAction
                 'title'       => __('warehouse areas'),
                 'pageHead'    => [
                     'title'   => __('warehouse areas'),
-
+                    'icon'    => [
+                        'title' => __('warehouses areas'),
+                        'icon'  => 'fal fa-map-signs'
+                    ],
                     'create'  => $this->canEdit && $this->routeName == 'inventory.warehouses.show.warehouse-areas.index' ? [
                         'route'     => [
                             'name'       => 'inventory.warehouses.show.warehouse-areas.create',

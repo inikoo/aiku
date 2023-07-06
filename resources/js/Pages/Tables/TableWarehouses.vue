@@ -5,14 +5,14 @@
   -->
 
 <script setup lang="ts">
-const props = defineProps<{
-    data: object,
-    tab?: string
-}>()
 import {Link} from '@inertiajs/vue3';
 import Table from '@/Components/Table/Table.vue';
 import {Warehouse} from "@/types/warehouse";
 
+const props = defineProps<{
+    data: object,
+    tab?: string
+}>()
 
 function warehouseRoute(warehouse: Warehouse) {
     switch (route().current()) {

@@ -5,10 +5,12 @@
  */
 
 export interface Warehouse {
+    id: string,
     slug: string,
-    code: string
-    name: string
-    created_at: string
-    updated_at: string
+    code: string,
+    name: string,
+    settings: string,
+    created_at: string,
+    updated_at: string,
 
 }

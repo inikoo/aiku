@@ -23,19 +23,32 @@ class CreateWarehouseAreas extends InertiaAction
                 'title'            => __('Create warehouse areas'),
                 'documentName'     => 'inventory',
                 'pageHead'         => [
-                    'title'    => __('Create warehouse areas'),
-                    'exitEdit' => [
-                        'label' => __('Back'),
-                        'route' => [
-                            'name'       => 'inventory.warehouse-areas.index',
-                            'parameters' => array_values($this->originalParameters)
+                    'title'        => __('Create warehouse areas'),
+                    'actions'      => [
+                        [
+                            'type'  => 'button',
+                            'style' => 'cancel',
+                            'label' => __('cancel'),
+                            'route' => [
+                                'name'       => preg_replace('/create-multi$/', 'index', $request->route()->getName()),
+                                'parameters' => array_values($request->route()->originalParameters())
+                            ],
                         ],
-                    ],
-                    'clearMulti' => [
-                        'route' => [
-                            'name'       => 'shops.create-multi-clear',
-                            'parameters' => array_values($this->originalParameters)
-                        ],
+                        [
+                            'type'  => 'button',
+                            'style' => 'delete',
+                            'label' => __('clear'),
+                            'route' => match ($request->route()->getName()) {
+                                'inventory.warehouse-areas.index' => [
+                                    'name'       => 'inventory.warehouse-areas.create-multi-clear',
+                                    'parameters' => array_values($this->originalParameters)
+                                ],
+                                default => [
+                                    'name'       => 'inventory.warehouses.show.warehouse-areas.create-multi-clear',
+                                    'parameters' => array_values($this->originalParameters)
+                                ]
+                            }
+                        ]
                     ]
                 ],
                 'sheetData' => [
@@ -54,10 +67,10 @@ class CreateWarehouseAreas extends InertiaAction
                             'prop'           => 'name',
                             'required'       => true,
                         ],
-                    ],
+                    ]
                 ],
                 'saveRoute' => [
-                    'name' => 'models.shop.store-multi',
+                    'name' => 'models.warehouse-area.store-multi',
                 ]
             ]
         );
@@ -69,6 +82,7 @@ class CreateWarehouseAreas extends InertiaAction
     }
 
 
+    /** @noinspection PhpUnusedParameterInspection */
     public function asController(Warehouse $warehouse, ActionRequest $request): Response
     {
         $this->initialisation($request);

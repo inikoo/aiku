@@ -5,15 +5,14 @@
   -->
 
 <script setup lang="ts">
+import { Link } from "@inertiajs/vue3";
+import Table from "@/Components/Table/Table.vue";
+import { WarehouseArea } from "@/types/warehouse-area";
 
 const props = defineProps<{
     data: object,
     tab?: string
 }>()
-
-import { Link } from "@inertiajs/vue3";
-import Table from "@/Components/Table/Table.vue";
-import { WarehouseArea } from "@/types/warehouse-area";
 
 function warehouseAreaRoute(warehouseArea: WarehouseArea) {
 
@@ -25,7 +24,8 @@ function warehouseAreaRoute(warehouseArea: WarehouseArea) {
                 [
                     warehouseArea.warehouse_slug,
                     warehouseArea.slug
-                ]);
+                ]
+            );
         case "inventory.warehouse-areas.index":
         default:
             return route(
@@ -57,6 +57,7 @@ function locationsRoute(warehouseArea: WarehouseArea) {
 
 
 <template>
+
     <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(code)="{ item: warehouseArea }">
             <Link :href="warehouseAreaRoute(warehouseArea)">

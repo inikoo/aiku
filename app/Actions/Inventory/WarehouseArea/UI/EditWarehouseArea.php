@@ -58,6 +58,10 @@ class EditWarehouseArea extends InertiaAction
                     $request->route()->getName(),
                     $request->route()->parameters
                 ),
+                'navigation' => [
+                    'previous' => $this->getPrevious($warehouseArea, $request),
+                    'next'     => $this->getNext($warehouseArea, $request),
+                ],
                 'pageHead'    => [
                     'title'     => $warehouseArea->code,
                     'actions'   => [
@@ -90,9 +94,13 @@ class EditWarehouseArea extends InertiaAction
                         ]
 
                     ],
+                    'args' => [
+                        'updateRoute' => [
+                            'name'      => 'models.warehouse-area.update',
+                            'parameters'=> $warehouseArea->slug
 
-
-
+                        ],
+                    ]
                 ]
 
             ]
@@ -106,5 +114,57 @@ class EditWarehouseArea extends InertiaAction
             routeParameters: $routeParameters,
             suffix: '('.__('editing').')'
         );
+    }
+
+    public function getPrevious(WarehouseArea $warehouseArea, ActionRequest $request): ?array
+    {
+        $previous = WarehouseArea::where('code', '<', $warehouseArea->code)->when(true, function ($query) use ($warehouseArea, $request) {
+            if ($request->route()->getName() == 'inventory.warehouses.show.warehouse-areas.edit') {
+                $query->where('warehouse_id', $warehouseArea->warehouse_id);
+            }
+        })->orderBy('code', 'desc')->first();
+        return $this->getNavigation($previous, $request->route()->getName());
+    }
+
+    public function getNext(WarehouseArea $warehouseArea, ActionRequest $request): ?array
+    {
+        $next = WarehouseArea::where('code', '>', $warehouseArea->code)->when(true, function ($query) use ($warehouseArea, $request) {
+            if ($request->route()->getName() == 'inventory.warehouses.show.warehouse-areas.edit') {
+                $query->where('warehouse_id', $warehouseArea->warehouse->id);
+            }
+        })->orderBy('code')->first();
+
+        return $this->getNavigation($next, $request->route()->getName());
+    }
+
+    private function getNavigation(?WarehouseArea $warehouseArea, string $routeName): ?array
+    {
+        if (!$warehouseArea) {
+            return null;
+        }
+
+        return match ($routeName) {
+            'inventory.warehouse-areas.edit' => [
+                'label' => $warehouseArea->name,
+                'route' => [
+                    'name'       => $routeName,
+                    'parameters' => [
+                        'warehouseArea' => $warehouseArea->slug
+                    ]
+
+                ]
+            ],
+            'inventory.warehouses.show.warehouse-areas.edit' => [
+                'label' => $warehouseArea->name,
+                'route' => [
+                    'name'       => $routeName,
+                    'parameters' => [
+                        'warehouse'     => $warehouseArea->warehouse->slug,
+                        'warehouseArea' => $warehouseArea->slug
+                    ]
+
+                ]
+            ]
+        };
     }
 }

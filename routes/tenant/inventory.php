@@ -57,6 +57,7 @@ Route::get('/areas/{warehouseArea}', [ShowWarehouseArea::class, 'inTenant'])->na
 Route::get('/areas/{warehouseArea}/edit', [EditWarehouseArea::class, 'inTenant'])->name('warehouse-areas.edit');
 Route::get('/areas/{warehouseArea}/delete', [RemoveWarehouseArea::class, 'inTenant'])->name('warehouse-areas.remove');
 Route::get('/warehouses/{warehouse}/areas/create-multi', CreateWarehouseAreas::class)->name('warehouses.show.warehouse-areas.create-multi');
+Route::get('/warehouses/{warehouse}/areas/create-multi/clear', CreateWarehouseAreas::class)->name('warehouses.show.warehouse-areas.create-multi-clear');
 
 Route::get('/locations/export', ExportLocations::class)->name('locations.export');
 

@@ -39,6 +39,7 @@ class EditSupplier extends InertiaAction
     }
 
 
+    /** @noinspection PhpUnusedParameterInspection */
     public function inAgent(Agent $agent, Supplier $supplier, ActionRequest $request): Supplier
     {
         $this->initialisation($request);
@@ -50,7 +51,7 @@ class EditSupplier extends InertiaAction
         return Inertia::render(
             'EditModel',
             [
-                'title'       => __('edit marketplace supplier'),
+                'title'       => __('edit supplier'),
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
                     $request->route()->parameters
@@ -76,13 +77,13 @@ class EditSupplier extends InertiaAction
                 'formData'    => [
                     'blueprint' => [
                         [
-                            'title'  => __('ID/contact details'),
+                            'title'  => __('ID/contact details '),
                             'icon'   => 'fal fa-address-book',
                             'fields' => [
 
                                 'code'         => [
                                     'type'     => 'input',
-                                    'label'    => __('code'),
+                                    'label'    => __('code '),
                                     'value'    => $supplier->code,
                                     'required' => true,
                                 ],
@@ -231,7 +232,7 @@ class EditSupplier extends InertiaAction
                         */
 
                         [
-                            'title'  => __('settings'),
+                            'title'  => __('settings '),
                             'icon'   => 'fa-light fa-cog',
                             'fields' => [
                                 'currency_id' => [
@@ -295,7 +296,7 @@ class EditSupplier extends InertiaAction
     public function getNext(Supplier $supplier, ActionRequest $request): ?array
     {
         $next = Supplier::where('code', '>', $supplier->code)->when(true, function ($query) use ($supplier, $request) {
-            if ($request->route()->getName() == 'procurement.agents.show.suppliers.edit') {
+            if ($request->route()->getName() == 'procurement.agents.show.suppliers.show') {
                 $query->where('suppliers.agent_id', $supplier->agent_id);
             }
         })->orderBy('code')->first();

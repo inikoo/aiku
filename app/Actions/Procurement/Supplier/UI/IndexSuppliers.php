@@ -32,8 +32,8 @@ class IndexSuppliers extends InertiaAction
                 'status' => [
                     'label'    => __('status'),
                     'elements' => [
-                        'active'   => [__('active'), $parent->procurementStats->number_suppliers],
-                        'archived' => [__('archived'), $parent->procurementStats->number_archived_suppliers]
+                        'active'   => [__('active'), $parent->stats->number_suppliers],
+                        'archived' => [__('archived'), $parent->stats->number_archived_suppliers]
                     ],
 
                     'engine' => function ($query, $elements) {
@@ -78,12 +78,11 @@ class IndexSuppliers extends InertiaAction
             ->leftJoin('supplier_stats', 'supplier_stats.supplier_id', 'suppliers.id')
             ->when($parent, function ($query) use ($parent) {
                 if (class_basename($parent) == 'Agent') {
-                    $query->where('suppliers.owner_type', 'Agent');
+                    //                    $query->where('suppliers.owner_type', 'supplier');
                     $query->where('suppliers.owner_id', $parent->id);
                     $query->leftJoin('agents', 'suppliers.owner_id', 'agents.id');
                     $query->addSelect('agents.slug as agent_slug');
                     $query->addSelect('agents.name as agent_name');
-
                 } else {
                     $query ->leftJoin('supplier_tenant', 'suppliers.id', 'supplier_tenant.supplier_id');
                     $query->where('suppliers.owner_type', 'Tenant');

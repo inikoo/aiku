@@ -106,6 +106,7 @@ class InertiaTable
 
     protected function getQueryBuilderProps(): array
     {
+
         return [
             'defaultVisibleToggleableColumns' => $this->columns->reject->hidden->map->key->sort()->values(),
             'columns'                         => $this->transformColumns(),
@@ -277,6 +278,7 @@ class InertiaTable
 
     public function withModelOperations(array $modelOperations = null): self
     {
+
         $this->modelOperations = collect($modelOperations);
 
         return $this;
@@ -341,7 +343,6 @@ class InertiaTable
         $props = array_merge($response->getQueryBuilderProps(), [
             $this->name => $this->getQueryBuilderProps(),
         ]);
-
         return $response->with('queryBuilderProps', $props);
     }
 }

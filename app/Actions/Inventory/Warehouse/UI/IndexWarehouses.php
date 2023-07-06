@@ -136,7 +136,11 @@ class IndexWarehouses extends InertiaAction
                 'breadcrumbs' => $this->getBreadcrumbs(),
                 'title'       => __('warehouses'),
                 'pageHead'    => [
-                    'title'  => __('warehouses'),
+                    'title'   => __('warehouses'),
+                    'icon'    => [
+                        'title' => __('warehouses'),
+                        'icon'  => 'fal fa-warehouse'
+                    ],
                     'actions'=> [
                         $this->canEdit && $this->routeName == 'inventory.warehouses.index' ? [
                             'type'    => 'button',

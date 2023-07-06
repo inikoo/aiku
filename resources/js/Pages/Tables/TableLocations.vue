@@ -18,31 +18,21 @@ const props = defineProps<{
 function locationRoute(location: Location) {
     switch (route().current()) {
         case 'inventory.warehouses.show':
+        case 'inventory.warehouses.show.locations.index':
             return route(
                 'inventory.warehouses.show.locations.show',
                 [route().params['warehouse'], location.slug]);
         case 'inventory.warehouse-areas.show':
+        case 'inventory.warehouse-areas.locations.index':
             return route(
                 'inventory.warehouse-areas.show.locations.show',
                 [route().params['warehouseArea'], location.slug]);
 
         case 'inventory.warehouses.show.warehouse-areas.show':
-            return route(
-                'inventory.warehouses.show.warehouse-areas.show.locations.show',
-                [route().params['warehouse'],route().params['warehouseArea'], location.slug]);
-        case 'inventory.warehouses.show.locations.index':
-            return route(
-                'inventory.warehouses.show.locations.show',
-                [location.warehouse_slug, location.slug]);
-        case 'inventory.warehouse-areas.show.locations.index':
-            return route(
-                'inventory.warehouse-areas.show.locations.show',
-                [location.warehouse_area_slug, location.slug]);
         case 'inventory.warehouses.show.warehouse-areas.show.locations.index':
             return route(
                 'inventory.warehouses.show.warehouse-areas.show.locations.show',
-                [location.warehouse_slug, location.warehouse_area_slug, location.slug]
-            )
+                [route().params['warehouse'],route().params['warehouseArea'], location.slug]);
         default:
             return route(
                 'inventory.locations.show',

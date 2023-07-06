@@ -11,6 +11,8 @@ use App\Actions\InertiaAction;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\Inventory\WarehouseArea\UI\ShowWarehouseArea;
 use App\Actions\UI\Inventory\InventoryDashboard;
+use App\Enums\UI\WarehouseAreaTabsEnum;
+use App\Enums\UI\WarehouseTabsEnum;
 use App\Http\Resources\Inventory\LocationResource;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
@@ -103,10 +105,16 @@ class IndexLocations extends InertiaAction
                             'style'   => 'create',
                             'tooltip' => __('new location'),
                             'label'   => __('location'),
-                            'route'   => [
-                                'name'       => 'inventory.warehouses.show.locations.create',
-                                'parameters' => array_values($this->originalParameters)
-                            ]
+                            'route'   => match ($this->routeName) {
+                                'inventory.warehouses.show.locations.index' => [
+                                    'name'       => 'inventory.warehouses.show.locations.create',
+                                    'parameters' => array_values($this->originalParameters)
+                                ],
+                                default => [
+                                    'name'       => 'inventory.warehouses.show.warehouse-areas.show.locations.create',
+                                    'parameters' => array_values($this->originalParameters)
+                                ]
+                            }
                         ] : null
                     ]
                 )
@@ -117,6 +125,7 @@ class IndexLocations extends InertiaAction
 
     public function inTenant(ActionRequest $request): LengthAwarePaginator
     {
+        $this->routeName = $request->route()->getName();
         $this->initialisation($request);
 
         return $this->handle(parent: app('currentTenant'));
@@ -124,14 +133,16 @@ class IndexLocations extends InertiaAction
 
     public function inWarehouse(Warehouse $warehouse, ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisation($request);
+        $this->routeName = $request->route()->getName();
+        $this->initialisation($request)->withTab(WarehouseTabsEnum::values());
 
         return $this->handle(parent: $warehouse);
     }
 
     public function inWarehouseArea(WarehouseArea $warehouseArea, ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisation($request);
+        $this->routeName = $request->route()->getName();
+        $this->initialisation($request)->withTab(WarehouseAreaTabsEnum::values());
 
         return $this->handle(parent: $warehouseArea);
     }
@@ -140,7 +151,8 @@ class IndexLocations extends InertiaAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inWarehouseInWarehouseArea(Warehouse $warehouse, WarehouseArea $warehouseArea, ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisation($request);
+        $this->routeName = $request->route()->getName();
+        $this->initialisation($request)->withTab(WarehouseAreaTabsEnum::values());
 
         return $this->handle(parent: $warehouseArea);
     }
@@ -174,7 +186,11 @@ class IndexLocations extends InertiaAction
                 ),
                 'title'       => __('Locations'),
                 'pageHead'    => [
-                    'title'  => __('locations'),
+                    'title'   => __('locations'),
+                    'icon'    => [
+                        'title' => __('locations'),
+                        'icon'  => 'fal fa-inventory'
+                    ],
                     'actions'=> [
                         $this->canEdit
                         && (

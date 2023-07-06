@@ -23,15 +23,15 @@ const ModelChangelog = defineAsyncComponent(() => import('@/Pages/ModelChangelog
 library.add(faInventory, faWarehouse, faMapSigns, faChartLine);
 
 const props = defineProps<{
-    title: string,
-    pageHead: object,
+    pageHead: object
     tabs: {
         current: string;
         navigation: object;
-    },
+    }
+    title: string
+    dashboard?: object
     warehouse_areas?: object
-    locations?: object,
-    dashboard?: object,
+    locations?: object
     history: object
 
 }>()
@@ -57,6 +57,7 @@ const component = computed(() => {
 
 
 <template layout="App">
+    <!--suppress HtmlRequiredTitleElement -->
     <Head :title="capitalize(title)"/>
     <PageHeading :data="pageHead"></PageHeading>
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate"/>

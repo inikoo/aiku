@@ -119,15 +119,16 @@ const props = defineProps(
     const $inertia = app ? app.appContext.config.globalProperties.$inertia : props.inertia;
     const updates = ref(0);
 
-    const queryBuilderProps = computed(() => {
-        let data = $inertia.page.props.queryBuilderProps
-            ? $inertia.page.props.queryBuilderProps[props.name] || {}
-            : {};
+let queryBuilderProps;
+queryBuilderProps = computed(() => {
+    let data = $inertia.page.props.queryBuilderProps
+        ? $inertia.page.props.queryBuilderProps[props.name] || {}
+        : {};
 
-        data._updates = updates.value;
+    data._updates = updates.value;
 
-        return data;
-    });
+    return data;
+});
 
 
 const queryBuilderData = ref(queryBuilderProps.value);

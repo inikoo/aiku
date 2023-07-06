@@ -37,6 +37,8 @@ const getActionLabel = function(action) {
 
             case "delete":
                 return trans("delete")
+            case "clearMulti" :
+                return trans("clear")
             default:
                 return ""
         }

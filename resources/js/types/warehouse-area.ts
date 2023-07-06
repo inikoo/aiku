@@ -6,5 +6,11 @@
 
 export interface WarehouseArea {
     slug: string,
-    warehouse_slug: string
+    warehouse_slug: string,
+    code: string,
+    name: string,
+    unit_quantity: string,
+    value: string,
+    created_at: string,
+    updated_at: string,
 }

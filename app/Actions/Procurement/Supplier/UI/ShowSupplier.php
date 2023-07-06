@@ -39,7 +39,8 @@ class ShowSupplier extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('procurement.suppliers.edit');
+        $this->canEdit   = $request->user()->can('procurement.suppliers.edit');
+        $this->canDelete = $request->user()->can('procurement.suppliers.edit');
 
         return $request->user()->hasPermissionTo("procurement.view");
     }

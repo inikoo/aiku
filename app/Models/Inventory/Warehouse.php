@@ -11,6 +11,7 @@ use App\Models\Helpers\Issue;
 use App\Models\Search\UniversalSearch;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
+use Database\Factories\Inventory\WarehouseFactory;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -46,7 +47,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Inventory\WarehouseStats|null $stats
  * @property-read UniversalSearch|null $universalSearch
  * @property-read Collection<int, \App\Models\Inventory\WarehouseArea> $warehouseAreas
- * @method static \Database\Factories\Inventory\WarehouseFactory factory($count = null, $state = [])
+ * @method static WarehouseFactory factory($count = null, $state = [])
  * @method static Builder|Warehouse newModelQuery()
  * @method static Builder|Warehouse newQuery()
  * @method static Builder|Warehouse onlyTrashed()

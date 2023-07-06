@@ -132,7 +132,7 @@ class RemoveLocation extends InertiaAction
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
         return ShowWarehouseArea::make()->getBreadcrumbs(
-            $routeName,
+            routeName: preg_replace('/remove$/', 'show', $routeName),
             routeParameters: $routeParameters,
             suffix: '('.__('deleting').')'
         );

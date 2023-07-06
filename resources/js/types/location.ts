@@ -9,4 +9,8 @@ export interface Location {
     warehouse_area_slug: string,
     warehouse_slug: string
     code: string
+    status: string
+    stock_value: string
+    created_at: string
+    updated_at: string
 }

@@ -31,13 +31,17 @@ class EditWarehouse extends InertiaAction
         return $this->handle($warehouse);
     }
 
-    public function htmlResponse(Warehouse $warehouse): Response
+    public function htmlResponse(Warehouse $warehouse, ActionRequest $request): Response
     {
         return Inertia::render(
             'EditModel',
             [
-                'title'       => __('edit warehouse'),
-                'breadcrumbs' => $this->getBreadcrumbs($warehouse),
+                'title'                            => __('edit warehouse'),
+                'breadcrumbs'                      => $this->getBreadcrumbs($warehouse),
+                'navigation'                       => [
+                    'previous' => $this->getPrevious($warehouse, $request),
+                    'next'     => $this->getNext($warehouse, $request),
+                ],
                 'pageHead'    => [
                     'title'     => $warehouse->code,
                     'actions'   => [
@@ -83,10 +87,42 @@ class EditWarehouse extends InertiaAction
         );
     }
 
-
-
     public function getBreadcrumbs(Warehouse $warehouse): array
     {
         return ShowWarehouse::make()->getBreadcrumbs(warehouse:$warehouse, suffix: '('.__('editing').')');
+    }
+
+    public function getPrevious(Warehouse $warehouse, ActionRequest $request): ?array
+    {
+        $previous = Warehouse::where('code', '<', $warehouse->code)->orderBy('code', 'desc')->first();
+
+        return $this->getNavigation($previous, $request->route()->getName());
+    }
+
+    public function getNext(Warehouse $warehouse, ActionRequest $request): ?array
+    {
+        $next = Warehouse::where('code', '>', $warehouse->code)->orderBy('code')->first();
+
+        return $this->getNavigation($next, $request->route()->getName());
+    }
+
+    private function getNavigation(?Warehouse $warehouse, string $routeName): ?array
+    {
+        if (!$warehouse) {
+            return null;
+        }
+
+        return match ($routeName) {
+            'inventory.warehouses.edit' => [
+                'label' => $warehouse->name,
+                'route' => [
+                    'name'       => $routeName,
+                    'parameters' => [
+                        'warehouse' => $warehouse->slug
+                    ]
+
+                ]
+            ]
+        };
     }
 }

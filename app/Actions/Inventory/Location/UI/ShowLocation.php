@@ -8,7 +8,6 @@
 namespace App\Actions\Inventory\Location\UI;
 
 use App\Actions\Helpers\History\IndexHistories;
-use App\Actions\HumanResources\ClockingMachine\UI\ShowClockingMachine;
 use App\Actions\InertiaAction;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\Inventory\WarehouseArea\UI\ShowWarehouseArea;
@@ -23,9 +22,6 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-/**
- * @property Location $clocking
- */
 class ShowLocation extends InertiaAction
 {
     public function handle(Location $location): Location
@@ -42,21 +38,21 @@ class ShowLocation extends InertiaAction
 
     public function inTenant(Location $location, ActionRequest $request): Location
     {
-        $this->initialisation($request)->withTab(LocationTabsEnum::values());
+        $this->initialisation($request);
         return $this->handle($location);
     }
 
     /** @noinspection PhpUnusedParameterInspection */
     public function inWarehouse(Warehouse $warehouse, Location $location, ActionRequest $request): Location
     {
-        $this->initialisation($request)->withTab(LocationTabsEnum::values());
+        $this->initialisation($request);
         return $this->handle($location);
     }
 
     /** @noinspection PhpUnusedParameterInspection */
     public function inWarehouseArea(WarehouseArea $warehouseArea, Location $location, ActionRequest $request): Location
     {
-        $this->initialisation($request)->withTab(LocationTabsEnum::values());
+        $this->initialisation($request);
         return $this->handle($location);
     }
 
@@ -64,12 +60,13 @@ class ShowLocation extends InertiaAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inWarehouseInWarehouseArea(Warehouse $warehouse, WarehouseArea $warehouseArea, Location $location, ActionRequest $request): Location
     {
-        $this->initialisation($request)->withTab(LocationTabsEnum::values());
+        $this->initialisation($request);
         return $this->handle($location);
     }
 
     public function htmlResponse(Location $location, ActionRequest $request): Response
     {
+
         return Inertia::render(
             'Inventory/Location',
             [
@@ -83,11 +80,10 @@ class ShowLocation extends InertiaAction
                     'next'     => $this->getNext($location, $request),
                 ],
                 'pageHead'    => [
-                    'icon'  =>
-                        [
-                            'icon'  => ['fal', 'fa-inventory'],
-                            'title' => __('location')
-                        ],
+                    'icon'    => [
+                        'title' => __('locations'),
+                        'icon'  => 'fal fa-inventory'
+                    ],
                     'title'   => $location->slug,
                     'actions' => [
                         $this->canEdit ? [
@@ -242,8 +238,8 @@ class ShowLocation extends InertiaAction
                 ),
             ),
             'inventory.warehouses.show.warehouse-areas.show.locations.show' => array_merge(
-                (new ShowClockingMachine())->getBreadcrumbs(
-                    'inventory.warehouse-areas.show.warehouse-areas.show',
+                (new ShowWarehouseArea())->getBreadcrumbs(
+                    'inventory.warehouses.show.warehouse-areas.show',
                     [
                         'warehouse'     => $routeParameters['warehouse'],
                         'warehouseArea' => $routeParameters['warehouseArea'],
@@ -260,7 +256,7 @@ class ShowLocation extends InertiaAction
                             ]
                         ],
                         'model' => [
-                            'name'       => 'inventory.warehouse-areas.show.warehouse-areas.show.locations.show',
+                            'name'       => 'inventory.warehouses.show.warehouse-areas.show.locations.show',
                             'parameters' => [
                                 $routeParameters['warehouse']->slug,
                                 $routeParameters['warehouseArea']->slug,

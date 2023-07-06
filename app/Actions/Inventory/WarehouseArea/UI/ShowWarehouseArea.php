@@ -139,34 +139,41 @@ class ShowWarehouseArea extends InertiaAction
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistories::run($warehouseArea)))
 
             ]
-        )->table(IndexLocations::make()->tableStructure(
-            /* modelOperations: [
-                'createLink' => $this->canEdit ? [
+        )->table(
+            IndexLocations::make()->tableStructure(
+                /* modelOperations: [
+                   'createLink' => $this->canEdit ? [
+                       match ($request->route()->getName()) {
+                           'inventory.warehouses.show.warehouse-areas.show' =>
+                           [
+                               'route' => [
+                                   'name' => 'inventory.warehouses.show.warehouse-areas.show.locations.create',
+                                   'parameters' => array_values([$warehouseArea->slug])
+                               ]
+                           ],
+                           'inventory.warehouses.show' =>
+                           [
+                               'route' => [
+                                   'name' => 'inventory.warehouses.show.locations.create',
+                                   'parameters' => array_values([$warehouseArea->warehouse->slug])
+                               ]
+                           ],
 
-                    match ($request->route()->getName()) {
-                        'inventory.warehouses.show.warehouse-areas.show' =>
-                        [
-                            'route' => [
-                                'name' => 'inventory.warehouses.show.warehouse-areas.show.locations.create',
-                                'parameters' => array_values($this->originalParameters)
-                            ]
-                        ],
-
-                        default =>
-                        [
-                            'route' => [
-                                'name' => 'inventory.warehouse-areas.show.locations.create',
-                                'parameters' => array_values($this->originalParameters)
-                            ]
-                        ],
-                    },
-
-
-                    'label' => __('location')
-                ] : false,
-            ],
-            prefix: 'locations' */
-        ))->table(IndexHistories::make()->tableStructure());
+                           default =>
+                           [
+                               'route' => [
+                                   'name' => 'inventory.warehouse-areas.show.locations.create',
+                                   'parameters' => array_values([$warehouseArea->slug])
+                               ]
+                           ],
+                       },
+                       'label' => __('location'),
+                       'style' => 'create'
+                   ] : false
+                ],
+                prefix: 'locations' */
+            )
+        )->table(IndexHistories::make()->tableStructure());
     }
 
 
@@ -177,6 +184,7 @@ class ShowWarehouseArea extends InertiaAction
 
     public function getBreadcrumbs(string $routeName, array $routeParameters, $suffix = null): array
     {
+
         $headCrumb = function (WarehouseArea $warehouseArea, array $routeParameters, $suffix) {
             return [
                 [
@@ -247,14 +255,21 @@ class ShowWarehouseArea extends InertiaAction
 
     public function getPrevious(WarehouseArea $warehouseArea, ActionRequest $request): ?array
     {
-        $previous = WarehouseArea::where('code', '<', $warehouseArea->code)->orderBy('code', 'desc')->first();
-
+        $previous = WarehouseArea::where('code', '<', $warehouseArea->code)->when(true, function ($query) use ($warehouseArea, $request) {
+            if ($request->route()->getName() == 'inventory.warehouses.show.warehouse-areas.show') {
+                $query->where('warehouse_id', $warehouseArea->warehouse_id);
+            }
+        })->orderBy('code', 'desc')->first();
         return $this->getNavigation($previous, $request->route()->getName());
     }
 
     public function getNext(WarehouseArea $warehouseArea, ActionRequest $request): ?array
     {
-        $next = WarehouseArea::where('code', '>', $warehouseArea->code)->orderBy('code')->first();
+        $next = WarehouseArea::where('code', '>', $warehouseArea->code)->when(true, function ($query) use ($warehouseArea, $request) {
+            if ($request->route()->getName() == 'inventory.warehouses.show.warehouse-areas.show') {
+                $query->where('warehouse_id', $warehouseArea->warehouse->id);
+            }
+        })->orderBy('code')->first();
 
         return $this->getNavigation($next, $request->route()->getName());
     }
