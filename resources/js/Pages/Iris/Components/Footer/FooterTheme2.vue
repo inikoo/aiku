@@ -22,6 +22,7 @@ import { ref } from 'vue'
 import TitleItem from '../Fields/Input.vue'
 import TextArea from '../Fields/TextArea.vue'
 import HyperLink from '../Fields/Hyperlink.vue'
+import IconPicker from '../Fields/IconPicker/Vue3IconPicker.vue';
 library.add(faFacebook, faInstagram, faTwitter, faGithub, faYoutube, faMapMarkerAlt, faEnvelope, faBalanceScale, faBuilding, faPhone, faMap)
 
 const props = defineProps<{
@@ -48,7 +49,9 @@ const childLog = (a, b, c) => {
 
 <template>
     <footer class="bg-gray-50 px-6" aria-labelledby="footer-heading">
+   
         <h2 id="footer-heading" class="sr-only">Footer</h2>
+      
         <div class="mx-auto max-w-7xl px-6 pb-8 pt-20 sm:pt-24 lg:px-8 lg:pt-12">
             <div class="xl:grid xl:gap-x-24 xl:px-6">
                 <!-- Navigations -->
@@ -94,7 +97,7 @@ const childLog = (a, b, c) => {
                                 </div>
                             </div>
 
-
+                    
                         </div>
                     </template>
                 </draggable>
@@ -116,5 +119,7 @@ const childLog = (a, b, c) => {
                 </p>
             </div>
         </div>
+
+        <IconPicker />
     </footer>
 </template>
