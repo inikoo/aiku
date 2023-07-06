@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import Combobox from '@/Components/Forms/Fields/Combobox.vue'
-import PrimitiveInput from '@/Components/Elements/Fields/PrimitiveInput.vue'
+import Input from '@/Components/Forms/Fields/Input.vue'
 const props = defineProps<{
     form: any,
     fieldName: string,
@@ -61,7 +61,7 @@ const loadOptions = (query, setOptions) => {
 
         <!-- Conditional: Input-Combobox -->
         <div v-if="userType == 'New User'" class="relative">
-            <PrimitiveInput v-model="form[fieldName]" :showStats="false" type="text" :form="form" :fieldName="fieldName" :placeholder="fieldData.placeholder"/>
+            <Input :form="form" :fieldName="fieldName" :fieldData="fieldData"/>
         </div>
         <div v-else>
             <Combobox v-model="comboboxValue" :form="form" :fieldName="fieldName" :loadOptions="loadOptions" :fieldData="fieldData" />
