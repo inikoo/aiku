@@ -8,8 +8,7 @@
 namespace App\Actions\CRM\Prospect;
 
 use App\Actions\InertiaAction;
-use App\Actions\Market\Shop\UI\ShowShop;
-use App\Actions\UI\Dashboard\Dashboard;
+use App\Actions\UI\CRM\CRMDashboard;
 use App\Http\Resources\Lead\ProspectResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\CRM\Prospect;
@@ -18,6 +17,7 @@ use App\Models\Tenancy\Tenant;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -26,7 +26,39 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexProspects extends InertiaAction
 {
-    public function handle(Shop|Tenant $parent, $prefix=null): LengthAwarePaginator
+    private Shop|Tenant $parent;
+    private bool $canCreateShop = false;
+
+
+    public function authorize(ActionRequest $request): bool
+    {
+        $this->canEdit       = $request->user()->can('crm.customers.edit');
+        $this->canCreateShop = $request->user()->can('shops.edit');
+
+        return
+            (
+                $request->user()->tokenCan('root') or
+                $request->user()->hasPermissionTo('crm.customers.view')
+            );
+    }
+
+    public function inTenant(ActionRequest $request): LengthAwarePaginator
+    {
+        $this->initialisation($request);
+        $this->parent = app('currentTenant');
+
+        return $this->handle(app('currentTenant'));
+    }
+
+    public function inShop(Shop $shop, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->initialisation($request);
+        $this->parent = $shop;
+
+        return $this->handle($shop);
+    }
+
+    public function handle(Shop|Tenant $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -66,41 +98,76 @@ class IndexProspects extends InertiaAction
             ->withQueryString();
     }
 
-    public function tableStructure($parent, $prefix=null): Closure
+    public function tableStructure($parent, ?array $modelOperations = null, $prefix = null): Closure
     {
-        return function (InertiaTable $table) use ($parent, $prefix) {
-
+        return function (InertiaTable $table) use ($parent, $modelOperations, $prefix) {
             if ($prefix) {
                 $table
                     ->name($prefix)
                     ->pageName($prefix.'Page');
             }
-
-            $table->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
+            $table
+                ->withModelOperations($modelOperations)
+                ->withGlobalSearch()
+                ->withEmptyState(
+                    match (class_basename($parent)) {
+                        'Tenant' => [
+                            'title'       => __("No prospects found"),
+                            'description' => $this->canCreateShop && $parent->marketStats->number_shops == 0 ? __('Get started by creating a shop. ✨')
+                                : __("In fact, is no even a shop yet 🤷🏽‍♂️"),
+                            'count'       => $parent->crmStats->number_prospects,
+                            'action'      => $this->canCreateShop && $parent->marketStats->number_shops == 0 ? [
+                                'type'    => 'button',
+                                'style'   => 'create',
+                                'tooltip' => __('new shop'),
+                                'label'   => __('shop'),
+                                'route'   => [
+                                    'name' => 'shops.create',
+                                ]
+                            ] : null
+                        ],
+                    }
+                    /*
+                    [
+                        'title'       => __('no customers'),
+                        'description' => $this->canEdit ? __('Get started by creating a new customer.') : null,
+                        'count'       => app('currentTenant')->stats->number_employees,
+                        'action'      => $this->canEdit ? [
+                            'type'    => 'button',
+                            'style'   => 'create',
+                            'tooltip' => __('new customer'),
+                            'label'   => __('customer'),
+                            'route'   => [
+                                'name'       => 'crm.customers.create',
+                                'parameters' => array_values($this->originalParameters)
+                            ]
+                        ] : null
+                    ]
+                    */
+                )
+                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'email', label: __('email'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'phone', label: __('phone'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'website', label: __('website'), canBeHidden: false, sortable: true, searchable: true);
         };
     }
-    public function authorize(ActionRequest $request): bool
-    {
-        return
-            (
-                $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo('crm.customers.view')
-            );
-    }
-
 
     public function jsonResponse(LengthAwarePaginator $prospects): AnonymousResourceCollection
     {
         return ProspectResource::collection($prospects);
     }
 
-
     public function htmlResponse(LengthAwarePaginator $prospects, ActionRequest $request): Response
     {
-        $parent = $request->route()->parameters() == [] ? app('currentTenant') : last($request->route()->parameters());
+        $scope     = $this->parent;
+        $container = null;
+        if (class_basename($scope) == 'Shop') {
+            $container = [
+                'icon'    => ['fal', 'fa-store-alt'],
+                'tooltip' => __('Shop'),
+                'label'   => Str::possessive($scope->name)
+            ];
+        }
 
         return Inertia::render(
             'CRM/Prospects',
@@ -111,28 +178,18 @@ class IndexProspects extends InertiaAction
                 ),
                 'title'       => __('prospects'),
                 'pageHead'    => [
-                    'title'   => __('prospects'),
+                    'title'     => __('prospects'),
+                    'container' => $container,
+                    'iconRight' => [
+                        'icon'  => ['fal', 'fa-user-plus'],
+                        'title' => __('prospect')
+                    ]
                 ],
-                'prospects' => ProspectResource::collection($prospects),
+                'data'        => ProspectResource::collection($prospects),
 
 
             ]
-        )->table($this->tableStructure($parent));
-    }
-
-
-    public function asController(ActionRequest $request): LengthAwarePaginator
-    {
-        $this->routeName = $request->route()->getName();
-        $this->initialisation($request);
-        return $this->handle(app('currentTenant'));
-    }
-
-    public function inShop(Shop $shop, ActionRequest $request): LengthAwarePaginator
-    {
-        $this->initialisation($request);
-
-        return $this->handle($shop);
+        )->table($this->tableStructure($this->parent));
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
@@ -151,25 +208,28 @@ class IndexProspects extends InertiaAction
         };
 
         return match ($routeName) {
-            'prospects.index' =>
+            'crm.prospects.index' =>
             array_merge(
-                Dashboard::make()->getBreadcrumbs(),
+                (new CRMDashboard())->getBreadcrumbs(
+                    'crm.dashboard',
+                    $routeParameters
+                ),
                 $headCrumb(
                     [
-                        'name' => 'prospects.index',
+                        'name' => 'crm.prospects.index',
                     ]
                 ),
             ),
-            'shops.show.prospects.index' =>
+            'crm.shops.show.prospects.index' =>
             array_merge(
-                (new ShowShop())->getBreadcrumbs($routeParameters),
+                (new CRMDashboard())->getBreadcrumbs(
+                    'crm.shops.show.dashboard',
+                    $routeParameters
+                ),
                 $headCrumb(
                     [
-                        'name'      => 'shops.show.prospects.index',
-                        'parameters'=>
-                            [
-                                $routeParameters['shop']->slug
-                            ]
+                        'name'       => 'crm.shops.show.prospects.index',
+                        'parameters' => $routeParameters
                     ]
                 )
             ),

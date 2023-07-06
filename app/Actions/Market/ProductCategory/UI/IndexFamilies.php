@@ -121,7 +121,7 @@ class IndexFamilies extends InertiaAction
                     match (class_basename($parent)) {
                         'Tenant' => [
                             'title'       => __("No families found"),
-                            'description' => $this->canEdit && $parent->marketStats->number_shops == 0 ? __('Get started by creating a new shop. ✨')
+                            'description' => $this->canEdit && $parent->marketStats->number_shops == 0 ? __('Get started by creating a shop. ✨')
                                 : __("In fact, is no even a shop yet 🤷🏽‍♂️"),
                             'count'       => $parent->marketStats->number_families,
                             'action'      => $this->canEdit ? [

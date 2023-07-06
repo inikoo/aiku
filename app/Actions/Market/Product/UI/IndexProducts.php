@@ -25,6 +25,32 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexProducts extends InertiaAction
 {
+    public function authorize(ActionRequest $request): bool
+    {
+        $this->canEdit = $request->user()->can('shops.products.edit');
+
+        return
+            (
+                $request->user()->tokenCan('root') or
+                $request->user()->hasPermissionTo('shops.products.view')
+            );
+    }
+
+    public function inTenant(ActionRequest $request): LengthAwarePaginator
+    {
+        $this->routeName = $request->route()->getName();
+        $this->initialisation($request);
+
+        return $this->handle(app('currentTenant'));
+    }
+
+    public function inShop(Shop $shop, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->initialisation($request);
+
+        return $this->handle($shop);
+    }
+
     /** @noinspection PhpUndefinedMethodInspection */
     public function handle($parent, $prefix = null): LengthAwarePaginator
     {
@@ -108,23 +134,10 @@ class IndexProducts extends InertiaAction
         };
     }
 
-    public function authorize(ActionRequest $request): bool
-    {
-        $this->canEdit = $request->user()->can('shops.products.edit');
-
-        return
-            (
-                $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo('shops.products.view')
-            );
-    }
-
-
     public function jsonResponse(LengthAwarePaginator $products): AnonymousResourceCollection
     {
         return ProductResource::collection($products);
     }
-
 
     public function htmlResponse(LengthAwarePaginator $products, ActionRequest $request): Response
     {
@@ -163,23 +176,6 @@ class IndexProducts extends InertiaAction
             ]
         )->table($this->tableStructure($parent));
     }
-
-
-    public function inTenant(ActionRequest $request): LengthAwarePaginator
-    {
-        $this->routeName = $request->route()->getName();
-        $this->initialisation($request);
-
-        return $this->handle(app('currentTenant'));
-    }
-
-    public function inShop(Shop $shop, ActionRequest $request): LengthAwarePaginator
-    {
-        $this->initialisation($request);
-
-        return $this->handle($shop);
-    }
-
 
     public function getBreadcrumbs(string $routeName, array $routeParameters, string $suffix = null): array
     {

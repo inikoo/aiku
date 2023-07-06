@@ -9,6 +9,7 @@ namespace App\Stubs\Migrations;
 
 use App\Enums\CRM\Customer\CustomerStateEnum;
 use App\Enums\CRM\Customer\CustomerTradeStateEnum;
+use App\Enums\CRM\Prospect\ProspectStateEnum;
 use App\Enums\OMS\Order\OrderStateEnum;
 use Illuminate\Database\Schema\Blueprint;
 
@@ -26,6 +27,11 @@ trait HasCRMStats
             $table->unsignedInteger('number_customers_trade_state_'.$tradeState->snake())->default(0);
         }
 
+        $table->unsignedInteger('number_prospects')->default(0);
+
+        foreach (ProspectStateEnum::cases() as $prospectState) {
+            $table->unsignedInteger("number_prospects_state_{$prospectState->snake()}")->default(0);
+        }
 
 
         $table->unsignedInteger('number_orders')->default(0);

@@ -46,7 +46,6 @@ class IndexDepartments extends InertiaAction
     {
         $this->initialisation($request);
         $this->parent = app('currentTenant');
-
         return $this->handle(parent: app('currentTenant'));
     }
 
@@ -54,7 +53,6 @@ class IndexDepartments extends InertiaAction
     {
         $this->initialisation($request);
         $this->parent = $shop;
-
         return $this->handle(parent: $shop);
     }
 
@@ -126,7 +124,7 @@ class IndexDepartments extends InertiaAction
                     match (class_basename($parent)) {
                         'Tenant' => [
                             'title'       => __("No departments found"),
-                            'description' => $this->canEdit && $parent->marketStats->number_shops == 0 ? __('Get started by creating a new shop. ✨')
+                            'description' => $this->canEdit && $parent->marketStats->number_shops == 0 ? __('Get started by creating a shop. ✨')
                                 : __("In fact, is no even a shop yet 🤷🏽‍♂️"),
                             'count'       => $parent->marketStats->number_departments,
                             'action'      => $this->canEdit && $parent->marketStats->number_shops == 0 ? [

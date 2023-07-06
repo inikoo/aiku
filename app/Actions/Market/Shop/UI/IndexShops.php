@@ -96,7 +96,7 @@ class IndexShops extends InertiaAction
                 ->withEmptyState(
                     [
                         'title'       => __('No shops found'),
-                        'description' => $this->canEdit ? __('Get started by creating a new shop. ✨') : null,
+                        'description' => $this->canEdit ? __('Get started by creating a shop. ✨') : null,
                         'count'       => app('currentTenant')->marketStats->number_shops,
                         'action'      => $this->canEdit ? [
                             'type'    => 'button',
