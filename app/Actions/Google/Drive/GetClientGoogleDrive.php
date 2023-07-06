@@ -20,34 +20,31 @@ class GetClientGoogleDrive
      */
     public function handle(): Google_Service_Drive
     {
-        $tokenPath = 'resources/private/google/client_secret.json';
-
-        $client = new Google_Client();
-        $client->setApplicationName('Aiku google drive manager');
-        $client->setAuthConfig($tokenPath);
-        $client->setAccessType('offline');
-        $client->setAccessToken('');
-        $client->addScope([
-            Google_Service_Drive::DRIVE_FILE,
-            Google_Service_Drive::DRIVE
-        ]);
+        $client = $this->getClient('resources/private/google/'.request()->user()->username.'-token.json');
 
         return new Google_Service_Drive($client);
     }
 
+    /**
+     * @throws \Google\Exception
+     */
     public function getClient($tokenPath): Google_Client
     {
+        $configPath = 'resources/private/google/client_secret.json';
         $client = new Google_Client();
-        $client->setApplicationName('Aurora google drive manager');
+
+        $client->setApplicationName('Aiku google drive manager');
+
+        $client->setAuthConfig($configPath);
+        $client->setAccessType('offline');
+        $client->setRedirectUri('http://localhost:5173');
         $client->setScopes(
             [
-                Google_Service_Drive::DRIVE_METADATA_READONLY,
-                Google_Service_Drive::DRIVE_FILE
+                Google_Service_Drive::DRIVE_METADATA,
+                Google_Service_Drive::DRIVE_FILE,
+                Google_Service_Drive::DRIVE
             ]
         );
-
-        $client->setAccessType('offline');
-        $client->setPrompt('select_account consent');
 
         if (file_exists($tokenPath)) {
             $accessToken = json_decode(file_get_contents($tokenPath), true);

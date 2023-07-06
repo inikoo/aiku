@@ -33,7 +33,7 @@ class PublishNotification
             }
 
             if(in_array('mail', $target)) {
-                SendEmailAddress::run($content, $user->email);
+//                SendEmailAddress::run($content, $user->email);
             }
         }
     }

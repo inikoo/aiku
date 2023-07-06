@@ -27,7 +27,8 @@ class UploadFileGoogleDrive
         $name = 'test.png';
         $fileMetadata = new Google_Service_Drive_DriveFile(
             array(
-                'name' => $name
+                'name' => $name,
+                'parents' => [$base_folder_key]
             )
         );
 
@@ -49,6 +50,6 @@ class UploadFileGoogleDrive
      */
     public function asCommand(Command $command): string
     {
-        return $this->handle('base', $command->argument('filename'));
+        return $this->handle('1xI006sc3zzTpl-hgqVO8hUthN-c0nNzt', $command->argument('filename'));
     }
 }
