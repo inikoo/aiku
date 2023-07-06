@@ -51,15 +51,17 @@ class EditMarketplaceAgent extends InertiaAction
                     'next'     => $this->getNext($agent, $request),
                 ],
                 'pageHead'    => [
-                    'title'    => $agent->code,
-                    'exitEdit' => [
-                        'route' => [
-                            'name'       => preg_replace('/edit$/', 'show', $this->routeName),
-                            'parameters' => array_values($this->originalParameters)
+                    'title'     => $agent->code,
+                    'actions'   => [
+                        [
+                            'type'  => 'button',
+                            'style' => 'exitEdit',
+                            'route' => [
+                                'name'       => preg_replace('/edit$/', 'show', $this->routeName),
+                                'parameters' => array_values($this->originalParameters)
+                            ]
                         ]
-                    ],
-
-
+                    ]
                 ],
 
                 'formData' => [

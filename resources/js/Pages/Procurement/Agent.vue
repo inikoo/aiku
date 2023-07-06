@@ -14,7 +14,7 @@ import {
     faTerminal,
     faPeopleArrows,
     faClipboard, faTruck, faCameraRetro,
-    faPersonDolly
+    faPersonDolly,faAddressBook
 } from "@/../private/pro-light-svg-icons";
 import Tabs from "@/Components/Navigation/Tabs.vue";
 import {computed, defineAsyncComponent, ref} from "vue";
@@ -55,6 +55,7 @@ library.add(
     faCameraRetro,
     faClipboard,
     faPeopleArrows,
+    faAddressBook
 );
 
 let currentTab = ref(props.tabs.current);
@@ -94,9 +95,11 @@ const getErrors = () => {
 </script>
 
 <template layout="App">
+    <!--suppress HtmlRequiredTitleElement -->
     <Head :title="capitalize(title)" />
     <!-- {{ typeof props.errors.purchase_orders }} -->
     <PageHeading :data="pageHead"></PageHeading>
+    <!--suppress TypeScriptUnresolvedReference -->
     <div v-if="props.errors.purchase_order">{{ getErrors() }}</div>
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate"/>
     <component :is="component" :data="props[currentTab]"></component>

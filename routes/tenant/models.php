@@ -61,6 +61,7 @@ use App\Actions\Market\Shop\StoreShops;
 use App\Actions\Market\Shop\UpdateShop;
 use App\Actions\OMS\Order\StoreOrder;
 use App\Actions\OMS\Order\UpdateOrder;
+use App\Actions\Procurement\Agent\DeleteAgent;
 use App\Actions\Procurement\Agent\UpdateAgent;
 use App\Actions\Procurement\Marketplace\Agent\DeleteMarketplaceAgent;
 use App\Actions\Procurement\Marketplace\Agent\StoreMarketplaceAgent;
@@ -171,6 +172,7 @@ Route::patch('/stock-family/{stockFamily:slug}', UpdateStockFamily::class)->name
 
 Route::patch('/agent/{agent}', UpdateAgent::class)->name('agent.update');
 Route::post('/agent/{agent}/purchase-order', [StorePurchaseOrder::class, 'inAgent'])->name('agent.purchase-order.store');
+Route::delete('/agent/{agent}', DeleteAgent::class)->name('agent.delete');
 
 Route::post('/agent/', StoreMarketplaceAgent::class)->name('agent.store');
 

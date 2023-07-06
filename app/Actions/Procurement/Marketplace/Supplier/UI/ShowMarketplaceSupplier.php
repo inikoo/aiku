@@ -30,8 +30,8 @@ class ShowMarketplaceSupplier extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('procurement.edit');
-
+        $this->canEdit   = $request->user()->can('procurement.edit');
+        $this->canDelete = $request->user()->can('procurement.edit');
         return $request->user()->hasPermissionTo("procurement.view");
     }
 
@@ -43,7 +43,7 @@ class ShowMarketplaceSupplier extends InertiaAction
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inAgent(Agent $agent, Supplier $supplier, ActionRequest $request): Supplier
+    public function inMarketplaceAgent(Agent $agent, Supplier $supplier, ActionRequest $request): Supplier
     {
         $this->initialisation($request)->withTab(MarketplaceSupplierTabsEnum::values());
 
@@ -52,7 +52,6 @@ class ShowMarketplaceSupplier extends InertiaAction
 
     public function htmlResponse(Supplier $supplier, ActionRequest $request): Response
     {
-
 
         return Inertia::render(
             'Procurement/MarketplaceSupplier',
@@ -72,13 +71,25 @@ class ShowMarketplaceSupplier extends InertiaAction
                             'icon'  => ['fal', 'person-dolly'],
                             'title' => __('supplier')
                         ],
-                    'title' => $supplier->name,
-                    'edit'  => $this->canEdit ? [
-                        'route' => [
-                            'name'       => preg_replace('/show$/', 'edit', $this->routeName),
-                            'parameters' => array_values($this->originalParameters)
-                        ]
-                    ] : false,
+                    'title'   => $supplier->name,
+                    'actions' => [
+                        $this->canEdit ? [
+                            'type'  => 'button',
+                            'style' => 'edit',
+                            'route' => [
+                                'name'       => preg_replace('/show$/', 'edit', $this->routeName),
+                                'parameters' => array_values($this->originalParameters)
+                            ]
+                        ] : false,
+                        $this->canDelete ? [
+                            'type'  => 'button',
+                            'style' => 'delete',
+                            'route' => [
+                                'name'       => 'procurement.marketplace.suppliers.remove',
+                                'parameters' => array_values($this->originalParameters)
+                            ]
+                        ] : false,
+                    ],
                     'meta'  => [
                         [
                             'href'     => match (true) {
@@ -145,7 +156,6 @@ class ShowMarketplaceSupplier extends InertiaAction
                 ],
             ];
         };
-
         return match ($routeName) {
             'procurement.marketplace.suppliers.show' => array_merge(
                 (new ProcurementDashboard())->getBreadcrumbs(),
@@ -197,7 +207,7 @@ class ShowMarketplaceSupplier extends InertiaAction
     {
 
         $previous = Supplier::where('code', '<', $supplier->code)->when(true, function ($query) use ($supplier, $request) {
-            if ($request->route()->getName() == 'procurement.agents.show.suppliers.show') {
+            if ($request->route()->getName() == 'procurement.marketplace.agents.show.suppliers.show') {
                 $query->where('suppliers.agent_id', $supplier->agent_id);
             }
         })->orderBy('code', 'desc')->first();
@@ -209,7 +219,7 @@ class ShowMarketplaceSupplier extends InertiaAction
     public function getNext(Supplier $supplier, ActionRequest $request): ?array
     {
         $next = Supplier::where('code', '>', $supplier->code)->when(true, function ($query) use ($supplier, $request) {
-            if ($request->route()->getName() == 'procurement.agents.show.suppliers.show') {
+            if ($request->route()->getName() == 'procurement.marketplace.agents.show.suppliers.show') {
                 $query->where('suppliers.agent_id', $supplier->agent_id);
             }
         })->orderBy('code')->first();

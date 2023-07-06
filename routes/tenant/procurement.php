@@ -7,10 +7,12 @@
 
 
 use App\Actions\Procurement\Agent\ExportAgents;
+use App\Actions\Procurement\Agent\UI\CreateAgent;
 use App\Actions\Procurement\Agent\UI\EditAgent;
 use App\Actions\Procurement\Agent\UI\IndexAgents;
 use App\Actions\Procurement\Agent\UI\RemoveAgent;
 use App\Actions\Procurement\Agent\UI\ShowAgent;
+use App\Actions\Procurement\Supplier\UI\EditSupplier;
 use App\Actions\Procurement\PurchaseOrder\ExportPurchaseOrders;
 use App\Actions\Procurement\PurchaseOrder\UI\CreatePurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\UI\EditPurchaseOrder;
@@ -18,6 +20,7 @@ use App\Actions\Procurement\PurchaseOrder\UI\IndexPurchaseOrders;
 use App\Actions\Procurement\PurchaseOrder\UI\ShowPurchaseOrder;
 use App\Actions\Procurement\Supplier\ExportSuppliers;
 use App\Actions\Procurement\Supplier\UI\IndexSuppliers;
+use App\Actions\Procurement\Supplier\UI\RemoveSupplier;
 use App\Actions\Procurement\Supplier\UI\ShowSupplier;
 use App\Actions\Procurement\SupplierDelivery\ExportSupplierDeliveries;
 use App\Actions\Procurement\SupplierDelivery\UI\CreateSupplierDelivery;
@@ -40,16 +43,20 @@ Route::get('/suppliers/export', ExportSuppliers::class)->name('suppliers.export'
 
 Route::get('/suppliers', IndexSuppliers::class)->name('suppliers.index');
 Route::get('/suppliers/{supplier}', ShowSupplier::class)->name('suppliers.show');
+Route::get('/suppliers/{supplier}/edit', EditSupplier::class)->name('suppliers.edit');
+Route::get('/suppliers/{supplier}/delete', RemoveSupplier::class)->name('suppliers.remove');
 
 Route::get('/agents/export', ExportAgents::class)->name('agents.export');
 
 Route::get('/agents', IndexAgents::class)->name('agents.index');
+Route::get('/agents/create', CreateAgent::class)->name('agents.create');
 Route::get('/agents/{agent}', ShowAgent::class)->name('agents.show');
 Route::get('/agents/{agent}/edit', EditAgent::class)->name('agents.edit');
 Route::get('/agents/{agent}/delete', RemoveAgent::class)->name('agents.remove');
 
 Route::get('/agents/{agent}/suppliers', [IndexSuppliers::class, 'inAgent'])->name('agents.show.suppliers.index');
 Route::get('/agents/{agent}/suppliers/{supplier}', [ShowSupplier::class, 'inAgent'])->name('agents.show.suppliers.show');
+Route::get('/agents/{agent}/suppliers/{supplier}/edit', [EditSupplier::class, 'inAgent'])->name('agents.show.suppliers.edit');
 Route::get('/agents/{agent}/supplier-products', [IndexSupplierProducts::class, 'inAgent'])->name('agents.show.supplier-products.index');
 Route::get('/agents/{agent}/supplier-products/{supplierProduct}', [ShowSupplierProduct::class, 'inAgent'])->name('agents.show.supplier-products.show');
 Route::get('/agents/{agent}/supplier-purchase-orders/{supplierPurchaseOrder}', ShowSupplierPurchaseOrder::class)->name('agents.show.supplier-purchase-orders.show');
@@ -63,6 +70,7 @@ Route::get('/purchase-orders/export', ExportPurchaseOrders::class)->name('purcha
 
 Route::get('/purchase-orders', IndexPurchaseOrders::class)->name('purchase-orders.index');
 Route::get('/purchase-orders/create', CreatePurchaseOrder::class)->name('purchase-orders.create');
+Route::get('/suppliers/{supplier}/purchase-orders/create', [CreatePurchaseOrder::class, 'inSupplier'])->name('suppliers.show.purchase-orders.create');
 Route::get('/purchase-orders/{purchaseOrder}', ShowPurchaseOrder::class)->name('purchase-orders.show');
 Route::get('/purchase-orders/{purchaseOrder}/edit', EditPurchaseOrder::class)->name('purchase-orders.edit');
 

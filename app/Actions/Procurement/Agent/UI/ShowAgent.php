@@ -95,7 +95,7 @@ class ShowAgent extends InertiaAction
                                 'name'       => 'procurement.agents.remove',
                                 'parameters' => array_values($this->originalParameters)
                             ]
-                        ] : false
+                        ] : false,
                     ],
 
                     'meta'          => [
@@ -185,7 +185,7 @@ class ShowAgent extends InertiaAction
             ]
         )->table(
             IndexPurchaseOrders::make()->tableStructure(
-                modelOperations: [
+                /* modelOperations: [
                     'createLink' => $this->canEdit ? [
                         'route' => [
                             'name'       => 'procurement.agents.show.purchase-orders.create',
@@ -194,11 +194,11 @@ class ShowAgent extends InertiaAction
                         'label' => __('purchase_orders')
                     ] : false
                 ],
-                prefix: 'purchase_orders'
+                prefix: 'purchase_orders' */
             )
         )->table(
             IndexSupplierProducts::make()->tableStructure(
-                modelOperations: [
+                /* modelOperations: [
                     'createLink' => $this->canEdit ? [
                         'route' => [
                             'name'       => 'procurement.agents.show.supplier-products-orders.create',
@@ -207,20 +207,20 @@ class ShowAgent extends InertiaAction
                         'label' => __('supplier products')
                     ] : false
                 ],
-                prefix: 'supplier_products'
+                prefix: 'supplier_products' */
             )
         )->table(
             IndexSuppliers::make()->tableStructure(
-                modelOperations: [
-                    'createLink' => $this->canEdit ? [
-                        'route' => [
-                            'name'       => 'procurement.agents.show.suppliers.create',
-                            'parameters' => array_values([$agent->slug])
-                        ],
-                        'label' => __('suppliers')
-                    ] : false
-                ],
-                prefix: 'suppliers'
+                /* modelOperations: [
+                     'createLink' => $this->canEdit ? [
+                         'route' => [
+                             'name'       => 'procurement.agents.show.suppliers.create',
+                             'parameters' => array_values([$agent->slug])
+                         ],
+                         'label' => __('suppliers')
+                     ] : false
+                 ],
+                 prefix: 'suppliers' */
             )
         )->table(IndexHistories::make()->tableStructure());
     }

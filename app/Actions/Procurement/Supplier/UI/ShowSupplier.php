@@ -61,9 +61,6 @@ class ShowSupplier extends InertiaAction
 
     public function htmlResponse(Supplier $supplier, ActionRequest $request): Response
     {
-        //        if($supplier->type=='sub-supplier') {
-        //            //    return $this->AW Bamboo
-        //        }
 
         return Inertia::render(
             'Procurement/Supplier',
@@ -84,14 +81,33 @@ class ShowSupplier extends InertiaAction
                             'title' => __('supplier')
                         ],
                     'title'         => $supplier->name,
-
-                    'create_direct' => $this->canEdit && $supplier->type=='supplier' ? [
-                        'route' => [
-                            'name'       => 'models.supplier.purchase-order.store',
-                            'parameters' => array_values($this->originalParameters)
-                        ],
-                        'label' => __('purchase order')
-                    ] : false,
+                    'actions'       => [
+                        $this->canEdit ? [
+                            'type'  => 'button',
+                            'style' => 'edit',
+                            'route' => [
+                                'name'       => preg_replace('/show$/', 'edit', $this->routeName),
+                                'parameters' => array_values($this->originalParameters)
+                            ]
+                        ] : false,
+                        $this->canDelete ? [
+                            'type'  => 'button',
+                            'style' => 'delete',
+                            'route' => [
+                                'name'       => 'procurement.suppliers.remove',
+                                'parameters' => array_values($this->originalParameters)
+                            ]
+                        ] : false,
+                        $this->canEdit && $supplier->owner_type=='Tenant' ? [
+                            'type'  => 'button',
+                            'style' => 'create',
+                            'route' => [
+                                'name'       => 'procurement.suppliers.show.purchase-orders.create',
+                                'parameters' => array_values($this->originalParameters)
+                            ],
+                            'label' => __('purchase order')
+                        ] : false,
+                    ],
                     'meta'          => [
                         [
                             'name'     => trans_choice('Purchases|Sales', $supplier->stats->number_open_purchase_orders),
@@ -162,7 +178,7 @@ class ShowSupplier extends InertiaAction
 
     public function getBreadcrumbs(string $routeName, array $routeParameters, string $suffix = ''): array
     {
-        $headCrumb = function (supplier $supplier, array $routeParameters, string $suffix) {
+        $headCrumb = function (Supplier $supplier, array $routeParameters, string $suffix) {
             return [
                 [
 
@@ -186,7 +202,6 @@ class ShowSupplier extends InertiaAction
 
         return match ($routeName) {
             'procurement.suppliers.show' =>
-
             array_merge(
                 ProcurementDashboard::make()->getBreadcrumbs(),
                 $headCrumb(

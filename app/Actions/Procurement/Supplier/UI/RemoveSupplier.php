@@ -5,19 +5,19 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Procurement\Agent\UI;
+namespace App\Actions\Procurement\Supplier\UI;
 
-use App\Models\Procurement\Agent;
-use Inertia\Inertia;
 use App\Actions\InertiaAction;
-use Lorisleiva\Actions\ActionRequest;
+use App\Models\Procurement\Supplier;
+use Inertia\Inertia;
 use Inertia\Response;
+use Lorisleiva\Actions\ActionRequest;
 
-class RemoveAgent extends InertiaAction
+class RemoveSupplier extends InertiaAction
 {
-    public function handle(Agent $agent): Agent
+    public function handle(Supplier $supplier): Supplier
     {
-        return $agent;
+        return $supplier;
     }
 
     public function authorize(ActionRequest $request): bool
@@ -25,39 +25,40 @@ class RemoveAgent extends InertiaAction
         return $request->user()->hasPermissionTo("procurement.edit");
     }
 
-    public function asController(Agent $agent, ActionRequest $request): Agent
+    public function asController(Supplier $supplier, ActionRequest $request): Supplier
     {
         $this->initialisation($request);
 
-        return $this->handle($agent);
+        return $this->handle($supplier);
     }
 
     public function getAction($route): array
     {
         return  [
             'buttonLabel' => __('Delete'),
-            'title'       => __('Delete agent'),
-            'text'        => __("This action will delete this agent and all it's suppliers & products"),
+            'title'       => __('Delete Supplier'),
+            'text'        => __("This action will delete this supplier and all it's products"),
             'route'       => $route
         ];
     }
 
-    public function htmlResponse(Agent $agent, ActionRequest $request): Response
+    public function htmlResponse(Supplier $supplier, ActionRequest $request): Response
     {
         return Inertia::render(
             'RemoveModel',
             [
-                'title'       => __('delete agent'),
+                'title'       => __('delete supplier'),
                 'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
                     $request->route()->parameters
                 ),
                 'pageHead'    => [
                     'icon'  =>
                         [
                             'icon'  => ['fal', 'people-arrows'],
-                            'title' => __('agent')
+                            'title' => __('supplier')
                         ],
-                    'title'  => $agent->name,
+                    'title'  => $supplier->name,
                     'actions'=> [
                         [
                             'type'  => 'button',
@@ -72,18 +73,23 @@ class RemoveAgent extends InertiaAction
                 ],
                 'data'     => $this->getAction(
                     route:[
-                        'name'       => 'models.agent.delete',
+                        'name'       => 'models.marketplace-supplier.delete',
                         'parameters' => array_values($this->originalParameters)
                     ]
                 )
+
+
+
+
             ]
         );
     }
 
 
-    public function getBreadcrumbs(array $routeParameters): array
+    public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
-        return ShowAgent::make()->getBreadcrumbs(
+        return ShowSupplier::make()->getBreadcrumbs(
+            routeName: preg_replace('/remove$/', 'show', $routeName),
             routeParameters: $routeParameters,
             suffix: '('.__('deleting').')'
         );

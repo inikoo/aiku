@@ -6,6 +6,7 @@
  */
 
 
+use App\Actions\Auth\WebUser\IndexWebUser;
 use App\Actions\UI\Websites\WebsiteDashboard;
 use App\Actions\UI\Websites\WebsitesDashboard;
 use App\Actions\Web\WebpageVariant\IndexWebpageVariants;
@@ -32,3 +33,4 @@ Route::get('/{website}/dashboard', WebsiteDashboard::class)->name('show.dashboar
 
 
 Route::get('/{website}/webpages', IndexWebpageVariants::class)->name('show.webpages.index');
+Route::get('/{website}/webusers', [IndexWebUser::class,'inWebsite'])->name('show.webusers.index');

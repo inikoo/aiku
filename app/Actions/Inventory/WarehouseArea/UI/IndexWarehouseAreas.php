@@ -155,6 +155,7 @@ class IndexWarehouseAreas extends InertiaAction
                 'title'       => __('warehouse areas'),
                 'pageHead'    => [
                     'title'   => __('warehouse areas'),
+
                     'create'  => $this->canEdit && $this->routeName == 'inventory.warehouses.show.warehouse-areas.index' ? [
                         'route'     => [
                             'name'       => 'inventory.warehouses.show.warehouse-areas.create',
