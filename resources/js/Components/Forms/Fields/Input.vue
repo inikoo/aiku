@@ -24,7 +24,7 @@ const props = defineProps<{
 <template>
     <div class="relative">
         <div class="relative">
-            <input :type="props.options?.type ?? 'text'" v-model.trim="form[fieldName]" @input="form.errors[fieldName] = ''"
+            <input v-model.trim="form[fieldName]" :type="props.options?.type ?? 'text'" @input="form.errors[fieldName] = ''"
                 :placeholder="fieldData?.placeholder" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" />
             <div v-if="form.errors[fieldName] || form.recentlySuccessful"
                 class="absolute inset-y-2/4 right-0 pr-3 flex items-center pointer-events-none">
