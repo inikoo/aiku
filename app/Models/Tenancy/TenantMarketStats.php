@@ -15,7 +15,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 
 /**
- * App\Models\Tenancy\TenantMarketingStats
+ * App\Models\Tenancy\TenantMarketStats
  *
  * @property int $id
  * @property int $tenant_id
@@ -47,20 +47,35 @@ use Illuminate\Support\Carbon;
  * @property int $number_shops_state_subtype_closed_b2c
  * @property int $number_shops_state_subtype_closed_fulfilment
  * @property int $number_shops_state_subtype_closed_dropshipping
+ * @property int $number_departments
+ * @property int $number_departments_state_in_process
+ * @property int $number_departments_state_active
+ * @property int $number_departments_state_discontinuing
+ * @property int $number_departments_state_discontinued
+ * @property int $number_families
+ * @property int $number_families_state_in_process
+ * @property int $number_families_state_active
+ * @property int $number_families_state_discontinuing
+ * @property int $number_families_state_discontinued
  * @property int $number_orphan_families
+ * @property int $number_products
+ * @property int $number_products_state_in_process
+ * @property int $number_products_state_active
+ * @property int $number_products_state_discontinuing
+ * @property int $number_products_state_discontinued
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read \App\Models\Tenancy\Tenant $tenant
- * @method static Builder|TenantMarketingStats newModelQuery()
- * @method static Builder|TenantMarketingStats newQuery()
- * @method static Builder|TenantMarketingStats query()
+ * @method static Builder|TenantMarketStats newModelQuery()
+ * @method static Builder|TenantMarketStats newQuery()
+ * @method static Builder|TenantMarketStats query()
  * @mixin Eloquent
  */
-class TenantMarketingStats extends Model
+class TenantMarketStats extends Model
 {
     use UsesGroupConnection;
 
-    protected $table = 'tenant_marketing_stats';
+    protected $table = 'tenant_market_stats';
 
     protected $guarded = [];
 

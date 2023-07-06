@@ -26,7 +26,7 @@ class DeleteShop
         $shop->products()->delete();
         $shop->departments()->delete();
         $shop->delete();
-
+        enantHydrateMarket::dispatch(app('currentTenant'));
         return $shop;
     }
 
