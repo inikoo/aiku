@@ -69,6 +69,7 @@ library.add(faSearch,
 );
 
 
+/*
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', function () {
         navigator.serviceWorker.register('/firebase-messaging-sw.js');
@@ -120,6 +121,8 @@ getToken(messaging, { vapidKey: 'BAGSpyOuFXWNwXjS56MTlWuz8KOqwzHhkjzrgs3Mok3Yv6O
     console.log('An error occurred while retrieving token. ', err);
     // ...
 });
+
+ */
 
 createInertiaApp({
                      title  : (title) => `${title} - ${appName}`,
