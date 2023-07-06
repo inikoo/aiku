@@ -21,16 +21,19 @@ import draggable from "vuedraggable";
 import { ref } from 'vue'
 import TitleItem from '../Fields/Input.vue'
 import TextArea from '../Fields/TextArea.vue'
+import HyperLink from '../Fields/Hyperlink.vue'
+import IconPicker from '../Fields/IconPicker/Vue3IconPicker.vue';
 library.add(faFacebook, faInstagram, faTwitter, faGithub, faYoutube, faMapMarkerAlt, faEnvelope, faBalanceScale, faBuilding, faPhone, faMap)
 
 const props = defineProps<{
     social: Object,
     navigation: Object,
-    changeColums: Function,
     selectedColums: Function
     columSelected: Object
     saveItemTitle: Function
-    saveTextArea:Function
+    saveTextArea: Function
+    tool: Object
+    saveLink: Function
 }>()
 
 console.log('props', props)
@@ -46,25 +49,30 @@ const childLog = (a, b, c) => {
 
 <template>
     <footer class="bg-gray-50 px-6" aria-labelledby="footer-heading">
+   
         <h2 id="footer-heading" class="sr-only">Footer</h2>
+      
         <div class="mx-auto max-w-7xl px-6 pb-8 pt-20 sm:pt-24 lg:px-8 lg:pt-12">
             <div class="xl:grid xl:gap-x-24 xl:px-6">
                 <!-- Navigations -->
-                <draggable :list="navigation" group="navigation" @change="(e) => changeColums(e)" itemKey="id"
-                    class="flex gap-8 xl:col-span-2 cursor-grab">
+                <draggable :list="navigation" group="navigation" itemKey="id"
+                    :disabled="tool.name !== 'grab'"
+                    :class="['flex', 'gap-8', 'xl:col-span-2', tool.name !== 'grab' ? 'cursor-pointer' : 'cursor-grab']">
                     <template #item="{ element, index }">
                         <div :class="['space-y-3', 'w-1/4', columSelected.id !== element.id ? '' : 'border']"
                             @click="props.selectedColums(element)">
                             <!-- <h3 class="text-sm font-bold leading-6 text-gray-700 capitalize">{{ element.title }}</h3> -->
                             <TitleItem :data="element" :save="props.saveItemTitle" />
                             <div v-if="element.type == 'list'">
-                                <draggable :list="element.data" group="navigationData" @change="childLog" itemKey="name">
+                                <draggable :list="element.data" group="navigationData" @change="childLog" itemKey="name"
+                                    :disabled="tool.name !== 'grab'">
                                     <template #item="{ element: child, index: childIndex }">
                                         <ul role="list">
                                             <li :key="child.name">
-                                                <a :href="child.href"
+                                                <HyperLink :data="child" :save="props.saveLink" :parentId="element.id" />
+                                                <!-- <a :href="child.href"
                                                     class="space-y-3 text-sm leading-6 text-gray-600 hover:text-indigo-500">
-                                                    {{ child.name }}</a>
+                                                    {{ child.name }}</a> -->
                                             </li>
                                         </ul>
                                     </template>
@@ -73,7 +81,7 @@ const childLog = (a, b, c) => {
 
                             <div v-if="element.type == 'description'">
                                 <!-- <div class="space-y-3 text-sm leading-6 text-gray-600 hover:text-indigo-500">{{ element.data }}</div> -->
-                                <TextArea :data="element" :save="props.saveTextArea"/>
+                                <TextArea :data="element" :save="props.saveTextArea" />
                             </div>
 
                             <div v-if="element.type == 'info'">
@@ -89,7 +97,7 @@ const childLog = (a, b, c) => {
                                 </div>
                             </div>
 
-
+                    
                         </div>
                     </template>
                 </draggable>
@@ -111,5 +119,7 @@ const childLog = (a, b, c) => {
                 </p>
             </div>
         </div>
+
+        <IconPicker />
     </footer>
 </template>

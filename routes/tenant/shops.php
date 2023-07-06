@@ -33,6 +33,21 @@ use App\Actions\Market\Shop\UI\ShowShop;
 use App\Actions\Web\Website\UI\CreateWebsite;
 use Illuminate\Support\Facades\Route;
 
+Route::get('/departments', [IndexDepartments::class, 'inTenant'])->name('departments.index');
+Route::get('/departments/export', ExportProductCategory::class)->name('departments.export');
+
+Route::get('/departments/create', ExportProductCategory::class)->name('departments.create');
+Route::get('/departments/{department}', [ShowDepartment::class, 'inTenant'])->name('departments.show');
+Route::get('/departments/{department}/edit', [EditDepartment::class, 'inTenant'])->name('departments.edit');
+Route::get('/departments/{department}/delete', [RemoveDepartment::class,'inTenant'])->name('departments.remove');
+Route::get('/families', [IndexFamilies::class, 'inTenant'])->name('families.index');
+Route::get('/families/{family}', [ShowFamily::class, 'inTenant'])->name('families.show');
+Route::get('/families/{family}/edit', [EditFamily::class, 'inTenant'])->name('families.edit');
+
+Route::get('/products', [IndexProducts::class,'inTenant'])->name('products.index');
+Route::get('/products/{product}', [ShowProduct::class, 'inTenant'])->name('products.show');
+Route::get('/products/{product}/edit', [EditProduct::class, 'inTenant'])->name('products.edit');
+
 Route::get('/export', ExportShops::class)->name('export');
 
 Route::get('/', IndexShops::class)->name('index');
@@ -47,20 +62,7 @@ Route::get('/{shop}/website/create', CreateWebsite::class)->name('show.website.c
 
 
 
-Route::get('/departments/export', ExportProductCategory::class)->name('departments.export');
 
-Route::get('/departments', [IndexDepartments::class, 'inTenant'])->name('departments.index');
-Route::get('/departments/create', ExportProductCategory::class)->name('departments.create');
-Route::get('/departments/{department}', [ShowDepartment::class, 'inTenant'])->name('departments.show');
-Route::get('/departments/{department}/edit', [EditDepartment::class, 'inTenant'])->name('departments.edit');
-Route::get('/departments/{department}/delete', [RemoveDepartment::class,'inTenant'])->name('departments.remove');
-Route::get('/families', [IndexFamilies::class, 'inTenant'])->name('families.index');
-Route::get('/families/{family}', [ShowFamily::class, 'inTenant'])->name('families.show');
-Route::get('/families/{family}/edit', [EditFamily::class, 'inTenant'])->name('families.edit');
-
-Route::get('/products', [IndexProducts::class,'inTenant'])->name('products.index');
-Route::get('/products/{product}', [ShowProduct::class, 'inTenant'])->name('products.show');
-Route::get('/products/{product}/edit', [EditProduct::class, 'inTenant'])->name('products.edit');
 
 
 Route::get('/{shop}/products', [IndexProducts::class, 'inShop'])->name('show.products.index');

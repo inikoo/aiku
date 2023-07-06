@@ -7,6 +7,7 @@
 
 namespace App\Actions\Web\Website\UI;
 
+use App\Actions\Auth\WebUser\IndexWebUser;
 use App\Actions\Helpers\History\IndexHistories;
 use App\Actions\InertiaAction;
 use App\Actions\Market\Shop\UI\ShowShop;
@@ -14,6 +15,7 @@ use App\Actions\UI\Dashboard\Dashboard;
 use App\Actions\UI\WithInertia;
 use App\Actions\Web\WebpageVariant\IndexWebpageVariants;
 use App\Enums\UI\WebsiteTabsEnum;
+use App\Http\Resources\Auth\WebUserResource;
 use App\Http\Resources\Market\WebpageResource;
 use App\Http\Resources\Market\WebsiteResource;
 use App\Http\Resources\SysAdmin\HistoryResource;
@@ -119,6 +121,20 @@ class ShowWebsite extends InertiaAction
                         IndexWebpageVariants::run($website)
                     )),
 
+                WebsiteTabsEnum::USERS->value => $this->tab == WebsiteTabsEnum::USERS->value
+                    ?
+                    WebUserResource::collection(
+                        IndexWebUser::run(
+                            parent: $website,
+                            prefix: 'web_users'
+                        )
+                    )
+                    : Inertia::lazy(fn () => WebUserResource::collection(
+                        IndexWebUser::run(
+                            parent: $website,
+                            prefix: 'web_users'
+                        )
+                    )),
                 WebsiteTabsEnum::CHANGELOG->value => $this->tab == WebsiteTabsEnum::CHANGELOG->value ?
                     fn () => HistoryResource::collection(IndexHistories::run($website))
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistories::run($website)))
@@ -126,6 +142,19 @@ class ShowWebsite extends InertiaAction
         )->table(
             IndexWebpageVariants::make()->tableStructure(
                 $website
+            )
+        )->table(
+            IndexWebUser::make()->tableStructure(
+                modelOperations: [
+                    'createLink' => $this->canEdit ? [
+                        'route' => [
+                            'name'       => 'website.show.web-users.create',
+                            'parameters' => array_values($this->originalParameters)
+                        ],
+                        'label' => __('users')
+                    ] : false,
+                ],
+                prefix: 'web_users'
             )
         )->table(IndexHistories::make()->tableStructure());
     }

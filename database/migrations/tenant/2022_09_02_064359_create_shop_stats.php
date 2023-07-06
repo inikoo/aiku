@@ -8,21 +8,23 @@
 use App\Enums\CRM\Customer\CustomerStateEnum;
 use App\Enums\CRM\Customer\CustomerTradeStateEnum;
 use App\Enums\Dispatch\DeliveryNote\DeliveryNoteStateEnum;
-use App\Enums\Market\Family\FamilyStateEnum;
-use App\Enums\Market\Product\ProductStateEnum;
-use App\Enums\Market\ProductCategory\ProductCategoryStateEnum;
 use App\Enums\OMS\Order\OrderStateEnum;
+use App\Stubs\Migrations\HasCatalogueStats;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
+    use HasCatalogueStats;
+
     public function up(): void
     {
         Schema::create('shop_stats', function (Blueprint $table) {
             $table->smallIncrements('id');
             $table->unsignedSmallInteger('shop_id')->index();
             $table->foreign('shop_id')->references('id')->on('shops');
+
+            $table = $this->catalogueStats($table);
 
             $table->unsignedInteger('number_customers')->default(0);
 
@@ -31,24 +33,6 @@ return new class () extends Migration {
             }
             foreach (CustomerTradeStateEnum::cases() as $tradeState) {
                 $table->unsignedInteger('number_customers_trade_state_'.$tradeState->snake())->default(0);
-            }
-
-            $table->unsignedInteger('number_departments')->default(0);
-
-            foreach (ProductCategoryStateEnum::cases() as $departmentState) {
-                $table->unsignedInteger('number_departments_state_'.$departmentState->snake())->default(0);
-            }
-
-            $table->unsignedInteger('number_families')->default(0);
-
-            foreach (FamilyStateEnum::cases() as $familyState) {
-                $table->unsignedInteger('number_families_state_'.$familyState->snake())->default(0);
-            }
-            $table->unsignedInteger('number_orphan_families')->default(0);
-
-            $table->unsignedInteger('number_products')->default(0);
-            foreach (ProductStateEnum::cases() as $productState) {
-                $table->unsignedInteger('number_products_state_'.$productState->snake())->default(0);
             }
 
 

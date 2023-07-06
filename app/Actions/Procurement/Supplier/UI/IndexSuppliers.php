@@ -32,8 +32,8 @@ class IndexSuppliers extends InertiaAction
                 'status' => [
                     'label'    => __('status'),
                     'elements' => [
-                        'active'   => [__('active'), $parent->procurementStats->number_suppliers_type_supplier],
-                        'archived' => [__('archived'), $parent->procurementStats->number_archived_suppliers_type_supplier]
+                        'active'   => [__('active'), $parent->procurementStats->number_suppliers],
+                        'archived' => [__('archived'), $parent->procurementStats->number_archived_suppliers]
                     ],
 
                     'engine' => function ($query, $elements) {
@@ -86,8 +86,7 @@ class IndexSuppliers extends InertiaAction
 
                 } else {
                     $query ->leftJoin('supplier_tenant', 'suppliers.id', 'supplier_tenant.supplier_id');
-
-                    $query->where('suppliers.type', 'supplier');
+                    $query->where('suppliers.owner_type', 'Tenant');
                     $query->where('supplier_tenant.tenant_id', app('currentTenant')->id);
 
                 }
@@ -117,6 +116,23 @@ class IndexSuppliers extends InertiaAction
             $table
                 ->withModelOperations($modelOperations)
                 ->withGlobalSearch()
+                ->withEmptyState(
+                    [
+                        'title'       => __('no suppliers'),
+                        'description' => $this->canEdit ? __('Get started by creating a new supplier.') : null,
+                        'count'       => app('currentTenant')->inventoryStats->number_warehouse_areas,
+                        'action'      => $this->canEdit ? [
+                            'type'    => 'button',
+                            'style'   => 'create',
+                            'tooltip' => __('new supplier'),
+                            'label'   => __('supplier'),
+                            'route'   => [
+                                'name'       => 'procurement.suppliers.create',
+                                'parameters' => array_values($this->originalParameters)
+                            ]
+                        ] : null
+                    ]
+                )
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'supplier_locations', label: __('location'), canBeHidden: false)

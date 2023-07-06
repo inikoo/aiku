@@ -80,7 +80,7 @@ class IndexAgents extends InertiaAction
                             'tooltip' => __('new agent'),
                             'label'   => __('agent'),
                             'route'   => [
-                                'name'       => 'procurement.marketplace.agents.create',
+                                'name'       => 'procurement.agents.create',
                                 'parameters' => array_values($this->originalParameters)
                             ]
                         ] : null
@@ -98,7 +98,7 @@ class IndexAgents extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('procurement.agents.edit');
+        $this->canEdit = $request->user()->can('procurement.edit');
 
         return
             (
@@ -134,7 +134,18 @@ class IndexAgents extends InertiaAction
                         'title' => __('website'),
                         'icon'  => 'fal fa-people-arrows'
                     ],
-
+                    'actions'=> [
+                        $this->canEdit && $this->routeName == 'procurement.agents.index' ? [
+                            'type'    => 'button',
+                            'style'   => 'create',
+                            'tooltip' => __('new agent'),
+                            'label'   => __('agent'),
+                            'route'   => [
+                                'name'       => 'procurement.agents.create',
+                                'parameters' => array_values($this->originalParameters)
+                            ]
+                        ] : false,
+                    ]
                 ],
                 'data'        => AgentResource::collection($agents),
             ]

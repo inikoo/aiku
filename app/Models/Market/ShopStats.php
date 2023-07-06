@@ -19,15 +19,6 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  *
  * @property int $id
  * @property int $shop_id
- * @property int $number_customers
- * @property int $number_customers_state_in_process
- * @property int $number_customers_state_registered
- * @property int $number_customers_state_active
- * @property int $number_customers_state_losing
- * @property int $number_customers_state_lost
- * @property int $number_customers_trade_state_none
- * @property int $number_customers_trade_state_one
- * @property int $number_customers_trade_state_many
  * @property int $number_departments
  * @property int $number_departments_state_in_process
  * @property int $number_departments_state_active
@@ -44,6 +35,15 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property int $number_products_state_active
  * @property int $number_products_state_discontinuing
  * @property int $number_products_state_discontinued
+ * @property int $number_customers
+ * @property int $number_customers_state_in_process
+ * @property int $number_customers_state_registered
+ * @property int $number_customers_state_active
+ * @property int $number_customers_state_losing
+ * @property int $number_customers_state_lost
+ * @property int $number_customers_trade_state_none
+ * @property int $number_customers_trade_state_one
+ * @property int $number_customers_trade_state_many
  * @property int $number_orders
  * @property int $number_orders_state_creating
  * @property int $number_orders_state_submitted

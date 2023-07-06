@@ -159,7 +159,7 @@ class ShowProduct extends InertiaAction
         return match ($routeName) {
             'shops.products.show' =>
             array_merge(
-                IndexShops::make()->getBreadcrumbs([]),
+                IndexShops::make()->getBreadcrumbs(),
                 $headCrumb(
                     $routeParameters['product'],
                     [

@@ -5,7 +5,7 @@
  * Copyright (c) 2023, Inikoo LTD
  */
 
-namespace App\Actions\Procurement\Marketplace\Supplier\UI;
+namespace App\Actions\Procurement\Supplier\UI;
 
 use App\Actions\Assets\Country\UI\GetAddressData;
 use App\Actions\Assets\Country\UI\GetCountriesOptions;
@@ -18,7 +18,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class EditMarketplaceSupplier extends InertiaAction
+class EditSupplier extends InertiaAction
 {
     public function handle(Supplier $supplier): Supplier
     {
@@ -38,8 +38,8 @@ class EditMarketplaceSupplier extends InertiaAction
         return $this->handle($supplier);
     }
 
-    /** @noinspection PhpUnusedParameterInspection */
-    public function inMarketplaceAgent(Agent $agent, Supplier $supplier, ActionRequest $request): Supplier
+
+    public function inAgent(Agent $agent, Supplier $supplier, ActionRequest $request): Supplier
     {
         $this->initialisation($request);
         return $this->handle($supplier);
@@ -273,7 +273,7 @@ class EditMarketplaceSupplier extends InertiaAction
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
-        return ShowMarketplaceSupplier::make()->getBreadcrumbs(
+        return ShowSupplier::make()->getBreadcrumbs(
             routeName: preg_replace('/edit$/', 'show', $routeName),
             routeParameters: $routeParameters,
             suffix: '('.__('editing').')'
@@ -295,7 +295,7 @@ class EditMarketplaceSupplier extends InertiaAction
     public function getNext(Supplier $supplier, ActionRequest $request): ?array
     {
         $next = Supplier::where('code', '>', $supplier->code)->when(true, function ($query) use ($supplier, $request) {
-            if ($request->route()->getName() == 'procurement.marketplace.agents.show.suppliers.edit') {
+            if ($request->route()->getName() == 'procurement.agents.show.suppliers.edit') {
                 $query->where('suppliers.agent_id', $supplier->agent_id);
             }
         })->orderBy('code')->first();
@@ -310,7 +310,7 @@ class EditMarketplaceSupplier extends InertiaAction
         }
 
         return match ($routeName) {
-            'procurement.marketplace.suppliers.edit'=> [
+            'procurement.suppliers.edit'=> [
                 'label'=> $supplier->name,
                 'route'=> [
                     'name'      => $routeName,
@@ -320,7 +320,7 @@ class EditMarketplaceSupplier extends InertiaAction
 
                 ]
             ],
-            'procurement.marketplace.agents.show.suppliers.edit' => [
+            'procurement.agents.show.suppliers.edit' => [
                 'label'=> $supplier->name,
                 'route'=> [
                     'name'      => $routeName,
