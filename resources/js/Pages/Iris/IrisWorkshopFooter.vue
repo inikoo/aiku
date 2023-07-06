@@ -7,7 +7,7 @@ import Footer from './Components/Footer/index.vue'
 import { faHandPointer, faHandRock } from '@/../private/pro-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { v4 as uuidv4 } from 'uuid';
-library.add(faHandPointer)
+library.add(faHandPointer, faHandRock)
 const Dummy = {
     images: [
         {
@@ -18,9 +18,9 @@ const Dummy = {
         },
     ],
     tools: [
-        { name: 'Black', bgColor: 'bg-gray-900', selectedColor: 'ring-gray-900', icon: ['fas', 'fa-hand-pointer'], },
-        { name: 'Heather Grey', bgColor: 'bg-gray-400', selectedColor: 'ring-gray-400', icon: ['fas', 'fa-hand-pointer'], },
-        { name: 'Heather Grey', bgColor: 'bg-gray-400', selectedColor: 'ring-gray-400', icon: ['fas', 'fa-hand-pointer'], },
+        { name: 'edit', icon: ['fas', 'fa-hand-pointer']},
+        { name: 'grab', icon: ['fas',  'hand-rock']},
+        // { name: 'Heather Grey', icon: ['fas', 'fa-hand-pointer']},
     ],
     theme: [
         { name: 'Light', value: '2' },
@@ -35,6 +35,7 @@ const Dummy = {
 }
 const selectedTheme = ref(Dummy.theme[0])
 const columsTypeTheme = ref(Dummy.columsType[2])
+const tool = ref(Dummy.tools[0])
 
 const DummyColums = [
     {
@@ -198,9 +199,7 @@ const columSelected = ref(navigations.value[0]);
 const selectedColums = (value) => {
     columSelected.value = value
 }
-const changeColums = (event) => {
-    console.log('dfsdf', event, navigations)
-}
+
 
 const handleColumsTypeChange = (value) => {
     if(value.title !== columSelected.value.type){
@@ -225,6 +224,15 @@ const saveTextArea = (value) =>{
    navigations.value[indexNavigation] = data
 }
 
+const saveLink = (value) =>{
+    const indexNavigation = navigations.value.findIndex((item)=>item.id == value.parentId )
+    const indexChildData = navigations.value[indexNavigation].data.findIndex((item)=>item.id == value.colum.id )
+    let set = value.type == 'name' ? { name : value.value } : { href : value.value }
+    const data = {...navigations.value[indexNavigation].data[indexChildData] ,...set}
+    navigations.value[indexNavigation].data[indexChildData] = data
+    
+}
+
 </script>
 
 <template>
@@ -239,13 +247,13 @@ const saveTextArea = (value) =>{
                             <div>
                                 <h2 class="text-sm font-medium text-gray-900">Tools</h2>
 
-                                <RadioGroup v-model="selectedColor" class="mt-2">
+                                <RadioGroup v-model="tool" class="mt-2">
                                     <RadioGroupLabel class="sr-only">Choose a color</RadioGroupLabel>
                                     <div class="flex items-center space-x-3">
                                         <RadioGroupOption as="template" v-for="color in Dummy.tools" :key="color.name"
                                             :value="color" v-slot="{ active, checked }">
                                             <div
-                                                :class="[color.selectedColor, active && checked ? 'ring ring-offset-1' : '', !active && checked ? 'ring-2' : '', 'relative -m-0.5 flex cursor-pointer items-center justify-center rounded-full p-0.5 focus:outline-none']">
+                                                :class="[color.tools, active && checked ? 'ring ring-offset-1' : '', !active && checked ? 'ring-2' : '', 'relative -m-0.5 flex cursor-pointer items-center justify-center rounded-full p-0.5 focus:outline-none']">
                                                 <RadioGroupLabel as="span" class="sr-only">{{ color.name }}
                                                 </RadioGroupLabel>
                                                 <span aria-hidden="true" class="flex items-center justify-center">
@@ -315,8 +323,8 @@ const saveTextArea = (value) =>{
                     <div style="width: 90%; background: #f2f2f2; border : 1px solid #bfbfbf;">
                         <div style="transform: scale(0.8);">
                             <Footer class="lg:col-span-2 lg:row-span-2 rounded-lg " :columSelected="columSelected"
-                                :changeColums="changeColums" :theme="selectedTheme.value" :social="socials"
-                                :navigation="navigations" :selectedColums="selectedColums" :saveItemTitle="saveItemTitle" :saveTextArea="saveTextArea"/>
+                                :theme="selectedTheme.value" :social="socials"
+                                :navigation="navigations" :selectedColums="selectedColums" :saveItemTitle="saveItemTitle" :saveTextArea="saveTextArea" :tool="tool" :saveLink="saveLink"/>
                         </div>
                     </div>
                 </div>
