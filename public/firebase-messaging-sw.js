@@ -14,7 +14,7 @@ importScripts("https://www.gstatic.com/firebasejs/8.2.5/firebase-messaging.js");
 // your app's Firebase config object.
 // https://firebase.google.com/docs/web/setup#config-object
 
-const firebaseCredential = require("../resources/private/firebase/aiku-firebase.json")
+import firebaseCredential from "../resources/private/firebase/aiku-firebase.json";
 
 firebase.initializeApp(firebaseCredential);
 
@@ -23,12 +23,7 @@ firebase.initializeApp(firebaseCredential);
 const messaging = firebase.messaging();
 messaging.getToken({ vapidKey: 'BAGSpyOuFXWNwXjS56MTlWuz8KOqwzHhkjzrgs3Mok3Yv6OhH0yH2jTblyFckwoF2gnZA530PFEjuR424wdMpU0' }).then((currentToken) => {
     if (currentToken) {
-        fetch("api/firebase/token", {
-            method: 'POST',
-            body: {
-                token: currentToken
-            }
-        })
+        //
     } else {
         console.log('No registration token available. Request permission to generate one.');
     }

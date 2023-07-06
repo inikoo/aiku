@@ -7,6 +7,7 @@
 
 declare(strict_types=1);
 
+use App\Actions\Firebase\StoreFirebaseCloudMessagingToken;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware([
@@ -93,8 +94,6 @@ Route::middleware([
         Route::prefix("firebase")
             ->name("firebase.")
             ->group(__DIR__."/firebase.php");
-
-
     });
 
     require __DIR__."/auth.php";

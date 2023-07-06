@@ -10,5 +10,3 @@ use App\Actions\Firebase\StoreFirebaseCloudMessagingToken;
 Route::get('/ping', function () {
     return 'pong';
 })->name('ping');
-
-Route::middleware('auth')->post('/firebase/token', StoreFirebaseCloudMessagingToken::class);
