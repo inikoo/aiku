@@ -177,7 +177,7 @@ class EditWebsite extends InertiaAction
                                             'key'       => 'terms_and_conditions',
                                             'name'      => __('terms and conditions'),
                                             'show'      => true,
-                                            'required'  => false,
+                                            'required'  => true,
                                         ],
                                         [
                                             'key'       => 'marketing',
