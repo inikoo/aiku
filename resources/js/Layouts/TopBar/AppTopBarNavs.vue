@@ -13,8 +13,6 @@ import AppTopBarNavsDropdownDependantItems from "@/Layouts/TopBar/AppTopBarNavsD
 
 const layout = useLayoutStore();
 
-const modulesWithShops=['shops','marketing','crm','oms']
-
 </script>
 
 <template>

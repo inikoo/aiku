@@ -22,26 +22,6 @@ class GetLayout
 
     public function handle(User $user): array
     {
-        //$tenant              = app('currentTenant');
-        //$shopCount           = $tenant->marketStats->number_shops;
-        //$currentShopInstance = null;
-        //if ($shopCount == 1) {
-        //    $currentShopInstance = Shop::first();
-        //}
-
-
-        $shops = ShopsNavigationResource::collection(Shop::with('website')->get()->all());
-
-
-        $websites = WebsitesNavigationResource::collection(Website::with('shop')->get()->all());
-
-
-        $selectedWarehouse = 0;
-        $warehouses        = Warehouse::all();
-        $numberWarehouses  = $warehouses->count();
-        if ($numberWarehouses > 0) {
-            $selectedWarehouse = Warehouse::first()->slug;
-        }
 
         $navigation = [];
 
@@ -153,7 +133,6 @@ class GetLayout
             ];
         }
 
-
         if ($user->can('websites.view')) {
             $navigation['websites'] = [
                 'scope' => 'websites',
@@ -221,7 +200,6 @@ class GetLayout
             ];
         }
 
-
         if ($user->can('crm.view')) {
             $navigation['crm'] = [
                 'scope' => 'shops',
@@ -236,9 +214,8 @@ class GetLayout
                     'dropdown' => [
                         'links' => [
                             [
-                                'label'   => __('dashboard'),
                                 'tooltip' => __('Dashboard'),
-                                'icon'    => ['fal', 'fa-tasks-alt'],
+                                'icon'    => ['fal', 'fa-chart-network'],
                                 'route'   =>
                                     [
                                         'all'      => ['crm.dashboard'],
@@ -336,7 +313,6 @@ class GetLayout
             ];
         }
 
-
         if ($user->can('dispatch.view')) {
             $navigation['dispatch'] = [
                 'label'   => __('Dispatch'),
@@ -360,8 +336,7 @@ class GetLayout
                 'topMenu' => [
                     'subSections' => [
                         [
-                            'label' => __('Dashboard'),
-                            'icon'  => ['fal', 'fa-tachometer'],
+                            'icon'  => ['fal', 'fa-chart-network'],
                             'route' => [
                                 'name' => 'inventory.dashboard',
                             ]
@@ -431,7 +406,6 @@ class GetLayout
                 ]
             ];
         }
-
 
         if ($user->can('production.view')) {
             $navigation['production'] = [
@@ -521,6 +495,7 @@ class GetLayout
                 ]
             ];
         }
+
         if ($user->can('accounting.view')) {
             $navigation['accounting'] = [
                 'scope'        => 'shops',
@@ -572,7 +547,6 @@ class GetLayout
                 ]
             ];
         }
-
 
         if ($user->can('hr.view')) {
             $navigation['hr'] = [
@@ -663,29 +637,8 @@ class GetLayout
         }
 
 
-        $secondaryNavigation = [];
-
-
-        if ($user->can('fulfilment.view')) {
-            $secondaryNavigation['fulfilment'] = [
-                'name'  => __('fulfilment'),
-                'icon'  => ['fal', 'fa-dolly-empty'],
-                'route' => 'fulfilment.dashboard'
-            ];
-        }
-
-        if ($user->can('shops.view')) {
-            $secondaryNavigation['dropshipping'] = [
-                'name'  => __('dropshipping'),
-                'icon'  => ['fal', 'fa-parachute-box'],
-                'route' => 'dropshipping.dashboard'
-            ];
-        }
-
-
         return [
             'navigation'           => $navigation,
-            'secondaryNavigation'  => $secondaryNavigation,
             'shopsInDropDown'      => ShopsNavigationResource::collection(Shop::all()),
             'websitesInDropDown'   => WebsitesNavigationResource::collection(Website::all()),
             'warehousesInDropDown' => WarehousesNavigationResource::collection(Warehouse::all()),
