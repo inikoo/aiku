@@ -1,0 +1,24 @@
+{
+    "code": "text",
+    "name": "Text",
+    "class": "text",
+    "data": {
+        "defaultParameters": {},
+        "dummyData": {
+            "data": {
+                "delay": 2500,
+                "data": {
+                    "component": "p",
+                    "value": "Enjoy your best clothes with us"
+                }
+            }
+        }
+    },
+    "scope": "webpage",
+    "webBlocks": [
+        {
+            "code": "Text",
+            "name": "Text"
+        }
+    ]
+}

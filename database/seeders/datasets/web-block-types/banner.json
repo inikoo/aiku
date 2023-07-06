@@ -10,7 +10,11 @@
                 "imgsBanner": [
                     {
                         "imageSrc": "https://tailwindui.com/img/ecommerce-images/incentives-07-hero.jpg",
-                        "imageAlt": "Front of men's Basic Tee in sienna"
+                        "imageAlt": "Front of men's Basic Tee in sienna",
+                        "link": {
+                            "label": "Open",
+                            "target": "#"
+                        }
                     },
                     {
                         "imageSrc": "https://tailwindui.com/img/ecommerce-images/product-page-01-featured-product-shot.jpg",
@@ -18,7 +22,11 @@
                     },
                     {
                         "imageSrc": "https://tailwindui.com/img/ecommerce-images/product-page-03-product-01.jpg",
-                        "imageAlt": "Lorem ipsum dolor Basic Tee in sienna"
+                        "imageAlt": "Lorem ipsum dolor Basic Tee in sienna",
+                        "link": {
+                            "label": "Browse Promo",
+                            "target": "#"
+                        }
                     },
                     {
                         "imageSrc": "https://tailwindui.com/img/ecommerce-images/product-page-05-product-01.jpg",
