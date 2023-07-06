@@ -9,6 +9,7 @@ namespace App\Actions\Market\ProductCategory\UI;
 
 use App\Actions\InertiaAction;
 use App\Actions\Market\Shop\UI\IndexShops;
+
 //use App\Actions\UI\Catalogue\CatalogueHub;
 use App\Actions\Market\Shop\UI\ShowShop;
 use App\Http\Resources\Market\DepartmentResource;
@@ -18,6 +19,7 @@ use App\Models\Tenancy\Tenant;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -44,6 +46,7 @@ class IndexDepartments extends InertiaAction
     {
         $this->initialisation($request);
         $this->parent = app('currentTenant');
+
         return $this->handle(parent: app('currentTenant'));
     }
 
@@ -51,6 +54,7 @@ class IndexDepartments extends InertiaAction
     {
         $this->initialisation($request);
         $this->parent = $shop;
+
         return $this->handle(parent: $shop);
     }
 
@@ -67,7 +71,7 @@ class IndexDepartments extends InertiaAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        $queryBuilder=QueryBuilder::for(ProductCategory::class);
+        $queryBuilder = QueryBuilder::for(ProductCategory::class);
         foreach ($this->elementGroups as $key => $elementGroup) {
             $queryBuilder->whereElementGroup(
                 prefix: $prefix,
@@ -105,10 +109,10 @@ class IndexDepartments extends InertiaAction
             ->withQueryString();
     }
 
-    public function tableStructure($parent, ?array $modelOperations = null, $prefix=null): Closure
+    public function tableStructure($parent, ?array $modelOperations = null, $prefix = null): Closure
     {
         return function (InertiaTable $table) use ($parent, $modelOperations, $prefix) {
-            if($prefix) {
+            if ($prefix) {
                 $table
                     ->name($prefix)
                     ->pageName($prefix.'Page');
@@ -122,16 +126,32 @@ class IndexDepartments extends InertiaAction
                     match (class_basename($parent)) {
                         'Tenant' => [
                             'title'       => __("No departments found"),
-                            'description' => $this->canEdit && app('currentTenant')->marketStats->number_shops==0 ? __('Get started by creating a new shop. ✨')
+                            'description' => $this->canEdit && $parent->marketStats->number_shops == 0 ? __('Get started by creating a new shop. ✨')
                                 : __("In fact, is no even a shop yet 🤷🏽‍♂️"),
-                            'count'       => app('currentTenant')->marketStats->number_departments,
-                            'action'      => $this->canEdit && app('currentTenant')->marketStats->number_shops==0 ? [
+                            'count'       => $parent->marketStats->number_departments,
+                            'action'      => $this->canEdit && $parent->marketStats->number_shops == 0 ? [
                                 'type'    => 'button',
                                 'style'   => 'create',
                                 'tooltip' => __('new shop'),
                                 'label'   => __('shop'),
                                 'route'   => [
                                     'name'       => 'shops.create',
+                                    'parameters' => array_values($this->originalParameters)
+                                ]
+                            ] : null
+                        ],
+                        'Shop' => [
+                            'title'       => __("No departments found"),
+                            'description' => $this->canEdit ? __('Get started by creating a new department. ✨')
+                                : null,
+                            'count'       => $parent->stats->number_departments,
+                            'action'      => $this->canEdit ? [
+                                'type'    => 'button',
+                                'style'   => 'create',
+                                'tooltip' => __('new department'),
+                                'label'   => __('department'),
+                                'route'   => [
+                                    'name'       => 'shops.show.departments.create',
                                     'parameters' => array_values($this->originalParameters)
                                 ]
                             ] : null
@@ -168,7 +188,15 @@ class IndexDepartments extends InertiaAction
 
     public function htmlResponse(LengthAwarePaginator $departments, ActionRequest $request): Response
     {
-
+        $scope    =$this->parent;
+        $container=null;
+        if (class_basename($scope) == 'Shop') {
+            $container = [
+                'icon'    => ['fal', 'fa-store-alt'],
+                'tooltip' => __('Shop'),
+                'label'   => Str::possessive($scope->name)
+            ];
+        }
         return Inertia::render(
             'Market/Departments',
             [
@@ -178,12 +206,13 @@ class IndexDepartments extends InertiaAction
                 ),
                 'title'       => __('Departments'),
                 'pageHead'    => [
-                    'title'   => __('departments'),
-                    'icon'    => [
+                    'title'        => __('departments'),
+                    'container'    => $container,
+                    'iconRight'    => [
                         'icon'  => ['fal', 'fa-folder-tree'],
                         'title' => __('department')
                     ],
-                    'actions'=> [
+                    'actions' => [
                         $this->canEdit && $this->routeName == 'shops.show.departments.index' ? [
                             'type'    => 'button',
                             'style'   => 'create',
@@ -216,6 +245,7 @@ class IndexDepartments extends InertiaAction
                 ]
             ];
         };
+
         return match ($routeName) {
             'shops.departments.index' =>
             array_merge(

@@ -17,6 +17,7 @@ use App\Models\Tenancy\Tenant;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -119,11 +120,10 @@ class IndexFamilies extends InertiaAction
                 ->withEmptyState(
                     match (class_basename($parent)) {
                         'Tenant' => [
-
                             'title'       => __("No families found"),
-                            'description' => $this->canEdit && app('currentTenant')->marketStats->number_shops == 0 ? __('Get started by creating a new shop. ✨')
+                            'description' => $this->canEdit && $parent->marketStats->number_shops == 0 ? __('Get started by creating a new shop. ✨')
                                 : __("In fact, is no even a shop yet 🤷🏽‍♂️"),
-                            'count'       => app('currentTenant')->marketStats->number_families,
+                            'count'       => $parent->marketStats->number_families,
                             'action'      => $this->canEdit ? [
                                 'type'    => 'button',
                                 'style'   => 'create',
@@ -134,6 +134,10 @@ class IndexFamilies extends InertiaAction
                                     'parameters' => array_values($this->originalParameters)
                                 ]
                             ] : null
+                        ],
+                        'Shop' => [
+                            'title'       => __("No families found"),
+                            'count'       => $parent->stats->number_families,
                         ],
                         default => null
                     }
@@ -152,6 +156,17 @@ class IndexFamilies extends InertiaAction
 
     public function htmlResponse(LengthAwarePaginator $families, ActionRequest $request): Response
     {
+
+        $scope    =$this->parent;
+        $container=null;
+        if (class_basename($scope) == 'Shop') {
+            $container = [
+                'icon'    => ['fal', 'fa-store-alt'],
+                'tooltip' => __('Shop'),
+                'label'   => Str::possessive($scope->name)
+            ];
+        }
+
         return Inertia::render(
             'Market/Families',
             [
@@ -161,19 +176,20 @@ class IndexFamilies extends InertiaAction
                 ),
                 'title'       => __('families'),
                 'pageHead'    => [
-                    'title'   => __('families'),
-                    'icon'    => [
+                    'title'        => __('families'),
+                    'container'    => $container,
+                    'iconRight'    => [
                         'icon'  => ['fal', 'fa-folder'],
                         'title' => __('family')
                     ],
                     'actions' => [
-                        $this->canEdit && $this->routeName == 'shops.show.families.index' ? [
+                        $this->canEdit && class_basename($this->parent)=='ProductCategory' ? [
                             'type'    => 'button',
                             'style'   => 'create',
                             'tooltip' => __('new family'),
                             'label'   => __('family'),
                             'route'   => [
-                                'name'       => 'shops.show.families.create',
+                                'name'       => $request->route()->getName().'.create',
                                 'parameters' => $request->route()->originalParameters()
                             ]
                         ] : false,
