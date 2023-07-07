@@ -119,9 +119,9 @@ class IndexWebpages extends InertiaAction
         };
     }
 
-    public function jsonResponse(): AnonymousResourceCollection
+    public function jsonResponse(LengthAwarePaginator $webpages): AnonymousResourceCollection
     {
-        return ShopResource::collection($this->handle());
+        return ShopResource::collection($webpages);
     }
 
     public function htmlResponse(LengthAwarePaginator $webpages, ActionRequest $request): Response
