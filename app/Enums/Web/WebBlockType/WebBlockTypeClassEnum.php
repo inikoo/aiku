@@ -22,7 +22,8 @@ enum WebBlockTypeClassEnum: string
     case HEADER   = 'header';
     case BANNER   = 'banner';
 
-    case TEXT = 'text';
+    case TEXT    = 'text';
+    case PICTURE = 'picture';
 
 
 }

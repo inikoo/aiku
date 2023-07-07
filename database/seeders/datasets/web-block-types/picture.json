@@ -1,0 +1,19 @@
+{
+    "code": "picture",
+    "name": "Picture",
+    "class": "picture",
+    "data": {
+        "defaultParameters": {},
+        "dummyData": {
+            "src": "https://tailwindui.com/img/ecommerce-images/product-page-01-featured-product-shot.jpg",
+            "alt": ""
+        }
+    },
+    "scope": "webpage",
+    "webBlocks": [
+        {
+            "code": "Picture",
+            "name": "Main Picture"
+        }
+    ]
+}
