@@ -26,9 +26,6 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexStocks extends InertiaAction
 {
-    use HasUIStocks;
-
-
     /** @noinspection PhpUndefinedMethodInspection */
     public function handle(StockFamily|Tenant $parent, $prefix=null): LengthAwarePaginator
     {
@@ -86,7 +83,7 @@ class IndexStocks extends InertiaAction
                     ->name($prefix)
                     ->pageName($prefix.'Page');
             }
-            $table->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'slug', label: __('code'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'family_code', label: __('family'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'description', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'unit_value', label: __('unit value'), canBeHidden: false, sortable: true, searchable: true);
@@ -100,7 +97,7 @@ class IndexStocks extends InertiaAction
         return
             (
                 $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo('inventory.view')
+                $request->user()->hasPermissionTo('inventory.stocks.view')
             );
     }
 
@@ -113,7 +110,8 @@ class IndexStocks extends InertiaAction
     public function inStockFamily(StockFamily $stockFamily, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($request);
-        return $this->handle($stockFamily);
+
+        return $this->handle(parent:  $stockFamily);
     }
 
     public function jsonResponse(LengthAwarePaginator $stocks): AnonymousResourceCollection
@@ -124,6 +122,7 @@ class IndexStocks extends InertiaAction
 
     public function htmlResponse(LengthAwarePaginator $stocks, ActionRequest $request): Response
     {
+
         $parent = $request->route()->parameters() == [] ? app('currentTenant') : last($request->route()->parameters());
 
         return Inertia::render(
@@ -185,12 +184,9 @@ class IndexStocks extends InertiaAction
                     ]
                 )
             ),
-            'inventory.stock-families.show.stocks.index',
-            =>
+            'inventory.stock-families.show.stocks.index', =>
             array_merge(
-                (new ShowStockFamily())->getBreadcrumbs(
-                    $routeParameters['stockFamily']
-                ),
+                (new ShowStockFamily())->getBreadcrumbs($routeParameters['stockFamily']),
                 $headCrumb([
                     'name'       => 'inventory.stock-families.show.stocks.index',
                     'parameters' =>

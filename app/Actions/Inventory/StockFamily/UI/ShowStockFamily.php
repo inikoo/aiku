@@ -20,6 +20,10 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
+/**
+ * @property StockFamily $stockFamily
+ */
+
 class ShowStockFamily extends InertiaAction
 {
     public function handle(StockFamily $stockFamily): StockFamily
@@ -29,10 +33,10 @@ class ShowStockFamily extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit   = $request->user()->can('inventory.stock-families.edit');
-        $this->canDelete = $request->user()->can('inventory.stock-families');
+        $this->canEdit   = $request->user()->can('inventory.stocks.edit');
+        $this->canDelete = $request->user()->can('inventory.stocks.edit');
 
-        return $request->user()->hasPermissionTo("inventory.view");
+        return $request->user()->hasPermissionTo("inventory.stocks.view");
     }
 
     public function asController(StockFamily $stockFamily, ActionRequest $request): StockFamily
@@ -44,6 +48,7 @@ class ShowStockFamily extends InertiaAction
 
     public function htmlResponse(StockFamily $stockFamily, ActionRequest $request): Response
     {
+
         return Inertia::render(
             'Inventory/StockFamily',
             [
@@ -141,7 +146,7 @@ class ShowStockFamily extends InertiaAction
                             'route' => [
                                 'name' => 'inventory.stock-families.index',
                             ],
-                            'label' => __('stock family'),
+                            'label' => __('SKUs families'),
                             'icon'  => 'fal fa-bars'
                         ],
                         'model' => [

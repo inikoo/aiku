@@ -85,4 +85,13 @@ class EditStock extends InertiaAction
             ]
         );
     }
+
+    public function getBreadcrumbs(string $routeName, array $routeParameters): array
+    {
+        return ShowStock::make()->getBreadcrumbs(
+            routeName: preg_replace('/edit$/', 'show', $routeName),
+            routeParameters: $routeParameters,
+            suffix: '('.__('editing').')'
+        );
+    }
 }
