@@ -417,6 +417,52 @@ class GetLayout
             ];
         }
 
+        if ($user->can('inventory.view')) {
+            $navigation['fulfilment'] = [
+                'label'   => __('inventory'),
+                'icon'    => ['fal', 'fa-dolly-flatbed-alt'],
+                'route'   => 'fulfilment.dashboard',
+                'topMenu' => [
+                    'subSections' => [
+                        [
+                            'icon'  => ['fal', 'fa-chart-network'],
+                            'route' => [
+                                'name' => 'fulfilment.dashboard',
+                            ]
+                        ],
+
+                        [
+                            'label' => __('customers'),
+                            'icon'  => ['fal', 'fa-user-tie'],
+                            'route' => [
+                                'name' => 'fulfilment.customers.index',
+                            ]
+                        ],
+                        [
+                            'label'   => __('stored items'),
+                            'tooltip' => __('stored items'),
+                            'icon'    => ['fal', 'fa-narwhal'],
+                            'route'   => [
+                                'name' => 'fulfilment.stored-items.index',
+                            ]
+                        ],
+                        [
+                            'label'   => __('orders'),
+                            'tooltip' => __('orders'),
+                            'icon'    => ['fal', 'fa-business-time'],
+                            'route'   => [
+                                'name' => 'fulfilment.orders.index',
+                            ]
+                        ],
+
+                    ],
+
+
+
+                ]
+            ];
+        }
+
         if ($user->can('production.view')) {
             $navigation['production'] = [
                 'label'   => __('production'),

@@ -57,7 +57,7 @@ library.add(
 	faChevronDown,
     faTasksAlt,
     faBullhorn,
-    faLightbulb
+    faLightbulb,
 )
 
 const layout = useLayoutStore()
