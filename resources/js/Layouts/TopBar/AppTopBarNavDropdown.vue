@@ -116,15 +116,15 @@ const websiteHandleClick = (option) => {
     layout.currentShopData = option;
 
 
-    if (layout.currentRoute.startsWith("websites.show")) {
+    if (layout.currentRoute.startsWith("web.websites.show")) {
 
         router.get(
             option.slug ?
-                route("websites.show", [option.slug]) :
-                route("websites.index", [option.slug])
+                route("web.websites.show", [option.slug]) :
+                route("web.websites.index", [option.slug])
         );
     } else if (layout.currentRoute.startsWith("websites.index")) {
-        router.get(route("websites.show", [option.slug]));
+        router.get(route("web.websites.show", [option.slug]));
     } else {
 
         layout.currentWebsiteData = option.slug ? layout.websites[option.slug] :

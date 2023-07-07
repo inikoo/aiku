@@ -28,6 +28,7 @@ class EditWarehouse extends InertiaAction
     public function asController(Warehouse $warehouse, ActionRequest $request): Warehouse
     {
         $this->initialisation($request);
+
         return $this->handle($warehouse);
     }
 

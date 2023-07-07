@@ -10,6 +10,10 @@ namespace App\Actions\Inventory\StockFamily;
 use App\Actions\Inventory\StockFamily\Hydrators\StockFamilyHydrateUniversalSearch;
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateInventory;
 use App\Models\Inventory\StockFamily;
+use App\Rules\CaseSensitive;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Redirect;
+use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
@@ -17,6 +21,8 @@ class StoreStockFamily
 {
     use AsAction;
     use WithAttributes;
+
+    private bool $asAction=false;
 
     public function handle($modelData): StockFamily
     {
@@ -29,19 +35,41 @@ class StoreStockFamily
         return $stockFamily;
     }
 
+    public function authorize(ActionRequest $request): bool
+    {
+        if($this->asAction) {
+            return true;
+        }
+        return $request->user()->hasPermissionTo("inventory.warehouses.edit");
+    }
+
     public function rules(): array
     {
         return [
-            'code'  => ['required', 'unique:tenant.stock_families', 'between:2,9', 'alpha'],
+            'code'  => ['required', 'unique:tenant.stock_families', 'between:2,9', 'alpha_dash', new CaseSensitive('stock_families')],
             'name'  => ['required', 'string']
         ];
     }
 
-    public function action($objectData): StockFamily
+    public function action(array $objectData): StockFamily
     {
+        $this->asAction=true;
         $this->setRawAttributes($objectData);
         $validatedData = $this->validateAttributes();
 
         return $this->handle($validatedData);
+    }
+
+    public function asController(ActionRequest $request): StockFamily
+    {
+        $request->validate();
+
+        return $this->handle($request->validated());
+    }
+
+    /** @noinspection PhpUnusedParameterInspection */
+    public function htmlResponse(StockFamily $stockFamily): RedirectResponse
+    {
+        return Redirect::route('inventory.stock-families.index');
     }
 }

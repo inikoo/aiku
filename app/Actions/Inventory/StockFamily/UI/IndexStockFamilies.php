@@ -8,12 +8,14 @@
 namespace App\Actions\Inventory\StockFamily\UI;
 
 use App\Actions\InertiaAction;
+use App\Actions\UI\Inventory\InventoryDashboard;
 use App\Http\Resources\Inventory\StockFamilyResource;
 use App\Models\Inventory\StockFamily;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
+use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use App\InertiaTable\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
@@ -47,7 +49,7 @@ class IndexStockFamilies extends InertiaAction
         }
 
         return $queryBuilder
-            ->defaultSort('stock_families.code')
+            ->defaultSort('code')
             ->select([
                 'slug',
                 'code',
@@ -72,6 +74,23 @@ class IndexStockFamilies extends InertiaAction
             }
             $table
                 ->withGlobalSearch()
+                ->withEmptyState(
+                    [
+                        'title'       => __('no stock families'),
+                        'description' => $this->canEdit ? __('Get started by creating a new stock family.') : null,
+                        'count'       => app('currentTenant')->inventoryStats->number_stock,
+                        'action'      => $this->canEdit ? [
+                            'type'    => 'button',
+                            'style'   => 'create',
+                            'tooltip' => __('new stock family'),
+                            'label'   => __('stock family'),
+                            'route'   => [
+                                'name'       => 'inventory.stock-families.create',
+                                'parameters' => array_values($this->originalParameters)
+                            ]
+                        ] : null
+                    ]
+                )
                 ->column(key: 'code', label: 'code', canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'number_stocks', label: 'SKUs', canBeHidden: false, sortable: true)
@@ -105,29 +124,57 @@ class IndexStockFamilies extends InertiaAction
     }
 
 
-    public function htmlResponse(LengthAwarePaginator $stocks, ActionRequest $request)
+    public function htmlResponse(LengthAwarePaginator $stockFamily, ActionRequest $request): Response
     {
-        $parent = $request->route()->parameters() == [] ? app('currentTenant') : last($request->route()->parameters());
 
+        $parent = $request->route()->parameters() == [] ? app('currentTenant') : last($request->route()->parameters());
         return Inertia::render(
             'Inventory/StockFamilies',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(),
-                'title'       => __("stock's families"),
+                'title'       => __("SKUs families"),
                 'pageHead'    => [
-                    'title'  => __("stock's families"),
-                    'create' => $this->canEdit && $this->routeName == 'inventory.stock-families.index' ? [
-                        'route' => [
-                            'name'       => 'inventory.stock-families.create',
-                            'parameters' => array_values($this->originalParameters)
-                        ],
-                        'label' => __("stock's family")
-                    ] : false,
+                    'title'   => __("SKUs families"),
+                    'icon'    => [
+                        'title' => __("SKUs families"),
+                        'icon'  => 'fal fa-boxes-alt'
+                    ],
+                    'actions'=> [
+                        $this->canEdit && $this->routeName == 'inventory.stock-families.index' ? [
+                            'type'    => 'button',
+                            'style'   => 'create',
+                            'tooltip' => __('new SKU family'),
+                            'label'   => __('SKU family'),
+                            'route'   => [
+                                'name'       => 'inventory.stock-families.create',
+                                'parameters' => array_values($this->originalParameters)
+                            ]
+                        ] : false,
+                    ]
                 ],
-                'data'        => StockFamilyResource::collection($stocks),
-
-
+                'data' => StockFamilyResource::collection($stockFamily),
             ]
-        )->table($this->tableStructure(parent: $stocks, prefix: 'stock'));
+        )->table($this->tableStructure($parent));
+    }
+
+    public function getBreadcrumbs($suffix = null): array
+    {
+        return array_merge(
+            (new InventoryDashboard())->getBreadcrumbs(),
+            [
+                [
+                    'type'   => 'simple',
+                    'simple' => [
+                        'route' => [
+                            'name' => 'inventory.stock-families.index'
+                        ],
+                        'label' => __("SKUs families"),
+                        'icon'  => 'fal fa-bars',
+                    ],
+                    'suffix' => $suffix
+
+                ]
+            ]
+        );
     }
 }

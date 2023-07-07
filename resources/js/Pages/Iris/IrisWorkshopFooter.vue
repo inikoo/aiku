@@ -4,10 +4,11 @@ import { ref } from 'vue'
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { RadioGroup, RadioGroupLabel, RadioGroupOption } from '@headlessui/vue'
 import Footer from './Components/Footer/index.vue'
-import { faHandPointer, faHandRock } from '@/../private/pro-solid-svg-icons';
+import { faHandPointer, faHandRock, faPlus } from '@/../private/pro-solid-svg-icons';
+import { fab } from "@fortawesome/free-brands-svg-icons"
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { v4 as uuidv4 } from 'uuid';
-library.add(faHandPointer, faHandRock)
+library.add(faHandPointer, faHandRock, fab, faPlus)
 const Dummy = {
     images: [
         {
@@ -32,8 +33,15 @@ const Dummy = {
         { name: 'List', value: 'list' },
         { name: 'Info', value: 'info' },
     ],
+    columsToolsLink: [
+        { name: 'Add Item', value: 'add' },
+    ],
+    columsToolsInfo: [
+        { name: 'Add Item', value: 'add' },
+    ],
 }
 const selectedTheme = ref(Dummy.theme[0])
+const columsTool = ref(null)
 const columsTypeTheme = ref(Dummy.columsType[2])
 const tool = ref(Dummy.tools[0])
 
@@ -164,7 +172,7 @@ const navigations = ref([
             },
             {
                 title: 'email',
-                value: '<a href=mailto:contact@awgifts.eu>contact@awgifts.eu</a>',
+                value: 'contact@awgifts.eu',
                 icon: 'fas fa-envelope',
                 id : uuidv4(),
             },
@@ -173,29 +181,36 @@ const navigations = ref([
 
 ])
 
-const socials = [
+const copyRight = ref({label : 'AW Advantage', href: '*'})
+
+const socials = ref([
     {
-        title: "Facebook",
+        label: "Facebook",
         href: '#facebook',
-        icon: ['fab', 'fa-facebook'],
+        icon: 'fab fa-facebook',
+        id:uuidv4()
     },
     {
-        title: "Instagram",
+        label: "Instagram",
         href: '#instagram',
-        icon: ['fab', 'fa-instagram'],
+        icon:  'fab fa-instagram',
+        id:uuidv4()
     },
     {
-        title: "Twitter",
+        label: "Twitter",
         href: '#twitter',
-        icon: ['fab', 'fa-twitter'],
+        icon:  'fab fa-twitter',
+        id:uuidv4()
     },
     {
-        title: "Github",
+        label: "Github",
         href: '#github',
-        icon: ['fab', 'fa-github'],
+        icon:  'fab fa-github',
+        id:uuidv4()
     },
-]
+])
 const columSelected = ref(navigations.value[0]);
+
 const selectedColums = (value) => {
     columSelected.value = value
 }
@@ -227,12 +242,66 @@ const saveTextArea = (value) =>{
 const saveLink = (value) =>{
     const indexNavigation = navigations.value.findIndex((item)=>item.id == value.parentId )
     const indexChildData = navigations.value[indexNavigation].data.findIndex((item)=>item.id == value.colum.id )
-    let set = value.type == 'name' ? { name : value.value } : { href : value.value }
+    if(value.type !== 'delete'){
+        let set = value.type == 'name' ? { name : value.value } : { href : value.value }
     const data = {...navigations.value[indexNavigation].data[indexChildData] ,...set}
     navigations.value[indexNavigation].data[indexChildData] = data
-    
+    }else if(value.type == 'delete'){
+        navigations.value[indexNavigation].data.splice(indexChildData,1)
+    }
+  
 }
 
+const saveInfo=(value)=>{
+    const indexNavigation = navigations.value.findIndex((item)=>item.id == value.parentId )
+    const indexChildData = navigations.value[indexNavigation].data.findIndex((item)=>item.id == value.colum.id )
+    let set = value.type == 'value' ? { value : value.value } : { icon : value.value }
+    const data = {...navigations.value[indexNavigation].data[indexChildData] ,...set}
+    navigations.value[indexNavigation].data[indexChildData] = data
+}
+
+
+const columItemLinkChange = (value) => {
+    const data = navigations.value
+    if (value.value == 'add') {
+        const index = data.findIndex((item) => item.id == columSelected.value.id)
+        if (columSelected.value.type == 'list') data[index].data.push({ name: 'dummy', href: '#' })
+        else if (columSelected.value.type == 'info') data[index].data.push({
+            title: 'location',
+            value: 'new item',
+            icon: 'far fa-dot-circle',
+            id: uuidv4(),
+        })
+    }
+    navigations.value = data
+}
+
+const copyRightSave =(value)=>{
+    let set = value.type == 'name' ? { label : value.value } : { href : value.value }
+    copyRight.value = { ...copyRight.value , ...set}
+}
+
+const saveSocialmedia = (value) => {
+    const index = socials.value.findIndex((item) => item.id == value.colum.id)
+    if (value.type == 'save') {
+        const data = { ...socials.value[index], ...value.value }
+        socials.value[index] = data
+    }else if(value.type == 'delete'){
+        const data = socials.value
+        data.splice(index,1)   
+    }
+
+}
+const addSocial=()=>{
+    socials.value.push(
+        {
+        label: "new",
+        href: '#',
+        icon: 'far fa-dot-circle',
+        id:uuidv4()
+    }, 
+    )
+}
 </script>
 
 <template>
@@ -246,9 +315,8 @@ const saveLink = (value) =>{
                             <!-- Color picker -->
                             <div>
                                 <h2 class="text-sm font-medium text-gray-900">Tools</h2>
-
                                 <RadioGroup v-model="tool" class="mt-2">
-                                    <RadioGroupLabel class="sr-only">Choose a color</RadioGroupLabel>
+                                    <RadioGroupLabel class="sr-only">Choose a tool</RadioGroupLabel>
                                     <div class="flex items-center space-x-3">
                                         <RadioGroupOption as="template" v-for="color in Dummy.tools" :key="color.name"
                                             :value="color" v-slot="{ active, checked }">
@@ -269,7 +337,7 @@ const saveLink = (value) =>{
                                     </div>
                                 </RadioGroup>
                             </div>
-
+                            <hr class="mt-5">
                             <!-- Size picker -->
                             <div class="mt-8">
                                 <div class="flex items-center justify-between">
@@ -287,10 +355,9 @@ const saveLink = (value) =>{
                                         </RadioGroupOption>
                                     </div>
                                 </RadioGroup>
-
-
                             </div>
-
+                            <hr class="mt-5">
+                            <!-- theme -->
                             <div class="mt-8">
                                 <div class="flex items-center justify-between">
                                     <h2 class="text-sm font-medium text-gray-900">Colums Type</h2>
@@ -315,15 +382,76 @@ const saveLink = (value) =>{
                                     </div>
                                 </RadioGroup>
                             </div>
+                            <!-- colum type -->
+                            <div class="mt-8" v-if="columSelected.type == 'list'">
+                                <div class="flex items-center justify-between">
+                                    <h2 class="text-sm font-medium text-gray-900">{{ `Colums tools ${columSelected.title}` }}</h2>
+                                </div>
+                                <RadioGroup v-model="columsTool" class="mt-2">
+                                    <div class="grid grid-cols-3 gap-3 sm:grid-cols-2">
+                                        <RadioGroupOption as="template" v-for="option in Dummy.columsToolsLink" :key="option.value"
+                                            :value="option" v-slot="{ active, checked }">
+                                            <div :class="{
+                                                'flex cursor-pointer items-center justify-center rounded-md border py-3 px-3 text-sm font-medium uppercase sm:flex-1': true
+                                            }" @click="columItemLinkChange(option)">
+                                                <RadioGroupLabel as="span">{{ option.name }}</RadioGroupLabel>
+                                            </div>
+                                        </RadioGroupOption>
+                                    </div>
+                                </RadioGroup>
+                            </div>
+                            <!-- colum tools -->
+                            <div class="mt-8" v-if="columSelected.type == 'info'">
+                                <div class="flex items-center justify-between">
+                                    <h2 class="text-sm font-medium text-gray-900">{{ `Colums tools ${columSelected.title}` }}</h2>
+                                </div>
+                                <RadioGroup v-model="columsTool" class="mt-2">
+                                    <div class="grid grid-cols-3 gap-3 sm:grid-cols-2">
+                                        <RadioGroupOption as="template" v-for="option in Dummy.columsToolsInfo" :key="option.value"
+                                            :value="option" v-slot="{ active, checked }">
+                                            <div :class="{
+                                                'flex cursor-pointer items-center justify-center rounded-md border py-3 px-3 text-sm font-medium uppercase sm:flex-1': true
+                                            }" @click="columItemLinkChange(option)">
+                                                <RadioGroupLabel as="span">{{ option.name }}</RadioGroupLabel>
+                                            </div>
+                                        </RadioGroupOption>
+                                    </div>
+                                </RadioGroup>
+                            </div>
+                            <!-- social Media -->
+                            <div class="mt-8">
+                                <div class="flex items-center justify-between">
+                                    <h2 class="text-sm font-medium text-gray-900">{{ `Colums tools ${columSelected.title}` }}</h2>
+                                </div>
+                                <RadioGroup  class="mt-2">
+                                    <div class="grid grid-cols-3 gap-3 sm:grid-cols-2">
+                                        <RadioGroupOption as="template" v-for="option in socials" :key="option.value"
+                                            :value="option" v-slot="{ active, checked }">
+                                            <div :class="{
+                                                'flex cursor-pointer items-center justify-center rounded-md border py-3 px-3 text-sm font-medium uppercase sm:flex-1': true
+                                            }">
+                                                <RadioGroupLabel as="span"><FontAwesomeIcon :icon="option.icon" aria-hidden="true" /></RadioGroupLabel>
+                                            </div>
+                                        </RadioGroupOption>
+                                        <RadioGroupOption as="template">
+                                            <div :class="{
+                                                'flex cursor-pointer items-center justify-center rounded-md border  border-dashed py-3 px-3 text-sm font-medium uppercase sm:flex-1': true
+                                            }" @click="addSocial">
+                                                <RadioGroupLabel as="span"><FontAwesomeIcon :icon="['fas', 'plus']" /></RadioGroupLabel>
+                                            </div>
+                                        </RadioGroupOption>
+                                    </div>
+                                </RadioGroup>
+                            </div>
                         </form>
 
                         <!-- Product details -->
                     </div>
                     <!-- Image gallery -->
-                    <div style="width: 90%; background: #f2f2f2; border : 1px solid #bfbfbf;">
+                    <div style="width: 90%; background: #f2f2f2; border : 1px solid #bfbfbf; align-items: center; justify-content: center; display: flex;">
                         <div style="transform: scale(0.8);">
-                            <Footer class="lg:col-span-2 lg:row-span-2 rounded-lg " :columSelected="columSelected"
-                                :theme="selectedTheme.value" :social="socials"
+                            <Footer class="lg:col-span-2 lg:row-span-2 rounded-lg " :columSelected="columSelected" :saveSocialmedia="saveSocialmedia"
+                                :theme="selectedTheme.value" :social="socials" :saveInfo="saveInfo" :copyRight="copyRight" :copyRightSave="copyRightSave"
                                 :navigation="navigations" :selectedColums="selectedColums" :saveItemTitle="saveItemTitle" :saveTextArea="saveTextArea" :tool="tool" :saveLink="saveLink"/>
                         </div>
                     </div>

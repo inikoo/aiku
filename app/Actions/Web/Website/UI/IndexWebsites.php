@@ -25,6 +25,24 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexWebsites extends InertiaAction
 {
+    public function authorize(ActionRequest $request): bool
+    {
+        $this->canEdit = $request->user()->can('websites.edit');
+
+        return
+            (
+                $request->user()->tokenCan('root') or
+                $request->user()->hasPermissionTo('websites.view')
+            );
+    }
+
+    public function asController(ActionRequest $request): LengthAwarePaginator
+    {
+        $this->initialisation($request);
+
+        return $this->handle();
+    }
+
     protected function getElementGroups(): void
     {
         $this->elementGroups =
@@ -43,7 +61,6 @@ class IndexWebsites extends InertiaAction
                 ]
             ];
     }
-
 
     /** @noinspection PhpUndefinedMethodInspection */
     public function handle($prefix = null): LengthAwarePaginator
@@ -73,7 +90,7 @@ class IndexWebsites extends InertiaAction
         return $queryBuilder
             ->defaultSort('websites.code')
             ->select(['websites.code', 'websites.name', 'websites.slug', 'websites.domain', 'in_maintenance', 'websites.state'])
-            ->allowedSorts(['slug','code', 'name'])
+            ->allowedSorts(['slug', 'code', 'name'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -101,19 +118,9 @@ class IndexWebsites extends InertiaAction
                 ->withGlobalSearch()
                 ->withEmptyState(
                     [
-                        'title'       => __('no websites'),
-                        'description' => $this->canEdit ? __('Get started by creating a new website.') : null,
-                        'count'       => app('currentTenant')->stats->number_websites,
-                        'action'      => $this->canEdit ? [
-                            'type'    => 'button',
-                            'style'   => 'create',
-                            'tooltip' => __('new website'),
-                            'label'   => __('website'),
-                            'route'   => [
-                                'name'       => 'websites.show.websites.create',
-                                'parameters' => array_values($this->originalParameters)
-                            ]
-                        ] : null
+                        'title' => __('No websites found'),
+                        'count' => app('currentTenant')->webStats->number_websites,
+
                     ]
                 )
                 ->column(key: 'state', label: ['fal', 'fa-yin-yang'], sortable: true)
@@ -124,22 +131,10 @@ class IndexWebsites extends InertiaAction
         };
     }
 
-    public function authorize(ActionRequest $request): bool
-    {
-        $this->canEdit = $request->user()->can('webpages.edit');
-        return
-            (
-                $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo('websites.view')
-            );
-    }
-
-
     public function jsonResponse(): AnonymousResourceCollection
     {
         return ShopResource::collection($this->handle());
     }
-
 
     public function htmlResponse(LengthAwarePaginator $websites, ActionRequest $request): Response
     {
@@ -157,27 +152,17 @@ class IndexWebsites extends InertiaAction
                         'title' => __('website'),
                         'icon'  => 'fal fa-globe'
                     ],
-                    'actions'=> [
-                        $this->canEdit && $this->routeName == 'websites.index' ? [
+                    'actions' => [
+                        $this->canEdit ? [
                             'type'    => 'button',
                             'style'   => 'create',
-                            'tooltip' => __('new website'),
-                            'label'   => __('setting'),
+                            'tooltip' => __('Create a no shop connected website'),
+                            'label'   => __('new static website'),
                             'route'   => [
-                                'name'       => 'websites.edit',
-                                'parameters' => array_values($this->originalParameters)
+                                'name' => 'web.websites.create',
                             ]
                         ] : false,
-                        $this->canEdit && $this->routeName == 'websites.index' ? [
-                            'type'    => 'button',
-                            'style'   => 'create',
-                            'tooltip' => __('new setting'),
-                            'label'   => __('workshop'),
-                            'route'   => [
-                                'name'       => 'websites.show.edit',
-                                'parameters' => array_values($this->originalParameters)
-                            ]
-                        ] : false,
+
 
                     ]
                 ],
@@ -186,15 +171,6 @@ class IndexWebsites extends InertiaAction
             ]
         )->table($this->tableStructure());
     }
-
-
-    public function asController(ActionRequest $request): LengthAwarePaginator
-    {
-
-        $this->initialisation($request);
-        return $this->handle();
-    }
-
 
     /** @noinspection PhpUnusedParameterInspection */
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
@@ -213,12 +189,12 @@ class IndexWebsites extends InertiaAction
         };
 
         return match ($routeName) {
-            'websites.index' =>
+            'web.websites.index' =>
             array_merge(
                 Dashboard::make()->getBreadcrumbs(),
                 $headCrumb(
                     [
-                        'name' => 'websites.index',
+                        'name' => 'web.websites.index',
                         null
                     ]
                 ),

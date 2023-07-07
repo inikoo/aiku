@@ -5,7 +5,6 @@
     "data": {
         "defaultParameters": {},
         "dummyData": {
-            "data": {
                 "delay": 2500,
                 "imgsBanner": [
                     {
@@ -33,7 +32,6 @@
                         "imageAlt": "Continuous infinite slider"
                     }
                 ]
-            }
         }
     },
     "scope": "webpage",

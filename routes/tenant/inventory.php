@@ -21,6 +21,7 @@ use App\Actions\Inventory\StockFamily\ExportStockFamilies;
 use App\Actions\Inventory\StockFamily\UI\CreateStockFamily;
 use App\Actions\Inventory\StockFamily\UI\EditStockFamily;
 use App\Actions\Inventory\StockFamily\UI\IndexStockFamilies;
+use App\Actions\Inventory\StockFamily\UI\RemoveStockFamily;
 use App\Actions\Inventory\StockFamily\UI\ShowStockFamily;
 use App\Actions\Inventory\Warehouse\ExportWarehouses;
 use App\Actions\Inventory\Warehouse\UI\CreateWarehouse;
@@ -100,6 +101,7 @@ Route::get('/families', IndexStockFamilies::class)->name('stock-families.index')
 Route::get('/families/create', CreateStockFamily::class)->name('stock-families.create');
 Route::get('/families/{stockFamily}', ShowStockFamily::class)->name('stock-families.show');
 Route::get('/families/{stockFamily}/edit', EditStockFamily::class)->name('stock-families.edit');
+Route::get('/families/{stockFamily}/delete', RemoveStockFamily::class)->name('stock-families.remove');
 Route::get('/families/{stockFamily}/stocks', [IndexStocks::class, 'inStockFamily'])->name('stock-families.show.stocks.index');
 Route::get('/families/{stockFamily}/stocks/{stock}', [ShowStock::class, 'inStockFamily'])->name('stock-families.show.stocks.show');
 

@@ -13,10 +13,8 @@ enum WebBlockTypeScopeEnum: string
 {
     use EnumHelperTrait;
 
-
-    case WEBSITE  = 'website';
-    case WEBPAGE  = 'webpage';
-
-
+    case WEBSITE          = 'website';
+    case WEBPAGE          = 'webpage';
+    case WEBSITE_LAYOUTS  = 'website-layouts';
 
 }

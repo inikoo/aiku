@@ -38,18 +38,15 @@ class WebsitesDashboard
 
 
 
-    public function htmlResponse(Tenant $tenant, ActionRequest $request): Response
+    public function htmlResponse(Tenant $tenant): Response
     {
 
         return Inertia::render(
             'Web/WebsitesDashboard',
             [
-                'breadcrumbs'  => $this->getBreadcrumbs(
-                    $request->route()->getName(),
-                    $request->route()->parameters
-                ),
-                'title'       => __('websites dashboard'),
-                'pageHead'    => [
+                'breadcrumbs'  => $this->getBreadcrumbs(),
+                'title'        => __('websites dashboard'),
+                'pageHead'     => [
                     'title'     => __('websites dashboard'),
                 ],
                 'flatTreeMaps' => [
@@ -58,7 +55,7 @@ class WebsitesDashboard
                         [
                             'name'  => __('websites'),
                             'icon'  => ['fal', 'fa-globe'],
-                            'href'  => ['websites.index'],
+                            'href'  => ['web.websites.index'],
                             'index' => [
                                 'number' => $tenant->webStats->number_websites
                             ]
@@ -75,12 +72,9 @@ class WebsitesDashboard
     }
 
 
-    public function getBreadcrumbs(string $routeName, array $routeParameters): array
+    public function getBreadcrumbs(): array
     {
-
-
-        return match ($routeName) {
-            'websites.show.dashboard' =>
+        return
             array_merge(
                 Dashboard::make()->getBreadcrumbs(),
                 [
@@ -88,30 +82,14 @@ class WebsitesDashboard
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name'       => 'websites.show.dashboard',
-                                'parameters' => $routeParameters
-                            ],
-                            'label' => __('Website dashboard')
-                        ]
-                    ]
-                ]
-            ),
-            default =>
-            array_merge(
-                Dashboard::make()->getBreadcrumbs(),
-                [
-                    [
-                        'type'   => 'simple',
-                        'simple' => [
-                            'route' => [
-                                'name' => 'websites.dashboard'
+                                'name' => 'web.dashboard'
                             ],
                             'label' => __('websites dashboard'),
                         ]
                     ]
                 ]
-            )
-        };
+            );
     }
+
 
 }

@@ -63,7 +63,11 @@ class EditWarehouseArea extends InertiaAction
                     'next'     => $this->getNext($warehouseArea, $request),
                 ],
                 'pageHead'    => [
-                    'title'     => $warehouseArea->code,
+                    'title'     => $warehouseArea->name,
+                    'icon'      => [
+                        'title' => __('warehouses areas'),
+                        'icon'  => 'fal fa-map-signs'
+                    ],
                     'actions'   => [
                         [
                             'type'  => 'button',

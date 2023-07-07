@@ -45,8 +45,7 @@ class IndexCustomers extends InertiaAction
     {
         $this->initialisation($request);
         $this->parent = app('currentTenant');
-
-        return $this->handle(app('currentTenant'));
+        return $this->handle($this->parent);
     }
 
     public function inShop(Shop $shop, ActionRequest $request): LengthAwarePaginator

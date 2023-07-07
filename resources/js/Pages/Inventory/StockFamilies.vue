@@ -21,6 +21,7 @@ const props = defineProps<{
 </script>
 
 <template layout="App">
+    <!--suppress HtmlRequiredTitleElement -->
     <Head :title="capitalize(title)"/>
     <PageHeading :data="pageHead"></PageHeading>
     <TableStockFamilies :data="data" />

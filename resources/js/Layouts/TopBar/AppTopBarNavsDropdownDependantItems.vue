@@ -86,7 +86,6 @@ const menuLinks = computed(() => layout.navigation?.[layout.currentModule]?.topM
 </script>
 
 <template>
-
     <div v-if="layout.navigation?.[layout.currentModule]?.topMenu.dropdown"
          class="text-sm text-gray-600 inline-flex place-self-center rounded-r justify-center border-solid "
          :class="[getScopeCount(scope)>1 ? 'border border-l-0 border-indigo-300 divide-x divide-gray-300':'']"

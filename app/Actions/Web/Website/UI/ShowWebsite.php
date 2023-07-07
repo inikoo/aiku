@@ -10,7 +10,6 @@ namespace App\Actions\Web\Website\UI;
 use App\Actions\Auth\WebUser\IndexWebUser;
 use App\Actions\Helpers\History\IndexHistories;
 use App\Actions\InertiaAction;
-use App\Actions\Market\Shop\UI\ShowShop;
 use App\Actions\UI\Dashboard\Dashboard;
 use App\Actions\UI\WithInertia;
 use App\Actions\Web\WebpageVariant\IndexWebpageVariants;
@@ -198,8 +197,8 @@ class ShowWebsite extends InertiaAction
 
 
         return match ($routeName) {
-            'websites.show',
-            'websites.edit' =>
+            'web.websites.show',
+            'web.websites.edit' =>
 
             array_merge(
                 Dashboard::make()->getBreadcrumbs(),
@@ -208,11 +207,11 @@ class ShowWebsite extends InertiaAction
                     $routeParameters['website'],
                     [
                         'index' => [
-                            'name'       => 'websites.index',
+                            'name'       => 'web.websites.index',
                             'parameters' => []
                         ],
                         'model' => [
-                            'name'       => 'websites.show',
+                            'name'       => 'web.websites.show',
                             'parameters' => [$routeParameters['website']->slug]
                         ]
                     ],
@@ -220,32 +219,6 @@ class ShowWebsite extends InertiaAction
                 ),
             ),
 
-
-            'shops.show.websites.show',
-            'shops.show.websites.edit'
-            => array_merge(
-                ShowShop::make()->getBreadcrumbs($routeParameters),
-                $headCrumb(
-                    'simple',
-                    $routeParameters['website'],
-                    [
-                        'index' => [
-                            'name'       => 'shops.show.websites.index',
-                            'parameters' => [
-                                $routeParameters['shop']->slug,
-                            ]
-                        ],
-                        'model' => [
-                            'name'       => 'shops.show.websites.show',
-                            'parameters' => [
-                                $routeParameters['shop']->slug,
-                                $routeParameters['website']->slug
-                            ]
-                        ]
-                    ],
-                    $suffix
-                )
-            ),
             default => []
         };
     }
@@ -271,7 +244,7 @@ class ShowWebsite extends InertiaAction
         }
 
         return match ($routeName) {
-            'websites.show' => [
+            'web.websites.show' => [
                 'label' => $website->name,
                 'route' => [
                     'name'       => $routeName,
