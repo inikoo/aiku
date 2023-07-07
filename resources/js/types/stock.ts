@@ -6,10 +6,11 @@
 
 export interface Stock {
 
-    slug:string,
-    code:string,
-    owner_type: string,
-    composition: string,
+    slug:string
+    code:string
+    owner_type: string
+    composition: string
+    description: string
     state: string
     quantity_status: string
     created_at: string
@@ -17,7 +18,10 @@ export interface Stock {
     shop: string
     shop_slug: string
 
-    quantity: number
+    name: string
+    number_locations: number
+    quantity_in_locations: number
+    unit_value: number
 
     units_per_pack: number
     units_per_carton: number

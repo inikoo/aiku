@@ -44,8 +44,8 @@ class EditStockFamily extends InertiaAction
                 'title'                            => __('stock family'),
                 'breadcrumbs'                      => $this->getBreadcrumbs($stockFamily),
                 'navigation'                       => [
-                    'previous' => $this->getPrevious($stockFamily, $request),
-                    'next'     => $this->getNext($stockFamily, $request),
+                'previous' => $this->getPrevious($stockFamily, $request),
+                'next'     => $this->getNext($stockFamily, $request),
                 ],
                 'pageHead'    => [
                     'title'     => $stockFamily->name,

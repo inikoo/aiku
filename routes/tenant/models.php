@@ -38,6 +38,7 @@ use App\Actions\Inventory\Location\DeleteLocation;
 use App\Actions\Inventory\Location\StoreLocation;
 use App\Actions\Inventory\Location\UpdateLocation;
 use App\Actions\Inventory\Stock\UpdateStock;
+use App\Actions\Inventory\StockFamily\DeleteStockFamily;
 use App\Actions\Inventory\StockFamily\StoreStockFamily;
 use App\Actions\Inventory\StockFamily\UpdateStockFamily;
 use App\Actions\Inventory\Warehouse\DeleteWarehouse;
@@ -171,6 +172,7 @@ Route::post('/area/{warehouseArea}/location', [StoreLocation::class, 'inWarehous
 Route::patch('/stock/{stock}', UpdateStock::class)->name('stock.update');
 Route::post('/stock-family', StoreStockFamily::class)->name('stock-family.store');
 Route::patch('/stock-family/{stockFamily}', UpdateStockFamily::class)->name('stock-family.update');
+Route::delete('/stock-family/{stockFamily}', DeleteStockFamily::class)->name('stock-family.delete');
 
 Route::patch('/agent/{agent}', UpdateAgent::class)->name('agent.update');
 Route::post('/agent/{agent}/purchase-order', [StorePurchaseOrder::class, 'inAgent'])->name('agent.purchase-order.store');

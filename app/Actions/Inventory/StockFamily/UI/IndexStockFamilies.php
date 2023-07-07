@@ -132,19 +132,19 @@ class IndexStockFamilies extends InertiaAction
             'Inventory/StockFamilies',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(),
-                'title'       => __("stock's families"),
+                'title'       => __("SKUs families"),
                 'pageHead'    => [
-                    'title'   => __("stock's families"),
+                    'title'   => __("SKUs families"),
                     'icon'    => [
-                        'title' => __("stock's families"),
+                        'title' => __("SKUs families"),
                         'icon'  => 'fal fa-boxes-alt'
                     ],
                     'actions'=> [
                         $this->canEdit && $this->routeName == 'inventory.stock-families.index' ? [
                             'type'    => 'button',
                             'style'   => 'create',
-                            'tooltip' => __('new stock family'),
-                            'label'   => __('stock family'),
+                            'tooltip' => __('new SKU family'),
+                            'label'   => __('SKU family'),
                             'route'   => [
                                 'name'       => 'inventory.stock-families.create',
                                 'parameters' => array_values($this->originalParameters)
@@ -168,7 +168,7 @@ class IndexStockFamilies extends InertiaAction
                         'route' => [
                             'name' => 'inventory.stock-families.index'
                         ],
-                        'label' => __("stock's families"),
+                        'label' => __("SKUs families"),
                         'icon'  => 'fal fa-bars',
                     ],
                     'suffix' => $suffix
