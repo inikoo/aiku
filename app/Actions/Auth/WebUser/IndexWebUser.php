@@ -136,7 +136,7 @@ class IndexWebUser extends InertiaAction
                             'tooltip' => __('new web user'),
                             'label'   => __('web user'),
                             'route'   => [
-                                'name'       => 'websites.show.web-users.create',
+                                'name'       => 'web.websites.show.web-users.create',
                                 'parameters' => array_values($this->originalParameters)
                             ]
                         ] : null
@@ -203,7 +203,7 @@ class IndexWebUser extends InertiaAction
                 (new ShowCustomer())->getBreadcrumbs('shops.show.customers.show', $this->originalParameters),
                 $headCrumb([$parent->shop->slug,$parent->slug])
             ),
-            'websites.show.web-users.index' =>
+            'web.websites.show.web-users.index' =>
             array_merge(
                 (new ShowWebsite())->getBreadcrumbs(
                     routeName: $routeName,

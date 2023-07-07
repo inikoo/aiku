@@ -8,6 +8,7 @@
 namespace App\Actions\Web\Website;
 
 use App\Actions\Central\Central\StoreDomain;
+use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateWeb;
 use App\Models\Market\Shop;
 use App\Models\Web\Website;
 use App\Rules\CaseSensitive;
@@ -43,7 +44,7 @@ class StoreWebsite
         ]);
 
         $website->webStats()->create();
-
+        TenantHydrateWeb::dispatch(app('currentTenant'));
         return $website;
     }
 
@@ -78,16 +79,9 @@ class StoreWebsite
 
     public function htmlResponse(Website $website): RedirectResponse
     {
-        if (!$website->shop_id) {
-            return Redirect::route('websites.show', [
-                $website->slug
-            ]);
-        } else {
-            return Redirect::route('websites.show', [
-                $website->shop->slug,
-                $website->slug
-            ]);
-        }
+        return Redirect::route('websites.show', [
+            $website->slug
+        ]);
     }
 
     public function action(Shop $parent, array $objectData): Website

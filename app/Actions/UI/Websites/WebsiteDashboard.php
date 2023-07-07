@@ -20,16 +20,16 @@ class WebsiteDashboard
     use AsAction;
     use WithInertia;
 
-    public function handle($scope)
-    {
-        return $scope;
-    }
-
     public function authorize(ActionRequest $request): bool
     {
         return $request->user()->hasPermissionTo("websites.view");
     }
 
+
+    public function handle($scope)
+    {
+        return $scope;
+    }
 
     public function asController(Website $website): Website
     {
@@ -37,20 +37,17 @@ class WebsiteDashboard
     }
 
 
-
     public function htmlResponse(Website $website, ActionRequest $request): Response
     {
-
         return Inertia::render(
             'Web/WebsiteDashboard',
             [
                 'breadcrumbs'  => $this->getBreadcrumbs(
-                    $request->route()->getName(),
                     $request->route()->parameters
                 ),
-                'title'       => __('websites dashboard'),
-                'pageHead'    => [
-                    'title'     => __('website dashboard'),
+                'title'        => __('websites dashboard'),
+                'pageHead'     => [
+                    'title' => __('website dashboard'),
                 ],
                 'flatTreeMaps' => [
                     [
@@ -59,7 +56,7 @@ class WebsiteDashboard
                         [
                             'name'  => __('webpages'),
                             'icon'  => ['fal', 'fa-browser'],
-                            'href'  => ['websites.show.webpages.index',$website->slug],
+                            'href'  => ['web.websites.show.webpages.index', $website->slug],
                             'index' => [
                                 'number' => $website->stats->number_webpages
                             ]
@@ -68,19 +65,16 @@ class WebsiteDashboard
 
 
                     ]
-]
+                ]
 
             ]
         );
     }
 
 
-    public function getBreadcrumbs(string $routeName, array $routeParameters): array
+    public function getBreadcrumbs(array $routeParameters): array
     {
-
-
-        return match ($routeName) {
-            'websites.show.dashboard' =>
+        return
             array_merge(
                 Dashboard::make()->getBreadcrumbs(),
                 [
@@ -88,30 +82,14 @@ class WebsiteDashboard
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name'       => 'websites.show.dashboard',
+                                'name'       => 'web.websites.dashboard',
                                 'parameters' => $routeParameters
                             ],
                             'label' => __('Website dashboard')
                         ]
                     ]
                 ]
-            ),
-            default =>
-            array_merge(
-                Dashboard::make()->getBreadcrumbs(),
-                [
-                    [
-                        'type'   => 'simple',
-                        'simple' => [
-                            'route' => [
-                                'name' => 'websites.dashboard'
-                            ],
-                            'label' => __('websites dashboard'),
-                        ]
-                    ]
-                ]
-            )
-        };
+            );
     }
 
 }

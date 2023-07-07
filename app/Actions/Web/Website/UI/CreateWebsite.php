@@ -44,7 +44,7 @@ class CreateWebsite extends InertiaAction
     {
         $this->initialisation($request);
         if ($shop->website) {
-            return Redirect::route('websites.show', [
+            return Redirect::route('web.websites.show', [
                 $shop->website->slug
             ]);
         }

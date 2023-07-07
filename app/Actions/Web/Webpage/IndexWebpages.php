@@ -8,8 +8,8 @@
 namespace App\Actions\Web\Webpage;
 
 use App\Actions\InertiaAction;
-use App\Actions\Market\Shop\UI\ShowShop;
 use App\Actions\UI\Dashboard\Dashboard;
+use App\Actions\Web\Website\UI\ShowWebsite;
 use App\Http\Resources\Market\ShopResource;
 use App\Http\Resources\Market\WebpageResource;
 use App\InertiaTable\InertiaTable;
@@ -44,6 +44,7 @@ class IndexWebpages extends InertiaAction
     {
         $this->initialisation($request);
         $this->parent = app('currentTenant');
+
         return $this->handle($this->parent);
     }
 
@@ -51,6 +52,7 @@ class IndexWebpages extends InertiaAction
     {
         $this->initialisation($request);
         $this->parent = $website;
+
         return $this->handle($this->parent);
     }
 
@@ -78,6 +80,11 @@ class IndexWebpages extends InertiaAction
             );
         }
 
+        if (class_basename($parent) == 'Website') {
+            $queryBuilder->where('webpages.website_id', $parent->id);
+        }
+
+
         return $queryBuilder
             ->defaultSort('webpages.code')
             ->select(['code', 'id', 'type', 'slug'])
@@ -87,7 +94,7 @@ class IndexWebpages extends InertiaAction
             ->withQueryString();
     }
 
-    public function tableStructure($parent, ?array $modelOperations = null, $prefix=null): Closure
+    public function tableStructure($parent, ?array $modelOperations = null, $prefix = null): Closure
     {
         return function (InertiaTable $table) use ($parent, $modelOperations, $prefix) {
             if ($prefix) {
@@ -102,13 +109,13 @@ class IndexWebpages extends InertiaAction
                     match (class_basename($parent)) {
                         'Tenant' => [
                             'title'       => __("No webpages found"),
-                            'description' => $parent->webStats->number_websites==0 ? __('Nor any website exist 🤭') : null,
+                            'description' => $parent->webStats->number_websites == 0 ? __('Nor any website exist 🤭') : null,
                             'count'       => $parent->webStats->number_webpages,
 
                         ],
                         'Website' => [
-                            'title'       => __("No webpages found"),
-                            'count'       => $parent->stats->number_webpages,
+                            'title' => __("No webpages found"),
+                            'count' => $parent->stats->number_webpages,
                         ],
                         default => null
                     }
@@ -174,28 +181,28 @@ class IndexWebpages extends InertiaAction
         };
 
         return match ($routeName) {
-            'websites.webpages.index' =>
+            'web.webpages.index' =>
             array_merge(
                 Dashboard::make()->getBreadcrumbs(),
                 $headCrumb(
                     [
-                        'name' => 'webpages.index',
+                        'name' => 'web.webpages.index',
                         null
                     ]
                 ),
             ),
 
 
-            'shops.show.webpages.index' =>
+            'web.websites.show.webpages.index' =>
             array_merge(
-                (new ShowShop())->getBreadcrumbs($routeParameters['shop']),
+                (new ShowWebsite())->getBreadcrumbs(
+                    'web.websites.show',
+                    $routeParameters
+                ),
                 $headCrumb(
                     [
-                        'name'       => 'shops.show.webpages.index',
-                        'parameters' =>
-                            [
-                                $routeParameters['shop']->slug
-                            ]
+                        'name'       => 'web.websites.show.webpages.index',
+                        'parameters' => $routeParameters
                     ]
                 )
             ),
