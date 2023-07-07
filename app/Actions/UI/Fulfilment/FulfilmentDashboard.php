@@ -52,15 +52,6 @@ class FulfilmentDashboard
 
                     [
                         [
-                            'name'  => __('Stored Items'),
-                            'icon'  => ['fal', 'fa-narwhal'],
-                            'href'  => ['fulfilment.stored-items.index'],
-                            'index' => [
-                                'number' => $this->tenant->fulfilmentStats->number_stored_items
-                            ],
-
-                        ],
-                        [
                             'name'  => __('Customers'),
                             'icon'  => ['fal', 'fa-user-tie'],
                             'href'  => ['fulfilment.customers.index'],
@@ -69,6 +60,16 @@ class FulfilmentDashboard
                             ],
 
                         ],
+                        [
+                            'name'  => __('Stored Items'),
+                            'icon'  => ['fal', 'fa-narwhal'],
+                            'href'  => ['fulfilment.stored-items.index'],
+                            'index' => [
+                                'number' => $this->tenant->fulfilmentStats->number_stored_items
+                            ],
+
+                        ],
+
                         [
                             'name'  => __('Orders'),
                             'icon'  => ['fal', 'fa-business-time'],

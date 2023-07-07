@@ -8,6 +8,8 @@
 namespace App\Actions\Inventory\Stock\UI;
 
 use App\Actions\InertiaAction;
+use App\Actions\Inventory\StockFamily\UI\ShowStockFamily;
+use App\Actions\UI\Inventory\InventoryDashboard;
 use App\Http\Resources\Inventory\StockResource;
 use App\Models\Inventory\Stock;
 use App\Models\Inventory\StockFamily;
@@ -60,7 +62,6 @@ class IndexStocks extends InertiaAction
                 'stocks.code',
                 'stocks.slug',
                 'stocks.description',
-                'stocks.name',
                 'stocks.unit_value',
                 'number_locations',
                 'quantity_in_locations'])
@@ -71,7 +72,7 @@ class IndexStocks extends InertiaAction
                     $query->where('stocks.stock_family_id', $parent->id);
                 }
             })
-            ->allowedSorts(['code', 'family_code','description', 'number_locations','quantity_in_locations'])
+            ->allowedSorts(['code', 'family_code','description', 'unit_value'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -87,9 +88,8 @@ class IndexStocks extends InertiaAction
             }
             $table->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'family_code', label: __('family'), canBeHidden: false, sortable: true, searchable: true);
-            $table->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
-            $table->column(key: 'number_locations', label: __('locations'), canBeHidden: false, sortable: true, searchable: true);
-            $table->column(key: 'quantity_in_locations', label: __('qty in location'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'description', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'unit_value', label: __('unit value'), canBeHidden: false, sortable: true, searchable: true);
         };
     }
 
@@ -129,22 +129,77 @@ class IndexStocks extends InertiaAction
         return Inertia::render(
             'Inventory/Stocks',
             [
-                'breadcrumbs' => $this->getBreadcrumbs(),
-                'title'       => __('stocks'),
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
+                    $request->route()->originalParameters()
+                ),
+                'title'       => __("SKUs"),
                 'pageHead'    => [
-                    'title'   => __('stocks'),
-                    'create'  => $this->canEdit && $this->routeName=='inventory.stocks.index' ? [
-                        'route' => [
-                            'name'       => 'inventory.stocks.create',
-                            'parameters' => array_values($this->originalParameters)
-                        ],
-                        'label'=> __('stock')
-                    ] : false,
+                    'title'   => __("SKUs"),
+                    'icon'    => [
+                        'title' => __("SKUs"),
+                        'icon'  => 'fal fa-box'
+                    ],
+                    'actions'=> [
+                        $this->canEdit && $this->routeName=='inventory.stocks.index' ? [
+                            'type'    => 'button',
+                            'style'   => 'create',
+                            'tooltip' => __('new SKU'),
+                            'label'   => __('SKU'),
+                            'route'   => [
+                                'name'       => 'inventory.stocks.create',
+                                'parameters' => array_values($this->originalParameters)
+                            ]
+                        ] : false,
+                    ]
                 ],
                 'data'  => StockResource::collection($stocks),
 
-
             ]
         )->table($this->tableStructure($parent));
+    }
+
+    public function getBreadcrumbs(string $routeName, array $routeParameters): array
+    {
+        $headCrumb = function (array $routeParameters = []) {
+            return [
+                [
+                    'type'   => 'simple',
+                    'simple' => [
+                        'route' => $routeParameters,
+                        'label' => __("SKUs"),
+                        'icon'  => 'fal fa-bars'
+                    ],
+                ],
+            ];
+        };
+
+        return match ($routeName) {
+            'inventory.stocks.index' =>
+            array_merge(
+                (new InventoryDashboard())->getBreadcrumbs(),
+                $headCrumb(
+                    [
+                        'name' => 'inventory.stocks.index',
+                        null
+                    ]
+                )
+            ),
+            'inventory.stock-families.show.stocks.index',
+            =>
+            array_merge(
+                (new ShowStockFamily())->getBreadcrumbs(
+                    $routeParameters['stockFamily']
+                ),
+                $headCrumb([
+                    'name'       => 'inventory.stock-families.show.stocks.index',
+                    'parameters' =>
+                        [
+                            $routeParameters['stockFamily']->slug
+                        ]
+                ])
+            ),
+            default => []
+        };
     }
 }

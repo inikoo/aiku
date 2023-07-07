@@ -10,6 +10,7 @@ namespace App\Actions\Web\Website\UI;
 use App\Actions\InertiaAction;
 use App\Models\Web\Website;
 use Exception;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -42,7 +43,7 @@ class EditWebsite extends InertiaAction
         return Inertia::render(
             'EditModel',
             [
-                    'title'       => __('edit website'),
+                    'title'       => __("Website's settings"),
                     'breadcrumbs' => $this->getBreadcrumbs(
                         $request->route()->getName(),
                         $request->route()->parameters()
@@ -52,15 +53,24 @@ class EditWebsite extends InertiaAction
                         'next'     => $this->getNext($website, $request),
                     ],
                     'pageHead'    => [
-                        'title'     => $website->name,
-                        'icon'      => [
-                            'title' => __('website'),
-                            'icon'  => 'fal fa-globe'
+                        'title'     => __('Settings'),
+                        'container' => [
+                            'icon'    => ['fal', 'fa-globe'],
+                            'tooltip' => __('Website'),
+                            'label'   => Str::possessive($website->name)
                         ],
+
+                        'iconRight'    =>
+                            [
+                                'icon'  => ['fal', 'sliders-h'],
+                                'title' => __("Website's settings")
+                            ],
+
                         'actions'   => [
                             [
                                 'type'  => 'button',
                                 'style' => 'exitEdit',
+                                'label' => __('Exit settings'),
                                 'route' => [
                                     'name'       => preg_replace('/edit$/', 'show', $this->routeName),
                                     'parameters' => array_values($this->originalParameters)
@@ -284,7 +294,7 @@ class EditWebsite extends InertiaAction
         }
 
         return match ($routeName) {
-            'websites.edit' => [
+            'web.websites.edit' => [
                 'label' => $website->name,
                 'route' => [
                     'name'       => $routeName,

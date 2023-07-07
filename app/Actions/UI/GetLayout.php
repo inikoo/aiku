@@ -22,7 +22,6 @@ class GetLayout
 
     public function handle(User $user): array
     {
-
         $navigation = [];
 
         if ($user->can('business-intelligence.view')) {
@@ -134,7 +133,7 @@ class GetLayout
         }
 
         if ($user->can('websites.view')) {
-            $navigation['websites'] = [
+            $navigation['web'] = [
                 'scope' => 'websites',
                 'icon'  => ['fal', 'fa-globe'],
                 'label' => [
@@ -143,35 +142,46 @@ class GetLayout
 
                 ],
                 'route' => [
-                    'all'      => 'websites.index',
-                    'selected' => 'websites.show'
+                    'all'      => 'web.dashboard',
+                    'selected' => 'web.websites.dashboard'
                 ],
 
 
+
                 'topMenu' => [
+                    'subSections' => [
+                        [
+                            'icon'  => ['fal', 'fa-chart-network'],
+                            'route' => [
+                                'name' => 'web.dashboard',
+                            ]
+                        ],
+                    ],
                     'dropdown' => [
 
                         'links' => [
+
                             [
-                                'label'   => __('dashboard'),
-                                'tooltip' => __('Dashboard'),
+                                'tooltip' => __('websites'),
+                                'icon'    => ['fal', 'fa-globe'],
+                                'route'   => [
+                                    'all'      => 'web.websites.index',
+                                    'selected' => 'web.websites.show',
 
+                                ],
+                                'label'   => [
+                                    'all'      => __('Websites'),
+                                    'selected' => __('Website'),
 
-                                'icon'  => ['fal', 'fa-globe'],
-                                'route' =>
-                                    [
-                                        'all'      => ['websites.dashboard'],
-                                        'selected' => ['websites.show'],
-
-                                    ]
+                                ]
                             ],
                             [
                                 'label'   => __('webpages'),
                                 'tooltip' => __('Webpages'),
                                 'icon'    => ['fal', 'fa-browser'],
                                 'route'   => [
-                                    'all'      => ['websites.webpages.index'],
-                                    'selected' => ['websites.show.webpages.index'],
+                                    'all'      => ['web.webpages.index'],
+                                    'selected' => ['web.websites.show.webpages.index'],
 
                                 ]
                             ],
@@ -206,7 +216,7 @@ class GetLayout
                 'label' => __('Customers'),
                 'icon'  => ['fal', 'fa-user'],
 
-                'route' => [
+                'route'   => [
                     'all'      => 'crm.dashboard',
                     'selected' => 'crm.shops.show.dashboard',
                 ],
@@ -407,6 +417,52 @@ class GetLayout
             ];
         }
 
+        if ($user->can('inventory.view')) {
+            $navigation['fulfilment'] = [
+                'label'   => __('inventory'),
+                'icon'    => ['fal', 'fa-dolly-flatbed-alt'],
+                'route'   => 'fulfilment.dashboard',
+                'topMenu' => [
+                    'subSections' => [
+                        [
+                            'icon'  => ['fal', 'fa-chart-network'],
+                            'route' => [
+                                'name' => 'fulfilment.dashboard',
+                            ]
+                        ],
+
+                        [
+                            'label' => __('customers'),
+                            'icon'  => ['fal', 'fa-user-tie'],
+                            'route' => [
+                                'name' => 'fulfilment.customers.index',
+                            ]
+                        ],
+                        [
+                            'label'   => __('stored items'),
+                            'tooltip' => __('stored items'),
+                            'icon'    => ['fal', 'fa-narwhal'],
+                            'route'   => [
+                                'name' => 'fulfilment.stored-items.index',
+                            ]
+                        ],
+                        [
+                            'label'   => __('orders'),
+                            'tooltip' => __('orders'),
+                            'icon'    => ['fal', 'fa-business-time'],
+                            'route'   => [
+                                'name' => 'fulfilment.orders.index',
+                            ]
+                        ],
+
+                    ],
+
+
+
+                ]
+            ];
+        }
+
         if ($user->can('production.view')) {
             $navigation['production'] = [
                 'label'   => __('production'),
@@ -498,16 +554,16 @@ class GetLayout
 
         if ($user->can('accounting.view')) {
             $navigation['accounting'] = [
-                'scope'        => 'shops',
-                'label'        => __('Accounting'),
-                'icon'         => ['fal', 'fa-abacus'],
-                'route'        => [
+                'scope' => 'shops',
+                'label' => __('Accounting'),
+                'icon'  => ['fal', 'fa-abacus'],
+                'route' => [
                     'all'      => 'accounting.dashboard',
                     'selected' => 'accounting.dashboard',
                 ],
 
 
-                'topMenu'      => [
+                'topMenu' => [
                     'subSections' => [
                         [
                             'label' => __('Payment accounts'),
@@ -550,10 +606,10 @@ class GetLayout
 
         if ($user->can('hr.view')) {
             $navigation['hr'] = [
-                'label'    => __('human resources'),
-                'icon'     => ['fal', 'fa-user-hard-hat'],
-                'route'    => 'hr.dashboard',
-                'topMenu'  => [
+                'label'   => __('human resources'),
+                'icon'    => ['fal', 'fa-user-hard-hat'],
+                'route'   => 'hr.dashboard',
+                'topMenu' => [
                     'subSections' => [
                         [
                             'label' => __('job positions'),
@@ -602,10 +658,10 @@ class GetLayout
 
         if ($user->can('sysadmin.view')) {
             $navigation['sysadmin'] = [
-                'label'    => __('sysadmin'),
-                'icon'     => ['fal', 'fa-users-cog'],
-                'route'    => 'sysadmin.dashboard',
-                'topMenu'  => [
+                'label'   => __('sysadmin'),
+                'icon'    => ['fal', 'fa-users-cog'],
+                'route'   => 'sysadmin.dashboard',
+                'topMenu' => [
                     'subSections' => [
                         [
                             'label' => __('users'),

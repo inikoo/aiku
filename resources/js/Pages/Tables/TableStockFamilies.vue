@@ -30,6 +30,7 @@ function stockFamilyRoute(stockFamily: StockFamily) {
 </script>
 
 
+
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(code)="{ item: stockFamily }">

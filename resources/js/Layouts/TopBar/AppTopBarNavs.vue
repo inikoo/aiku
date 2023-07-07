@@ -20,7 +20,6 @@ const layout = useLayoutStore();
         <AppTopBarNavProcurement v-if="layout.currentModule==='procurement'"  />
         <AppTopBarNavItems />
         <AppTopBarNavDropdown   />
-
         <AppTopBarNavsDropdownDependantItems />
 
     </div>
