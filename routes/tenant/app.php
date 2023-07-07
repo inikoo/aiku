@@ -7,6 +7,7 @@
 
 declare(strict_types=1);
 
+use App\Actions\Auth\User\GetAllUsers;
 use App\Actions\Firebase\StoreFirebaseCloudMessagingToken;
 use Illuminate\Support\Facades\Route;
 
@@ -95,6 +96,8 @@ Route::middleware([
             ->name("firebase.")
             ->group(__DIR__."/firebase.php");
     });
+
+    Route::get('/users', GetAllUsers::class)->name('users');
 
     require __DIR__."/auth.php";
 });
