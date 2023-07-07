@@ -23,7 +23,7 @@ class GetAllUsers
     public function handle(array $objectData = []): AnonymousResourceCollection
     {
         $query  = $objectData['query'];
-        $users = User::where('username', 'ILIKE', '%'.$query.'%')->get();
+        $users = User::where('contact_name', 'ILIKE', '%'.$query.'%')->get();
 
         return UserResource::collection($users);
     }
