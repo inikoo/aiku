@@ -27,7 +27,7 @@ const comboboxOptions = [
 const comboboxValue = ref(comboboxOptions[0])
 // console.log(location.href + "?query=" + query)
 
-const loadOptions = (query, setOptions) => {
+const loadOptions = (query: string, setOptions) => {
     fetch(location.href + "?query=" + query)
         .then(response => {
             response.json()})   
