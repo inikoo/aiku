@@ -90,6 +90,23 @@ class IndexPaymentAccounts extends InertiaAction
             $table
                 ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
+                ->withEmptyState(
+                    [
+                        'title'       => __('no payment accounts'),
+                        'description' => $this->canEdit ? __('Get started by creating a new payment account.') : null,
+                        'count'       => app('currentTenant')->stats->number_employees,
+                        'action'      => $this->canEdit ? [
+                            'type'    => 'button',
+                            'style'   => 'create',
+                            'tooltip' => __('new payment account'),
+                            'label'   => __('payment account'),
+                            'route'   => [
+                                'name'       => 'accounting.payment-accounts.create',
+                                'parameters' => array_values($this->originalParameters)
+                            ]
+                        ] : null
+                    ]
+                )
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->defaultSort('code');
@@ -150,13 +167,17 @@ class IndexPaymentAccounts extends InertiaAction
                 'title'       => __('Payment Accounts'),
                 'pageHead'    => [
                     'title'     => __('Payment Accounts'),
-                    'create'    => $this->canEdit && $this->routeName == 'accounting.payment-accounts.index' ? [
-                        'route' => [
-                            'name'       => 'accounting.payment-accounts.create',
-                            'parameters' => array_values($this->originalParameters)
-                        ],
-                        'label' => __('payment account')
-                    ] : false,
+                    'actions'   => [
+                        $this->canEdit ? [
+                            'type'  => 'button',
+                            'style' => 'create',
+                            'label' => __('payment account'),
+                            'route' => [
+                                'name'       => 'accounting.payment-accounts.create',
+                                'parameters' => array_values($this->originalParameters)
+                            ]
+                        ] : false
+                    ],
                     'container' => match ($routeName) {
                         'accounting.shops.show.payment-accounts.index' => [
                             'icon'    => ['fal', 'fa-store-alt'],

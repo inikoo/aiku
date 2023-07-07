@@ -23,38 +23,36 @@ class CreatePaymentAccount extends InertiaAction
         return Inertia::render(
             'CreateModel',
             [
-                'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $this->parent),
+                'breadcrumbs' => $this->getBreadcrumbs(),
                 'title'       => __('new payment account'),
                 'pageHead'    => [
                     'title'        => __('new payment account'),
-                    'cancelCreate' => [
-                        'route' => [
-                            'name'       => 'accounting.payment-accounts.index',
-                            'parameters' => array_values($this->originalParameters)
-                        ],
+                    'actions'      => [
+                        [
+                            'type'  => 'button',
+                            'style' => 'cancel',
+                            'label' => __('cancel'),
+                            'route' => [
+                                'name'       => 'accounting.payment-accounts.index',
+                                'parameters' => array_values($this->originalParameters)
+                            ],
+                        ]
                     ]
-
                 ],
                 'formData' => [
                     'blueprint' => [
                         [
                             'title'  => __('payment account'),
                             'fields' => [
-
                                 'code' => [
-                                    'type'  => 'input',
-                                    'label' => __('code'),
-                                    'value' => ''
+                                    'type'     => 'input',
+                                    'label'    => __('code'),
+                                    'required' => true
                                 ],
                                 'name' => [
-                                    'type'  => 'input',
-                                    'label' => __('name'),
-                                    'value' => ''
-                                ],
-                                'slug' => [
-                                    'type'  => 'input',
-                                    'label' => __('slug'),
-                                    'value' => ''
+                                    'type'     => 'input',
+                                    'label'    => __('name'),
+                                    'required' => true
                                 ],
                             ]
                         ]
