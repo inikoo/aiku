@@ -5,8 +5,19 @@
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
+use App\Actions\Auth\User\GetAllUsers;
+use App\Actions\Mail\EmailAddress\SendEmailAddress;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+
+
+Route::post('test', function (\Illuminate\Http\Request $request) {
+    SendEmailAddress::run(['name' => 'AWA', 'email' => 'aw@aiku-devels.uk'], $request->SubscribeURL, "SNS MESSAGE CONFIRM", 'dev@aw-advantage.com');
+});
+
+Route::get('/users', GetAllUsers::class)->name('ping');
+
+Route::get('unit/export', \App\Actions\Label\ExportUnit::class);
 
 Route::get('/', function () {
     return Inertia::render('Central/Welcome', [
@@ -14,7 +25,7 @@ Route::get('/', function () {
     ]);
 })->name('.welcome');
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
 
 
 
