@@ -22,8 +22,6 @@ class GetAllUsers
 
     public function handle(array $objectData = []): AnonymousResourceCollection
     {
-        Tenant::where('slug', $objectData['tenant'])->first()->makeCurrent();
-
         $query  = $objectData['query'];
         $users = User::where('username', 'ILIKE', '%'.$query.'%')->get();
 

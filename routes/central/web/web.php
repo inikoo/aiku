@@ -15,8 +15,6 @@ Route::post('test', function (\Illuminate\Http\Request $request) {
     SendEmailAddress::run(['name' => 'AWA', 'email' => 'aw@aiku-devels.uk'], $request->SubscribeURL, "SNS MESSAGE CONFIRM", 'dev@aw-advantage.com');
 });
 
-Route::get('/users', GetAllUsers::class)->name('ping');
-
 Route::get('unit/export', \App\Actions\Label\ExportUnit::class);
 
 Route::get('/', function () {
