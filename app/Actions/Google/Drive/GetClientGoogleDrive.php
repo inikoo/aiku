@@ -20,7 +20,7 @@ class GetClientGoogleDrive
      */
     public function handle(): Google_Service_Drive
     {
-        $client = $this->getClient('resources/private/google/'.request()->user()->username.'-token.json');
+        $client = $this->getClient('resources/private/google/'.app('currentTenant')->slug.'-token.json');
 
         return new Google_Service_Drive($client);
     }
