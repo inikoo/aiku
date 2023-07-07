@@ -417,9 +417,9 @@ class GetLayout
             ];
         }
 
-        if ($user->can('inventory.view')) {
+        if ($user->can('fulfilment.view')) {
             $navigation['fulfilment'] = [
-                'label'   => __('inventory'),
+                'label'   => __('fulfilment'),
                 'icon'    => ['fal', 'fa-dolly-flatbed-alt'],
                 'route'   => 'fulfilment.dashboard',
                 'topMenu' => [
