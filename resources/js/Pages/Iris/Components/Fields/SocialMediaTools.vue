@@ -18,7 +18,7 @@ const props = defineProps({
   save:Function,
   data:Object
 })
-console.log(props.modelValue)
+
 const filterText = ref('')
 const labelText = ref(props.data.label)
 const linkText = ref(props.data.href)

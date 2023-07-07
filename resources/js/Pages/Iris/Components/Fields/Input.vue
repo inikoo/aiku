@@ -6,7 +6,6 @@ const props = defineProps<{
   keyValue:String
   cssClass:any
 }>()
-console.log(props)
 const editMode = ref(false)
 const inputValue = ref(props.data[props.keyValue])
 const inputRef = ref<HTMLInputElement | null>(null)
