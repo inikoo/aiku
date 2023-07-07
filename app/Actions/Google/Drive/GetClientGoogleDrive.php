@@ -30,12 +30,16 @@ class GetClientGoogleDrive
      */
     public function getClient($tokenPath): Google_Client
     {
-        $configPath = 'resources/private/google/client_secret.json';
         $client = new Google_Client();
+        $tenant = app('currentTenant');
 
         $client->setApplicationName('Aiku google drive manager');
+        $client->setAuthConfig([
+            'client_id' => json_decode($tenant->data, true)['google_cloud_client_id'],
+            'client_secret' => json_decode($tenant->data, true)['google_cloud_client_secret'],
+            'redirect_uris' => url('/'),
+        ]);
 
-        $client->setAuthConfig($configPath);
         $client->setAccessType('offline');
         $client->setRedirectUri('http://localhost:5173');
         $client->setScopes(
