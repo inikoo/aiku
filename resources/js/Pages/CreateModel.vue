@@ -76,6 +76,7 @@ const handleFormSubmit = () => {
 ));
 };
 
+const current = null
 </script>
 
 <template layout="App">
