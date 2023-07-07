@@ -7,7 +7,6 @@
 
 
 use App\Actions\Auth\WebUser\IndexWebUser;
-use App\Actions\UI\Websites\WebsiteDashboard;
 use App\Actions\UI\Websites\WebsitesDashboard;
 use App\Actions\Web\Webpage\IndexWebpages;
 use App\Actions\Web\Website\UI\CreateWebsite;
@@ -26,7 +25,6 @@ Route::get('/webpages', [IndexWebpages::class, 'inTenant'])->name('webpages.inde
 
 
 Route::get('/{website}', ShowWebsite::class)->name('websites.show');
-Route::get('/{website}/dashboard', WebsiteDashboard::class)->name('websites.dashboard');
 
 Route::get('/{website}/edit', EditWebsite::class)->name('websites.edit');
 Route::get('/{website}/workshop', ShowWebsiteWorkshop::class)->name('websites.workshop');
