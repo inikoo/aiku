@@ -24,6 +24,7 @@ enum WebBlockTypeClassEnum: string
 
     case TEXT    = 'text';
     case PICTURE = 'picture';
+    case MAPS    = 'maps';
 
 
 }
