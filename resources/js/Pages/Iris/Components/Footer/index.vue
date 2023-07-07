@@ -1,7 +1,7 @@
 <template>
     <div>
-        <component :is="component[theme]" :columSelected="columSelected" :social="props.social"
-            :navigation="props.navigation" :changeColums="props.changeColums"
+        <component :is="component[theme]" :columSelected="columSelected" :social="props.social" :saveSocialmedia="saveSocialmedia"
+            :navigation="props.navigation" :changeColums="props.changeColums" :copyRight="copyRight" :copyRightSave="copyRightSave"
             :selectedColums="selectedColums" :saveItemTitle="saveItemTitle" :saveTextArea="saveTextArea" :saveInfo="saveInfo"
             :tool="tool" :saveLink="saveLink"/>
     </div>
@@ -24,6 +24,9 @@ const props = defineProps<{
     tool:Object
     saveLink:Function
     saveInfo:Function
+    copyRight : Object
+    copyRightSave : Function
+    saveSocialmedia : Function
 }>()
 
 console.log(props)
