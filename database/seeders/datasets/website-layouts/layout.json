@@ -1,0 +1,27 @@
+{
+    "code": "layout",
+    "name": "Layout",
+    "class": "layout",
+    "data": {
+        "defaultParameters": {},
+        "dummyData": {
+            "header": "LightHeader",
+            "background": {
+                "imgSrc": "https://tailwindui.com/img/ecommerce-images/incentives-07-hero.jpg",
+                "imgAlt": "Background Image of Page"
+            },
+            "footer": "1"
+        }
+    },
+    "scope": "website-layouts",
+    "webBlocks": [
+        {
+            "code": "LayoutCenter",
+            "name": "Layout Center"
+        },
+        {
+            "code": "LayoutEcommerce",
+            "name": "Layout Ecommerce"
+        }
+    ]
+}
