@@ -160,6 +160,18 @@ button.select-icon {
 	background-color: #fff;
 	border: none;
 }
+.aim-modal--icon-input input {
+	width: calc( 100% - 30px);
+	padding: 8px 15px;
+	background-color: #fff;
+	border: none;
+}
+.aim-modal--icon-input-search input {
+	width: calc( 30% - 30px);
+	padding: 8px 15px;
+	background-color: #fff;
+	border: none;
+}
 .aim-modal--icon-search input::-webkit-input-placeholder {
 	font-style: italic;
 }
@@ -257,6 +269,16 @@ button.select-icon {
     color: #fff;
     font-size: 15px;
     background-color: #39b54a;
+    border: none;
+    cursor: pointer;
+    outline: 0;
+}
+
+.aim-modal--footer button.aim-delete-icon-button {
+    padding: 10px 35px;
+    color: #fff;
+    font-size: 15px;
+    background-color: red;
     border: none;
     cursor: pointer;
     outline: 0;
