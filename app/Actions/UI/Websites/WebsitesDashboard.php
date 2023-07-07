@@ -58,7 +58,7 @@ class WebsitesDashboard
                         [
                             'name'  => __('websites'),
                             'icon'  => ['fal', 'fa-globe'],
-                            'href'  => ['websites.index'],
+                            'href'  => ['web.websites.index'],
                             'index' => [
                                 'number' => $tenant->webStats->number_websites
                             ]
@@ -104,7 +104,7 @@ class WebsitesDashboard
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name' => 'websites.dashboard'
+                                'name' => 'web.dashboard'
                             ],
                             'label' => __('websites dashboard'),
                         ]

@@ -8,7 +8,6 @@
 declare(strict_types=1);
 
 use App\Actions\Auth\User\GetAllUsers;
-use App\Actions\Firebase\StoreFirebaseCloudMessagingToken;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware([
@@ -53,9 +52,9 @@ Route::middleware([
         Route::prefix("shops")
             ->name("shops.")
             ->group(__DIR__."/shops.php");
-        Route::prefix("websites")
-            ->name("websites.")
-            ->group(__DIR__."/websites.php");
+        Route::prefix("web")
+            ->name("web.")
+            ->group(__DIR__."/web.php");
         Route::prefix("products")
             ->name("products.")
             ->group(__DIR__."/products.php");

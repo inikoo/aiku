@@ -134,7 +134,7 @@ class GetLayout
         }
 
         if ($user->can('websites.view')) {
-            $navigation['websites'] = [
+            $navigation['web'] = [
                 'scope' => 'websites',
                 'icon'  => ['fal', 'fa-globe'],
                 'label' => [
@@ -143,8 +143,8 @@ class GetLayout
 
                 ],
                 'route' => [
-                    'all'      => 'websites.index',
-                    'selected' => 'websites.show'
+                    'all'      => 'web.dashboard',
+                    'selected' => 'web.websites.dashboard'
                 ],
 
 
@@ -153,25 +153,36 @@ class GetLayout
 
                         'links' => [
                             [
-                                'label'   => __('dashboard'),
                                 'tooltip' => __('Dashboard'),
-
-
-                                'icon'  => ['fal', 'fa-globe'],
-                                'route' =>
+                                'icon'    => ['fal', 'fa-chart-network'],
+                                'route'   =>
                                     [
-                                        'all'      => ['websites.dashboard'],
-                                        'selected' => ['websites.show'],
+                                        'all'      => ['web.dashboard'],
+                                        'selected' => ['web.websites.dashboard'],
 
                                     ]
+                            ],
+                            [
+                                'tooltip' => __('websites'),
+                                'icon'    => ['fal', 'fa-globe'],
+                                'route'   => [
+                                    'all'      => 'web.websites.index',
+                                    'selected' => 'web.websites.show',
+
+                                ],
+                                'label'   => [
+                                    'all'      => __('Websites'),
+                                    'selected' => __('Website'),
+
+                                ]
                             ],
                             [
                                 'label'   => __('webpages'),
                                 'tooltip' => __('Webpages'),
                                 'icon'    => ['fal', 'fa-browser'],
                                 'route'   => [
-                                    'all'      => ['websites.webpages.index'],
-                                    'selected' => ['websites.show.webpages.index'],
+                                    'all'      => ['web.webpages.index'],
+                                    'selected' => ['web.websites.show.webpages.index'],
 
                                 ]
                             ],
