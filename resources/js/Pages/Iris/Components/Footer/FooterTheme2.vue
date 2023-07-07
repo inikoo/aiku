@@ -19,10 +19,10 @@ import { faMapMarkerAlt, faEnvelope, faBalanceScale, faBuilding, faPhone, faMap 
 import { library } from '@fortawesome/fontawesome-svg-core'
 import draggable from "vuedraggable";
 import { ref } from 'vue'
-import TitleItem from '../Fields/Input.vue'
+import Input from '../Fields/Input.vue'
 import TextArea from '../Fields/TextArea.vue'
 import HyperLink from '../Fields/Hyperlink.vue'
-import IconPicker from '../Fields/IconPicker/Vue3IconPicker.vue';
+import IconPicker from '../Fields/IconPicker/IconPicker.vue';
 library.add(faFacebook, faInstagram, faTwitter, faGithub, faYoutube, faMapMarkerAlt, faEnvelope, faBalanceScale, faBuilding, faPhone, faMap)
 
 const props = defineProps<{
@@ -34,6 +34,7 @@ const props = defineProps<{
     saveTextArea: Function
     tool: Object
     saveLink: Function
+    saveInfo:Function
 }>()
 
 console.log('props', props)
@@ -62,7 +63,7 @@ const childLog = (a, b, c) => {
                         <div :class="['space-y-3', 'w-1/4', columSelected.id !== element.id ? '' : 'border']"
                             @click="props.selectedColums(element)">
                             <!-- <h3 class="text-sm font-bold leading-6 text-gray-700 capitalize">{{ element.title }}</h3> -->
-                            <TitleItem :data="element" :save="props.saveItemTitle" />
+                            <Input :data="element" :save="props.saveItemTitle" keyValue="title" cssClass="text-sm font-bold leading-6 text-gray-700 capitalize"/>
                             <div v-if="element.type == 'list'">
                                 <draggable :list="element.data" group="navigationData" @change="childLog" itemKey="name"
                                     :disabled="tool.name !== 'grab'">
@@ -86,14 +87,21 @@ const childLog = (a, b, c) => {
 
                             <div v-if="element.type == 'info'">
                                 <div class="flex flex-col gap-y-5">
-                                    <div v-for="address in element.data"
-                                        class="grid grid-cols-[auto,1fr] gap-4 items-center justify-start gap-x-3">
+                                    <draggable :list="element.data" group="navigationData" @change="childLog" itemKey="name"
+                                    :disabled="tool.name !== 'grab'" >
+                                    <template #item="{ element: child, index: childIndex }" >
+                                    <div  class="grid grid-cols-[auto,1fr] gap-4 items-center justify-start gap-y-3  mb-2.5">
                                         <div class="w-5 flex items-center justify-center text-gray-400">
-                                            <FontAwesomeIcon :icon="address.icon" :title="address.title"
-                                                aria-hidden="true" />
+                                            <!-- <FontAwesomeIcon :icon="child.icon" :title="child.title"
+                                                aria-hidden="true" /> -->
+                                                <IconPicker :modelValue="child.icon" :data="child"  :save="(value)=>props.saveInfo({parentId : element.id , type:'icon' , ...value })" />
                                         </div>
-                                        <span class="leading-5 text-gray-600" v-html="address.value"></span>
+                                         <Input :data="child" :save="(value)=>props.saveInfo({parentId : element.id , type:'value', ...value})" keyValue="value" cssClass="leading-5 text-gray-600"/>
                                     </div>
+                                        
+                                    </template>
+                                    
+                                    </draggable>
                                 </div>
                             </div>
 
@@ -119,7 +127,5 @@ const childLog = (a, b, c) => {
                 </p>
             </div>
         </div>
-
-        <IconPicker />
     </footer>
 </template>

@@ -2,7 +2,7 @@
     <div>
         <component :is="component[theme]" :columSelected="columSelected" :social="props.social"
             :navigation="props.navigation" :changeColums="props.changeColums"
-            :selectedColums="selectedColums" :saveItemTitle="saveItemTitle" :saveTextArea="saveTextArea"
+            :selectedColums="selectedColums" :saveItemTitle="saveItemTitle" :saveTextArea="saveTextArea" :saveInfo="saveInfo"
             :tool="tool" :saveLink="saveLink"/>
     </div>
 </template>
@@ -23,6 +23,7 @@ const props = defineProps<{
     saveTextArea:Function
     tool:Object
     saveLink:Function
+    saveInfo:Function
 }>()
 
 console.log(props)

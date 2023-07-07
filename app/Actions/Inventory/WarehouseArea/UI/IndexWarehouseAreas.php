@@ -159,19 +159,6 @@ class IndexWarehouseAreas extends InertiaAction
                         'title' => __('warehouses areas'),
                         'icon'  => 'fal fa-map-signs'
                     ],
-                    'create'  => $this->canEdit && $this->routeName == 'inventory.warehouses.show.warehouse-areas.index' ? [
-                        'route'     => [
-                            'name'       => 'inventory.warehouses.show.warehouse-areas.create',
-                            'parameters' => array_values($this->originalParameters)
-                        ],
-                        'withMulti' => [
-                            'route' => [
-                                'name'       => 'inventory.warehouses.show.warehouse-areas.create-multi',
-                                'parameters' => array_values($this->originalParameters)
-                            ],
-                        ],
-                        'label'     => __('warehouse area')
-                    ] : false,
                     'actions' => [
                         $this->canEdit && $this->routeName == 'inventory.warehouses.show.warehouse-areas.index' ? [
                             'type'    => 'buttonGroup',

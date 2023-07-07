@@ -12,59 +12,37 @@ library.add(fas, fal, far, fad, fab)
 const props = defineProps({
   label: {
     type: String,
-    default: 'Vue3 Icon Picker'
+    default: 'Icon Picker'
   },
   modelValue: {
     type: String,
     default: 'fas fa-circle'
-  }
+  },
+  cssClass : String,
+  save:Function,
+  data:Object
 })
 
 const filterText = ref('')
 const activeGlyph = ref(props.modelValue)
 const isVisible = ref(false)
-console.log('dsdfgfadfhjysdffsdg',fontLibrary)
 const tabs = [
       {
         id: 'all',
         title: 'All Icons',
-        icon: 'fas fa-star-of-life',
         link: 'all'
       },
-      {
-        id: 'far',
-        title: 'Font Awesome Regular',
-        icon: 'fab fa-font-awesome-alt',
-        link: fontLibrary.fontAwesome.variants.regular
-      },
-      {
-        id: 'fas',
-        title: 'Font Awesome Solid',
-        icon: 'fab fa-font-awesome',
-        link: fontLibrary.fontAwesome.variants.solid
-      },
-      {
-        id: 'fab',
-        title: 'Font Awesome Brands',
-        icon: 'fab fa-font-awesome-flag',
-        link: fontLibrary.fontAwesome.variants.brands
-      }
     ]
 
-    const activeTab = ref(tabs[0])
     const allGlyphs = [].concat(
-      tabs[1].link.icons,
-      tabs[2].link.icons,
-      tabs[3].link.icons
+      fontLibrary.fontAwesome.variants.regular.icons,
+      fontLibrary.fontAwesome.variants.solid.icons,
+      fontLibrary.fontAwesome.variants.brands.icons
     )
 
     const glyphs = computed(() => {
-      let _glyphs = []
-      if (activeTab.value.id !== 'all') {
-        _glyphs = activeTab.value.link.icons
-      } else {
-        _glyphs = allGlyphs
-      }
+      let _glyphs = allGlyphs
+      
 
       if (filterText.value != '') {
         const _filterText = filterText.value.toLowerCase()
@@ -72,7 +50,6 @@ const tabs = [
           item => item.substr(7, filterText.value.length) === _filterText
         )
       }
-      console.log('sdaaf',_glyphs)
       return _glyphs
     })
 
@@ -84,20 +61,11 @@ const tabs = [
       return activeGlyph.value == glyph
     }
 
-    const isActiveTab = tab => {
-      return tab == activeTab.value.id
-    }
-
-    const setActiveTab = tab => {
-      activeTab.value = tab
-      // filterText.value=''; //nice feature
-    }
-
     const getGlyphName = glyph =>
       glyph.replace(/f.. fa-/g, '').replace('-', ' ')
 
     const insert = () => {
-      context.emit('update:modelValue', activeGlyph.value)
+      props.save({colum : {...props.data}, value : activeGlyph})
       isVisible.value = false
     }
 
@@ -113,7 +81,7 @@ const tabs = [
 
 
 <template>
-    <div @click="togglePicker">icon Picker</div>
+    <div @click="togglePicker"><FontAwesomeIcon :icon="activeGlyph" :class="cssClass" aria-hidden="true" /></div>
     <div class="aim-modal aim-open" v-if="isVisible">
       <div class="aim-modal--content">
         <div class="aim-modal--header">
@@ -127,35 +95,9 @@ const tabs = [
           </div>
         </div>
         <div class="aim-modal--body">
-          <div class="aim-modal--sidebar">
-            <div class="aim-modal--sidebar-tabs">
-              <div
-                class="aim-modal--sidebar-tab-item"
-                data-library-id="all"
-                v-for="tab in tabs"
-                :key="tab.id"
-                :class="{ 'aesthetic-active': isActiveTab(tab.id) }"
-                @click="setActiveTab(tab)"
-              >
-              <FontAwesomeIcon :icon="tab.icon"/>
-                <span>{{ tab.title }}</span>
-              </div>
-            </div>
-            <div class="aim-sidebar-preview">
-              <div class="aim-icon-item ">
-                <div class="aim-icon-item-inner">
-                  <FontAwesomeIcon :icon="activeGlyph"/>
-                  <div class="aim-icon-item-name">
-                    {{ activeGlyph }}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
           <div class="aim-modal--icon-preview-wrap">
             <div class="aim-modal--icon-search">
               <input v-model="filterText" placeholder="Filter by name..." />
-              <FontAwesomeIcon icon="fas fa-search"/>
             </div>
             <div class="aim-modal--icon-preview-inner">
               <div class="aim-modal--icon-preview">
@@ -168,9 +110,6 @@ const tabs = [
                 >
                   <div class="aim-icon-item-inner">
                     <FontAwesomeIcon :icon="glyph"/>
-                    <div class="aim-icon-item-name">
-                      {{ getGlyphName(glyph) }}
-                    </div>
                   </div>
                 </div>
               </div>

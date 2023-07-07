@@ -23,6 +23,10 @@ class CreateWarehouse extends InertiaAction
                 'title'       => __('new warehouse'),
                 'pageHead'    => [
                     'title'        => __('new warehouse'),
+                    'icon'         => [
+                        'title' => __('create warehouses'),
+                        'icon'  => 'fal fa-warehouse'
+                    ],
                     'actions'      => [
                         [
                             'type'  => 'button',

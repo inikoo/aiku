@@ -17,6 +17,7 @@ class UpdateStockFamily
 {
     use WithActionUpdate;
 
+
     public function handle(StockFamily $stockFamily, array $modelData): StockFamily
     {
         $stockFamily = $this->update($stockFamily, $modelData, ['data']);
