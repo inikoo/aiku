@@ -3,10 +3,12 @@ import { ref, onMounted } from 'vue'
 const props = defineProps<{
   data: Object,
   save : Function
+  keyValue:String
+  cssClass:any
 }>()
-
+console.log(props)
 const editMode = ref(false)
-const inputValue = ref(props.data.title)
+const inputValue = ref(props.data[props.keyValue])
 const inputRef = ref<HTMLInputElement | null>(null)
 
 const changeEditMode = () => {
@@ -33,7 +35,7 @@ onMounted(() => {
 <template>
   <div>
     <template v-if="!editMode">
-      <div @click="changeEditMode"> <h3 class="text-lg font-bold leading-6 text-gray-700 capitalize">{{ data.title }}</h3></div>
+      <div @click="changeEditMode"> <h3 :class="cssClass">{{ data[keyValue] }}</h3></div>
     </template>
     <template v-else>
       <input

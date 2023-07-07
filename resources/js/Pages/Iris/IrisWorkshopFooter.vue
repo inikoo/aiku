@@ -164,7 +164,7 @@ const navigations = ref([
             },
             {
                 title: 'email',
-                value: '<a href=mailto:contact@awgifts.eu>contact@awgifts.eu</a>',
+                value: 'contact@awgifts.eu',
                 icon: 'fas fa-envelope',
                 id : uuidv4(),
             },
@@ -231,6 +231,14 @@ const saveLink = (value) =>{
     const data = {...navigations.value[indexNavigation].data[indexChildData] ,...set}
     navigations.value[indexNavigation].data[indexChildData] = data
     
+}
+
+const saveInfo=(value)=>{
+    const indexNavigation = navigations.value.findIndex((item)=>item.id == value.parentId )
+    const indexChildData = navigations.value[indexNavigation].data.findIndex((item)=>item.id == value.colum.id )
+    let set = value.type == 'value' ? { value : value.value } : { icon : value.value }
+    const data = {...navigations.value[indexNavigation].data[indexChildData] ,...set}
+    navigations.value[indexNavigation].data[indexChildData] = data
 }
 
 </script>
@@ -323,7 +331,7 @@ const saveLink = (value) =>{
                     <div style="width: 90%; background: #f2f2f2; border : 1px solid #bfbfbf;">
                         <div style="transform: scale(0.8);">
                             <Footer class="lg:col-span-2 lg:row-span-2 rounded-lg " :columSelected="columSelected"
-                                :theme="selectedTheme.value" :social="socials"
+                                :theme="selectedTheme.value" :social="socials" :saveInfo="saveInfo"
                                 :navigation="navigations" :selectedColums="selectedColums" :saveItemTitle="saveItemTitle" :saveTextArea="saveTextArea" :tool="tool" :saveLink="saveLink"/>
                         </div>
                     </div>
