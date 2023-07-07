@@ -21,7 +21,8 @@ firebase.initializeApp(firebaseCredential);
 // Retrieve an instance of Firebase Messaging so that it can handle background
 // messages.
 const messaging = firebase.messaging();
-messaging.getToken({ vapidKey: 'BAGSpyOuFXWNwXjS56MTlWuz8KOqwzHhkjzrgs3Mok3Yv6OhH0yH2jTblyFckwoF2gnZA530PFEjuR424wdMpU0' }).then((currentToken) => {
+
+messaging.getToken({ vapidKey: firebaseCredential.vapidKey }).then((currentToken) => {
     if (currentToken) {
         //
     } else {
