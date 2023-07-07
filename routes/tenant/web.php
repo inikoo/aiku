@@ -1,3 +1,4 @@
+
 <?php
 /*
  *  Author: Raul Perusquia <raul@inikoo.com>
@@ -19,6 +20,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/dashboard', WebsitesDashboard::class)->name('dashboard');
 
+Route::get('/websites/dashboard', WebsitesDashboard::class)->name('websites.dashboard');
 Route::get('/websites', IndexWebsites::class)->name('websites.index');
 Route::get('/websites/create', CreateWebsite::class)->name('websites.create');
 Route::get('/webpages', [IndexWebpages::class, 'inTenant'])->name('webpages.index');
