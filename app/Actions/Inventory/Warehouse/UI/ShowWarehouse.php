@@ -36,6 +36,7 @@ class ShowWarehouse extends InertiaAction
     {
         $this->canEdit   = $request->user()->can('inventory.edit');
         $this->canDelete = $request->user()->can('inventory.edit');
+
         return $request->user()->hasPermissionTo("inventory.view");
     }
 

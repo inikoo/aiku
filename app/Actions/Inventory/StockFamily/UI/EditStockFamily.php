@@ -8,16 +8,15 @@
 namespace App\Actions\Inventory\StockFamily\UI;
 
 use App\Actions\InertiaAction;
-use App\Http\Resources\Inventory\StockFamilyResource;
+
 use App\Models\Inventory\StockFamily;
 use Inertia\Inertia;
 use Inertia\Response;
-use JetBrains\PhpStorm\Pure;
+
 use Lorisleiva\Actions\ActionRequest;
 
 class EditStockFamily extends InertiaAction
 {
-    use HasUIStockFamily;
     public function handle(StockFamily $stockFamily): StockFamily
     {
         return $stockFamily;
@@ -25,8 +24,7 @@ class EditStockFamily extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('inventory.warehouses.edit');
-        return $request->user()->hasPermissionTo("inventory.warehouses.view");
+        return $request->user()->hasPermissionTo("inventory.stock-families.edit");
     }
 
     public function asController(StockFamily $stockFamily, ActionRequest $request): StockFamily
@@ -38,29 +36,39 @@ class EditStockFamily extends InertiaAction
 
 
 
-    public function htmlResponse(StockFamily $stockFamily): Response
+    public function htmlResponse(StockFamily $stockFamily, ActionRequest $request): Response
     {
         return Inertia::render(
             'EditModel',
             [
-                'title'       => __('stock family'),
-                'breadcrumbs' => $this->getBreadcrumbs($stockFamily),
+                'title'                            => __('stock family'),
+                'breadcrumbs'                      => $this->getBreadcrumbs($stockFamily),
+                'navigation'                       => [
+                    'previous' => $this->getPrevious($stockFamily, $request),
+                    'next'     => $this->getNext($stockFamily, $request),
+                ],
                 'pageHead'    => [
-                    'title'     => $stockFamily->code,
-                    'exitEdit'  => [
-                        'route' => [
-                            'name'       => preg_replace('/edit$/', 'show', $this->routeName),
-                            'parameters' => array_values($this->originalParameters)
-                        ]
+                    'title'     => $stockFamily->name,
+                    'icon'      => [
+                        'title' => __("stock's families"),
+                        'icon'  => 'fal fa-boxes-alt'
                     ],
-
-
+                    'actions'   => [
+                        [
+                            'type'  => 'button',
+                            'style' => 'exitEdit',
+                            'route' => [
+                                'name'       => preg_replace('/edit$/', 'show', $request->route()->getName()),
+                                'parameters' => array_values($request->route()->originalParameters())
+                            ]
+                        ]
+                    ]
                 ],
 
                 'formData' => [
                     'blueprint' => [
                         [
-                            'title'  => __('id'),
+                            'title'  => __('edit stock family'),
                             'fields' => [
                                 'code' => [
                                     'type'  => 'input',
@@ -88,8 +96,45 @@ class EditStockFamily extends InertiaAction
         );
     }
 
-    #[Pure] public function jsonResponse(StockFamily $stockFamily): StockFamilyResource
+    public function getBreadcrumbs(StockFamily $stockFamily): array
     {
-        return new StockFamilyResource($stockFamily);
+        return ShowStockFamily::make()->getBreadcrumbs(
+            stockFamily: $stockFamily,
+            suffix: '('.__('editing').')'
+        );
+    }
+
+    public function getPrevious(StockFamily $stockFamily, ActionRequest $request): ?array
+    {
+        $previous = StockFamily::where('code', '<', $stockFamily->code)->orderBy('code', 'desc')->first();
+
+        return $this->getNavigation($previous, $request->route()->getName());
+    }
+
+    public function getNext(StockFamily $stockFamily, ActionRequest $request): ?array
+    {
+        $next = StockFamily::where('code', '>', $stockFamily->code)->orderBy('code')->first();
+
+        return $this->getNavigation($next, $request->route()->getName());
+    }
+
+    private function getNavigation(?StockFamily $stockFamily, string $routeName): ?array
+    {
+        if (!$stockFamily) {
+            return null;
+        }
+
+        return match ($routeName) {
+            'inventory.stock-families.edit' => [
+                'label' => $stockFamily->name,
+                'route' => [
+                    'name'       => $routeName,
+                    'parameters' => [
+                        'stockFamily' => $stockFamily->slug
+                    ]
+
+                ]
+            ]
+        };
     }
 }

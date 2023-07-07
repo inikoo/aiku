@@ -17,14 +17,20 @@ enum StockFamilyTabsEnum: string
 
 
     case SHOWCASE           = 'showcase';
-    case SALES              = 'sales';
-    case ISSUES             = 'issues';
 
-    case PARTS              = 'parts';
-    case DISCONTINUED_PARTS = 'discontinued_parts';
-    case LOCATIONS          = 'locations';
-    case PRODUCT_FAMILIES   = 'product_families';
-    case PRODUCTS           = 'products';
+    case STOCK              = 'stocks';
+    //    case SALES              = 'sales';
+    //    case ISSUES             = 'issues';
+    //
+    //
+    //
+    //    case PARTS              = 'parts';
+    //    case DISCONTINUED_PARTS = 'discontinued_parts';
+    //    case LOCATIONS          = 'locations';
+    //    case PRODUCT_FAMILIES   = 'product_families';
+    //    case PRODUCTS           = 'products';
+
+
 
     case HISTORY            = 'history';
     case DATA               = 'data';
@@ -37,36 +43,42 @@ enum StockFamilyTabsEnum: string
     public function blueprint(): array
     {
         return match ($this) {
+
             StockFamilyTabsEnum::DATA => [
                 'type'  => 'icon',
                 'align' => 'right',
                 'title' => __('data'),
                 'icon'  => 'fal fa-database',
             ],
-            StockFamilyTabsEnum::SALES => [
-                'title' => __('sales'),
-                'icon'  => 'fal fa-dollar-sign',
-            ],
-            StockFamilyTabsEnum::ISSUES => [
-                'title' => __('issues'),
-                'icon'  => 'fal fa-poop',
-            ],
-            StockFamilyTabsEnum::PARTS => [
-                'title' => __('parts'),
+            StockFamilyTabsEnum::STOCK => [
+                'title' => __('stocks'),
                 'icon'  => 'fal fa-box',
-            ],StockFamilyTabsEnum::DISCONTINUED_PARTS => [
-                'title' => __('discontinued parts'),
-                'icon'  => 'fa-thing fa-x ',
-            ],StockFamilyTabsEnum::LOCATIONS => [
-                'title' => __('locations'),
-                'icon'  => 'fal fa-inventory'
-            ],StockFamilyTabsEnum::PRODUCT_FAMILIES => [
-                'title' => __('product families'),
-                'icon'  => 'fal fa-cubes',
-            ],StockFamilyTabsEnum::PRODUCTS => [
-                'title' => __('products'),
-                'icon'  => 'fal fa-cube',
-            ],StockFamilyTabsEnum::HISTORY => [
+            ],
+            //            StockFamilyTabsEnum::SALES => [
+            //                'title' => __('sales'),
+            //                'icon'  => 'fal fa-dollar-sign',
+            //            ],
+            //            StockFamilyTabsEnum::ISSUES => [
+            //                'title' => __('issues'),
+            //                'icon'  => 'fal fa-poop',
+            //            ],
+            //            StockFamilyTabsEnum::PARTS => [
+            //                'title' => __('parts'),
+            //                'icon'  => 'fal fa-box',
+            //            ],StockFamilyTabsEnum::DISCONTINUED_PARTS => [
+            //                'title' => __('discontinued parts'),
+            //                'icon'  => 'fa-thing fa-x ',
+            //            ],StockFamilyTabsEnum::LOCATIONS => [
+            //                'title' => __('locations'),
+            //                'icon'  => 'fal fa-inventory'
+            //            ],StockFamilyTabsEnum::PRODUCT_FAMILIES => [
+            //                'title' => __('product families'),
+            //                'icon'  => 'fal fa-cubes',
+            //            ],StockFamilyTabsEnum::PRODUCTS => [
+            //                'title' => __('products'),
+            //                'icon'  => 'fal fa-cube',
+            //            ],
+            StockFamilyTabsEnum::HISTORY => [
                 'align' => 'right',
                 'title' => __('changelog'),
                 'icon'  => 'fal fa-clock',

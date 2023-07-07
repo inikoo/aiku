@@ -1,6 +1,6 @@
 <!--
   - Author: Raul Perusquia <raul@inikoo.com>
-  - Created: Mon, 20 Mar 2023 23:18:59 Malaysia Time, Kuala Lumpur, Malaysia
+  - Created: Sun, 19 Mar 2023 16:45:18 Malaysia Time, Kuala Lumpur, Malaysia
   - Copyright (c) 2023, Raul A Perusquia Flores
   -->
 
@@ -8,25 +8,27 @@
 import {Link} from '@inertiajs/vue3';
 import Table from '@/Components/Table/Table.vue';
 import {StockFamily} from "@/types/stock-family";
-import {useLocaleStore} from '@/Stores/locale.js';
 
 const props = defineProps<{
-    data: object
+    data: object,
     tab?: string
 }>()
 
-const locale = useLocaleStore();
-
 function stockFamilyRoute(stockFamily: StockFamily) {
     switch (route().current()) {
+
         case 'inventory.stock-families.index':
             return route(
                 'inventory.stock-families.show',
-                [stockFamily.slug]);
+                [stockFamily.slug, stockFamily.slug]);
     }
+
 }
 
+
+
 </script>
+
 
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
@@ -35,11 +37,13 @@ function stockFamilyRoute(stockFamily: StockFamily) {
                 {{ stockFamily['code'] }}
             </Link>
         </template>
-        <template #cell(number_stocks)="{ item: stockFamily }">
-            {{ locale.number(stockFamily['number_stocks']) }}
+        <template #cell(name)="{ item: stockFamily }">
+                {{ stockFamily['name'] }}
         </template>
-
+        <template #cell(number_stocks)="{ item: stockFamily }">
+            <Link :href="route('inventory.stock-families.show.stocks.index',stockFamily['slug'])">
+                {{ stockFamily['number_stocks'] }}
+            </Link>
+        </template>
     </Table>
 </template>
-
-
