@@ -421,7 +421,7 @@ const addSocial=()=>{
                             <!-- social Media -->
                             <div class="mt-8">
                                 <div class="flex items-center justify-between">
-                                    <h2 class="text-sm font-medium text-gray-900">{{ `Colums tools ${columSelected.title}` }}</h2>
+                                    <h2 class="text-sm font-medium text-gray-900">{{ `Social media setting` }}</h2>
                                 </div>
                                 <RadioGroup  class="mt-2">
                                     <div class="grid grid-cols-3 gap-3 sm:grid-cols-2">

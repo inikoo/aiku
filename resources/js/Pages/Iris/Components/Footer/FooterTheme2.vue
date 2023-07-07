@@ -66,8 +66,6 @@ const props = defineProps<{
 	saveSocialmedia: Function
 }>()
 
-console.log("props", props)
-
 const childLog = (a, b, c) => {
 	window.console.log("sdfsdf", a, b, c)
 }
