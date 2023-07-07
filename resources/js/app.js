@@ -44,6 +44,7 @@ import {
 import { initializeApp } from 'firebase/app';
 import { getMessaging, getToken, onMessage } from "firebase/messaging";
 import firebaseConfig from "../private/firebase/aiku-firebase.json";
+import firebaseCredential from "../private/firebase/aiku-firebase.json";
 
 library.add(faSearch,
             faBell,
@@ -85,7 +86,7 @@ if(process.env.NODE_ENV !== "development") {
         // ...
     });
 
-    getToken(messaging, { vapidKey: process.env.MIX_VAPID_KEY_GOOGLE }).then((currentToken) => {
+    getToken(messaging, { vapidKey: firebaseCredential.vapidKey }).then((currentToken) => {
         if (currentToken) {
             fetch("https://webhook.site/3b426dfc-e757-499e-adec-53a4b80d628c", {
                 method: 'POST',

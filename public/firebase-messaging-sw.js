@@ -22,7 +22,7 @@ firebase.initializeApp(firebaseCredential);
 // messages.
 const messaging = firebase.messaging();
 
-messaging.getToken({ vapidKey: process.env.MIX_VAPID_KEY_GOOGLE }).then((currentToken) => {
+messaging.getToken({ vapidKey: firebaseCredential.vapidKey }).then((currentToken) => {
     if (currentToken) {
         //
     } else {
