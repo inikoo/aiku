@@ -9,7 +9,6 @@ namespace App\Actions\Auth\User;
 
 use App\Http\Resources\SysAdmin\UserResource;
 use App\Models\Auth\User;
-use App\Models\Tenancy\Tenant;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -23,7 +22,7 @@ class GetAllUsers
     public function handle(array $objectData = []): AnonymousResourceCollection
     {
         $query  = $objectData['query'];
-        $users = User::where('contact_name', 'ILIKE', '%'.$query.'%')->get();
+        $users  = User::where('contact_name', 'ILIKE', '%'.$query.'%')->get();
 
         return UserResource::collection($users);
     }

@@ -7,10 +7,10 @@
 
 namespace App\Actions\Google\Drive;
 
-use Google_Service_Drive_DriveFile;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class StoreFolderGoogleDrive {
+class StoreFolderGoogleDrive
+{
     use AsAction;
 
     private mixed $service;
@@ -32,7 +32,10 @@ class StoreFolderGoogleDrive {
         }
 
         $store_folder_key = GetFileGoogleDrive::run(
-            $this->aiku_folder_key, '', 'folder', [
+            $this->aiku_folder_key,
+            '',
+            'folder',
+            [
                 'au_location'  => 'store',
                 'au_store_key' => $store->id
             ]
@@ -40,7 +43,9 @@ class StoreFolderGoogleDrive {
 
         if (!$store_folder_key) {
             $store_folder_key = StoreFolderGoogleDrive::run(
-                $store->get('Code'), $this->aiku_folder_key, [
+                $store->get('Code'),
+                $this->aiku_folder_key,
+                [
                     'au_location'  => 'store',
                     'au_store_key' => $store->id
                 ]
@@ -50,7 +55,10 @@ class StoreFolderGoogleDrive {
         }
 
         $store_invoice_folder_key = GetFileGoogleDrive::run(
-            $store_folder_key, 'invoices', 'folder', [
+            $store_folder_key,
+            'invoices',
+            'folder',
+            [
                 'au_location'  => 'invoices',
                 'au_store_key' => $store->id
             ]
@@ -58,7 +66,9 @@ class StoreFolderGoogleDrive {
 
         if (!$store_invoice_folder_key) {
             $store_invoice_folder_key = StoreFolderGoogleDrive::run(
-                'invoices', $store_folder_key, [
+                'invoices',
+                $store_folder_key,
+                [
                     'au_location'  => 'invoices',
                     'au_store_key' => $store->id
                 ]

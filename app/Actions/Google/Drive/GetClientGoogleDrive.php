@@ -35,7 +35,7 @@ class GetClientGoogleDrive
 
         $client->setApplicationName('Aiku google drive manager');
         $client->setAuthConfig([
-            'client_id' => json_decode($tenant->data, true)['google_cloud_client_id'],
+            'client_id'     => json_decode($tenant->data, true)['google_cloud_client_id'],
             'client_secret' => json_decode($tenant->data, true)['google_cloud_client_secret'],
             'redirect_uris' => url('/'),
         ]);

@@ -8,7 +8,6 @@
 namespace App\Actions\Mail\Ses;
 
 use App\Actions\Mail\EmailAddress\Traits\AwsClient;
-use App\Models\Auth\User;
 use Aws\Result;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -45,8 +44,8 @@ class SendSesEmail
             foreach ($attach as $attachment) {
                 $attachments[] = [
                     'ContentType' => 'image/png',
-                    'Filename' => basename($attachment),
-                    'Data' => base64_encode(file_get_contents($attachment)),
+                    'Filename'    => basename($attachment),
+                    'Data'        => base64_encode(file_get_contents($attachment)),
                 ];
             }
 
@@ -54,7 +53,7 @@ class SendSesEmail
         }
 
         return $this->getSesClient()->sendEmail([
-            'Source' => $this->generateSenderEmail(),
+            'Source'      => $this->generateSenderEmail(),
             'Destination' => [
                 'ToAddresses' => [$to],
             ],

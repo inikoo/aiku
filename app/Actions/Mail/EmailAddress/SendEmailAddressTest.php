@@ -22,10 +22,12 @@ class SendEmailAddressTest
     {
         $content = [
             'title' => 'subject',
-            'body' => 'hello'
+            'body'  => 'hello'
         ];
 
-        SendSesEmail::run($content, $to,
+        SendSesEmail::run(
+            $content,
+            $to,
             [
                 storage_path('app/public/devices/mobile.png'),
                 storage_path('app/public/devices/desktop.png')
