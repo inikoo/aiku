@@ -2,15 +2,14 @@
     <div class="bg-indigo-100/50 text-xs h-full border-l border-gray-200 space-y-2">
 
         <!-- Online Users -->
-        <section class="text-white">
-            <div class="pl-2.5 pr-1.5 py-0.5 bg-indigo-500 flex items-center">
-                <!-- <div class="ring-1 h-2 aspect-square rounded-full" :class="[activities.length > 0 ? 'bg-green-400 ring-green-600' : 'bg-gray-400 ring-gray-600']" /> -->
+        <section class="text-white" v-if="layout.rightSidebar.activeUsers">
+            <div class="pl-2.5 pr-1.5 py-1 bg-indigo-500 flex items-center leading-none">
                 <div>Active Users</div>
             </div>
             <FooterTab >
                 <template #default>
                     <div v-for="(option, index) in activities"
-                        class=" pl-2.5 pr-1.5 flex justify-start items-center py-1 gap-x-2.5 cursor-default">
+                        class="pl-2.5 pr-1.5 flex justify-start items-center py-1 gap-x-2.5 cursor-default">
                         <img :src="`/media/group/${option.user.avatar_id}`" :alt="option.user.contact_name" srcset=""
                             class="h-5 rounded-full shadow ring-1 ring-gray-100">
                         <p class="text-gray-100 flex flex-col gap-y-0.5">
@@ -23,13 +22,22 @@
         </section>
 
         <!-- Language -->
-        <!-- <section class="text-white py-2">
-            <div class="pl-2.5 pr-1.5 py-0.5 bg-indigo-500">Language</div>
-        </section> -->
+        <section class="text-white py-2 space-y-1" v-if="layout.rightSidebar.language">
+            <div class="pl-2.5 pr-1.5 py-1 bg-indigo-500 flex items-center leading-none">
+                <div>Language</div>
+            </div>
+            <div class="text-gray-600 pl-2.5 pr-1.5">
+                <span class="uppercase font-semibold">({{ locale.language.code }})</span>
+                {{ locale.language.name }}
+            </div>
+        </section>
     </div>
 </template>
 
 <script setup lang="ts">
+import { useLocaleStore } from "@/Stores/locale"
+import { useLayoutStore } from "@/Stores/layout"
+
 import { useDatabaseList } from "vuefire"
 import { getDatabase, ref as dbRef } from "firebase/database"
 import { initializeApp } from "firebase/app"
@@ -49,5 +57,6 @@ type UserOnline = {
         username: string
     }
 }
-
+const locale = useLocaleStore()
+const layout = useLayoutStore()
 </script>

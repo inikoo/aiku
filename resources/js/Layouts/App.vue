@@ -193,7 +193,7 @@ const user = ref(usePage().props.auth.user);
 
 <template>
     <div class="relative min-h-full mr-44 transition-all duration-200 ease-in-out"
-        :class="[layout.rightSidebar.activeUsers ? 'mr-44' : 'mr-0']"
+        :class="[Object.values(layout.rightSidebar).some(value => value === true) ? 'mr-44' : 'mr-0']"
     >
 
         <!-- TopBar -->
@@ -346,7 +346,7 @@ const user = ref(usePage().props.auth.user);
 
         <!-- Sidebar: Right -->
         <AppRightSideBar class="fixed top-16 w-44 transition-all duration-200 ease-in-out"
-            :class="[layout.rightSidebar.activeUsers ? 'right-0' : '-right-44']"
+            :class="[Object.values(layout.rightSidebar).some(value => value === true) ? 'right-0' : '-right-44']"
         />
 
     </div>

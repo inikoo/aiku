@@ -25,7 +25,6 @@ const isTabActive = ref(false)
 
 <template>
     <footer class="z-20 fixed w-screen bg-gray-800 bottom-0 right-0  text-white">
-    <!-- {{ layout.rightSidebar.activeUsers }} -->
         <!-- Helper: Outer background (close popup purpose) -->
         <div class="fixed z-40 right-0 top-0 bg-transparent w-screen h-screen" @click="isTabActive = !isTabActive"
             :class="[isTabActive ? '' : 'hidden']"></div>
@@ -37,9 +36,8 @@ const isTabActive = ref(false)
                 <span class="text-purple-400 font-semibold">aiku</span>
             </div>
 
-            <!-- Right Section -->
+            <!-- Tab Section -->
             <div class="flex items-end flex-row-reverse text-sm">
-                {{ layout.rightSidebar.language }}
                 <!-- Tab: Active Users -->
                 <div class="relative h-full flex z-50 select-none justify-center items-center px-8 gap-x-1 cursor-pointer"
                     :class="[isTabActive == 'activeUsers' ? 'bg-gray-600' : 'bg-gray-800']"
@@ -71,7 +69,7 @@ const isTabActive = ref(false)
                 >
                     <FontAwesomeIcon icon="fal fa-language" class="text-xs mr-1 h-5 text-gray-300"></FontAwesomeIcon>
                     <div class="h-full font-extralight text-xs flex items-center leading-none text-gray-300">{{ locale.language.code }}</div>
-                    <FooterTab v-if="isTabActive === 'language'">
+                    <FooterTab v-if="isTabActive === 'language'" :tabName="`language`">
                         <template #default>
                             <div v-for="(option, index) in locale.languageOptions" :class="[ locale.language.id == index ? 'bg-gray-600 hover:bg-gray-500' : '', 'grid hover:bg-gray-700 py-1.5']"
                                 @click="locale.language.id = Number(index), locale.language.name = option.label"
