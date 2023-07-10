@@ -9,7 +9,9 @@ import { fab } from "@fortawesome/free-brands-svg-icons"
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { v4 as uuidv4 } from 'uuid';
 import HyperlinkTools from './Components/Fields/Hyperlinktools.vue'
+import {get} from 'lodash'
 library.add(faHandPointer, faHandRock, fab, faPlus)
+
 const Dummy = {
     images: [
         {
@@ -41,7 +43,7 @@ const Dummy = {
         { name: 'Add Item', value: 'add' },
     ],
 }
-const selectedTheme = ref(Dummy.theme[0])
+const selectedTheme = ref(Dummy.theme[2])
 const columsTool = ref(null)
 const columsTypeTheme = ref(Dummy.columsType[2])
 const tool = ref(Dummy.tools[0])
@@ -218,6 +220,7 @@ const selectedColums = (value) => {
 
 
 const handleColumsTypeChange = (value) => {
+    console.log(value)
     if (value.title !== columSelected.value.type) {
         let indexDummy = DummyColums.findIndex((item) => item.type === value.value);
         let indexColums = navigations.value.findIndex((item) => item.id === columSelected.value.id);
@@ -388,8 +391,7 @@ const EditItemLinkInTools = (value, type) => {
                                 <div class="flex items-center justify-between">
                                     <h2 class="text-sm font-medium text-gray-900">Colums Type</h2>
                                 </div>
-                                <RadioGroup v-model="columsTypeTheme" class="mt-2"
-                                    @update:modelValue="handleColumsTypeChange">
+                                <RadioGroup v-model="columsTypeTheme" class="mt-2">
                                     <div class="grid grid-cols-3 gap-3 sm:grid-cols-2">
                                         <RadioGroupOption as="template" v-for="option in Dummy.columsType"
                                             :key="option.value" :value="option" v-slot="{ active, checked }">
@@ -401,7 +403,7 @@ const EditItemLinkInTools = (value, type) => {
                                                 'border-transparent bg-indigo-600 text-white hover:bg-indigo-700': checked && !columSelected.type == option.value,
                                                 'border-gray-200 bg-white text-gray-900 hover:bg-gray-50': !checked && !columSelected.type == option.value,
                                                 'flex items-center justify-center rounded-md border py-3 px-3 text-sm font-medium uppercase sm:flex-1': true
-                                            }">
+                                            }" @click="handleColumsTypeChange(option)">
                                                 <RadioGroupLabel as="span">{{ option.name }}</RadioGroupLabel>
                                             </div>
                                         </RadioGroupOption>
@@ -409,7 +411,7 @@ const EditItemLinkInTools = (value, type) => {
                                 </RadioGroup>
                             </div>
                             <!-- colum tools list -->
-                            <div class="mt-8" v-if="columSelected.type == 'list'">
+                            <div class="mt-8" v-if="get(columSelected,'type') == 'list'">
                                 <div class="flex items-center justify-between">
                                     <h2 class="text-sm font-medium text-gray-900">{{ `Colums tools ${columSelected.title}`
                                     }}</h2>
@@ -442,7 +444,7 @@ const EditItemLinkInTools = (value, type) => {
 
                             </div>
                             <!-- colum tools info-->
-                            <div class="mt-8" v-if="columSelected.type == 'info'">
+                            <div class="mt-8" v-if="get(columSelected,'type')== 'info'">
                                 <div class="flex items-center justify-between">
                                     <h2 class="text-sm font-medium text-gray-900">{{ `Colums tools ${columSelected.title}`
                                     }}</h2>
