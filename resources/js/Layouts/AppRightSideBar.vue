@@ -27,11 +27,11 @@ const layout = useLayoutStore()
 </script>
 
 <template>
-    <div class="bg-indigo-100/50 text-xs h-full border-l border-gray-200 space-y-4">
+    <div class="bg-gray-800 text-xs h-full border-l border-gray-200 space-y-4">
         <TransitionGroup name="list" tag="ul">
             <!-- Online Users -->
             <li class="text-white" v-if="layout.rightSidebar.activeUsers" key="1">
-                <div class="pl-2.5 pr-1.5 py-1 bg-indigo-500 flex items-center leading-none">
+                <div class="pl-2.5 pr-1.5 py-1 bg-gray-200 text-gray-800 flex items-center leading-none">
                     <div>Active Users</div>
                 </div>
                 <div v-for="(option, index) in activities"
@@ -39,13 +39,13 @@ const layout = useLayoutStore()
                     <img :src="`/media/group/${option.user.avatar_id}`" :alt="option.user.contact_name" srcset=""
                         class="h-5 rounded-full shadow ring-1 ring-gray-100">
                     <p class="text-gray-100 flex flex-col gap-y-0.5">
-                        <span class="font-semibold text-gray-600 leading-none">{{ option.user.username }}</span>
-                        <span class="capitalize text-gray-500 whitespace-normal leading-none text-[10px]">{{ option.route.module }}</span>
+                        <span class="font-semibold text-gray-200 leading-none">{{ option.user.username }}</span>
+                        <span class="capitalize text-gray-300 whitespace-normal leading-none text-[10px]">{{ option.route.module }}</span>
                     </p>
                 </div>
             </li>
             <!-- Language -->
-            <li class="text-white space-y-1" v-if="layout.rightSidebar.language" key="2">
+            <!-- <li class="text-white space-y-1" v-if="layout.rightSidebar.language" key="2">
                 <div class="pl-2.5 pr-1.5 py-1 bg-indigo-500 flex items-center leading-none">
                     <div>Language</div>
                 </div>
@@ -53,7 +53,7 @@ const layout = useLayoutStore()
                     <span class="uppercase font-semibold">({{ locale.language.code }})</span>
                     {{ locale.language.name }}
                 </div>
-            </li>
+            </li> -->
         </TransitionGroup>
 
     </div>
