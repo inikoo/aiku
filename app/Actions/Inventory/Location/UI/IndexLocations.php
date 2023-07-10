@@ -17,9 +17,11 @@ use App\Http\Resources\Inventory\LocationResource;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
+use App\Models\Tenancy\Tenant;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -29,8 +31,57 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexLocations extends InertiaAction
 {
+    private Warehouse|WarehouseArea|Tenant $parent;
+
+    public function authorize(ActionRequest $request): bool
+    {
+        $this->canEdit = $request->user()->can('inventory.edit');
+
+        return
+            (
+                $request->user()->tokenCan('root') or
+                $request->user()->hasPermissionTo('inventory.view')
+            );
+    }
+
+    public function inTenant(ActionRequest $request): LengthAwarePaginator
+    {
+        $this->routeName = $request->route()->getName();
+        $this->initialisation($request);
+        $this->parent = app('currentTenant');
+        return $this->handle(parent: app('currentTenant'));
+    }
+
+    public function inWarehouse(Warehouse $warehouse, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->routeName = $request->route()->getName();
+        $this->initialisation($request)->withTab(WarehouseTabsEnum::values());
+        $this->parent = $warehouse;
+        return $this->handle(parent: $warehouse);
+    }
+
+
+    public function inWarehouseArea(WarehouseArea $warehouseArea, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->routeName = $request->route()->getName();
+        $this->initialisation($request)->withTab(WarehouseAreaTabsEnum::values());
+        $this->parent = $warehouseArea;
+        return $this->handle(parent: $warehouseArea);
+    }
+
+
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inWarehouseInWarehouseArea(Warehouse $warehouse, WarehouseArea $warehouseArea, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->routeName = $request->route()->getName();
+        $this->initialisation($request)->withTab(WarehouseAreaTabsEnum::values());
+        $this->parent = $warehouseArea;
+        return $this->handle(parent: $warehouseArea);
+    }
+
+
     /** @noinspection PhpUndefinedMethodInspection */
-    public function handle($parent, $prefix=null): LengthAwarePaginator
+    public function handle(Warehouse|WarehouseArea|Tenant $parent, $prefix=null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -84,9 +135,9 @@ class IndexLocations extends InertiaAction
     }
 
 
-    public function tableStructure(?array $modelOperations = null, $prefix = null): Closure
+    public function tableStructure(Warehouse|WarehouseArea|Tenant $parent, ?array $modelOperations = null, $prefix = null): Closure
     {
-        return function (InertiaTable $table) use ($modelOperations, $prefix) {
+        return function (InertiaTable $table) use ($parent, $modelOperations, $prefix) {
             if($prefix) {
                 $table
                     ->name($prefix)
@@ -96,78 +147,65 @@ class IndexLocations extends InertiaAction
                 ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
                 ->withEmptyState(
-                    [
-                        'title'       => __('no locations'),
-                        'description' => $this->canEdit ? __('Get started by creating a new location.') : null,
-                        'count'       => app('currentTenant')->inventoryStats->number_locations,
-                        'action'      => $this->canEdit ? [
-                            'type'    => 'button',
-                            'style'   => 'create',
-                            'tooltip' => __('new location'),
-                            'label'   => __('location'),
-                            'route'   => match ($this->routeName) {
-                                'inventory.warehouses.show.locations.index' => [
+                    match (class_basename($parent)) {
+                        'Tenant' => [
+                            'title'       => __("No locations found"),
+                            'description' => $this->canEdit && $parent->inventoryStats->number_warehouses==0 ? __('Get started by creating a new shop. ✨')
+                                : __("In fact, is no even created a warehouse yet 🤷🏽‍♂️"),
+                            'count'       => $parent->inventoryStats->number_locations,
+                            'action'      => $this->canEdit ? [
+                                'type'    => 'button',
+                                'style'   => 'create',
+                                'tooltip' => __('new location'),
+                                'label'   => __('location'),
+                                'route'   => [
+                                    'name'       => 'inventory.warehouses.create',
+                                    'parameters' => array_values($this->originalParameters)
+                                ]
+                            ] : null
+                        ],
+                        'Warehouse' => [
+                            'title'       => __("No locations found"),
+                            'description' => $this->canEdit ? __('Get started by creating a new location. ✨')
+                                : null,
+                            'count'       => $parent->stats->number_locations,
+                            'action'      => $this->canEdit ? [
+                                'type'    => 'button',
+                                'style'   => 'create',
+                                'tooltip' => __('new location'),
+                                'label'   => __('location'),
+                                'route'   => [
                                     'name'       => 'inventory.warehouses.show.locations.create',
                                     'parameters' => array_values($this->originalParameters)
-                                ],
-                                default => [
+                                ]
+                            ] : null
+                        ],
+                        'WarehouseArea' => [
+                            'title'       => __("No locations found"),
+                            'description' => $this->canEdit ? __('Get started by creating a new location. ✨')
+                                : null,
+                            'count'       => $parent->stats->number_locations,
+                            'action'      => $this->canEdit ? [
+                                'type'    => 'button',
+                                'style'   => 'create',
+                                'tooltip' => __('new location'),
+                                'label'   => __('location'),
+                                'route'   => [
                                     'name'       => 'inventory.warehouses.show.warehouse-areas.show.locations.create',
                                     'parameters' => array_values($this->originalParameters)
                                 ]
-                            }
-                        ] : null
-                    ]
+                            ] : null
+                        ],
+                        default => null
+                    }
                 )
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->defaultSort('code');
         };
     }
 
-    public function inTenant(ActionRequest $request): LengthAwarePaginator
-    {
-        $this->routeName = $request->route()->getName();
-        $this->initialisation($request);
-
-        return $this->handle(parent: app('currentTenant'));
-    }
-
-    public function inWarehouse(Warehouse $warehouse, ActionRequest $request): LengthAwarePaginator
-    {
-        $this->routeName = $request->route()->getName();
-        $this->initialisation($request)->withTab(WarehouseTabsEnum::values());
-
-        return $this->handle(parent: $warehouse);
-    }
-
-    public function inWarehouseArea(WarehouseArea $warehouseArea, ActionRequest $request): LengthAwarePaginator
-    {
-        $this->routeName = $request->route()->getName();
-        $this->initialisation($request)->withTab(WarehouseAreaTabsEnum::values());
-
-        return $this->handle(parent: $warehouseArea);
-    }
 
 
-    /** @noinspection PhpUnusedParameterInspection */
-    public function inWarehouseInWarehouseArea(Warehouse $warehouse, WarehouseArea $warehouseArea, ActionRequest $request): LengthAwarePaginator
-    {
-        $this->routeName = $request->route()->getName();
-        $this->initialisation($request)->withTab(WarehouseAreaTabsEnum::values());
-
-        return $this->handle(parent: $warehouseArea);
-    }
-
-
-    public function authorize(ActionRequest $request): bool
-    {
-        $this->canEdit = $request->user()->can('inventory.locations.edit');
-
-        return
-            (
-                $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo('inventory.view')
-            );
-    }
 
     public function jsonResponse(LengthAwarePaginator $locations): AnonymousResourceCollection
     {
@@ -177,6 +215,21 @@ class IndexLocations extends InertiaAction
 
     public function htmlResponse(LengthAwarePaginator $locations, ActionRequest $request): Response
     {
+        $scope    =$this->parent;
+        $container=null;
+        if (class_basename($scope) == 'Warehouse') {
+            $container = [
+                'icon'    => ['fal', 'fa-warehouse'],
+                'tooltip' => __('Warehouse'),
+                'label'   => Str::possessive($scope->name)
+            ];
+        } elseif (class_basename($scope) == 'WarehouseArea') {
+            $container = [
+                'icon'    => ['fal', 'fa-map-signs'],
+                'tooltip' => __('Warehouse Area'),
+                'label'   => Str::possessive($scope->name)
+            ];
+        }
         return Inertia::render(
             'Inventory/Locations',
             [
@@ -184,12 +237,13 @@ class IndexLocations extends InertiaAction
                     $request->route()->getName(),
                     $request->route()->parameters
                 ),
-                'title'       => __('Locations'),
+                'title'       => __('locations'),
                 'pageHead'    => [
-                    'title'   => __('locations'),
-                    'icon'    => [
-                        'title' => __('locations'),
-                        'icon'  => 'fal fa-inventory'
+                    'title'        => __('locations'),
+                    'container'    => $container,
+                    'iconRight'    => [
+                        'icon'  => ['fal', 'fa-inventory'],
+                        'title' => __('locations')
                     ],
                     'actions'=> [
                         $this->canEdit
@@ -217,7 +271,7 @@ class IndexLocations extends InertiaAction
                 'data'        => LocationResource::collection($locations),
 
             ]
-        )->table($this->tableStructure());
+        )->table($this->tableStructure($this->parent));
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array

@@ -159,20 +159,23 @@ class ShowWarehouse extends InertiaAction
             ]
         )->table(
             IndexWarehouseAreas::make()->tableStructure(
-                /*  modelOperations: [
+                parent: $warehouse,
+                /* modelOperations: [
                       'createLink' => $this->canEdit ? [
                           'route' => [
                               'name'       => 'inventory.warehouses.show.warehouse-areas.create',
-                              'parameters' => array_values($this->originalParameters)
+                              'parameters' => array_values([$warehouse->slug])
                           ],
-                          'label' => __('area')
+                          'label' => __('area'),
+                          'style' => 'create'
                       ] : false,
                   ],
                   prefix: 'warehouse_areas' */
             )
         )->table(
             IndexLocations::make()->tableStructure(
-                modelOperations: [
+                parent: $warehouse,
+                /* modelOperations: [
                     'createLink' => $this->canEdit ? [
                         'route' => [
                             'name'       => 'inventory.warehouses.show.locations.create',
@@ -182,7 +185,7 @@ class ShowWarehouse extends InertiaAction
                         'style' => 'create'
                     ] : false
                 ],
-                prefix: 'locations'
+                prefix: 'locations' */
             )
         )->table(IndexHistories::make()->tableStructure());
     }
