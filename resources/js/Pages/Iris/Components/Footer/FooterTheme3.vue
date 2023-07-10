@@ -66,8 +66,8 @@ onMounted(() => {
             <div class="mt-10 flex justify-center space-x-10">
                 <draggable :list="social" group="socialMedia" itemKey="id" :class="[
 						tool.name === 'grab' ? 'cursor-grab' : 'cursor-pointer',
-						'text-gray-400  hover:text-gray-100 flex space-x-6',
-					]" @change="childLog" :disabled="tool.name !== 'grab'">
+						'text-gray-400  flex space-x-6',
+					]" :disabled="tool.name !== 'grab'">
 						<template #item="{ element: child, index: childIndex }">
 							<div>
 								<span class="sr-only">{{ child.label }}</span>
