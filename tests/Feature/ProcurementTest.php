@@ -51,7 +51,7 @@ beforeAll(function () {
 beforeEach(function () {
     $tenant = Tenant::first();
     if (!$tenant) {
-        $group = StoreGroup::make()->asAction(
+        $group = StoreGroup::make()->action(
             array_merge(
                 Group::factory()->definition(),
                 [

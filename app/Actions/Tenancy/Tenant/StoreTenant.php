@@ -36,7 +36,7 @@ class StoreTenant
     public function handle(?Group $group, array $modelData): Tenant
     {
         if (!$group) {
-            $group = StoreGroup::make()->asAction(
+            $group = StoreGroup::make()->action(
                 [
                     'code'        => $modelData['code'],
                     'name'        => $modelData['name'],

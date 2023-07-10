@@ -33,7 +33,7 @@ class StoreAdmin
         ];
     }
 
-    public function asAction($modelData): Admin
+    public function action($modelData): Admin
     {
         $this->fill($modelData);
         $validatedData = $this->validateAttributes();
