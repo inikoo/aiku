@@ -7,7 +7,6 @@
 
 namespace App\Actions\Google\Drive;
 
-use Illuminate\Support\Str;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class GetAuthCodeGoogleDrive {
@@ -15,8 +14,9 @@ class GetAuthCodeGoogleDrive {
 
     public function handle(string $url): string
     {
-        $parsedUrl =  parse_url($url)['query'];
+        $parsedUrl = parse_url($url);
+        parse_str($parsedUrl['query'], $query);
 
-        return Str::of($parsedUrl)->explode('?');
+        return $query['code'];
     }
 }

@@ -96,7 +96,5 @@ Route::middleware([
             ->group(__DIR__."/firebase.php");
     });
 
-    Route::get('/users', GetAllUsers::class)->name('users');
-
     require __DIR__."/auth.php";
 });
