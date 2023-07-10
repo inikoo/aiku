@@ -16,12 +16,7 @@ trait HasPhoto
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection('photo')
-            ->singleFile()
-            ->registerMediaConversions(function () {
-                $this->addMediaConversion('thumb')
-                    ->width(256)
-                    ->height(256);
-            });
+            ->singleFile();
     }
 
     public function getPhoto(): ?string

@@ -259,11 +259,6 @@ class Tenant extends SpatieTenant implements HasMedia
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection('logo')
-            ->singleFile()
-            ->registerMediaConversions(function () {
-                $this->addMediaConversion('thumb')
-                    ->width(256)
-                    ->height(256);
-            });
+            ->singleFile();
     }
 }
