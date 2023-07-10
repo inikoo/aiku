@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import FooterTab from '@/Components/Footer/FooterTab.vue'
 import { useLocaleStore } from "@/Stores/locale"
+import { useLayoutStore } from "@/Stores/layout"
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faCircle } from "@/../private/pro-solid-svg-icons"
 import { library } from '@fortawesome/fontawesome-svg-core'
@@ -17,12 +18,14 @@ const db = getDatabase(firebaseApp)
 const activities = useDatabaseList(dbRef(db, 'aw'))
 
 const locale = useLocaleStore()
+const layout = useLayoutStore()
 const isTabActive = ref(false)
 
 </script>
 
 <template>
     <footer class="z-20 fixed w-screen bg-gray-800 bottom-0 right-0  text-white">
+    <!-- {{ layout.rightSidebar.activeUsers }} -->
         <!-- Helper: Outer background (close popup purpose) -->
         <div class="fixed z-40 right-0 top-0 bg-transparent w-screen h-screen" @click="isTabActive = !isTabActive"
             :class="[isTabActive ? '' : 'hidden']"></div>
@@ -36,6 +39,7 @@ const isTabActive = ref(false)
 
             <!-- Right Section -->
             <div class="flex items-end flex-row-reverse text-sm">
+                {{ layout.rightSidebar.language }}
                 <!-- Tab: Active Users -->
                 <div class="relative h-full flex z-50 select-none justify-center items-center px-8 gap-x-1 cursor-pointer"
                     :class="[isTabActive == 'activeUsers' ? 'bg-gray-600' : 'bg-gray-800']"
@@ -45,7 +49,8 @@ const isTabActive = ref(false)
                         <div class="ring-1 h-2 aspect-square rounded-full" :class="[activities.length > 0 ? 'bg-green-400 ring-green-600' : 'bg-gray-400 ring-gray-600']" />
                         Active Users ({{ activities.length }})
                     </div>
-                    <FooterTab v-if="isTabActive == 'activeUsers'">
+                    
+                    <FooterTab v-if="isTabActive == 'activeUsers'" :tabName="`activeUsers`">
                         <template #default>
                             <div v-for="(option, index) in activities" class="flex justify-start py-1 px-2 gap-x-1.5 hover:bg-gray-700 cursor-default">
                                 <img :src="`/media/group/${option.user.avatar_id}`" :alt="option.user.contact_name" srcset="" class="h-4 rounded-full shadow">
@@ -78,7 +83,6 @@ const isTabActive = ref(false)
                 </div>
             </div>
 
-            
         </div>
     </footer>
 </template>

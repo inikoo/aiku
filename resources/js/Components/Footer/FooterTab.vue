@@ -1,8 +1,11 @@
 <template>
     <div class="absolute bottom-6 right-0 w-40 min-w-min overflow-hidden rounded-t">
-        <div class="flex justify-end items-center pr-2 bg-gray-200 border border-gray-300">
-            <div class="px-1.5 text-gray-500 hover:text-gray-700">
-                <FontAwesomeIcon icon="fal fa-thumbtack" class="h-2.5 rotate-45 " aria-hidden="true" />
+        <div class="flex justify-end items-center pr-1.5 bg-gray-200 border border-gray-300">
+            <div @click="layout.rightSidebar[tabName] = !layout.rightSidebar[tabName]"
+                class="px-1.5 py-1 hover:text-gray-500 flex items-center leading-none"
+                :class="[layout.rightSidebar[tabName] ? 'text-gray-800' : 'text-gray-400']"
+            >
+                <FontAwesomeIcon icon="fas fa-thumbtack" class="h-3" title="Pin tab to right side layout" aria-hidden="true" />
             </div>
         </div>
         <div class="w-full bg-gray-800 shadow-lg flex-row items-start text-gray-100 text-[11px] leading-none" >
@@ -14,10 +17,18 @@
 </template>
 
 <script setup lang="ts">
+import { useLayoutStore } from "@/Stores/layout"
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faThumbtack } from "@/../private/pro-light-svg-icons"
+import { faThumbtack } from "@/../private/pro-solid-svg-icons"
 import { library } from '@fortawesome/fontawesome-svg-core'
+
+const props = defineProps<{
+    tabName: string
+}>()
+
 library.add(faThumbtack)
+
+const layout = useLayoutStore()
 
 
 

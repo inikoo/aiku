@@ -50,5 +50,4 @@ type UserOnline = {
     }
 }
 
-console.log(activities)
 </script>

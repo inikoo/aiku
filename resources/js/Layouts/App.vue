@@ -192,7 +192,9 @@ const user = ref(usePage().props.auth.user);
 </script>
 
 <template>
-    <div class="relative min-h-full mr-44">
+    <div class="relative min-h-full mr-44 transition-all duration-200 ease-in-out"
+        :class="[layout.rightSidebar.activeUsers ? 'mr-44' : 'mr-0']"
+    >
 
         <!-- TopBar -->
         <Disclosure as="nav" class="bg-gray-100 fixed top-0 z-20 w-full" v-slot="{ open }">
@@ -343,7 +345,9 @@ const user = ref(usePage().props.auth.user);
         </main>
 
         <!-- Sidebar: Right -->
-        <AppRightSideBar class="fixed top-16 right-0 w-44" />
+        <AppRightSideBar class="fixed top-16 w-44 transition-all duration-200 ease-in-out"
+            :class="[layout.rightSidebar.activeUsers ? 'right-0' : '-right-44']"
+        />
 
     </div>
 
