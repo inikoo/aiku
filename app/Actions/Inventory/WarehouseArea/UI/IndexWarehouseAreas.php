@@ -10,6 +10,7 @@ namespace App\Actions\Inventory\WarehouseArea\UI;
 use App\Actions\InertiaAction;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\UI\Inventory\InventoryDashboard;
+use App\Enums\UI\WarehouseTabsEnum;
 use App\Http\Resources\Inventory\WarehouseAreaResource;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
@@ -17,6 +18,7 @@ use App\Models\Tenancy\Tenant;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -26,6 +28,34 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexWarehouseAreas extends InertiaAction
 {
+    private Warehouse|Tenant $parent;
+
+    public function authorize(ActionRequest $request): bool
+    {
+        $this->canEdit = $request->user()->can('inventory.warehouses.edit');
+
+        return
+            (
+                $request->user()->tokenCan('root') or
+                $request->user()->hasPermissionTo('inventory.view')
+            );
+    }
+
+
+    public function inTenant(ActionRequest $request): LengthAwarePaginator
+    {
+        $this->initialisation($request);
+        $this->parent = app('currentTenant');
+        return $this->handle(app('currentTenant'));
+    }
+
+    public function inWarehouse(Warehouse $warehouse, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->initialisation($request)->withTab(WarehouseTabsEnum::values());
+        $this->parent = $warehouse;
+        return $this->handle($warehouse);
+    }
+
     /** @noinspection PhpUndefinedMethodInspection */
     public function handle(Warehouse|Tenant $parent, $prefix = null): LengthAwarePaginator
     {
@@ -75,9 +105,9 @@ class IndexWarehouseAreas extends InertiaAction
             ->withQueryString();
     }
 
-    public function tableStructure(?array $modelOperations = null, $prefix = null): Closure
+    public function tableStructure($parent, ?array $modelOperations = null, $prefix = null): Closure
     {
-        return function (InertiaTable $table) use ($modelOperations, $prefix) {
+        return function (InertiaTable $table) use ($parent, $modelOperations, $prefix) {
             if ($prefix) {
                 $table
                     ->name($prefix)
@@ -87,21 +117,41 @@ class IndexWarehouseAreas extends InertiaAction
                 ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
                 ->withEmptyState(
-                    [
-                        'title'       => __('no warehouses area'),
-                        'description' => $this->canEdit ? __('Get started by creating a new warehouse area.') : null,
-                        'count'       => app('currentTenant')->inventoryStats->number_warehouse_areas,
-                        'action'      => $this->canEdit ? [
-                            'type'    => 'button',
-                            'style'   => 'create',
-                            'tooltip' => __('new warehouse area'),
-                            'label'   => __('warehouse area'),
-                            'route'   => [
-                                'name'       => 'inventory.warehouse-areas.create',
-                                'parameters' => array_values($this->originalParameters)
-                            ]
-                        ] : null
-                    ]
+                    match (class_basename($parent)) {
+                        'Tenant' => [
+                            'title'       => __("No warehouse areas found"),
+                            'description' => $this->canEdit && $parent->stats->number_warehouses == 0 ? __('Get started by creating a warehouse area. ✨')
+                                : __("In fact, is no even create a warehouse yet 🤷🏽‍♂️"),
+                            'count'       => $parent->stats->number_warehouse_areas,
+                            'action'      => $this->canEdit && $parent->stats->number_warehouses == 0 ? [
+                                'type'    => 'button',
+                                'style'   => 'create',
+                                'tooltip' => __('new warehouse'),
+                                'label'   => __('warehouse'),
+                                'route'   => [
+                                    'name'       => 'inventory.warehouses.create',
+                                    'parameters' => array_values($this->originalParameters)
+                                ]
+                            ] : null
+                        ],
+                        'Warehouse' => [
+                            'title'       => __("No warehouse areas found"),
+                            'description' => $this->canEdit ? __('Get started by creating a new warehouse area. ✨')
+                                : null,
+                            'count'       => $parent->stats->number_warehouse_areas,
+                            'action'      => $this->canEdit ? [
+                                'type'    => 'button',
+                                'style'   => 'create',
+                                'tooltip' => __('new warehouse area'),
+                                'label'   => __('warehouse area'),
+                                'route'   => [
+                                    'name'       => 'inventory.warehouses.show.warehouse-areas.create',
+                                    'parameters' => array_values($this->originalParameters)
+                                ]
+                            ] : null
+                        ],
+                        default => null
+                    }
                 )
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
@@ -110,31 +160,7 @@ class IndexWarehouseAreas extends InertiaAction
         };
     }
 
-    public function authorize(ActionRequest $request): bool
-    {
-        $this->canEdit = $request->user()->can('inventory.warehouse-areas.edit');
 
-        return
-            (
-                $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo('inventory.view')
-            );
-    }
-
-
-    public function inTenant(ActionRequest $request): LengthAwarePaginator
-    {
-        $this->initialisation($request);
-
-        return $this->handle(app('currentTenant'));
-    }
-
-    public function inWarehouse(Warehouse $warehouse, ActionRequest $request): LengthAwarePaginator
-    {
-        $this->initialisation($request);
-
-        return $this->handle($warehouse);
-    }
 
 
     public function jsonResponse(LengthAwarePaginator $warehouseAreas): AnonymousResourceCollection
@@ -145,6 +171,15 @@ class IndexWarehouseAreas extends InertiaAction
 
     public function htmlResponse(LengthAwarePaginator $warehouseAreas, ActionRequest $request): Response
     {
+        $scope    =$this->parent;
+        $container=null;
+        if (class_basename($scope) == 'Warehouse') {
+            $container = [
+                'icon'    => ['fal', 'fa-warehouse'],
+                'tooltip' => __('Warehouse'),
+                'label'   => Str::possessive($scope->name)
+            ];
+        }
         return Inertia::render(
             'Inventory/WarehouseAreas',
             [
@@ -154,10 +189,11 @@ class IndexWarehouseAreas extends InertiaAction
                 ),
                 'title'       => __('warehouse areas'),
                 'pageHead'    => [
-                    'title'   => __('warehouse areas'),
-                    'icon'    => [
-                        'title' => __('warehouses areas'),
-                        'icon'  => 'fal fa-map-signs'
+                    'title'        => __('warehouse areas'),
+                    'container'    => $container,
+                    'iconRight'    => [
+                        'icon'  => ['fal', 'fa-map-signs'],
+                        'title' => __('warehouse areas')
                     ],
                     'actions' => [
                         $this->canEdit && $this->routeName == 'inventory.warehouses.show.warehouse-areas.index' ? [
@@ -169,7 +205,7 @@ class IndexWarehouseAreas extends InertiaAction
                                     'label' => '',
                                     'route' => [
                                         'name'       => 'inventory.warehouses.show.warehouse-areas.create-multi',
-                                        'parameters' => array_values($this->originalParameters)
+                                        'parameters' => $request->route()->originalParameters()
                                     ],
                                 ],
                                 [
@@ -177,7 +213,7 @@ class IndexWarehouseAreas extends InertiaAction
                                     'label' => __('warehouse area'),
                                     'route' => [
                                         'name'       => 'inventory.warehouses.show.warehouse-areas.create',
-                                        'parameters' => array_values($this->originalParameters)
+                                        'parameters' => $request->route()->originalParameters()
                                     ],
                                 ]
                             ]
@@ -186,7 +222,7 @@ class IndexWarehouseAreas extends InertiaAction
                 ],
                 'data'        => WarehouseAreaResource::collection($warehouseAreas)
             ]
-        )->table($this->tableStructure());
+        )->table($this->tableStructure($this->parent));
     }
 
 
@@ -219,9 +255,7 @@ class IndexWarehouseAreas extends InertiaAction
             'inventory.warehouses.show.warehouse-areas.index',
             =>
             array_merge(
-                (new ShowWarehouse())->getBreadcrumbs(
-                    $routeParameters['warehouse']
-                ),
+                ShowWarehouse::make()->getBreadcrumbs($routeParameters['warehouse']),
                 $headCrumb([
                     'name'       => 'inventory.warehouses.show.warehouse-areas.index',
                     'parameters' =>

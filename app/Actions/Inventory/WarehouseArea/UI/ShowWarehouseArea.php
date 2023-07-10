@@ -141,6 +141,7 @@ class ShowWarehouseArea extends InertiaAction
             ]
         )->table(
             IndexLocations::make()->tableStructure(
+                parent: $warehouseArea,
                 /* modelOperations: [
                    'createLink' => $this->canEdit ? [
                        match ($request->route()->getName()) {

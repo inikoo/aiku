@@ -439,7 +439,6 @@ export default {
             'fas fa-dot-circle',
             'fas fa-dove',
             'fas fa-download',
-            'fas fa-drafting-compass',
             'fas fa-dragon',
             'fas fa-draw-polygon',
             'fas fa-drum',
