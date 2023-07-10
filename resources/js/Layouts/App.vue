@@ -183,7 +183,7 @@ const user = ref(usePage().props.auth.user);
 </script>
 
 <template>
-    <div class="relative min-h-full mr-44 transition-all duration-200 ease-in-out"
+    <div class="relative min-h-full transition-all duration-200 ease-in-out"
         :class="[Object.values(layout.rightSidebar).some(value => value === true) ? 'mr-44' : 'mr-0']"
     >
 
