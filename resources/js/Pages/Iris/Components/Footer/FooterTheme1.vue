@@ -177,7 +177,7 @@ const socials = [
 							<Input :data="element" :save="props.saveItemTitle" keyValue="title"
 								cssClass="font-bold text-white capitalize" />
 							<div v-if="element.type == 'list'">
-								<draggable :list="element.data" group="list" @change="childLog" itemKey="name"
+								<draggable :list="element.data" group="list"  itemKey="name"
 									:disabled="tool.name !== 'grab'">
 									<template #item="{ element: child, index: childIndex }">
 										<ul role="list">
@@ -239,8 +239,8 @@ const socials = [
                 </div>
             </div>
             <div class="mt-16 border-t border-white/10 pt-8 sm:mt-20 lg:mt-24 text-center">
-                <div class="text-xs  flex justify-center leading-5 text-gray-400">&copy; 2023 <HyperLink :useDelete="false" :data="copyRight" :save="copyRightSave" valueKeyLabel="label"
-								valueKeyLink="href" />, Inc. All rights reserved.</div>
+                <div class="text-xs  flex justify-center leading-5 text-gray-400">&copy; 2023 <span class="w-24"><HyperLink :useDelete="false" :data="copyRight" :save="copyRightSave" valueKeyLabel="label"
+								valueKeyLink="href" /></span>, Inc. All rights reserved.</div>
             </div>
         </div>
     </footer>

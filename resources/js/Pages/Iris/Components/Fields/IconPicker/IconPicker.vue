@@ -26,6 +26,7 @@ const props = defineProps({
 const filterText = ref('')
 const activeGlyph = ref(props.modelValue)
 const isVisible = ref(false)
+
 const tabs = [
       {
         id: 'all',
@@ -81,7 +82,7 @@ const tabs = [
 
 
 <template>
-    <div @click="togglePicker"><FontAwesomeIcon :icon="activeGlyph" :class="cssClass" aria-hidden="true" /></div>
+    <div @click="togglePicker"><FontAwesomeIcon :icon="props.modelValue" :class="cssClass" aria-hidden="true" /></div>
     <div class="aim-modal aim-open" v-if="isVisible">
       <div class="aim-modal--content">
         <div class="aim-modal--header">

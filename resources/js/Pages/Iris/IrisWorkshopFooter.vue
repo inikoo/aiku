@@ -10,6 +10,9 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { v4 as uuidv4 } from 'uuid';
 import HyperlinkTools from './Components/Fields/Hyperlinktools.vue'
 import {get} from 'lodash'
+import HyperInfoTools from './Components/Fields/InfoFieldTools.vue'
+import VueResizable from 'vue-resizable'
+import SocialMediaPicker from "./Components/Fields//SocialMediaTools.vue"
 library.add(faHandPointer, faHandRock, fab, faPlus)
 
 const Dummy = {
@@ -43,7 +46,7 @@ const Dummy = {
         { name: 'Add Item', value: 'add' },
     ],
 }
-const selectedTheme = ref(Dummy.theme[1])
+const selectedTheme = ref(Dummy.theme[0])
 const columsTool = ref(null)
 const columsTypeTheme = ref(Dummy.columsType[0])
 const tool = ref(Dummy.tools[0])
@@ -220,7 +223,6 @@ const selectedColums = (value) => {
 
 
 const handleColumsTypeChange = (value) => {
-    console.log(value)
     if (value.title !== columSelected.value.type) {
         let indexDummy = DummyColums.findIndex((item) => item.type === value.value);
         let indexColums = navigations.value.findIndex((item) => item.id === columSelected.value.id);
@@ -321,15 +323,15 @@ const EditItemLinkInTools = (value, type) => {
         // Update the item with the new value
         data[index].data[indexData] = value;
       } else if (type === 'delete') {
-        console.log(data[index].data[indexData])
         data[index].data.splice(indexData, 1);
       }
     }
   }
-
-  console.log(data)
   navigations.value = data;
 };
+
+
+
 
 </script>
 
@@ -437,11 +439,6 @@ const EditItemLinkInTools = (value, type) => {
                                     </div>
                                 </div>
 
-
-
-
-
-
                             </div>
                             <!-- colum tools info-->
                             <div class="mt-8" v-if="get(columSelected,'type')== 'info'">
@@ -449,18 +446,26 @@ const EditItemLinkInTools = (value, type) => {
                                     <h2 class="text-sm font-medium text-gray-900">{{ `Colums tools ${columSelected.title}`
                                     }}</h2>
                                 </div>
-                                <RadioGroup v-model="columsTool" class="mt-2">
-                                    <div class="grid grid-cols-3 gap-3 sm:grid-cols-2">
-                                        <RadioGroupOption as="template" v-for="option in Dummy.columsToolsInfo"
-                                            :key="option.value" :value="option" v-slot="{ active, checked }">
-                                            <div :class="{
-                                                'flex cursor-pointer items-center justify-center rounded-md border py-3 px-3 text-sm font-medium uppercase sm:flex-1': true
-                                            }" @click="columItemLinkChange(option)">
-                                                <RadioGroupLabel as="span">{{ option.name }}</RadioGroupLabel>
-                                            </div>
-                                        </RadioGroupOption>
+                                <div>
+                                    <div class="flex gap-2 mt-2">
+                                        <div style="width:87%;"
+                                            class=" shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-600 sm:max-w-md">
+                                            <input type="text" v-model="columSelected.title"
+                                                class=" flex-1 border-0 bg-transparent text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6"
+                                                placeholder="title" />
+                                        </div>
+                                        <div>
+
+                                            <button type="submit"  @click.prevent="columItemLinkChange({ name: 'Add Item', value: 'add' })"
+                                                class="rounded-md cursor-pointer border ring-gray-300 px-3 py-2 text-sm font-semibold text-black shadow-sm ">+</button>
+                                        </div>
+
                                     </div>
-                                </RadioGroup>
+
+                                    <div  v-for="set in columSelected.data" :key="set.id">
+                                        <HyperInfoTools :data="set" :save="EditItemLinkInTools"/>
+                                    </div>
+                                </div>
                             </div>
                             <hr class="mt-5">
                             <!-- social Media -->
@@ -476,7 +481,7 @@ const EditItemLinkInTools = (value, type) => {
                                                 'flex cursor-pointer items-center justify-center rounded-md border py-3 px-3 text-sm font-medium uppercase sm:flex-1': true
                                             }">
                                                 <RadioGroupLabel as="span">
-                                                    <FontAwesomeIcon :icon="option.icon" aria-hidden="true" />
+                                                	<SocialMediaPicker :modelValue="option.icon" cssClass="h-6 w-6" :data="option" :save="saveSocialmedia" />
                                                 </RadioGroupLabel>
                                             </div>
                                         </RadioGroupOption>
@@ -500,11 +505,13 @@ const EditItemLinkInTools = (value, type) => {
                     <div
                         style="width: 90%; background: #f2f2f2; border : 1px solid #bfbfbf; align-items: center; justify-content: center; display: flex;">
                     <div style="transform: scale(0.8); width:100%;">
+                        <!-- <vue-resizable> -->
                         <Footer class="lg:col-span-2 lg:row-span-2 rounded-lg " :columSelected="columSelected"
                             :saveSocialmedia="saveSocialmedia" :theme="selectedTheme.value" :social="socials"
                             :saveInfo="saveInfo" :copyRight="copyRight" :copyRightSave="copyRightSave"
                             :navigation="navigations" :selectedColums="selectedColums" :saveItemTitle="saveItemTitle"
                             :saveTextArea="saveTextArea" :tool="tool" :saveLink="saveLink" />
+                            <!-- </vue-resizable> -->
                     </div>
                 </div>
             </div>
