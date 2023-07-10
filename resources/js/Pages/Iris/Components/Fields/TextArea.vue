@@ -35,8 +35,8 @@ onMounted(() => {
     <template v-if="!editMode" style="white-space : pre-warp">
         <div class="parent">
     <div @click="changeEditMode" class="space-y-3 text-sm leading-6 text-gray-600 hover:text-indigo-500 width-full">{{ data.data }}</div>
+  
 </div>
-    
     </template>
     <template v-else>
         <textarea ref="inputRef"
