@@ -14,6 +14,10 @@ const props = defineProps<{
 		type: Boolean,
         default: true
 	}
+	cssClass : {
+		type : string,
+		default: ''
+	}
 }>()
 
 const editMode = ref({ edit : false, type : null})
@@ -42,7 +46,6 @@ const changeEditMode = (name) => {
 			}
 		}, 0);
 	}
-
 };
 
 
@@ -57,14 +60,13 @@ onMounted(() => {
   }
 })
 
-
 </script>
 <template>
 	<template v-if="!editMode.edit">
 		<div>
 			<Popover v-slot="{ open }" class="relative">
 				<PopoverButton>
-					<span class="space-y-3 text-sm leading-6 text-gray-600 hover:text-indigo-500">{{
+					<span :class="cssClass">{{
 						data[valueKeyLabel]
 					}}</span>
 				</PopoverButton>

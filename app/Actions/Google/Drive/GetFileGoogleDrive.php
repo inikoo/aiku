@@ -9,7 +9,8 @@ namespace App\Actions\Google\Drive;
 
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class GetFileGoogleDrive {
+class GetFileGoogleDrive
+{
     use AsAction;
 
     private mixed $service;

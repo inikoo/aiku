@@ -7,6 +7,7 @@
 
 namespace App\Actions\Google\Drive;
 
+use Exception;
 use Google_Client;
 use Google_Service_Drive;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -27,6 +28,7 @@ class GetClientGoogleDrive
 
     /**
      * @throws \Google\Exception
+     * @throws \Exception
      */
     public function getClient($tokenPath): Google_Client
     {
@@ -35,7 +37,7 @@ class GetClientGoogleDrive
 
         $client->setApplicationName('Aiku google drive manager');
         $client->setAuthConfig([
-            'client_id' => json_decode($tenant->data, true)['google_cloud_client_id'],
+            'client_id'     => json_decode($tenant->data, true)['google_cloud_client_id'],
             'client_secret' => json_decode($tenant->data, true)['google_cloud_client_secret'],
             'redirect_uris' => url('/'),
         ]);

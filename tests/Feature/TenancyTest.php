@@ -25,21 +25,21 @@ beforeAll(function () {
 
 
 test('create a system admin', function () {
-    $admin = StoreAdmin::make()->asAction(Admin::factory()->definition());
+    $admin = StoreAdmin::make()->action(Admin::factory()->definition());
     $this->assertModelExists($admin);
 });
 
 test('create a system admin user', function () {
-    $admin   = StoreAdmin::make()->asAction(Admin::factory()->definition());
-    $sysUser = StoreSysUser::make()->asAction($admin, SysUser::factory()->definition());
+    $admin   = StoreAdmin::make()->action(Admin::factory()->definition());
+    $sysUser = StoreSysUser::make()->action($admin, SysUser::factory()->definition());
     $this->assertModelExists($sysUser);
     expect($sysUser)->toBeInstanceOf(SysUser::class)
         ->and($sysUser->userable)->toBeInstanceOf(Admin::class);
 });
 
 test('create a system admin user access token', function () {
-    $admin   = StoreAdmin::make()->asAction(Admin::factory()->definition());
-    $sysUser = StoreSysUser::make()->asAction($admin, SysUser::factory()->definition());
+    $admin   = StoreAdmin::make()->action(Admin::factory()->definition());
+    $sysUser = StoreSysUser::make()->action($admin, SysUser::factory()->definition());
 
     $token   = CreateSysUserAccessToken::run($sysUser, 'admin', ['*']);
     expect($token)->toBeString();
@@ -53,7 +53,7 @@ test('create group using action', function () {
         'currency_id' => '1',
     ];
 
-    $createdGroup = StoreGroup::make()->asAction($arrayData);
+    $createdGroup = StoreGroup::make()->action($arrayData);
 
     expect($createdGroup->code)->toBe($arrayData['code']);
 
@@ -117,7 +117,7 @@ test('create tenant sys-user', function ($tenant) {
         'password' => 'hello1234',
         'email'    => 'aiku@email.com'
     ];
-    $sysUser=StoreSysUser::make()->asAction($tenant, $arrayData);
+    $sysUser=StoreSysUser::make()->action($tenant, $arrayData);
 
     expect($sysUser->userable)->toBeInstanceOf(Tenant::class)
         ->and($sysUser->username)->toBe($arrayData['username']);

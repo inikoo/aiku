@@ -7,9 +7,6 @@
 
 namespace App\Actions\Notifications;
 
-use App\Actions\Firebase\CheckUserStatusFirebase;
-use App\Models\Auth\User;
-use App\Models\Tenancy\Tenant;
 use App\Notifications\MeasurementSharedNotification;
 use Illuminate\Database\Eloquent\Model;
 use Lorisleiva\Actions\Concerns\AsAction;

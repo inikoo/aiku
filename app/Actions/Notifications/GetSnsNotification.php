@@ -39,7 +39,7 @@ class GetSnsNotification
                 $dispatchedEmail = DispatchedEmail::where('ses_id', $messageId)->first();
                 UpdateDispatchedEmail::run($dispatchedEmail, [
                     'first_read_at' => $timestamp,
-                    'last_read_at' => $timestamp
+                    'last_read_at'  => $timestamp
                 ]);
             }
         }

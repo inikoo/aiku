@@ -15,9 +15,9 @@ return new class () extends Migration {
     {
         Schema::create('languages', function (Blueprint $table) {
             $table->smallIncrements('id');
-            $table->string('code')->unique();
-            $table->string('name')->nullable()->index();
-            $table->string('original_name')->nullable();
+            $table->string('code')->unique()->collation('und_ns_ci');
+            $table->string('name')->nullable()->index()->collation('und_ns_ci');
+            $table->string('original_name')->nullable()->collation('und_ns_ci');
             $table->string('status')->default(false)->nullable()->index();
             $table->jsonb('data');
             $table->timestampsTz();

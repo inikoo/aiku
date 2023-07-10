@@ -60,7 +60,7 @@ class StoreGroup
     }
 
 
-    public function asAction($modelData): Group
+    public function action($modelData): Group
     {
         $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();

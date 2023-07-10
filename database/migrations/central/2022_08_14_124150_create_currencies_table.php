@@ -10,14 +10,13 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
-    public function up()
+    public function up(): void
     {
         Schema::create('currencies', function (Blueprint $table) {
             $table->smallIncrements('id');
-            $table->string('code')->unique();
-            $table->string('name')->index();
+            $table->string('code')->unique()->collation('und_ns_ci');
+            $table->string('name')->index()->collation('und_ns_ci');
             $table->string('symbol');
-
             $table->smallInteger('fraction_digits');
             $table->boolean('status')->default(true)->index();
             $table->boolean('store_historic_data')->default(false);
@@ -28,7 +27,7 @@ return new class () extends Migration {
     }
 
 
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('currencies');
     }

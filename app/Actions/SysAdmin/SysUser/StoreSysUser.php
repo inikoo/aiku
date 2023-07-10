@@ -56,7 +56,7 @@ class StoreSysUser
         ];
     }
 
-    public function asAction(Admin|Tenant|Domain $userable, $modelData): SysUser
+    public function action(Admin|Tenant|Domain $userable, $modelData): SysUser
     {
         $this->fill($modelData);
         $validatedData = $this->validateAttributes();

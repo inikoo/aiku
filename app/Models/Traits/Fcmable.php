@@ -5,7 +5,6 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-
 namespace App\Models\Traits;
 
 use App\Models\Notifications\FcmToken;
