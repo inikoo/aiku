@@ -82,6 +82,10 @@ class EditSystemSettings
                         [
                             "title"  => __("google drive"),
                             "icon"   => "fab fa-google",
+                            "button" => [
+                                "title" => "Authorize",
+                                "route" => route('google.drive.authorize')
+                            ],
                             "fields" => [
                                 "google_client_id" => [
                                     "type"  => "input",
