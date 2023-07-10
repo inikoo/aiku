@@ -5,7 +5,7 @@
   -->
 
 <script setup lang="ts">
-import { Head } from '@inertiajs/vue3';
+import { Head, Link } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import { capitalize } from "@/Composables/capitalize"
 
@@ -43,6 +43,10 @@ const props = defineProps<{
                     value: string | object
                 }
             >
+            button: {
+                title: string
+                route: string
+            }
         }>,
         args: {
             updateRoute: {
@@ -63,7 +67,7 @@ const current = ref(0)
     <PageHeading :data="pageHead"></PageHeading>
 
     <!-- If overflow-hidden, affect to Multiselect on Address -->
-    <div class="rounded-lg bg-white shadow">
+    <div class="rounded-lg shadow">
         <div class="divide-y divide-gray-200 lg:grid grid-flow-col lg:grid-cols-12 lg:divide-y-0 lg:divide-x">
 
             <!-- Left Tab: Navigation -->
@@ -91,7 +95,7 @@ const current = ref(0)
 
             <!-- Content of forms -->
             <div class="px-4 sm:px-6 md:px-4 col-span-9">
-                <div class="divide-y divide-grey-200">
+                <div class="divide-y divide-grey-200 flex flex-col">
                     <!-- <div class="space-y-1 mb-6 ">
                         <h3 class="text-lg leading-6 font-medium text-gray-900 capitalize">
                             {{ formData['blueprint'][current].title }}
@@ -102,6 +106,13 @@ const current = ref(0)
                     </div> -->
                     <FieldForm class=" pt-4 sm:pt-5 px-6 " v-for="(fieldData, field ) in formData.blueprint[current].fields"
                         :key="field" :field="field" :fieldData="fieldData" :args="formData.args" />
+
+                    <!-- Button for Authorize Google Drive -->
+                    <div class="py-2 px-3 flex justify-end max-w-2xl" v-if="formData.blueprint[current].button">
+                        <Link :href="formData.blueprint[current].button.route" class="px-3 py-1.5 bg-indigo-500 text-gray-100 rounded">
+                            {{ formData.blueprint[current].button.title }}
+                        </Link>
+                    </div>
                 </div>
             </div>
         </div>
