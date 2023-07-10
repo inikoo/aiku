@@ -12,7 +12,7 @@ return new class extends Migration
         Schema::create('fcm_tokens', function (Blueprint $table) {
             $table->id();
             $table->string('token_id');
-            $table->morphs('fcmable');
+            $table->morphs('push_notifiable');
             $table->text('fcm_token');
             $table->string('platform')->nullable();
 

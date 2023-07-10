@@ -12,7 +12,7 @@ use App\Models\Notifications\FcmToken;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 
-trait Fcmable
+trait WithPushNotifications
 {
     protected mixed $fcmToken;
 
@@ -30,11 +30,11 @@ trait Fcmable
 
     public function fcmToken(): MorphOne
     {
-        return $this->morphOne(FcmToken::class, 'fcmable');
+        return $this->morphOne(FcmToken::class, 'push_notifiable');
     }
 
     public function fcmTokens(): MorphMany
     {
-        return $this->morphMany(FcmToken::class, 'fcmable');
+        return $this->morphMany(FcmToken::class, 'push_notifiable');
     }
 }

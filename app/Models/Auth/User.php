@@ -11,7 +11,7 @@ use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateUsers;
 use App\Enums\Auth\User\UserAuthTypeEnum;
 use App\Models\Assets\Language;
 use App\Models\Tenancy\Tenant;
-use App\Models\Traits\Fcmable;
+use App\Models\Traits\WithPushNotifications;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasRoles;
 use Eloquent;
@@ -92,7 +92,7 @@ class User extends Authenticatable implements Auditable
     use UsesTenantConnection;
     use HasFactory;
     use HasHistory;
-    use Fcmable;
+    use WithPushNotifications;
 
     protected $guarded = [
     ];
