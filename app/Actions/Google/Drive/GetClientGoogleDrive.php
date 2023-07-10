@@ -7,8 +7,10 @@
 
 namespace App\Actions\Google\Drive;
 
+use App\Models\Tenancy\Tenant;
 use Google_Client;
 use Google_Service_Drive;
+use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class GetClientGoogleDrive
@@ -20,6 +22,7 @@ class GetClientGoogleDrive
      */
     public function handle(): Google_Service_Drive
     {
+        Tenant::where('slug', 'aroma')->first()->makeCurrent();
         $client = $this->getClient('resources/private/google/'.app('currentTenant')->slug.'-token.json');
 
         return new Google_Service_Drive($client);
@@ -35,9 +38,9 @@ class GetClientGoogleDrive
 
         $client->setApplicationName('Aiku google drive manager');
         $client->setAuthConfig([
-            'client_id' => json_decode($tenant->data, true)['google_cloud_client_id'],
-            'client_secret' => json_decode($tenant->data, true)['google_cloud_client_secret'],
-            'redirect_uris' => url('/'),
+            'client_id' => Arr::get($tenant->settings, 'google.id'),
+            'client_secret' => Arr::get($tenant->settings, 'google.secret'),
+            'redirect_uris' => Arr::get($tenant->settings, 'google.redirect'),
         ]);
 
         $client->setAccessType('offline');

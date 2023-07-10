@@ -79,6 +79,27 @@ class EditSystemSettings
                                 ],
                             ],
                         ],
+                        [
+                            "title"  => __("google api key"),
+                            "icon"   => "fab fa-google",
+                            "fields" => [
+                                "google_client_id" => [
+                                    "type"  => "input",
+                                    "label" => __("client ID"),
+                                    "value" => Arr::get($tenant->settings, 'google.id')
+                                ],
+                                "google_client_secret" => [
+                                    "type"  => "input",
+                                    "label" => __("client secret"),
+                                    "value" => Arr::get($tenant->settings, 'google.secret')
+                                ],
+                                "google_drive_folder_key" => [
+                                    "type"  => "input",
+                                    "label" => __("google drive folder key"),
+                                    "value" => Arr::get($tenant->settings, 'google.drive.folder')
+                                ]
+                            ],
+                        ],
                     ],
                     "args"      => [
                         "updateRoute" => [
