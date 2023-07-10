@@ -10,6 +10,7 @@ namespace App\Actions\Google\Drive;
 use App\Models\Tenancy\Tenant;
 use Google_Client;
 use Google_Service_Drive;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -23,8 +24,9 @@ class GetClientGoogleDrive
     public function handle(): Google_Service_Drive
     {
         Tenant::where('slug', 'aroma')->first()->makeCurrent();
+        $tokenPath = 'resources/private/google/'.app('currentTenant')->slug.'-token.json';
 
-        $client = $this->getClient('resources/private/google/'.app('currentTenant')->slug.'-token.json');
+        $client = $this->getClient($tokenPath);
 
         return new Google_Service_Drive($client);
     }
@@ -32,7 +34,7 @@ class GetClientGoogleDrive
     /**
      * @throws \Google\Exception
      */
-    public function getClient($tokenPath): Google_Client
+    public function getClient($tokenPath): RedirectResponse|Google_Client
     {
         $client = new Google_Client();
         $tenant = app('currentTenant');
@@ -44,7 +46,6 @@ class GetClientGoogleDrive
         ]);
 
         $client->setAccessType('offline');
-        $client->setRedirectUri('http://localhost:5173');
         $client->setScopes(
             [
                 Google_Service_Drive::DRIVE_METADATA,
@@ -56,32 +57,6 @@ class GetClientGoogleDrive
         if (file_exists($tokenPath)) {
             $accessToken = json_decode(file_get_contents($tokenPath), true);
             $client->setAccessToken($accessToken);
-        }
-
-        // If there is no previous token or it's expired.
-        if ($client->isAccessTokenExpired()) {
-            // Refresh the token if possible, else fetch a new one.
-            if ($client->getRefreshToken()) {
-                $client->fetchAccessTokenWithRefreshToken($client->getRefreshToken());
-            } else {
-                // Request authorization from the user.
-                $authUrl = $client->createAuthUrl();
-                $authCode = GetAuthCodeGoogleDrive::run($authUrl);
-
-                // Exchange authorization code for an access token.
-                $accessToken = $client->fetchAccessTokenWithAuthCode($authCode);
-                $client->setAccessToken($accessToken);
-
-                // Check to see if there was an error.
-                if (array_key_exists('error', $accessToken)) {
-                    throw new Exception(join(', ', $accessToken));
-                }
-            }
-            // Save the token to a file.
-            if (!file_exists(dirname($tokenPath))) {
-                mkdir(dirname($tokenPath), 0700, true);
-            }
-            file_put_contents($tokenPath, json_encode($client->getAccessToken()));
         }
 
         return $client;
