@@ -160,7 +160,7 @@ const generateLabel = (item) => {
 
 <template>
 
-	<div class="w-8/12 mt-11 fixed md:border-r md:border-gray-200 md:bg-white md:flex md:flex-col md:inset-y-0 md:w-10 lg:mt-10 xl:w-56"
+	<div class="w-8/12 mt-11 fixed md:border-r md:border-gray-200 bg-white md:flex md:flex-col md:inset-y-0 md:w-10 lg:mt-10 xl:w-56"
 		@mouseenter="isHover = true" @mouseleave="isHover = false"
 	>
 		<div class="flex flex-grow flex-col h-full overflow-y-auto custom-hide-scrollbar border-r border-gray-200 pb-4">
