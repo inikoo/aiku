@@ -119,7 +119,7 @@ const childLog = (a, b, c) => {
 
 							<div v-if="element.type == 'description'">
 								<!-- <div class="space-y-3 text-sm leading-6 text-gray-600 hover:text-indigo-500">{{ element.data }}</div> -->
-								<TextArea :data="element" :save="props.saveTextArea" />
+								<TextArea :data="element" :save="props.saveTextArea" :cssClass="'space-y-3 text-sm leading-6 text-gray-600 hover:text-indigo-500'"/>
 							</div>
 
 							<div v-if="element.type == 'info'">

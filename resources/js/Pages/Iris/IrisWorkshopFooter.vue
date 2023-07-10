@@ -43,9 +43,9 @@ const Dummy = {
         { name: 'Add Item', value: 'add' },
     ],
 }
-const selectedTheme = ref(Dummy.theme[2])
+const selectedTheme = ref(Dummy.theme[1])
 const columsTool = ref(null)
-const columsTypeTheme = ref(Dummy.columsType[2])
+const columsTypeTheme = ref(Dummy.columsType[0])
 const tool = ref(Dummy.tools[0])
 
 const DummyColums = [
