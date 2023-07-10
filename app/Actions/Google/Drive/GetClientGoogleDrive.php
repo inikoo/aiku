@@ -7,9 +7,10 @@
 
 namespace App\Actions\Google\Drive;
 
-use Exception;
+use App\Models\Tenancy\Tenant;
 use Google_Client;
 use Google_Service_Drive;
+use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class GetClientGoogleDrive
@@ -21,6 +22,8 @@ class GetClientGoogleDrive
      */
     public function handle(): Google_Service_Drive
     {
+        Tenant::where('slug', 'aroma')->first()->makeCurrent();
+
         $client = $this->getClient('resources/private/google/'.app('currentTenant')->slug.'-token.json');
 
         return new Google_Service_Drive($client);
@@ -28,7 +31,6 @@ class GetClientGoogleDrive
 
     /**
      * @throws \Google\Exception
-     * @throws \Exception
      */
     public function getClient($tokenPath): Google_Client
     {
@@ -37,9 +39,8 @@ class GetClientGoogleDrive
 
         $client->setApplicationName('Aiku google drive manager');
         $client->setAuthConfig([
-            'client_id'     => json_decode($tenant->data, true)['google_cloud_client_id'],
-            'client_secret' => json_decode($tenant->data, true)['google_cloud_client_secret'],
-            'redirect_uris' => url('/'),
+            'client_id' => Arr::get($tenant->settings, 'google.id'),
+            'client_secret' => Arr::get($tenant->settings, 'google.secret')
         ]);
 
         $client->setAccessType('offline');
@@ -65,9 +66,7 @@ class GetClientGoogleDrive
             } else {
                 // Request authorization from the user.
                 $authUrl = $client->createAuthUrl();
-                printf("Open the following link in your browser:\n%s\n", $authUrl);
-                print 'Enter verification code: ';
-                $authCode = trim(fgets(STDIN));
+                $authCode = GetAuthCodeGoogleDrive::run($authUrl);
 
                 // Exchange authorization code for an access token.
                 $accessToken = $client->fetchAccessTokenWithAuthCode($authCode);

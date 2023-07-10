@@ -20,7 +20,6 @@ class UpdateSystemSettings
     {
         $tenant = app('currentTenant');
 
-
         $this->update($tenant, $modelData, ['data', 'settings']);
     }
 
@@ -37,6 +36,9 @@ class UpdateSystemSettings
     {
         return [
             'name' => ['sometimes', 'required', 'max:24', 'string'],
+            'google_client_id' => ['sometimes', 'string'],
+            'google_client_secret' => ['sometimes', 'string'],
+            'google_drive_folder_key' => ['sometimes', 'string']
         ];
     }
 
@@ -51,6 +53,9 @@ class UpdateSystemSettings
                 $modelData,
                 match ($key) {
                     'name'  => 'settings.ui.name',
+                    'google_client_id' => 'settings.google.id',
+                    'google_client_secret' => 'settings.google.secret',
+                    'google_drive_folder_key' => 'settings.google.drive.folder',
                     default => $key
                 },
                 $value
@@ -70,6 +75,4 @@ class UpdateSystemSettings
 
         $this->handle($validatedData);
     }
-
-
 }

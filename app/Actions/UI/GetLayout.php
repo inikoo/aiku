@@ -49,7 +49,7 @@ class GetLayout
                                 'route' =>
                                     [
                                         'all'      => ['business_intelligence.dashboard'],
-                                        'selected' => ['business_intelligence.shop.dashboard'],
+                                        'selected' => ['business_intelligence.shops.show.dashboard'],
 
                                     ]
                             ],

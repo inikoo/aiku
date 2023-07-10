@@ -8,7 +8,7 @@
 namespace App\Actions\UI\Dispatch;
 
 use App\Actions\Market\Shop\UI\ShowShop;
-use App\Actions\UI\Dashboard\Dashboard;
+use App\Actions\UI\Dashboard\ShowDashboard;
 use App\Actions\UI\WithInertia;
 use App\Models\Market\Shop;
 use App\Models\Tenancy\Tenant;
@@ -98,7 +98,7 @@ class ShowDispatchHub
             ),
             default =>
             array_merge(
-                Dashboard::make()->getBreadcrumbs(),
+                ShowDashboard::make()->getBreadcrumbs(),
                 [
                     [
                         'type'   => 'simple',

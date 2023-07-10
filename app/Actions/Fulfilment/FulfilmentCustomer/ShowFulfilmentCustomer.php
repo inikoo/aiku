@@ -13,7 +13,7 @@ use App\Actions\Mail\DispatchedEmail\IndexDispatchedEmails;
 use App\Actions\Market\Product\UI\IndexProducts;
 use App\Actions\Market\Shop\UI\ShowShop;
 use App\Actions\OMS\Order\UI\IndexOrders;
-use App\Actions\UI\Dashboard\Dashboard;
+use App\Actions\UI\Dashboard\ShowDashboard;
 use App\Enums\UI\CustomerTabsEnum;
 use App\Http\Resources\Mail\DispatchedEmailResource;
 use App\Http\Resources\Market\ProductResource;
@@ -162,10 +162,11 @@ class ShowFulfilmentCustomer extends InertiaAction
                 CustomerTabsEnum::ORDERS->value => $this->tab == CustomerTabsEnum::ORDERS->value ?
                     fn () => OrderResource::collection(IndexOrders::run($customer))
                     : Inertia::lazy(fn () => OrderResource::collection(IndexOrders::run($customer))),
-
+/*
                 CustomerTabsEnum::PRODUCTS->value => $this->tab == CustomerTabsEnum::PRODUCTS->value ?
                     fn () => ProductResource::collection(IndexProducts::run($customer))
                     : Inertia::lazy(fn () => ProductResource::collection(IndexProducts::run($customer))),
+*/
 
                 CustomerTabsEnum::DISPATCHED_EMAILS->value => $this->tab == CustomerTabsEnum::DISPATCHED_EMAILS->value ?
                     fn () => DispatchedEmailResource::collection(IndexDispatchedEmails::run($customer))
@@ -173,7 +174,7 @@ class ShowFulfilmentCustomer extends InertiaAction
 
             ]
         )->table(IndexOrders::make()->tableStructure($customer))
-            ->table(IndexProducts::make()->tableStructure($customer))
+           // ->table(IndexProducts::make()->tableStructure($customer))
             ->table(IndexDispatchedEmails::make()->tableStructure($customer));
     }
 
@@ -211,7 +212,7 @@ class ShowFulfilmentCustomer extends InertiaAction
             'customers.edit' =>
 
             array_merge(
-                Dashboard::make()->getBreadcrumbs(),
+                ShowDashboard::make()->getBreadcrumbs(),
                 $headCrumb(
                     $routeParameters['customer'],
                     [

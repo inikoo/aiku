@@ -9,7 +9,7 @@ namespace App\Actions\Fulfilment\FulfilmentCustomer;
 
 use App\Actions\InertiaAction;
 use App\Actions\Market\Shop\UI\ShowShop;
-use App\Actions\UI\Dashboard\Dashboard;
+use App\Actions\UI\Dashboard\ShowDashboard;
 use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Sales\CustomerResource;
 use App\InertiaTable\InertiaTable;
@@ -184,7 +184,7 @@ class IndexFulfilmentCustomers extends InertiaAction
         return match ($routeName) {
             'customers.index'            =>
             array_merge(
-                Dashboard::make()->getBreadcrumbs(),
+                ShowDashboard::make()->getBreadcrumbs(),
                 $headCrumb(
                     [
                         'name'=> 'customers.index',

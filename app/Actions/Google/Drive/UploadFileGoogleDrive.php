@@ -9,6 +9,8 @@ namespace App\Actions\Google\Drive;
 
 use Google_Service_Drive_DriveFile;
 use Illuminate\Console\Command;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class UploadFileGoogleDrive
@@ -22,24 +24,26 @@ class UploadFileGoogleDrive
     /**
      * @throws \Google\Exception
      */
-    public function handle($base_folder_key, $path): string
+    public function handle($path): string
     {
-        $name         = 'test.png';
+        $client = GetClientGoogleDrive::run();
+        $tenant = app('currentTenant');
+        $name = Str::of($path)->basename();
+
+        $base_folder_key = Arr::get($tenant->settings, 'google.drive.folder');
+
         $fileMetadata = new Google_Service_Drive_DriveFile(
             array(
-                'name'    => $name,
+                'name' => $name,
                 'parents' => [$base_folder_key]
             )
         );
 
-        $client = GetClientGoogleDrive::run();
-
         $file = $client->files->create(
-            $fileMetadata,
-            array(
-                'data'       => file_get_contents($path),
+            $fileMetadata, array(
+                'data' => file_get_contents($path),
                 'uploadType' => 'multipart',
-                'fields'     => 'id'
+                'fields' => 'id'
             )
         );
 
@@ -51,6 +55,6 @@ class UploadFileGoogleDrive
      */
     public function asCommand(Command $command): string
     {
-        return $this->handle('1xI006sc3zzTpl-hgqVO8hUthN-c0nNzt', $command->argument('filename'));
+        return $this->handle($command->argument('filename'));
     }
 }

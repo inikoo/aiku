@@ -7,7 +7,7 @@
 
 namespace App\Actions\UI\SysAdmin;
 
-use App\Actions\UI\Dashboard\Dashboard;
+use App\Actions\UI\Dashboard\ShowDashboard;
 use App\Actions\UI\WithInertia;
 use Illuminate\Support\Arr;
 use Inertia\Inertia;
@@ -79,6 +79,33 @@ class EditSystemSettings
                                 ],
                             ],
                         ],
+                        [
+                            "title"  => __("google drive"),
+                            "icon"   => "fab fa-google",
+                            "fields" => [
+                                "google_client_id" => [
+                                    "type"  => "input",
+                                    "label" => __("client ID"),
+                                    "value" => Arr::get($tenant->settings, 'google.id')
+                                ],
+                                "google_client_secret" => [
+                                    "type"  => "input",
+                                    "label" => __("client secret"),
+                                    "value" => Arr::get($tenant->settings, 'google.secret')
+                                ],
+                                "google_drive_folder_key" => [
+                                    "type"  => "input",
+                                    "label" => __("google drive folder key"),
+                                    "value" => Arr::get($tenant->settings, 'google.drive.folder')
+                                ],
+                                "google_redirect_uri" => [
+                                    "type"  => "input",
+                                    "label" => __("google redirect URI"),
+                                    "value" => url('/'),
+                                    // TODO make it as readonly
+                                ]
+                            ],
+                        ],
                     ],
                     "args"      => [
                         "updateRoute" => [
@@ -98,7 +125,7 @@ class EditSystemSettings
     {
         return
             array_merge(
-                Dashboard::make()->getBreadcrumbs(),
+                ShowDashboard::make()->getBreadcrumbs(),
                 [
                     [
                         'type'   => 'simple',

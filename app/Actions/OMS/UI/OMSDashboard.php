@@ -7,7 +7,7 @@
 
 namespace App\Actions\OMS\UI;
 
-use App\Actions\UI\Dashboard\Dashboard;
+use App\Actions\UI\Dashboard\ShowDashboard;
 use App\Actions\UI\WithInertia;
 use App\Models\Market\Shop;
 use App\Models\Tenancy\Tenant;
@@ -77,7 +77,7 @@ class OMSDashboard
         return match ($routeName) {
             'oms.shops.show.dashboard' =>
             array_merge(
-                Dashboard::make()->getBreadcrumbs(),
+                ShowDashboard::make()->getBreadcrumbs(),
                 [
                     [
                         'type'   => 'simple',
@@ -93,7 +93,7 @@ class OMSDashboard
             ),
             default =>
             array_merge(
-                Dashboard::make()->getBreadcrumbs(),
+                ShowDashboard::make()->getBreadcrumbs(),
                 [
                     [
                         'type'   => 'simple',

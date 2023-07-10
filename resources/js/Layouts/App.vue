@@ -100,15 +100,6 @@ const initialiseApp = () => {
             }
         }
 
-        /*
-        if (usePage().props.layoutCurrentShopSlug) {
-            layout.currentShopSlug = usePage().props.layoutCurrentShopSlug;
-        } else {
-            if (route().params.hasOwnProperty("shop")) {
-                layout.currentShopSlug = route().params["shop"];
-            }
-        }
-*/
 
         if (usePage().props.localeData) {
             locale.language = usePage().props.localeData.language;
@@ -158,7 +149,7 @@ const initialiseApp = () => {
 
         if(!layout.booted){
             if(Object.keys(layout.warehouses).length===1){
-                layout.currentShopData={
+                layout.currentWarehouseData={
                     slug: layout.warehouses[Object.keys(layout.warehouses)[0]].slug,
                     name: layout.warehouses[Object.keys(layout.warehouses)[0]].name,
                     code: layout.warehouses[Object.keys(layout.warehouses)[0]].code,

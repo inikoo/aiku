@@ -11,7 +11,7 @@ use App\Actions\InertiaAction;
 use App\Actions\Mail\DispatchedEmail\IndexDispatchedEmails;
 use App\Actions\Mail\Mailshot\IndexMailshots;
 use App\Actions\Mail\Outbox\IndexOutboxes;
-use App\Actions\UI\Dashboard\Dashboard;
+use App\Actions\UI\Dashboard\ShowDashboard;
 use App\Enums\UI\MailroomsTabsEnum;
 use App\Http\Resources\Mail\DispatchedEmailResource;
 use App\Http\Resources\Mail\MailroomResource;
@@ -164,7 +164,7 @@ class IndexMailrooms extends InertiaAction
     public function getBreadcrumbs($suffix=null): array
     {
         return array_merge(
-            (new Dashboard())->getBreadcrumbs(),
+            (new ShowDashboard())->getBreadcrumbs(),
             [
                 [
                     'type'   => 'simple',
