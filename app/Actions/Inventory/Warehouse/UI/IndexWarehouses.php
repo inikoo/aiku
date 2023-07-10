@@ -27,6 +27,22 @@ use Spatie\QueryBuilder\QueryBuilder;
  */
 class IndexWarehouses extends InertiaAction
 {
+    public function authorize(ActionRequest $request): bool
+    {
+        $this->canEdit = $request->user()->can('inventory.warehouses.edit');
+        return
+            (
+                $request->user()->tokenCan('root') or
+                $request->user()->hasPermissionTo('inventory.view')
+            );
+    }
+
+    public function asController(ActionRequest $request): LengthAwarePaginator
+    {
+        $this->initialisation($request);
+        return $this->handle();
+    }
+
     /** @noinspection PhpUndefinedMethodInspection */
     public function handle($prefix = null): LengthAwarePaginator
     {
@@ -101,22 +117,6 @@ class IndexWarehouses extends InertiaAction
                 ->column(key: 'number_locations', label: __('locations'), canBeHidden: false, sortable: true)
                 ->defaultSort('code');
         };
-    }
-
-    public function authorize(ActionRequest $request): bool
-    {
-        $this->canEdit = $request->user()->can('inventory.warehouses.edit');
-        return
-            (
-                $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo('inventory.view')
-            );
-    }
-
-    public function asController(ActionRequest $request): LengthAwarePaginator
-    {
-        $this->initialisation($request);
-        return $this->handle();
     }
 
 
