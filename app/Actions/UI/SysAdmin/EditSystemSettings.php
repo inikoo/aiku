@@ -80,7 +80,7 @@ class EditSystemSettings
                             ],
                         ],
                         [
-                            "title"  => __("google api key"),
+                            "title"  => __("google drive"),
                             "icon"   => "fab fa-google",
                             "fields" => [
                                 "google_client_id" => [
@@ -97,6 +97,11 @@ class EditSystemSettings
                                     "type"  => "input",
                                     "label" => __("google drive folder key"),
                                     "value" => Arr::get($tenant->settings, 'google.drive.folder')
+                                ],
+                                "google_redirect_uri" => [
+                                    "type"  => "input",
+                                    "label" => __("google redirect URI"),
+                                    "value" => url('/')
                                 ]
                             ],
                         ],
