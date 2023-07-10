@@ -101,7 +101,8 @@ class EditSystemSettings
                                 "google_redirect_uri" => [
                                     "type"  => "input",
                                     "label" => __("google redirect URI"),
-                                    "value" => url('/')
+                                    "value" => url('/'),
+                                    // TODO make it as readonly
                                 ]
                             ],
                         ],
