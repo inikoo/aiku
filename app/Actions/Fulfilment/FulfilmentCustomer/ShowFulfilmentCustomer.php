@@ -162,10 +162,11 @@ class ShowFulfilmentCustomer extends InertiaAction
                 CustomerTabsEnum::ORDERS->value => $this->tab == CustomerTabsEnum::ORDERS->value ?
                     fn () => OrderResource::collection(IndexOrders::run($customer))
                     : Inertia::lazy(fn () => OrderResource::collection(IndexOrders::run($customer))),
-
+/*
                 CustomerTabsEnum::PRODUCTS->value => $this->tab == CustomerTabsEnum::PRODUCTS->value ?
                     fn () => ProductResource::collection(IndexProducts::run($customer))
                     : Inertia::lazy(fn () => ProductResource::collection(IndexProducts::run($customer))),
+*/
 
                 CustomerTabsEnum::DISPATCHED_EMAILS->value => $this->tab == CustomerTabsEnum::DISPATCHED_EMAILS->value ?
                     fn () => DispatchedEmailResource::collection(IndexDispatchedEmails::run($customer))
@@ -173,7 +174,7 @@ class ShowFulfilmentCustomer extends InertiaAction
 
             ]
         )->table(IndexOrders::make()->tableStructure($customer))
-            ->table(IndexProducts::make()->tableStructure($customer))
+           // ->table(IndexProducts::make()->tableStructure($customer))
             ->table(IndexDispatchedEmails::make()->tableStructure($customer));
     }
 
