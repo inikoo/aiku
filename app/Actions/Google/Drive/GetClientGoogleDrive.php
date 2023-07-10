@@ -7,6 +7,7 @@
 
 namespace App\Actions\Google\Drive;
 
+use Exception;
 use Google_Client;
 use Google_Service_Drive;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -27,6 +28,7 @@ class GetClientGoogleDrive
 
     /**
      * @throws \Google\Exception
+     * @throws \Exception
      */
     public function getClient($tokenPath): Google_Client
     {

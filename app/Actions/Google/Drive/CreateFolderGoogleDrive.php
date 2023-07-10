@@ -7,6 +7,7 @@
 
 namespace App\Actions\Google\Drive;
 
+use Exception;
 use Google_Service_Drive_DriveFile;
 use Lorisleiva\Actions\Concerns\AsAction;
 
