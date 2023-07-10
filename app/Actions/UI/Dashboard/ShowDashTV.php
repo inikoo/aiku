@@ -11,7 +11,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class DashTV
+class ShowDashTV
 {
     use AsAction;
 

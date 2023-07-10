@@ -8,7 +8,7 @@
 namespace App\Actions\UI\Marketing;
 
 use App\Actions\InertiaAction;
-use App\Actions\UI\Dashboard\Dashboard;
+use App\Actions\UI\Dashboard\ShowDashboard;
 use App\Models\Mail\Outbox;
 use App\Models\Market\Shop;
 use Inertia\Inertia;
@@ -161,7 +161,7 @@ class MarketingHub extends InertiaAction
     {
         return match ($routeName) {
             'marketing.hub' => array_merge(
-                Dashboard::make()->getBreadcrumbs(),
+                ShowDashboard::make()->getBreadcrumbs(),
                 [
                     [
                         'type'   => 'simple',
@@ -177,7 +177,7 @@ class MarketingHub extends InertiaAction
             ),
             'marketing.shops.show.hub' =>
             array_merge(
-                Dashboard::make()->getBreadcrumbs(),
+                ShowDashboard::make()->getBreadcrumbs(),
                 [
                     [
                         'type'   => 'simple',

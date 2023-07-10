@@ -9,7 +9,7 @@ namespace App\Actions\Web\WebpageVariant;
 
 use App\Actions\InertiaAction;
 use App\Actions\Market\Shop\UI\ShowShop;
-use App\Actions\UI\Dashboard\Dashboard;
+use App\Actions\UI\Dashboard\ShowDashboard;
 use App\Http\Resources\Market\ShopResource;
 use App\Http\Resources\Market\WebpageResource;
 use App\InertiaTable\InertiaTable;
@@ -139,7 +139,7 @@ class IndexWebpageVariants extends InertiaAction
         return match ($routeName) {
             'webpages.index' =>
             array_merge(
-                Dashboard::make()->getBreadcrumbs(),
+                ShowDashboard::make()->getBreadcrumbs(),
                 $headCrumb(
                     [
                         'name' => 'webpages.index',

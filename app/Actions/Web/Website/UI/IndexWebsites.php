@@ -8,7 +8,7 @@
 namespace App\Actions\Web\Website\UI;
 
 use App\Actions\InertiaAction;
-use App\Actions\UI\Dashboard\Dashboard;
+use App\Actions\UI\Dashboard\ShowDashboard;
 use App\Enums\Web\Website\WebsiteStateEnum;
 use App\Http\Resources\Market\ShopResource;
 use App\Http\Resources\Market\WebsiteResource;
@@ -191,7 +191,7 @@ class IndexWebsites extends InertiaAction
         return match ($routeName) {
             'web.websites.index' =>
             array_merge(
-                Dashboard::make()->getBreadcrumbs(),
+                ShowDashboard::make()->getBreadcrumbs(),
                 $headCrumb(
                     [
                         'name' => 'web.websites.index',

@@ -13,7 +13,7 @@ use App\Actions\Mail\DispatchedEmail\IndexDispatchedEmails;
 use App\Actions\Market\Product\UI\IndexProducts;
 use App\Actions\Market\Shop\UI\ShowShop;
 use App\Actions\OMS\Order\UI\IndexOrders;
-use App\Actions\UI\Dashboard\Dashboard;
+use App\Actions\UI\Dashboard\ShowDashboard;
 use App\Enums\UI\CustomerTabsEnum;
 use App\Http\Resources\Mail\DispatchedEmailResource;
 use App\Http\Resources\Market\ProductResource;
@@ -211,7 +211,7 @@ class ShowFulfilmentCustomer extends InertiaAction
             'customers.edit' =>
 
             array_merge(
-                Dashboard::make()->getBreadcrumbs(),
+                ShowDashboard::make()->getBreadcrumbs(),
                 $headCrumb(
                     $routeParameters['customer'],
                     [

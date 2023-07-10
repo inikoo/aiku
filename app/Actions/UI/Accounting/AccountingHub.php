@@ -9,7 +9,7 @@ namespace App\Actions\UI\Accounting;
 
 use App\Actions\InertiaAction;
 use App\Actions\Market\Shop\UI\ShowShop;
-use App\Actions\UI\Dashboard\Dashboard;
+use App\Actions\UI\Dashboard\ShowDashboard;
 use App\Enums\UI\CatalogueTabsEnum;
 use App\Models\Market\Shop;
 use Lorisleiva\Actions\ActionRequest;
@@ -58,7 +58,7 @@ class AccountingHub extends InertiaAction
 
         return match ($routeName) {
             'shops' => array_merge(
-                Dashboard::make()->getBreadcrumbs(),
+                ShowDashboard::make()->getBreadcrumbs(),
                 $headCrumb()
             ),
             'shops.show.hub' =>

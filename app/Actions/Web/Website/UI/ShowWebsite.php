@@ -10,7 +10,7 @@ namespace App\Actions\Web\Website\UI;
 use App\Actions\Auth\WebUser\IndexWebUser;
 use App\Actions\Helpers\History\IndexHistories;
 use App\Actions\InertiaAction;
-use App\Actions\UI\Dashboard\Dashboard;
+use App\Actions\UI\Dashboard\ShowDashboard;
 use App\Actions\UI\WithInertia;
 use App\Actions\Web\WebpageVariant\IndexWebpageVariants;
 use App\Enums\UI\WebsiteTabsEnum;
@@ -201,7 +201,7 @@ class ShowWebsite extends InertiaAction
             'web.websites.edit' =>
 
             array_merge(
-                Dashboard::make()->getBreadcrumbs(),
+                ShowDashboard::make()->getBreadcrumbs(),
                 $headCrumb(
                     'modelWithIndex',
                     $routeParameters['website'],

@@ -8,7 +8,7 @@
 namespace App\Actions\UI\Profile;
 
 use App\Actions\Assets\Language\UI\GetLanguagesOptions;
-use App\Actions\UI\Dashboard\Dashboard;
+use App\Actions\UI\Dashboard\ShowDashboard;
 use App\Actions\UI\WithInertia;
 use App\Http\Resources\SysAdmin\UserResource;
 use App\Models\Auth\User;
@@ -150,7 +150,7 @@ class ShowProfile
 
     public function getBreadcrumbs(): array
     {
-        return array_merge(Dashboard::make()->getBreadcrumbs(), [
+        return array_merge(ShowDashboard::make()->getBreadcrumbs(), [
             [
                 "type"   => "simple",
                 "simple" => [

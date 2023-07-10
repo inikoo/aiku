@@ -6,9 +6,9 @@
  */
 
 
-use App\Actions\UI\Dashboard\Dashboard;
-use App\Actions\UI\Dashboard\DashTV;
+use App\Actions\UI\Dashboard\ShowDashboard;
+use App\Actions\UI\Dashboard\ShowDashTV;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/tv', DashTV::class)->name('tv');
-Route::get('/', Dashboard::class)->name('show');
+Route::get('/tv', ShowDashTV::class)->name('tv');
+Route::get('/', ShowDashboard::class)->name('show');

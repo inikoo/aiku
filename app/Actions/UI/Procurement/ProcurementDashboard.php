@@ -7,7 +7,7 @@
 
 namespace App\Actions\UI\Procurement;
 
-use App\Actions\UI\Dashboard\Dashboard;
+use App\Actions\UI\Dashboard\ShowDashboard;
 use App\Actions\UI\WithInertia;
 use App\Models\Auth\User;
 use App\Models\Tenancy\Tenant;
@@ -134,7 +134,7 @@ class ProcurementDashboard
     {
         return
             array_merge(
-                Dashboard::make()->getBreadcrumbs(),
+                ShowDashboard::make()->getBreadcrumbs(),
                 [
                     [
                         'type'   => 'simple',
