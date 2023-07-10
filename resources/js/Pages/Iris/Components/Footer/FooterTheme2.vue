@@ -116,6 +116,7 @@ const childLog = (a, b, c) => {
 												<HyperLink
 													valueKeyLabel="name"
 													valueKeyLink="href"
+													:useDelete="true"
 													:data="child"
 													:save="
 														(value) =>
