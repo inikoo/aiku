@@ -7,7 +7,7 @@
 
 namespace App\Actions\UI\SysAdmin;
 
-use App\Actions\UI\Dashboard\Dashboard;
+use App\Actions\UI\Dashboard\ShowDashboard;
 use App\Actions\UI\WithInertia;
 use Illuminate\Support\Arr;
 use Inertia\Inertia;
@@ -125,7 +125,7 @@ class EditSystemSettings
     {
         return
             array_merge(
-                Dashboard::make()->getBreadcrumbs(),
+                ShowDashboard::make()->getBreadcrumbs(),
                 [
                     [
                         'type'   => 'simple',

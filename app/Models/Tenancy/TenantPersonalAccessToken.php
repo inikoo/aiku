@@ -11,7 +11,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Laravel\Sanctum\PersonalAccessToken;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
-
 /**
  * App\Models\Tenancy\TenantPersonalAccessToken
  *

@@ -17,7 +17,7 @@ use App\Actions\Auth\User\UI\CreateUser;
 use App\Actions\Auth\User\UI\EditUser;
 use App\Actions\Auth\User\UI\IndexUsers;
 use App\Actions\Auth\User\UI\ShowUser;
-use App\Actions\UI\Dashboard\DashTV;
+use App\Actions\UI\Dashboard\ShowDashTV;
 use App\Actions\UI\SysAdmin\SysAdminDashboard;
 use App\Actions\UI\SysAdmin\EditSystemSettings;
 use Illuminate\Support\Facades\Route;
@@ -43,4 +43,4 @@ Route::get('/guests/{guest}/delete', RemoveGuest::class)->name('guests.remove');
 
 
 
-Route::get('/dashtv', DashTV::class)->name('dashtv');
+Route::get('/dashtv', ShowDashTV::class)->name('dashtv');

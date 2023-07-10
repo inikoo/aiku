@@ -45,7 +45,7 @@ beforeAll(function () {
 beforeEach(function () {
     $tenant = Tenant::first();
     if (!$tenant) {
-        $group  = StoreGroup::make()->asAction(Group::factory()->definition());
+        $group  = StoreGroup::make()->action(Group::factory()->definition());
         $tenant = StoreTenant::make()->action($group, Tenant::factory()->definition());
     }
     $tenant->makeCurrent();

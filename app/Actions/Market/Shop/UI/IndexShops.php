@@ -11,7 +11,7 @@ use App\Actions\InertiaAction;
 use App\Actions\Market\Product\UI\IndexProducts;
 use App\Actions\Market\ProductCategory\UI\IndexDepartments;
 use App\Actions\Market\ProductCategory\UI\IndexFamilies;
-use App\Actions\UI\Dashboard\Dashboard;
+use App\Actions\UI\Dashboard\ShowDashboard;
 use App\Enums\UI\ShopsTabsEnum;
 use App\Http\Resources\Market\DepartmentResource;
 use App\Http\Resources\Market\FamilyResource;
@@ -193,7 +193,7 @@ class IndexShops extends InertiaAction
     {
         return
             array_merge(
-                (new Dashboard())->getBreadcrumbs(),
+                (new ShowDashboard())->getBreadcrumbs(),
                 [
                     [
                         'type'   => 'simple',

@@ -11,7 +11,7 @@ use App\Actions\InertiaAction;
 use App\Actions\Mail\DispatchedEmail\IndexDispatchedEmails;
 use App\Actions\Market\Shop\UI\ShowShop;
 use App\Actions\OMS\Order\UI\IndexOrders;
-use App\Actions\UI\Dashboard\Dashboard;
+use App\Actions\UI\Dashboard\ShowDashboard;
 use App\Enums\UI\CustomerTabsEnum;
 use App\Http\Resources\Mail\DispatchedEmailResource;
 use App\Http\Resources\Sales\CustomerResource;
@@ -227,7 +227,7 @@ class ShowCustomer extends InertiaAction
             'crm.customers.show',
             'crm.customers.edit'
             => array_merge(
-                Dashboard::make()->getBreadcrumbs(),
+                ShowDashboard::make()->getBreadcrumbs(),
                 $headCrumb(
                     $routeParameters['customer'],
                     [

@@ -7,7 +7,7 @@
 
 namespace App\Actions\UI\CRM;
 
-use App\Actions\UI\Dashboard\Dashboard;
+use App\Actions\UI\Dashboard\ShowDashboard;
 use App\Actions\UI\WithInertia;
 use App\Models\Market\Shop;
 use App\Models\Tenancy\Tenant;
@@ -120,7 +120,7 @@ class CRMDashboard
         return match ($routeName) {
             'crm.shops.show.dashboard' =>
             array_merge(
-                Dashboard::make()->getBreadcrumbs(),
+                ShowDashboard::make()->getBreadcrumbs(),
                 [
                     [
                         'type'   => 'simple',
@@ -136,7 +136,7 @@ class CRMDashboard
             ),
             default =>
             array_merge(
-                Dashboard::make()->getBreadcrumbs(),
+                ShowDashboard::make()->getBreadcrumbs(),
                 [
                     [
                         'type'   => 'simple',

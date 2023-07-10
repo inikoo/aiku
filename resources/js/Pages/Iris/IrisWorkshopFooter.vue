@@ -8,7 +8,10 @@ import { faHandPointer, faHandRock, faPlus } from '@/../private/pro-solid-svg-ic
 import { fab } from "@fortawesome/free-brands-svg-icons"
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { v4 as uuidv4 } from 'uuid';
+import HyperlinkTools from './Components/Fields/Hyperlinktools.vue'
+import {get} from 'lodash'
 library.add(faHandPointer, faHandRock, fab, faPlus)
+
 const Dummy = {
     images: [
         {
@@ -19,8 +22,8 @@ const Dummy = {
         },
     ],
     tools: [
-        { name: 'edit', icon: ['fas', 'fa-hand-pointer']},
-        { name: 'grab', icon: ['fas',  'hand-rock']},
+        { name: 'edit', icon: ['fas', 'fa-hand-pointer'] },
+        { name: 'grab', icon: ['fas', 'hand-rock'] },
         // { name: 'Heather Grey', icon: ['fas', 'fa-hand-pointer']},
     ],
     theme: [
@@ -40,7 +43,7 @@ const Dummy = {
         { name: 'Add Item', value: 'add' },
     ],
 }
-const selectedTheme = ref(Dummy.theme[0])
+const selectedTheme = ref(Dummy.theme[2])
 const columsTool = ref(null)
 const columsTypeTheme = ref(Dummy.columsType[2])
 const tool = ref(Dummy.tools[0])
@@ -49,7 +52,7 @@ const DummyColums = [
     {
         title: 'add list',
         type: "list",
-        id : uuidv4(),
+        id: uuidv4(),
         data: [
             { name: 'dummy', href: '#' },
             { name: 'dummy2', href: '#' },
@@ -58,49 +61,49 @@ const DummyColums = [
     {
         title: 'add description',
         type: "description",
-        id : uuidv4(),
+        id: uuidv4(),
         data: "Lorem Ipsum is simply dummy te printernto electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
     },
     {
         title: 'add info',
         type: 'info',
-        id : uuidv4(),
+        id: uuidv4(),
         data: [
             {
                 title: 'location',
                 value: 'Ancient Wisdom s.r.o.',
                 icon: 'fas fa-map-marker-alt',
-                id : uuidv4(),
+                id: uuidv4(),
             },
             {
                 title: 'billingAddress',
                 value: 'Billin',
                 icon: 'fas fa-map',
-                id : uuidv4(),
+                id: uuidv4(),
             },
             {
                 title: 'vat',
                 value: 'VAT: SK2120525440',
                 icon: 'fas fa-balance-scale',
-                id : uuidv4(),
+                id: uuidv4(),
             },
             {
                 title: 'building',
                 value: 'Reg: 50920600',
                 icon: 'fas fa-building',
-                id : uuidv4(),
+                id: uuidv4(),
             },
             {
                 title: 'phone',
                 value: '+421 (0)33 558 60 71',
                 icon: 'fas fa-phone',
-                id : uuidv4(),
+                id: uuidv4(),
             },
             {
                 title: 'email',
                 value: '<a href=mailto:contact@awgifts.eu>contact@awgifts.eu</a>',
                 icon: 'fas fa-envelope',
-                id : uuidv4(),
+                id: uuidv4(),
             },
         ],
     }
@@ -110,103 +113,103 @@ const navigations = ref([
     {
         title: 'company',
         type: "list",
-        id : uuidv4(),
+        id: uuidv4(),
         data: [
-            { name: 'About', href: '#',  id : uuidv4() },
-            { name: 'Blog', href: '#' ,  id : uuidv4()},
-            { name: 'Jobs', href: '#' ,  id : uuidv4()},
-            { name: 'Press', href: '#',  id : uuidv4() },
-            { name: 'Partners', href: '#' ,  id : uuidv4()},
+            { name: 'About', href: '#', id: uuidv4() },
+            { name: 'Blog', href: '#', id: uuidv4() },
+            { name: 'Jobs', href: '#', id: uuidv4() },
+            { name: 'Press', href: '#', id: uuidv4() },
+            { name: 'Partners', href: '#', id: uuidv4() },
         ],
     },
     {
         title: 'legal',
         type: "list",
-        id : uuidv4(),
+        id: uuidv4(),
         data: [
-            { name: 'Claim', href: '#' ,  id : uuidv4()},
-            { name: 'Privacy', href: '#' , id : uuidv4()},
-            { name: 'Terms', href: '#' , id : uuidv4()},
+            { name: 'Claim', href: '#', id: uuidv4() },
+            { name: 'Privacy', href: '#', id: uuidv4() },
+            { name: 'Terms', href: '#', id: uuidv4() },
         ],
     },
     {
         title: 'Description',
         type: "description",
-        id : uuidv4(),
+        id: uuidv4(),
         data: "Lorem Ipsum is simply dummy te printernto electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
     },
     {
         title: 'Info',
         type: 'info',
-        id : uuidv4(),
+        id: uuidv4(),
         data: [
             {
                 title: 'location',
                 value: 'Ancient Wisdom s.r.o.',
                 icon: 'fas fa-map-marker-alt',
-                id : uuidv4()
+                id: uuidv4()
             },
             {
                 title: 'billingAddress',
                 value: 'Billin',
                 icon: 'fas fa-map',
-                id : uuidv4()
+                id: uuidv4()
             },
             {
                 title: 'vat',
                 value: 'VAT: SK2120525440',
                 icon: 'fas fa-balance-scale',
-                id : uuidv4()
+                id: uuidv4()
             },
             {
                 title: 'building',
                 value: 'Reg: 50920600',
                 icon: 'fas fa-building',
-                id : uuidv4()
+                id: uuidv4()
             },
             {
                 title: 'phone',
                 value: '+421 (0)33 558 60 71',
                 icon: 'fas fa-phone',
-                id : uuidv4()
+                id: uuidv4()
             },
             {
                 title: 'email',
                 value: 'contact@awgifts.eu',
                 icon: 'fas fa-envelope',
-                id : uuidv4(),
+                id: uuidv4(),
             },
         ],
     }
 
 ])
 
-const copyRight = ref({label : 'AW Advantage', href: '*'})
+const copyRight = ref({ label: 'AW Advantage', href: '*' })
 
 const socials = ref([
     {
         label: "Facebook",
         href: '#facebook',
         icon: 'fab fa-facebook',
-        id:uuidv4()
+        id: uuidv4()
     },
     {
         label: "Instagram",
         href: '#instagram',
-        icon:  'fab fa-instagram',
-        id:uuidv4()
+        icon: 'fab fa-instagram',
+        id: uuidv4()
     },
     {
         label: "Twitter",
         href: '#twitter',
-        icon:  'fab fa-twitter',
-        id:uuidv4()
+        icon: 'fab fa-twitter',
+        id: uuidv4()
     },
     {
         label: "Github",
         href: '#github',
-        icon:  'fab fa-github',
-        id:uuidv4()
+        icon: 'fab fa-github',
+        id: uuidv4()
     },
 ])
 const columSelected = ref(navigations.value[0]);
@@ -217,46 +220,47 @@ const selectedColums = (value) => {
 
 
 const handleColumsTypeChange = (value) => {
-    if(value.title !== columSelected.value.type){
+    console.log(value)
+    if (value.title !== columSelected.value.type) {
         let indexDummy = DummyColums.findIndex((item) => item.type === value.value);
-    let indexColums = navigations.value.findIndex((item) => item.id === columSelected.value.id);
-    const data = {...DummyColums[indexDummy], id : uuidv4()}
-    navigations.value[indexColums] = data
-    }else{ cosnole.log('salah')}
-   
+        let indexColums = navigations.value.findIndex((item) => item.id === columSelected.value.id);
+        const data = { ...DummyColums[indexDummy], id: uuidv4() }
+        navigations.value[indexColums] = data
+    } else { cosnole.log('salah') }
+
 }
 
 
-const saveItemTitle = (value) =>{
-   const indexNavigation = navigations.value.findIndex((item)=>item.id == value.colum.id )
-   const data = {...navigations.value[indexNavigation], title : value.value}
-   navigations.value[indexNavigation] = data
+const saveItemTitle = (value) => {
+    const indexNavigation = navigations.value.findIndex((item) => item.id == value.colum.id)
+    const data = { ...navigations.value[indexNavigation], title: value.value }
+    navigations.value[indexNavigation] = data
 }
 
-const saveTextArea = (value) =>{
-   const indexNavigation = navigations.value.findIndex((item)=>item.id == value.colum.id )
-   const data = {...navigations.value[indexNavigation], data : value.value}
-   navigations.value[indexNavigation] = data
+const saveTextArea = (value) => {
+    const indexNavigation = navigations.value.findIndex((item) => item.id == value.colum.id)
+    const data = { ...navigations.value[indexNavigation], data: value.value }
+    navigations.value[indexNavigation] = data
 }
 
-const saveLink = (value) =>{
-    const indexNavigation = navigations.value.findIndex((item)=>item.id == value.parentId )
-    const indexChildData = navigations.value[indexNavigation].data.findIndex((item)=>item.id == value.colum.id )
-    if(value.type !== 'delete'){
-        let set = value.type == 'name' ? { name : value.value } : { href : value.value }
-    const data = {...navigations.value[indexNavigation].data[indexChildData] ,...set}
-    navigations.value[indexNavigation].data[indexChildData] = data
-    }else if(value.type == 'delete'){
-        navigations.value[indexNavigation].data.splice(indexChildData,1)
+const saveLink = (value) => {
+    const indexNavigation = navigations.value.findIndex((item) => item.id == value.parentId)
+    const indexChildData = navigations.value[indexNavigation].data.findIndex((item) => item.id == value.colum.id)
+    if (value.type !== 'delete') {
+        let set = value.type == 'name' ? { name: value.value } : { href: value.value }
+        const data = { ...navigations.value[indexNavigation].data[indexChildData], ...set }
+        navigations.value[indexNavigation].data[indexChildData] = data
+    } else if (value.type == 'delete') {
+        navigations.value[indexNavigation].data.splice(indexChildData, 1)
     }
-  
+
 }
 
-const saveInfo=(value)=>{
-    const indexNavigation = navigations.value.findIndex((item)=>item.id == value.parentId )
-    const indexChildData = navigations.value[indexNavigation].data.findIndex((item)=>item.id == value.colum.id )
-    let set = value.type == 'value' ? { value : value.value } : { icon : value.value }
-    const data = {...navigations.value[indexNavigation].data[indexChildData] ,...set}
+const saveInfo = (value) => {
+    const indexNavigation = navigations.value.findIndex((item) => item.id == value.parentId)
+    const indexChildData = navigations.value[indexNavigation].data.findIndex((item) => item.id == value.colum.id)
+    let set = value.type == 'value' ? { value: value.value } : { icon: value.value }
+    const data = { ...navigations.value[indexNavigation].data[indexChildData], ...set }
     navigations.value[indexNavigation].data[indexChildData] = data
 }
 
@@ -276,9 +280,9 @@ const columItemLinkChange = (value) => {
     navigations.value = data
 }
 
-const copyRightSave =(value)=>{
-    let set = value.type == 'name' ? { label : value.value } : { href : value.value }
-    copyRight.value = { ...copyRight.value , ...set}
+const copyRightSave = (value) => {
+    let set = value.type == 'name' ? { label: value.value } : { href: value.value }
+    copyRight.value = { ...copyRight.value, ...set }
 }
 
 const saveSocialmedia = (value) => {
@@ -286,22 +290,47 @@ const saveSocialmedia = (value) => {
     if (value.type == 'save') {
         const data = { ...socials.value[index], ...value.value }
         socials.value[index] = data
-    }else if(value.type == 'delete'){
+    } else if (value.type == 'delete') {
         const data = socials.value
-        data.splice(index,1)   
+        data.splice(index, 1)
     }
 
 }
-const addSocial=()=>{
+const addSocial = () => {
     socials.value.push(
         {
-        label: "new",
-        href: '#',
-        icon: 'far fa-dot-circle',
-        id:uuidv4()
-    }, 
+            label: "new",
+            href: '#',
+            icon: 'far fa-dot-circle',
+            id: uuidv4()
+        },
     )
 }
+
+const EditItemLinkInTools = (value, type) => {
+  const data = navigations.value;
+  const index = data.findIndex((item) => item.id === columSelected.value.id);
+  
+  // Check if the item was found in the navigations array
+  if (index !== -1) {
+    const indexData = data[index].data.findIndex((item) => item.id === value.id);
+    
+    // Check if the item was found in the data array of the selected navigation item
+    if (indexData !== -1) {
+      if (type === 'edit') {
+        // Update the item with the new value
+        data[index].data[indexData] = value;
+      } else if (type === 'delete') {
+        console.log(data[index].data[indexData])
+        data[index].data.splice(indexData, 1);
+      }
+    }
+  }
+
+  console.log(data)
+  navigations.value = data;
+};
+
 </script>
 
 <template>
@@ -310,7 +339,7 @@ const addSocial=()=>{
             <div class="mt-8  px-4 sm:px-6 lg:px-8">
                 <div class="flex">
                     <!-- tools -->
-                    <div class="w-1/10 p-6" style="border : 1px solid #bfbfbf">
+                    <div class="w-1/10 p-6  overflow-y-auto overflow-x-hidden" style="border : 1px solid #bfbfbf; height:46rem;">
                         <form>
                             <!-- Color picker -->
                             <div>
@@ -362,11 +391,10 @@ const addSocial=()=>{
                                 <div class="flex items-center justify-between">
                                     <h2 class="text-sm font-medium text-gray-900">Colums Type</h2>
                                 </div>
-                                <RadioGroup v-model="columsTypeTheme" class="mt-2"
-                                    @update:modelValue="handleColumsTypeChange">
+                                <RadioGroup v-model="columsTypeTheme" class="mt-2">
                                     <div class="grid grid-cols-3 gap-3 sm:grid-cols-2">
-                                        <RadioGroupOption as="template" v-for="option in Dummy.columsType" :key="option.value"
-                                            :value="option" v-slot="{ active, checked }">
+                                        <RadioGroupOption as="template" v-for="option in Dummy.columsType"
+                                            :key="option.value" :value="option" v-slot="{ active, checked }">
                                             <div :class="{
                                                 'cursor-pointer': !columSelected.type == option.value,
                                                 'cursor-not-allowed': columSelected.type == option.value,
@@ -375,22 +403,56 @@ const addSocial=()=>{
                                                 'border-transparent bg-indigo-600 text-white hover:bg-indigo-700': checked && !columSelected.type == option.value,
                                                 'border-gray-200 bg-white text-gray-900 hover:bg-gray-50': !checked && !columSelected.type == option.value,
                                                 'flex items-center justify-center rounded-md border py-3 px-3 text-sm font-medium uppercase sm:flex-1': true
-                                            }">
+                                            }" @click="handleColumsTypeChange(option)">
                                                 <RadioGroupLabel as="span">{{ option.name }}</RadioGroupLabel>
                                             </div>
                                         </RadioGroupOption>
                                     </div>
                                 </RadioGroup>
                             </div>
-                            <!-- colum type -->
-                            <div class="mt-8" v-if="columSelected.type == 'list'">
+                            <!-- colum tools list -->
+                            <div class="mt-8" v-if="get(columSelected,'type') == 'list'">
                                 <div class="flex items-center justify-between">
-                                    <h2 class="text-sm font-medium text-gray-900">{{ `Colums tools ${columSelected.title}` }}</h2>
+                                    <h2 class="text-sm font-medium text-gray-900">{{ `Colums tools ${columSelected.title}`
+                                    }}</h2>
+                                </div>
+                                <div>
+                                    <div class="flex gap-2 mt-2">
+                                        <div style="width:87%;"
+                                            class=" shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-600 sm:max-w-md">
+                                            <input type="text" v-model="columSelected.title"
+                                                class=" flex-1 border-0 bg-transparent text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6"
+                                                placeholder="title" />
+                                        </div>
+                                        <div>
+
+                                            <button type="submit"  @click.prevent="columItemLinkChange({ name: 'Add Item', value: 'add' })"
+                                                class="rounded-md cursor-pointer border ring-gray-300 px-3 py-2 text-sm font-semibold text-black shadow-sm ">+</button>
+                                        </div>
+
+                                    </div>
+
+                                    <div  v-for="set in columSelected.data" :key="set.id">
+                                        <HyperlinkTools :data="set" :save="EditItemLinkInTools"/>
+                                    </div>
+                                </div>
+
+
+
+
+
+
+                            </div>
+                            <!-- colum tools info-->
+                            <div class="mt-8" v-if="get(columSelected,'type')== 'info'">
+                                <div class="flex items-center justify-between">
+                                    <h2 class="text-sm font-medium text-gray-900">{{ `Colums tools ${columSelected.title}`
+                                    }}</h2>
                                 </div>
                                 <RadioGroup v-model="columsTool" class="mt-2">
                                     <div class="grid grid-cols-3 gap-3 sm:grid-cols-2">
-                                        <RadioGroupOption as="template" v-for="option in Dummy.columsToolsLink" :key="option.value"
-                                            :value="option" v-slot="{ active, checked }">
+                                        <RadioGroupOption as="template" v-for="option in Dummy.columsToolsInfo"
+                                            :key="option.value" :value="option" v-slot="{ active, checked }">
                                             <div :class="{
                                                 'flex cursor-pointer items-center justify-center rounded-md border py-3 px-3 text-sm font-medium uppercase sm:flex-1': true
                                             }" @click="columItemLinkChange(option)">
@@ -400,44 +462,31 @@ const addSocial=()=>{
                                     </div>
                                 </RadioGroup>
                             </div>
-                            <!-- colum tools -->
-                            <div class="mt-8" v-if="columSelected.type == 'info'">
-                                <div class="flex items-center justify-between">
-                                    <h2 class="text-sm font-medium text-gray-900">{{ `Colums tools ${columSelected.title}` }}</h2>
-                                </div>
-                                <RadioGroup v-model="columsTool" class="mt-2">
-                                    <div class="grid grid-cols-3 gap-3 sm:grid-cols-2">
-                                        <RadioGroupOption as="template" v-for="option in Dummy.columsToolsInfo" :key="option.value"
-                                            :value="option" v-slot="{ active, checked }">
-                                            <div :class="{
-                                                'flex cursor-pointer items-center justify-center rounded-md border py-3 px-3 text-sm font-medium uppercase sm:flex-1': true
-                                            }" @click="columItemLinkChange(option)">
-                                                <RadioGroupLabel as="span">{{ option.name }}</RadioGroupLabel>
-                                            </div>
-                                        </RadioGroupOption>
-                                    </div>
-                                </RadioGroup>
-                            </div>
+                            <hr class="mt-5">
                             <!-- social Media -->
                             <div class="mt-8">
                                 <div class="flex items-center justify-between">
                                     <h2 class="text-sm font-medium text-gray-900">{{ `Social media setting` }}</h2>
                                 </div>
-                                <RadioGroup  class="mt-2">
+                                <RadioGroup class="mt-2">
                                     <div class="grid grid-cols-3 gap-3 sm:grid-cols-2">
                                         <RadioGroupOption as="template" v-for="option in socials" :key="option.value"
                                             :value="option" v-slot="{ active, checked }">
                                             <div :class="{
                                                 'flex cursor-pointer items-center justify-center rounded-md border py-3 px-3 text-sm font-medium uppercase sm:flex-1': true
                                             }">
-                                                <RadioGroupLabel as="span"><FontAwesomeIcon :icon="option.icon" aria-hidden="true" /></RadioGroupLabel>
+                                                <RadioGroupLabel as="span">
+                                                    <FontAwesomeIcon :icon="option.icon" aria-hidden="true" />
+                                                </RadioGroupLabel>
                                             </div>
                                         </RadioGroupOption>
                                         <RadioGroupOption as="template">
                                             <div :class="{
                                                 'flex cursor-pointer items-center justify-center rounded-md border  border-dashed py-3 px-3 text-sm font-medium uppercase sm:flex-1': true
                                             }" @click="addSocial">
-                                                <RadioGroupLabel as="span"><FontAwesomeIcon :icon="['fas', 'plus']" /></RadioGroupLabel>
+                                                <RadioGroupLabel as="span">
+                                                    <FontAwesomeIcon :icon="['fas', 'plus']" />
+                                                </RadioGroupLabel>
                                             </div>
                                         </RadioGroupOption>
                                     </div>
@@ -448,15 +497,17 @@ const addSocial=()=>{
                         <!-- Product details -->
                     </div>
                     <!-- Image gallery -->
-                    <div style="width: 90%; background: #f2f2f2; border : 1px solid #bfbfbf; align-items: center; justify-content: center; display: flex;">
-                        <div style="transform: scale(0.8);">
-                            <Footer class="lg:col-span-2 lg:row-span-2 rounded-lg " :columSelected="columSelected" :saveSocialmedia="saveSocialmedia"
-                                :theme="selectedTheme.value" :social="socials" :saveInfo="saveInfo" :copyRight="copyRight" :copyRightSave="copyRightSave"
-                                :navigation="navigations" :selectedColums="selectedColums" :saveItemTitle="saveItemTitle" :saveTextArea="saveTextArea" :tool="tool" :saveLink="saveLink"/>
-                        </div>
+                    <div
+                        style="width: 90%; background: #f2f2f2; border : 1px solid #bfbfbf; align-items: center; justify-content: center; display: flex;">
+                    <div style="transform: scale(0.8); width:100%;">
+                        <Footer class="lg:col-span-2 lg:row-span-2 rounded-lg " :columSelected="columSelected"
+                            :saveSocialmedia="saveSocialmedia" :theme="selectedTheme.value" :social="socials"
+                            :saveInfo="saveInfo" :copyRight="copyRight" :copyRightSave="copyRightSave"
+                            :navigation="navigations" :selectedColums="selectedColums" :saveItemTitle="saveItemTitle"
+                            :saveTextArea="saveTextArea" :tool="tool" :saveLink="saveLink" />
                     </div>
                 </div>
             </div>
-        </div>        
+        </div>
     </div>
-</template>
+</div></template>

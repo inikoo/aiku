@@ -7,12 +7,9 @@
 
 namespace App\Actions\Notifications;
 
-use App\Actions\Firebase\CheckUserStatusFirebase;
 use App\Actions\Mail\EmailAddress\SendEmailAddress;
 use App\Models\Auth\User;
 use App\Models\Tenancy\Tenant;
-use App\Notifications\MeasurementSharedNotification;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\AsObject;
@@ -33,7 +30,7 @@ class PublishNotification
             }
 
             if(in_array('mail', $target)) {
-//                SendEmailAddress::run($content, $user->email);
+                //                SendEmailAddress::run($content, $user->email);
             }
         }
     }
@@ -41,10 +38,10 @@ class PublishNotification
     public function asCommand(): void
     {
         Tenant::where('slug', 'aw')->first()->makeCurrent();
-        $users = User::where('username', 'aiku')->get();
+        $users   = User::where('username', 'aiku')->get();
         $content = [
             'title' => 'Subject/Title',
-            'body' => 'Hello'
+            'body'  => 'Hello'
         ];
 
         $this->handle($users, $content);

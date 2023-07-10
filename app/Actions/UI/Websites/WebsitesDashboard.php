@@ -7,7 +7,7 @@
 
 namespace App\Actions\UI\Websites;
 
-use App\Actions\UI\Dashboard\Dashboard;
+use App\Actions\UI\Dashboard\ShowDashboard;
 use App\Actions\UI\WithInertia;
 use App\Models\Tenancy\Tenant;
 use Inertia\Inertia;
@@ -76,7 +76,7 @@ class WebsitesDashboard
     {
         return
             array_merge(
-                Dashboard::make()->getBreadcrumbs(),
+                ShowDashboard::make()->getBreadcrumbs(),
                 [
                     [
                         'type'   => 'simple',

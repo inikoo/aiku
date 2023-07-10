@@ -7,11 +7,11 @@
 
 namespace App\Rules;
 
-use Illuminate\Contracts\Validation\InvokableRule;
+use Illuminate\Contracts\Validation\ValidationRule;
 
-class AlphaDashDot implements InvokableRule
+class AlphaDashDot implements ValidationRule
 {
-    public function __invoke($attribute, $value, $fail): void
+    public function validate($attribute, $value, $fail): void
     {
         if (preg_match('/^[0-9A-Za-z.\-_]+$/u', $value) == 0) {
             $fail('The :attribute may only contain letters, numbers, dashes, underscores and dots.')->translate();

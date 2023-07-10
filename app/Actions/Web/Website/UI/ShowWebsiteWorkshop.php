@@ -8,7 +8,7 @@
 namespace App\Actions\Web\Website\UI;
 
 use App\Actions\InertiaAction;
-use App\Actions\UI\Dashboard\Dashboard;
+use App\Actions\UI\Dashboard\ShowDashboard;
 use App\Actions\Web\Website\GetWebsiteWorkshopCategory;
 use App\Actions\Web\Website\GetWebsiteWorkshopColorScheme;
 use App\Actions\Web\Website\GetWebsiteWorkshopFooter;
@@ -160,7 +160,7 @@ class ShowWebsiteWorkshop extends InertiaAction
             'web.websites.workshop' =>
 
             array_merge(
-                Dashboard::make()->getBreadcrumbs(),
+                ShowDashboard::make()->getBreadcrumbs(),
                 $headCrumb(
                     'modelWithIndex',
                     $routeParameters['website'],

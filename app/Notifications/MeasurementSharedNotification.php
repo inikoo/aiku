@@ -3,7 +3,6 @@
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use NotificationChannels\Fcm\FcmChannel;
@@ -48,7 +47,8 @@ class MeasurementSharedNotification extends Notification
             ->setData([
                 'type' => 'measurement-share'
             ])
-            ->setNotification(\NotificationChannels\Fcm\Resources\Notification::create()
+            ->setNotification(
+                \NotificationChannels\Fcm\Resources\Notification::create()
                 ->setTitle($measurement['title'])
                 ->setBody($measurement['body'])
             );
@@ -64,7 +64,7 @@ class MeasurementSharedNotification extends Notification
     {
         $measurement = $this->measurement;
 
-        return (new MailMessage)
+        return (new MailMessage())
             ->subject($measurement['title'])
             ->line($measurement['body']);
     }

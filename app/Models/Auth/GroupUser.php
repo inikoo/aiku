@@ -97,11 +97,6 @@ class GroupUser extends Model implements HasMedia
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection('profile')
-            ->singleFile()
-            ->registerMediaConversions(function () {
-                $this->addMediaConversion('thumb')
-                    ->width(256)
-                    ->height(256);
-            });
+            ->singleFile();
     }
 }

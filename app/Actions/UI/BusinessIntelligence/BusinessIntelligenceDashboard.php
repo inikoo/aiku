@@ -7,7 +7,7 @@
 
 namespace App\Actions\UI\BusinessIntelligence;
 
-use App\Actions\UI\Dashboard\Dashboard;
+use App\Actions\UI\Dashboard\ShowDashboard;
 use App\Actions\UI\WithInertia;
 use App\Models\Market\Shop;
 use App\Models\Tenancy\Tenant;
@@ -81,9 +81,9 @@ class BusinessIntelligenceDashboard
 
 
         return match ($routeName) {
-            'business_intelligence.shops.show..dashboard' =>
+            'business_intelligence.shops.show.dashboard' =>
             array_merge(
-                Dashboard::make()->getBreadcrumbs(),
+                ShowDashboard::make()->getBreadcrumbs(),
                 [
                     [
                         'type'   => 'simple',
@@ -99,7 +99,7 @@ class BusinessIntelligenceDashboard
             ),
             default =>
             array_merge(
-                Dashboard::make()->getBreadcrumbs(),
+                ShowDashboard::make()->getBreadcrumbs(),
                 [
                     [
                         'type'   => 'simple',

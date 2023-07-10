@@ -9,7 +9,7 @@ namespace App\Actions\Fulfilment\FulfilmentOrder;
 
 use App\Actions\InertiaAction;
 use App\Actions\Market\Shop\UI\ShowShop;
-use App\Actions\UI\Dashboard\Dashboard;
+use App\Actions\UI\Dashboard\ShowDashboard;
 use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Sales\OrderResource;
 use App\InertiaTable\InertiaTable;
@@ -164,7 +164,7 @@ class IndexFulfilmentOrders extends InertiaAction
             'orders.index'            =>
 
             array_merge(
-                Dashboard::make()->getBreadcrumbs(),
+                ShowDashboard::make()->getBreadcrumbs(),
                 $headCrumb(
                     [
                         'name'=> 'orders.index',

@@ -7,7 +7,7 @@
 
 namespace App\Actions\UI\Dropshipping;
 
-use App\Actions\UI\Dashboard\Dashboard;
+use App\Actions\UI\Dashboard\ShowDashboard;
 use App\Actions\UI\WithInertia;
 use App\Models\Tenancy\Tenant;
 use Inertia\Inertia;
@@ -57,7 +57,7 @@ class DropshippingDashboard
     {
         return
             array_merge(
-                Dashboard::make()->getBreadcrumbs(),
+                ShowDashboard::make()->getBreadcrumbs(),
                 [
                     [
                         'type'   => 'simple',

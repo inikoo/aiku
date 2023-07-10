@@ -7,7 +7,7 @@
 
 namespace App\Actions\UI\Inventory;
 
-use App\Actions\UI\Dashboard\Dashboard;
+use App\Actions\UI\Dashboard\ShowDashboard;
 use App\Actions\UI\WithInertia;
 use App\Models\Auth\User;
 use App\Models\Inventory\Warehouse;
@@ -145,7 +145,7 @@ class InventoryDashboard
     {
         return
             array_merge(
-                Dashboard::make()->getBreadcrumbs(),
+                ShowDashboard::make()->getBreadcrumbs(),
                 [
                     [
                         'type'   => 'simple',

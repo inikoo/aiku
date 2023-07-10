@@ -21,10 +21,10 @@ class SendEmailAddress
     public function handle(array $content, string $to, $attach = null, $type = 'html'): void
     {
         $emailAddress = GetEmailAddress::run($to);
-        $response = SendSesEmail::run($content, $emailAddress->email, $attach, $type);
+        $response     = SendSesEmail::run($content, $emailAddress->email, $attach, $type);
 
         $modelData = [
-            'ses_id' => $response['MessageId'],
+            'ses_id'  => $response['MessageId'],
             'sent_at' => now()
         ];
 
