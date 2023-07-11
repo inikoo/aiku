@@ -1,8 +1,13 @@
 <?php
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Tue, 11 Jul 2023 12:40:17 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2023, Raul A Perusquia Flores
+ */
 
-namespace App\Exports\User;
+namespace App\Exports\Auth;
 
-use App\Models\Auth\Guest;
+use App\Models\Auth\User;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Database\Query\Builder;
 use Maatwebsite\Excel\Concerns\FromQuery;
@@ -10,23 +15,22 @@ use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 
-class GuestsExport implements FromQuery, WithMapping, ShouldAutoSize, WithHeadings
+class UsersExport implements FromQuery, WithMapping, ShouldAutoSize, WithHeadings
 {
-    public function query(): Relation|\Illuminate\Database\Eloquent\Builder|Guest|Builder
+    public function query(): Relation|\Illuminate\Database\Eloquent\Builder|User|Builder
     {
-        return Guest::query();
+        return User::query();
     }
 
-    /** @var Guest $row */
+    /** @var User $row */
     public function map($row): array
     {
         return [
             $row->id,
-            $row->slug,
+            $row->username,
             $row->email,
             $row->contact_name,
-            $row->phone,
-            $row->type,
+            $row->about,
             $row->status
         ];
     }
@@ -35,11 +39,10 @@ class GuestsExport implements FromQuery, WithMapping, ShouldAutoSize, WithHeadin
     {
         return [
             '#',
-            'Slug',
+            'Username',
             'Email',
             'Contact Name',
-            'Phone Number',
-            'Type',
+            'About',
             'Status',
         ];
     }

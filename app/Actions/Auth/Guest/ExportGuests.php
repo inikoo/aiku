@@ -8,7 +8,7 @@
 namespace App\Actions\Auth\Guest;
 
 use App\Actions\Traits\WithExportData;
-use App\Exports\User\GuestsExport;
+use App\Exports\Auth\GuestsExport;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
