@@ -26,8 +26,6 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowStock extends InertiaAction
 {
-    private Stock $stock;
-
     public function handle(Stock $stock): Stock
     {
         return $stock;

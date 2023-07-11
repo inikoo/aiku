@@ -225,11 +225,7 @@ class ShowPaymentAccount extends InertiaAction
             ),
             'accounting.payment-service-providers.show.payment-accounts.show' =>
             array_merge(
-                ShowPaymentServiceProvider::make()->getBreadcrumbs(
-                    [
-                        'paymentServiceProvider' => $routeParameters['paymentServiceProvider']
-                    ]
-                ),
+                ShowPaymentServiceProvider::make()->getBreadcrumbs($routeParameters['paymentServiceProvider']),
                 $headCrumb(
                     $routeParameters['paymentAccount'],
                     [
