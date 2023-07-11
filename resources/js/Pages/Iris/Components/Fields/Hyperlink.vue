@@ -60,6 +60,7 @@ onMounted(() => {
   }
 })
 
+
 </script>
 <template>
 	<template v-if="!editMode.edit">
