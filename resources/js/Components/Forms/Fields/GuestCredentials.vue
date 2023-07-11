@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import Combobox from '@/Components/Forms/Fields/Combobox.vue'
 import Input from '@/Components/Forms/Fields/Input.vue'
+
 const props = defineProps<{
     form: any,
     fieldName: string,
@@ -13,34 +14,7 @@ const props = defineProps<{
     }
 }>()
 
-const userType = ref('New User')
-const isLoading = ref(true)
-
-const comboValue = ref('Select Users')
-
-const loadOptions = async (query: string, setOptions) => {
-    if(query !== ''){
-        await fetch(location.origin + "/users?query=" + query)
-            .then(response => {
-                console.log("from Fetch.then")
-                console.log(response)
-                response.json().then((data: Object) => {
-                    isLoading.value = false
-                    setOptions(data.data.map(user => {
-                        return {
-                            id: user.id,
-                            username: user.username,
-                            contact_name: user.contact_name
-                        }
-                    }))
-                })
-            })
-            .catch(err => console.log(err))
-    }
-    else {
-        comboValue.value = 'Select Users' 
-    }
-}
+const userType = ref('Existing User')
 
 </script>
 
@@ -71,8 +45,7 @@ const loadOptions = async (query: string, setOptions) => {
             <Input :form="form" :fieldName="fieldName" :fieldData="fieldData" />
         </div>
         <div v-else>
-            <Combobox :loading="isLoading" :form="form" :fieldName="fieldName" :loadOptions="loadOptions"
-                :fieldData="fieldData" />
+            <Combobox :apiUrl="route('json.group-users.index')" :form="form" :fieldName="fieldName" :fieldData="fieldData" />
         </div>
     </div>
 

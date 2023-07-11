@@ -17,38 +17,50 @@ library.add(faChevronDown, faCheck)
 defineEmits(['update:modelValue'])
 const props = defineProps({
     modelValue: Object,
-    options: {
-        type: Object,
-        default: () => [],
-    },
-    loadOptions: Function,
     loading: Boolean,
+    apiUrl: String,
 })
 
-const options = ref(props.options)
-const isLoading = ref(props.loading)
-
+const isLoading = ref(true)
+const comboValue = ref('Select Users')
+const initValue = ref()
 const query = ref('')
 
-watch(query, (q) => {
-    if(props.loadOptions) {
-        props.loadOptions(q, (results) => {
-            options.value = results
-            isLoading.value = false
-        })
+const fetchApi = async (query: string) => {
+    if (query !== '') {
+        await fetch(props.apiUrl + '?filter[name]=' + query)
+            .then(response => {
+                console.log("==================")
+                response.json().then((data: Object) => {
+                    isLoading.value = false
+                    initValue.value = data.data
+                    console.log(data.data)
+                })
+            })
+            .catch(err => console.log(err))
     }
-}, {immediate: true})
+    else {
+        comboValue.value = 'Select Users'
+    }
+}
 
-let filteredOptions = computed(() =>
-    query.value === ''
-        ? options.value
-        : options.value.filter((person) =>
-            person.contact_name
-                .toLowerCase()
-                .replace(/\s+/g, '')
-                .includes(query.value.toLowerCase().replace(/\s+/g, ''))
-        )
-)
+
+
+watch(query, (q) => {
+    fetchApi(q)
+}, { immediate: true })
+
+// let filteredOptions = computed(() =>
+//     query.value === ''
+//         ? options.value
+//         : options.value.filter((person) =>
+//             person.contact_name
+//                 .toLowerCase()
+//                 .replace(/\s+/g, '')
+//                 .includes(query.value.toLowerCase().replace(/\s+/g, ''))
+//         )
+// )
+
 </script>
 
 <template>
@@ -67,25 +79,21 @@ let filteredOptions = computed(() =>
             <TransitionRoot leave="transition ease-in duration-100" leaveFrom="opacity-100" leaveTo="opacity-0"
                 @after-leave="query = ''">
                 <ComboboxOptions
-                    class="z-10 absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
-                >
+                    class="z-10 absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+                    
                     <!-- State: Loading and Not Found -->
-                    <div v-if="isLoading"
-                        class="relative cursor-default select-none py-2 px-4 text-gray-700">
+                    <!-- <div v-if="isLoading" class="relative cursor-default select-none py-2 px-4 text-gray-700">
                         Loading...
                     </div>
                     <div v-if="filteredOptions.length === 0 && !isLoading"
                         class="relative cursor-default select-none py-2 px-4 text-gray-700">
                         Nothing found.
-                    </div>
+                    </div> -->
 
                     <!-- List -->
                     <template v-if="!isLoading">
-                        <ComboboxOption v-for="person in filteredOptions" as="template"
-                            :key="person.id"
-                            :value="person.contact_name"
-                            v-slot="{ selected, active }"
-                        >
+                        <ComboboxOption v-for="person in initValue" as="template" :key="person.id"
+                            :value="person.contact_name" v-slot="{ selected, active }">
                             <li class="relative cursor-pointer select-none py-2 pl-10 pr-4" :class="{
                                 'bg-indigo-600 text-white': active,
                                 'text-gray-800': !active,
@@ -95,7 +103,8 @@ let filteredOptions = computed(() =>
                                 </span>
                                 <span v-if="selected" class="absolute inset-y-0 left-0 flex items-center pl-3"
                                     :class="{ 'text-white': active, 'text-teal-600': !active }">
-                                    <FontAwesomeIcon icon="fas fa-check" class="h-4 w-4 text-indigo-600" aria-hidden="true" />
+                                    <FontAwesomeIcon icon="fas fa-check" class="h-4 w-4 text-indigo-600"
+                                        aria-hidden="true" />
                                 </span>
                             </li>
                         </ComboboxOption>
@@ -103,5 +112,5 @@ let filteredOptions = computed(() =>
                 </ComboboxOptions>
             </TransitionRoot>
         </div>
-    </Combobox> 
+    </Combobox>
 </template>
