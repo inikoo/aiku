@@ -15,7 +15,7 @@ use App\Actions\UI\Accounting\AccountingDashboard;
 use App\Enums\UI\PaymentAccountTabsEnum;
 use App\Http\Resources\Accounting\PaymentAccountResource;
 use App\Http\Resources\Accounting\PaymentResource;
-use App\Http\Resources\SysAdmin\HistoryResource;
+use App\Http\Resources\History\HistoryResource;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentServiceProvider;
 use App\Models\Market\Shop;

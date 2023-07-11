@@ -13,7 +13,7 @@ use App\Actions\HumanResources\WorkingPlace\UI\ShowWorkingPlace;
 use App\Actions\InertiaAction;
 use App\Actions\UI\HumanResources\HumanResourcesDashboard;
 use App\Enums\UI\ClockingTabsEnum;
-use App\Http\Resources\SysAdmin\HistoryResource;
+use App\Http\Resources\History\HistoryResource;
 use App\Models\HumanResources\Clocking;
 use App\Models\HumanResources\ClockingMachine;
 use App\Models\HumanResources\Workplace;

@@ -11,11 +11,10 @@ use App\Actions\Helpers\History\IndexHistories;
 use App\Actions\InertiaAction;
 use App\Actions\Inventory\StockFamily\UI\ShowStockFamily;
 use App\Actions\Procurement\Agent\UI\GetAgentShowcase;
-
 use App\Actions\UI\Inventory\InventoryDashboard;
 use App\Enums\UI\StockTabsEnum;
+use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\Inventory\StockResource;
-use App\Http\Resources\SysAdmin\HistoryResource;
 use App\Models\Inventory\Stock;
 use Inertia\Inertia;
 use Inertia\Response;
