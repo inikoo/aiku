@@ -8,8 +8,8 @@
 namespace App\Actions\Inventory\Stock\UI;
 
 use App\Actions\InertiaAction;
+use App\Actions\Inventory\StockFamily\UI\IndexStockFamilies;
 use App\Actions\Inventory\StockFamily\UI\ShowStockFamily;
-use App\Actions\UI\Inventory\InventoryDashboard;
 use App\Http\Resources\Inventory\StockResource;
 use App\Models\Inventory\Stock;
 use App\Models\Inventory\StockFamily;
@@ -137,14 +137,14 @@ class IndexStocks extends InertiaAction
                             'title'       => __("No SKUs found"),
                             'description' => $this->canEdit ? __('Get started by creating a new SKU. ✨')
                                 : null,
-                            'count'       => $parent->stats->number_departments,
+                            'count'       => $parent->stats->number_stocks,
                             'action'      => $this->canEdit ? [
                                 'type'    => 'button',
                                 'style'   => 'create',
                                 'tooltip' => __('new SKU'),
                                 'label'   => __('SKU'),
                                 'route'   => [
-                                    'name'       => 'inventory.families.show.stocks.create',
+                                    'name'       => 'inventory.stock-families.show.stocks.create',
                                     'parameters' => array_values($this->originalParameters)
                                 ]
                             ] : null
@@ -168,8 +168,11 @@ class IndexStocks extends InertiaAction
 
     public function htmlResponse(LengthAwarePaginator $stocks, ActionRequest $request): Response
     {
-        $scope    =$this->parent;
-        $container=null;
+
+        $parent       = $request->route()->parameters() == [] ? app('currentTenant') : last($request->route()->parameters());
+        $this->parent = $parent;
+        $scope        = $parent;
+        $container    =null;
         if (class_basename($scope) == 'StockFamily') {
             $container = [
                 'icon'    => ['fal', 'fa-boxes-alt'],
@@ -177,9 +180,6 @@ class IndexStocks extends InertiaAction
                 'label'   => Str::possessive($scope->name)
             ];
         }
-
-        $parent = $request->route()->parameters() == [] ? app('currentTenant') : last($request->route()->parameters());
-
         return Inertia::render(
             'Inventory/Stocks',
             [
@@ -193,7 +193,7 @@ class IndexStocks extends InertiaAction
                     'container'    => $container,
                     'iconRight'    => [
                         'icon'  => ['fal', 'fa-box'],
-                        'title' => __('department')
+                        'title' => __('SKU')
                     ],
                     'actions'=> [
                         $this->canEdit ? [
@@ -211,46 +211,51 @@ class IndexStocks extends InertiaAction
                 'data'  => StockResource::collection($stocks),
 
             ]
-        )->table($this->tableStructure($parent));
+        )->table($this->tableStructure($this->parent));
     }
 
-    public function getBreadcrumbs(string $routeName, array $routeParameters): array
+
+    public function getBreadcrumbs(string $routeName, array $routeParameters, string $suffix = null): array
     {
-        $headCrumb = function (array $routeParameters = []) {
+        $headCrumb = function (array $routeParameters, ?string $suffix) {
             return [
                 [
                     'type'   => 'simple',
                     'simple' => [
                         'route' => $routeParameters,
-                        'label' => __("SKUs"),
+                        'label' => __('stocks'),
                         'icon'  => 'fal fa-bars'
                     ],
-                ],
+                    'suffix' => $suffix
+                ]
             ];
         };
 
         return match ($routeName) {
             'inventory.stocks.index' =>
             array_merge(
-                (new InventoryDashboard())->getBreadcrumbs(),
+                IndexStockFamilies::make()->getBreadcrumbs(),
                 $headCrumb(
                     [
-                        'name' => 'inventory.stocks.index',
-                        null
-                    ]
+                        'name'       => $routeName,
+                        'parameters' => $routeParameters
+                    ],
+                    $suffix
                 )
             ),
-            'inventory.stock-families.show.stocks.index', =>
+
+            'inventory.stock-families.show.stocks.index' =>
             array_merge(
-                (new ShowStockFamily())->getBreadcrumbs($routeParameters['stockFamily']),
-                $headCrumb([
-                    'name'       => 'inventory.stock-families.show.stocks.index',
-                    'parameters' =>
-                        [
-                            $routeParameters['stockFamily']->slug
-                        ]
-                ])
+                ShowStockFamily::make()->getBreadcrumbs($routeParameters['stockFamily']),
+                $headCrumb(
+                    [
+                        'name'       => $routeName,
+                        'parameters' => $routeParameters
+                    ],
+                    $suffix
+                )
             ),
+
             default => []
         };
     }

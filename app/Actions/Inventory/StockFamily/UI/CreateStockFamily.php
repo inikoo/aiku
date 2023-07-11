@@ -16,6 +16,18 @@ class CreateStockFamily extends InertiaAction
 {
     use HasUIStockFamilies;
 
+    public function authorize(ActionRequest $request): bool
+    {
+        return $request->user()->can('inventory.stocks.edit');
+    }
+
+    public function asController(ActionRequest $request): Response
+    {
+        $this->initialisation($request);
+
+        return $this->handle();
+    }
+
     public function handle(): Response
     {
         return Inertia::render(
@@ -68,18 +80,6 @@ class CreateStockFamily extends InertiaAction
         );
     }
 
-    public function authorize(ActionRequest $request): bool
-    {
-        return $request->user()->can('inventory.stocks.edit');
-    }
-
-
-    public function asController(ActionRequest $request): Response
-    {
-        $this->initialisation($request);
-
-        return $this->handle();
-    }
 
     public function getBreadcrumbs(): array
     {

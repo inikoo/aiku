@@ -103,8 +103,8 @@ Route::get('/families/{stockFamily}', ShowStockFamily::class)->name('stock-famil
 Route::get('/families/{stockFamily}/edit', EditStockFamily::class)->name('stock-families.edit');
 Route::get('/families/{stockFamily}/delete', RemoveStockFamily::class)->name('stock-families.remove');
 Route::get('/families/{stockFamily}/stocks', [IndexStocks::class, 'inStockFamily'])->name('stock-families.show.stocks.index');
+Route::get('/families/{stockFamily}/stocks/create', [CreateStock::class,'inStockFamily'])->name('stock-families.show.stocks.create');
 Route::get('/families/{stockFamily}/stocks/{stock}', [ShowStock::class, 'inStockFamily'])->name('stock-families.show.stocks.show');
-
 
 Route::get('/stocks/export', ExportStocks::class)->name('stocks.export');
 
