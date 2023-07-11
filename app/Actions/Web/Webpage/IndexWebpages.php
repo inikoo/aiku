@@ -11,7 +11,7 @@ use App\Actions\InertiaAction;
 use App\Actions\UI\Dashboard\ShowDashboard;
 use App\Actions\Web\Website\UI\ShowWebsite;
 use App\Http\Resources\Market\ShopResource;
-use App\Http\Resources\Market\WebpageResource;
+use App\Http\Resources\Web\WebpageResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Tenancy\Tenant;
 use App\Models\Web\Webpage;

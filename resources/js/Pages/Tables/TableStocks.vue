@@ -17,10 +17,10 @@ const props = defineProps<{
 
 function stockRoute(stock: Stock) {
     switch (route().current()) {
-        case 'inventory.stocks.index':
+        case 'inventory.stock-families.show.stocks.index':
             return route(
-                'inventory.stocks.show',
-                [stock.slug]);
+                'inventory.stock-families.show.stocks.show',
+                [stock.family_slug,stock.slug]);
         default:
             return route(
                 'inventory.stocks.show',
@@ -54,6 +54,7 @@ function stockFamilyRoute(stock: Stock) {
             </Link>
         </template>
         <template #cell(family_code)="{ item: stock }">
+            <!--suppress TypeScriptUnresolvedReference -->
             <Link v-if="stock.family_slug"  :href="stockFamilyRoute(stock)">
                 {{ stock['family_code'] }}
             </Link>

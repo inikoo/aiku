@@ -10,7 +10,6 @@ namespace App\Actions\Helpers\History;
 use App\Actions\Auth\User\Traits\WithFormattedUserHistories;
 use App\Actions\Elasticsearch\BuildElasticsearchClient;
 use App\Enums\Elasticsearch\ElasticsearchTypeEnum;
-use App\Enums\UI\TabsAbbreviationEnum;
 use App\InertiaTable\InertiaTable;
 use Closure;
 use Elastic\Elasticsearch\Client;
@@ -39,7 +38,7 @@ class IndexHistories
         if ($client instanceof Client) {
             try {
                 $params  = [
-                    'index' => config('elasticsearch.index_prefix') . 'user_requests_' . app('currentTenant')->group->slug,
+                    'index' => config('elasticsearch.index_prefix') . 'history_and_user_requests_' . app('currentTenant')->group->slug,
                     'size'  => 10000,
                     'body'  => [
                         'query' => [
@@ -82,8 +81,8 @@ class IndexHistories
     {
         return function (InertiaTable $table) {
             $table
-                ->name(TabsAbbreviationEnum::HISTORY->value)
-                ->pageName(TabsAbbreviationEnum::HISTORY->value.'Page')
+                ->name('history')
+                ->pageName('historyPage')
                 ->column(key: 'ip_address', label: __('IP Address'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'user_id', label: __('User ID'), canBeHidden: false, sortable: true)
                 ->column(key: 'slug', label: __('Slug'), canBeHidden: false, sortable: true)

@@ -8,7 +8,6 @@
 namespace App\Actions\Inventory\Location\UI;
 
 use App\Actions\InertiaAction;
-use App\Actions\Inventory\WarehouseArea\UI\ShowWarehouseArea;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
@@ -51,6 +50,7 @@ class RemoveLocation extends InertiaAction
         return $this->handle($location);
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
     public function inWarehouseInWarehouseArea(Warehouse $warehouse, WarehouseArea $warehouseArea, Location $location, ActionRequest $request): Location
     {
         $this->initialisation($request);
@@ -131,7 +131,7 @@ class RemoveLocation extends InertiaAction
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
-        return ShowWarehouseArea::make()->getBreadcrumbs(
+        return ShowLocation::make()->getBreadcrumbs(
             routeName: preg_replace('/remove$/', 'show', $routeName),
             routeParameters: $routeParameters,
             suffix: '('.__('deleting').')'

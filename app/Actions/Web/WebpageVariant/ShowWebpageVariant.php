@@ -12,7 +12,7 @@ use App\Actions\InertiaAction;
 use App\Actions\Mail\Mailshot\IndexMailshots;
 use App\Actions\Market\Product\UI\IndexProducts;
 use App\Enums\UI\WebpageTabsEnum;
-use App\Http\Resources\Market\WebpageResource;
+use App\Http\Resources\Web\WebpageResource;
 use App\Models\Market\ProductCategory;
 use App\Models\Market\Shop;
 use App\Models\Web\WebpageVariant;

@@ -10,25 +10,19 @@ namespace App\Actions\Inventory\Stock\UI;
 use App\Actions\Helpers\History\IndexHistories;
 use App\Actions\InertiaAction;
 use App\Actions\Inventory\StockFamily\UI\ShowStockFamily;
-use App\Actions\Procurement\Agent\UI\GetAgentShowcase;
 
 use App\Actions\UI\Inventory\InventoryDashboard;
 use App\Enums\UI\StockTabsEnum;
+use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\Inventory\StockResource;
-use App\Http\Resources\SysAdmin\HistoryResource;
 use App\Models\Inventory\Stock;
+use App\Models\Inventory\StockFamily;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-/**
- * @property Stock $stock
- */
-
 class ShowStock extends InertiaAction
 {
-    private Stock $stock;
-
     public function handle(Stock $stock): Stock
     {
         return $stock;
@@ -36,7 +30,8 @@ class ShowStock extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('inventory.stocks.edit');
+        $this->canEdit   = $request->user()->can('inventory.stocks.edit');
+        $this->canDelete = $request->user()->can('inventory.stocks.edit');
 
         return $request->user()->hasPermissionTo("inventory.stocks.view");
     }
@@ -48,20 +43,35 @@ class ShowStock extends InertiaAction
         return $this->handle($stock);
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inStockFamily(StockFamily $stockFamily, Stock $stock, ActionRequest $request): Stock
+    {
+        $this->initialisation($request);
+
+        return $this->handle($stock);
+    }
+
     public function htmlResponse(Stock $stock, ActionRequest $request): Response
     {
+
         return Inertia::render(
             'Inventory/Stock',
             [
                  'title'       => __('stock'),
-                 'breadcrumbs' => $this->getBreadcrumbs($request->route()->getName(), $request->route()->originalParameters()),
+                 'breadcrumbs' => $this->getBreadcrumbs(
+                     $request->route()->getName(),
+                     $request->route()->parameters
+                 ),
                  'navigation'  => [
                      'previous' => $this->getPrevious($stock, $request),
                      'next'     => $this->getNext($stock, $request),
                  ],
                  'pageHead'    => [
-                     'icon'    => 'fal fa-box',
-                     'title'   => $this->stock->code,
+                     'icon'    => [
+                         'title' => __('SKUs'),
+                         'icon'  => 'fal fa-box'
+                     ],
+                     'title'   => $stock->slug,
                      'actions' => [
                          $this->canEdit ? [
                              'type'  => 'button',
@@ -75,7 +85,7 @@ class ShowStock extends InertiaAction
                              'type'  => 'button',
                              'style' => 'delete',
                              'route' => [
-                                 'name'       => 'inventory.warehouses.show.warehouse-areas.remove',
+                                 'name'       => 'inventory.stock-families.show.stocks.remove',
                                  'parameters' => array_values($this->originalParameters)
                              ]
 
@@ -88,8 +98,8 @@ class ShowStock extends InertiaAction
 
                  ],
                  StockTabsEnum::SHOWCASE->value => $this->tab == StockTabsEnum::SHOWCASE->value ?
-                     fn () => GetAgentShowcase::run($stock)
-                     : Inertia::lazy(fn () => GetAgentShowcase::run($stock)),
+                     fn () => GetStockShowcase::run($stock)
+                     : Inertia::lazy(fn () => GetStockShowcase::run($stock)),
 
                  StockTabsEnum::HISTORY->value => $this->tab == StockTabsEnum::HISTORY->value ?
                      fn () => HistoryResource::collection(IndexHistories::run($stock))
@@ -115,7 +125,7 @@ class ShowStock extends InertiaAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => $routeParameters['index'],
-                            'label' => __('stocks')
+                            'label' => __('SKUs')
                         ],
                         'model' => [
                             'route' => $routeParameters['model'],
@@ -127,7 +137,6 @@ class ShowStock extends InertiaAction
                 ],
             ];
         };
-
         return match ($routeName) {
             'inventory.stocks.show' =>
             array_merge(
@@ -151,20 +160,20 @@ class ShowStock extends InertiaAction
             ),
             'inventory.stock-families.show.stocks.show' =>
             array_merge(
-                (new ShowStockFamily())->getBreadcrumbs($routeParameters['stocksFamily']),
+                (new ShowStockFamily())->getBreadcrumbs($routeParameters['stockFamily']),
                 $headCrumb(
                     $routeParameters['stock'],
                     [
                         'index' => [
                             'name'       => 'inventory.stock-families.show.stocks.index',
                             'parameters' => [
-                                $routeParameters['stocksFamily']->slug
+                                $routeParameters['stockFamily']->slug
                             ]
                         ],
                         'model' => [
                             'name'       => 'inventory.stock-families.show.stocks.show',
                             'parameters' => [
-                                $routeParameters['stocksFamily']->slug,
+                                $routeParameters['stockFamily']->slug,
                                 $routeParameters['stock']->slug
                             ]
                         ]

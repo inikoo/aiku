@@ -1,46 +1,37 @@
 <?php
 /*
  * Author: Artha <artha@aw-advantage.com>
- * Created: Wed, 05 Jul 2023 13:43:20 Central Indonesia Time, Sanur, Bali, Indonesia
+ * Created: Tue, 11 Jul 2023 10:03:34 Central Indonesia Time, Sanur, Bali, Indonesia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
 namespace App\Actions\Google\Drive;
 
 use App\Actions\Google\Drive\Traits\WithTokenPath;
-use App\Models\Tenancy\Tenant;
+use Exception;
 use Google_Client;
 use Google_Service_Drive;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class GetClientGoogleDrive
+class CallbackClientGoogleDrive
 {
     use AsAction;
     use WithTokenPath;
 
     /**
-     * @throws \Google\Exception
+     * @throws \Exception
      */
-    public function handle(): Google_Service_Drive
-    {
-        Tenant::where('slug', 'aroma')->first()->makeCurrent();
-        $tokenPath = $this->getTokenPath();
-
-        $client = $this->getClient($tokenPath);
-
-        return new Google_Service_Drive($client);
-    }
-
-    /**
-     * @throws \Google\Exception
-     */
-    public function getClient($tokenPath): RedirectResponse|Google_Client
+    public function handle(): RedirectResponse
     {
         $client = new Google_Client();
+
+        $tokenPath = $this->getTokenPath();
+        $authCode = request()->query('code');
         $tenant = app('currentTenant');
 
+        $client->setRedirectUri('http://localhost:5173');
         $client->setApplicationName('Aiku google drive manager');
         $client->setAuthConfig([
             'client_id' => Arr::get($tenant->settings, 'google.id'),
@@ -56,11 +47,22 @@ class GetClientGoogleDrive
             ]
         );
 
-        if (file_exists($tokenPath)) {
-            $accessToken = json_decode(file_get_contents($tokenPath), true);
-            $client->setAccessToken($accessToken);
+        // Exchange authorization code for an access token.
+        $accessToken = $client->fetchAccessTokenWithAuthCode($authCode);
+
+        $client->setAccessToken($accessToken);
+
+        // Check to see if there was an error.
+        if (array_key_exists('error', $accessToken)) {
+            throw new Exception(join(', ', $accessToken));
         }
 
-        return $client;
+        // Save the token to a file.
+        if (!file_exists(dirname($tokenPath))) {
+            mkdir(dirname($tokenPath), 0700, true);
+        }
+        file_put_contents($tokenPath, json_encode($client->getAccessToken()));
+
+        return redirect()->route('sysadmin.settings.edit');
     }
 }

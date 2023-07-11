@@ -98,11 +98,6 @@ class Website extends Model implements Auditable
             ->saveSlugsTo('slug');
     }
 
-    public function stats(): HasOne
-    {
-        return $this->hasOne(WebsiteStats::class);
-    }
-
     public function shop(): BelongsTo
     {
         return $this->belongsTo(Shop::class);

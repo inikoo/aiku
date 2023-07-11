@@ -11,6 +11,7 @@ use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateInventory;
 use App\Enums\Inventory\StockFamily\StockFamilyStateEnum;
 use App\Models\Search\UniversalSearch;
 use App\Models\Traits\HasUniversalSearch;
+use Database\Factories\Inventory\StockFamilyFactory;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -41,7 +42,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Inventory\StockFamilyStats|null $stats
  * @property-read Collection<int, \App\Models\Inventory\Stock> $stocks
  * @property-read UniversalSearch|null $universalSearch
- * @method static \Database\Factories\Inventory\StockFamilyFactory factory($count = null, $state = [])
+ * @method static StockFamilyFactory factory($count = null, $state = [])
  * @method static Builder|StockFamily newModelQuery()
  * @method static Builder|StockFamily newQuery()
  * @method static Builder|StockFamily onlyTrashed()

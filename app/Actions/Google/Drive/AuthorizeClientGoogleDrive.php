@@ -7,15 +7,18 @@
 
 namespace App\Actions\Google\Drive;
 
+use App\Actions\Google\Drive\Traits\WithTokenPath;
 use Exception;
 use Google_Client;
 use Google_Service_Drive;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class AuthorizeClientGoogleDrive
 {
     use AsAction;
+    use WithTokenPath;
 
     /**
      * @throws \Exception
@@ -23,21 +26,39 @@ class AuthorizeClientGoogleDrive
     public function handle(): RedirectResponse
     {
         $client = new Google_Client();
+        $tenant = app('currentTenant');
 
-        $tokenPath = 'resources/private/google/'.app('currentTenant')->slug.'-token.json';
+        $tokenPath = $this->getTokenPath();
+
         $authCode = request()->query('code');
         $client->setRedirectUri('http://localhost:5173');
+        $client->setApplicationName('Aiku google drive manager');
+        $client->setAuthConfig([
+            'client_id' => Arr::get($tenant->settings, 'google.id'),
+            'client_secret' => Arr::get($tenant->settings, 'google.secret')
+        ]);
 
-        // If there is no previous token or it's expired.
-        if ($client->isAccessTokenExpired()) {
-            // Refresh the token if possible, else fetch a new one.
-            if ($client->getRefreshToken()) {
-                $client->fetchAccessTokenWithRefreshToken($client->getRefreshToken());
-            } else {
-                // Request authorization from the user.
-                $authUrl = $client->createAuthUrl();
+        $client->setAccessType('offline');
+        $client->setScopes(
+            [
+                Google_Service_Drive::DRIVE_METADATA,
+                Google_Service_Drive::DRIVE_FILE,
+                Google_Service_Drive::DRIVE
+            ]
+        );
 
-                return redirect()->away($authUrl);
+        if (blank($authCode)) {
+            // If there is no previous token or it's expired.
+            if ($client->isAccessTokenExpired()) {
+                // Refresh the token if possible, else fetch a new one.
+                if ($client->getRefreshToken()) {
+                    $client->fetchAccessTokenWithRefreshToken($client->getRefreshToken());
+                } else {
+                    // Request authorization from the user.
+                    $authUrl = $client->createAuthUrl();
+
+                    return redirect()->away($authUrl);
+                }
             }
         }
 
@@ -57,5 +78,13 @@ class AuthorizeClientGoogleDrive
         file_put_contents($tokenPath, json_encode($client->getAccessToken()));
 
         return redirect()->route('sysadmin.settings.edit');
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function asController(): RedirectResponse
+    {
+        return $this->handle();
     }
 }

@@ -9,7 +9,7 @@ namespace App\Actions\Web\Website\UI;
 
 use App\Actions\InertiaAction;
 use App\Actions\UI\Dashboard\ShowDashboard;
-use App\Http\Resources\Market\WebsiteResource;
+use App\Http\Resources\Web\WebsiteResource;
 use App\Models\Web\Website;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;

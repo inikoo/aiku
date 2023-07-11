@@ -11,7 +11,7 @@ use App\Actions\InertiaAction;
 use App\Actions\UI\Dashboard\ShowDashboard;
 use App\Enums\Web\Website\WebsiteStateEnum;
 use App\Http\Resources\Market\ShopResource;
-use App\Http\Resources\Market\WebsiteResource;
+use App\Http\Resources\Web\WebsiteResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Web\Website;
 use Closure;

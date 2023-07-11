@@ -8,16 +8,16 @@
 namespace App\Actions\HumanResources\WorkingPlace\UI;
 
 use App\Actions\Helpers\History\IndexHistories;
-use App\Actions\InertiaAction;
 use App\Actions\HumanResources\Clocking\UI\IndexClockings;
 use App\Actions\HumanResources\ClockingMachine\UI\IndexClockingMachines;
+use App\Actions\InertiaAction;
 use App\Actions\Traits\WithElasticsearch;
 use App\Actions\UI\HumanResources\HumanResourcesDashboard;
 use App\Enums\UI\WorkingPlaceTabsEnum;
-use App\Http\Resources\HumanResources\ClockingResource;
+use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\HumanResources\ClockingMachineResource;
+use App\Http\Resources\HumanResources\ClockingResource;
 use App\Http\Resources\HumanResources\WorkPlaceResource;
-use App\Http\Resources\SysAdmin\HistoryResource;
 use App\Models\HumanResources\Workplace;
 use Inertia\Inertia;
 use Inertia\Response;
