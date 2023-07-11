@@ -6,7 +6,7 @@
  */
 
 use App\Models\Tenancy\Tenant;
-use App\Resolver\TenantResolver;
+use App\Resolvers\TenantResolver;
 use App\Tasks\SetSanctumPersonAccessTokenModelTask;
 use App\Tasks\SetupFilesystemsTask;
 use App\Tasks\SwitchTenantDatabaseSchemaTask;

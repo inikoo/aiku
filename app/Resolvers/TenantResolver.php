@@ -6,7 +6,7 @@
  *  Version 4.0
  */
 
-namespace App\Resolver;
+namespace App\Resolvers;
 
 use Illuminate\Http\Request;
 
