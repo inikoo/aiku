@@ -37,6 +37,8 @@ use App\Actions\HumanResources\WorkingPlace\UpdateWorkingPlace;
 use App\Actions\Inventory\Location\DeleteLocation;
 use App\Actions\Inventory\Location\StoreLocation;
 use App\Actions\Inventory\Location\UpdateLocation;
+use App\Actions\Inventory\Stock\DeleteStock;
+use App\Actions\Inventory\Stock\StoreStock;
 use App\Actions\Inventory\Stock\UpdateStock;
 use App\Actions\Inventory\StockFamily\DeleteStockFamily;
 use App\Actions\Inventory\StockFamily\StoreStockFamily;
@@ -173,6 +175,9 @@ Route::patch('/stock/{stock}', UpdateStock::class)->name('stock.update');
 Route::post('/stock-family', StoreStockFamily::class)->name('stock-family.store');
 Route::patch('/stock-family/{stockFamily}', UpdateStockFamily::class)->name('stock-family.update');
 Route::delete('/stock-family/{stockFamily}', DeleteStockFamily::class)->name('stock-family.delete');
+Route::post('/stock-family/{stockFamily}/stock', [StoreStock::class,'inStockFamily'])->name('stock-family.stock.store');
+Route::patch('/stock-family/{stockFamily}/stock/{stock}', [UpdateStock::class,'inStockFamily'])->name('stock-family.stock.update');
+Route::delete('/stock-family/{stockFamily}/stock/{stock}', [DeleteStock::class, 'inStockFamily'])->name('stock-family.stock.delete');
 
 Route::patch('/agent/{agent}', UpdateAgent::class)->name('agent.update');
 Route::post('/agent/{agent}/purchase-order', [StorePurchaseOrder::class, 'inAgent'])->name('agent.purchase-order.store');
