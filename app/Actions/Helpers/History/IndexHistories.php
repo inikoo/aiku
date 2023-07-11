@@ -39,7 +39,7 @@ class IndexHistories
         if ($client instanceof Client) {
             try {
                 $params  = [
-                    'index' => config('elasticsearch.index_prefix') . 'user_requests_' . app('currentTenant')->group->slug,
+                    'index' => config('elasticsearch.index_prefix') . 'history_and_user_requests_' . app('currentTenant')->group->slug,
                     'size'  => 10000,
                     'body'  => [
                         'query' => [
