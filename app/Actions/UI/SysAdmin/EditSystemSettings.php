@@ -103,10 +103,11 @@ class EditSystemSettings
                                     "value" => Arr::get($tenant->settings, 'google.drive.folder')
                                 ],
                                 "google_redirect_uri" => [
-                                    "type"  => "input",
-                                    "label" => __("google redirect URI"),
-                                    "value" => url('/'),
-                                    // TODO make it as readonly
+                                    "type"       => "input",
+                                    "label"      => __("google redirect URI"),
+                                    "value"      => url('/'),
+                                    "readonly"   => true,
+                                    "copyButton" => true,
                                 ]
                             ],
                         ],
