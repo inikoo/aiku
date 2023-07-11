@@ -10,10 +10,11 @@ import { Link, router } from "@inertiajs/vue3";
 import { Menu, MenuButton, MenuItems, MenuItem } from "@headlessui/vue";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+import { faChevronRight } from "@/../private/pro-regular-svg-icons";
 import { faSparkles, faArrowFromLeft, faArrowLeft, faArrowRight } from "@/../private/pro-solid-svg-icons";
 import { capitalize } from "@/Composables/capitalize"
 
-library.add(faSparkles, faArrowFromLeft, faArrowLeft, faArrowRight);
+library.add(faSparkles, faArrowFromLeft, faArrowLeft, faArrowRight,faChevronRight);
 
 const props = defineProps<{
     breadcrumbs: Array<{
@@ -305,36 +306,36 @@ router.on('navigate', (event) => {
                                         <span class="capitalize ml-4 mr-3">
 											{{ breadcrumb.modelWithIndex.model.label }}
 										</span>
-									</Link>
-								</div>
-							</template>
-						</MenuItem>
-					</MenuItems>
-				</transition>
-			</Menu>
+                                    </Link>
+                                </div>
+                            </template>
+                        </MenuItem>
+                    </MenuItems>
+                </transition>
+            </Menu>
             <div v-if="props.navigation.previous || props.navigation.next" class="grid grid-flow-col justify-end items-center pr-2 space-x-2 text-sm text-gray-700 font-semibold">
                 <!-- Button: Previous -->
                 <div class="flex justify-center items-center w-8">
                     <Link v-if="props.navigation.previous" :href="route(props.navigation.previous?.route.name, props.navigation.previous?.route.parameters)  + urlParameter" class="rounded w-full h-full flex items-center justify-center opacity-70 hover:opacity-100 hover:cursor-pointer hover:text-indigo-900"
-                        :title="capitalize(props.navigation.previous?.label)"
+                          :title="capitalize(props.navigation.previous?.label)"
                     >
                         <FontAwesomeIcon icon="fas fa-arrow-left" class="" aria-hidden="true" />
                     </Link>
                     <FontAwesomeIcon v-else icon="fas fa-arrow-left" class="opacity-20 cursor-pointer" aria-hidden="true" />
                 </div>
-                
+
                 <!-- Button: Next -->
                 <div class="flex justify-center items-center w-8">
                     <Link v-if="props.navigation.next" class="rounded w-full h-full flex items-center justify-center opacity-70 hover:opacity-100 hover:cursor-pointer hover:text-indigo-900"
-                        :title="capitalize(props.navigation.next?.label)"
-                        :href="route(props.navigation.next?.route.name, props.navigation.next?.route.parameters) + urlParameter" 
+                          :title="capitalize(props.navigation.next?.label)"
+                          :href="route(props.navigation.next?.route.name, props.navigation.next?.route.parameters) + urlParameter"
                     >
                         <FontAwesomeIcon icon="fas fa-arrow-right" class="" aria-hidden="true" />
                     </Link>
                     <FontAwesomeIcon v-else icon="fas fa-arrow-right" class="opacity-20 cursor-pointer" aria-hidden="true" />
                 </div>
             </div>
-		</nav>
+        </nav>
 
 
     </div>
