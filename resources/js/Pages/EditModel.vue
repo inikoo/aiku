@@ -46,6 +46,7 @@ const props = defineProps<{
             button: {
                 title: string
                 route: string
+                disable: boolean
             }
         }>,
         args: {
@@ -109,9 +110,13 @@ const current = ref(0)
 
                     <!-- Button for Authorize Google Drive -->
                     <div class="py-2 px-3 flex justify-end max-w-2xl" v-if="formData.blueprint[current].button">
-                        <Link :href="formData.blueprint[current].button.route" class="px-3 py-1.5 bg-indigo-500 text-gray-100 rounded">
+                        <component :is="formData.blueprint[current].button.disable ? 'div' : 'a'"
+                            :href="formData.blueprint[current].button.route" target="_blank" rel="noopener noreferrer"
+                            class="px-3 py-1.5 rounded"
+                            :class="[formData.blueprint[current].button.disable ? 'bg-indigo-200 cursor-default text-white' : 'text-gray-100 bg-indigo-500 hover:bg-indigo-600']"
+                        >
                             {{ formData.blueprint[current].button.title }}
-                        </Link>
+                        </component>
                     </div>
                 </div>
             </div>
