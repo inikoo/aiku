@@ -25,6 +25,25 @@ class IndexStockFamilies extends InertiaAction
 {
     use HasUIStockFamilies;
 
+    public function authorize(ActionRequest $request): bool
+    {
+        $this->canEdit = $request->user()->can('inventory.stocks.edit');
+
+        return
+            (
+
+                $request->user()->tokenCan('root') or
+                $request->user()->hasPermissionTo('inventory.stocks.view')
+            );
+    }
+
+    public function asController(ActionRequest $request): LengthAwarePaginator
+    {
+        $this->initialisation($request);
+
+        return $this->handle(app('currentTenant'));
+    }
+
     /** @noinspection PhpUndefinedMethodInspection */
     public function handle($prefix=null): LengthAwarePaginator
     {
@@ -98,31 +117,10 @@ class IndexStockFamilies extends InertiaAction
         };
     }
 
-    public function authorize(ActionRequest $request): bool
-    {
-        $this->canEdit = $request->user()->can('inventory.stocks.edit');
-
-        return
-            (
-
-                $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo('inventory.stocks.view')
-            );
-    }
-
-    public function asController(ActionRequest $request): LengthAwarePaginator
-    {
-        $this->initialisation($request);
-
-        return $this->handle(app('currentTenant'));
-    }
-
-
     public function jsonResponse(LengthAwarePaginator $stocks): AnonymousResourceCollection
     {
         return StockFamilyResource::collection($stocks);
     }
-
 
     public function htmlResponse(LengthAwarePaginator $stockFamily, ActionRequest $request): Response
     {

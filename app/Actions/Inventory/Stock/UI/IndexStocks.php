@@ -17,6 +17,7 @@ use App\Models\Tenancy\Tenant;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -26,6 +27,33 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexStocks extends InertiaAction
 {
+    private StockFamily|Tenant $parent;
+
+    public function authorize(ActionRequest $request): bool
+    {
+        $this->canEdit = $request->user()->can('inventory.stocks.edit');
+
+        return
+            (
+                $request->user()->tokenCan('root') or
+                $request->user()->hasPermissionTo('inventory.stocks.view')
+            );
+    }
+
+    public function asController(ActionRequest $request): LengthAwarePaginator
+    {
+        $this->routeName = $request->route()->getName();
+        $this->parent    = app('currentTenant');
+        return $this->handle(parent:  app('currentTenant'));
+    }
+
+    public function inStockFamily(StockFamily $stockFamily, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->initialisation($request);
+        $this->parent = $stockFamily;
+        return $this->handle(parent:  $stockFamily);
+    }
+
     /** @noinspection PhpUndefinedMethodInspection */
     public function handle(StockFamily|Tenant $parent, $prefix=null): LengthAwarePaginator
     {
@@ -75,53 +103,80 @@ class IndexStocks extends InertiaAction
             ->withQueryString();
     }
 
-    public function tableStructure($parent, $prefix=null): Closure
+    public function tableStructure($parent, ?array $modelOperations = null, $prefix=null): Closure
     {
-        return function (InertiaTable $table) use ($parent, $prefix) {
+        return function (InertiaTable $table) use ($parent, $modelOperations, $prefix) {
             if($prefix) {
                 $table
                     ->name($prefix)
                     ->pageName($prefix.'Page');
             }
-            $table->column(key: 'slug', label: __('code'), canBeHidden: false, sortable: true, searchable: true);
-            $table->column(key: 'family_code', label: __('family'), canBeHidden: false, sortable: true, searchable: true);
-            $table->column(key: 'description', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
-            $table->column(key: 'unit_value', label: __('unit value'), canBeHidden: false, sortable: true, searchable: true);
+            $table
+                ->defaultSort('slug')
+                ->withGlobalSearch()
+                ->withModelOperations($modelOperations)
+                ->withEmptyState(
+                    match (class_basename($parent)) {
+                        'Tenant' => [
+                            'title'       => __("No SKUs found"),
+                            'description' => $this->canEdit && $parent->stats->number_stock_families == 0 ? __('Get started by creating a shop. ✨')
+                                : __("In fact, is no even create a SKUs family yet 🤷🏽‍♂️"),
+                            'count'       => $parent->stats->number_stocks,
+                            'action'      => $this->canEdit && $parent->stats->number_stock_families == 0 ? [
+                                'type'    => 'button',
+                                'style'   => 'create',
+                                'tooltip' => __('new SKUs family'),
+                                'label'   => __('SKUs family'),
+                                'route'   => [
+                                    'name'       => 'inventory.families.create',
+                                    'parameters' => array_values($this->originalParameters)
+                                ]
+                            ] : null
+                        ],
+                        'StockFamily' => [
+                            'title'       => __("No SKUs found"),
+                            'description' => $this->canEdit ? __('Get started by creating a new SKU. ✨')
+                                : null,
+                            'count'       => $parent->stats->number_departments,
+                            'action'      => $this->canEdit ? [
+                                'type'    => 'button',
+                                'style'   => 'create',
+                                'tooltip' => __('new SKU'),
+                                'label'   => __('SKU'),
+                                'route'   => [
+                                    'name'       => 'inventory.families.show.stocks.create',
+                                    'parameters' => array_values($this->originalParameters)
+                                ]
+                            ] : null
+                        ],
+                        default => null
+                    }
+                )
+                ->column(key: 'slug', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'family_code', label: __('family'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'description', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'unit_value', label: __('unit value'), canBeHidden: false, sortable: true, searchable: true);
         };
     }
 
-    public function authorize(ActionRequest $request): bool
-    {
-        $this->canEdit = $request->user()->can('inventory.stocks.edit');
 
-        return
-            (
-                $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo('inventory.stocks.view')
-            );
-    }
-
-    public function asController(ActionRequest $request): LengthAwarePaginator
-    {
-        $this->routeName = $request->route()->getName();
-        return $this->handle(app('currentTenant'));
-    }
-
-    public function inStockFamily(StockFamily $stockFamily, ActionRequest $request): LengthAwarePaginator
-    {
-        $this->initialisation($request);
-
-        return $this->handle(parent:  $stockFamily);
-    }
 
     public function jsonResponse(LengthAwarePaginator $stocks): AnonymousResourceCollection
     {
         return StockResource::collection($stocks);
     }
 
-
     public function htmlResponse(LengthAwarePaginator $stocks, ActionRequest $request): Response
     {
+        $scope    =$this->parent;
+        $container=null;
+        if (class_basename($scope) == 'StockFamily') {
+            $container = [
+                'icon'    => ['fal', 'fa-boxes-alt'],
+                'tooltip' => __('Stock Family'),
+                'label'   => Str::possessive($scope->name)
+            ];
+        }
 
         $parent = $request->route()->parameters() == [] ? app('currentTenant') : last($request->route()->parameters());
 
@@ -130,17 +185,18 @@ class IndexStocks extends InertiaAction
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
-                    $request->route()->originalParameters()
+                    $request->route()->parameters
                 ),
                 'title'       => __("SKUs"),
                 'pageHead'    => [
-                    'title'   => __("SKUs"),
-                    'icon'    => [
-                        'title' => __("SKUs"),
-                        'icon'  => 'fal fa-box'
+                    'title'        => __("SKUs"),
+                    'container'    => $container,
+                    'iconRight'    => [
+                        'icon'  => ['fal', 'fa-box'],
+                        'title' => __('department')
                     ],
                     'actions'=> [
-                        $this->canEdit && $this->routeName=='inventory.stocks.index' ? [
+                        $this->canEdit ? [
                             'type'    => 'button',
                             'style'   => 'create',
                             'tooltip' => __('new SKU'),
