@@ -223,7 +223,7 @@ class IndexStocks extends InertiaAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => $routeParameters,
-                        'label' => __('stocks'),
+                        'label' => __('SKUs'),
                         'icon'  => 'fal fa-bars'
                     ],
                     'suffix' => $suffix

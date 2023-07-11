@@ -13,7 +13,7 @@ use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\Inventory\WarehouseArea\UI\ShowWarehouseArea;
 use App\Actions\UI\Inventory\InventoryDashboard;
 use App\Enums\UI\LocationTabsEnum;
-use App\Http\Resources\SysAdmin\HistoryResource;
+use App\Http\Resources\History\HistoryResource;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;

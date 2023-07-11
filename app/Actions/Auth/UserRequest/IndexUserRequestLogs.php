@@ -49,15 +49,15 @@ class IndexUserRequestLogs
 
             } catch (ClientResponseException $e) {
                 //dd($e->getMessage());
-                // manage the 4xx error
+                // todo manage the 4xx error
                 return false;
             } catch (ServerResponseException $e) {
                 //dd($e->getMessage());
-                // manage the 5xx error
+                // todo manage the 5xx error
                 return false;
             } catch (Exception $e) {
                 //dd($e->getMessage());
-                // eg. network error like NoNodeAvailableException
+                // todo eg. network error like NoNodeAvailableException
                 return false;
             } catch (NotFoundExceptionInterface|ContainerExceptionInterface $e) {
             }

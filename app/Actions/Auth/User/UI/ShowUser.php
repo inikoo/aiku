@@ -13,7 +13,7 @@ use App\Actions\InertiaAction;
 use App\Actions\Traits\WithElasticsearch;
 use App\Actions\UI\SysAdmin\SysAdminDashboard;
 use App\Enums\UI\UserTabsEnum;
-use App\Http\Resources\SysAdmin\HistoryResource;
+use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\SysAdmin\UserRequestLogsResource;
 use App\Http\Resources\SysAdmin\UserResource;
 use App\Models\Auth\User;
