@@ -10,6 +10,6 @@ namespace App\Actions\Google\Drive\Traits;
 trait WithTokenPath {
     public function getTokenPath(): string
     {
-        return 'resources/private/google/'.app('currentTenant')->slug.'-token.json';
+        return base_path('resources/private/google/'.app('currentTenant')->slug.'-token.json');
     }
 }
