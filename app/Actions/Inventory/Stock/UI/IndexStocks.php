@@ -201,10 +201,16 @@ class IndexStocks extends InertiaAction
                             'style'   => 'create',
                             'tooltip' => __('new SKU'),
                             'label'   => __('SKU'),
-                            'route'   => [
-                                'name'       => 'inventory.stocks.create',
-                                'parameters' => array_values($this->originalParameters)
-                            ]
+                            'route'   => match ($this->routeName) {
+                                'inventory.stock-families.show.stocks.index' => [
+                                    'name'       => 'inventory.stock-families.show.stocks.create',
+                                    'parameters' => array_values($this->originalParameters)
+                                ],
+                                default => [
+                                    'name'       => 'inventory.stocks.create',
+                                    'parameters' => array_values($this->originalParameters)
+                                ]
+                            }
                         ] : false,
                     ]
                 ],

@@ -16,6 +16,8 @@ use App\Models\Inventory\Stock;
 use App\Models\Inventory\StockFamily;
 use App\Models\Tenancy\Tenant;
 use App\Rules\CaseSensitive;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -75,5 +77,19 @@ class StoreStock
         $request->validate();
 
         return $this->handle($stockFamily, $request->validated());
+    }
+
+    public function htmlResponse(Stock $stock): RedirectResponse
+    {
+        if(!$stock->stock_family_id) {
+            return Redirect::route('inventory.stock-families.show.stocks.show', [
+                $stock->stockFamily->slug,
+                $stock->slug
+            ]);
+        } else {
+            return Redirect::route('inventory.stocks.show', [
+                $stock->slug
+            ]);
+        }
     }
 }

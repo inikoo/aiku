@@ -68,7 +68,7 @@ class ShowStock extends InertiaAction
                  ],
                  'pageHead'    => [
                      'icon'    => [
-                         'title' => __('SKUs'),
+                         'title' => __('skus'),
                          'icon'  => 'fal fa-box'
                      ],
                      'title'   => $stock->slug,

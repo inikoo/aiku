@@ -23,6 +23,7 @@ class RemoveStock extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
+
         return $request->user()->hasPermissionTo("inventory.stocks.edit");
     }
 
@@ -41,13 +42,12 @@ class RemoveStock extends InertiaAction
         return $this->handle($stock);
     }
 
-
     public function getAction($route): array
     {
         return  [
             'buttonLabel' => __('Delete'),
             'title'       => __('Delete SKU'),
-            'text'        => __("This action will delete this SKU and its dependent"),
+            'text'        => __("This action will delete this SKU and its dependant"),
             'route'       => $route
         ];
     }
@@ -58,16 +58,17 @@ class RemoveStock extends InertiaAction
         return Inertia::render(
             'RemoveModel',
             [
-                'title'       => __('delete SKU'),
+                'title'       => __('delete sku'),
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
                     $request->route()->parameters
                 ),
                 'pageHead'    => [
-                    'icon'     => [
-                        'title' => __('SKUs'),
-                        'icon'  => 'fal fa-box'
-                    ],
+                    'icon'  =>
+                        [
+                            'icon'  => ['fal', 'fa-box'],
+                            'title' => __('sku')
+                        ],
                     'title'  => $stock->slug,
                     'actions'=> [
                         [
@@ -85,7 +86,7 @@ class RemoveStock extends InertiaAction
                     route:
                     match ($this->routeName) {
                         'inventory.stocks.remove' => [
-                            'name'       => 'models.stock.delete',
+                            'name'       => 'models.location.delete',
                             'parameters' => $request->route()->originalParameters()
                         ],
                         'inventory.stock-families.show.stocks.remove' => [
@@ -102,7 +103,7 @@ class RemoveStock extends InertiaAction
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
         return ShowStock::make()->getBreadcrumbs(
-            routeName: preg_replace('/edit$/', 'show', $routeName),
+            routeName: preg_replace('/remove$/', 'show', $routeName),
             routeParameters: $routeParameters,
             suffix: '('.__('deleting').')'
         );
