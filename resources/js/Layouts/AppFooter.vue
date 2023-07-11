@@ -48,7 +48,7 @@ const isTabActive = ref(false)
                         Active Users ({{ activities.length }})
                     </div>
                     
-                    <FooterTab v-if="isTabActive == 'activeUsers'" :tabName="`activeUsers`">
+                    <FooterTab @pinTab="() => isTabActive = false" v-if="isTabActive == 'activeUsers'" :tabName="`activeUsers`">
                         <template #default>
                             <div v-for="(option, index) in activities" class="flex justify-start py-1 px-2 gap-x-1.5 hover:bg-gray-700 cursor-default">
                                 <img :src="`/media/group/${option.user.avatar_id}`" :alt="option.user.contact_name" srcset="" class="h-4 rounded-full shadow">
@@ -66,10 +66,11 @@ const isTabActive = ref(false)
                 <div class="relative h-full flex z-50 select-none justify-center items-center px-8 cursor-pointer"
                     :class="[isTabActive == 'language' ? 'bg-gray-600' : 'bg-gray-800']"
                     @click="isTabActive == 'language' ? isTabActive = !isTabActive : isTabActive = 'language'"
+                    
                 >
                     <FontAwesomeIcon icon="fal fa-language" class="text-xs mr-1 h-5 text-gray-300"></FontAwesomeIcon>
                     <div class="h-full font-extralight text-xs flex items-center leading-none text-gray-300">{{ locale.language.code }}</div>
-                    <FooterTab v-if="isTabActive === 'language'" :tabName="`language`">
+                    <FooterTab @pinTab="() => isTabActive = false" v-if="isTabActive === 'language'" :tabName="`language`">
                         <template #default>
                             <div v-for="(option, index) in locale.languageOptions" :class="[ locale.language.id == index ? 'bg-gray-600 hover:bg-gray-500' : '', 'grid hover:bg-gray-700 py-1.5']"
                                 @click="locale.language.id = Number(index), locale.language.name = option.label"

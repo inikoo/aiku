@@ -41,7 +41,7 @@ export const useLayoutStore = defineStore("layout", {
             currentRouteParameters: {},
             currentModule         : "",
             rightSidebar          : {
-                activeUsers: true,
+                activeUsers: false,
                 language: false,
             }
         }

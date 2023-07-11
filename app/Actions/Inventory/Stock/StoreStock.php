@@ -13,7 +13,9 @@ use App\Actions\Inventory\StockFamily\Hydrators\StockFamilyHydrateStocks;
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateInventory;
 use App\Models\CRM\Customer;
 use App\Models\Inventory\Stock;
+use App\Models\Inventory\StockFamily;
 use App\Models\Tenancy\Tenant;
+use App\Rules\CaseSensitive;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -24,12 +26,19 @@ class StoreStock
     use AsAction;
     use WithAttributes;
 
-    public function handle(Tenant|Customer $owner, $modelData): Stock
+    public function handle(Tenant|Customer|StockFamily $owner, $modelData): Stock
     {
+        if (class_basename($owner) === 'StockFamily') {
+            $modelData['owner_type'] = "StockFamily";
+        } elseif (class_basename($owner) === 'Customer') {
+            $modelData['owner_type'] = "Customer";
+        } else {
+            $modelData['owner_type'] = "Tenant";
+        }
+        $modelData['owner_id'] = $owner->id;
         /** @var Stock $stock */
         $stock = $owner->stocks()->create($modelData);
         $stock->stats()->create();
-
         TenantHydrateInventory::dispatch(app('currentTenant'));
         if ($stock->stock_family_id) {
             StockFamilyHydrateStocks::dispatch($stock->stockFamily);
@@ -45,17 +54,26 @@ class StoreStock
     public function rules(ActionRequest $request): array
     {
         return [
-            'code' => [
-                'required',
+            'code'          => ['required', 'unique:tenant.locations', 'between:2,64', 'alpha_dash', new CaseSensitive('stocks')],
+            /*'code' => [
+                'required', 'alpha_dash',
                 Rule::unique('stocks', 'code')->where(
                     fn ($query) => $query->where('owner_type', 'Customer')->where('owner_id', $request->user()?->customer->id)
                 )
-            ],
+            ], */
+            'name'  => ['required','max:255']
         ];
     }
 
-    public function action(Tenant|Customer $owner, $objectData): Stock
+    public function action(Tenant|Customer|StockFamily $owner, $objectData): Stock
     {
         return $this->handle($owner, $objectData);
+    }
+
+    public function inStockFamily(StockFamily $stockFamily, ActionRequest $request): Stock
+    {
+        $request->validate();
+
+        return $this->handle($stockFamily, $request->validated());
     }
 }
