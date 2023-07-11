@@ -7,6 +7,7 @@
 
 namespace App\Actions\UI\SysAdmin;
 
+use App\Actions\Google\Drive\Traits\WithTokenPath;
 use App\Actions\UI\Dashboard\ShowDashboard;
 use App\Actions\UI\WithInertia;
 use Illuminate\Support\Arr;
@@ -19,6 +20,7 @@ class EditSystemSettings
 {
     use AsAction;
     use WithInertia;
+    use WithTokenPath;
 
     public function authorize(ActionRequest $request): bool
     {
@@ -83,9 +85,9 @@ class EditSystemSettings
                             "title"  => __("google drive"),
                             "icon"   => "fab fa-google",
                             "button" => [
-                                "title"   => "Authorize",
-                                "route"   => 'https://accounts.google.com',
-                                "disable" => false
+                                "title" => !file_exists(dirname($this->getTokenPath())) ? "Authorize" : "Authorized",
+                                "route" => route('google.drive.authorize'),
+                                "disable" => file_exists(dirname($this->getTokenPath()))
                             ],
                             "fields" => [
                                 "google_client_id" => [
