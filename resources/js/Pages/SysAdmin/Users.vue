@@ -5,18 +5,18 @@
   -->
 
 <script setup lang="ts">
-import {Head} from '@inertiajs/vue3';
+import { Head } from "@inertiajs/vue3";
 import TableUsers from "@/Pages/Tables/TableUsers.vue";
 import Tabs from "@/Components/Navigation/Tabs.vue";
-import {computed, ref} from "vue";
-import {useTabChange} from "@/Composables/tab-change";
-import { faRoad } from "@/../private/pro-light-svg-icons"
+import { computed, ref } from "vue";
+import { useTabChange } from "@/Composables/tab-change";
+import { faRoad, faTerminal } from "@/../private/pro-light-svg-icons";
 import TableUserRequestLogs from "@/Pages/Tables/TableUserRequestLogs.vue";
-import { library } from "@fortawesome/fontawesome-svg-core"
-import { capitalize } from "@/Composables/capitalize"
+import { library } from "@fortawesome/fontawesome-svg-core";
+import { capitalize } from "@/Composables/capitalize";
 
-library.add(faRoad)
-const props = defineProps <{
+library.add(faRoad, faTerminal);
+const props = defineProps<{
     tabs: {
         current: string;
         navigation: object;
@@ -24,7 +24,7 @@ const props = defineProps <{
     title: string
     users?: object
     users_requests?: object
-}>()
+}>();
 
 
 let currentTab = ref(props.tabs.current);
@@ -43,7 +43,7 @@ const component = computed(() => {
 </script>
 
 <template layout="App">
-    <Head :title="capitalize(title)"/>
-    <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate"/>
-    <component :is="component" :tab="currentTab"  :data="props[currentTab]"></component>
+    <Head :title="capitalize(title)" />
+    <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
+    <component :is="component" :tab="currentTab" :data="props[currentTab]"></component>
 </template>
