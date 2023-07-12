@@ -21,7 +21,7 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('number_employees')->default(0);
 
             foreach (EmployeeStateEnum::cases() as $employeeState) {
-                $table->unsignedSmallInteger('number_shops_state_'.$employeeState->snake())->default(0);
+                $table->unsignedSmallInteger('number_employees_state_'.$employeeState->snake())->default(0);
             }
 
             $table->unsignedSmallInteger('number_guests')->default(0);

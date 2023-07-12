@@ -19,7 +19,7 @@ it('has countries', function (string $countryCode) {
     $country= Country::where('code', $countryCode)->firstOrFail();
     expect($country->id)->toBeInt();
 })->with([
-    'GB','ES','FR','DE'
+    'GB','ES','fr','De'
 ]);
 
 it('is no countries with code', function (string $countryCode) {
@@ -27,7 +27,7 @@ it('is no countries with code', function (string $countryCode) {
         Country::where('code', $countryCode)->firstOrFail();
     })->toThrow(ModelNotFoundException::class);
 })->with([
-    'XX','es',''
+    'XX','ZZ',''
 ]);
 
 it('has timezones', function (string $timezone) {
