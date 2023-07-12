@@ -37,7 +37,7 @@ class StoreWebsite
         data_set($modelData, 'type', $shop->subtype);
         /** @var Website $website */
         $website = $shop->website()->create($modelData);
-        $website->stats()->create();
+        $website->webStats()->create();
         StoreDomain::run(app('currentTenant'), $website, [
             'slug'   => $website->code,
             'domain' => $website->domain
