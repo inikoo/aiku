@@ -7,6 +7,7 @@
 
 namespace App\Actions;
 
+use App\Actions\Traits\WithTenantsArgument;
 use App\Models\Tenancy\Tenant;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Model;

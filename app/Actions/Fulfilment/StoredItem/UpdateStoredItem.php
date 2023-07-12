@@ -9,7 +9,7 @@ namespace App\Actions\Fulfilment\StoredItem;
 
 use App\Actions\Fulfilment\FulfilmentOrderItem\StoredItemHydrateUniversalSearch;
 use App\Actions\Fulfilment\FulfilmentOrderItem\StoredItemResource;
-use App\Actions\WithActionUpdate;
+use App\Actions\Traits\WithActionUpdate;
 use App\Models\Fulfilment\StoredItem;
 use Lorisleiva\Actions\ActionRequest;
 

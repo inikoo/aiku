@@ -7,7 +7,7 @@
 
 namespace App\Actions\Helpers\GroupAddress;
 
-use App\Actions\WithActionUpdate;
+use App\Actions\Traits\WithActionUpdate;
 use App\Models\Helpers\GroupAddress;
 
 class UpdateGroupAddress

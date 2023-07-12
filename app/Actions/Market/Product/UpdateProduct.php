@@ -8,7 +8,7 @@
 namespace App\Actions\Market\Product;
 
 use App\Actions\Market\Product\Hydrators\ProductHydrateUniversalSearch;
-use App\Actions\WithActionUpdate;
+use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Market\ProductResource;
 use App\Models\Market\Product;
 use Lorisleiva\Actions\ActionRequest;

@@ -8,7 +8,7 @@
 namespace App\Actions\Auth\User;
 
 use App\Actions\Elasticsearch\IndexElasticsearchDocument;
-use App\Actions\WithTenantJob;
+use App\Actions\Traits\WithTenantJob;
 use App\Models\Auth\User;
 use hisorange\BrowserDetect\Parser as Browser;
 use Illuminate\Support\Carbon;

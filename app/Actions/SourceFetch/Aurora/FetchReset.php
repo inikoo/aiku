@@ -7,8 +7,7 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-use App\Actions\WithTenantsArgument;
-
+use App\Actions\Traits\WithTenantsArgument;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;

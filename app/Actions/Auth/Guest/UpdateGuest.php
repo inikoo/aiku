@@ -7,7 +7,7 @@
 
 namespace App\Actions\Auth\Guest;
 
-use App\Actions\WithActionUpdate;
+use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Auth\Guest\GuestTypeEnum;
 use App\Http\Resources\SysAdmin\GuestResource;
 use App\Models\Auth\Guest;

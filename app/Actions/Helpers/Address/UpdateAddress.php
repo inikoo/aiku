@@ -8,7 +8,7 @@
 
 namespace App\Actions\Helpers\Address;
 
-use App\Actions\WithActionUpdate;
+use App\Actions\Traits\WithActionUpdate;
 use App\Models\Helpers\Address;
 
 class UpdateAddress

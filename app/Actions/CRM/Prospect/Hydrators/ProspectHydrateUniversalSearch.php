@@ -7,7 +7,7 @@
 
 namespace App\Actions\CRM\Prospect\Hydrators;
 
-use App\Actions\WithTenantJob;
+use App\Actions\Traits\WithTenantJob;
 use App\Models\CRM\Prospect;
 use Lorisleiva\Actions\Concerns\AsAction;
 

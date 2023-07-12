@@ -8,7 +8,7 @@
 namespace App\Actions\Accounting\Payment;
 
 use App\Actions\Accounting\Payment\Hydrators\PaymentHydrateUniversalSearch;
-use App\Actions\WithActionUpdate;
+use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Accounting\PaymentResource;
 use App\Models\Accounting\Payment;
 use Lorisleiva\Actions\ActionRequest;

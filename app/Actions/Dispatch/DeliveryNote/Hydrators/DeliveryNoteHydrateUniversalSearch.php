@@ -7,7 +7,7 @@
 
 namespace App\Actions\Dispatch\DeliveryNote\Hydrators;
 
-use App\Actions\WithTenantJob;
+use App\Actions\Traits\WithTenantJob;
 use App\Models\Dispatch\DeliveryNote;
 use Lorisleiva\Actions\Concerns\AsAction;
 

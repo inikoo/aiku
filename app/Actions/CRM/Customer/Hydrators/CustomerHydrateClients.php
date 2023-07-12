@@ -7,7 +7,7 @@
 
 namespace App\Actions\CRM\Customer\Hydrators;
 
-use App\Actions\WithTenantJob;
+use App\Actions\Traits\WithTenantJob;
 use App\Models\CRM\Customer;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Lorisleiva\Actions\Concerns\AsAction;

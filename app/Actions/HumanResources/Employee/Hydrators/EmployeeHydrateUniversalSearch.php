@@ -7,7 +7,7 @@
 
 namespace App\Actions\HumanResources\Employee\Hydrators;
 
-use App\Actions\WithTenantJob;
+use App\Actions\Traits\WithTenantJob;
 use App\Models\HumanResources\Employee;
 use Lorisleiva\Actions\Concerns\AsAction;
 

@@ -1,11 +1,11 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Sun, 05 Mar 2023 17:58:47 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Wed, 12 Jul 2023 13:31:30 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions;
+namespace App\Actions\Traits;
 
 use App\Models\Tenancy\Tenant;
 use App\Services\Tenant\AuroraTenantService;

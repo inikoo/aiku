@@ -8,7 +8,7 @@
 namespace App\Actions\Procurement\SupplierProduct;
 
 use App\Actions\Procurement\SupplierProduct\Hydrators\SupplierProductHydrateUniversalSearch;
-use App\Actions\WithActionUpdate;
+use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Procurement\SupplierProductResource;
 use App\Models\Procurement\SupplierProduct;
 

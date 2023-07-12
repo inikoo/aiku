@@ -9,7 +9,7 @@ namespace App\Actions\HumanResources\WorkingPlace;
 
 use App\Actions\Helpers\Address\StoreAddressAttachToModel;
 use App\Actions\HumanResources\WorkingPlace\Hydrators\WorkingPlaceHydrateUniversalSearch;
-use App\Actions\WithActionUpdate;
+use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\HumanResources\WorkPlaceResource;
 use App\Models\HumanResources\Workplace;
 use Illuminate\Support\Arr;

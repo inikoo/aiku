@@ -14,8 +14,8 @@ use App\Actions\Inventory\Stock\DeleteStock;
 use App\Actions\Market\Product\DeleteProduct;
 use App\Actions\Market\Shop\Hydrators\ShopHydrateCustomers;
 use App\Actions\OMS\Order\DeleteOrder;
-use App\Actions\WithActionUpdate;
-use App\Actions\WithTenantArgument;
+use App\Actions\Traits\WithActionUpdate;
+use App\Actions\Traits\WithTenantArgument;
 use App\Models\CRM\Customer;
 use Illuminate\Console\Command;
 

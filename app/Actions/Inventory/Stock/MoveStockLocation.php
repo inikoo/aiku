@@ -8,7 +8,7 @@
 namespace App\Actions\Inventory\Stock;
 
 use App\Actions\Inventory\Warehouse\HydrateWarehouse;
-use App\Actions\WithActionUpdate;
+use App\Actions\Traits\WithActionUpdate;
 use App\Models\Inventory\LocationStock;
 use Lorisleiva\Actions\ActionRequest;
 

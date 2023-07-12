@@ -7,7 +7,7 @@
 
 namespace App\Actions\Assets\TariffCode;
 
-use App\Actions\WithActionUpdate;
+use App\Actions\Traits\WithActionUpdate;
 use App\Models\Assets\TariffCode;
 use Lorisleiva\Actions\Concerns\AsAction;
 

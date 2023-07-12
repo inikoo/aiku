@@ -10,8 +10,8 @@
 
 namespace App\Actions\Tenancy\Group;
 
-use App\Actions\WithStorageLink;
-use App\Actions\WithTenantsArgument;
+use App\Actions\Traits\WithStorageLink;
+use App\Actions\Traits\WithTenantsArgument;
 use App\Models\Tenancy\Group;
 use Exception;
 use Illuminate\Console\Command;

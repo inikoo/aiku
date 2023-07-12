@@ -7,7 +7,7 @@
 
 namespace App\Actions\Auth\User;
 
-use App\Actions\WithActionUpdate;
+use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\SysAdmin\UserResource;
 use App\Models\Auth\User;
 use Illuminate\Validation\ValidationException;

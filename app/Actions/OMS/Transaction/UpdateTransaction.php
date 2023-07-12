@@ -7,7 +7,7 @@
 
 namespace App\Actions\OMS\Transaction;
 
-use App\Actions\WithActionUpdate;
+use App\Actions\Traits\WithActionUpdate;
 use App\Models\OMS\Transaction;
 
 class UpdateTransaction

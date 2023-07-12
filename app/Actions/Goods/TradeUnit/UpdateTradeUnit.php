@@ -7,7 +7,7 @@
 
 namespace App\Actions\Goods\TradeUnit;
 
-use App\Actions\WithActionUpdate;
+use App\Actions\Traits\WithActionUpdate;
 use App\Models\Goods\TradeUnit;
 
 class UpdateTradeUnit

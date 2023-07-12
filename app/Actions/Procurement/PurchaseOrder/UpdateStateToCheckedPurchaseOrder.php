@@ -8,7 +8,7 @@
 namespace App\Actions\Procurement\PurchaseOrder;
 
 use App\Actions\Procurement\PurchaseOrder\Traits\HasHydrators;
-use App\Actions\WithActionUpdate;
+use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Http\Resources\Procurement\PurchaseOrderResource;
 use App\Models\Procurement\PurchaseOrder;

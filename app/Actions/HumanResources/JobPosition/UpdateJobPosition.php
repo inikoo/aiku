@@ -7,7 +7,7 @@
 
 namespace App\Actions\HumanResources\JobPosition;
 
-use App\Actions\WithActionUpdate;
+use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\HumanResources\JobPositionResource;
 use App\Models\HumanResources\JobPosition;
 use Lorisleiva\Actions\ActionRequest;

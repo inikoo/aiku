@@ -7,7 +7,7 @@
 
 namespace App\Actions\Accounting\Payment\Hydrators;
 
-use App\Actions\WithTenantJob;
+use App\Actions\Traits\WithTenantJob;
 use App\Models\Accounting\Payment;
 use Lorisleiva\Actions\Concerns\AsAction;
 

@@ -8,7 +8,7 @@
 namespace App\Actions\Inventory\Stock;
 
 use App\Actions\Inventory\Stock\Hydrators\StockHydrateUniversalSearch;
-use App\Actions\WithActionUpdate;
+use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Inventory\StockResource;
 use App\Models\Inventory\Stock;
 use Lorisleiva\Actions\ActionRequest;

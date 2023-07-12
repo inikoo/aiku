@@ -8,7 +8,7 @@
 namespace App\Actions\Dropshipping\CustomerClient;
 
 use App\Actions\Dropshipping\CustomerClient\Hydrators\CustomerClientHydrateUniversalSearch;
-use App\Actions\WithActionUpdate;
+use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Dropshipping\CustomerClientResource;
 use App\Models\Dropshipping\CustomerClient;
 use Lorisleiva\Actions\ActionRequest;

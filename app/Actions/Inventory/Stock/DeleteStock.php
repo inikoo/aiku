@@ -9,8 +9,8 @@ namespace App\Actions\Inventory\Stock;
 
 use App\Actions\Inventory\StockFamily\Hydrators\StockFamilyHydrateStocks;
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateInventory;
-use App\Actions\WithActionUpdate;
-use App\Actions\WithTenantArgument;
+use App\Actions\Traits\WithActionUpdate;
+use App\Actions\Traits\WithTenantArgument;
 use App\Models\Inventory\Stock;
 use Illuminate\Console\Command;
 

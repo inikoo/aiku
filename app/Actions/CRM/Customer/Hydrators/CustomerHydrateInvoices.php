@@ -8,7 +8,7 @@
 namespace App\Actions\CRM\Customer\Hydrators;
 
 use App\Actions\Traits\WithElasticsearch;
-use App\Actions\WithTenantJob;
+use App\Actions\Traits\WithTenantJob;
 use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
 use App\Enums\CRM\Customer\CustomerTradeStateEnum;
 use App\Models\Accounting\Invoice;

@@ -7,7 +7,7 @@
 
 namespace App\Actions\Dispatch\Shipper;
 
-use App\Actions\WithActionUpdate;
+use App\Actions\Traits\WithActionUpdate;
 use App\Models\Dispatch\Shipper;
 
 class UpdateShipper

@@ -7,7 +7,7 @@
 
 namespace App\Actions\Marketing\Offer;
 
-use App\Actions\WithActionUpdate;
+use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Market\OfferResource;
 use App\Models\Marketing\Offer;
 use Lorisleiva\Actions\ActionRequest;

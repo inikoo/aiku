@@ -9,7 +9,7 @@ namespace App\Actions\Dropshipping\DropshippingOrder;
 
 use App\Actions\fromIris;
 use App\Actions\SourceFetch\Aurora\FetchOrders;
-use App\Actions\WithTenantSource;
+use App\Actions\Traits\WithTenantSource;
 use App\Http\Resources\Sales\DropshippingOrderResource;
 use App\Models\Auth\WebUser;
 use App\Models\Helpers\Address;

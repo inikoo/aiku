@@ -5,7 +5,7 @@
  *  Copyright (c) 2022, Raul A Perusquia F
  */
 
-namespace App\Actions;
+namespace App\Actions\Traits;
 
 trait WithRoutes
 {

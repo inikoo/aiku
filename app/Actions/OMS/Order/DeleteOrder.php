@@ -7,7 +7,7 @@
 
 namespace App\Actions\OMS\Order;
 
-use App\Actions\WithActionUpdate;
+use App\Actions\Traits\WithActionUpdate;
 use App\Enums\OMS\Order\OrderStateEnum;
 use App\Models\OMS\Order;
 use App\Models\Tenancy\Tenant;

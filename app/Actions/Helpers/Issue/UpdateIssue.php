@@ -7,7 +7,7 @@
 
 namespace App\Actions\Helpers\Issue;
 
-use App\Actions\WithActionUpdate;
+use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Helpers\IssueResource;
 use App\Models\Helpers\Issue;
 use Lorisleiva\Actions\ActionRequest;

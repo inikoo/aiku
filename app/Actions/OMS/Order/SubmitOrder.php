@@ -9,7 +9,7 @@ namespace App\Actions\OMS\Order;
 
 use App\Actions\Market\Shop\Hydrators\ShopHydrateOrders;
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateOrders;
-use App\Actions\WithActionUpdate;
+use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Sales\OrderResource;
 use App\Models\OMS\Order;
 use Lorisleiva\Actions\Concerns\AsAction;

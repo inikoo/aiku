@@ -7,7 +7,7 @@
 
 namespace App\Actions\Market\ShippingZoneSchema;
 
-use App\Actions\WithActionUpdate;
+use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Market\ShippingZoneSchemaResource;
 use App\Models\Market\ShippingZone;
 use App\Models\Market\ShippingZoneSchema;
