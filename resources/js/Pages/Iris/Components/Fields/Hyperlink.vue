@@ -5,20 +5,36 @@ import { faLink, faEdit, faTrash } from "@/../private/pro-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
 library.add(faLink, faEdit, faTrash)
-const props = defineProps<{
-    data: Object
-    save: Function
-	valueKeyLabel : String
-	valueKeyLink : String
-	useDelete :{
-		type: Boolean,
-        default: true
-	}
-	cssClass : {
-		type : string,
-		default: ''
-	}
-}>()
+const props = defineProps({
+  data: {
+    type: Object,
+    default: () => ({})
+  },
+  save: {
+    type: Function,
+    default: () => {}
+  },
+  valueKeyLabel: {
+    type: String,
+    default: ''
+  },
+  valueKeyLink: {
+    type: String,
+    default: ''
+  },
+  useDelete: {
+    type: Boolean,
+    default: true
+  },
+  useLink: {
+    type: Boolean,
+    default: true
+  },
+  cssClass: {
+    type: String,
+    default: ''
+  }
+});
 
 const editMode = ref({ edit : false, type : null})
 const inputValueName = ref(props.data[props.valueKeyLabel])
@@ -83,12 +99,12 @@ onMounted(() => {
 							<div class="relative gridbg-white lg:grid-cols-2">
 								<div
 									class="flex items-center space-x-2 p-2 transition duration-150 ease-in-out hover:bg-gray-100 focus:outline-none focus-visible:ring focus-visible:ring-orange-500 focus-visible:ring-opacity-50">
-									<div
+									<div v-if="useLink"
                                     @click="changeEditMode('link')"
 										class="flex-shrink-0 h-10 w-10 sm:h-12 sm:w-12 bg-gray-200 border border-gray-300 rounded-md flex items-center justify-center">
 										<FontAwesomeIcon icon="fa-link" />
 									</div>
-									<div
+									<div 
 										@click="changeEditMode('name')"
 										class="flex-shrink-0 h-10 w-10 sm:h-12 sm:w-12 bg-gray-200 border border-gray-300 rounded-md flex items-center justify-center">
 										<FontAwesomeIcon :icon="['fas', 'edit']" />
