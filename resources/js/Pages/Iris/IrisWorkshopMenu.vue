@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { ref , watch } from 'vue'
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { RadioGroup, RadioGroupLabel, RadioGroupOption } from '@headlessui/vue'
 import Menu from './Components/Menu/index.vue'
@@ -242,6 +242,11 @@ const columsTypeTheme = ref(null)
 const handtools = ref(Dummy.tools[0])
 const selectedNav = ref(null)
 
+watch(selectedNav, (newValue) => {
+    console.log(newValue)
+    selectedNav.value = {...newValue}
+})
+
 const saveNav = (value) => {
         const index = navigation.value.categories.findIndex((item) => item.id == value.colum.id)
         if (value.type == 'name') navigation.value.categories[index] = { ...navigation.value.categories[index], name: value.value }
@@ -311,7 +316,7 @@ const EditItemLinkInTools = (value,type) => {
             <div class="mt-8 px-4 sm:px-6 lg:px-8">
                 <div class="flex">
                     <!-- tools -->
-                    <div class="w-1/10 p-6 overflow-y-auto overflow-x-hidden"
+                    <div class="w-1/4 p-6 overflow-y-auto overflow-x-hidden"
                         style="border: 1px solid #bfbfbf; height: 46rem">
                         <form>
                             <!-- Color picker -->
