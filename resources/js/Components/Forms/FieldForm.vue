@@ -109,6 +109,7 @@ form['fieldType'] = 'edit';
                             </component>
                         </div>
 
+                        <!-- Button: Save -->
                         <span class="ml-2 flex-shrink-0">
                             <button class="align-bottom" :disabled="form.processing || !form.isDirty" type="submit">
                                 <FontAwesomeIcon icon="fal fa-save" class="h-8 "

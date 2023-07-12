@@ -7,7 +7,7 @@
   -->
 
 
-<script setup>
+<script setup lang="ts">
 import { ref, watchEffect } from "vue";
 import {
     Menu,

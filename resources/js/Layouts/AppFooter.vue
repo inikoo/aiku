@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import FooterTab from '@/Components/Footer/FooterTab.vue'
 import { useLocaleStore } from "@/Stores/locale"
 import { useLayoutStore } from "@/Stores/layout"
@@ -20,6 +20,17 @@ const activities = useDatabaseList(dbRef(db, 'aw'))
 const locale = useLocaleStore()
 const layout = useLayoutStore()
 const isTabActive = ref(false)
+
+const setToLocalStorage = (key: string, value: string) => {
+    localStorage.setItem(key, value)
+}
+
+onMounted(() => {
+    const getLocalLanguage = JSON.parse(localStorage.getItem('language'))
+    if (getLocalLanguage) {
+        locale.language = getLocalLanguage
+    }
+})
 
 </script>
 
@@ -69,11 +80,13 @@ const isTabActive = ref(false)
                     
                 >
                     <FontAwesomeIcon icon="fal fa-language" class="text-xs mr-1 h-5 text-gray-300"></FontAwesomeIcon>
-                    <div class="h-full font-extralight text-xs flex items-center leading-none text-gray-300">{{ locale.language.code }}</div>
+                    <div class="h-full font-extralight text-xs flex items-center leading-none text-gray-300">
+                        {{ locale.language.name }}
+                    </div>
                     <FooterTab @pinTab="() => isTabActive = false" v-if="isTabActive === 'language'" :tabName="`language`">
                         <template #default>
                             <div v-for="(option, index) in locale.languageOptions" :class="[ locale.language.id == index ? 'bg-gray-600 hover:bg-gray-500' : '', 'grid hover:bg-gray-700 py-1.5']"
-                                @click="locale.language.id = Number(index), locale.language.name = option.label"
+                                @click="locale.language.id = Number(index), locale.language.name = option.label, setToLocalStorage('language', JSON.stringify(locale.language))"
                             >
                                 {{ option.label }}
                             </div>
