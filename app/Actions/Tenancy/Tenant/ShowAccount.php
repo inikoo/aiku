@@ -49,8 +49,6 @@ class ShowAccount extends InertiaAction
                             'icon' => 'fal fa-indent',
                         ]
                     ]
-
-
                 ],
 
                 'contents' => [

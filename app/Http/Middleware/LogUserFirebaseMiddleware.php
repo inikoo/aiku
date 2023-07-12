@@ -23,7 +23,7 @@ class LogUserFirebaseMiddleware
             'arguments' => request()->route()->originalParameters()
         ];
 
-        if($user) {
+        if($user && env('LIVE_USERS_LIST')) {
             StoreUserLogFirebase::dispatch($user, $tenant, $route);
 
             if($request->route()->getName() == 'logout') {
