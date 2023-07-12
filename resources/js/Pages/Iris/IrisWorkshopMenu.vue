@@ -237,7 +237,7 @@ const navigation = ref({
     ],
 })
 
-const selectedTheme = ref(Dummy.theme[1])
+const selectedTheme = ref(Dummy.theme[0])
 const columsTypeTheme = ref(null)
 const handtools = ref(Dummy.tools[0])
 const selectedNav = ref(null)
@@ -258,6 +258,7 @@ const saveSubMenu = (value) => {
 }
 
 const changeMenuType = (value) => {
+    console.log(value,selectedNav.value)
     const index = navigation.value.categories.findIndex(
         (item) => item.id === selectedNav.value.id
     );
@@ -287,6 +288,7 @@ const changeMenuType = (value) => {
 
 
 const changeNavActive = (value) => {
+    console.log(value)
     selectedNav.value = value
 }
 

@@ -11,14 +11,13 @@ library.add(faBars, faMagnifyingGlass)
 const props = defineProps<{
     data: Object
     saveSubMenu: Function
-    closePopover : Function
+    closePopover: Function
     tool: Object
 }>()
 
 </script>
-
 <template>
-    <div class="ml-2 cursor-pointer text-rose-500" @click="closePopover">x</div>
+    <div class="ml-2 cursor-pointer text-rose-500 py-4" @click="closePopover">x</div>
     <div class="absolute inset-x-0 top-full text-sm text-gray-500">
         <div class="absolute inset-0 top-1/2 bg-white shadow" aria-hidden="true"></div>
         <div class="relative bg-white">

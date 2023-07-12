@@ -1,11 +1,8 @@
 <script setup lang="ts">
-import { ref, watchEffect } from "vue"
-import { router } from "@inertiajs/vue3"
+import { ref } from "vue"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import { faBars, faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import draggable from "vuedraggable"
-import Input from "../../Fields/Input.vue"
 import Hyperlink from '../../Fields/Hyperlink.vue'
 import SubMenu from "./SubMenu.vue"
 import { get } from 'lodash'
