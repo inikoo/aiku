@@ -101,7 +101,7 @@ onMounted(() => {
 									class="flex items-center space-x-2 p-2 transition duration-150 ease-in-out hover:bg-gray-100 focus:outline-none focus-visible:ring focus-visible:ring-orange-500 focus-visible:ring-opacity-50">
 									<div v-if="useLink"
                                     @click="changeEditMode('link')"
-										class="flex-shrink-0 h-10 w-10 sm:h-12 sm:w-12 bg-gray-200 border border-gray-300 rounded-md flex items-center justify-center" style="color: black;">
+										class="flex-shrink-0 h-10 w-10 sm:h-12 sm:w-12 bg-gray-200 border border-gray-300 rounded-md flex items-center justify-center" >
 										<FontAwesomeIcon icon="fa-link" />
 									</div>
 									<div 

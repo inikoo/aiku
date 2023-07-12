@@ -435,7 +435,7 @@ const EditItemLinkInTools = (value, type) => {
                                     </div>
 
                                     <div  v-for="set in columSelected.data" :key="set.id">
-                                        <HyperlinkTools :data="set" :save="EditItemLinkInTools"/>
+                                        <HyperlinkTools :data="set" :save="EditItemLinkInTools" modelLabel="name" modelLink="href"/>
                                     </div>
                                 </div>
 

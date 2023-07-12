@@ -258,7 +258,6 @@ const saveSubMenu = (value) => {
 }
 
 const changeMenuType = (value) => {
-    console.log(value,selectedNav.value)
     const index = navigation.value.categories.findIndex(
         (item) => item.id === selectedNav.value.id
     );
@@ -288,9 +287,21 @@ const changeMenuType = (value) => {
 
 
 const changeNavActive = (value) => {
-    console.log(value)
     selectedNav.value = value
 }
+
+const columItemLinkChange = () => {
+  const index = navigation.value.categories.findIndex((item) => item.id === selectedNav.value.id);
+  navigation.value.categories[index].featured.push({ name: 'New', id: uuidv4(), link: '' });
+};
+
+const EditItemLinkInTools = (value,type) => {
+    const index = navigation.value.categories.findIndex((item) => item.id === selectedNav.value.id);
+    const indexSub =  navigation.value.categories[index].featured.findIndex((item) => item.id === value.id);
+    if(type == 'edit') navigation.value.categories[index].featured[indexSub] = value
+    if(type == 'delete') navigation.value.categories[index].featured.splice(indexSub,1)
+}
+
 
 </script>
 
@@ -389,35 +400,33 @@ const changeNavActive = (value) => {
                                 </RadioGroup>
                             </div>
                             <!-- Mode -->
-                            <!-- <div class="mt-8">
-								<div class="flex items-center justify-between">
-									<h2 class="text-sm font-medium text-gray-900">Mode</h2>
-								</div>
-								<RadioGroup class="mt-2">
-									<div class="grid grid-cols-3 gap-3 sm:grid-cols-2">
-										<RadioGroupOption
-											as="template"
-											v-for="option in Dummy.modeType"
-											:key="option.value"
-											:value="option"
-											v-slot="{ active, checked }">
-											<div
-												:class="{
-													'ring-2 ring-indigo-500 ring-offset-2': active,
-													'border-transparent bg-indigo-600 text-white hover:bg-indigo-700':
-														checked == option.value,
-													'border-gray-200 bg-white text-gray-900 hover:bg-gray-50':
-														!checked == option.value,
-													'flex items-center justify-center rounded-md border py-3 px-3 text-sm font-medium uppercase sm:flex-1 cursor-pointer': true,
-												}">
-												<RadioGroupLabel as="span">{{
-													option.name
-												}}</RadioGroupLabel>
-											</div>
-										</RadioGroupOption>
-									</div>
-								</RadioGroup>
-							</div> -->
+                            <div class="mt-8" v-if="get(selectedNav,'type') == 'group'">
+                                <div class="flex items-center justify-between">
+                                    <h2 class="text-sm font-medium text-gray-900">{{ `Colums tools ${selectedNav.name}`
+                                    }}</h2>
+                                </div>
+                                <div>
+                                    <div class="flex gap-2 mt-2">
+                                        <div style="width:87%;"
+                                            class=" shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-600 sm:max-w-md">
+                                            <input type="text" v-model="selectedNav.name"
+                                                class=" flex-1 border-0 bg-transparent text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6"
+                                                placeholder="title" />
+                                        </div>
+                                        <div>
+
+                                            <button type="submit"  @click.prevent="columItemLinkChange()"
+                                                class="rounded-md cursor-pointer border ring-gray-300 px-3 py-2 text-sm font-semibold text-black shadow-sm ">+</button>
+                                        </div>
+
+                                    </div>
+
+                                    <div  v-for="set in selectedNav.featured" :key="set.id">
+                                        <HyperlinkTools :data="set" :save="EditItemLinkInTools" modelLabel="name" modelLink="link"/>
+                                    </div>
+                                </div>
+
+                            </div>
                         </form>
                     </div>
                     <!-- Image gallery -->
