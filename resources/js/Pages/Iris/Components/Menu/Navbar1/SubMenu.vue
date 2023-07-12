@@ -12,7 +12,10 @@ const props = defineProps<{
     data: Object
     saveSubMenu: Function
     closePopover : Function
+    tool: Object
 }>()
+
+console.log(props)
 </script>
 
 <template>
@@ -22,11 +25,10 @@ const props = defineProps<{
         <div class="relative bg-white">
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div>
-                    <draggable :list="data.featured
-                        " :group="`menu${data.name}`" key="id" class="grid grid-cols-3 gap-x-8 gap-y-4 py-4">
+                    <draggable :list="data.featured"  :disabled="tool.name !== 'grab'" :group="`menu${data.name}`" key="id" class="grid grid-cols-3 gap-x-8 gap-y-4 py-4">
                         <template v-slot:item="{ element: child, index }">
                             <div class="group relative">
-                                <div class="mt-4 block font-medium text-gray-900 p-2">
+                                <div :class="['mt-4', 'block', 'font-medium', 'text-gray-900', 'p-2', tool.name !== 'grab' ? 'cursor-pointer' : 'cursor-grab']">
                                     <span class="absolute inset-0 z-10" aria-hidden="true">
                                         <Hyperlink :data="child" valueKeyLabel="name" valueKeyLink="link" :useDelete="true"
                                             :save="(value)=>saveSubMenu({...value, parentId : data.id })" />

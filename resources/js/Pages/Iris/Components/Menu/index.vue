@@ -1,6 +1,6 @@
 <template>
     <div>
-        <component :is="component[theme]" :navigation="navigation" :saveNav="saveNav" :saveSubMenu="saveSubMenu"/>
+        <component :is="component[theme]" :navigation="navigation" :saveNav="saveNav" :saveSubMenu="saveSubMenu" :tool="tool" :selectedNav="selectedNav" :changeNavActive ="changeNavActive" />
     </div>
 </template>
 
@@ -14,6 +14,9 @@ const props = defineProps<{
     navigation : Object
     saveNav : Function
     saveSubMenu : Function
+    tool:Object
+    selectedNav:Object
+    changeNavActive : Function
   
 }>()
 
