@@ -6,7 +6,9 @@ import { faBars, faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import draggable from "vuedraggable"
 import Input from "../../Fields/Input.vue"
+import Hyperlink from '../../Fields/Hyperlink.vue'
 import SubMenu from "./SubMenu.vue"
+import { get } from 'lodash'
 import { fas } from '@/../private/pro-solid-svg-icons';
 import { fal } from '@/../private/pro-light-svg-icons';
 import { far } from '@/../private/pro-regular-svg-icons';
@@ -29,6 +31,9 @@ const props = defineProps<{
 	navigation: Object
 	saveNav: Function
 	saveSubMenu : Function
+	tool:Object
+	selectedNav : Object
+	changeNavActive : Function
 }>()
 
 const openNav  = ref(null)
@@ -223,36 +228,42 @@ const mobileMenuOpen = ref(false)
 											:list="navigation.categories"
 											group="topMenu"
 											key="id"
+											:disabled="tool.name !== 'grab'"
 											class="flex h-full justify-center space-x-8 align-middle">
 											<template v-slot:item="{ element, index }">
-												<div>
+												<div :class="[get(selectedNav,'id') == element.id ? 'border' : '']" >
 													<div
-														v-if="element.type === 'group'"
-														class="p-2.5">
-														<div :key="element.name" class="flex">
-															<div class="relative flex">
-																<div @click="()=>openNav = element.id"
-																	:class="[openNav == element.id ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-gray-700 hover:text-gray-800', 'cursor-pointer relative z-10 -mb-px flex items-center border-b-2 pt-px text-sm font-medium transition-colors duration-200 ease-out']">
-																	<Input
-																		:data="element"
-																		:keyValue="'name'"
-																		:save="saveNav" />
+															v-if="element.type === 'group'" 
+															class="p-2.5" @click="() => { openNav = element.id, changeNavActive(element) }">
+															<div :key="element.name" class="flex"  >
+																<div class="relative flex">
+																	<div
+																		:class="[openNav == element.id ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-gray-700 hover:text-gray-800', tool.name !== 'grab' ? 'cursor-pointer' : 'cursor-grab', 'relative z-10 -mb-px flex items-center border-b-2 pt-px text-sm font-medium transition-colors duration-200 ease-out']">
+																		<Hyperlink
+																:data="element"
+																valueKeyLabel="name"
+																valueKeyLink="link"
+																:save="(e) => saveNav({ ...e, menuType: 'group' })"
+																:useLink="false"
+																cssClass="flex items-center text-sm font-medium text-gray-700 hover:text-gray-800" />
+																	</div>
 																</div>
-															</div>
 
-															<div v-if="openNav == element.id">
-																<SubMenu :data="element" :saveSubMenu="saveSubMenu" :closePopover="()=>openNav=null"/>
-															</div>
+																<div v-if="openNav == element.id">
+																	<SubMenu :data="element" :saveSubMenu="saveSubMenu" :closePopover="() => { changeNavActive(null), openNav = null }" :tool="tool"/>
+																</div>
 															
+															</div>
 														</div>
-													</div>
 													<div
+													    @click="(e)=> {changeNavActive(element), openNav=null}"
 														v-if="element.type === 'link'"
 														class="p-2.5">
-														<Input
+														<Hyperlink
 															:data="element"
-															:keyValue="'name'"
-															:save="saveNav"
+															valueKeyLabel="name"
+															valueKeyLink="link"
+															:save="(e)=>saveNav({...e,menuType:'link'})"
 															cssClass="flex items-center text-sm font-medium text-gray-700 hover:text-gray-800" />
 													</div>
 												</div>

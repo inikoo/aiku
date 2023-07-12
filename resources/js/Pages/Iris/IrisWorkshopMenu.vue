@@ -240,138 +240,154 @@ const navigation = ref({
 const selectedTheme = ref(Dummy.theme[1])
 const columsTypeTheme = ref(null)
 const handtools = ref(Dummy.tools[0])
+const selectedNav = ref(null)
 
-const saveNav=(value)=>{
-    const index = navigation.value.categories.findIndex((item)=>item.id == value.colum.id)
-    navigation.value.categories[index] = {...navigation.value.categories[index], name : value.value}
+const saveNav = (value) => {
+        const index = navigation.value.categories.findIndex((item) => item.id == value.colum.id)
+        if (value.type == 'name') navigation.value.categories[index] = { ...navigation.value.categories[index], name: value.value }
+        if (value.type == 'link') navigation.value.categories[index] = { ...navigation.value.categories[index], link: value.value }
+        if (value.type == 'delete') navigation.value.categories.splice(index,1)
 }
 
-const saveSubMenu=(value)=>{
-    const index = navigation.value.categories.findIndex((item)=>item.id == value.parentId)
-    const indexSubMenu = navigation.value.categories[index].featured.findIndex((item)=>item.id == value.colum.id)
-    if(value.type == 'name') navigation.value.categories[index].featured[indexSubMenu] = {...navigation.value.categories[index].featured[indexSubMenu], name : value.value}
-    if(value.type == 'link') navigation.value.categories[index].featured[indexSubMenu] = {...navigation.value.categories[index].featured[indexSubMenu], link : value.value}
-    if(value.type == 'delete') navigation.value.categories[index].featured.splice(indexSubMenu,1)
+const saveSubMenu = (value) => {
+    const index = navigation.value.categories.findIndex((item) => item.id == value.parentId)
+    const indexSubMenu = navigation.value.categories[index].featured.findIndex((item) => item.id == value.colum.id)
+    if (value.type == 'name') navigation.value.categories[index].featured[indexSubMenu] = { ...navigation.value.categories[index].featured[indexSubMenu], name: value.value }
+    if (value.type == 'link') navigation.value.categories[index].featured[indexSubMenu] = { ...navigation.value.categories[index].featured[indexSubMenu], link: value.value }
+    if (value.type == 'delete') navigation.value.categories[index].featured.splice(indexSubMenu, 1)
+}
+
+const changeMenuType = (value) => {
+    const index = navigation.value.categories.findIndex(
+        (item) => item.id === selectedNav.value.id
+    );
+
+    if (value.value === 'link' && selectedNav.value.type !== 'link') {
+        navigation.value.categories[index] = {
+            ...navigation.value.categories[index],
+            type: 'link',
+            link: '',
+        };
+    }
+
+    if (value.value === 'group' && selectedNav.value.type !== 'group') {
+        navigation.value.categories[index] = {
+            ...navigation.value.categories[index],
+            type: 'group',
+            featured: [
+                {
+                    name: 'New item',
+                    id: uuidv4(),
+                    link: '#',
+                },
+            ],
+        };
+    }
+};
+
+
+const changeNavActive = (value) => {
+    selectedNav.value = value
 }
 
 </script>
 
 <template>
-	<div class="bg-white">
-		<div class="pb-16 pt-6 sm:pb-24">
-			<div class="mt-8 px-4 sm:px-6 lg:px-8">
-				<div class="flex">
-					<!-- tools -->
-					<div
-						class="w-1/10 p-6 overflow-y-auto overflow-x-hidden"
-						style="border: 1px solid #bfbfbf; height: 46rem">
-						<form>
-							<!-- Color picker -->
-							<div>
-								<h2 class="text-sm font-medium text-gray-900">Tools</h2>
-								<RadioGroup v-model="handtools" class="mt-2">
-									<RadioGroupLabel class="sr-only">Choose a tool</RadioGroupLabel>
-									<div class="flex items-center space-x-3">
-										<RadioGroupOption
-											as="template"
-											v-for="color in Dummy.tools"
-											:key="color.name"
-											:value="color"
-											v-slot="{ active, checked }">
-											<div
-												:class="[
-													color.tools,
-													active && checked ? 'ring ring-offset-1' : '',
-													!active && checked ? 'ring-2' : '',
-													'relative -m-0.5 flex cursor-pointer items-center justify-center rounded-full p-0.5 focus:outline-none',
-												]">
-												<RadioGroupLabel as="span" class="sr-only"
-													>{{ color.name }}
-												</RadioGroupLabel>
-												<span
-													aria-hidden="true"
-													class="flex items-center justify-center">
-													<span
-														class="h-8 w-8 rounded-full border border-black border-opacity-10 flex items-center justify-center">
-														<span style="line-height: 1">
-															<FontAwesomeIcon
-																:icon="color.icon"
-																aria-hidden="true" />
-														</span>
-													</span>
-												</span>
-											</div>
-										</RadioGroupOption>
-									</div>
-								</RadioGroup>
-							</div>
-							<hr class="mt-5" />
-							<!-- Size picker -->
-							<div class="mt-8">
-								<div class="flex items-center justify-between">
-									<h2 class="text-sm font-medium text-gray-900">Theme</h2>
-								</div>
+    <div class="bg-white">
+        <div class="pb-16 pt-6 sm:pb-24">
+            <div class="mt-8 px-4 sm:px-6 lg:px-8">
+                <div class="flex">
+                    <!-- tools -->
+                    <div class="w-1/10 p-6 overflow-y-auto overflow-x-hidden"
+                        style="border: 1px solid #bfbfbf; height: 46rem">
+                        <form>
+                            <!-- Color picker -->
+                            <div>
+                                <h2 class="text-sm font-medium text-gray-900">Tools</h2>
+                                <RadioGroup v-model="handtools" class="mt-2">
+                                    <RadioGroupLabel class="sr-only">Choose a tool</RadioGroupLabel>
+                                    <div class="flex items-center space-x-3">
+                                        <RadioGroupOption as="template" v-for="color in Dummy.tools" :key="color.name"
+                                            :value="color" v-slot="{ active, checked }">
+                                            <div :class="[
+                                                color.tools,
+                                                active && checked ? 'ring ring-offset-1' : '',
+                                                !active && checked ? 'ring-2' : '',
+                                                'relative -m-0.5 flex cursor-pointer items-center justify-center rounded-full p-0.5 focus:outline-none',
+                                            ]">
+                                                <RadioGroupLabel as="span" class="sr-only">{{ color.name }}
+                                                </RadioGroupLabel>
+                                                <span aria-hidden="true" class="flex items-center justify-center">
+                                                    <span
+                                                        class="h-8 w-8 rounded-full border border-black border-opacity-10 flex items-center justify-center">
+                                                        <span style="line-height: 1">
+                                                            <FontAwesomeIcon :icon="color.icon" aria-hidden="true" />
+                                                        </span>
+                                                    </span>
+                                                </span>
+                                            </div>
+                                        </RadioGroupOption>
+                                    </div>
+                                </RadioGroup>
+                            </div>
+                            <hr class="mt-5" />
+                            <!-- Size picker -->
+                            <div class="mt-8">
+                                <div class="flex items-center justify-between">
+                                    <h2 class="text-sm font-medium text-gray-900">Theme</h2>
+                                </div>
 
-								<RadioGroup v-model="selectedTheme" class="mt-2">
-									<div class="grid grid-cols-3 gap-3 sm:grid-cols-2">
-										<RadioGroupOption
-											as="template"
-											v-for="theme in Dummy.theme"
-											:key="theme.name"
-											:value="theme"
-											v-slot="{ active, checked }">
-											<div
-												:class="[
-													'cursor-pointer focus:outline-none',
-													active
-														? 'ring-2 ring-indigo-500 ring-offset-2'
-														: '',
-													checked
-														? 'border-transparent bg-indigo-600 text-white hover:bg-indigo-700'
-														: 'border-gray-200 bg-white text-gray-900 hover:bg-gray-50',
-													'flex items-center justify-center rounded-md border py-3 px-3 text-sm font-medium uppercase sm:flex-1',
-												]">
-												<RadioGroupLabel as="span">{{
-													theme.name
-												}}</RadioGroupLabel>
-											</div>
-										</RadioGroupOption>
-									</div>
-								</RadioGroup>
-							</div>
-							<hr class="mt-5" />
-							<!-- theme -->
-							<div class="mt-8">
-								<div class="flex items-center justify-between">
-									<h2 class="text-sm font-medium text-gray-900">Menu Type</h2>
-								</div>
-								<RadioGroup v-model="columsTypeTheme" class="mt-2">
-									<div class="grid grid-cols-3 gap-3 sm:grid-cols-2">
-										<RadioGroupOption
-											as="template"
-											v-for="option in Dummy.menuType"
-											:key="option.value"
-											:value="option"
-											v-slot="{ active, checked }">
-											<div
-												:class="{
-													'ring-2 ring-indigo-500 ring-offset-2': active,
-													'border-transparent bg-indigo-600 text-white hover:bg-indigo-700':
-														checked == option.value,
-													'border-gray-200 bg-white text-gray-900 hover:bg-gray-50':
-														!checked == option.value,
-													'flex items-center justify-center rounded-md border py-3 px-3 text-sm font-medium uppercase sm:flex-1 cursor-pointer': true,
-												}">
-												<RadioGroupLabel as="span">{{
-													option.name
-												}}</RadioGroupLabel>
-											</div>
-										</RadioGroupOption>
-									</div>
-								</RadioGroup>
-							</div>
-							<!-- Mode -->
-							<div class="mt-8">
+                                <RadioGroup v-model="selectedTheme" class="mt-2">
+                                    <div class="grid grid-cols-3 gap-3 sm:grid-cols-2">
+                                        <RadioGroupOption as="template" v-for="theme in Dummy.theme" :key="theme.name"
+                                            :value="theme" v-slot="{ active, checked }">
+                                            <div :class="[
+                                                'cursor-pointer focus:outline-none',
+                                                active
+                                                    ? 'ring-2 ring-indigo-500 ring-offset-2'
+                                                    : '',
+                                                checked
+                                                    ? 'border-transparent bg-indigo-600 text-white hover:bg-indigo-700'
+                                                    : 'border-gray-200 bg-white text-gray-900 hover:bg-gray-50',
+                                                'flex items-center justify-center rounded-md border py-3 px-3 text-sm font-medium uppercase sm:flex-1',
+                                            ]">
+                                                <RadioGroupLabel as="span">{{
+                                                    theme.name
+                                                }}</RadioGroupLabel>
+                                            </div>
+                                        </RadioGroupOption>
+                                    </div>
+                                </RadioGroup>
+                            </div>
+                            <hr class="mt-5" />
+                            <!-- theme -->
+
+                            <div class="mt-8" v-if="selectedNav !== null">
+                                <div class="flex items-center justify-between">
+                                    <h2 class="text-sm font-medium text-gray-900">Menu Type</h2>
+                                </div>
+                                <RadioGroup class="mt-2">
+                                    <div class="grid grid-cols-3 gap-3 sm:grid-cols-2">
+                                        <RadioGroupOption as="template" v-for="option in Dummy.menuType" :key="option.value"
+                                            :value="option" v-slot="{ active, checked }">
+                                            <div @click="changeMenuType(option)" :class="{
+                                                'cursor-pointer': get(selectedNav, 'type') === option.value && selectedNav !== null,
+                                                'cursor-not-allowed': get(selectedNav, 'type') !== option.value && selectedNav !== null,
+                                                'bg-gray-300 text-gray-600': get(selectedNav, 'type') === option.value && selectedNav !== null, // Apply different class when disabled
+                                                'ring-2 ring-indigo-500 ring-offset-2': active,
+                                                'border-transparent bg-indigo-600 text-white hover:bg-indigo-700': checked && get(selectedNav, 'type') !== option.value && selectedNav !== null,
+                                                'border-gray-200 bg-white text-gray-900 hover:bg-gray-50': !checked && get(selectedNav, 'type') !== option.value && selectedNav !== null,
+                                                'flex items-center justify-center rounded-md border py-3 px-3 text-sm font-medium uppercase sm:flex-1': true
+                                            }">
+                                                <RadioGroupLabel as="span">{{ option.name }}</RadioGroupLabel>
+                                            </div>
+                                        </RadioGroupOption>
+
+                                    </div>
+                                </RadioGroup>
+                            </div>
+                            <!-- Mode -->
+                            <!-- <div class="mt-8">
 								<div class="flex items-center justify-between">
 									<h2 class="text-sm font-medium text-gray-900">Mode</h2>
 								</div>
@@ -399,23 +415,24 @@ const saveSubMenu=(value)=>{
 										</RadioGroupOption>
 									</div>
 								</RadioGroup>
-							</div>
-						</form>
-					</div>
-					<!-- Image gallery -->
-					<div
-						style="
+							</div> -->
+                        </form>
+                    </div>
+                    <!-- Image gallery -->
+                    <div style="
 							width: 90%;
 							background: #f2f2f2;
 							border: 1px solid #bfbfbf;
 							
 						">
-						<div style="transform: scale(0.8); width: 100%">
-							<Menu :theme="selectedTheme.value" :navigation="navigation" :saveNav="saveNav" :saveSubMenu="saveSubMenu" />
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
+                        <div style="transform: scale(0.8); width: 100%">
+                            <Menu :theme="selectedTheme.value" :navigation="navigation" :saveNav="saveNav"
+                                :saveSubMenu="saveSubMenu" :tool="handtools" :selectedNav="selectedNav"
+                                :changeNavActive="changeNavActive" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </template>
