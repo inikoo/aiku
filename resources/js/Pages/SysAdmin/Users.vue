@@ -6,7 +6,6 @@
 
 <script setup lang="ts">
 import {Head} from '@inertiajs/vue3';
-import  PageHeading from '@/Components/Headings/PageHeading.vue'
 import TableUsers from "@/Pages/Tables/TableUsers.vue";
 import Tabs from "@/Components/Navigation/Tabs.vue";
 import {computed, ref} from "vue";
