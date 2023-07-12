@@ -15,7 +15,7 @@
         "@vue/server-renderer": "^3.2.31",
         "autoprefixer": "^10.4.2",
         "axios": "^0.27",
-        "cypress": "^12.11.0",
+        "cypress": "^12.17.1",
         "laravel-vite-plugin": "^0.7.7",
         "lodash": "^4.17.19",
         "postcss": "^8.4.6",
@@ -45,7 +45,7 @@
         "@vue-hero-icons/solid": "^1.7.2",
         "@vueform/multiselect": "^2.6.2",
         "@vuepic/vue-datepicker": "^5.1.1",
-        "firebase": "^9.14.0",
+        "firebase": "^10.0.0",
         "laravel-vue-i18n": "^2.2.2",
         "lodash-es": "^4.17.21",
         "moment": "^2.29.4",
@@ -58,6 +58,6 @@
         "vue-tel-input": "^8.1.1",
         "vue3-popper": "^1.5.0",
         "vuedraggable": "^4.1.0",
-        "vuefire": "^3.1.0"
+        "vuefire": "^3.1.3"
     }
 }
