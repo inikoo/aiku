@@ -8,7 +8,7 @@
 namespace App\Actions\UI\Profile;
 
 use App\Actions\Auth\GroupUser\UpdateGroupUser;
-use App\Actions\WithActionUpdate;
+use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Auth\User\SynchronisableUserFieldsEnum;
 use App\Models\Auth\User;
 use Illuminate\Http\RedirectResponse;

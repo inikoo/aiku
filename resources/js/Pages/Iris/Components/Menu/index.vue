@@ -6,7 +6,7 @@
 
 <script setup lang="ts">
 import Menu1 from './Navbar1/Menu1.vue'
-import Menu2 from './Menu2.vue'
+import Menu2 from './Navbar2/Menu2.vue'
 
 
 const props = defineProps<{

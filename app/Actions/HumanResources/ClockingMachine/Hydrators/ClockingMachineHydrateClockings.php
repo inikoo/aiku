@@ -7,7 +7,7 @@
 
 namespace App\Actions\HumanResources\ClockingMachine\Hydrators;
 
-use App\Actions\WithTenantJob;
+use App\Actions\Traits\WithTenantJob;
 use App\Models\Inventory\WarehouseArea;
 use Lorisleiva\Actions\Concerns\AsAction;
 

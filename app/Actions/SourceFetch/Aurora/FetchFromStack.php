@@ -9,8 +9,8 @@ namespace App\Actions\SourceFetch\Aurora;
 
 use App\Actions\Dispatch\DeliveryNote\DeleteDeliveryNote;
 use App\Actions\Dropshipping\CustomerClient\DeleteCustomerClient;
-use App\Actions\WithTenantsArgument;
-use App\Actions\WithTenantSource;
+use App\Actions\Traits\WithTenantsArgument;
+use App\Actions\Traits\WithTenantSource;
 use App\Models\Dispatch\DeliveryNote;
 use App\Models\Dropshipping\CustomerClient;
 use App\Models\Tenancy\Tenant;

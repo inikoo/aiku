@@ -8,12 +8,12 @@
 namespace App\Actions\Procurement\Marketplace\Agent;
 
 use App\Actions\Procurement\Agent\Hydrators\AgentHydrateUniversalSearch;
-use App\Actions\WithActionUpdate;
+use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Procurement\AgentResource;
 use App\Models\Procurement\Agent;
 use App\Rules\ValidAddress;
-use Lorisleiva\Actions\ActionRequest;
 use Illuminate\Validation\Validator;
+use Lorisleiva\Actions\ActionRequest;
 
 class UpdateMarketplaceAgent
 {

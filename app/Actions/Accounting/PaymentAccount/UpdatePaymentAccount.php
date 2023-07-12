@@ -7,7 +7,7 @@
 
 namespace App\Actions\Accounting\PaymentAccount;
 
-use App\Actions\WithActionUpdate;
+use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Accounting\PaymentAccountResource;
 use App\Models\Accounting\PaymentAccount;
 use Lorisleiva\Actions\ActionRequest;

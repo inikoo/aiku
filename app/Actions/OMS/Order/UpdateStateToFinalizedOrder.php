@@ -8,7 +8,7 @@
 namespace App\Actions\OMS\Order;
 
 use App\Actions\OMS\Order\Traits\HasHydrators;
-use App\Actions\WithActionUpdate;
+use App\Actions\Traits\WithActionUpdate;
 use App\Models\OMS\Order;
 use Illuminate\Validation\ValidationException;
 

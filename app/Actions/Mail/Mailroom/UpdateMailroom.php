@@ -7,7 +7,7 @@
 
 namespace App\Actions\Mail\Mailroom;
 
-use App\Actions\WithActionUpdate;
+use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Mail\MailroomResource;
 use App\Models\Mail\Mailroom;
 use Lorisleiva\Actions\ActionRequest;

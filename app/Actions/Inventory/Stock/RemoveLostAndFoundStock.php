@@ -7,7 +7,7 @@
 
 namespace App\Actions\Inventory\Stock;
 
-use App\Actions\WithActionUpdate;
+use App\Actions\Traits\WithActionUpdate;
 use App\Models\Inventory\LostAndFoundStock;
 use Lorisleiva\Actions\Concerns\AsAction;
 

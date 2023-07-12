@@ -1,11 +1,8 @@
 <script setup lang="ts">
-import { ref, watchEffect } from "vue"
-import { router } from "@inertiajs/vue3"
+import { ref } from "vue"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import { faBars, faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import draggable from "vuedraggable"
-import Input from "../../Fields/Input.vue"
 import Hyperlink from '../../Fields/Hyperlink.vue'
 import SubMenu from "./SubMenu.vue"
 import { get } from 'lodash'
@@ -234,11 +231,10 @@ const mobileMenuOpen = ref(false)
 												<div :class="[get(selectedNav,'id') == element.id ? 'border' : '']" >
 													<div
 															v-if="element.type === 'group'" 
-															class="p-2.5" @click="() => { openNav = element.id, changeNavActive(element) }">
+															class="p-2.5" >
 															<div :key="element.name" class="flex"  >
-																<div class="relative flex">
-																	<div
-																		:class="[openNav == element.id ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-gray-700 hover:text-gray-800', tool.name !== 'grab' ? 'cursor-pointer' : 'cursor-grab', 'relative z-10 -mb-px flex items-center border-b-2 pt-px text-sm font-medium transition-colors duration-200 ease-out']">
+																<div class="relative flex p-2.5" @click="() => { openNav = element.id, changeNavActive(element) }">
+																	<div :class="[openNav == element.id ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-gray-700 hover:text-gray-800', tool.name !== 'grab' ? 'cursor-pointer' : 'cursor-grab', 'relative z-10 -mb-px flex items-center border-b-2 pt-px text-sm font-medium transition-colors duration-200 ease-out']">
 																		<Hyperlink
 																:data="element"
 																valueKeyLabel="name"
@@ -258,7 +254,7 @@ const mobileMenuOpen = ref(false)
 													<div
 													    @click="(e)=> {changeNavActive(element), openNav=null}"
 														v-if="element.type === 'link'"
-														class="p-2.5">
+														class="py-5 px-2.5 ">
 														<Hyperlink
 															:data="element"
 															valueKeyLabel="name"

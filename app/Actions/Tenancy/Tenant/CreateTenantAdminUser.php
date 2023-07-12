@@ -8,7 +8,7 @@
 namespace App\Actions\Tenancy\Tenant;
 
 use App\Actions\SysAdmin\SysUser\StoreSysUser;
-use App\Actions\WithTenantsArgument;
+use App\Actions\Traits\WithTenantsArgument;
 use App\Models\Tenancy\Tenant;
 use Arr;
 use Illuminate\Console\Command;

@@ -7,7 +7,7 @@
 
 namespace App\Actions\Helpers\Barcode;
 
-use App\Actions\WithActionUpdate;
+use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Helpers\BarcodeResource;
 use App\Models\Helpers\Barcode;
 use Lorisleiva\Actions\ActionRequest;

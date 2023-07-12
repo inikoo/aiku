@@ -7,7 +7,7 @@
 
 namespace App\Actions\Tenancy\Tenant\Hydrators;
 
-use App\Actions\WithTenantJob;
+use App\Actions\Traits\WithTenantJob;
 use App\Enums\OMS\Order\OrderStateEnum;
 use App\Models\OMS\Order;
 use App\Models\Tenancy\Tenant;

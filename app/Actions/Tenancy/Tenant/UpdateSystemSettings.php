@@ -7,7 +7,7 @@
 
 namespace App\Actions\Tenancy\Tenant;
 
-use App\Actions\WithActionUpdate;
+use App\Actions\Traits\WithActionUpdate;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateSystemSettings
@@ -35,9 +35,9 @@ class UpdateSystemSettings
     public function rules(): array
     {
         return [
-            'name' => ['sometimes', 'required', 'max:24', 'string'],
-            'google_client_id' => ['sometimes', 'string'],
-            'google_client_secret' => ['sometimes', 'string'],
+            'name'                    => ['sometimes', 'required', 'max:24', 'string'],
+            'google_client_id'        => ['sometimes', 'string'],
+            'google_client_secret'    => ['sometimes', 'string'],
             'google_drive_folder_key' => ['sometimes', 'string']
         ];
     }
@@ -52,11 +52,11 @@ class UpdateSystemSettings
             data_set(
                 $modelData,
                 match ($key) {
-                    'name'  => 'settings.ui.name',
-                    'google_client_id' => 'settings.google.id',
-                    'google_client_secret' => 'settings.google.secret',
+                    'name'                    => 'settings.ui.name',
+                    'google_client_id'        => 'settings.google.id',
+                    'google_client_secret'    => 'settings.google.secret',
                     'google_drive_folder_key' => 'settings.google.drive.folder',
-                    default => $key
+                    default                   => $key
                 },
                 $value
             );

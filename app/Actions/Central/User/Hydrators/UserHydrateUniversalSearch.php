@@ -7,8 +7,8 @@
 
 namespace App\Actions\Central\User\Hydrators;
 
-use App\Actions\WithRoutes;
-use App\Actions\WithTenantJob;
+use App\Actions\Traits\WithRoutes;
+use App\Actions\Traits\WithTenantJob;
 use App\Models\Central\User;
 use Lorisleiva\Actions\Concerns\AsAction;
 

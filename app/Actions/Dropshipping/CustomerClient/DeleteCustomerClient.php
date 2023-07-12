@@ -8,8 +8,8 @@
 namespace App\Actions\Dropshipping\CustomerClient;
 
 use App\Actions\CRM\Customer\Hydrators\CustomerHydrateClients;
-use App\Actions\WithActionUpdate;
-use App\Actions\WithTenantArgument;
+use App\Actions\Traits\WithActionUpdate;
+use App\Actions\Traits\WithTenantArgument;
 use App\Models\Dropshipping\CustomerClient;
 use Illuminate\Console\Command;
 

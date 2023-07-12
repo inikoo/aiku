@@ -7,7 +7,7 @@
 
 namespace App\Actions\Inventory\Location;
 
-use App\Actions\WithActionUpdate;
+use App\Actions\Traits\WithActionUpdate;
 use App\Models\Inventory\Location;
 use Lorisleiva\Actions\ActionRequest;
 

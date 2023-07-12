@@ -15,7 +15,6 @@ const props = defineProps<{
     tool: Object
 }>()
 
-console.log(props)
 </script>
 
 <template>

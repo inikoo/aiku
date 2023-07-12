@@ -7,13 +7,13 @@
 
 namespace App\Actions\Procurement\Agent;
 
+use App\Actions\Procurement\Agent\Hydrators\AgentHydrateUniversalSearch;
+use App\Actions\Traits\WithActionUpdate;
+use App\Http\Resources\Procurement\AgentResource;
+use App\Models\Procurement\Agent;
 use App\Rules\ValidAddress;
 use Illuminate\Validation\Validator;
-use App\Models\Procurement\Agent;
 use Lorisleiva\Actions\ActionRequest;
-use App\Actions\Procurement\Agent\Hydrators\AgentHydrateUniversalSearch;
-use App\Actions\WithActionUpdate;
-use App\Http\Resources\Procurement\AgentResource;
 
 class UpdateAgent
 {

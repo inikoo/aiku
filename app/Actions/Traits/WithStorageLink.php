@@ -5,7 +5,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions;
+namespace App\Actions\Traits;
 
 trait WithStorageLink
 {

@@ -7,10 +7,10 @@
 
 namespace App\Actions\Helpers\CurrencyExchange;
 
-use App\Actions\WithActionUpdate;
+use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Helpers\CurrencyExchange\CurrencyExchangeResource;
-use Lorisleiva\Actions\ActionRequest;
 use App\Models\Helpers\CurrencyExchange as CurrencyExchangeModel;
+use Lorisleiva\Actions\ActionRequest;
 
 class UpdateCurrencyExchange
 {

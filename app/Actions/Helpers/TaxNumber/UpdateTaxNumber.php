@@ -7,7 +7,7 @@
 
 namespace App\Actions\Helpers\TaxNumber;
 
-use App\Actions\WithActionUpdate;
+use App\Actions\Traits\WithActionUpdate;
 use App\Models\Helpers\TaxNumber;
 
 class UpdateTaxNumber

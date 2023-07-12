@@ -7,7 +7,7 @@
 
 namespace App\Actions\Tenancy\Group;
 
-use App\Actions\WithActionUpdate;
+use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Central\Group\GroupResource;
 use App\Models\Tenancy\Group;
 use Lorisleiva\Actions\ActionRequest;

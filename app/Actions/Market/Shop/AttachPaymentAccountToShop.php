@@ -8,7 +8,7 @@
 namespace App\Actions\Market\Shop;
 
 use App\Actions\Market\Shop\Hydrators\ShopHydratePaymentAccounts;
-use App\Actions\WithActionUpdate;
+use App\Actions\Traits\WithActionUpdate;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Market\Shop;
 

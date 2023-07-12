@@ -9,7 +9,7 @@
 namespace App\Actions\Inventory\WarehouseArea;
 
 use App\Actions\Inventory\WarehouseArea\Hydrators\WarehouseAreaHydrateUniversalSearch;
-use App\Actions\WithActionUpdate;
+use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Inventory\WarehouseAreaResource;
 use App\Models\Inventory\WarehouseArea;
 use Lorisleiva\Actions\ActionRequest;

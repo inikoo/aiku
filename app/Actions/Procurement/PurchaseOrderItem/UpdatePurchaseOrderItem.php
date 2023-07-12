@@ -7,7 +7,7 @@
 
 namespace App\Actions\Procurement\PurchaseOrderItem;
 
-use App\Actions\WithActionUpdate;
+use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Procurement\PurchaseOrderResource;
 use App\Models\Procurement\PurchaseOrderItem;
 use Lorisleiva\Actions\ActionRequest;

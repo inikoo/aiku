@@ -8,7 +8,7 @@
 namespace App\Actions\Accounting\Invoice;
 
 use App\Actions\Accounting\Invoice\Hydrators\InvoiceHydrateUniversalSearch;
-use App\Actions\WithActionUpdate;
+use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Accounting\InvoiceResource;
 use App\Models\Accounting\Invoice;
 use Illuminate\Support\Arr;

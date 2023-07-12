@@ -7,7 +7,7 @@
 
 namespace App\Actions\Auth\WebUser;
 
-use App\Actions\WithActionUpdate;
+use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Auth\WebUser\WebUserAuthTypeEnum;
 use App\Models\Auth\WebUser;
 use Illuminate\Support\Arr;

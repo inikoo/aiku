@@ -7,7 +7,7 @@
 
 namespace App\Actions\Market\Product\Hydrators;
 
-use App\Actions\WithTenantJob;
+use App\Actions\Traits\WithTenantJob;
 use App\Models\Market\Product;
 use Lorisleiva\Actions\Concerns\AsAction;
 

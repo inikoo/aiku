@@ -7,7 +7,7 @@
 
 namespace App\Actions\Dropshipping\CustomerClient\Hydrators;
 
-use App\Actions\WithTenantJob;
+use App\Actions\Traits\WithTenantJob;
 use App\Models\Dropshipping\CustomerClient;
 use Lorisleiva\Actions\Concerns\AsAction;
 

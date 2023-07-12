@@ -7,7 +7,7 @@
 
 namespace App\Actions\Maintenance;
 
-use App\Actions\WithTenantsArgument;
+use App\Actions\Traits\WithTenantsArgument;
 use Illuminate\Console\Command;
 use Lorisleiva\Actions\Concerns\AsCommand;
 

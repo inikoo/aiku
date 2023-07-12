@@ -8,7 +8,7 @@
 namespace App\Actions\Procurement\SupplierDeliveryItem;
 
 use App\Actions\Procurement\SupplierDelivery\Traits\HasHydrators;
-use App\Actions\WithActionUpdate;
+use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Procurement\SupplierDeliveryItem\SupplierDeliveryItemStateEnum;
 use App\Models\Procurement\SupplierDeliveryItem;
 use Lorisleiva\Actions\ActionRequest;

@@ -7,7 +7,7 @@
 
 namespace App\Actions\Market\HistoricProduct;
 
-use App\Actions\WithActionUpdate;
+use App\Actions\Traits\WithActionUpdate;
 use App\Models\Market\HistoricProduct;
 
 class UpdateHistoricProduct
