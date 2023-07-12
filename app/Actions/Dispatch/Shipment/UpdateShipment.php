@@ -8,7 +8,7 @@
 namespace App\Actions\Dispatch\Shipment;
 
 use App\Actions\Dispatch\Shipment\Hydrators\ShipmentHydrateUniversalSearch;
-use App\Actions\WithActionUpdate;
+use App\Actions\Traits\WithActionUpdate;
 use App\Models\Dispatch\Shipment;
 
 class UpdateShipment

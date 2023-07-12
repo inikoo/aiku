@@ -34,9 +34,9 @@ class CreateStockFamily extends InertiaAction
             'CreateModel',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(),
-                'title'       => __('new stock family'),
+                'title'       => __('new SKU family'),
                 'pageHead'    => [
-                    'title'        => __('new stock family'),
+                    'title'        => __('new SKU family'),
                     'icon'         => [
                         'title' => __("stock's families"),
                         'icon'  => 'fal fa-boxes-alt'

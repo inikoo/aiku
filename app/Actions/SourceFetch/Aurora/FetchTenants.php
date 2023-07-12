@@ -7,7 +7,7 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-use App\Actions\WithTenantSource;
+use App\Actions\Traits\WithTenantSource;
 use App\Models\Tenancy\Tenant;
 use App\Services\Tenant\SourceTenantService;
 use Illuminate\Console\Command;

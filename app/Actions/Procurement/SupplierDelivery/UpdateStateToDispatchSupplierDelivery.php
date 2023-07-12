@@ -8,7 +8,7 @@
 namespace App\Actions\Procurement\SupplierDelivery;
 
 use App\Actions\Procurement\SupplierDelivery\Traits\HasHydrators;
-use App\Actions\WithActionUpdate;
+use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Procurement\SupplierDelivery\SupplierDeliveryStateEnum;
 use App\Models\Procurement\SupplierDelivery;
 use Illuminate\Validation\ValidationException;

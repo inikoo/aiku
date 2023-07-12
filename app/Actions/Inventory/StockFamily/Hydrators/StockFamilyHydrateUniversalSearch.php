@@ -7,7 +7,7 @@
 
 namespace App\Actions\Inventory\StockFamily\Hydrators;
 
-use App\Actions\WithTenantJob;
+use App\Actions\Traits\WithTenantJob;
 use App\Models\Inventory\StockFamily;
 use Lorisleiva\Actions\Concerns\AsAction;
 

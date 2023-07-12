@@ -11,7 +11,7 @@ import TableFilter from '@/Components/Table/TableFilter.vue';
 import TableSearchRows from '@/Components/Table/TableSearchRows.vue';
 import SearchReset from '@/Components/Table/SearchReset.vue';
 import Button from '@/Components/Elements/Buttons/Button.vue';
-import EmptyState from '@/Components/Common/EmptyState.vue'
+import EmptyState from '@/Components/Utils/EmptyState.vue'
 import { Link } from "@inertiajs/vue3"
 
 import { computed, onMounted, ref, watch, onUnmounted, getCurrentInstance, Transition } from 'vue';

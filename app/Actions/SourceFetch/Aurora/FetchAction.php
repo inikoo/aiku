@@ -8,8 +8,8 @@
 namespace App\Actions\SourceFetch\Aurora;
 
 use App\Actions\Auth\GroupUser\UpdateGroupUser;
-use App\Actions\WithTenantsArgument;
-use App\Actions\WithTenantSource;
+use App\Actions\Traits\WithTenantsArgument;
+use App\Actions\Traits\WithTenantSource;
 use App\Models\Market\Shop;
 use App\Models\Media\GroupMedia;
 use App\Models\Tenancy\Tenant;

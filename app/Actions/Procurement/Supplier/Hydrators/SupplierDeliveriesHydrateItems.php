@@ -7,7 +7,7 @@
 
 namespace App\Actions\Procurement\Supplier\Hydrators;
 
-use App\Actions\WithTenantJob;
+use App\Actions\Traits\WithTenantJob;
 use App\Enums\Procurement\SupplierDelivery\SupplierDeliveryStateEnum;
 use App\Enums\Procurement\SupplierDeliveryItem\SupplierDeliveryItemStateEnum;
 use App\Models\Procurement\SupplierDelivery;

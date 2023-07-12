@@ -7,7 +7,7 @@
 
 namespace App\Actions\Procurement\Supplier\Hydrators;
 
-use App\Actions\WithTenantJob;
+use App\Actions\Traits\WithTenantJob;
 use App\Models\Procurement\Supplier;
 use Lorisleiva\Actions\Concerns\AsAction;
 

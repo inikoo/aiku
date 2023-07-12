@@ -7,7 +7,7 @@
 
 namespace App\Actions\Auth\GroupUser;
 
-use App\Actions\WithActionUpdate;
+use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Auth\User\SynchronisableUserFieldsEnum;
 use App\Enums\Auth\User\UserAuthTypeEnum;
 use App\Models\Auth\GroupUser;

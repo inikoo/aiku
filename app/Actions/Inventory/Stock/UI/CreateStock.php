@@ -23,7 +23,6 @@ class CreateStock extends InertiaAction
         return $request->user()->can('inventory.stocks.edit');
     }
 
-
     public function inStockFamily(StockFamily $stockFamily, ActionRequest $request): Response
     {
         $this->initialisation($request);

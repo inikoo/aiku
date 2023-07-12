@@ -7,7 +7,7 @@
 
 namespace App\Actions\Utils;
 
-use App\Actions\WithActionUpdate;
+use App\Actions\Traits\WithActionUpdate;
 use App\Models\Auth\Guest;
 use App\Models\CRM\Customer;
 use App\Models\Goods\TradeUnit;

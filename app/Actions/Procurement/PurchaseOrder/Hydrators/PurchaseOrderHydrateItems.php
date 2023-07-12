@@ -7,7 +7,7 @@
 
 namespace App\Actions\Procurement\PurchaseOrder\Hydrators;
 
-use App\Actions\WithTenantJob;
+use App\Actions\Traits\WithTenantJob;
 use App\Models\Procurement\PurchaseOrder;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Lorisleiva\Actions\Concerns\AsAction;

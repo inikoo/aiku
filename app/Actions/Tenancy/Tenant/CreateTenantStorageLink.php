@@ -9,8 +9,8 @@
 
 namespace App\Actions\Tenancy\Tenant;
 
-use App\Actions\WithStorageLink;
-use App\Actions\WithTenantsArgument;
+use App\Actions\Traits\WithStorageLink;
+use App\Actions\Traits\WithTenantsArgument;
 use Illuminate\Console\Command;
 use Lorisleiva\Actions\Concerns\AsAction;
 

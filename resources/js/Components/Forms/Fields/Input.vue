@@ -17,9 +17,9 @@ const props = defineProps<{
     fieldName: string,
     options?: any,
     fieldData?: {
-        placeholder: string
-        readonly: boolean
-        copyButton: boolean
+        placeholder?: string
+        readonly?: boolean
+        copyButton?: boolean
     }
 }>()
 

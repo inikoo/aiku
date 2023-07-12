@@ -7,7 +7,7 @@
 
 namespace App\Actions\Procurement\Supplier\Hydrators;
 
-use App\Actions\WithTenantJob;
+use App\Actions\Traits\WithTenantJob;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Procurement\PurchaseOrderItem\PurchaseOrderItemStateEnum;
 use App\Models\Procurement\PurchaseOrder;

@@ -7,7 +7,7 @@
 
 namespace App\Actions\Mail\Outbox;
 
-use App\Actions\WithActionUpdate;
+use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Mail\OutboxResource;
 use App\Models\Mail\Outbox;
 use Lorisleiva\Actions\ActionRequest;

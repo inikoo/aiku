@@ -8,8 +8,8 @@
 namespace App\Actions\Auth\WebUser;
 
 use App\Actions\CRM\Customer\Hydrators\CustomerHydrateWebUsers;
-use App\Actions\WithActionUpdate;
-use App\Actions\WithTenantArgument;
+use App\Actions\Traits\WithActionUpdate;
+use App\Actions\Traits\WithTenantArgument;
 use App\Models\Auth\WebUser;
 use Illuminate\Console\Command;
 

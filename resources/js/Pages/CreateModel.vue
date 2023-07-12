@@ -18,7 +18,9 @@ const props = defineProps<{
     title: string,
     pageHead: object,
     formData: {
-        blueprint: object;
+        blueprint: {
+            item?: any
+        };
         route: {
             name: string,
             arguments?: Array<string>

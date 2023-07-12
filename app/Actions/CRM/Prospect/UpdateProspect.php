@@ -8,7 +8,7 @@
 namespace App\Actions\CRM\Prospect;
 
 use App\Actions\CRM\Prospect\Hydrators\ProspectHydrateUniversalSearch;
-use App\Actions\WithActionUpdate;
+use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Lead\ProspectResource;
 use App\Models\CRM\Prospect;
 use Lorisleiva\Actions\ActionRequest;

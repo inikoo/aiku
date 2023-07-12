@@ -8,7 +8,7 @@
 namespace App\Actions\Auth\User;
 
 use App\Actions\Auth\GroupUser\UpdateGroupUser;
-use App\Actions\WithActionUpdate;
+use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Auth\User\SynchronisableUserFieldsEnum;
 use App\Http\Resources\SysAdmin\UserResource;
 use App\Models\Auth\User;

@@ -8,7 +8,7 @@
 namespace App\Actions\CRM\Customer;
 
 use App\Actions\CRM\Customer\Hydrators\CustomerHydrateUniversalSearch;
-use App\Actions\WithActionUpdate;
+use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Sales\CustomerResource;
 use App\Models\CRM\Customer;
 use Illuminate\Support\Arr;

@@ -7,7 +7,7 @@
 
 namespace App\Actions\Procurement\SupplierDeliveryItem;
 
-use App\Actions\WithActionUpdate;
+use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Procurement\SupplierDeliveryItemResource;
 use App\Models\Procurement\SupplierDeliveryItem;
 use Lorisleiva\Actions\ActionRequest;

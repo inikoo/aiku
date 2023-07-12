@@ -7,7 +7,7 @@
 
 namespace App\Actions\Web\Website\Hydrators;
 
-use App\Actions\WithTenantJob;
+use App\Actions\Traits\WithTenantJob;
 use App\Models\Web\Website;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -24,10 +24,10 @@ class WebsiteHydrateWebpages implements ShouldBeUnique
         ];
 
 
-        $website->stats()->update($stats);
+        $website->webStats()->update($stats);
     }
 
-    public function getJobUniqueId(Shop $website): string
+    public function getJobUniqueId(Website $website): string
     {
         return $website->id;
     }

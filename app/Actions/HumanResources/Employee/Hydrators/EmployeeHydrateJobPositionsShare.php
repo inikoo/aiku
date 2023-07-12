@@ -8,7 +8,7 @@
 namespace App\Actions\HumanResources\Employee\Hydrators;
 
 use App\Actions\Traits\WithNormalise;
-use App\Actions\WithTenantJob;
+use App\Actions\Traits\WithTenantJob;
 use App\Models\HumanResources\Employee;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Lorisleiva\Actions\Concerns\AsAction;

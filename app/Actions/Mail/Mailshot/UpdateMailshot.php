@@ -7,7 +7,7 @@
 
 namespace App\Actions\Mail\Mailshot;
 
-use App\Actions\WithActionUpdate;
+use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Mail\MailshotResource;
 use App\Models\Mail\Mailshot;
 use Lorisleiva\Actions\ActionRequest;

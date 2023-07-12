@@ -8,7 +8,7 @@
 namespace App\Actions\HumanResources\Clocking;
 
 use App\Actions\HumanResources\Clocking\Hydrators\ClockingHydrateUniversalSearch;
-use App\Actions\WithActionUpdate;
+use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Inventory\LocationResource;
 use App\Models\HumanResources\Clocking;
 use Lorisleiva\Actions\ActionRequest;

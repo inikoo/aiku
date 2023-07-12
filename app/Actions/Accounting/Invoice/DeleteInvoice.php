@@ -8,7 +8,7 @@
 namespace App\Actions\Accounting\Invoice;
 
 use App\Actions\CRM\Customer\Hydrators\CustomerHydrateInvoices;
-use App\Actions\WithActionUpdate;
+use App\Actions\Traits\WithActionUpdate;
 use App\Models\Accounting\Invoice;
 
 class DeleteInvoice

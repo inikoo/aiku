@@ -8,7 +8,7 @@
 namespace App\Actions\Procurement\Agent;
 
 use App\Actions\Procurement\Agent\Hydrators\AgentHydrateUniversalSearch;
-use App\Actions\WithActionUpdate;
+use App\Actions\Traits\WithActionUpdate;
 use App\Models\Procurement\Agent;
 use App\Models\Tenancy\Tenant;
 

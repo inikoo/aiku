@@ -7,7 +7,7 @@
 
 namespace App\Actions\Fulfilment\FulfilmentOrder;
 
-use App\Actions\WithActionUpdate;
+use App\Actions\Traits\WithActionUpdate;
 use App\Models\Fulfilment\FulfilmentOrder;
 use App\Models\Tenancy\Tenant;
 use Illuminate\Console\Command;

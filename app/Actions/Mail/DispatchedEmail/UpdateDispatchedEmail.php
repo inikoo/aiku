@@ -7,7 +7,7 @@
 
 namespace App\Actions\Mail\DispatchedEmail;
 
-use App\Actions\WithActionUpdate;
+use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Mail\DispatchedEmailResource;
 use App\Models\Mail\DispatchedEmail;
 use Lorisleiva\Actions\ActionRequest;

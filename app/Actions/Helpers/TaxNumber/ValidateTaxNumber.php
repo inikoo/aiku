@@ -7,7 +7,7 @@
 
 namespace App\Actions\Helpers\TaxNumber;
 
-use App\Actions\WithTenantArgument;
+use App\Actions\Traits\WithTenantArgument;
 use App\Enums\Helpers\TaxNumber\TaxNumberTypeEnum;
 use App\Models\Helpers\TaxNumber;
 use Illuminate\Console\Command;

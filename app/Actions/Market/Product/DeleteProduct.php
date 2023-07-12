@@ -8,7 +8,7 @@
 namespace App\Actions\Market\Product;
 
 use App\Actions\Market\Shop\Hydrators\ShopHydrateProducts;
-use App\Actions\WithActionUpdate;
+use App\Actions\Traits\WithActionUpdate;
 use App\Models\Market\Product;
 use App\Models\Market\Shop;
 use App\Models\Tenancy\Tenant;

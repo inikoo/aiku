@@ -7,7 +7,7 @@
 
 namespace App\Actions\Web\Website;
 
-use App\Actions\WithActionUpdate;
+use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Web\WebsiteResource;
 use App\Models\Market\Shop;
 use App\Models\Web\Website;

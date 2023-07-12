@@ -5,20 +5,36 @@ import { faLink, faEdit, faTrash } from "@/../private/pro-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
 library.add(faLink, faEdit, faTrash)
-const props = defineProps<{
-    data: Object
-    save: Function
-	valueKeyLabel : String
-	valueKeyLink : String
-	useDelete :{
-		type: Boolean,
-        default: true
-	}
-	cssClass : {
-		type : string,
-		default: ''
-	}
-}>()
+const props = defineProps({
+  data: {
+    type: Object,
+    default: () => ({})
+  },
+  save: {
+    type: Function,
+    default: () => {}
+  },
+  valueKeyLabel: {
+    type: String,
+    default: ''
+  },
+  valueKeyLink: {
+    type: String,
+    default: ''
+  },
+  useDelete: {
+    type: Boolean,
+    default: true
+  },
+  useLink: {
+    type: Boolean,
+    default: true
+  },
+  cssClass: {
+    type: String,
+    default: ''
+  }
+});
 
 const editMode = ref({ edit : false, type : null})
 const inputValueName = ref(props.data[props.valueKeyLabel])
@@ -60,6 +76,7 @@ onMounted(() => {
   }
 })
 
+
 </script>
 <template>
 	<template v-if="!editMode.edit">
@@ -82,19 +99,19 @@ onMounted(() => {
 							<div class="relative gridbg-white lg:grid-cols-2">
 								<div
 									class="flex items-center space-x-2 p-2 transition duration-150 ease-in-out hover:bg-gray-100 focus:outline-none focus-visible:ring focus-visible:ring-orange-500 focus-visible:ring-opacity-50">
-									<div
+									<div v-if="useLink"
                                     @click="changeEditMode('link')"
-										class="flex-shrink-0 h-10 w-10 sm:h-12 sm:w-12 bg-gray-200 border border-gray-300 rounded-md flex items-center justify-center">
+										class="flex-shrink-0 h-10 w-10 sm:h-12 sm:w-12 bg-gray-200 border border-gray-300 rounded-md flex items-center justify-center" >
 										<FontAwesomeIcon icon="fa-link" />
 									</div>
-									<div
+									<div 
 										@click="changeEditMode('name')"
-										class="flex-shrink-0 h-10 w-10 sm:h-12 sm:w-12 bg-gray-200 border border-gray-300 rounded-md flex items-center justify-center">
+										class="flex-shrink-0 h-10 w-10 sm:h-12 sm:w-12 bg-gray-200 border border-gray-300 rounded-md flex items-center justify-center" style="color: black;">
 										<FontAwesomeIcon :icon="['fas', 'edit']" />
 									</div>
 									<div v-if="useDelete"
 										@click="changeEditMode('delete')"
-										class="flex-shrink-0 h-10 w-10 sm:h-12 sm:w-12 bg-gray-200 border border-gray-300 text-red rounded-md flex items-center justify-center">
+										class="flex-shrink-0 h-10 w-10 sm:h-12 sm:w-12 bg-gray-200 border border-gray-300 text-red rounded-md flex items-center justify-center" style="color: black;">
 										<font-awesome-icon :icon="['fass', 'trash']" />
 									</div>
 								</div>
@@ -106,7 +123,7 @@ onMounted(() => {
 		</div>
 	</template>
 	<template v-else>
-		<input ref="inputRef" @blur="handleInputBlur" class="w-full border" v-model="propsInput.model" :placeholder="propsInput.placeholder"/>
+		<input ref="inputRef" @blur="handleInputBlur" class="w-full border" v-model="propsInput.model" :placeholder="propsInput.placeholder" style="color: black;"/>
 	</template>
 </template>
 

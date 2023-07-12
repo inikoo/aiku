@@ -7,7 +7,7 @@
 
 namespace App\Actions\Market\Shop\Hydrators;
 
-use App\Actions\WithTenantJob;
+use App\Actions\Traits\WithTenantJob;
 use App\Enums\Market\Product\ProductStateEnum;
 use App\Models\Market\Product;
 use App\Models\Market\Shop;

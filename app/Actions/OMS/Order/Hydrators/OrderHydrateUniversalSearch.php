@@ -7,7 +7,7 @@
 
 namespace App\Actions\OMS\Order\Hydrators;
 
-use App\Actions\WithTenantJob;
+use App\Actions\Traits\WithTenantJob;
 use App\Models\OMS\Order;
 use Lorisleiva\Actions\Concerns\AsAction;
 
