@@ -24,10 +24,10 @@ class WebsiteHydrateWebpages implements ShouldBeUnique
         ];
 
 
-        $website->stats()->update($stats);
+        $website->webStats()->update($stats);
     }
 
-    public function getJobUniqueId(Shop $website): string
+    public function getJobUniqueId(Website $website): string
     {
         return $website->id;
     }
