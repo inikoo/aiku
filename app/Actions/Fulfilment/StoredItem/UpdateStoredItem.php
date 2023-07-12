@@ -7,9 +7,9 @@
 
 namespace App\Actions\Fulfilment\StoredItem;
 
-use App\Actions\Fulfilment\FulfilmentOrderItem\StoredItemHydrateUniversalSearch;
-use App\Actions\Fulfilment\FulfilmentOrderItem\StoredItemResource;
+use App\Actions\Fulfilment\StoredItem\Hydrators\StoredItemHydrateUniversalSearch;
 use App\Actions\Traits\WithActionUpdate;
+use App\Http\Resources\Fulfilment\StoredItemResource;
 use App\Models\Fulfilment\StoredItem;
 use Lorisleiva\Actions\ActionRequest;
 
