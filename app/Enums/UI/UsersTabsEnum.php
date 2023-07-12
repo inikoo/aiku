@@ -23,7 +23,7 @@ enum UsersTabsEnum: string
         return match ($this) {
             UsersTabsEnum::USERS => [
                 'title' => __('users'),
-                'icon'  => 'fal fa-users',
+                'icon'  => 'fal fa-terminal',
             ],
             UsersTabsEnum::USERS_REQUESTS => [
                 'title' => __('users requests'),
