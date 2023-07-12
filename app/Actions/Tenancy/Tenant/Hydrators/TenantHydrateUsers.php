@@ -7,11 +7,11 @@
 
 namespace App\Actions\Tenancy\Tenant\Hydrators;
 
+use App\Enums\Auth\User\UserTypeEnum;
 use App\Models\Auth\User;
 use App\Models\Tenancy\Tenant;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class TenantHydrateUsers implements ShouldBeUnique
@@ -24,7 +24,6 @@ class TenantHydrateUsers implements ShouldBeUnique
         $numberUsers       = User::count();
         $numberActiveUsers = User::where('status', true)->count();
 
-
         $stats = [
             'number_users'                 => $numberUsers,
             'number_users_status_active'   => $numberActiveUsers,
@@ -32,22 +31,11 @@ class TenantHydrateUsers implements ShouldBeUnique
 
         ];
 
-
-        foreach (
-            ['employee', 'guest', 'supplier', 'agent', 'customer']
-            as $userType
-        ) {
-            $stats['number_users_type_'.$userType] = 0;
-        }
-
-        foreach (
-            DB::connection('tenant')->table('users')
-                ->selectRaw('LOWER(parent_type) as parent_type, count(*) as total')
-                ->where('status', true)
-                ->groupBy('parent_type')
-                ->get() as $row
-        ) {
-            $stats['number_users_type_'.$row->parent_type] = Arr::get($row->total, $row->parent_type, 0);
+        $statusCounts = User::selectRaw('type, count(*) as total')
+            ->groupBy('type')
+            ->pluck('total', 'type')->all();
+        foreach (UserTypeEnum::cases() as $userType) {
+            $stats['number_users_type_'.$userType->snake()] = Arr::get($statusCounts, $userType->value, 0);
         }
 
         $tenant->stats->update($stats);

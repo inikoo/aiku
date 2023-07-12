@@ -5,6 +5,8 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
+use App\Enums\Auth\User\UserTypeEnum;
+use App\Enums\HumanResources\Employee\EmployeeStateEnum;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -17,9 +19,9 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('tenant_id');
             $table->foreign('tenant_id')->references('id')->on('public.tenants')->onUpdate('cascade')->onDelete('cascade');
             $table->unsignedSmallInteger('number_employees')->default(0);
-            $employeeStates = ['hired', 'working', 'left'];
-            foreach ($employeeStates as $employeeState) {
-                $table->unsignedSmallInteger('number_employees_state_'.$employeeState)->default(0);
+
+            foreach (EmployeeStateEnum::cases() as $employeeState) {
+                $table->unsignedSmallInteger('number_shops_state_'.$employeeState->snake())->default(0);
             }
 
             $table->unsignedSmallInteger('number_guests')->default(0);
@@ -30,9 +32,9 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('number_users_status_active')->default(0);
             $table->unsignedSmallInteger('number_users_status_inactive')->default(0);
 
-            $userTypes = ['tenant', 'employee', 'guest', 'supplier', 'agent', 'customer'];
-            foreach ($userTypes as $userType) {
-                $table->unsignedSmallInteger('number_users_type_'.$userType)->default(0);
+
+            foreach (UserTypeEnum::cases() as $userType) {
+                $table->unsignedSmallInteger('number_users_type_'.$userType->snake())->default(0);
             }
 
             $table->unsignedSmallInteger('number_images')->default(0);

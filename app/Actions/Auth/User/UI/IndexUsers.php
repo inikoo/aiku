@@ -10,6 +10,7 @@ namespace App\Actions\Auth\User\UI;
 use App\Actions\Auth\UserRequest\IndexUserRequestLogs;
 use App\Actions\InertiaAction;
 use App\Actions\UI\SysAdmin\SysAdminDashboard;
+use App\Enums\Auth\User\UserTypeEnum;
 use App\Enums\UI\UsersTabsEnum;
 use App\Http\Resources\SysAdmin\UserRequestLogsResource;
 use App\Http\Resources\SysAdmin\UserResource;
@@ -18,7 +19,6 @@ use App\Models\Auth\User;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -33,7 +33,17 @@ class IndexUsers extends InertiaAction
             [
                 'status' => [
                     'label'    => __('Status'),
-                    'elements' => ['active' => __('Active'), 'suspended' => __('Suspended')],
+                    'elements' => [
+                        'active'    =>
+                            [
+                                __('Active'),
+                                app('currentTenant')->stats->number_users_status_active
+                            ],
+                        'suspended' => [
+                            __('Suspended'),
+                            app('currentTenant')->stats->number_users_status_inactive
+                        ]
+                    ],
                     'engine'   => function ($query, $elements) {
                         $query->where('status', array_pop($elements) === 'active');
                     }
@@ -41,16 +51,13 @@ class IndexUsers extends InertiaAction
                 ],
                 'type'   => [
                     'label'    => __('Type'),
-                    'elements' => ['employee' => __('Employee'), 'guest' => __('Guest')],
+                    'elements' => array_merge_recursive(
+                        UserTypeEnum::labels(),
+                        UserTypeEnum::count()
+                    ),
                     'engine'   => function ($query, $elements) {
-                        $query->whereIn(
-                            'parent_type',
-                            Arr::map($elements, function (string $value, string $key) {
-                                return ucfirst($value);
-                            })
-                        );
+                        $query->whereIn('type', $elements);
                     }
-
                 ],
             ];
     }
@@ -72,7 +79,8 @@ class IndexUsers extends InertiaAction
         }
 
 
-        $queryBuilder = QueryBuilder::for(User::class);
+        $queryBuilder = QueryBuilder::for(User::class)
+            ->whereNotNull('type');
         foreach ($this->elementGroups as $key => $elementGroup) {
             $queryBuilder->whereElementGroup(
                 prefix: $prefix,
@@ -145,10 +153,7 @@ class IndexUsers extends InertiaAction
         return Inertia::render(
             'SysAdmin/Users',
             [
-                'breadcrumbs' => $this->getBreadcrumbs(
-                    $request->route()->getName(),
-                    $request->route()->parameters
-                ),
+                'breadcrumbs' => $this->getBreadcrumbs($request->route()->getName()),
                 'title'       => __('users'),
 
                 'labels' => [
@@ -184,7 +189,7 @@ class IndexUsers extends InertiaAction
         return $this->handle(prefix: 'users');
     }
 
-    public function getBreadcrumbs(string $routeName, array $routeParameters): array
+    public function getBreadcrumbs(string $routeName): array
     {
         $headCrumb = function (array $routeParameters = []) {
             return [

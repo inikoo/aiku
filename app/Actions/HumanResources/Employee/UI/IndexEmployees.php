@@ -48,7 +48,6 @@ class IndexEmployees extends InertiaAction
                     'engine'   => function ($query, $elements) {
                         $query->whereIn('type', $elements);
                     }
-
                 ],
             ];
     }

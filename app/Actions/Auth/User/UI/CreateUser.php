@@ -19,14 +19,11 @@ class CreateUser extends InertiaAction
         return Inertia::render(
             'CreateModel',
             [
-                'breadcrumbs' => $this->getBreadcrumbs(
-                    $request->route()->getName(),
-                    $request->route()->parameters
-                ),
+                'breadcrumbs' => $this->getBreadcrumbs($request->route()->getName()),
                 'title'       => __('new user'),
                 'pageHead'    => [
-                    'title'        => __('new user'),
-                    'actions'      => [
+                    'title'   => __('new user'),
+                    'actions' => [
                         [
                             'type'  => 'button',
                             'style' => 'cancel',
@@ -38,7 +35,7 @@ class CreateUser extends InertiaAction
                         ]
                     ]
                 ],
-                'formData' => [
+                'formData'    => [
                     'blueprint' => [
                         [
                             'title'  => __('create marketplace agent'),
@@ -49,12 +46,12 @@ class CreateUser extends InertiaAction
                                     'label' => __('username'),
                                     'value' => ''
                                 ],
-                                'name' => [
+                                'name'     => [
                                     'type'  => 'input',
                                     'label' => __('name'),
                                     'value' => ''
                                 ],
-                                'type' => [
+                                'type'     => [
                                     'type'  => 'input',
                                     'label' => __('type'),
                                     'value' => ''
@@ -62,8 +59,8 @@ class CreateUser extends InertiaAction
                             ]
                         ]
                     ],
-                    'route'      => [
-                        'name'       => 'models.user.update',
+                    'route'     => [
+                        'name' => 'models.user.update',
                     ]
                 ],
 
@@ -85,13 +82,10 @@ class CreateUser extends InertiaAction
         return $this->handle($request);
     }
 
-    public function getBreadcrumbs(string $routeName, array $routeParameters): array
+    public function getBreadcrumbs(string $routeName): array
     {
         return array_merge(
-            IndexUsers::make()->getBreadcrumbs(
-                routeName: preg_replace('/create$/', 'index', $routeName),
-                routeParameters: $routeParameters,
-            ),
+            IndexUsers::make()->getBreadcrumbs(routeName: preg_replace('/create$/', 'index', $routeName)),
             [
                 [
                     'type'          => 'creatingModel',

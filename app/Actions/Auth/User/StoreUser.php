@@ -54,6 +54,12 @@ class StoreUser
 
             ];
 
+            $type=match (class_basename($parent)) {
+                'Guest','Employee','Supplier','Agent'=>strtolower(class_basename($parent)),
+                default=> null
+            };
+
+            data_set($objectData, 'type', $type);
 
             $user = $parent->user()->create(
                 array_merge($objectData, $dataFromGroupUser)
@@ -76,8 +82,8 @@ class StoreUser
         }
 
         $groupUser->refresh();
-        TenantHydrateUsers::run($tenant);
-        GroupUserHydrateTenants::run($groupUser);
+        TenantHydrateUsers::dispatch($tenant);
+        GroupUserHydrateTenants::dispatch($groupUser);
 
 
         return $user;
