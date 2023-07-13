@@ -29,7 +29,7 @@ class WebBlockSeeder extends Seeder
                 $webBlockType = StoreWebBlockType::run(Arr::except($webBlockTypeData, 'webBlocks'));
             }
             foreach (Arr::get($webBlockTypeData, 'webBlocks', []) as $webBlockData) {
-                $webBlock = $webBlockType->webBlock()->where('code', Arr::get($webBlockData, 'code'))->first();
+                $webBlock = $webBlockType->webBlocks()->where('code', Arr::get($webBlockData, 'code'))->first();
                 if ($webBlock) {
                     UpdateWebBlock::run($webBlock, $webBlockData);
                 } else {
