@@ -1,7 +1,6 @@
 {
-    "code": "footer",
+    "slug": "footer",
     "name": "Website footer",
-    "class": "footer",
     "data": {
         "defaultParameters": {
             "navigations": [

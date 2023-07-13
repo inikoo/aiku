@@ -1,7 +1,6 @@
 {
-    "code": "picture",
+    "slug": "picture",
     "name": "Picture",
-    "class": "picture",
     "data": {
         "defaultParameters": {},
         "dummyData": {

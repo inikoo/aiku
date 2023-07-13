@@ -1,7 +1,6 @@
 {
-    "code": "header",
+    "slug": "header",
     "name": "Website header",
-    "class": "header",
     "data": {
         "defaultParameters": {
             "navigation": {

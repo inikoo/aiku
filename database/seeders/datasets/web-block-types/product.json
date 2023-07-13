@@ -1,7 +1,6 @@
 {
-    "code": "product",
+    "slug": "product",
     "name": "Product showcase",
-    "class": "product",
     "data": {
         "defaultParameters": {}
     },
