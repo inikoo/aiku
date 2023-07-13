@@ -1,5 +1,5 @@
 <script setup>
-import { ref , watch } from 'vue'
+import { ref , watch ,watchEffect } from 'vue'
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { RadioGroup, RadioGroupLabel, RadioGroupOption } from '@headlessui/vue'
 import Menu from './Components/Menu/index.vue'
@@ -242,25 +242,67 @@ const columsTypeTheme = ref(null)
 const handtools = ref(Dummy.tools[0])
 const selectedNav = ref(null)
 
-watch(selectedNav, (newValue) => {
-    console.log(newValue)
-    selectedNav.value = {...newValue}
-})
+
+const setselectedNav = (value) => {
+  selectedNav.value = {...value};
+  console.log(selectedNav.value);
+};
 
 const saveNav = (value) => {
-        const index = navigation.value.categories.findIndex((item) => item.id == value.colum.id)
-        if (value.type == 'name') navigation.value.categories[index] = { ...navigation.value.categories[index], name: value.value }
-        if (value.type == 'link') navigation.value.categories[index] = { ...navigation.value.categories[index], link: value.value }
-        if (value.type == 'delete') navigation.value.categories.splice(index,1)
-}
+  const index = navigation.value.categories.findIndex((item) => item.id === value.colum.id);
+
+  if (index !== -1) {
+    if (value.type === 'name') {
+      navigation.value.categories[index] = { ...navigation.value.categories[index], name: value.value };
+      setselectedNav(navigation.value.categories[index]);
+    } else if (value.type === 'link') {
+      navigation.value.categories[index] = { ...navigation.value.categories[index], link: value.value };
+      setselectedNav(navigation.value.categories[index]);
+    } else if (value.type === 'delete') {
+      if (selectedNav.value && selectedNav.value.id === value.colum.id) {
+        setselectedNav(null);
+      }
+      navigation.value.categories.splice(index, 1);
+    }
+  } else {
+    console.log('Navigation item not found');
+  }
+};
+
+// Usage example:
+
+
+// Watch for changes in selectedNav for debugging purposes
+watchEffect(() => {
+  console.log('selectedNav:', selectedNav.value);
+});
+
 
 const saveSubMenu = (value) => {
-    const index = navigation.value.categories.findIndex((item) => item.id == value.parentId)
-    const indexSubMenu = navigation.value.categories[index].featured.findIndex((item) => item.id == value.colum.id)
-    if (value.type == 'name') navigation.value.categories[index].featured[indexSubMenu] = { ...navigation.value.categories[index].featured[indexSubMenu], name: value.value }
-    if (value.type == 'link') navigation.value.categories[index].featured[indexSubMenu] = { ...navigation.value.categories[index].featured[indexSubMenu], link: value.value }
-    if (value.type == 'delete') navigation.value.categories[index].featured.splice(indexSubMenu, 1)
-}
+  const index = navigation.value.categories.findIndex((item) => item.id === value.parentId);
+  
+  if (index !== -1) {
+    const indexSubMenu = navigation.value.categories[index].featured.findIndex((item) => item.id === value.colum.id);
+    
+    if (indexSubMenu !== -1) {
+      if (value.type === 'name') {
+        navigation.value.categories[index].featured[indexSubMenu] = { ...navigation.value.categories[index].featured[indexSubMenu], name: value.value };
+        setselectedNav(null);
+      } else if (value.type === 'link') {
+        navigation.value.categories[index].featured[indexSubMenu] = { ...navigation.value.categories[index].featured[indexSubMenu], link: value.value };
+        setselectedNav(null);
+      } else if (value.type === 'delete') {
+        navigation.value.categories[index].featured.splice(indexSubMenu, 1);
+        setselectedNav(null);
+      }
+    } else {
+      console.log('Submenu item not found');
+    }
+  } else {
+    console.log('Navigation item not found');
+  }
+};
+
 
 const changeMenuType = (value) => {
     const index = navigation.value.categories.findIndex(
