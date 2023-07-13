@@ -1,6 +1,6 @@
 
 <script setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { RadioGroup, RadioGroupLabel, RadioGroupOption } from '@headlessui/vue'
 import Footer from './Components/Footer/index.vue'
@@ -218,9 +218,8 @@ const socials = ref([
 const columSelected = ref(navigations.value[0]);
 
 const selectedColums = (value) => {
-    columSelected.value = value
+    columSelected.value = {...value}
 }
-
 
 const handleColumsTypeChange = (value) => {
     if (value.title !== columSelected.value.type) {
@@ -228,15 +227,16 @@ const handleColumsTypeChange = (value) => {
         let indexColums = navigations.value.findIndex((item) => item.id === columSelected.value.id);
         const data = { ...DummyColums[indexDummy], id: uuidv4() }
         navigations.value[indexColums] = data
+        selectedColums(data)
     } else { cosnole.log('salah') }
 
 }
-
 
 const saveItemTitle = (value) => {
     const indexNavigation = navigations.value.findIndex((item) => item.id == value.colum.id)
     const data = { ...navigations.value[indexNavigation], title: value.value }
     navigations.value[indexNavigation] = data
+    selectedColums(data)
 }
 
 const saveTextArea = (value) => {
@@ -246,16 +246,17 @@ const saveTextArea = (value) => {
 }
 
 const saveLink = (value) => {
+    console.log('fsf')
     const indexNavigation = navigations.value.findIndex((item) => item.id == value.parentId)
     const indexChildData = navigations.value[indexNavigation].data.findIndex((item) => item.id == value.colum.id)
     if (value.type !== 'delete') {
         let set = value.type == 'name' ? { name: value.value } : { href: value.value }
         const data = { ...navigations.value[indexNavigation].data[indexChildData], ...set }
         navigations.value[indexNavigation].data[indexChildData] = data
+        selectedColums(data)
     } else if (value.type == 'delete') {
         navigations.value[indexNavigation].data.splice(indexChildData, 1)
-    }
-
+    } 
 }
 
 const saveInfo = (value) => {
@@ -264,6 +265,7 @@ const saveInfo = (value) => {
     let set = value.type == 'value' ? { value: value.value } : { icon: value.value }
     const data = { ...navigations.value[indexNavigation].data[indexChildData], ...set }
     navigations.value[indexNavigation].data[indexChildData] = data
+    selectedColums(navigations.value[indexNavigation].data[indexChildData])
 }
 
 
@@ -279,7 +281,7 @@ const columItemLinkChange = (value) => {
             id: uuidv4(),
         })
     }
-    navigations.value = data
+    navigations.value = data  
 }
 
 const copyRightSave = (value) => {
