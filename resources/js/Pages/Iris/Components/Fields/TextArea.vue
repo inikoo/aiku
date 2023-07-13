@@ -24,7 +24,7 @@ const changeEditMode = () => {
 
 const handleInputBlur = () => {
   editMode.value = false
-  props.save({colum : {...props.data}, value :inputValue.value })
+  props.save({column : {...props.data}, value :inputValue.value })
 }
 
 onMounted(() => {
