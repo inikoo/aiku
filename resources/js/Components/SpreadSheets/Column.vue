@@ -7,7 +7,7 @@
 <script setup lang="ts">
 import { ref, onBeforeMount, watch, onMounted, onUnmounted } from 'vue';
 import Popper from "vue3-popper";
-import SettingColums from './settingColums.vue';
+import SettingColums from './SettingColums.vue';
 import { faEllipsisV } from '@/../private/pro-regular-svg-icons';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
