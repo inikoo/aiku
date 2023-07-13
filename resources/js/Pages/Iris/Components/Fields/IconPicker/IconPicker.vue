@@ -66,7 +66,7 @@ const tabs = [
       glyph.replace(/f.. fa-/g, '').replace('-', ' ')
 
     const insert = () => {
-      props.save({colum : {...props.data}, value : activeGlyph})
+      props.save({column : {...props.data}, value : activeGlyph})
       isVisible.value = false
     }
 

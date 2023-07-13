@@ -233,14 +233,14 @@ const handleColumsTypeChange = (value) => {
 }
 
 const saveItemTitle = (value) => {
-    const indexNavigation = navigations.value.findIndex((item) => item.id == value.colum.id)
+    const indexNavigation = navigations.value.findIndex((item) => item.id == value.column.id)
     const data = { ...navigations.value[indexNavigation], title: value.value }
     navigations.value[indexNavigation] = data
     selectedColums(data)
 }
 
 const saveTextArea = (value) => {
-    const indexNavigation = navigations.value.findIndex((item) => item.id == value.colum.id)
+    const indexNavigation = navigations.value.findIndex((item) => item.id == value.column.id)
     const data = { ...navigations.value[indexNavigation], data: value.value }
     navigations.value[indexNavigation] = data
 }
@@ -248,7 +248,7 @@ const saveTextArea = (value) => {
 const saveLink = (value) => {
     console.log('fsf')
     const indexNavigation = navigations.value.findIndex((item) => item.id == value.parentId)
-    const indexChildData = navigations.value[indexNavigation].data.findIndex((item) => item.id == value.colum.id)
+    const indexChildData = navigations.value[indexNavigation].data.findIndex((item) => item.id == value.column.id)
     if (value.type !== 'delete') {
         let set = value.type == 'name' ? { name: value.value } : { href: value.value }
         const data = { ...navigations.value[indexNavigation].data[indexChildData], ...set }
@@ -261,7 +261,7 @@ const saveLink = (value) => {
 
 const saveInfo = (value) => {
     const indexNavigation = navigations.value.findIndex((item) => item.id == value.parentId)
-    const indexChildData = navigations.value[indexNavigation].data.findIndex((item) => item.id == value.colum.id)
+    const indexChildData = navigations.value[indexNavigation].data.findIndex((item) => item.id == value.column.id)
     let set = value.type == 'value' ? { value: value.value } : { icon: value.value }
     const data = { ...navigations.value[indexNavigation].data[indexChildData], ...set }
     navigations.value[indexNavigation].data[indexChildData] = data
@@ -290,7 +290,7 @@ const copyRightSave = (value) => {
 }
 
 const saveSocialmedia = (value) => {
-    const index = socials.value.findIndex((item) => item.id == value.colum.id)
+    const index = socials.value.findIndex((item) => item.id == value.column.id)
     if (value.type == 'save') {
         const data = { ...socials.value[index], ...value.value }
         socials.value[index] = data
@@ -414,7 +414,7 @@ const EditItemLinkInTools = (value, type) => {
                                     </div>
                                 </RadioGroup>
                             </div>
-                            <!-- colum tools list -->
+                            <!-- column tools list -->
                             <div class="mt-8" v-if="get(columSelected,'type') == 'list'">
                                 <div class="flex items-center justify-between">
                                     <h2 class="text-sm font-medium text-gray-900">{{ `Colums tools ${columSelected.title}`
@@ -442,7 +442,7 @@ const EditItemLinkInTools = (value, type) => {
                                 </div>
 
                             </div>
-                            <!-- colum tools info-->
+                            <!-- column tools info-->
                             <div class="mt-8" v-if="get(columSelected,'type')== 'info'">
                                 <div class="flex items-center justify-between">
                                     <h2 class="text-sm font-medium text-gray-900">{{ `Colums tools ${columSelected.title}`

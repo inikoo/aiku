@@ -22,10 +22,10 @@ class WebBlockSeeder extends Seeder
     {
         foreach (Storage::disk('datasets')->files('web-block-types') as $file) {
             $webBlockTypeData = json_decode(Storage::disk('datasets')->get($file), true);
-
-            $webBlockType = WebBlockType::where('code', $webBlockTypeData['code'])->first();
+            $webBlockType     = WebBlockType::where('code', $webBlockTypeData['code'])->first();
             if ($webBlockType) {
                 UpdateWebBlockType::run($webBlockType, Arr::except($webBlockTypeData, 'webBlocks'));
+
             } else {
                 $webBlockType = StoreWebBlockType::run(Arr::except($webBlockTypeData, 'webBlocks'));
             }
