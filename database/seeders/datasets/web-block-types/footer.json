@@ -6,125 +6,102 @@
         "defaultParameters": {
             "navigations": [
                 {
-                    "title": "solutions",
-                    "data": [
-                        {
-                            "name": "Marketing",
-                            "href": "#"
-                        },
-                        {
-                            "name": "Analytics",
-                            "href": "#"
-                        },
-                        {
-                            "name": "Commerce",
-                            "href": "#"
-                        },
-                        {
-                            "name": "Insights",
-                            "href": "#"
-                        }
-                    ]
-                },
-                {
-                    "title": "support",
-                    "data": [
-                        {
-                            "name": "Pricing",
-                            "href": "#"
-                        },
-                        {
-                            "name": "Documentation",
-                            "href": "#"
-                        },
-                        {
-                            "name": "Guides",
-                            "href": "#"
-                        },
-                        {
-                            "name": "API Status",
-                            "href": "#"
-                        }
-                    ]
-                },
-                {
                     "title": "company",
+                    "type": "list",
+                    "id": 1,
                     "data": [
-                        {
-                            "name": "About",
-                            "href": "#"
-                        },
-                        {
-                            "name": "Blog",
-                            "href": "#"
-                        },
-                        {
-                            "name": "Jobs",
-                            "href": "#"
-                        },
-                        {
-                            "name": "Press",
-                            "href": "#"
-                        },
-                        {
-                            "name": "Partners",
-                            "href": "#"
-                        }
-                    ]
+                        { "name": "About", "href": "#", "id": 1 },
+                        { "name": "Blog", "href": "#", "id": 2 },
+                        { "name": "Jobs", "href": "#", "id": 3 },
+                        { "name": "Press", "href": "#", "id": 4 },
+                        { "name": "Partners", "href": "#", "id": 5 }
+                    ],
                 },
                 {
                     "title": "legal",
+                    "type": "list",
+                    "id": 2,
+                    "data": [
+                        { "name": "Claim", "href": "#", "id": 1 },
+                        { "name": "Privacy", "href": "#", "id": 2 },
+                        { "name": "Terms", "href": "#", "id": 3 }
+                    ],
+                },
+                {
+                    "title": "Description",
+                    "type": "description",
+                    "id": 3,
+                    "data": "Lorem Ipsum is simply dummy te printernto electronic setting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum."
+                },
+                {
+                    "title": "Info",
+                    "type": "info",
+                    "id": 4,
                     "data": [
                         {
-                            "name": "Claim",
-                            "href": "#"
+                            "title": "location",
+                            "value": "Ancient Wisdom s.r.o.",
+                            "icon": "fas fa-map-marker-alt",
+                            "id": 1
                         },
                         {
-                            "name": "Privacy",
-                            "href": "#"
+                            "title": "billingAddress",
+                            "value": "Billin",
+                            "icon": "fas fa-map",
+                            "id": 2
                         },
                         {
-                            "name": "Terms",
-                            "href": "#"
+                            "title": "vat",
+                            "value": "VAT: SK2120525440",
+                            "icon": "fas fa-balance-scale",
+                            "id": 3
+                        },
+                        {
+                            "title": "building",
+                            "value": "Reg: 50920600",
+                            "icon": "fas fa-building",
+                            "id": 4
+                        },
+                        {
+                            "title": "phone",
+                            "value": "+421 (0)33 558 60 71",
+                            "icon": "fas fa-phone",
+                            "id": 5
+                        },
+                        {
+                            "title": "email",
+                            "value": "contact@awgifts.eu",
+                            "icon": "fas fa-envelope",
+                            "id": 6
                         }
                     ]
                 }
             ],
+            "copyRight": { "label": "AW Advantage", "href": "#" },
             "socials": [
                 {
-                    "title": "Facebook",
-                    "icon": [
-                        "fab",
-                        "fa-facebook"
-                    ]
+                    "label": "Facebook",
+                    "href": "#facebook",
+                    "icon": "fab fa-facebook",
+                    "id": 1
                 },
                 {
-                    "title": "Instagram",
-                    "icon": [
-                        "fab",
-                        "fa-instagram"
-                    ]
+                    "label": "Instagram",
+                    "href": "#instagram",
+                    "icon": "fab fa-instagram",
+                    "id": 2
                 },
                 {
-                    "title": "Twitter",
-                    "icon": [
-                        "fab",
-                        "fa-twitter"
-                    ]
+                    "label": "Twitter",
+                    "href": "#twitter",
+                    "icon": "fab fa-twitter",
+                    "id": 3
                 },
                 {
-                    "title": "Github",
-                    "icon": [
-                        "fab",
-                        "fa-github"
-                    ]
-                },
-                {
-                    "title": "Youtube",
-                    "icon": [
-                        "fab",
-                        "fa-youtube"
-                    ]
+                    "label": "Github",
+                    "href": "#github",
+                    "icon": "fab fa-github",
+                    "id": 4
                 }
             ]
         }
