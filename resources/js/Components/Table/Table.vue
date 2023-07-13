@@ -13,7 +13,7 @@ import SearchReset from '@/Components/Table/SearchReset.vue';
 import Button from '@/Components/Elements/Buttons/Button.vue';
 import EmptyState from '@/Components/Utils/EmptyState.vue'
 import { Link } from "@inertiajs/vue3"
-import { trans, loadLanguageAsync, getActiveLanguage  } from 'laravel-vue-i18n'
+import { trans } from 'laravel-vue-i18n'
 
 import { computed, onMounted, ref, watch, onUnmounted, getCurrentInstance, Transition } from 'vue';
 import qs from 'qs';
@@ -25,7 +25,6 @@ import isEqual from 'lodash-es/isEqual';
 import map from 'lodash-es/map';
 
 import {useLocaleStore} from '@/Stores/locale.js';
-console.log(getActiveLanguage())
 const locale = useLocaleStore();
 
 const props = defineProps(
@@ -573,7 +572,7 @@ const handleElementsChange = (data) => {
                     <div class="flex border border-indigo-100 rounded-md">
                         <div class="grid justify-end items-center text-base font-normal text-gray-700"
                             title="Results">
-                            <div v-if="resourceMeta.total" class="px-2 ">{{ locale.number(resourceMeta.total) }} {{ trans('record') }} {{ resourceMeta.total > 1 ? trans('records') : trans('record') }}</div>
+                            <div v-if="resourceMeta.total" class="px-2 ">{{ locale.number(resourceMeta.total) }} {{ resourceMeta.total > 1 ? trans('records') : trans('record') }}</div>
                             <div v-else class="px-2 ">{{ locale.number(0) }} {{ trans('record') }}</div>
                         </div>
                         <!-- Button -->
