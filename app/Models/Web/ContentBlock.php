@@ -7,8 +7,8 @@
 
 namespace App\Models\Web;
 
-use App\Actions\Helpers\ReadableRandomStringGenerator;
 use App\Actions\Utils\Abbreviate;
+use App\Actions\Utils\ReadableRandomStringGenerator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;

@@ -7,8 +7,8 @@
 
 namespace App\Models\CRM;
 
-use App\Actions\Helpers\ReadableRandomStringGenerator;
 use App\Actions\Utils\Abbreviate;
+use App\Actions\Utils\ReadableRandomStringGenerator;
 use App\Enums\CRM\Prospect\ProspectStateEnum;
 use App\Models\Helpers\Address;
 use App\Models\Market\Shop;
