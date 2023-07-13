@@ -244,14 +244,8 @@ const selectedNav = ref(null)
 
 
 const setselectedNav = (value) => {
-  console.log('sfsef', value);
-  selectedNav.value = value; // Reset the selectedNav value
+  selectedNav.value = {...value};
   console.log(selectedNav.value);
-  
-  // Force an update using watchEffect
-  watchEffect(() => {
-    selectedNav.value = value;
-  });
 };
 
 const saveNav = (value) => {
@@ -275,6 +269,14 @@ const saveNav = (value) => {
   }
 };
 
+// Usage example:
+
+
+// Watch for changes in selectedNav for debugging purposes
+watchEffect(() => {
+  console.log('selectedNav:', selectedNav.value);
+});
+
 
 const saveSubMenu = (value) => {
   const index = navigation.value.categories.findIndex((item) => item.id === value.parentId);
@@ -285,13 +287,13 @@ const saveSubMenu = (value) => {
     if (indexSubMenu !== -1) {
       if (value.type === 'name') {
         navigation.value.categories[index].featured[indexSubMenu] = { ...navigation.value.categories[index].featured[indexSubMenu], name: value.value };
-        setselectedNav(navigation.value.categories[index]);
+        setselectedNav(null);
       } else if (value.type === 'link') {
         navigation.value.categories[index].featured[indexSubMenu] = { ...navigation.value.categories[index].featured[indexSubMenu], link: value.value };
-        setselectedNav({ ...navigation.value.categories[index] });
+        setselectedNav(null);
       } else if (value.type === 'delete') {
         navigation.value.categories[index].featured.splice(indexSubMenu, 1);
-        setselectedNav({ ...navigation.value.categories[index] });
+        setselectedNav(null);
       }
     } else {
       console.log('Submenu item not found');
@@ -352,7 +354,6 @@ const EditItemLinkInTools = (value,type) => {
 
 <template>
     <div class="bg-white">
-    {{ selectedNav }}
         <div class="pb-16 pt-6 sm:pb-24">
             <div class="mt-8 px-4 sm:px-6 lg:px-8">
                 <div class="flex">
