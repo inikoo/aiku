@@ -9,7 +9,7 @@ import { getDatabase, ref as dbRef, set, onValue, get } from 'firebase/database'
 import { initializeApp } from "firebase/app"
 import serviceAccount from "@/../private/firebase/aiku-firebase.json"
 import { usePage } from "@inertiajs/vue3";
-import ColumsComponents from './Colums.vue';
+import ColumsComponents from './Column.vue';
 
 
 library.add(faSave, faPlus);
