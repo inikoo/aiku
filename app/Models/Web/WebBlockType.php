@@ -57,7 +57,7 @@ class WebBlockType extends Model
 
     protected $guarded = [];
 
-    public function webBlock(): HasMany
+    public function webBlocks(): HasMany
     {
         return $this->hasMany(WebBlock::class);
     }
