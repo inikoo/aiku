@@ -575,7 +575,7 @@ const handleElementsChange = (data) => {
                             <div v-else class="px-2 ">{{ locale.number(0) }} {{ $t('record') }}</div>
                         </div>
                         <!-- Button -->
-                        <div v-if="queryBuilderProps.modelOperations?.createLink">
+                        <div v-if="queryBuilderProps.modelOperations.createLink">
                             <Link :href="route(queryBuilderProps.modelOperations.createLink.route.name, queryBuilderProps.modelOperations.createLink.route.parameters[0])">
                                 <!--suppress HtmlWrongAttributeValue -->
                                 <Button :style="`create`" action="create"  class="capitalize">
@@ -683,6 +683,8 @@ const handleElementsChange = (data) => {
 
                                             ]">
                                             <slot :name="`cell(${column.key})`" :item="item">
+                                                <img v-if="column.key === 'avatar'" :src="`/media/group/${item[column.key]}`" class="w-5 rounded-full" alt="avatar"/>
+                                                <div v-else class="text-gray-500">{{ item[column.key] }}</div>
                                             </slot>
                                         </td>
                                     </tr>
