@@ -6,12 +6,13 @@
 
 <script setup lang="ts">
 import {ref} from "vue";
-import { capitalize } from "@/Composables/capitalize"
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faRoad } from "@/../private/pro-solid-svg-icons"
-import { faPoop, faPaperclip } from "@/../private/pro-light-svg-icons"
-import { library } from '@fortawesome/fontawesome-svg-core'
-library.add(faRoad, faPoop, faPaperclip)
+import {capitalize} from "@/Composables/capitalize"
+import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome'
+import {faInfoCircle} from "@/../private/pro-solid-svg-icons"
+import {faRoad, faClock, faDatabase} from "@/../private/pro-light-svg-icons"
+import {library} from '@fortawesome/fontawesome-svg-core'
+
+library.add(faInfoCircle, faRoad, faClock, faDatabase)
 
 
 const props = defineProps<{
@@ -39,7 +40,7 @@ const tabIconClass = function (current, type, align, extraClass) {
 </script>
 
 <template>
-    <div >
+    <div>
         <div class="sm:hidden">
             <label for="tabs" class="sr-only">Select a tab</label>
             <!-- Use an "onChange" listener to redirect the user to the selected tab URL. -->
@@ -49,7 +50,7 @@ const tabIconClass = function (current, type, align, extraClass) {
         </div>
         <div class="hidden sm:block">
             <div class="border-b border-gray-200 flex">
-                
+
                 <!-- Left section -->
                 <nav class="-mb-px flex grow space-x-6 ml-4" aria-label="Tabs">
                     <template v-for="(tab, tabSlug) in navigation" :key="tabSlug">

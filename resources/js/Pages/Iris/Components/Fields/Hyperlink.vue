@@ -45,7 +45,7 @@ const propsInput = ref({ model: inputValueName, class: 'w-full border', placehol
 const changeEditMode = (name) => {
 
 	if (name == 'delete') {
-		props.save({colum : {...props.data}, value : '' , type : 'delete' })
+		props.save({column : {...props.data}, value : '' , type : 'delete' })
 	} else {
 		editMode.value = { edit: true, type: name };
 
@@ -66,7 +66,7 @@ const changeEditMode = (name) => {
 
 
 const handleInputBlur = () => {
-  props.save({colum : {...props.data}, value :editMode.value.type == 'name' ? inputValueName.value : inputValueLink.value   , type : editMode.value.type })
+  props.save({column : {...props.data}, value :editMode.value.type == 'name' ? inputValueName.value : inputValueLink.value   , type : editMode.value.type })
   editMode.value = { edit : false, type : null}
 }
 

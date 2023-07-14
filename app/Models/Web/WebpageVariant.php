@@ -11,6 +11,7 @@ use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Carbon;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
@@ -71,5 +72,11 @@ class WebpageVariant extends Model
     public function getRouteKeyName(): string
     {
         return 'slug';
+    }
+
+    public function contentBlocks(): BelongsToMany
+    {
+        return $this->belongsToMany(ContentBlock::class)->using(ContentBlockWebpageVariant::class)
+            ->withTimestamps()->withPivot(['position']);
     }
 }

@@ -1,7 +1,6 @@
 {
-    "code": "footer",
+    "slug": "footer",
     "name": "Website footer",
-    "class": "footer",
     "data": {
         "defaultParameters": {
             "navigations": [
@@ -15,7 +14,7 @@
                         { "name": "Jobs", "href": "#", "id": 3 },
                         { "name": "Press", "href": "#", "id": 4 },
                         { "name": "Partners", "href": "#", "id": 5 }
-                    ],
+                    ]
                 },
                 {
                     "title": "legal",
@@ -25,7 +24,7 @@
                         { "name": "Claim", "href": "#", "id": 1 },
                         { "name": "Privacy", "href": "#", "id": 2 },
                         { "name": "Terms", "href": "#", "id": 3 }
-                    ],
+                    ]
                 },
                 {
                     "title": "Description",

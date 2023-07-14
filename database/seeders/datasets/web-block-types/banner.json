@@ -1,7 +1,6 @@
 {
-    "code": "banner",
+    "slug": "banner",
     "name": "Banner",
-    "class": "banner",
     "data": {
         "defaultParameters": {},
         "dummyData": {

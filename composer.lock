@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "43294eb8f6c92c7a2c2d4aa44761f410",
+    "content-hash": "255d1cbfa7d6972ba975e6166232a23e",
     "packages": [
         {
             "name": "amrshawky/currency",
@@ -247,16 +247,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.275.0",
+            "version": "3.275.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "a0dfb094d3f94da2ebc86ed9583e14fdc9000f06"
+                "reference": "bbdf8e8d5df0b44ee83d5a751f316fc9f9dd2849"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/a0dfb094d3f94da2ebc86ed9583e14fdc9000f06",
-                "reference": "a0dfb094d3f94da2ebc86ed9583e14fdc9000f06",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/bbdf8e8d5df0b44ee83d5a751f316fc9f9dd2849",
+                "reference": "bbdf8e8d5df0b44ee83d5a751f316fc9f9dd2849",
                 "shasum": ""
             },
             "require": {
@@ -336,9 +336,9 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.275.0"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.275.3"
             },
-            "time": "2023-06-29T19:21:55+00:00"
+            "time": "2023-07-05T18:22:08+00:00"
         },
         {
             "name": "aws/aws-sdk-php-laravel",
@@ -6838,16 +6838,16 @@
         },
         {
             "name": "nesbot/carbon",
-            "version": "2.67.0",
+            "version": "2.68.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/briannesbitt/Carbon.git",
-                "reference": "c1001b3bc75039b07f38a79db5237c4c529e04c8"
+                "reference": "4f991ed2a403c85efbc4f23eb4030063fdbe01da"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/briannesbitt/Carbon/zipball/c1001b3bc75039b07f38a79db5237c4c529e04c8",
-                "reference": "c1001b3bc75039b07f38a79db5237c4c529e04c8",
+                "url": "https://api.github.com/repos/briannesbitt/Carbon/zipball/4f991ed2a403c85efbc4f23eb4030063fdbe01da",
+                "reference": "4f991ed2a403c85efbc4f23eb4030063fdbe01da",
                 "shasum": ""
             },
             "require": {
@@ -6936,7 +6936,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-05-25T22:09:47+00:00"
+            "time": "2023-06-20T18:29:04+00:00"
         },
         {
             "name": "nette/schema",
@@ -9556,16 +9556,16 @@
         },
         {
             "name": "sentry/sentry-laravel",
-            "version": "3.6.0",
+            "version": "3.6.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/getsentry/sentry-laravel.git",
-                "reference": "6aacef4d12c22046f68ab617ee1496b9655b8eb9"
+                "reference": "eb94a52b88794d0c108dc46ca1a680531c3a8bad"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/getsentry/sentry-laravel/zipball/6aacef4d12c22046f68ab617ee1496b9655b8eb9",
-                "reference": "6aacef4d12c22046f68ab617ee1496b9655b8eb9",
+                "url": "https://api.github.com/repos/getsentry/sentry-laravel/zipball/eb94a52b88794d0c108dc46ca1a680531c3a8bad",
+                "reference": "eb94a52b88794d0c108dc46ca1a680531c3a8bad",
                 "shasum": ""
             },
             "require": {
@@ -9630,7 +9630,7 @@
             ],
             "support": {
                 "issues": "https://github.com/getsentry/sentry-laravel/issues",
-                "source": "https://github.com/getsentry/sentry-laravel/tree/3.6.0"
+                "source": "https://github.com/getsentry/sentry-laravel/tree/3.6.1"
             },
             "funding": [
                 {
@@ -9642,7 +9642,7 @@
                     "type": "custom"
                 }
             ],
-            "time": "2023-06-29T10:31:13+00:00"
+            "time": "2023-07-04T10:30:42+00:00"
         },
         {
             "name": "setasign/fpdi",
@@ -10178,16 +10178,16 @@
         },
         {
             "name": "spatie/laravel-multitenancy",
-            "version": "3.0.2",
+            "version": "3.0.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/spatie/laravel-multitenancy.git",
-                "reference": "961da73ccd4d8c5a4c36a80476e7cebed7cb8776"
+                "reference": "d5aaa4c7fefc5c579e441ae922208b98418bec46"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/spatie/laravel-multitenancy/zipball/961da73ccd4d8c5a4c36a80476e7cebed7cb8776",
-                "reference": "961da73ccd4d8c5a4c36a80476e7cebed7cb8776",
+                "url": "https://api.github.com/repos/spatie/laravel-multitenancy/zipball/d5aaa4c7fefc5c579e441ae922208b98418bec46",
+                "reference": "d5aaa4c7fefc5c579e441ae922208b98418bec46",
                 "shasum": ""
             },
             "require": {
@@ -10241,7 +10241,7 @@
             ],
             "support": {
                 "issues": "https://github.com/spatie/laravel-multitenancy/issues",
-                "source": "https://github.com/spatie/laravel-multitenancy/tree/3.0.2"
+                "source": "https://github.com/spatie/laravel-multitenancy/tree/3.0.3"
             },
             "funding": [
                 {
@@ -10253,7 +10253,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-02-09T09:02:18+00:00"
+            "time": "2023-06-30T09:01:21+00:00"
         },
         {
             "name": "spatie/laravel-options",
@@ -10389,16 +10389,16 @@
         },
         {
             "name": "spatie/laravel-permission",
-            "version": "5.10.1",
+            "version": "5.10.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/spatie/laravel-permission.git",
-                "reference": "d08b3ffc5870cce4a47a39f22174947b33c191ae"
+                "reference": "671e46e079cbd4990a98427daaa09f4977b57ca9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/spatie/laravel-permission/zipball/d08b3ffc5870cce4a47a39f22174947b33c191ae",
-                "reference": "d08b3ffc5870cce4a47a39f22174947b33c191ae",
+                "url": "https://api.github.com/repos/spatie/laravel-permission/zipball/671e46e079cbd4990a98427daaa09f4977b57ca9",
+                "reference": "671e46e079cbd4990a98427daaa09f4977b57ca9",
                 "shasum": ""
             },
             "require": {
@@ -10459,7 +10459,7 @@
             ],
             "support": {
                 "issues": "https://github.com/spatie/laravel-permission/issues",
-                "source": "https://github.com/spatie/laravel-permission/tree/5.10.1"
+                "source": "https://github.com/spatie/laravel-permission/tree/5.10.2"
             },
             "funding": [
                 {
@@ -10467,7 +10467,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-04-12T17:08:32+00:00"
+            "time": "2023-07-04T13:38:13+00:00"
         },
         {
             "name": "spatie/laravel-query-builder",
@@ -14462,22 +14462,22 @@
         },
         {
             "name": "composer/class-map-generator",
-            "version": "1.0.0",
+            "version": "1.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/composer/class-map-generator.git",
-                "reference": "1e1cb2b791facb2dfe32932a7718cf2571187513"
+                "reference": "953cc4ea32e0c31f2185549c7d216d7921f03da9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/class-map-generator/zipball/1e1cb2b791facb2dfe32932a7718cf2571187513",
-                "reference": "1e1cb2b791facb2dfe32932a7718cf2571187513",
+                "url": "https://api.github.com/repos/composer/class-map-generator/zipball/953cc4ea32e0c31f2185549c7d216d7921f03da9",
+                "reference": "953cc4ea32e0c31f2185549c7d216d7921f03da9",
                 "shasum": ""
             },
             "require": {
-                "composer/pcre": "^2 || ^3",
+                "composer/pcre": "^2.1 || ^3.1",
                 "php": "^7.2 || ^8.0",
-                "symfony/finder": "^4.4 || ^5.3 || ^6"
+                "symfony/finder": "^4.4 || ^5.3 || ^6 || ^7"
             },
             "require-dev": {
                 "phpstan/phpstan": "^1.6",
@@ -14515,7 +14515,7 @@
             ],
             "support": {
                 "issues": "https://github.com/composer/class-map-generator/issues",
-                "source": "https://github.com/composer/class-map-generator/tree/1.0.0"
+                "source": "https://github.com/composer/class-map-generator/tree/1.1.0"
             },
             "funding": [
                 {
@@ -14531,7 +14531,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-06-19T11:31:27+00:00"
+            "time": "2023-06-30T13:58:57+00:00"
         },
         {
             "name": "composer/pcre",
@@ -15459,29 +15459,29 @@
         },
         {
             "name": "pestphp/pest",
-            "version": "v2.8.1",
+            "version": "v2.8.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/pestphp/pest.git",
-                "reference": "cd823193cc8a68b77146387b8f5dd65ef0470d62"
+                "reference": "a1208b5876525d309ee8d39c83870fca60d1a0ac"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/pestphp/pest/zipball/cd823193cc8a68b77146387b8f5dd65ef0470d62",
-                "reference": "cd823193cc8a68b77146387b8f5dd65ef0470d62",
+                "url": "https://api.github.com/repos/pestphp/pest/zipball/a1208b5876525d309ee8d39c83870fca60d1a0ac",
+                "reference": "a1208b5876525d309ee8d39c83870fca60d1a0ac",
                 "shasum": ""
             },
             "require": {
-                "brianium/paratest": "^7.2.0",
-                "nunomaduro/collision": "^7.6.0",
+                "brianium/paratest": "^7.2.2",
+                "nunomaduro/collision": "^7.7.0",
                 "nunomaduro/termwind": "^1.15.1",
                 "pestphp/pest-plugin": "^2.0.1",
                 "pestphp/pest-plugin-arch": "^2.2.1",
                 "php": "^8.1.0",
-                "phpunit/phpunit": "^10.2.2"
+                "phpunit/phpunit": "^10.2.3"
             },
             "conflict": {
-                "phpunit/phpunit": ">10.2.2",
+                "phpunit/phpunit": ">10.2.3",
                 "webmozart/assert": "<1.11.0"
             },
             "require-dev": {
@@ -15542,7 +15542,7 @@
             ],
             "support": {
                 "issues": "https://github.com/pestphp/pest/issues",
-                "source": "https://github.com/pestphp/pest/tree/v2.8.1"
+                "source": "https://github.com/pestphp/pest/tree/v2.8.2"
             },
             "funding": [
                 {
@@ -15554,7 +15554,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-06-20T12:33:29+00:00"
+            "time": "2023-07-01T09:31:00+00:00"
         },
         {
             "name": "pestphp/pest-plugin",
@@ -16039,16 +16039,16 @@
         },
         {
             "name": "phpstan/phpdoc-parser",
-            "version": "1.22.0",
+            "version": "1.22.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpdoc-parser.git",
-                "reference": "ec58baf7b3c7f1c81b3b00617c953249fb8cf30c"
+                "reference": "65c39594fbd8c67abfc68bb323f86447bab79cc0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpdoc-parser/zipball/ec58baf7b3c7f1c81b3b00617c953249fb8cf30c",
-                "reference": "ec58baf7b3c7f1c81b3b00617c953249fb8cf30c",
+                "url": "https://api.github.com/repos/phpstan/phpdoc-parser/zipball/65c39594fbd8c67abfc68bb323f86447bab79cc0",
+                "reference": "65c39594fbd8c67abfc68bb323f86447bab79cc0",
                 "shasum": ""
             },
             "require": {
@@ -16080,9 +16080,9 @@
             "description": "PHPDoc parser with support for nullable, intersection and generic types",
             "support": {
                 "issues": "https://github.com/phpstan/phpdoc-parser/issues",
-                "source": "https://github.com/phpstan/phpdoc-parser/tree/1.22.0"
+                "source": "https://github.com/phpstan/phpdoc-parser/tree/1.22.1"
             },
-            "time": "2023-06-01T12:35:21+00:00"
+            "time": "2023-06-29T20:46:06+00:00"
         },
         {
             "name": "phpunit/php-code-coverage",
@@ -16406,16 +16406,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "10.2.2",
+            "version": "10.2.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "1ab521b24b88b88310c40c26c0cc4a94ba40ff95"
+                "reference": "35c8cac1734ede2ae354a6644f7088356ff5b08e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/1ab521b24b88b88310c40c26c0cc4a94ba40ff95",
-                "reference": "1ab521b24b88b88310c40c26c0cc4a94ba40ff95",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/35c8cac1734ede2ae354a6644f7088356ff5b08e",
+                "reference": "35c8cac1734ede2ae354a6644f7088356ff5b08e",
                 "shasum": ""
             },
             "require": {
@@ -16487,7 +16487,7 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/phpunit/issues",
                 "security": "https://github.com/sebastianbergmann/phpunit/security/policy",
-                "source": "https://github.com/sebastianbergmann/phpunit/tree/10.2.2"
+                "source": "https://github.com/sebastianbergmann/phpunit/tree/10.2.3"
             },
             "funding": [
                 {
@@ -16503,7 +16503,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-06-11T06:15:20+00:00"
+            "time": "2023-06-30T06:17:38+00:00"
         },
         {
             "name": "sebastian/cli-parser",
@@ -17921,5 +17921,5 @@
         "ext-zlib": "*"
     },
     "platform-dev": [],
-    "plugin-api-version": "2.3.0"
+    "plugin-api-version": "2.2.0"
 }

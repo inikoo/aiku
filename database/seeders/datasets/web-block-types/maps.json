@@ -1,7 +1,6 @@
 {
-    "code": "maps",
+    "slug": "maps",
     "name": "Maps",
-    "class": "maps",
     "data": {
         "defaultParameters": {},
         "dummyData": {

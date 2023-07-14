@@ -19,7 +19,7 @@ class StoreWebBlock
     {
         data_set($modelData, 'scope', $webBlockType->scope);
         /** @var WebBlock $webBlock */
-        $webBlock = $webBlockType->webBlock()->create($modelData);
+        $webBlock = $webBlockType->webBlocks()->create($modelData);
         $webBlock->stats()->create();
         return $webBlock;
     }

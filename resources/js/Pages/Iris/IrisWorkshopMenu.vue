@@ -249,7 +249,7 @@ const setselectedNav = (value) => {
 };
 
 const saveNav = (value) => {
-  const index = navigation.value.categories.findIndex((item) => item.id === value.colum.id);
+  const index = navigation.value.categories.findIndex((item) => item.id === value.column.id);
 
   if (index !== -1) {
     if (value.type === 'name') {
@@ -259,7 +259,7 @@ const saveNav = (value) => {
       navigation.value.categories[index] = { ...navigation.value.categories[index], link: value.value };
       setselectedNav(navigation.value.categories[index]);
     } else if (value.type === 'delete') {
-      if (selectedNav.value && selectedNav.value.id === value.colum.id) {
+      if (selectedNav.value && selectedNav.value.id === value.column.id) {
         setselectedNav(null);
       }
       navigation.value.categories.splice(index, 1);
@@ -282,7 +282,7 @@ const saveSubMenu = (value) => {
   const index = navigation.value.categories.findIndex((item) => item.id === value.parentId);
   
   if (index !== -1) {
-    const indexSubMenu = navigation.value.categories[index].featured.findIndex((item) => item.id === value.colum.id);
+    const indexSubMenu = navigation.value.categories[index].featured.findIndex((item) => item.id === value.column.id);
     
     if (indexSubMenu !== -1) {
       if (value.type === 'name') {
