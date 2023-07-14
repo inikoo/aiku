@@ -17,6 +17,7 @@ return new class () extends Migration {
             $table->string('scope')->index();
             $table->string('slug')->unique()->index();
             $table->string('name');
+            $table->jsonb('blueprint');
             $table->jsonb('data');
             $table->timestampsTz();
             $table->softDeletesTz();
