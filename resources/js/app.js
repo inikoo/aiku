@@ -13,65 +13,23 @@ import { createInertiaApp } from "@inertiajs/vue3"
 import { resolvePageComponent } from "laravel-vite-plugin/inertia-helpers"
 import { ZiggyVue } from "../../vendor/tightenco/ziggy/dist/vue.m"
 import { i18nVue } from "laravel-vue-i18n"
+import { createPinia } from "pinia"
 
 const appName = window.document.getElementsByTagName("title")[0]?.innerText || "aiku"
-import { createPinia } from "pinia"
-import { library } from "@fortawesome/fontawesome-svg-core"
 
-import {
-	faSearch,
-	faBell,
-	faAngleUp,
-	faChevronDown,
-	faTimes,
-	faBars as farBars,
-	faEllipsisV,
-	faIndent as farIndent,
-} from "../private/pro-regular-svg-icons"
-import { faInfoCircle } from "../private/pro-solid-svg-icons"
-
-import {
-	faHome,
-	faDollyFlatbedAlt,
-	faConveyorBeltAlt,
-	faUsers,
-	faUserHardHat,
-	faBars,
-	faUsersCog,
-	faTachometerAltFast,
-	faInventory,
-	faAbacus,
-	faDatabase,
-	faClock,
-} from "../private/pro-light-svg-icons"
 import { initializeApp } from "firebase/app"
 import { getMessaging, getToken, onMessage } from "firebase/messaging"
 import firebaseConfig from "../private/firebase/aiku-firebase.json"
 import firebaseCredential from "../private/firebase/aiku-firebase.json"
 
-library.add(
-	faSearch,
-	faBell,
-	faHome,
-	faDollyFlatbedAlt,
-	faConveyorBeltAlt,
-	faUsers,
-	faUserHardHat,
-	faBars,
-	faAngleUp,
-	faUsersCog,
-	faTachometerAltFast,
-	faInventory,
-	faChevronDown,
-	farBars,
-	faTimes,
-	faEllipsisV,
-	farIndent,
-	faAbacus,
-	faDatabase,
-	faClock,
-	faInfoCircle
-)
+import { fab } from "@fortawesome/free-brands-svg-icons"
+import { fas } from '@/../private/pro-solid-svg-icons'
+import { far } from '@/../private/pro-regular-svg-icons'
+import { fal } from '@/../private/pro-light-svg-icons'
+import { library } from '@fortawesome/fontawesome-svg-core'
+
+library.add(fas, fab, far, fal)
+
 
 if ("serviceWorker" in navigator) {
 	window.addEventListener("load", function () {
