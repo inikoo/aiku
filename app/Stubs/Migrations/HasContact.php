@@ -13,14 +13,14 @@ trait HasContact
 {
     public function contactFields(Blueprint $table, $withCompany = true, $withPersonalDetails = false, $withWebsite = false): Blueprint
     {
-        $table->string('contact_name', 256)->collation('und_ns')->nullable();
+        $table->string('contact_name', 256)->collation('und_ns_ci')->nullable();
         if ($withCompany) {
-            $table->string('company_name', 256)->collation('und_ns')->nullable();
+            $table->string('company_name', 256)->collation('und_ns_ci')->nullable();
         }
-        $table->string('email')->nullable()->collation('und_ns');
+        $table->string('email')->nullable()->collation('und_ns_ci');
         $table->string('phone')->nullable()->collation('und_ns');
         $table->string('identity_document_type')->nullable();
-        $table->string('identity_document_number')->nullable()->collation('und_ns');
+        $table->string('identity_document_number')->nullable()->collation('und_ns_ci');
         if ($withPersonalDetails) {
             $table->date('date_of_birth')->nullable();
             $table->string('gender')->nullable();
