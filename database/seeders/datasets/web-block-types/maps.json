@@ -1,7 +1,7 @@
 {
     "slug": "maps",
     "name": "Maps",
-    "data": {
+    "blueprint": {
         "defaultParameters": {},
         "dummyData": {
             "markers": [

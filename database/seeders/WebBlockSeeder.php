@@ -29,6 +29,8 @@ class WebBlockSeeder extends Seeder
                 $webBlockType = StoreWebBlockType::run(Arr::except($webBlockTypeData, 'webBlocks'));
             }
             foreach (Arr::get($webBlockTypeData, 'webBlocks', []) as $webBlockData) {
+                data_set($webBlockData, 'blueprint', Arr::get($webBlockType, 'blueprint'), overwrite: false);
+
                 $webBlock = $webBlockType->webBlocks()->where('code', Arr::get($webBlockData, 'code'))->first();
                 if ($webBlock) {
                     UpdateWebBlock::run($webBlock, $webBlockData);

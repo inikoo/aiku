@@ -21,6 +21,7 @@ return new class () extends Migration {
             $table->string('description')->nullable();
             $table->unsignedSmallInteger('web_block_type_id');
             $table->foreign('web_block_type_id')->references('id')->on('web_block_types')->onUpdate('cascade')->onDelete('cascade');
+            $table->jsonb('blueprint');
             $table->jsonb('data');
             $table->timestampsTz();
             $table->softDeletesTz();

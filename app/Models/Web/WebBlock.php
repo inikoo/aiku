@@ -48,13 +48,14 @@ class WebBlock extends Model
     use HasSlug;
 
     protected $casts = [
-        'data'  => 'array',
-        'scope' => WebBlockScopeEnum::class,
-
+        'blueprint' => 'array',
+        'data'      => 'array',
+        'scope'     => WebBlockScopeEnum::class,
     ];
 
     protected $attributes = [
-        'data' => '{}',
+        'blueprint' => '{}',
+        'data'      => '{}',
     ];
 
     protected $guarded = [];

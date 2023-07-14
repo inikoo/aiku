@@ -18,6 +18,11 @@ return new class () extends Migration {
             $table->foreign('web_block_type_id')->references('id')->on('public.web_block_types')->onUpdate('cascade')->onDelete('cascade');
             $table->unsignedSmallInteger('web_block_id');
             $table->foreign('web_block_id')->references('id')->on('public.web_blocks')->onUpdate('cascade')->onDelete('cascade');
+            $table->string('slug')->unique()->collation('und_ns');
+            ;
+            $table->string('code')->collation('und_ns_ci');
+            $table->string('name')->collation('und_ns_ci');
+            $table->jsonb('layout');
             $table->jsonb('data');
             $table->timestampsTz();
             $table->softDeletesTz();

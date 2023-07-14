@@ -45,7 +45,7 @@ class StoreTenant
             );
         }
 
-        $modelData['ulid'] = Str::ulid();
+        data_set($modelData, 'ulid', Str::ulid());
         /** @var Tenant $tenant */
 
         data_set($modelData, 'settings.ui.name', Arr::get($modelData, 'name'));

@@ -9,7 +9,7 @@ namespace App\Enums\Web\WebBlockType;
 
 use App\Enums\EnumHelperTrait;
 
-enum WebBlockSlugClassEnum: string
+enum WebBlockTypeSlugEnum: string
 {
     use EnumHelperTrait;
 
