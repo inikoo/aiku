@@ -47,8 +47,8 @@ class LogUserRequest
                 'icon'  => $this->getPlatformIcon($this->detectWindows11($parsedUserAgent))
             ]),
             'browser'     => json_encode([
-                'title' => $this->getBrowserIcon($parsedUserAgent->browserName()),
-                'icon'  => $this->getBrowserIcon($parsedUserAgent->browserName())
+                'title' => explode(' ', $parsedUserAgent->browserName())[0],
+                'icon'  => $this->getBrowserIcon(strtolower($parsedUserAgent->browserName()))
             ])
         ];
 
@@ -71,7 +71,7 @@ class LogUserRequest
 
     public function getBrowserIcon($browser): string
     {
-        if($browser == 'chrome') {
+        if(explode(' ', $browser)[0] == 'chrome') {
             return 'fab fa-chrome';
         } else if($browser == 'microsoft') {
             return 'fab fa-edge';
