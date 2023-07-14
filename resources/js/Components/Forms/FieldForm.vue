@@ -91,7 +91,6 @@ if (props['fieldData']['hasOther']) {
 //}
 const form = useForm(formFields);
 form['fieldType'] = 'edit';
-
 </script>
 
 <template>
@@ -123,15 +122,15 @@ form['fieldType'] = 'edit';
 
         <!-- full area components -->
         <dl v-if="props.fieldData.fullComponentArea" class="divide-y divide-gray-200">
-                <dd class="sm:col-span-2  ">
-                    <div class="mt-1 flex items-start text-sm text-gray-900 sm:mt-0">
-                        <div class="relative  flex-grow">
-                            <component :is="getComponent(fieldData['type'])" :form=form :fieldName=field
-                                :options="fieldData['options']" :fieldData="fieldData">
-                            </component>
-                        </div>
+            <dd class="sm:col-span-2  ">
+                <div class="mt-1 flex items-start text-sm text-gray-900 sm:mt-0">
+                    <div class="relative  flex-grow">
+                        <component :is="getComponent(fieldData['type'])" :form=form :fieldName=field
+                            :options="fieldData['options']" :fieldData="fieldData">
+                        </component>
                     </div>
-                </dd>
+                </div>
+            </dd>
         </dl>
 
     </form>

@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { trans, loadLanguageAsync } from 'laravel-vue-i18n'
+import { ref, Ref, onMounted } from 'vue'
+import { useForm } from '@inertiajs/vue3'
+import { trans, loadLanguageAsync, getActiveLanguage } from 'laravel-vue-i18n'
 import FooterTab from '@/Components/Footer/FooterTab.vue'
 import { useLocaleStore } from "@/Stores/locale"
 import { useLayoutStore } from "@/Stores/layout"
@@ -20,7 +21,7 @@ const activities = useDatabaseList(dbRef(db, 'aw'))
 
 const locale = useLocaleStore()
 const layout = useLayoutStore()
-const isTabActive = ref(false)
+const isTabActive: Ref<boolean | string> = ref(false)
 
 const setToLocalStorage = (key: string, value: string) => {
     localStorage.setItem(key, value)
@@ -31,6 +32,10 @@ onMounted(() => {
     if (getLocalLanguage) {
         locale.language = getLocalLanguage
     }
+})
+
+const form = useForm({
+    language_id: null,
 })
 
 </script>
@@ -48,7 +53,6 @@ onMounted(() => {
                 <!-- <span class="text-purple-400 font-semibold">aiku</span> -->
             </div>
 
-            <!-- Tab Section -->
             <div class="flex items-end flex-row-reverse text-sm">
                 <!-- Tab: Active Users -->
                 <div class="relative h-full flex z-50 select-none justify-center items-center px-8 gap-x-1 cursor-pointer"
@@ -77,20 +81,24 @@ onMounted(() => {
                 <!-- Tab: Language -->
                 <div class="relative h-full flex z-50 select-none justify-center items-center px-8 cursor-pointer"
                     :class="[isTabActive == 'language' ? 'bg-gray-600' : 'bg-gray-800']"
-                    @click="isTabActive == 'language' ? isTabActive = !isTabActive : isTabActive = 'language'"
-                    
+                    @click="isTabActive = 'language'"
                 >
+                    <!-- @click="isTabActive == 'language' ? isTabActive = !isTabActive : isTabActive = 'language'" -->
                     <FontAwesomeIcon icon="fal fa-language" class="text-xs mr-1 h-5 text-gray-300"></FontAwesomeIcon>
                     <div class="h-full font-extralight text-xs flex items-center leading-none text-gray-300">
-                        {{ locale.language.name }}
+                        {{ locale.language.label }}
                     </div>
                     <FooterTab @pinTab="() => isTabActive = false" v-if="isTabActive === 'language'" :tabName="`language`">
                         <template #default>
-                            <div v-for="(option, index) in locale.languageOptions" :class="[ locale.language.id == index ? 'bg-gray-600 hover:bg-gray-500' : '', 'grid hover:bg-gray-700 py-1.5']"
-                                @click="locale.language.id = option.id, locale.language.name = option.label, setToLocalStorage('language', JSON.stringify(locale.language)), loadLanguageAsync(option.code)"
+                            <form
+                                @submit.prevent="form.patch(route('models.profile.update'))"
+                                v-for="(option, index) in locale.languageOptions"
+                                :class="[ locale.language.id == index ? 'bg-gray-600 hover:bg-gray-500' : '', 'grid hover:bg-gray-700 ']"
                             >
-                                {{ option.label }}
-                            </div>
+                                <button @click="form.language_id = option.id, locale.language = option" type="submit" class="py-1.5">
+                                    {{ option.label }}
+                                </button>
+                            </form>
                         </template>
                     </FooterTab>
                 </div>
