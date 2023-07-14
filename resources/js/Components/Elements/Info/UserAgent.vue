@@ -14,7 +14,6 @@ const props = defineProps<{
         title: string
     }
 }>()
-
 </script>
 
 <template>
