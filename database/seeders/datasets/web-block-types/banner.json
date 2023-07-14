@@ -2,8 +2,8 @@
     "slug": "banner",
     "name": "Banner",
     "blueprint": {
-        "defaultParameters": {},
-        "dummyData": {
+        "parameters": {},
+        "data": {
                 "delay": 2500,
                 "slides": [
                     {
