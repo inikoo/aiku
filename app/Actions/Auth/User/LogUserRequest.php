@@ -62,7 +62,7 @@ class LogUserRequest
 
     public function getDeviceIcon($deviceType): string
     {
-        if($deviceType == 'desktop') {
+        if($deviceType == 'Desktop') {
             return 'far fa-desktop-alt';
         }
 
