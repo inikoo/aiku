@@ -7,7 +7,7 @@
 
 namespace App\Models\Web;
 
-use App\Enums\Web\WebBlockType\WebBlockSlugClassEnum;
+use App\Enums\Web\WebBlockType\WebBlockTypeSlugEnum;
 use App\Enums\Web\WebBlockType\WebBlockTypeScopeEnum;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -24,7 +24,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
  * @property string $slug
  * @property string $code
  * @property string $name
- * @property WebBlockSlugClassEnum $class
+ * @property WebBlockTypeSlugEnum $class
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
@@ -45,15 +45,16 @@ class WebBlockType extends Model
     use SoftDeletes;
 
     protected $casts = [
-        'data'  => 'array',
-        'slug'  => WebBlockSlugClassEnum::class,
-        'scope' => WebBlockTypeScopeEnum::class,
+        'blueprint' => 'array',
+        'data'      => 'array',
+        'slug'      => WebBlockTypeSlugEnum::class,
+        'scope'     => WebBlockTypeScopeEnum::class,
     ];
 
     protected $attributes = [
-        'data' => '{}',
+        'blueprint' => '{}',
+        'data'      => '{}',
     ];
-
 
     protected $guarded = [];
 
