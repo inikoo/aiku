@@ -38,18 +38,18 @@ class LogUserRequest
             'ip_address'  => $ip,
             'location'    => json_encode($this->getLocation($ip)), // reference: https://github.com/stevebauman/location
             'user_agent'  => $userAgent,
-            'device_type' => [
+            'device_type' => json_encode([
                 'title' => $parsedUserAgent->deviceType(),
                 'icon'  => $this->getDeviceIcon($parsedUserAgent->deviceType())
-            ],
-            'platform'    => [
+            ]),
+            'platform'    => json_encode([
                 'title' => $this->detectWindows11($parsedUserAgent),
                 'icon'  => $this->getPlatformIcon($this->detectWindows11($parsedUserAgent))
-            ],
-            'browser'     => [
+            ]),
+            'browser'     => json_encode([
                 'title' => $this->getBrowserIcon($parsedUserAgent->browserName()),
                 'icon'  => $this->getBrowserIcon($parsedUserAgent->browserName())
-            ]
+            ])
         ];
 
         // if platform=='Windows 10' need to check if it is actually Windows 11 see:
