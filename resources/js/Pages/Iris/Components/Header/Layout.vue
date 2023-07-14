@@ -1,0 +1,130 @@
+
+<script setup lang="ts">
+import VueResizable from 'vue-resizable';
+import { ref, onMounted } from 'vue';
+import { get } from 'lodash'
+import Input from '../Fields/Input.vue'
+const props = defineProps<{
+    data: Array
+    setPosition : Function,
+    changeName : Function
+    layout : Object
+}>()
+
+
+
+onMounted(() => {
+    props.data.forEach((item,index) => {
+        console.log(index,item)
+    dragElement(item.ref,item);
+  });
+  console.log(resizable)
+});
+
+
+function dragElement(elmnt,set) {
+  let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+
+  const dragMouseDown = (e) => {
+    e = e || window.event;
+    e.preventDefault();
+
+    pos3 = e.clientX;
+    pos4 = e.clientY;
+
+    document.onmouseup = closeDragElement;
+    document.onmousemove = elementDrag;
+  };
+
+  const elementDrag = (e) => {
+  e = e || window.event;
+  e.preventDefault();
+
+  let pos1 = pos3 - e.clientX;
+  let pos2 = pos4 - e.clientY;
+  pos3 = e.clientX;
+  pos4 = e.clientY;
+
+  const containerLeft = containerSize.value.left;
+  const containerTop = containerSize.value.top;
+  const containerRight = containerSize.value.right;
+  const containerBottom = containerSize.value.bottom;
+
+  // Calculate the new position of the dragged element
+  let newTop = elmnt.offsetTop - pos2;
+  let newLeft = elmnt.offsetLeft - pos1;
+
+  // Check if the new position is within the container boundaries
+  if (newTop >= containerTop && newLeft >= containerLeft && (newLeft + elmnt.offsetWidth) <= containerRight && (newTop + elmnt.offsetHeight) <= containerBottom) {
+    elmnt.style.top = newTop + "px";
+    elmnt.style.left = newLeft + "px";
+  }
+  props.setPosition( {top :newTop, left :  newLeft},set)
+};
+
+const closeDragElement = () => {
+  document.onmouseup = null;
+  document.onmousemove = null;
+};
+
+elmnt.querySelector('.draggable-handle').addEventListener('mousedown', dragMouseDown);
+
+}
+
+
+const containerSize = ref(null)
+const eHandler=(data)=>{
+    containerSize.value = {...data, right : data.left + data.width , bottom : data.top + data.height}
+}
+const resizable = ref(null)
+
+</script>
+
+<template>
+    <vue-resizable
+      class="container bg-white"
+      :minHeight="200"
+      :maxWidth="1233"
+      :minWidth="1233"
+      :height="layout.height"
+      :left="layout.left"
+      :top="layout.top"
+      @mount="eHandler"
+      @resize:move="eHandler"
+      @resize:start="eHandler"
+      @resize:end="eHandler"
+      @drag:move="eHandler"
+      @drag:start="eHandler"
+      @drag:end="eHandler"
+    >
+      <div id="markers" class="row" v-for="item in props.data" :key="item.id">
+        <div
+          :ref="refValue => item.ref = refValue"
+          class="col-sm-10 draggable-component"
+          :style="{...item.style}"
+        >
+          <div class="draggable-handle" id="mydivheader">
+            <Input :data="item" :save="changeName" keyValue="name"/>
+        </div>
+        </div>
+      </div>
+    </vue-resizable>
+  </template>
+  
+  
+
+  
+  <style>
+  .draggable-component {
+    position: absolute;
+    z-index: 9;
+    text-align: center;
+    cursor: move;
+  }
+  
+  .draggable-handle {
+    padding: 10px;
+    z-index: 10;
+  }
+  </style>
+  

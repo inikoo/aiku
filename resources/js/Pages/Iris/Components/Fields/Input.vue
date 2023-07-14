@@ -34,7 +34,7 @@ onMounted(() => {
 <template>
   <div>
     <template v-if="!editMode">
-      <div @click="changeEditMode"> <h3 :class="cssClass">{{ data[keyValue] }}</h3></div>
+      <div> <h3  @click="changeEditMode" :class="cssClass">{{ data[keyValue] }}</h3></div>
     </template>
     <template v-else>
       <input
