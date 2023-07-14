@@ -9,17 +9,19 @@ import { capitalize } from "@/Composables/capitalize"
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 const props = defineProps<{
-    data: {
-        icon: string
-        title: string
-    }
+    data: [
+        string,
+        string,
+        string
+    ]
 }>()
+console.log(props.data)
 </script>
 
 <template>
-    <div class="flex">
-        <FontAwesomeIcon :icon='data[0].icon' class='w-6' aria-hidden='true' :title='capitalize(data[0].title)' />
-        <FontAwesomeIcon :icon='data[1].icon' class='w-6' aria-hidden='true' :title='capitalize(data[1].title)' />
-        <FontAwesomeIcon :icon='data[2].icon' class='w-6' aria-hidden='true' :title='capitalize(data[2].title)' />
+    <div class="flex text-gray-700">
+        <FontAwesomeIcon :icon='(JSON.parse(data[0])).icon' class='w-6' aria-hidden='true' :title='capitalize((JSON.parse(data[0])).title)' />
+        <FontAwesomeIcon :icon='(JSON.parse(data[1])).icon' class='w-6' aria-hidden='true' :title='capitalize((JSON.parse(data[1])).title)' />
+        <FontAwesomeIcon :icon='(JSON.parse(data[2])).icon' class='w-6' aria-hidden='true' :title='capitalize((JSON.parse(data[2])).title)' />
     </div>
 </template>
