@@ -1,8 +1,7 @@
 {
-    "code": "maps",
+    "slug": "maps",
     "name": "Maps",
-    "class": "maps",
-    "data": {
+    "blueprint": {
         "defaultParameters": {},
         "dummyData": {
             "markers": [

@@ -2,6 +2,7 @@
     <div class="">
         <div class="relative">
             <Multiselect
+                track-by="id" label="label"
                 v-model="form[fieldName]"
                 :options="props.options"
                 :class="{ 'pr-8': form.errors[fieldName] || form.recentlySuccessful }"
@@ -21,7 +22,7 @@
         <p v-if="form.errors[fieldName]" class="mt-2 text-sm text-red-600" id="email-error">{{ form.errors[fieldName] }}</p>
     </div>
 </template>
-  
+
 <script setup lang="ts">
 import Multiselect from '@vueform/multiselect'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
@@ -40,8 +41,6 @@ const props = defineProps<{
 
 // Note:
 // Value of the language (form[fieldName]) is a number
-// The value of option Abkhazian is 1
 </script>
-  
+
 <style src="@vueform/multiselect/themes/default.css"></style>
-  

@@ -7,7 +7,7 @@
 
 namespace App\Models\Web;
 
-use App\Enums\Web\WebBlockType\WebBlockTypeClassEnum;
+use App\Enums\Web\WebBlockType\WebBlockTypeSlugEnum;
 use App\Enums\Web\WebBlockType\WebBlockTypeScopeEnum;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -15,8 +15,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
-use Spatie\Sluggable\HasSlug;
-use Spatie\Sluggable\SlugOptions;
 
 /**
  * App\Models\Web\WebBlockType
@@ -26,7 +24,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $slug
  * @property string $code
  * @property string $name
- * @property WebBlockTypeClassEnum $class
+ * @property WebBlockTypeSlugEnum $class
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
@@ -45,30 +43,22 @@ class WebBlockType extends Model
 {
     use UsesLandlordConnection;
     use SoftDeletes;
-    use HasSlug;
 
     protected $casts = [
-        'data'  => 'array',
-        'class' => WebBlockTypeClassEnum::class,
-        'scope' => WebBlockTypeScopeEnum::class,
+        'blueprint' => 'array',
+        'data'      => 'array',
+        'slug'      => WebBlockTypeSlugEnum::class,
+        'scope'     => WebBlockTypeScopeEnum::class,
     ];
 
     protected $attributes = [
-        'data' => '{}',
+        'blueprint' => '{}',
+        'data'      => '{}',
     ];
-
 
     protected $guarded = [];
 
-    public function getSlugOptions(): SlugOptions
-    {
-        return SlugOptions::create()
-            ->generateSlugsFrom('code')
-            ->doNotGenerateSlugsOnUpdate()
-            ->saveSlugsTo('slug');
-    }
-
-    public function webBlock(): HasMany
+    public function webBlocks(): HasMany
     {
         return $this->hasMany(WebBlock::class);
     }

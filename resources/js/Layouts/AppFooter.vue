@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { trans, loadLanguageAsync } from 'laravel-vue-i18n'
 import FooterTab from '@/Components/Footer/FooterTab.vue'
 import { useLocaleStore } from "@/Stores/locale"
 import { useLayoutStore } from "@/Stores/layout"
@@ -86,7 +87,7 @@ onMounted(() => {
                     <FooterTab @pinTab="() => isTabActive = false" v-if="isTabActive === 'language'" :tabName="`language`">
                         <template #default>
                             <div v-for="(option, index) in locale.languageOptions" :class="[ locale.language.id == index ? 'bg-gray-600 hover:bg-gray-500' : '', 'grid hover:bg-gray-700 py-1.5']"
-                                @click="locale.language.id = Number(index), locale.language.name = option.label, setToLocalStorage('language', JSON.stringify(locale.language))"
+                                @click="locale.language.id = option.id, locale.language.name = option.label, setToLocalStorage('language', JSON.stringify(locale.language)), loadLanguageAsync(option.code)"
                             >
                                 {{ option.label }}
                             </div>

@@ -1,8 +1,7 @@
 {
-    "code": "product",
+    "slug": "product",
     "name": "Product showcase",
-    "class": "product",
-    "data": {
+    "blueprint": {
         "defaultParameters": {}
     },
     "scope": "webpage",

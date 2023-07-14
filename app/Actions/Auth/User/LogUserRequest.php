@@ -38,9 +38,18 @@ class LogUserRequest
             'ip_address'  => $ip,
             'location'    => json_encode($this->getLocation($ip)), // reference: https://github.com/stevebauman/location
             'user_agent'  => $userAgent,
-            'device_type' => $parsedUserAgent->deviceType(),
-            'platform'    => $this->detectWindows11($parsedUserAgent),
-            'browser'     => $parsedUserAgent->browserName()
+            'device_type' => json_encode([
+                'title' => $parsedUserAgent->deviceType(),
+                'icon'  => $this->getDeviceIcon($parsedUserAgent->deviceType())
+            ]),
+            'platform'    => json_encode([
+                'title' => $this->detectWindows11($parsedUserAgent),
+                'icon'  => $this->getPlatformIcon($this->detectWindows11($parsedUserAgent))
+            ]),
+            'browser'     => json_encode([
+                'title' => explode(' ', $parsedUserAgent->browserName())[0],
+                'icon'  => $this->getBrowserIcon(strtolower($parsedUserAgent->browserName()))
+            ])
         ];
 
         // if platform=='Windows 10' need to check if it is actually Windows 11 see:
@@ -49,6 +58,37 @@ class LogUserRequest
 
 
         IndexElasticsearchDocument::dispatch(index: $index, body: $body);
+    }
+
+    public function getDeviceIcon($deviceType): string
+    {
+        if($deviceType == 'Desktop') {
+            return 'far fa-desktop-alt';
+        }
+
+        return 'fas fa-mobile-alt';
+    }
+
+    public function getBrowserIcon($browser): string
+    {
+        if(explode(' ', $browser)[0] == 'chrome') {
+            return 'fab fa-chrome';
+        } else if($browser == 'microsoft') {
+            return 'fab fa-edge';
+        }
+
+        return 'fab fa-firefox-browser';
+    }
+
+    public function getPlatformIcon($platform): string
+    {
+        if($platform == 'android') {
+            return 'fab fa-android';
+        } else if($platform == 'apple') {
+            return 'fab fa-apple';
+        }
+
+        return 'fab fa-windows';
     }
 
     public function getLocation(string $ip): false|array|null

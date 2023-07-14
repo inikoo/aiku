@@ -1,8 +1,7 @@
 {
-    "code": "picture",
+    "slug": "picture",
     "name": "Picture",
-    "class": "picture",
-    "data": {
+    "blueprint": {
         "defaultParameters": {},
         "dummyData": {
             "src": "https://tailwindui.com/img/ecommerce-images/product-page-01-featured-product-shot.jpg",

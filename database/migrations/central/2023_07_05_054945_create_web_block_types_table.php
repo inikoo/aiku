@@ -16,9 +16,8 @@ return new class () extends Migration {
             $table->smallIncrements('id');
             $table->string('scope')->index();
             $table->string('slug')->unique()->index();
-            $table->string('code');
             $table->string('name');
-            $table->string('class')->index();
+            $table->jsonb('blueprint');
             $table->jsonb('data');
             $table->timestampsTz();
             $table->softDeletesTz();

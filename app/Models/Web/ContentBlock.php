@@ -10,6 +10,7 @@ namespace App\Models\Web;
 use App\Actions\Utils\Abbreviate;
 use App\Actions\Utils\ReadableRandomStringGenerator;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -41,6 +42,24 @@ class ContentBlock extends Model
     use UsesTenantConnection;
     use SoftDeletes;
     use HasSlug;
+    use HasFactory;
+
+    protected $casts = [
+        'layout'=> 'array',
+        'data'  => 'array',
+    ];
+
+    protected $attributes = [
+        'layout' => '{}',
+        'data'   => '{}',
+    ];
+
+    protected $guarded = [];
+
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
 
     public function getSlugOptions(): SlugOptions
     {

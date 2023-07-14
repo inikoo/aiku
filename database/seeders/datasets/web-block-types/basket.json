@@ -1,8 +1,7 @@
 {
-    "code": "basket",
+    "slug": "basket",
     "name": "Basket",
-    "class": "basket",
-    "data": {
+    "blueprint": {
         "defaultParameters": {},
         "dummyData": {
             "products": [

@@ -26,7 +26,8 @@ class StoreGroup
 
     public function handle(array $modelData): Group
     {
-        $modelData['ulid'] = Str::ulid();
+
+        data_set($modelData, 'ulid', Str::ulid());
 
         /** @var Group $group */
         $group = Group::create($modelData);

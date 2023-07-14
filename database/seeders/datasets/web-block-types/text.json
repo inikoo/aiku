@@ -1,8 +1,7 @@
 {
-    "code": "text",
+    "slug": "text",
     "name": "Text",
-    "class": "text",
-    "data": {
+    "blueprint": {
         "defaultParameters": {},
         "dummyData": {
             "data": {

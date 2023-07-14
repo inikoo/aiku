@@ -1,8 +1,7 @@
 {
-    "code": "header",
+    "slug": "header",
     "name": "Website header",
-    "class": "header",
-    "data": {
+    "blueprint": {
         "defaultParameters": {
             "navigation": {
                 "categories": [

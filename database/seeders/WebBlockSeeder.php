@@ -22,16 +22,16 @@ class WebBlockSeeder extends Seeder
     {
         foreach (Storage::disk('datasets')->files('web-block-types') as $file) {
             $webBlockTypeData = json_decode(Storage::disk('datasets')->get($file), true);
-            $webBlockType     = WebBlockType::where('code', $webBlockTypeData['code'])->first();
+            $webBlockType     = WebBlockType::where('slug', $webBlockTypeData['slug'])->first();
             if ($webBlockType) {
                 UpdateWebBlockType::run($webBlockType, Arr::except($webBlockTypeData, 'webBlocks'));
-
             } else {
                 $webBlockType = StoreWebBlockType::run(Arr::except($webBlockTypeData, 'webBlocks'));
             }
-
             foreach (Arr::get($webBlockTypeData, 'webBlocks', []) as $webBlockData) {
-                $webBlock = $webBlockType->webBlock()->where('code', Arr::get($webBlockData, 'code'))->first();
+                data_set($webBlockData, 'blueprint', Arr::get($webBlockType, 'blueprint'), overwrite: false);
+
+                $webBlock = $webBlockType->webBlocks()->where('code', Arr::get($webBlockData, 'code'))->first();
                 if ($webBlock) {
                     UpdateWebBlock::run($webBlock, $webBlockData);
                 } else {

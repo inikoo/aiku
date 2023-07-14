@@ -1,8 +1,7 @@
 {
-    "code": "footer",
+    "slug": "footer",
     "name": "Website footer",
-    "class": "footer",
-    "data": {
+    "blueprint": {
         "defaultParameters": {
             "navigations": [
                 {
