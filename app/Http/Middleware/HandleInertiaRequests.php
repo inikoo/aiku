@@ -19,11 +19,6 @@ use Tightenco\Ziggy\Ziggy;
 
 class HandleInertiaRequests extends Middleware
 {
-    /**
-     * The root template that is loaded on the first page visit.
-     *
-     * @var string
-     */
     protected $rootView = 'app';
 
 
@@ -44,8 +39,12 @@ class HandleInertiaRequests extends Middleware
 
 
         if (!$request->inertia() or Session::get('reloadLayout')) {
-            $firstLoadOnlyProps =GetFirstLoadProps::run($user);
-
+            $firstLoadOnlyProps          =GetFirstLoadProps::run($user);
+            $firstLoadOnlyProps['ziggy'] = function () use ($request) {
+                return array_merge((new Ziggy())->toArray(), [
+                    'location' => $request->url(),
+                ]);
+            };
             if (Session::get('reloadLayout') == 'remove') {
                 Session::forget('reloadLayout');
             }

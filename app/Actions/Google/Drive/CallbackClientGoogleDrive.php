@@ -28,13 +28,13 @@ class CallbackClientGoogleDrive
         $client = new Google_Client();
 
         $tokenPath = $this->getTokenPath();
-        $authCode = request()->query('code');
-        $tenant = app('currentTenant');
+        $authCode  = request()->query('code');
+        $tenant    = app('currentTenant');
 
         $client->setRedirectUri('http://localhost:5173');
         $client->setApplicationName('Aiku google drive manager');
         $client->setAuthConfig([
-            'client_id' => Arr::get($tenant->settings, 'google.id'),
+            'client_id'     => Arr::get($tenant->settings, 'google.id'),
             'client_secret' => Arr::get($tenant->settings, 'google.secret')
         ]);
 
