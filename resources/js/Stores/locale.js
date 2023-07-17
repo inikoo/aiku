@@ -12,7 +12,6 @@ export const useLocaleStore = defineStore('locale', {
             code: 'en',
             id: 68,
             label: 'English',
-            original_name: null
         },
         languageOptions:{
 

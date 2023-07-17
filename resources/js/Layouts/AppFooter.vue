@@ -27,16 +27,19 @@ const setToLocalStorage = (key: string, value: string) => {
     localStorage.setItem(key, value)
 }
 
-onMounted(() => {
-    const getLocalLanguage = JSON.parse(localStorage.getItem('language'))
-    if (getLocalLanguage) {
-        locale.language = getLocalLanguage
-    }
-})
+// onMounted(() => {
+//     const getLocalLanguage = JSON.parse(localStorage.getItem('language'))
+//     if (getLocalLanguage) {
+//         locale.language = getLocalLanguage
+//     }
+// })
 
 const form = useForm({
     language_id: null,
 })
+
+console.log(locale.language)
+console.log(locale.languageOptions)
 
 </script>
 
@@ -86,17 +89,17 @@ const form = useForm({
                     <!-- @click="isTabActive == 'language' ? isTabActive = !isTabActive : isTabActive = 'language'" -->
                     <FontAwesomeIcon icon="fal fa-language" class="text-xs mr-1 h-5 text-gray-300"></FontAwesomeIcon>
                     <div class="h-full font-extralight text-xs flex items-center leading-none text-gray-300">
-                        {{ locale.language.label }}
+                        {{ locale.language.name }}
                     </div>
                     <FooterTab @pinTab="() => isTabActive = false" v-if="isTabActive === 'language'" :tabName="`language`">
                         <template #default>
                             <form
                                 @submit.prevent="form.patch(route('models.profile.update'))"
                                 v-for="(option, index) in locale.languageOptions"
-                                :class="[ locale.language.id == index ? 'bg-gray-600 hover:bg-gray-500' : '', 'grid hover:bg-gray-700 ']"
+                                :class="[ option.id == locale.language.id ? 'bg-gray-600 hover:bg-gray-500' : '', 'grid hover:bg-gray-700 ']"
                             >
                                 <button @click="form.language_id = option.id, locale.language = option" type="submit" class="py-1.5">
-                                    {{ option.label }}
+                                    {{ option.name }}
                                 </button>
                             </form>
                         </template>

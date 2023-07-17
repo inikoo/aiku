@@ -22,7 +22,7 @@ class GetLanguagesOptions
             $selectOptions[] =
                 [
                     'id'    => $language->id,
-                    'label' => $language->name,
+                    'name'  => $language->name,
                     'code'  => $language->code,
                 ];
         }
