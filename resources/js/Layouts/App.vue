@@ -213,25 +213,24 @@ const user = ref(usePage().props.auth.user);
                         <!-- Avatar Group -->
                         <div class="flex items-center mr-6 space-x-3">
                             <div class="flex">
-                                <!-- Search Button -->
+                                <!-- Button: Search -->
                                 <button @click="showSearchDialog = !showSearchDialog"
-                                        class="h-8 w-8 grid items-center justify-center rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500">
+                                        class="h-8 w-8 grid items-center justify-center rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                                     <span class="sr-only">{{ trans("Search") }}</span>
                                     <font-awesome-icon aria-hidden="true" icon="fa-regular fa-search" size="lg" />
                                     <SearchBar v-if="showSearchDialog" v-on:close="showSearchDialog = false" />
                                 </button>
 
-                                <!-- Notifications -->
+                                <!-- Button: Notifications -->
                                 <button type="button"
-                                        class="h-8 w-8 grid items-center justify-center rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500">
+                                        class="h-8 w-8 grid items-center justify-center rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                                     <span class="sr-only">{{ trans("View notifications") }}</span>
                                     <font-awesome-icon aria-hidden="true" icon="fa-regular fa-bell" size="lg" />
                                 </button>
                             </div>
 
-                            <!-- Avatar Button -->
+                            <!-- Button: Avatar -->
                             <Menu as="div" class="relative">
-
                                 <MenuButton
                                     class="flex max-w-xs items-center rounded-full bg-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
                                     <span class="sr-only">{{ trans("Open user menu") }}</span>
@@ -240,6 +239,7 @@ const user = ref(usePage().props.auth.user);
                                         alt="" />
                                 </MenuButton>
 
+                                <!-- Popup: Avatar -->
                                 <transition enter-active-class="transition ease-out duration-100" enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100"
                                             leave-active-class="transition ease-in duration-75" leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
                                     <MenuItems class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-200 focus:outline-none">
@@ -277,7 +277,7 @@ const user = ref(usePage().props.auth.user);
                 </div>
             </div>
 
-            <DisclosurePanel class="md:hidden">
+            <!-- <DisclosurePanel class="md:hidden">
                 <div class="space-y-1 px-2 pt-2 pb-3 sm:px-3">
                     <DisclosureButton v-for="item in navigation" :key="item.name" as="a" :href="item.href"
                         :class="[item.current ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white', 'block rounded-md px-3 py-2 text-base font-medium']"
@@ -296,11 +296,11 @@ const user = ref(usePage().props.auth.user);
                         </div>
 
                         <Button type="button"
-                                class=" p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500">
+                                class=" p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                             <span class="sr-only">{{ trans("View notifications") }}</span>
                             <font-awesome-icon aria-hidden="true" icon="fa-regular fa-bell" size="lg" />
                         </Button>
-                        <Button type="button" class=" p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500">
+                        <Button type="button" class=" p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                             <span class="sr-only">{{ trans("View notifications") }}</span>
                             <FontAwesomeIcon aria-hidden="true" icon="fa-regular fa-bell" size="lg" />
 
@@ -314,7 +314,7 @@ const user = ref(usePage().props.auth.user);
                         </DisclosureButton>
                     </div>
                 </div>
-            </DisclosurePanel>
+            </DisclosurePanel> -->
         </Disclosure>
 
         <!-- Breedcrumbs -->

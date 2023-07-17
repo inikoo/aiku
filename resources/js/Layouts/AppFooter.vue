@@ -38,9 +38,6 @@ const form = useForm({
     language_id: null,
 })
 
-console.log(locale.language)
-console.log(locale.languageOptions)
-
 </script>
 
 <template>
