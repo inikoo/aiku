@@ -88,8 +88,8 @@ class UpdateProfile
 
 
 
-    public function htmlResponse(User $user): RedirectResponse
-    {
-        return Redirect::route('profile.show');
-    }
+    // public function htmlResponse(User $user): RedirectResponse
+    // {
+    //     return Redirect::route('profile.show');
+    // }
 }
