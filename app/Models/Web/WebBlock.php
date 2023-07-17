@@ -27,6 +27,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $name
  * @property string|null $description
  * @property int $web_block_type_id
+ * @property array $blueprint
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at

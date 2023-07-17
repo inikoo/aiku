@@ -13,8 +13,8 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  *
  * @property int $id
  * @property string $token_id
- * @property string $fcmable_type
- * @property int $fcmable_id
+ * @property string $push_notifiable_type
+ * @property int $push_notifiable_id
  * @property string $fcm_token
  * @property string|null $platform
  * @property \Illuminate\Support\Carbon|null $created_at

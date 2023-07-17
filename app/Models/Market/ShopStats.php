@@ -44,6 +44,13 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property int $number_customers_trade_state_none
  * @property int $number_customers_trade_state_one
  * @property int $number_customers_trade_state_many
+ * @property int $number_prospects
+ * @property int $number_prospects_state_no_contacted
+ * @property int $number_prospects_state_contacted
+ * @property int $number_prospects_state_not_interested
+ * @property int $number_prospects_state_registered
+ * @property int $number_prospects_state_invoiced
+ * @property int $number_prospects_state_bounced
  * @property int $number_orders
  * @property int $number_orders_state_creating
  * @property int $number_orders_state_submitted

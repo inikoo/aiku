@@ -29,12 +29,10 @@ use Illuminate\Support\Carbon;
  * @property int $number_users
  * @property int $number_users_status_active
  * @property int $number_users_status_inactive
- * @property int $number_users_type_tenant
  * @property int $number_users_type_employee
  * @property int $number_users_type_guest
  * @property int $number_users_type_supplier
  * @property int $number_users_type_agent
- * @property int $number_users_type_customer
  * @property int $number_images
  * @property int $filesize_images
  * @property int $number_attachments
