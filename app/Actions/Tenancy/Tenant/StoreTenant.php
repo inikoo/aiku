@@ -9,6 +9,7 @@ namespace App\Actions\Tenancy\Tenant;
 
 use App\Actions\Accounting\PaymentServiceProvider\StorePaymentServiceProvider;
 use App\Actions\Assets\Currency\SetCurrencyHistoricFields;
+use App\Actions\Elasticsearch\CreateElasticSearchTenantAlias;
 use App\Actions\Mail\Mailroom\StoreMailroom;
 use App\Actions\Tenancy\Group\Hydrators\GroupHydrateTenants;
 use App\Actions\Tenancy\Group\StoreGroup;
@@ -68,6 +69,7 @@ class StoreTenant
         DB::statement("CREATE SCHEMA ".$tenant->schema());
         $tenant->execute(
             function (Tenant $tenant) {
+                CreateElasticSearchTenantAlias::run();
                 SetTenantLogo::run($tenant);
                 $tenant->stats()->create();
                 $tenant->procurementStats()->create();
