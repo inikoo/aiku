@@ -6,10 +6,11 @@ import FooterTab from '@/Components/Footer/FooterTab.vue'
 import { useLocaleStore } from "@/Stores/locale"
 import { useLayoutStore } from "@/Stores/layout"
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faCircle } from "@/../private/pro-solid-svg-icons"
-import { library } from '@fortawesome/fontawesome-svg-core'
-library.add(faCircle)
-
+// import { faCircle } from "@/../private/pro-solid-svg-icons"
+// import { library } from '@fortawesome/fontawesome-svg-core'
+// library.add(faCircle)
+const locale = useLocaleStore()
+const layout = useLayoutStore()
 
 import { useDatabaseList, useDatabaseObject } from "vuefire"
 import { getDatabase, ref as dbRef } from "firebase/database"
@@ -17,22 +18,10 @@ import { initializeApp } from "firebase/app"
 import serviceAccount from "@/../private/firebase/aiku-firebase.json"
 const firebaseApp = initializeApp(serviceAccount);
 const db = getDatabase(firebaseApp)
-const activities = useDatabaseList(dbRef(db, 'aw'))
+const activities = useDatabaseList(dbRef(db, layout.tenant.code))
 
-const locale = useLocaleStore()
-const layout = useLayoutStore()
+
 const isTabActive: Ref<boolean | string> = ref(false)
-
-const setToLocalStorage = (key: string, value: string) => {
-    localStorage.setItem(key, value)
-}
-
-// onMounted(() => {
-//     const getLocalLanguage = JSON.parse(localStorage.getItem('language'))
-//     if (getLocalLanguage) {
-//         locale.language = getLocalLanguage
-//     }
-// })
 
 const form = useForm({
     language_id: null,
@@ -48,7 +37,7 @@ const form = useForm({
         <div class="flex justify-between">
             <!-- Left Section -->
             <div class="pl-4 flex items-center gap-x-1.5 py-1">
-                <img src="@/../art/logo/svg/logo-no-background.svg" alt="" class="h-4">
+                <img src="@/../art/logo/svg/logo-no-background.svg" alt="Aiku" class="h-4">
                 <!-- <img src="/art/logo-color-trimmed.png" alt="" class="h-4"> -->
                 <!-- <span class="text-purple-400 font-semibold">aiku</span> -->
             </div>
@@ -61,7 +50,8 @@ const form = useForm({
                 >
                     <div class="text-xs text-gray-300 flex items-center gap-x-1">
                         <div class="ring-1 h-2 aspect-square rounded-full" :class="[activities.length > 0 ? 'bg-green-400 ring-green-600' : 'bg-gray-400 ring-gray-600']" />
-                        Active Users ({{ activities.length }})
+                        <span v-if="activities.length > 0">Active Users ({{ activities.length }})</span>
+                        <span v-else>No active user</span>
                     </div>
                     
                     <FooterTab @pinTab="() => isTabActive = false" v-if="isTabActive == 'activeUsers'" :tabName="`activeUsers`">
@@ -81,7 +71,7 @@ const form = useForm({
                 <!-- Tab: Language -->
                 <div class="relative h-full flex z-50 select-none justify-center items-center px-8 cursor-pointer"
                     :class="[isTabActive == 'language' ? 'bg-gray-600' : 'bg-gray-800']"
-                    @click="isTabActive = 'language'"
+                    @click="isTabActive == 'language' ? isTabActive = !isTabActive : isTabActive = 'language'"
                 >
                     <!-- @click="isTabActive == 'language' ? isTabActive = !isTabActive : isTabActive = 'language'" -->
                     <FontAwesomeIcon icon="fal fa-language" class="text-xs mr-1 h-5 text-gray-300"></FontAwesomeIcon>
