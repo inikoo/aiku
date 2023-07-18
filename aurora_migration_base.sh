@@ -32,6 +32,8 @@ rm -rf storage/app/public/central
 echo -e "✨ Resetting database ${ITALIC}${DB}${NONE}"
 dropdb --force --if-exists ${DB}
 createdb --template=template0 --lc-collate="${DB_COLLATE}" --lc-ctype="${DB_COLLATE}"  ${DB}
+echo -e "✨ Resetting elasticsearch"
+php artisan es:refresh
 echo "🌱 Migrating and seeding database"
 php artisan migrate --path=database/migrations/central --database=central
 php artisan db:seed

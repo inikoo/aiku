@@ -1,5 +1,3 @@
-
-
 <script setup lang="ts">
 import {Head} from '@inertiajs/vue3';
 import {library} from '@fortawesome/fontawesome-svg-core';

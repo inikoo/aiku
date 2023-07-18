@@ -10,8 +10,6 @@ namespace App\Http\Middleware;
 
 use App\Actions\UI\GetFirstLoadProps;
 use App\Http\Resources\UI\LoggedUserResource;
-use App\Http\Resources\UniversalSearch\UniversalSearchResource;
-use App\Models\Search\UniversalSearch;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Inertia\Middleware;
@@ -21,14 +19,6 @@ class HandleInertiaRequests extends Middleware
 {
     protected $rootView = 'app';
 
-
-    /**
-     * Define the props that are shared by default.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     *
-     * @return array
-     */
     public function share(Request $request): array
     {
 
@@ -54,7 +44,6 @@ class HandleInertiaRequests extends Middleware
         }
 
 
-
         return array_merge(
             parent::share($request),
             $firstLoadOnlyProps,
@@ -65,25 +54,9 @@ class HandleInertiaRequests extends Middleware
                 'flash'         => [
                     'notification' => fn () => $request->session()->get('notification')
                 ],
-
-                'ziggy'         => function () use ($request) {
-                    return array_merge((new Ziggy())->toArray(), [
-                        'location' => $request->url(),
-                    ]);
-                },
-
-
-                'searchQuery'       => fn () => $request->session()->get('fastSearchQuery'),
-                'searchResults'     => function () use ($request) {
-                    $query=$request->session()->get('fastSearchQuery');
-                    if ($query) {
-                        $items = UniversalSearch::search($query)->paginate(5);
-                        return UniversalSearchResource::collection($items);
-                    } else {
-                        return ['data' => []];
-                    }
-                },
-
+                'ziggy' => [
+                    'location' => $request->url(),
+                ],
 
             ]
         );
