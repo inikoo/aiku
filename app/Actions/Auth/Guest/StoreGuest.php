@@ -8,6 +8,7 @@
 namespace App\Actions\Auth\Guest;
 
 use App\Actions\Auth\GroupUser\StoreGroupUser;
+use App\Actions\Auth\Guest\Hydrators\GuestHydrateUniversalSearch;
 use App\Actions\Auth\User\StoreUser;
 use App\Actions\Tenancy\Tenant\HydrateTenant;
 use App\Enums\Auth\Guest\GuestTypeEnum;
@@ -37,7 +38,7 @@ class StoreGuest
     {
         $guest = Guest::create($modelData);
         HydrateTenant::make()->guestsStats();
-
+        GuestHydrateUniversalSearch::dispatch($guest);
         return $guest;
     }
 

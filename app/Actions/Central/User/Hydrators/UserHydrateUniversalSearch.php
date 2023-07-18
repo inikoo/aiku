@@ -9,7 +9,7 @@ namespace App\Actions\Central\User\Hydrators;
 
 use App\Actions\Traits\WithRoutes;
 use App\Actions\Traits\WithTenantJob;
-use App\Models\Central\User;
+use App\Models\Auth\User;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class UserHydrateUniversalSearch
@@ -24,7 +24,7 @@ class UserHydrateUniversalSearch
             [
                 'section'        => 'sysadmin',
                 'title'          => $user->username,
-                'description'    => trum($user->email.' '.$user->contact_name)
+                'description'    => trim($user->email.' '.$user->contact_name)
             ]
         );
     }

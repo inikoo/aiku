@@ -9,7 +9,6 @@ namespace App\Models\Central;
 
 use App\Models\Search\UniversalSearch;
 use App\Models\Tenancy\Tenant;
-use App\Models\Traits\HasUniversalSearch;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -49,7 +48,6 @@ class User extends Authenticatable
     use HasApiTokens;
     use HasSlug;
     use UsesLandlordConnection;
-    use HasUniversalSearch;
 
     protected $guarded = [
     ];

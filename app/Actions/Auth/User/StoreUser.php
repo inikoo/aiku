@@ -8,6 +8,7 @@
 namespace App\Actions\Auth\User;
 
 use App\Actions\Auth\GroupUser\Hydrators\GroupUserHydrateTenants;
+use App\Actions\Central\User\Hydrators\UserHydrateUniversalSearch;
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateUsers;
 use App\Models\Auth\GroupUser;
 use App\Models\Auth\Guest;
@@ -84,6 +85,7 @@ class StoreUser
         $groupUser->refresh();
         TenantHydrateUsers::dispatch($tenant);
         GroupUserHydrateTenants::dispatch($groupUser);
+        UserHydrateUniversalSearch::dispatch($user);
 
 
         return $user;

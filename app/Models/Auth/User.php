@@ -11,6 +11,7 @@ use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateUsers;
 use App\Enums\Auth\User\UserAuthTypeEnum;
 use App\Models\Assets\Language;
 use App\Models\Tenancy\Tenant;
+use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\WithPushNotifications;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasRoles;
@@ -94,6 +95,7 @@ class User extends Authenticatable implements Auditable
     use HasFactory;
     use HasHistory;
     use WithPushNotifications;
+    use HasUniversalSearch;
 
     protected $guarded = [
     ];

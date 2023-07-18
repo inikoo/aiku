@@ -2,7 +2,6 @@
 
 namespace App\Models\Search;
 
-use App\Concerns\Scopes\TenantScope;
 use App\Models\Tenancy\Tenant;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
@@ -28,15 +27,17 @@ class UniversalSearch extends Model
 
     protected $guarded = [];
 
-    public static function bootBelongsToTenant(): void
+
+    public static function boot(): void
     {
-        static::addGlobalScope(new TenantScope());
+        parent::boot();
 
         static::creating(function (Model $model) {
             $model->tenant_id ??= Tenant::current()?->id;
         });
-
     }
+
+
     public function searchableAs(): string
     {
         return config('app.name').'_search';
