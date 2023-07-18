@@ -23,12 +23,18 @@ use Spatie\Sluggable\SlugOptions;
  * App\Models\Web\ContentBlock
  *
  * @property int $id
+ * @property int $web_block_type_id
  * @property int $web_block_id
- * @property mixed $data
+ * @property string $slug
+ * @property string $code
+ * @property string $name
+ * @property array $layout
+ * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property-read \App\Models\Web\WebBlock $webBlock
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Web\WebpageVariant> $webpageVariants
  * @method static Builder|ContentBlock newModelQuery()
  * @method static Builder|ContentBlock newQuery()
  * @method static Builder|ContentBlock onlyTrashed()

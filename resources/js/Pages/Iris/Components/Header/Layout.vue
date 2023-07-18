@@ -9,6 +9,8 @@ const props = defineProps<{
     setPosition : Function,
     changeName : Function
     layout : Object
+    setActive:Function
+    layerActive : Object
 }>()
 
 
@@ -97,13 +99,13 @@ const resizable = ref(null)
       @drag:start="eHandler"
       @drag:end="eHandler"
     >
-      <div id="markers" class="row" v-for="item in props.data" :key="item.id">
+      <div id="markers" class="row" v-for="(item, index) in props.data" :key="item.id">
         <div
           :ref="refValue => item.ref = refValue"
           class="col-sm-10 draggable-component"
           :style="{...item.style}"
         >
-          <div class="draggable-handle" id="mydivheader">
+        <div :class="['draggable-handle', { 'border': get(data[layerActive],'id') === item.id }]" @click="(e) => { e.stopPropagation(); props.setActive(index) }">
             <Input :data="item" :save="changeName" keyValue="name"/>
         </div>
         </div>

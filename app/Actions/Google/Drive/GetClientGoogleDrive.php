@@ -43,7 +43,7 @@ class GetClientGoogleDrive
 
         $client->setApplicationName('Aiku google drive manager');
         $client->setAuthConfig([
-            'client_id' => Arr::get($tenant->settings, 'google.id'),
+            'client_id'     => Arr::get($tenant->settings, 'google.id'),
             'client_secret' => Arr::get($tenant->settings, 'google.secret')
         ]);
 

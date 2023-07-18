@@ -1,5 +1,5 @@
 <script setup>
-import { ref , watch ,watchEffect } from 'vue'
+import { ref, watch, watchEffect } from 'vue'
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { RadioGroup, RadioGroupLabel, RadioGroupOption } from '@headlessui/vue'
 import Menu from './Components/Menu/index.vue'
@@ -12,7 +12,10 @@ import { get } from 'lodash'
 import HyperInfoTools from './Components/Fields/InfoFieldTools.vue'
 import VueResizable from 'vue-resizable'
 import SocialMediaPicker from "./Components/Fields//SocialMediaTools.vue"
+import ColorPicker from './Components/Fields/ColorPicker.vue'
 import Layout from "./Components/Header/Layout.vue"
+import FontSize from './Components/Fields/Fontsize.vue'
+import FontDecorator from './Components/Fields/FontDecorator.vue'
 library.add(faHandPointer, faHandRock, fab, faPlus)
 
 const Dummy = {
@@ -35,33 +38,57 @@ const Dummy = {
     ],
 }
 const data = ref([
-    { 
-      name : 'AW Gift',
-      id: uuidv4(),
-      type: 'text',
-      style: {top : '75px', left : '536px', fontSize : '34px', },
+    {
+        name: 'AW Gift',
+        id: uuidv4(),
+        type: 'text',
+        style: { top: '75px', left: '536px', fontSize: '34px', },
     },
 ])
+const layerActive = ref(null)
 const handtools = ref(Dummy.tools[0])
 const layout = ref({
-    right : 0 , 
-    bottom : 0, 
-    height : 200,
-    width : '100%',
-    left:0,
-    top:0,
+    right: 0,
+    bottom: 0,
+    height: 200,
+    width: '100%',
+    left: 0,
+    top: 0,
 })
 
 
-const setPosition=(value,item)=>{
-    const index = data.value.findIndex((i)=>i.id == item.id)
-    data.value[index].style = { ...data.value[index].style , ...value}
+const setPosition = (value, item) => {
+    const index = data.value.findIndex((i) => i.id == item.id)
+    data.value[index].style = { ...data.value[index].style, ...value }
 }
 
-const changeName=(value)=>{
-    const index = data.value.findIndex((i)=>i.id == value.column.id)
+const changeName = (value) => {
+    const index = data.value.findIndex((i) => i.id == value.column.id)
     data.value[index].name = value.value
 }
+
+const setActive = (index)=>{
+    layerActive.value = index
+}
+
+const changeColor=(color)=>{
+    if( data.value[layerActive.value]){
+        data.value[layerActive.value].style.color = color
+    }
+}
+
+const changesize=(size)=>{
+    if( data.value[layerActive.value]){
+        data.value[layerActive.value].style.fontSize = `${size}px`
+    }
+}
+
+const changeText=(value)=>{
+    if( data.value[layerActive.value]){
+        data.value[layerActive.value].style = value
+    }
+}
+
 
 </script>
 
@@ -69,7 +96,7 @@ const changeName=(value)=>{
     <div class="bg-white">
         <div class="pb-16 pt-6 sm:pb-24">
             <div class="mt-8 px-4 sm:px-6 lg:px-8">
-                <div class="flex">
+                <div class="flex" @click="layerActive = null">
                     <!-- tools -->
                     <div class="w-1/4 p-6 overflow-y-auto overflow-x-hidden"
                         style="border: 1px solid #bfbfbf; height: 46rem">
@@ -107,11 +134,28 @@ const changeName=(value)=>{
                     </div>
                     <!-- Image gallery -->
                     <div style="width: 90%; background: #f2f2f2; border: 1px solid #bfbfbf; overflow:hidden">
-                        <div style="height: 5%; background: #ffffff; padding:5px; width: 100%">sdfsdf</div>
-                        <div class="p-3 relative" >
-                        <div>
-                            <Layout  :data="data" :setPosition="setPosition" :changeName="changeName" :layout="layout"/>
+                        <div style="height: 6%; background: #ffffff; padding:5px; width: 100%" class="flex gap-3">
+                            <div>
+                                <span aria-hidden="true">
+                                    <ColorPicker :color="get(data[layerActive],['style','color'],'#000000')" :changeColor="changeColor" @click="(e)=>e.stopPropagation()"/>
+                                </span>
+                            </div>
+                            <div>
+                                    <span aria-hidden="true">
+                                       <FontSize :size="get(data[layerActive],['style','fontSize'],'34px')" :changesize="changesize" @click="(e)=>e.stopPropagation()"/>
+                                    </span>
+                                </div>
+                                <div>
+                                    <span aria-hidden="true">
+                                       <FontDecorator :fontDecorator="get(data[layerActive],['style'],{})" :changeText="changeText" @click="(e)=>e.stopPropagation()"/>
+                                    </span>
+                                </div>
+
                         </div>
+                        <div class="p-3 relative">
+                            <div>
+                                <Layout :data="data" :setPosition="setPosition" :changeName="changeName" :layout="layout" :setActive="setActive" :layerActive="layerActive"/>
+                            </div>
                         </div>
                     </div>
                 </div>

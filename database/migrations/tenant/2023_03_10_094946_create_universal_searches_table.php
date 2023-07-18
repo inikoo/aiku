@@ -10,22 +10,22 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
-    public function up()
+    public function up(): void
     {
         Schema::create('universal_searches', function (Blueprint $table) {
             $table->id();
+            $table->unsignedSmallInteger('tenant_id')->index();
+            $table->foreign('tenant_id')->references('id')->on('public.tenants');
             $table->nullableMorphs('model');
             $table->string('section')->nullable();
-            $table->jsonb('route')->nullable();
-            $table->string('icon')->nullable();
-            $table->string('primary_term');
-            $table->string('secondary_term')->nullable();
+            $table->string('title');
+            $table->string('description')->nullable();
             $table->timestampsTz();
         });
     }
 
 
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('universal_searches');
     }

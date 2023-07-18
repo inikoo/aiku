@@ -2,28 +2,21 @@
 
 namespace App\Models\Search;
 
+use App\Concerns\Scopes\TenantScope;
+use App\Models\Tenancy\Tenant;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\App;
 use Laravel\Scout\Searchable;
-use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
  * App\Models\Search\UniversalSearch
  *
- * @property int $id
- * @property string|null $model_type
- * @property int|null $model_id
- * @property string|null $section
- * @property mixed|null $route
- * @property string|null $icon
- * @property string $primary_term
- * @property string|null $secondary_term
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
+ * @property-read Model|\Eloquent $model
+ * @property-read Tenant $tenant
  * @method static Builder|UniversalSearch newModelQuery()
  * @method static Builder|UniversalSearch newQuery()
  * @method static Builder|UniversalSearch query()
@@ -31,19 +24,36 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  */
 class UniversalSearch extends Model
 {
-    use UsesTenantConnection;
     use Searchable;
 
     protected $guarded = [];
 
+    public static function bootBelongsToTenant(): void
+    {
+        static::addGlobalScope(new TenantScope());
+
+        static::creating(function (Model $model) {
+            $model->tenant_id ??= Tenant::current()?->id;
+        });
+
+    }
     public function searchableAs(): string
     {
-        $index = array_filter([config('app.name'), App::environment('production') ? null : App::environment(), app('currentTenant')->slug, 'universal_search']);
-        return implode('_', $index);
+        return config('app.name').'_search';
     }
 
     public function toSearchableArray(): array
     {
         return Arr::except($this->toArray(), ['updated_at', 'created_at']);
+    }
+
+    public function model(): MorphTo
+    {
+        return $this->morphTo();
+    }
+
+    public function tenant(): BelongsTo
+    {
+        return $this->belongsTo(Tenant::class);
     }
 }

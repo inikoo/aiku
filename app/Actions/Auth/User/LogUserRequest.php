@@ -73,7 +73,7 @@ class LogUserRequest
     {
         if(explode(' ', $browser)[0] == 'chrome') {
             return 'fab fa-chrome';
-        } else if($browser == 'microsoft') {
+        } elseif($browser == 'microsoft') {
             return 'fab fa-edge';
         }
 
@@ -84,7 +84,7 @@ class LogUserRequest
     {
         if($platform == 'android') {
             return 'fab fa-android';
-        } else if($platform == 'apple') {
+        } elseif($platform == 'apple') {
             return 'fab fa-apple';
         }
 

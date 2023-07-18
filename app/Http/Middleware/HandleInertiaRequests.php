@@ -10,8 +10,6 @@ namespace App\Http\Middleware;
 
 use App\Actions\UI\GetFirstLoadProps;
 use App\Http\Resources\UI\LoggedUserResource;
-use App\Http\Resources\UniversalSearch\UniversalSearchResource;
-use App\Models\Search\UniversalSearch;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Inertia\Middleware;
@@ -19,21 +17,8 @@ use Tightenco\Ziggy\Ziggy;
 
 class HandleInertiaRequests extends Middleware
 {
-    /**
-     * The root template that is loaded on the first page visit.
-     *
-     * @var string
-     */
     protected $rootView = 'app';
 
-
-    /**
-     * Define the props that are shared by default.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     *
-     * @return array
-     */
     public function share(Request $request): array
     {
 
@@ -44,8 +29,12 @@ class HandleInertiaRequests extends Middleware
 
 
         if (!$request->inertia() or Session::get('reloadLayout')) {
-            $firstLoadOnlyProps =GetFirstLoadProps::run($user);
-
+            $firstLoadOnlyProps          =GetFirstLoadProps::run($user);
+            $firstLoadOnlyProps['ziggy'] = function () use ($request) {
+                return array_merge((new Ziggy())->toArray(), [
+                    'location' => $request->url(),
+                ]);
+            };
             if (Session::get('reloadLayout') == 'remove') {
                 Session::forget('reloadLayout');
             }
@@ -53,7 +42,6 @@ class HandleInertiaRequests extends Middleware
                 Session::put('reloadLayout', 'remove');
             }
         }
-
 
 
         return array_merge(
@@ -66,25 +54,9 @@ class HandleInertiaRequests extends Middleware
                 'flash'         => [
                     'notification' => fn () => $request->session()->get('notification')
                 ],
-
-                'ziggy'         => function () use ($request) {
-                    return array_merge((new Ziggy())->toArray(), [
-                        'location' => $request->url(),
-                    ]);
-                },
-
-
-                'searchQuery'       => fn () => $request->session()->get('fastSearchQuery'),
-                'searchResults'     => function () use ($request) {
-                    $query=$request->session()->get('fastSearchQuery');
-                    if ($query) {
-                        $items = UniversalSearch::search($query)->paginate(5);
-                        return UniversalSearchResource::collection($items);
-                    } else {
-                        return ['data' => []];
-                    }
-                },
-
+                'ziggy' => [
+                    'location' => $request->url(),
+                ],
 
             ]
         );

@@ -28,22 +28,23 @@ class UploadFileGoogleDrive
     {
         $client = GetClientGoogleDrive::run();
         $tenant = app('currentTenant');
-        $name = Str::of($path)->basename();
+        $name   = Str::of($path)->basename();
 
         $base_folder_key = Arr::get($tenant->settings, 'google.drive.folder');
 
         $fileMetadata = new Google_Service_Drive_DriveFile(
             array(
-                'name' => $name,
+                'name'    => $name,
                 'parents' => [$base_folder_key]
             )
         );
 
         $file = $client->files->create(
-            $fileMetadata, array(
-                'data' => file_get_contents($path),
+            $fileMetadata,
+            array(
+                'data'       => file_get_contents($path),
                 'uploadType' => 'multipart',
-                'fields' => 'id'
+                'fields'     => 'id'
             )
         );
 

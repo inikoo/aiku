@@ -21,16 +21,15 @@ use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
  *
  * @property int $id
  * @property WebBlockTypeScopeEnum $scope
- * @property string $slug
- * @property string $code
+ * @property WebBlockTypeSlugEnum $slug
  * @property string $name
- * @property WebBlockTypeSlugEnum $class
+ * @property array $blueprint
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property-read \App\Models\Web\WebBlockTypeStats|null $stats
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Web\WebBlock> $webBlock
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Web\WebBlock> $webBlocks
  * @method static Builder|WebBlockType newModelQuery()
  * @method static Builder|WebBlockType newQuery()
  * @method static Builder|WebBlockType onlyTrashed()

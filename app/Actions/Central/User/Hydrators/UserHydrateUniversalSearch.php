@@ -22,11 +22,9 @@ class UserHydrateUniversalSearch
     {
         $user->universalSearch()->create(
             [
-                'section'        => 'Sysadmin',
-                'route'          => $this->routes(),
-                'icon'           => 'fa-users',
-                'primary_term'   => $user->username,
-                'secondary_term' => $user->email
+                'section'        => 'sysadmin',
+                'title'          => $user->username,
+                'description'    => trum($user->email.' '.$user->contact_name)
             ]
         );
     }

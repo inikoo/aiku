@@ -7,7 +7,6 @@
 
 declare(strict_types=1);
 
-use App\Actions\Auth\User\GetAllUsers;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware([

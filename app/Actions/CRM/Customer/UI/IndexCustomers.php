@@ -134,6 +134,7 @@ class IndexCustomers extends InertiaAction
                                 ]
                             ] : null
                         ],
+                        default=> null,
                     }
                     /*
                     [

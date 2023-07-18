@@ -7,8 +7,6 @@
 
 namespace App\Actions\Firebase;
 
-use App\Models\Auth\User;
-use App\Models\Tenancy\Tenant;
 use Kreait\Laravel\Firebase\Facades\Firebase;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\AsObject;

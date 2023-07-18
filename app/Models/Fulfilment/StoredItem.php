@@ -30,6 +30,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property array $data
  * @property string|null $deleted_at
  * @property int|null $source_id
+ * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
  * @method static Builder|StoredItem newModelQuery()
  * @method static Builder|StoredItem newQuery()
  * @method static Builder|StoredItem query()
