@@ -26,7 +26,7 @@ class UserSearchResultResource extends JsonResource
             'email'              => $user->email,
             'contact_name'       => $user->contact_name,
             'route'              => [
-                'name'       => 'sysadmin.users.index',
+                'name'       => 'sysadmin.users.show',
                 'parameters' => $user->username
             ],
             'icon'   => ['fal', 'fa-terminal']

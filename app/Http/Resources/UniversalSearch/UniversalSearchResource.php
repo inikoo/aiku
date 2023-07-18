@@ -8,6 +8,7 @@
 namespace App\Http\Resources\UniversalSearch;
 
 use App\Http\Resources\Auth\UserSearchResultResource;
+use App\Http\Resources\HumanResources\EmployeeSearchResultResource;
 use App\Http\Resources\Web\WebsiteSearchResultResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -22,9 +23,10 @@ class UniversalSearchResource extends JsonResource
             'model_type' => $this->model_type,
             'model'      => $this->when(true, function () {
                 return match (class_basename($this->resource->model)) {
-                    'Website' => new WebsiteSearchResultResource($this->resource->model),
-                    'User'    => new UserSearchResultResource($this->resource->model),
-                    default   => [],
+                    'Website'  => new WebsiteSearchResultResource($this->resource->model),
+                    'User'     => new UserSearchResultResource($this->resource->model),
+                    'Employee' => new EmployeeSearchResultResource($this->resource->model),
+                    default    => [],
                 };
             }),
 

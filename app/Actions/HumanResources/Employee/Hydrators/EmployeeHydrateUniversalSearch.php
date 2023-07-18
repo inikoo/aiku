@@ -21,16 +21,9 @@ class EmployeeHydrateUniversalSearch
 
         $employee->universalSearch()->create(
             [
-                'section' => 'HumanResources',
-                'route'   => json_encode([
-                    'name'      => 'hr.employees.show',
-                    'arguments' => [
-                        $employee->slug
-                    ]
-                ]),
-                'icon'           => 'fa-user-hard-hat',
-                'primary_term'   => $employee->contact_name,
-                'secondary_term' => $employee->email
+                'section'     => 'hr',
+                'title'       => trim($employee->slug.' '.$employee->worker_number.' '.$employee->contact_name),
+                'description' => $employee->work_email.' '.$employee->job_title
             ]
         );
     }
