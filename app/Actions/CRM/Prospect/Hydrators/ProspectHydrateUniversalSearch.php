@@ -18,18 +18,12 @@ class ProspectHydrateUniversalSearch
 
     public function handle(Prospect $prospect): void
     {
-        $prospect->universalSearch()->create(
+        $prospect->universalSearch()->updateOrCreate(
+            [],
             [
-                'section' => 'Leads',
-                'route'   => json_encode([
-                    'name'      => 'procurement.agents.show',
-                    'arguments' => [
-                        $prospect->slug
-                    ]
-                ]),
-                'icon'           => 'fa-map-signs',
-                'primary_term'   => $prospect->name.' '.$prospect->email,
-                'secondary_term' => $prospect->contact_name.' '.$prospect->company_name
+                'section'     => 'crm',
+                'title'       => trim($prospect->name.' '.$prospect->contact_name),
+                'description' => trim($prospect->email.' '.$prospect->company_name)
             ]
         );
     }

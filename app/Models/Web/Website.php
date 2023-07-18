@@ -11,6 +11,7 @@ use App\Enums\Web\Website\WebsiteEngineEnum;
 use App\Enums\Web\Website\WebsiteStateEnum;
 use App\Models\Market\Shop;
 use App\Models\Traits\HasHistory;
+use App\Models\Traits\HasUniversalSearch;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -67,6 +68,7 @@ class Website extends Model implements Auditable
     use HasSlug;
     use SoftDeletes;
     use HasHistory;
+    use HasUniversalSearch;
 
     protected $casts = [
         'data'      => 'array',

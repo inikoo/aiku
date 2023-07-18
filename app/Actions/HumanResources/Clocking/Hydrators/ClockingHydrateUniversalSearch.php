@@ -20,12 +20,13 @@ class ClockingHydrateUniversalSearch
 
     public function handle(Clocking $clocking): void
     {
-        $clocking->universalSearch()->create(
+        $clocking->universalSearch()->updateOrCreate(
+            [],
             [
                 'section'        => 'HumanResources',
                 'route'          => $this->routes(),
                 'icon'           => 'fa-clock',
-                'primary_term'   => $clocking->slug,
+                'title'          => $clocking->slug,
             ]
         );
     }

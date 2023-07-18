@@ -18,9 +18,10 @@ class OrderHydrateUniversalSearch
 
     public function handle(Order $order): void
     {
-        $order->universalSearch()->create(
+        $order->universalSearch()->updateOrCreate(
+            [],
             [
-                'section' => 'CRM',
+                'section' => 'oms',
                 'route'   => json_encode([
                     'name'      => 'customers.show.orders.show',
                     'arguments' => [
@@ -29,8 +30,8 @@ class OrderHydrateUniversalSearch
                     ]
                 ]),
                 'icon'           => 'fa-money-check-alt',
-                'primary_term'   => $order->customer_id.' '.$order->number,
-                'secondary_term' => $order->shop_id.' '.$order->date
+                'title'          => $order->customer_id.' '.$order->number,
+                'description'    => $order->shop_id.' '.$order->date
             ]
         );
     }

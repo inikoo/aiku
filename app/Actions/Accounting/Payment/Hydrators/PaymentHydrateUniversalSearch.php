@@ -18,7 +18,8 @@ class PaymentHydrateUniversalSearch
 
     public function handle(Payment $payment): void
     {
-        $payment->universalSearch()->create(
+        $payment->universalSearch()->updateOrCreate(
+            [],
             [
                 'section' => 'Accounting',
                 'route'   => json_encode([
@@ -28,8 +29,8 @@ class PaymentHydrateUniversalSearch
                     ]
                 ]),
                 'icon'           => 'fa-coins',
-                'primary_term'   => $payment->amount.' '.$payment->reference,
-                'secondary_term' => $payment->customer_id.' '.$payment->date
+                'title'          => $payment->amount.' '.$payment->reference,
+                'description'    => $payment->customer_id.' '.$payment->date
             ]
         );
     }

@@ -18,7 +18,8 @@ class DeliveryNoteHydrateUniversalSearch
 
     public function handle(DeliveryNote $deliveryNote): void
     {
-        $deliveryNote->universalSearch()->create(
+        $deliveryNote->universalSearch()->updateOrCreate(
+            [],
             [
                 'section' => 'Dispatch',
                 'route'   => json_encode([
@@ -29,8 +30,8 @@ class DeliveryNoteHydrateUniversalSearch
                     ]
                 ]),
                 'icon'           => 'fa-box-usd',
-                'primary_term'   => $deliveryNote->number,
-                'secondary_term' => $deliveryNote->email
+                'title'          => $deliveryNote->number,
+                'description'    => $deliveryNote->email
             ]
         );
     }

@@ -18,19 +18,11 @@ class CustomerHydrateUniversalSearch
 
     public function handle(Customer $customer): void
     {
-        $customer->universalSearch()->create(
+        $customer->universalSearch()->updateOrCreate(
+            [],
             [
-                'section' => 'CRM',
-                'route'   => json_encode([
-                    'name'      => 'crm.shops.show.customers.show',
-                    'arguments' => [
-                        $customer->shop->slug,
-                        $customer->slug
-                    ]
-                ]),
-                'icon'           => 'fa-cash-register',
-                'primary_term'   => $customer->name.' '.$customer->email,
-                'secondary_term' => $customer->contact_name.' '.$customer->company_name
+                'section' => 'crm',
+                'title'   => trim($customer->email.' '.$customer->contact_name.' '.$customer->company_name),
             ]
         );
     }

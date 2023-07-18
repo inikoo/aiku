@@ -18,18 +18,12 @@ class StockHydrateUniversalSearch
 
     public function handle(Stock $stock): void
     {
-        $stock->universalSearch()->create(
+        $stock->universalSearch()->updateOrCreate(
+            [],
             [
-                'section' => 'Inventory',
-                'route'   => json_encode([
-                    'name'      => 'inventory.stocks.show',
-                    'arguments' => [
-                        $stock->slug
-                    ]
-                ]),
-                'icon'           => 'fa-inventory',
-                'primary_term'   => $stock->quantity_in_locations.' '.$stock->code,
-                'secondary_term' => $stock->units_per_pack.' '.$stock->units_per_carton
+                'section'     => 'inventory',
+                'title'       => trim($stock->code.' '.$stock->description),
+                'description' => ''
             ]
         );
     }

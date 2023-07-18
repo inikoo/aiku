@@ -18,7 +18,8 @@ class StockFamilyHydrateUniversalSearch
 
     public function handle(StockFamily $stockFamily): void
     {
-        $stockFamily->universalSearch()->create(
+        $stockFamily->universalSearch()->updateOrCreate(
+            [],
             [
                 'section' => 'StockFamily',
                 'route'   => json_encode([
@@ -28,8 +29,8 @@ class StockFamilyHydrateUniversalSearch
                     ]
                 ]),
                 'icon'           => 'fa-boxes-alt',
-                'primary_term'   => $stockFamily->name,
-                'secondary_term' => $stockFamily->code
+                'title'          => $stockFamily->name,
+                'description'    => $stockFamily->code
             ]
         );
     }

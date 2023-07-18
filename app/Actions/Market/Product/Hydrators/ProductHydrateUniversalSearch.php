@@ -18,10 +18,12 @@ class ProductHydrateUniversalSearch
 
     public function handle(Product $product): void
     {
-        $product->universalSearch()->create(
+        $product->universalSearch()->updateOrCreate(
+            [],
             [
-                'primary_term'   => $product->name,
-                'secondary_term' => $product->code
+                'section'     => 'shops',
+                'title'       => $product->name,
+                'description' => $product->code
             ]
         );
     }

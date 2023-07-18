@@ -18,7 +18,8 @@ class AgentHydrateUniversalSearch
 
     public function handle(Agent $agent): void
     {
-        $agent->universalSearch()->create(
+        $agent->universalSearch()->updateOrCreate(
+            [],
             [
                 'section' => 'Procurement',
                 'route'   => json_encode([
@@ -28,8 +29,8 @@ class AgentHydrateUniversalSearch
                     ]
                 ]),
                 'icon'           => 'fa-people-arrows',
-                'primary_term'   => $agent->name.' '.$agent->email,
-                'secondary_term' => $agent->company_name.' '.$agent->contact_name
+                'title'          => $agent->name.' '.$agent->email,
+                'description'    => $agent->company_name.' '.$agent->contact_name
             ]
         );
     }

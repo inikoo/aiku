@@ -8,6 +8,7 @@
 namespace App\Actions\Web\Website;
 
 use App\Actions\Traits\WithActionUpdate;
+use App\Actions\Web\Website\Hydrators\WebsiteHydrateUniversalSearch;
 use App\Http\Resources\Web\WebsiteResource;
 use App\Models\Market\Shop;
 use App\Models\Web\Website;
@@ -20,7 +21,9 @@ class UpdateWebsite
 
     public function handle(Website $website, array $modelData): Website
     {
-        return $this->update($website, $modelData, ['data', 'settings']);
+        $website= $this->update($website, $modelData, ['data', 'settings']);
+        WebsiteHydrateUniversalSearch::run($website);
+        return $website;
     }
 
 

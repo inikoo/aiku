@@ -18,7 +18,8 @@ class StoredItemHydrateUniversalSearch
 
     public function handle(StoredItem $storedItem): void
     {
-        $storedItem->universalSearch()->create(
+        $storedItem->universalSearch()->updateOrCreate(
+            [],
             [
                 'section' => 'fulfilment',
                 'route'   => json_encode([
@@ -28,8 +29,8 @@ class StoredItemHydrateUniversalSearch
                     ]
                 ]),
                 'icon'           => 'fa-narwhal',
-                'primary_term'   => $storedItem->code,
-                'secondary_term' => $storedItem->notes
+                'title'          => $storedItem->code,
+                'description'    => $storedItem->notes
             ]
         );
     }

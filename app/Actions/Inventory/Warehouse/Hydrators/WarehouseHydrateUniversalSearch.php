@@ -18,18 +18,12 @@ class WarehouseHydrateUniversalSearch
 
     public function handle(Warehouse $warehouse): void
     {
-        $warehouse->universalSearch()->create(
+        $warehouse->universalSearch()->updateOrCreate(
+            [],
             [
-                'section' => 'Inventory',
-                'route'   => json_encode([
-                    'name'      => 'inventory.warehouses.show',
-                    'arguments' => [
-                        $warehouse->slug
-                    ]
-                ]),
-                'icon'           => 'fa-warehouse',
-                'primary_term'   => $warehouse->name,
-                'secondary_term' => $warehouse->code
+                'section'     => 'inventory',
+                'title'       => trim($warehouse->name.' '.$warehouse->code),
+                'description' => ''
             ]
         );
     }

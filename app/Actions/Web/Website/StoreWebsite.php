@@ -9,6 +9,7 @@ namespace App\Actions\Web\Website;
 
 use App\Actions\Central\Central\StoreDomain;
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateWeb;
+use App\Actions\Web\Website\Hydrators\WebsiteHydrateUniversalSearch;
 use App\Models\Market\Shop;
 use App\Models\Web\Website;
 use App\Rules\CaseSensitive;
@@ -45,6 +46,7 @@ class StoreWebsite
 
         $website->webStats()->create();
         TenantHydrateWeb::dispatch(app('currentTenant'));
+        WebsiteHydrateUniversalSearch::dispatch($website);
         return $website;
     }
 

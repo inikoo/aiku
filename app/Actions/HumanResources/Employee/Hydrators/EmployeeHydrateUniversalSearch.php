@@ -19,7 +19,8 @@ class EmployeeHydrateUniversalSearch
     public function handle(Employee $employee): void
     {
 
-        $employee->universalSearch()->create(
+        $employee->universalSearch()->updateOrCreate(
+            [],
             [
                 'section'     => 'hr',
                 'title'       => trim($employee->slug.' '.$employee->worker_number.' '.$employee->contact_name),

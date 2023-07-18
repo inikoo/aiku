@@ -18,7 +18,8 @@ class InvoiceHydrateUniversalSearch
 
     public function handle(Invoice $invoice): void
     {
-        $invoice->universalSearch()->create(
+        $invoice->universalSearch()->updateOrCreate(
+            [],
             [
                 'section' => 'Accounting',
                 'route'   => json_encode([
@@ -28,8 +29,8 @@ class InvoiceHydrateUniversalSearch
                     ]
                 ]),
                 'icon'           => 'fa-file-invoice-dollar',
-                'primary_term'   => $invoice->number.' '.$invoice->order_id,
-                'secondary_term' => $invoice->shop_id.' '.$invoice->customer_id
+                'title'          => $invoice->number.' '.$invoice->order_id,
+                'description'    => $invoice->shop_id.' '.$invoice->customer_id
             ]
         );
     }

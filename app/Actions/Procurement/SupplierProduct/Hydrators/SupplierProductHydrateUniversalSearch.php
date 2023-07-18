@@ -18,7 +18,8 @@ class SupplierProductHydrateUniversalSearch
 
     public function handle(SupplierProduct $supplierProduct): void
     {
-        $supplierProduct->universalSearch()->create(
+        $supplierProduct->universalSearch()->updateOrCreate(
+            [],
             [
                 'section' => 'Procurement',
                 'route'   => json_encode([
@@ -28,8 +29,8 @@ class SupplierProductHydrateUniversalSearch
                     ]
                 ]),
                 'icon'           => 'fa-box-usd',
-                'primary_term'   => $supplierProduct->name,
-                'secondary_term' => $supplierProduct->code
+                'title'          => $supplierProduct->name,
+                'description'    => $supplierProduct->code
             ]
         );
     }

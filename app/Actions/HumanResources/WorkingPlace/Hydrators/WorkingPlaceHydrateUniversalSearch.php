@@ -18,7 +18,8 @@ class WorkingPlaceHydrateUniversalSearch
 
     public function handle(Workplace $workplace): void
     {
-        $workplace->universalSearch()->create(
+        $workplace->universalSearch()->updateOrCreate(
+            [],
             [
                 'section' => 'HumanResources',
                 'route'   => json_encode([
@@ -28,8 +29,8 @@ class WorkingPlaceHydrateUniversalSearch
                     ]
                 ]),
                 'icon'           => 'fa-money-check-alt',
-                'primary_term'   => $workplace->name,
-                'secondary_term' => $workplace->type
+                'title'          => $workplace->name,
+                'description'    => $workplace->type
             ]
         );
     }

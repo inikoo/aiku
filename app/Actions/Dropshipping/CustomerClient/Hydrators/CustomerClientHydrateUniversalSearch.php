@@ -18,7 +18,8 @@ class CustomerClientHydrateUniversalSearch
 
     public function handle(CustomerClient $customerClient): void
     {
-        $customerClient->universalSearch()->create(
+        $customerClient->universalSearch()->updateOrCreate(
+            [],
             [
                 'section' => 'Procurement',
                 'route'   => json_encode([
@@ -28,8 +29,8 @@ class CustomerClientHydrateUniversalSearch
                     ]
                 ]),
                 'icon'           => 'fa-box-usd',
-                'primary_term'   => $customerClient->name.' '.$customerClient->email,
-                'secondary_term' => $customerClient->contact_name.' '.$customerClient->company_name
+                'title'          => $customerClient->name.' '.$customerClient->email,
+                'description'    => $customerClient->contact_name.' '.$customerClient->company_name
             ]
         );
     }

@@ -18,7 +18,8 @@ class ClockingMachineHydrateUniversalSearch
 
     public function handle(ClockingMachine $clockingMachine): void
     {
-        $clockingMachine->universalSearch()->create(
+        $clockingMachine->universalSearch()->updateOrCreate(
+            [],
             [
                 'section' => 'HumanResources',
                 'route'   => json_encode([
@@ -28,8 +29,8 @@ class ClockingMachineHydrateUniversalSearch
                     ]
                 ]),
                 'icon'           => 'fa-chess-clock',
-                'primary_term'   => $clockingMachine->code,
-                'secondary_term' => $clockingMachine->workplace_id
+                'title'          => $clockingMachine->code,
+                'description'    => $clockingMachine->workplace_id
             ]
         );
     }

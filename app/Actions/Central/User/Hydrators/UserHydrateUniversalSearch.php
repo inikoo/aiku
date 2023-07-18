@@ -20,7 +20,8 @@ class UserHydrateUniversalSearch
 
     public function handle(User $user): void
     {
-        $user->universalSearch()->create(
+        $user->universalSearch()->updateOrCreate(
+            [],
             [
                 'section'        => 'sysadmin',
                 'title'          => $user->username,

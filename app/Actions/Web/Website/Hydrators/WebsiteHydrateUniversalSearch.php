@@ -5,27 +5,28 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Market\Shop\Hydrators;
+namespace App\Actions\Web\Website\Hydrators;
 
 use App\Actions\Traits\WithTenantJob;
-use App\Models\Market\Shop;
+use App\Models\Web\Website;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class ShopHydrateUniversalSearch
+class WebsiteHydrateUniversalSearch
 {
     use AsAction;
     use WithTenantJob;
 
-    public function handle(Shop $shop): void
+    public function handle(Website $website): void
     {
-        $shop->universalSearch()->updateOrCreate(
+        $website->universalSearch()->updateOrCreate(
             [],
             [
-                'section'     => 'shops',
-                'title'       => trim($shop->code.' '.$shop->name),
+                'section'     => 'web',
+                'title'       => trim($website->code.' '.$website->name.' '.$website->domain),
                 'description' => ''
             ]
         );
     }
+
 
 }

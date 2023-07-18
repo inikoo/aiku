@@ -18,19 +18,11 @@ class WarehouseAreaHydrateUniversalSearch
 
     public function handle(WarehouseArea $warehouseArea): void
     {
-        $warehouseArea->universalSearch()->create(
+        $warehouseArea->universalSearch()->updateOrCreate(
+            [],
             [
-                'section' => 'Inventory',
-                'route'   => json_encode([
-                    'name'      => 'inventory.warehouses.show.warehouse-areas.show',
-                    'arguments' => [
-                        $warehouseArea->warehouse->slug,
-                        $warehouseArea->slug
-                    ]
-                ]),
-                'icon'           => 'fa-map-signs',
-                'primary_term'   => $warehouseArea->name,
-                'secondary_term' => $warehouseArea->code
+                'section' => 'inventory',
+                'title'   => trim($warehouseArea->code.' '.$warehouseArea->name),
             ]
         );
     }

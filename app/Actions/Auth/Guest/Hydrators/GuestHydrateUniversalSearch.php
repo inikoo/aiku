@@ -19,7 +19,8 @@ class GuestHydrateUniversalSearch
     public function handle(Guest $guest): void
     {
 
-        $guest->universalSearch()->create(
+        $guest->universalSearch()->updateOrCreate(
+            [],
             [
                 'section'     => 'sysadmin',
                 'title'       => trim($guest->slug.' '.$guest->contact_name),

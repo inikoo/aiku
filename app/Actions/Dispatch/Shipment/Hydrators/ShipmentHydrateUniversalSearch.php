@@ -18,7 +18,8 @@ class ShipmentHydrateUniversalSearch
 
     public function handle(Shipment $shipment): void
     {
-        $shipment->universalSearch()->create(
+        $shipment->universalSearch()->updateOrCreate(
+            [],
             [
                 'section' => 'Dispatch',
                 'route'   => json_encode([
@@ -28,8 +29,8 @@ class ShipmentHydrateUniversalSearch
                     ]
                 ]),
                 'icon'           => 'fa-box-usd',
-                'primary_term'   => $shipment->code,
-                'secondary_term' => $shipment->tracking
+                'title'          => $shipment->code,
+                'description'    => $shipment->tracking
             ]
         );
     }

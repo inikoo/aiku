@@ -18,18 +18,11 @@ class LocationHydrateUniversalSearch
 
     public function handle(Location $location): void
     {
-        $location->universalSearch()->create(
+        $location->universalSearch()->updateOrCreate(
+            [],
             [
-                'section' => 'Inventory',
-                'route'   => json_encode([
-                    'name'      => 'inventory.warehouses.show.locations.show',
-                    'arguments' => [
-                        $location->warehouse->slug,
-                        $location->slug
-                    ]
-                ]),
-                'icon'           => 'fa-inventory',
-                'primary_term'   => $location->code,
+                'section' => 'inventory',
+                'title'   => $location->code,
             ]
         );
     }
