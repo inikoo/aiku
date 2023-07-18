@@ -124,7 +124,7 @@ class IndexFulfilmentCustomers extends InertiaAction
         $parent = $request->route()->parameters() == [] ? app('currentTenant') : last($request->route()->parameters());
 
         return Inertia::render(
-            'CRM/Customers',
+            'Fulfilment/Customers',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
@@ -159,6 +159,7 @@ class IndexFulfilmentCustomers extends InertiaAction
                         ] : false,
 
                 ],
+
                 'data'        => CustomerResource::collection($customers),
 
 
