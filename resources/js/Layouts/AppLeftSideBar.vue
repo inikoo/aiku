@@ -9,56 +9,56 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { Link } from "@inertiajs/vue3"
 import { ref, onMounted, onUnmounted } from 'vue'
 import { router } from '@inertiajs/vue3'
-import { library } from "@fortawesome/fontawesome-svg-core"
-import {
-	faHome,
-	faDollyFlatbedAlt,
-	faConveyorBeltAlt,
-	faUsers,
-	faUserHardHat,
-	faBars,
-	faUsersCog,
-	faTachometerAltFast,
-	faInventory,
-	faStoreAlt,
-	faUser,
-	faIndustry,
-    faBoxUsd,
-	faDollyEmpty,
-	faShoppingCart,
-	faAbacus,
-	faParachuteBox,
-	faChevronDown,
-    faTasksAlt,
-    faBullhorn,
-    faLightbulb
-} from "@/../private/pro-light-svg-icons"
+// import { library } from "@fortawesome/fontawesome-svg-core"
+// import {
+// 	faHome,
+// 	faDollyFlatbedAlt,
+// 	faConveyorBeltAlt,
+// 	faUsers,
+// 	faUserHardHat,
+// 	faBars,
+// 	faUsersCog,
+// 	faTachometerAltFast,
+// 	faInventory,
+// 	faStoreAlt,
+// 	faUser,
+// 	faIndustry,
+//     faBoxUsd,
+// 	faDollyEmpty,
+// 	faShoppingCart,
+// 	faAbacus,
+// 	faParachuteBox,
+// 	faChevronDown,
+//     faTasksAlt,
+//     faBullhorn,
+//     faLightbulb
+// } from "@/../private/pro-light-svg-icons"
 import { useLayoutStore } from "@/Stores/layout.js"
 import { computed } from "vue";
 
-library.add(
-	faHome,
-	faDollyFlatbedAlt,
-	faConveyorBeltAlt,
-	faUsers,
-	faUserHardHat,
-	faBars,
-	faUsersCog,
-	faTachometerAltFast,
-	faInventory,
-	faStoreAlt,
-	faUser,
-	faIndustry,
-    faBoxUsd,
-	faDollyEmpty,
-	faShoppingCart,
-	faAbacus,
-	faParachuteBox,
-	faChevronDown,
-    faTasksAlt,
-    faBullhorn,
-    faLightbulb,
-)
+// library.add(
+// 	faHome,
+// 	faDollyFlatbedAlt,
+// 	faConveyorBeltAlt,
+// 	faUsers,
+// 	faUserHardHat,
+// 	faBars,
+// 	faUsersCog,
+// 	faTachometerAltFast,
+// 	faInventory,
+// 	faStoreAlt,
+// 	faUser,
+// 	faIndustry,
+//     faBoxUsd,
+// 	faDollyEmpty,
+// 	faShoppingCart,
+// 	faAbacus,
+// 	faParachuteBox,
+// 	faChevronDown,
+//     faTasksAlt,
+//     faBullhorn,
+//     faLightbulb,
+// )
 
 const layout = useLayoutStore()
 //const props = defineProps(["currentRoute"])
@@ -82,7 +82,7 @@ const currentIndexModule = computed(() => {
 
 
 onMounted(() => {
-  window.addEventListener('keydown', handleKey)
+	window.addEventListener('keydown', handleKey)
 })
 onUnmounted(() => {
 	window.removeEventListener('keydown', handleKey)
@@ -93,22 +93,24 @@ onUnmounted(() => {
 const handleKey = (event: any) => {
 	// If Arrow Up key is pressed and the element is hovered and not the first index
 	if (event.key === 'ArrowUp' && isHover.value && currentIndexModule.value != 0) {
-	  const prevTab = ref(layout.navigation[Object.keys(layout.navigation)[currentIndexModule.value-1]])
-	  router.get(route(prevTab.value.route, prevTab.value.routeParameters))
-  	}
+		const prevTab = ref(layout.navigation[Object.keys(layout.navigation)[currentIndexModule.value-1]])
+		prevTab.value.route.all
+			? router.get(route(prevTab.value.route.all, prevTab.value.routeParameters))
+			: router.get(route(prevTab.value.route, prevTab.value.routeParameters))
+	}
 	// If Arrow Down key is pressed and the element is hovered and not the last index
 	else if (event.key === 'ArrowDown' && isHover.value && currentIndexModule.value != Object.keys(layout.navigation).length -1) {
 		const nextTab = ref(layout.navigation[Object.keys(layout.navigation)[currentIndexModule.value+1]])
-		router.get(route(nextTab.value.route, nextTab.value.routeParameters))
-  	}
+		nextTab.value.route.all
+			? router.get(route(nextTab.value.route.all, nextTab.value.routeParameters))
+			: router.get(route(nextTab.value.route, nextTab.value.routeParameters))
+	}
 }
 
 
 const generateRoute = (item) => {
-
     const scope=item.scope
     if (scope && typeof item.route === "object" && item.route !== null) {
-
         if (scope == "shops") {
             if (layout.currentShopData.slug) {
                 return route(item.route.selected, layout.currentShopData.slug);
@@ -127,39 +129,28 @@ const generateRoute = (item) => {
             }
             return route(item.route.all);
         }
-
     }
     return route(item.route, item.routeParameters);
-
-
-
-};
+}
 
 const generateLabel = (item) => {
-
-
-    const scope=item.scope;
-
+    const scope = item.scope
     if (typeof item.label === "object" && item.label !== null) {
         if (
             (scope == "shops" && layout.currentShopData.slug) ||
             (scope == "websites" && layout.currentWebsiteData.slug) ||
             (scope == "warehouses" && layout.currentWarehouseData.slug)
-
-        ) {
+        ){
             return item.label.selected;
         }
         return item.label.all;
-
     }
     return item.label;
-
 };
 
 </script>
 
 <template>
-
 	<div class="w-8/12 mt-11 fixed md:border-r md:border-gray-200 bg-white md:flex md:flex-col md:inset-y-0 md:w-10 lg:mt-10 xl:w-56"
 		@mouseenter="isHover = true" @mouseleave="isHover = false"
 	>
