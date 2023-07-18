@@ -21,15 +21,7 @@ class DeliveryNoteHydrateUniversalSearch
         $deliveryNote->universalSearch()->updateOrCreate(
             [],
             [
-                'section' => 'Dispatch',
-                'route'   => json_encode([
-                    'name'      => 'shops.show.delivery-notes.show',
-                    'arguments' => [
-                        $deliveryNote->shop->slug,
-                        $deliveryNote->slug
-                    ]
-                ]),
-                'icon'           => 'fa-box-usd',
+                'section'        => 'dispatch',
                 'title'          => $deliveryNote->number,
                 'description'    => $deliveryNote->email
             ]

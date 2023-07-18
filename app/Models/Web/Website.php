@@ -52,6 +52,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, \OwenIt\Auditing\Models\Audit> $audits
  * @property-read array $es_audits
  * @property-read Shop $shop
+ * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
  * @property-read \App\Models\Web\WebsiteStats|null $webStats
  * @property-read Collection<int, \App\Models\Web\Webpage> $webpages
  * @method static Builder|Website newModelQuery()

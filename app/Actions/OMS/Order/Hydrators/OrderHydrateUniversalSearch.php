@@ -21,17 +21,9 @@ class OrderHydrateUniversalSearch
         $order->universalSearch()->updateOrCreate(
             [],
             [
-                'section' => 'oms',
-                'route'   => json_encode([
-                    'name'      => 'customers.show.orders.show',
-                    'arguments' => [
-                        $order->customer->slug,
-                        $order->slug
-                    ]
-                ]),
-                'icon'           => 'fa-money-check-alt',
-                'title'          => $order->customer_id.' '.$order->number,
-                'description'    => $order->shop_id.' '.$order->date
+                'section'        => 'oms',
+                'title'          => $order->number,
+                'description'    => ''
             ]
         );
     }

@@ -21,16 +21,9 @@ class StockFamilyHydrateUniversalSearch
         $stockFamily->universalSearch()->updateOrCreate(
             [],
             [
-                'section' => 'StockFamily',
-                'route'   => json_encode([
-                    'name'      => 'inventory.stock-families.show',
-                    'arguments' => [
-                        $stockFamily->slug
-                    ]
-                ]),
-                'icon'           => 'fa-boxes-alt',
-                'title'          => $stockFamily->name,
-                'description'    => $stockFamily->code
+                'section'     => 'inventory',
+                'title'       => join(' ', array_unique([$stockFamily->code, $stockFamily->name])),
+                'description' => ''
             ]
         );
     }

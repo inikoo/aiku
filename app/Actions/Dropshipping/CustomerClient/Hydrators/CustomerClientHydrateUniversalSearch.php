@@ -21,16 +21,17 @@ class CustomerClientHydrateUniversalSearch
         $customerClient->universalSearch()->updateOrCreate(
             [],
             [
-                'section' => 'Procurement',
-                'route'   => json_encode([
-                    'name'      => '', // TODO: Need get route name
-                    'arguments' => [
-                        $customerClient->slug
-                    ]
-                ]),
-                'icon'           => 'fa-box-usd',
-                'title'          => $customerClient->name.' '.$customerClient->email,
-                'description'    => $customerClient->contact_name.' '.$customerClient->company_name
+                'section' => 'crm',
+
+                'title' => join(
+                    ' ',
+                    array_unique([
+                        $customerClient->name,
+                        $customerClient->email,
+                        $customerClient->contact_name,
+                        $customerClient->company_name
+                    ])
+                ),
             ]
         );
     }

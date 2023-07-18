@@ -21,16 +21,9 @@ class SupplierHydrateUniversalSearch
         $supplier->universalSearch()->updateOrCreate(
             [],
             [
-                'section' => 'Procurement',
-                'route'   => json_encode([
-                    'name'      => 'procurement.agents.show',
-                    'arguments' => [
-                        $supplier->slug
-                    ]
-                ]),
-                'icon'           => 'fa-person-dolly',
-                'title'          => $supplier->name.' '.$supplier->email,
-                'description'    => $supplier->company_name.' '.$supplier->contact_name
+                'section'        => 'procurement',
+                'title'          => trim($supplier->name.' '.$supplier->email.' '.$supplier->company_name.' '.$supplier->contact_name),
+                'description'    => ''
             ]
         );
     }

@@ -21,16 +21,9 @@ class ShipmentHydrateUniversalSearch
         $shipment->universalSearch()->updateOrCreate(
             [],
             [
-                'section' => 'Dispatch',
-                'route'   => json_encode([
-                    'name'      => '', // TODO: Need to know the route name
-                    'arguments' => [
-                        $shipment->slug
-                    ]
-                ]),
-                'icon'           => 'fa-box-usd',
-                'title'          => $shipment->code,
-                'description'    => $shipment->tracking
+                'section'        => 'dispatch',
+                'title'          => $shipment->tracking??'',
+                'description'    => ''
             ]
         );
     }

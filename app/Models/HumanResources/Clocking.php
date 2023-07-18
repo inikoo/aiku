@@ -8,7 +8,6 @@
 namespace App\Models\HumanResources;
 
 use App\Enums\HumanResources\Clocking\ClockingTypeEnum;
-use App\Models\Traits\HasUniversalSearch;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -41,7 +40,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $deleted_by_id
  * @property int|null $source_id
  * @property-read \App\Models\HumanResources\ClockingMachine|null $clockingMachine
- * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
  * @property-read \App\Models\HumanResources\Workplace|null $workplace
  * @method static Builder|Clocking newModelQuery()
  * @method static Builder|Clocking newQuery()
@@ -55,7 +53,6 @@ class Clocking extends Model
 {
     use UsesTenantConnection;
     use HasSlug;
-    use HasUniversalSearch;
     use SoftDeletes;
 
     protected $casts = [

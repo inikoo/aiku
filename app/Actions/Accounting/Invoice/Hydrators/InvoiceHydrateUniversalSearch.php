@@ -21,16 +21,8 @@ class InvoiceHydrateUniversalSearch
         $invoice->universalSearch()->updateOrCreate(
             [],
             [
-                'section' => 'Accounting',
-                'route'   => json_encode([
-                    'name'      => 'accounting.invoices.show',
-                    'arguments' => [
-                        $invoice->slug
-                    ]
-                ]),
-                'icon'           => 'fa-file-invoice-dollar',
-                'title'          => $invoice->number.' '.$invoice->order_id,
-                'description'    => $invoice->shop_id.' '.$invoice->customer_id
+                'section'        => 'accounting',
+                'title'          => $invoice->number,
             ]
         );
     }

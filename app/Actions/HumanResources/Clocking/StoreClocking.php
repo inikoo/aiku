@@ -7,7 +7,6 @@
 
 namespace App\Actions\HumanResources\Clocking;
 
-use App\Actions\HumanResources\Clocking\Hydrators\ClockingHydrateUniversalSearch;
 use App\Enums\HumanResources\Clocking\ClockingTypeEnum;
 use App\Models\HumanResources\Clocking;
 use App\Models\HumanResources\ClockingMachine;
@@ -38,7 +37,6 @@ class StoreClocking
 
         /** @var Clocking $clocking */
         $clocking = $parent->clockings()->create($modelData);
-        ClockingHydrateUniversalSearch::dispatch($clocking);
 
         return $clocking;
     }

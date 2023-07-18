@@ -21,16 +21,8 @@ class WorkingPlaceHydrateUniversalSearch
         $workplace->universalSearch()->updateOrCreate(
             [],
             [
-                'section' => 'HumanResources',
-                'route'   => json_encode([
-                    'name'      => 'hr.working-places.show',
-                    'arguments' => [
-                        $workplace->slug
-                    ]
-                ]),
-                'icon'           => 'fa-money-check-alt',
-                'title'          => $workplace->name,
-                'description'    => $workplace->type
+                'section' => 'hr',
+                'title'   => $workplace->name,
             ]
         );
     }

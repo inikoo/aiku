@@ -21,16 +21,9 @@ class StoredItemHydrateUniversalSearch
         $storedItem->universalSearch()->updateOrCreate(
             [],
             [
-                'section' => 'fulfilment',
-                'route'   => json_encode([
-                    'name'      => 'fulfilment.stored-items.show',
-                    'arguments' => [
-                        $storedItem->slug
-                    ]
-                ]),
-                'icon'           => 'fa-narwhal',
-                'title'          => $storedItem->code,
-                'description'    => $storedItem->notes
+                'section'     => 'fulfilment',
+                'title'       => $storedItem->code,
+                'description' => $storedItem->notes
             ]
         );
     }

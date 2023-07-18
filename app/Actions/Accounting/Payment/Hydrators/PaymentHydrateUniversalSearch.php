@@ -21,16 +21,8 @@ class PaymentHydrateUniversalSearch
         $payment->universalSearch()->updateOrCreate(
             [],
             [
-                'section' => 'Accounting',
-                'route'   => json_encode([
-                    'name'      => 'accounting.payments.show',
-                    'arguments' => [
-                        $payment->slug
-                    ]
-                ]),
-                'icon'           => 'fa-coins',
-                'title'          => $payment->amount.' '.$payment->reference,
-                'description'    => $payment->customer_id.' '.$payment->date
+                'section' => 'accounting',
+                'title'   => $payment->reference,
             ]
         );
     }

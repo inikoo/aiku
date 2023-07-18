@@ -21,16 +21,9 @@ class SupplierProductHydrateUniversalSearch
         $supplierProduct->universalSearch()->updateOrCreate(
             [],
             [
-                'section' => 'Procurement',
-                'route'   => json_encode([
-                    'name'      => 'procurement.supplier-products.show',
-                    'arguments' => [
-                        $supplierProduct->slug
-                    ]
-                ]),
-                'icon'           => 'fa-box-usd',
-                'title'          => $supplierProduct->name,
-                'description'    => $supplierProduct->code
+                'section'        => 'procurement',
+                'title'          => trim($supplierProduct->code.' '.$supplierProduct->name),
+                'description'    => ''
             ]
         );
     }

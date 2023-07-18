@@ -21,16 +21,9 @@ class AgentHydrateUniversalSearch
         $agent->universalSearch()->updateOrCreate(
             [],
             [
-                'section' => 'Procurement',
-                'route'   => json_encode([
-                    'name'      => 'procurement.agents.show',
-                    'arguments' => [
-                        $agent->slug
-                    ]
-                ]),
-                'icon'           => 'fa-people-arrows',
-                'title'          => $agent->name.' '.$agent->email,
-                'description'    => $agent->company_name.' '.$agent->contact_name
+                'section'        => 'procurement',
+                'title'          => trim($agent->name.' '.$agent->email.' '.$agent->company_name.' '.$agent->contact_name),
+                'description'    => ''
             ]
         );
     }
