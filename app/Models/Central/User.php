@@ -7,7 +7,6 @@
 
 namespace App\Models\Central;
 
-use App\Models\Search\UniversalSearch;
 use App\Models\Tenancy\Tenant;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
@@ -37,7 +36,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $updated_at
  * @property-read Tenant $tenant
  * @property-read Collection<int, PersonalAccessToken> $tokens
- * @property-read UniversalSearch|null $universalSearch
  * @method static Builder|User newModelQuery()
  * @method static Builder|User newQuery()
  * @method static Builder|User query()

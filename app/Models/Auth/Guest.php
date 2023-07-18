@@ -12,7 +12,6 @@ use App\Enums\Auth\Guest\GuestTypeEnum;
 use App\Models\Media\GroupMedia;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
-use Database\Factories\Auth\GuestFactory;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -34,7 +33,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $id
  * @property string $slug
  * @property bool $status
- * @property string $type
+ * @property GuestTypeEnum $type
  * @property string|null $contact_name
  * @property string|null $company_name
  * @property string|null $email
@@ -51,8 +50,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
  * @property-read array $es_audits
  * @property-read MediaCollection<int, GroupMedia> $media
+ * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
  * @property-read \App\Models\Auth\User|null $user
- * @method static GuestFactory factory($count = null, $state = [])
+ * @method static \Database\Factories\Auth\GuestFactory factory($count = null, $state = [])
  * @method static Builder|Guest newModelQuery()
  * @method static Builder|Guest newQuery()
  * @method static Builder|Guest onlyTrashed()

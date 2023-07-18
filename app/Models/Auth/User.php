@@ -73,6 +73,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property-read \App\Models\Auth\UserStats|null $stats
  * @property-read Tenant $tenant
  * @property-read Collection<int, \App\Models\Tenancy\TenantPersonalAccessToken> $tokens
+ * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
  * @method static \Database\Factories\Auth\UserFactory factory($count = null, $state = [])
  * @method static Builder|User newModelQuery()
  * @method static Builder|User newQuery()

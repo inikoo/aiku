@@ -10,10 +10,20 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Arr;
 use Laravel\Scout\Searchable;
+use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
  * App\Models\Search\UniversalSearch
  *
+ * @property int $id
+ * @property int $tenant_id
+ * @property string|null $model_type
+ * @property int|null $model_id
+ * @property string|null $section
+ * @property string $title
+ * @property string|null $description
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read Model|\Eloquent $model
  * @property-read Tenant $tenant
  * @method static Builder|UniversalSearch newModelQuery()
@@ -24,6 +34,7 @@ use Laravel\Scout\Searchable;
 class UniversalSearch extends Model
 {
     use Searchable;
+    use UsesTenantConnection;
 
     protected $guarded = [];
 
