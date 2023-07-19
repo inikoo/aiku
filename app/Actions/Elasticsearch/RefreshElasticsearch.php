@@ -22,21 +22,29 @@ class RefreshElasticsearch
         return 'Refresh app elasticsearch indices';
     }
 
+
+    /**
+     * @throws \Exception
+     */
     public function handle()
     {
         $client = BuildElasticsearchClient::run();
+        if ($client instanceof Exception) {
+            throw $client;
+        } else {
+            $params = [
+                'index' => config('app.universal_search_index')
+            ];
 
-        $params = [
-            'index' => config('app.universal_search_index')
-        ];
+            $response = $client->indices()->exists($params);
 
-        $response = $client->indices()->exists($params);
+            if ($response->getStatusCode() != 404) {
+                $client->indices()->delete($params);
+            }
 
-        if ($response->getStatusCode() != 404) {
-            $client->indices()->delete($params);
+            return $client->indices()->create($params);
         }
 
-        return $client->indices()->create($params);
     }
 
     public function asCommand(Command $command): int
