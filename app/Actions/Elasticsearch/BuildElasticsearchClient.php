@@ -21,6 +21,9 @@ class BuildElasticsearchClient
 
         $clientBuilder = ClientBuilder::create();
         $clientBuilder->setHosts(config('elasticsearch.hosts'));
+        if(config('elasticsearch.ca_bundle')) {
+            $clientBuilder->setCABundle(config('elasticsearch.ca_bundle'));
+        }
         if(config('elasticsearch.api_key')) {
             $clientBuilder->setApiKey(config('elasticsearch.api_key'));
         }
