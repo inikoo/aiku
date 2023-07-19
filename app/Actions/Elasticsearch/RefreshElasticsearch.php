@@ -27,9 +27,8 @@ class RefreshElasticsearch
         $client = BuildElasticsearchClient::run();
 
         $params = [
-            'index' => config('app.name').'_search'
+            'index' => config('app.universal_search_index')
         ];
-
 
         $response = $client->indices()->exists($params);
 

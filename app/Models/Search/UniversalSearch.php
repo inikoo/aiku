@@ -51,7 +51,7 @@ class UniversalSearch extends Model
 
     public function searchableAs(): string
     {
-        return config('app.name').'_search';
+        return config('app.universal_search_index');
     }
 
     public function toSearchableArray(): array

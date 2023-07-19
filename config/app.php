@@ -1,4 +1,9 @@
 <?php
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Wed, 19 Jul 2023 12:02:40 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2023, Raul A Perusquia Flores
+ */
 
 use Illuminate\Support\Facades\Facade;
 
@@ -41,7 +46,7 @@ return [
     |
     */
 
-    'debug' => (bool) env('APP_DEBUG', false),
+    'debug' => (bool)env('APP_DEBUG', false),
 
     /*
     |--------------------------------------------------------------------------
@@ -208,7 +213,7 @@ return [
     |
     | This array of class aliases will be registered when this application
     | is started. However, feel free to register as many as you wish as
-    | the aliases are "lazy" loaded so they don't hinder performance.
+    | the aliases are "lazy" loaded, so they don't hinder performance.
     |
     */
 
@@ -220,7 +225,7 @@ return [
     'aurora_image_path' => env('AURORA_IMAGE_PATH'),
 
 
-    'domain'      => env('APP_CENTRAL_DOMAIN'),
-    'media_domain'=> env('MEDIA_DOMAIN')
-
+    'domain'                 => env('APP_CENTRAL_DOMAIN'),
+    'media_domain'           => env('MEDIA_DOMAIN'),
+    'universal_search_index' => env('APP_NAME', 'aiku').(env('APP_ENV') == 'testing' ? '_testing' : '').'_search'
 ];
