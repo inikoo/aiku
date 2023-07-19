@@ -18,8 +18,12 @@ class BuildElasticsearchClient
 
     public function handle(): Client|Exception
     {
+
         $clientBuilder = ClientBuilder::create();
         $clientBuilder->setHosts(config('elasticsearch.hosts'));
+        if(config('elasticsearch.api_key')) {
+            $clientBuilder->setApiKey(config('elasticsearch.api_key'));
+        }
 
         try {
             $client = $clientBuilder->build();

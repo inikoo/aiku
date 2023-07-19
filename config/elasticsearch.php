@@ -8,5 +8,26 @@
 
 return [
     'hosts'       => explode(',', env('ELASTICSEARCH_HOSTS', 'localhost:9200')),
-    'index_prefix'=> env('ELASTICSEARCH_INDEX_PREFIX', 'aiku_')
+    'api_key'     => env('ELASTICSEARCH_API_KEY'),
+    'index_prefix'=> env('ELASTICSEARCH_INDEX_PREFIX', 'aiku_'),
+    'indices'     => [
+    'mappings' => [
+        'universal_search' => [
+            'properties' => [
+                'tenant_id'   => [
+                    'type' => 'keyword',
+                ],
+                'section'     => [
+                    'type' => 'keyword',
+                ],
+                'title'       => [
+                    'type' => 'text',
+                ],
+                'description' => [
+                    'type' => 'text',
+                ],
+            ],
+        ]
+    ]
+]
 ];
