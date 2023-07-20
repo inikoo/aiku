@@ -11,6 +11,7 @@ use App\Actions\InertiaAction;
 use App\Actions\UI\HumanResources\HumanResourcesDashboard;
 use App\Http\Resources\HumanResources\EmployeeInertiaResource;
 use App\Http\Resources\HumanResources\EmployeeResource;
+use App\Models\Fulfilment\StoredItem;
 use App\Models\HumanResources\Employee;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -29,8 +30,7 @@ class IndexStoredItems extends InertiaAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->where('employees.name', 'ILIKE', "%$value%");
-
+                $query->where('code', 'ILIKE', "%$value%");
             });
         });
 
@@ -38,7 +38,7 @@ class IndexStoredItems extends InertiaAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        $queryBuilder=QueryBuilder::for(Employee::class);
+        $queryBuilder=QueryBuilder::for(StoredItem::class);
         foreach ($this->elementGroups as $key => $elementGroup) {
             $queryBuilder->whereElementGroup(
                 prefix: $prefix,
@@ -50,7 +50,7 @@ class IndexStoredItems extends InertiaAction
 
         return $queryBuilder
             ->defaultSort('employees.slug')
-            ->select(['slug', 'id', 'worker_number', 'name', 'state'])
+            ->select(['slug', 'id', 'worker_number', 'contact_name', 'state'])
             ->with('jobPositions')
             ->allowedSorts(['slug', 'state', 'name'])
             ->allowedFilters([$globalSearch, 'slug', 'name', 'state'])
@@ -68,8 +68,11 @@ class IndexStoredItems extends InertiaAction
             }
             $table
                 ->withGlobalSearch()
-                ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
-                ->defaultSort('code');
+                ->column(key: 'slug', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'contact_name', label: __('Contact Name'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'worker_number', label: __('Worker Number'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'state', label: __('State'), canBeHidden: false, sortable: true, searchable: true)
+                ->defaultSort('slug');
         };
     }
 
@@ -94,7 +97,7 @@ class IndexStoredItems extends InertiaAction
     public function htmlResponse(LengthAwarePaginator $employees): Response
     {
         return Inertia::render(
-            'HumanResources/Employees',
+            'Fulfilment/StoredItems',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(),
                 'title'       => __('stored items'),

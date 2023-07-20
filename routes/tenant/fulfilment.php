@@ -8,8 +8,8 @@
 
 use App\Actions\Fulfilment\FulfilmentCustomer\IndexFulfilmentCustomers;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
-use App\Actions\Fulfilment\FulfilmentOrder\IndexFulfilmentOrders;
-use App\Actions\Fulfilment\FulfilmentOrder\ShowfulfilmentOrder;
+use App\Actions\Fulfilment\FulfilmentOrder\UI\IndexFulfilmentOrders;
+use App\Actions\Fulfilment\FulfilmentOrder\UI\ShowfulfilmentOrder;
 use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItems;
 use App\Actions\Fulfilment\StoredItem\UI\ShowStoredItem;
 use App\Actions\UI\Fulfilment\FulfilmentDashboard;

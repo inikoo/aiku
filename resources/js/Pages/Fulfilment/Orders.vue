@@ -21,5 +21,5 @@ const props = defineProps<{
 <template layout="App">
     <Head :title="capitalize(title)"/>
     <PageHeading :data="pageHead"></PageHeading>
-    <TableCustomers :data="data"  />
+    <TableOrders :data="data"  />
 </template>

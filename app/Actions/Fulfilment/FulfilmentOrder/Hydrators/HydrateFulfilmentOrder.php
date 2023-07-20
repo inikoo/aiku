@@ -1,11 +1,11 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Mon, 28 Nov 2022 12:11:31 Central Indonesia Time, Ubud, Bali, Indonesia
- *  Copyright (c) 2022, Raul A Perusquia Flores
+ * Author: Artha <artha@aw-advantage.com>
+ * Created: Thu, 20 Jul 2023 09:57:45 Central Indonesia Time, Sanur, Bali, Indonesia
+ * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Fulfilment\FulfilmentOrder;
+namespace App\Actions\Fulfilment\FulfilmentOrder\Hydrators;
 
 use App\Actions\HydrateModel;
 use App\Models\Fulfilment\FulfilmentOrder;

@@ -1,11 +1,11 @@
 <?php
 /*
- * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
- * Created: Fri, 26 May 2023 12:41:30 Central European Summer Time, Malaga, Spain
- * Copyright (c) 2023, Inikoo LTD
+ * Author: Artha <artha@aw-advantage.com>
+ * Created: Thu, 20 Jul 2023 09:57:26 Central Indonesia Time, Sanur, Bali, Indonesia
+ * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Fulfilment\FulfilmentOrder;
+namespace App\Actions\Fulfilment\FulfilmentOrder\UI;
 
 use App\Actions\InertiaAction;
 use App\Actions\Market\Shop\UI\ShowShop;
@@ -76,8 +76,6 @@ class IndexFulfilmentOrders extends InertiaAction
                 ->pageName(TabsAbbreviationEnum::ORDERS->value.'Page');
 
             $table->column(key: 'number', label: __('number'), canBeHidden: false, sortable: true, searchable: true);
-
-
             $table->column(key: 'date', label: __('date'), canBeHidden: false, sortable: true, searchable: true);
         };
     }
@@ -105,7 +103,7 @@ class IndexFulfilmentOrders extends InertiaAction
         $parent = $request->route()->parameters() == [] ? app('currentTenant') : last($request->route()->parameters());
 
         return Inertia::render(
-            'Market/Orders',
+            'Fulfilment/Orders',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),

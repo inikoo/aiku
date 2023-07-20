@@ -7,6 +7,7 @@
 
 namespace App\Actions\Fulfilment\FulfilmentOrder;
 
+use App\Actions\Fulfilment\FulfilmentOrder\Hydrators\HydrateFulfilmentOrder;
 use App\Actions\Fulfilment\FulfilmentOrderItem\StoreFulfilmentOrderItem;
 use App\Actions\Helpers\Address\AttachHistoricAddressToModel;
 use App\Actions\Helpers\Address\StoreHistoricAddress;
