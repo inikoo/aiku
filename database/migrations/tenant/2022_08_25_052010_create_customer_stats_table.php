@@ -16,10 +16,8 @@ return new class () extends Migration {
             $table->increments('id');
             $table->unsignedInteger('customer_id')->index();
             $table->foreign('customer_id')->references('id')->on('customers');
-
             $table->unsignedInteger('number_web_users')->default(0);
             $table->unsignedInteger('number_active_web_users')->default(0);
-
             $table->timestampTz('last_submitted_order_at')->nullable();
             $table->timestampTz('last_dispatched_delivery_at')->nullable();
             $table->timestampTz('last_invoiced_at')->nullable();
@@ -31,8 +29,6 @@ return new class () extends Migration {
             $table->unsignedInteger('number_invoices_type_refund')->default(0);
             $table->unsignedInteger('number_clients')->default(0);
             $table->unsignedInteger('number_active_clients')->default(0);
-            $table->unsignedInteger('number_stored_items')->default(0);
-
             $table->timestampsTz();
         });
     }

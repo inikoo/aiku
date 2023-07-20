@@ -41,6 +41,10 @@ class StoreShop
         $shop->accountingStats()->create();
         $shop->mailStats()->create();
         $shop->crmStats()->create();
+        if($shop->subtype==ShopSubtypeEnum::FULFILMENT) {
+            $shop->fulfilmentStats()->create();
+        }
+
         $shop->apiTenantUser()->create();
 
         /** @noinspection DuplicatedCode */

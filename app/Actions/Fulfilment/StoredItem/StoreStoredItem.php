@@ -7,6 +7,7 @@
 
 namespace App\Actions\Fulfilment\StoredItem;
 
+use App\Actions\CRM\Customer\Hydrators\CustomerHydrateStoredItems;
 use App\Models\CRM\Customer;
 use App\Models\Fulfilment\StoredItem;
 use Illuminate\Http\RedirectResponse;

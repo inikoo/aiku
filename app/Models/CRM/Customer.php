@@ -78,6 +78,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, Address> $addresses
  * @property-read Collection<int, CustomerClient> $clients
  * @property-read Collection<int, FulfilmentOrder> $fulfilmentOrders
+ * @property-read \App\Models\CRM\CustomerFulfilmentStats|null $fulfilmentStats
  * @property-read Collection<int, Invoice> $invoices
  * @property-read Collection<int, Issue> $issues
  * @property-read MediaCollection<int, GroupMedia> $media
@@ -170,6 +171,11 @@ class Customer extends Model implements HasMedia
     public function stats(): HasOne
     {
         return $this->hasOne(CustomerStats::class);
+    }
+
+    public function fulfilmentStats(): HasOne
+    {
+        return $this->hasOne(CustomerFulfilmentStats::class);
     }
 
     public function invoices(): HasMany
