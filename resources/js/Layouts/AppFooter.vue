@@ -1,14 +1,11 @@
 <script setup lang="ts">
-import { ref, Ref, onMounted } from 'vue'
+import { ref, Ref } from 'vue'
 import { useForm } from '@inertiajs/vue3'
 import { trans, loadLanguageAsync, getActiveLanguage } from 'laravel-vue-i18n'
 import FooterTab from '@/Components/Footer/FooterTab.vue'
 import { useLocaleStore } from "@/Stores/locale"
 import { useLayoutStore } from "@/Stores/layout"
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-// import { faCircle } from "@/../private/pro-solid-svg-icons"
-// import { library } from '@fortawesome/fontawesome-svg-core'
-// library.add(faCircle)
 const locale = useLocaleStore()
 const layout = useLayoutStore()
 
@@ -33,13 +30,11 @@ const form = useForm({
     <footer class="z-20 fixed w-screen bg-gray-800 bottom-0 right-0  text-white">
         <!-- Helper: Outer background (close popup purpose) -->
         <div class="fixed z-40 right-0 top-0 bg-transparent w-screen h-screen" @click="isTabActive = !isTabActive"
-            :class="[isTabActive ? '' : 'hidden']"></div>
+            :class="[isTabActive ? '' : 'hidden']" />
         <div class="flex justify-between">
             <!-- Left Section -->
             <div class="pl-4 flex items-center gap-x-1.5 py-1">
                 <img src="@/../art/logo/svg/logo-no-background.svg" alt="Aiku" class="h-4">
-                <!-- <img src="/art/logo-color-trimmed.png" alt="" class="h-4"> -->
-                <!-- <span class="text-purple-400 font-semibold">aiku</span> -->
             </div>
 
             <div class="flex items-end flex-row-reverse text-sm">
@@ -71,10 +66,9 @@ const form = useForm({
                 <!-- Tab: Language -->
                 <div class="relative h-full flex z-50 select-none justify-center items-center px-8 cursor-pointer"
                     :class="[isTabActive == 'language' ? 'bg-gray-600' : 'bg-gray-800']"
-                    @click="isTabActive == 'language' ? isTabActive = !isTabActive : isTabActive = 'language'"
+                    @click="isTabActive = 'language'"
                 >
-                    <!-- @click="isTabActive == 'language' ? isTabActive = !isTabActive : isTabActive = 'language'" -->
-                    <FontAwesomeIcon icon="fal fa-language" class="text-xs mr-1 h-5 text-gray-300"></FontAwesomeIcon>
+                    <FontAwesomeIcon icon="fal fa-language" class="text-xs mr-1 h-5 text-gray-300" />
                     <div class="h-full font-extralight text-xs flex items-center leading-none text-gray-300">
                         {{ locale.language.name }}
                     </div>
