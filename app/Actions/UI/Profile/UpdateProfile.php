@@ -7,15 +7,13 @@
 
 namespace App\Actions\UI\Profile;
 
+use App\Actions\Auth\GroupUser\UI\SetGroupUserAvatarFromImage;
 use App\Actions\Auth\GroupUser\UpdateGroupUser;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Auth\User\SynchronisableUserFieldsEnum;
 use App\Models\Auth\User;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Redirect;
-use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\File;
 use Illuminate\Validation\Rules\Password;
 use Lorisleiva\Actions\ActionRequest;
@@ -26,31 +24,24 @@ class UpdateProfile
 
     private bool $asAction = false;
 
-    /**
-     * @throws \Spatie\MediaLibrary\MediaCollections\Exceptions\FileIsTooBig
-     * @throws \Spatie\MediaLibrary\MediaCollections\Exceptions\FileDoesNotExist
-     */
+
     public function handle(User $user, array $modelData, ?UploadedFile $avatar): User
     {
-
-
         UpdateGroupUser::run(
             $user->groupUser,
             Arr::only($modelData, SynchronisableUserFieldsEnum::values())
         );
 
         if ($avatar) {
-            $user->groupUser->addMedia($avatar)
-                ->preservingOriginal()
-                ->usingFileName(Str::orderedUuid().'.'.$avatar->extension())
-                ->toMediaCollection('profile', 'group');
+            SetGroupUserAvatarFromImage::run(
+                groupUser: $user->groupUser,
+                imagePath: $avatar->getPathName(),
+                originalFilename: $avatar->getClientOriginalName(),
+                extension: $avatar->getClientOriginalExtension()
+            );
         }
 
-
-
         $user->refresh();
-
-
 
         return $this->update($user, Arr::except($modelData, SynchronisableUserFieldsEnum::values()), ['profile', 'settings']);
     }
@@ -61,7 +52,7 @@ class UpdateProfile
         return [
             'password'    => ['sometimes', 'required', app()->isLocal() || app()->environment('testing') ? null : Password::min(8)->uncompromised()],
             'email'       => 'sometimes|required|email|unique:App\Models\Auth\GroupUser,email',
-            'about'       => 'sometimes|nullable|string',
+            'about'       => 'sometimes|nullable|string|max:255',
             'language_id' => ['sometimes', 'required', 'exists:central.languages,id'],
             'avatar'      => [
                 'sometimes',
@@ -81,15 +72,8 @@ class UpdateProfile
 
         $validated = $this->validateAttributes();
 
-
-
         return $this->handle($request->user(), Arr::except($validated, 'avatar'), Arr::get($validated, 'avatar'));
     }
 
 
-
-    // public function htmlResponse(User $user): RedirectResponse
-    // {
-    //     return Redirect::route('profile.show');
-    // }
 }

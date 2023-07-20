@@ -44,8 +44,9 @@ class HandleInertiaRequests extends Middleware
         }
 
 
+
+
         return array_merge(
-            parent::share($request),
             $firstLoadOnlyProps,
             [
                 'auth'          => [
@@ -58,7 +59,8 @@ class HandleInertiaRequests extends Middleware
                     'location' => $request->url(),
                 ],
 
-            ]
+            ],
+            parent::share($request),
         );
     }
 }

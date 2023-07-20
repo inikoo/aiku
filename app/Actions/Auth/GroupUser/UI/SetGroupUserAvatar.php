@@ -1,11 +1,11 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Sun, 30 Apr 2023 20:26:08 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Fri, 21 Jul 2023 01:26:31 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Auth\GroupUser;
+namespace App\Actions\Auth\GroupUser\UI;
 
 use App\Models\Auth\GroupUser;
 use App\Models\Media\GroupMedia;
