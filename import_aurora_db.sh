@@ -4,12 +4,6 @@
 # Copyright (c) 2023, Raul A Perusquia Flores
 #
 
-scp export_aurora_db.sh devels:paso_au/
-scp aurora_migration_base.sh devels:paso_au/
-scp aurora_migration_crm.sh devels:paso_au/
-scp create_aurora_tenants.sh devels:paso_au/
-
-ssh devels 'cd paso_au; ./export_aurora_db.sh'
 cd devops/devel/aurora/ || exit
 scp devels:paso_au/*_base.sql.bz2 .
 bzip2 -f -d *_base.sql.bz2
