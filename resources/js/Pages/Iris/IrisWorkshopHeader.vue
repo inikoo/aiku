@@ -24,17 +24,9 @@ const Dummy = {
         { name: 'grab', icon: ['fas', 'hand-rock'] },
         // { name: 'Heather Grey', icon: ['fas', 'fa-hand-pointer']},
     ],
-    theme: [
-        { name: 'One', value: '2' },
-        { name: 'Two', value: '1' },
-    ],
-    menuType: [
-        { name: 'Group', value: 'group' },
-        { name: 'Link', value: 'link' },
-    ],
-    modeType: [
-        { name: 'User', value: 'user' },
-        { name: 'Guest', value: 'guest' },
+    addContent: [
+        { name: 'Add Text', value: 'text' },
+        { name: 'Add Image', value: 'image' },
     ],
 }
 const data = ref([
@@ -55,6 +47,7 @@ const layout = ref({
     left: 0,
     top: 0,
 })
+const layoutExpose = ref(null)
 
 
 const setPosition = (value, item) => {
@@ -67,28 +60,51 @@ const changeName = (value) => {
     data.value[index].name = value.value
 }
 
-const setActive = (index)=>{
+const setActive = (index) => {
     layerActive.value = index
 }
 
-const changeColor=(color)=>{
-    if( data.value[layerActive.value]){
+const changeColor = (color) => {
+    if (data.value[layerActive.value]) {
         data.value[layerActive.value].style.color = color
     }
 }
 
-const changesize=(size)=>{
-    if( data.value[layerActive.value]){
+const changesize = (size) => {
+    if (data.value[layerActive.value]) {
         data.value[layerActive.value].style.fontSize = `${size}px`
     }
 }
 
-const changeText=(value)=>{
-    if( data.value[layerActive.value]){
+const changeText = (value) => {
+    if (data.value[layerActive.value]) {
         data.value[layerActive.value].style = value
     }
 }
 
+const createContent = (value) => {
+    if (value == 'text') data.value.push({
+        name: 'Title',
+        id: uuidv4(),
+        type: 'text',
+        style: { top: '75px', left: '536px', fontSize: '34px', },
+    })
+
+}
+
+const fileInput = ref(null)
+
+const Uploadimage = () => {
+    for (const set of fileInput.value.files) {
+        data.value.push({
+        name: 'image',
+        id: uuidv4(),
+        type: 'image',
+        style: { top: '75px', left: '536px', height: '120px', width:'200px'  },
+        file : set
+    })
+    }
+}
 
 </script>
 
@@ -129,7 +145,33 @@ const changeText=(value)=>{
                                     </div>
                                 </RadioGroup>
                             </div>
-                            <hr class="mt-5" />
+                            <hr class="mt-5 mb-5" />
+                            <div>
+                                <h2 class="text-sm font-medium text-gray-900">Tools</h2>
+                                <div class="mt-2">
+                                    <div class="sr-only">Choose a tool</div>
+                                    <div class="flex items-center space-x-3">
+                                        <div as="template" v-for="data in Dummy.addContent" :key="data.value">
+                                            <div v-if="data.value !== 'image'"
+                                                class='relative -m-0.5 flex cursor-pointer items-center justify-center rounded-full p-0.5 focus:outline-none'>
+                                                <div @click="createContent(data.value)"
+                                                    :class="['flex items-center justify-center rounded-md border py-3 px-3 text-sm font-medium uppercase sm:flex-1']">
+                                                    <div as="span">{{ data.name }}</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div
+                                            class='relative -m-0.5 flex cursor-pointer items-center justify-center rounded-full p-0.5 focus:outline-none'>
+                                            <div
+                                                :class="['flex items-center justify-center rounded-md border py-3 px-3 text-sm font-medium uppercase sm:flex-1']">
+                                                <input type="file" multiple name="file" id="fileInput" class="hidden-input"
+                                                    @change="Uploadimage" ref="fileInput" accept=".jpg,.jpeg,.png" />
+                                                <label for="fileInput" as="span">Add Image</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </form>
                     </div>
                     <!-- Image gallery -->
@@ -137,24 +179,28 @@ const changeText=(value)=>{
                         <div style="height: 6%; background: #ffffff; padding:5px; width: 100%" class="flex gap-3">
                             <div>
                                 <span aria-hidden="true">
-                                    <ColorPicker :color="get(data[layerActive],['style','color'],'#000000')" :changeColor="changeColor" @click="(e)=>e.stopPropagation()"/>
+                                    <ColorPicker :color="get(data[layerActive], ['style', 'color'], '#000000')"
+                                        :changeColor="changeColor" @click="(e) => e.stopPropagation()" />
                                 </span>
                             </div>
                             <div>
-                                    <span aria-hidden="true">
-                                       <FontSize :size="get(data[layerActive],['style','fontSize'],'34px')" :changesize="changesize" @click="(e)=>e.stopPropagation()"/>
-                                    </span>
-                                </div>
-                                <div>
-                                    <span aria-hidden="true">
-                                       <FontDecorator :fontDecorator="get(data[layerActive],['style'],{})" :changeText="changeText" @click="(e)=>e.stopPropagation()"/>
-                                    </span>
-                                </div>
+                                <span aria-hidden="true">
+                                    <FontSize :size="get(data[layerActive], ['style', 'fontSize'], '34px')"
+                                        :changesize="changesize" @click="(e) => e.stopPropagation()" />
+                                </span>
+                            </div>
+                            <div>
+                                <span aria-hidden="true">
+                                    <FontDecorator :fontDecorator="get(data[layerActive], ['style'], {})"
+                                        :changeText="changeText" @click="(e) => e.stopPropagation()" />
+                                </span>
+                            </div>
 
                         </div>
                         <div class="p-3 relative">
                             <div>
-                                <Layout :data="data" :setPosition="setPosition" :changeName="changeName" :layout="layout" :setActive="setActive" :layerActive="layerActive"/>
+                                <Layout :data="data" :setPosition="setPosition" :changeName="changeName" :layout="layout"
+                                    :setActive="setActive" :layerActive="layerActive" ref="layoutExpose" />
                             </div>
                         </div>
                     </div>
@@ -163,3 +209,12 @@ const changeText=(value)=>{
         </div>
     </div>
 </template>
+
+
+<style>.hidden-input {
+    opacity: 0;
+    overflow: hidden;
+    position: absolute;
+    width: 1px;
+    height: 1px;
+}</style>
