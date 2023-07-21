@@ -8,7 +8,9 @@
 namespace App\Actions\Fulfilment\StoredItem\UI;
 
 use App\Actions\InertiaAction;
+use App\Actions\UI\Fulfilment\FulfilmentDashboard;
 use App\Actions\UI\HumanResources\HumanResourcesDashboard;
+use App\Http\Resources\Fulfilment\StoredItemResource;
 use App\Http\Resources\HumanResources\EmployeeInertiaResource;
 use App\Http\Resources\HumanResources\EmployeeResource;
 use App\Models\Fulfilment\StoredItem;
@@ -38,22 +40,13 @@ class IndexStoredItems extends InertiaAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        $queryBuilder=QueryBuilder::for(StoredItem::class);
-        foreach ($this->elementGroups as $key => $elementGroup) {
-            $queryBuilder->whereElementGroup(
-                prefix: $prefix,
-                key: $key,
-                allowedElements: array_keys($elementGroup['elements']),
-                engine: $elementGroup['engine']
-            );
-        }
+        $queryBuilder = QueryBuilder::for(StoredItem::class);
 
         return $queryBuilder
-            ->defaultSort('employees.slug')
-            ->select(['slug', 'id', 'worker_number', 'contact_name', 'state'])
-            ->with('jobPositions')
-            ->allowedSorts(['slug', 'state', 'name'])
-            ->allowedFilters([$globalSearch, 'slug', 'name', 'state'])
+            ->defaultSort('code')
+            ->with('customer')
+            ->allowedSorts(['code', 'state'])
+            ->allowedFilters([$globalSearch, 'slug', 'state'])
             ->withPaginator($prefix)
             ->withQueryString();
     }
@@ -68,11 +61,30 @@ class IndexStoredItems extends InertiaAction
             }
             $table
                 ->withGlobalSearch()
-                ->column(key: 'slug', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'contact_name', label: __('Contact Name'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'worker_number', label: __('Worker Number'), canBeHidden: false, sortable: true, searchable: true)
+                ->withEmptyState(
+                    [
+                        'title'       => __('No stored items'),
+                        'description' => $this->canEdit ? __('Get started by create a new stored item.') : null,
+                        'count'       => 0,
+                        'action'      => $this->canEdit ? [
+                            'type'    => 'button',
+                            'style'   => 'create',
+                            'tooltip' => __('new stored item'),
+                            'label'   => __('stored item'),
+                            'route'   => [
+                                'name'       => 'fulfilment.stored-items.create',
+                                'parameters' => array_values($this->originalParameters)
+                            ]
+                        ] : null
+                    ]
+                )
+                ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'customer_name', label: __('Customer Name'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'location', label: __('Location'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'state', label: __('State'), canBeHidden: false, sortable: true, searchable: true)
-                ->defaultSort('slug');
+                ->column(key: 'status', label: __('Status'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'notes', label: __('Notes'), canBeHidden: false, sortable: true, searchable: true)
+                ->defaultSort('code');
         };
     }
 
@@ -90,7 +102,7 @@ class IndexStoredItems extends InertiaAction
 
     public function jsonResponse(LengthAwarePaginator $employees): AnonymousResourceCollection
     {
-        return EmployeeResource::collection($employees);
+        return StoredItemResource::collection($employees);
     }
 
 
@@ -103,21 +115,20 @@ class IndexStoredItems extends InertiaAction
                 'title'       => __('stored items'),
                 'pageHead'    => [
                     'title'  => __('stored items'),
-                    /*
-                    'create' => $this->canEdit ? [
-                        'route' => [
-                            'name'       => 'hr.employees.create',
-                            'parameters' => array_values($this->originalParameters)
-                        ],
-                        'label' => __('employee')
-                    ] : false,
-                    */
+                    'actions' => [
+                        'buttons' => [
+                            'route' => [
+                                'name'       => 'hr.employees.create',
+                                'parameters' => array_values($this->originalParameters)
+                            ],
+                            'label' => __('stored items')
+                        ]
+                    ],
                 ],
-                'data'        => EmployeeInertiaResource::collection($employees),
+                'data'        => StoredItemResource::collection($employees),
             ]
         )->table($this->tableStructure());
     }
-
 
     public function asController(ActionRequest $request): LengthAwarePaginator
     {
@@ -130,15 +141,15 @@ class IndexStoredItems extends InertiaAction
     public function getBreadcrumbs(): array
     {
         return array_merge(
-            (new HumanResourcesDashboard())->getBreadcrumbs(),
+            (new FulfilmentDashboard())->getBreadcrumbs(),
             [
                 [
                     'type'   => 'simple',
                     'simple' => [
                         'route' => [
-                            'name' => 'hr.employees.index'
+                            'name' => 'fulfilment.stored-items.index'
                         ],
-                        'label' => __('employees'),
+                        'label' => __('stored items'),
                         'icon'  => 'fal fa-bars',
                     ],
 

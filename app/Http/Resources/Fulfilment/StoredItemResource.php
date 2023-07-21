@@ -12,6 +12,11 @@ use Illuminate\Http\Resources\Json\JsonResource;
 /**
  * @property int $id
  * @property string $code
+ * @property string $state
+ * @property string $status
+ * @property string $notes
+ * @property \App\Models\CRM\Customer $customer
+ * @property \App\Models\Inventory\Location $location
  */
 class StoredItemResource extends JsonResource
 {
@@ -20,6 +25,10 @@ class StoredItemResource extends JsonResource
         return [
             'id'   => $this->id,
             'code' => $this->code,
+            'customer_name' => $this->customer['name'],
+            'location' => $this->location,
+            'state' => $this->state,
+            'status' => $this->status
         ];
     }
 }

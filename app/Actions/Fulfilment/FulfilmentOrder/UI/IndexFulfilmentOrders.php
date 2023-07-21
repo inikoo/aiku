@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Artha <artha@aw-advantage.com>
- * Created: Thu, 20 Jul 2023 09:57:26 Central Indonesia Time, Sanur, Bali, Indonesia
+ * Created: Thu, 20 Jul 2023 16:52:20 Central Indonesia Time, Sanur, Bali, Indonesia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
@@ -35,9 +35,8 @@ class IndexFulfilmentOrders extends InertiaAction
                     ->orWhere('orders.date', '=', $value);
             });
         });
+
         InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::ORDERS->value);
-
-
 
         return QueryBuilder::for(Order::class)
             ->defaultSort('orders.number')
@@ -71,10 +70,6 @@ class IndexFulfilmentOrders extends InertiaAction
     public function tableStructure($parent): Closure
     {
         return function (InertiaTable $table) use ($parent) {
-            $table
-                ->name(TabsAbbreviationEnum::ORDERS->value)
-                ->pageName(TabsAbbreviationEnum::ORDERS->value.'Page');
-
             $table->column(key: 'number', label: __('number'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'date', label: __('date'), canBeHidden: false, sortable: true, searchable: true);
         };

@@ -3,10 +3,12 @@
 namespace App\Models\Fulfilment;
 
 use App\Enums\Fulfilment\StoredItem\StoredItemStateEnum;
+use App\Models\CRM\Customer;
 use App\Models\Traits\HasUniversalSearch;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
@@ -51,4 +53,9 @@ class StoredItem extends Model
     protected $attributes = [
         'data' => '{}',
     ];
+
+    public function customer(): BelongsTo
+    {
+        return $this->belongsTo(Customer::class);
+    }
 }

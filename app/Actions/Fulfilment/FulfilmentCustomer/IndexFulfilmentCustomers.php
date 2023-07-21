@@ -57,7 +57,7 @@ class IndexFulfilmentCustomers extends InertiaAction
                     $query->where('customers.shop_id', $parent->id);
                 }
             })
-            ->allowedSorts(['reference', 'name', 'number_active_clients'])
+            ->allowedSorts(['name', 'number_active_clients'])
             ->allowedFilters([$globalSearch])
             ->paginate(
                 perPage: $this->perPage ?? config('ui.table.records_per_page'),
@@ -69,11 +69,8 @@ class IndexFulfilmentCustomers extends InertiaAction
     public function tableStructure($parent): Closure
     {
         return function (InertiaTable $table) use ($parent) {
-            $table
-                ->name(TabsAbbreviationEnum::CUSTOMERS->value)
-                ->pageName(TabsAbbreviationEnum::CUSTOMERS->value.'Page');
-
             $table->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'slug', label: __('slug'), canBeHidden: false, sortable: true, searchable: true);
 
             if (class_basename($parent) == 'Tenant') {
                 $table->column(key: 'shop', label: __('shop'), canBeHidden: false, sortable: true, searchable: true);
@@ -133,36 +130,8 @@ class IndexFulfilmentCustomers extends InertiaAction
                 'title'       => __('customers'),
                 'pageHead'    => [
                     'title'  => __('customers'),
-                    'create' => $this->canEdit
-                    && (
-                        $this->routeName == 'shops.show.customers.index'
-                    )
-
-                        ? [
-                            'route' =>
-                                match ($this->routeName) {
-                                    'shops.show.customers.index' =>
-                                    [
-                                        'name'       => 'shops.show.customers.create',
-                                        'parameters' => array_values($this->originalParameters)
-                                    ],
-                                    'customers.index' =>
-                                    [
-                                        'name'       => 'customers.create',
-                                        'parameters' => array_values($this->originalParameters)
-                                    ]
-                                }
-
-
-                            ,
-                            'label' => __('customers')
-                        ] : false,
-
                 ],
-
                 'data'        => CustomerResource::collection($customers),
-
-
             ]
         )->table($this->tableStructure($parent));
     }

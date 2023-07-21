@@ -40,8 +40,6 @@ function shopRoute(customer: Customer) {
                 [customer.shop_slug]);
     }
 }
-
-
 </script>
 
 <template>
