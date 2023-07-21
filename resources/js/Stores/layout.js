@@ -43,7 +43,8 @@ export const useLayoutStore = defineStore("layout", {
             rightSidebar          : {
                 activeUsers: false,
                 language: false,
-            }
+            },
+            avatar_id:null
         }
     )
 
