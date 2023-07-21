@@ -158,6 +158,11 @@ const initialiseApp = () => {
         }
 
         layout.booted=true;
+
+        if (usePage().props.auth.user.avatar_id) {
+            layout.avatar_id=usePage().props.auth.user.avatar_id;
+        }
+
     })
     return layout
 }
@@ -234,8 +239,8 @@ const user = ref(usePage().props.auth.user);
                                 <MenuButton
                                     class="flex max-w-xs items-center rounded-full bg-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
                                     <span class="sr-only">{{ trans("Open user menu") }}</span>
-                                    <img v-if="user.avatar_id" class="h-8 w-8 rounded-full"
-                                        :src="route('media.group.show',user.avatar_id)"
+                                    <img v-if="layout.avatar_id" class="h-8 w-8 rounded-full"
+                                        :src="route('media.group.show',layout.avatar_id)"
                                         alt="" />
                                 </MenuButton>
 
