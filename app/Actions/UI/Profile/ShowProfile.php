@@ -11,6 +11,7 @@ use App\Actions\Assets\Language\UI\GetLanguagesOptions;
 use App\Actions\UI\Dashboard\ShowDashboard;
 use App\Actions\UI\WithInertia;
 use App\Http\Resources\SysAdmin\UserResource;
+use App\Http\Resources\UI\LoggedUserResource;
 use App\Models\Auth\User;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -42,8 +43,6 @@ class ShowProfile
             "pageHead"    => [
                 "title" => __("My Profile"),
             ],
-
-
             "formData" => [
                 "blueprint" => [
                     [
@@ -67,7 +66,7 @@ class ShowProfile
                             "avatar" => [
                                 "type"  => "avatar",
                                 "label" => __("photo"),
-                                "value" => '',
+                                "value" => $user->avatar_id ? route('media.group.show', $user->avatar_id) : null,
                             ],
 
                         ],
@@ -144,6 +143,9 @@ class ShowProfile
                         "name"       => "models.profile.update"
                     ],
                 ],
+            ],
+            'auth'          => [
+                'user' => LoggedUserResource::make($user)->getArray(),
             ],
         ]);
     }

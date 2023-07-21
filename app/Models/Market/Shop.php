@@ -174,6 +174,11 @@ class Shop extends Model
         return $this->hasOne(ShopAccountingStats::class);
     }
 
+    public function fulfilmentStats(): HasOne
+    {
+        return $this->hasOne(ShopFulfilmentStats::class);
+    }
+
     public function customers(): HasMany
     {
         return $this->hasMany(Customer::class);

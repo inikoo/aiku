@@ -1,10 +1,9 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Wed, 26 Apr 2023 13:47:46 Malaysia Time, Sanur, Bali, Indonesia
+ * Created: Thu, 20 Jul 2023 15:01:43 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
-
 
 use App\Stubs\Migrations\HasFulfilmentStats;
 use Illuminate\Database\Migrations\Migration;
@@ -16,10 +15,10 @@ return new class () extends Migration {
 
     public function up(): void
     {
-        Schema::create('tenant_fulfilment_stats', function (Blueprint $table) {
+        Schema::create('shop_fulfilment_stats', function (Blueprint $table) {
             $table->smallIncrements('id');
-            $table->unsignedSmallInteger('tenant_id');
-            $table->foreign('tenant_id')->references('id')->on('public.tenants')->onUpdate('cascade')->onDelete('cascade');
+            $table->unsignedSmallInteger('shop_id');
+            $table->foreign('shop_id')->references('id')->on('shops')->onUpdate('cascade')->onDelete('cascade');
             $table = $this->containerFulfilmentStats($table);
             $table = $this->fulfilmentStats($table);
             $table->timestampsTz();
@@ -29,6 +28,6 @@ return new class () extends Migration {
 
     public function down(): void
     {
-        Schema::dropIfExists('tenant_fulfilment_stats');
+        Schema::dropIfExists('shop_fulfilment_stats');
     }
 };

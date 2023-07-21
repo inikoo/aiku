@@ -88,13 +88,22 @@ let formFields = {
 if (props['fieldData']['hasOther']) {
     formFields[props['fieldData']['hasOther']['name']] = props['fieldData']['hasOther']['value'];
 }
-//}
+
+formFields['_method'] = 'patch';
+
 const form = useForm(formFields);
 form['fieldType'] = 'edit';
+
+
+const routeUrl=  route(updateRoute.name, updateRoute.parameters);
+function submit() {
+    form.post(routeUrl,{caca:'xxx'})
+}
+
 </script>
 
 <template>
-    <form @submit.prevent="form.patch(route(updateRoute.name, updateRoute.parameters))">
+    <form @submit.prevent="submit">
         <dl v-if="!props.fieldData.fullComponentArea" class="divide-y divide-gray-200 max-w-2xl ">
             <div class="pb-4 sm:pb-5 sm:grid sm:grid-cols-3 sm:gap-4 ">
                 <dt class="text-sm font-medium text-gray-500 capitalize">

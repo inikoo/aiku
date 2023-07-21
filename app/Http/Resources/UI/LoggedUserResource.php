@@ -22,9 +22,10 @@ class LoggedUserResource extends JsonResource
     public function toArray($request): array
     {
         return [
-            'username' => $this->username,
-            'email'    => $this->email,
-            'avatar'   => $this->avatar_id
+            'username'  => $this->username,
+            'email'     => $this->email,
+            'avatar_id' => $this->avatar_id
+
         ];
     }
 }

@@ -70,6 +70,9 @@ class StoreCustomer
                 );
             }
             $customer->stats()->create();
+            if($customer->is_fulfilment) {
+                $customer->fulfilmentStats()->create();
+            }
 
             return $customer;
         });

@@ -51,10 +51,13 @@ use App\Services\Tenant\Aurora\FetchAuroraShipper;
 use App\Services\Tenant\Aurora\FetchAuroraShop;
 use App\Services\Tenant\Aurora\FetchAuroraStock;
 use App\Services\Tenant\Aurora\FetchAuroraStockFamily;
+use App\Services\Tenant\Aurora\FetchAuroraStoredItem;
 use App\Services\Tenant\Aurora\FetchAuroraSupplier;
+use App\Services\Tenant\Aurora\FetchAuroraSupplierDelivery;
 use App\Services\Tenant\Aurora\FetchAuroraSupplierProduct;
 use App\Services\Tenant\Aurora\FetchAuroraTenant;
 use App\Services\Tenant\Aurora\FetchAuroraTradeUnit;
+use App\Services\Tenant\Aurora\FetchAuroraTradeUnitImages;
 use App\Services\Tenant\Aurora\FetchAuroraTransaction;
 use App\Services\Tenant\Aurora\FetchAuroraUser;
 use App\Services\Tenant\Aurora\FetchAuroraWarehouse;
@@ -338,6 +341,11 @@ use Illuminate\Support\Facades\DB;
     public function fetchSupplierDelivery($id): ?array
     {
         return (new FetchAuroraSupplierDelivery($this))->fetch($id);
+    }
+
+    public function fetchStoredItem($id): ?array
+    {
+        return (new FetchAuroraStoredItem($this))->fetch($id);
     }
 
 }

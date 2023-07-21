@@ -1,7 +1,7 @@
 
 <script setup lang="ts">
 import VueResizable from 'vue-resizable';
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, defineExpose } from 'vue';
 import { get } from 'lodash'
 import Input from '../Fields/Input.vue'
 const props = defineProps<{
@@ -15,17 +15,18 @@ const props = defineProps<{
 
 
 
-onMounted(() => {
-    props.data.forEach((item,index) => {
-        console.log(index,item)
-    dragElement(item.ref,item);
-  });
-  console.log(resizable)
-});
+// defineExpose({
+//   setdragElement,
+// });
+
+function setdragElement(ref,value){
+    value.ref = ref
+    dragElement(ref,value);
+}
 
 
 function dragElement(elmnt,set) {
-  let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+  let  pos3 = 0, pos4 = 0;
 
   const dragMouseDown = (e) => {
     e = e || window.event;
@@ -69,8 +70,7 @@ const closeDragElement = () => {
   document.onmousemove = null;
 };
 
-elmnt.querySelector('.draggable-handle').addEventListener('mousedown', dragMouseDown);
-
+if(elmnt) elmnt.querySelector('.draggable-handle').addEventListener('mousedown', dragMouseDown);
 }
 
 
@@ -78,13 +78,25 @@ const containerSize = ref(null)
 const eHandler=(data)=>{
     containerSize.value = {...data, right : data.left + data.width , bottom : data.top + data.height}
 }
-const resizable = ref(null)
+
+
+const generateThumbnail = (file) => {
+  if (file.file && file.file instanceof File) {
+    let fileSrc = URL.createObjectURL(file.file)
+    setTimeout(() => {
+      URL.revokeObjectURL(fileSrc)
+    }, 1000)
+    return fileSrc
+  } else {
+    return file.imageSrc
+  }
+}
 
 </script>
 
 <template>
     <vue-resizable
-      class="container bg-white"
+      class="container bg-white" 
       :minHeight="200"
       :maxWidth="1233"
       :minWidth="1233"
@@ -101,12 +113,15 @@ const resizable = ref(null)
     >
       <div id="markers" class="row" v-for="(item, index) in props.data" :key="item.id">
         <div
-          :ref="refValue => item.ref = refValue"
+          :ref="refValue => setdragElement(refValue, item)"
           class="col-sm-10 draggable-component"
           :style="{...item.style}"
         >
-        <div :class="['draggable-handle', { 'border': get(data[layerActive],'id') === item.id }]" @click="(e) => { e.stopPropagation(); props.setActive(index) }">
+        <div v-if="item.type == 'text'" :class="['draggable-handle', { 'border': get(data[layerActive],'id') === item.id }]" @click="(e) => { e.stopPropagation(); props.setActive(index) }">
             <Input :data="item" :save="changeName" keyValue="name"/>
+        </div>
+        <div v-if="item.type == 'image'" :class="['draggable-handle', { 'border': get(data[layerActive],'id') === item.id }]" @click="(e) => { e.stopPropagation(); props.setActive(index) }">
+          <img class="preview-img" :src="generateThumbnail(item)" />
         </div>
         </div>
       </div>

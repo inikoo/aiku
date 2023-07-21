@@ -32,7 +32,6 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  * @property int $number_invoices_type_refund
  * @property int $number_clients
  * @property int $number_active_clients
- * @property int $number_stored_items
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read \App\Models\CRM\Customer $customer
