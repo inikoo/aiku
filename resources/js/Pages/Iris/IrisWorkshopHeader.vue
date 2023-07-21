@@ -100,7 +100,7 @@ const Uploadimage = () => {
         name: 'image',
         id: uuidv4(),
         type: 'image',
-        style: { top: '75px', left: '536px', height: '120px', width:'200px'  },
+        style: { top: '0px', left: '0px' },
         file : set
     })
     }
