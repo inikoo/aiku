@@ -61,23 +61,6 @@ class IndexStoredItems extends InertiaAction
             }
             $table
                 ->withGlobalSearch()
-                ->withEmptyState(
-                    [
-                        'title'       => __('No stored items'),
-                        'description' => $this->canEdit ? __('Get started by create a new stored item.') : null,
-                        'count'       => 0,
-                        'action'      => $this->canEdit ? [
-                            'type'    => 'button',
-                            'style'   => 'create',
-                            'tooltip' => __('new stored item'),
-                            'label'   => __('stored item'),
-                            'route'   => [
-                                'name'       => 'fulfilment.stored-items.create',
-                                'parameters' => array_values($this->originalParameters)
-                            ]
-                        ] : null
-                    ]
-                )
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'customer_name', label: __('Customer Name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'location', label: __('Location'), canBeHidden: false, sortable: true, searchable: true)

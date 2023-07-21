@@ -10,6 +10,7 @@ namespace App\Actions\Fulfilment\FulfilmentOrder\UI;
 use App\Actions\InertiaAction;
 use App\Actions\Market\Shop\UI\ShowShop;
 use App\Actions\UI\Dashboard\ShowDashboard;
+use App\Actions\UI\Fulfilment\FulfilmentDashboard;
 use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Sales\OrderResource;
 use App\InertiaTable\InertiaTable;
@@ -138,48 +139,23 @@ class IndexFulfilmentOrders extends InertiaAction
         return $this->handle(parent: $shop);
     }
 
-    public function getBreadcrumbs(string $routeName, array $routeParameters): array
+    public function getBreadcrumbs(): array
     {
-        $headCrumb = function (array $routeParameters = []) {
-            return [
+        return array_merge(
+            (new FulfilmentDashboard())->getBreadcrumbs(),
+            [
                 [
                     'type'   => 'simple',
                     'simple' => [
-                        'route' => $routeParameters,
+                        'route' => [
+                            'name' => 'fulfilment.orders.index'
+                        ],
                         'label' => __('orders'),
-                        'icon'  => 'fal fa-bars'
+                        'icon'  => 'fal fa-bars',
                     ],
-                ],
-            ];
-        };
 
-        return match ($routeName) {
-            'orders.index'            =>
-
-            array_merge(
-                ShowDashboard::make()->getBreadcrumbs(),
-                $headCrumb(
-                    [
-                        'name'=> 'orders.index',
-                        null
-                    ]
-                ),
-            ),
-
-            'shops.show.orders.index' =>
-            array_merge(
-                (new ShowShop())->getBreadcrumbs($routeParameters),
-                $headCrumb(
-                    [
-                        'name'      => 'shops.show.orders.index',
-                        'parameters'=>
-                            [
-                                $routeParameters['shop']
-                            ]
-                    ]
-                )
-            ),
-            default => []
-        };
+                ]
+            ]
+        );
     }
 }

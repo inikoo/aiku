@@ -10,6 +10,7 @@ namespace App\Actions\Fulfilment\FulfilmentCustomer;
 use App\Actions\InertiaAction;
 use App\Actions\Market\Shop\UI\ShowShop;
 use App\Actions\UI\Dashboard\ShowDashboard;
+use App\Actions\UI\Fulfilment\FulfilmentDashboard;
 use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Sales\CustomerResource;
 use App\InertiaTable\InertiaTable;
@@ -136,48 +137,23 @@ class IndexFulfilmentCustomers extends InertiaAction
         )->table($this->tableStructure($parent));
     }
 
-    public function getBreadcrumbs(string $routeName, array $routeParameters): array
+    public function getBreadcrumbs(): array
     {
-        $headCrumb = function (array $routeParameters = []) {
-            return [
+        return array_merge(
+            (new FulfilmentDashboard())->getBreadcrumbs(),
+            [
                 [
                     'type'   => 'simple',
                     'simple' => [
-                        'route' => $routeParameters,
+                        'route' => [
+                            'name' => 'fulfilment.customers.index'
+                        ],
                         'label' => __('customers'),
-                        'icon'  => 'fal fa-bars'
+                        'icon'  => 'fal fa-bars',
                     ],
-                ],
-            ];
-        };
 
-        return match ($routeName) {
-            'customers.index'            =>
-            array_merge(
-                ShowDashboard::make()->getBreadcrumbs(),
-                $headCrumb(
-                    [
-                        'name'=> 'customers.index',
-                        null
-                    ]
-                ),
-            ),
-
-
-            'shops.show.customers.index' =>
-            array_merge(
-                (new ShowShop())->getBreadcrumbs($routeParameters),
-                $headCrumb(
-                    [
-                        'name'      => 'shops.show.customers.index',
-                        'parameters'=>
-                        [
-                            $routeParameters['shop']->slug
-                        ]
-                    ]
-                )
-            ),
-            default => []
-        };
+                ]
+            ]
+        );
     }
 }
