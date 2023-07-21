@@ -7,9 +7,8 @@
 
 namespace App\Actions\Fulfilment\StoredItem\UI;
 
-use App\Actions\Assets\Country\UI\GetAddressData;
-use App\Actions\Assets\Country\UI\GetCountriesOptions;
 use App\Actions\InertiaAction;
+use App\Actions\Inventory\Location\GetLocationsOptions;
 use App\Actions\UI\Fulfilment\FulfilmentDashboard;
 use App\Http\Resources\Fulfilment\StoredItemResource;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -52,21 +51,10 @@ class CreateStoredItem extends InertiaAction
                 'title'       => __('stored items'),
                 'pageHead'    => [
                     'title'  => __('stored items'),
-                    'actions' => [
-                        'buttons' => [
-                            'route' => [
-                                'name'       => 'hr.employees.create',
-                                'parameters' => array_values($this->originalParameters)
-                            ],
-                            'label' => __('stored items')
-                        ]
-                    ],
                 ],
                 'formData' => [
                     'blueprint' => [
                         [
-                            'title'  => __('Items'),
-                            'icon'   => 'fal fa-address-book',
                             'fields' => [
                                 'slug' => [
                                     'type'    => 'input',
@@ -81,12 +69,12 @@ class CreateStoredItem extends InertiaAction
                                     'required'=> true
                                 ],
                                 'location' => [
-                                    'type'    => 'address',
-                                    'label'   => __('location'),
-                                    'value'   => '',
-                                    'options' => [
-                                        'countries' => GetCountriesOptions::run()
-                                    ],
+                                    'type'        => 'select',
+                                    'label'       => __("Location"),
+                                    'placeholder' => 'Select a Location',
+                                    'options'     => GetLocationsOptions::run(),
+                                    'mode'        => 'single',
+                                    'searchable'  => true,
                                     'required'=> true
                                 ],
                                 'notes' => [

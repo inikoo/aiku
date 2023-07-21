@@ -71,6 +71,17 @@ class IndexFulfilmentOrders extends InertiaAction
     public function tableStructure($parent): Closure
     {
         return function (InertiaTable $table) use ($parent) {
+            $table->withEmptyState(
+                match (class_basename($parent)) {
+                    'Tenant' => [
+                        'title'       => __("No orders found"),
+                        'description' => __("In fact, is no even a shop yet 🤷🏽‍♂️"),
+                        'count'       => $parent->crmStats->number_customers,
+                    ],
+                    default=> null,
+                }
+            );
+
             $table->column(key: 'number', label: __('number'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'date', label: __('date'), canBeHidden: false, sortable: true, searchable: true);
         };

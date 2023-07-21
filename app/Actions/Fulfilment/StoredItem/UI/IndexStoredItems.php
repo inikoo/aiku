@@ -28,7 +28,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 class IndexStoredItems extends InertiaAction
 {
     /** @noinspection PhpUndefinedMethodInspection */
-    public function handle($prefix=null): LengthAwarePaginator
+    public function handle($prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -51,16 +51,16 @@ class IndexStoredItems extends InertiaAction
             ->withQueryString();
     }
 
-    public function tableStructure($prefix=null): Closure
+    public function tableStructure($parent): Closure
     {
-        return function (InertiaTable $table) use ($prefix) {
-            if($prefix) {
-                $table
-                    ->name($prefix)
-                    ->pageName($prefix.'Page');
-            }
+        return function (InertiaTable $table) use ($parent) {
             $table
                 ->withGlobalSearch()
+                ->withEmptyState([
+                        'title' => __("No stored items found"),
+                        'count' => $parent->count()
+                    ]
+                )
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'customer_name', label: __('Customer Name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'location', label: __('Location'), canBeHidden: false, sortable: true, searchable: true)
@@ -89,28 +89,28 @@ class IndexStoredItems extends InertiaAction
     }
 
 
-    public function htmlResponse(LengthAwarePaginator $employees): Response
+    public function htmlResponse(LengthAwarePaginator $storedItems): Response
     {
         return Inertia::render(
             'Fulfilment/StoredItems',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(),
-                'title'       => __('stored items'),
-                'pageHead'    => [
-                    'title'  => __('stored items'),
+                'title' => __('stored items'),
+                'pageHead' => [
+                    'title' => __('stored items'),
                     'actions' => [
                         'buttons' => [
                             'route' => [
-                                'name'       => 'hr.employees.create',
+                                'name' => 'hr.employees.create',
                                 'parameters' => array_values($this->originalParameters)
                             ],
                             'label' => __('stored items')
                         ]
                     ],
                 ],
-                'data'        => StoredItemResource::collection($employees),
+                'data' => StoredItemResource::collection($storedItems),
             ]
-        )->table($this->tableStructure());
+        )->table($this->tableStructure($storedItems));
     }
 
     public function asController(ActionRequest $request): LengthAwarePaginator
@@ -127,13 +127,13 @@ class IndexStoredItems extends InertiaAction
             (new FulfilmentDashboard())->getBreadcrumbs(),
             [
                 [
-                    'type'   => 'simple',
+                    'type' => 'simple',
                     'simple' => [
                         'route' => [
                             'name' => 'fulfilment.stored-items.index'
                         ],
                         'label' => __('stored items'),
-                        'icon'  => 'fal fa-bars',
+                        'icon' => 'fal fa-bars',
                     ],
 
                 ]

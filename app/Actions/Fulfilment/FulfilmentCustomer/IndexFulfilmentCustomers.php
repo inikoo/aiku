@@ -53,11 +53,11 @@ class IndexFulfilmentCustomers extends InertiaAction
             ])
             ->leftJoin('customer_stats', 'customers.id', 'customer_stats.customer_id')
             ->leftJoin('shops', 'shops.id', 'shop_id')
-            ->when(true, function ($query) use ($parent) {
+        /*    ->when(true, function ($query) use ($parent) {
                 if (class_basename($parent) == 'Shop') {
                     $query->where('customers.shop_id', $parent->id);
                 }
-            })
+            })*/
             ->allowedSorts(['name', 'number_active_clients'])
             ->allowedFilters([$globalSearch])
             ->paginate(
@@ -70,12 +70,22 @@ class IndexFulfilmentCustomers extends InertiaAction
     public function tableStructure($parent): Closure
     {
         return function (InertiaTable $table) use ($parent) {
-            $table->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
-            $table->column(key: 'slug', label: __('slug'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'slug', label: __('code'), canBeHidden: false, sortable: true, searchable: true);
 
             if (class_basename($parent) == 'Tenant') {
                 $table->column(key: 'shop', label: __('shop'), canBeHidden: false, sortable: true, searchable: true);
             }
+
+            $table->withEmptyState(
+                match (class_basename($parent)) {
+                    'Tenant' => [
+                        'title'       => __("No customers found"),
+                        'description' => __("In fact, is no even a shop yet 🤷🏽‍♂️"),
+                        'count'       => $parent->crmStats->number_customers,
+                    ],
+                    default=> null,
+                }
+            );
 
             $table->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
             if (class_basename($parent) == 'Shop' and $parent->subtype == 'dropshipping') {

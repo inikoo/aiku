@@ -80,49 +80,6 @@ class ShowFulfilmentCustomer extends InertiaAction
 
     public function htmlResponse(Customer $customer, ActionRequest $request): Response
     {
-        $webUsersMeta = match ($customer->stats->number_web_users) {
-            0 => [
-                'name'                  => 'add web user',
-                'leftIcon'              => [
-                    'icon'    => 'fal fa-globe',
-                    'tooltip' => __('Web user')
-                ],
-                'emptyWithCreateAction' => [
-                    'label' => __('web user')
-                ]
-            ],
-            1 => [
-                'href'     => $this->makeRoute($customer, '.web-users.show', [$customer->webUsers->first()->slug]),
-                'name'     => $customer->webUsers->first()->slug,
-                'leftIcon' => [
-                    'icon'    => 'fal fa-globe',
-                    'tooltip' => __('Web user'),
-                ],
-
-            ],
-            default => [
-                'name'     => $customer->webUsers->count(),
-                'leftIcon' => [
-                    'icon'    => 'fal fa-globe',
-                    'tooltip' => __('Web users')
-                ],
-            ]
-        };
-
-        $shopMeta = [];
-
-        if ($this->routeName == 'customers.show') {
-            $shopMeta = [
-                'href'     => ['shops.show', $customer->shop->slug],
-                'name'     => $customer->shop->code,
-                'leftIcon' => [
-                    'icon'    => 'fal fa-store-alt',
-                    'tooltip' => __('Shop'),
-                ],
-            ];
-        }
-
-
         return Inertia::render(
             'CRM/Customer',
             [
@@ -137,17 +94,24 @@ class ShowFulfilmentCustomer extends InertiaAction
                 ],
                 'pageHead'    => [
                     'title' => $customer->name,
-                    'meta'  => array_filter([
-                        $shopMeta,
-                        $webUsersMeta
-                    ]),
                     'edit'  => $this->canEdit ? [
                         'route' => [
                             'name'       => preg_replace('/show$/', 'edit', $this->routeName),
                             'parameters' => array_values($this->originalParameters)
                         ]
                     ] : false,
-
+                    'actions'=> [
+                        [
+                            'type'    => 'button',
+                            'style'   => 'create',
+                            'tooltip' => __('new stored items'),
+                            'label'   => __('stored items'),
+                            'route'   => [
+                                'name'       => 'fulfilment.stored-items.create',
+                                'parameters' => [$customer->slug]
+                            ]
+                        ],
+                    ]
                 ],
                 'tabs'        => [
                     'current'    => $this->tab,

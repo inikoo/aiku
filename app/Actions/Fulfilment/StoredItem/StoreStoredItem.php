@@ -39,8 +39,9 @@ class StoreStoredItem
     public function rules(): array
     {
         return [
-            'code'          => ['required', 'max:255'],
-
+            'slug' => ['required', 'max:255'],
+            'reference' => ['required', 'max:255'],
+            'type' => ['required']
         ];
     }
 

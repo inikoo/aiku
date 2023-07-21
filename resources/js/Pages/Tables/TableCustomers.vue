@@ -21,6 +21,10 @@ function customerRoute(customer: Customer) {
             return route(
                 'crm.shops.show.customers.show',
                 [customer.shop_slug, customer.slug]);
+        case 'fulfilment.customers.index':
+            return route(
+                'fulfilment.customers.show',
+                [customer.slug]);
         default:
             return route(
                 'crm.customers.show',
