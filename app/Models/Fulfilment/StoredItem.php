@@ -68,6 +68,7 @@ class StoredItem extends Model
 
     protected $attributes = [
         'data' => '{}',
+        'notes' => '',
     ];
 
     protected $guarded = [];

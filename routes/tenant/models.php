@@ -19,6 +19,7 @@ use App\Actions\Auth\User\UpdateUser;
 use App\Actions\Auth\WebUser\UpdateWebUser;
 use App\Actions\CRM\Customer\StoreCustomer;
 use App\Actions\CRM\Customer\UpdateCustomer;
+use App\Actions\Fulfilment\StoredItem\StoreStoredItem;
 use App\Actions\HumanResources\Clocking\DeleteClocking;
 use App\Actions\HumanResources\Clocking\StoreClocking;
 use App\Actions\HumanResources\Clocking\UpdateClocking;
@@ -97,6 +98,8 @@ Route::post('/shop/{shop}/department/', [StoreProductCategory::class, 'inShop'])
 Route::post('/shop/{shop}/website/', StoreWebsite::class)->name('shop.website.store');
 Route::delete('/shop/{shop}/department/{department}', [DeleteProductCategory::class, 'inShop'])->name('shop.department.delete');
 
+
+Route::post('stored-items/customer/{customer}', StoreStoredItem::class)->name('stored-items.store');
 
 
 Route::patch('/website/{website}', UpdateWebsite::class)->name('website.update');

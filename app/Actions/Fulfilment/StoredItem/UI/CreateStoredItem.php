@@ -10,6 +10,7 @@ namespace App\Actions\Fulfilment\StoredItem\UI;
 use App\Actions\InertiaAction;
 use App\Actions\Inventory\Location\GetLocationsOptions;
 use App\Actions\UI\Fulfilment\FulfilmentDashboard;
+use App\Enums\Fulfilment\StoredItem\StoredItemTypeEnum;
 use App\Http\Resources\Fulfilment\StoredItemResource;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -36,9 +37,9 @@ class CreateStoredItem extends InertiaAction
     }
 
 
-    public function jsonResponse(LengthAwarePaginator $employees): AnonymousResourceCollection
+    public function jsonResponse(LengthAwarePaginator $storedItems): AnonymousResourceCollection
     {
-        return StoredItemResource::collection($employees);
+        return StoredItemResource::collection($storedItems);
     }
 
 
@@ -62,31 +63,25 @@ class CreateStoredItem extends InertiaAction
                                     'value'   => '',
                                     'required'=> true
                                 ],
-                                'type' => [
+                                'reference' => [
                                     'type'    => 'input',
-                                    'label'   => __('type'),
+                                    'label'   => __('reference'),
                                     'value'   => '',
                                     'required'=> true
                                 ],
-                                'location' => [
-                                    'type'        => 'select',
-                                    'label'       => __("Location"),
-                                    'placeholder' => 'Select a Location',
-                                    'options'     => GetLocationsOptions::run(),
-                                    'mode'        => 'single',
-                                    'searchable'  => true,
-                                    'required'=> true
+                                'type' => [
+                                    'type'    => 'select',
+                                    'label'   => __('type'),
+                                    'value'   => '',
+                                    'required'=> true,
+                                    'options' => StoredItemTypeEnum::values()
                                 ],
-                                'notes' => [
-                                    'type'    => 'input',
-                                    'label'   => __('notes'),
-                                    'value'   => ''
-                                ]
                             ]
                         ]
                     ],
                     'route' => [
-                        'name' => 'models.agent.store',
+                        'name' => 'models.stored-items.store',
+                        'arguments' => array_values($this->originalParameters)
                     ]
                 ],
             ]

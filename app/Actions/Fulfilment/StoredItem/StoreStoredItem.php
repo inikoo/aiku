@@ -8,10 +8,12 @@
 namespace App\Actions\Fulfilment\StoredItem;
 
 use App\Actions\CRM\Customer\Hydrators\CustomerHydrateStoredItems;
+use App\Enums\Fulfilment\StoredItem\StoredItemTypeEnum;
 use App\Models\CRM\Customer;
 use App\Models\Fulfilment\StoredItem;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
@@ -41,7 +43,7 @@ class StoreStoredItem
         return [
             'slug' => ['required', 'max:255'],
             'reference' => ['required', 'max:255'],
-            'type' => ['required']
+            'type' => ['required', Rule::in(StoredItemTypeEnum::values())]
         ];
     }
 
@@ -54,6 +56,6 @@ class StoreStoredItem
 
     public function htmlResponse(StoredItem $storedItem, ActionRequest $request): RedirectResponse
     {
-        return Redirect::route('hr.employees.show', $storedItem->slug);
+        return Redirect::route('fulfilment.stored-items.show', $storedItem->slug);
     }
 }
