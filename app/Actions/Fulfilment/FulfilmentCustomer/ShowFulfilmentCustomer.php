@@ -14,6 +14,7 @@ use App\Actions\Market\Product\UI\IndexProducts;
 use App\Actions\Market\Shop\UI\ShowShop;
 use App\Actions\OMS\Order\UI\IndexOrders;
 use App\Actions\UI\Dashboard\ShowDashboard;
+use App\Enums\UI\CustomerFulfilmentTabsEnum;
 use App\Enums\UI\CustomerTabsEnum;
 use App\Http\Resources\Mail\DispatchedEmailResource;
 use App\Http\Resources\Market\ProductResource;
@@ -81,7 +82,7 @@ class ShowFulfilmentCustomer extends InertiaAction
     public function htmlResponse(Customer $customer, ActionRequest $request): Response
     {
         return Inertia::render(
-            'CRM/Customer',
+            'Fulfilment/Customer',
             [
                 'title'       => __('customer'),
                 'breadcrumbs' => $this->getBreadcrumbs(
@@ -115,8 +116,7 @@ class ShowFulfilmentCustomer extends InertiaAction
                 ],
                 'tabs'        => [
                     'current'    => $this->tab,
-                    'navigation' => CustomerTabsEnum::navigation()
-
+                    'navigation' => CustomerFulfilmentTabsEnum::navigation()
                 ],
 
                 CustomerTabsEnum::SHOWCASE->value => $this->tab == CustomerTabsEnum::SHOWCASE->value ?

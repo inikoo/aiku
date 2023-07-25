@@ -9,15 +9,18 @@ namespace App\Actions\Fulfilment\StoredItem\UI;
 
 use App\Actions\InertiaAction;
 use App\Actions\UI\Inventory\InventoryDashboard;
+use App\Enums\UI\StoredItemTabsEnum;
 use App\Enums\UI\WarehouseTabsEnum;
+use App\Http\Resources\Fulfilment\StoredItemResource;
 use App\Http\Resources\Inventory\WarehouseResource;
+use App\Models\Fulfilment\StoredItem;
 use App\Models\Inventory\Warehouse;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
 /**
- * @property Warehouse $warehouse
+ * @property StoredItem $storedItem
  */
 class ShowStoredItem extends InertiaAction
 {
@@ -28,61 +31,49 @@ class ShowStoredItem extends InertiaAction
         return $request->user()->hasPermissionTo("fulfilment.view");
     }
 
-    public function asController(Warehouse $warehouse, ActionRequest $request): void
+    public function asController(StoredItem $storedItem, ActionRequest $request): void
     {
-        $this->initialisation($request)->withTab(WarehouseTabsEnum::values());
-        $this->warehouse = $warehouse;
+        $this->initialisation($request)->withTab(StoredItemTabsEnum::values());
+        $this->storedItem = $storedItem;
     }
 
 
     public function htmlResponse(): Response
     {
         return Inertia::render(
-            'Inventory/Warehouse',
+            'Fulfilment/StoredItem',
             [
-                'title'       => __('warehouse'),
-                'breadcrumbs' => $this->getBreadcrumbs($this->warehouse),
+                'title'       => __('stored item'),
+                'breadcrumbs' => $this->getBreadcrumbs($this->storedItem),
                 'pageHead'    => [
                     'icon'          =>
                         [
-                            'icon'  => ['fal', 'warehouse'],
-                            'title' => __('warehouse')
+                            'icon'  => ['fa', 'fa-narwhal'],
+                            'title' => __('stored item')
                         ],
-                    'title' => $this->warehouse->name,
-                    /*
+                    'title' => $this->storedItem->slug,
                     'edit'  => $this->canEdit ? [
                         'route' => [
                             'name'       => preg_replace('/show$/', 'edit', $this->routeName),
                             'parameters' => array_values($this->originalParameters)
                         ]
                     ] : false,
-                    */
-
-
-
                 ],
                 'tabs'        => [
-
                     'current'    => $this->tab,
-                    'navigation' => WarehouseTabsEnum::navigation(),
-
-
+                    'navigation' => StoredItemTabsEnum::navigation(),
                 ],
-
-
-
-
             ]
         );
     }
 
 
-    public function jsonResponse(): WarehouseResource
+    public function jsonResponse(): StoredItemResource
     {
-        return new WarehouseResource($this->warehouse);
+        return new StoredItemResource($this->storedItem);
     }
 
-    public function getBreadcrumbs(Warehouse $warehouse, $suffix = null): array
+    public function getBreadcrumbs(StoredItem $storedItem, $suffix = null): array
     {
         return array_merge(
             (new InventoryDashboard())->getBreadcrumbs(),
@@ -92,20 +83,19 @@ class ShowStoredItem extends InertiaAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => [
-                                'name' => 'inventory.warehouses.index',
+                                'name' => 'fulfilment.stored-items.index',
                             ],
-                            'label' => __('warehouse')
+                            'label' => __('stored items')
                         ],
                         'model' => [
                             'route' => [
-                                'name'       => 'inventory.warehouses.show',
-                                'parameters' => [$warehouse->slug]
+                                'name'       => 'fulfilment.stored-items.show',
+                                'parameters' => [$storedItem->slug]
                             ],
-                            'label' => $warehouse->code,
+                            'label' => $storedItem->slug,
                         ],
                     ],
-                    'suffix'         => $suffix,
-
+                    'suffix' => $suffix,
                 ],
             ]
         );

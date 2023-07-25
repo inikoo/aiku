@@ -8,7 +8,7 @@
 import {Head} from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 import { capitalize } from "@/Composables/capitalize"
-import TableCustomers from "@/Pages/Tables/TableCustomers.vue";
+import TableStoredItems from "@/Pages/Tables/TableStoredItems.vue";
 
 const props = defineProps<{
     data: object
@@ -21,5 +21,5 @@ const props = defineProps<{
 <template layout="App">
     <Head :title="capitalize(title)"/>
     <PageHeading :data="pageHead"></PageHeading>
-    <TableCustomers :data="data"  />
+    <TableStoredItems :data="data" />
 </template>

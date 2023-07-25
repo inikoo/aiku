@@ -32,7 +32,7 @@ class IndexStoredItems extends InertiaAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->where('code', 'ILIKE', "%$value%");
+                $query->where('slug', 'ILIKE', "%$value%");
             });
         });
 
@@ -43,9 +43,9 @@ class IndexStoredItems extends InertiaAction
         $queryBuilder = QueryBuilder::for(StoredItem::class);
 
         return $queryBuilder
-            ->defaultSort('code')
+            ->defaultSort('slug')
             ->with('customer')
-            ->allowedSorts(['code', 'state'])
+            ->allowedSorts(['slug', 'state'])
             ->allowedFilters([$globalSearch, 'slug', 'state'])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -61,13 +61,13 @@ class IndexStoredItems extends InertiaAction
                         'count' => $parent->count()
                     ]
                 )
-                ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'slug', label: __('slug'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'customer_name', label: __('Customer Name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'location', label: __('Location'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'state', label: __('State'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'status', label: __('Status'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'notes', label: __('Notes'), canBeHidden: false, sortable: true, searchable: true)
-                ->defaultSort('code');
+                ->defaultSort('slug');
         };
     }
 
