@@ -33,12 +33,7 @@ class RemoveProduct extends InertiaAction
         return $this->handle($product);
     }
 
-    public function asController(Product $product, ActionRequest $request): Product
-    {
-        $this->initialisation($request);
 
-        return $this->handle($product);
-    }
 
     /** @noinspection PhpUnusedParameterInspection */
     public function inShop(Shop $shop, Product $product, ActionRequest $request): Product
@@ -83,15 +78,15 @@ class RemoveProduct extends InertiaAction
                             'style' => 'cancel',
                             'label' => __('cancel'),
                             'route' => [
-                                'name'       => preg_replace('/remove$/', 'show', $this->routeName),
-                                'parameters' => array_values($this->originalParameters)
+                                'name'       => preg_replace('/remove$/', 'show', $request->route()->getName()),
+                                'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ]
                     ]
                 ],
                 'data'     => $this->getAction(
                     route:
-                    match ($this->routeName) {
+                    match ($request->route()->getName()) {
                         'shops.products.remove' => [
                             'name'       => 'models.product.delete',
                             'parameters' => $request->route()->originalParameters()
