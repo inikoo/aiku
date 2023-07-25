@@ -9,6 +9,8 @@ namespace App\Models\Web;
 
 use App\Actions\Utils\Abbreviate;
 use App\Actions\Utils\ReadableRandomStringGenerator;
+use App\Actions\Web\Elasticsearch\DeleteWebVariantElasticsearch;
+use App\Actions\Web\Elasticsearch\StoreWebVariantElasticsearch;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -25,6 +27,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $id
  * @property int $web_block_type_id
  * @property int $web_block_id
+ * @property string $ulid
  * @property string $slug
  * @property string $code
  * @property string $name

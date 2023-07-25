@@ -7,6 +7,7 @@
 
 namespace App\Actions\Web\WebpageVariant;
 
+use App\Actions\Web\Elasticsearch\StoreWebVariantElasticsearch;
 use App\Models\Web\Webpage;
 use App\Models\Web\WebpageVariant;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -23,7 +24,6 @@ class StoreWebpageVariant
         $webpageVariant = $webpage->variants()->create($modelData);
         $webpageVariant->stats()->create();
 
-
         if(!$webpage->main_variant_id) {
             $webpage->update(
                 [
@@ -31,6 +31,9 @@ class StoreWebpageVariant
                 ]
             );
         }
+
+        StoreWebVariantElasticsearch::run($webpageVariant);
+
         return $webpageVariant;
     }
 }
