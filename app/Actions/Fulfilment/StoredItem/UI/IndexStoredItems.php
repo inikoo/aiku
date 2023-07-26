@@ -13,8 +13,11 @@ use App\Actions\UI\HumanResources\HumanResourcesDashboard;
 use App\Http\Resources\Fulfilment\StoredItemResource;
 use App\Http\Resources\HumanResources\EmployeeInertiaResource;
 use App\Http\Resources\HumanResources\EmployeeResource;
+use App\Models\CRM\Customer;
 use App\Models\Fulfilment\StoredItem;
 use App\Models\HumanResources\Employee;
+use App\Models\Market\Shop;
+use App\Models\Tenancy\Tenant;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -28,7 +31,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 class IndexStoredItems extends InertiaAction
 {
     /** @noinspection PhpUndefinedMethodInspection */
-    public function handle($prefix = null): LengthAwarePaginator
+    public function handle(Tenant|Customer $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -40,11 +43,12 @@ class IndexStoredItems extends InertiaAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        $queryBuilder = QueryBuilder::for(StoredItem::class);
-
-        return $queryBuilder
+        return QueryBuilder::for(StoredItem::class)
             ->defaultSort('slug')
             ->with('customer')
+            ->when($parent, function ($query) use ($parent) {
+                $query->where('customer_id', $parent->id);
+            })
             ->allowedSorts(['slug', 'state'])
             ->allowedFilters([$globalSearch, 'slug', 'state'])
             ->withPaginator($prefix)
@@ -117,7 +121,7 @@ class IndexStoredItems extends InertiaAction
     {
         $this->initialisation($request);
 
-        return $this->handle();
+        return $this->handle(app('currentTenant'));
     }
 
 

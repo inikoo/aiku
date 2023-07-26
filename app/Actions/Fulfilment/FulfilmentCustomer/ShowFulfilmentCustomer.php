@@ -8,6 +8,7 @@
 namespace App\Actions\Fulfilment\FulfilmentCustomer;
 
 use App\Actions\CRM\Customer\UI\GetCustomerShowcase;
+use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItems;
 use App\Actions\InertiaAction;
 use App\Actions\Mail\DispatchedEmail\IndexDispatchedEmails;
 use App\Actions\Market\Product\UI\IndexProducts;
@@ -15,7 +16,7 @@ use App\Actions\Market\Shop\UI\ShowShop;
 use App\Actions\OMS\Order\UI\IndexOrders;
 use App\Actions\UI\Dashboard\ShowDashboard;
 use App\Enums\UI\CustomerFulfilmentTabsEnum;
-use App\Enums\UI\CustomerTabsEnum;
+use App\Http\Resources\Fulfilment\StoredItemResource;
 use App\Http\Resources\Mail\DispatchedEmailResource;
 use App\Http\Resources\Market\ProductResource;
 use App\Http\Resources\Sales\CustomerResource;
@@ -43,7 +44,7 @@ class ShowFulfilmentCustomer extends InertiaAction
 
     public function inTenant(Customer $customer, ActionRequest $request): Customer
     {
-        $this->initialisation($request)->withTab(CustomerTabsEnum::values());
+        $this->initialisation($request)->withTab(CustomerFulfilmentTabsEnum::values());
 
         return $this->handle($customer);
     }
@@ -51,7 +52,7 @@ class ShowFulfilmentCustomer extends InertiaAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inShop(Shop $shop, Customer $customer, ActionRequest $request): Customer
     {
-        $this->initialisation($request)->withTab(CustomerTabsEnum::values());
+        $this->initialisation($request)->withTab(CustomerFulfilmentTabsEnum::values());
 
         return $this->handle($customer);
     }
@@ -119,27 +120,24 @@ class ShowFulfilmentCustomer extends InertiaAction
                     'navigation' => CustomerFulfilmentTabsEnum::navigation()
                 ],
 
-                CustomerTabsEnum::SHOWCASE->value => $this->tab == CustomerTabsEnum::SHOWCASE->value ?
+                CustomerFulfilmentTabsEnum::SHOWCASE->value => $this->tab == CustomerFulfilmentTabsEnum::SHOWCASE->value ?
                     fn () => GetCustomerShowcase::run($customer)
                     : Inertia::lazy(fn () => GetCustomerShowcase::run($customer)),
 
-                CustomerTabsEnum::ORDERS->value => $this->tab == CustomerTabsEnum::ORDERS->value ?
+                CustomerFulfilmentTabsEnum::ORDERS->value => $this->tab == CustomerFulfilmentTabsEnum::ORDERS->value ?
                     fn () => OrderResource::collection(IndexOrders::run($customer))
                     : Inertia::lazy(fn () => OrderResource::collection(IndexOrders::run($customer))),
-/*
-                CustomerTabsEnum::PRODUCTS->value => $this->tab == CustomerTabsEnum::PRODUCTS->value ?
-                    fn () => ProductResource::collection(IndexProducts::run($customer))
-                    : Inertia::lazy(fn () => ProductResource::collection(IndexProducts::run($customer))),
-*/
 
-                CustomerTabsEnum::DISPATCHED_EMAILS->value => $this->tab == CustomerTabsEnum::DISPATCHED_EMAILS->value ?
+                CustomerFulfilmentTabsEnum::STORED_ITEMS->value => $this->tab == CustomerFulfilmentTabsEnum::STORED_ITEMS->value ?
+                    fn () => StoredItemResource::collection(IndexStoredItems::run($customer))
+                    : Inertia::lazy(fn () => StoredItemResource::collection(IndexStoredItems::run($customer))),
+
+                CustomerFulfilmentTabsEnum::DISPATCHED_EMAILS->value => $this->tab == CustomerFulfilmentTabsEnum::DISPATCHED_EMAILS->value ?
                     fn () => DispatchedEmailResource::collection(IndexDispatchedEmails::run($customer))
                     : Inertia::lazy(fn () => DispatchedEmailResource::collection(IndexDispatchedEmails::run($customer))),
 
             ]
-        )->table(IndexOrders::make()->tableStructure($customer))
-           // ->table(IndexProducts::make()->tableStructure($customer))
-            ->table(IndexDispatchedEmails::make()->tableStructure($customer));
+        )->table(IndexStoredItems::make()->tableStructure($customer->storedItems));
     }
 
 
