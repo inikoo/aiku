@@ -13,12 +13,27 @@ const props = defineProps<{
     tab?: string
 }>()
 
+function storedItemRoute(storedItem) {
+    switch (route().current()) {
+        case 'fulfilment.stored-items.index':
+            return route(
+                'fulfilment.stored-items.show',
+                [storedItem.slug]);
+        default:
+            return route(
+                'fulfilment.stored-items.show',
+                [storedItem.slug]);
+    }
+}
+
 </script>
 
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(slug)="{ item: value }">
-            {{ value['slug'] }}
+            <Link :href="storedItemRoute(value)">
+                {{ value['slug'] }}
+            </Link>
         </template>
     </Table>
 </template>
