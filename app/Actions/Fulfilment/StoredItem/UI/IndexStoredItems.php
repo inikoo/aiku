@@ -9,14 +9,10 @@ namespace App\Actions\Fulfilment\StoredItem\UI;
 
 use App\Actions\InertiaAction;
 use App\Actions\UI\Fulfilment\FulfilmentDashboard;
-use App\Actions\UI\HumanResources\HumanResourcesDashboard;
+use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Fulfilment\StoredItemResource;
-use App\Http\Resources\HumanResources\EmployeeInertiaResource;
-use App\Http\Resources\HumanResources\EmployeeResource;
 use App\Models\CRM\Customer;
 use App\Models\Fulfilment\StoredItem;
-use App\Models\HumanResources\Employee;
-use App\Models\Market\Shop;
 use App\Models\Tenancy\Tenant;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -59,6 +55,9 @@ class IndexStoredItems extends InertiaAction
     {
         return function (InertiaTable $table) use ($parent) {
             $table
+                ->name(TabsAbbreviationEnum::STORED_ITEMS->value)
+                ->pageName(TabsAbbreviationEnum::STORED_ITEMS->value.'Page')
+
                 ->withGlobalSearch()
                 ->withEmptyState([
                         'title' => __("No stored items found"),

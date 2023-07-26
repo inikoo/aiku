@@ -8,13 +8,11 @@
 namespace App\Actions\Fulfilment\StoredItem\UI;
 
 use App\Actions\InertiaAction;
-use App\Actions\UI\Inventory\InventoryDashboard;
+use App\Actions\UI\Fulfilment\FulfilmentDashboard;
 use App\Enums\UI\StoredItemTabsEnum;
-use App\Enums\UI\WarehouseTabsEnum;
 use App\Http\Resources\Fulfilment\StoredItemResource;
-use App\Http\Resources\Inventory\WarehouseResource;
+use App\Models\CRM\Customer;
 use App\Models\Fulfilment\StoredItem;
-use App\Models\Inventory\Warehouse;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -24,6 +22,8 @@ use Lorisleiva\Actions\ActionRequest;
  */
 class ShowStoredItem extends InertiaAction
 {
+    public Customer|null $customer = null;
+
     public function authorize(ActionRequest $request): bool
     {
         $this->canEdit = $request->user()->can('fulfilment.edit');
@@ -31,8 +31,9 @@ class ShowStoredItem extends InertiaAction
         return $request->user()->hasPermissionTo("fulfilment.view");
     }
 
-    public function asController(StoredItem $storedItem, ActionRequest $request): void
+    public function asController(Customer $customer, StoredItem $storedItem, ActionRequest $request): void
     {
+        $this->customer = $customer;
         $this->initialisation($request)->withTab(StoredItemTabsEnum::values());
         $this->storedItem = $storedItem;
     }
@@ -52,12 +53,38 @@ class ShowStoredItem extends InertiaAction
                             'title' => __('stored item')
                         ],
                     'title' => $this->storedItem->slug,
-                    'edit'  => $this->canEdit ? [
-                        'route' => [
-                            'name'       => preg_replace('/show$/', 'edit', $this->routeName),
-                            'parameters' => array_values($this->originalParameters)
-                        ]
-                    ] : false,
+                    'actions'=> [
+                        [
+                            'type'    => 'button',
+                            'style'   => 'cancel',
+                            'tooltip' => __('return to customer'),
+                            'label'   => __('return to customer'),
+                            'route' => [
+                                'name'       => 'fulfilment.customers.show',
+                                'parameters' => array_values($this->originalParameters)[0]
+                            ]
+                        ],
+                        [
+                            'type'    => 'button',
+                            'style'   => 'edit',
+                            'tooltip' => __('edit stored items'),
+                            'label'   => __('stored items'),
+                            'route' => [
+                                'name'       => preg_replace('/show$/', 'edit', $this->routeName),
+                                'parameters' => array_values($this->originalParameters)
+                            ]
+                        ],
+                        [
+                            'type'    => 'button',
+                            'style'   => 'delete',
+                            'tooltip' => __('set as damaged'),
+                            'label'   => __('set as damaged'),
+                            'route' => [
+                                'name'       => preg_replace('/show$/', 'edit', $this->routeName),
+                                'parameters' => array_values($this->originalParameters)
+                            ]
+                        ],
+                    ],
                 ],
                 'tabs'        => [
                     'current'    => $this->tab,
@@ -76,7 +103,7 @@ class ShowStoredItem extends InertiaAction
     public function getBreadcrumbs(StoredItem $storedItem, $suffix = null): array
     {
         return array_merge(
-            (new InventoryDashboard())->getBreadcrumbs(),
+            (new FulfilmentDashboard())->getBreadcrumbs(),
             [
                 [
                     'type'           => 'modelWithIndex',
@@ -90,7 +117,7 @@ class ShowStoredItem extends InertiaAction
                         'model' => [
                             'route' => [
                                 'name'       => 'fulfilment.stored-items.show',
-                                'parameters' => [$storedItem->slug]
+                                'parameters' => array_values($this->originalParameters)
                             ],
                             'label' => $storedItem->slug,
                         ],

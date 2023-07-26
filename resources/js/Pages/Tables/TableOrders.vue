@@ -49,7 +49,7 @@ function shopRoute(order: Order) {
 </script>
 
 <template>
-    <Table :resource="data" :name="tab" class="mt-5">
+    <Table :resource="data" :name="'o'" class="mt-5">
     <template #cell(number)="{ item: order }">
         <Link :href="orderRoute(order)">
             {{ order["number"] }}

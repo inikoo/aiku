@@ -17,12 +17,27 @@ enum StoredItemTabsEnum: string
 
     case SHOWCASE = 'showcase';
 
+    case DATA = 'data';
+    case HISTORY = 'history';
+
     public function blueprint(): array
     {
         return match ($this) {
             StoredItemTabsEnum::SHOWCASE => [
                 'title' => __('stored item'),
                 'icon'  => 'fas fa-info-circle',
+            ],
+            StoredItemTabsEnum::DATA => [
+                'align' => 'right',
+                'type'  => 'icon',
+                'title' => __('data'),
+                'icon'  => 'fal fa-database',
+            ],
+            StoredItemTabsEnum::HISTORY => [
+                'title' => __('history'),
+                'icon'  => 'fal fa-clock',
+                'type'  => 'icon',
+                'align' => 'right',
             ],
         };
     }

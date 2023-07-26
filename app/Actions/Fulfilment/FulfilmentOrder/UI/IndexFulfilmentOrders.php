@@ -63,7 +63,7 @@ class IndexFulfilmentOrders extends InertiaAction
             ->allowedFilters([$globalSearch])
             ->paginate(
                 perPage: $this->perPage ?? config('ui.table.records_per_page'),
-                pageName: TabsAbbreviationEnum::ORDERS->value.'Page'
+                pageName: TabsAbbreviationEnum::ORDERS->value . 'Page'
             )
             ->withQueryString();
     }
@@ -71,14 +71,23 @@ class IndexFulfilmentOrders extends InertiaAction
     public function tableStructure($parent): Closure
     {
         return function (InertiaTable $table) use ($parent) {
-            $table->withEmptyState(
+            $table
+                ->name(TabsAbbreviationEnum::ORDERS->value)
+                ->pageName(TabsAbbreviationEnum::ORDERS->value . 'Page')
+
+                ->withEmptyState(
                 match (class_basename($parent)) {
                     'Tenant' => [
-                        'title'       => __("No orders found"),
+                        'title' => __("No orders found"),
                         'description' => __("In fact, is no even a shop yet 🤷🏽‍♂️"),
-                        'count'       => $parent->crmStats->number_customers,
+                        'count' => $parent->crmStats->number_orders,
                     ],
-                    default=> null,
+                    'Customer' => [
+                        'title' => __("No orders found"),
+                        'description' => __("In fact, is no even a shop yet 🤷🏽‍♂️"),
+                        'count' => $parent->orders()->count(),
+                    ],
+                    default => null,
                 }
             );
 
@@ -116,18 +125,18 @@ class IndexFulfilmentOrders extends InertiaAction
                     $request->route()->getName(),
                     $request->route()->parameters
                 ),
-                'title'       => __('orders'),
-                'pageHead'    => [
-                    'title'   => __('orders'),
-                    'create'  => $this->canEdit && $this->routeName=='shops.show.orders.index' ? [
+                'title' => __('orders'),
+                'pageHead' => [
+                    'title' => __('orders'),
+                    'create' => $this->canEdit && $this->routeName == 'shops.show.orders.index' ? [
                         'route' => [
-                            'name'       => 'shops.show.orders.create',
+                            'name' => 'shops.show.orders.create',
                             'parameters' => array_values($this->originalParameters)
                         ],
-                        'label'=> __('order')
+                        'label' => __('order')
                     ] : false,
                 ],
-                'data'        => OrderResource::collection($orders),
+                'data' => OrderResource::collection($orders),
 
 
             ]
@@ -156,13 +165,13 @@ class IndexFulfilmentOrders extends InertiaAction
             (new FulfilmentDashboard())->getBreadcrumbs(),
             [
                 [
-                    'type'   => 'simple',
+                    'type' => 'simple',
                     'simple' => [
                         'route' => [
                             'name' => 'fulfilment.orders.index'
                         ],
                         'label' => __('orders'),
-                        'icon'  => 'fal fa-bars',
+                        'icon' => 'fal fa-bars',
                     ],
 
                 ]

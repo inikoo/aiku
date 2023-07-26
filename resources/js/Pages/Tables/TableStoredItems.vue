@@ -18,18 +18,18 @@ function storedItemRoute(storedItem) {
         case 'fulfilment.stored-items.index':
             return route(
                 'fulfilment.stored-items.show',
-                [storedItem.slug]);
+                [route().params.customer, storedItem.slug]);
         default:
             return route(
                 'fulfilment.stored-items.show',
-                [storedItem.slug]);
+                [route().params.customer, storedItem.slug]);
     }
 }
 
 </script>
 
 <template>
-    <Table :resource="data" :name="tab" class="mt-5">
+    <Table :resource="data" :name="'stored_items'" class="mt-5">
         <template #cell(slug)="{ item: value }">
             <Link :href="storedItemRoute(value)">
                 {{ value['slug'] }}

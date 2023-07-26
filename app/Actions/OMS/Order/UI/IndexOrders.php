@@ -74,11 +74,14 @@ class IndexOrders extends InertiaAction
         return function (InertiaTable $table) use ($parent) {
             $table
                 ->name(TabsAbbreviationEnum::ORDERS->value)
-                ->pageName(TabsAbbreviationEnum::ORDERS->value.'Page');
+                ->pageName(TabsAbbreviationEnum::ORDERS->value.'Page')
+                ->withEmptyState([
+                        'title' => __("No orders found"),
+                        'count' => $parent->orders->count()
+                    ]
+                );
 
             $table->column(key: 'number', label: __('number'), canBeHidden: false, sortable: true, searchable: true);
-
-
             $table->column(key: 'date', label: __('date'), canBeHidden: false, sortable: true, searchable: true);
         };
     }
