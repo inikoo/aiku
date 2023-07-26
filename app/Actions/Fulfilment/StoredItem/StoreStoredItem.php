@@ -41,7 +41,7 @@ class StoreStoredItem
     public function rules(): array
     {
         return [
-            'slug' => ['required', 'max:255'],
+            'slug' => ['required', 'unique:tenant.stored_items', 'between:2,9', 'alpha'],
             'reference' => ['required', 'max:255'],
             'type' => ['required', Rule::in(StoredItemTypeEnum::values())]
         ];
