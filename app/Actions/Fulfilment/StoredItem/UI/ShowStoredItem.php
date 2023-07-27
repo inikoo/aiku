@@ -60,8 +60,7 @@ class ShowStoredItem extends InertiaAction
                             'tooltip' => __('return to customer'),
                             'label'   => __('return to customer'),
                             'route' => [
-                                'name'       => 'fulfilment.customers.show',
-                                'parameters' => array_values($this->originalParameters)[0]
+                                'name' => 'fulfilment.customers.index'
                             ]
                         ],
                         [

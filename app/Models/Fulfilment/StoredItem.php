@@ -27,6 +27,7 @@ use Spatie\Sluggable\SlugOptions;
  *
  * @property int $id
  * @property string $slug
+ * @property string $reference
  * @property string $code
  * @property StoredItemStatusEnum $status
  * @property StoredItemStateEnum $state
