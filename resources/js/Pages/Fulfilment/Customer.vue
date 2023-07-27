@@ -51,9 +51,10 @@ const props = defineProps<{
     }
     showcase?:object
     orders?: object
-    products?: object
+    stored_items?: object
     dispatched_emails?: object
 }>()
+
 let currentTab = ref(props.tabs.current);
 const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
 
@@ -61,7 +62,7 @@ const component = computed(() => {
 
     const components = {
         showcase: CustomerShowcase,
-        products: TableProducts,
+        stored_items: TableStoredItems,
         orders: TableOrders,
         details: ModelDetails,
         history: ModelChangelog,
@@ -79,6 +80,7 @@ import {
     TransitionRoot,
 } from "@headlessui/vue";
 import AgentShowcase from "@/Pages/Procurement/AgentShowcase.vue";
+import TableStoredItems from "@/Pages/Tables/TableStoredItems.vue";
 
 
 const isOpen = ref(false);

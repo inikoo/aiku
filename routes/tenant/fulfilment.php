@@ -18,11 +18,12 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', FulfilmentDashboard::class)->name('dashboard');
 Route::get('/stored-items', IndexStoredItems::class)->name('stored-items.index');
-Route::get('/stored-items/{storedItem:slug}', ShowStoredItem::class)->name('stored-items.show');
+Route::get('/customers/{customer}/stored-items/create', CreateStoredItem::class)->name('stored-items.create');
+Route::get('/customers/{customer}/stored-items/{storedItem}', ShowStoredItem::class)->name('stored-items.show');
+Route::get('/customers/{customer}/stored-items/{storedItem}/edit', ShowStoredItem::class)->name('stored-items.edit');
 
 Route::get('/customers', [IndexFulfilmentCustomers::class, 'inShop'])->name('customers.index');
 Route::get('/customers/{customer:slug}', ShowFulfilmentCustomer::class)->name('customers.show');
-Route::get('/customers/{customer}/stored-items/create', CreateStoredItem::class)->name('stored-items.create');
 
 Route::get('/orders', [IndexFulfilmentOrders::class, 'inShop'])->name('orders.index');
 Route::get('/orders/{order}', ShowFulfilmentOrder::class)->name('orders.show');

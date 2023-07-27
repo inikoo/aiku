@@ -23,6 +23,8 @@ class StoreStoredItem
     use AsAction;
     use WithAttributes;
 
+    public Customer $customer;
+
     public function handle(Customer $customer, array $modelData): StoredItem
     {
         /** @var StoredItem $storedItem */
@@ -41,7 +43,7 @@ class StoreStoredItem
     public function rules(): array
     {
         return [
-            'slug' => ['required', 'max:255'],
+            'slug' => ['required', 'unique:tenant.stored_items', 'between:2,9', 'alpha'],
             'reference' => ['required', 'max:255'],
             'type' => ['required', Rule::in(StoredItemTypeEnum::values())]
         ];
@@ -49,6 +51,7 @@ class StoreStoredItem
 
     public function asController(Customer $customer, ActionRequest $request): StoredItem
     {
+        $this->customer = $customer;
         $request->validate();
 
         return $this->handle($customer, $request->validated());
@@ -56,6 +59,6 @@ class StoreStoredItem
 
     public function htmlResponse(StoredItem $storedItem, ActionRequest $request): RedirectResponse
     {
-        return Redirect::route('fulfilment.stored-items.show', $storedItem->slug);
+        return Redirect::route('fulfilment.stored-items.show', [$this->customer->slug, $storedItem->slug]);
     }
 }

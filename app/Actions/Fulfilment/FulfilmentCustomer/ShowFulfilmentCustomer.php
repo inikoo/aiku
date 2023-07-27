@@ -8,20 +8,18 @@
 namespace App\Actions\Fulfilment\FulfilmentCustomer;
 
 use App\Actions\CRM\Customer\UI\GetCustomerShowcase;
+use App\Actions\Fulfilment\FulfilmentOrder\UI\IndexFulfilmentOrders;
+use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItems;
 use App\Actions\InertiaAction;
 use App\Actions\Mail\DispatchedEmail\IndexDispatchedEmails;
-use App\Actions\Market\Product\UI\IndexProducts;
-use App\Actions\Market\Shop\UI\ShowShop;
 use App\Actions\OMS\Order\UI\IndexOrders;
 use App\Actions\UI\Dashboard\ShowDashboard;
 use App\Enums\UI\CustomerFulfilmentTabsEnum;
-use App\Enums\UI\CustomerTabsEnum;
+use App\Http\Resources\Fulfilment\StoredItemResource;
 use App\Http\Resources\Mail\DispatchedEmailResource;
-use App\Http\Resources\Market\ProductResource;
 use App\Http\Resources\Sales\CustomerResource;
 use App\Http\Resources\Sales\OrderResource;
 use App\Models\CRM\Customer;
-use App\Models\Market\Shop;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -41,43 +39,12 @@ class ShowFulfilmentCustomer extends InertiaAction
         return $request->user()->hasPermissionTo("shops.customers.view");
     }
 
-    public function inTenant(Customer $customer, ActionRequest $request): Customer
+    public function asController(Customer $customer, ActionRequest $request): Customer
     {
-        $this->initialisation($request)->withTab(CustomerTabsEnum::values());
+        $this->initialisation($request)->withTab(CustomerFulfilmentTabsEnum::values());
 
         return $this->handle($customer);
     }
-
-    /** @noinspection PhpUnusedParameterInspection */
-    public function inShop(Shop $shop, Customer $customer, ActionRequest $request): Customer
-    {
-        $this->initialisation($request)->withTab(CustomerTabsEnum::values());
-
-        return $this->handle($customer);
-    }
-
-
-    private function makeRoute(Customer $customer, $suffix = '', $parameters = []): array
-    {
-        $route = $this->routeName;
-        if ($this->routeName == 'shops.show.customers.show') {
-            $routeParameters = [
-                $customer->shop->slug,
-                $customer->slug
-            ];
-        } else {
-            $routeParameters = [
-                $customer->slug
-            ];
-        }
-
-        $route           .= $suffix;
-        $routeParameters = array_merge_recursive($routeParameters, $parameters);
-
-
-        return [$route, $routeParameters];
-    }
-
 
     public function htmlResponse(Customer $customer, ActionRequest $request): Response
     {
@@ -119,27 +86,25 @@ class ShowFulfilmentCustomer extends InertiaAction
                     'navigation' => CustomerFulfilmentTabsEnum::navigation()
                 ],
 
-                CustomerTabsEnum::SHOWCASE->value => $this->tab == CustomerTabsEnum::SHOWCASE->value ?
+                CustomerFulfilmentTabsEnum::SHOWCASE->value => $this->tab == CustomerFulfilmentTabsEnum::SHOWCASE->value ?
                     fn () => GetCustomerShowcase::run($customer)
                     : Inertia::lazy(fn () => GetCustomerShowcase::run($customer)),
 
-                CustomerTabsEnum::ORDERS->value => $this->tab == CustomerTabsEnum::ORDERS->value ?
-                    fn () => OrderResource::collection(IndexOrders::run($customer))
-                    : Inertia::lazy(fn () => OrderResource::collection(IndexOrders::run($customer))),
-/*
-                CustomerTabsEnum::PRODUCTS->value => $this->tab == CustomerTabsEnum::PRODUCTS->value ?
-                    fn () => ProductResource::collection(IndexProducts::run($customer))
-                    : Inertia::lazy(fn () => ProductResource::collection(IndexProducts::run($customer))),
-*/
+                CustomerFulfilmentTabsEnum::ORDERS->value => $this->tab == CustomerFulfilmentTabsEnum::ORDERS->value ?
+                    fn () => OrderResource::collection(IndexFulfilmentOrders::run($customer))
+                    : Inertia::lazy(fn () => OrderResource::collection(IndexFulfilmentOrders::run($customer))),
 
-                CustomerTabsEnum::DISPATCHED_EMAILS->value => $this->tab == CustomerTabsEnum::DISPATCHED_EMAILS->value ?
+                CustomerFulfilmentTabsEnum::STORED_ITEMS->value => $this->tab == CustomerFulfilmentTabsEnum::STORED_ITEMS->value ?
+                    fn () => StoredItemResource::collection(IndexStoredItems::run($customer))
+                    : Inertia::lazy(fn () => StoredItemResource::collection(IndexStoredItems::run($customer))),
+
+                CustomerFulfilmentTabsEnum::DISPATCHED_EMAILS->value => $this->tab == CustomerFulfilmentTabsEnum::DISPATCHED_EMAILS->value ?
                     fn () => DispatchedEmailResource::collection(IndexDispatchedEmails::run($customer))
                     : Inertia::lazy(fn () => DispatchedEmailResource::collection(IndexDispatchedEmails::run($customer))),
 
             ]
-        )->table(IndexOrders::make()->tableStructure($customer))
-           // ->table(IndexProducts::make()->tableStructure($customer))
-            ->table(IndexDispatchedEmails::make()->tableStructure($customer));
+        )->table(IndexStoredItems::make()->tableStructure($customer->storedItems))
+            ->table(IndexFulfilmentOrders::make()->tableStructure($customer));
     }
 
 
@@ -171,52 +136,25 @@ class ShowFulfilmentCustomer extends InertiaAction
                 ],
             ];
         };
-        return match ($routeName) {
-            'customers.show',
-            'customers.edit' =>
 
+        return match ($routeName) {
+            'fulfilment.customers.show' =>
             array_merge(
                 ShowDashboard::make()->getBreadcrumbs(),
                 $headCrumb(
                     $routeParameters['customer'],
                     [
                         'index' => [
-                            'name'       => 'customers.index',
+                            'name'       => 'fulfilment.customers.index',
                             'parameters' => []
                         ],
                         'model' => [
-                            'name'       => 'customers.show',
+                            'name'       => 'fulfilment.customers.show',
                             'parameters' => [$routeParameters['customer']->slug]
                         ]
                     ],
                     $suffix
                 ),
-            ),
-
-
-            'shops.show.customers.show',
-            'shops.show.customers.edit'
-            => array_merge(
-                (new ShowShop())->getBreadcrumbs($routeParameters),
-                $headCrumb(
-                    $routeParameters['customer'],
-                    [
-                        'index' => [
-                            'name'       => 'shops.show.customers.index',
-                            'parameters' => [
-                                $routeParameters['shop']->slug,
-                            ]
-                        ],
-                        'model' => [
-                            'name'       => 'shops.show.customers.show',
-                            'parameters' => [
-                                $routeParameters['shop']->slug,
-                                $routeParameters['customer']->slug
-                            ]
-                        ]
-                    ],
-                    $suffix
-                )
             ),
             default => []
         };
