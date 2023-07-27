@@ -12,6 +12,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 /**
  * @property int $id
  * @property string $slug
+ * @property string $reference
  * @property string $state
  * @property string $status
  * @property string $notes
@@ -24,6 +25,7 @@ class StoredItemResource extends JsonResource
     {
         return [
             'id'   => $this->id,
+            'reference' => $this->reference,
             'slug' => $this->slug,
             'customer_name' => $this->customer['name'],
             'location' => $this->location ?? '-',

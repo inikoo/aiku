@@ -43,8 +43,7 @@ class StoreStoredItem
     public function rules(): array
     {
         return [
-            'slug' => ['required', 'unique:tenant.stored_items', 'between:2,9', 'alpha'],
-            'reference' => ['required', 'max:255'],
+            'reference' => ['required', 'unique:tenant.stored_items', 'between:2,9', 'alpha'],
             'type' => ['required', Rule::in(StoredItemTypeEnum::values())]
         ];
     }
@@ -59,6 +58,6 @@ class StoreStoredItem
 
     public function htmlResponse(StoredItem $storedItem, ActionRequest $request): RedirectResponse
     {
-        return Redirect::route('fulfilment.stored-items.show', [$this->customer->slug, $storedItem->slug]);
+        return Redirect::route('fulfilment.stored-items.show', $storedItem->slug);
     }
 }

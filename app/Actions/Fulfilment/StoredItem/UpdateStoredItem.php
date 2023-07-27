@@ -9,8 +9,10 @@ namespace App\Actions\Fulfilment\StoredItem;
 
 use App\Actions\Fulfilment\StoredItem\Hydrators\StoredItemHydrateUniversalSearch;
 use App\Actions\Traits\WithActionUpdate;
+use App\Enums\Fulfilment\StoredItem\StoredItemTypeEnum;
 use App\Http\Resources\Fulfilment\StoredItemResource;
 use App\Models\Fulfilment\StoredItem;
+use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateStoredItem
@@ -34,8 +36,8 @@ class UpdateStoredItem
     public function rules(): array
     {
         return [
-            'code'          => ['sometimes','required'],
-
+            'reference' => ['sometimes', 'required', 'unique:tenant.stored_items', 'between:2,9', 'alpha'],
+            'type' => ['sometimes', 'required', Rule::in(StoredItemTypeEnum::values())]
         ];
     }
 

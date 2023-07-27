@@ -12,17 +12,18 @@ use App\Actions\Inventory\Location\GetLocationsOptions;
 use App\Actions\UI\Fulfilment\FulfilmentDashboard;
 use App\Enums\Fulfilment\StoredItem\StoredItemTypeEnum;
 use App\Http\Resources\Fulfilment\StoredItemResource;
+use App\Models\Fulfilment\StoredItem;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class CreateStoredItem extends InertiaAction
+class EditStoredItem extends InertiaAction
 {
-    public function handle($prefix=null): Response
+    public function handle(StoredItem $storedItem): StoredItem
     {
-        return $this->htmlResponse();
+        return $storedItem;
     }
 
     public function authorize(ActionRequest $request): bool
@@ -43,15 +44,25 @@ class CreateStoredItem extends InertiaAction
     }
 
 
-    public function htmlResponse(): Response
+    public function htmlResponse(StoredItem $storedItem): Response
     {
         return Inertia::render(
-            'CreateModel',
+            'EditModel',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(),
                 'title'       => __('stored items'),
                 'pageHead'    => [
                     'title'  => __('stored items'),
+                    'actions'   => [
+                        [
+                            'type'  => 'button',
+                            'style' => 'exitEdit',
+                            'route' => [
+                                'name'       => preg_replace('/edit$/', 'show', $this->routeName),
+                                'parameters' => array_values($this->originalParameters)
+                            ]
+                        ]
+                    ]
                 ],
                 'formData' => [
                     'blueprint' => [
@@ -60,33 +71,35 @@ class CreateStoredItem extends InertiaAction
                                 'reference' => [
                                     'type'    => 'input',
                                     'label'   => __('reference'),
-                                    'value'   => '',
+                                    'value'   => $storedItem->reference,
                                     'required'=> true
                                 ],
                                 'type' => [
                                     'type'    => 'select',
                                     'label'   => __('type'),
-                                    'value'   => '',
+                                    'value'   => $storedItem->type,
                                     'required'=> true,
                                     'options' => StoredItemTypeEnum::values()
                                 ],
                             ]
                         ]
                     ],
-                    'route' => [
-                        'name' => 'models.stored-items.store',
-                        'arguments' => array_values($this->originalParameters)
+                    'args' => [
+                        'updateRoute' => [
+                            'name'       => 'models.stored-items.update',
+                            'parameters' => $storedItem->slug
+                        ],
                     ]
                 ],
             ]
         );
     }
 
-    public function asController(ActionRequest $request): Response
+    public function asController(StoredItem $storedItem, ActionRequest $request): StoredItem
     {
         $this->initialisation($request);
 
-        return $this->handle();
+        return $this->handle($storedItem);
     }
 
 
