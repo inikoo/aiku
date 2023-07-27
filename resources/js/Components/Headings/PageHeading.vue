@@ -131,6 +131,7 @@ const getActionIcon = (action) => {
                 <!-- Button -->
                  <Link v-if="action.type === 'button'" :href="route(action['route']['name'], action['route']['parameters'])">
                     <Button
+                        :disabled="action.disabled"
                         size="xs"
                         :style="action.style"
                         class="capitalize inline-flex items-center rounded-md border text-sm font-medium shadow-sm gap-x-2"

@@ -9,6 +9,8 @@ namespace App\Actions\Fulfilment\StoredItem\UI;
 
 use App\Actions\InertiaAction;
 use App\Actions\UI\Fulfilment\FulfilmentDashboard;
+use App\Enums\Fulfilment\StoredItem\StoredItemStateEnum;
+use App\Enums\Fulfilment\StoredItem\StoredItemStatusEnum;
 use App\Enums\UI\StoredItemTabsEnum;
 use App\Http\Resources\Fulfilment\StoredItemResource;
 use App\Models\CRM\Customer;
@@ -58,10 +60,12 @@ class ShowStoredItem extends InertiaAction
                             'type'    => 'button',
                             'style'   => 'cancel',
                             'tooltip' => __('return to customer'),
-                            'label'   => __('return to customer'),
+                            'label'   => __($this->storedItem->status == StoredItemStatusEnum::RETURNED ? 'returned' : 'return to customer'),
                             'route' => [
-                                'name' => 'fulfilment.customers.index'
-                            ]
+                                'name' => 'fulfilment.stored-items.setReturn',
+                                'parameters' => array_values($this->originalParameters)
+                            ],
+                            'disabled' => $this->storedItem->status == StoredItemStatusEnum::RETURNED
                         ],
                         [
                             'type'    => 'button',
@@ -77,11 +81,12 @@ class ShowStoredItem extends InertiaAction
                             'type'    => 'button',
                             'style'   => 'delete',
                             'tooltip' => __('set as damaged'),
-                            'label'   => __('set as damaged'),
+                            'label'   => __($this->storedItem->status == StoredItemStatusEnum::DAMAGED ? 'damaged' : 'set as damaged'),
                             'route' => [
-                                'name'       => preg_replace('/show$/', 'edit', $this->routeName),
+                                'name'       => 'fulfilment.stored-items.setDamaged',
                                 'parameters' => array_values($this->originalParameters)
-                            ]
+                            ],
+                            'disabled' => $this->storedItem->status == StoredItemStatusEnum::DAMAGED
                         ],
                     ],
                 ],

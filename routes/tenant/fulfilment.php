@@ -10,6 +10,8 @@ use App\Actions\Fulfilment\FulfilmentCustomer\IndexFulfilmentCustomers;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\FulfilmentOrder\UI\IndexFulfilmentOrders;
 use App\Actions\Fulfilment\FulfilmentOrder\UI\ShowfulfilmentOrder;
+use App\Actions\Fulfilment\StoredItem\SetDamagedStoredItem;
+use App\Actions\Fulfilment\StoredItem\SetReturnStoredItem;
 use App\Actions\Fulfilment\StoredItem\UI\CreateStoredItem;
 use App\Actions\Fulfilment\StoredItem\UI\EditStoredItem;
 use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItems;
@@ -22,6 +24,8 @@ Route::get('/stored-items', IndexStoredItems::class)->name('stored-items.index')
 Route::get('/customers/{customer}/stored-items/create', CreateStoredItem::class)->name('stored-items.create');
 Route::get('stored-items/{storedItem}', ShowStoredItem::class)->name('stored-items.show');
 Route::get('stored-items/{storedItem}/edit', EditStoredItem::class)->name('stored-items.edit');
+Route::get('stored-items/{storedItem}/damaged', SetDamagedStoredItem::class)->name('stored-items.setDamaged');
+Route::get('stored-items/{storedItem}/return', SetReturnStoredItem::class)->name('stored-items.setReturn');
 
 Route::get('/customers', [IndexFulfilmentCustomers::class, 'inShop'])->name('customers.index');
 Route::get('/customers/{customer:slug}', ShowFulfilmentCustomer::class)->name('customers.show');
