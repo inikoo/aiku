@@ -13,9 +13,9 @@ enum StoredItemStatusEnum: string
 {
     use EnumHelperTrait;
 
-    case IN_PROCESS     = 'in-process';
-    case STORING        = 'storing';
-
-    case LOST            = 'lost';
-    case RETURNED        = 'returned';
+    case IN_PROCESS = 'in-process';
+    case STORING    = 'storing';
+    case DAMAGED    = 'damaged';
+    case LOST       = 'lost';
+    case RETURNED   = 'returned';
 }
