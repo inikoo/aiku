@@ -16,7 +16,7 @@ trait ElasticSearchAuditable
     public function esAudits($page = 1, $perPage = 10, $sort = 'latest'): array
     {
         $client = BuildElasticsearchClient::run();
-        $index  = config('elasticsearch.index_prefix') . 'user_requests_'.app('currentTenant')->group->slug;
+        $index  = config('elasticsearch.index_prefix') . 'history_'.app('currentTenant')->group->slug;
         $type   = Config::get('audit.drivers.es.type', 'ACTION');
 
         $from  = ($page - 1) * $perPage;

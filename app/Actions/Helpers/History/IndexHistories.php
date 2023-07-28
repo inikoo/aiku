@@ -38,7 +38,7 @@ class IndexHistories
         if ($client instanceof Client) {
             try {
                 $params  = [
-                    'index' => config('elasticsearch.index_prefix') . 'history_and_user_requests_' . app('currentTenant')->group->slug,
+                    'index' => config('elasticsearch.index_prefix') . 'user_requests_' . app('currentTenant')->group->slug,
                     'size'  => 10000,
                     'body'  => [
                         'query' => [
@@ -81,7 +81,7 @@ class IndexHistories
     {
         return function (InertiaTable $table) {
             $table
-                ->name('history')
+                ->name('hst')
                 ->pageName('historyPage')
                 ->column(key: 'ip_address', label: __('IP Address'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'user_id', label: __('User ID'), canBeHidden: false, sortable: true)
