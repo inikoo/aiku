@@ -7,10 +7,17 @@
 
 namespace App\Actions\Fulfilment\StoredItem\UI;
 
+use App\Actions\Helpers\History\IndexHistories;
 use App\Actions\InertiaAction;
+use App\Actions\Procurement\Agent\UI\GetAgentShowcase;
 use App\Actions\UI\Fulfilment\FulfilmentDashboard;
+use App\Enums\Fulfilment\StoredItem\StoredItemStateEnum;
+use App\Enums\Fulfilment\StoredItem\StoredItemStatusEnum;
+use App\Enums\UI\AgentTabsEnum;
 use App\Enums\UI\StoredItemTabsEnum;
+use App\Enums\UI\UserTabsEnum;
 use App\Http\Resources\Fulfilment\StoredItemResource;
+use App\Http\Resources\History\HistoryResource;
 use App\Models\CRM\Customer;
 use App\Models\Fulfilment\StoredItem;
 use Inertia\Inertia;
@@ -58,10 +65,12 @@ class ShowStoredItem extends InertiaAction
                             'type'    => 'button',
                             'style'   => 'cancel',
                             'tooltip' => __('return to customer'),
-                            'label'   => __('return to customer'),
+                            'label'   => __($this->storedItem->status == StoredItemStatusEnum::RETURNED ? 'returned' : 'return to customer'),
                             'route' => [
-                                'name' => 'fulfilment.customers.index'
-                            ]
+                                'name' => 'fulfilment.stored-items.setReturn',
+                                'parameters' => array_values($this->originalParameters)
+                            ],
+                            'disabled' => $this->storedItem->status == StoredItemStatusEnum::RETURNED
                         ],
                         [
                             'type'    => 'button',
@@ -77,11 +86,12 @@ class ShowStoredItem extends InertiaAction
                             'type'    => 'button',
                             'style'   => 'delete',
                             'tooltip' => __('set as damaged'),
-                            'label'   => __('set as damaged'),
+                            'label'   => __($this->storedItem->status == StoredItemStatusEnum::DAMAGED ? 'damaged' : 'set as damaged'),
                             'route' => [
-                                'name'       => preg_replace('/show$/', 'edit', $this->routeName),
+                                'name'       => 'fulfilment.stored-items.setDamaged',
                                 'parameters' => array_values($this->originalParameters)
-                            ]
+                            ],
+                            'disabled' => $this->storedItem->status == StoredItemStatusEnum::DAMAGED
                         ],
                     ],
                 ],
@@ -89,8 +99,13 @@ class ShowStoredItem extends InertiaAction
                     'current'    => $this->tab,
                     'navigation' => StoredItemTabsEnum::navigation(),
                 ],
+
+                StoredItemTabsEnum::HISTORY->value => $this->tab == StoredItemTabsEnum::HISTORY->value ?
+                    fn () => HistoryResource::collection(IndexHistories::run($this->storedItem))
+                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistories::run($this->storedItem)))
+
             ]
-        );
+        )->table(IndexHistories::make()->tableStructure());
     }
 
 

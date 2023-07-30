@@ -17,6 +17,7 @@ import TableProducts from "@/Pages/Tables/TableProducts.vue";
 import TableOrders from "@/Pages/Tables/TableOrders.vue";
 import ModelDetails from "@/Pages/ModelDetails.vue";
 import TableDispatchedEmails from "@/Pages/Tables/TableDispatchedEmails.vue";
+import TableHistories from "@/Pages/Tables/TableHistories.vue";
 
 const props = defineProps<{
     title: string
@@ -25,6 +26,7 @@ const props = defineProps<{
         navigation: object;
     }
     showcase?:object
+    history?:object
     pageHead: object
 }>()
 
@@ -35,6 +37,7 @@ const component = computed(() => {
 
     const components = {
         showcase: null,
+        history: TableHistories
     };
     return components[currentTab.value];
 

@@ -67,6 +67,8 @@ class EditStoredItem extends InertiaAction
                 'formData' => [
                     'blueprint' => [
                         [
+                            'title'  => __('Item'),
+                            'icon'   => ['fal', 'fa-narwhal'],
                             'fields' => [
                                 'reference' => [
                                     'type'    => 'input',

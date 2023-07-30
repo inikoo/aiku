@@ -73,9 +73,19 @@ class ShowFulfilmentCustomer extends InertiaAction
                             'type'    => 'button',
                             'style'   => 'create',
                             'tooltip' => __('new stored items'),
-                            'label'   => __('stored items'),
+                            'label'   => __('create stored items'),
                             'route'   => [
                                 'name'       => 'fulfilment.stored-items.create',
+                                'parameters' => [$customer->slug]
+                            ]
+                        ],
+                        [
+                            'type'    => 'button',
+                            'style'   => 'create',
+                            'tooltip' => __('upload stored items'),
+                            'label'   => __('upload stored items'),
+                            'route'   => [
+                                'name'       => 'fulfilment.stored-items.create', // TODO Create Action for upload CSV/XLSX
                                 'parameters' => [$customer->slug]
                             ]
                         ],

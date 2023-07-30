@@ -9,7 +9,10 @@ namespace App\Actions\Auth\User;
 
 use App\Actions\Elasticsearch\IndexElasticsearchDocument;
 use App\Actions\Traits\WithTenantJob;
+use App\Enums\Elasticsearch\ElasticsearchTypeEnum;
 use App\Models\Auth\User;
+use App\Models\Backup\ActionHistory;
+use App\Models\Backup\VisitHistory;
 use hisorange\BrowserDetect\Parser as Browser;
 use Illuminate\Support\Carbon;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -23,8 +26,13 @@ class LogUserRequest
     public function handle(Carbon $datetime, array $routeData, string $ip, string $userAgent, string $type, User $user): void
     {
         $tenant = app('currentTenant');
+        $indexType = 'user_requests_';
 
-        $index =  config('elasticsearch.index_prefix') . 'user_requests_'.$tenant->group->slug;
+        if ($type == ElasticsearchTypeEnum::ACTION->value) {
+            $indexType = 'history_';
+        }
+
+        $index =  config('elasticsearch.index_prefix') . $indexType.$tenant->group->slug;
 
         $parsedUserAgent = (new Browser())->parse($userAgent);
 
