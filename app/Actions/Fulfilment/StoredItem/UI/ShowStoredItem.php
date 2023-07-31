@@ -9,13 +9,9 @@ namespace App\Actions\Fulfilment\StoredItem\UI;
 
 use App\Actions\Helpers\History\IndexHistories;
 use App\Actions\InertiaAction;
-use App\Actions\Procurement\Agent\UI\GetAgentShowcase;
 use App\Actions\UI\Fulfilment\FulfilmentDashboard;
-use App\Enums\Fulfilment\StoredItem\StoredItemStateEnum;
 use App\Enums\Fulfilment\StoredItem\StoredItemStatusEnum;
-use App\Enums\UI\AgentTabsEnum;
 use App\Enums\UI\StoredItemTabsEnum;
-use App\Enums\UI\UserTabsEnum;
 use App\Http\Resources\Fulfilment\StoredItemResource;
 use App\Http\Resources\History\HistoryResource;
 use App\Models\CRM\Customer;

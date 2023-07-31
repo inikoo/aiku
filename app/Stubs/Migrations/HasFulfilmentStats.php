@@ -29,15 +29,13 @@ trait HasFulfilmentStats
             $table->unsignedBigInteger("number_stored_items_status_{$status->snake()}")->default(0);
         }
 
-
-
         return $table;
     }
 
     public function containerFulfilmentStats(Blueprint $table): Blueprint
     {
-
         $table->unsignedInteger('number_customers_with_stored_items')->default(0);
+        $table->unsignedInteger('number_customers_with_assets')->default(0);
 
         foreach (StoredItemStateEnum::cases() as $state) {
             $table->unsignedBigInteger("number_customers_with_stored_items_state_{$state->snake()}")->default(0);

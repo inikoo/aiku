@@ -79,7 +79,7 @@ class ShowFulfilmentCustomer extends InertiaAction
                                 'parameters' => [$customer->slug]
                             ]
                         ],
-                        [
+                        /*[
                             'type'    => 'button',
                             'style'   => 'create',
                             'tooltip' => __('upload stored items'),
@@ -88,7 +88,7 @@ class ShowFulfilmentCustomer extends InertiaAction
                                 'name'       => 'fulfilment.stored-items.create', // TODO Create Action for upload CSV/XLSX
                                 'parameters' => [$customer->slug]
                             ]
-                        ],
+                        ],*/
                     ]
                 ],
                 'tabs'        => [

@@ -20,6 +20,7 @@ use Illuminate\Support\Carbon;
  * @property int $id
  * @property int $tenant_id
  * @property int $number_customers_with_stocks
+ * @property int $number_customers_with_stored_items
  * @property int $number_customers_with_active_stocks
  * @property int $number_customers_with_assets
  * @property int $number_stored_items

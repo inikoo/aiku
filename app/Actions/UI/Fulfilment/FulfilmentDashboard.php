@@ -56,7 +56,7 @@ class FulfilmentDashboard
                             'icon'  => ['fal', 'fa-user-tie'],
                             'href'  => ['fulfilment.customers.index'],
                             'index' => [
-                                'number' => $this->tenant->fulfilmentStats->number_customers_with_stocks
+                                'number' => $this->tenant->fulfilmentStats->number_customers_with_stored_items
                             ],
 
                         ],
