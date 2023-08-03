@@ -45,7 +45,7 @@ const userType = ref('Existing User')
             <Input :form="form" :fieldName="fieldName" :fieldData="fieldData" />
         </div>
         <div v-else>
-            <Combobox :apiUrl="route('json.group-users.index') + '?filter[contact_name]='" :form="form" :fieldName="fieldName" :fieldData="fieldData" />
+            <Combobox :form="form" :fieldName="fieldName" :fieldData="fieldData" />
         </div>
     </div>
 

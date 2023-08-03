@@ -55,6 +55,7 @@ class CreateGuest extends InertiaAction
                                 ],
                                 'guestCredentials' => [
                                     'type'    => 'guest-credentials',
+                                    'apiUrl'  => route('json.group-users.index') . '?filter[contact_name]=',
                                     'label'   => 'Guest Credentials',
                                     'value'   => 'newGroupUser',
                                     'options' => [
