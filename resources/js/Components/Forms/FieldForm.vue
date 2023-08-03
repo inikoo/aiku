@@ -29,6 +29,7 @@ import Currency from "@/Components/Forms/Fields/Currency.vue";
 import Language from "@/Components/Forms/Fields/Language.vue";
 import Permissions from "@/Components/Forms/Fields/Permissions.vue";
 import WebRegistrations from "@/Components/Forms/Fields/WebRegistrations.vue";
+import Combobox from '@/Components/Forms/Fields/Combobox.vue'
 
 import InputWithAddOn from '@/Components/Forms/Fields/InputWithAddOn.vue'
 
@@ -75,7 +76,8 @@ const components = {
     'language': Language,
     'permissions': Permissions,
     'webRegistrations': WebRegistrations,
-};
+    'combobox': Combobox
+}
 
 const getComponent = (componentName) => {
     return components[componentName] ?? null;
