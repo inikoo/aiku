@@ -20,7 +20,6 @@ use App\Actions\UI\CRM\CRMDashboard;
 
 Route::get('/', [CRMDashboard::class,'inTenant'])->name('dashboard');
 Route::get('/customers', [IndexCustomers::class, 'inTenant'])->name('customers.index');
-Route::get('/customers/create', CreateCustomer::class)->name('customers.create');
 Route::get('/customers/{customer}', [ShowCustomer::class, 'inTenant'])->name('customers.show');
 Route::get('/customers/{customer}/edit', [EditCustomer::class, 'inTenant'])->name('customers.edit');
 Route::get('/customers/{customer}/delete', RemoveCustomer::class)->name('customers.remove');
@@ -35,6 +34,7 @@ Route::get('/prospects', [IndexProspects::class, 'inTenant'])->name('prospects.i
 
 Route::get('/shop/{shop}', [CRMDashboard::class,'inShop'])->name('shops.show.dashboard');
 
+Route::get('/shop/{shop}/customers/create', CreateCustomer::class)->name('shops.show.customers.create');
 Route::get('/shop/{shop}/customers', [IndexCustomers::class, 'inShop'])->name('shops.show.customers.index');
 Route::get('/shop/{shop}/customers/{customer}', [ShowCustomer::class, 'inShop'])->name('shops.show.customers.show');
 Route::get('/shop/{shop}/customers/{customer}/edit', [EditCustomer::class, 'inShop'])->name('shops.show.customers.edit');

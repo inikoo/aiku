@@ -201,7 +201,7 @@ class ShowCustomer extends InertiaAction
 
     public function getBreadcrumbs(string $routeName, array $routeParameters, string $suffix = ''): array
     {
-        $headCrumb = function (Customer $customer, array $routeParameters, string $suffix) {
+        $headCrumb = function (Customer $customer, array $routeParameters, string $suffix = null) {
             return [
                 [
 
@@ -237,7 +237,7 @@ class ShowCustomer extends InertiaAction
                         ],
                         'model' => [
                             'name'       => 'crm.customers.show',
-                            'parameters' => [$routeParameters['customer']->slug]
+                            'parameters' => [$routeParameters['customer']]
                         ]
                     ],
                     $suffix

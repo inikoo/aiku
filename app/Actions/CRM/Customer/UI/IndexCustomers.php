@@ -134,7 +134,22 @@ class IndexCustomers extends InertiaAction
                                 ]
                             ] : null
                         ],
-                        default=> null,
+                        'Shop' => [
+                            'title'       => __("No customers found"),
+                            'description' => __("You can add your customer 🤷🏽‍♂️"),
+                            'count'       => $parent->crmStats->number_customers,
+                            'action'      => [
+                                'type'    => 'button',
+                                'style'   => 'create',
+                                'tooltip' => __('new customer'),
+                                'label'   => __('customer'),
+                                'route'   => [
+                                    'name' => 'crm.shops.customers.create',
+                                    'parameters' => [$parent->slug]
+                                ]
+                            ]
+                        ],
+                        default=> null
                     }
                     /*
                     [
