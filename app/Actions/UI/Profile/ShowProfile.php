@@ -87,7 +87,7 @@ class ShowProfile
                         "icon"   => "fal fa-language",
                         "fields" => [
                             "language_id" => [
-                                "type"    => "language",
+                                "type"    => "select",
                                 "label"   => __("language"),
                                 "value"   => $user->language_id,
                                 'options' => GetLanguagesOptions::make()->translated(),
