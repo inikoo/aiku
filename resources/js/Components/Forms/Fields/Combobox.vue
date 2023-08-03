@@ -23,18 +23,16 @@ const props = defineProps({
 
 const isLoading = ref(true)
 const comboValue = ref('Select Users')
-const initValue = ref()
+const optionsResult = ref()
 const query = ref('')
 
 const fetchApi = async (query: string) => {
     if (query !== '') {
-        await fetch(props.apiUrl + '?filter[contact_name]=' + query)
+        await fetch(props.apiUrl + query)
             .then(response => {
-                console.log("==================")
                 response.json().then((data: Object) => {
                     isLoading.value = false
-                    initValue.value = data.data
-                    console.log(data.data)
+                    optionsResult.value = data.data
                 })
             })
             .catch(err => console.log(err))
@@ -50,16 +48,16 @@ watch(query, (q) => {
     fetchApi(q)
 }, { immediate: true })
 
-// let filteredOptions = computed(() =>
-//     query.value === ''
-//         ? options.value
-//         : options.value.filter((person) =>
-//             person.contact_name
-//                 .toLowerCase()
-//                 .replace(/\s+/g, '')
-//                 .includes(query.value.toLowerCase().replace(/\s+/g, ''))
-//         )
-// )
+let filteredOptions = computed(() =>
+    query.value === ''
+        ? optionsResult.value
+        : optionsResult.value.filter((person) =>
+            person.contact_name
+                .toLowerCase()
+                .replace(/\s+/g, '')
+                .includes(query.value.toLowerCase().replace(/\s+/g, ''))
+        )
+)
 
 </script>
 
@@ -80,7 +78,8 @@ watch(query, (q) => {
                 @after-leave="query = ''">
                 <ComboboxOptions
                     class="z-10 absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-
+                    <div v-if="query == '' && optionsResult?.length == 0" class="py-2 pl-4 pr-4">Query is empty</div>
+                    <div v-if="query != '' && optionsResult?.length == 0" class="py-2 pl-4 pr-4">No result found</div>
                     <!-- State: Loading and Not Found -->
                     <!-- <div v-if="isLoading" class="relative cursor-default select-none py-2 px-4 text-gray-700">
                         Loading...
@@ -92,7 +91,7 @@ watch(query, (q) => {
 
                     <!-- List -->
                     <template v-if="!isLoading">
-                        <ComboboxOption v-for="person in initValue" as="template" :key="person.id"
+                        <ComboboxOption v-for="person in optionsResult" as="template" :key="person.id"
                             :value="person.contact_name" v-slot="{ selected, active }">
                             <li class="relative cursor-pointer select-none py-2 pl-10 pr-4" :class="{
                                 'bg-indigo-600 text-white': active,
