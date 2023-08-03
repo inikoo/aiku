@@ -70,7 +70,7 @@ let filteredOptions = computed(() =>
             <div
                 class="relative w-full cursor-default overflow-hidden rounded-lg bg-white text-left border border-gray-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-700 focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-teal-300 sm:text-sm">
                 <ComboboxInput class="w-full border-none py-2 pl-3 pr-10 text-sm leading-5 text-gray-900 focus:ring-0"
-                    :displayValue="(abcde) => abcde" @change="query = $event.target.value" />
+                    :displayValue="(abcde) => abcde.slug" @change="query = $event.target.value" />
                 <ComboboxButton class="absolute inset-y-0 right-0 flex items-center pr-2">
                     <FontAwesomeIcon icon="fas fa-chevron-down" class="h-4 w-4 text-gray-400" aria-hidden="true" />
                 </ComboboxButton>
@@ -95,7 +95,7 @@ let filteredOptions = computed(() =>
                     <!-- List -->
                     <template v-if="!isLoading">
                         <ComboboxOption v-for="option in optionsResult" as="template" :key="option.id"
-                            :value="option.contact_name ?? option.slug" v-slot="{ selected, active }">
+                            :value="option.contact_name ?? option" v-slot="{ selected, active }">
                             <li class="relative cursor-pointer select-none py-2 pl-10 pr-4" :class="{
                                 'bg-indigo-600 text-white': active,
                                 'text-gray-800': !active,

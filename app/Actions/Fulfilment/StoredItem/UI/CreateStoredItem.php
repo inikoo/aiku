@@ -72,7 +72,7 @@ class CreateStoredItem extends InertiaAction
                                     'required'=> true,
                                     'options' => StoredItemTypeEnum::values()
                                 ],
-                                'location_id' => [
+                                'location' => [
                                     'type'     => 'combobox',
                                     'label'    => __('location'),
                                     'value'    => '',

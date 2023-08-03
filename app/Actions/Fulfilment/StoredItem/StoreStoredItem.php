@@ -53,11 +53,13 @@ class StoreStoredItem
 
     public function asController(Customer $customer, ActionRequest $request): StoredItem
     {
-        dd($request->all());
         $this->customer = $customer;
-        $request->validate();
+        $mergedArray = array_merge($request->all(), [
+            'location_id' => $request->input('location')['id']
+        ]);
+        $this->setRawAttributes($mergedArray);
 
-        return $this->handle($customer, $request->validated());
+        return $this->handle($customer, $this->validateAttributes());
     }
 
     public function htmlResponse(StoredItem $storedItem, ActionRequest $request): RedirectResponse

@@ -23,6 +23,7 @@ use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
+use App\Models\Inventory\Location;
 
 /**
  * App\Models\Fulfilment\StoredItem
@@ -95,4 +96,8 @@ class StoredItem extends Model implements Auditable
         return $this->belongsTo(Customer::class);
     }
 
+    public function location(): BelongsTo
+    {
+        return $this->belongsTo(Location::class);
+    }
 }

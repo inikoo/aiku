@@ -37,16 +37,20 @@ class UpdateStoredItem
     {
         return [
             'reference' => ['sometimes', 'required', 'unique:tenant.stored_items', 'between:2,9', 'alpha'],
-            'type' => ['sometimes', 'required', Rule::in(StoredItemTypeEnum::values())]
+            'type' => ['sometimes', 'required', Rule::in(StoredItemTypeEnum::values())],
+            'location_id' => ['required', 'exists:tenant.locations,id']
         ];
     }
 
     public function asController(StoredItem $storedItem, ActionRequest $request): StoredItem
     {
-        $request->validate();
-        return $this->handle($storedItem, $request->validated());
-    }
+        $mergedArray = array_merge($request->all(), [
+            'location_id' => $request->input('location')['id']
+        ]);
+        $this->setRawAttributes($mergedArray);
 
+        return $this->handle($storedItem, $this->validateAttributes());
+    }
 
     public function jsonResponse(StoredItem $storedItem): StoredItemResource
     {

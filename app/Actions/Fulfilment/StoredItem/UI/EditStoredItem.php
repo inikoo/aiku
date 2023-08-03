@@ -83,6 +83,13 @@ class EditStoredItem extends InertiaAction
                                     'required'=> true,
                                     'options' => StoredItemTypeEnum::values()
                                 ],
+                                'location' => [
+                                    'type'     => 'combobox',
+                                    'label'    => __('location'),
+                                    'value'    => '',
+                                    'required' => true,
+                                    'apiUrl'  => route('json.locations') . '?filter[slug]=',
+                                ]
                             ]
                         ]
                     ],

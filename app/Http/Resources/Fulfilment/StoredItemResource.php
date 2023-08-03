@@ -28,7 +28,7 @@ class StoredItemResource extends JsonResource
             'reference' => $this->reference,
             'slug' => $this->slug,
             'customer_name' => $this->customer['name'],
-            'location' => $this->location ?? '-',
+            'location' => $this->location ? $this->location['slug'] : '-',
             'state' => $this->state,
             'notes' => $this->notes ?? '-',
             'status' => $this->status
