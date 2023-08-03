@@ -15,12 +15,13 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 library.add(faChevronDown, faCheck)
 
 defineEmits(['update:modelValue'])
-const props = defineProps({
-    modelValue: Object,
-    loading: Boolean,
-    apiUrl: String,
-})
-
+const props = defineProps<{
+    modelValue: Object
+    loading: Boolean
+    apiUrl: String
+    fieldData: any
+}>()
+console.log(props.fieldData)
 const isLoading = ref(true)
 const comboValue = ref('Select Users')
 const optionsResult = ref()
@@ -28,7 +29,7 @@ const query = ref('')
 
 const fetchApi = async (query: string) => {
     if (query !== '') {
-        await fetch(props.apiUrl + query)
+        await fetch(props.fieldData.apiUrl + query)
             .then(response => {
                 response.json().then((data: Object) => {
                     isLoading.value = false
