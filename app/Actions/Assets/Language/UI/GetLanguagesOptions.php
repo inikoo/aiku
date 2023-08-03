@@ -23,7 +23,7 @@ class GetLanguagesOptions
                 [
                     'name'  => $language->name,
                     'id'    => $language->id,
-                    'code'  => $language->code,
+                    'code'  => $language->code
                 ];
         }
 
