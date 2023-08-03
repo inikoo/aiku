@@ -13,4 +13,4 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/group-users-other-tenants', IndexGroupUsersOtherTenants::class)->name('group-users.index');
 Route::get('/users', GetAllUsers::class)->name('users');
-// Route::get('/locations', GetLocations::class)->name('locations');
+Route::get('/locations', GetLocations::class)->name('locations');

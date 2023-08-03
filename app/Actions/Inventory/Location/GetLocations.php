@@ -13,22 +13,27 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\AsObject;
+use Spatie\QueryBuilder\QueryBuilder;
 
 class GetLocations
 {
     use AsObject;
     use AsAction;
 
-    public function handle(array $objectData = []): AnonymousResourceCollection
+    public function handle()
     {
-        $query  = $objectData['query'];
-        $users  = Location::where('slug', 'ILIKE', '%'.$query.'%')->get();
-
-        return LocationResource::collection($users);
+        return QueryBuilder::for(Location::class)
+            ->select('id', 'slug', 'code')
+            ->groupBy('locations.id')
+            ->defaultSort('slug')
+            ->allowedFilters(['slug'])
+            ->jsonPaginate();
     }
 
     public function asController(ActionRequest $request): AnonymousResourceCollection
     {
-        return $this->handle($request->all());
+        $locations = $this->handle();
+
+        return LocationResource::collection($locations);
     }
 }

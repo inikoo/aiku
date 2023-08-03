@@ -46,12 +46,14 @@ class StoreStoredItem
     {
         return [
             'reference' => ['required', 'unique:tenant.stored_items', 'between:2,9', 'alpha'],
-            'type' => ['required', Rule::in(StoredItemTypeEnum::values())]
+            'type' => ['required', Rule::in(StoredItemTypeEnum::values())],
+            'location_id' => ['required', 'exists:tenant.locations,id']
         ];
     }
 
     public function asController(Customer $customer, ActionRequest $request): StoredItem
     {
+        dd($request->all());
         $this->customer = $customer;
         $request->validate();
 

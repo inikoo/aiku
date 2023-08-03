@@ -95,13 +95,13 @@ let filteredOptions = computed(() =>
                     <!-- List -->
                     <template v-if="!isLoading">
                         <ComboboxOption v-for="option in optionsResult" as="template" :key="option.id"
-                            :value="option.contact_name" v-slot="{ selected, active }">
+                            :value="option.contact_name ?? option.slug" v-slot="{ selected, active }">
                             <li class="relative cursor-pointer select-none py-2 pl-10 pr-4" :class="{
                                 'bg-indigo-600 text-white': active,
                                 'text-gray-800': !active,
                             }">
                                 <span class="block truncate" :class="{ 'font-medium': selected, 'font-normal': !selected }">
-                                    {{ option.contact_name }}
+                                    {{ option.contact_name ?? option.slug }}
                                 </span>
                                 <span v-if="selected" class="absolute inset-y-0 left-0 flex items-center pl-3"
                                     :class="{ 'text-white': active, 'text-teal-600': !active }">

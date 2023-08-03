@@ -72,6 +72,13 @@ class CreateStoredItem extends InertiaAction
                                     'required'=> true,
                                     'options' => StoredItemTypeEnum::values()
                                 ],
+                                'location_id' => [
+                                    'type'     => 'combobox',
+                                    'label'    => __('location'),
+                                    'value'    => '',
+                                    'required' => true,
+                                    'apiUrl'  => route('json.locations') . '?filter[slug]=',
+                                ],
                             ]
                         ]
                     ],
