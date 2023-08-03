@@ -16,10 +16,12 @@ library.add(faChevronDown, faCheck)
 
 defineEmits(['update:modelValue'])
 const props = defineProps<{
+    form: any
     modelValue: Object
     loading: Boolean
     apiUrl: String
     fieldData: any
+    fieldName: string
 }>()
 console.log(props.fieldData)
 const isLoading = ref(true)
@@ -63,7 +65,7 @@ let filteredOptions = computed(() =>
 </script>
 
 <template>
-    <Combobox by="value" :model-value="props.modelValue" @update:model-value="value => $emit('update:modelValue', value)">
+    <Combobox by="value" v-model="form[fieldName]">
         <div class="relative mt-1">
             <div
                 class="relative w-full cursor-default overflow-hidden rounded-lg bg-white text-left border border-gray-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-700 focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-teal-300 sm:text-sm">
@@ -92,14 +94,14 @@ let filteredOptions = computed(() =>
 
                     <!-- List -->
                     <template v-if="!isLoading">
-                        <ComboboxOption v-for="person in optionsResult" as="template" :key="person.id"
-                            :value="person.contact_name" v-slot="{ selected, active }">
+                        <ComboboxOption v-for="option in optionsResult" as="template" :key="option.id"
+                            :value="option.contact_name" v-slot="{ selected, active }">
                             <li class="relative cursor-pointer select-none py-2 pl-10 pr-4" :class="{
                                 'bg-indigo-600 text-white': active,
                                 'text-gray-800': !active,
                             }">
                                 <span class="block truncate" :class="{ 'font-medium': selected, 'font-normal': !selected }">
-                                    {{ person.contact_name }}
+                                    {{ option.contact_name }}
                                 </span>
                                 <span v-if="selected" class="absolute inset-y-0 left-0 flex items-center pl-3"
                                     :class="{ 'text-white': active, 'text-teal-600': !active }">
