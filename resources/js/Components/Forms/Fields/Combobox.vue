@@ -28,7 +28,7 @@ const query = ref('')
 
 const fetchApi = async (query: string) => {
     if (query !== '') {
-        await fetch(props.apiUrl + '?filter[name]=' + query)
+        await fetch(props.apiUrl + '?filter[contact_name]=' + query)
             .then(response => {
                 console.log("==================")
                 response.json().then((data: Object) => {
@@ -80,7 +80,7 @@ watch(query, (q) => {
                 @after-leave="query = ''">
                 <ComboboxOptions
                     class="z-10 absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-                    
+
                     <!-- State: Loading and Not Found -->
                     <!-- <div v-if="isLoading" class="relative cursor-default select-none py-2 px-4 text-gray-700">
                         Loading...

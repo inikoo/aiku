@@ -28,7 +28,7 @@ class IndexGroupUsersOtherTenants
             ->where('tenant_id', '!=', app('currentTenant')->id)
             ->groupBy('group_users.id')
             ->defaultSort('username')
-            ->allowedFilters(['username', 'name'])
+            ->allowedFilters(['username', 'contact_name'])
             ->jsonPaginate();
     }
 
