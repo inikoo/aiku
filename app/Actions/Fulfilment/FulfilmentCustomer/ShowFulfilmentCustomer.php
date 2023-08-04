@@ -201,7 +201,7 @@ class ShowFulfilmentCustomer extends InertiaAction
         }
 
         return match ($routeName) {
-            'customers.show' ,
+            'fulfilment.customers.show' ,
             'shops.customers.show'=> [
                 'label'=> $customer->name,
                 'route'=> [

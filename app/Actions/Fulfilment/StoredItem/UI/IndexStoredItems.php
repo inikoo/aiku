@@ -43,7 +43,9 @@ class IndexStoredItems extends InertiaAction
             ->defaultSort('slug')
             ->with('customer')
             ->when($parent, function ($query) use ($parent) {
-                $query->where('customer_id', $parent->id);
+                if(class_basename($parent) == "Customer") {
+                    $query->where('customer_id', $parent->id);
+                }
             })
             ->allowedSorts(['slug', 'state'])
             ->allowedFilters([$globalSearch, 'slug', 'state'])
