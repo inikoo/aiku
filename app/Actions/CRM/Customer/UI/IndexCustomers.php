@@ -9,6 +9,7 @@ namespace App\Actions\CRM\Customer\UI;
 
 use App\Actions\InertiaAction;
 use App\Actions\UI\CRM\CRMDashboard;
+use App\Enums\Market\Shop\ShopTypeEnum;
 use App\Http\Resources\Sales\CustomerResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\CRM\Customer;
@@ -136,18 +137,18 @@ class IndexCustomers extends InertiaAction
                         ],
                         'Shop' => [
                             'title'       => __("No customers found"),
-                            'description' => __("You can add your customer 🤷🏽‍♂️"),
+                            'description' => $parent->type == ShopTypeEnum::FULFILMENT_HOUSE ? __("You can add your customer 🤷🏽‍♂️") : null,
                             'count'       => $parent->crmStats->number_customers,
-                            'action'      => [
+                            'action'      => $parent->type == ShopTypeEnum::FULFILMENT_HOUSE ? [
                                 'type'    => 'button',
                                 'style'   => 'create',
                                 'tooltip' => __('new customer'),
                                 'label'   => __('customer'),
                                 'route'   => [
-                                    'name' => 'crm.shops.customers.create',
+                                    'name' => 'crm.shops.show.customers.create',
                                     'parameters' => [$parent->slug]
                                 ]
-                            ]
+                            ] : null
                         ],
                         default=> null
                     }
