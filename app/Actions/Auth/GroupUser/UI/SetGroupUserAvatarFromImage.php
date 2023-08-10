@@ -30,12 +30,15 @@ class SetGroupUserAvatarFromImage
 
             $groupUser->update(['avatar_id' => null]);
 
+            $filename=$checksum.'.';
+            $filename.=empty($extension) ? pathinfo($imagePath, PATHINFO_EXTENSION) : $extension;
+
             /** @var GroupMedia $groupMedia */
             $groupMedia=$groupUser->addMedia($imagePath)
                 ->preservingOriginal()
                 ->withCustomProperties(['checksum' => $checksum])
                 ->usingName($originalFilename)
-                ->usingFileName($checksum.".".$extension??pathinfo($imagePath, PATHINFO_EXTENSION))
+                ->usingFileName($filename)
                 ->toMediaCollection('profile', 'group');
 
 

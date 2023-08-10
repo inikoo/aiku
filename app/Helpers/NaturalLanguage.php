@@ -14,7 +14,7 @@ class NaturalLanguage extends DefaultUrlGenerator
 {
     use AsObject;
 
-    public function fileSize(integer $size, $precision = 2): string
+    public function fileSize($size, $precision = 2): string
     {
         if ($size > 0) {
             $size     = (int)$size;
