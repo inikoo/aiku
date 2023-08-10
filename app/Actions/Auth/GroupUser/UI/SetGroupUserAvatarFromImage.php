@@ -30,7 +30,7 @@ class SetGroupUserAvatarFromImage
 
             $groupUser->update(['avatar_id' => null]);
 
-            $filename=$checksum.'.';
+            $filename=dechex(crc32($checksum)).'.';
             $filename.=empty($extension) ? pathinfo($imagePath, PATHINFO_EXTENSION) : $extension;
 
             /** @var GroupMedia $groupMedia */
