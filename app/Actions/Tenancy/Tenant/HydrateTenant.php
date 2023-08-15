@@ -11,6 +11,7 @@ use App\Actions\HydrateModel;
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateAccounting;
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateCustomers;
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateEmployees;
+use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateGuests;
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateInventory;
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateMarket;
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateOrders;
@@ -19,7 +20,6 @@ use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateUsers;
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateWarehouse;
 use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateWeb;
 use App\Actions\Traits\WithNormalise;
-use App\Models\Auth\Guest;
 use App\Models\Tenancy\Tenant;
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
@@ -36,7 +36,7 @@ class HydrateTenant extends HydrateModel
         /** @var \App\Models\Tenancy\Tenant $tenant */
         $tenant = app('currentTenant');
         TenantHydrateEmployees::run($tenant);
-        $this->guestsStats();
+        TenantHydrateGuests::run($tenant);
         TenantHydrateWarehouse::run($tenant);
         TenantHydrateInventory::run($tenant);
         TenantHydrateMarket::run($tenant);
@@ -55,28 +55,6 @@ class HydrateTenant extends HydrateModel
         $tenant = app('currentTenant');
     }
 
-
-    public function guestsStats(): void
-    {
-        /** @var \App\Models\Tenancy\Tenant $tenant */
-        $tenant = app('currentTenant');
-
-
-        $numberGuests = Guest::count();
-
-        $numberActiveGuests = Guest::where('status', true)
-            ->count();
-
-
-        $stats = [
-            'number_guests'                 => $numberGuests,
-            'number_guests_status_active'   => $numberActiveGuests,
-            'number_guests_status_inactive' => $numberGuests - $numberActiveGuests,
-        ];
-
-
-        $tenant->stats->update($stats);
-    }
 
 
     protected function getAllModels(): Collection
