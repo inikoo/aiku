@@ -10,7 +10,6 @@ namespace App\Actions\Web\Webpage;
 use App\Actions\InertiaAction;
 use App\Actions\UI\Dashboard\ShowDashboard;
 use App\Actions\Web\Website\UI\ShowWebsite;
-use App\Http\Resources\Market\ShopResource;
 use App\Http\Resources\Web\WebpageResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Tenancy\Tenant;
@@ -128,7 +127,7 @@ class IndexWebpages extends InertiaAction
 
     public function jsonResponse(LengthAwarePaginator $webpages): AnonymousResourceCollection
     {
-        return ShopResource::collection($webpages);
+        return WebpageResource::collection($webpages);
     }
 
     public function htmlResponse(LengthAwarePaginator $webpages, ActionRequest $request): Response
