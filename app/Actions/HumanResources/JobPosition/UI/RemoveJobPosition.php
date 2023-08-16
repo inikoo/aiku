@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Sat, 24 Jun 2023 10:58:06 Malaysia Time, Pantai Lembeng, Bali, Id
+ * Created: Sat, 24 Jun 2023 10:58:06 Malaysia Time, Pantai Lembeng, Bali, Indonesia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
@@ -43,7 +43,6 @@ class RemoveJobPosition extends InertiaAction
         ];
     }
 
-    /** @noinspection PhpUnusedParameterInspection */
     public function htmlResponse(JobPosition $jobPosition, ActionRequest $request): Response
     {
         return Inertia::render(

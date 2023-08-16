@@ -9,19 +9,14 @@ namespace App\Actions\Accounting\Payment\UI;
 
 use App\Actions\InertiaAction;
 use App\Models\Accounting\PaymentAccount;
-use App\Models\Accounting\PaymentServiceProvider;
 use App\Models\Assets\Currency;
-use App\Models\Market\Shop;
-use App\Models\Tenancy\Tenant;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
 class CreatePayment extends InertiaAction
 {
-    private Shop|Tenant|PaymentServiceProvider|PaymentAccount $parent;
-
-    public function handle(ActionRequest $request): Response
+    public function htmlResponse(ActionRequest $request): Response
     {
         return Inertia::render(
             'CreateModel',
@@ -103,18 +98,16 @@ class CreatePayment extends InertiaAction
     }
 
 
-    public function asController(ActionRequest $request): Response
+    public function asController(ActionRequest $request): void
     {
         $this->initialisation($request);
-        $this->parent = app('currentTenant');
-        return $this->handle();
+
     }
 
-    public function inPaymentAccount(PaymentAccount $paymentAccount, ActionRequest $request): Response
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inPaymentAccount(PaymentAccount $paymentAccount, ActionRequest $request): void
     {
         $this->initialisation($request);
-        $this->parent = $paymentAccount;
-        return $this->handle();
     }
 
     public function getBreadcrumbs(string $routeName, array $params): array

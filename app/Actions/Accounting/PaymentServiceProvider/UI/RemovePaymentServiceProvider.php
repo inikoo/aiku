@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Sat, 24 Jun 2023 10:58:06 Malaysia Time, Pantai Lembeng, Bali, Id
+ * Created: Sat, 24 Jun 2023 10:58:06 Malaysia Time, Pantai Lembeng, Bali, Indonesia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
@@ -49,7 +49,7 @@ class RemovePaymentServiceProvider extends InertiaAction
             'RemoveModel',
             [
                 'title'       => __('delete payment service provider'),
-                'breadcrumbs' => $this->getBreadcrumbs($this->originalParameters),
+                'breadcrumbs' => $this->getBreadcrumbs($paymentServiceProvider),
                 'pageHead'    => [
                     'icon'  =>
                         [
