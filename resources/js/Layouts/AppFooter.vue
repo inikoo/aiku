@@ -12,8 +12,19 @@ const layout = useLayoutStore()
 import { useDatabaseList, useDatabaseObject } from "vuefire"
 import { getDatabase, ref as dbRef } from "firebase/database"
 import { initializeApp } from "firebase/app"
-import serviceAccount from "@/../private/firebase/aiku-firebase.json"
-const firebaseApp = initializeApp(serviceAccount);
+
+const firebaseConfig = {
+    apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+    authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+    databaseURL: import.meta.env.VITE_FIREBASE_DATABASE_URL,
+    projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+    storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+    messagingSenderId: import.meta.env.VITE_FIREBASE_MSG_SENDER_ID,
+    appId: import.meta.env.VITE_FIREBASE_APP_ID,
+    measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
+};
+
+const firebaseApp = initializeApp(firebaseConfig);
 const db = getDatabase(firebaseApp)
 const activities = useDatabaseList(dbRef(db, layout.tenant.code))
 
@@ -48,14 +59,14 @@ const form = useForm({
                         <span v-if="activities.length > 0">Active Users ({{ activities.length }})</span>
                         <span v-else>No active user</span>
                     </div>
-                    
+
                     <FooterTab @pinTab="() => isTabActive = false" v-if="isTabActive == 'activeUsers'" :tabName="`activeUsers`">
                         <template #default>
                             <div v-for="(option, index) in activities" class="flex justify-start py-1 px-2 gap-x-1.5 hover:bg-gray-700 cursor-default">
                                 <img :src="`/media/group/${option.user.avatar_id}`" :alt="option.user.contact_name" srcset="" class="h-4 rounded-full shadow">
                                 <p class="text-left text-gray-100">
                                     <!-- <span class="font-semibold">{{ option.user.contact_name }}</span>  -->
-                                    <span class="font-semibold text-gray-100">{{ option.user.username }}</span> - 
+                                    <span class="font-semibold text-gray-100">{{ option.user.username }}</span> -
                                     <span class="capitalize text-gray-300">{{ option.route.module }}</span>
                                 </p>
                             </div>
