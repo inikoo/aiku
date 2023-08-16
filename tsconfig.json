@@ -1,16 +1,22 @@
 {
     "compilerOptions": {
-        "target": "es5",
-        "lib": ["es5","es2015.core","ES2015","dom","es2017"],
-        "baseUrl": "./resources",
+        "allowJs": true,
+        "module": "ESNext",
+        "moduleResolution": "bundler",
+        "jsx": "preserve",
+        "strict": true,
+        "isolatedModules": true,
+        "target": "ESNext",
+        "esModuleInterop": true,
+        "forceConsistentCasingInFileNames": true,
+        "noEmit": true,
+        "skipLibCheck": true,
         "paths": {
-            "@/*": ["js/*"]
-        },
-        "allowSyntheticDefaultImports": true
+            "@/*": ["./resources/js/*"]
+        }
     },
     "include": [
-        "env.d.ts",
-        "resources/js/**/*",
-        "resources/private/**/*.json",
-    ],
+        "resources/js/**/*.ts",
+        "resources/js/**/*.d.ts",
+        "resources/js/**/*.vue"]
 }
