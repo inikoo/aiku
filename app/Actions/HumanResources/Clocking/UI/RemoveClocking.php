@@ -92,7 +92,7 @@ class RemoveClocking extends InertiaAction
                             'style' => 'cancel',
                             'label' => __('cancel'),
                             'route' => [
-                                'name'       => preg_replace('/remove$/', 'show', $this->routeName),
+                                'name'       => preg_replace('/remove$/', 'show', $request->route()->getName()),
                                 'parameters' => array_values($this->originalParameters)
                             ]
                         ]
@@ -100,7 +100,7 @@ class RemoveClocking extends InertiaAction
                 ],
                 'data'     => $this->getAction(
                     route:
-                    match ($this->routeName) {
+                    match ($request->route()->getName()) {
                         'hr.clockings.remove' => [
                             'name'       => 'models.clocking.delete',
                             'parameters' => $request->route()->originalParameters()

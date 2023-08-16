@@ -21,20 +21,20 @@ class CreatePayment extends InertiaAction
 {
     private Shop|Tenant|PaymentServiceProvider|PaymentAccount $parent;
 
-    public function handle(): Response
+    public function handle(ActionRequest $request): Response
     {
         return Inertia::render(
             'CreateModel',
             [
-                'breadcrumbs' => $this->getBreadcrumbs($this->routeName, array_values($this->originalParameters)),
+                'breadcrumbs' => $this->getBreadcrumbs($request->route()->getName(), array_values($this->originalParameters)),
                 'title'       => __('new payment'),
                 'pageHead'    => [
                     'title'        => __('new payment'),
                     'cancelCreate' => [
                         'route' => [
-                            'name' => match ($this->routeName) {
+                            'name' => match ($request->route()->getName()) {
                                 'accounting.payment-accounts.show.payments.create' => 'accounting.payment-accounts.show',
-                                default                                            => preg_replace('/create$/', 'index', $this->routeName)
+                                default                                            => preg_replace('/create$/', 'index', $request->route()->getName())
                             },
                             'parameters' => array_values($this->originalParameters)
                         ]

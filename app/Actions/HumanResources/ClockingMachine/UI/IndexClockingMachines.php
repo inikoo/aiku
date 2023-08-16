@@ -140,7 +140,7 @@ class IndexClockingMachines extends InertiaAction
                 'pageHead'    => [
                     'title'  => __('clocking machines'),
                     'actions'=> [
-                        $this->canEdit && $this->routeName == 'hr.working-places.show.clocking-machines.index' ? [
+                        $this->canEdit && $request->route()->getName() == 'hr.working-places.show.clocking-machines.index' ? [
                             'type'  => 'button',
                             'style' => 'create',
                             'label' => __('clocking machine'),

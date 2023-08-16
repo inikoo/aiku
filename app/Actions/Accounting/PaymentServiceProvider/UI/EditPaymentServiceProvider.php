@@ -36,7 +36,7 @@ class EditPaymentServiceProvider extends InertiaAction
     /**
      * @throws \Exception
      */
-    public function htmlResponse(PaymentServiceProvider $paymentServiceProvider): Response
+    public function htmlResponse(PaymentServiceProvider $paymentServiceProvider, ActionRequest $request): Response
     {
         return Inertia::render(
             'EditModel',
@@ -50,7 +50,7 @@ class EditPaymentServiceProvider extends InertiaAction
                             'type'  => 'button',
                             'style' => 'exitEdit',
                             'route' => [
-                                'name'       => preg_replace('/edit$/', 'show', $this->routeName),
+                                'name'       => preg_replace('/edit$/', 'show', $request->route()->getName()),
                                 'parameters' => array_values($this->originalParameters)
                             ]
                         ]

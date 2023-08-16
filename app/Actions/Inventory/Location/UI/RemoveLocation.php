@@ -93,7 +93,7 @@ class RemoveLocation extends InertiaAction
                             'style' => 'cancel',
                             'label' => __('cancel'),
                             'route' => [
-                                'name'       => preg_replace('/remove$/', 'show', $this->routeName),
+                                'name'       => preg_replace('/remove$/', 'show', $request->route()->getName()),
                                 'parameters' => array_values($this->originalParameters)
                             ]
                         ]
@@ -101,7 +101,7 @@ class RemoveLocation extends InertiaAction
                 ],
                 'data'     => $this->getAction(
                     route:
-                    match ($this->routeName) {
+                    match ($request->route()->getName()) {
                         'inventory.locations.remove' => [
                             'name'       => 'models.location.delete',
                             'parameters' => $request->route()->originalParameters()

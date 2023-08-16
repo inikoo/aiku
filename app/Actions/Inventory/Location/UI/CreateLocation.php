@@ -97,7 +97,7 @@ class CreateLocation extends InertiaAction
 
 
                     ],
-                    'route' => match ($this->routeName) {
+                    'route' => match ($request->route()->getName()) {
                         'inventory.warehouses.show.locations.create' => [
                             'name'      => 'models.warehouse.location.store',
                             'arguments' => [$request->route()->parameters['warehouse']->slug]

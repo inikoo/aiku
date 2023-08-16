@@ -72,7 +72,7 @@ class ShowClockingMachine extends InertiaAction
                             'type'  => 'button',
                             'style' => 'edit',
                             'route' => [
-                                'name'       => preg_replace('/show$/', 'edit', $this->routeName),
+                                'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
                                 'parameters' => $request->route()->originalParameters()
                             ]
                         ] : false,
@@ -91,7 +91,7 @@ class ShowClockingMachine extends InertiaAction
                             'name'     => trans_choice('clocking|clockings', 0/*$clockingMachine->stats->number_clockings*/),
                             'number'   => 0/*$clockingMachine->stats->number_clockings*/,
                             'href'     =>
-                                match ($this->routeName) {
+                                match ($request->route()->getName()) {
                                     'hr.working-places.show.clocking-machines.show' => [
                                         'hr.working-places.show.clocking-machines.show.clockings.index',
                                         [$clockingMachine->workplace->slug, $clockingMachine->slug]

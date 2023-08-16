@@ -39,7 +39,7 @@ class EditJobPosition extends InertiaAction
     /**
      * @throws Exception
      */
-    public function htmlResponse(JobPosition $jobPosition): Response
+    public function htmlResponse(JobPosition $jobPosition, ActionRequest $request): Response
     {
         return Inertia::render(
             'EditModel',
@@ -53,7 +53,7 @@ class EditJobPosition extends InertiaAction
                             'type'  => 'button',
                             'style' => 'exitEdit',
                             'route' => [
-                                'name'       => preg_replace('/edit$/', 'show', $this->routeName),
+                                'name'       => preg_replace('/edit$/', 'show', $request->route()->getName()),
                                 'parameters' => array_values($this->originalParameters)
                             ]
                         ]

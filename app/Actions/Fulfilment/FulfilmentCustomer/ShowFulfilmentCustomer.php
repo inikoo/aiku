@@ -12,7 +12,6 @@ use App\Actions\Fulfilment\FulfilmentOrder\UI\IndexFulfilmentOrders;
 use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItems;
 use App\Actions\InertiaAction;
 use App\Actions\Mail\DispatchedEmail\IndexDispatchedEmails;
-use App\Actions\OMS\Order\UI\IndexOrders;
 use App\Actions\UI\Dashboard\ShowDashboard;
 use App\Enums\UI\CustomerFulfilmentTabsEnum;
 use App\Http\Resources\Fulfilment\StoredItemResource;
@@ -64,7 +63,7 @@ class ShowFulfilmentCustomer extends InertiaAction
                     'title' => $customer->name,
                     'edit'  => $this->canEdit ? [
                         'route' => [
-                            'name'       => preg_replace('/show$/', 'edit', $this->routeName),
+                            'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
                             'parameters' => array_values($this->originalParameters)
                         ]
                     ] : false,

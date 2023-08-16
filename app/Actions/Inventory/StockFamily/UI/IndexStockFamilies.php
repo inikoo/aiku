@@ -138,7 +138,7 @@ class IndexStockFamilies extends InertiaAction
                         'icon'  => 'fal fa-boxes-alt'
                     ],
                     'actions'=> [
-                        $this->canEdit && $this->routeName == 'inventory.stock-families.index' ? [
+                        $this->canEdit && $request->route()->getName() == 'inventory.stock-families.index' ? [
                             'type'    => 'button',
                             'style'   => 'create',
                             'tooltip' => __('new SKU family'),
