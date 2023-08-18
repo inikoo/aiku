@@ -11,6 +11,7 @@ use App\Actions\Assets\Language\UI\GetLanguagesOptions;
 use App\Http\Resources\Assets\LanguageResource;
 use App\Models\Assets\Language;
 use App\Models\Auth\User;
+use Cache;
 use Illuminate\Support\Facades\App;
 use Lorisleiva\Actions\Concerns\AsObject;
 
@@ -29,6 +30,19 @@ class GetFirstLoadProps
             $language = Language::where('code', 'en')->first();
         }
 
+        $auth = app('firebase.auth');
+
+        if($user) {
+            $customTokenFirebasePrefix = 'tenant_' . app('currentTenant')->slug . '_user_' . $user->username . '_token_' . $user->id;
+            $cache                     = Cache::get($customTokenFirebasePrefix);
+
+            if(blank($cache)) {
+                $customToken = $auth->createCustomToken($customTokenFirebasePrefix);
+                $auth->signInWithCustomToken($customToken);
+
+                Cache::put($customTokenFirebasePrefix, $customToken->toString(), 3600);
+            }
+        }
 
         return [
             'tenant'     => app('currentTenant') ? app('currentTenant')->only('name', 'code', 'logo_id') : null,
