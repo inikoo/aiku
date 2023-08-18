@@ -64,7 +64,7 @@ class RemoveWorkingPlace extends InertiaAction
                             'type'  => 'button',
                             'style' => 'cancel',
                             'route' => [
-                                'name'       => preg_replace('/remove$/', 'show', $this->routeName),
+                                'name'       => preg_replace('/remove$/', 'show', $request->route()->getName()),
                                 'parameters' => $request->route()->originalParameters()
                             ]
                         ]

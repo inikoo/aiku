@@ -42,7 +42,7 @@ class EditWorkingPlace extends InertiaAction
     /**
      * @throws Exception
      */
-    public function htmlResponse(Workplace $workplace): Response
+    public function htmlResponse(Workplace $workplace, ActionRequest $request): Response
     {
         return Inertia::render(
             'EditModel',
@@ -56,7 +56,7 @@ class EditWorkingPlace extends InertiaAction
                             'type'  => 'button',
                             'style' => 'exitEdit',
                             'route' => [
-                                'name'       => preg_replace('/edit$/', 'show', $this->routeName),
+                                'name'       => preg_replace('/edit$/', 'show', $request->route()->getName()),
                                 'parameters' => array_values($this->originalParameters)
                             ]
                         ]

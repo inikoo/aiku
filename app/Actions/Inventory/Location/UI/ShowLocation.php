@@ -90,12 +90,12 @@ class ShowLocation extends InertiaAction
                             'type'  => 'button',
                             'style' => 'edit',
                             'route' => [
-                                'name'       => preg_replace('/show$/', 'edit', $this->routeName),
+                                'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
                                 'parameters' => array_values($this->originalParameters)
                             ]
                         ] : false,
                         $this->canDelete ?
-                            match ($this->routeName) {
+                            match ($request->route()->getName()) {
                                 'inventory.locations.show' => [
                                     'type'  => 'button',
                                     'style' => 'delete',

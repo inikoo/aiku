@@ -42,7 +42,6 @@ class IndexStocks extends InertiaAction
 
     public function asController(ActionRequest $request): LengthAwarePaginator
     {
-        $this->routeName = $request->route()->getName();
         $this->parent    = app('currentTenant');
         return $this->handle(parent:  app('currentTenant'));
     }

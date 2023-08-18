@@ -70,7 +70,7 @@ class CreateClocking extends InertiaAction
 
 
                     ],
-                    'route' => match ($this->routeName) {
+                    'route' => match ($request->route()->getName()) {
                         'hr.working-places.show.clockings.create' => [
                             'name'      => 'models.working-place.clocking.store',
                             'arguments' => [$request->route()->parameters['workplace']->slug]

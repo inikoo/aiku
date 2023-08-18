@@ -38,7 +38,7 @@ class StoreImage
                 ->preservingOriginal()
                 ->withCustomProperties(['checksum' => $checksum])
                 ->usingName($filename)
-                ->usingFileName($checksum.".".pathinfo($image_path, PATHINFO_EXTENSION))
+                ->usingFileName(dechex(crc32($checksum)).".".pathinfo($image_path, PATHINFO_EXTENSION))
                 ->toMediaCollection($collection, 'group');
         }
         return $subject;

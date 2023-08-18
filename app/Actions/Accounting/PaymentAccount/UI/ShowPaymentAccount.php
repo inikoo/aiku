@@ -83,11 +83,11 @@ class ShowPaymentAccount extends InertiaAction
                     'title'  => $paymentAccount->slug,
                     'create' => $this->canEdit
                     && (
-                        $this->routeName == 'accounting.payment-service-providers.show.payment-accounts.show' or
-                        $this->routeName == 'accounting.payment-accounts.show'
+                        $request->route()->getName() == 'accounting.payment-service-providers.show.payment-accounts.show' or
+                        $request->route()->getName() == 'accounting.payment-accounts.show'
                     ) ? [
                         'route' => [
-                            'name'       => preg_replace('/show$/', 'show.payments.create', $this->routeName),
+                            'name'       => preg_replace('/show$/', 'show.payments.create', $request->route()->getName()),
                             'parameters' => array_values($this->originalParameters)
                         ],
                         'label' => __('payment')
@@ -96,7 +96,7 @@ class ShowPaymentAccount extends InertiaAction
                         [
                             'name'     => trans_choice('payment | payments', $paymentAccount->stats->number_payments),
                             'number'   => $paymentAccount->stats->number_payments,
-                            'href'     => match ($this->routeName) {
+                            'href'     => match ($request->route()->getName()) {
                                 'accounting.payment-service-providers.show.payment-accounts.show' => [
                                     'accounting.payment-service-providers.show.payment-accounts.show.payments.index',
                                     [$paymentAccount->paymentServiceProvider->slug, $paymentAccount->slug]

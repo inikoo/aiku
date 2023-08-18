@@ -8,8 +8,6 @@
 namespace App\Actions\Fulfilment\FulfilmentOrder\UI;
 
 use App\Actions\InertiaAction;
-use App\Actions\Market\Shop\UI\ShowShop;
-use App\Actions\UI\Dashboard\ShowDashboard;
 use App\Actions\UI\Fulfilment\FulfilmentDashboard;
 use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Sales\OrderResource;
@@ -76,20 +74,20 @@ class IndexFulfilmentOrders extends InertiaAction
                 ->pageName(TabsAbbreviationEnum::ORDERS->value . 'Page')
 
                 ->withEmptyState(
-                match (class_basename($parent)) {
-                    'Tenant' => [
-                        'title' => __("No orders found"),
-                        'description' => __("In fact, is no even a shop yet 🤷🏽‍♂️"),
-                        'count' => $parent->crmStats->number_orders,
-                    ],
-                    'Customer' => [
-                        'title' => __("No orders found"),
-                        'description' => __("In fact, is no even a shop yet 🤷🏽‍♂️"),
-                        'count' => $parent->orders()->count(),
-                    ],
-                    default => null,
-                }
-            );
+                    match (class_basename($parent)) {
+                        'Tenant' => [
+                            'title'       => __("No orders found"),
+                            'description' => __("In fact, is no even a shop yet 🤷🏽‍♂️"),
+                            'count'       => $parent->crmStats->number_orders,
+                        ],
+                        'Customer' => [
+                            'title'       => __("No orders found"),
+                            'description' => __("In fact, is no even a shop yet 🤷🏽‍♂️"),
+                            'count'       => $parent->orders()->count(),
+                        ],
+                        default => null,
+                    }
+                );
 
             $table->column(key: 'number', label: __('number'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'date', label: __('date'), canBeHidden: false, sortable: true, searchable: true);
@@ -125,12 +123,12 @@ class IndexFulfilmentOrders extends InertiaAction
                     $request->route()->getName(),
                     $request->route()->parameters
                 ),
-                'title' => __('orders'),
+                'title'    => __('orders'),
                 'pageHead' => [
-                    'title' => __('orders'),
-                    'create' => $this->canEdit && $this->routeName == 'shops.show.orders.index' ? [
+                    'title'  => __('orders'),
+                    'create' => $this->canEdit && $request->route()->getName() == 'shops.show.orders.index' ? [
                         'route' => [
-                            'name' => 'shops.show.orders.create',
+                            'name'       => 'shops.show.orders.create',
                             'parameters' => array_values($this->originalParameters)
                         ],
                         'label' => __('order')
@@ -165,13 +163,13 @@ class IndexFulfilmentOrders extends InertiaAction
             (new FulfilmentDashboard())->getBreadcrumbs(),
             [
                 [
-                    'type' => 'simple',
+                    'type'   => 'simple',
                     'simple' => [
                         'route' => [
                             'name' => 'fulfilment.orders.index'
                         ],
                         'label' => __('orders'),
-                        'icon' => 'fal fa-bars',
+                        'icon'  => 'fal fa-bars',
                     ],
 
                 ]

@@ -27,7 +27,7 @@ return new class () extends Migration {
             $table->softDeletesTz();
             $table->unsignedInteger('source_id')->nullable()->unique();
         });
-        DB::statement('CREATE INDEX ON guests USING gin (remove_accents(contact_name) gin_trgm_ops) ');
+        //DB::statement('CREATE INDEX ON guests USING gin (remove_accents(contact_name) gin_trgm_ops) ');
 
 
     }

@@ -115,6 +115,7 @@ class IndexCustomers extends InertiaAction
                     ->pageName($prefix.'Page');
             }
 
+
             $table
                 ->withModelOperations($modelOperations)
                 ->withGlobalSearch()
@@ -133,7 +134,18 @@ class IndexCustomers extends InertiaAction
                                 'route'   => [
                                     'name' => 'shops.create',
                                 ]
-                            ] : null
+                            ] :
+                                [
+                                    'type'    => 'button',
+                                    'style'   => 'create',
+                                    'tooltip' => __('new customer'),
+                                    'label'   => __('customer'),
+                                    'route'   => [
+                                        'name' => 'shops.create',
+                                    ]
+                                ]
+
+
                         ],
                         'Shop' => [
                             'title'       => __("No customers found"),
@@ -145,7 +157,7 @@ class IndexCustomers extends InertiaAction
                                 'tooltip' => __('new customer'),
                                 'label'   => __('customer'),
                                 'route'   => [
-                                    'name' => 'crm.shops.show.customers.create',
+                                    'name'       => 'crm.shops.show.customers.create',
                                     'parameters' => [$parent->slug]
                                 ]
                             ] : null

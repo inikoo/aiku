@@ -77,7 +77,7 @@ class CreateStock extends InertiaAction
                             ]
                         ]
                     ],
-                    'route' => match ($this->routeName) {
+                    'route' => match ($request->route()->getName()) {
                         'inventory.stock-families.show.stocks.create' => [
                             'name'      => 'models.stock-family.stock.store',
                             'arguments' => [$request->route()->parameters['stockFamily']->slug]

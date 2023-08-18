@@ -37,6 +37,6 @@ class WebpageStats extends Model
 
     public function webpage(): BelongsTo
     {
-        return $this->belongsTo(WebpageVariant::class);
+        return $this->belongsTo(Webpage::class);
     }
 }

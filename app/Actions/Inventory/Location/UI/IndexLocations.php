@@ -46,7 +46,6 @@ class IndexLocations extends InertiaAction
 
     public function inTenant(ActionRequest $request): LengthAwarePaginator
     {
-        $this->routeName = $request->route()->getName();
         $this->initialisation($request);
         $this->parent = app('currentTenant');
         return $this->handle(parent: app('currentTenant'));
@@ -54,7 +53,6 @@ class IndexLocations extends InertiaAction
 
     public function inWarehouse(Warehouse $warehouse, ActionRequest $request): LengthAwarePaginator
     {
-        $this->routeName = $request->route()->getName();
         $this->initialisation($request)->withTab(WarehouseTabsEnum::values());
         $this->parent = $warehouse;
         return $this->handle(parent: $warehouse);
@@ -63,7 +61,6 @@ class IndexLocations extends InertiaAction
 
     public function inWarehouseArea(WarehouseArea $warehouseArea, ActionRequest $request): LengthAwarePaginator
     {
-        $this->routeName = $request->route()->getName();
         $this->initialisation($request)->withTab(WarehouseAreaTabsEnum::values());
         $this->parent = $warehouseArea;
         return $this->handle(parent: $warehouseArea);
@@ -73,7 +70,6 @@ class IndexLocations extends InertiaAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inWarehouseInWarehouseArea(Warehouse $warehouse, WarehouseArea $warehouseArea, ActionRequest $request): LengthAwarePaginator
     {
-        $this->routeName = $request->route()->getName();
         $this->initialisation($request)->withTab(WarehouseAreaTabsEnum::values());
         $this->parent = $warehouseArea;
         return $this->handle(parent: $warehouseArea);

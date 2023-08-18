@@ -43,8 +43,6 @@ class StoreWebsite
             'slug'   => $website->code,
             'domain' => $website->domain
         ]);
-
-        $website->webStats()->create();
         TenantHydrateWeb::dispatch(app('currentTenant'));
         WebsiteHydrateUniversalSearch::dispatch($website);
         return $website;

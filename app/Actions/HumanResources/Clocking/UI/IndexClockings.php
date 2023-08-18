@@ -176,15 +176,15 @@ class IndexClockings extends InertiaAction
                     'actions'=> [
                         $this->canEdit
                         && (
-                            $this->routeName == 'hr.working-places.show.clockings.index' or
-                            $this->routeName == 'hr.working-places.show.clocking-machines.show.clockings.index'
+                            $request->route()->getName() == 'hr.working-places.show.clockings.index' or
+                            $request->route()->getName() == 'hr.working-places.show.clocking-machines.show.clockings.index'
                         )
                             ? [
                             'type'  => 'button',
                             'style' => 'create',
                             'label' => __('clockings'),
                             'route' =>
-                                match ($this->routeName) {
+                                match ($request->route()->getName()) {
                                     'hr.working-places.show.clockings.index' => [
                                         'name'       => 'hr.working-places.show.clockings.create',
                                         'parameters' => $request->route()->originalParameters()

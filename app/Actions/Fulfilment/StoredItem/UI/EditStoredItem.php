@@ -8,7 +8,6 @@
 namespace App\Actions\Fulfilment\StoredItem\UI;
 
 use App\Actions\InertiaAction;
-use App\Actions\Inventory\Location\GetLocationsOptions;
 use App\Actions\UI\Fulfilment\FulfilmentDashboard;
 use App\Enums\Fulfilment\StoredItem\StoredItemTypeEnum;
 use App\Http\Resources\Fulfilment\StoredItemResource;
@@ -44,7 +43,7 @@ class EditStoredItem extends InertiaAction
     }
 
 
-    public function htmlResponse(StoredItem $storedItem): Response
+    public function htmlResponse(StoredItem $storedItem, ActionRequest $request): Response
     {
         return Inertia::render(
             'EditModel',
@@ -52,13 +51,13 @@ class EditStoredItem extends InertiaAction
                 'breadcrumbs' => $this->getBreadcrumbs(),
                 'title'       => __('stored items'),
                 'pageHead'    => [
-                    'title'  => __('stored items'),
+                    'title'     => __('stored items'),
                     'actions'   => [
                         [
                             'type'  => 'button',
                             'style' => 'exitEdit',
                             'route' => [
-                                'name'       => preg_replace('/edit$/', 'show', $this->routeName),
+                                'name'       => preg_replace('/edit$/', 'show', $request->route()->getName()),
                                 'parameters' => array_values($this->originalParameters)
                             ]
                         ]
@@ -88,7 +87,7 @@ class EditStoredItem extends InertiaAction
                                     'label'    => __('location'),
                                     'value'    => '',
                                     'required' => true,
-                                    'apiUrl'  => route('json.locations') . '?filter[slug]=',
+                                    'apiUrl'   => route('json.locations') . '?filter[slug]=',
                                 ]
                             ]
                         ]

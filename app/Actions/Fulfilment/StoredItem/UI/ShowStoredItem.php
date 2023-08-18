@@ -42,7 +42,7 @@ class ShowStoredItem extends InertiaAction
     }
 
 
-    public function htmlResponse(): Response
+    public function htmlResponse(ActionRequest $request): Response
     {
         return Inertia::render(
             'Fulfilment/StoredItem',
@@ -55,15 +55,15 @@ class ShowStoredItem extends InertiaAction
                             'icon'  => ['fa', 'fa-narwhal'],
                             'title' => __('stored item')
                         ],
-                    'title' => $this->storedItem->slug,
+                    'title'  => $this->storedItem->slug,
                     'actions'=> [
                         [
                             'type'    => 'button',
                             'style'   => 'cancel',
                             'tooltip' => __('return to customer'),
                             'label'   => __($this->storedItem->status == StoredItemStatusEnum::RETURNED ? 'returned' : 'return to customer'),
-                            'route' => [
-                                'name' => 'fulfilment.stored-items.setReturn',
+                            'route'   => [
+                                'name'       => 'fulfilment.stored-items.setReturn',
                                 'parameters' => array_values($this->originalParameters)
                             ],
                             'disabled' => $this->storedItem->status == StoredItemStatusEnum::RETURNED
@@ -73,8 +73,8 @@ class ShowStoredItem extends InertiaAction
                             'style'   => 'edit',
                             'tooltip' => __('edit stored items'),
                             'label'   => __('stored items'),
-                            'route' => [
-                                'name'       => preg_replace('/show$/', 'edit', $this->routeName),
+                            'route'   => [
+                                'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
                                 'parameters' => array_values($this->originalParameters)
                             ]
                         ],
@@ -83,7 +83,7 @@ class ShowStoredItem extends InertiaAction
                             'style'   => 'delete',
                             'tooltip' => __('set as damaged'),
                             'label'   => __($this->storedItem->status == StoredItemStatusEnum::DAMAGED ? 'damaged' : 'set as damaged'),
-                            'route' => [
+                            'route'   => [
                                 'name'       => 'fulfilment.stored-items.setDamaged',
                                 'parameters' => array_values($this->originalParameters)
                             ],

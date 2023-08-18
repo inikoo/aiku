@@ -7,7 +7,7 @@
 
 namespace App\Models\Auth;
 
-use App\Actions\Tenancy\Tenant\HydrateTenant;
+use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateGuests;
 use App\Enums\Auth\Guest\GuestTypeEnum;
 use App\Models\Media\GroupMedia;
 use App\Models\Traits\HasHistory;
@@ -101,13 +101,13 @@ class Guest extends Model implements HasMedia, Auditable
     {
         static::deleted(
             function () {
-                HydrateTenant::make()->guestsStats();
+                TenantHydrateGuests::dispatch(app('currentTenant'));
             }
         );
         static::updated(function (Guest $guest) {
             if (!$guest->wasRecentlyCreated) {
                 if ($guest->wasChanged('status')) {
-                    HydrateTenant::make()->guestsStats();
+                    TenantHydrateGuests::dispatch(app('currentTenant'));
                     if (!$guest->status) {
                         $guest->user->update(
                             [

@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Sat, 24 Jun 2023 10:58:06 Malaysia Time, Pantai Lembeng, Bali, Id
+ * Created: Sat, 24 Jun 2023 10:58:06 Malaysia Time, Pantai Lembeng, Bali, Indonesia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
@@ -43,7 +43,6 @@ class RemoveEmployee extends InertiaAction
         ];
     }
 
-    /** @noinspection PhpUnusedParameterInspection */
     public function htmlResponse(Employee $employee, ActionRequest $request): Response
     {
         return Inertia::render(
@@ -65,7 +64,7 @@ class RemoveEmployee extends InertiaAction
                             'type'  => 'button',
                             'style' => 'cancel',
                             'route' => [
-                                'name'       => preg_replace('/remove$/', 'show', $this->routeName),
+                                'name'       => preg_replace('/remove$/', 'show', $request->route()->getName()),
                                 'parameters' => array_values($this->originalParameters)
                             ]
                         ]
