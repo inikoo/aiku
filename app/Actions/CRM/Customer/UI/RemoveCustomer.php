@@ -65,8 +65,8 @@ class RemoveCustomer extends InertiaAction
                             'type'  => 'button',
                             'style' => 'cancel',
                             'route' => [
-                                'name'       => preg_replace('/remove$/', 'show', $this->routeName),
-                                'parameters' => array_values($this->originalParameters)
+                                'name'       => preg_replace('/remove$/', 'show', $request->route()->getName()),
+                                'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ]
                     ]
@@ -74,7 +74,7 @@ class RemoveCustomer extends InertiaAction
                 'data'      => $this->getAction(
                     route:[
                         'name'       => 'models.customer.delete',
-                        'parameters' => array_values($this->originalParameters)
+                        'parameters' => array_values($request->route()->originalParameters())
                     ]
                 )
             ]

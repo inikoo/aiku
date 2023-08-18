@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 20 Jun 2023 20:32:25 Malaysia Time, Pantai Lembeng, Bali, Id
+ * Created: Tue, 20 Jun 2023 20:32:25 Malaysia Time, Pantai Lembeng, Bali, Indonesia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
@@ -54,28 +54,6 @@ class ShowCustomer extends InertiaAction
     }
 
 
-    private function makeRoute(Customer $customer, $suffix = '', $parameters = []): array
-    {
-        $route = $this->routeName;
-        if ($this->routeName == 'shops.show.customers.show') {
-            $routeParameters = [
-                $customer->shop->slug,
-                $customer->slug
-            ];
-        } else {
-            $routeParameters = [
-                $customer->slug
-            ];
-        }
-
-        $route           .= $suffix;
-        $routeParameters = array_merge_recursive($routeParameters, $parameters);
-
-
-        return [$route, $routeParameters];
-    }
-
-
     public function htmlResponse(Customer $customer, ActionRequest $request): Response
     {
         $webUsersMeta = match ($customer->stats->number_web_users) {
@@ -90,7 +68,12 @@ class ShowCustomer extends InertiaAction
                 ]
             ],
             1 => [
-                'href'     => $this->makeRoute($customer, '.web-users.show', [$customer->webUsers->first()->slug]),
+                'href' => [
+                    $request->route()->getName().'.web-users.show',
+                    array_merge_recursive($request->route()->originalParameters(), ['user' => $customer->webUsers->first()])
+
+                ],
+
                 'name'     => $customer->webUsers->first()->slug,
                 'leftIcon' => [
                     'icon'    => 'fal fa-globe',
@@ -109,7 +92,7 @@ class ShowCustomer extends InertiaAction
 
         $shopMeta = [];
 
-        if ($this->routeName == 'customers.show') {
+        if ($request->route()->getName() == 'customers.show') {
             $shopMeta = [
                 'href'     => ['shops.show', $customer->shop->slug],
                 'name'     => $customer->shop->code,
@@ -129,7 +112,7 @@ class ShowCustomer extends InertiaAction
                     $request->route()->getName(),
                     $request->route()->parameters
                 ),
-                'navigation'                            => [
+                'navigation'  => [
                     'previous' => $this->getPrevious($customer, $request),
                     'next'     => $this->getNext($customer, $request),
                 ],
@@ -139,7 +122,7 @@ class ShowCustomer extends InertiaAction
                         'icon'  => ['fal', 'fa-user'],
                         'title' => __('customer')
                     ],
-                    'meta'  => array_filter([
+                    'meta'    => array_filter([
                         $shopMeta,
                         $webUsersMeta
                     ]),
@@ -148,7 +131,7 @@ class ShowCustomer extends InertiaAction
                             'type'  => 'button',
                             'style' => 'edit',
                             'route' => [
-                                'name'       => preg_replace('/show$/', 'edit', $this->routeName),
+                                'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
                                 'parameters' => $request->route()->originalParameters()
                             ]
                         ] : false,
@@ -189,7 +172,7 @@ class ShowCustomer extends InertiaAction
 
             ]
         )->table(IndexOrders::make()->tableStructure($customer))
-        //    ->table(IndexProducts::make()->tableStructure($customer))
+            //    ->table(IndexProducts::make()->tableStructure($customer))
             ->table(IndexDispatchedEmails::make()->tableStructure($customer));
     }
 
@@ -217,7 +200,7 @@ class ShowCustomer extends InertiaAction
                         ],
 
                     ],
-                    'suffix'=> $suffix
+                    'suffix'         => $suffix
 
                 ],
             ];
@@ -274,7 +257,6 @@ class ShowCustomer extends InertiaAction
 
     public function getPrevious(Customer $customer, ActionRequest $request): ?array
     {
-
         $previous = Customer::where('slug', '<', $customer->slug)->when(true, function ($query) use ($customer, $request) {
             if ($request->route()->getName() == 'shops.show.customers.show') {
                 $query->where('customers.shop_id', $customer->shop_id);
@@ -282,7 +264,6 @@ class ShowCustomer extends InertiaAction
         })->orderBy('slug', 'desc')->first();
 
         return $this->getNavigation($previous, $request->route()->getName());
-
     }
 
     public function getNext(Customer $customer, ActionRequest $request): ?array
@@ -298,28 +279,28 @@ class ShowCustomer extends InertiaAction
 
     private function getNavigation(?Customer $customer, string $routeName): ?array
     {
-        if(!$customer) {
+        if (!$customer) {
             return null;
         }
 
         return match ($routeName) {
             'crm.customers.show' => [
-                'label'=> $customer->name,
-                'route'=> [
-                    'name'      => $routeName,
-                    'parameters'=> [
-                        'customer'=> $customer->slug
+                'label' => $customer->name,
+                'route' => [
+                    'name'       => $routeName,
+                    'parameters' => [
+                        'customer' => $customer->slug
                     ]
 
                 ]
             ],
-            'crm.shops.show.customers.show'=> [
-                'label'=> $customer->name,
-                'route'=> [
-                    'name'      => $routeName,
-                    'parameters'=> [
-                        'shop'    => $customer->shop->slug,
-                        'customer'=> $customer->slug
+            'crm.shops.show.customers.show' => [
+                'label' => $customer->name,
+                'route' => [
+                    'name'       => $routeName,
+                    'parameters' => [
+                        'shop'     => $customer->shop->slug,
+                        'customer' => $customer->slug
                     ]
 
                 ]

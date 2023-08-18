@@ -176,7 +176,7 @@ class IndexCustomers extends InertiaAction
                             'label'   => __('customer'),
                             'route'   => [
                                 'name'       => 'crm.customers.create',
-                                'parameters' => array_values($this->originalParameters)
+                                'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ] : null
                     ]

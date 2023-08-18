@@ -40,11 +40,11 @@ class CreateCustomer extends InertiaAction
                             'style' => 'cancel',
                             'label' => __('cancel'),
                             'route' => [
-                                'name'       => match ($this->routeName) {
+                                'name'       => match ($request->route()->getName()) {
                                     'shops.show.customers.create' => 'shops.show.customers.index',
-                                    default                       => preg_replace('/create$/', 'index', $this->routeName)
+                                    default                       => preg_replace('/create$/', 'index', $request->route()->getName())
                                 },
-                                'parameters' => array_values($this->originalParameters)
+                                'parameters' => array_values($request->route()->originalParameters())
                             ],
                         ]
                     ]
