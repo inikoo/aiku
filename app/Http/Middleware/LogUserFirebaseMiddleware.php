@@ -11,28 +11,30 @@ use App\Actions\Firebase\DeleteUserLogFirebase;
 use App\Actions\Firebase\StoreUserLogFirebase;
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 
 class LogUserFirebaseMiddleware
 {
     public function handle(Request $request, Closure $next)
     {
-        $user   = $request->user();
+        $user = $request->user();
 
-        if($user && env('LIVE_USERS_LIST')) {
+        if ($user && env('LIVE_USERS_LIST')) {
             $tenant = app('currentTenant');
 
             $route = [
-                'module'    => explode('.', request()->route()->getName())[0],
+                'icon'      => Arr::get($request->route()->action, 'icon'),
+                'label'     => Arr::get($request->route()->action, 'label'),
                 'name'      => request()->route()->getName(),
                 'arguments' => request()->route()->originalParameters()
             ];
+            //  dd($route);
 
-            StoreUserLogFirebase::dispatch($user, $tenant, $route);
+            StoreUserLogFirebase::dispatch($user->username, $tenant->slug, $route);
 
             if ($request->route()->getName() == 'logout') {
                 DeleteUserLogFirebase::dispatch($user, $tenant);
             }
-
         }
 
         return $next($request);

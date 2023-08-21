@@ -41,7 +41,12 @@ use App\Actions\HumanResources\WorkingPlace\UI\ShowWorkingPlace;
 use App\Actions\UI\HumanResources\HumanResourcesDashboard;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', HumanResourcesDashboard::class)->name('dashboard');
+Route::get('/', [
+    'uses'  => HumanResourcesDashboard::class,
+    'icon'  => 'user-hard-hat',
+    'label' => 'human resources'
+
+])->name('dashboard');
 Route::get('/employees', IndexEmployees::class)->name('employees.index');
 Route::get('/employees/create', CreateEmployee::class)->name('employees.create');
 
@@ -75,7 +80,6 @@ Route::get('/working-places/{workplace}/edit', EditWorkingPlace::class)->name('w
 Route::get('/working-places/{workplace}/delete', RemoveWorkingPlace::class)->name('working-places.remove');
 
 Route::scopeBindings()->group(function () {
-
     Route::get('/clocking-machines/{clockingMachine}/clockings', [IndexClockings::class, 'inClockingMachine'])->name('clocking-machines.clockings.index');
     Route::get('/clocking-machines/{clockingMachine}/clockings/create', [CreateClocking::class, 'inClockingMachine'])->name('clocking-machines.show.clockings.create');
     Route::get('/clocking-machines/{clockingMachine}/clockings/{clocking}', [ShowClocking::class, 'inClockingMachine'])->name('clocking-machines.show.clockings.show');
@@ -99,7 +103,6 @@ Route::scopeBindings()->group(function () {
     Route::get('/working-places/{workplace}/clockings/{clocking}', [ShowClocking::class, 'inWorkplace'])->name('working-places.show.clockings.show');
     Route::get('/working-places/{workplace}/clockings/{clocking}/edit', [EditClocking::class, 'inWorkplace'])->name('working-places.show.clockings.edit');
     Route::get('/working-places/{workplace}/clockings/{clocking}/delete', [RemoveClocking::class, 'inWorkplace'])->name('working-places.show.clockings.remove');
-
 });
 
 Route::get('/clocking-machines', [IndexClockingMachines::class, 'inTenant'])->name('clocking-machines.index');

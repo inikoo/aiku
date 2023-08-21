@@ -3,7 +3,7 @@ import { ref, Ref } from 'vue'
 import FooterTabActiveUsers from '@/Layouts/Footer/FooterTabActiveUsers.vue'
 import FooterTabLanguage from '@/Layouts/Footer/FooterTabLanguage.vue'
 
-const props = defineProps<{
+defineProps<{
   appScope: string
 }>()
 

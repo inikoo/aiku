@@ -22,7 +22,11 @@ use App\Actions\UI\SysAdmin\SysAdminDashboard;
 use App\Actions\UI\SysAdmin\EditSystemSettings;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', SysAdminDashboard::class)->name('dashboard');
+Route::get('/', [
+    'uses'   => SysAdminDashboard::class,
+     'icon'  => 'users-cog',
+    'label'  => 'sysadmin'
+])->name('dashboard');
 Route::get('/settings', EditSystemSettings::class)->name('settings.edit');
 
 Route::get('/users', IndexUsers::class)->name('users.index');

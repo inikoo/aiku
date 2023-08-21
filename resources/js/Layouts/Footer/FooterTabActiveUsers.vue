@@ -6,6 +6,7 @@ import FooterTab from '@/Components/Footer/FooterTab.vue'
 
 import { getDataFirebase } from '@/Composables/firebase'
 import { watchEffect } from 'vue'
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 
 const props = defineProps<{
     isTabActive: string | boolean
@@ -23,7 +24,6 @@ const layout = useLayoutStore()
 
 const getDataTenants = ref(getDataFirebase(props.appScope))
 
-console.log(getDataTenants)
 
 const dataTenants = ref()
 const dataTenant = ref()
@@ -54,7 +54,12 @@ watchEffect(() => {
                     <!-- <img :src="`/media/${user.user.avatar_thumbnail}`" :alt="user.user.contact_name" srcset="" class="h-4 rounded-full shadow"> -->
                     <p class="text-left text-gray-100">
                         <span class="font-semibold text-gray-100">{{ userName }}</span> -
-                        <span class="capitalize text-gray-300">{{ dataUser.route.module }}</span>
+                      <FontAwesomeIcon
+                        v-if="dataUser.route.icon"
+                        class="flex-shrink-0 h-3 w-3 mr-1 opacity-80"
+                        :icon="'fal fa-'+dataUser.route.icon"
+                        aria-hidden="true" />
+                       <span class="capitalize text-gray-300">{{ dataUser.route.label }}</span>
                     </p>
                 </div>
             </template>

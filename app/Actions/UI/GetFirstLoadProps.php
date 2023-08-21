@@ -39,7 +39,6 @@ class GetFirstLoadProps
             if(blank($cache)) {
                 $customToken = $auth->createCustomToken($customTokenFirebasePrefix);
                 $auth->signInWithCustomToken($customToken);
-
                 Cache::put($customTokenFirebasePrefix, $customToken->toString(), 3600);
             }
         }
