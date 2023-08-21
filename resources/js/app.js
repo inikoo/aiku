@@ -17,10 +17,13 @@ import { createPinia } from "pinia"
 
 const appName = window.document.getElementsByTagName("title")[0]?.innerText || "aiku"
 
+/*
 import { initializeApp } from "firebase/app"
 import { getMessaging, getToken, onMessage } from "firebase/messaging"
 import firebaseConfig from "../private/firebase/aiku-firebase.json"
 import firebaseCredential from "../private/firebase/aiku-firebase.json"
+*/
+
 
 import { fab } from "@fortawesome/free-brands-svg-icons"
 import { fas } from '@/../private/pro-solid-svg-icons'
@@ -31,13 +34,13 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 library.add(fas, fab, far, fal)
 
 
-if ("serviceWorker" in navigator) {
+/*if ("serviceWorker" in navigator) {
 	window.addEventListener("load", function () {
 		navigator.serviceWorker.register("/firebase-messaging-sw.js")
 	})
 }
 
-if (process.env.NODE_ENV !== "development") {
+if (process.env.NODE_ENV !== "development" ) {
 	const app = initializeApp(firebaseConfig)
 	const messaging = getMessaging()
 
@@ -63,7 +66,7 @@ if (process.env.NODE_ENV !== "development") {
 			console.log("An error occurred while retrieving token. ", err)
 			// ...
 		})
-}
+}*/
 
 createInertiaApp({
 	title: (title) => `${title} - ${appName}`,

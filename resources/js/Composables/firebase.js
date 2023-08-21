@@ -19,14 +19,13 @@ const firebaseConfig = {
 };
 
 const firebaseApp = initializeApp(firebaseConfig);
-
   initializeAppCheck(firebaseApp, {
      provider: new ReCaptchaEnterpriseProvider(import.meta.env.VITE_RECAPTCHA_APP_KEY),
  });
 
 let getDb = getDatabase(firebaseApp);
 
-export const getDbReff = (tenant) => {
+export const getDbRef = (tenant) => {
     return dbRef(getDb, tenant);
 };
 
@@ -34,7 +33,7 @@ export const getDataFirebase = (column) => {
     let getData = null;
 
     try {
-        getData = useDatabaseList(getDbReff(column));
+        getData = useDatabaseList(getDbRef(column));
     } catch (error) {
         console.error('An error occurred while fetching data from Firebase:',
                       error);

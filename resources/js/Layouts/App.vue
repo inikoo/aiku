@@ -19,7 +19,7 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { Disclosure, DisclosureButton, DisclosurePanel } from "@headlessui/vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import SearchBar from "@/Components/SearchBar.vue"
-import AppFooter from "@/Layouts/AppFooter.vue"
+import AppFooter from "@/Layouts/Footer/AppFooter.vue"
 import { usePage, router } from "@inertiajs/vue3"
 
 import { useLayoutStore } from "@/Stores/layout"
@@ -348,7 +348,7 @@ const user = ref(usePage().props.auth.user);
     </div>
 
     <!-- Footer -->
-    <AppFooter />
+    <AppFooter appScope="tenants" />
 
 </template>
 

@@ -2,13 +2,13 @@
 import { useLocaleStore } from "@/Stores/locale"
 import { useLayoutStore } from "@/Stores/layout"
 
-import { useDatabaseList } from "vuefire"
-import { getDatabase, ref as dbRef } from "firebase/database"
-import { initializeApp } from "firebase/app"
-import serviceAccount from "@/../private/firebase/aiku-firebase.json"
-const firebaseApp = initializeApp(serviceAccount);
-const db = getDatabase(firebaseApp)
-const activities = useDatabaseList(dbRef(db, 'aw'))
+
+import { getDataFirebase } from '@/Composables/firebase'
+
+// todo change this for the proper database path
+const activities = getDataFirebase('aw');
+
+
 
 type UserOnline = {
     id: string
