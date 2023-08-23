@@ -1,10 +1,10 @@
 <script setup>
 import { ref, computed } from 'vue'
 import fontLibrary from './IconPicker/Components/fonts.js'
-import { fab } from "@fortawesome/free-brands-svg-icons"
+// import { fab } from "@fortawesome/free-brands-svg-icons"
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-library.add(fab)
+// library.add(fab)
 const props = defineProps({
   label: {
     type: String,
@@ -78,7 +78,8 @@ const tabs = [
 
 
 <template>
-    <div @click="togglePicker"><FontAwesomeIcon :icon="props.modelValue" :class="cssClass" aria-hidden="true" /></div>
+  test
+    <!-- <div @click="togglePicker"><FontAwesomeIcon :icon="props.modelValue" :class="cssClass" aria-hidden="true" /></div>
     <div class="aim-modal aim-open" v-if="isVisible">
       <div class="aim-modal--content">
         <div class="aim-modal--header">
@@ -131,7 +132,7 @@ const tabs = [
           <button class="aim-insert-icon-button" @click="insert('save')">Insert</button>
         </div>
       </div>
-    </div>
+    </div> -->
   </template>
 
 

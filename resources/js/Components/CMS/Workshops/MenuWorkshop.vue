@@ -10,7 +10,7 @@ import { library } from '@fortawesome/fontawesome-svg-core';
 import { RadioGroup, RadioGroupLabel, RadioGroupOption } from '@headlessui/vue'
 import Menu from '@/Components/CMS/Menu/index.vue'
 import { faHandPointer, faHandRock, faPlus } from '../../../../private/pro-solid-svg-icons';
-import { fab } from "@fortawesome/free-brands-svg-icons"
+// import { fab } from "@fortawesome/free-brands-svg-icons"
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { v4 as uuidv4 } from 'uuid';
 import HyperlinkTools from '@/Components/CMS/Fields/Hyperlinktools.vue'
@@ -18,7 +18,7 @@ import { get } from 'lodash'
 import HyperInfoTools from '@/Components/CMS/Fields/InfoFieldTools.vue'
 import VueResizable from 'vue-resizable'
 import SocialMediaPicker from "@/Components/CMS/Fields/SocialMediaTools.vue"
-library.add(faHandPointer, faHandRock, fab, faPlus)
+library.add(faHandPointer, faHandRock, faPlus)
 
 const Dummy = {
     tools: [
