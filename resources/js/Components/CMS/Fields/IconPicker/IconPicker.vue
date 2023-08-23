@@ -1,14 +1,14 @@
 <script setup>
 import { ref, computed } from 'vue'
 import fontLibrary from './Components/fonts.js'
-import { fas } from '../../../../../private/pro-solid-svg-icons';
-import { fal } from '../../../../../private/pro-light-svg-icons';
-import { far } from '../../../../../private/pro-regular-svg-icons';
-import { fad } from '../../../../../private/pro-duotone-svg-icons';
+// import { fas } from '../../../../../private/pro-solid-svg-icons';
+// import { fal } from '../../../../../private/pro-light-svg-icons';
+// import { far } from '../../../../../private/pro-regular-svg-icons';
+// import { fad } from '../../../../../private/pro-duotone-svg-icons';
 import { fab } from "@fortawesome/free-brands-svg-icons"
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-library.add(fas, fal, far, fad, fab)
+// library.add(fas, fal, far, fad, fab)
 const props = defineProps({
   label: {
     type: String,
@@ -82,7 +82,8 @@ const tabs = [
 
 
 <template>
-    <div @click="togglePicker"><FontAwesomeIcon :icon="props.modelValue" :class="cssClass" aria-hidden="true" /></div>
+  test
+    <!-- <div @click="togglePicker"><FontAwesomeIcon :icon="props.modelValue" :class="cssClass" aria-hidden="true" /></div>
     <div class="aim-modal aim-open" v-if="isVisible">
       <div class="aim-modal--content">
         <div class="aim-modal--header">
@@ -121,7 +122,7 @@ const tabs = [
           <button class="aim-insert-icon-button" @click="insert">Insert</button>
         </div>
       </div>
-    </div>
+    </div> -->
   </template>
 
 
