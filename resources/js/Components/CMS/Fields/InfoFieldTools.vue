@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue"
 import { library } from '@fortawesome/fontawesome-svg-core';
-import { fas } from '@/../private/pro-solid-svg-icons';
-import { fal } from '@/../private/pro-light-svg-icons';
-import { far } from '@/../private/pro-regular-svg-icons';
-import { fad } from '@/../private/pro-duotone-svg-icons';
+import { fas } from '../../../../private/pro-solid-svg-icons';
+import { fal } from '../../../../private/pro-light-svg-icons';
+import { far } from '../../../../private/pro-regular-svg-icons';
+import { fad } from '../../../../private/pro-duotone-svg-icons';
 import { fab } from "@fortawesome/free-brands-svg-icons"
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-import IconPicker from "../Fields/IconPicker/IconPicker.vue"
+import IconPicker from "./IconPicker/IconPicker.vue"
 library.add(fab, fas, fal, far, fad)
 const props = defineProps<{
     data: Object

@@ -19,10 +19,10 @@ import draggable from "vuedraggable"
 import Hyperlink from "../../Fields/Hyperlink.vue"
 import SubMenu from "./Submenu.vue"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import { fas } from '@/../private/pro-solid-svg-icons';
-import { fal } from '@/../private/pro-light-svg-icons';
-import { far } from '@/../private/pro-regular-svg-icons';
-import { fad } from '@/../private/pro-duotone-svg-icons';
+import { fas } from '../../../../../private/pro-solid-svg-icons';
+import { fal } from '../../../../../private/pro-light-svg-icons';
+import { far } from '../../../../../private/pro-regular-svg-icons';
+import { fad } from '../../../../../private/pro-duotone-svg-icons';
 import { fab } from "@fortawesome/free-brands-svg-icons"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { trans } from "laravel-vue-i18n"
@@ -148,7 +148,7 @@ const mobileMenuOpen = ref(false)
   												<span class="sr-only">Account</span>
                           <font-awesome-icon :icon="['fasr', 'fa-arrow-alt-circle-right']" rotation=180 />
   											</a>
-                       
+
               </div>
 
             <div class="w-1/3 ">
@@ -201,7 +201,7 @@ const mobileMenuOpen = ref(false)
                         <template v-slot:item="{ element: category, index }">
                           <div :class="[get(selectedNav,'id') == category.id ? 'border' : '', tool.name !== 'grab' ? 'cursor-pointer' : 'cursor-grab']">
                             <div v-if="category.type == 'group'" :key="category.id" class=" flex">
-                            
+
                                 <div @click="() => { openNav = category.id, changeNavActive(category) }"
                                   class="py-5 px-2.5 relative z-10 items-center justify-center text-sm font-medium text-white transition-colors duration-200 ease-out">
                                   <Hyperlink :data="category" valueKeyLabel="name" valueKeyLink="link"
@@ -217,7 +217,7 @@ const mobileMenuOpen = ref(false)
                                     :closePopover="() => { changeNavActive(null), openNav = null }"
                                     :tool="tool" />
                                 </div>
-                            
+
                             </div>
                             <div v-if="category.type == 'link'" class="py-5 px-2.5 leading-4"  @click="(e)=> {changeNavActive(category), openNav=null}">
 

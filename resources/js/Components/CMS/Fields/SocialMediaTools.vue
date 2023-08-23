@@ -38,7 +38,7 @@ const tabs = [
 
     const glyphs = computed(() => {
       let _glyphs = allGlyphs
-      
+
 
       if (filterText.value != '') {
         const _filterText = filterText.value.toLowerCase()
@@ -63,7 +63,7 @@ const tabs = [
     const insert = (type) => {
       props.save({column : {...props.data}, value : {label :labelText.value, icon : activeGlyph.value, href:linkText.value }, type : type})
       isVisible.value = false
-   
+
     }
 
     const togglePicker = () => {
@@ -73,7 +73,7 @@ const tabs = [
     const closePicker = () => {
       isVisible.value = false
     }
-  
+
 </script>
 
 
@@ -133,9 +133,5 @@ const tabs = [
       </div>
     </div>
   </template>
-  
 
-  
-  <style scoped>
-  @import './IconPicker/Components/Css/styles.css'
-  </style>
+

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue"
 import { Popover, PopoverButton, PopoverPanel } from "@headlessui/vue"
-import { faLink, faEdit, faTrash } from "@/../private/pro-solid-svg-icons"
+import { faLink, faEdit, faTrash } from "../../../../private/pro-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
 library.add(faLink, faEdit, faTrash)
@@ -104,7 +104,7 @@ onMounted(() => {
 										class="flex-shrink-0 h-10 w-10 sm:h-12 sm:w-12 bg-gray-200 border border-gray-300 rounded-md flex items-center justify-center" >
 										<FontAwesomeIcon icon="fa-link" />
 									</div>
-									<div 
+									<div
 										@click=" (e)=> {e.stopImmediatePropagation() ,changeEditMode('name')}"
 										class="flex-shrink-0 h-10 w-10 sm:h-12 sm:w-12 bg-gray-200 border border-gray-300 rounded-md flex items-center justify-center" style="color: black;">
 										<FontAwesomeIcon :icon="['fas', 'edit']" />

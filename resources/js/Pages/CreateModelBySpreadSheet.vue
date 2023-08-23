@@ -9,7 +9,7 @@ import { Head } from "@inertiajs/vue3";
 import PageHeading from "@/Components/Headings/PageHeading.vue";
 import { capitalize } from "@/Composables/capitalize";
 import SpreadSheet from "@/Components/SpreadSheets/SpreadSheet.vue";
-import CustomTable from "@/Components/SpreadSheets/customTable.vue";
+import CustomTable from "@/Components/SpreadSheets/CustomTable.vue";
 
 const props = defineProps<{
     pageHead: object
@@ -39,7 +39,7 @@ const props = defineProps<{
         :actionRoute="saveRoute"
         :documentName="documentName"
     ></SpreadSheet> -->
-    <CustomTable    
+    <CustomTable
     :data="{ columns: props.sheetData.columns, value: [] }"
     :actionRoute="saveRoute"
     :documentName="documentName"

@@ -1,10 +1,10 @@
 <script setup>
 import { ref, computed } from 'vue'
 import fontLibrary from './Components/fonts.js'
-import { fas } from '@/../private/pro-solid-svg-icons';
-import { fal } from '@/../private/pro-light-svg-icons';
-import { far } from '@/../private/pro-regular-svg-icons';
-import { fad } from '@/../private/pro-duotone-svg-icons';
+import { fas } from '../../../../../private/pro-solid-svg-icons';
+import { fal } from '../../../../../private/pro-light-svg-icons';
+import { far } from '../../../../../private/pro-regular-svg-icons';
+import { fad } from '../../../../../private/pro-duotone-svg-icons';
 import { fab } from "@fortawesome/free-brands-svg-icons"
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
@@ -43,7 +43,7 @@ const tabs = [
 
     const glyphs = computed(() => {
       let _glyphs = allGlyphs
-      
+
 
       if (filterText.value != '') {
         const _filterText = filterText.value.toLowerCase()
@@ -77,7 +77,7 @@ const tabs = [
     const closePicker = () => {
       isVisible.value = false
     }
-  
+
 </script>
 
 
@@ -123,9 +123,5 @@ const tabs = [
       </div>
     </div>
   </template>
-  
 
-  
-  <style scoped>
-  @import './Components/Css/styles.css';
-  </style>
+

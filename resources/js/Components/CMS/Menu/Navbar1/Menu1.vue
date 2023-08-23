@@ -6,10 +6,10 @@ import draggable from "vuedraggable"
 import Hyperlink from '../../Fields/Hyperlink.vue'
 import SubMenu from "./SubMenu.vue"
 import { get } from 'lodash'
-import { fas } from '@/../private/pro-solid-svg-icons';
-import { fal } from '@/../private/pro-light-svg-icons';
-import { far } from '@/../private/pro-regular-svg-icons';
-import { fad } from '@/../private/pro-duotone-svg-icons';
+import { fas } from '../../../../../private/pro-solid-svg-icons';
+import { fal } from '../../../../../private/pro-light-svg-icons';
+import { far } from '../../../../../private/pro-regular-svg-icons';
+import { fad } from '../../../../../private/pro-duotone-svg-icons';
 import { fab } from "@fortawesome/free-brands-svg-icons"
 import {
 	Dialog,
@@ -230,7 +230,7 @@ const mobileMenuOpen = ref(false)
 											<template v-slot:item="{ element, index }">
 												<div :class="[get(selectedNav,'id') == element.id ? 'border' : '']" >
 													<div
-															v-if="element.type === 'group'" 
+															v-if="element.type === 'group'"
 															class="p-2.5" >
 															<div :key="element.name" class="flex"  >
 																<div class="relative flex p-2.5" @click="() => { openNav = element.id, changeNavActive(element) }">
@@ -248,7 +248,7 @@ const mobileMenuOpen = ref(false)
 																<div v-if="openNav == element.id">
 																	<SubMenu :data="element" :saveSubMenu="saveSubMenu" :closePopover="() => { changeNavActive(null), openNav = null }" :tool="tool"/>
 																</div>
-															
+
 															</div>
 														</div>
 													<div

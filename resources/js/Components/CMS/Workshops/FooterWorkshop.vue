@@ -1,18 +1,24 @@
 
+<!--
+  - Author: Raul Perusquia <raul@inikoo.com>
+  - Created: Tue, 22 Aug 2023 19:44:06 Malaysia Time, Kuala Lumpur, Malaysia
+  - Copyright (c) 2023, Raul A Perusquia Flores
+  -->
+
 <script setup>
 import { ref, watch } from 'vue'
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { RadioGroup, RadioGroupLabel, RadioGroupOption } from '@headlessui/vue'
-import Footer from './Components/Footer/index.vue'
-import { faHandPointer, faHandRock, faPlus } from '@/../private/pro-solid-svg-icons';
+import Footer from '@/Components/CMS/Footer/index.vue'
+import { faHandPointer, faHandRock, faPlus } from '../../../../private/pro-solid-svg-icons';
 import { fab } from "@fortawesome/free-brands-svg-icons"
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { v4 as uuidv4 } from 'uuid';
-import HyperlinkTools from './Components/Fields/Hyperlinktools.vue'
+import HyperlinkTools from '@/Components/CMS/Fields/Hyperlinktools.vue'
 import {get} from 'lodash'
-import HyperInfoTools from './Components/Fields/InfoFieldTools.vue'
+import HyperInfoTools from '@/Components/CMS/Fields/InfoFieldTools.vue'
 import VueResizable from 'vue-resizable'
-import SocialMediaPicker from "./Components/Fields//SocialMediaTools.vue"
+import SocialMediaPicker from "@/Components/CMS/Fields/SocialMediaTools.vue"
 library.add(faHandPointer, faHandRock, fab, faPlus)
 
 const Dummy = {
@@ -256,7 +262,7 @@ const saveLink = (value) => {
         selectedColums(data)
     } else if (value.type == 'delete') {
         navigations.value[indexNavigation].data.splice(indexChildData, 1)
-    } 
+    }
 }
 
 const saveInfo = (value) => {
@@ -281,7 +287,7 @@ const columItemLinkChange = (value) => {
             id: uuidv4(),
         })
     }
-    navigations.value = data  
+    navigations.value = data
 }
 
 const copyRightSave = (value) => {
@@ -314,11 +320,11 @@ const addSocial = () => {
 const EditItemLinkInTools = (value, type) => {
   const data = navigations.value;
   const index = data.findIndex((item) => item.id === columSelected.value.id);
-  
+
   // Check if the item was found in the navigations array
   if (index !== -1) {
     const indexData = data[index].data.findIndex((item) => item.id === value.id);
-    
+
     // Check if the item was found in the data array of the selected navigation item
     if (indexData !== -1) {
       if (type === 'edit') {

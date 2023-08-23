@@ -20,10 +20,11 @@ const isTabActive: Ref<boolean | string> = ref(false)
 
     <div class="flex justify-between">
       <!-- Left: Logo Section -->
+      <!--
       <div class="pl-4 flex items-center gap-x-1.5 py-1">
         <img src="@/../art/logo/png/2.png" alt="Wowsbar" class="h-4 select-none">
       </div>
-
+      -->
       <!-- Right: Tab Section -->
       <div class="flex items-end flex-row-reverse text-sm">
         <FooterTabActiveUsers :isTabActive="isTabActive" @isTabActive="(value: any) => isTabActive = value" :appScope="appScope"/>

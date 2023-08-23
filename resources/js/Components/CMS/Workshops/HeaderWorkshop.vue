@@ -1,21 +1,21 @@
+<!--
+  - Author: Raul Perusquia <raul@inikoo.com>
+  - Created: Tue, 22 Aug 2023 19:44:06 Malaysia Time, Kuala Lumpur, Malaysia
+  - Copyright (c) 2023, Raul A Perusquia Flores
+  -->
+
 <script setup>
 import { ref, watch, watchEffect } from 'vue'
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { RadioGroup, RadioGroupLabel, RadioGroupOption } from '@headlessui/vue'
-import Menu from './Components/Menu/index.vue'
-import { faHandPointer, faHandRock, faPlus } from '@/../private/pro-solid-svg-icons';
+import { faHandPointer, faHandRock, faPlus } from '../../../../private/pro-solid-svg-icons';
 import { fab } from "@fortawesome/free-brands-svg-icons"
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { v4 as uuidv4 } from 'uuid';
-import HyperlinkTools from './Components/Fields/Hyperlinktools.vue'
 import { get } from 'lodash'
-import HyperInfoTools from './Components/Fields/InfoFieldTools.vue'
-import VueResizable from 'vue-resizable'
-import SocialMediaPicker from "./Components/Fields//SocialMediaTools.vue"
-import ColorPicker from './Components/Fields/ColorPicker.vue'
-import Layout from "./Components/Header/Layout.vue"
-import FontSize from './Components/Fields/Fontsize.vue'
-import FontDecorator from './Components/Fields/FontDecorator.vue'
+import ColorPicker from '@/Components/CMS/Fields/ColorPicker.vue'
+import FontSize from '@/Components/CMS/Fields/Fontsize.vue'
+import FontDecorator from '@/Components/CMS/Fields/FontDecorator.vue'
 library.add(faHandPointer, faHandRock, fab, faPlus)
 
 const Dummy = {
