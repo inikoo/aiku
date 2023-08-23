@@ -50,7 +50,7 @@ class CreateClocking extends InertiaAction
                                 'generator_id' => [
                                     'type'        => 'select',
                                     'label'       => __('employee'),
-                                    'placeholder' => 'Select A Employee',
+                                    'placeholder' => __('Select a employee'),
                                     'options'     => Options::forModels(Employee::class, 'contact_name', 'id'),
                                     'required'    => true,
                                     'searchable'  => true

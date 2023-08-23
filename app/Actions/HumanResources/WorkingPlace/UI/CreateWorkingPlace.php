@@ -59,7 +59,7 @@ class CreateWorkingPlace extends InertiaAction
                                     'type'        => 'select',
                                     'label'       => __('type'),
                                     'options'     => Options::forEnum(WorkplaceTypeEnum::class),
-                                    'placeholder' => 'Select a type',
+                                    'placeholder' => __('Select a type'),
                                     'mode'        => 'single',
                                     'required'    => true,
                                     'searchable'  => true,

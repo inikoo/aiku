@@ -67,7 +67,7 @@ class CreateOrder extends InertiaAction
                                     'customer_id' => [
                                         'type'        => 'select',
                                         'label'       => 'name',
-                                        'placeholder' => 'Select A Customer',
+                                        'placeholder' => __('Select a customer'),
                                         'options'     => Options::forModels(Customer::query()->where('shop_id', $shop->id)),
 
                                     ],

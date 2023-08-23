@@ -237,7 +237,7 @@ class EditMarketplaceSupplier extends InertiaAction
                                 'currency_id' => [
                                     'type'        => 'select',
                                     'label'       => __('currency'),
-                                    'placeholder' => __('Select a Currency'),
+                                    'placeholder' => __('Select a currency'),
                                     'options'     => GetCurrenciesOptions::run(),
                                     'value'       => $supplier->currency_id,
                                     'searchable'  => true,
@@ -248,7 +248,7 @@ class EditMarketplaceSupplier extends InertiaAction
                                 'default_product_country_origin' => [
                                     'type'        => 'select',
                                     'label'       => __("Product's country of origin"),
-                                    'placeholder' => __('Select a Country'),
+                                    'placeholder' => __('Select a country'),
                                     'value'       => $supplier->code,
                                     'options'     => GetCountriesOptions::run(),
                                     'mode'        => 'single'

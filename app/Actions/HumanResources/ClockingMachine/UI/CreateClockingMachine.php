@@ -43,7 +43,6 @@ class CreateClockingMachine extends InertiaAction
                                 'code' => [
                                     'type'        => 'input',
                                     'label'       => __('code'),
-                                    'placeholder' => ''
                                 ],
                             ]
                         ],

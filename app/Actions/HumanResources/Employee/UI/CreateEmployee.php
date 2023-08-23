@@ -61,7 +61,7 @@ class CreateEmployee extends InertiaAction
                                     'type'        => 'select',
                                     'label'       => __('position'),
                                     'options'     => Options::forModels(JobPosition::class, label: 'name', value: 'name'),
-                                    'placeholder' => 'Select a Position',
+                                    'placeholder' => __('Select a job position'),
                                     'mode'        => 'single',
                                     'searchable'  => true
                                 ],
@@ -69,7 +69,7 @@ class CreateEmployee extends InertiaAction
                                     'type'        => 'select',
                                     'label'       => __('state'),
                                     'options'     => Options::forEnum(EmployeeStateEnum::class),
-                                    'placeholder' => 'Select a State',
+                                    'placeholder' => __('Select a state'),
                                     'mode'        => 'single',
                                     'searchable'  => true
                                 ]
