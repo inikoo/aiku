@@ -5,7 +5,7 @@ import fontLibrary from './Components/fonts.js'
 // import { fal } from '../../../../../private/pro-light-svg-icons';
 // import { far } from '../../../../../private/pro-regular-svg-icons';
 // import { fad } from '../../../../../private/pro-duotone-svg-icons';
-import { fab } from "@fortawesome/free-brands-svg-icons"
+// import { fab } from "@fortawesome/free-brands-svg-icons"
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 // library.add(fas, fal, far, fad, fab)

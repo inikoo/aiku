@@ -25,13 +25,13 @@ import firebaseCredential from "../private/firebase/aiku-firebase.json"
 */
 
 
-import { fab } from "@fortawesome/free-brands-svg-icons"
-import { fas } from '@/../private/pro-solid-svg-icons'
-import { far } from '@/../private/pro-regular-svg-icons'
-import { fal } from '@/../private/pro-light-svg-icons'
-import { library } from '@fortawesome/fontawesome-svg-core'
+// import { fab } from "@fortawesome/free-brands-svg-icons"
+// import { fas } from '@/../private/pro-solid-svg-icons'
+// import { far } from '@/../private/pro-regular-svg-icons'
+// import { fal } from '@/../private/pro-light-svg-icons'
+// import { library } from '@fortawesome/fontawesome-svg-core'
 
-library.add(fas, fab, far, fal)
+// library.add(fas, fab, far, fal)
 
 
 /*if ("serviceWorker" in navigator) {
