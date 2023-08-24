@@ -81,7 +81,7 @@ class EditJobPosition extends InertiaAction
                                     'type'        => 'select',
                                     'label'       => __('department'),
                                     'options'     => Options::forModels(ProductCategory::class, label: 'name', value: 'name'),
-                                    'placeholder' => 'Select a Department',
+                                    'placeholder' => __('Select a department'),
                                     'mode'        => 'single',
                                     'value'       => $jobPosition->department
                                 ]

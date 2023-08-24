@@ -69,20 +69,20 @@ class EditEmployee extends InertiaAction
                                 'contact_name' => [
                                     'type'        => 'input',
                                     'label'       => __('name'),
-                                    'placeholder' => 'Name',
+                                    'placeholder' => __('Name'),
                                     'value'       => $employee->contact_name
                                 ],
                                 'date_of_birth' => [
                                     'type'        => 'date',
                                     'label'       => __('date of birth'),
-                                    'placeholder' => 'Date Of Birth',
+                                    'placeholder' => __('Date of birth'),
                                     'value'       => $employee->date_of_birth
                                 ],
                                 'job_title' => [
                                     'type'        => 'select',
                                     'label'       => __('position'),
                                     'options'     => Options::forModels(JobPosition::class, label: 'name', value: 'name'),
-                                    'placeholder' => 'Select a Position',
+                                    'placeholder' => __('Select a job position'),
                                     'mode'        => 'single',
                                     'value'       => $employee->job_title,
                                     'searchable'  => true
@@ -91,7 +91,7 @@ class EditEmployee extends InertiaAction
                                     'type'        => 'select',
                                     'label'       => __('state'),
                                     'options'     => Options::forEnum(EmployeeStateEnum::class),
-                                    'placeholder' => 'Select a State',
+                                    'placeholder' => __('Select a state'),
                                     'mode'        => 'single',
                                     'value'       => $employee->state,
                                     'searchable'  => true

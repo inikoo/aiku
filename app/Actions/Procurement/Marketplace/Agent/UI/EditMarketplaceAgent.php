@@ -109,7 +109,7 @@ class EditMarketplaceAgent extends InertiaAction
                                 'currency_id' => [
                                     'type'        => 'select',
                                     'label'       => __('currency'),
-                                    'placeholder' => 'Select a Currency',
+                                    'placeholder' => __('Select a currency'),
                                     'options'     => GetCurrenciesOptions::run(),
                                     'required'    => true,
                                     'mode'        => 'single'
@@ -118,7 +118,7 @@ class EditMarketplaceAgent extends InertiaAction
                                 'default_product_country_origin' => [
                                     'type'        => 'select',
                                     'label'       => __("Product's country of origin"),
-                                    'placeholder' => 'Select a Country',
+                                    'placeholder' => __('Select a country'),
                                     'options'     => GetCountriesOptions::run(),
                                     'mode'        => 'single'
                                 ],

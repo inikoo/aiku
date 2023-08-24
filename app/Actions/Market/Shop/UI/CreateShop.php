@@ -81,7 +81,7 @@ class CreateShop extends InertiaAction
                                 'country_id'  => [
                                     'type'        => 'select',
                                     'label'       => __('country'),
-                                    'placeholder' => 'Select a Country',
+                                    'placeholder' => __('Select a country'),
                                     'options'     => GetCountriesOptions::run(),
                                     'value'       => app('currentTenant')->country_id,
                                     'required'    => true,
@@ -90,7 +90,7 @@ class CreateShop extends InertiaAction
                                 'language_id' => [
                                     'type'        => 'select',
                                     'label'       => __('language'),
-                                    'placeholder' => 'Select a Language',
+                                    'placeholder' => __('Select a language'),
                                     'options'     => GetLanguagesOptions::make()->all(),
                                     'value'       => app('currentTenant')->language_id,
                                     'required'    => true,
@@ -99,7 +99,7 @@ class CreateShop extends InertiaAction
                                 'currency_id' => [
                                     'type'        => 'select',
                                     'label'       => __('currency'),
-                                    'placeholder' => 'Select a Currency',
+                                    'placeholder' => __('Select a currency'),
                                     'options'     => GetCurrenciesOptions::run(),
                                     'value'       => app('currentTenant')->currency_id,
                                     'required'    => true,
@@ -108,7 +108,7 @@ class CreateShop extends InertiaAction
                                 'timezone_id' => [
                                     'type'        => 'select',
                                     'label'       => __('timezone'),
-                                    'placeholder' => 'Select a Timezone',
+                                    'placeholder' => __('Select a timezone'),
                                     'options'     => GetTimeZonesOptions::run(),
                                     'value'       => app('currentTenant')->timezone_id,
                                     'required'    => true,

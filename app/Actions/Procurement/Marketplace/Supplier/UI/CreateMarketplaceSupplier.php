@@ -239,7 +239,7 @@ class CreateMarketplaceSupplier extends InertiaAction
                                 'currency_id' => [
                                     'type'        => 'select',
                                     'label'       => __('currency'),
-                                    'placeholder' => __('Select a Currency'),
+                                    'placeholder' => __('Select a currency'),
                                     'options'     => GetCurrenciesOptions::run(),
                                     'value'       => class_basename($owner) == 'Agent' ? $owner->currency_id : null,
                                     'required'    => true,
@@ -250,7 +250,7 @@ class CreateMarketplaceSupplier extends InertiaAction
                                 'default_product_country_origin' => [
                                     'type'        => 'select',
                                     'label'       => __("Product's country of origin"),
-                                    'placeholder' => __('Select a Country'),
+                                    'placeholder' => __('Select a country'),
                                     'value'       => class_basename($owner) == 'Agent' ? Arr::get($owner->shared_data, 'default_product_country_origin') : null,
                                     'options'     => GetCountriesOptions::run(),
                                     'searchable'  => true,
