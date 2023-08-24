@@ -45,8 +45,8 @@ class StoreStoredItem
     public function rules(): array
     {
         return [
-            'reference' => ['required', 'unique:tenant.stored_items', 'between:2,9', 'alpha'],
-            'type' => ['required', Rule::in(StoredItemTypeEnum::values())],
+            'reference'   => ['required', 'unique:tenant.stored_items', 'between:2,9', 'alpha'],
+            'type'        => ['required', Rule::in(StoredItemTypeEnum::values())],
             'location_id' => ['required', 'exists:tenant.locations,id']
         ];
     }
@@ -54,7 +54,7 @@ class StoreStoredItem
     public function asController(Customer $customer, ActionRequest $request): StoredItem
     {
         $this->customer = $customer;
-        $mergedArray = array_merge($request->all(), [
+        $mergedArray    = array_merge($request->all(), [
             'location_id' => $request->input('location')['id']
         ]);
         $this->setRawAttributes($mergedArray);

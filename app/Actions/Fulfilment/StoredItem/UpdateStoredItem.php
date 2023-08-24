@@ -36,8 +36,8 @@ class UpdateStoredItem
     public function rules(): array
     {
         return [
-            'reference' => ['sometimes', 'required', 'unique:tenant.stored_items', 'between:2,9', 'alpha'],
-            'type' => ['sometimes', 'required', Rule::in(StoredItemTypeEnum::values())],
+            'reference'   => ['sometimes', 'required', 'unique:tenant.stored_items', 'between:2,9', 'alpha'],
+            'type'        => ['sometimes', 'required', Rule::in(StoredItemTypeEnum::values())],
             'location_id' => ['required', 'exists:tenant.locations,id']
         ];
     }

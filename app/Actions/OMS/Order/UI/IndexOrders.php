@@ -75,7 +75,8 @@ class IndexOrders extends InertiaAction
             $table
                 ->name(TabsAbbreviationEnum::ORDERS->value)
                 ->pageName(TabsAbbreviationEnum::ORDERS->value.'Page')
-                ->withEmptyState([
+                ->withEmptyState(
+                    [
                         'title' => __("No orders found"),
                         'count' => $parent->orders->count()
                     ]

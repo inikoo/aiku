@@ -7,22 +7,11 @@
 
 namespace App\Actions\Tenancy\Tenant\Hydrators;
 
-use App\Enums\Procurement\AgentTenant\AgentTenantStatusEnum;
-use App\Enums\Procurement\PurchaseOrderItem\PurchaseOrderItemStatusEnum;
-use App\Enums\Procurement\SupplierProduct\SupplierProductQuantityStatusEnum;
-use App\Enums\Procurement\SupplierProduct\SupplierProductStateEnum;
-use App\Enums\Procurement\SupplierTenant\SupplierTenantStatusEnum;
 use App\Models\CRM\Customer;
 use App\Models\Fulfilment\StoredItem;
-use App\Models\Procurement\AgentTenant;
-use App\Models\Procurement\PurchaseOrder;
-use App\Models\Procurement\SupplierProduct;
-use App\Models\Procurement\SupplierProductTenant;
-use App\Models\Procurement\SupplierTenant;
 use App\Models\Sales\Order;
 use App\Models\Tenancy\Tenant;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
-use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class TenantHydrateFulfilment implements ShouldBeUnique
@@ -34,8 +23,8 @@ class TenantHydrateFulfilment implements ShouldBeUnique
     {
         $stats = [
             'number_customers_with_stored_items' => Customer::count(),
-            'number_customers_with_assets' => Order::count(),
-            'number_stored_items' => StoredItem::count()
+            'number_customers_with_assets'       => Order::count(),
+            'number_stored_items'                => StoredItem::count()
         ];
 
         $tenant->fulfilmentStats->update($stats);

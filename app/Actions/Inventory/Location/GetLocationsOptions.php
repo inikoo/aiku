@@ -9,8 +9,6 @@ namespace App\Actions\Inventory\Location;
 
 use App\Models\Assets\Country;
 use App\Models\Inventory\Location;
-use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 class GetLocationsOptions

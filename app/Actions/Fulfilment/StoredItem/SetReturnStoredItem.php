@@ -7,17 +7,11 @@
 
 namespace App\Actions\Fulfilment\StoredItem;
 
-use App\Actions\CRM\Customer\Hydrators\CustomerHydrateStoredItems;
 use App\Actions\Traits\WithActionUpdate;
-use App\Enums\Fulfilment\StoredItem\StoredItemStateEnum;
 use App\Enums\Fulfilment\StoredItem\StoredItemStatusEnum;
-use App\Enums\Fulfilment\StoredItem\StoredItemTypeEnum;
-use App\Models\CRM\Customer;
 use App\Models\Fulfilment\StoredItem;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Session\Store;
 use Illuminate\Support\Facades\Redirect;
-use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;

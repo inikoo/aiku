@@ -61,7 +61,8 @@ class IndexStoredItems extends InertiaAction
                 ->pageName(TabsAbbreviationEnum::STORED_ITEMS->value.'Page')
 
                 ->withGlobalSearch()
-                ->withEmptyState([
+                ->withEmptyState(
+                    [
                         'title' => __("No stored items found"),
                         'count' => $parent->count()
                     ]
@@ -100,13 +101,13 @@ class IndexStoredItems extends InertiaAction
             'Fulfilment/StoredItems',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(),
-                'title' => __('stored items'),
-                'pageHead' => [
-                    'title' => __('stored items'),
+                'title'       => __('stored items'),
+                'pageHead'    => [
+                    'title'   => __('stored items'),
                     'actions' => [
                         'buttons' => [
                             'route' => [
-                                'name' => 'hr.employees.create',
+                                'name'       => 'hr.employees.create',
                                 'parameters' => array_values($this->originalParameters)
                             ],
                             'label' => __('stored items')
@@ -132,13 +133,13 @@ class IndexStoredItems extends InertiaAction
             (new FulfilmentDashboard())->getBreadcrumbs(),
             [
                 [
-                    'type' => 'simple',
+                    'type'   => 'simple',
                     'simple' => [
                         'route' => [
                             'name' => 'fulfilment.stored-items.index'
                         ],
                         'label' => __('stored items'),
-                        'icon' => 'fal fa-bars',
+                        'icon'  => 'fal fa-bars',
                     ],
 
                 ]

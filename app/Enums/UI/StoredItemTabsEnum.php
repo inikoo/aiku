@@ -17,7 +17,7 @@ enum StoredItemTabsEnum: string
 
     case SHOWCASE = 'showcase';
 
-    case DATA = 'data';
+    case DATA    = 'data';
     case HISTORY = 'history';
 
     public function blueprint(): array

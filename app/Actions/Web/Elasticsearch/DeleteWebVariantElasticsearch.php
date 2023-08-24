@@ -8,7 +8,6 @@
 namespace App\Actions\Web\Elasticsearch;
 
 use App\Actions\Elasticsearch\BuildElasticsearchClient;
-use App\Models\Web\ContentBlock;
 use App\Models\Web\WebpageVariant;
 use Elastic\Elasticsearch\Response\Elasticsearch;
 use Lorisleiva\Actions\Concerns\AsAction;

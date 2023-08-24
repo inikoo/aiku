@@ -72,7 +72,7 @@ class StoredItem extends Model implements Auditable
     ];
 
     protected $attributes = [
-        'data' => '{}',
+        'data'  => '{}',
         'notes' => '',
     ];
 

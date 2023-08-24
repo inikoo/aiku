@@ -16,17 +16,15 @@ class GetCountriesOptions
 
     public function handle(): array
     {
-
         $selectOptions = [];
         /** @var Country $country */
         foreach (Country::all() as $country) {
             $selectOptions[$country->id] =
                 [
-                    'label'               => $country->name.' ('.$country->code.')',
+                    'label' => $country->name.' ('.$country->code.')',
                 ];
         }
 
         return $selectOptions;
-
     }
 }

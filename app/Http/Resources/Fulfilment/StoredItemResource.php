@@ -24,14 +24,14 @@ class StoredItemResource extends JsonResource
     public function toArray($request): array
     {
         return [
-            'id'   => $this->id,
-            'reference' => $this->reference,
-            'slug' => $this->slug,
+            'id'            => $this->id,
+            'reference'     => $this->reference,
+            'slug'          => $this->slug,
             'customer_name' => $this->customer['name'],
-            'location' => $this->location ? $this->location['slug'] : '-',
-            'state' => $this->state,
-            'notes' => $this->notes ?? '-',
-            'status' => $this->status
+            'location'      => $this->location ? $this->location['slug'] : '-',
+            'state'         => $this->state,
+            'notes'         => $this->notes ?? '-',
+            'status'        => $this->status
         ];
     }
 }

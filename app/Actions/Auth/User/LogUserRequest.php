@@ -11,8 +11,6 @@ use App\Actions\Elasticsearch\IndexElasticsearchDocument;
 use App\Actions\Traits\WithTenantJob;
 use App\Enums\Elasticsearch\ElasticsearchTypeEnum;
 use App\Models\Auth\User;
-use App\Models\Backup\ActionHistory;
-use App\Models\Backup\VisitHistory;
 use hisorange\BrowserDetect\Parser as Browser;
 use Illuminate\Support\Carbon;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -25,7 +23,7 @@ class LogUserRequest
 
     public function handle(Carbon $datetime, array $routeData, string $ip, string $userAgent, string $type, User $user): void
     {
-        $tenant = app('currentTenant');
+        $tenant    = app('currentTenant');
         $indexType = 'user_requests_';
 
         if ($type == ElasticsearchTypeEnum::ACTION->value) {

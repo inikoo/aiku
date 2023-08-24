@@ -8,7 +8,6 @@
 namespace App\Actions\Fulfilment\StoredItem\UI;
 
 use App\Actions\InertiaAction;
-use App\Actions\Inventory\Location\GetLocationsOptions;
 use App\Actions\UI\Fulfilment\FulfilmentDashboard;
 use App\Enums\Fulfilment\StoredItem\StoredItemTypeEnum;
 use App\Http\Resources\Fulfilment\StoredItemResource;
@@ -77,13 +76,13 @@ class CreateStoredItem extends InertiaAction
                                     'label'    => __('location'),
                                     'value'    => '',
                                     'required' => true,
-                                    'apiUrl'  => route('json.locations') . '?filter[slug]=',
+                                    'apiUrl'   => route('json.locations') . '?filter[slug]=',
                                 ],
                             ]
                         ]
                     ],
                     'route' => [
-                        'name' => 'models.stored-items.store',
+                        'name'      => 'models.stored-items.store',
                         'arguments' => array_values($this->originalParameters)
                     ]
                 ],
