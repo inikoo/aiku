@@ -19,18 +19,18 @@ import draggable from "vuedraggable"
 import Hyperlink from "../../Fields/Hyperlink.vue"
 import SubMenu from "./Submenu.vue"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import { fas } from '../../../../../private/pro-solid-svg-icons';
-import { fal } from '../../../../../private/pro-light-svg-icons';
-import { far } from '../../../../../private/pro-regular-svg-icons';
-import { fad } from '../../../../../private/pro-duotone-svg-icons';
-import { fab } from "@fortawesome/free-brands-svg-icons"
+// import { fas } from '../../../../../private/pro-solid-svg-icons';
+// import { fal } from '../../../../../private/pro-light-svg-icons';
+// import { far } from '../../../../../private/pro-regular-svg-icons';
+// import { fad } from '../../../../../private/pro-duotone-svg-icons';
+// import { fab } from "@fortawesome/free-brands-svg-icons"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { trans } from "laravel-vue-i18n"
 import { Link } from "@inertiajs/vue3"
 import { usePage } from "@inertiajs/vue3"
 import { get } from 'lodash'
 
-library.add(fas, fal, fad, fab, far)
+// library.add(fas, fal, fad, fab, far)
 import { defineProps } from "vue"
 
 const props = defineProps({
