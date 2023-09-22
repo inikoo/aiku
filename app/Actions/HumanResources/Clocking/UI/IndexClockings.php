@@ -10,7 +10,7 @@ namespace App\Actions\HumanResources\Clocking\UI;
 use App\Actions\HumanResources\ClockingMachine\UI\ShowClockingMachine;
 use App\Actions\HumanResources\WorkingPlace\UI\ShowWorkingPlace;
 use App\Actions\InertiaAction;
-use App\Actions\UI\HumanResources\HumanResourcesDashboard;
+use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
 use App\Http\Resources\HumanResources\ClockingResource;
 use App\Models\HumanResources\Clocking;
 use App\Models\HumanResources\ClockingMachine;
@@ -221,7 +221,7 @@ class IndexClockings extends InertiaAction
         return match ($routeName) {
             'hr.clockings.index' =>
             array_merge(
-                (new HumanResourcesDashboard())->getBreadcrumbs(),
+                (new ShowHumanResourcesDashboard())->getBreadcrumbs(),
                 $headCrumb(
                     [
                         'name' => 'hr.clockings.index',

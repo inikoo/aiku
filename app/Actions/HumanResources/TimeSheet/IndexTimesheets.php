@@ -8,7 +8,7 @@
 namespace App\Actions\HumanResources\TimeSheet;
 
 use App\Actions\InertiaAction;
-use App\Actions\UI\HumanResources\HumanResourcesDashboard;
+use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
 use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\HumanResources\EmployeeInertiaResource;
 use App\Http\Resources\HumanResources\EmployeeResource;
@@ -116,7 +116,7 @@ class IndexTimesheets extends InertiaAction
     public function getBreadcrumbs(): array
     {
         return array_merge(
-            (new HumanResourcesDashboard())->getBreadcrumbs(),
+            (new ShowHumanResourcesDashboard())->getBreadcrumbs(),
             [
                 [
                     'type'   => 'simple',

@@ -15,7 +15,7 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class HumanResourcesDashboard
+class ShowHumanResourcesDashboard
 {
     use AsAction;
     use WithInertia;
@@ -38,7 +38,7 @@ class HumanResourcesDashboard
         $tenant = app('currentTenant');
 
         return Inertia::render(
-            'HumanResources/HumanResourcesDashboard',
+            'HumanResources/ShowHumanResourcesDashboard',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(),
                 'title'       => __('human resources'),

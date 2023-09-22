@@ -8,7 +8,7 @@
 namespace App\Actions\HumanResources\TimeSheet;
 
 use App\Actions\InertiaAction;
-use App\Actions\UI\HumanResources\HumanResourcesDashboard;
+use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
 use App\Enums\UI\EmployeeTabsEnum;
 use App\Http\Resources\HumanResources\EmployeeResource;
 use App\Models\HumanResources\Employee;
@@ -92,7 +92,7 @@ class ShowTimeSheet extends InertiaAction
     public function getBreadcrumbs(Employee $employee, $suffix = null): array
     {
         return array_merge(
-            (new HumanResourcesDashboard())->getBreadcrumbs(),
+            (new ShowHumanResourcesDashboard())->getBreadcrumbs(),
             [
                 [
                     'type'           => 'modelWithIndex',

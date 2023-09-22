@@ -10,7 +10,7 @@ namespace App\Enums\UI;
 use App\Enums\EnumHelperTrait;
 use App\Enums\HasTabs;
 
-enum WorkingPlaceTabsEnum: string
+enum WorkplaceTabsEnum: string
 {
     use EnumHelperTrait;
     use HasTabs;
@@ -25,27 +25,27 @@ enum WorkingPlaceTabsEnum: string
     public function blueprint(): array
     {
         return match ($this) {
-            WorkingPlaceTabsEnum::CLOCKING_MACHINES => [
+            WorkplaceTabsEnum::CLOCKING_MACHINES => [
                 'title' => __('clocking machines'),
                 'icon'  => 'fal fa-chess-clock',
             ],
-            WorkingPlaceTabsEnum::CLOCKINGS => [
+            WorkplaceTabsEnum::CLOCKINGS => [
                 'title' => __('clocking'),
                 'icon'  => 'fal fa-clock',
             ],
-            WorkingPlaceTabsEnum::DATA => [
+            WorkplaceTabsEnum::DATA => [
                 'title' => __('database'),
                 'icon'  => 'fal fa-database',
                 'type'  => 'icon',
                 'align' => 'right',
             ],
-            WorkingPlaceTabsEnum::HISTORY => [
+            WorkplaceTabsEnum::HISTORY => [
                 'title' => __('history'),
                 'icon'  => 'fal fa-clock',
                 'type'  => 'icon',
                 'align' => 'right',
             ],
-            WorkingPlaceTabsEnum::SHOWCASE => [
+            WorkplaceTabsEnum::SHOWCASE => [
                 'title' => __('workplace'),
                 'icon'  => 'fas fa-info-circle',
             ],

@@ -8,7 +8,7 @@
 namespace App\Actions\HumanResources\Employee\UI;
 
 use App\Actions\InertiaAction;
-use App\Actions\UI\HumanResources\HumanResourcesDashboard;
+use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
 use App\Enums\HumanResources\Employee\EmployeeTypeEnum;
 use App\Http\Resources\HumanResources\EmployeeInertiaResource;
@@ -197,7 +197,7 @@ class IndexEmployees extends InertiaAction
     public function getBreadcrumbs(): array
     {
         return array_merge(
-            (new HumanResourcesDashboard())->getBreadcrumbs(),
+            (new ShowHumanResourcesDashboard())->getBreadcrumbs(),
             [
                 [
                     'type'   => 'simple',

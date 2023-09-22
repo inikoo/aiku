@@ -12,8 +12,8 @@ use App\Actions\HumanResources\Clocking\UI\IndexClockings;
 use App\Actions\HumanResources\ClockingMachine\UI\IndexClockingMachines;
 use App\Actions\InertiaAction;
 use App\Actions\Traits\WithElasticsearch;
-use App\Actions\UI\HumanResources\HumanResourcesDashboard;
-use App\Enums\UI\WorkingPlaceTabsEnum;
+use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
+use App\Enums\UI\WorkplaceTabsEnum;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\HumanResources\ClockingMachineResource;
 use App\Http\Resources\HumanResources\ClockingResource;
@@ -41,7 +41,7 @@ class ShowWorkingPlace extends InertiaAction
     public function asController(Workplace $workplace, ActionRequest $request): Workplace
     {
 
-        $this->initialisation($request)->withTab(WorkingPlaceTabsEnum::values());
+        $this->initialisation($request)->withTab(WorkplaceTabsEnum::values());
         return $this->handle($workplace);
     }
 
@@ -115,14 +115,14 @@ class ShowWorkingPlace extends InertiaAction
                 'tabs'                             => [
 
                     'current'    => $this->tab,
-                    'navigation' => WorkingPlaceTabsEnum::navigation(),
+                    'navigation' => WorkplaceTabsEnum::navigation(),
 
                 ],
-                WorkingPlaceTabsEnum::SHOWCASE->value => $this->tab == WorkingPlaceTabsEnum::SHOWCASE->value ?
+                WorkplaceTabsEnum::SHOWCASE->value => $this->tab == WorkplaceTabsEnum::SHOWCASE->value ?
                     fn () => GetWorkingPlaceShowcase::run($workplace)
                     : Inertia::lazy(fn () => GetWorkingPlaceShowcase::run($workplace)),
 
-                WorkingPlaceTabsEnum::CLOCKINGS->value       => $this->tab == WorkingPlaceTabsEnum::CLOCKINGS->value ?
+                WorkplaceTabsEnum::CLOCKINGS->value         => $this->tab == WorkplaceTabsEnum::CLOCKINGS->value ?
                     fn () => ClockingResource::collection(IndexClockings::run(
                         parent: $workplace,
                         prefix: 'clockings'
@@ -131,7 +131,7 @@ class ShowWorkingPlace extends InertiaAction
                         parent: $workplace,
                         prefix: 'clockings'
                     ))),
-                WorkingPlaceTabsEnum::CLOCKING_MACHINES->value => $this->tab == WorkingPlaceTabsEnum::CLOCKING_MACHINES->value
+                WorkplaceTabsEnum::CLOCKING_MACHINES->value => $this->tab == WorkplaceTabsEnum::CLOCKING_MACHINES->value
                     ?
                     fn () => ClockingMachineResource::collection(IndexClockingMachines::run(
                         parent: $workplace,
@@ -142,7 +142,7 @@ class ShowWorkingPlace extends InertiaAction
                         prefix: 'clocking_machines'
                     ))),
 
-                WorkingPlaceTabsEnum::HISTORY->value => $this->tab == WorkingPlaceTabsEnum::HISTORY->value ?
+                WorkplaceTabsEnum::HISTORY->value => $this->tab == WorkplaceTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistories::run($workplace))
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistories::run($workplace)))
             ]
@@ -182,7 +182,7 @@ class ShowWorkingPlace extends InertiaAction
     public function getBreadcrumbs(Workplace $workplace, $suffix = null): array
     {
         return array_merge(
-            (new HumanResourcesDashboard())->getBreadcrumbs(),
+            (new ShowHumanResourcesDashboard())->getBreadcrumbs(),
             [
                 [
                     'type'           => 'modelWithIndex',

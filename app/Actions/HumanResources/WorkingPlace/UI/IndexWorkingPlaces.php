@@ -8,8 +8,8 @@
 namespace App\Actions\HumanResources\WorkingPlace\UI;
 
 use App\Actions\InertiaAction;
-use App\Actions\UI\HumanResources\HumanResourcesDashboard;
-use App\Enums\UI\WorkingPlaceTabsEnum;
+use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
+use App\Enums\UI\WorkplaceTabsEnum;
 use App\Http\Resources\HumanResources\WorkPlaceInertiaResource;
 use App\Http\Resources\HumanResources\WorkPlaceResource;
 use App\InertiaTable\InertiaTable;
@@ -136,7 +136,7 @@ class IndexWorkingPlaces extends InertiaAction
                 ],
                 'tabs' => [
                     'current'    => $this->tab,
-                    'navigation' => WorkingPlaceTabsEnum::navigation(),
+                    'navigation' => WorkplaceTabsEnum::navigation(),
                 ],
                 'data'        => WorkPlaceInertiaResource::collection($workplace),
             ]
@@ -155,7 +155,7 @@ class IndexWorkingPlaces extends InertiaAction
     public function getBreadcrumbs(): array
     {
         return array_merge(
-            (new HumanResourcesDashboard())->getBreadcrumbs(),
+            (new ShowHumanResourcesDashboard())->getBreadcrumbs(),
             [
                 [
                     'type'   => 'simple',

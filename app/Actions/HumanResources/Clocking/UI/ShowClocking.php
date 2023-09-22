@@ -11,7 +11,7 @@ use App\Actions\Helpers\History\IndexHistories;
 use App\Actions\HumanResources\ClockingMachine\UI\ShowClockingMachine;
 use App\Actions\HumanResources\WorkingPlace\UI\ShowWorkingPlace;
 use App\Actions\InertiaAction;
-use App\Actions\UI\HumanResources\HumanResourcesDashboard;
+use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
 use App\Enums\UI\ClockingTabsEnum;
 use App\Http\Resources\History\HistoryResource;
 use App\Models\HumanResources\Clocking;
@@ -175,7 +175,7 @@ class ShowClocking extends InertiaAction
         return match ($routeName) {
             'hr.clockings.show' =>
             array_merge(
-                HumanResourcesDashboard::make()->getBreadcrumbs(),
+                ShowHumanResourcesDashboard::make()->getBreadcrumbs(),
                 $headCrumb(
                     $routeParameters['clocking'],
                     [

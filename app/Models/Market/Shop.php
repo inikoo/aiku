@@ -22,7 +22,6 @@ use App\Models\Assets\Timezone;
 use App\Models\Auth\ApiTenantUser;
 use App\Models\CRM\Customer;
 use App\Models\CRM\Prospect;
-use App\Models\CRM\ShopCRMStats;
 use App\Models\Fulfilment\FulfilmentOrder;
 use App\Models\Helpers\Address;
 use App\Models\Helpers\Issue;

@@ -11,7 +11,6 @@ use App\Models\DevOps\Deployment;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
@@ -47,8 +46,5 @@ class ProductCategoryStats extends Model
 
     protected $guarded = [];
 
-    public function department(): BelongsTo
-    {
-        return $this->belongsTo(Deployment::class);
-    }
+
 }

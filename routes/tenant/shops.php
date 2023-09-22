@@ -76,11 +76,7 @@ Route::get('/{shop}/products/{product}/delete', [RemoveProduct::class, 'inShop']
 
 Route::get('/{shop}/departments/create', CreateDepartment::class)->name('show.departments.create');
 Route::get('/{shop}/departments/create-multi', CreateDepartments::class)->name('show.departments.create-multi');
-
-
 Route::get('/{shop}/departments', [IndexDepartments::class, 'inShop'])->name('show.departments.index');
-
-
 Route::get('/{shop}/departments/{department}', [ShowDepartment::class, 'inShop'])->name('show.departments.show');
 Route::get('/{shop}/departments/{department}/edit', [EditDepartment::class, 'inShop'])->name('show.departments.edit');
 Route::get('/{shop}/departments/{department}/delete', [RemoveDepartment::class, 'inShop'])->name('show.departments.remove');
