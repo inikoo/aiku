@@ -19,7 +19,7 @@ class BuildElasticsearchClient
     public function handle(): Client|Exception
     {
         $clientBuilder = ClientBuilder::create();
-        $clientBuilder->setHosts(config('elasticsearch.hosts'));
+        $clientBuilder->setHosts(explode(',', config('elasticsearch.host')));
         if (config('elasticsearch.ca_bundle')) {
             $clientBuilder->setCABundle(config('elasticsearch.ca_bundle'));
         }
