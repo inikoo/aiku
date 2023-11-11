@@ -5,6 +5,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
+use App\Providers\ElasticSearchServiceProvider;
 use Illuminate\Support\Facades\Facade;
 
 return [
@@ -202,6 +203,7 @@ return [
         App\Providers\HorizonServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
         App\Providers\MacroServiceProvider::class,
+        ElasticSearchServiceProvider::class
 
         //App\Providers\TelescopeServiceProvider::class,
     ],

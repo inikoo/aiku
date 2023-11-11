@@ -9,7 +9,6 @@ export interface Department {
     shop_slug: string,
     code: string
     name: string
-
     state: string
     description: string
     created_at: string
