@@ -23,7 +23,7 @@ use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection;
-use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
+
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -66,7 +66,7 @@ class Guest extends Model implements HasMedia, Auditable
     use HasSlug;
     use InteractsWithMedia;
     use SoftDeletes;
-    use UsesTenantConnection;
+
     use HasFactory;
     use HasHistory;
     use HasUniversalSearch;

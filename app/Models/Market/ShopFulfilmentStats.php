@@ -9,12 +9,9 @@ namespace App\Models\Market;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 class ShopFulfilmentStats extends Model
 {
-    use UsesTenantConnection;
-
     protected $table = 'shop_fulfilment_stats';
 
     protected $guarded = [];

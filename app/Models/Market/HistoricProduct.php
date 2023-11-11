@@ -14,7 +14,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
-use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
+
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -46,7 +46,7 @@ class HistoricProduct extends Model
 {
     use SoftDeletes;
     use HasSlug;
-    use UsesTenantConnection;
+
 
     protected $casts = [
         'status' => 'boolean',

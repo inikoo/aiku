@@ -14,7 +14,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Carbon;
-use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
  * App\Models\Inventory\StockMovement
@@ -41,8 +40,6 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  */
 class StockMovement extends Model
 {
-    use UsesTenantConnection;
-
     protected $casts = [
         'data' => 'array',
         'type' => StockMovementTypeEnum::class,

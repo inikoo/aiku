@@ -10,7 +10,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Arr;
 use Laravel\Scout\Searchable;
-use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
  * App\Models\Search\UniversalSearch
@@ -34,7 +33,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 class UniversalSearch extends Model
 {
     use Searchable;
-    use UsesTenantConnection;
+
 
     protected $guarded = [];
 

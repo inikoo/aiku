@@ -9,7 +9,6 @@ namespace App\Models\Helpers;
 
 use App\Models\Assets\Country;
 use App\Models\Traits\IsAddress;
-use App\Models\Traits\UsesGroupConnection;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -44,7 +43,6 @@ use Illuminate\Support\Carbon;
  */
 class GroupAddress extends Model
 {
-    use UsesGroupConnection;
     use HasFactory;
     use IsAddress;
 

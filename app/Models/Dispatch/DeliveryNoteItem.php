@@ -14,7 +14,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
-use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
  * App\Models\Dispatch\DeliveryNoteItem
@@ -46,7 +45,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 class DeliveryNoteItem extends Model
 {
     use SoftDeletes;
-    use UsesTenantConnection;
+
 
     protected $table = 'delivery_note_items';
 

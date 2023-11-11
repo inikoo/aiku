@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Carbon;
-use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
+
 use Spatie\Permission\Models\Role as SpatieRole;
 
 /**
@@ -35,8 +35,6 @@ use Spatie\Permission\Models\Role as SpatieRole;
  */
 class Role extends SpatieRole
 {
-    use UsesTenantConnection;
-
     public function jobPositions(): BelongsToMany
     {
         return $this->belongsToMany(JobPosition::class);

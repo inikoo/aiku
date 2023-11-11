@@ -16,7 +16,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Support\Carbon;
-use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
  * App\Models\Auth\WebUser
@@ -54,7 +53,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 class WebUser extends Authenticatable
 {
     use IsWebUser;
-    use UsesTenantConnection;
+
 
     protected $guarded = [
     ];

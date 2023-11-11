@@ -12,7 +12,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
-use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
  * App\Models\CRM\CustomerStats
@@ -42,8 +41,6 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  */
 class CustomerStats extends Model
 {
-    use UsesTenantConnection;
-
     protected $casts = [
         'last_submitted_order_at'     => 'datetime',
         'last_dispatched_delivery_at' => 'datetime',

@@ -19,7 +19,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Contracts\Auditable;
-use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
+
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -55,7 +55,7 @@ class PaymentAccount extends Model implements Auditable
 {
     use SoftDeletes;
     use HasSlug;
-    use UsesTenantConnection;
+
     use HasFactory;
     use HasHistory;
 

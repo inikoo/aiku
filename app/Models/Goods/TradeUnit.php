@@ -10,7 +10,6 @@ namespace App\Models\Goods;
 use App\Models\Inventory\Stock;
 use App\Models\Market\Product;
 use App\Models\Traits\HasImages;
-use App\Models\Traits\UsesGroupConnection;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -61,7 +60,7 @@ class TradeUnit extends Model implements HasMedia
 {
     use SoftDeletes;
     use HasSlug;
-    use UsesGroupConnection;
+
     use HasImages;
     use HasFactory;
 

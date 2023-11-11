@@ -7,7 +7,6 @@
 
 namespace App\Models\Media;
 
-use App\Models\Traits\UsesGroupConnection;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -47,6 +46,5 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media as BaseMedia;
  */
 class GroupMedia extends BaseMedia
 {
-    use UsesGroupConnection;
     protected $table = 'group_media';
 }

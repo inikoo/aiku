@@ -9,7 +9,6 @@ namespace App\Models\CRM;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
  * App\Models\CRM\CustomerFulfilmentStats
@@ -38,8 +37,6 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  */
 class CustomerFulfilmentStats extends Model
 {
-    use UsesTenantConnection;
-
     protected $table = 'customer_fulfilment_stats';
 
     protected $guarded = [];

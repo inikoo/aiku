@@ -22,7 +22,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Contracts\Auditable;
-use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
+
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -65,7 +65,6 @@ use Spatie\Sluggable\SlugOptions;
  */
 class Website extends Model implements Auditable
 {
-    use UsesTenantConnection;
     use HasSlug;
     use SoftDeletes;
     use HasHistory;

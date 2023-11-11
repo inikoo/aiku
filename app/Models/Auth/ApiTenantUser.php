@@ -12,7 +12,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laravel\Sanctum\HasApiTokens;
-use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
  * App\Models\Auth\ApiTenantUser
@@ -37,7 +36,7 @@ class ApiTenantUser extends Model
 {
     use HasApiTokens;
     use SoftDeletes;
-    use UsesTenantConnection;
+
 
 
     protected $guarded = [];

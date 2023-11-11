@@ -7,7 +7,6 @@
 
 namespace App\Models\Tenancy;
 
-use App\Models\Traits\UsesGroupConnection;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -72,8 +71,6 @@ use Illuminate\Support\Carbon;
  */
 class TenantInventoryStats extends Model
 {
-    use UsesGroupConnection;
-
     protected $table = 'tenant_inventory_stats';
 
     protected $guarded = [];

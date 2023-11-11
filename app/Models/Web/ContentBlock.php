@@ -15,7 +15,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
+
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -46,7 +46,6 @@ use Spatie\Sluggable\SlugOptions;
  */
 class ContentBlock extends Model
 {
-    use UsesTenantConnection;
     use SoftDeletes;
     use HasSlug;
     use HasFactory;

@@ -11,7 +11,6 @@ use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
-use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
  * App\Models\Dispatch\Picking
@@ -43,5 +42,4 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  */
 class Picking extends Model
 {
-    use UsesTenantConnection;
 }

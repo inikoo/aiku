@@ -12,7 +12,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
-use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
  * App\Models\Web\WebsiteStats
@@ -30,7 +29,6 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  */
 class WebsiteStats extends Model
 {
-    use UsesTenantConnection;
     protected $table = 'website_stats';
 
     protected $guarded = [];

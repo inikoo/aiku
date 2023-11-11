@@ -12,7 +12,6 @@ use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
-use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
  * App\Models\Market\DepartmentStats
@@ -40,8 +39,6 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  */
 class ProductCategoryStats extends Model
 {
-    use UsesTenantConnection;
-
     protected $table = 'product_category_stats';
 
     protected $guarded = [];

@@ -6,7 +6,6 @@ use Eloquent;
 use hisorange\BrowserDetect\Parser as Browser;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
-use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
  * App\Models\Notifications\FcmToken
@@ -28,8 +27,6 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  */
 class FcmToken extends Model
 {
-    use UsesTenantConnection;
-
     protected $guarded = [];
 
     public static function boot(): void

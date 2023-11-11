@@ -15,7 +15,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
-use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
  * App\Models\Mail\EmailDispatch
@@ -49,7 +48,6 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  */
 class DispatchedEmail extends Model
 {
-    use UsesTenantConnection;
     use HasFactory;
 
     protected $casts = [

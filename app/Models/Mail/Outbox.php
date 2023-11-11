@@ -19,7 +19,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
-use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
+
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -53,7 +53,6 @@ use Spatie\Sluggable\SlugOptions;
  */
 class Outbox extends Model
 {
-    use UsesTenantConnection;
     use SoftDeletes;
     use HasSlug;
     use HasFactory;

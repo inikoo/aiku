@@ -18,7 +18,6 @@ use App\Models\Traits\HasGroupAddress;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasPhoto;
 use App\Models\Traits\HasUniversalSearch;
-use App\Models\Traits\UsesGroupConnection;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -93,7 +92,6 @@ use Spatie\Sluggable\SlugOptions;
  */
 class Supplier extends Model implements HasMedia, Auditable
 {
-    use UsesGroupConnection;
     use SoftDeletes;
     use HasGroupAddress;
     use HasSlug;

@@ -27,7 +27,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
-use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
+
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -75,7 +75,7 @@ class Payment extends Model
 {
     use SoftDeletes;
     use HasSlug;
-    use UsesTenantConnection;
+
     use HasUniversalSearch;
     use HasFactory;
 

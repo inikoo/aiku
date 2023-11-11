@@ -15,7 +15,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Carbon;
-use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
  * App\Models\Mail\Mail
@@ -35,7 +34,6 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  */
 class Mailroom extends Model
 {
-    use UsesTenantConnection;
     use HasFactory;
 
     protected $casts = [

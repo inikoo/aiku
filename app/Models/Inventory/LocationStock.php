@@ -13,7 +13,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 use Illuminate\Support\Carbon;
-use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
  * App\Models\Inventory\LocationStock
@@ -41,8 +40,6 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  */
 class LocationStock extends Pivot
 {
-    use UsesTenantConnection;
-
     protected $casts = [
         'data'     => 'array',
         'settings' => 'array',

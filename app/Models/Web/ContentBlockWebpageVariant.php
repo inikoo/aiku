@@ -8,7 +8,6 @@
 namespace App\Models\Web;
 
 use Illuminate\Database\Eloquent\Relations\Pivot;
-use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
  * App\Models\Web\ContentBlockWebpageVariant
@@ -26,8 +25,6 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  */
 class ContentBlockWebpageVariant extends Pivot
 {
-    use UsesTenantConnection;
-
     public $incrementing = true;
 
     protected $guarded = [];

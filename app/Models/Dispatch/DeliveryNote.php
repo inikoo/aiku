@@ -28,7 +28,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
-use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
+
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -90,7 +90,7 @@ class DeliveryNote extends Model
     use SoftDeletes;
     use HasSlug;
     use HasTenantAddress;
-    use UsesTenantConnection;
+
     use HasUniversalSearch;
     use HasFactory;
 

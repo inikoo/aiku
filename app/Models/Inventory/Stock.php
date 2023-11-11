@@ -31,7 +31,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection;
-use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
+
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -91,7 +91,7 @@ class Stock extends Model implements HasMedia
 {
     use SoftDeletes;
     use HasSlug;
-    use UsesTenantConnection;
+
     use HasUniversalSearch;
     use HasImages;
     use HasFactory;

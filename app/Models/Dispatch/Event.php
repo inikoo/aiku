@@ -16,7 +16,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
  *
@@ -38,7 +37,7 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 class Event extends Model
 {
     use SoftDeletes;
-    use UsesTenantConnection;
+
     use HasFactory;
 
     protected $casts = [

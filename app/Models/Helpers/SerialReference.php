@@ -9,7 +9,6 @@ namespace App\Models\Helpers;
 
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Models\Tenancy\Tenant;
-use App\Models\Traits\UsesGroupConnection;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -37,8 +36,6 @@ use Illuminate\Support\Carbon;
  */
 class SerialReference extends Model
 {
-    use UsesGroupConnection;
-
     protected $casts = [
         'data'  => 'array',
         'model' => SerialReferenceModelEnum::class

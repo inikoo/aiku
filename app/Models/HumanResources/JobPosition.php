@@ -15,7 +15,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Contracts\Auditable;
-use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
+
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -45,7 +45,6 @@ use Spatie\Sluggable\SlugOptions;
  */
 class JobPosition extends Model implements Auditable
 {
-    use UsesTenantConnection;
     use HasSlug;
     use HasHistory;
 

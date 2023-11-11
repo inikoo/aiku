@@ -15,7 +15,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
-use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
  * App\Models\Fulfilment\FulfilmentOrderItem
@@ -44,8 +43,6 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  */
 class FulfilmentOrderItem extends Model
 {
-    use UsesTenantConnection;
-
     protected $casts = [
         'data' => 'array'
     ];

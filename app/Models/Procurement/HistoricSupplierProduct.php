@@ -2,7 +2,6 @@
 
 namespace App\Models\Procurement;
 
-use App\Models\Traits\UsesGroupConnection;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -40,7 +39,6 @@ use Spatie\Sluggable\SlugOptions;
  */
 class HistoricSupplierProduct extends Model
 {
-    use UsesGroupConnection;
     use SoftDeletes;
     use HasSlug;
 

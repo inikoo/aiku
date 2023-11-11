@@ -21,7 +21,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
-use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
+
 use Spatie\Sluggable\HasSlug;
 
 /**
@@ -65,7 +65,7 @@ class FulfilmentOrder extends Model
     use HasOrder;
     use HasSlug;
     use SoftDeletes;
-    use UsesTenantConnection;
+
 
 
     protected $casts = [

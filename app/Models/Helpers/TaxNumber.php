@@ -16,7 +16,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
-use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
  * App\Models\Helpers\TaxNumber
@@ -51,7 +50,6 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  */
 class TaxNumber extends Model
 {
-    use UsesTenantConnection;
     use SoftDeletes;
 
     protected $casts = [

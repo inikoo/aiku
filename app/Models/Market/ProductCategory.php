@@ -26,7 +26,7 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Contracts\Auditable;
-use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
+
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -74,7 +74,7 @@ class ProductCategory extends Model implements Auditable
 {
     use HasSlug;
     use SoftDeletes;
-    use UsesTenantConnection;
+
     use HasUniversalSearch;
     use HasFactory;
     use HasHistory;

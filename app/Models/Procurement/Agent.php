@@ -18,7 +18,6 @@ use App\Models\Traits\HasGroupAddress;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasPhoto;
 use App\Models\Traits\HasUniversalSearch;
-use App\Models\Traits\UsesGroupConnection;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -92,7 +91,7 @@ class Agent extends Model implements HasMedia, Auditable
     use SoftDeletes;
     use HasGroupAddress;
     use HasSlug;
-    use UsesGroupConnection;
+
     use HasUniversalSearch;
     use HasPhoto;
     use HasFactory;

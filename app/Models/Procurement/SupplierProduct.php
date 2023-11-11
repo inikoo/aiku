@@ -15,7 +15,6 @@ use App\Models\Search\UniversalSearch;
 use App\Models\Tenancy\Tenant;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
-use App\Models\Traits\UsesGroupConnection;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -79,7 +78,6 @@ use Spatie\Sluggable\SlugOptions;
  */
 class SupplierProduct extends Model implements Auditable
 {
-    use UsesGroupConnection;
     use SoftDeletes;
     use HasSlug;
     use HasUniversalSearch;

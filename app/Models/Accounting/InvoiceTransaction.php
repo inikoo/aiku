@@ -15,7 +15,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
-use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
  * App\Models\Accounting\InvoiceTransaction
@@ -51,7 +50,6 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  */
 class InvoiceTransaction extends Model
 {
-    use UsesTenantConnection;
     use SoftDeletes;
 
     protected $table = 'invoice_transactions';

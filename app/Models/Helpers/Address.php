@@ -14,7 +14,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
-use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
  * App\Models\Helpers\Address
@@ -45,7 +44,6 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  */
 class Address extends Model
 {
-    use UsesTenantConnection;
     use HasFactory;
     use IsAddress;
 

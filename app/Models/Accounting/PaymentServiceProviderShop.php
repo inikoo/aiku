@@ -11,7 +11,6 @@ use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 use Illuminate\Support\Carbon;
-use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
  * App\Models\Accounting\PaymentServiceProviderShop
@@ -30,8 +29,6 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  */
 class PaymentServiceProviderShop extends Pivot
 {
-    use UsesTenantConnection;
-
     public $incrementing = true;
 
     protected $casts = [

@@ -8,7 +8,6 @@
 namespace App\Models;
 
 use App\Models\Tenancy\Tenant;
-use App\Models\Traits\UsesGroupConnection;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -44,8 +43,6 @@ use Illuminate\Support\Carbon;
  */
 class TenantWebStats extends Model
 {
-    use UsesGroupConnection;
-
     protected $table = 'tenant_web_stats';
 
     protected $guarded = [];

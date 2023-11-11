@@ -20,7 +20,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Contracts\Auditable;
-use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
+
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 use App\Models\Inventory\Location;
@@ -58,7 +58,6 @@ use App\Models\Inventory\Location;
  */
 class StoredItem extends Model implements Auditable
 {
-    use UsesTenantConnection;
     use HasUniversalSearch;
     use SoftDeletes;
     use HasSlug;

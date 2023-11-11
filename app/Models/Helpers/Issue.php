@@ -20,7 +20,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
-use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
  * App\Models\Helpers\Issue
@@ -49,7 +48,6 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  */
 class Issue extends Model
 {
-    use UsesTenantConnection;
     use SoftDeletes;
 
     protected $casts = [

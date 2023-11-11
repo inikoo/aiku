@@ -12,7 +12,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Carbon;
-use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
  * App\Models\BI\SalesStats
@@ -67,8 +66,6 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  */
 class SalesStats extends Model
 {
-    use UsesTenantConnection;
-
     protected $table   = 'sales_stats';
     protected $guarded = [];
 

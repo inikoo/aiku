@@ -48,7 +48,7 @@ use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
-use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
+
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -123,7 +123,7 @@ class Shop extends Model
     use HasTenantAddress;
     use SoftDeletes;
     use HasSlug;
-    use UsesTenantConnection;
+
     use HasUniversalSearch;
     use HasFactory;
 

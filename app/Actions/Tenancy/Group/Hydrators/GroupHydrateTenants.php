@@ -10,9 +10,8 @@ namespace App\Actions\Tenancy\Group\Hydrators;
 use App\Models\Tenancy\Group;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Lorisleiva\Actions\Concerns\AsAction;
-use Spatie\Multitenancy\Jobs\NotTenantAware;
 
-class GroupHydrateTenants implements ShouldBeUnique, NotTenantAware
+class GroupHydrateTenants implements ShouldBeUnique
 {
     use AsAction;
 

@@ -22,7 +22,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
-use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
+
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -57,7 +57,6 @@ use Spatie\Sluggable\SlugOptions;
  */
 class Workplace extends Model
 {
-    use UsesTenantConnection;
     use HasSlug;
     use HasUniversalSearch;
     use SoftDeletes;

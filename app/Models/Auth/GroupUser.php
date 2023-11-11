@@ -11,7 +11,6 @@ use App\Enums\Auth\User\UserAuthTypeEnum;
 use App\Models\Central\CentralMedia;
 use App\Models\Media\GroupMedia;
 use App\Models\Tenancy\Tenant;
-use App\Models\Traits\UsesGroupConnection;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -59,7 +58,7 @@ use Spatie\Sluggable\SlugOptions;
 class GroupUser extends Model implements HasMedia
 {
     use HasSlug;
-    use UsesGroupConnection;
+
     use InteractsWithMedia;
     use SoftDeletes;
 

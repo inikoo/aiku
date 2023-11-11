@@ -9,7 +9,6 @@ namespace App\Models\Tenancy;
 
 use Illuminate\Database\Eloquent\Builder;
 use Laravel\Sanctum\PersonalAccessToken;
-use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
  * App\Models\Tenancy\TenantPersonalAccessToken
@@ -32,8 +31,6 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  */
 class TenantPersonalAccessToken extends PersonalAccessToken
 {
-    use UsesTenantConnection;
-
     protected $table = 'personal_access_tokens';
 
 

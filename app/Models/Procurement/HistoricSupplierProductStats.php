@@ -7,7 +7,6 @@
 
 namespace App\Models\Procurement;
 
-use App\Models\Traits\UsesGroupConnection;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -27,8 +26,6 @@ use Illuminate\Support\Carbon;
  */
 class HistoricSupplierProductStats extends Model
 {
-    use UsesGroupConnection;
-
     protected $table = 'historic_supplier_product_stats';
 
     protected $guarded = [];

@@ -11,7 +11,6 @@ use App\Enums\Procurement\SupplierDelivery\SupplierDeliveryStateEnum;
 use App\Enums\Procurement\SupplierDelivery\SupplierDeliveryStatusEnum;
 use App\Models\Helpers\Address;
 use App\Models\Traits\HasTenantAddress;
-use App\Models\Traits\UsesGroupConnection;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -71,7 +70,6 @@ use Spatie\Sluggable\SlugOptions;
  */
 class SupplierDelivery extends Model
 {
-    use UsesGroupConnection;
     use SoftDeletes;
     use HasTenantAddress;
     use HasSlug;

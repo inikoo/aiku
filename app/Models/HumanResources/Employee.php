@@ -31,7 +31,7 @@ use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection;
-use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
+
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -83,7 +83,6 @@ use Spatie\Sluggable\SlugOptions;
  */
 class Employee extends Model implements HasMedia, Auditable
 {
-    use UsesTenantConnection;
     use HasSlug;
     use SoftDeletes;
     use HasUniversalSearch;

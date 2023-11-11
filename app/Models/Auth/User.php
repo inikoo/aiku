@@ -33,7 +33,6 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Laravel\Sanctum\HasApiTokens;
 use OwenIt\Auditing\Contracts\Auditable;
-use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
  * App\Models\Auth\User
@@ -92,7 +91,7 @@ class User extends Authenticatable implements Auditable
     use Notifiable;
     use SoftDeletes;
     use HasRoles;
-    use UsesTenantConnection;
+
     use HasFactory;
     use HasHistory;
     use WithPushNotifications;

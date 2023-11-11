@@ -14,7 +14,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 use Illuminate\Support\Carbon;
-use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 /**
  * App\Models\HumanResources\EmployeeJobPosition
@@ -34,7 +33,6 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
  */
 class EmployeeJobPosition extends Pivot
 {
-    use UsesTenantConnection;
     public $incrementing = true;
 
     protected $guarded = [];

@@ -13,7 +13,6 @@ use App\Models\Assets\Currency;
 use App\Models\Helpers\Address;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasTenantAddress;
-use App\Models\Traits\UsesGroupConnection;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -81,7 +80,6 @@ use Spatie\Sluggable\SlugOptions;
  */
 class PurchaseOrder extends Model implements Auditable
 {
-    use UsesGroupConnection;
     use SoftDeletes;
     use HasTenantAddress;
     use HasSlug;

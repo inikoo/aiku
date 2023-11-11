@@ -7,7 +7,6 @@
 
 namespace App\Models\Procurement;
 
-use App\Models\Traits\UsesGroupConnection;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -33,8 +32,6 @@ use Illuminate\Support\Carbon;
  */
 class SupplierProductTradeUnit extends Pivot
 {
-    use UsesGroupConnection;
-
     protected $table     = 'supplier_product_trade_unit';
     public $incrementing = true;
 

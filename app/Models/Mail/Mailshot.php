@@ -19,7 +19,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
-use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
+
 use Spatie\Sluggable\SlugOptions;
 
 /**
@@ -49,7 +49,6 @@ use Spatie\Sluggable\SlugOptions;
  */
 class Mailshot extends Model
 {
-    use UsesTenantConnection;
     use SoftDeletes;
     use HasFactory;
 
