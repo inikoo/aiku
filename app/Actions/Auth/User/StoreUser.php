@@ -9,7 +9,7 @@ namespace App\Actions\Auth\User;
 
 use App\Actions\Auth\GroupUser\Hydrators\GroupUserHydrateTenants;
 use App\Actions\Central\User\Hydrators\UserHydrateUniversalSearch;
-use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateUsers;
+use App\Actions\Organisation\Organisation\Hydrators\OrganisationHydrateUsers;
 use App\Models\Auth\GroupUser;
 use App\Models\Auth\Guest;
 use App\Models\Auth\User;
@@ -38,9 +38,9 @@ class StoreUser
      */
     public function handle(Guest|Employee $parent, GroupUser $groupUser, array $objectData = []): User|ValidationException
     {
-        $tenant = app('currentTenant');
+        $organisation = app('currentTenant');
 
-        $user = DB::transaction(function () use ($groupUser, $tenant, $parent, $objectData) {
+        $user = DB::transaction(function () use ($groupUser, $organisation, $parent, $objectData) {
             /** @var \App\Models\Auth\User $user */
 
             $dataFromGroupUser = [
@@ -66,7 +66,7 @@ class StoreUser
                 array_merge($objectData, $dataFromGroupUser)
             );
             $groupUser->tenants()
-                ->attach($tenant->id, [
+                ->attach($organisation->id, [
                     'user_id' => $user->id,
                     'data'    => [
                         'contact_name' => $parent->contact_name,
@@ -79,11 +79,11 @@ class StoreUser
         });
 
         if ($groupUser->avatar) {
-            $groupUser->avatar->tenants()->attach($tenant->id);
+            $groupUser->avatar->tenants()->attach($organisation->id);
         }
 
         $groupUser->refresh();
-        TenantHydrateUsers::dispatch($tenant);
+        OrganisationHydrateUsers::dispatch($organisation);
         GroupUserHydrateTenants::dispatch($groupUser);
         UserHydrateUniversalSearch::dispatch($user);
 

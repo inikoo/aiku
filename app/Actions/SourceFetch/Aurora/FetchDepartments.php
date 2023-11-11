@@ -10,7 +10,7 @@ namespace App\Actions\SourceFetch\Aurora;
 use App\Actions\Market\ProductCategory\StoreProductCategory;
 use App\Actions\Market\ProductCategory\UpdateProductCategory;
 use App\Models\Market\ProductCategory;
-use App\Services\Tenant\SourceTenantService;
+use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 
@@ -18,9 +18,9 @@ class FetchDepartments extends FetchAction
 {
     public string $commandSignature = 'fetch:departments {tenants?*} {--s|source_id=} {--d|db_suffix=}';
 
-    public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?ProductCategory
+    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?ProductCategory
     {
-        if ($productCategoryData = $tenantSource->fetchDepartment($tenantSourceId)) {
+        if ($productCategoryData = $organisationSource->fetchDepartment($organisationSourceId)) {
             if ($productCategory = ProductCategory::where('source_department_id', $productCategoryData['department']['source_department_id'])
                 ->first()) {
                 $productCategory = UpdateProductCategory::run(

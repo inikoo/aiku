@@ -16,7 +16,7 @@ use App\Models\Mail\Mailroom;
 use App\Models\Mail\Mailshot;
 use App\Models\Mail\Outbox;
 use App\Models\Market\Shop;
-use App\Models\Tenancy\Tenant;
+use App\Models\Organisation\Organisation;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -30,7 +30,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 class IndexDispatchedEmails extends InertiaAction
 {
     /** @noinspection PhpUndefinedMethodInspection */
-    public function handle(Mailshot|Outbox|Mailroom|Tenant|Shop $parent, $prefix=null): LengthAwarePaginator
+    public function handle(Mailshot|Outbox|Mailroom|Organisation|Shop $parent, $prefix=null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -165,7 +165,7 @@ class IndexDispatchedEmails extends InertiaAction
     }
 
 
-    public function getBreadcrumbs(string $routeName, Mailshot|Outbox|Mailroom|Tenant $parent): array
+    public function getBreadcrumbs(string $routeName, Mailshot|Outbox|Mailroom|Organisation $parent): array
     {
         $headCrumb = function (array $routeParameters = []) use ($routeName) {
             return [

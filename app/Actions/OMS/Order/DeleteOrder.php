@@ -10,7 +10,7 @@ namespace App\Actions\OMS\Order;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\OMS\Order\OrderStateEnum;
 use App\Models\OMS\Order;
-use App\Models\Tenancy\Tenant;
+use App\Models\Organisation\Organisation;
 use Illuminate\Console\Command;
 use Illuminate\Validation\ValidationException;
 
@@ -39,7 +39,7 @@ class DeleteOrder
 
     public function asCommand(Command $command): int
     {
-        Tenant::where('slug', $command->argument('tenant'))->first()->makeCurrent();
+        Organisation::where('slug', $command->argument('tenant'))->first()->makeCurrent();
         $this->handle(Order::findOrFail($command->argument('id')));
 
         return 0;

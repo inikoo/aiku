@@ -9,7 +9,7 @@ namespace App\Actions\UI\HumanResources;
 
 use App\Actions\UI\Dashboard\ShowDashboard;
 use App\Actions\UI\WithInertia;
-use App\Models\Tenancy\Tenant;
+use App\Models\Organisation\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -34,8 +34,8 @@ class ShowHumanResourcesDashboard
 
     public function htmlResponse(): Response
     {
-        /** @var Tenant $tenant */
-        $tenant = app('currentTenant');
+        /** @var Organisation $organisation */
+        $organisation = app('currentTenant');
 
         return Inertia::render(
             'HumanResources/ShowHumanResourcesDashboard',
@@ -48,12 +48,12 @@ class ShowHumanResourcesDashboard
                 'stats'       => [
                     [
                         'name' => __('employees'),
-                        'stat' => $tenant->stats->number_employees,
+                        'stat' => $organisation->stats->number_employees,
                         'href' => ['hr.employees.index']
                     ],
                     [
                         'name' => __('working places'),
-                        'stat' => $tenant->stats->number_employees_state_working,
+                        'stat' => $organisation->stats->number_employees_state_working,
                         'href' => ['hr.working-places.index']
                     ]
                 ]

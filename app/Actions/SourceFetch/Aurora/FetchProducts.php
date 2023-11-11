@@ -12,7 +12,7 @@ use App\Actions\Market\Product\SyncProductTradeUnits;
 use App\Actions\Market\Product\UpdateProduct;
 use App\Models\Market\HistoricProduct;
 use App\Models\Market\Product;
-use App\Services\Tenant\SourceTenantService;
+use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 
@@ -20,9 +20,9 @@ class FetchProducts extends FetchAction
 {
     public string $commandSignature = 'fetch:products {tenants?*} {--s|source_id=} {--S|shop= : Shop slug} {--N|only_new : Fetch only new}  {--d|db_suffix=} {--r|reset}';
 
-    public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Product
+    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Product
     {
-        if ($productData = $tenantSource->fetchProduct($tenantSourceId)) {
+        if ($productData = $organisationSource->fetchProduct($organisationSourceId)) {
             if ($product = Product::withTrashed()->where('source_id', $productData['product']['source_id'])
                 ->first()) {
                 $product = UpdateProduct::run(
@@ -46,7 +46,7 @@ class FetchProducts extends FetchAction
 
             $historicProduct = HistoricProduct::where('source_id', $productData['historic_product_source_id'])->first();
             if (!$historicProduct) {
-                $historicProduct = FetchHistoricProducts::run($tenantSource, $productData['historic_product_source_id']);
+                $historicProduct = FetchHistoricProducts::run($organisationSource, $productData['historic_product_source_id']);
             }
 
             $product->update(
@@ -56,7 +56,7 @@ class FetchProducts extends FetchAction
             );
 
 
-            $tradeUnits = $tenantSource->fetchProductStocks($productData['product']['source_id']);
+            $tradeUnits = $organisationSource->fetchProductStocks($productData['product']['source_id']);
 
 
             SyncProductTradeUnits::run($product, $tradeUnits['product_stocks']);

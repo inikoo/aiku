@@ -10,7 +10,7 @@ namespace App\Models\Auth;
 use App\Enums\Auth\User\UserAuthTypeEnum;
 use App\Models\Central\CentralMedia;
 use App\Models\Media\GroupMedia;
-use App\Models\Tenancy\Tenant;
+use App\Models\Organisation\Organisation;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -46,7 +46,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $legacy_password source password
  * @property-read CentralMedia|null $avatar
  * @property-read MediaCollection<int, GroupMedia> $media
- * @property-read TenantCollection<int, Tenant> $tenants
+ * @property-read TenantCollection<int, Organisation> $organisations
  * @method static Builder|GroupUser newModelQuery()
  * @method static Builder|GroupUser newQuery()
  * @method static Builder|GroupUser onlyTrashed()
@@ -88,7 +88,7 @@ class GroupUser extends Model implements HasMedia
 
     public function tenants(): BelongsToMany
     {
-        return $this->BelongsToMany(Tenant::class)->using(GroupUserTenant::class)
+        return $this->BelongsToMany(Organisation::class)->using(GroupUserTenant::class)
             ->withPivot('user_id', 'data')
             ->withTimestamps();
     }

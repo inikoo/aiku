@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Wed, 22 Mar 2023 14:50:20 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Sat, 11 Nov 2023 23:23:00 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
@@ -12,19 +12,19 @@ use Illuminate\Support\Facades\Schema;
 return new class () extends Migration {
     public function up()
     {
-        Schema::create('central_media_tenant', function (Blueprint $table) {
+        Schema::create('central_media_organisation', function (Blueprint $table) {
             $table->unsignedInteger('central_media_id')->index();
             $table->foreign('central_media_id')->references('id')->on('central_media');
-            $table->unsignedSmallInteger('tenant_id')->index();
-            $table->foreign('tenant_id')->references('id')->on('tenants');
+            $table->unsignedSmallInteger('organisation_id')->index();
+            $table->foreign('organisation_id')->references('id')->on('organisations');
             $table->timestampsTz();
-            $table->unique(['central_media_id', 'tenant_id']);
+            $table->unique(['central_media_id', 'organisation_id']);
         });
     }
 
 
     public function down()
     {
-        Schema::dropIfExists('central_media_tenant');
+        Schema::dropIfExists('central_media_organisation');
     }
 };

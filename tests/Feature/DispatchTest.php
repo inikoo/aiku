@@ -15,8 +15,8 @@ use App\Actions\Inventory\Stock\StoreStock;
 use App\Actions\Market\Shop\StoreShop;
 use App\Actions\OMS\Order\StoreOrder;
 use App\Actions\OMS\Transaction\StoreTransaction;
-use App\Actions\Tenancy\Group\StoreGroup;
-use App\Actions\Tenancy\Tenant\StoreTenant;
+use App\Actions\Organisation\Group\StoreGroup;
+use App\Actions\Organisation\Organisation\StoreOrganisation;
 use App\Enums\Dispatch\DeliveryNote\DeliveryNoteStateEnum;
 use App\Enums\Dispatch\DeliveryNote\DeliveryNoteStatusEnum;
 use App\Enums\Mail\Outbox\OutboxTypeEnum;
@@ -24,8 +24,8 @@ use App\Models\Helpers\Address;
 use App\Models\Inventory\Stock;
 use App\Models\Market\Shop;
 use App\Models\OMS\Transaction;
-use App\Models\Tenancy\Group;
-use App\Models\Tenancy\Tenant;
+use App\Models\Organisation\Group;
+use App\Models\Organisation\Organisation;
 use Throwable;
 
 beforeAll(function () {
@@ -34,12 +34,12 @@ beforeAll(function () {
 
 
 beforeEach(function () {
-    $tenant = Tenant::first();
-    if (!$tenant) {
-        $group  = StoreGroup::make()->action(Group::factory()->definition());
-        $tenant = StoreTenant::make()->action($group, Tenant::factory()->definition());
+    $organisation = Organisation::first();
+    if (!$organisation) {
+        $group        = StoreGroup::make()->action(Group::factory()->definition());
+        $organisation = StoreOrganisation::make()->action($group, Organisation::factory()->definition());
     }
-    $tenant->makeCurrent();
+    $organisation->makeCurrent();
 });
 
 test('create shipper', function () {

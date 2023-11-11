@@ -9,7 +9,7 @@ namespace App\Models\Central;
 
 use App\Models\Market\Shop;
 use App\Models\SysAdmin\SysUser;
-use App\Models\Tenancy\Tenant;
+use App\Models\Organisation\Organisation;
 use App\Models\Web\Website;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
@@ -28,7 +28,7 @@ use Spatie\Sluggable\SlugOptions;
  *
  * @property int $id
  * @property string $slug
- * @property int $tenant_id
+ * @property int $organisation_id
  * @property int $website_id
  * @property int $shop_id
  * @property string $domain
@@ -42,7 +42,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Shop|null $shop
  * @property-read \App\Models\Central\DomainStats|null $stats
  * @property-read SysUser|null $sysUser
- * @property-read Tenant $tenant
+ * @property-read Organisation $organisation
  * @property-read Website|null $website
  * @method static Builder|Domain newModelQuery()
  * @method static Builder|Domain newQuery()
@@ -73,7 +73,7 @@ class Domain extends Model
 
     public function tenant(): BelongsTo
     {
-        return $this->belongsTo(Tenant::class);
+        return $this->belongsTo(Organisation::class);
     }
 
     public function stats(): HasOne

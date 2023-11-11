@@ -10,7 +10,7 @@ namespace App\Actions\SourceFetch\Aurora;
 use App\Actions\Accounting\Payment\StorePayment;
 use App\Actions\Accounting\Payment\UpdatePayment;
 use App\Models\Accounting\Payment;
-use App\Services\Tenant\SourceTenantService;
+use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 
@@ -19,9 +19,9 @@ class FetchPayments extends FetchAction
     public string $commandSignature = 'fetch:payments {tenants?*} {--s|source_id=}';
 
 
-    public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Payment
+    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Payment
     {
-        if ($paymentData = $tenantSource->fetchPayment($tenantSourceId)) {
+        if ($paymentData = $organisationSource->fetchPayment($organisationSourceId)) {
             if ($payment = Payment::where('source_id', $paymentData['payment']['source_id'])
                 ->first()) {
                 $payment = UpdatePayment::run(

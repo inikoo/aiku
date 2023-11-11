@@ -22,7 +22,7 @@ use Laravel\Sanctum\HasApiTokens;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Tenancy\TenantPersonalAccessToken> $tokens
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Organisation\TenantPersonalAccessToken> $tokens
  * @property-read Model|\Eloquent $userable
  * @method static Builder|ApiTenantUser newModelQuery()
  * @method static Builder|ApiTenantUser newQuery()

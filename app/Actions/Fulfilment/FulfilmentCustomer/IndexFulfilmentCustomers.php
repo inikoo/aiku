@@ -14,7 +14,7 @@ use App\Http\Resources\Sales\CustomerResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\CRM\Customer;
 use App\Models\Market\Shop;
-use App\Models\Tenancy\Tenant;
+use App\Models\Organisation\Organisation;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -26,7 +26,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexFulfilmentCustomers extends InertiaAction
 {
-    public function handle(Tenant|Shop $parent): LengthAwarePaginator
+    public function handle(Organisation|Shop $parent): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -70,13 +70,13 @@ class IndexFulfilmentCustomers extends InertiaAction
         return function (InertiaTable $table) use ($parent) {
             $table->column(key: 'slug', label: __('code'), canBeHidden: false, sortable: true, searchable: true);
 
-            if (class_basename($parent) == 'Tenant') {
+            if (class_basename($parent) == 'Organisation') {
                 $table->column(key: 'shop', label: __('shop'), canBeHidden: false, sortable: true, searchable: true);
             }
 
             $table->withEmptyState(
                 match (class_basename($parent)) {
-                    'Tenant' => [
+                    'Organisation' => [
                         'title'       => __("No customers found"),
                         'description' => __("In fact, is no even a shop yet 🤷🏽‍♂️"),
                         'count'       => $parent->crmStats->number_customers,

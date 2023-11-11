@@ -10,7 +10,7 @@ namespace App\Actions\Auth\GroupUser;
 use App\Actions\Auth\GroupUser\UI\SetGroupUserAvatar;
 use App\Enums\Auth\User\UserAuthTypeEnum;
 use App\Models\Auth\GroupUser;
-use App\Models\Tenancy\Group;
+use App\Models\Organisation\Group;
 use App\Rules\AlphaDashDot;
 use Exception;
 use Illuminate\Console\Command;

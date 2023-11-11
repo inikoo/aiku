@@ -12,7 +12,7 @@ use App\Actions\UI\Dashboard\ShowDashboard;
 use App\Actions\Web\Website\UI\ShowWebsite;
 use App\Http\Resources\Web\WebpageResource;
 use App\InertiaTable\InertiaTable;
-use App\Models\Tenancy\Tenant;
+use App\Models\Organisation\Organisation;
 use App\Models\Web\Webpage;
 use App\Models\Web\Website;
 use Closure;
@@ -27,7 +27,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexWebpages extends InertiaAction
 {
-    private Tenant|Website $parent;
+    private Organisation|Website $parent;
 
 
     public function authorize(ActionRequest $request): bool
@@ -56,7 +56,7 @@ class IndexWebpages extends InertiaAction
     }
 
     /** @noinspection PhpUndefinedMethodInspection */
-    public function handle(Tenant|Website $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Organisation|Website $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -106,7 +106,7 @@ class IndexWebpages extends InertiaAction
                 ->withModelOperations($modelOperations)
                 ->withEmptyState(
                     match (class_basename($parent)) {
-                        'Tenant' => [
+                        'Organisation' => [
                             'title'       => __("No webpages found"),
                             'description' => $parent->webStats->number_websites == 0 ? __('Nor any website exist 🤭') : null,
                             'count'       => $parent->webStats->number_webpages,

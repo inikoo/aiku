@@ -7,7 +7,7 @@
 
 namespace App\Models\Central;
 
-use App\Models\Tenancy\Tenant;
+use App\Models\Organisation\Organisation;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -26,7 +26,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $id
  * @property string $username
  * @property string $email
- * @property int $tenant_id
+ * @property int $organisation_id
  * @property string|null $email_verified_at
  * @property string $password
  * @property string|null $remember_token
@@ -34,7 +34,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property array $settings
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read Tenant $tenant
+ * @property-read Organisation $organisation
  * @property-read Collection<int, PersonalAccessToken> $tokens
  * @method static Builder|User newModelQuery()
  * @method static Builder|User newQuery()
@@ -76,6 +76,6 @@ class User extends Authenticatable
 
     public function tenant(): BelongsTo
     {
-        return $this->belongsTo(Tenant::class);
+        return $this->belongsTo(Organisation::class);
     }
 }

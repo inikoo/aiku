@@ -9,7 +9,7 @@ namespace App\Actions\SourceFetch\Aurora;
 
 use App\Actions\Mail\Outbox\UpdateOutbox;
 use App\Models\Mail\Outbox;
-use App\Services\Tenant\SourceTenantService;
+use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;
@@ -19,9 +19,9 @@ class FetchOutboxes extends FetchAction
     public string $commandSignature = 'fetch:outboxes {tenants?*} {--s|source_id=}';
 
 
-    #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Outbox
+    #[NoReturn] public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Outbox
     {
-        if ($shopData = $tenantSource->fetchOutbox($tenantSourceId)) {
+        if ($shopData = $organisationSource->fetchOutbox($organisationSourceId)) {
             if ($outbox = Outbox::where('source_id', $shopData['outbox']['source_id'])
                 ->first()) {
                 $outbox = UpdateOutbox::run(

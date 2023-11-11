@@ -12,7 +12,7 @@ namespace App\Actions\CRM\Customer;
 use App\Actions\Auth\WebUser\HydrateWebUser;
 use App\Actions\Auth\WebUser\StoreWebUser;
 use App\Models\CRM\Customer;
-use App\Models\Tenancy\Tenant;
+use App\Models\Organisation\Organisation;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -39,9 +39,9 @@ class CreateCustomerApiUser
 
     public function asCommand(Command $command): int
     {
-        $tenant = Tenant::where('slug', ($command->argument('tenant_code')))->firstOrFail();
+        $organisation = Organisation::where('slug', ($command->argument('tenant_code')))->firstOrFail();
 
-        return $tenant->execute(function () use ($command) {
+        return $organisation->execute(function () use ($command) {
             if ($customer = Customer::find($command->argument('customer_id'))) {
                 if (!$customer->shop->website) {
                     $command->error("Shop {$customer->shop->name} do not have website");

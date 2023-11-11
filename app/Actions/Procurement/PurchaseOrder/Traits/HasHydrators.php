@@ -9,7 +9,7 @@ namespace App\Actions\Procurement\PurchaseOrder\Traits;
 
 use App\Actions\Procurement\Agent\Hydrators\AgentHydratePurchaseOrders;
 use App\Actions\Procurement\Supplier\Hydrators\SupplierHydratePurchaseOrders;
-use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateProcurement;
+use App\Actions\Organisation\Organisation\Hydrators\OrganisationHydrateProcurement;
 use App\Models\Procurement\PurchaseOrder;
 
 trait HasHydrators
@@ -24,6 +24,6 @@ trait HasHydrators
             AgentHydratePurchaseOrders::dispatch($parent);
         }
 
-        TenantHydrateProcurement::dispatch(app('currentTenant'));
+        OrganisationHydrateProcurement::dispatch(app('currentTenant'));
     }
 }

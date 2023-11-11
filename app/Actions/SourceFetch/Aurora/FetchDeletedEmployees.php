@@ -10,7 +10,7 @@ namespace App\Actions\SourceFetch\Aurora;
 use App\Actions\HumanResources\Employee\StoreEmployee;
 use App\Actions\HumanResources\Employee\UpdateEmployee;
 use App\Models\HumanResources\Employee;
-use App\Services\Tenant\SourceTenantService;
+use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;
@@ -19,9 +19,9 @@ class FetchDeletedEmployees extends FetchAction
 {
     public string $commandSignature = 'fetch:deleted-employees {tenants?*} {--s|source_id=} {--d|db_suffix=}';
 
-    #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Employee
+    #[NoReturn] public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Employee
     {
-        if ($employeeData = $tenantSource->fetchDeletedEmployee($tenantSourceId)) {
+        if ($employeeData = $organisationSource->fetchDeletedEmployee($organisationSourceId)) {
             if ($employee = Employee::withTrashed()->where('source_id', $employeeData['employee']['source_id'])->first()) {
                 $employee = UpdateEmployee::run(
                     employee:  $employee,

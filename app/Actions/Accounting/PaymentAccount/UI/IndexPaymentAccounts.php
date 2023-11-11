@@ -15,7 +15,7 @@ use App\InertiaTable\InertiaTable;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentServiceProvider;
 use App\Models\Market\Shop;
-use App\Models\Tenancy\Tenant;
+use App\Models\Organisation\Organisation;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -29,7 +29,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 class IndexPaymentAccounts extends InertiaAction
 {
     /** @noinspection PhpUndefinedMethodInspection */
-    public function handle(Shop|Tenant|PaymentServiceProvider $parent, $prefix=null): LengthAwarePaginator
+    public function handle(Shop|Organisation|PaymentServiceProvider $parent, $prefix=null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {

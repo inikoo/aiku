@@ -7,8 +7,8 @@
 
 namespace App\Actions;
 
-use App\Actions\Traits\WithTenantsArgument;
-use App\Models\Tenancy\Tenant;
+use App\Actions\Traits\WithOrganisationsArgument;
+use App\Models\Organisation\Organisation;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
@@ -17,9 +17,9 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class HydrateModel
 {
     use AsAction;
-    use WithTenantsArgument;
+    use WithOrganisationsArgument;
 
-    protected Tenant $tenant;
+    protected Organisation $organisation;
 
 
     protected function getModel(int $id): ?Model
@@ -35,12 +35,12 @@ class HydrateModel
 
     public function asCommand(Command $command): int
     {
-        $tenants  = $this->getTenants($command);
+        $organisations  = $this->getTenants($command);
 
         $exitCode = 0;
 
-        foreach ($tenants as $tenant) {
-            $result = (int)$tenant->execute(function () use ($command) {
+        foreach ($organisations as $organisation) {
+            $result = (int)$organisation->execute(function () use ($command) {
                 if ($command->option('id')) {
                     if ($model = $this->getModel($command->option('id'))) {
                         $this->handle($model);

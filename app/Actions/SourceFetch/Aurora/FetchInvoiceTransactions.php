@@ -10,7 +10,7 @@ namespace App\Actions\SourceFetch\Aurora;
 use App\Actions\Accounting\InvoiceTransaction\StoreInvoiceTransaction;
 use App\Models\Accounting\Invoice;
 use App\Models\Accounting\InvoiceTransaction;
-use App\Services\Tenant\SourceTenantService;
+use App\Services\Organisation\SourceOrganisationService;
 use JetBrains\PhpStorm\NoReturn;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -19,9 +19,9 @@ class FetchInvoiceTransactions
     use AsAction;
 
 
-    #[NoReturn] public function handle(SourceTenantService $tenantSource, int $source_id, Invoice $invoice): ?InvoiceTransaction
+    #[NoReturn] public function handle(SourceOrganisationService $organisationSource, int $source_id, Invoice $invoice): ?InvoiceTransaction
     {
-        if ($transactionData = $tenantSource->fetchInvoiceTransaction(id: $source_id)) {
+        if ($transactionData = $organisationSource->fetchInvoiceTransaction(id: $source_id)) {
             if (!InvoiceTransaction::where('source_id', $transactionData['transaction']['source_id'])
                 ->first()) {
                 return StoreInvoiceTransaction::run(

@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Fri, 03 Mar 2023 23:04:55 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Sat, 11 Nov 2023 23:22:59 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
@@ -13,7 +13,7 @@ return new class () extends Migration {
     public function up()
     {
         Schema::table('groups', function (Blueprint $table) {
-            $table->foreign('owner_id')->references('id')->on('tenants');
+            $table->foreign('owner_id')->references('id')->on('organisations');
         });
     }
 

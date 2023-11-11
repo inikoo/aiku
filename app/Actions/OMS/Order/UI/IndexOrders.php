@@ -17,7 +17,7 @@ use App\InertiaTable\InertiaTable;
 use App\Models\CRM\Customer;
 use App\Models\Market\Shop;
 use App\Models\OMS\Order;
-use App\Models\Tenancy\Tenant;
+use App\Models\Organisation\Organisation;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -28,7 +28,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexOrders extends InertiaAction
 {
-    public function handle(Tenant|Shop|Customer $parent): LengthAwarePaginator
+    public function handle(Organisation|Shop|Customer $parent): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {

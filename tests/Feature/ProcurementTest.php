@@ -28,9 +28,9 @@ use App\Actions\Procurement\PurchaseOrder\UpdateStateToSubmittedPurchaseOrder;
 use App\Actions\Procurement\Supplier\GetSupplier;
 use App\Actions\Procurement\SupplierProduct\StoreSupplierProduct;
 use App\Actions\Procurement\SupplierProduct\SyncSupplierProductTradeUnits;
-use App\Actions\Tenancy\Group\StoreGroup;
-use App\Actions\Tenancy\Tenant\AttachAgent;
-use App\Actions\Tenancy\Tenant\StoreTenant;
+use App\Actions\Organisation\Group\StoreGroup;
+use App\Actions\Organisation\Organisation\AttachAgent;
+use App\Actions\Organisation\Organisation\StoreOrganisation;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Models\Goods\TradeUnit;
 use App\Models\Procurement\Agent;
@@ -38,8 +38,8 @@ use App\Models\Procurement\PurchaseOrder;
 use App\Models\Procurement\PurchaseOrderItem;
 use App\Models\Procurement\Supplier;
 use App\Models\Procurement\SupplierProduct;
-use App\Models\Tenancy\Group;
-use App\Models\Tenancy\Tenant;
+use App\Models\Organisation\Group;
+use App\Models\Organisation\Organisation;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Validation\ValidationException;
 
@@ -49,8 +49,8 @@ beforeAll(function () {
 
 
 beforeEach(function () {
-    $tenant = Tenant::first();
-    if (!$tenant) {
+    $organisation = Organisation::first();
+    if (!$organisation) {
         $group = StoreGroup::make()->action(
             array_merge(
                 Group::factory()->definition(),
@@ -59,26 +59,26 @@ beforeEach(function () {
                 ]
             )
         );
-        $tenant = StoreTenant::make()->action(
+        $organisation = StoreOrganisation::make()->action(
             $group,
             array_merge(
-                Tenant::factory()->definition(),
+                Organisation::factory()->definition(),
                 [
                     'code' => 'AGB'
                 ]
             )
         );
-        StoreTenant::make()->action(
+        StoreOrganisation::make()->action(
             $group,
             array_merge(
-                Tenant::factory()->definition(),
+                Organisation::factory()->definition(),
                 [
                     'code' => 'AUS'
                 ]
             )
         );
     }
-    $tenant->makeCurrent();
+    $organisation->makeCurrent();
 });
 
 test('create agent', function () {
@@ -93,8 +93,8 @@ test('create agent', function () {
         ->and(app('currentTenant')->procurementStats->number_agents_status_owner)->toBe(1)
         ->and(app('currentTenant')->procurementStats->number_archived_agents)->toBe(0);
 
-    $tenant2 = Tenant::where('slug', 'aus')->first();
-    expect($tenant2->procurementStats->number_agents_status_owner)->toBe(0);
+    $organisation2 = Organisation::where('slug', 'aus')->first();
+    expect($organisation2->procurementStats->number_agents_status_owner)->toBe(0);
 
     return $agent;
 });
@@ -108,7 +108,7 @@ test('create another agent', function () {
     );
 
     expect($agent)->toBeInstanceOf(Agent::class)
-        ->and($agent->owner_type)->toBe('Tenant')
+        ->and($agent->owner_type)->toBe('Organisation')
         ->and($agent->owner_id)->toBe(app('currentTenant')->id)
         ->and(app('currentTenant')->procurementStats->number_agents)->toBe(2)
         ->and(app('currentTenant')->procurementStats->number_agents_status_owner)->toBe(2)
@@ -119,15 +119,15 @@ test('create another agent', function () {
 
 test('attach agent to other tenant', function ($agent) {
     expect($agent)->toBeInstanceOf(Agent::class);
-    $tenant2 = Tenant::where('slug', 'aus')->first();
+    $organisation2 = Organisation::where('slug', 'aus')->first();
     AttachAgent::run(
-        tenant:$tenant2,
+        tenant:$organisation2,
         agent:$agent
     );
 
-    expect($tenant2->procurementStats->number_agents)->toBe(1)
-        ->and($tenant2->procurementStats->number_agents_status_owner)->toBe(0)
-        ->and($tenant2->procurementStats->number_agents_status_adopted)->toBe(1);
+    expect($organisation2->procurementStats->number_agents)->toBe(1)
+        ->and($organisation2->procurementStats->number_agents_status_owner)->toBe(0)
+        ->and($organisation2->procurementStats->number_agents_status_adopted)->toBe(1);
 })->depends('create another agent');
 
 
@@ -146,8 +146,8 @@ test('change agent owner', function ($agent) {
 })->depends('create agent');
 
 test('check if last tenant cant update', function ($agent) {
-    $tenant2 = Tenant::where('slug', 'aus')->first();
-    $tenant2->makeCurrent();
+    $organisation2 = Organisation::where('slug', 'aus')->first();
+    $organisation2->makeCurrent();
 
     expect(function () use ($agent) {
         UpdateAgent::make()->action($agent, Agent::factory()->definition());
@@ -221,8 +221,8 @@ test('create supplier product in agent supplier', function ($supplier) {
 })->depends('create supplier in agent');
 
 test('others tenant can view supplier', function ($agent) {
-    $tenant = Tenant::where('slug', 'aus')->first();
-    $tenant->makeCurrent();
+    $organisation = Organisation::where('slug', 'aus')->first();
+    $organisation->makeCurrent();
 
     $supplier = GetSupplier::run($agent);
 

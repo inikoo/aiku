@@ -7,10 +7,10 @@
 
 namespace App\Models\Auth;
 
-use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateUsers;
+use App\Actions\Organisation\Organisation\Hydrators\OrganisationHydrateUsers;
 use App\Enums\Auth\User\UserAuthTypeEnum;
 use App\Models\Assets\Language;
-use App\Models\Tenancy\Tenant;
+use App\Models\Organisation\Organisation;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\WithPushNotifications;
 use App\Models\Traits\HasHistory;
@@ -42,7 +42,7 @@ use OwenIt\Auditing\Contracts\Auditable;
  * @property bool $status
  * @property string $username mirror group_users.username
  * @property string|null $password mirror group_users.password
- * @property string|null $type same as parent_type excluding Tenant, for use in UI
+ * @property string|null $type same as parent_type excluding Organisation, for use in UI
  * @property UserAuthTypeEnum $auth_type
  * @property string|null $contact_name no-normalised depends on parent
  * @property string|null $email mirror group_users.email
@@ -70,8 +70,8 @@ use OwenIt\Auditing\Contracts\Auditable;
  * @property-read Collection<int, \Spatie\Permission\Models\Permission> $permissions
  * @property-read Collection<int, \Spatie\Permission\Models\Role> $roles
  * @property-read \App\Models\Auth\UserStats|null $stats
- * @property-read Tenant $tenant
- * @property-read Collection<int, \App\Models\Tenancy\TenantPersonalAccessToken> $tokens
+ * @property-read Organisation $organisation
+ * @property-read Collection<int, \App\Models\Organisation\TenantPersonalAccessToken> $tokens
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
  * @method static \Database\Factories\Auth\UserFactory factory($count = null, $state = [])
  * @method static Builder|User newModelQuery()
@@ -131,7 +131,7 @@ class User extends Authenticatable implements Auditable
         static::updated(function ($item) {
             if (!$item->wasRecentlyCreated) {
                 if ($item->wasChanged('status')) {
-                    TenantHydrateUsers::dispatch(app('currentTenant'));
+                    OrganisationHydrateUsers::dispatch(app('currentTenant'));
                 }
             }
         });
@@ -147,7 +147,7 @@ class User extends Authenticatable implements Auditable
 
     public function tenant(): BelongsTo
     {
-        return $this->belongsTo(Tenant::class);
+        return $this->belongsTo(Organisation::class);
     }
 
     public function groupUser(): BelongsTo

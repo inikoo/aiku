@@ -37,7 +37,7 @@ class EditSystemSettings
     public function htmlResponse(): Response
     {
 
-        $tenant= app('currentTenant');
+        $organisation= app('currentTenant');
         return Inertia::render(
             'EditModel',
             [
@@ -56,12 +56,12 @@ class EditSystemSettings
                                 "name" => [
                                     "type"  => "input",
                                     "label" => __("Name"),
-                                    "value" => Arr::get($tenant->settings, 'ui.name', $tenant->name)
+                                    "value" => Arr::get($organisation->settings, 'ui.name', $organisation->name)
                                 ],
                                 "logo" => [
                                     "type"  => "avatar",
                                     "label" => __("logo"),
-                                    "value" => $tenant->logo_id,
+                                    "value" => $organisation->logo_id,
                                 ],
                             ],
                         ],
@@ -93,17 +93,17 @@ class EditSystemSettings
                                 "google_client_id" => [
                                     "type"  => "input",
                                     "label" => __("client ID"),
-                                    "value" => Arr::get($tenant->settings, 'google.id')
+                                    "value" => Arr::get($organisation->settings, 'google.id')
                                 ],
                                 "google_client_secret" => [
                                     "type"  => "input",
                                     "label" => __("client secret"),
-                                    "value" => Arr::get($tenant->settings, 'google.secret')
+                                    "value" => Arr::get($organisation->settings, 'google.secret')
                                 ],
                                 "google_drive_folder_key" => [
                                     "type"  => "input",
                                     "label" => __("google drive folder key"),
-                                    "value" => Arr::get($tenant->settings, 'google.drive.folder')
+                                    "value" => Arr::get($organisation->settings, 'google.drive.folder')
                                 ],
                                 "google_redirect_uri" => [
                                     "type"       => "input",

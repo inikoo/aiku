@@ -15,7 +15,7 @@ use App\Actions\Procurement\Marketplace\Agent\UI\ShowMarketplaceAgent;
 use App\Http\Resources\Helpers\AddressFormFieldsResource;
 use App\Models\Helpers\Address;
 use App\Models\Procurement\Agent;
-use App\Models\Tenancy\Tenant;
+use App\Models\Organisation\Organisation;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
@@ -24,7 +24,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class CreateMarketplaceSupplier extends InertiaAction
 {
-    public function handle(Tenant|Agent $owner, ActionRequest $request): Response
+    public function handle(Organisation|Agent $owner, ActionRequest $request): Response
     {
         $container = null;
         if (class_basename($owner) == 'Agent') {

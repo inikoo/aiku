@@ -7,14 +7,14 @@
 
 namespace App\Actions\Dropshipping\CustomerClient\Hydrators;
 
-use App\Actions\Traits\WithTenantJob;
+use App\Actions\Traits\WithOrganisationJob;
 use App\Models\Dropshipping\CustomerClient;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class CustomerClientHydrateUniversalSearch
 {
     use AsAction;
-    use WithTenantJob;
+    use WithOrganisationJob;
 
     public function handle(CustomerClient $customerClient): void
     {

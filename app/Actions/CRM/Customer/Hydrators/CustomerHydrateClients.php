@@ -7,7 +7,7 @@
 
 namespace App\Actions\CRM\Customer\Hydrators;
 
-use App\Actions\Traits\WithTenantJob;
+use App\Actions\Traits\WithOrganisationJob;
 use App\Models\CRM\Customer;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -15,7 +15,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class CustomerHydrateClients implements ShouldBeUnique
 {
     use AsAction;
-    use WithTenantJob;
+    use WithOrganisationJob;
 
     public function handle(Customer $customer): void
     {

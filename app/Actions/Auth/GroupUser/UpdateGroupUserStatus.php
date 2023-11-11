@@ -33,9 +33,9 @@ class UpdateGroupUserStatus
         );
 
         if (!$status) {
-            foreach ($groupUser->tenants as $tenant) {
-                $userID = $tenant->pivot->user_id;
-                $tenant->execute(
+            foreach ($groupUser->tenants as $organisation) {
+                $userID = $organisation->pivot->user_id;
+                $organisation->execute(
                     function () use ($userID, $status) {
                         $user = User::find($userID);
                         $user->update([

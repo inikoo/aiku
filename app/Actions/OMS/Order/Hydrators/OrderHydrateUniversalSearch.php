@@ -7,14 +7,14 @@
 
 namespace App\Actions\OMS\Order\Hydrators;
 
-use App\Actions\Traits\WithTenantJob;
+use App\Actions\Traits\WithOrganisationJob;
 use App\Models\OMS\Order;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class OrderHydrateUniversalSearch
 {
     use AsAction;
-    use WithTenantJob;
+    use WithOrganisationJob;
 
     public function handle(Order $order): void
     {

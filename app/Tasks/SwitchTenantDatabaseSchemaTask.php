@@ -21,9 +21,9 @@ class SwitchTenantDatabaseSchemaTask implements SwitchTenantTask
     /**
      * @throws \Spatie\Multitenancy\Exceptions\InvalidConfiguration
      */
-    public function makeCurrent(Tenant $tenant): void
+    public function makeCurrent(Tenant $organisation): void
     {
-        $this->setTenantConnectionDatabaseName($tenant->schema(), $tenant->group->schema());
+        $this->setTenantConnectionDatabaseName($organisation->schema(), $organisation->group->schema());
     }
 
     /**
@@ -39,29 +39,29 @@ class SwitchTenantDatabaseSchemaTask implements SwitchTenantTask
      */
     protected function setTenantConnectionDatabaseName(?string $databaseName, ?string $groupSearchPath): void
     {
-        $tenantConnectionName = $this->tenantDatabaseConnectionName();
+        $organisationConnectionName = $this->tenantDatabaseConnectionName();
 
-        if ($tenantConnectionName === $this->landlordDatabaseConnectionName()) {
+        if ($organisationConnectionName === $this->landlordDatabaseConnectionName()) {
             throw InvalidConfiguration::tenantConnectionIsEmptyOrEqualsToLandlordConnection();
         }
 
-        if (is_null(config("database.connections.$tenantConnectionName"))) {
-            throw InvalidConfiguration::tenantConnectionDoesNotExist($tenantConnectionName);
+        if (is_null(config("database.connections.$organisationConnectionName"))) {
+            throw InvalidConfiguration::tenantConnectionDoesNotExist($organisationConnectionName);
         }
 
 
         config([
-                   "database.connections.$tenantConnectionName.search_path" => $databaseName.' , extensions',
-                   "database.connections.group.search_path"                 => $groupSearchPath.' , extensions'
+                   "database.connections.$organisationConnectionName.search_path" => $databaseName.' , extensions',
+                   "database.connections.group.search_path"                       => $groupSearchPath.' , extensions'
 
         ]);
-        app('db')->extend($tenantConnectionName, function ($config, $name) use ($databaseName) {
+        app('db')->extend($organisationConnectionName, function ($config, $name) use ($databaseName) {
 
             $config['search_path'] = $databaseName.' , extensions';
             return app('db.factory')->make($config, $name);
         });
 
-        DB::purge($tenantConnectionName);
+        DB::purge($organisationConnectionName);
         DB::purge('group');
 
         // Octane will have an old `db` instance in the Model::$resolver.

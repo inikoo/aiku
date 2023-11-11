@@ -1,8 +1,8 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Tue, 30 Aug 2022 18:36:08 Malaysia Time, Kuala Lumpur, Malaysia
- *  Copyright (c) 2022, Raul A Perusquia Flores
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Sat, 11 Nov 2023 23:03:38 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
 use App\Enums\Inventory\Stock\StockStateEnum;
@@ -20,7 +20,7 @@ return new class () extends Migration {
             $table->increments('id');
             $table->string('slug')->unique()->collation('und_ns');
             $table = $this->assertCodeDescription($table);
-            $table->string('owner_type')->comment('Tenant|Customer');
+            $table->string('owner_type')->comment('Organisation|Customer');
             $table->unsignedInteger('owner_id');
             $table->index([
                 'owner_type',

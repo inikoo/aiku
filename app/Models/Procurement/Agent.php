@@ -7,13 +7,13 @@
 
 namespace App\Models\Procurement;
 
-use App\Actions\Tenancy\Group\Hydrators\GroupHydrateProcurement;
-use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateProcurement;
+use App\Actions\Organisation\Group\Hydrators\GroupHydrateProcurement;
+use App\Actions\Organisation\Organisation\Hydrators\OrganisationHydrateProcurement;
 use App\Models\Assets\Currency;
 use App\Models\Helpers\GroupAddress;
 use App\Models\Media\GroupMedia;
 use App\Models\Search\UniversalSearch;
-use App\Models\Tenancy\Tenant;
+use App\Models\Organisation\Organisation;
 use App\Models\Traits\HasGroupAddress;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasPhoto;
@@ -43,7 +43,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property bool $is_private
  * @property string $slug
  * @property string $code
- * @property string $owner_type Who can edit this model Tenant|Agent|Supplier
+ * @property string $owner_type Who can edit this model Organisation|Agent|Supplier
  * @property int $owner_id
  * @property string|null $name
  * @property int|null $image_id
@@ -59,7 +59,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $currency_id
  * @property array $settings
  * @property array $shared_data
- * @property array $tenant_data
+ * @property array $organisation_data
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
@@ -70,7 +70,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Currency $currency
  * @property-read array $es_audits
  * @property-read MediaCollection<int, GroupMedia> $media
- * @property-read Tenant|null $owner
+ * @property-read Organisation|null $owner
  * @property-read Collection<int, \App\Models\Procurement\SupplierProduct> $products
  * @property-read Collection<int, \App\Models\Procurement\PurchaseOrder> $purchaseOrders
  * @property-read \App\Models\Procurement\AgentStats|null $stats
@@ -130,7 +130,7 @@ class Agent extends Model implements HasMedia, Auditable
                 }
 
                 if ($agent->wasChanged('status')) {
-                    TenantHydrateProcurement::dispatch(app('currentTenant'));
+                    OrganisationHydrateProcurement::dispatch(app('currentTenant'));
                     GroupHydrateProcurement::run(app('currentTenant')->group);
                 }
             }
@@ -167,7 +167,7 @@ class Agent extends Model implements HasMedia, Auditable
 
     public function owner(): BelongsTo
     {
-        return $this->belongsTo(Tenant::class, 'owner_id');
+        return $this->belongsTo(Organisation::class, 'owner_id');
     }
 
     public function getRouteKeyName(): string
@@ -187,7 +187,7 @@ class Agent extends Model implements HasMedia, Auditable
 
     public function tenantIds(): array
     {
-        return AgentTenant::where('agent_id', $this->id)->get()->pluck('tenant_id')->all();
+        return AgentOrganisation::where('agent_id', $this->id)->get()->pluck('tenant_id')->all();
     }
 
 }

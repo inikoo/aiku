@@ -9,17 +9,17 @@ namespace App\Actions\Central\User;
 
 use App\Actions\Central\User\Hydrators\UserHydrateUniversalSearch;
 use App\Models\Central\User;
-use App\Models\Tenancy\Tenant;
+use App\Models\Organisation\Organisation;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class StoreUser
 {
     use AsAction;
 
-    public function handle(Tenant $tenant, $modelData): User
+    public function handle(Organisation $organisation, $modelData): User
     {
         /** @var User $user */
-        $user = $tenant->users()->create($modelData);
+        $user = $organisation->users()->create($modelData);
         UserHydrateUniversalSearch::dispatch($user);
         return $user;
     }

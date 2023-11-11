@@ -9,14 +9,14 @@ namespace App\Actions\Dropshipping\CustomerClient;
 
 use App\Actions\CRM\Customer\Hydrators\CustomerHydrateClients;
 use App\Actions\Traits\WithActionUpdate;
-use App\Actions\Traits\WithTenantArgument;
+use App\Actions\Traits\WithOrganisationArgument;
 use App\Models\Dropshipping\CustomerClient;
 use Illuminate\Console\Command;
 
 class DeleteCustomerClient
 {
     use WithActionUpdate;
-    use WithTenantArgument;
+    use WithOrganisationArgument;
 
     public string $commandSignature = 'delete:customer-client {tenant} {id}';
 

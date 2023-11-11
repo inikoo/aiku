@@ -11,7 +11,7 @@ use App\Actions\Procurement\SupplierProduct\StoreSupplierProduct;
 use App\Actions\Procurement\SupplierProduct\SyncSupplierProductTradeUnits;
 use App\Actions\Procurement\SupplierProduct\UpdateSupplierProduct;
 use App\Models\Procurement\SupplierProduct;
-use App\Services\Tenant\SourceTenantService;
+use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;
@@ -21,9 +21,9 @@ class FetchSupplierProducts extends FetchAction
     public string $commandSignature = 'fetch:supplier-products {tenants?*} {--s|source_id=} {--d|db_suffix=}';
 
 
-    #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?SupplierProduct
+    #[NoReturn] public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?SupplierProduct
     {
-        if ($supplierProductData = $tenantSource->fetchSupplierProduct($tenantSourceId)) {
+        if ($supplierProductData = $organisationSource->fetchSupplierProduct($organisationSourceId)) {
 
 
 

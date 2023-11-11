@@ -34,8 +34,8 @@ use App\Actions\OMS\Order\UpdateStateToSettledOrder;
 use App\Actions\OMS\Order\UpdateStateToSubmittedOrder;
 use App\Actions\OMS\Transaction\StoreTransaction;
 use App\Actions\OMS\Transaction\UpdateTransaction;
-use App\Actions\Tenancy\Group\StoreGroup;
-use App\Actions\Tenancy\Tenant\StoreTenant;
+use App\Actions\Organisation\Group\StoreGroup;
+use App\Actions\Organisation\Organisation\StoreOrganisation;
 use App\Enums\Accounting\PaymentServiceProvider\PaymentServiceProviderTypeEnum;
 use App\Enums\CRM\Customer\CustomerStatusEnum;
 use App\Enums\OMS\Order\OrderStateEnum;
@@ -52,8 +52,8 @@ use App\Models\Market\ShippingZoneSchema;
 use App\Models\Market\Shop;
 use App\Models\OMS\Order;
 use App\Models\OMS\Transaction;
-use App\Models\Tenancy\Group;
-use App\Models\Tenancy\Tenant;
+use App\Models\Organisation\Group;
+use App\Models\Organisation\Organisation;
 use Illuminate\Validation\ValidationException;
 
 beforeAll(function () {
@@ -62,12 +62,12 @@ beforeAll(function () {
 
 
 beforeEach(function () {
-    $tenant = Tenant::first();
-    if (!$tenant) {
-        $group  = StoreGroup::make()->action(Group::factory()->definition());
-        $tenant = StoreTenant::make()->action($group, Tenant::factory()->definition());
+    $organisation = Organisation::first();
+    if (!$organisation) {
+        $group        = StoreGroup::make()->action(Group::factory()->definition());
+        $organisation = StoreOrganisation::make()->action($group, Organisation::factory()->definition());
     }
-    $tenant->makeCurrent();
+    $organisation->makeCurrent();
 });
 
 test('create shop', function () {

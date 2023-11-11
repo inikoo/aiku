@@ -7,14 +7,14 @@
 
 namespace App\Actions\Maintenance;
 
-use App\Actions\Traits\WithTenantsArgument;
+use App\Actions\Traits\WithOrganisationsArgument;
 use Illuminate\Console\Command;
 use Lorisleiva\Actions\Concerns\AsCommand;
 
 class RegenerateSlugs
 {
     use asCommand;
-    use WithTenantsArgument;
+    use WithOrganisationsArgument;
 
 
     public string $commandSignature = 'maintenance:regenerate-slugs
@@ -24,11 +24,11 @@ class RegenerateSlugs
 
     public function asCommand(Command $command): int
     {
-        $tenants  = $this->getTenants($command);
-        $exitCode = 0;
+        $organisations  = $this->getTenants($command);
+        $exitCode       = 0;
 
-        foreach ($tenants as $tenant) {
-            $result = (int)$tenant->execute(function () use ($command, $tenant) {
+        foreach ($organisations as $organisation) {
+            $result = (int)$organisation->execute(function () use ($command, $organisation) {
                 $modelName = match ($command->argument('model')) {
                     'shops' => '\App\Models\Market\Shop',
                     default => null

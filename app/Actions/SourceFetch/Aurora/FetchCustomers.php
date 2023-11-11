@@ -18,7 +18,7 @@ use App\Actions\Helpers\TaxNumber\DeleteTaxNumber;
 use App\Actions\Helpers\TaxNumber\StoreTaxNumber;
 use App\Actions\Helpers\TaxNumber\UpdateTaxNumber;
 use App\Models\CRM\Customer;
-use App\Services\Tenant\SourceTenantService;
+use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -31,11 +31,11 @@ class FetchCustomers extends FetchAction
     /**
      * @throws \Throwable
      */
-    public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Customer
+    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Customer
     {
         $with = $this->with;
 
-        if ($customerData = $tenantSource->fetchCustomer($tenantSourceId)) {
+        if ($customerData = $organisationSource->fetchCustomer($organisationSourceId)) {
             if ($customer = Customer::withTrashed()->where('source_id', $customerData['customer']['source_id'])
                 ->first()) {
                 $customer = UpdateCustomer::run($customer, $customerData['customer']);
@@ -114,7 +114,7 @@ class FetchCustomers extends FetchAction
                         ->select('Product ID as source_id')
                         ->orderBy('source_id')->get() as $order
                 ) {
-                    FetchProducts::run($tenantSource, $order->source_id);
+                    FetchProducts::run($organisationSource, $order->source_id);
                 }
             }
 
@@ -126,7 +126,7 @@ class FetchCustomers extends FetchAction
                         ->select('Customer Client Key as source_id')
                         ->orderBy('source_id')->get() as $customerClient
                 ) {
-                    FetchCustomerClients::run($tenantSource, $customerClient->source_id);
+                    FetchCustomerClients::run($organisationSource, $customerClient->source_id);
                 }
             }
 
@@ -138,7 +138,7 @@ class FetchCustomers extends FetchAction
                         ->select('Order Key as source_id')
                         ->orderBy('source_id')->get() as $order
                 ) {
-                    FetchOrders::run($tenantSource, $order->source_id);
+                    FetchOrders::run($organisationSource, $order->source_id);
                 }
             }
 
@@ -151,7 +151,7 @@ class FetchCustomers extends FetchAction
                         ->select('Website User Key as source_id')
                         ->orderBy('source_id')->get() as $order
                 ) {
-                    FetchWebUsers::run($tenantSource, $order->source_id);
+                    FetchWebUsers::run($organisationSource, $order->source_id);
                 }
             }
 

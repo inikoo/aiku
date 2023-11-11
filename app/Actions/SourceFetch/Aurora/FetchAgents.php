@@ -10,10 +10,10 @@ namespace App\Actions\SourceFetch\Aurora;
 use App\Actions\Helpers\GroupAddress\UpdateGroupAddress;
 use App\Actions\Procurement\Agent\UpdateAgent;
 use App\Actions\Procurement\Marketplace\Agent\StoreMarketplaceAgent;
-use App\Actions\Tenancy\Tenant\AttachAgent;
-use App\Enums\Procurement\AgentTenant\AgentTenantStatusEnum;
+use App\Actions\Organisation\Organisation\AttachAgent;
+use App\Enums\Procurement\AgentOrganisation\AgentOrganisationStatusEnum;
 use App\Models\Procurement\Agent;
-use App\Services\Tenant\SourceTenantService;
+use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 
@@ -22,12 +22,12 @@ class FetchAgents extends FetchAction
     public string $commandSignature = 'fetch:agents {tenants?*} {--s|source_id=} {--d|db_suffix=}';
 
 
-    public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Agent
+    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Agent
     {
-        if ($agentData = $tenantSource->fetchAgent($tenantSourceId)) {
-            $tenant = app('currentTenant');
+        if ($agentData = $organisationSource->fetchAgent($organisationSourceId)) {
+            $organisation = app('currentTenant');
 
-            if ($agent = Agent::withTrashed()->where('source_id', $agentData['agent']['source_id'])->where('source_type', $tenant->slug)->first()) {
+            if ($agent = Agent::withTrashed()->where('source_id', $agentData['agent']['source_id'])->where('source_type', $organisation->slug)->first()) {
                 $agent = UpdateAgent::run($agent, $agentData['agent']);
                 UpdateGroupAddress::run($agent->getAddress('contact'), $agentData['address']);
                 $agent->location = $agent->getLocation();
@@ -36,22 +36,22 @@ class FetchAgents extends FetchAction
                 $agent = Agent::withTrashed()->where('code', $agentData['agent']['code'])->first();
                 if ($agent) {
                     AttachAgent::run(
-                        $tenant,
+                        $organisation,
                         $agent,
                         [
                             'source_id' => $agentData['agent']['source_id'],
-                            'status'    => AgentTenantStatusEnum::ADOPTED
+                            'status'    => AgentOrganisationStatusEnum::ADOPTED
                         ]
                     );
                 } else {
-                    $agentData['agent']['source_type'] = $tenant->slug;
+                    $agentData['agent']['source_type'] = $organisation->slug;
                     $agent                             = StoreMarketplaceAgent::run(
-                        owner: $tenant,
+                        owner: $organisation,
                         modelData: $agentData['agent'],
                         addressData: $agentData['address']
                     );
 
-                    $tenant->agents()->updateExistingPivot($agent, ['source_id' => $agentData['agent']['source_id']]);
+                    $organisation->agents()->updateExistingPivot($agent, ['source_id' => $agentData['agent']['source_id']]);
 
                 }
             }

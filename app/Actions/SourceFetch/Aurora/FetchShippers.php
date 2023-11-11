@@ -10,7 +10,7 @@ namespace App\Actions\SourceFetch\Aurora;
 use App\Actions\Dispatch\Shipper\StoreShipper;
 use App\Actions\Dispatch\Shipper\UpdateShipper;
 use App\Models\Dispatch\Shipper;
-use App\Services\Tenant\SourceTenantService;
+use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;
@@ -19,9 +19,9 @@ class FetchShippers extends FetchAction
 {
     public string $commandSignature = 'fetch:shippers {tenants?*} {--s|source_id=} {--d|db_suffix=}';
 
-    #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Shipper
+    #[NoReturn] public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Shipper
     {
-        if ($shipperData = $tenantSource->fetchShipper($tenantSourceId)) {
+        if ($shipperData = $organisationSource->fetchShipper($organisationSourceId)) {
             if ($shipper = Shipper::where('source_id', $shipperData['shipper']['source_id'])
                 ->first()) {
                 $shipper = UpdateShipper::run(

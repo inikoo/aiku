@@ -7,7 +7,7 @@
 
 namespace App\Actions\Market\ProductCategory\Hydrators;
 
-use App\Actions\Traits\WithTenantJob;
+use App\Actions\Traits\WithOrganisationJob;
 use App\Enums\Market\Product\ProductStateEnum;
 use App\Models\Market\Product;
 use App\Models\Market\ProductCategory;
@@ -18,7 +18,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class ProductCategoryHydrateProducts implements ShouldBeUnique
 {
     use AsAction;
-    use WithTenantJob;
+    use WithOrganisationJob;
 
     public function handle(ProductCategory $productCategory): void
     {

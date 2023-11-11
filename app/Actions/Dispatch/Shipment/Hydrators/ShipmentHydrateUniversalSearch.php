@@ -7,14 +7,14 @@
 
 namespace App\Actions\Dispatch\Shipment\Hydrators;
 
-use App\Actions\Traits\WithTenantJob;
+use App\Actions\Traits\WithOrganisationJob;
 use App\Models\Dispatch\Shipment;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class ShipmentHydrateUniversalSearch
 {
     use AsAction;
-    use WithTenantJob;
+    use WithOrganisationJob;
 
     public function handle(Shipment $shipment): void
     {

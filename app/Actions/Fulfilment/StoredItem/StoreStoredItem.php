@@ -8,7 +8,7 @@
 namespace App\Actions\Fulfilment\StoredItem;
 
 use App\Actions\CRM\Customer\Hydrators\CustomerHydrateStoredItems;
-use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateFulfilment;
+use App\Actions\Organisation\Organisation\Hydrators\OrganisationHydrateFulfilment;
 use App\Enums\Fulfilment\StoredItem\StoredItemTypeEnum;
 use App\Models\CRM\Customer;
 use App\Models\Fulfilment\StoredItem;
@@ -31,7 +31,7 @@ class StoreStoredItem
         /** @var StoredItem $storedItem */
         $storedItem = $customer->storedItems()->create($modelData);
         CustomerHydrateStoredItems::dispatch($customer);
-        TenantHydrateFulfilment::dispatch(app('currentTenant'));
+        OrganisationHydrateFulfilment::dispatch(app('currentTenant'));
 
         return $storedItem;
     }

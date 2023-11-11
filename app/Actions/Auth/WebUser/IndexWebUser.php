@@ -19,7 +19,7 @@ use App\InertiaTable\InertiaTable;
 use App\Models\Auth\WebUser;
 use App\Models\CRM\Customer;
 use App\Models\Market\Shop;
-use App\Models\Tenancy\Tenant;
+use App\Models\Organisation\Organisation;
 use App\Models\Web\Website;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -33,7 +33,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexWebUser extends InertiaAction
 {
-    private Shop|Tenant|Customer|Website $parent;
+    private Shop|Organisation|Customer|Website $parent;
 
 
     public function handle($parent, $prefix=null): LengthAwarePaginator
@@ -180,7 +180,7 @@ class IndexWebUser extends InertiaAction
         return $this->handle(parent:  $customer);
     }
 
-    public function getBreadcrumbs(string $routeName, Customer|Website|Tenant $parent): array
+    public function getBreadcrumbs(string $routeName, Customer|Website|Organisation $parent): array
     {
         $headCrumb = function (array $routeParameters = []) use ($routeName) {
             return [

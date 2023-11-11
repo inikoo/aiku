@@ -10,7 +10,7 @@ namespace App\Models\Accounting;
 use App\Actions\Accounting\PaymentAccount\Hydrators\PaymentAccountHydratePayments;
 use App\Actions\Accounting\PaymentServiceProvider\Hydrators\PaymentServiceProviderHydratePayments;
 use App\Actions\Market\Shop\Hydrators\ShopHydratePayments;
-use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateAccounting;
+use App\Actions\Organisation\Organisation\Hydrators\OrganisationHydrateAccounting;
 use App\Enums\Accounting\Payment\PaymentStateEnum;
 use App\Enums\Accounting\Payment\PaymentStatusEnum;
 use App\Enums\Accounting\Payment\PaymentSubsequentStatusEnum;
@@ -108,7 +108,7 @@ class Payment extends Model
 
         static::created(
             function (Payment $payment) {
-                TenantHydrateAccounting::dispatch(app('currentTenant'));
+                OrganisationHydrateAccounting::dispatch(app('currentTenant'));
                 PaymentServiceProviderHydratePayments::dispatch($payment->paymentAccount->paymentServiceProvider);
                 PaymentAccountHydratePayments::dispatch($payment->paymentAccount);
                 ShopHydratePayments::dispatch($payment->shop);

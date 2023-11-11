@@ -10,7 +10,7 @@ namespace App\Actions\Auth\User;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Auth\Role;
 use App\Models\Auth\User;
-use App\Models\Tenancy\Tenant;
+use App\Models\Organisation\Organisation;
 use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Validation\Validator;
@@ -98,15 +98,15 @@ class UserRemoveRoles
 
 
         try {
-            $tenant = Tenant::where('slug', $command->argument('tenant'))->firstOrFail();
+            $organisation = Organisation::where('slug', $command->argument('tenant'))->firstOrFail();
         } catch (Exception) {
-            $command->error("Tenant {$command->argument('tenant')} not found");
+            $command->error("Organisation {$command->argument('tenant')} not found");
 
             return 1;
         }
 
 
-        $tenant->makeCurrent();
+        $organisation->makeCurrent();
 
 
         try {

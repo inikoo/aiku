@@ -80,7 +80,7 @@ use App\Actions\Procurement\Supplier\DeleteSupplier;
 use App\Actions\Procurement\Supplier\UpdateSupplier;
 use App\Actions\Procurement\SupplierDelivery\StoreSupplierDelivery;
 use App\Actions\Procurement\SupplierDelivery\UpdateSupplierDelivery;
-use App\Actions\Tenancy\Tenant\UpdateSystemSettings;
+use App\Actions\Organisation\Organisation\UpdateSystemSettings;
 use App\Actions\UI\Profile\UpdateProfile;
 use App\Actions\Web\Website\DeleteWebsite;
 use App\Actions\Web\Website\StoreWebsite;

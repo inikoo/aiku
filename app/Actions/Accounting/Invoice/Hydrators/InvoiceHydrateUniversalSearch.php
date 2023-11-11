@@ -7,14 +7,14 @@
 
 namespace App\Actions\Accounting\Invoice\Hydrators;
 
-use App\Actions\Traits\WithTenantJob;
+use App\Actions\Traits\WithOrganisationJob;
 use App\Models\Accounting\Invoice;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class InvoiceHydrateUniversalSearch
 {
     use AsAction;
-    use WithTenantJob;
+    use WithOrganisationJob;
 
     public function handle(Invoice $invoice): void
     {

@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Fri, 21 Apr 2023 13:17:34 Malaysia Time, Sanur, Bali, Indonesia
+ * Created: Sat, 11 Nov 2023 23:23:00 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
@@ -36,7 +36,7 @@ return new class () extends Migration {
             $table->unsignedInteger('units_per_carton')->nullable()->comment('units per carton');
             $table->jsonb('settings');
             $table->jsonb('shared_data');
-            $table->jsonb('tenant_data');
+            $table->jsonb('organisation_data');
             $table->timestampsTz();
             $table->softDeletesTz();
             $table->string('source_type')->index()->nullable();

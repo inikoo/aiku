@@ -11,7 +11,7 @@ use App\Actions\Market\Shop\Hydrators\ShopHydrateProducts;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Market\Product;
 use App\Models\Market\Shop;
-use App\Models\Tenancy\Tenant;
+use App\Models\Organisation\Organisation;
 use Illuminate\Console\Command;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
@@ -62,7 +62,7 @@ class DeleteProduct
 
     public function asCommand(Command $command): int
     {
-        Tenant::where('slug', $command->argument('tenant'))->first()->makeCurrent();
+        Organisation::where('slug', $command->argument('tenant'))->first()->makeCurrent();
         $this->handle(Product::findOrFail($command->argument('id')));
         return 0;
     }

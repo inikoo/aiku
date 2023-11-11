@@ -27,9 +27,9 @@ class DeleteGroupUser
             'username' => $groupUser->username . '@deleted-' . $groupUser->id
         ]);
 
-        foreach ($groupUser->tenants as $tenant) {
-            $userID = $tenant->pivot->user_id;
-            $tenant->execute(
+        foreach ($groupUser->tenants as $organisation) {
+            $userID = $organisation->pivot->user_id;
+            $organisation->execute(
                 function () use ($userID) {
                     $user = User::find($userID);
                     DeleteUser::run($user);

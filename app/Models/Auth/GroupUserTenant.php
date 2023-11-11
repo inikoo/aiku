@@ -18,7 +18,7 @@ use Illuminate\Support\Carbon;
  *
  * @property int $id
  * @property int $group_user_id
- * @property int $tenant_id
+ * @property int $organisation_id
  * @property int|null $user_id
  * @property array $data
  * @property Carbon|null $created_at

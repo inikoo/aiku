@@ -13,7 +13,7 @@ use App\Http\Resources\Procurement\PurchaseOrderResource;
 use App\Models\Procurement\Agent;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\Procurement\Supplier;
-use App\Models\Tenancy\Tenant;
+use App\Models\Organisation\Organisation;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -26,7 +26,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexSupplierPurchaseOrders extends InertiaAction
 {
-    public function handle(Tenant|Agent|Supplier $parent, $prefix=null): LengthAwarePaginator
+    public function handle(Organisation|Agent|Supplier $parent, $prefix=null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -47,7 +47,7 @@ class IndexSupplierPurchaseOrders extends InertiaAction
             ->when($parent, function ($query) use ($parent) {
                 if (class_basename($parent) == 'Agent') {
                     $query->where('purchase_orders.provider_id', $parent->id);
-                } elseif (class_basename($parent) == 'Tenant') {
+                } elseif (class_basename($parent) == 'Organisation') {
                     $query->where('purchase_orders.provider_id', $parent->id);
                 } elseif (class_basename($parent) == 'Supplier') {
                     $query->where('purchase_orders.provider_id', $parent->id);

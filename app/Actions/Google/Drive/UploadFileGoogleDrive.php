@@ -26,11 +26,11 @@ class UploadFileGoogleDrive
      */
     public function handle($path): string
     {
-        $client = GetClientGoogleDrive::run();
-        $tenant = app('currentTenant');
-        $name   = Str::of($path)->basename();
+        $client       = GetClientGoogleDrive::run();
+        $organisation = app('currentTenant');
+        $name         = Str::of($path)->basename();
 
-        $base_folder_key = Arr::get($tenant->settings, 'google.drive.folder');
+        $base_folder_key = Arr::get($organisation->settings, 'google.drive.folder');
 
         $fileMetadata = new Google_Service_Drive_DriveFile(
             array(

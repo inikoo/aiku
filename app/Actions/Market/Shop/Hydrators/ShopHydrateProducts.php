@@ -7,7 +7,7 @@
 
 namespace App\Actions\Market\Shop\Hydrators;
 
-use App\Actions\Traits\WithTenantJob;
+use App\Actions\Traits\WithOrganisationJob;
 use App\Enums\Market\Product\ProductStateEnum;
 use App\Models\Market\Product;
 use App\Models\Market\Shop;
@@ -18,7 +18,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class ShopHydrateProducts implements ShouldBeUnique
 {
     use AsAction;
-    use WithTenantJob;
+    use WithOrganisationJob;
 
     public function handle(Shop $shop): void
     {

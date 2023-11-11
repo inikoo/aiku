@@ -7,7 +7,7 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-use App\Actions\Traits\WithTenantsArgument;
+use App\Actions\Traits\WithOrganisationsArgument;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -21,7 +21,7 @@ use Lorisleiva\Actions\Concerns\WithAttributes;
 class FetchReset
 {
     use AsAction;
-    use WithTenantsArgument;
+    use WithOrganisationsArgument;
     use WithAttributes;
 
     public string $commandSignature = 'fetch:reset {tenants?*}';
@@ -38,13 +38,13 @@ class FetchReset
 
     public function asCommand(Command $command): int
     {
-        $tenants  = $this->getTenants($command);
-        $exitCode = 0;
+        $organisations  = $this->getTenants($command);
+        $exitCode       = 0;
 
-        foreach ($tenants as $tenant) {
-            $result = (int)$tenant->execute(function () use ($command, $tenant) {
-                if ($databaseName = Arr::get($tenant->source, 'db_name')) {
-                    $command->line("🏃 $tenant->slug ");
+        foreach ($organisations as $organisation) {
+            $result = (int)$organisation->execute(function () use ($command, $organisation) {
+                if ($databaseName = Arr::get($organisation->source, 'db_name')) {
+                    $command->line("🏃 $organisation->slug ");
                     $this->setAuroraConnection($databaseName);
 
                     DB::connection('aurora')->table('pika_fetch')->truncate();

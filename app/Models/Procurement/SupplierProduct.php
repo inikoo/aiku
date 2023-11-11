@@ -12,7 +12,7 @@ use App\Enums\Procurement\SupplierProduct\SupplierProductStateEnum;
 use App\Enums\Procurement\SupplierProduct\SupplierProductTradeUnitCompositionEnum;
 use App\Models\Goods\TradeUnit;
 use App\Models\Search\UniversalSearch;
-use App\Models\Tenancy\Tenant;
+use App\Models\Organisation\Organisation;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
 use Eloquent;
@@ -52,7 +52,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $units_per_carton units per carton
  * @property array $settings
  * @property array $shared_data
- * @property array $tenant_data
+ * @property array $organisation_data
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
@@ -136,12 +136,12 @@ class SupplierProduct extends Model implements Auditable
         return $this->belongsTo(Agent::class);
     }
 
-    protected function belongsToTenant(?Tenant $tenant): bool
+    protected function belongsToTenant(?Organisation $organisation): bool
     {
-        if(!$tenant) {
-            $tenant=app('currentTenant');
+        if(!$organisation) {
+            $organisation=app('currentTenant');
         }
-        return $this->supplier->belongsToTenant($tenant);
+        return $this->supplier->belongsToTenant($organisation);
     }
 
     protected function grossWeight(): Attribute

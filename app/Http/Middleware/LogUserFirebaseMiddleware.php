@@ -20,7 +20,7 @@ class LogUserFirebaseMiddleware
         $user = $request->user();
 
         if ($user && env('LIVE_USERS_LIST')) {
-            $tenant = app('currentTenant');
+            $organisation = app('currentTenant');
 
             $route = [
                 'icon'      => Arr::get($request->route()->action, 'icon'),
@@ -30,10 +30,10 @@ class LogUserFirebaseMiddleware
             ];
             //  dd($route);
 
-            StoreUserLogFirebase::dispatch($user->username, $tenant->slug, $route);
+            StoreUserLogFirebase::dispatch($user->username, $organisation->slug, $route);
 
             if ($request->route()->getName() == 'logout') {
-                DeleteUserLogFirebase::dispatch($user, $tenant);
+                DeleteUserLogFirebase::dispatch($user, $organisation);
             }
         }
 

@@ -14,7 +14,7 @@ use App\Actions\OMS\Order\UpdateOrder;
 use App\Enums\OMS\Transaction\TransactionTypeEnum;
 use App\Models\Accounting\Payment;
 use App\Models\OMS\Order;
-use App\Services\Tenant\SourceTenantService;
+use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 
@@ -22,10 +22,10 @@ class FetchOrders extends FetchAction
 {
     public string $commandSignature = 'fetch:orders {tenants?*}  {--s|source_id=} {--d|db_suffix=} {--w|with=* : Accepted values: transactions payments} {--N|only_new : Fetch only new} {--d|db_suffix=} {--r|reset}';
 
-    public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Order
+    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Order
     {
 
-        if ($orderData = $tenantSource->fetchOrder($tenantSourceId)) {
+        if ($orderData = $organisationSource->fetchOrder($organisationSourceId)) {
             if (!empty($orderData['order']['source_id']) and $order = Order::withTrashed()->where('source_id', $orderData['order']['source_id'])
                     ->first()) {
                 $order=UpdateOrder::run($order, $orderData['order']);
@@ -44,10 +44,10 @@ class FetchOrders extends FetchAction
                 }
 
                 if (in_array('transactions', $this->with)) {
-                    $this->fetchTransactions($tenantSource, $order);
+                    $this->fetchTransactions($organisationSource, $order);
                 }
                 if (in_array('payments', $this->with)) {
-                    $this->fetchPayments($tenantSource, $order);
+                    $this->fetchPayments($organisationSource, $order);
                 }
                 $this->updateAurora($order);
 
@@ -64,26 +64,26 @@ class FetchOrders extends FetchAction
                     );
 
                     if (in_array('transactions', $this->with)) {
-                        $this->fetchTransactions($tenantSource, $order);
+                        $this->fetchTransactions($organisationSource, $order);
                     }
                     if (in_array('payments', $this->with)) {
-                        $this->fetchPayments($tenantSource, $order);
+                        $this->fetchPayments($organisationSource, $order);
                     }
                     $this->updateAurora($order);
 
 
                     return $order;
                 }
-                print "Warning order $tenantSourceId do not have customer\n";
+                print "Warning order $organisationSourceId do not have customer\n";
             }
         } else {
-            print "Warning error fetching order $tenantSourceId\n";
+            print "Warning error fetching order $organisationSourceId\n";
         }
 
         return null;
     }
 
-    private function fetchPayments($tenantSource, Order $order): void
+    private function fetchPayments($organisationSource, Order $order): void
     {
         $paymentsToDelete = $order->payments()->pluck('source_id')->all();
         foreach (
@@ -93,7 +93,7 @@ class FetchOrders extends FetchAction
                 ->where('Order Key', $order->source_id)
                 ->get() as $auroraData
         ) {
-            $payment = $this->parsePayment($tenantSource, $auroraData->{'Payment Key'});
+            $payment = $this->parsePayment($organisationSource, $auroraData->{'Payment Key'});
 
 
             if (!in_array($payment->id, $paymentsToDelete)) {
@@ -113,17 +113,17 @@ class FetchOrders extends FetchAction
     }
 
 
-    public function parsePayment($tenantSource, $source_id): Payment
+    public function parsePayment($organisationSource, $source_id): Payment
     {
         $payment = Payment::withTrashed()->where('source_id', $source_id)->first();
         if (!$payment) {
-            $payment = FetchPayments::run($tenantSource, $source_id);
+            $payment = FetchPayments::run($organisationSource, $source_id);
         }
         return $payment;
     }
 
 
-    private function fetchTransactions($tenantSource, $order): void
+    private function fetchTransactions($organisationSource, $order): void
     {
         $transactionsToDelete = $order->transactions()->where('type', TransactionTypeEnum::ORDER)->pluck('source_id', 'id')->all();
         foreach (
@@ -135,7 +135,7 @@ class FetchOrders extends FetchAction
                 ->get() as $auroraData
         ) {
             $transactionsToDelete = array_diff($transactionsToDelete, [$auroraData->{'Order Transaction Fact Key'}]);
-            FetchTransactions::run($tenantSource, $auroraData->{'Order Transaction Fact Key'}, $order);
+            FetchTransactions::run($organisationSource, $auroraData->{'Order Transaction Fact Key'}, $order);
         }
         $order->transactions()->whereIn('id', array_keys($transactionsToDelete))->delete();
     }

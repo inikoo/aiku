@@ -8,7 +8,7 @@
 namespace App\Models\Helpers;
 
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
-use App\Models\Tenancy\Tenant;
+use App\Models\Organisation\Organisation;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -21,14 +21,14 @@ use Illuminate\Support\Carbon;
  * @property int $id
  * @property string $container_type
  * @property int $container_id
- * @property int|null $tenant_id
+ * @property int|null $organisation_id
  * @property SerialReferenceModelEnum $model
  * @property int $serial
  * @property string $format
  * @property array $data
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read Tenant|null $tenant
+ * @property-read Organisation|null $organisation
  * @method static Builder|SerialReference newModelQuery()
  * @method static Builder|SerialReference newQuery()
  * @method static Builder|SerialReference query()
@@ -51,7 +51,7 @@ class SerialReference extends Model
 
     public function tenant(): BelongsTo
     {
-        return $this->belongsTo(Tenant::class);
+        return $this->belongsTo(Organisation::class);
     }
 
 

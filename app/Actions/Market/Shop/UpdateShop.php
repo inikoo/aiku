@@ -8,7 +8,7 @@
 namespace App\Actions\Market\Shop;
 
 use App\Actions\Market\Shop\Hydrators\ShopHydrateUniversalSearch;
-use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateMarket;
+use App\Actions\Organisation\Organisation\Hydrators\OrganisationHydrateMarket;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Market\Shop\ShopSubtypeEnum;
 use App\Enums\Market\Shop\ShopTypeEnum;
@@ -28,7 +28,7 @@ class UpdateShop
         $shop =  $this->update($shop, $modelData, ['data', 'settings']);
         ShopHydrateUniversalSearch::dispatch($shop);
         if ($shop->wasChanged(['type', 'subtype', 'state'])) {
-            TenantHydrateMarket::dispatch(app('currentTenant'));
+            OrganisationHydrateMarket::dispatch(app('currentTenant'));
         }
 
         return $shop;

@@ -9,7 +9,7 @@ namespace App\Actions\SourceFetch\Aurora;
 
 use App\Actions\Mail\EmailTrackingEvent\StoreEmailTrackingEvent;
 use App\Models\Mail\EmailTrackingEvent;
-use App\Services\Tenant\SourceTenantService;
+use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 
@@ -18,9 +18,9 @@ class FetchEmailTrackingEvents extends FetchAction
     public string $commandSignature = 'fetch:email-tracking-events {tenants?*} {--s|source_id=}';
 
 
-    public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?EmailTrackingEvent
+    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?EmailTrackingEvent
     {
-        if ($emailTrackingEventData = $tenantSource->fetchEmailTrackingEvent($tenantSourceId)) {
+        if ($emailTrackingEventData = $organisationSource->fetchEmailTrackingEvent($organisationSourceId)) {
             if (!$emailTrackingEventData['dispatchedEmail']) {
                 return null;
             }

@@ -10,7 +10,7 @@ namespace App\Actions\SourceFetch\Aurora;
 use App\Actions\Web\Website\StoreWebsite;
 use App\Actions\Web\Website\UpdateWebsite;
 use App\Models\Web\Website;
-use App\Services\Tenant\SourceTenantService;
+use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;
@@ -20,9 +20,9 @@ class FetchWebsites extends FetchAction
     public string $commandSignature = 'fetch:websites {tenants?*} {--s|source_id=} {--d|db_suffix=}';
 
 
-    #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Website
+    #[NoReturn] public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Website
     {
-        if ($websiteData = $tenantSource->fetchWebsite($tenantSourceId)) {
+        if ($websiteData = $organisationSource->fetchWebsite($organisationSourceId)) {
             if ($website = Website::where('source_id', $websiteData['website']['source_id'])
                 ->first()) {
                 $website = UpdateWebsite::run(

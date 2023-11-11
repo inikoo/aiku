@@ -14,15 +14,15 @@ use App\Models\Market\Product;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;
-use App\Services\Tenant\SourceTenantService;
+use App\Services\Organisation\SourceOrganisationService;
 
 class FetchServices extends FetchAction
 {
     public string $commandSignature = 'fetch:services {tenants?*} {--s|source_id=} {--d|db_suffix=}';
 
-    #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Product
+    #[NoReturn] public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Product
     {
-        if ($productData = $tenantSource->fetchProduct($tenantSourceId)) {
+        if ($productData = $organisationSource->fetchProduct($organisationSourceId)) {
             if ($product = Product::where('source_id', $productData['product']['source_id'])
                 ->first()) {
                 $product = UpdateProduct::run(
@@ -42,7 +42,7 @@ class FetchServices extends FetchAction
             $historicProduct = HistoricProduct::where('source_id', $productData['historic_product_source_id'])->first();
 
             if (!$historicProduct) {
-                $historicProduct = FetchHistoricProducts::run($tenantSource, $productData['historic_product_source_id']);
+                $historicProduct = FetchHistoricProducts::run($organisationSource, $productData['historic_product_source_id']);
             }
 
             $product->update(

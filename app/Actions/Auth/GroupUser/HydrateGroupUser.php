@@ -9,8 +9,8 @@ namespace App\Actions\Auth\GroupUser;
 
 use App\Actions\Auth\GroupUser\Hydrators\GroupUserHydrateTenants;
 use App\Models\Auth\GroupUser;
-use App\Models\Tenancy\Group;
-use App\Models\Tenancy\Tenant;
+use App\Models\Organisation\Group;
+use App\Models\Organisation\Organisation;
 use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
@@ -57,9 +57,9 @@ class HydrateGroupUser
             return 1;
         }
 
-        /** @var Tenant $tenant */
-        $tenant=$group->tenants()->first();
-        $tenant->makeCurrent();
+        /** @var Organisation $organisation */
+        $organisation=$group->tenants()->first();
+        $organisation->makeCurrent();
 
         if ($command->option('username')) {
             if ($model = $this->getModel($command->option('username'))) {

@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Wed, 05 Jul 2023 15:59:23 Malaysia Time, Pantai Lembeng, Bali, Id
+ * Created: Sat, 11 Nov 2023 23:23:00 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
@@ -16,7 +16,7 @@ return new class () extends Migration {
             $table->smallIncrements('id');
             $table->unsignedSmallInteger('web_block_id');
             $table->foreign('web_block_id')->references('id')->on('web_blocks')->onUpdate('cascade')->onDelete('cascade');
-            $table->integer('number_tenants')->default(0);
+            $table->integer('number_organisations')->default(0);
             $table->integer('number_websites')->default(0);
             $table->integer('number_webpages')->default(0);
             $table->timestampsTz();

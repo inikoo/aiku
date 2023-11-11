@@ -9,7 +9,7 @@ namespace App\Actions\UI\Websites;
 
 use App\Actions\UI\Dashboard\ShowDashboard;
 use App\Actions\UI\WithInertia;
-use App\Models\Tenancy\Tenant;
+use App\Models\Organisation\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -31,14 +31,14 @@ class WebsitesDashboard
     }
 
 
-    public function asController(): Tenant
+    public function asController(): Organisation
     {
         return app('currentTenant');
     }
 
 
 
-    public function htmlResponse(Tenant $tenant): Response
+    public function htmlResponse(Organisation $organisation): Response
     {
 
         return Inertia::render(
@@ -57,7 +57,7 @@ class WebsitesDashboard
                             'icon'  => ['fal', 'fa-globe'],
                             'href'  => ['web.websites.index'],
                             'index' => [
-                                'number' => $tenant->webStats->number_websites
+                                'number' => $organisation->webStats->number_websites
                             ]
 
                         ],

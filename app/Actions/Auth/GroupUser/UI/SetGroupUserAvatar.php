@@ -9,7 +9,7 @@ namespace App\Actions\Auth\GroupUser\UI;
 
 use App\Models\Auth\GroupUser;
 use App\Models\Media\GroupMedia;
-use App\Models\Tenancy\Group;
+use App\Models\Organisation\Group;
 use Exception;
 use Illuminate\Console\Command;
 use Lorisleiva\Actions\Concerns\AsAction;

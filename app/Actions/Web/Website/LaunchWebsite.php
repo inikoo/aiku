@@ -7,7 +7,7 @@
 
 namespace App\Actions\Web\Website;
 
-use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateWeb;
+use App\Actions\Organisation\Organisation\Hydrators\OrganisationHydrateWeb;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Web\Website\WebsiteStateEnum;
 use App\Models\Web\Website;
@@ -22,7 +22,7 @@ class LaunchWebsite
             'state' =>
                 WebsiteStateEnum::LIVE
         ]);
-        TenantHydrateWeb::dispatch(app('currentTenant'));
+        OrganisationHydrateWeb::dispatch(app('currentTenant'));
 
         return $website;
     }

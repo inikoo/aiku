@@ -11,7 +11,7 @@ use App\Actions\Auth\User\StoreUser;
 use App\Models\Auth\GroupUser;
 use App\Models\Auth\Guest;
 use App\Models\Auth\User;
-use App\Models\Tenancy\Tenant;
+use App\Models\Organisation\Organisation;
 use Exception;
 use Illuminate\Console\Command;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -34,13 +34,13 @@ class GuestSetUserFromGuestUser
     public function asCommand(Command $command): int
     {
         try {
-            $tenant = Tenant::where('slug', $command->argument('tenant'))->firstOrFail();
+            $organisation = Organisation::where('slug', $command->argument('tenant'))->firstOrFail();
         } catch (Exception) {
-            $command->error("Tenant {$command->argument('tenant')} not found");
+            $command->error("Organisation {$command->argument('tenant')} not found");
 
             return 1;
         }
-        $tenant->makeCurrent();
+        $organisation->makeCurrent();
 
         try {
             $guest = Guest::where('slug', $command->argument('guest'))->firstOrFail();
@@ -61,7 +61,7 @@ class GuestSetUserFromGuestUser
 
         $user = $this->handle($guest, $groupUser);
 
-        $command->info("User <fg=yellow>$user->username</> for guest <fg=yellow>$guest->contact_name</> created in <fg=yellow>$tenant->slug</> 👍");
+        $command->info("User <fg=yellow>$user->username</> for guest <fg=yellow>$guest->contact_name</> created in <fg=yellow>$organisation->slug</> 👍");
 
         return 0;
     }

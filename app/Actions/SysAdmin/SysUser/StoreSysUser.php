@@ -12,7 +12,7 @@ use App\Models\Assets\Timezone;
 use App\Models\Central\Domain;
 use App\Models\SysAdmin\Admin;
 use App\Models\SysAdmin\SysUser;
-use App\Models\Tenancy\Tenant;
+use App\Models\Organisation\Organisation;
 use App\Rules\AlphaDashDot;
 use Exception;
 use Illuminate\Console\Command;
@@ -28,7 +28,7 @@ class StoreSysUser
     use WithAttributes;
 
 
-    public function handle(Admin|Tenant|Domain $userable, array $userData): SysUser
+    public function handle(Admin|Organisation|Domain $userable, array $userData): SysUser
     {
         if (empty($userData['language_id'])) {
             $language                = Language::where('code', config('app.locale'))->firstOrFail();
@@ -56,7 +56,7 @@ class StoreSysUser
         ];
     }
 
-    public function action(Admin|Tenant|Domain $userable, $modelData): SysUser
+    public function action(Admin|Organisation|Domain $userable, $modelData): SysUser
     {
         $this->fill($modelData);
         $validatedData = $this->validateAttributes();
@@ -66,7 +66,7 @@ class StoreSysUser
 
 
     public string $commandSignature = 'create:sys-user
-    {userable : type of userable model: Admin|Tenant|Domain }
+    {userable : type of userable model: Admin|Organisation|Domain }
     {userable_slug : userable model slug/code}
     {--u|username= : use instead of slug/code argument}
     {--a|autoPassword : generate random password}';
@@ -80,10 +80,10 @@ class StoreSysUser
     {
         try {
             $userable = match ($command->argument('userable')) {
-                'Admin'         => Admin::where('slug', $command->argument('userable_slug'))->firstOrFail(),
-                'Tenant'        => Tenant::where('slug', $command->argument('userable_slug'))->firstOrFail(),
-                'Domain'        => Domain::where('slug', $command->argument('userable_slug'))->firstOrFail(),
-                default         => null
+                'Admin'               => Admin::where('slug', $command->argument('userable_slug'))->firstOrFail(),
+                'Organisation'        => Organisation::where('slug', $command->argument('userable_slug'))->firstOrFail(),
+                'Domain'              => Domain::where('slug', $command->argument('userable_slug'))->firstOrFail(),
+                default               => null
             };
         } catch (Exception $e) {
             $command->error($e->getMessage());

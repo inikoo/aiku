@@ -14,7 +14,7 @@ use App\Http\Resources\Delivery\DeliveryNoteResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Dispatch\DeliveryNote;
 use App\Models\Market\Shop;
-use App\Models\Tenancy\Tenant;
+use App\Models\Organisation\Organisation;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -129,7 +129,7 @@ class IndexDeliveryNotes extends InertiaAction
         return $this->handle($shop);
     }
 
-    public function getBreadcrumbs(string $routeName, Shop|Tenant $parent): array
+    public function getBreadcrumbs(string $routeName, Shop|Organisation $parent): array
     {
         $headCrumb = function (array $routeParameters = []) use ($routeName) {
             return [

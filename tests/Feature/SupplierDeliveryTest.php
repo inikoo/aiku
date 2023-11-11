@@ -19,15 +19,15 @@ use App\Actions\Procurement\SupplierDeliveryItem\StoreSupplierDeliveryItem;
 use App\Actions\Procurement\SupplierDeliveryItem\StoreSupplierDeliveryItemBySelectedPurchaseOrderItem;
 use App\Actions\Procurement\SupplierDeliveryItem\UpdateStateToCheckedSupplierDeliveryItem;
 use App\Actions\Procurement\SupplierProduct\StoreSupplierProduct;
-use App\Actions\Tenancy\Group\StoreGroup;
-use App\Actions\Tenancy\Tenant\StoreTenant;
+use App\Actions\Organisation\Group\StoreGroup;
+use App\Actions\Organisation\Organisation\StoreOrganisation;
 use App\Enums\Procurement\SupplierDelivery\SupplierDeliveryStateEnum;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\Procurement\PurchaseOrderItem;
 use App\Models\Procurement\Supplier;
 use App\Models\Procurement\SupplierDeliveryItem;
-use App\Models\Tenancy\Group;
-use App\Models\Tenancy\Tenant;
+use App\Models\Organisation\Group;
+use App\Models\Organisation\Organisation;
 use Illuminate\Validation\ValidationException;
 
 beforeAll(function () {
@@ -36,12 +36,12 @@ beforeAll(function () {
 
 
 beforeEach(function () {
-    $tenant = Tenant::first();
-    if (!$tenant) {
-        $group  = StoreGroup::make()->action(Group::factory()->definition());
-        $tenant = StoreTenant::make()->action($group, Tenant::factory()->definition());
+    $organisation = Organisation::first();
+    if (!$organisation) {
+        $group        = StoreGroup::make()->action(Group::factory()->definition());
+        $organisation = StoreOrganisation::make()->action($group, Organisation::factory()->definition());
     }
-    $tenant->makeCurrent();
+    $organisation->makeCurrent();
 });
 
 test('create independent supplier', function () {

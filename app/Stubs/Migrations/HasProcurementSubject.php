@@ -19,7 +19,7 @@ trait HasProcurementSubject
         $table->boolean('is_private')->default(false)->index();
         $table->string('slug')->unique()->collation('und_ns');
         $table->string('code')->index()->collation('und_ns');
-        $table->string('owner_type')->comment('Who can edit this model Tenant|Agent|Supplier');
+        $table->string('owner_type')->comment('Who can edit this model Organisation|Agent|Supplier');
         $table->unsignedInteger('owner_id');
         $table->string('name')->nullable()->collation('und_ns');
         $table->unsignedBigInteger('image_id')->nullable();

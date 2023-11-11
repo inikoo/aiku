@@ -23,8 +23,8 @@ use App\Actions\Inventory\Warehouse\StoreWarehouse;
 use App\Actions\Inventory\Warehouse\UpdateWarehouse;
 use App\Actions\Inventory\WarehouseArea\StoreWarehouseArea;
 use App\Actions\Inventory\WarehouseArea\UpdateWarehouseArea;
-use App\Actions\Tenancy\Group\StoreGroup;
-use App\Actions\Tenancy\Tenant\StoreTenant;
+use App\Actions\Organisation\Group\StoreGroup;
+use App\Actions\Organisation\Organisation\StoreOrganisation;
 use App\Enums\Inventory\Stock\LostAndFoundStockStateEnum;
 use App\Models\Goods\TradeUnit;
 use App\Models\Inventory\Location;
@@ -33,8 +33,8 @@ use App\Models\Inventory\LostAndFoundStock;
 use App\Models\Inventory\Stock;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
-use App\Models\Tenancy\Group;
-use App\Models\Tenancy\Tenant;
+use App\Models\Organisation\Group;
+use App\Models\Organisation\Organisation;
 use Illuminate\Validation\ValidationException;
 
 beforeAll(function () {
@@ -43,12 +43,12 @@ beforeAll(function () {
 
 
 beforeEach(function () {
-    $tenant = Tenant::first();
-    if (!$tenant) {
-        $group  = StoreGroup::make()->action(Group::factory()->definition());
-        $tenant = StoreTenant::make()->action($group, Tenant::factory()->definition());
+    $organisation = Organisation::first();
+    if (!$organisation) {
+        $group        = StoreGroup::make()->action(Group::factory()->definition());
+        $organisation = StoreOrganisation::make()->action($group, Organisation::factory()->definition());
     }
-    $tenant->makeCurrent();
+    $organisation->makeCurrent();
 });
 
 test('create warehouse', function () {

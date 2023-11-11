@@ -10,7 +10,7 @@ namespace App\Actions\Inventory\WarehouseArea;
 
 use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydrateWarehouseAreas;
 use App\Actions\Inventory\WarehouseArea\Hydrators\WarehouseAreaHydrateUniversalSearch;
-use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateWarehouse;
+use App\Actions\Organisation\Organisation\Hydrators\OrganisationHydrateWarehouse;
 use App\Models\Inventory\WarehouseArea;
 use App\Models\Inventory\Warehouse;
 use App\Rules\CaseSensitive;
@@ -33,7 +33,7 @@ class StoreWarehouseAreas
         $warehouseArea = $warehouse->warehouseAreas()->create($modelData);
         $warehouseArea->stats()->create();
         WarehouseAreaHydrateUniversalSearch::dispatch($warehouseArea);
-        TenantHydrateWarehouse::dispatch(app('currentTenant'));
+        OrganisationHydrateWarehouse::dispatch(app('currentTenant'));
         WarehouseHydrateWarehouseAreas::dispatch($warehouse);
         return $warehouseArea;
     }

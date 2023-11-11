@@ -8,7 +8,7 @@
 namespace App\Actions\Market\Shop\Hydrators;
 
 use App\Actions\Traits\WithElasticsearch;
-use App\Actions\Traits\WithTenantJob;
+use App\Actions\Traits\WithOrganisationJob;
 use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
 use App\Models\Accounting\Invoice;
 use App\Models\Market\Shop;
@@ -19,7 +19,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class ShopHydrateInvoices implements ShouldBeUnique
 {
     use AsAction;
-    use WithTenantJob;
+    use WithOrganisationJob;
     use WithElasticsearch;
 
     public function handle(Shop $shop): void

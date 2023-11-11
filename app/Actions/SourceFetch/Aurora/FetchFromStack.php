@@ -9,12 +9,12 @@ namespace App\Actions\SourceFetch\Aurora;
 
 use App\Actions\Dispatch\DeliveryNote\DeleteDeliveryNote;
 use App\Actions\Dropshipping\CustomerClient\DeleteCustomerClient;
-use App\Actions\Traits\WithTenantsArgument;
-use App\Actions\Traits\WithTenantSource;
+use App\Actions\Traits\WithOrganisationsArgument;
+use App\Actions\Traits\WithOrganisationSource;
 use App\Models\Dispatch\DeliveryNote;
 use App\Models\Dropshipping\CustomerClient;
-use App\Models\Tenancy\Tenant;
-use App\Services\Tenant\SourceTenantService;
+use App\Models\Organisation\Organisation;
+use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;
@@ -23,16 +23,16 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class FetchFromStack
 {
     use AsAction;
-    use WithTenantsArgument;
-    use WithTenantSource;
-    use WithTenantSource;
+    use WithOrganisationsArgument;
+    use WithOrganisationSource;
+    use WithOrganisationSource;
 
 
     public string $commandSignature = 'fetch:stack {tenants?*} {--M|max_run_time=0 : max fun time in seconds}';
     protected float $startTime;
     protected ?float $maxRunTime = 0;
 
-    #[NoReturn] public function handle(SourceTenantService $tenantSource): void
+    #[NoReturn] public function handle(SourceOrganisationService $organisationSource): void
     {
         $query = DB::connection('aurora')
             ->table('pika_fetch');
@@ -41,41 +41,41 @@ class FetchFromStack
         foreach ($query->get() as $jobData) {
             switch ($jobData->model) {
                 case 'Customer':
-                    $res = FetchCustomers::run($tenantSource, $jobData->model_id);
+                    $res = FetchCustomers::run($organisationSource, $jobData->model_id);
                     if (!$res) {
-                        $res = FetchDeletedCustomers::run($tenantSource, $jobData->model_id);
+                        $res = FetchDeletedCustomers::run($organisationSource, $jobData->model_id);
                     }
                     break;
                 case 'delete_customer':
-                    $res = DeleteCustomerFromAurora::run($tenantSource, $jobData->model_id);
+                    $res = DeleteCustomerFromAurora::run($organisationSource, $jobData->model_id);
                     break;
                 case 'CustomerClient':
-                    $res = FetchCustomerClients::run($tenantSource, $jobData->model_id);
+                    $res = FetchCustomerClients::run($organisationSource, $jobData->model_id);
                     break;
                 case 'Stock':
-                    $res = FetchStocks::run($tenantSource, $jobData->model_id);
+                    $res = FetchStocks::run($organisationSource, $jobData->model_id);
                     break;
                 case 'Order':
-                    $res = FetchOrders::run($tenantSource, $jobData->model_id);
+                    $res = FetchOrders::run($organisationSource, $jobData->model_id);
                     break;
                 case 'DeliveryNote':
-                    $res = FetchDeliveryNotes::run($tenantSource, $jobData->model_id);
+                    $res = FetchDeliveryNotes::run($organisationSource, $jobData->model_id);
                     break;
                 case 'Invoice':
-                    $res = FetchInvoices::run($tenantSource, $jobData->model_id);
+                    $res = FetchInvoices::run($organisationSource, $jobData->model_id);
 
                     break;
                 case 'Product':
-                    $res = FetchProducts::run($tenantSource, $jobData->model_id);
+                    $res = FetchProducts::run($organisationSource, $jobData->model_id);
                     break;
                 case 'Supplier':
-                    $res = FetchSuppliers::run($tenantSource, $jobData->model_id);
+                    $res = FetchSuppliers::run($organisationSource, $jobData->model_id);
                     break;
                 case 'Agent':
-                    $res = FetchAgents::run($tenantSource, $jobData->model_id);
+                    $res = FetchAgents::run($organisationSource, $jobData->model_id);
                     break;
                 case 'delete_invoice':
-                    $res = DeleteInvoiceFromAurora::run($tenantSource, $jobData->model_id);
+                    $res = DeleteInvoiceFromAurora::run($organisationSource, $jobData->model_id);
                     break;
 
 
@@ -132,19 +132,19 @@ class FetchFromStack
 
         $this->maxRunTime = $command->option('max_run_time');
 
-        $tenants  = $this->getTenants($command);
-        $exitCode = 0;
+        $organisations  = $this->getTenants($command);
+        $exitCode       = 0;
 
-        foreach ($tenants as $tenant) {
-            $result = (int)$tenant->execute(
+        foreach ($organisations as $organisation) {
+            $result = (int)$organisation->execute(
                 /**
                  * @throws \Exception
                  */
-                function (Tenant $tenant) use ($command) {
-                    $tenantSource = $this->getTenantSource($tenant);
-                    $tenantSource->initialisation(app('currentTenant'));
+                function (Organisation $organisation) use ($command) {
+                    $organisationSource = $this->getTenantSource($organisation);
+                    $organisationSource->initialisation(app('currentTenant'));
 
-                    $this->handle($tenantSource);
+                    $this->handle($organisationSource);
                 }
             );
 

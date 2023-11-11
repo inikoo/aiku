@@ -99,7 +99,7 @@ class ShowSupplier extends InertiaAction
                                 'parameters' => array_values($this->originalParameters)
                             ]
                         ] : false,
-                        $this->canEdit && $supplier->owner_type=='Tenant' ? [
+                        $this->canEdit && $supplier->owner_type=='Organisation' ? [
                             'type'  => 'button',
                             'style' => 'create',
                             'route' => [

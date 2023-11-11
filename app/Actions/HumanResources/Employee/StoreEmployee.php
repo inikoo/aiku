@@ -9,7 +9,7 @@ namespace App\Actions\HumanResources\Employee;
 
 use App\Actions\HumanResources\Employee\Hydrators\EmployeeHydrateUniversalSearch;
 use App\Actions\HumanResources\Employee\Hydrators\EmployeeHydrateWeekWorkingHours;
-use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateEmployees;
+use App\Actions\Organisation\Organisation\Hydrators\OrganisationHydrateEmployees;
 use App\Models\HumanResources\Employee;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
@@ -26,7 +26,7 @@ class StoreEmployee
     {
         $employee = Employee::create($modelData);
         EmployeeHydrateWeekWorkingHours::run($employee);
-        TenantHydrateEmployees::dispatch(app('currentTenant'));
+        OrganisationHydrateEmployees::dispatch(app('currentTenant'));
         EmployeeHydrateUniversalSearch::dispatch($employee);
         return $employee;
     }

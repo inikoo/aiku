@@ -7,7 +7,7 @@
 
 namespace App\Actions\Auth\User\Hydrators;
 
-use App\Actions\Traits\WithTenantJob;
+use App\Actions\Traits\WithOrganisationJob;
 use App\Models\Auth\User;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Support\Facades\DB;
@@ -16,7 +16,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class UserHydrateTenants implements ShouldBeUnique
 {
     use AsAction;
-    use WithTenantJob;
+    use WithOrganisationJob;
 
     public function handle(User $user): void
     {

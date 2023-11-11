@@ -9,7 +9,7 @@ namespace App\Actions\OMS\Order\Traits;
 
 use App\Actions\Market\Shop\Hydrators\ShopHydrateOrders;
 use App\Actions\OMS\Order\HydrateOrder;
-use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateOrders;
+use App\Actions\Organisation\Organisation\Hydrators\OrganisationHydrateOrders;
 use App\Models\OMS\Order;
 
 trait HasHydrators
@@ -17,7 +17,7 @@ trait HasHydrators
     public function orderHydrators(Order $order): void
     {
         HydrateOrder::make()->originalItems($order);
-        TenantHydrateOrders::run(app('currentTenant'));
+        OrganisationHydrateOrders::run(app('currentTenant'));
 
         if($order->customer) {
             $parent = $order->customer;

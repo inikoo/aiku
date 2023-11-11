@@ -10,7 +10,7 @@ namespace App\Actions\Market\Product\UI;
 use App\Actions\InertiaAction;
 use App\Enums\Market\Product\ProductTypeEnum;
 use App\Models\Market\Shop;
-use App\Models\Tenancy\Tenant;
+use App\Models\Organisation\Organisation;
 use Exception;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -22,7 +22,7 @@ class CreateProduct extends InertiaAction
     /**
      * @throws Exception
      */
-    public function handle(Tenant|Shop $shop, ActionRequest $request): Response
+    public function handle(Organisation|Shop $shop, ActionRequest $request): Response
     {
 
         return Inertia::render(

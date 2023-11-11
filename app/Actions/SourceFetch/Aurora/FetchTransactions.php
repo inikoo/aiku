@@ -10,7 +10,7 @@ namespace App\Actions\SourceFetch\Aurora;
 use App\Actions\OMS\Transaction\StoreTransaction;
 use App\Models\OMS\Order;
 use App\Models\OMS\Transaction;
-use App\Services\Tenant\SourceTenantService;
+use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -20,9 +20,9 @@ class FetchTransactions
     use AsAction;
 
 
-    #[NoReturn] public function handle(SourceTenantService $tenantSource, int $source_id, Order $order): ?Transaction
+    #[NoReturn] public function handle(SourceOrganisationService $organisationSource, int $source_id, Order $order): ?Transaction
     {
-        if ($transactionData = $tenantSource->fetchTransaction(id: $source_id)) {
+        if ($transactionData = $organisationSource->fetchTransaction(id: $source_id)) {
             if (!Transaction::where('source_id', $transactionData['transaction']['source_id'])
                 ->first()) {
                 $transaction= StoreTransaction::run(

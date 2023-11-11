@@ -11,7 +11,7 @@ use App\Actions\Market\Shop\UI\ShowShop;
 use App\Actions\UI\Dashboard\ShowDashboard;
 use App\Actions\UI\WithInertia;
 use App\Models\Market\Shop;
-use App\Models\Tenancy\Tenant;
+use App\Models\Organisation\Organisation;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -35,7 +35,7 @@ class AccountingDashboard
     }
 
 
-    public function inTenant(): Tenant
+    public function inTenant(): Organisation
     {
         return $this->handle(app('currentTenant'));
     }
@@ -46,10 +46,10 @@ class AccountingDashboard
     }
 
 
-    public function htmlResponse(Tenant|Shop $scope, ActionRequest $request): Response
+    public function htmlResponse(Organisation|Shop $scope, ActionRequest $request): Response
     {
         $container = null;
-        $scopeType = 'Tenant';
+        $scopeType = 'Organisation';
         if (class_basename($scope) == 'Shop') {
             $scopeType = 'Shop';
             $container = [

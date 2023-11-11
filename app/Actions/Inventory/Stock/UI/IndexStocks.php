@@ -13,7 +13,7 @@ use App\Actions\Inventory\StockFamily\UI\ShowStockFamily;
 use App\Http\Resources\Inventory\StockResource;
 use App\Models\Inventory\Stock;
 use App\Models\Inventory\StockFamily;
-use App\Models\Tenancy\Tenant;
+use App\Models\Organisation\Organisation;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -27,7 +27,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexStocks extends InertiaAction
 {
-    private StockFamily|Tenant $parent;
+    private StockFamily|Organisation $parent;
 
     public function authorize(ActionRequest $request): bool
     {
@@ -54,7 +54,7 @@ class IndexStocks extends InertiaAction
     }
 
     /** @noinspection PhpUndefinedMethodInspection */
-    public function handle(StockFamily|Tenant $parent, $prefix=null): LengthAwarePaginator
+    public function handle(StockFamily|Organisation $parent, $prefix=null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -116,7 +116,7 @@ class IndexStocks extends InertiaAction
                 ->withModelOperations($modelOperations)
                 ->withEmptyState(
                     match (class_basename($parent)) {
-                        'Tenant' => [
+                        'Organisation' => [
                             'title'       => __("No SKUs found"),
                             'description' => $this->canEdit && $parent->stats->number_stock_families == 0 ? __('Get started by creating a shop. ✨')
                                 : __("In fact, is no even create a SKUs family yet 🤷🏽‍♂️"),

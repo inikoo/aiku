@@ -7,9 +7,9 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-use App\Actions\Traits\WithTenantSource;
-use App\Models\Tenancy\Tenant;
-use App\Services\Tenant\SourceTenantService;
+use App\Actions\Traits\WithOrganisationSource;
+use App\Models\Organisation\Organisation;
+use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -17,28 +17,28 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class FetchTenants
 {
     use AsAction;
-    use WithTenantSource;
+    use WithOrganisationSource;
 
 
-    public function handle(SourceTenantService $tenantSource, Tenant $tenant): Tenant
+    public function handle(SourceOrganisationService $organisationSource, Organisation $organisation): Organisation
     {
-        $tenantData = $tenantSource->fetchTenant($tenant);
-        $tenant->update(
-            $tenantData['tenant']
+        $organisationData = $organisationSource->fetchTenant($organisation);
+        $organisation->update(
+            $organisationData['tenant']
         );
         $accountsServiceProviderData = Db::connection('aurora')->table('Payment Service Provider Dimension')
             ->select('Payment Service Provider Key')
             ->where('Payment Service Provider Block', 'Accounts')->first();
 
         if ($accountsServiceProviderData) {
-            $tenant->execute(fn (Tenant $tenant) => $tenant->accountsServiceProvider()->update(
+            $organisation->execute(fn (Organisation $organisation) => $organisation->accountsServiceProvider()->update(
                 [
                     'source_id' => $accountsServiceProviderData->{'Payment Service Provider Key'}
                 ]
             ));
         }
 
-        return $tenant;
+        return $organisation;
     }
 
 
@@ -46,13 +46,13 @@ class FetchTenants
 
     public function asCommand(Command $command): int
     {
-        Tenant::all()->eachCurrent(function (Tenant $tenant) use ($command) {
-            $tenantSource = $this->getTenantSource($tenant);
-            $tenantSource->initialisation(app('currentTenant'), $command->option('db_suffix') ?? '');
-            $tenant = $this->handle($tenantSource, $tenant);
-            if ($tenant->created_at->lt($tenant->group->created_at)) {
-                $tenant->group->created_at = $tenant->created_at;
-                $tenant->group->save();
+        Organisation::all()->eachCurrent(function (Organisation $organisation) use ($command) {
+            $organisationSource = $this->getTenantSource($organisation);
+            $organisationSource->initialisation(app('currentTenant'), $command->option('db_suffix') ?? '');
+            $organisation = $this->handle($organisationSource, $organisation);
+            if ($organisation->created_at->lt($organisation->group->created_at)) {
+                $organisation->group->created_at = $organisation->created_at;
+                $organisation->group->save();
             }
         });
 

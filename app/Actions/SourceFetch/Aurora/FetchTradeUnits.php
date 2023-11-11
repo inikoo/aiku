@@ -10,7 +10,7 @@ namespace App\Actions\SourceFetch\Aurora;
 use App\Actions\Goods\TradeUnit\StoreTradeUnit;
 use App\Actions\Goods\TradeUnit\UpdateTradeUnit;
 use App\Models\Goods\TradeUnit;
-use App\Services\Tenant\SourceTenantService;
+use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;
@@ -19,9 +19,9 @@ class FetchTradeUnits extends FetchAction
 {
     public string $commandSignature = 'fetch:trade-units {tenants?*} {--s|source_id=} {--d|db_suffix=}';
 
-    #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?TradeUnit
+    #[NoReturn] public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?TradeUnit
     {
-        if ($tradeUnitData = $tenantSource->fetchTradeUnit($tenantSourceId)) {
+        if ($tradeUnitData = $organisationSource->fetchTradeUnit($organisationSourceId)) {
             if ($tradeUnit = TradeUnit::withTrashed()->where('source_id', $tradeUnitData['trade_unit']['source_id'])
                 ->first()) {
                 $tradeUnit = UpdateTradeUnit::run(

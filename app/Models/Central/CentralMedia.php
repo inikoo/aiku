@@ -7,7 +7,7 @@
 
 namespace App\Models\Central;
 
-use App\Models\Tenancy\Tenant;
+use App\Models\Organisation\Organisation;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -40,7 +40,7 @@ use Spatie\Multitenancy\TenantCollection;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read Model|\Eloquent $model
- * @property-read TenantCollection<int, Tenant> $tenants
+ * @property-read TenantCollection<int, Organisation> $organisations
  * @method static MediaCollection<int, static> all($columns = ['*'])
  * @method static MediaCollection<int, static> get($columns = ['*'])
  * @method static Builder|CentralMedia newModelQuery()
@@ -56,6 +56,6 @@ class CentralMedia extends BaseMedia
 
     public function tenants(): BelongsToMany
     {
-        return $this->belongsToMany(Tenant::class)->withTimestamps();
+        return $this->belongsToMany(Organisation::class)->withTimestamps();
     }
 }

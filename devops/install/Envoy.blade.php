@@ -124,10 +124,10 @@ echo "***********************************************************************"
 echo "migrating DB and seeding"
 cd {{ $new_release_dir }}
 
-@foreach (json_decode($_ENV['TENANTS_DATA']) as $tenant => $tenantData)
-        echo "Dropping tenant databases {{ $tenant }}"
-        echo "psql -d {{ $database }} -qc 'drop SCHEMA IF EXISTS aiku_{{ $tenant }} CASCADE;'"
-        psql -d {{ $database }} -qc 'drop SCHEMA IF EXISTS aiku_{{ $tenant }} CASCADE;'
+@foreach (json_decode($_ENV['TENANTS_DATA']) as $organisation => $organisationData)
+        echo "Dropping tenant databases {{ $organisation }}"
+        echo "psql -d {{ $database }} -qc 'drop SCHEMA IF EXISTS aiku_{{ $organisation }} CASCADE;'"
+        psql -d {{ $database }} -qc 'drop SCHEMA IF EXISTS aiku_{{ $organisation }} CASCADE;'
 @endforeach
 {{$php}} artisan optimize:clear
 {{$php}} artisan key:generate --force
@@ -166,14 +166,14 @@ echo "***********************************************************************"
 echo "* Create aurora tenants"
 
 @if ($env=='staging')
-    @foreach (json_decode($_ENV['TENANTS_DATA']) as $tenant => $tenantData)
-        echo "Tenant {{ $tenantData->db_staging }}"
-        {{ $php }} artisan create:tenant-aurora {{$tenant}} {{$tenantData->db_staging}} {{$tenantData->email}}
+    @foreach (json_decode($_ENV['TENANTS_DATA']) as $organisation => $organisationData)
+        echo "Organisation {{ $organisationData->db_staging }}"
+        {{ $php }} artisan create:tenant-aurora {{$organisation}} {{$organisationData->db_staging}} {{$organisationData->email}}
     @endforeach
 @else
-    @foreach (json_decode($_ENV['TENANTS_DATA']) as $tenant => $tenantData)
-        echo "Tenant {{ $tenantData->db }}"
-        {{ $php }} artisan create:tenant-aurora {{$tenant}} {{$tenantData->db}} {{$tenantData->email}}
+    @foreach (json_decode($_ENV['TENANTS_DATA']) as $organisation => $organisationData)
+        echo "Organisation {{ $organisationData->db }}"
+        {{ $php }} artisan create:tenant-aurora {{$organisation}} {{$organisationData->db}} {{$organisationData->email}}
     @endforeach
 @endif
 

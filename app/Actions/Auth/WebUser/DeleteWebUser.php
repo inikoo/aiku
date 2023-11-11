@@ -9,14 +9,14 @@ namespace App\Actions\Auth\WebUser;
 
 use App\Actions\CRM\Customer\Hydrators\CustomerHydrateWebUsers;
 use App\Actions\Traits\WithActionUpdate;
-use App\Actions\Traits\WithTenantArgument;
+use App\Actions\Traits\WithOrganisationArgument;
 use App\Models\Auth\WebUser;
 use Illuminate\Console\Command;
 
 class DeleteWebUser
 {
     use WithActionUpdate;
-    use WithTenantArgument;
+    use WithOrganisationArgument;
 
     public string $commandSignature = 'delete:web-user {tenant} {id}';
 

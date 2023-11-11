@@ -21,8 +21,8 @@ class GroupUserHydrateTenants implements ShouldBeUnique
 
         $userNameInfo = [];
 
-        foreach ($groupUser->tenants as $tenant) {
-            $userNameInfo[] = array('tenant' => $tenant->slug, 'name' =>Arr::get($tenant->pivot->data, 'name', 'error'));
+        foreach ($groupUser->tenants as $organisation) {
+            $userNameInfo[] = array('tenant' => $organisation->slug, 'name' =>Arr::get($organisation->pivot->data, 'name', 'error'));
         }
 
         $userNameInfo = collect($userNameInfo)->groupBy('name')->all();

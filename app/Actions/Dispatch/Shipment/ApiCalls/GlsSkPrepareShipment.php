@@ -24,7 +24,7 @@ class GlsSkPrepareShipment
         $parcels = [];
         $parcel  = new StdClass();
 
-        $tenant = $shipper->tenant;
+        $organisation = $shipper->tenant;
 
         $shipTo = array_filter($shipTo);
 
@@ -38,9 +38,9 @@ class GlsSkPrepareShipment
         }
 
 
-        $tenant_postal_code = trim(Arr::get($tenant->data['address'], 'sorting_code').' '.Arr::get($tenant->data['address'], 'postal_code'));
-        if (Arr::get($tenant->data['address'], 'country_code') == 'SK') {
-            $tenant_postal_code = preg_replace('/SK-?/i', '', $tenant_postal_code);
+        $organisation_postal_code = trim(Arr::get($organisation->data['address'], 'sorting_code').' '.Arr::get($organisation->data['address'], 'postal_code'));
+        if (Arr::get($organisation->data['address'], 'country_code') == 'SK') {
+            $organisation_postal_code = preg_replace('/SK-?/i', '', $organisation_postal_code);
         }
 
 
@@ -59,14 +59,14 @@ class GlsSkPrepareShipment
         $deliveryAddress->CountryIsoCode = Arr::get($shipTo, 'country_code');
         $parcel->DeliveryAddress         = $deliveryAddress;
         $pickupAddress                   = new StdClass();
-        $pickupAddress->ContactName      = Arr::get($tenant->data, 'contact');
-        $pickupAddress->ContactPhone     = Arr::get($tenant->data, 'phone');
-        $pickupAddress->ContactEmail     = Arr::get($tenant->data, 'email');
-        $pickupAddress->Name             = Arr::get($tenant->data, 'organization');
-        $pickupAddress->Street           = trim(Arr::get($tenant->data['address'], 'address_line_1').' '.Arr::get($tenant->data['address'], 'address_line_2'));
-        $pickupAddress->City             = Arr::get($tenant->data['address'], 'locality');
-        $pickupAddress->ZipCode          = $tenant_postal_code;
-        $pickupAddress->CountryIsoCode   = Arr::get($tenant->data['address'], 'country_code');
+        $pickupAddress->ContactName      = Arr::get($organisation->data, 'contact');
+        $pickupAddress->ContactPhone     = Arr::get($organisation->data, 'phone');
+        $pickupAddress->ContactEmail     = Arr::get($organisation->data, 'email');
+        $pickupAddress->Name             = Arr::get($organisation->data, 'organization');
+        $pickupAddress->Street           = trim(Arr::get($organisation->data['address'], 'address_line_1').' '.Arr::get($organisation->data['address'], 'address_line_2'));
+        $pickupAddress->City             = Arr::get($organisation->data['address'], 'locality');
+        $pickupAddress->ZipCode          = $organisation_postal_code;
+        $pickupAddress->CountryIsoCode   = Arr::get($organisation->data['address'], 'country_code');
         $parcel->PickupAddress           = $pickupAddress;
         $parcel->PickupDate              = gmdate('Y-m-d');
         $parcel->ServiceList             = $services;

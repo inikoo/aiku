@@ -9,7 +9,7 @@ namespace App\Actions\Notifications;
 
 use App\Actions\Mail\DispatchedEmail\UpdateDispatchedEmail;
 use App\Models\Mail\DispatchedEmail;
-use App\Models\Tenancy\Tenant;
+use App\Models\Organisation\Organisation;
 use Aws\Sns\Message;
 use Aws\Sns\MessageValidator;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -34,7 +34,7 @@ class GetSnsNotification
 
                 $currentTenant =  explode('.', explode('@', $messageData['mail']['source'])[1])[0];
 
-                Tenant::where('slug', $currentTenant)->first()->makeCurrent();
+                Organisation::where('slug', $currentTenant)->first()->makeCurrent();
 
                 $dispatchedEmail = DispatchedEmail::where('ses_id', $messageId)->first();
                 UpdateDispatchedEmail::run($dispatchedEmail, [

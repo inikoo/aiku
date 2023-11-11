@@ -10,11 +10,11 @@ namespace App\Actions\Auth\Guest;
 use App\Actions\Auth\GroupUser\StoreGroupUser;
 use App\Actions\Auth\Guest\Hydrators\GuestHydrateUniversalSearch;
 use App\Actions\Auth\User\StoreUser;
-use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateGuests;
+use App\Actions\Organisation\Organisation\Hydrators\OrganisationHydrateGuests;
 use App\Enums\Auth\Guest\GuestTypeEnum;
 use App\Models\Auth\GroupUser;
 use App\Models\Auth\Guest;
-use App\Models\Tenancy\Tenant;
+use App\Models\Organisation\Organisation;
 use App\Rules\AlphaDashDot;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -34,10 +34,10 @@ class StoreGuest
 
     private bool $trusted = false;
 
-    public function handle(array $modelData): Guest
+    public function handle(Organisation $organisation, array $modelData): Guest
     {
         $guest = Guest::create($modelData);
-        TenantHydrateGuests::dispatch(app('currentTenant'));
+        OrganisationHydrateGuests::dispatch($organisation);
         GuestHydrateUniversalSearch::dispatch($guest);
         return $guest;
     }
@@ -72,13 +72,13 @@ class StoreGuest
         ];
     }
 
-    public function asController(ActionRequest $request): Guest
+    public function asController(Organisation $organisation, ActionRequest $request): Guest
     {
         $request->validate();
 
         $modelData = $request->validated();
 
-        $guest = $this->handle(Arr::except($modelData, ['username']));
+        $guest = $this->handle($organisation, Arr::except($modelData, ['username']));
 
         $groupUser = GroupUser::where('username', Arr::get($modelData, 'username'))->first();
         if (!$groupUser) {
@@ -115,13 +115,13 @@ class StoreGuest
     }
 
 
-    public function action(array $objectData): Guest
+    public function action(Organisation $organisation, array $objectData): Guest
     {
         $this->trusted = true;
         $this->setRawAttributes($objectData);
         $validatedData = $this->validateAttributes();
 
-        return $this->handle($validatedData);
+        return $this->handle($organisation, $validatedData);
     }
 
     public string $commandSignature = 'create:guest {tenant : tenant slug} {name} {type : Guest type contractor|external_employee|external_administrator} {--e|email=} {--t|phone=}  {--identity_document_number=} {--identity_document_type=}';
@@ -131,9 +131,9 @@ class StoreGuest
      */
     public function asCommand(Command $command): int
     {
-        $this->trusted = true;
-        $tenant        = Tenant::where('slug', $command->argument('tenant'))->firstOrFail();
-        $tenant->makeCurrent();
+        $this->trusted       = true;
+        $organisation        = Organisation::where('slug', $command->argument('tenant'))->firstOrFail();
+        $organisation->makeCurrent();
 
         $this->fill([
             'type'         => $command->argument('type'),
@@ -147,7 +147,7 @@ class StoreGuest
 
 
         $guest = $this->handle($validatedData);
-        $command->info("Guest <fg=yellow>$guest->slug</> created in <fg=yellow>$tenant->slug</> 👍");
+        $command->info("Guest <fg=yellow>$guest->slug</> created in <fg=yellow>$organisation->slug</> 👍");
 
 
         return 0;

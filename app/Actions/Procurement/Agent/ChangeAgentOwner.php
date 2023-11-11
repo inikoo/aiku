@@ -10,16 +10,16 @@ namespace App\Actions\Procurement\Agent;
 use App\Actions\Procurement\Agent\Hydrators\AgentHydrateUniversalSearch;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Procurement\Agent;
-use App\Models\Tenancy\Tenant;
+use App\Models\Organisation\Organisation;
 
 class ChangeAgentOwner
 {
     use WithActionUpdate;
 
-    public function handle(Agent $agent, Tenant $tenant): Agent
+    public function handle(Agent $agent, Organisation $organisation): Agent
     {
         $agent = $this->update($agent, [
-            'owner_id' => $tenant->id
+            'owner_id' => $organisation->id
         ]);
         AgentHydrateUniversalSearch::dispatch($agent);
 

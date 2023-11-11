@@ -8,7 +8,7 @@
 namespace App\Actions\Google\Drive;
 
 use App\Actions\Google\Drive\Traits\WithTokenPath;
-use App\Models\Tenancy\Tenant;
+use App\Models\Organisation\Organisation;
 use Google_Client;
 use Google_Service_Drive;
 use Illuminate\Http\RedirectResponse;
@@ -25,7 +25,7 @@ class GetClientGoogleDrive
      */
     public function handle(): Google_Service_Drive
     {
-        Tenant::where('slug', 'aroma')->first()->makeCurrent();
+        Organisation::where('slug', 'aroma')->first()->makeCurrent();
         $tokenPath = $this->getTokenPath();
 
         $client = $this->getClient($tokenPath);
@@ -38,13 +38,13 @@ class GetClientGoogleDrive
      */
     public function getClient($tokenPath): RedirectResponse|Google_Client
     {
-        $client = new Google_Client();
-        $tenant = app('currentTenant');
+        $client       = new Google_Client();
+        $organisation = app('currentTenant');
 
         $client->setApplicationName('Aiku google drive manager');
         $client->setAuthConfig([
-            'client_id'     => Arr::get($tenant->settings, 'google.id'),
-            'client_secret' => Arr::get($tenant->settings, 'google.secret')
+            'client_id'     => Arr::get($organisation->settings, 'google.id'),
+            'client_secret' => Arr::get($organisation->settings, 'google.secret')
         ]);
 
         $client->setAccessType('offline');

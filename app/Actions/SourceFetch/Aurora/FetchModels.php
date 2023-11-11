@@ -10,10 +10,10 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-use App\Actions\Traits\WithTenantsArgument;
-use App\Actions\Traits\WithTenantSource;
-use App\Models\Tenancy\Tenant;
-use App\Services\Tenant\SourceTenantService;
+use App\Actions\Traits\WithOrganisationsArgument;
+use App\Actions\Traits\WithOrganisationSource;
+use App\Models\Organisation\Organisation;
+use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Bus;
 use JetBrains\PhpStorm\NoReturn;
@@ -22,41 +22,41 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class FetchModels
 {
     use AsAction;
-    use WithTenantsArgument;
-    use WithTenantSource;
+    use WithOrganisationsArgument;
+    use WithOrganisationSource;
 
     public string $commandSignature = 'fetch:models {tenants?*}';
 
 
-    #[NoReturn] public function handle(SourceTenantService $tenantSource): void
+    #[NoReturn] public function handle(SourceOrganisationService $organisationSource): void
     {
-        FetchShippers::dispatch($tenantSource);
-        FetchShops::dispatch($tenantSource);
-        FetchEmployees::dispatch($tenantSource);
+        FetchShippers::dispatch($organisationSource);
+        FetchShops::dispatch($organisationSource);
+        FetchEmployees::dispatch($organisationSource);
         Bus::chain([
-                       FetchWarehouses::makeJob($tenantSource),
-                       FetchWarehouseAreas::makeJob($tenantSource),
-                       FetchLocations::makeJob($tenantSource),
-                       FetchStocks::makeJob($tenantSource),
+                       FetchWarehouses::makeJob($organisationSource),
+                       FetchWarehouseAreas::makeJob($organisationSource),
+                       FetchLocations::makeJob($organisationSource),
+                       FetchStocks::makeJob($organisationSource),
                    ])->dispatch();
     }
 
 
     public function asCommand(Command $command): int
     {
-        $tenants  = $this->getTenants($command);
-        $exitCode = 0;
+        $organisations  = $this->getTenants($command);
+        $exitCode       = 0;
 
-        foreach ($tenants as $tenant) {
-            $result = (int)$tenant->execute(
+        foreach ($organisations as $organisation) {
+            $result = (int)$organisation->execute(
                 /**
                  * @throws \Exception
                  */
-                function (Tenant $tenant) use ($command) {
-                    $tenantSource = $this->getTenantSource($tenant);
-                    $tenantSource->initialisation(app('currentTenant'));
+                function (Organisation $organisation) use ($command) {
+                    $organisationSource = $this->getTenantSource($organisation);
+                    $organisationSource->initialisation(app('currentTenant'));
 
-                    $this->handle($tenantSource);
+                    $this->handle($organisationSource);
                 }
             );
 

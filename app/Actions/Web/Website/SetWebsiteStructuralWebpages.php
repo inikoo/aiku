@@ -8,7 +8,7 @@
 namespace App\Actions\Web\Website;
 
 use App\Actions\Web\Webpage\StoreWebpage;
-use App\Models\Tenancy\Tenant;
+use App\Models\Organisation\Organisation;
 use App\Models\Web\Webpage;
 use App\Models\Web\Website;
 use Illuminate\Console\Command;
@@ -71,9 +71,9 @@ class SetWebsiteStructuralWebpages
 
     public function asCommand(Command $command): int
     {
-        $tenant = Tenant::where('slug', ($command->argument('tenant')))->firstOrFail();
+        $organisation = Organisation::where('slug', ($command->argument('tenant')))->firstOrFail();
 
-        $tenant->execute(function () use ($command) {
+        $organisation->execute(function () use ($command) {
             $website = Website::where('code', ($command->argument('website')))->firstOrFail();
 
             $this->handle($website);

@@ -8,7 +8,7 @@
 namespace App\Actions\Inventory\StockFamily;
 
 use App\Actions\Inventory\StockFamily\Hydrators\StockFamilyHydrateUniversalSearch;
-use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateInventory;
+use App\Actions\Organisation\Organisation\Hydrators\OrganisationHydrateInventory;
 use App\Models\Inventory\StockFamily;
 use App\Rules\CaseSensitive;
 use Illuminate\Http\RedirectResponse;
@@ -29,7 +29,7 @@ class StoreStockFamily
         /** @var StockFamily $stockFamily */
         $stockFamily = StockFamily::create($modelData);
         $stockFamily->stats()->create();
-        TenantHydrateInventory::dispatch(app('currentTenant'));
+        OrganisationHydrateInventory::dispatch(app('currentTenant'));
         StockFamilyHydrateUniversalSearch::dispatch($stockFamily);
 
         return $stockFamily;

@@ -7,7 +7,7 @@
 
 namespace App\Models\Inventory;
 
-use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateInventory;
+use App\Actions\Organisation\Organisation\Hydrators\OrganisationHydrateInventory;
 use App\Enums\Inventory\StockFamily\StockFamilyStateEnum;
 use App\Models\Search\UniversalSearch;
 use App\Models\Traits\HasUniversalSearch;
@@ -74,7 +74,7 @@ class StockFamily extends Model
     {
         static::updated(function (StockFamily $stockFamily) {
             if ($stockFamily->wasChanged('state')) {
-                TenantHydrateInventory::dispatch(app('currentTenant'));
+                OrganisationHydrateInventory::dispatch(app('currentTenant'));
             }
         });
     }

@@ -11,7 +11,7 @@ use App\Actions\InertiaAction;
 use App\Actions\UI\Procurement\ProcurementDashboard;
 use App\Http\Resources\Procurement\MarketplaceAgentResource;
 use App\Models\Procurement\Agent;
-use App\Models\Procurement\AgentTenant;
+use App\Models\Procurement\AgentOrganisation;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -53,7 +53,7 @@ class IndexMarketplaceAgents extends InertiaAction
             ->defaultSort('agents.code')
             ->select(['code', 'name', 'slug', 'number_suppliers', 'number_supplier_products', 'location'])
             ->addSelect([
-                'adoption' => AgentTenant::select('agent_tenant.status')
+                'adoption' => AgentOrganisation::select('agent_tenant.status')
                     ->whereColumn('agent_tenant.agent_id', 'agents.id')
                     ->where('agent_tenant.tenant_id', app('currentTenant')->id)
                     ->limit(1)

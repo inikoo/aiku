@@ -10,7 +10,7 @@ namespace App\Actions\SourceFetch\Aurora;
 use App\Actions\Mail\Mailshot\StoreMailshot;
 use App\Actions\Mail\Mailshot\UpdateMailshot;
 use App\Models\Mail\Mailshot;
-use App\Services\Tenant\SourceTenantService;
+use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;
@@ -20,9 +20,9 @@ class FetchMailshots extends FetchAction
     public string $commandSignature = 'fetch:mailshots {tenants?*} {--s|source_id=}';
 
 
-    #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Mailshot
+    #[NoReturn] public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Mailshot
     {
-        if ($shopData = $tenantSource->fetchMailshot($tenantSourceId)) {
+        if ($shopData = $organisationSource->fetchMailshot($organisationSourceId)) {
             if ($mailshot = Mailshot::where('source_id', $shopData['mailshot']['source_id'])
                 ->first()) {
                 $mailshot = UpdateMailshot::run(

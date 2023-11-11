@@ -15,9 +15,9 @@ use Spatie\Multitenancy\Tasks\SwitchTenantTask;
 
 class SetupFilesystemsTask implements SwitchTenantTask
 {
-    public function makeCurrent(Tenant $tenant): void
+    public function makeCurrent(Tenant $organisation): void
     {
-        $this->setTenantFilesystem($tenant);
+        $this->setTenantFilesystem($organisation);
     }
 
 
@@ -26,21 +26,21 @@ class SetupFilesystemsTask implements SwitchTenantTask
         $this->setTenantFilesystem();
     }
 
-    protected function setTenantFilesystem(?Tenant $tenant = null): void
+    protected function setTenantFilesystem(?Tenant $organisation = null): void
     {
         Storage::forgetDisk(['tenant','tenant_public']);
 
 
-        if ($tenant) {
+        if ($organisation) {
             config()->set('media-library.media_model', GroupMedia::class);
 
             config()->set(
                 'filesystems.disks.group.root',
-                storage_path('app/group/'.$tenant->group->slug)
+                storage_path('app/group/'.$organisation->group->slug)
             );
             config()->set(
                 'filesystems.disks.group_public.root',
-                storage_path('app/public/group/'.$tenant->group->slug)
+                storage_path('app/public/group/'.$organisation->group->slug)
             );
         } else {
             config()->set('media-library.media_model', CentralMedia::class);

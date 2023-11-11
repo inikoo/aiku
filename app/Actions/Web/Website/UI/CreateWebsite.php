@@ -10,7 +10,7 @@ namespace App\Actions\Web\Website\UI;
 use App\Actions\InertiaAction;
 use App\Actions\Market\Shop\UI\ShowShop;
 use App\Models\Market\Shop;
-use App\Models\Tenancy\Tenant;
+use App\Models\Organisation\Organisation;
 use Exception;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
@@ -55,7 +55,7 @@ class CreateWebsite extends InertiaAction
     /**
      * @throws Exception
      */
-    public function handle(Tenant|Shop $parent, ActionRequest $request): Response
+    public function handle(Organisation|Shop $parent, ActionRequest $request): Response
     {
         $scope     = $parent;
         $container = null;
@@ -132,7 +132,7 @@ class CreateWebsite extends InertiaAction
                                 'name'      => 'models.shop.website.store',
                                 'arguments' => [$parent->slug]
                             ],
-                            'Tenant' => [
+                            'Organisation' => [
                                 'name' => 'models.website.store',
                             ],
                         }
@@ -145,7 +145,7 @@ class CreateWebsite extends InertiaAction
     }
 
 
-    public function getBreadcrumbs(Tenant|Shop $scope, $routeParameters): array
+    public function getBreadcrumbs(Organisation|Shop $scope, $routeParameters): array
     {
         return match (class_basename($scope)) {
             'Shop' => array_merge(
@@ -161,7 +161,7 @@ class CreateWebsite extends InertiaAction
                     ]
                 ]
             ),
-            'Tenant' => array_merge(
+            'Organisation' => array_merge(
                 IndexWebsites::make()->getBreadcrumbs(
                     'web.websites.index',
                     []

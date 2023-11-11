@@ -10,7 +10,7 @@ namespace App\Actions\SourceFetch\Aurora;
 use App\Actions\Auth\WebUser\StoreWebUser;
 use App\Actions\Auth\WebUser\UpdateWebUser;
 use App\Models\Auth\WebUser;
-use App\Services\Tenant\SourceTenantService;
+use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 
@@ -19,9 +19,9 @@ class FetchWebUsers extends FetchAction
     public string $commandSignature = 'fetch:web-users {tenants?*} {--s|source_id=} {--S|shop= : Shop slug} {--d|db_suffix=} {--r|reset}';
 
 
-    public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?WebUser
+    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?WebUser
     {
-        if ($webUserData = $tenantSource->fetchWebUser($tenantSourceId)) {
+        if ($webUserData = $organisationSource->fetchWebUser($organisationSourceId)) {
             if ($webUserData['customer']) {
                 if ($webUser = WebUser::withTrashed()->where('source_id', $webUserData['webUser']['source_id'])
                     ->first()) {
@@ -36,7 +36,7 @@ class FetchWebUsers extends FetchAction
 
                 return $webUser;
             } else {
-                print "Warning web user $tenantSourceId do not have customer\n";
+                print "Warning web user $organisationSourceId do not have customer\n";
             }
         }
 

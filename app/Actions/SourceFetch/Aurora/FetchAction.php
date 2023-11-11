@@ -8,12 +8,12 @@
 namespace App\Actions\SourceFetch\Aurora;
 
 use App\Actions\Auth\GroupUser\UpdateGroupUser;
-use App\Actions\Traits\WithTenantsArgument;
-use App\Actions\Traits\WithTenantSource;
+use App\Actions\Traits\WithOrganisationsArgument;
+use App\Actions\Traits\WithOrganisationSource;
 use App\Models\Market\Shop;
 use App\Models\Media\GroupMedia;
-use App\Models\Tenancy\Tenant;
-use App\Services\Tenant\SourceTenantService;
+use App\Models\Organisation\Organisation;
+use App\Services\Organisation\SourceOrganisationService;
 use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Model;
@@ -26,8 +26,8 @@ use Symfony\Component\Console\Helper\ProgressBar;
 class FetchAction
 {
     use AsAction;
-    use WithTenantsArgument;
-    use WithTenantSource;
+    use WithOrganisationsArgument;
+    use WithOrganisationSource;
 
     protected int $counter = 0;
 
@@ -35,7 +35,7 @@ class FetchAction
     protected ?Shop $shop;
     protected array $with;
     protected bool $onlyNew = false;
-    private ?Tenant $tenant;
+    private ?Organisation $organisation;
 
     protected int $hydrateDelay = 0;
 
@@ -46,7 +46,7 @@ class FetchAction
         $this->with        = [];
     }
 
-    public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Model
+    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Model
     {
         return null;
     }
@@ -56,14 +56,14 @@ class FetchAction
         return null;
     }
 
-    public function fetchAll(SourceTenantService $tenantSource, Command $command = null): void
+    public function fetchAll(SourceOrganisationService $organisationSource, Command $command = null): void
     {
-        $this->getModelsQuery()->chunk(10000, function ($chunkedData) use ($command, $tenantSource) {
+        $this->getModelsQuery()->chunk(10000, function ($chunkedData) use ($command, $organisationSource) {
             foreach ($chunkedData as $auroraData) {
                 if ($command && $command->getOutput()->isDebug()) {
                     $command->line("Fetching: ".$auroraData->{'source_id'});
                 }
-                $model = $this->handle($tenantSource, $auroraData->{'source_id'});
+                $model = $this->handle($organisationSource, $auroraData->{'source_id'});
                 unset($model);
                 $this->progressBar?->advance();
             }
@@ -83,12 +83,12 @@ class FetchAction
     {
         $this->hydrateDelay = 120;
 
-        $tenants  = $this->getTenants($command);
-        $exitCode = 0;
+        $organisations  = $this->getTenants($command);
+        $exitCode       = 0;
 
 
-        foreach ($tenants as $tenant) {
-            $result = (int)$tenant->execute(function () use ($command, $tenant) {
+        foreach ($organisations as $organisation) {
+            $result = (int)$organisation->execute(function () use ($command, $organisation) {
                 if (in_array($command->getName(), ['fetch:customers', 'fetch:web-users', 'fetch:products']) and $command->option('shop')) {
                     $this->shop = Shop::where('slug', $command->option('shop'))->firstOrFail();
                 }
@@ -112,14 +112,14 @@ class FetchAction
                 }
 
                 try {
-                    $tenantSource = $this->getTenantSource($tenant);
+                    $organisationSource = $this->getTenantSource($organisation);
                 } catch (Exception $exception) {
                     $command->error($exception->getMessage());
 
                     return 1;
                 }
 
-                $tenantSource->initialisation(app('currentTenant'), $command->option('db_suffix') ?? '');
+                $organisationSource->initialisation(app('currentTenant'), $command->option('db_suffix') ?? '');
 
                 if (in_array($command->getName(), [
                         'fetch:stocks',
@@ -137,10 +137,10 @@ class FetchAction
                 $command->info('');
 
                 if ($command->option('source_id')) {
-                    $this->handle($tenantSource, $command->option('source_id'));
+                    $this->handle($organisationSource, $command->option('source_id'));
                 } else {
                     if (!$command->option('quiet') and !$command->getOutput()->isDebug()) {
-                        $info = '✊ '.$command->getName().' '.$tenant->slug;
+                        $info = '✊ '.$command->getName().' '.$organisation->slug;
                         if ($this->shop) {
                             $info .= ' shop:'.$this->shop->slug;
                         }
@@ -152,7 +152,7 @@ class FetchAction
                         $command->line('Steps '.number_format($this->count()));
                     }
 
-                    $this->fetchAll($tenantSource, $command);
+                    $this->fetchAll($organisationSource, $command);
                     $this->progressBar?->finish();
                 }
 
@@ -170,7 +170,7 @@ class FetchAction
 
     public function authorize(ActionRequest $request): bool
     {
-        if ($request->user()->userable_type == 'Tenant') {
+        if ($request->user()->userable_type == 'Organisation') {
             $this->tenant = $request->user()->tenant;
 
             if ($this->tenant->id and $request->user()->tokenCan('aurora')) {
@@ -197,11 +197,11 @@ class FetchAction
             /**
              * @throws \Exception
              */
-            function (Tenant $tenant) use ($validatedData) {
-                $tenantSource = $this->getTenantSource($tenant);
-                $tenantSource->initialisation(app('currentTenant'));
+            function (Organisation $organisation) use ($validatedData) {
+                $organisationSource = $this->getTenantSource($organisation);
+                $organisationSource->initialisation(app('currentTenant'));
 
-                return $this->handle($tenantSource, Arr::get($validatedData, 'id'));
+                return $this->handle($organisationSource, Arr::get($validatedData, 'id'));
             }
         );
     }

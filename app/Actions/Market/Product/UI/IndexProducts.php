@@ -14,7 +14,7 @@ use App\Http\Resources\Market\ProductResource;
 use App\Models\Market\Product;
 use App\Models\Market\ProductCategory;
 use App\Models\Market\Shop;
-use App\Models\Tenancy\Tenant;
+use App\Models\Organisation\Organisation;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -28,7 +28,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexProducts extends InertiaAction
 {
-    private Shop|ProductCategory|Tenant $parent;
+    private Shop|ProductCategory|Organisation $parent;
 
     public function authorize(ActionRequest $request): bool
     {
@@ -56,7 +56,7 @@ class IndexProducts extends InertiaAction
     }
 
     /** @noinspection PhpUndefinedMethodInspection */
-    public function handle(Shop|ProductCategory|Tenant $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Shop|ProductCategory|Organisation $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -105,7 +105,7 @@ class IndexProducts extends InertiaAction
             ->withQueryString();
     }
 
-    public function tableStructure(Shop|ProductCategory|Tenant $parent, ?array $modelOperations = null, $prefix = null): Closure
+    public function tableStructure(Shop|ProductCategory|Organisation $parent, ?array $modelOperations = null, $prefix = null): Closure
     {
         return function (InertiaTable $table) use ($parent, $modelOperations, $prefix) {
             if ($prefix) {
@@ -118,7 +118,7 @@ class IndexProducts extends InertiaAction
                 ->withModelOperations($modelOperations)
                 ->withEmptyState(
                     match (class_basename($parent)) {
-                        'Tenant' => [
+                        'Organisation' => [
                             'title'       => __("No products found"),
                             'description' => $this->canEdit && $parent->marketStats->number_shops==0 ? __('Get started by creating a new shop. ✨')
                                 : __("In fact, is no even a shop yet 🤷🏽‍♂️"),

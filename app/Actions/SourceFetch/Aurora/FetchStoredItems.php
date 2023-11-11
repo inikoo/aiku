@@ -10,7 +10,7 @@ namespace App\Actions\SourceFetch\Aurora;
 use App\Actions\Fulfilment\StoredItem\StoreStoredItem;
 use App\Actions\Fulfilment\StoredItem\UpdateStoredItem;
 use App\Models\Fulfilment\StoredItem;
-use App\Services\Tenant\SourceTenantService;
+use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 
@@ -18,9 +18,9 @@ class FetchStoredItems extends FetchAction
 {
     public string $commandSignature = 'fetch:stored-items {tenants?*} {--s|source_id=} {--d|db_suffix=}';
 
-    public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?StoredItem
+    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?StoredItem
     {
-        if ($storedItemData = $tenantSource->fetchStoredItem($tenantSourceId)) {
+        if ($storedItemData = $organisationSource->fetchStoredItem($organisationSourceId)) {
             if ($storedItem = StoredItem::withTrashed()->where('source_id', $storedItemData['storedItem']['source_id'])
                 ->first()) {
                 $storedItem = UpdateStoredItem::run(

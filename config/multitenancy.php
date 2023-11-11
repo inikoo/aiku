@@ -5,7 +5,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-use App\Models\Tenancy\Tenant;
+use App\Models\Organisation\Organisation;
 use App\Resolvers\TenantResolver;
 use App\Tasks\SetSanctumPersonAccessTokenModelTask;
 use App\Tasks\SetupFilesystemsTask;
@@ -58,9 +58,9 @@ return [
     /*
      * This class is the model used for storing configuration on tenants.
      *
-     * It must be or extend `Spatie\Multitenancy\Models\Tenant::class`
+     * It must be or extend `Spatie\Multitenancy\Models\Organisation::class`
      */
-    'tenant_model'                       => Tenant::class,
+    'tenant_model'                       => Organisation::class,
 
     /*
      * If there is a current tenant when dispatching a job, the id of the current tenant

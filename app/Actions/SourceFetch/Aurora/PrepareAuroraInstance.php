@@ -7,7 +7,7 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-use App\Models\Tenancy\Tenant;
+use App\Models\Organisation\Organisation;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -28,9 +28,9 @@ class PrepareAuroraInstance
 
     public function asCommand(Command $command): int
     {
-        $tenant = Tenant::where('slug', $command->argument('tenant_slug'))->first();
+        $organisation = Organisation::where('slug', $command->argument('tenant_slug'))->first();
 
-        $aurora_db = Arr::get($tenant->data, 'source.aurora_db');
+        $aurora_db = Arr::get($organisation->data, 'source.aurora_db');
         if ($aurora_db) {
             $database_settings = data_get(config('database.connections'), 'aurora');
             data_set($database_settings, 'database', $aurora_db);

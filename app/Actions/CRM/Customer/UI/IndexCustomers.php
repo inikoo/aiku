@@ -14,7 +14,7 @@ use App\Http\Resources\Sales\CustomerResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\CRM\Customer;
 use App\Models\Market\Shop;
-use App\Models\Tenancy\Tenant;
+use App\Models\Organisation\Organisation;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -27,7 +27,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexCustomers extends InertiaAction
 {
-    private Shop|Tenant $parent;
+    private Shop|Organisation $parent;
     private bool $canCreateShop = false;
 
     public function authorize(ActionRequest $request): bool
@@ -58,7 +58,7 @@ class IndexCustomers extends InertiaAction
     }
 
     /** @noinspection PhpUndefinedMethodInspection */
-    public function handle(Tenant|Shop $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Organisation|Shop $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -121,7 +121,7 @@ class IndexCustomers extends InertiaAction
                 ->withGlobalSearch()
                 ->withEmptyState(
                     match (class_basename($parent)) {
-                        'Tenant' => [
+                        'Organisation' => [
                             'title'       => __("No customers found"),
                             'description' => $this->canCreateShop && $parent->marketStats->number_shops == 0 ? __('Get started by creating a shop. ✨')
                                 : __("In fact, is no even a shop yet 🤷🏽‍♂️"),

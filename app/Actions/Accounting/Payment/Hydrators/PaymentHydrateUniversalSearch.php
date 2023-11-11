@@ -7,14 +7,14 @@
 
 namespace App\Actions\Accounting\Payment\Hydrators;
 
-use App\Actions\Traits\WithTenantJob;
+use App\Actions\Traits\WithOrganisationJob;
 use App\Models\Accounting\Payment;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class PaymentHydrateUniversalSearch
 {
     use AsAction;
-    use WithTenantJob;
+    use WithOrganisationJob;
 
     public function handle(Payment $payment): void
     {

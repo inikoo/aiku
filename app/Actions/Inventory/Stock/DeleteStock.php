@@ -8,16 +8,16 @@
 namespace App\Actions\Inventory\Stock;
 
 use App\Actions\Inventory\StockFamily\Hydrators\StockFamilyHydrateStocks;
-use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateInventory;
+use App\Actions\Organisation\Organisation\Hydrators\OrganisationHydrateInventory;
 use App\Actions\Traits\WithActionUpdate;
-use App\Actions\Traits\WithTenantArgument;
+use App\Actions\Traits\WithOrganisationArgument;
 use App\Models\Inventory\Stock;
 use Illuminate\Console\Command;
 
 class DeleteStock
 {
     use WithActionUpdate;
-    use WithTenantArgument;
+    use WithOrganisationArgument;
 
     public string $commandSignature = 'delete:stock {tenant} {id}';
 
@@ -27,7 +27,7 @@ class DeleteStock
         $stock = $this->update($stock, $deletedData, ['data']);
         //Todo: PKA-18
         if (!$skipHydrate) {
-            TenantHydrateInventory::dispatch(app('currentTenant'));
+            OrganisationHydrateInventory::dispatch(app('currentTenant'));
             if ($stock->stock_family_id) {
                 StockFamilyHydrateStocks::dispatch($stock->stockFamily);
             }

@@ -11,13 +11,13 @@ use App\Actions\Assets\Currency\SetCurrencyHistoricFields;
 use App\Actions\Helpers\GroupAddress\StoreGroupAddressAttachToModel;
 use App\Actions\Procurement\Agent\Hydrators\AgentHydrateSuppliers;
 use App\Actions\Procurement\Supplier\Hydrators\SupplierHydrateUniversalSearch;
-use App\Actions\Tenancy\Group\Hydrators\GroupHydrateProcurement;
-use App\Actions\Tenancy\Tenant\AttachSupplier;
-use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateProcurement;
-use App\Enums\Procurement\SupplierTenant\SupplierTenantStatusEnum;
+use App\Actions\Organisation\Group\Hydrators\GroupHydrateProcurement;
+use App\Actions\Organisation\Organisation\AttachSupplier;
+use App\Actions\Organisation\Organisation\Hydrators\OrganisationHydrateProcurement;
+use App\Enums\Procurement\SupplierOrganisation\SupplierOrganisationStatusEnum;
 use App\Models\Procurement\Agent;
 use App\Models\Procurement\Supplier;
-use App\Models\Tenancy\Tenant;
+use App\Models\Organisation\Organisation;
 use App\Rules\ValidAddress;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
@@ -43,7 +43,7 @@ class StoreMarketplaceSupplier
         return $request->user()->hasPermissionTo("procurement.edit");
     }
 
-    public function handle(Tenant|Agent $owner, ?Agent $agent, array $modelData, array $addressData = []): Supplier
+    public function handle(Organisation|Agent $owner, ?Agent $agent, array $modelData, array $addressData = []): Supplier
     {
         $modelData['owner_type'] = class_basename($owner);
         $modelData['owner_id']   = $owner->id;
@@ -59,7 +59,7 @@ class StoreMarketplaceSupplier
                 supplier: $supplier,
                 pivotData: [
                     'agent_id'   => $agent->id,
-                    'status'     => SupplierTenantStatusEnum::OWNER
+                    'status'     => SupplierOrganisationStatusEnum::OWNER
                 ]
             );
 
@@ -69,7 +69,7 @@ class StoreMarketplaceSupplier
             $owner->suppliers()->attach(
                 $supplier,
                 [
-                    'status' => SupplierTenantStatusEnum::OWNER
+                    'status' => SupplierOrganisationStatusEnum::OWNER
                 ]
             );
         }
@@ -84,7 +84,7 @@ class StoreMarketplaceSupplier
         $supplier->location = $supplier->getLocation();
         $supplier->save();
 
-        TenantHydrateProcurement::dispatch(app('currentTenant'));
+        OrganisationHydrateProcurement::dispatch(app('currentTenant'));
         GroupHydrateProcurement::run(app('currentTenant')->group);
 
         if ($supplier->agent_id) {
@@ -116,7 +116,7 @@ class StoreMarketplaceSupplier
         }
     }
 
-    public function action(Tenant|Agent $owner, ?Agent $agent, $modelData): Supplier
+    public function action(Organisation|Agent $owner, ?Agent $agent, $modelData): Supplier
     {
         $this->asAction = true;
         $this->setRawAttributes($modelData);

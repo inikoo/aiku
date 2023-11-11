@@ -10,7 +10,7 @@ namespace App\Actions\SourceFetch\Aurora;
 use App\Actions\Dispatch\DeliveryNoteItem\StoreDeliveryNoteItem;
 use App\Models\Dispatch\DeliveryNote;
 use App\Models\Dispatch\DeliveryNoteItem;
-use App\Services\Tenant\SourceTenantService;
+use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -20,9 +20,9 @@ class FetchDeliveryNoteTransactions
     use AsAction;
 
 
-    #[NoReturn] public function handle(SourceTenantService $tenantSource, int $source_id, DeliveryNote $deliveryNote): ?DeliveryNoteItem
+    #[NoReturn] public function handle(SourceOrganisationService $organisationSource, int $source_id, DeliveryNote $deliveryNote): ?DeliveryNoteItem
     {
-        if ($transactionData = $tenantSource->fetchDeliveryNoteTransaction(id: $source_id, deliveryNote: $deliveryNote)) {
+        if ($transactionData = $organisationSource->fetchDeliveryNoteTransaction(id: $source_id, deliveryNote: $deliveryNote)) {
             if (!DeliveryNoteItem::where('source_id', $transactionData['delivery_note_item']['source_id'])
                 ->first()) {
                 $transaction = StoreDeliveryNoteItem::run(

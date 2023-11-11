@@ -16,16 +16,16 @@ class CheckUserStatusFirebase
     use AsObject;
     use AsAction;
 
-    public function handle($tenant): void
+    public function handle($organisation): void
     {
         $database  = app('firebase.database');
-        $reference = $database->getReference($tenant->slug);
+        $reference = $database->getReference($organisation->slug);
 
         $values = $reference->getValue();
 
         foreach ($values as $value) {
             if(Carbon::make($value['last_active'])->timestamp < now()->subMinutes(5)->timestamp && $value['is_active']) {
-                $database->getReference($tenant->slug . '/' . $value['username'] . '/is_active')->set(false);
+                $database->getReference($organisation->slug . '/' . $value['username'] . '/is_active')->set(false);
             }
 
             if(Carbon::make($value['last_active'])->timestamp < now()->subMinutes(120)->timestamp) {

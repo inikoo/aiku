@@ -12,7 +12,7 @@ use App\Actions\Accounting\Invoice\UpdateInvoice;
 use App\Actions\Helpers\Address\StoreHistoricAddress;
 use App\Actions\Helpers\Address\UpdateHistoricAddressToModel;
 use App\Models\Accounting\Invoice;
-use App\Services\Tenant\SourceTenantService;
+use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;
@@ -21,9 +21,9 @@ class FetchInvoices extends FetchAction
 {
     public string $commandSignature = 'fetch:invoices {tenants?*} {--s|source_id=} {--N|only_new : Fetch only new} {--w|with=* : Accepted values: transactions} {--d|db_suffix=} {--r|reset}';
 
-    #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Invoice
+    #[NoReturn] public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Invoice
     {
-        if ($invoiceData = $tenantSource->fetchInvoice($tenantSourceId)) {
+        if ($invoiceData = $organisationSource->fetchInvoice($organisationSourceId)) {
             if ($invoice = Invoice::withTrashed()->where('source_id', $invoiceData['invoice']['source_id'])
                 ->first()) {
                 UpdateInvoice::run($invoice, $invoiceData['invoice']);
@@ -36,7 +36,7 @@ class FetchInvoices extends FetchAction
                 }
 
                 if (in_array('transactions', $this->with)) {
-                    $this->fetchInvoiceTransactions($tenantSource, $invoice);
+                    $this->fetchInvoiceTransactions($organisationSource, $invoice);
                 }
 
                 $this->updateAurora($invoice);
@@ -55,7 +55,7 @@ class FetchInvoices extends FetchAction
                         hydratorsDelay: $this->hydrateDelay
                     );
                     if (in_array('transactions', $this->with)) {
-                        $this->fetchInvoiceTransactions($tenantSource, $invoice);
+                        $this->fetchInvoiceTransactions($organisationSource, $invoice);
                     }
 
 
@@ -63,7 +63,7 @@ class FetchInvoices extends FetchAction
 
                     return $invoice;
                 }
-                print "Warning order $tenantSourceId do not have customer\n";
+                print "Warning order $organisationSourceId do not have customer\n";
             }
         }
 
@@ -77,7 +77,7 @@ class FetchInvoices extends FetchAction
             ->update(['aiku_id' => $invoice->id]);
     }
 
-    private function fetchInvoiceTransactions($tenantSource, Invoice $invoice): void
+    private function fetchInvoiceTransactions($organisationSource, Invoice $invoice): void
     {
         $transactionsToDelete = $invoice->invoiceTransactions()->pluck('source_id', 'id')->all();
 
@@ -89,7 +89,7 @@ class FetchInvoices extends FetchAction
                 ->get() as $auroraData
         ) {
             $transactionsToDelete = array_diff($transactionsToDelete, [$auroraData->{'Order Transaction Fact Key'}]);
-            fetchInvoiceTransactions::run($tenantSource, $auroraData->{'Order Transaction Fact Key'}, $invoice);
+            fetchInvoiceTransactions::run($organisationSource, $auroraData->{'Order Transaction Fact Key'}, $invoice);
         }
         $invoice->invoiceTransactions()->whereIn('id', array_keys($transactionsToDelete))->delete();
     }

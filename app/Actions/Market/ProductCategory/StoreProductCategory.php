@@ -12,7 +12,7 @@ use App\Actions\Market\Shop\Hydrators\ShopHydrateDepartments;
 use App\Enums\Market\ProductCategory\ProductCategoryTypeEnum;
 use App\Models\Market\ProductCategory;
 use App\Models\Market\Shop;
-use App\Models\Tenancy\Tenant;
+use App\Models\Organisation\Organisation;
 use App\Rules\CaseSensitive;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
@@ -44,9 +44,9 @@ class StoreProductCategory
         $productCategory->salesStats()->create([
             'scope' => 'sales'
         ]);
-        /** @var Tenant $tenant */
-        $tenant = app('currentTenant');
-        if ($productCategory->shop->currency_id != $tenant->currency_id) {
+        /** @var Organisation $organisation */
+        $organisation = app('currentTenant');
+        if ($productCategory->shop->currency_id != $organisation->currency_id) {
             $productCategory->salesStats()->create([
                 'scope' => 'sales-tenant-currency'
             ]);

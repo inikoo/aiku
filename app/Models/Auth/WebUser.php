@@ -41,7 +41,7 @@ use Illuminate\Support\Carbon;
  * @property int|null $source_id
  * @property WebUserTypeEnum $state
  * @property-read Customer $customer
- * @property-read Collection<int, \App\Models\Tenancy\TenantPersonalAccessToken> $tokens
+ * @property-read Collection<int, \App\Models\Organisation\TenantPersonalAccessToken> $tokens
  * @method static Builder|WebUser newModelQuery()
  * @method static Builder|WebUser newQuery()
  * @method static Builder|WebUser onlyTrashed()

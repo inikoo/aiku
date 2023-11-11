@@ -7,13 +7,13 @@
 
 namespace App\Models\Procurement;
 
-use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateProcurement;
+use App\Actions\Organisation\Organisation\Hydrators\OrganisationHydrateProcurement;
 use App\Models\Assets\Currency;
 use App\Models\Helpers\GroupAddress;
 use App\Models\Helpers\Issue;
 use App\Models\Media\GroupMedia;
 use App\Models\Search\UniversalSearch;
-use App\Models\Tenancy\Tenant;
+use App\Models\Organisation\Organisation;
 use App\Models\Traits\HasGroupAddress;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasPhoto;
@@ -46,7 +46,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property bool $is_private
  * @property string $slug
  * @property string $code
- * @property string $owner_type Who can edit this model Tenant|Agent|Supplier
+ * @property string $owner_type Who can edit this model Organisation|Agent|Supplier
  * @property int $owner_id
  * @property string|null $name
  * @property int|null $image_id
@@ -62,7 +62,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $currency_id
  * @property array $settings
  * @property array $shared_data
- * @property array $tenant_data
+ * @property array $organisation_data
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
@@ -134,7 +134,7 @@ class Supplier extends Model implements HasMedia, Auditable
         static::updated(function (Supplier $supplier) {
             if (!$supplier->wasRecentlyCreated) {
                 if ($supplier->wasChanged('status')) {
-                    TenantHydrateProcurement::dispatch(app('currentTenant'));
+                    OrganisationHydrateProcurement::dispatch(app('currentTenant'));
                 }
                 if ($supplier->wasChanged(['contact_name', 'company_name'])) {
                     $supplier->name = $supplier->company_name == '' ? $supplier->contact_name : $supplier->company_name;
@@ -151,16 +151,16 @@ class Supplier extends Model implements HasMedia, Auditable
             ->saveSlugsTo('slug');
     }
 
-    public function belongsToTenant(?Tenant $tenant): bool
+    public function belongsToTenant(?Organisation $organisation): bool
     {
-        if (!$tenant) {
-            $tenant = app('currentTenant');
+        if (!$organisation) {
+            $organisation = app('currentTenant');
         }
 
         if ($this->agent_id) {
-            return $this->agent->owner_id === $tenant->id;
+            return $this->agent->owner_id === $organisation->id;
         } else {
-            return $this->owner_id === $tenant->id;
+            return $this->owner_id === $organisation->id;
         }
     }
 
@@ -201,7 +201,7 @@ class Supplier extends Model implements HasMedia, Auditable
 
     public function tenantIds(): array
     {
-        return SupplierTenant::where('supplier_id', $this->id)->get()->pluck('tenant_id')->all();
+        return SupplierOrganisation::where('supplier_id', $this->id)->get()->pluck('tenant_id')->all();
     }
 
     public function owner(): MorphTo

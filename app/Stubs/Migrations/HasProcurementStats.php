@@ -7,14 +7,14 @@
 
 namespace App\Stubs\Migrations;
 
-use App\Enums\Procurement\AgentTenant\AgentTenantStatusEnum;
+use App\Enums\Procurement\AgentOrganisation\AgentOrganisationStatusEnum;
 use App\Enums\Procurement\PurchaseOrderItem\PurchaseOrderItemStateEnum;
 use App\Enums\Procurement\PurchaseOrderItem\PurchaseOrderItemStatusEnum;
 use App\Enums\Procurement\SupplierDelivery\SupplierDeliveryStateEnum;
 use App\Enums\Procurement\SupplierDelivery\SupplierDeliveryStatusEnum;
 use App\Enums\Procurement\SupplierProduct\SupplierProductQuantityStatusEnum;
 use App\Enums\Procurement\SupplierProduct\SupplierProductStateEnum;
-use App\Enums\Procurement\SupplierTenant\SupplierTenantStatusEnum;
+use App\Enums\Procurement\SupplierOrganisation\SupplierOrganisationStatusEnum;
 use Illuminate\Database\Schema\Blueprint;
 
 trait HasProcurementStats
@@ -24,7 +24,7 @@ trait HasProcurementStats
         $table->unsignedInteger('number_agents')->default(0)->comment('Active agents, status=true');
         $table->unsignedInteger('number_archived_agents')->default(0)->comment('Archived agents, status=false');
 
-        foreach (AgentTenantStatusEnum::cases() as $agentTenantStatus) {
+        foreach (AgentOrganisationStatusEnum::cases() as $agentTenantStatus) {
             $table->unsignedInteger('number_agents_status_'.$agentTenantStatus->snake())->default(0);
         }
 
@@ -37,7 +37,7 @@ trait HasProcurementStats
         $table->unsignedInteger('number_archived_suppliers')->default(0)->comment('Archived suppliers status=false');
 
 
-        foreach (SupplierTenantStatusEnum::cases() as $supplierTenantStatus) {
+        foreach (SupplierOrganisationStatusEnum::cases() as $supplierTenantStatus) {
             $table->unsignedInteger('number_suppliers_status_'.$supplierTenantStatus->snake())->default(0);
         }
 

@@ -9,7 +9,7 @@ namespace App\Actions\Dropshipping\DropshippingOrder;
 
 use App\Actions\fromIris;
 use App\Actions\SourceFetch\Aurora\FetchOrders;
-use App\Actions\Traits\WithTenantSource;
+use App\Actions\Traits\WithOrganisationSource;
 use App\Http\Resources\Sales\DropshippingOrderResource;
 use App\Models\Auth\WebUser;
 use App\Models\Helpers\Address;
@@ -25,7 +25,7 @@ use Illuminate\Validation\ValidationException;
 
 class CreateDropshippingOrderFromIris extends fromIris
 {
-    use WithTenantSource;
+    use WithOrganisationSource;
 
     public function rules(): array
     {
@@ -152,11 +152,11 @@ class CreateDropshippingOrderFromIris extends fromIris
         if ($response->ok()) {
             $auroraResponse = $response->json();
             if (Arr::get($auroraResponse, 'status') == 'ok') {
-                $tenantSource = $this->getTenantSource(app('currentTenant'));
+                $organisationSource = $this->getTenantSource(app('currentTenant'));
 
-                $tenantSource->initialisation(app('currentTenant'));
+                $organisationSource->initialisation(app('currentTenant'));
 
-                $order = FetchOrders::run($tenantSource, Arr::get($auroraResponse, 'order_source_id'));
+                $order = FetchOrders::run($organisationSource, Arr::get($auroraResponse, 'order_source_id'));
                 if (!$order) {
                     throw new Exception('Error not fetching order');
                 }

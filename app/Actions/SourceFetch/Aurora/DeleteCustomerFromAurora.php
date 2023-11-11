@@ -9,23 +9,23 @@ namespace App\Actions\SourceFetch\Aurora;
 
 use App\Actions\CRM\Customer\DeleteCustomer;
 use App\Models\CRM\Customer;
-use App\Services\Tenant\SourceTenantService;
+use App\Services\Organisation\SourceOrganisationService;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class DeleteCustomerFromAurora
 {
     use AsAction;
 
-    public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Customer
+    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Customer
     {
-        if ($customer = Customer::withTrashed()->where('source_id', $tenantSourceId)->first()) {
+        if ($customer = Customer::withTrashed()->where('source_id', $organisationSourceId)->first()) {
             if (!$customer->trashed()) {
                 DeleteCustomer::run(
                     customer: $customer
                 );
             }
         } else {
-            return FetchDeletedCustomers::run($tenantSource, $tenantSourceId);
+            return FetchDeletedCustomers::run($organisationSource, $organisationSourceId);
         }
 
         return null;

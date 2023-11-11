@@ -10,7 +10,7 @@ namespace App\Actions\SourceFetch\Aurora;
 use App\Actions\Inventory\WarehouseArea\StoreWarehouseArea;
 use App\Actions\Inventory\WarehouseArea\UpdateWarehouseArea;
 use App\Models\Inventory\WarehouseArea;
-use App\Services\Tenant\SourceTenantService;
+use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;
@@ -19,9 +19,9 @@ class FetchWarehouseAreas extends FetchAction
 {
     public string $commandSignature = 'fetch:warehouse-areas {tenants?*} {--s|source_id=} {--d|db_suffix=}';
 
-    #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?WarehouseArea
+    #[NoReturn] public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?WarehouseArea
     {
-        if ($warehouseAreaData = $tenantSource->fetchWarehouseArea($tenantSourceId)) {
+        if ($warehouseAreaData = $organisationSource->fetchWarehouseArea($organisationSourceId)) {
             if ($warehouseArea = WarehouseArea::withTrashed()->where('source_id', $warehouseAreaData['warehouse_area']['source_id'])
                 ->first()) {
                 $warehouseArea = UpdateWarehouseArea::run(

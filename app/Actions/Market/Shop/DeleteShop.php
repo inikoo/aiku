@@ -7,7 +7,7 @@
 
 namespace App\Actions\Market\Shop;
 
-use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateMarket;
+use App\Actions\Organisation\Organisation\Hydrators\OrganisationHydrateMarket;
 use App\Models\Market\Shop;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
@@ -27,7 +27,7 @@ class DeleteShop
         $shop->products()->delete();
         $shop->departments()->delete();
         $shop->delete();
-        TenantHydrateMarket::dispatch(app('currentTenant'));
+        OrganisationHydrateMarket::dispatch(app('currentTenant'));
         return $shop;
     }
 

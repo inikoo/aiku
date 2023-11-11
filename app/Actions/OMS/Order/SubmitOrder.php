@@ -8,7 +8,7 @@
 namespace App\Actions\OMS\Order;
 
 use App\Actions\Market\Shop\Hydrators\ShopHydrateOrders;
-use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateOrders;
+use App\Actions\Organisation\Organisation\Hydrators\OrganisationHydrateOrders;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Sales\OrderResource;
 use App\Models\OMS\Order;
@@ -25,7 +25,7 @@ class SubmitOrder
             'state' => \App\Enums\OMS\Order\OrderStateEnum::SUBMITTED
         ]);
 
-        TenantHydrateOrders::run(app('currentTenant'));
+        OrganisationHydrateOrders::run(app('currentTenant'));
         ShopHydrateOrders::run($order->shop);
 
         return $order;

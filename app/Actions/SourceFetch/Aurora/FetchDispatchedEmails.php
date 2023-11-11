@@ -10,7 +10,7 @@ namespace App\Actions\SourceFetch\Aurora;
 use App\Actions\Mail\DispatchedEmail\StoreDispatchEmail;
 use App\Actions\Mail\DispatchedEmail\UpdateDispatchedEmail;
 use App\Models\Mail\DispatchedEmail;
-use App\Services\Tenant\SourceTenantService;
+use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;
@@ -20,9 +20,9 @@ class FetchDispatchedEmails extends FetchAction
     public string $commandSignature = 'fetch:dispatched-emails {tenants?*} {--s|source_id=}';
 
 
-    #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?DispatchedEmail
+    #[NoReturn] public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?DispatchedEmail
     {
-        if ($shopData = $tenantSource->fetchDispatchedEmail($tenantSourceId)) {
+        if ($shopData = $organisationSource->fetchDispatchedEmail($organisationSourceId)) {
             if ($dispatchedEmail = DispatchedEmail::where('source_id', $shopData['dispatchedEmail']['source_id'])
                 ->first()) {
                 $dispatchedEmail = UpdateDispatchedEmail::run(

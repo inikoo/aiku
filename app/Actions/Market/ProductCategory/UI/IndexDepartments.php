@@ -15,7 +15,7 @@ use App\Actions\Market\Shop\UI\ShowShop;
 use App\Http\Resources\Market\DepartmentResource;
 use App\Models\Market\ProductCategory;
 use App\Models\Market\Shop;
-use App\Models\Tenancy\Tenant;
+use App\Models\Organisation\Organisation;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -29,7 +29,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexDepartments extends InertiaAction
 {
-    private Shop|ProductCategory|Tenant $parent;
+    private Shop|ProductCategory|Organisation $parent;
 
     public function authorize(ActionRequest $request): bool
     {
@@ -57,7 +57,7 @@ class IndexDepartments extends InertiaAction
     }
 
     /** @noinspection PhpUndefinedMethodInspection */
-    public function handle(Shop|ProductCategory|Tenant $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Shop|ProductCategory|Organisation $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -96,7 +96,7 @@ class IndexDepartments extends InertiaAction
                 if (class_basename($parent) == 'Shop') {
                     $query->where('product_categories.parent_type', 'Shop');
                     $query->where('product_categories.parent_id', $parent->id);
-                } elseif (class_basename($parent) == 'Tenant') {
+                } elseif (class_basename($parent) == 'Organisation') {
                     $query->leftJoin('shops', 'product_categories.shop_id', 'shops.id');
                     $query->addSelect('shops.slug as shop_slug');
                 }
@@ -122,7 +122,7 @@ class IndexDepartments extends InertiaAction
                 ->withModelOperations($modelOperations)
                 ->withEmptyState(
                     match (class_basename($parent)) {
-                        'Tenant' => [
+                        'Organisation' => [
                             'title'       => __("No departments found"),
                             'description' => $this->canEdit && $parent->marketStats->number_shops == 0 ? __('Get started by creating a shop. ✨')
                                 : __("In fact, is no even a shop yet 🤷🏽‍♂️"),

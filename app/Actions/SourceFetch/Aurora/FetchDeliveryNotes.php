@@ -16,7 +16,7 @@ use App\Actions\Helpers\Address\StoreHistoricAddress;
 use App\Actions\Helpers\Address\UpdateHistoricAddressToModel;
 use App\Models\Dispatch\DeliveryNote;
 use App\Models\Dispatch\Shipment;
-use App\Services\Tenant\SourceTenantService;
+use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -26,9 +26,9 @@ class FetchDeliveryNotes extends FetchAction
 {
     public string $commandSignature = 'fetch:delivery-notes {tenants?*} {--s|source_id=} {--N|only_new : Fetch only new} {--w|with=* : Accepted values: transactions} {--d|db_suffix=} {--r|reset}';
 
-    #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?DeliveryNote
+    #[NoReturn] public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?DeliveryNote
     {
-        if ($deliveryNoteData = $tenantSource->fetchDeliveryNote($tenantSourceId)) {
+        if ($deliveryNoteData = $organisationSource->fetchDeliveryNote($organisationSourceId)) {
             if (!empty($deliveryNoteData['delivery_note']['source_id']) and $deliveryNote = DeliveryNote::withTrashed()->where('source_id', $deliveryNoteData['delivery_note']['source_id'])
                     ->first()) {
                 UpdateDeliveryNote::run($deliveryNote, $deliveryNoteData['delivery_note']);
@@ -54,7 +54,7 @@ class FetchDeliveryNotes extends FetchAction
                     );
 
                     if (in_array('transactions', $this->with)) {
-                        $this->fetchDeliveryNoteTransactions($tenantSource, $deliveryNote);
+                        $this->fetchDeliveryNoteTransactions($organisationSource, $deliveryNote);
                     }
 
                     $this->updateAurora($deliveryNote);
@@ -71,16 +71,16 @@ class FetchDeliveryNotes extends FetchAction
 
                     return $deliveryNote;
                 }
-                print "Warning delivery note $tenantSourceId do not have order\n";
+                print "Warning delivery note $organisationSourceId do not have order\n";
             }
         } else {
-            print "Warning error fetching delivery note $tenantSourceId\n";
+            print "Warning error fetching delivery note $organisationSourceId\n";
         }
 
         return null;
     }
 
-    private function fetchDeliveryNoteTransactions($tenantSource, $deliveryNote): void
+    private function fetchDeliveryNoteTransactions($organisationSource, $deliveryNote): void
     {
         $transactionsToDelete = $deliveryNote->deliveryNoteItems()->pluck('source_id', 'id')->all();
 
@@ -93,7 +93,7 @@ class FetchDeliveryNotes extends FetchAction
                 ->get() as $auroraData
         ) {
             $transactionsToDelete = array_diff($transactionsToDelete, [$auroraData->{'Inventory Transaction Key'}]);
-            FetchDeliveryNoteTransactions::run($tenantSource, $auroraData->{'Inventory Transaction Key'}, $deliveryNote);
+            FetchDeliveryNoteTransactions::run($organisationSource, $auroraData->{'Inventory Transaction Key'}, $deliveryNote);
         }
         $deliveryNote->deliveryNoteItems()->whereIn('id', array_keys($transactionsToDelete))->delete();
     }

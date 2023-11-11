@@ -9,18 +9,18 @@ namespace App\Actions\SourceFetch\Aurora;
 
 use App\Actions\Accounting\Invoice\DeleteInvoice;
 use App\Models\Accounting\Invoice;
-use App\Services\Tenant\SourceTenantService;
+use App\Services\Organisation\SourceOrganisationService;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class DeleteInvoiceFromAurora
 {
     use AsAction;
 
-    public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Invoice
+    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Invoice
     {
-        if ($invoice = Invoice::withTrashed()->where('source_id', $tenantSourceId)->first()) {
+        if ($invoice = Invoice::withTrashed()->where('source_id', $organisationSourceId)->first()) {
             if (!$invoice->trashed()) {
-                $deletedInvoiceData = $tenantSource->fetchDeletedInvoice($tenantSourceId);
+                $deletedInvoiceData = $organisationSource->fetchDeletedInvoice($organisationSourceId);
 
                 DeleteInvoice::run($invoice, [
                     'data' => [
@@ -29,7 +29,7 @@ class DeleteInvoiceFromAurora
                 ]);
             }
         } else {
-            return FetchDeletedInvoices::run($tenantSource, $tenantSourceId);
+            return FetchDeletedInvoices::run($organisationSource, $organisationSourceId);
         }
 
         return null;

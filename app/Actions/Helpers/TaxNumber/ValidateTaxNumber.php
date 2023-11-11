@@ -7,7 +7,7 @@
 
 namespace App\Actions\Helpers\TaxNumber;
 
-use App\Actions\Traits\WithTenantArgument;
+use App\Actions\Traits\WithOrganisationArgument;
 use App\Enums\Helpers\TaxNumber\TaxNumberTypeEnum;
 use App\Models\Helpers\TaxNumber;
 use Illuminate\Console\Command;
@@ -16,7 +16,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class ValidateTaxNumber
 {
     use AsAction;
-    use WithTenantArgument;
+    use WithOrganisationArgument;
 
     public string $commandSignature = 'validate:tax-number {tenant} {tax_number_id}';
 

@@ -8,7 +8,7 @@
 namespace App\Actions\Auth\WebUser;
 
 use App\Models\Auth\WebUser;
-use App\Models\Tenancy\Tenant;
+use App\Models\Organisation\Organisation;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -33,9 +33,9 @@ class CreateWebUserApiToken
 
     public function asCommand(Command $command): int
     {
-        $tenant = Tenant::where('slug', ($command->argument('tenant_code')))->firstOrFail();
+        $organisation = Organisation::where('slug', ($command->argument('tenant_code')))->firstOrFail();
 
-        return $tenant->execute(function () use ($command) {
+        return $organisation->execute(function () use ($command) {
             if ($webUser = WebUser::where('slug', $command->argument('web_user_slug'))->first()) {
                 $token = $this->handle($webUser, []);
                 $command->line("Web user access token: $token");

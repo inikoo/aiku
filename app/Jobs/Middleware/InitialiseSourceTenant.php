@@ -11,8 +11,8 @@ class InitialiseSourceTenant
 {
     public function handle($job, $next): void
     {
-        $tenantSource=$job->getParameters()[0];
-        $tenantSource->initialisation($tenantSource->tenant);
+        $organisationSource=$job->getParameters()[0];
+        $organisationSource->initialisation($organisationSource->tenant);
 
         $next($job);
     }

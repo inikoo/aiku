@@ -10,14 +10,14 @@ namespace App\Actions\Accounting\PaymentAccount\UI;
 use App\Actions\InertiaAction;
 use App\Models\Accounting\PaymentServiceProvider;
 use App\Models\Market\Shop;
-use App\Models\Tenancy\Tenant;
+use App\Models\Organisation\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
 class CreatePaymentAccount extends InertiaAction
 {
-    private Shop|Tenant|PaymentServiceProvider $parent;
+    private Shop|Organisation|PaymentServiceProvider $parent;
     public function handle(): Response
     {
         return Inertia::render(

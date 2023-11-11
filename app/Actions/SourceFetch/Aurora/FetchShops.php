@@ -15,7 +15,7 @@ use App\Actions\Helpers\TaxNumber\UpdateTaxNumber;
 use App\Actions\Market\Shop\StoreShop;
 use App\Actions\Market\Shop\UpdateShop;
 use App\Models\Market\Shop;
-use App\Services\Tenant\SourceTenantService;
+use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;
@@ -25,9 +25,9 @@ class FetchShops extends FetchAction
     public string $commandSignature = 'fetch:shops {tenants?*} {--s|source_id=} {--d|db_suffix=}';
 
 
-    #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Shop
+    #[NoReturn] public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Shop
     {
-        if ($shopData = $tenantSource->fetchShop($tenantSourceId)) {
+        if ($shopData = $organisationSource->fetchShop($organisationSourceId)) {
             if ($shop = Shop::where('source_id', $shopData['shop']['source_id'])
                 ->first()) {
                 $shop = UpdateShop::run(

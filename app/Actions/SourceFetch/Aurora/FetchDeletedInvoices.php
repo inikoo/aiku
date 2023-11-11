@@ -10,7 +10,7 @@ namespace App\Actions\SourceFetch\Aurora;
 use App\Actions\Accounting\Invoice\StoreInvoice;
 use App\Actions\Accounting\Invoice\UpdateInvoice;
 use App\Models\Accounting\Invoice;
-use App\Services\Tenant\SourceTenantService;
+use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;
@@ -20,9 +20,9 @@ class FetchDeletedInvoices extends FetchAction
     public string $commandSignature = 'fetch:deleted-invoices {tenants?*} {--s|source_id=}';
 
 
-    #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Invoice
+    #[NoReturn] public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Invoice
     {
-        if ($deletedInvoiceData = $tenantSource->fetchDeletedInvoice($tenantSourceId)) {
+        if ($deletedInvoiceData = $organisationSource->fetchDeletedInvoice($organisationSourceId)) {
             if ($deletedInvoiceData['invoice']) {
                 if ($invoice = Invoice::withTrashed()->where('source_id', $deletedInvoiceData['invoice']['source_id'])
                     ->first()) {

@@ -10,7 +10,7 @@ namespace App\Actions\SourceFetch\Aurora;
 use App\Actions\Inventory\Stock\StoreStock;
 use App\Actions\Inventory\Stock\UpdateStock;
 use App\Models\Inventory\Stock;
-use App\Services\Tenant\SourceTenantService;
+use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;
@@ -20,9 +20,9 @@ class FetchDeletedStocks extends FetchAction
     public string $commandSignature = 'fetch:deleted-stocks {tenants?*} {--s|source_id=} {--d|db_suffix=}';
 
 
-    #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Stock
+    #[NoReturn] public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Stock
     {
-        if ($deletedStockData = $tenantSource->fetchDeletedStock($tenantSourceId)) {
+        if ($deletedStockData = $organisationSource->fetchDeletedStock($organisationSourceId)) {
             if ($deletedStockData['stock']) {
                 if ($stock = Stock::withTrashed()->where('source_id', $deletedStockData['stock']['source_id'])
                     ->first()) {
@@ -32,7 +32,7 @@ class FetchDeletedStocks extends FetchAction
                     );
                 } else {
                     $stock = StoreStock::run(
-                        owner:     $tenantSource->tenant,
+                        owner:     $organisationSource->tenant,
                         modelData: $deletedStockData['stock']
                     );
                 }

@@ -10,11 +10,11 @@ namespace App\Actions\Procurement\Marketplace\Agent;
 use App\Actions\Assets\Currency\SetCurrencyHistoricFields;
 use App\Actions\Helpers\GroupAddress\StoreGroupAddressAttachToModel;
 use App\Actions\Procurement\Agent\Hydrators\AgentHydrateUniversalSearch;
-use App\Actions\Tenancy\Group\Hydrators\GroupHydrateProcurement;
-use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateProcurement;
-use App\Enums\Procurement\AgentTenant\AgentTenantStatusEnum;
+use App\Actions\Organisation\Group\Hydrators\GroupHydrateProcurement;
+use App\Actions\Organisation\Organisation\Hydrators\OrganisationHydrateProcurement;
+use App\Enums\Procurement\AgentOrganisation\AgentOrganisationStatusEnum;
 use App\Models\Procurement\Agent;
-use App\Models\Tenancy\Tenant;
+use App\Models\Organisation\Organisation;
 use App\Rules\ValidAddress;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
@@ -39,16 +39,16 @@ class StoreMarketplaceAgent
         return $request->user()->hasPermissionTo("procurement.edit");
     }
 
-    public function handle(Tenant $owner, array $modelData, array $addressData = []): Agent
+    public function handle(Organisation $owner, array $modelData, array $addressData = []): Agent
     {
-        $modelData['owner_type'] = 'Tenant';
+        $modelData['owner_type'] = 'Organisation';
         /** @var Agent $agent */
         $agent = $owner->myAgents()->create($modelData);
         $agent->stats()->create();
 
         $owner->agents()->attach(
             $agent,
-            ['status' => AgentTenantStatusEnum::OWNER]
+            ['status' => AgentOrganisationStatusEnum::OWNER]
         );
 
         SetCurrencyHistoricFields::run($agent->currency, $agent->created_at);
@@ -59,7 +59,7 @@ class StoreMarketplaceAgent
 
         GroupHydrateProcurement::run(app('currentTenant')->group);
         AgentHydrateUniversalSearch::dispatch($agent);
-        TenantHydrateProcurement::dispatch(app('currentTenant'));
+        OrganisationHydrateProcurement::dispatch(app('currentTenant'));
 
 
         return $agent;
@@ -86,14 +86,14 @@ class StoreMarketplaceAgent
         }
     }
 
-    public function action(Tenant $tenant, $objectData): Agent
+    public function action(Organisation $organisation, $objectData): Agent
     {
         $this->asAction = true;
         $this->setRawAttributes($objectData);
         $validatedData = $this->validateAttributes();
 
         return $this->handle(
-            owner: $tenant,
+            owner: $organisation,
             modelData: Arr::except($validatedData, 'address'),
             addressData: Arr::get($validatedData, 'address')
         );

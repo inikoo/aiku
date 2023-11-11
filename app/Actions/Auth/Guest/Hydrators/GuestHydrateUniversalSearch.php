@@ -7,14 +7,14 @@
 
 namespace App\Actions\Auth\Guest\Hydrators;
 
-use App\Actions\Traits\WithTenantJob;
+use App\Actions\Traits\WithOrganisationJob;
 use App\Models\Auth\Guest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class GuestHydrateUniversalSearch
 {
     use AsAction;
-    use WithTenantJob;
+    use WithOrganisationJob;
 
     public function handle(Guest $guest): void
     {

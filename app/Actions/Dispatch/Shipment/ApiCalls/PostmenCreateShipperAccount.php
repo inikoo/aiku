@@ -89,26 +89,26 @@ class PostmenCreateShipperAccount
         );
     }
 
-    private function get_tenant_address(mixed $tenant): array
+    private function get_tenant_address(mixed $organisation): array
     {
-        $tenant_address = $tenant->data['address'];
-        $tenant_country = (new Country())->where('code', $tenant_address['country_code'])->first();
+        $organisation_address = $organisation->data['address'];
+        $organisation_country = (new Country())->where('code', $organisation_address['country_code'])->first();
 
 
-        $tenant_address = [
-            'country'      => $tenant_country->code_iso3,
-            'street1'      => Arr::get($tenant_address, 'address_line_1'),
-            'street2'      => Arr::get($tenant_address, 'address_line_2'),
-            'city'         => Arr::get($tenant_address, 'locality'),
-            'postal_code'  => Arr::get($tenant_address, 'postal_code'),
-            'email'        => Arr::get($tenant->data, 'email'),
-            'phone'        => Arr::get($tenant->data, 'phone'),
-            'contact_name' => Arr::get($tenant->data, 'contact'),
-            'company_name' => Arr::get($tenant->data, 'organization'),
+        $organisation_address = [
+            'country'      => $organisation_country->code_iso3,
+            'street1'      => Arr::get($organisation_address, 'address_line_1'),
+            'street2'      => Arr::get($organisation_address, 'address_line_2'),
+            'city'         => Arr::get($organisation_address, 'locality'),
+            'postal_code'  => Arr::get($organisation_address, 'postal_code'),
+            'email'        => Arr::get($organisation->data, 'email'),
+            'phone'        => Arr::get($organisation->data, 'phone'),
+            'contact_name' => Arr::get($organisation->data, 'contact'),
+            'company_name' => Arr::get($organisation->data, 'organization'),
 
         ];
 
-        return array_filter($tenant_address);
+        return array_filter($organisation_address);
     }
 
 

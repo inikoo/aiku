@@ -11,7 +11,7 @@ use App\Actions\InertiaAction;
 use App\Actions\UI\Procurement\ProcurementDashboard;
 use App\Enums\UI\AgentTabsEnum;
 use App\Http\Resources\Procurement\AgentResource;
-use App\Models\Procurement\AgentTenant;
+use App\Models\Procurement\AgentOrganisation;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -38,7 +38,7 @@ class IndexAgents extends InertiaAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        $queryBuilder=QueryBuilder::for(AgentTenant::class);
+        $queryBuilder=QueryBuilder::for(AgentOrganisation::class);
         foreach ($this->elementGroups as $key => $elementGroup) {
             $queryBuilder->whereElementGroup(
                 prefix: $prefix,

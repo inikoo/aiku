@@ -13,8 +13,8 @@ use App\Actions\UI\Procurement\ProcurementDashboard;
 use App\Http\Resources\Procurement\MarketplaceSupplierResource;
 use App\Models\Procurement\Agent;
 use App\Models\Procurement\Supplier;
-use App\Models\Procurement\SupplierTenant;
-use App\Models\Tenancy\Tenant;
+use App\Models\Procurement\SupplierOrganisation;
+use App\Models\Organisation\Organisation;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -28,7 +28,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 class IndexMarketplaceSuppliers extends InertiaAction
 {
     /** @noinspection PhpUndefinedMethodInspection */
-    public function handle(Agent|Tenant $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Agent|Organisation $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -56,7 +56,7 @@ class IndexMarketplaceSuppliers extends InertiaAction
             ->leftJoin('supplier_stats', 'supplier_stats.supplier_id', '=', 'suppliers.id')
             ->select(['suppliers.code', 'suppliers.slug', 'suppliers.name', 'number_supplier_products', 'suppliers.location'])
             ->addSelect([
-                'adoption' => SupplierTenant::select('supplier_tenant.status')
+                'adoption' => SupplierOrganisation::select('supplier_tenant.status')
                     ->whereColumn('supplier_tenant.supplier_id', 'suppliers.id')
                     ->where('supplier_tenant.tenant_id', app('currentTenant')->id)
                     ->limit(1)

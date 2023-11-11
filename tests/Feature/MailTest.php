@@ -12,12 +12,12 @@ use App\Actions\Mail\DispatchedEmail\UpdateDispatchedEmail;
 use App\Actions\Mail\Mailshot\StoreMailshot;
 use App\Actions\Mail\Mailshot\UpdateMailshot;
 use App\Actions\Market\Shop\StoreShop;
-use App\Actions\Tenancy\Group\StoreGroup;
-use App\Actions\Tenancy\Tenant\StoreTenant;
+use App\Actions\Organisation\Group\StoreGroup;
+use App\Actions\Organisation\Organisation\StoreOrganisation;
 use App\Models\Mail\Mailshot;
 use App\Models\Market\Shop;
-use App\Models\Tenancy\Group;
-use App\Models\Tenancy\Tenant;
+use App\Models\Organisation\Group;
+use App\Models\Organisation\Organisation;
 
 beforeAll(function () {
     loadDB('test_base_database.dump');
@@ -25,12 +25,12 @@ beforeAll(function () {
 
 
 beforeEach(function () {
-    $tenant = Tenant::first();
-    if (!$tenant) {
-        $group  = StoreGroup::make()->action(Group::factory()->definition());
-        $tenant = StoreTenant::make()->action($group, Tenant::factory()->definition());
+    $organisation = Organisation::first();
+    if (!$organisation) {
+        $group        = StoreGroup::make()->action(Group::factory()->definition());
+        $organisation = StoreOrganisation::make()->action($group, Organisation::factory()->definition());
     }
-    $tenant->makeCurrent();
+    $organisation->makeCurrent();
 });
 
 test('get outbox from shop', function () {

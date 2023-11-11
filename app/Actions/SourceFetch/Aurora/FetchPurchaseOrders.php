@@ -12,7 +12,7 @@ use App\Actions\Helpers\Address\UpdateHistoricAddressToModel;
 use App\Actions\Procurement\PurchaseOrder\StorePurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrder;
 use App\Models\Procurement\PurchaseOrder;
-use App\Services\Tenant\SourceTenantService;
+use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 
@@ -20,9 +20,9 @@ class FetchPurchaseOrders extends FetchAction
 {
     public string $commandSignature = 'fetch:purchase-orders {tenants?*} {--s|source_id=} {--d|db_suffix=} {--N|only_new : Fetch only new} {--r|reset}';
 
-    public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?PurchaseOrder
+    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?PurchaseOrder
     {
-        if ($orderData = $tenantSource->fetchPurchaseOrder($tenantSourceId)) {
+        if ($orderData = $organisationSource->fetchPurchaseOrder($organisationSourceId)) {
             if (!empty($orderData['purchase_order']['source_id']) and $order = PurchaseOrder::withTrashed()->where('source_id', $orderData['purchase_order']['source_id'])
                     ->first()) {
                 $order = UpdatePurchaseOrder::run($order, $orderData['purchase_order']);
@@ -35,7 +35,7 @@ class FetchPurchaseOrders extends FetchAction
                 }
 
 
-                //  $this->fetchTransactions($tenantSource, $order);
+                //  $this->fetchTransactions($organisationSource, $order);
                 $this->updateAurora($order);
 
 
@@ -43,16 +43,16 @@ class FetchPurchaseOrders extends FetchAction
             } else {
                 if ($orderData['parent']) {
                     $order = StorePurchaseOrder::run($orderData['parent'], $orderData['purchase_order'], $orderData['delivery_address']);
-                    //  $this->fetchTransactions($tenantSource, $order);
+                    //  $this->fetchTransactions($organisationSource, $order);
                     $this->updateAurora($order);
 
 
                     return $order;
                 }
-                print "Warning purchase order ".$orderData['purchase_order']['number']."  Id:$tenantSourceId do not have parent\n";
+                print "Warning purchase order ".$orderData['purchase_order']['number']."  Id:$organisationSourceId do not have parent\n";
             }
         } else {
-            print "Warning error fetching order $tenantSourceId\n";
+            print "Warning error fetching order $organisationSourceId\n";
         }
 
         return null;
@@ -60,7 +60,7 @@ class FetchPurchaseOrders extends FetchAction
 
     /*
 
-    private function fetchTransactions($tenantSource, $order): void
+    private function fetchTransactions($organisationSource, $order): void
     {
         $transactionsToDelete = $order->transactions()->where('type', TransactionTypeEnum::ORDER)->pluck('source_id', 'id')->all();
         foreach (
@@ -72,7 +72,7 @@ class FetchPurchaseOrders extends FetchAction
                 ->get() as $auroraData
         ) {
             $transactionsToDelete = array_diff($transactionsToDelete, [$auroraData->{'Order Transaction Fact Key'}]);
-            FetchTransactions::run($tenantSource, $auroraData->{'Order Transaction Fact Key'}, $order);
+            FetchTransactions::run($organisationSource, $auroraData->{'Order Transaction Fact Key'}, $order);
         }
         $order->transactions()->whereIn('id', array_keys($transactionsToDelete))->delete();
     }

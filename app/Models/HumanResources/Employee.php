@@ -7,7 +7,7 @@
 
 namespace App\Models\HumanResources;
 
-use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateEmployees;
+use App\Actions\Organisation\Organisation\Hydrators\OrganisationHydrateEmployees;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
 use App\Enums\HumanResources\Employee\EmployeeTypeEnum;
 use App\Enums\Miscellaneous\GenderEnum;
@@ -132,7 +132,7 @@ class Employee extends Model implements HasMedia, Auditable
         static::updated(function (Employee $employee) {
             if (!$employee->wasRecentlyCreated) {
                 if ($employee->wasChanged('state')) {
-                    TenantHydrateEmployees::dispatch(app('currentTenant'));
+                    OrganisationHydrateEmployees::dispatch(app('currentTenant'));
                 }
             }
         });

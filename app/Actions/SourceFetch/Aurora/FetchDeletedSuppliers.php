@@ -16,9 +16,9 @@ class FetchDeletedSuppliers extends FetchAction
 
     public string $commandSignature = 'fetch:deleted-suppliers {tenants?*} {--s|source_id=} {--d|db_suffix=}';
 
-    public function fetch($tenantSource, $tenantSourceId)
+    public function fetch($organisationSource, $organisationSourceId)
     {
-        return $tenantSource->fetchDeletedSupplier($tenantSourceId);
+        return $organisationSource->fetchDeletedSupplier($organisationSourceId);
     }
 
 

@@ -68,7 +68,7 @@ enum OutboxTypeEnum: string
         };
     }
 
-    // Here will mark what outboxes are not scoped inside a shop, so can be skipped in StoreShop and use on StoreTenant instead
+    // Here will mark what outboxes are not scoped inside a shop, so can be skipped in StoreShop and use on StoreOrganisation instead
     public function scope(): string
     {
         return match ($this) {

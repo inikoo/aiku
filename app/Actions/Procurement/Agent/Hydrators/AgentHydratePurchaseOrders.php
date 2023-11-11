@@ -7,7 +7,7 @@
 
 namespace App\Actions\Procurement\Agent\Hydrators;
 
-use App\Actions\Traits\WithTenantJob;
+use App\Actions\Traits\WithOrganisationJob;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStatusEnum;
 use App\Models\Procurement\Agent;
@@ -18,7 +18,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class AgentHydratePurchaseOrders implements ShouldBeUnique
 {
     use AsAction;
-    use WithTenantJob;
+    use WithOrganisationJob;
 
     public function handle(Agent $agent): void
     {

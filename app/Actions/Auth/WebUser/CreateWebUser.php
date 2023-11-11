@@ -12,7 +12,7 @@ use App\Actions\Market\Shop\UI\ShowShop;
 use App\Enums\Auth\WebUser\WebUserTypeEnum;
 use App\Models\CRM\Customer;
 use App\Models\Market\Shop;
-use App\Models\Tenancy\Tenant;
+use App\Models\Organisation\Organisation;
 use App\Models\Web\Website;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -20,7 +20,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class CreateWebUser extends InertiaAction
 {
-    private Customer|Website|Tenant $parent;
+    private Customer|Website|Organisation $parent;
 
     private ?Shop $shop = null;
 

@@ -10,7 +10,7 @@ namespace App\Actions\SourceFetch\Aurora;
 use App\Actions\Inventory\Location\StoreLocation;
 use App\Actions\Inventory\Location\UpdateLocation;
 use App\Models\Inventory\Location;
-use App\Services\Tenant\SourceTenantService;
+use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;
@@ -19,9 +19,9 @@ class FetchDeletedLocations extends FetchAction
 {
     public string $commandSignature = 'fetch:deleted-locations {tenants?*} {--s|source_id=} {--d|db_suffix=}';
 
-    #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Location
+    #[NoReturn] public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Location
     {
-        if ($deletedLocationData = $tenantSource->fetchDeletedLocation($tenantSourceId)) {
+        if ($deletedLocationData = $organisationSource->fetchDeletedLocation($organisationSourceId)) {
             if ($location = Location::withTrashed()->where('source_id', $deletedLocationData['location']['source_id'])
                 ->first()) {
                 $location = UpdateLocation::run(

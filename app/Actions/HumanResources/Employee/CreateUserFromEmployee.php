@@ -12,7 +12,7 @@ use App\Actions\Auth\User\StoreUser;
 use App\Enums\Auth\User\UserAuthTypeEnum;
 use App\Models\Auth\User;
 use App\Models\HumanResources\Employee;
-use App\Models\Tenancy\Tenant;
+use App\Models\Organisation\Organisation;
 use Illuminate\Console\Command;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
@@ -92,15 +92,15 @@ class CreateUserFromEmployee
 
     public function asCommand(Command $command): int
     {
-        $tenant = Tenant::where('slug', $command->argument('tenant'))->first();
-        if (!$tenant) {
-            $command->error("Tenant ".$command->argument('tenant')." not found");
+        $organisation = Organisation::where('slug', $command->argument('tenant'))->first();
+        if (!$organisation) {
+            $command->error("Organisation ".$command->argument('tenant')." not found");
 
             return 1;
         }
 
 
-        return (int)$tenant->execute(
+        return (int)$organisation->execute(
             function () use ($command) {
                 $employee = Employee::where('code', $command->argument('employee'))->first();
                 if (!$employee) {

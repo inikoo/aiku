@@ -1,7 +1,7 @@
 <?php
 /*
- * Author: Artha <artha@aw-advantage.com>
- * Created: Thu, 20 Apr 2023 08:29:16 Central Indonesia Time, Sanur, Bali, Indonesia
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Sat, 11 Nov 2023 23:03:38 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
@@ -14,14 +14,14 @@ return new class () extends Migration {
     {
         Schema::create('groups', function (Blueprint $table) {
             $table->smallIncrements('id');
-            $table->unsignedSmallInteger('owner_id')->nullable()->comment('Tenant who owns this model');
+            $table->unsignedSmallInteger('owner_id')->nullable()->comment('Organisation who owns this model');
             $table->ulid()->index();
             $table->string('slug')->unique()->collation('und_ns');
             $table->string('code');
             $table->string('name');
             $table->unsignedSmallInteger('currency_id');
             $table->foreign('currency_id')->references('id')->on('public.currencies');
-            $table->smallInteger('number_tenants')->default(0);
+            $table->smallInteger('number_organisations')->default(0);
             $table->softDeletesTz();
             $table->timestampsTz();
         });

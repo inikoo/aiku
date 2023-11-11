@@ -61,7 +61,7 @@ class IndexSupplierProducts extends InertiaAction
                     $query->leftJoin('agents', 'agents.id', 'supplier_products.agent_id');
                     $query->where('supplier_products.agent_id', $parent->id);
                     $query->addSelect('agents.slug as agent_slug');
-                } elseif (class_basename($parent) == 'Tenant') {
+                } elseif (class_basename($parent) == 'Organisation') {
 
                     $query->leftJoin('supplier_product_tenant', 'supplier_product_tenant.supplier_product_id', 'supplier_products.id');
                     $query->where('supplier_product_tenant.tenant_id', $parent->id);

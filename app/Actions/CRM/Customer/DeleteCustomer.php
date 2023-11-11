@@ -15,14 +15,14 @@ use App\Actions\Market\Product\DeleteProduct;
 use App\Actions\Market\Shop\Hydrators\ShopHydrateCustomers;
 use App\Actions\OMS\Order\DeleteOrder;
 use App\Actions\Traits\WithActionUpdate;
-use App\Actions\Traits\WithTenantArgument;
+use App\Actions\Traits\WithOrganisationArgument;
 use App\Models\CRM\Customer;
 use Illuminate\Console\Command;
 
 class DeleteCustomer
 {
     use WithActionUpdate;
-    use WithTenantArgument;
+    use WithOrganisationArgument;
 
     public string $commandSignature = 'delete:customer {tenant} {id}';
 

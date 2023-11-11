@@ -8,7 +8,7 @@
 namespace App\Actions\Inventory\Warehouse;
 
 use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydrateUniversalSearch;
-use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateWarehouse;
+use App\Actions\Organisation\Organisation\Hydrators\OrganisationHydrateWarehouse;
 use App\Models\Inventory\Warehouse;
 use App\Rules\CaseSensitive;
 use Illuminate\Http\RedirectResponse;
@@ -29,7 +29,7 @@ class StoreWarehouse
     {
         $warehouse = Warehouse::create($modelData);
         $warehouse->stats()->create();
-        TenantHydrateWarehouse::run(app('currentTenant'));
+        OrganisationHydrateWarehouse::run(app('currentTenant'));
         WarehouseHydrateUniversalSearch::dispatch($warehouse);
 
         return $warehouse;

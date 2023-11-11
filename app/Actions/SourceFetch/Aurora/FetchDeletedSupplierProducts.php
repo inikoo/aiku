@@ -10,7 +10,7 @@ namespace App\Actions\SourceFetch\Aurora;
 use App\Actions\Procurement\SupplierProduct\StoreSupplierProduct;
 use App\Actions\Procurement\SupplierProduct\UpdateSupplierProduct;
 use App\Models\Procurement\SupplierProduct;
-use App\Services\Tenant\SourceTenantService;
+use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;
@@ -20,9 +20,9 @@ class FetchDeletedSupplierProducts extends FetchAction
     public string $commandSignature = 'fetch:deleted-supplier-products {tenants?*} {--s|source_id=} {--d|db_suffix=}';
 
 
-    #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?SupplierProduct
+    #[NoReturn] public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?SupplierProduct
     {
-        if ($supplierDeletedProductData = $tenantSource->fetchDeletedSupplierProduct($tenantSourceId)) {
+        if ($supplierDeletedProductData = $organisationSource->fetchDeletedSupplierProduct($organisationSourceId)) {
             if (!empty($supplierDeletedProductData['supplierProduct'])) {
                 if ($supplierProduct = SupplierProduct::withTrashed()->where('source_id', $supplierDeletedProductData['supplierProduct']['source_id'])
                     ->first()) {

@@ -9,7 +9,7 @@ namespace App\Actions\Notifications;
 
 use App\Actions\Mail\EmailAddress\SendEmailAddress;
 use App\Models\Auth\User;
-use App\Models\Tenancy\Tenant;
+use App\Models\Organisation\Organisation;
 use Illuminate\Support\Collection;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\AsObject;
@@ -37,7 +37,7 @@ class PublishNotification
 
     public function asCommand(): void
     {
-        Tenant::where('slug', 'aw')->first()->makeCurrent();
+        Organisation::where('slug', 'aw')->first()->makeCurrent();
         $users   = User::where('username', 'aiku')->get();
         $content = [
             'title' => 'Subject/Title',

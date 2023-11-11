@@ -11,7 +11,7 @@ use App\Actions\Helpers\Address\AttachHistoricAddressToModel;
 use App\Actions\Helpers\Address\StoreHistoricAddress;
 use App\Actions\Market\Shop\Hydrators\ShopHydrateOrders;
 use App\Actions\OMS\Order\Hydrators\OrderHydrateUniversalSearch;
-use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateOrders;
+use App\Actions\Organisation\Organisation\Hydrators\OrganisationHydrateOrders;
 use App\Models\CRM\Customer;
 use App\Models\Dropshipping\CustomerClient;
 use App\Models\Helpers\Address;
@@ -63,7 +63,7 @@ class StoreOrder
 
         HydrateOrder::make()->originalItems($order);
 
-        TenantHydrateOrders::dispatch(app('currentTenant'))->delay($this->hydratorsDelay);
+        OrganisationHydrateOrders::dispatch(app('currentTenant'))->delay($this->hydratorsDelay);
         if (class_basename($parent) == 'Shop') {
             ShopHydrateOrders::dispatch($parent)->delay($this->hydratorsDelay);
         } else {

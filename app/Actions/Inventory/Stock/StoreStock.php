@@ -10,11 +10,11 @@ namespace App\Actions\Inventory\Stock;
 
 use App\Actions\Inventory\Stock\Hydrators\StockHydrateUniversalSearch;
 use App\Actions\Inventory\StockFamily\Hydrators\StockFamilyHydrateStocks;
-use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateInventory;
+use App\Actions\Organisation\Organisation\Hydrators\OrganisationHydrateInventory;
 use App\Models\CRM\Customer;
 use App\Models\Inventory\Stock;
 use App\Models\Inventory\StockFamily;
-use App\Models\Tenancy\Tenant;
+use App\Models\Organisation\Organisation;
 use App\Rules\CaseSensitive;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
@@ -28,20 +28,20 @@ class StoreStock
     use AsAction;
     use WithAttributes;
 
-    public function handle(Tenant|Customer|StockFamily $owner, $modelData): Stock
+    public function handle(Organisation|Customer|StockFamily $owner, $modelData): Stock
     {
         if (class_basename($owner) === 'StockFamily') {
             $modelData['owner_type'] = "StockFamily";
         } elseif (class_basename($owner) === 'Customer') {
             $modelData['owner_type'] = "Customer";
         } else {
-            $modelData['owner_type'] = "Tenant";
+            $modelData['owner_type'] = "Organisation";
         }
         $modelData['owner_id'] = $owner->id;
         /** @var Stock $stock */
         $stock = $owner->stocks()->create($modelData);
         $stock->stats()->create();
-        TenantHydrateInventory::dispatch(app('currentTenant'));
+        OrganisationHydrateInventory::dispatch(app('currentTenant'));
         if ($stock->stock_family_id) {
             StockFamilyHydrateStocks::dispatch($stock->stockFamily);
         }
@@ -67,7 +67,7 @@ class StoreStock
         ];
     }
 
-    public function action(Tenant|Customer|StockFamily $owner, $objectData): Stock
+    public function action(Organisation|Customer|StockFamily $owner, $objectData): Stock
     {
         return $this->handle($owner, $objectData);
     }

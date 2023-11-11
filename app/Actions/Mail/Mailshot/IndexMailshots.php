@@ -13,7 +13,7 @@ use App\Http\Resources\Mail\MailshotResource;
 use App\Models\Mail\Mailroom;
 use App\Models\Mail\Mailshot;
 use App\Models\Mail\Outbox;
-use App\Models\Tenancy\Tenant;
+use App\Models\Organisation\Organisation;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -29,7 +29,7 @@ class IndexMailshots extends InertiaAction
     use HasUIMailshots;
 
     /** @noinspection PhpUndefinedMethodInspection */
-    public function handle(Outbox|Mailroom|Tenant $parent, $prefix=null): LengthAwarePaginator
+    public function handle(Outbox|Mailroom|Organisation $parent, $prefix=null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {

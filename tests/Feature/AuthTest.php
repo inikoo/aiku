@@ -18,14 +18,14 @@ use App\Actions\Auth\User\UpdateUserStatus;
 use App\Actions\Auth\User\UserAddRoles;
 use App\Actions\Auth\User\UserRemoveRoles;
 use App\Actions\Auth\User\UserSyncRoles;
-use App\Actions\Tenancy\Group\StoreGroup;
-use App\Actions\Tenancy\Tenant\StoreTenant;
+use App\Actions\Organisation\Group\StoreGroup;
+use App\Actions\Organisation\Organisation\StoreOrganisation;
 use App\Enums\Auth\User\UserAuthTypeEnum;
 use App\Models\Auth\GroupUser;
 use App\Models\Auth\Guest;
 use App\Models\Auth\User;
-use App\Models\Tenancy\Group;
-use App\Models\Tenancy\Tenant;
+use App\Models\Organisation\Group;
+use App\Models\Organisation\Organisation;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash;
@@ -37,8 +37,8 @@ beforeAll(function () {
 
 
 beforeEach(function () {
-    $tenant = Tenant::first();
-    if (!$tenant) {
+    $organisation = Organisation::first();
+    if (!$organisation) {
         $group  = StoreGroup::make()->action(
             array_merge(
                 Group::factory()->definition(),
@@ -47,32 +47,33 @@ beforeEach(function () {
                 ]
             )
         );
-        $tenant = StoreTenant::make()->action(
+        $organisation = StoreOrganisation::make()->action(
             $group,
             array_merge(
-                Tenant::factory()->definition(),
+                Organisation::factory()->definition(),
                 [
                     'code' => 'AGB'
                 ]
             )
         );
-        StoreTenant::make()->action(
+        StoreOrganisation::make()->action(
             $group,
             array_merge(
-                Tenant::factory()->definition(),
+                Organisation::factory()->definition(),
                 [
                     'code' => 'AUS'
                 ]
             )
         );
     }
-    $tenant->makeCurrent();
+    $this->organisation=$organisation;
 });
 
 test('create guest', function () {
     $guestData = Guest::factory()->definition();
     Arr::set($guestData, 'phone', '+6281212121212');
     $guest = StoreGuest::make()->action(
+        $this->organisation,
         $guestData
     );
 
@@ -159,8 +160,8 @@ test('update user username', function ($user) {
 test('attaching existing group user to another tenant guest', function ($user) {
     $groupUser = $user->groupUser;
 
-    $tenant = Tenant::where('slug', 'aus')->first();
-    $tenant->makeCurrent();
+    $organisation = Organisation::where('slug', 'aus')->first();
+    $organisation->makeCurrent();
 
     $guestData = Guest::factory()->definition();
     Arr::set($guestData, 'phone', '+62081353890000');
@@ -179,8 +180,8 @@ test('attaching existing group user to another tenant guest', function ($user) {
 })->depends('update user username');
 
 test('make sure a group user can be only attaches once in each tenant', function () {
-    $tenant = Tenant::where('slug', 'aus')->first();
-    $tenant->makeCurrent();
+    $organisation = Organisation::where('slug', 'aus')->first();
+    $organisation->makeCurrent();
 
     $guestData = Guest::factory()->definition();
     Arr::set($guestData, 'phone', '+62081353890001');

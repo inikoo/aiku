@@ -10,7 +10,7 @@ namespace App\Actions\Market\Shop;
 use App\Actions\Accounting\PaymentAccount\StorePaymentAccount;
 use App\Actions\Assets\Currency\SetCurrencyHistoricFields;
 use App\Actions\Mail\Outbox\StoreOutbox;
-use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateMarket;
+use App\Actions\Organisation\Organisation\Hydrators\OrganisationHydrateMarket;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Enums\Mail\Outbox\OutboxTypeEnum;
 use App\Enums\Market\Shop\ShopSubtypeEnum;
@@ -34,7 +34,7 @@ class StoreShop
 
     public function handle(array $modelData): Shop
     {
-        $tenant = app('currentTenant');
+        $organisation = app('currentTenant');
         /** @var Shop $shop */
         $shop = Shop::create($modelData);
         $shop->stats()->create();
@@ -51,20 +51,20 @@ class StoreShop
         $shop->serialReferences()->create(
             [
                 'model'     => SerialReferenceModelEnum::CUSTOMER,
-                'tenant_id' => $tenant->id,
+                'tenant_id' => $organisation->id,
             ]
         );
         $shop->serialReferences()->create(
             [
                 'model'     => SerialReferenceModelEnum::ORDER,
-                'tenant_id' => $tenant->id,
+                'tenant_id' => $organisation->id,
             ]
         );
 
 
         SetCurrencyHistoricFields::run($shop->currency, $shop->created_at);
 
-        $paymentAccount       = StorePaymentAccount::run($tenant->accountsServiceProvider(), [
+        $paymentAccount       = StorePaymentAccount::run($organisation->accountsServiceProvider(), [
             'code' => 'accounts-'.$shop->slug,
             'name' => 'Accounts '.$shop->code,
             'data' => [
@@ -91,7 +91,7 @@ class StoreShop
             }
         }
 
-        TenantHydrateMarket::dispatch(app('currentTenant'));
+        OrganisationHydrateMarket::dispatch(app('currentTenant'));
 
         return $shop;
     }

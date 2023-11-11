@@ -1,8 +1,8 @@
 <?php
 /*
- * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
- * Created: Fri, 10 Mar 2023 11:18:11 Central European Standard Time, Malaga, Spain
- * Copyright (c) 2023, Inikoo LTD
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Sat, 11 Nov 2023 23:23:00 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
 use Illuminate\Database\Migrations\Migration;
@@ -14,8 +14,7 @@ return new class () extends Migration {
     {
         Schema::create('universal_searches', function (Blueprint $table) {
             $table->id();
-            $table->unsignedSmallInteger('tenant_id')->index();
-            $table->foreign('tenant_id')->references('id')->on('public.tenants');
+            $table->jsonb('organisations');
             $table->nullableMorphs('model');
             $table->string('section')->nullable();
             $table->string('title');

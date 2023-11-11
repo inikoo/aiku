@@ -11,7 +11,7 @@ use App\Actions\Auth\Guest\StoreGuest;
 use App\Actions\Auth\Guest\UpdateGuest;
 use App\Actions\Utils\StoreImage;
 use App\Models\Auth\Guest;
-use App\Services\Tenant\SourceTenantService;
+use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 
@@ -19,9 +19,9 @@ class FetchGuests extends FetchAction
 {
     public string $commandSignature = 'fetch:guests {tenants?*} {--s|source_id=} {--d|db_suffix=}';
 
-    public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Guest
+    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Guest
     {
-        if ($guestData = $tenantSource->fetchGuest($tenantSourceId)) {
+        if ($guestData = $organisationSource->fetchGuest($organisationSourceId)) {
             if ($guest = Guest::where('source_id', $guestData['guest']['source_id'])->first()) {
                 $guest = UpdateGuest::run(
                     guest:     $guest,

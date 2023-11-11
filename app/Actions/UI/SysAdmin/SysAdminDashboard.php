@@ -33,7 +33,7 @@ class SysAdminDashboard
 
     public function htmlResponse(): Response
     {
-        $tenant=app('currentTenant');
+        $organisation=app('currentTenant');
 
         return Inertia::render(
             'SysAdmin/SysAdminDashboard',
@@ -46,12 +46,12 @@ class SysAdminDashboard
                 'stats' => [
                     [
                         'name' => __('users'),
-                        'stat' => $tenant->stats->number_users_status_active,
+                        'stat' => $organisation->stats->number_users_status_active,
                         'href' => ['sysadmin.users.index']
                     ],
                     [
                         'name' => __('guests'),
-                        'stat' => $tenant->stats->number_guests_status_active,
+                        'stat' => $organisation->stats->number_guests_status_active,
                         'href' => ['sysadmin.guests.index']
                     ]
                 ]

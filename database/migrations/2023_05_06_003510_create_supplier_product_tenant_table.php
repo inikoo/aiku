@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Mon, 08 May 2023 15:26:45 Malaysia Time, Pantai Lembeng, Bali, Id
+ * Created: Sat, 11 Nov 2023 23:23:00 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
@@ -12,12 +12,12 @@ use Illuminate\Support\Facades\Schema;
 return new class () extends Migration {
     public function up(): void
     {
-        Schema::create('supplier_product_tenant', function (Blueprint $table) {
+        Schema::create('supplier_product_organisation', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedInteger('supplier_product_id');
             $table->foreign('supplier_product_id')->references('id')->on('supplier_products');
-            $table->unsignedSmallInteger('tenant_id');
-            $table->foreign('tenant_id')->references('id')->on('public.tenants');
+            $table->unsignedSmallInteger('organisation_id');
+            $table->foreign('organisation_id')->references('id')->on('public.organisations');
             $table->timestampsTz();
             $table->unsignedInteger('source_id')->index()->nullable();
 
@@ -27,6 +27,6 @@ return new class () extends Migration {
 
     public function down(): void
     {
-        Schema::dropIfExists('supplier_product_tenant');
+        Schema::dropIfExists('supplier_product_organisation');
     }
 };

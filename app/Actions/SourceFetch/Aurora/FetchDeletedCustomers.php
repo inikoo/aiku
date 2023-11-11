@@ -6,7 +6,7 @@ use App\Actions\CRM\Customer\StoreCustomer;
 use App\Actions\CRM\Customer\UpdateCustomer;
 use App\Actions\Helpers\Address\StoreAddressAttachToModel;
 use App\Models\CRM\Customer;
-use App\Services\Tenant\SourceTenantService;
+use App\Services\Organisation\SourceOrganisationService;
 use Arr;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
@@ -19,9 +19,9 @@ class FetchDeletedCustomers extends FetchAction
     /**
      * @throws \Throwable
      */
-    public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Customer
+    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Customer
     {
-        if ($customerData = $tenantSource->fetchDeletedCustomer($tenantSourceId)) {
+        if ($customerData = $organisationSource->fetchDeletedCustomer($organisationSourceId)) {
             if ($customerData['customer']) {
                 if ($customer = Customer::withTrashed()->where('source_id', $customerData['customer']['source_id'])
                     ->first()) {

@@ -10,7 +10,7 @@ namespace App\Actions\SourceFetch\Aurora;
 use App\Actions\Accounting\PaymentServiceProvider\StorePaymentServiceProvider;
 use App\Actions\Accounting\PaymentServiceProvider\UpdatePaymentServiceProvider;
 use App\Models\Accounting\PaymentServiceProvider;
-use App\Services\Tenant\SourceTenantService;
+use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;
@@ -20,9 +20,9 @@ class FetchPaymentServiceProviders extends FetchAction
     public string $commandSignature = 'fetch:payment-service-providers {tenants?*} {--s|source_id=} {--d|db_suffix=}';
 
 
-    #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?PaymentServiceProvider
+    #[NoReturn] public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?PaymentServiceProvider
     {
-        if ($paymentServiceProviderData = $tenantSource->fetchPaymentServiceProvider($tenantSourceId)) {
+        if ($paymentServiceProviderData = $organisationSource->fetchPaymentServiceProvider($organisationSourceId)) {
             if ($paymentServiceProvider = PaymentServiceProvider::where('source_id', $paymentServiceProviderData['paymentServiceProvider']['source_id'])
                 ->first()) {
                 $paymentServiceProvider = UpdatePaymentServiceProvider::run(

@@ -11,7 +11,7 @@ use App\Actions\Inventory\Stock\StoreStock;
 use App\Actions\Inventory\Stock\SyncStockTradeUnits;
 use App\Actions\Inventory\Stock\UpdateStock;
 use App\Models\Inventory\Stock;
-use App\Services\Tenant\SourceTenantService;
+use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 
@@ -19,9 +19,9 @@ class FetchStocks extends FetchAction
 {
     public string $commandSignature = 'fetch:stocks {tenants?*} {--s|source_id=} {--N|only_new : Fetch only new} {--d|db_suffix=} {--r|reset}';
 
-    public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Stock
+    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Stock
     {
-        if ($stockData = $tenantSource->fetchStock($tenantSourceId)) {
+        if ($stockData = $organisationSource->fetchStock($organisationSourceId)) {
             if ($stock = Stock::withTrashed()->where('source_id', $stockData['stock']['source_id'])
                 ->first()) {
                 $stock = UpdateStock::run(
@@ -30,7 +30,7 @@ class FetchStocks extends FetchAction
                 );
             } else {
                 $stock = StoreStock::run(
-                    owner: $tenantSource->tenant,
+                    owner: $organisationSource->tenant,
                     modelData: $stockData['stock']
                 );
             }
@@ -41,7 +41,7 @@ class FetchStocks extends FetchAction
                     'quantity' => $stockData['stock']['units_per_pack']
                 ]
             ]);
-            $locationsData = $tenantSource->fetchLocationStocks($tenantSourceId);
+            $locationsData = $organisationSource->fetchLocationStocks($organisationSourceId);
 
             $stock->locations()->sync($locationsData['stock_locations']);
 

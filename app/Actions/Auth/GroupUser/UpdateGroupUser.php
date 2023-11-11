@@ -37,9 +37,9 @@ class UpdateGroupUser
         }
         $updatedGroupUser = $this->update($groupUser, $modelData);
 
-        foreach ($groupUser->tenants as $tenant) {
-            $userID = $tenant->pivot->user_id;
-            $tenant->execute(
+        foreach ($groupUser->tenants as $organisation) {
+            $userID = $organisation->pivot->user_id;
+            $organisation->execute(
                 function () use ($userID, $modelData) {
                     $user = User::find($userID);
                     $user->update(Arr::only($modelData, SynchronisableUserFieldsEnum::values()));

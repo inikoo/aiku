@@ -46,7 +46,7 @@ class IndexPurchaseOrders extends InertiaAction
                     $query->leftJoin('agents', 'agents.id', 'purchase_orders.provider_id');
                     $query->where('purchase_orders.provider_id', $parent->id);
                     $query->addSelect('agents.slug as agent_slug');
-                } elseif (class_basename($parent) == 'Tenant') {
+                } elseif (class_basename($parent) == 'Organisation') {
                     $query->addSelect(['provider_id', 'provider_type']);
                 } else {
                     $query->where('provider_id', $parent->id);

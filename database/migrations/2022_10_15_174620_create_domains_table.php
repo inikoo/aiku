@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Fri, 03 Mar 2023 23:08:39 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Sat, 11 Nov 2023 23:22:59 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
@@ -17,8 +17,8 @@ return new class () extends Migration {
         Schema::create('domains', function (Blueprint $table) {
             $table->smallIncrements('id');
             $table->string('slug')->unique()->collation('und_ns');
-            $table->unsignedSmallInteger('tenant_id');
-            $table->foreign('tenant_id')->references('id')->on('tenants')->onUpdate('cascade')->onDelete('cascade');
+            $table->unsignedSmallInteger('organisation_id');
+            $table->foreign('organisation_id')->references('id')->on('organisations')->onUpdate('cascade')->onDelete('cascade');
             $table->unsignedSmallInteger('website_id')->index();
             $table->unsignedSmallInteger('shop_id')->index();
             $table->string('domain')->index();

@@ -9,7 +9,7 @@ namespace App\Actions\UI\Production;
 
 use App\Actions\UI\Dashboard\ShowDashboard;
 use App\Actions\UI\WithInertia;
-use App\Models\Tenancy\Tenant;
+use App\Models\Organisation\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -21,7 +21,7 @@ class ProductionDashboard
     use WithInertia;
 
 
-    private ?Tenant $tenant;
+    private ?Organisation $organisation;
 
     public function authorize(ActionRequest $request): bool
     {

@@ -14,7 +14,7 @@ use App\Actions\Auth\User\UserSyncRoles;
 use App\Enums\Auth\User\UserAuthTypeEnum;
 use App\Models\Auth\GroupUser;
 use App\Models\Auth\User;
-use App\Services\Tenant\SourceTenantService;
+use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -24,9 +24,9 @@ class FetchUsers extends FetchAction
     public string $commandSignature = 'fetch:users {tenants?*} {--s|source_id=} {--d|db_suffix=}';
 
 
-    public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?User
+    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?User
     {
-        if ($userData = $tenantSource->fetchuser($tenantSourceId)) {
+        if ($userData = $organisationSource->fetchuser($organisationSourceId)) {
             if ($user = User::withTrashed()->where('source_id', $userData['user']['source_id'])->first()) {
 
                 if($user->auth_type==UserAuthTypeEnum::DEFAULT) {

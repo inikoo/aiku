@@ -12,7 +12,7 @@ use App\Actions\Helpers\Address\UpdateHistoricAddressToModel;
 use App\Actions\Procurement\SupplierDelivery\StoreSupplierDelivery;
 use App\Actions\Procurement\SupplierDelivery\UpdateSupplierDelivery;
 use App\Models\Procurement\SupplierDelivery;
-use App\Services\Tenant\SourceTenantService;
+use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 
@@ -20,9 +20,9 @@ class FetchSupplierDeliveries extends FetchAction
 {
     public string $commandSignature = 'fetch:supplier-deliveries {tenants?*} {--s|source_id=}';
 
-    public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?SupplierDelivery
+    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?SupplierDelivery
     {
-        if ($orderData = $tenantSource->fetchSupplierDelivery($tenantSourceId)) {
+        if ($orderData = $organisationSource->fetchSupplierDelivery($organisationSourceId)) {
             if (!empty($orderData['supplierDelivery']['source_id']) and $order = SupplierDelivery::withTrashed()->where('source_id', $orderData['supplierDelivery']['source_id'])
                     ->first()) {
                 $order = UpdateSupplierDelivery::run($order, $orderData['supplierDelivery']);
@@ -35,7 +35,7 @@ class FetchSupplierDeliveries extends FetchAction
                 }
 
 
-                //  $this->fetchTransactions($tenantSource, $order);
+                //  $this->fetchTransactions($organisationSource, $order);
                 $this->updateAurora($order);
 
 
@@ -43,16 +43,16 @@ class FetchSupplierDeliveries extends FetchAction
             } else {
                 if ($orderData['parent']) {
                     $order = StoreSupplierDelivery::run($orderData['parent'], $orderData['supplierDelivery'], $orderData['delivery_address']);
-                    //  $this->fetchTransactions($tenantSource, $order);
+                    //  $this->fetchTransactions($organisationSource, $order);
                     $this->updateAurora($order);
 
 
                     return $order;
                 }
-                print "Warning Supplier Delivery $tenantSourceId do not have parent\n";
+                print "Warning Supplier Delivery $organisationSourceId do not have parent\n";
             }
         } else {
-            print "Warning error fetching order $tenantSourceId\n";
+            print "Warning error fetching order $organisationSourceId\n";
         }
 
         return null;
@@ -60,7 +60,7 @@ class FetchSupplierDeliveries extends FetchAction
 
     /*
 
-    private function fetchTransactions($tenantSource, $order): void
+    private function fetchTransactions($organisationSource, $order): void
     {
         $transactionsToDelete = $order->transactions()->where('type', TransactionTypeEnum::ORDER)->pluck('source_id', 'id')->all();
         foreach (
@@ -72,7 +72,7 @@ class FetchSupplierDeliveries extends FetchAction
                 ->get() as $auroraData
         ) {
             $transactionsToDelete = array_diff($transactionsToDelete, [$auroraData->{'Order Transaction Fact Key'}]);
-            FetchTransactions::run($tenantSource, $auroraData->{'Order Transaction Fact Key'}, $order);
+            FetchTransactions::run($organisationSource, $auroraData->{'Order Transaction Fact Key'}, $order);
         }
         $order->transactions()->whereIn('id', array_keys($transactionsToDelete))->delete();
     }

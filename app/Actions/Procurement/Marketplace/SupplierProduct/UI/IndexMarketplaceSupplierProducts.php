@@ -15,7 +15,7 @@ use App\Http\Resources\Procurement\MarketplaceSupplierProductResource;
 use App\Models\Procurement\Agent;
 use App\Models\Procurement\Supplier;
 use App\Models\Procurement\SupplierProduct;
-use App\Models\Tenancy\Tenant;
+use App\Models\Organisation\Organisation;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -29,7 +29,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 class IndexMarketplaceSupplierProducts extends InertiaAction
 {
     /** @noinspection PhpUndefinedMethodInspection */
-    public function handle(Tenant|Agent|Supplier $parent, $prefix=null): LengthAwarePaginator
+    public function handle(Organisation|Agent|Supplier $parent, $prefix=null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -61,7 +61,7 @@ class IndexMarketplaceSupplierProducts extends InertiaAction
                     $query->leftJoin('agents', 'supplier_products.agent_id', 'agents.id');
                     $query->addSelect('agents.slug as agent_slug');
                     $query->where('supplier_products.agent_id', $parent->id);
-                } elseif (class_basename($parent) == 'Tenant') {
+                } elseif (class_basename($parent) == 'Organisation') {
                     $query->leftJoin('supplier_product_tenant', 'supplier_product_tenant.supplier_product_id', 'supplier_products.id');
                     $query->where('supplier_product_tenant.tenant_id', $parent->id);
                 } elseif (class_basename($parent) == 'Supplier') {

@@ -10,7 +10,7 @@ namespace App\Actions\SourceFetch\Aurora;
 use App\Actions\Accounting\PaymentAccount\StorePaymentAccount;
 use App\Actions\Accounting\PaymentAccount\UpdatePaymentAccount;
 use App\Models\Accounting\PaymentAccount;
-use App\Services\Tenant\SourceTenantService;
+use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;
@@ -20,9 +20,9 @@ class FetchPaymentAccounts extends FetchAction
     public string $commandSignature = 'fetch:payment-accounts {tenants?*} {--s|source_id=} {--d|db_suffix=}';
 
 
-    #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?PaymentAccount
+    #[NoReturn] public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?PaymentAccount
     {
-        if ($paymentAccountData = $tenantSource->fetchPaymentAccount($tenantSourceId)) {
+        if ($paymentAccountData = $organisationSource->fetchPaymentAccount($organisationSourceId)) {
             if ($paymentAccount = PaymentAccount::where('source_id', $paymentAccountData['paymentAccount']['source_id'])
                 ->first()) {
                 $paymentAccount = UpdatePaymentAccount::run(

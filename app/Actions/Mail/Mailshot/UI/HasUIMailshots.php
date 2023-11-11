@@ -11,11 +11,11 @@ use App\Actions\Mail\Mailroom\ShowMailroom;
 use App\Actions\UI\Marketing\MarketingHub;
 use App\Models\Mail\Mailroom;
 use App\Models\Mail\Outbox;
-use App\Models\Tenancy\Tenant;
+use App\Models\Organisation\Organisation;
 
 trait HasUIMailshots
 {
-    public function getBreadcrumbs(string $routeName, Outbox|Mailroom|Tenant $parent): array
+    public function getBreadcrumbs(string $routeName, Outbox|Mailroom|Organisation $parent): array
     {
         $headCrumb = function (array $routeParameters = []) use ($routeName) {
             return [

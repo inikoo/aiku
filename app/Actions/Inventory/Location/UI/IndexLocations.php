@@ -17,7 +17,7 @@ use App\Http\Resources\Inventory\LocationResource;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
-use App\Models\Tenancy\Tenant;
+use App\Models\Organisation\Organisation;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -31,7 +31,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexLocations extends InertiaAction
 {
-    private Warehouse|WarehouseArea|Tenant $parent;
+    private Warehouse|WarehouseArea|Organisation $parent;
 
     public function authorize(ActionRequest $request): bool
     {
@@ -77,7 +77,7 @@ class IndexLocations extends InertiaAction
 
 
     /** @noinspection PhpUndefinedMethodInspection */
-    public function handle(Warehouse|WarehouseArea|Tenant $parent, $prefix=null): LengthAwarePaginator
+    public function handle(Warehouse|WarehouseArea|Organisation $parent, $prefix=null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -131,7 +131,7 @@ class IndexLocations extends InertiaAction
     }
 
 
-    public function tableStructure(Warehouse|WarehouseArea|Tenant $parent, ?array $modelOperations = null, $prefix = null): Closure
+    public function tableStructure(Warehouse|WarehouseArea|Organisation $parent, ?array $modelOperations = null, $prefix = null): Closure
     {
         return function (InertiaTable $table) use ($parent, $modelOperations, $prefix) {
             if($prefix) {
@@ -144,7 +144,7 @@ class IndexLocations extends InertiaAction
                 ->withModelOperations($modelOperations)
                 ->withEmptyState(
                     match (class_basename($parent)) {
-                        'Tenant' => [
+                        'Organisation' => [
                             'title'       => __("No locations found"),
                             'description' => $this->canEdit && $parent->inventoryStats->number_warehouses==0 ? __('Get started by creating a new shop. ✨')
                                 : __("In fact, is no even created a warehouse yet 🤷🏽‍♂️"),

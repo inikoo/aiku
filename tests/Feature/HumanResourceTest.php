@@ -10,13 +10,13 @@ use App\Actions\HumanResources\ClockingMachine\UpdateClockingMachine;
 use App\Actions\HumanResources\Employee\StoreEmployee;
 use App\Actions\HumanResources\Employee\UpdateEmployee;
 use App\Actions\HumanResources\WorkingPlace\UpdateWorkingPlace;
-use App\Actions\Tenancy\Group\StoreGroup;
-use App\Actions\Tenancy\Tenant\StoreTenant;
+use App\Actions\Organisation\Group\StoreGroup;
+use App\Actions\Organisation\Organisation\StoreOrganisation;
 use App\Models\Auth\User;
 use App\Models\Helpers\Address;
 use App\Models\HumanResources\Workplace;
-use App\Models\Tenancy\Group;
-use App\Models\Tenancy\Tenant;
+use App\Models\Organisation\Group;
+use App\Models\Organisation\Organisation;
 use App\Models\HumanResources\Employee;
 use App\Actions\HumanResources\Employee\UpdateEmployeeWorkingHours;
 use App\Actions\HumanResources\Employee\CreateUserFromEmployee;
@@ -26,12 +26,12 @@ beforeAll(function () {
 });
 
 beforeEach(function () {
-    $tenant = Tenant::first();
-    if (!$tenant) {
-        $group  = StoreGroup::make()->action(Group::factory()->definition());
-        $tenant = StoreTenant::make()->action($group, Tenant::factory()->definition());
+    $organisation = Organisation::first();
+    if (!$organisation) {
+        $group        = StoreGroup::make()->action(Group::factory()->definition());
+        $organisation = StoreOrganisation::make()->action($group, Organisation::factory()->definition());
     }
-    $tenant->makeCurrent();
+    $organisation->makeCurrent();
 });
 
 test('create employee successful', function () {

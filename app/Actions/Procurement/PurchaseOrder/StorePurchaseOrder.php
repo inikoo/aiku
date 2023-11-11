@@ -9,7 +9,7 @@ namespace App\Actions\Procurement\PurchaseOrder;
 
 use App\Actions\Procurement\Agent\Hydrators\AgentHydratePurchaseOrders;
 use App\Actions\Procurement\Supplier\Hydrators\SupplierHydratePurchaseOrders;
-use App\Actions\Tenancy\Tenant\Hydrators\TenantHydrateProcurement;
+use App\Actions\Organisation\Organisation\Hydrators\OrganisationHydrateProcurement;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Procurement\SupplierProduct\SupplierProductStateEnum;
 use App\Models\Procurement\Agent;
@@ -40,7 +40,7 @@ class StorePurchaseOrder
             AgentHydratePurchaseOrders::dispatch($parent);
         }
 
-        TenantHydrateProcurement::dispatch(app('currentTenant'));
+        OrganisationHydrateProcurement::dispatch(app('currentTenant'));
 
         return $purchaseOrder;
     }

@@ -10,7 +10,7 @@ namespace App\Actions\SourceFetch\Aurora;
 use App\Actions\Market\ProductCategory\StoreProductCategory;
 use App\Actions\Market\ProductCategory\UpdateProductCategory;
 use App\Models\Market\ProductCategory;
-use App\Services\Tenant\SourceTenantService;
+use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 
@@ -18,9 +18,9 @@ class FetchFamilies extends FetchAction
 {
     public string $commandSignature = 'fetch:families {tenants?*} {--s|source_id=} {--d|db_suffix=}';
 
-    public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?ProductCategory
+    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?ProductCategory
     {
-        if ($familyData = $tenantSource->fetchFamily($tenantSourceId)) {
+        if ($familyData = $organisationSource->fetchFamily($organisationSourceId)) {
             if ($family = ProductCategory::where('source_family_id', $familyData['family']['source_family_id'])
                 ->first()) {
                 $family = UpdateProductCategory::run(

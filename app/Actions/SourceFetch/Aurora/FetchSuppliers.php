@@ -17,9 +17,9 @@ class FetchSuppliers extends FetchAction
     public string $commandSignature = 'fetch:suppliers {tenants?*} {--s|source_id=} {--d|db_suffix=} {--N|only_new : Fetch only new}';
 
 
-    public function fetch($tenantSource, $tenantSourceId)
+    public function fetch($organisationSource, $organisationSourceId)
     {
-        return $tenantSource->fetchSupplier($tenantSourceId);
+        return $organisationSource->fetchSupplier($organisationSourceId);
     }
 
 

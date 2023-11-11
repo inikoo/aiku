@@ -7,14 +7,14 @@
 
 namespace App\Actions\Inventory\Warehouse\Hydrators;
 
-use App\Actions\Traits\WithTenantJob;
+use App\Actions\Traits\WithOrganisationJob;
 use App\Models\Inventory\Warehouse;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class WarehouseHydrateUniversalSearch
 {
     use AsAction;
-    use WithTenantJob;
+    use WithOrganisationJob;
 
     public function handle(Warehouse $warehouse): void
     {

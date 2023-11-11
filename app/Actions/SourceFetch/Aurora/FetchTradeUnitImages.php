@@ -9,7 +9,7 @@ namespace App\Actions\SourceFetch\Aurora;
 
 use App\Actions\Utils\StoreImage;
 use App\Models\Goods\TradeUnit;
-use App\Services\Tenant\SourceTenantService;
+use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;
@@ -18,9 +18,9 @@ class FetchTradeUnitImages extends FetchAction
 {
     public string $commandSignature = 'fetch:trade-unit-images {tenants?*} {--s|source_id=} {--d|db_suffix=}';
 
-    #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?TradeUnit
+    #[NoReturn] public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?TradeUnit
     {
-        if ($tradeUnitData = $tenantSource->fetchTradeUnit($tenantSourceId)) {
+        if ($tradeUnitData = $organisationSource->fetchTradeUnit($organisationSourceId)) {
             $tradeUnit = TradeUnit::withTrashed()->where('source_id', $tradeUnitData['trade_unit']['source_id'])->first();
 
             if ($tradeUnit) {

@@ -12,7 +12,7 @@ use App\Actions\UI\Procurement\ProcurementDashboard;
 use App\Http\Resources\Procurement\SupplierResource;
 use App\Models\Procurement\Agent;
 use App\Models\Procurement\Supplier;
-use App\Models\Tenancy\Tenant;
+use App\Models\Organisation\Organisation;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -25,7 +25,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexSuppliers extends InertiaAction
 {
-    protected function getSupplierElementGroups(Tenant|Agent $parent): void
+    protected function getSupplierElementGroups(Organisation|Agent $parent): void
     {
         $this->elementGroups =
             [
@@ -45,7 +45,7 @@ class IndexSuppliers extends InertiaAction
             ];
     }
 
-    public function handle(Agent|Tenant $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Agent|Organisation $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -85,7 +85,7 @@ class IndexSuppliers extends InertiaAction
                     $query->addSelect('agents.name as agent_name');
                 } else {
                     $query ->leftJoin('supplier_tenant', 'suppliers.id', 'supplier_tenant.supplier_id');
-                    $query->where('suppliers.owner_type', 'Tenant');
+                    $query->where('suppliers.owner_type', 'Organisation');
                     $query->where('supplier_tenant.tenant_id', app('currentTenant')->id);
 
                 }

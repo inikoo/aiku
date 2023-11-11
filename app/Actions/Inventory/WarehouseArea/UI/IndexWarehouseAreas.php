@@ -14,7 +14,7 @@ use App\Enums\UI\WarehouseTabsEnum;
 use App\Http\Resources\Inventory\WarehouseAreaResource;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
-use App\Models\Tenancy\Tenant;
+use App\Models\Organisation\Organisation;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -28,7 +28,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexWarehouseAreas extends InertiaAction
 {
-    private Warehouse|Tenant $parent;
+    private Warehouse|Organisation $parent;
 
     public function authorize(ActionRequest $request): bool
     {
@@ -57,7 +57,7 @@ class IndexWarehouseAreas extends InertiaAction
     }
 
     /** @noinspection PhpUndefinedMethodInspection */
-    public function handle(Warehouse|Tenant $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Warehouse|Organisation $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -118,7 +118,7 @@ class IndexWarehouseAreas extends InertiaAction
                 ->withModelOperations($modelOperations)
                 ->withEmptyState(
                     match (class_basename($parent)) {
-                        'Tenant' => [
+                        'Organisation' => [
                             'title'       => __("No warehouse areas found"),
                             'description' => $this->canEdit && $parent->stats->number_warehouses == 0 ? __('Get started by creating a warehouse area. ✨')
                                 : __("In fact, is no even create a warehouse yet 🤷🏽‍♂️"),

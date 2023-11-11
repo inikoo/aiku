@@ -12,7 +12,7 @@ use App\Actions\Dropshipping\CustomerClient\UpdateCustomerClient;
 use App\Actions\Helpers\Address\StoreAddressAttachToModel;
 use App\Actions\Helpers\Address\UpdateAddress;
 use App\Models\Dropshipping\CustomerClient;
-use App\Services\Tenant\SourceTenantService;
+use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\NoReturn;
@@ -22,9 +22,9 @@ class FetchCustomerClients extends FetchAction
     public string $commandSignature = 'fetch:customer-clients {tenants?*} {--s|source_id=} {--d|db_suffix=}';
 
 
-    #[NoReturn] public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?CustomerClient
+    #[NoReturn] public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?CustomerClient
     {
-        if ($customerClientData = $tenantSource->fetchCustomerClient($tenantSourceId)) {
+        if ($customerClientData = $organisationSource->fetchCustomerClient($organisationSourceId)) {
             if ($customerClient = CustomerClient::withTrashed()->where('source_id', $customerClientData['customer_client']['source_id'])
                 ->first()) {
                 $customerClient = UpdateCustomerClient::run(

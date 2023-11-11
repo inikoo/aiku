@@ -12,7 +12,7 @@ use App\Actions\HumanResources\Employee\UpdateEmployee;
 use App\Actions\HumanResources\Employee\UpdateEmployeeWorkingHours;
 use App\Actions\Utils\StoreImage;
 use App\Models\HumanResources\Employee;
-use App\Services\Tenant\SourceTenantService;
+use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 
@@ -20,9 +20,9 @@ class FetchEmployees extends FetchAction
 {
     public string $commandSignature = 'fetch:employees {tenants?*} {--s|source_id=} {--d|db_suffix=}';
 
-    public function handle(SourceTenantService $tenantSource, int $tenantSourceId): ?Employee
+    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Employee
     {
-        if ($employeeData = $tenantSource->fetchEmployee($tenantSourceId)) {
+        if ($employeeData = $organisationSource->fetchEmployee($organisationSourceId)) {
             if ($employee = Employee::where('source_id', $employeeData['employee']['source_id'])->first()) {
                 $employee = UpdateEmployee::run(
                     employee: $employee,

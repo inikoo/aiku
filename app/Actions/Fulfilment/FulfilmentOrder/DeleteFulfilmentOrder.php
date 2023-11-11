@@ -9,7 +9,7 @@ namespace App\Actions\Fulfilment\FulfilmentOrder;
 
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Fulfilment\FulfilmentOrder;
-use App\Models\Tenancy\Tenant;
+use App\Models\Organisation\Organisation;
 use Illuminate\Console\Command;
 
 class DeleteFulfilmentOrder
@@ -31,7 +31,7 @@ class DeleteFulfilmentOrder
 
     public function asCommand(Command $command): int
     {
-        Tenant::where('slug', $command->argument('tenant'))->first()->makeCurrent();
+        Organisation::where('slug', $command->argument('tenant'))->first()->makeCurrent();
         $this->handle(FulfilmentOrder::findOrFail($command->argument('id')));
 
         return 0;
