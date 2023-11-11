@@ -12,6 +12,7 @@ return new class () extends Migration {
     {
         DB::statement("create schema extensions;");
         DB::statement("grant usage on schema extensions to public;");
+        DB::statement('CREATE EXTENSION pg_trgm;');
         DB::statement("grant execute on all functions in schema extensions to public;");
         DB::statement("alter default privileges in schema extensions grant execute on functions to public;");
         DB::statement("alter default privileges in schema extensions grant usage on types to public;");

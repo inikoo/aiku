@@ -86,7 +86,7 @@ return [
 
     'failed' => [
         'driver'   => env('QUEUE_FAILED_DRIVER', 'database-uuids'),
-        'database' => env('DB_CONNECTION', 'central'),
+        'database' => env('DB_CONNECTION', 'aiku'),
         'table'    => 'failed_jobs',
     ],
 

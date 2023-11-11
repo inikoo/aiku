@@ -46,7 +46,7 @@ return [
 
     'storage' => [
         'database' => [
-            'connection' => env('DB_CONNECTION', 'central'),
+            'connection' => env('DB_CONNECTION', 'aiku'),
             'chunk'      => 1000,
         ],
     ],

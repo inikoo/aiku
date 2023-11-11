@@ -15,9 +15,9 @@ echo -e "✨ Resetting elasticsearch"
 php artisan es:refresh --env=testing
 echo -e "✨ Resetting database ${ITALIC}${DB}${NONE}"
 dropdb --if-exists -p "${DB_PORT}" ${DB}
-createdb -p "${DB_PORT}" --template=template0 --lc-collate="${DB_COLLATE}" --lc-ctype="${DB_COLLATE}"  ${DB}
+createdb -p "${DB_PORT}" --template=template0 --lc-collate="${DB_COLLATE}" --lc-ctype="${DB_COLLATE}" ${DB}
 echo "🌱 Migrating and seeding database"
-php artisan --env=testing migrate --path=database/migrations/central  --database=central
+php artisan --env=testing migrate
 php artisan --env=testing db:seed
 echo -e "💾 Saving ${PURPLE}fresh_with_assets.dump${NONE}"
 pg_dump -Fc -p "${DB_PORT}" -f "tests/datasets/db_dumps/test_base_database.dump" ${DB}

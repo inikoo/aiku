@@ -20,7 +20,7 @@ return [
     |
     */
 
-    'default' => env('DB_CONNECTION', 'central'),
+    'default' => env('DB_CONNECTION', 'aiku'),
 
     /*
     |--------------------------------------------------------------------------
@@ -56,7 +56,7 @@ return [
             'sslmode'        => 'prefer',
         ],
 
-        'group' => [
+        'aiku' => [
             'driver'         => 'pgsql',
             'url'            => env('DATABASE_URL'),
             'host'           => env('DB_HOST', '127.0.0.1'),
@@ -67,22 +67,7 @@ return [
             'charset'        => 'utf8',
             'prefix'         => '',
             'prefix_indexes' => true,
-            'search_path'    => env('DB_SEARCH_PATH', ''),
-            'sslmode'        => 'prefer',
-        ],
-
-        'tenant' => [
-            'driver'         => 'pgsql',
-            'url'            => env('DATABASE_URL'),
-            'host'           => env('DB_HOST', '127.0.0.1'),
-            'port'           => env('DB_PORT', '5432'),
-            'database'       => env('DB_DATABASE', 'aiku'),
-            'username'       => env('DB_USERNAME', 'aiku'),
-            'password'       => env('DB_PASSWORD', ''),
-            'charset'        => 'utf8',
-            'prefix'         => '',
-            'prefix_indexes' => true,
-            'search_path'    => env('DB_SEARCH_PATH', ''),
+            'search_path'    => env('DB_SEARCH_PATH', 'public'),
             'sslmode'        => 'prefer',
         ],
 
