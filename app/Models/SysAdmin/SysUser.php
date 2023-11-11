@@ -17,7 +17,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Support\Carbon;
 use Laravel\Sanctum\HasApiTokens;
-use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
+
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -58,7 +58,7 @@ class SysUser extends Authenticatable
     use HasApiTokens;
     use SoftDeletes;
     use HasSlug;
-    use UsesLandlordConnection;
+
 
     protected $casts = [
         'data'     => 'array',

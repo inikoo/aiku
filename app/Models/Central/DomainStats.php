@@ -11,7 +11,6 @@ use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
-use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
 
 /**
  * App\Models\Central\DomainStats
@@ -27,5 +26,4 @@ use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
  */
 class DomainStats extends Model
 {
-    use UsesLandlordConnection;
 }

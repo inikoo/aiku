@@ -12,7 +12,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 use Illuminate\Support\Carbon;
-use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
 
 /**
  * App\Models\Auth\GroupUserTenant
@@ -32,8 +31,6 @@ use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
  */
 class GroupUserTenant extends Pivot
 {
-    use UsesLandlordConnection;
-
     public $incrementing = true;
 
     protected $casts = [

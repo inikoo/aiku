@@ -32,7 +32,7 @@ class ImportTariffCodeFromCsv
 
     public function asCommand(Command $command): int
     {
-        if(! Storage::disk('datasets')->exists($command->argument('filename'))) {
+        if(!Storage::disk('datasets')->exists($command->argument('filename'))) {
             $command->error('File doesnt exists');
             return 1;
         }

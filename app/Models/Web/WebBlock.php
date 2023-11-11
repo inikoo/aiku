@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
+
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -44,7 +44,6 @@ use Spatie\Sluggable\SlugOptions;
  */
 class WebBlock extends Model
 {
-    use UsesLandlordConnection;
     use SoftDeletes;
     use HasSlug;
 

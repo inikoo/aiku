@@ -12,7 +12,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
-use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
 
 /**
  * App\Models\Assets\TariffCode
@@ -33,8 +32,6 @@ use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
  */
 class TariffCode extends Model
 {
-    use UsesLandlordConnection;
-
     protected $guarded = [];
 
     public function parent(): BelongsTo

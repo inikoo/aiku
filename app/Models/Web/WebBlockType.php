@@ -14,7 +14,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
 
 /**
  * App\Models\Web\WebBlockType
@@ -40,7 +39,6 @@ use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
  */
 class WebBlockType extends Model
 {
-    use UsesLandlordConnection;
     use SoftDeletes;
 
     protected $casts = [

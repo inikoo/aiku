@@ -12,7 +12,6 @@ use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
-use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
 
 /**
  * App\Models\Assets\Language
@@ -32,8 +31,6 @@ use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
  */
 class Language extends Model
 {
-    use UsesLandlordConnection;
-
     protected $casts = [
         'data' => 'array',
     ];

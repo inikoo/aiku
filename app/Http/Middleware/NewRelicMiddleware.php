@@ -26,7 +26,7 @@ class NewRelicMiddleware
     {
 
         // Ensure New Relic is enabled before continuing.
-        if (! app(NewRelicTransactionHandler::class)::newRelicEnabled()) {
+        if (!app(NewRelicTransactionHandler::class)::newRelicEnabled()) {
             return $next($request);
         }
 
@@ -135,7 +135,7 @@ class NewRelicMiddleware
      */
     protected function getLivewireTransactionName(Request $request): ?string
     {
-        if (! $request->routeIs('livewire.message')) {
+        if (!$request->routeIs('livewire.message')) {
             return null;
         }
 

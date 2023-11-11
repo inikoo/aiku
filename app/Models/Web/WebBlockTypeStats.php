@@ -10,7 +10,6 @@ namespace App\Models\Web;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
 
 /**
  * App\Models\Web\WebBlockTypeStats
@@ -31,8 +30,6 @@ use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
  */
 class WebBlockTypeStats extends Model
 {
-    use UsesLandlordConnection;
-
     protected $table = 'web_block_type_stats';
 
     protected $guarded = [];

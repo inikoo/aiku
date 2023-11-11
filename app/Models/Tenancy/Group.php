@@ -17,7 +17,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
-use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
+
 use Spatie\Multitenancy\TenantCollection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -51,7 +51,6 @@ use Spatie\Sluggable\SlugOptions;
  */
 class Group extends Model
 {
-    use UsesLandlordConnection;
     use SoftDeletes;
     use HasSlug;
     use HasFactory;

@@ -15,7 +15,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Carbon;
 use Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection;
 use Spatie\MediaLibrary\MediaCollections\Models\Media as BaseMedia;
-use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
+
 use Spatie\Multitenancy\TenantCollection;
 
 /**
@@ -51,7 +51,6 @@ use Spatie\Multitenancy\TenantCollection;
  */
 class CentralMedia extends BaseMedia
 {
-    use UsesLandlordConnection;
     protected $table = 'central_media';
 
 

@@ -9,7 +9,6 @@ namespace App\Models\Web;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
 
 /**
  * App\Models\Web\WebBlockStats
@@ -29,8 +28,6 @@ use Spatie\Multitenancy\Models\Concerns\UsesLandlordConnection;
  */
 class WebBlockStats extends Model
 {
-    use UsesLandlordConnection;
-
     protected $table = 'web_block_stats';
 
     protected $guarded = [];
