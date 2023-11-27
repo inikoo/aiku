@@ -10,7 +10,7 @@ namespace App\Stubs\Migrations;
 use App\Enums\Mail\DispatchedEmail\DispatchedEmailStateEnum;
 use Illuminate\Database\Schema\Blueprint;
 
-trait HasDispatchedEmailStats
+trait HasDispatchedEmailsStats
 {
     public function dispatchedEmailStats(Blueprint $table): Blueprint
     {

@@ -7,12 +7,8 @@
 
 namespace App\Models\Traits;
 
-use Spatie\Multitenancy\Concerns\UsesMultitenancyConfig;
-
 trait UsesBackupConnection
 {
-    use UsesMultitenancyConfig;
-
     public function getConnectionName(): ?string
     {
         return 'backup';

@@ -20,7 +20,6 @@ use App\Actions\Auth\User\UserRemoveRoles;
 use App\Actions\Auth\User\UserSyncRoles;
 use App\Actions\Organisation\Group\StoreGroup;
 use App\Actions\Organisation\Organisation\StoreOrganisation;
-use App\Enums\Auth\User\UserAuthTypeEnum;
 use App\Models\Auth\GroupUser;
 use App\Models\Auth\Guest;
 use App\Models\Auth\User;
@@ -73,7 +72,6 @@ test('create guest', function () {
     $guestData = Guest::factory()->definition();
     Arr::set($guestData, 'phone', '+6281212121212');
     $guest = StoreGuest::make()->action(
-        $this->organisation,
         $guestData
     );
 
@@ -94,12 +92,9 @@ test('create user for guest', function ($guest) {
     Hash::shouldReceive('make')->andReturn('1234567');
 
     $userData  = User::factory()->definition();
-    $groupUser = StoreGroupUser::make()->action($userData);
-    expect($groupUser)->toBeInstanceOf(GroupUser::class)
-        ->and($groupUser->auth_type)->toBe(UserAuthTypeEnum::DEFAULT);
 
-    /** @noinspection PhpUnhandledExceptionInspection */
-    $user = StoreUser::make()->action($guest, $groupUser);
+
+    $user = StoreUser::make()->action($guest, $userData);
     expect($user)->toBeInstanceOf(User::class)
         ->and($user->password)->toBe('1234567')
         ->and($user->groupUser->password)->toBe('1234567')

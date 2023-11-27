@@ -9,7 +9,6 @@ use App\Models\Organisation\Organisation;
 use App\Resolvers\TenantResolver;
 use App\Tasks\SetSanctumPersonAccessTokenModelTask;
 use App\Tasks\SetupFilesystemsTask;
-use App\Tasks\SwitchTenantDatabaseSchemaTask;
 use Illuminate\Broadcasting\BroadcastEvent;
 use Illuminate\Events\CallQueuedListener;
 use Illuminate\Mail\SendQueuedMailable;
@@ -48,7 +47,6 @@ return [
      * A valid task is any class that implements Spatie\Multitenancy\Tasks\SwitchTenantTask
      */
     'switch_tenant_tasks'                => [
-        SwitchTenantDatabaseSchemaTask::class,
         SetupFilesystemsTask::class,
         PrefixCacheTask::class,
         SetSanctumPersonAccessTokenModelTask::class

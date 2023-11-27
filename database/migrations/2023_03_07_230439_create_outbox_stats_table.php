@@ -5,13 +5,13 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-use App\Stubs\Migrations\HasDispatchedEmailStats;
+use App\Stubs\Migrations\HasDispatchedEmailsStats;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
-    use HasDispatchedEmailStats;
+    use HasDispatchedEmailsStats;
     public function up()
     {
         Schema::create('outbox_stats', function (Blueprint $table) {

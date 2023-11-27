@@ -7,22 +7,18 @@
 
 namespace App\Actions\Auth\User;
 
-use App\Actions\Auth\GroupUser\Hydrators\GroupUserHydrateTenants;
 use App\Actions\Central\User\Hydrators\UserHydrateUniversalSearch;
-use App\Actions\Organisation\Organisation\Hydrators\OrganisationHydrateUsers;
-use App\Models\Auth\GroupUser;
 use App\Models\Auth\Guest;
 use App\Models\Auth\User;
 use App\Models\HumanResources\Employee;
+use App\Models\Procurement\Agent;
+use App\Models\Procurement\Supplier;
 use App\Rules\AlphaDashDot;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
-use Illuminate\Validation\ValidationException;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
-use Illuminate\Validation\Validator;
 
 class StoreUser
 {
@@ -31,60 +27,26 @@ class StoreUser
 
     private bool $asAction = false;
 
-    private ?GroupUser $groupUser;
 
-    /**
-     * @throws \Throwable
-     */
-    public function handle(Guest|Employee $parent, GroupUser $groupUser, array $objectData = []): User|ValidationException
+    public function handle(Guest|Employee|Supplier|Agent $parent, array $objectData = []): User
     {
-        $organisation = app('currentTenant');
+        /** @var \App\Models\Auth\User $user */
 
-        $user = DB::transaction(function () use ($groupUser, $organisation, $parent, $objectData) {
-            /** @var \App\Models\Auth\User $user */
 
-            $dataFromGroupUser = [
-                'group_user_id'   => $groupUser->id,
-                'username'        => $groupUser->username,
-                'password'        => $groupUser->password,
-                'legacy_password' => $groupUser->legacy_password,
-                'contact_name'    => $parent->contact_name,
-                'auth_type'       => $groupUser->auth_type,
-                'about'           => $groupUser->about,
-                'avatar_id'       => $groupUser->avatar_id,
+        $type = match (class_basename($parent)) {
+            'Guest', 'Employee', 'Supplier', 'Agent' => strtolower(class_basename($parent)),
+            default => null
+        };
 
-            ];
+        data_set($objectData, 'type', $type);
 
-            $type=match (class_basename($parent)) {
-                'Guest','Employee','Supplier','Agent'=>strtolower(class_basename($parent)),
-                default=> null
-            };
+        $user = $parent->user()->create(
+            array_merge($objectData, $objectData)
+        );
 
-            data_set($objectData, 'type', $type);
+        $user->stats()->create();
 
-            $user = $parent->user()->create(
-                array_merge($objectData, $dataFromGroupUser)
-            );
-            $groupUser->tenants()
-                ->attach($organisation->id, [
-                    'user_id' => $user->id,
-                    'data'    => [
-                        'contact_name' => $parent->contact_name,
-                    ]
-                ]);
 
-            $user->stats()->create();
-
-            return $user;
-        });
-
-        if ($groupUser->avatar) {
-            $groupUser->avatar->tenants()->attach($organisation->id);
-        }
-
-        $groupUser->refresh();
-        OrganisationHydrateUsers::dispatch($organisation);
-        GroupUserHydrateTenants::dispatch($groupUser);
         UserHydrateUniversalSearch::dispatch($user);
 
 
@@ -97,41 +59,28 @@ class StoreUser
             return true;
         }
 
-        return $request->user()->hasPermissionTo("shops.customers.edit");
+        return $request->user()->hasPermissionTo("sysadmin.edit");
     }
 
     public function rules(): array
     {
-        if ($this->groupUser) {
-            return [];
-        } else {
-            return [
-                'username' => ['required', new AlphaDashDot(), 'unique:App\Models\SysAdmin\SysUser,username', Rule::notIn(['export', 'create'])],
-                'password' => ['required', app()->isLocal() || app()->environment('testing') ? null : Password::min(8)->uncompromised()],
-                'email'    => ['required', 'email', 'unique:App\Models\SysAdmin\SysUser,email']
-            ];
-        }
-    }
-
-    public function afterValidator(Validator $validator): void
-    {
-        if ($this->groupUser && $this->groupUser->tenants()->where('tenant_id', app('currentTenant')->id)->exists()) {
-            $validator->errors()->add('tenant', 'Group-user only can add one user per tenant');
-        }
+        return [
+            'username' => ['required', new AlphaDashDot(), 'unique:App\Models\SysAdmin\SysUser,username', Rule::notIn(['export', 'create'])],
+            'password' => ['required', app()->isLocal() || app()->environment('testing') ? null : Password::min(8)->uncompromised()],
+            'email'    => ['required', 'email', 'unique:App\Models\SysAdmin\SysUser,email']
+        ];
     }
 
 
-    /**
-     * @throws \Throwable
-     */
-    public function action(Guest|Employee $parent, ?GroupUser $groupUser, array $objectData = []): User|ValidationException
+
+    public function action(Guest|Employee $parent, array $objectData = []): User
     {
-        $this->asAction  = true;
-        $this->groupUser = $groupUser;
-        $this->setRawAttributes($groupUser ? [] : $objectData);
+        $this->asAction = true;
+
+        $this->setRawAttributes($objectData);
         $validatedData = $this->validateAttributes();
 
-        return $this->handle($parent, $groupUser, $validatedData);
+        return $this->handle($parent, $validatedData);
     }
 
 

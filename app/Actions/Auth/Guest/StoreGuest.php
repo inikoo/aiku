@@ -10,7 +10,6 @@ namespace App\Actions\Auth\Guest;
 use App\Actions\Auth\GroupUser\StoreGroupUser;
 use App\Actions\Auth\Guest\Hydrators\GuestHydrateUniversalSearch;
 use App\Actions\Auth\User\StoreUser;
-use App\Actions\Organisation\Organisation\Hydrators\OrganisationHydrateGuests;
 use App\Enums\Auth\Guest\GuestTypeEnum;
 use App\Models\Auth\GroupUser;
 use App\Models\Auth\Guest;
@@ -34,11 +33,11 @@ class StoreGuest
 
     private bool $trusted = false;
 
-    public function handle(Organisation $organisation, array $modelData): Guest
+    public function handle(array $modelData): Guest
     {
         $guest = Guest::create($modelData);
-        OrganisationHydrateGuests::dispatch($organisation);
         GuestHydrateUniversalSearch::dispatch($guest);
+
         return $guest;
     }
 
@@ -62,7 +61,7 @@ class StoreGuest
     {
         return [
             'type'         => ['required', Rule::in(GuestTypeEnum::values())],
-            'username'     => ['sometimes','nullable', new AlphaDashDot(), 'unique:App\Models\SysAdmin\SysUser,username', Rule::notIn(['export', 'create'])],
+            'username'     => ['sometimes', 'nullable', new AlphaDashDot(), 'unique:App\Models\SysAdmin\SysUser,username', Rule::notIn(['export', 'create'])],
             'company_name' => ['nullable', 'string', 'max:255'],
             'contact_name' => ['required', 'string', 'max:255'],
             'phone'        => ['nullable', 'phone:AUTO'],
@@ -72,13 +71,13 @@ class StoreGuest
         ];
     }
 
-    public function asController(Organisation $organisation, ActionRequest $request): Guest
+    public function asController(ActionRequest $request): Guest
     {
         $request->validate();
 
         $modelData = $request->validated();
 
-        $guest = $this->handle($organisation, Arr::except($modelData, ['username']));
+        $guest = $this->handle(Arr::except($modelData, ['username']));
 
         $groupUser = GroupUser::where('username', Arr::get($modelData, 'username'))->first();
         if (!$groupUser) {
@@ -115,13 +114,13 @@ class StoreGuest
     }
 
 
-    public function action(Organisation $organisation, array $objectData): Guest
+    public function action(array $objectData): Guest
     {
         $this->trusted = true;
         $this->setRawAttributes($objectData);
         $validatedData = $this->validateAttributes();
 
-        return $this->handle($organisation, $validatedData);
+        return $this->handle($validatedData);
     }
 
     public string $commandSignature = 'create:guest {tenant : tenant slug} {name} {type : Guest type contractor|external_employee|external_administrator} {--e|email=} {--t|phone=}  {--identity_document_number=} {--identity_document_type=}';
@@ -131,8 +130,8 @@ class StoreGuest
      */
     public function asCommand(Command $command): int
     {
-        $this->trusted       = true;
-        $organisation        = Organisation::where('slug', $command->argument('tenant'))->firstOrFail();
+        $this->trusted = true;
+        $organisation  = Organisation::where('slug', $command->argument('tenant'))->firstOrFail();
         $organisation->makeCurrent();
 
         $this->fill([
