@@ -37,7 +37,7 @@ class StoreSupplierPurchaseOrder
     public function rules(): array
     {
         return [
-            'number'        => ['required', 'numeric', 'unique:group.purchase_orders,number'],
+            'number'        => ['required', 'numeric', 'unique:purchase_orders,number'],
             'date'          => ['required', 'date']
         ];
     }

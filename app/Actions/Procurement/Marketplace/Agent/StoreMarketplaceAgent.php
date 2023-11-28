@@ -69,7 +69,7 @@ class StoreMarketplaceAgent
     public function rules(): array
     {
         return [
-            'code'         => ['required', 'unique:group.agents', 'between:2,9', 'alpha_dash'],
+            'code'         => ['required', 'unique:agents', 'between:2,9', 'alpha_dash'],
             'contact_name' => ['required', 'string', 'max:255'],
             'company_name' => ['required', 'string', 'max:255'],
             'email'        => ['nullable', 'email'],

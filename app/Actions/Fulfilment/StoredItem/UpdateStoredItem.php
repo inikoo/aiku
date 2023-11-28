@@ -38,7 +38,7 @@ class UpdateStoredItem
         return [
             'reference'   => ['sometimes', 'required', 'unique:stored_items', 'between:2,9', 'alpha'],
             'type'        => ['sometimes', 'required', Rule::in(StoredItemTypeEnum::values())],
-            'location_id' => ['required', 'exists:tenant.locations,id']
+            'location_id' => ['required', 'exists:locations,id']
         ];
     }
 

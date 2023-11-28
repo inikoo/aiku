@@ -48,7 +48,7 @@ class StorePurchaseOrder
     public function rules(): array
     {
         return [
-            'number'        => ['sometimes', 'required', 'numeric', 'unique:group.purchase_orders'],
+            'number'        => ['sometimes', 'required', 'numeric', 'unique:purchase_orders'],
             'date'          => ['sometimes', 'required', 'date'],
             'currency_id'   => ['sometimes', 'required', 'exists:currencies,id'],
             'exchange'      => ['sometimes', 'required', 'numeric']

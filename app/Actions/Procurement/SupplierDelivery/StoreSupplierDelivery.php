@@ -38,7 +38,7 @@ class StoreSupplierDelivery
     public function rules(): array
     {
         return [
-            'number'        => ['required', 'numeric', 'unique:group.supplier_deliveries,number'],
+            'number'        => ['required', 'numeric', 'unique:supplier_deliveries,number'],
             'date'          => ['required', 'date']
         ];
     }

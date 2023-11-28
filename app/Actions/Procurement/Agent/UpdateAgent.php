@@ -42,7 +42,7 @@ class UpdateAgent
     public function rules(): array
     {
         return [
-            'code'          => ['sometimes', 'required', 'unique:group.agents', 'between:2,9', 'alpha_dash'],
+            'code'          => ['sometimes', 'required', 'unique:agents', 'between:2,9', 'alpha_dash'],
             'contact_name'  => ['sometimes', 'required', 'string', 'max:255'],
             'company_name'  => ['sometimes', 'required', 'string', 'max:255'],
             'email'         => ['nullable', 'email'],

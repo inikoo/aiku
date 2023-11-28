@@ -28,7 +28,7 @@ class UpdateSupplierDelivery
     public function rules(): array
     {
         return [
-            'number'        => ['required', 'numeric', 'unique:group.supplier_deliveries'],
+            'number'        => ['required', 'numeric', 'unique:supplier_deliveries'],
             'date'          => ['required', 'date'],
             'currency_id'   => ['required', 'exists:currencies,id'],
             'exchange'      => ['required', 'numeric']

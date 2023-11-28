@@ -33,7 +33,7 @@ class UpdateSupplierProduct
     public function rules(): array
     {
         return [
-            'code' => ['required', 'unique:group.supplier_products', 'between:2,9', 'alpha'],
+            'code' => ['required', 'unique:supplier_products', 'between:2,9', 'alpha'],
             'name' => ['required', 'max:250', 'string'],
             'cost' => ['required'],
         ];

@@ -99,7 +99,7 @@ class StoreMarketplaceSupplier
     public function rules(): array
     {
         return [
-            'code'         => ['required', 'unique:group.suppliers', 'between:2,9', 'alpha'],
+            'code'         => ['required', 'unique:suppliers', 'between:2,9', 'alpha'],
             'contact_name' => ['nullable', 'string', 'max:255'],
             'company_name' => ['nullable', 'string', 'max:255'],
             'email'        => ['nullable', 'email'],
