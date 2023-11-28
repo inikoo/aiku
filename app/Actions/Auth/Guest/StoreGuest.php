@@ -7,12 +7,11 @@
 
 namespace App\Actions\Auth\Guest;
 
-use App\Actions\Auth\GroupUser\StoreGroupUser;
 use App\Actions\Auth\Guest\Hydrators\GuestHydrateUniversalSearch;
 use App\Actions\Auth\User\StoreUser;
 use App\Enums\Auth\Guest\GuestTypeEnum;
-use App\Models\Auth\GroupUser;
 use App\Models\Auth\Guest;
+use App\Models\Auth\User;
 use App\Models\Organisation\Organisation;
 use App\Rules\AlphaDashDot;
 use Illuminate\Console\Command;
@@ -79,10 +78,11 @@ class StoreGuest
 
         $guest = $this->handle(Arr::except($modelData, ['username']));
 
-        $groupUser = GroupUser::where('username', Arr::get($modelData, 'username'))->first();
-        if (!$groupUser) {
-            $groupUser = StoreGroupUser::run(
-                array_merge(
+        $user = User::where('username', Arr::get($modelData, 'username'))->first();
+        if (!$user) {
+            StoreUser::run(
+                parent: $guest,
+                modelData:array_merge(
                     [
                         'username' => Arr::get($modelData, 'username'),
                         'password' => (app()->isLocal() ? 'hello' : wordwrap(Str::random(), 4, '-', true))
@@ -91,27 +91,12 @@ class StoreGuest
                 )
             );
         }
-        StoreUser::run(
-            parent: $guest,
-            groupUser: $groupUser,
-        );
+
 
         return $guest;
     }
 
-    public function inGroupUser(GroupUser $groupUser, ActionRequest $request): Guest
-    {
-        $request->validate();
-        $modelData = $request->validated();
-        $guest     = $this->handle($modelData);
 
-        StoreUser::run(
-            parent: $guest,
-            groupUser: $groupUser,
-        );
-
-        return $guest;
-    }
 
 
     public function action(array $objectData): Guest

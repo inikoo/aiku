@@ -7,7 +7,6 @@
 
 namespace App\Actions\HumanResources\Employee;
 
-use App\Actions\Auth\GroupUser\StoreGroupUser;
 use App\Actions\Auth\User\StoreUser;
 use App\Enums\Auth\User\UserAuthTypeEnum;
 use App\Models\Auth\User;
@@ -49,9 +48,7 @@ class CreateUserFromEmployee
         ];
 
 
-        $groupUser = StoreGroupUser::run($modelData);
-        /** @var User $user */
-        $user = StoreUser::run($employee, $groupUser);
+        $user = StoreUser::run($employee, $modelData);
         foreach ($employee->jobPositions as $jobPosition) {
             $user->assignJoBPositionRoles($jobPosition);
         }

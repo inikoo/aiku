@@ -7,12 +7,10 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-use App\Actions\Auth\GroupUser\StoreGroupUser;
 use App\Actions\Auth\User\StoreUser;
 use App\Actions\Auth\User\UpdateUser;
 use App\Actions\Auth\User\UserSyncRoles;
 use App\Enums\Auth\User\UserAuthTypeEnum;
-use App\Models\Auth\GroupUser;
 use App\Models\Auth\User;
 use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
@@ -36,9 +34,9 @@ class FetchUsers extends FetchAction
 
                 $user = UpdateUser::run($user, $userData['user']);
             } else {
-                $groupUser = GroupUser::where('username', $userData['user']['username'])->first();
-                if (!$groupUser) {
-                    $groupUser = StoreGroupUser::run(
+                $user = User::where('username', $userData['user']['username'])->first();
+                if (!$user) {
+                    $user = StoreUser::run(
                         [
                             'username'        => $userData['user']['username'],
                             'legacy_password' => $userData['user']['legacy_password'],
@@ -49,11 +47,6 @@ class FetchUsers extends FetchAction
                         ]
                     );
                 }
-
-                $user = StoreUser::run(parent: $userData['parent'], groupUser: $groupUser, objectData: [
-                    'source_id' => $userData['user']['source_id'],
-                    'auth_type' => UserAuthTypeEnum::AURORA
-                ]);
 
 
                 DB::connection('aurora')->table('User Dimension')
