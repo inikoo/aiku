@@ -39,7 +39,7 @@ class UpdateClocking
     public function rules(): array
     {
         return [
-            'code'         => ['sometimes', 'required', 'unique:tenant.locations', 'between:2,64', 'alpha_dash'],
+            'code'         => ['sometimes', 'required', 'unique:locations', 'between:2,64', 'alpha_dash'],
         ];
     }
     public function action(Clocking $clocking, array $objectData): Clocking

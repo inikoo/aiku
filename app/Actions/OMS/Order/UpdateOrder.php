@@ -26,7 +26,7 @@ class UpdateOrder
     public function rules(): array
     {
         return [
-            'number' => ['required', 'unique:tenant.orders'],
+            'number' => ['required', 'unique:orders'],
             'date'   => ['required', 'date']
         ];
     }

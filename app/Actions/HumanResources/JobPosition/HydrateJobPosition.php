@@ -17,14 +17,14 @@ class HydrateJobPosition extends HydrateModel
 {
     use WithNormalise;
 
-    public string $commandSignature = 'hydrate:job-positions {tenants?*} {--i|id=}';
+    public string $commandSignature = 'hydrate:job-positions  {--i|id=}';
 
     public function handle(JobPosition $jobPosition): void
     {
         $jobPosition->update(
             [
-                'number_employees' => DB::connection('tenant')->table('employee_job_position')->where('job_position_id', $jobPosition->id)->count(),
-                'number_work_time' => DB::connection('tenant')->table('employee_job_position')->where('job_position_id', $jobPosition->id)->sum('share'),
+                'number_employees' => DB::table('employee_job_position')->where('job_position_id', $jobPosition->id)->count(),
+                'number_work_time' => DB::table('employee_job_position')->where('job_position_id', $jobPosition->id)->sum('share'),
             ]
         );
 

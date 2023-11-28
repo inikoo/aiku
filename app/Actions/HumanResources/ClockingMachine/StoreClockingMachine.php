@@ -45,7 +45,7 @@ class StoreClockingMachine
     public function rules(): array
     {
         return [
-            'code'  => ['required', 'unique:tenant.clocking_machines', 'between:2,64', 'alpha_dash', new CaseSensitive('clocking_machines')],
+            'code'  => ['required', 'unique:clocking_machines', 'between:2,64', 'alpha_dash', new CaseSensitive('clocking_machines')],
         ];
     }
 

@@ -47,7 +47,7 @@ class UpdateShop
     {
         return [
             'name'                     => ['sometimes', 'required', 'string', 'max:255'],
-            'code'                     => ['sometimes', 'required', 'unique:tenant.shops', 'between:2,4', 'alpha_dash'],
+            'code'                     => ['sometimes', 'required', 'unique:shops', 'between:2,4', 'alpha_dash'],
             'contact_name'             => ['sometimes', 'nullable', 'string', 'max:255'],
             'company_name'             => ['sometimes', 'nullable', 'string', 'max:255'],
             'email'                    => ['sometimes', 'nullable', 'email'],

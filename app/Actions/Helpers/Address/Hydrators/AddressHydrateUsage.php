@@ -21,7 +21,7 @@ class AddressHydrateUsage implements ShouldBeUnique
 
     public function handle(Address $address): void
     {
-        $usage = DB::connection('tenant')->table('addressables')->where('address_id', $address->id)->count();
+        $usage = DB::table('addressables')->where('address_id', $address->id)->count();
         $address->update(['usage' => $usage]);
     }
 

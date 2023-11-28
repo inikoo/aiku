@@ -99,7 +99,7 @@ class StoreShops
     {
         return [
             'name'                     => ['required', 'string', 'max:255'],
-            'code'                     => ['required', 'unique:tenant.shops', 'between:2,4', 'alpha_dash'],
+            'code'                     => ['required', 'unique:shops', 'between:2,4', 'alpha_dash'],
             'contact_name'             => ['nullable', 'string', 'max:255'],
             'company_name'             => ['nullable', 'string', 'max:255'],
             'email'                    => ['nullable', 'email'],

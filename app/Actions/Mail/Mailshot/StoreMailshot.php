@@ -41,7 +41,7 @@ class StoreMailshot
     public function rules(): array
     {
         return [
-            'code'         => ['required', 'unique:tenant.mailshots', 'between:2,256', 'alpha_dash'],
+            'code'         => ['required', 'unique:mailshots', 'between:2,256', 'alpha_dash'],
             'name'         => ['required', 'max:250', 'string'],
         ];
     }

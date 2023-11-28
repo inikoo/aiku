@@ -41,7 +41,7 @@ class StorePaymentServiceProvider
     public function rules(): array
     {
         return [
-            'code'         => ['required', 'unique:tenant.payment_service_providers', 'between:2,64', 'alpha_dash'],
+            'code'         => ['required', 'unique:payment_service_providers', 'between:2,64', 'alpha_dash'],
             'type'         => ['required', Rule::in(PaymentServiceProviderTypeEnum::values())],
         ];
     }

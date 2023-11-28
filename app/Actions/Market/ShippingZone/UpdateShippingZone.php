@@ -30,7 +30,7 @@ class UpdateShippingZone
     public function rules(): array
     {
         return [
-            'code'   => ['required', 'unique:tenant.shipping_zones', 'between:2,9', 'alpha'],
+            'code'   => ['required', 'unique:shipping_zones', 'between:2,9', 'alpha'],
             'name'   => ['required', 'max:250', 'string'],
             'status' => ['sometimes', 'required', 'boolean']
         ];

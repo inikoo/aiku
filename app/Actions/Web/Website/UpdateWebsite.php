@@ -37,7 +37,7 @@ class UpdateWebsite
     {
         return [
             'domain' => ['sometimes','required'],
-            'code'   => ['sometimes','required', 'unique:tenant.websites','max:8'],
+            'code'   => ['sometimes','required', 'unique:websites','max:8'],
             'name'   => ['sometimes','required']
         ];
     }

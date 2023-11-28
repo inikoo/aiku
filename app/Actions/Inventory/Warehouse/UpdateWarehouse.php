@@ -40,7 +40,7 @@ class UpdateWarehouse
     public function rules(): array
     {
         return [
-            'code' => ['sometimes', 'required', 'unique:tenant.warehouses', 'between:2,4', 'alpha'],
+            'code' => ['sometimes', 'required', 'unique:warehouses', 'between:2,4', 'alpha'],
             'name' => ['sometimes', 'required', 'max:250', 'string'],
         ];
     }

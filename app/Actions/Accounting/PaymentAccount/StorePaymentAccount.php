@@ -43,7 +43,7 @@ class StorePaymentAccount
     public function rules(): array
     {
         return [
-            'code' => ['required', 'unique:tenant.payment_accounts', 'between:2,9', 'alpha_dash'],
+            'code' => ['required', 'unique:payment_accounts', 'between:2,9', 'alpha_dash'],
             'name' => ['required', 'max:250', 'string'],
         ];
     }

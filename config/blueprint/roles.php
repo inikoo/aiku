@@ -10,7 +10,6 @@
 return
     [
         'super-admin' => [
-            'tenant',
             'business-intelligence',
             'shops',
             'websites',

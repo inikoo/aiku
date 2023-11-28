@@ -75,7 +75,7 @@ class StoreProduct
     public function rules(): array
     {
         return [
-            'code'        => ['required', 'unique:tenant.products', 'between:2,9', 'alpha_dash', new CaseSensitive('products')],
+            'code'        => ['required', 'unique:products', 'between:2,9', 'alpha_dash', new CaseSensitive('products')],
             'family_id'   => ['sometimes', 'required', 'exists:families,id'],
             'units'       => ['sometimes', 'required', 'numeric'],
             'image_id'    => ['sometimes', 'required', 'exists:media,id'],

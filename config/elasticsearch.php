@@ -15,7 +15,7 @@ return [
         'mappings' => [
             'universal_search' => [
                 'properties' => [
-                    'tenant_id'   => [
+                    'organisation_id'   => [
                         'type' => 'keyword',
                     ],
                     'section'     => [

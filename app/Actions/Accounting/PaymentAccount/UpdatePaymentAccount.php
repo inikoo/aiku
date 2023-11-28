@@ -33,7 +33,7 @@ class UpdatePaymentAccount
     public function rules(): array
     {
         return [
-            'code'         => ['sometimes', 'required', 'unique:tenant.payment_accounts', 'between:2,9', 'alpha_dash'],
+            'code'         => ['sometimes', 'required', 'unique:payment_accounts', 'between:2,9', 'alpha_dash'],
             'name'         => ['sometimes', 'required', 'max:250', 'string'],
         ];
     }

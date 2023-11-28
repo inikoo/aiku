@@ -33,7 +33,7 @@ class UpdateOutbox
     public function rules(): array
     {
         return [
-            'username' => ['sometimes', 'required', 'unique:tenant.outboxes', 'between:2,64', 'alpha_dash'],
+            'username' => ['sometimes', 'required', 'unique:outboxes', 'between:2,64', 'alpha_dash'],
             'about'    => ['sometimes', 'required', 'max:250', 'string'],
         ];
     }

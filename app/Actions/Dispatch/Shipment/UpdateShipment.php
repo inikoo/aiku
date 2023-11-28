@@ -25,7 +25,7 @@ class UpdateShipment
     public function rules(): array
     {
         return [
-            'code' => ['required', 'unique:tenant.shipments', 'between:2,9', 'alpha']
+            'code' => ['required', 'unique:shipments', 'between:2,9', 'alpha']
         ];
     }
 

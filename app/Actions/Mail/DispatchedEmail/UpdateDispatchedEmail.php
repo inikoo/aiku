@@ -33,7 +33,7 @@ class UpdateDispatchedEmail
     public function rules(): array
     {
         return [
-            'code'         => ['sometimes', 'required', 'unique:tenant.dispatched_emails', 'between:2,64', 'alpha_dash'],
+            'code'         => ['sometimes', 'required', 'unique:dispatched_emails', 'between:2,64', 'alpha_dash'],
         ];
     }
     public function action(DispatchedEmail $dispatchedEmail, array $objectData): DispatchedEmail

@@ -40,7 +40,7 @@ class StoreOutbox
     public function rules(): array
     {
         return [
-            'code'         => ['required', 'unique:tenant.outboxes', 'between:2,64', 'alpha_dash'],
+            'code'         => ['required', 'unique:outboxes', 'between:2,64', 'alpha_dash'],
             'name'         => ['required', 'max:250', 'string'],
         ];
     }

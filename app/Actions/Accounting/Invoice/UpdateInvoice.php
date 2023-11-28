@@ -30,7 +30,7 @@ class UpdateInvoice
     public function rules(): array
     {
         return [
-            'number'      => ['sometimes', 'unique:tenant.invoices', 'numeric'],
+            'number'      => ['sometimes', 'unique:invoices', 'numeric'],
             'currency_id' => ['sometimes', 'required', 'exists:central.currencies,id']
         ];
     }

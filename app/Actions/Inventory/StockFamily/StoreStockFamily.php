@@ -46,7 +46,7 @@ class StoreStockFamily
     public function rules(): array
     {
         return [
-            'code'  => ['required', 'unique:tenant.stock_families', 'between:2,9', 'alpha_dash', new CaseSensitive('stock_families')],
+            'code'  => ['required', 'unique:stock_families', 'between:2,9', 'alpha_dash', new CaseSensitive('stock_families')],
             'name'  => ['required', 'string']
         ];
     }

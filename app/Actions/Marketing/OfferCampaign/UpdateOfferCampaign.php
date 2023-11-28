@@ -29,7 +29,7 @@ class UpdateOfferCampaign
     public function rules(): array
     {
         return [
-            'code' => ['required', 'unique:tenant.offer_campaigns', 'between:2,9', 'alpha'],
+            'code' => ['required', 'unique:offer_campaigns', 'between:2,9', 'alpha'],
             'name' => ['required', 'max:250', 'string'],
             'data' => ['sometimes', 'required']
         ];

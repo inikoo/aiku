@@ -56,7 +56,7 @@ class StoreStock
     public function rules(ActionRequest $request): array
     {
         return [
-            'code'          => ['required', 'unique:tenant.locations', 'between:2,64', 'alpha_dash', new CaseSensitive('stocks')],
+            'code'          => ['required', 'unique:locations', 'between:2,64', 'alpha_dash', new CaseSensitive('stocks')],
             /*'code' => [
                 'required', 'alpha_dash',
                 Rule::unique('stocks', 'code')->where(

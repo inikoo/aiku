@@ -93,7 +93,7 @@ return [
          * foreign key is other than `team_id`.
          */
 
-        'team_foreign_key' => 'tenant_id',
+        'team_foreign_key' => 'organisation_id',
     ],
 
     /*

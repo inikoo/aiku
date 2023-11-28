@@ -29,7 +29,7 @@ class UpdateDeliveryNote
     public function rules(): array
     {
         return [
-            'number' => ['required', 'unique:tenant.delivery_notes', 'numeric'],
+            'number' => ['required', 'unique:delivery_notes', 'numeric'],
             'state'  => ['sometimes', 'required', new Enum(DeliveryNoteStateEnum::class)],
             'status' => ['sometimes', 'required', new Enum(DeliveryNoteStatusEnum::class)],
             'email'  => ['required', 'string', 'email'],

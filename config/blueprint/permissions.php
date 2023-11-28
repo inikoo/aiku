@@ -8,8 +8,7 @@
 
 return [
 
-    'tenant',
-    'tenant.view',
+
 
     'business-intelligence',
     'business-intelligence.view',
