@@ -16,13 +16,7 @@ use Laravel\Sanctum\HasApiTokens;
 /**
  * App\Models\Auth\ApiTenantUser
  *
- * @property int $id
- * @property string $userable_type
- * @property int $userable_id
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Organisation\TenantPersonalAccessToken> $tokens
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \Laravel\Sanctum\PersonalAccessToken> $tokens
  * @property-read Model|\Eloquent $userable
  * @method static Builder|ApiTenantUser newModelQuery()
  * @method static Builder|ApiTenantUser newQuery()

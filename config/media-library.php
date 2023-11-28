@@ -40,19 +40,19 @@ return [
     /*
      * The fully qualified class name of the model used for temporary uploads.
      *
-     * This model is only used in GroupMedia Library Pro (https://medialibrary.pro)
+     * This model is only used in Media Library Pro (https://medialibrary.pro)
      */
     //'temporary_upload_model' => Spatie\MediaLibraryPro\Models\TemporaryUpload::class,
 
     /*
-     * When enabled, GroupMedia Library Pro will only process temporary uploads that were uploaded
+     * When enabled, Media Library Pro will only process temporary uploads that were uploaded
      * in the same session. You can opt to disable this for stateless usage of
      * the pro components.
      */
     'enable_temporary_uploads_session_affinity' => true,
 
     /*
-     * When enabled, GroupMedia Library pro will generate thumbnails for uploaded file.
+     * When enabled, Media Library pro will generate thumbnails for uploaded file.
      */
     'generate_thumbnails_for_temporary_uploads' => true,
 
@@ -212,13 +212,13 @@ return [
 
     /*
      * When enabling this option, a route will be registered that will enable
-     * the GroupMedia Library Pro Vue and React components to move uploaded files
+     * the Media Library Pro Vue and React components to move uploaded files
      * in a S3 bucket to their right place.
      */
     'enable_vapor_uploads' => env('ENABLE_MEDIA_LIBRARY_VAPOR_UPLOADS', false),
 
     /*
-     * When converting GroupMedia instances to response the media library will add
+     * When converting Media instances to response the media library will add
      * a `loading` attribute to the `img` tag. Here you can set the default
      * value of that attribute.
      *

@@ -18,7 +18,6 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 
-use Spatie\Multitenancy\OrganisationCollection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -37,9 +36,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read Currency $currency
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Organisation\Organisation> $organisations
  * @property-read \App\Models\Organisation\Organisation|null $owner
  * @property-read \App\Models\Organisation\GroupProcurementStats|null $procurementStats
- * @property-read OrganisationCollection<int, \App\Models\Organisation\Organisation> $organisations
  * @method static \Database\Factories\Organisation\GroupFactory factory($count = null, $state = [])
  * @method static Builder|Group newModelQuery()
  * @method static Builder|Group newQuery()

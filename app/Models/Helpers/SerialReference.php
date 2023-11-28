@@ -28,7 +28,7 @@ use Illuminate\Support\Carbon;
  * @property array $data
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read Organisation|null $organisation
+ * @property-read Organisation|null $tenant
  * @method static Builder|SerialReference newModelQuery()
  * @method static Builder|SerialReference newQuery()
  * @method static Builder|SerialReference query()

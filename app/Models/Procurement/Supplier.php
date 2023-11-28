@@ -9,12 +9,10 @@ namespace App\Models\Procurement;
 
 use App\Actions\Organisation\Organisation\Hydrators\OrganisationHydrateProcurement;
 use App\Models\Assets\Currency;
-use App\Models\Helpers\GroupAddress;
 use App\Models\Helpers\Issue;
-use App\Models\Media\GroupMedia;
 use App\Models\Search\UniversalSearch;
 use App\Models\Organisation\Organisation;
-use App\Models\Traits\HasGroupAddress;
+use App\Models\Traits\HasAddress;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasPhoto;
 use App\Models\Traits\HasUniversalSearch;
@@ -62,19 +60,18 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $currency_id
  * @property array $settings
  * @property array $shared_data
- * @property array $organisation_data
+ * @property array $tenant_data
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  * @property string|null $source_type
  * @property int|null $source_id
- * @property-read Collection<int, GroupAddress> $addresses
  * @property-read \App\Models\Procurement\Agent|null $agent
  * @property-read Collection<int, \OwenIt\Auditing\Models\Audit> $audits
  * @property-read Currency $currency
  * @property-read array $es_audits
  * @property-read Collection<int, Issue> $issues
- * @property-read MediaCollection<int, GroupMedia> $media
+ * @property-read MediaCollection<int, \App\Models\Media\Media> $media
  * @property-read Model|\Eloquent $owner
  * @property-read Collection<int, \App\Models\Procurement\SupplierProduct> $products
  * @property-read Collection<int, \App\Models\Procurement\PurchaseOrder> $purchaseOrders
@@ -93,7 +90,7 @@ use Spatie\Sluggable\SlugOptions;
 class Supplier extends Model implements HasMedia, Auditable
 {
     use SoftDeletes;
-    use HasGroupAddress;
+    use HasAddress;
     use HasSlug;
     use HasUniversalSearch;
     use HasPhoto;

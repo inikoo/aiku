@@ -80,7 +80,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\CRM\CustomerFulfilmentStats|null $fulfilmentStats
  * @property-read Collection<int, Invoice> $invoices
  * @property-read Collection<int, Issue> $issues
- * @property-read MediaCollection<int, GroupMedia> $media
+ * @property-read MediaCollection<int, \App\Models\Media\Media> $media
  * @property-read Collection<int, Order> $orders
  * @property-read Collection<int, Payment> $payments
  * @property-read Collection<int, Product> $products

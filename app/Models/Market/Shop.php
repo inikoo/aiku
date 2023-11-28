@@ -86,11 +86,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, Address> $addresses
  * @property-read ApiTenantUser|null $apiTenantUser
  * @property-read Country $country
- * @property-read ShopCRMStats|null $crmStats
+ * @property-read \App\Models\Market\ShopCRMStats|null $crmStats
  * @property-read Currency $currency
  * @property-read Collection<int, Customer> $customers
  * @property-read Collection<int, \App\Models\Market\ProductCategory> $departments
  * @property-read Collection<int, FulfilmentOrder> $fulfilmentOrders
+ * @property-read \App\Models\Market\ShopFulfilmentStats|null $fulfilmentStats
  * @property-read Collection<int, Invoice> $invoices
  * @property-read Collection<int, Issue> $issues
  * @property-read \App\Models\Market\ShopMailStats|null $mailStats
@@ -291,7 +292,7 @@ class Shop extends Model
 
     public function serialReferences(): MorphMany
     {
-        return $this->morphMany(SerialReference::class, 'container')->where('tenant_id', app('currentTenant')->id);
+        return $this->morphMany(SerialReference::class, 'container');
     }
 
     public function apiTenantUser(): MorphOne

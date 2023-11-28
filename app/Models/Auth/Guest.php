@@ -9,7 +9,6 @@ namespace App\Models\Auth;
 
 use App\Actions\Organisation\Organisation\Hydrators\OrganisationHydrateGuests;
 use App\Enums\Auth\Guest\GuestTypeEnum;
-use App\Models\Media\GroupMedia;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
 use Eloquent;
@@ -49,7 +48,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
  * @property-read array $es_audits
- * @property-read MediaCollection<int, GroupMedia> $media
+ * @property-read MediaCollection<int, \App\Models\Media\Media> $media
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
  * @property-read \App\Models\Auth\User|null $user
  * @method static \Database\Factories\Auth\GuestFactory factory($count = null, $state = [])

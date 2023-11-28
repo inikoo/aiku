@@ -7,8 +7,6 @@
 
 namespace App\Models\Web;
 
-use App\Enums\Web\Webpage\WebpagePurposeEnum;
-use App\Enums\Web\Webpage\WebpageTypeEnum;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -27,12 +25,13 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $id
  * @property string $slug
  * @property string $code
- * @property WebpagePurposeEnum $purpose
- * @property WebpageTypeEnum $type
+ * @property string $url
+ * @property string $purpose
+ * @property string $type
  * @property int $website_id
  * @property int|null $main_variant_id
- * @property array $data
- * @property array $settings
+ * @property mixed $data
+ * @property mixed $settings
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property string|null $deleted_at

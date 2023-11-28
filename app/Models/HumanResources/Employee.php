@@ -13,7 +13,6 @@ use App\Enums\HumanResources\Employee\EmployeeTypeEnum;
 use App\Enums\Miscellaneous\GenderEnum;
 use App\Models\Auth\User;
 use App\Models\Helpers\Issue;
-use App\Models\Media\GroupMedia;
 use App\Models\Search\UniversalSearch;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasPhoto;
@@ -69,7 +68,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read array $es_audits
  * @property-read Collection<int, Issue> $issues
  * @property-read Collection<int, \App\Models\HumanResources\JobPosition> $jobPositions
- * @property-read MediaCollection<int, GroupMedia> $media
+ * @property-read MediaCollection<int, \App\Models\Media\Media> $media
  * @property-read UniversalSearch|null $universalSearch
  * @property-read User|null $user
  * @method static \Database\Factories\HumanResources\EmployeeFactory factory($count = null, $state = [])

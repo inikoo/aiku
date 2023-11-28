@@ -25,6 +25,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_stored_items_state_settled
  * @property int $number_stored_items_status_in_process
  * @property int $number_stored_items_status_storing
+ * @property int $number_stored_items_status_damaged
  * @property int $number_stored_items_status_lost
  * @property int $number_stored_items_status_returned
  * @property \Illuminate\Support\Carbon|null $created_at

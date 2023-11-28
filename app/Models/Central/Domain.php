@@ -39,11 +39,11 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
- * @property-read Shop|null $shop
+ * @property-read Shop $shop
  * @property-read \App\Models\Central\DomainStats|null $stats
  * @property-read SysUser|null $sysUser
- * @property-read Organisation $organisation
- * @property-read Website|null $website
+ * @property-read Organisation|null $tenant
+ * @property-read Website $website
  * @method static Builder|Domain newModelQuery()
  * @method static Builder|Domain newQuery()
  * @method static Builder|Domain onlyTrashed()

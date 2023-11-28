@@ -7,7 +7,6 @@
 
 namespace App\Models\Market;
 
-use App\Models\DevOps\Deployment;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -31,7 +30,6 @@ use Illuminate\Support\Carbon;
  * @property int $number_products_state_discontinued
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read Deployment|null $department
  * @method static Builder|ProductCategoryStats newModelQuery()
  * @method static Builder|ProductCategoryStats newQuery()
  * @method static Builder|ProductCategoryStats query()

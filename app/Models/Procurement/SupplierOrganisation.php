@@ -12,20 +12,12 @@ use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
-use Illuminate\Support\Carbon;
 
 /**
  * App\Models\Procurement\SupplierOrganisation
  *
- * @property int $id
- * @property int $supplier_id
- * @property int $organisation_id
- * @property int|null $agent_id
  * @property SupplierOrganisationStatusEnum $status
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
- * @property int|null $source_id
- * @property-read \App\Models\Procurement\Supplier $supplier
+ * @property-read \App\Models\Procurement\Supplier|null $supplier
  * @method static Builder|SupplierOrganisation newModelQuery()
  * @method static Builder|SupplierOrganisation newQuery()
  * @method static Builder|SupplierOrganisation query()

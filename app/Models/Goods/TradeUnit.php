@@ -44,7 +44,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $deleted_at
  * @property string|null $source_type
  * @property int|null $source_id
- * @property-read MediaCollection<int, \App\Models\Media\GroupMedia> $media
+ * @property-read MediaCollection<int, \App\Models\Media\Media> $media
  * @property-read Collection<int, Product> $products
  * @property-read Collection<int, Stock> $stocks
  * @method static \Database\Factories\Goods\TradeUnitFactory factory($count = null, $state = [])

@@ -7,7 +7,6 @@
 
 namespace App\Models\Search;
 
-use App\Models\Organisation\Organisation;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -19,6 +18,7 @@ use Laravel\Scout\Searchable;
  * App\Models\Search\UniversalSearch
  *
  * @property int $id
+ * @property array $organisations
  * @property string|null $model_type
  * @property int|null $model_id
  * @property string|null $section
@@ -27,7 +27,6 @@ use Laravel\Scout\Searchable;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read Model|\Eloquent $model
- * @property-read Organisation $organisation
  * @method static Builder|UniversalSearch newModelQuery()
  * @method static Builder|UniversalSearch newQuery()
  * @method static Builder|UniversalSearch query()

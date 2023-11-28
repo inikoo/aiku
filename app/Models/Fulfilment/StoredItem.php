@@ -31,12 +31,11 @@ use App\Models\Inventory\Location;
  * @property int $id
  * @property string $slug
  * @property string $reference
- * @property string $code
  * @property StoredItemStatusEnum $status
  * @property StoredItemStateEnum $state
  * @property StoredItemTypeEnum $type
  * @property int $customer_id
- * @property int $location_id
+ * @property int|null $location_id
  * @property string $notes
  * @property bool $return_requested
  * @property Carbon|null $created_at
@@ -47,6 +46,10 @@ use App\Models\Inventory\Location;
  * @property array $data
  * @property Carbon|null $deleted_at
  * @property int|null $source_id
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read Customer $customer
+ * @property-read array $es_audits
+ * @property-read Location|null $location
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
  * @method static Builder|StoredItem newModelQuery()
  * @method static Builder|StoredItem newQuery()

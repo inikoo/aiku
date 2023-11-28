@@ -52,7 +52,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $units_per_carton units per carton
  * @property array $settings
  * @property array $shared_data
- * @property array $organisation_data
+ * @property mixed $organisation_data
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at

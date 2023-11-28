@@ -12,7 +12,7 @@ use App\Enums\Inventory\Stock\StockStateEnum;
 use App\Enums\Inventory\Stock\StockTradeUnitCompositionEnum;
 use App\Models\Goods\TradeUnit;
 use App\Models\Helpers\Barcode;
-use App\Models\Media\GroupMedia;
+use App\Models\Media\Media;
 use App\Models\Search\UniversalSearch;
 use App\Models\Traits\HasImages;
 use App\Models\Traits\HasUniversalSearch;
@@ -69,9 +69,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $discontinued_at
  * @property Carbon|null $deleted_at
  * @property int|null $source_id
- * @property-read MediaCollection<int, GroupMedia> $images
+ * @property-read MediaCollection<int, Media> $images
  * @property-read Collection<int, \App\Models\Inventory\Location> $locations
- * @property-read MediaCollection<int, GroupMedia> $media
+ * @property-read MediaCollection<int, Media> $media
  * @property-read Model|\Eloquent $owner
  * @property-read \App\Models\Inventory\StockStats|null $stats
  * @property-read \App\Models\Inventory\StockFamily|null $stockFamily
@@ -127,7 +127,7 @@ class Stock extends Model implements HasMedia
     {
         return $this->belongsToMany(
             TradeUnit::class,
-            'tenant_'.app('currentTenant')->slug.'.stock_trade_unit',
+            'stock_trade_unit',
         )->withPivot(['quantity','notes'])->withTimestamps();
     }
 
@@ -164,7 +164,7 @@ class Stock extends Model implements HasMedia
 
     public function images(): BelongsToMany
     {
-        return $this->belongsToMany(GroupMedia::class, 'media_stock')->withTimestamps()
+        return $this->belongsToMany(Media::class, 'media_stock')->withTimestamps()
             ->withPivot(['public','owner_type','owner_id'])
             ->wherePivot('type', 'image');
     }

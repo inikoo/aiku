@@ -16,7 +16,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *
  * @property int $id
  * @property int $web_block_type_id
- * @property int $number_tenants
+ * @property int $number_organisations
  * @property int $number_web_blocks
  * @property int $number_websites
  * @property int $number_webpages

@@ -34,7 +34,7 @@ use Illuminate\Support\Carbon;
  * @property int $number_webpages
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read Organisation $organisation
+ * @property-read \App\Models\Organisation\Organisation $organisation
  * @method static Builder|OrganisationWebStats newModelQuery()
  * @method static Builder|OrganisationWebStats newQuery()
  * @method static Builder|OrganisationWebStats query()

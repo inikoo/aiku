@@ -43,7 +43,7 @@ use Illuminate\Support\Carbon;
  * @property int $number_orders_state_settled
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read Shop $shop
+ * @property-read \App\Models\Market\Shop $shop
  * @method static Builder|ShopCRMStats newModelQuery()
  * @method static Builder|ShopCRMStats newQuery()
  * @method static Builder|ShopCRMStats query()

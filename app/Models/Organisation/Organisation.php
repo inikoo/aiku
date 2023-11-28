@@ -32,6 +32,57 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
+/**
+ * App\Models\Organisation\Organisation
+ *
+ * @property int $id
+ * @property int $group_id
+ * @property string $ulid
+ * @property string $slug
+ * @property string $code
+ * @property string $name
+ * @property string|null $email
+ * @property bool $status
+ * @property array $data
+ * @property array $settings
+ * @property array $source
+ * @property int $country_id
+ * @property int $language_id
+ * @property int $timezone_id
+ * @property int $currency_id organisation accounting currency
+ * @property int|null $logo_id
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string|null $deleted_at
+ * @property-read \App\Models\Organisation\OrganisationAccountingStats|null $accountingStats
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Agent> $agents
+ * @property-read \App\Models\Organisation\OrganisationCRMStats|null $crmStats
+ * @property-read Currency $currency
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Domain> $domains
+ * @property-read \App\Models\Organisation\OrganisationFulfilmentStats|null $fulfilmentStats
+ * @property-read \App\Models\Organisation\Group $group
+ * @property-read \App\Models\Organisation\OrganisationInventoryStats|null $inventoryStats
+ * @property-read Media|null $logo
+ * @property-read \App\Models\Organisation\OrganisationMailStats|null $mailStats
+ * @property-read \App\Models\Organisation\OrganisationMarketStats|null $marketStats
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, Media> $media
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Agent> $myAgents
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Supplier> $mySuppliers
+ * @property-read \App\Models\Organisation\OrganisationProcurementStats|null $procurementStats
+ * @property-read \App\Models\Organisation\OrganisationProductionStats|null $productionStats
+ * @property-read \App\Models\Organisation\OrganisationSalesStats|null $salesStats
+ * @property-read \App\Models\Organisation\OrganisationStats|null $stats
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Stock> $stocks
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, SupplierProduct> $supplierProducts
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Supplier> $suppliers
+ * @property-read SysUser|null $sysUser
+ * @property-read \App\Models\Organisation\OrganisationWebStats|null $webStats
+ * @method static \Database\Factories\Organisation\OrganisationFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder|Organisation newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Organisation newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Organisation query()
+ * @mixin \Eloquent
+ */
 class Organisation extends Model implements HasMedia
 {
     use HasFactory;
