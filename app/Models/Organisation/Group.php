@@ -37,7 +37,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $updated_at
  * @property-read Currency $currency
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Organisation\Organisation> $organisations
- * @property-read \App\Models\Organisation\Organisation|null $owner
  * @property-read \App\Models\Organisation\GroupProcurementStats|null $procurementStats
  * @method static \Database\Factories\Organisation\GroupFactory factory($count = null, $state = [])
  * @method static Builder|Group newModelQuery()
@@ -69,11 +68,6 @@ class Group extends Model
         return 'slug';
     }
 
-    public function schema(): string
-    {
-        return 'aiku_grp_'.preg_replace('/-/', '_', $this->slug);
-    }
-
     public function procurementStats(): HasOne
     {
         return $this->hasOne(GroupProcurementStats::class);
@@ -81,11 +75,7 @@ class Group extends Model
 
     public function organisations(): HasMany
     {
-        return $this->hasMany(Organisation::class, 'group_id');
-    }
-    public function owner(): BelongsTo
-    {
-        return $this->belongsTo(Organisation::class, 'owner_id');
+        return $this->hasMany(Organisation::class);
     }
 
     public function currency(): BelongsTo

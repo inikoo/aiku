@@ -10,8 +10,8 @@ namespace App\Actions\Organisation\Organisation;
 use App\Actions\Accounting\PaymentServiceProvider\StorePaymentServiceProvider;
 use App\Actions\Assets\Currency\SetCurrencyHistoricFields;
 use App\Actions\Elasticsearch\CreateElasticSearchOrganisationAlias;
+
 use App\Actions\Organisation\Group\Hydrators\GroupHydrateOrganisations;
-use App\Actions\Organisation\Group\StoreGroup;
 use App\Models\Assets\Country;
 use App\Models\Assets\Currency;
 use App\Models\Assets\Language;
@@ -31,18 +31,8 @@ class StoreOrganisation
     use AsAction;
     use WithAttributes;
 
-    public function handle(?Group $group, array $modelData): Organisation
+    public function handle(Group $group, array $modelData): Organisation
     {
-        if (!$group) {
-            $group = StoreGroup::make()->action(
-                [
-                    'code'        => $modelData['code'],
-                    'name'        => $modelData['name'],
-                    'currency_id' => $modelData['currency_id']
-                ]
-            );
-        }
-
         data_set($modelData, 'ulid', Str::ulid());
 
 
@@ -54,15 +44,6 @@ class StoreOrganisation
 
         $organisation->refresh();
 
-        if (!$group->owner_id) {
-            $group->update(
-                [
-                    'owner_id' => $organisation->id
-                ]
-            );
-        }
-
-        GroupHydrateOrganisations::dispatch($group);
         SetCurrencyHistoricFields::run($organisation->currency, $organisation->created_at);
 
 
@@ -93,8 +74,7 @@ class StoreOrganisation
             ]
         );
 
-
-
+        GroupHydrateOrganisations::dispatch($group);
 
         return $organisation;
     }
@@ -174,17 +154,6 @@ class StoreOrganisation
         }
 
 
-        $group = null;
-        if ($command->option('group_slug')) {
-            try {
-                $group = Group::where('slug', $command->option('group_slug'))->firstOrFail();
-            } catch (Exception $e) {
-                $command->error($e->getMessage());
-
-                return 1;
-            }
-        }
-
         $source = [];
         if ($command->option('source')) {
             if (Str::isJson($command->option('source'))) {
@@ -216,7 +185,7 @@ class StoreOrganisation
             return 1;
         }
 
-        $organisation = $this->handle($group, $validatedData);
+        $organisation = $this->handle($validatedData);
 
         $command->info("Organisation $organisation->slug created successfully 🎉");
 

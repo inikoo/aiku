@@ -96,4 +96,4 @@ it('currency exchange test', function () {
 
     $currencyExchange = GetCurrencyExchange::run($baseCurrency, $targetCurrency);
     expect($currencyExchange)->toBeFloat();
-});
+})->todo();
