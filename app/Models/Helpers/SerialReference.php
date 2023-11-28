@@ -49,7 +49,7 @@ class SerialReference extends Model
     protected $guarded = [];
 
 
-    public function tenant(): BelongsTo
+    public function organisation(): BelongsTo
     {
         return $this->belongsTo(Organisation::class);
     }

@@ -15,6 +15,7 @@ use App\Http\Resources\HumanResources\ClockingResource;
 use App\Models\HumanResources\Clocking;
 use App\Models\HumanResources\ClockingMachine;
 use App\Models\HumanResources\Workplace;
+use App\Models\Organisation\Organisation;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -113,11 +114,11 @@ class IndexClockings extends InertiaAction
         };
     }
 
-    public function inTenant(ActionRequest $request): LengthAwarePaginator
+    public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($request);
 
-        return $this->handle(parent: app('currentTenant'));
+        return $this->handle(parent: $organisation);
     }
 
     public function inWorkplace(Workplace $workplace, ActionRequest $request): LengthAwarePaginator

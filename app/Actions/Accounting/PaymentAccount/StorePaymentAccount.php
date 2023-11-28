@@ -11,6 +11,7 @@ use App\Actions\Accounting\PaymentServiceProvider\Hydrators\PaymentServiceProvid
 use App\Actions\Organisation\Organisation\Hydrators\OrganisationHydrateAccounting;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentServiceProvider;
+use App\Models\Organisation\Organisation;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
@@ -20,15 +21,17 @@ class StorePaymentAccount
     use AsAction;
     use WithAttributes;
 
-    private bool $asAction=false;
+    private bool $asAction = false;
 
-    public function handle(PaymentServiceProvider $paymentServiceProvider, array $modelData): PaymentAccount
+    public function handle(Organisation $organisation, PaymentServiceProvider $paymentServiceProvider, array $modelData): PaymentAccount
     {
+        data_set($modelData, 'organisation_id', $organisation->id);
         /** @var PaymentAccount $paymentAccount */
         $paymentAccount = $paymentServiceProvider->accounts()->create($modelData);
         $paymentAccount->stats()->create();
         PaymentServiceProviderHydrateAccounts::dispatch($paymentServiceProvider);
-        OrganisationHydrateAccounting::dispatch(app('currentTenant'));
+        OrganisationHydrateAccounting::dispatch($organisation);
+
         return $paymentAccount;
     }
 
@@ -37,6 +40,7 @@ class StorePaymentAccount
         if ($this->asAction) {
             return true;
         }
+
         return $request->user()->hasPermissionTo("accounting.edit");
     }
 
@@ -48,12 +52,12 @@ class StorePaymentAccount
         ];
     }
 
-    public function action(PaymentServiceProvider $paymentServiceProvider, array $objectData): PaymentAccount
+    public function action(Organisation $organisation, PaymentServiceProvider $paymentServiceProvider, array $objectData): PaymentAccount
     {
         $this->asAction = true;
         $this->setRawAttributes($objectData);
         $validatedData = $this->validateAttributes();
 
-        return $this->handle($paymentServiceProvider, $validatedData);
+        return $this->handle($organisation, $paymentServiceProvider, $validatedData);
     }
 }

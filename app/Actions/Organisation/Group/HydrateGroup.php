@@ -14,7 +14,6 @@ use App\Actions\Traits\WithNormalise;
 use App\Models\Organisation\Group;
 use Exception;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
 
 class HydrateGroup extends HydrateModel
 {
@@ -39,11 +38,6 @@ class HydrateGroup extends HydrateModel
             return 1;
         }
 
-        $database_settings = data_get(config('database.connections'), 'group');
-        data_set($database_settings, 'search_path', $group->schema().' , extensions');
-        config(['database.connections.group' => $database_settings]);
-        DB::connection('group');
-        DB::purge('group');
 
         $this->handle($group);
 

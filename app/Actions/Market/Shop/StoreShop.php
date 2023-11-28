@@ -17,6 +17,7 @@ use App\Enums\Market\Shop\ShopSubtypeEnum;
 use App\Enums\Market\Shop\ShopTypeEnum;
 use App\Models\Mail\Mailroom;
 use App\Models\Market\Shop;
+use App\Models\Organisation\Organisation;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
@@ -34,37 +35,35 @@ class StoreShop
 
     public function handle(Organisation $organisation, array $modelData): Shop
     {
-        $organisation = app('currentTenant');
         /** @var Shop $shop */
-        $shop = Shop::create($modelData);
+        $shop = $organisation->shops()->create($modelData);
         $shop->stats()->create();
         $shop->accountingStats()->create();
         $shop->mailStats()->create();
         $shop->crmStats()->create();
-        if($shop->subtype==ShopSubtypeEnum::FULFILMENT) {
+        if ($shop->subtype == ShopSubtypeEnum::FULFILMENT) {
             $shop->fulfilmentStats()->create();
         }
 
-        $shop->apiTenantUser()->create();
 
-        /** @noinspection DuplicatedCode */
+
         $shop->serialReferences()->create(
             [
-                'model'     => SerialReferenceModelEnum::CUSTOMER,
-                'tenant_id' => $organisation->id,
+                'model'           => SerialReferenceModelEnum::CUSTOMER,
+                'organisation_id' => $organisation->id,
             ]
         );
         $shop->serialReferences()->create(
             [
-                'model'     => SerialReferenceModelEnum::ORDER,
-                'tenant_id' => $organisation->id,
+                'model'           => SerialReferenceModelEnum::ORDER,
+                'organisation_id' => $organisation->id,
             ]
         );
 
 
         SetCurrencyHistoricFields::run($shop->currency, $shop->created_at);
 
-        $paymentAccount       = StorePaymentAccount::run($organisation->accountsServiceProvider(), [
+        $paymentAccount       = StorePaymentAccount::run($organisation, $organisation->accountsServiceProvider(), [
             'code' => 'accounts-'.$shop->slug,
             'name' => 'Accounts '.$shop->code,
             'data' => [
@@ -91,7 +90,7 @@ class StoreShop
             }
         }
 
-        OrganisationHydrateMarket::dispatch(app('currentTenant'));
+        OrganisationHydrateMarket::dispatch($organisation);
 
         return $shop;
     }
@@ -110,9 +109,8 @@ class StoreShop
         $request->merge(
             [
                 'type' => match ($this->get('subtype')) {
-                    'fulfilment'=> 'fulfilment-house',
-                    'b2b','b2c','dropshipping'=>'shop',
-
+                    'fulfilment' => 'fulfilment-house',
+                    'b2b', 'b2c', 'dropshipping' => 'shop',
                 }
             ]
         );
@@ -149,21 +147,21 @@ class StoreShop
         }
     }
 
-    public function action(array $objectData): Shop
+    public function action(Organisation $organisation, array $objectData): Shop
     {
         $this->asAction = true;
         $this->setRawAttributes($objectData);
         $validatedData = $this->validateAttributes();
 
-        return $this->handle($validatedData);
+        return $this->handle($organisation, $validatedData);
     }
 
-    public function asController(ActionRequest $request): Shop
+    public function asController(Organisation $organisation, ActionRequest $request): Shop
     {
         $this->fillFromRequest($request);
         $request->validate();
 
-        return $this->handle($request->validated());
+        return $this->handle($organisation, $request->validated());
     }
 
     public function htmlResponse(Shop $shop): RedirectResponse

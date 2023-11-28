@@ -63,7 +63,6 @@ use App\Actions\Market\ProductCategory\UpdateFamily;
 use App\Actions\Market\ProductCategory\UpdateProductCategory;
 use App\Actions\Market\Shop\DeleteShop;
 use App\Actions\Market\Shop\StoreShop;
-use App\Actions\Market\Shop\StoreShops;
 use App\Actions\Market\Shop\UpdateShop;
 use App\Actions\OMS\Order\StoreOrder;
 use App\Actions\OMS\Order\UpdateOrder;
@@ -88,7 +87,6 @@ use App\Actions\Web\Website\UpdateWebsite;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/shop/', StoreShop::class)->name('shop.store');
-Route::post('/shops/', StoreShops::class)->name('shop.store-multi');
 
 Route::patch('/shop/{shop}', UpdateShop::class)->name('shop.update');
 Route::delete('/shop/{shop}', DeleteShop::class)->name('shop.delete');

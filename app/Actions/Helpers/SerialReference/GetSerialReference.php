@@ -24,14 +24,14 @@ class GetSerialReference
         $serialReference = $this->getSerialReference($container, $modelType);
 
         $serial=DB::transaction(function () use ($serialReference) {
-            $res = DB::connection('group')->table('serial_references')->select('serial')
+            $res = DB::table('serial_references')->select('serial')
                 ->where('id', $serialReference->id)->first();
 
             /** @noinspection PhpPossiblePolymorphicInvocationInspection */
             $serial = (int) $res->serial + 1;
 
 
-            DB::connection('group')->table('serial_references')
+            DB::table('serial_references')
                 ->where('id', $serialReference->id)
                 ->update(['serial' => $serial]);
             return $serial;

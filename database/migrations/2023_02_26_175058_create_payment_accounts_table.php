@@ -14,6 +14,8 @@ return new class () extends Migration {
     {
         Schema::create('payment_accounts', function (Blueprint $table) {
             $table->smallIncrements('id');
+            $table->unsignedSmallInteger('organisation_id');
+            $table->foreign('organisation_id')->references('id')->on('public.organisations')->onUpdate('cascade')->onDelete('cascade');
             $table->unsignedInteger('payment_service_provider_id')->index();
             $table->foreign('payment_service_provider_id')->references('id')->on('payment_service_providers');
             $table->string('code')->index()->collation('und_ns');

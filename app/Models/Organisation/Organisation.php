@@ -12,6 +12,7 @@ use App\Models\Assets\Currency;
 use App\Models\Central\Domain;
 use App\Models\HumanResources\Employee;
 use App\Models\Inventory\Stock;
+use App\Models\Market\Shop;
 use App\Models\Media\Media;
 use App\Models\Procurement\Agent;
 use App\Models\Procurement\AgentOrganisation;
@@ -258,9 +259,10 @@ class Organisation extends Model implements HasMedia
             ->singleFile();
     }
 
-    public function makeCurrent()
+    public function shops(): HasMany
     {
-
+        return $this->hasMany(Shop::class);
     }
+
 
 }

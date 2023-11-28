@@ -34,8 +34,6 @@ use App\Actions\OMS\Order\UpdateStateToSettledOrder;
 use App\Actions\OMS\Order\UpdateStateToSubmittedOrder;
 use App\Actions\OMS\Transaction\StoreTransaction;
 use App\Actions\OMS\Transaction\UpdateTransaction;
-use App\Actions\Organisation\Group\StoreGroup;
-use App\Actions\Organisation\Organisation\StoreOrganisation;
 use App\Enums\Accounting\PaymentServiceProvider\PaymentServiceProviderTypeEnum;
 use App\Enums\CRM\Customer\CustomerStatusEnum;
 use App\Enums\OMS\Order\OrderStateEnum;
@@ -52,8 +50,6 @@ use App\Models\Market\ShippingZoneSchema;
 use App\Models\Market\Shop;
 use App\Models\OMS\Order;
 use App\Models\OMS\Transaction;
-use App\Models\Organisation\Group;
-use App\Models\Organisation\Organisation;
 use Illuminate\Validation\ValidationException;
 
 beforeAll(function () {
@@ -62,16 +58,12 @@ beforeAll(function () {
 
 
 beforeEach(function () {
-    $organisation = Organisation::first();
-    if (!$organisation) {
-        $group        = StoreGroup::make()->action(Group::factory()->definition());
-        $organisation = StoreOrganisation::make()->action($group, Organisation::factory()->definition());
-    }
+    $this->organisation = createOrganisation();
 
 });
 
 test('create shop', function () {
-    $shop = StoreShop::make()->action(Shop::factory()->definition());
+    $shop = StoreShop::make()->action($this->organisation, Shop::factory()->definition());
     expect($shop)->toBeInstanceOf(Shop::class);
 
     return $shop;
@@ -317,7 +309,7 @@ test('update payment service provider code', function ($paymentServiceProvider) 
 })->depends('create payment service provider');
 
 test('create payment account', function ($paymentServiceProvider) {
-    $paymentAccount = StorePaymentAccount::make()->action($paymentServiceProvider, PaymentAccount::factory()->definition());
+    $paymentAccount = StorePaymentAccount::make()->action($this->organisation, $paymentServiceProvider, PaymentAccount::factory()->definition());
     $this->assertModelExists($paymentAccount);
 
     return $paymentAccount;
