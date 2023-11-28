@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Fri, 21 Apr 2023 13:16:52 Malaysia Time, Sanur, Bali, Indonesia
+ * Created: Wed, 03 May 2023 13:48:51 Malaysia Time, Pantai Lembeng, Bali, Indonesia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
@@ -14,13 +14,13 @@ return new class () extends Migration {
     use MediaTable;
     public function up(): void
     {
-        Schema::create('group_media', function (Blueprint $table) {
+        Schema::create('media', function (Blueprint $table) {
             $this->mediaFields($table);
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('group_media');
+        Schema::dropIfExists('media');
     }
 };

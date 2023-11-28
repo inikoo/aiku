@@ -7,11 +7,10 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-use App\Actions\Auth\GroupUser\UpdateGroupUser;
+use App\Actions\Auth\User\UpdateUser;
 use App\Actions\Traits\WithOrganisationsArgument;
 use App\Actions\Traits\WithOrganisationSource;
 use App\Models\Market\Shop;
-use App\Models\Media\GroupMedia;
 use App\Models\Organisation\Organisation;
 use App\Services\Organisation\SourceOrganisationService;
 use Exception;
@@ -221,7 +220,7 @@ class FetchAction
         }
     }
 
-    public function saveGroupImage($model, $imageData, $imageField = 'image_id', $mediaCollection = 'photo'): void
+    public function saveImage($model, $imageData, $imageField = 'image_id', $mediaCollection = 'photo'): void
     {
         if (array_key_exists('image_path', $imageData) and file_exists($imageData['image_path'])) {
             $image_path = $imageData['image_path'];
@@ -229,7 +228,7 @@ class FetchAction
             $checksum   = md5_file($image_path);
 
             if ($model->getMedia($mediaCollection, ['checksum' => $checksum])->count() == 0) {
-                /** @var GroupMedia $media */
+                /** @var \App\Models\Media\Media $media */
                 $model->update([$imageField => null]);
 
                 $media = $model->addMedia($image_path)
@@ -239,7 +238,7 @@ class FetchAction
                     ->usingFileName($checksum.".".pathinfo($image_path, PATHINFO_EXTENSION))
                     ->toMediaCollection($mediaCollection, 'group');
                 if (class_basename($model) == 'GroupUser') {
-                    UpdateGroupUser::run(
+                    UpdateUser::run(
                         $model,
                         [
                             'avatar_id' => $media->id

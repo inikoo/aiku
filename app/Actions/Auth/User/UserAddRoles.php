@@ -79,12 +79,12 @@ class UserAddRoles
         return $this->handle($user, $request->validated());
     }
 
-    public function action(User $user, array $role_names): User
+    public function action(User $user, array $roleNames): User
     {
         $this->trusted = true;
         $this->setRawAttributes(
             [
-                'role_names' => $role_names
+                'role_names' => $roleNames
             ]
         );
         $this->validateAttributes();

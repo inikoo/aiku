@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 09 May 2023 13:03:25 Malaysia Time, Pantai Lembeng, Bali, Id
+ * Created: Tue, 09 May 2023 13:03:25 Malaysia Time, Pantai Lembeng, Bali, Indonesia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
@@ -74,24 +74,7 @@ class CreateGuest extends InertiaAction
                                                     ],
                                                 ]
                                             ],
-                                            'existingGroupUser' => [
-                                                'label' => __('Use existing user from other aiku account'),
-                                                'hooks' => [
-                                                    'route' => [
-                                                        'name' => 'models.group-user.guest.store',
-                                                    ],
-                                                ],
-                                                'field' => [
-                                                    'group_user_id' => [
-                                                        'type'     => 'async-combobox',
-                                                        'label'    => __('user'),
-                                                        'value'    => '',
-                                                        'required' => true,
-                                                    ],
-                                                ]
 
-
-                                            ]
                                         ]
                                     ],
 

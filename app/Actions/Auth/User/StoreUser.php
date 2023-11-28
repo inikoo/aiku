@@ -30,7 +30,6 @@ class StoreUser
 
     public function handle(Guest|Employee|Supplier|Agent $parent, array $objectData = []): User
     {
-        /** @var \App\Models\Auth\User $user */
 
 
         $type = match (class_basename($parent)) {
@@ -40,8 +39,9 @@ class StoreUser
 
         data_set($objectData, 'type', $type);
 
+
         $user = $parent->user()->create(
-            array_merge($objectData, $objectData)
+            $objectData
         );
 
         $user->stats()->create();

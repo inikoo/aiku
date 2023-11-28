@@ -1,19 +1,19 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Fri, 21 Jul 2023 01:26:31 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Tue, 28 Nov 2023 15:17:04 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Auth\GroupUser\UI;
+namespace App\Actions\Auth\User\UI;
 
-use App\Actions\Auth\GroupUser\UpdateGroupUser;
+use App\Actions\Auth\User\UpdateUser;
 use App\Actions\Traits\WithActionUpdate;
-use App\Models\Auth\GroupUser;
-use App\Models\Media\GroupMedia;
+use App\Models\Auth\User;
+use App\Models\Media\Media;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class SetGroupUserAvatarFromImage
+class SetUserAvatarFromImage
 {
     use AsAction;
     use WithActionUpdate;
@@ -22,19 +22,19 @@ class SetGroupUserAvatarFromImage
      * @throws \Spatie\MediaLibrary\MediaCollections\Exceptions\FileDoesNotExist
      * @throws \Spatie\MediaLibrary\MediaCollections\Exceptions\FileIsTooBig
      */
-    public function handle(GroupUser $groupUser, string $imagePath, string $originalFilename, string $extension=null): GroupUser
+    public function handle(User $user, string $imagePath, string $originalFilename, string $extension=null): User
     {
         $checksum = md5_file($imagePath);
 
-        if ($groupUser->getMedia('profile', ['checksum' => $checksum])->count() == 0) {
+        if ($user->getMedia('profile', ['checksum' => $checksum])->count() == 0) {
 
-            $groupUser->update(['avatar_id' => null]);
+            $user->update(['avatar_id' => null]);
 
             $filename=dechex(crc32($checksum)).'.';
             $filename.=empty($extension) ? pathinfo($imagePath, PATHINFO_EXTENSION) : $extension;
 
-            /** @var GroupMedia $groupMedia */
-            $groupMedia=$groupUser->addMedia($imagePath)
+            /** @var Media $media */
+            $media=$user->addMedia($imagePath)
                 ->preservingOriginal()
                 ->withCustomProperties(['checksum' => $checksum])
                 ->usingName($originalFilename)
@@ -42,13 +42,13 @@ class SetGroupUserAvatarFromImage
                 ->toMediaCollection('profile', 'group');
 
 
-            $avatarID = $groupMedia->id;
+            $avatarID = $media->id;
 
-            UpdateGroupUser::run($groupUser, ['avatar_id' => $avatarID]);
+            UpdateUser::run($user, ['avatar_id' => $avatarID]);
 
         }
 
 
-        return $groupUser;
+        return $user;
     }
 }

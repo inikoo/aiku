@@ -7,12 +7,12 @@
 
 namespace App\Actions\Media;
 
-use App\Models\Central\CentralMedia;
+use App\Models\Media\Media;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
-class ShowCentralMedia
+class ShowMedia
 {
     use AsAction;
 
@@ -29,13 +29,13 @@ class ShowCentralMedia
         }
     */
 
-    public function asController(CentralMedia $centralMedia, ActionRequest $request): CentralMedia
+    public function asController(Media $centralMedia, ActionRequest $request): Media
     {
         return $centralMedia;
     }
 
 
-    public function htmlResponse(CentralMedia $centralMedia): BinaryFileResponse
+    public function htmlResponse(Media $centralMedia): BinaryFileResponse
     {
         $headers = [
             'Content-Type'   => $centralMedia->mime_type,

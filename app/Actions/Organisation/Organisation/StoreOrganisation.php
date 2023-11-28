@@ -22,7 +22,6 @@ use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
@@ -81,7 +80,7 @@ class StoreOrganisation
         $organisation->crmStats()->create();
         $organisation->webStats()->create();
 
-        // Artisan::call('organisations:artisan "db:seed --force --class=OrganisationsSeeder" --organisation='.$organisation->slug);
+        Artisan::call("db:seed --force --class=JobPositionSeeder");
 
 
         StorePaymentServiceProvider::run(

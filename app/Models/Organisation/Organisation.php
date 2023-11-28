@@ -9,9 +9,9 @@ namespace App\Models\Organisation;
 
 use App\Models\Accounting\PaymentServiceProvider;
 use App\Models\Assets\Currency;
-use App\Models\Central\CentralMedia;
 use App\Models\Central\Domain;
 use App\Models\Inventory\Stock;
+use App\Models\Media\Media;
 use App\Models\Procurement\Agent;
 use App\Models\Procurement\AgentOrganisation;
 use App\Models\Procurement\Supplier;
@@ -193,7 +193,7 @@ class Organisation extends Model implements HasMedia
 
     public function logo(): HasOne
     {
-        return $this->hasOne(CentralMedia::class, 'id', 'logo_id');
+        return $this->hasOne(Media::class, 'id', 'logo_id');
     }
 
     public function registerMediaCollections(): void

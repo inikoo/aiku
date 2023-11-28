@@ -15,10 +15,9 @@ return new class () extends Migration {
     {
         Schema::create('users', function (Blueprint $table) {
             $table->smallIncrements('id');
-            $table->unsignedSmallInteger('group_user_id');
             $table->boolean('status')->default(true);
-            $table->string('username')->unique()->collation('und_ns')->comment('mirror group_users.username');
-            $table->string('password')->nullable()->comment('mirror group_users.password');
+            $table->string('username')->unique()->collation('und_ns');
+            $table->string('password')->nullable();
             $table->string('type')->nullable()->comment('same as parent_type excluding Organisation, for use in UI');
             $table->string('auth_type')->default(UserAuthTypeEnum::DEFAULT->value);
             $table->string('contact_name')->nullable()->collation('und_ns')->comment('no-normalised depends on parent');

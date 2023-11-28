@@ -23,13 +23,13 @@ trait HasProcurementSubject
         $table->unsignedInteger('owner_id');
         $table->string('name')->nullable()->collation('und_ns');
         $table->unsignedBigInteger('image_id')->nullable();
-        $table->foreign('image_id')->references('id')->on('group_media');
+        $table->foreign('image_id')->references('id')->on('media');
 
         $table = $this->contactFields(table: $table, withWebsite: true);
 
 
         $table->unsignedInteger('address_id')->nullable()->index();
-        $table->foreign('address_id')->references('id')->on('group_addresses');
+        $table->foreign('address_id')->references('id')->on('addresses');
         $table->jsonb('location');
 
         $table->unsignedSmallInteger('currency_id');

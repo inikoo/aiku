@@ -6,7 +6,7 @@
  */
 
 use App\Helpers\TenantAwareUrlGenerator;
-use App\Models\Media\GroupMedia;
+use App\Models\Media\Media;
 
 return [
 
@@ -36,7 +36,7 @@ return [
     /*
      * The fully qualified class name of the media model.
      */
-    'media_model' => GroupMedia::class,
+    'media_model' => Media::class,
     /*
      * The fully qualified class name of the model used for temporary uploads.
      *

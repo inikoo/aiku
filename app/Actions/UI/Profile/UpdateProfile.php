@@ -7,8 +7,7 @@
 
 namespace App\Actions\UI\Profile;
 
-use App\Actions\Auth\GroupUser\UI\SetGroupUserAvatarFromImage;
-use App\Actions\Auth\GroupUser\UpdateGroupUser;
+use App\Actions\Auth\User\UI\SetUserAvatarFromImage;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Auth\User\SynchronisableUserFieldsEnum;
 use App\Models\Auth\User;
@@ -27,14 +26,10 @@ class UpdateProfile
 
     public function handle(User $user, array $modelData, ?UploadedFile $avatar): User
     {
-        UpdateGroupUser::run(
-            $user->groupUser,
-            Arr::only($modelData, SynchronisableUserFieldsEnum::values())
-        );
 
         if ($avatar) {
-            SetGroupUserAvatarFromImage::run(
-                groupUser: $user->groupUser,
+            SetUserAvatarFromImage::run(
+                user: $user,
                 imagePath: $avatar->getPathName(),
                 originalFilename: $avatar->getClientOriginalName(),
                 extension: $avatar->getClientOriginalExtension()

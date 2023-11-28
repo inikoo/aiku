@@ -15,87 +15,32 @@ use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\WithPushNotifications;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasRoles;
-use Eloquent;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\DatabaseNotification;
-use Illuminate\Notifications\DatabaseNotificationCollection;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Carbon;
 use Laravel\Sanctum\HasApiTokens;
 use OwenIt\Auditing\Contracts\Auditable;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
-/**
- * App\Models\Auth\User
- *
- * @property int $id
- * @property int $group_user_id
- * @property bool $status
- * @property string $username mirror group_users.username
- * @property string|null $password mirror group_users.password
- * @property string|null $type same as parent_type excluding Organisation, for use in UI
- * @property UserAuthTypeEnum $auth_type
- * @property string|null $contact_name no-normalised depends on parent
- * @property string|null $email mirror group_users.email
- * @property string|null $about
- * @property int|null $parent_id
- * @property string|null $parent_type
- * @property string|null $remember_token
- * @property array $data
- * @property array $settings
- * @property int $language_id
- * @property int|null $avatar_id
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
- * @property Carbon|null $deleted_at
- * @property int|null $source_id
- * @property string|null $legacy_password source password
- * @property-read Collection<int, \OwenIt\Auditing\Models\Audit> $audits
- * @property-read \App\Models\Notifications\FcmToken|null $fcmToken
- * @property-read Collection<int, \App\Models\Notifications\FcmToken> $fcmTokens
- * @property-read array $es_audits
- * @property-read \App\Models\Auth\GroupUser|null $groupUser
- * @property-read Language $language
- * @property-read DatabaseNotificationCollection<int, DatabaseNotification> $notifications
- * @property-read Model|\Eloquent $parent
- * @property-read Collection<int, \Spatie\Permission\Models\Permission> $permissions
- * @property-read Collection<int, \Spatie\Permission\Models\Role> $roles
- * @property-read \App\Models\Auth\UserStats|null $stats
- * @property-read Organisation $organisation
- * @property-read Collection<int, \App\Models\Organisation\TenantPersonalAccessToken> $tokens
- * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
- * @method static \Database\Factories\Auth\UserFactory factory($count = null, $state = [])
- * @method static Builder|User newModelQuery()
- * @method static Builder|User newQuery()
- * @method static Builder|User onlyTrashed()
- * @method static Builder|User permission($permissions)
- * @method static Builder|User query()
- * @method static Builder|User role($roles, $guard = null)
- * @method static Builder|User withTrashed()
- * @method static Builder|User withoutTrashed()
- * @mixin Eloquent
- */
-class User extends Authenticatable implements Auditable
+class User extends Authenticatable implements HasMedia, Auditable
 {
     use HasApiTokens;
     use HasFactory;
     use Notifiable;
     use SoftDeletes;
     use HasRoles;
-
     use HasFactory;
     use HasHistory;
     use WithPushNotifications;
     use HasUniversalSearch;
+    use InteractsWithMedia;
 
     protected $guarded = [
     ];
@@ -109,7 +54,8 @@ class User extends Authenticatable implements Auditable
         'data'      => 'array',
         'settings'  => 'array',
         'status'    => 'boolean',
-        'auth_type' => UserAuthTypeEnum::class
+        'auth_type' => UserAuthTypeEnum::class,
+        'password'  => 'hashed',
     ];
 
 
@@ -131,7 +77,7 @@ class User extends Authenticatable implements Auditable
         static::updated(function ($item) {
             if (!$item->wasRecentlyCreated) {
                 if ($item->wasChanged('status')) {
-                    OrganisationHydrateUsers::dispatch(app('currentTenant'));
+                    OrganisationHydrateUsers::dispatch();
                 }
             }
         });
@@ -150,10 +96,6 @@ class User extends Authenticatable implements Auditable
         return $this->belongsTo(Organisation::class);
     }
 
-    public function groupUser(): BelongsTo
-    {
-        return $this->belongsTo(GroupUser::class);
-    }
 
     public function stats(): HasOne
     {
@@ -175,5 +117,11 @@ class User extends Authenticatable implements Auditable
     public function language(): BelongsTo
     {
         return $this->belongsTo(Language::class);
+    }
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('profile')
+            ->singleFile();
     }
 }

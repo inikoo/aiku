@@ -7,13 +7,10 @@
 
 namespace App\Actions\Auth\User;
 
-use App\Actions\Auth\GroupUser\UpdateGroupUser;
 use App\Actions\Traits\WithActionUpdate;
-use App\Enums\Auth\User\SynchronisableUserFieldsEnum;
 use App\Http\Resources\SysAdmin\UserResource;
 use App\Models\Auth\User;
 use App\Rules\AlphaDashDot;
-use Illuminate\Support\Arr;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\ActionRequest;
@@ -26,13 +23,7 @@ class UpdateUser
 
     public function handle(User $user, array $modelData): User
     {
-        UpdateGroupUser::run(
-            $user->groupUser,
-            Arr::only($modelData, SynchronisableUserFieldsEnum::values())
-        );
-
-        $user->refresh();
-        return $this->update($user, Arr::except($modelData, SynchronisableUserFieldsEnum::values()), ['profile', 'settings']);
+        return $this->update($user, $modelData, ['profile', 'settings']);
     }
 
     public function authorize(ActionRequest $request): bool

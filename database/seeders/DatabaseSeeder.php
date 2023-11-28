@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
             CurrencySeeder::class,
             TimezoneSeeder::class,
             LanguageSeeder::class,
+            PermissionSeeder::class,
         ]);
 
 

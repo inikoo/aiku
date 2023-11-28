@@ -10,41 +10,30 @@ namespace App\Actions\Auth\User;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\SysAdmin\UserResource;
 use App\Models\Auth\User;
-use Illuminate\Validation\ValidationException;
 use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\ActionRequest;
 
-/**
- * @property \App\Models\Auth\User $user
- */
 class UpdateUserStatus
 {
     use WithActionUpdate;
 
     private bool $asAction = false;
 
-    /**
-     * @throws \Illuminate\Validation\ValidationException
-     */
+
     public function handle(User $user, array $modelData): User
     {
-        $groupUser = $user->groupUser()->first();
 
-        /** @noinspection PhpPossiblePolymorphicInvocationInspection */
-        if(!$groupUser->status) {
-            throw ValidationException::withMessages(["You can't change your status"]);
-        }
 
         return $this->update($user, $modelData);
     }
 
-    public function authorize(User $user, ActionRequest $request): bool
+    public function authorize(ActionRequest $request): bool
     {
-        if ($user->id == $request->user()) {
+        if ($this->asAction) {
             return true;
         }
+        return  $request->user()->can('sysadmin.edit');
 
-        return false;
     }
 
 
@@ -64,17 +53,13 @@ class UpdateUserStatus
     }
 
 
-    /**
-     * @throws \Illuminate\Validation\ValidationException
-     */
+
     public function asController(User $user, ActionRequest $request): User
     {
         return $this->handle($user, $request->validated());
     }
 
-    /**
-     * @throws \Illuminate\Validation\ValidationException
-     */
+
     public function action(User $user, $objectData): User
     {
         $this->asAction = true;

@@ -38,7 +38,7 @@ trait FetchSuppliersTrait
         if ($supplier) {
             if(array_key_exists('photo', $supplierData)) {
                 foreach ($supplierData['photo'] as $photoData) {
-                    $this->saveGroupImage($supplier, $photoData);
+                    $this->saveImage($supplier, $photoData);
                 }
             }
         }
