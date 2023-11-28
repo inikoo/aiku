@@ -7,8 +7,8 @@
 
 namespace App\Models\Auth;
 
-use App\Actions\Organisation\Organisation\Hydrators\OrganisationHydrateGuests;
 use App\Enums\Auth\Guest\GuestTypeEnum;
+use App\Models\HumanResources\JobPosition;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
 use Eloquent;
@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Contracts\Auditable;
@@ -98,15 +99,11 @@ class Guest extends Model implements HasMedia, Auditable
 
     protected static function booted(): void
     {
-        static::deleted(
-            function () {
-                OrganisationHydrateGuests::dispatch(app('currentTenant'));
-            }
-        );
+
         static::updated(function (Guest $guest) {
             if (!$guest->wasRecentlyCreated) {
                 if ($guest->wasChanged('status')) {
-                    OrganisationHydrateGuests::dispatch(app('currentTenant'));
+
                     if (!$guest->status) {
                         $guest->user->update(
                             [
@@ -139,5 +136,10 @@ class Guest extends Model implements HasMedia, Auditable
     public function getRouteKeyName(): string
     {
         return 'slug';
+    }
+
+    public function jobPositions(): MorphToMany
+    {
+        return $this->morphToMany(JobPosition::class, 'job_positionable');
     }
 }

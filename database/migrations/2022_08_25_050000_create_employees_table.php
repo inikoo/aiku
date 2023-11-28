@@ -8,23 +8,27 @@
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
 use App\Enums\HumanResources\Employee\EmployeeTypeEnum;
 use App\Stubs\Migrations\HasContact;
+use App\Stubs\Migrations\HasSoftDeletes;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
     use HasContact;
-
+    use HasSoftDeletes;
     public function up(): void
     {
         Schema::create('employees', function (Blueprint $table) {
             $table->smallIncrements('id');
+            $table->unsignedSmallInteger('organisation_id');
+            $table->foreign('organisation_id')->references('id')->on('public.organisations')->onUpdate('cascade')->onDelete('cascade');
             $table->string('slug')->unique()->collation('und_ns');
+            $table->string('alias')->collation('und_ns');
             $table->string('work_email')->nullable()->collation('und_ns');
-
             $table=$this->contactFields(table:$table, withCompany: false, withPersonalDetails: true);
             $table->string('worker_number')->nullable()->collation('und_ns');
             $table->string('job_title')->nullable()->collation('und_ns');
+            $table->string('job_position')->nullable()->collation('und_ns');
             $table->string('type')->default(EmployeeTypeEnum::EMPLOYEE->value);
             $table->string('state')->default(EmployeeStateEnum::WORKING->value);
             $table->date('employment_start_at')->nullable();
@@ -37,9 +41,11 @@ return new class () extends Migration {
             $table->jsonb('job_position_scopes');
             $table->jsonb('errors');
             $table->timestampsTz();
-            $table->softDeletesTz();
+            $table=$this->softDeletes($table);
             $table->unsignedInteger('source_id')->nullable()->unique();
         });
+        DB::statement("CREATE INDEX ON employees (lower('worker_number')) ");
+        DB::statement("CREATE INDEX ON employees (lower('alias')) ");
 
         DB::statement('CREATE INDEX ON employees USING gin (contact_name gin_trgm_ops) ');
     }

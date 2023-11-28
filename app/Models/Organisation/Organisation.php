@@ -10,6 +10,7 @@ namespace App\Models\Organisation;
 use App\Models\Accounting\PaymentServiceProvider;
 use App\Models\Assets\Currency;
 use App\Models\Central\Domain;
+use App\Models\HumanResources\Employee;
 use App\Models\Inventory\Stock;
 use App\Models\Media\Media;
 use App\Models\Procurement\Agent;
@@ -117,15 +118,19 @@ class Organisation extends Model implements HasMedia
         return 'slug';
     }
 
-
-    public function schema(): string
+    public function employees(): HasMany
     {
-        return 'organisation_'.preg_replace('/-/', '_', $this->slug);
+        return $this->hasMany(Employee::class);
     }
 
     public function stats(): HasOne
     {
         return $this->hasOne(OrganisationStats::class);
+    }
+
+    public function humanResourcesStats(): HasOne
+    {
+        return $this->hasOne(OrganisationHumanResourcesStats::class);
     }
 
     public function procurementStats(): HasOne

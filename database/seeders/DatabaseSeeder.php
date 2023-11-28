@@ -22,9 +22,9 @@ class DatabaseSeeder extends Seeder
             TimezoneSeeder::class,
             LanguageSeeder::class,
             PermissionSeeder::class,
+            JobPositionSeeder::class
         ]);
-
-
         Artisan::call('import:tariff_codes harmonized-system.csv');
+
     }
 }

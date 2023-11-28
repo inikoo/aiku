@@ -68,6 +68,10 @@ class Group extends Model
         return 'slug';
     }
 
+    public function humanResourcesStats(): HasOne
+    {
+        return $this->hasOne(GroupHumanResourcesStats::class);
+    }
     public function procurementStats(): HasOne
     {
         return $this->hasOne(GroupProcurementStats::class);

@@ -21,7 +21,6 @@ use App\Models\Organisation\Organisation;
 use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Str;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
@@ -50,6 +49,7 @@ class StoreOrganisation
         CreateElasticSearchOrganisationAlias::run($organisation);
         SetOrganisationLogo::run($organisation);
         $organisation->stats()->create();
+        $organisation->humanResourcesStats()->create();
         $organisation->procurementStats()->create();
         $organisation->inventoryStats()->create();
         $organisation->productionStats()->create();
@@ -61,7 +61,6 @@ class StoreOrganisation
         $organisation->crmStats()->create();
         $organisation->webStats()->create();
 
-        Artisan::call("db:seed --force --class=JobPositionSeeder");
 
 
         StorePaymentServiceProvider::run(

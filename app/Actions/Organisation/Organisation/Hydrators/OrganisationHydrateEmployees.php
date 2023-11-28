@@ -1,40 +1,56 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Sun, 23 Apr 2023 11:33:30 Malaysia Time, Sanur, Bali, Indonesia
+ * Created: Tue, 15 Aug 2023 12:15:47 Malaysia Time, Pantai Lembeng, Bali
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
 namespace App\Actions\Organisation\Organisation\Hydrators;
 
+use App\Actions\Traits\WithEnumStats;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
+use App\Enums\HumanResources\Employee\EmployeeTypeEnum;
 use App\Models\HumanResources\Employee;
 use App\Models\Organisation\Organisation;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
-use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class OrganisationHydrateEmployees implements ShouldBeUnique
+class OrganisationHydrateEmployees
 {
     use AsAction;
-    use HasOrganisationHydrate;
+    use WithEnumStats;
 
     public function handle(Organisation $organisation): void
     {
         $stats = [
-            'number_employees' => Employee::count()
+            'number_employees' => $organisation->employees()->count()
         ];
 
+        $stats = array_merge(
+            $stats,
+            $this->getEnumStats(
+                model: 'employees',
+                field: 'state',
+                enum: EmployeeStateEnum::class,
+                models: Employee::class,
+                where: function ($q) use ($organisation) {
+                    $q->where('organisation_id', $organisation->id);
+                }
+            )
+        );
 
-        $employeeStateCount = Employee::selectRaw('state, count(*) as total')
-            ->groupBy('state')
-            ->pluck('total', 'state')->all();
+        $stats = array_merge(
+            $stats,
+            $this->getEnumStats(
+                model: 'employees',
+                field: 'type',
+                enum: EmployeeTypeEnum::class,
+                models: Employee::class,
+                where: function ($q) use ($organisation) {
+                    $q->where('organisation_id', $organisation->id);
+                }
+            )
+        );
 
-
-        foreach (EmployeeStateEnum::cases() as $employeeState) {
-            $stats['number_employees_state_'.$employeeState->snake()] = Arr::get($employeeStateCount, $employeeState->value, 0);
-        }
-
-        $organisation->stats->update($stats);
+        $organisation->humanResourcesStats()->update($stats);
     }
 }

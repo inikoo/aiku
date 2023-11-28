@@ -7,8 +7,8 @@
 
 namespace App\Actions\HumanResources\JobPosition;
 
+use App\Actions\Organisation\Group\Hydrators\GroupHydrateJobPositions;
 use App\Models\HumanResources\JobPosition;
-use App\Rules\CaseSensitive;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
@@ -22,7 +22,12 @@ class StoreJobPosition
 
     public function handle(array $modelData): JobPosition
     {
-        return JobPosition::create($modelData);
+        $jobPosition = JobPosition::create($modelData);
+        if($group=group()) {
+            GroupHydrateJobPositions::run($group);
+        }
+
+        return $jobPosition;
     }
 
     public function authorize(ActionRequest $request): bool
@@ -34,8 +39,8 @@ class StoreJobPosition
     public function rules(): array
     {
         return [
-            'code'      => ['required', 'max:8', 'alpha_dash', new CaseSensitive('job_positions')],
-            'name'      => ['required', 'max:255'],
+            'code' => ['required', 'iunique:job_positions', 'max:8', 'alpha_dash'],
+            'name' => ['required', 'max:255'],
         ];
     }
 

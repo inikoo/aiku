@@ -7,24 +7,25 @@
 
 namespace App\Actions\HumanResources\JobPosition;
 
-use App\Actions\HydrateModel;
 use App\Actions\Traits\WithNormalise;
 use App\Models\HumanResources\JobPosition;
-use Illuminate\Support\Collection;
+use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use Lorisleiva\Actions\Concerns\AsAction;
 
-class HydrateJobPosition extends HydrateModel
+class HydrateJobPosition
 {
+    use AsAction;
     use WithNormalise;
 
-    public string $commandSignature = 'hydrate:job-positions  {--i|id=}';
 
-    public function handle(JobPosition $jobPosition): void
+    public function handle(int $jobPositionID): void
     {
+        $jobPosition=JobPosition::find($jobPositionID);
         $jobPosition->update(
             [
-                'number_employees' => DB::table('employee_job_position')->where('job_position_id', $jobPosition->id)->count(),
-                'number_work_time' => DB::table('employee_job_position')->where('job_position_id', $jobPosition->id)->sum('share'),
+                'number_employees' => DB::table('job_positionables')->where('job_position_id', $jobPosition->id)->count(),
+                'number_work_time' => DB::table('job_positionables')->where('job_position_id', $jobPosition->id)->sum('share'),
             ]
         );
 
@@ -32,7 +33,7 @@ class HydrateJobPosition extends HydrateModel
         $this->updateNormalisedJobPositionsShare();
     }
 
-    private function updateNormalisedJobPositionsShare()
+    private function updateNormalisedJobPositionsShare(): void
     {
         foreach ($this->getNormalisedJobPositionsShare() as $id => $share) {
             JobPosition::find($id)->update(
@@ -54,13 +55,34 @@ class HydrateJobPosition extends HydrateModel
         return $this->normalise(collect($share));
     }
 
-    protected function getModel(int $id): JobPosition
+    public string $commandSignature = 'hydrate:job-positions {job-positions?*}';
+
+    public function asCommand(Command $command): int
     {
-        return JobPosition::findOrFail($id);
+
+        if(!$command->argument('job-positions')) {
+            $jobPositions=JobPosition::all();
+        } else {
+            $jobPositions =  JobPosition::query()
+                ->when($command->argument('job-positions'), function ($query) use ($command) {
+                    $query->whereIn('slug', $command->argument('job-positions'));
+                })
+                ->cursor();
+        }
+
+
+        $exitCode = 0;
+
+        foreach ($jobPositions as $jobPosition) {
+
+            $this->handle($jobPosition);
+            $command->line("Jon position $jobPosition->name hydrated 💦");
+
+        }
+
+        return $exitCode;
     }
 
-    protected function getAllModels(): Collection
-    {
-        return JobPosition::all();
-    }
+
+
 }

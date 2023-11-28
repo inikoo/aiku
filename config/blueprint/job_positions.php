@@ -11,35 +11,46 @@ return [
 
     'positions' => [
 
-        'dir'      => [
-            'code' => 'dir',
-            'name' => 'director',
-
-            'roles' => [
+        'admin'   => [
+            'code'       => 'admin',
+            'name'       => 'Administrator',
+            'department' => 'admin',
+            'roles'      => [
                 'super-admin'
             ]
         ],
-        'hr-m'     => [
-            'code'  => 'hr-m',
-            'grade' => 'manager',
-            'name'  => 'Human resources supervisor',
-            'roles' => [
-                'human-resources-admin'
+        'hr-m'  => [
+            'code'       => 'hr-m',
+            'grade'      => 'manager',
+            'department' => 'admin',
+            'name'       => 'Human resources supervisor',
+            'roles'      => [
+                'human-resources-supervisor'
             ]
         ],
-        'hr-c'     => [
-            'code'  => 'hr-c',
-            'name'  => 'Human resources clerk',
-            'grade' => 'clerk',
-            'roles' => [
-                'human-resources-clerk'
+        'hr-c'  => [
+            'code'       => 'hr-c',
+            'name'       => 'Human resources clerk',
+            'department' => 'admin',
+            'grade'      => 'clerk',
+            'roles'      => [
+                'human-resources'
             ]
         ],
-        'acc'      => [
-            'code'  => 'acc',
-            'name'  => 'Accounts',
-            'roles' => [
-                'guest'
+        'acc-m'   => [
+            'code'       => 'acc-m',
+            'department' => 'admin',
+            'name'       => 'Accounting manager',
+            'roles'      => [
+                'accounting-supervisor'
+            ]
+        ],
+        'acc-c'   => [
+            'code'       => 'acc-c',
+            'department' => 'admin',
+            'name'       => 'Accounts',
+            'roles'      => [
+                'accounting'
             ]
         ],
         'mrk-m'    => [

@@ -5,6 +5,9 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
+use App\Actions\Organisation\Group\StoreGroup;
+use App\Actions\Organisation\Organisation\StoreOrganisation;
+use App\Models\Organisation\Organisation;
 use Symfony\Component\Process\Process;
 use Tests\TestCase;
 
@@ -26,4 +29,19 @@ function loadDB($dumpName): void
         ]
     );
     $process->run();
+}
+
+function createOrganisation(): Organisation
+{
+    $group=\App\Models\Organisation\Group::first();
+    if(!$group) {
+        $group = StoreGroup::make()->action(\App\Models\Organisation\Group::factory()->definition());
+    }
+
+    $organisation = Organisation::first();
+    if (!$organisation) {
+        $organisation = StoreOrganisation::make()->action($group, Organisation::factory()->definition());
+    }
+
+    return $organisation;
 }

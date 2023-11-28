@@ -7,7 +7,6 @@
 
 namespace App\Models\HumanResources;
 
-use App\Actions\Organisation\Organisation\Hydrators\OrganisationHydrateEmployees;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
 use App\Enums\HumanResources\Employee\EmployeeTypeEnum;
 use App\Enums\Miscellaneous\GenderEnum;
@@ -22,7 +21,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -125,24 +123,9 @@ class Employee extends Model implements HasMedia, Auditable
             ->slugsShouldBeNoLongerThan(16);
     }
 
-
-    protected static function booted(): void
+    public function jobPositions(): MorphToMany
     {
-        static::updated(function (Employee $employee) {
-            if (!$employee->wasRecentlyCreated) {
-                if ($employee->wasChanged('state')) {
-                    OrganisationHydrateEmployees::dispatch(app('currentTenant'));
-                }
-            }
-        });
-    }
-
-    public function jobPositions(): BelongsToMany
-    {
-        return $this->belongsToMany(JobPosition::class)
-            ->using(EmployeeJobPosition::class)
-            ->withTimestamps()
-            ->withPivot('share');
+        return $this->morphToMany(JobPosition::class, 'job_positionable');
     }
 
     public function user(): MorphOne

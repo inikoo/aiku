@@ -23,6 +23,7 @@ use App\Models\Assets\Currency;
 beforeAll(function () {
     loadDB('test_base_database.dump');
     Sanctum::usePersonalAccessTokenModel(PersonalAccessToken::class);
+
 });
 
 test('create group', function () {

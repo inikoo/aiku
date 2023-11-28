@@ -8,6 +8,7 @@
 namespace App\Actions\Organisation\Group;
 
 use App\Actions\Mail\Mailroom\StoreMailroom;
+use App\Actions\Organisation\Group\Hydrators\GroupHydrateJobPositions;
 use App\Enums\Mail\Mailroom\MailroomCodeEnum;
 use App\Models\Assets\Currency;
 use App\Models\Organisation\Group;
@@ -33,6 +34,7 @@ class StoreGroup
         $group = Group::create($modelData);
 
         $group->procurementStats()->create();
+        $group->humanResourcesStats()->create();
 
         foreach (MailroomCodeEnum::cases() as $case) {
             StoreMailroom::run(
@@ -42,6 +44,7 @@ class StoreGroup
             );
         }
 
+        GroupHydrateJobPositions::run($group);
         return $group;
     }
 

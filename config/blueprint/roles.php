@@ -37,12 +37,21 @@ return
             'hr.payroll',
             'hr.attendance',
         ],
-        'human-resources-manager' => [
+        'human-resources-supervisor' => [
             'hr.view',
             'hr.edit',
             'hr.payroll',
             'hr.attendance',
         ],
+
+        'accounting' => [
+            'accounting',
+        ],
+
+        'accounting-supervisor' => [
+            'accounting',
+        ],
+
 
         'distribution-manager'            => [
             'inventory',
@@ -92,13 +101,6 @@ return
             'oms'
         ],
 
-        'accountant-clerk' => [
-            'accounting',
-        ],
-
-        'accountant-manager' => [
-            'accounting',
-        ],
 
         'webmaster-clerk' => [
             'shops.view',

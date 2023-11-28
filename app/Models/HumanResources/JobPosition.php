@@ -57,10 +57,12 @@ class JobPosition extends Model implements Auditable
         'data'  => '{}',
     ];
 
+    protected $guarded = [];
+
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
-            ->generateSlugsFrom('name')
+            ->generateSlugsFrom('code')
             ->saveSlugsTo('slug')
             ->doNotGenerateSlugsOnUpdate()
             ->slugsShouldBeNoLongerThan(8);
@@ -70,8 +72,18 @@ class JobPosition extends Model implements Auditable
     {
         return 'slug';
     }
+    public function generateTags(): array
+    {
+        return [
+            'hr'
+        ];
+    }
 
-    protected $guarded = [];
+    protected $auditExclude = [
+        'share_work_time',
+        'number_employees'
+    ];
+
 
     public function roles(): BelongsToMany
     {

@@ -10,13 +10,10 @@ use App\Actions\HumanResources\ClockingMachine\UpdateClockingMachine;
 use App\Actions\HumanResources\Employee\StoreEmployee;
 use App\Actions\HumanResources\Employee\UpdateEmployee;
 use App\Actions\HumanResources\WorkingPlace\UpdateWorkingPlace;
-use App\Actions\Organisation\Group\StoreGroup;
-use App\Actions\Organisation\Organisation\StoreOrganisation;
+use App\Enums\HumanResources\Employee\EmployeeStateEnum;
 use App\Models\Auth\User;
 use App\Models\Helpers\Address;
 use App\Models\HumanResources\Workplace;
-use App\Models\Organisation\Group;
-use App\Models\Organisation\Organisation;
 use App\Models\HumanResources\Employee;
 use App\Actions\HumanResources\Employee\UpdateEmployeeWorkingHours;
 use App\Actions\HumanResources\Employee\CreateUserFromEmployee;
@@ -26,35 +23,43 @@ beforeAll(function () {
 });
 
 beforeEach(function () {
-    $organisation = Organisation::first();
-    if (!$organisation) {
-        $group        = StoreGroup::make()->action(Group::factory()->definition());
-        $organisation = StoreOrganisation::make()->action($group, Organisation::factory()->definition());
-    }
-    $organisation->makeCurrent();
+    $this->organisation = createOrganisation();
+});
+
+test('check seeded job positions', function () {
+    expect($this->organisation->group->humanResourcesStats->number_job_positions)->toBe(20);
 });
 
 test('create employee successful', function () {
     $arrayData = [
-        'contact_name' => 'artha',
-        'date_of_birth'=> '2019-01-01',
-        'job_title'    => 'director',
-        'state'        => 'hired'
+        'alias'               => 'artha',
+        'contact_name'        => 'artha',
+        'employment_start_at' => '2019-01-01',
+        'date_of_birth'       => '2000-01-01',
+        'job_title'           => 'director',
+        'state'               => EmployeeStateEnum::WORKING,
+        'positions'           => ['acc-m'],
+        'worker_number'       => '1234567890',
+        'work_email'          => null,
+        'email'               => null,
+        'username'            => null,
     ];
+    $employee  = StoreEmployee::make()->action($this->organisation, $arrayData);
 
-    $lastEmployee = StoreEmployee::run($arrayData);
+    expect($employee)->toBeInstanceOf(Employee::class)
+        ->and($this->organisation->humanResourcesStats->number_employees)->toBe(1)
+        ->and($this->organisation->humanResourcesStats->number_employees_type_employee)->toBe(1)
+        ->and($this->organisation->humanResourcesStats->number_employees_state_working)->toBe(1);
 
-    expect($lastEmployee->contact_name)->toBe($arrayData['contact_name']);
-
-    return $lastEmployee;
+    return $employee;
 });
 
 test('update employees successful', function ($lastEmployee) {
     $arrayData = [
-        'contact_name' => 'vica',
-        'date_of_birth'=> '2019-01-01',
-        'job_title'    => 'director',
-        'state'        => 'hired'
+        'contact_name'  => 'vica',
+        'date_of_birth' => '2019-01-01',
+        'job_title'     => 'director',
+        'state'         => 'hired'
     ];
 
     $updatedEmployee = UpdateEmployee::run($lastEmployee, $arrayData);
@@ -80,8 +85,8 @@ test('create user from employee', function () {
 
 test('create working place successful', function () {
     $arrayData = [
-        'name'  => 'artha',
-        'type'  => 'branch'
+        'name' => 'artha',
+        'type' => 'branch'
     ];
 
 
@@ -93,9 +98,9 @@ test('create working place successful', function () {
 });
 
 test('update working place successful', function ($createdWorkplace) {
-    $arrayData = [
-        'name'              => 'vica nugraha',
-        'type'              => 'home',
+    $arrayData        = [
+        'name' => 'vica smith',
+        'type' => 'home',
     ];
     $addressData      = Address::create(Address::factory()->definition())->toArray();
     $updatedWorkplace = UpdateWorkingPlace::run($createdWorkplace, $arrayData, $addressData);
@@ -104,7 +109,7 @@ test('update working place successful', function ($createdWorkplace) {
 })->depends('create working place successful');
 
 test('create clocking machines', function ($createdWorkplace) {
-    $arrayData =[
+    $arrayData = [
         'code' => 'ABC'
     ];
 
@@ -117,7 +122,7 @@ test('create clocking machines', function ($createdWorkplace) {
 
 test('update clocking machines', function ($createdClockingMachine) {
     $arrayData = [
-        'code'              => 'ABCED',
+        'code' => 'ABC',
     ];
 
     $updatedClockingMachine = UpdateClockingMachine::run($createdClockingMachine, $arrayData);
