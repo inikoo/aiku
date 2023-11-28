@@ -40,7 +40,7 @@ class UpdateUserStatus
     public function rules(): array
     {
         return [
-            'status' => ['sometimes', 'required', 'boolean']
+            'status' => ['required', 'boolean']
         ];
     }
 
@@ -60,10 +60,12 @@ class UpdateUserStatus
     }
 
 
-    public function action(User $user, $objectData): User
+    public function action(User $user, bool $status): User
     {
         $this->asAction = true;
-        $this->setRawAttributes($objectData);
+        $this->setRawAttributes([
+            'status'=> $status
+        ]);
         $validatedData = $this->validateAttributes();
 
         return $this->handle($user, $validatedData);

@@ -6,11 +6,13 @@
  */
 
 use App\Enums\Auth\User\UserAuthTypeEnum;
+use App\Stubs\Migrations\HasSoftDeletes;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
+    use HasSoftDeletes;
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
@@ -32,7 +34,7 @@ return new class () extends Migration {
             $table->foreign('language_id')->references('id')->on('public.languages');
             $table->unsignedInteger('avatar_id')->nullable();
             $table->timestampsTz();
-            $table->softDeletesTz();
+            $table=$this->softDeletes($table);
             $table->unsignedInteger('source_id')->nullable()->unique();
             $table->string('legacy_password')->nullable()->index()->comment('source password');
             $table->unique(['parent_type','parent_id']);

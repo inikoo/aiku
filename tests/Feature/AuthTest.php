@@ -148,7 +148,9 @@ test('update user username', function ($user) {
         'username' => 'aiku'
     ]);
 
-    expect($user->username)->toBe('aiku');
+    expect($user->username)->toBe('aiku')
+        ->and($user->status)->toBeTrue();
+
     return $user;
 })->depends('create user for guest');
 
@@ -178,7 +180,6 @@ test('sync user roles', function ($user) {
 
 
 test('user status change', function ($user) {
-    dd($user);
     expect($user->status)->toBeTrue();
     $user = UpdateUserStatus::make()->action($user, false);
     expect($user->status)->toBeFalse();

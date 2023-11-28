@@ -39,14 +39,12 @@ class StoreUser
 
         data_set($objectData, 'type', $type);
 
-
-        $user = $parent->user()->create(
-            $objectData
-        );
+        /** @var User $user */
+        $user = $parent->user()->create($objectData);
 
         $user->stats()->create();
 
-
+        $user->refresh();
         UserHydrateUniversalSearch::dispatch($user);
 
 

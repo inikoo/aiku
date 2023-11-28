@@ -19,13 +19,13 @@ class DeleteUser
 
     private bool $trusted = false;
 
-    public function handle(User $user): bool
+    public function handle(User $user): User
     {
         $this->update($user, [
             'username' => $user->username . '@deleted-' . $user->id
         ]);
-
-        return $user->delete();
+        $user->delete();
+        return $user;
     }
 
     public function authorize(ActionRequest $request): bool
@@ -37,12 +37,12 @@ class DeleteUser
         return $request->user()->hasPermissionTo("sysadmin.edit");
     }
 
-    public function asController(User $user, ActionRequest $request): bool
+    public function asController(User $user, ActionRequest $request): User
     {
         return $this->handle($user);
     }
 
-    public function action(User $user): bool
+    public function action(User $user): User
     {
         return $this->handle($user);
     }
