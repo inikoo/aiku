@@ -117,7 +117,7 @@ class StoreGuest
     {
         $this->trusted = true;
         $organisation  = Organisation::where('slug', $command->argument('tenant'))->firstOrFail();
-        $organisation->makeCurrent();
+
 
         $this->fill([
             'type'         => $command->argument('type'),

@@ -32,7 +32,7 @@ class StoreShop
 
     private bool $asAction = false;
 
-    public function handle(array $modelData): Shop
+    public function handle(Organisation $organisation, array $modelData): Shop
     {
         $organisation = app('currentTenant');
         /** @var Shop $shop */

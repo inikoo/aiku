@@ -106,7 +106,7 @@ class UserRemoveRoles
         }
 
 
-        $organisation->makeCurrent();
+
 
 
         try {

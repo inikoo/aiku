@@ -40,7 +40,7 @@ class GuestSetUserFromGuestUser
 
             return 1;
         }
-        $organisation->makeCurrent();
+
 
         try {
             $guest = Guest::where('slug', $command->argument('guest'))->firstOrFail();

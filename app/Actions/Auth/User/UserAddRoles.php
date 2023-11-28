@@ -109,7 +109,7 @@ class UserAddRoles
         }
 
 
-        $organisation->makeCurrent();
+
 
         try {
             $user = User::where('username', $command->argument('user'))->firstOrFail();

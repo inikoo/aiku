@@ -78,7 +78,7 @@ beforeEach(function () {
             )
         );
     }
-    $organisation->makeCurrent();
+
 });
 
 test('create agent', function () {
@@ -222,7 +222,7 @@ test('create supplier product in agent supplier', function ($supplier) {
 
 test('others tenant can view supplier', function ($agent) {
     $organisation = Organisation::where('slug', 'aus')->first();
-    $organisation->makeCurrent();
+
 
     $supplier = GetSupplier::run($agent);
 

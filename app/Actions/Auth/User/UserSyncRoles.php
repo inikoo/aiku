@@ -101,7 +101,7 @@ class UserSyncRoles
         }
 
 
-        $organisation->makeCurrent();
+
 
 
         try {

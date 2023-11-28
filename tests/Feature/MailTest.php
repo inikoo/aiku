@@ -30,7 +30,7 @@ beforeEach(function () {
         $group        = StoreGroup::make()->action(Group::factory()->definition());
         $organisation = StoreOrganisation::make()->action($group, Organisation::factory()->definition());
     }
-    $organisation->makeCurrent();
+
 });
 
 test('get outbox from shop', function () {
