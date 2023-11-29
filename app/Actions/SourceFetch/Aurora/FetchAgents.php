@@ -7,11 +7,9 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-use App\Actions\Helpers\GroupAddress\UpdateGroupAddress;
+use App\Actions\Helpers\Address\UpdateAddress;
+use App\Actions\Procurement\Agent\StoreAgent;
 use App\Actions\Procurement\Agent\UpdateAgent;
-use App\Actions\Procurement\Marketplace\Agent\StoreMarketplaceAgent;
-use App\Actions\Organisation\Organisation\AttachAgent;
-use App\Enums\Procurement\AgentOrganisation\AgentOrganisationStatusEnum;
 use App\Models\Procurement\Agent;
 use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
@@ -29,7 +27,7 @@ class FetchAgents extends FetchAction
 
             if ($agent = Agent::withTrashed()->where('source_id', $agentData['agent']['source_id'])->where('source_type', $organisation->slug)->first()) {
                 $agent = UpdateAgent::run($agent, $agentData['agent']);
-                UpdateGroupAddress::run($agent->getAddress('contact'), $agentData['address']);
+                UpdateAddress::run($agent->getAddress('contact'), $agentData['address']);
                 $agent->location = $agent->getLocation();
                 $agent->save();
             } else {
@@ -40,12 +38,12 @@ class FetchAgents extends FetchAction
                         $agent,
                         [
                             'source_id' => $agentData['agent']['source_id'],
-                            'status'    => AgentOrganisationStatusEnum::ADOPTED
+
                         ]
                     );
                 } else {
                     $agentData['agent']['source_type'] = $organisation->slug;
-                    $agent                             = StoreMarketplaceAgent::run(
+                    $agent                             = StoreAgent::run(
                         owner: $organisation,
                         modelData: $agentData['agent'],
                         addressData: $agentData['address']

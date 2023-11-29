@@ -28,7 +28,7 @@ class FetchAuroraSupplierProduct extends FetchAurora
 
         $this->parsedData['supplier'] =$supplier;
 
-        $sharedData = [];
+        $data       = [];
         $settings   = [];
 
         $status = true;
@@ -50,7 +50,7 @@ class FetchAuroraSupplierProduct extends FetchAurora
             $created_at = $this->auroraModelData->{'Supplier Part From'};
         }
 
-        $sharedData['raw_price'] = $this->auroraModelData->{'Supplier Part Unit Cost'} ?? 0;
+        $data['raw_price'] = $this->auroraModelData->{'Supplier Part Unit Cost'} ?? 0;
 
 
         $stock_quantity_status = match ($this->auroraModelData->{'Part Stock Status'}) {
@@ -73,7 +73,7 @@ class FetchAuroraSupplierProduct extends FetchAurora
                 'state'                 => $state,
                 'stock_quantity_status' => $stock_quantity_status,
 
-                'shared_data' => $sharedData,
+                'data'        => $data,
                 'settings'    => $settings,
                 'created_at'  => $created_at,
                 'source_id'   => $this->auroraModelData->{'Supplier Part Key'}

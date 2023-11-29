@@ -7,11 +7,10 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-use App\Actions\Helpers\GroupAddress\StoreGroupAddressAttachToModel;
-use App\Actions\Helpers\GroupAddress\UpdateGroupAddress;
-use App\Actions\Procurement\Marketplace\Supplier\StoreMarketplaceSupplier;
+use App\Actions\Helpers\Address\StoreAddressAttachToModel;
+use App\Actions\Helpers\Address\UpdateAddress;
+use App\Actions\Procurement\Supplier\StoreSupplier;
 use App\Actions\Procurement\Supplier\UpdateSupplier;
-use App\Actions\Organisation\Organisation\AttachSupplier;
 use App\Enums\Procurement\SupplierOrganisation\SupplierOrganisationStatusEnum;
 use App\Models\Procurement\Supplier;
 use App\Models\Procurement\SupplierOrganisation;
@@ -54,7 +53,7 @@ trait FetchSuppliersTrait
         if ($supplier) {
             if ($supplier->owner_id == $organisation->id) {
                 $supplier = UpdateSupplier::run($supplier, $supplierData['supplier']);
-                UpdateGroupAddress::run($supplier->getAddress('contact'), $supplierData['address']);
+                UpdateAddress::run($supplier->getAddress('contact'), $supplierData['address']);
                 $supplier->location = $supplier->getLocation();
                 $supplier->save();
             } elseif (SupplierOrganisation::where('source_id', $supplierData['supplier']['source_id'])
@@ -71,7 +70,7 @@ trait FetchSuppliersTrait
             }
         } else {
             $supplierData['supplier']['source_type'] = $organisation->slug;
-            $supplier                                = StoreMarketplaceSupplier::run(
+            $supplier                                = StoreSupplier::run(
                 owner: $organisation,
                 agent: null,
                 modelData: $supplierData['supplier'],
@@ -97,9 +96,9 @@ trait FetchSuppliersTrait
 
                 $supplier = UpdateSupplier::run($supplier, $supplierData['supplier']);
                 if ($supplier->getAddress('contact')) {
-                    UpdateGroupAddress::run($supplier->getAddress('contact'), $supplierData['address']);
+                    UpdateAddress::run($supplier->getAddress('contact'), $supplierData['address']);
                 } else {
-                    StoreGroupAddressAttachToModel::run($supplier, $supplierData['address'], ['scope' => 'contact']);
+                    StoreAddressAttachToModel::run($supplier, $supplierData['address'], ['scope' => 'contact']);
                 }
                 $supplier->location = $supplier->getLocation();
                 $supplier->save();
@@ -116,7 +115,7 @@ trait FetchSuppliersTrait
                 );
             }
         } else {
-            $supplier = StoreMarketplaceSupplier::run(
+            $supplier = StoreSupplier::run(
                 owner: $agent->owner,
                 agent: $agent,
                 modelData: $supplierData['supplier'],

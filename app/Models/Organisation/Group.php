@@ -10,6 +10,8 @@ namespace App\Models\Organisation;
 use App\Models\Assets\Currency;
 use App\Models\Inventory\Stock;
 use App\Models\Inventory\StockFamily;
+use App\Models\Procurement\Agent;
+use App\Models\Procurement\Supplier;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -37,6 +39,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $deleted_at
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Agent> $agents
  * @property-read Currency $currency
  * @property-read \App\Models\Organisation\GroupHumanResourcesStats|null $humanResourcesStats
  * @property-read \App\Models\Organisation\GroupInventoryStats|null $inventoryStats
@@ -44,6 +47,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Organisation\GroupProcurementStats|null $procurementStats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, StockFamily> $stockFamilies
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Stock> $stocks
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Supplier> $suppliers
  * @method static \Database\Factories\Organisation\GroupFactory factory($count = null, $state = [])
  * @method static Builder|Group newModelQuery()
  * @method static Builder|Group newQuery()
@@ -83,6 +87,15 @@ class Group extends Model
         return $this->hasMany(Stock::class);
     }
 
+    public function agents(): HasMany
+    {
+        return $this->hasMany(Agent::class);
+    }
+
+    public function suppliers(): HasMany
+    {
+        return $this->hasMany(Supplier::class);
+    }
 
     public function humanResourcesStats(): HasOne
     {

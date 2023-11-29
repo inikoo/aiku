@@ -24,6 +24,6 @@ trait HasHydrators
             AgentHydratePurchaseOrders::dispatch($parent);
         }
 
-        OrganisationHydrateProcurement::dispatch(app('currentTenant'));
+        OrganisationHydrateProcurement::dispatch($purchaseOrder->organisation);
     }
 }

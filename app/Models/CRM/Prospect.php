@@ -13,7 +13,7 @@ use App\Enums\CRM\Prospect\ProspectStateEnum;
 use App\Models\Helpers\Address;
 use App\Models\Market\Shop;
 use App\Models\Search\UniversalSearch;
-use App\Models\Traits\HasTenantAddress;
+use App\Models\Traits\HasAddresses;
 use App\Models\Traits\HasUniversalSearch;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
@@ -65,7 +65,7 @@ use Spatie\Sluggable\SlugOptions;
 class Prospect extends Model
 {
     use SoftDeletes;
-    use HasTenantAddress;
+    use HasAddresses;
     use HasSlug;
     use HasUniversalSearch;
     use HasFactory;

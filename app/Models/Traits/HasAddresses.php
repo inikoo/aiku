@@ -11,7 +11,7 @@ namespace App\Models\Traits;
 use App\Models\Helpers\Address;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
-trait HasTenantAddress
+trait HasAddresses
 {
     use HasAddress;
 

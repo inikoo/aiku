@@ -251,7 +251,7 @@ class CreateMarketplaceSupplier extends InertiaAction
                                     'type'        => 'select',
                                     'label'       => __("Product's country of origin"),
                                     'placeholder' => __('Select a country'),
-                                    'value'       => class_basename($owner) == 'Agent' ? Arr::get($owner->shared_data, 'default_product_country_origin') : null,
+                                    'value'       => class_basename($owner) == 'Agent' ? Arr::get($owner->data, 'default_product_country_origin') : null,
                                     'options'     => GetCountriesOptions::run(),
                                     'searchable'  => true,
                                     'mode'        => 'single'

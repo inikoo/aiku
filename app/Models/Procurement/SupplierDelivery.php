@@ -10,7 +10,7 @@ namespace App\Models\Procurement;
 use App\Enums\Procurement\SupplierDelivery\SupplierDeliveryStateEnum;
 use App\Enums\Procurement\SupplierDelivery\SupplierDeliveryStatusEnum;
 use App\Models\Helpers\Address;
-use App\Models\Traits\HasTenantAddress;
+use App\Models\Traits\HasAddresses;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -71,7 +71,7 @@ use Spatie\Sluggable\SlugOptions;
 class SupplierDelivery extends Model
 {
     use SoftDeletes;
-    use HasTenantAddress;
+    use HasAddresses;
     use HasSlug;
     use HasFactory;
 

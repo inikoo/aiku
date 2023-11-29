@@ -7,9 +7,11 @@
 
 namespace Tests\Feature;
 
-use App\Actions\Procurement\Marketplace\Supplier\StoreMarketplaceSupplier;
+use App\Actions\Organisation\Group\StoreGroup;
+use App\Actions\Organisation\Organisation\StoreOrganisation;
 use App\Actions\Procurement\PurchaseOrder\AddItemPurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\StorePurchaseOrder;
+use App\Actions\Procurement\Supplier\StoreSupplier;
 use App\Actions\Procurement\SupplierDelivery\StoreSupplierDelivery;
 use App\Actions\Procurement\SupplierDelivery\UpdateStateToCheckedSupplierDelivery;
 use App\Actions\Procurement\SupplierDelivery\UpdateStateToDispatchSupplierDelivery;
@@ -19,15 +21,13 @@ use App\Actions\Procurement\SupplierDeliveryItem\StoreSupplierDeliveryItem;
 use App\Actions\Procurement\SupplierDeliveryItem\StoreSupplierDeliveryItemBySelectedPurchaseOrderItem;
 use App\Actions\Procurement\SupplierDeliveryItem\UpdateStateToCheckedSupplierDeliveryItem;
 use App\Actions\Procurement\SupplierProduct\StoreSupplierProduct;
-use App\Actions\Organisation\Group\StoreGroup;
-use App\Actions\Organisation\Organisation\StoreOrganisation;
 use App\Enums\Procurement\SupplierDelivery\SupplierDeliveryStateEnum;
+use App\Models\Organisation\Group;
+use App\Models\Organisation\Organisation;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\Procurement\PurchaseOrderItem;
 use App\Models\Procurement\Supplier;
 use App\Models\Procurement\SupplierDeliveryItem;
-use App\Models\Organisation\Group;
-use App\Models\Organisation\Organisation;
 use Illuminate\Validation\ValidationException;
 
 beforeAll(function () {
@@ -47,7 +47,7 @@ beforeEach(function () {
 test('create independent supplier', function () {
 
 
-    $supplier = StoreMarketplaceSupplier::make()->action(
+    $supplier = StoreSupplier::make()->action(
         owner:app('currentTenant'),
         agent: null,
         modelData: Supplier::factory()->definition()

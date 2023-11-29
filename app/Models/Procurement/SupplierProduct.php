@@ -12,7 +12,6 @@ use App\Enums\Procurement\SupplierProduct\SupplierProductStateEnum;
 use App\Enums\Procurement\SupplierProduct\SupplierProductTradeUnitCompositionEnum;
 use App\Models\Goods\TradeUnit;
 use App\Models\Search\UniversalSearch;
-use App\Models\Organisation\Organisation;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
 use Eloquent;
@@ -51,8 +50,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $units_per_pack units per pack
  * @property int|null $units_per_carton units per carton
  * @property array $settings
- * @property array $shared_data
- * @property mixed $organisation_data
+ * @property array $data
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
@@ -85,8 +83,7 @@ class SupplierProduct extends Model implements Auditable
     use HasHistory;
 
     protected $casts = [
-        'shared_data'            => 'array',
-        'tenant_data'            => 'array',
+        'data'                   => 'array',
         'settings'               => 'array',
         'status'                 => 'boolean',
         'state'                  => SupplierProductStateEnum::class,
@@ -95,8 +92,7 @@ class SupplierProduct extends Model implements Auditable
     ];
 
     protected $attributes = [
-        'shared_data' => '{}',
-        'tenant_data' => '{}',
+        'data'        => '{}',
         'settings'    => '{}',
 
     ];
@@ -136,13 +132,6 @@ class SupplierProduct extends Model implements Auditable
         return $this->belongsTo(Agent::class);
     }
 
-    protected function belongsToTenant(?Organisation $organisation): bool
-    {
-        if(!$organisation) {
-            $organisation=app('currentTenant');
-        }
-        return $this->supplier->belongsToTenant($organisation);
-    }
 
     protected function grossWeight(): Attribute
     {

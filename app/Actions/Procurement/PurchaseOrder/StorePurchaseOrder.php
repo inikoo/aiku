@@ -12,6 +12,7 @@ use App\Actions\Procurement\Supplier\Hydrators\SupplierHydratePurchaseOrders;
 use App\Actions\Organisation\Organisation\Hydrators\OrganisationHydrateProcurement;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Procurement\SupplierProduct\SupplierProductStateEnum;
+use App\Models\Organisation\Organisation;
 use App\Models\Procurement\Agent;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\Procurement\Supplier;
@@ -27,20 +28,23 @@ class StorePurchaseOrder
 
     private bool $force;
 
-    private Supplier|Agent $parent;
+    private Supplier|Agent $provider;
 
-    public function handle(Agent|Supplier $parent, array $modelData): PurchaseOrder
+    public function handle(Organisation $organisation, Agent|Supplier $provider, array $modelData): PurchaseOrder
     {
-        /** @var PurchaseOrder $purchaseOrder */
-        $purchaseOrder = $parent->purchaseOrders()->create($modelData);
 
-        if(class_basename($parent) == 'Supplier') {
-            SupplierHydratePurchaseOrders::dispatch($parent);
+        data_set($modelData, 'organisation_id', $organisation->id);
+
+        /** @var PurchaseOrder $purchaseOrder */
+        $purchaseOrder = $provider->purchaseOrders()->create($modelData);
+
+        if (class_basename($provider) == 'Supplier') {
+            SupplierHydratePurchaseOrders::dispatch($provider);
         } else {
-            AgentHydratePurchaseOrders::dispatch($parent);
+            AgentHydratePurchaseOrders::dispatch($provider);
         }
 
-        OrganisationHydrateProcurement::dispatch(app('currentTenant'));
+        OrganisationHydrateProcurement::dispatch($organisation);
 
         return $purchaseOrder;
     }
@@ -48,23 +52,23 @@ class StorePurchaseOrder
     public function rules(): array
     {
         return [
-            'number'        => ['sometimes', 'required', 'numeric', 'unique:purchase_orders'],
-            'date'          => ['sometimes', 'required', 'date'],
-            'currency_id'   => ['sometimes', 'required', 'exists:currencies,id'],
-            'exchange'      => ['sometimes', 'required', 'numeric']
+            'number'      => ['sometimes', 'required', 'numeric', 'unique:purchase_orders'],
+            'date'        => ['sometimes', 'required', 'date'],
+            'currency_id' => ['sometimes', 'required', 'exists:currencies,id'],
+            'exchange'    => ['sometimes', 'required', 'numeric']
         ];
     }
 
     public function afterValidator(Validator $validator): void
     {
-        $numberPurchaseOrdersStateCreating = $this->parent->purchaseOrders()->where('state', PurchaseOrderStateEnum::CREATING)->count();
+        $numberPurchaseOrdersStateCreating = $this->provider->purchaseOrders()->where('state', PurchaseOrderStateEnum::CREATING)->count();
 
-        if(!$this->force && $numberPurchaseOrdersStateCreating>= 1) {
+        if (!$this->force && $numberPurchaseOrdersStateCreating >= 1) {
             $validator->errors()->add('purchase_order', 'Are you sure want to create new purchase order?');
         }
 
-        if($this->parent->products->where('state', '<>', SupplierProductStateEnum::DISCONTINUED)->count() == 0) {
-            $message = match (class_basename($this->parent)) {
+        if ($this->provider->products->where('state', '<>', SupplierProductStateEnum::DISCONTINUED)->count() == 0) {
+            $message = match (class_basename($this->provider)) {
                 'Agent'    => 'You can not create purchase order if the agent dont have any product',
                 'Supplier' => 'You can not create purchase order if the supplier dont have any product',
             };
@@ -72,17 +76,17 @@ class StorePurchaseOrder
         }
     }
 
-    public function action(Agent|Supplier $parent, array $objectData, bool $force = false): \Illuminate\Http\RedirectResponse|PurchaseOrder
+    public function action(Organisation $organisation, Agent|Supplier $provider, array $objectData, bool $force = false): \Illuminate\Http\RedirectResponse|PurchaseOrder
     {
-        $this->parent = $parent;
-        $this->force  = $force;
+        $this->provider = $provider;
+        $this->force    = $force;
         $this->setRawAttributes($objectData);
         $validatedData = $this->validateAttributes();
 
-        return $this->handle($parent, $validatedData);
+        return $this->handle($organisation, $provider, $validatedData);
     }
 
-    public function inAgent(Agent $agent, ActionRequest $request): \Illuminate\Http\RedirectResponse
+    public function inAgent(Organisation $organisation, Agent $agent, ActionRequest $request): \Illuminate\Http\RedirectResponse
     {
         $modelData = [
             'number'      => rand(1111, 9999),
@@ -90,16 +94,16 @@ class StorePurchaseOrder
             'currency_id' => $agent->currency_id,
         ];
 
-        $this->force  = $request->force ?? false;
-        $this->parent = $agent;
+        $this->force    = $request->force ?? false;
+        $this->provider = $agent;
         $request->validate();
 
-        $purchaseOrder = $this->handle($agent, $modelData);
+        $purchaseOrder = $this->handle($organisation, $agent, $modelData);
 
         return redirect()->route('procurement.purchase-orders.show', $purchaseOrder->slug);
     }
 
-    public function inSupplier(Supplier $supplier, ActionRequest $request): \Illuminate\Http\RedirectResponse|PurchaseOrder
+    public function inSupplier(Organisation $organisation, Supplier $supplier, ActionRequest $request): \Illuminate\Http\RedirectResponse|PurchaseOrder
     {
         $modelData = [
             'number'      => rand(1111, 9999),
@@ -107,11 +111,11 @@ class StorePurchaseOrder
             'currency_id' => $supplier->currency_id
         ];
 
-        $this->force  = false;
-        $this->parent = $supplier;
+        $this->force    = false;
+        $this->provider = $supplier;
         $request->validate();
 
-        $purchaseOrder = $this->handle($supplier, $modelData);
+        $purchaseOrder = $this->handle($organisation, $supplier, $modelData);
 
         return redirect()->route('procurement.purchase-orders.show', $purchaseOrder->slug);
     }

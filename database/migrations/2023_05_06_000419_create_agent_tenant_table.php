@@ -5,7 +5,6 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-use App\Enums\Procurement\AgentOrganisation\AgentOrganisationStatusEnum;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -19,7 +18,6 @@ return new class () extends Migration {
             $table->foreign('agent_id')->references('id')->on('agents');
             $table->unsignedSmallInteger('organisation_id');
             $table->foreign('organisation_id')->references('id')->on('public.organisations');
-            $table->string('status')->default(AgentOrganisationStatusEnum::ADOPTED->value);
             $table->timestampsTz();
             $table->unsignedInteger('source_id')->index()->nullable();
 

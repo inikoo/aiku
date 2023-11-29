@@ -11,7 +11,7 @@ use App\Actions\Utils\Abbreviate;
 use App\Models\Assets\Timezone;
 use App\Models\Helpers\Address;
 use App\Models\Search\UniversalSearch;
-use App\Models\Traits\HasTenantAddress;
+use App\Models\Traits\HasAddresses;
 use App\Models\Traits\HasUniversalSearch;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
@@ -60,7 +60,7 @@ class Workplace extends Model
     use HasSlug;
     use HasUniversalSearch;
     use SoftDeletes;
-    use HasTenantAddress;
+    use HasAddresses;
 
     protected $casts = [
         'data'        => 'array',

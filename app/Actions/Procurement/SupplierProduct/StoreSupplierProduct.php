@@ -12,11 +12,8 @@ use App\Actions\Procurement\HistoricSupplierProduct\StoreHistoricSupplierProduct
 use App\Actions\Procurement\Supplier\Hydrators\SupplierHydrateSupplierProducts;
 use App\Actions\Procurement\SupplierProduct\Hydrators\SupplierProductHydrateUniversalSearch;
 use App\Actions\Organisation\Group\Hydrators\GroupHydrateProcurement;
-use App\Actions\Organisation\Organisation\AttachSupplierProduct;
 use App\Models\Procurement\Supplier;
 use App\Models\Procurement\SupplierProduct;
-use App\Models\Organisation\Organisation;
-use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
@@ -53,26 +50,10 @@ class StoreSupplierProduct
         AgentHydrateSuppliers::dispatchIf($supplierProduct->agent_id, $supplierProduct->agent)->delay($this->hydratorsDelay);
         SupplierProductHydrateUniversalSearch::dispatch($supplierProduct);
 
-        AttachSupplierProduct::run(
-            app('currentTenant'),
-            $supplierProduct,
-            [
-                'source_id'=> Arr::get($modelData, 'source_id'),
-        ]
-        );
-        if ($supplier->type = 'supplier') {
-            $organisationIds = $supplier->tenantIds();
-        } else {
-            $organisationIds = $supplier->agent->tenantIds();
-        }
 
-        foreach ($organisationIds as $organisationId) {
-            if ($organisationId == app('currentTenant')->id) {
-                AttachSupplierProduct::run(Organisation::find($organisationId), $supplierProduct);
-            }
-        }
 
-        GroupHydrateProcurement::dispatch(app('currentTenant')->group)->delay($this->hydratorsDelay);
+
+        GroupHydrateProcurement::dispatch($supplier->group)->delay($this->hydratorsDelay);
         return $supplierProduct;
     }
 

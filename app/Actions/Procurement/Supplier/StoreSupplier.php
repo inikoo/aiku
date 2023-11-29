@@ -1,23 +1,20 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Sun, 25 Jun 2023 13:32:03 Malaysia Time, Pantai Lembeng, Bali, Id
+ * Created: Wed, 29 Nov 2023 23:07:51 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Procurement\Marketplace\Supplier;
+namespace App\Actions\Procurement\Supplier;
 
 use App\Actions\Assets\Currency\SetCurrencyHistoricFields;
-use App\Actions\Helpers\GroupAddress\StoreGroupAddressAttachToModel;
+use App\Actions\Helpers\Address\StoreAddressAttachToModel;
+use App\Actions\Organisation\Group\Hydrators\GroupHydrateProcurement;
 use App\Actions\Procurement\Agent\Hydrators\AgentHydrateSuppliers;
 use App\Actions\Procurement\Supplier\Hydrators\SupplierHydrateUniversalSearch;
-use App\Actions\Organisation\Group\Hydrators\GroupHydrateProcurement;
-use App\Actions\Organisation\Organisation\AttachSupplier;
-use App\Actions\Organisation\Organisation\Hydrators\OrganisationHydrateProcurement;
-use App\Enums\Procurement\SupplierOrganisation\SupplierOrganisationStatusEnum;
+use App\Models\Organisation\Group;
 use App\Models\Procurement\Agent;
 use App\Models\Procurement\Supplier;
-use App\Models\Organisation\Organisation;
 use App\Rules\ValidAddress;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
@@ -27,7 +24,7 @@ use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class StoreMarketplaceSupplier
+class StoreSupplier
 {
     use AsAction;
     use WithAttributes;
@@ -43,49 +40,28 @@ class StoreMarketplaceSupplier
         return $request->user()->hasPermissionTo("procurement.edit");
     }
 
-    public function handle(Organisation|Agent $owner, ?Agent $agent, array $modelData, array $addressData = []): Supplier
+    public function handle(Group|Agent $parent, array $modelData, array $addressData = []): Supplier
     {
-        $modelData['owner_type'] = class_basename($owner);
-        $modelData['owner_id']   = $owner->id;
 
-
-        /** @var Supplier $supplier */
-        if ($agent) {
-
-            $supplier = $agent->suppliers()->create($modelData);
-
-            AttachSupplier::run(
-                tenant: app('currentTenant'),
-                supplier: $supplier,
-                pivotData: [
-                    'agent_id'   => $agent->id,
-                    'status'     => SupplierOrganisationStatusEnum::OWNER
-                ]
-            );
-
-
+        if (class_basename($parent) == 'Agent') {
+            data_set($modelData, 'group_id', $parent->group_id);
+            $group=$parent->group;
         } else {
-            $supplier = $owner->mySuppliers()->create($modelData);
-            $owner->suppliers()->attach(
-                $supplier,
-                [
-                    'status' => SupplierOrganisationStatusEnum::OWNER
-                ]
-            );
+            $group=$parent;
         }
 
-
+        /** @var Supplier $supplier */
+        $supplier = $parent->suppliers()->create($modelData);
         $supplier->stats()->create();
         SetCurrencyHistoricFields::run($supplier->currency, $supplier->created_at);
 
 
-        StoreGroupAddressAttachToModel::run($supplier, $addressData, ['scope' => 'contact']);
+        StoreAddressAttachToModel::run($supplier, $addressData, ['scope' => 'contact']);
 
         $supplier->location = $supplier->getLocation();
         $supplier->save();
 
-        OrganisationHydrateProcurement::dispatch(app('currentTenant'));
-        GroupHydrateProcurement::run(app('currentTenant')->group);
+        GroupHydrateProcurement::run($group);
 
         if ($supplier->agent_id) {
             AgentHydrateSuppliers::dispatch($supplier->agent);
@@ -116,15 +92,14 @@ class StoreMarketplaceSupplier
         }
     }
 
-    public function action(Organisation|Agent $owner, ?Agent $agent, $modelData): Supplier
+    public function action(Group|Agent $parent, $modelData): Supplier
     {
         $this->asAction = true;
         $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 
         return $this->handle(
-            owner: $owner,
-            agent: $agent,
+            parent: $parent,
             modelData: Arr::except($validatedData, 'address'),
             addressData: Arr::get($validatedData, 'address')
         );
@@ -137,8 +112,7 @@ class StoreMarketplaceSupplier
         $validatedData = $request->validated();
 
         return $this->handle(
-            owner: app('currentTenant'),
-            agent: null,
+            parent: group(),
             modelData: Arr::except($validatedData, 'address'),
             addressData: Arr::get($validatedData, 'address')
         );
@@ -151,8 +125,7 @@ class StoreMarketplaceSupplier
         $validatedData = $request->validated();
 
         return $this->handle(
-            owner: app('currentTenant'),
-            agent: $agent,
+            parent: $agent,
             modelData: Arr::except($validatedData, 'address'),
             addressData: Arr::get($validatedData, 'address')
         );

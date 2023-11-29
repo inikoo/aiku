@@ -17,7 +17,7 @@ use Spatie\Sluggable\SlugOptions;
 
 trait HasOrder
 {
-    use HasTenantAddress;
+    use HasAddresses;
 
     public function getSlugOptions(): SlugOptions
     {

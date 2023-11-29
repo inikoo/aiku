@@ -10,9 +10,9 @@ namespace App\Models\Procurement;
 use App\Actions\Organisation\Organisation\Hydrators\OrganisationHydrateProcurement;
 use App\Models\Assets\Currency;
 use App\Models\Helpers\Issue;
+use App\Models\Organisation\Group;
 use App\Models\Search\UniversalSearch;
-use App\Models\Organisation\Organisation;
-use App\Models\Traits\HasAddress;
+use App\Models\Traits\HasAddresses;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasPhoto;
 use App\Models\Traits\HasUniversalSearch;
@@ -25,7 +25,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
-use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
@@ -39,13 +38,11 @@ use Spatie\Sluggable\SlugOptions;
  * App\Models\Procurement\Supplier
  *
  * @property int $id
+ * @property int $group_id
  * @property int|null $agent_id
  * @property bool $status
- * @property bool $is_private
  * @property string $slug
  * @property string $code
- * @property string $owner_type Who can edit this model Organisation|Agent|Supplier
- * @property int $owner_id
  * @property string|null $name
  * @property int|null $image_id
  * @property string|null $contact_name
@@ -59,20 +56,20 @@ use Spatie\Sluggable\SlugOptions;
  * @property array $location
  * @property int $currency_id
  * @property array $settings
- * @property array $shared_data
- * @property array $tenant_data
+ * @property array $data
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  * @property string|null $source_type
  * @property int|null $source_id
+ * @property-read Collection<int, \App\Models\Helpers\Address> $addresses
  * @property-read \App\Models\Procurement\Agent|null $agent
  * @property-read Collection<int, \OwenIt\Auditing\Models\Audit> $audits
  * @property-read Currency $currency
  * @property-read array $es_audits
+ * @property-read Group $group
  * @property-read Collection<int, Issue> $issues
  * @property-read MediaCollection<int, \App\Models\Media\Media> $media
- * @property-read Model|\Eloquent $owner
  * @property-read Collection<int, \App\Models\Procurement\SupplierProduct> $products
  * @property-read Collection<int, \App\Models\Procurement\PurchaseOrder> $purchaseOrders
  * @property-read \App\Models\Procurement\SupplierStats|null $stats
@@ -90,7 +87,7 @@ use Spatie\Sluggable\SlugOptions;
 class Supplier extends Model implements HasMedia, Auditable
 {
     use SoftDeletes;
-    use HasAddress;
+    use HasAddresses;
     use HasSlug;
     use HasUniversalSearch;
     use HasPhoto;
@@ -98,16 +95,14 @@ class Supplier extends Model implements HasMedia, Auditable
     use HasHistory;
 
     protected $casts = [
-        'shared_data' => 'array',
-        'tenant_data' => 'array',
+        'data'        => 'array',
         'settings'    => 'array',
         'location'    => 'array',
         'status'      => 'boolean',
     ];
 
     protected $attributes = [
-        'shared_data' => '{}',
-        'tenant_data' => '{}',
+        'data'        => '{}',
         'settings'    => '{}',
         'location'    => '{}',
 
@@ -148,17 +143,9 @@ class Supplier extends Model implements HasMedia, Auditable
             ->saveSlugsTo('slug');
     }
 
-    public function belongsToTenant(?Organisation $organisation): bool
+    public function group(): BelongsTo
     {
-        if (!$organisation) {
-            $organisation = app('currentTenant');
-        }
-
-        if ($this->agent_id) {
-            return $this->agent->owner_id === $organisation->id;
-        } else {
-            return $this->owner_id === $organisation->id;
-        }
+        return $this->belongsTo(Group::class);
     }
 
     public function stats(): HasOne
@@ -196,14 +183,6 @@ class Supplier extends Model implements HasMedia, Auditable
         return $this->morphMany(SupplierDelivery::class, 'provider');
     }
 
-    public function tenantIds(): array
-    {
-        return SupplierOrganisation::where('supplier_id', $this->id)->get()->pluck('tenant_id')->all();
-    }
 
-    public function owner(): MorphTo
-    {
-        return $this->morphTo('owner');
-    }
 
 }

@@ -39,7 +39,7 @@ class DeletePurchaseOrder
                 AgentHydratePurchaseOrders::dispatch($parent);
             }
 
-            OrganisationHydrateProcurement::dispatch(app('currentTenant'));
+            OrganisationHydrateProcurement::dispatch($purchaseOrder->organisation);
 
             return $purchaseOrderDeleted;
         }

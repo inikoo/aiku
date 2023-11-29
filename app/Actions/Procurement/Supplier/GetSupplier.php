@@ -9,25 +9,17 @@ namespace App\Actions\Procurement\Supplier;
 
 use App\Actions\Procurement\Supplier\UI\IndexSuppliers;
 use App\Models\Procurement\Agent;
-use Illuminate\Validation\ValidationException;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class GetSupplier
 {
     use AsAction;
 
-    /**
-     * @throws \Illuminate\Validation\ValidationException
-     */
+
     public function handle(Agent $agent)
     {
-        $currentTenant = app('currentTenant');
-        if($agent->where('owner_id', $currentTenant->id)->exists() && $agent->is_private) {
-            return IndexSuppliers::run($agent);
-        } elseif(!$agent->is_private) {
-            return IndexSuppliers::run($agent);
-        }
+        return IndexSuppliers::run($agent);
 
-        throw ValidationException::withMessages(["You can't view this supplier"]);
+
     }
 }

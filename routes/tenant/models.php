@@ -66,20 +66,20 @@ use App\Actions\Market\Shop\StoreShop;
 use App\Actions\Market\Shop\UpdateShop;
 use App\Actions\OMS\Order\StoreOrder;
 use App\Actions\OMS\Order\UpdateOrder;
+use App\Actions\Organisation\Organisation\UpdateSystemSettings;
 use App\Actions\Procurement\Agent\DeleteAgent;
+use App\Actions\Procurement\Agent\StoreAgent;
 use App\Actions\Procurement\Agent\UpdateAgent;
 use App\Actions\Procurement\Marketplace\Agent\DeleteMarketplaceAgent;
-use App\Actions\Procurement\Marketplace\Agent\StoreMarketplaceAgent;
 use App\Actions\Procurement\Marketplace\Agent\UpdateMarketplaceAgent;
-use App\Actions\Procurement\Marketplace\Supplier\StoreMarketplaceSupplier;
 use App\Actions\Procurement\Marketplace\Supplier\UpdateMarketplaceSupplier;
 use App\Actions\Procurement\PurchaseOrder\StorePurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrder;
 use App\Actions\Procurement\Supplier\DeleteSupplier;
+use App\Actions\Procurement\Supplier\StoreSupplier;
 use App\Actions\Procurement\Supplier\UpdateSupplier;
 use App\Actions\Procurement\SupplierDelivery\StoreSupplierDelivery;
 use App\Actions\Procurement\SupplierDelivery\UpdateSupplierDelivery;
-use App\Actions\Organisation\Organisation\UpdateSystemSettings;
 use App\Actions\UI\Profile\UpdateProfile;
 use App\Actions\Web\Website\DeleteWebsite;
 use App\Actions\Web\Website\StoreWebsite;
@@ -185,13 +185,13 @@ Route::patch('/agent/{agent}', UpdateAgent::class)->name('agent.update');
 Route::post('/agent/{agent}/purchase-order', [StorePurchaseOrder::class, 'inAgent'])->name('agent.purchase-order.store');
 Route::delete('/agent/{agent}', DeleteAgent::class)->name('agent.delete');
 
-Route::post('/agent/', StoreMarketplaceAgent::class)->name('agent.store');
+Route::post('/agent/', StoreAgent::class)->name('agent.store');
 
 Route::patch('/supplier/{supplier}', UpdateSupplier::class)->name('supplier.update');
 Route::delete('/supplier/{supplier}', DeleteSupplier::class)->name('supplier.delete');
-Route::post('/supplier/', StoreMarketplaceSupplier::class)->name('supplier.store');
+Route::post('/supplier/', StoreSupplier::class)->name('supplier.store');
 
-Route::post('/agent/{agent}/supplier', [StoreMarketplaceSupplier::class, 'inAgent'])->name('agent.supplier.store');
+Route::post('/agent/{agent}/supplier', [StoreSupplier::class, 'inAgent'])->name('agent.supplier.store');
 Route::post('/agent/{supplier}/purchase-order', [StorePurchaseOrder::class, 'inSupplier'])->name('supplier.purchase-order.store');
 Route::post('/supplier/{supplier}/purchase-order', [StorePurchaseOrder::class, 'inSupplier'])->name('supplier.purchase-order.store');
 

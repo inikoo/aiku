@@ -11,8 +11,9 @@ use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStatusEnum;
 use App\Models\Assets\Currency;
 use App\Models\Helpers\Address;
+use App\Models\Organisation\Organisation;
 use App\Models\Traits\HasHistory;
-use App\Models\Traits\HasTenantAddress;
+use App\Models\Traits\HasAddresses;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -32,6 +33,7 @@ use Spatie\Sluggable\SlugOptions;
  * App\Models\Procurement\PurchaseOrder
  *
  * @property int $id
+ * @property int $organisation_id
  * @property string $slug
  * @property int $provider_id
  * @property string $provider_type
@@ -68,6 +70,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Currency $currency
  * @property-read array $es_audits
  * @property-read Collection<int, \App\Models\Procurement\PurchaseOrderItem> $items
+ * @property-read Organisation $organisation
  * @property-read Model|\Eloquent $provider
  * @method static \Database\Factories\Procurement\PurchaseOrderFactory factory($count = null, $state = [])
  * @method static Builder|PurchaseOrder newModelQuery()
@@ -81,7 +84,7 @@ use Spatie\Sluggable\SlugOptions;
 class PurchaseOrder extends Model implements Auditable
 {
     use SoftDeletes;
-    use HasTenantAddress;
+    use HasAddresses;
     use HasSlug;
     use HasFactory;
     use HasHistory;
@@ -110,6 +113,11 @@ class PurchaseOrder extends Model implements Auditable
     public function getRouteKeyName(): string
     {
         return 'slug';
+    }
+
+    public function organisation(): BelongsTo
+    {
+        return $this->belongsTo(Organisation::class);
     }
 
     public function provider(): MorphTo

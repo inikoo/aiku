@@ -32,7 +32,7 @@ use App\Models\Marketing\OfferCampaign;
 use App\Models\OMS\Order;
 use App\Models\Organisation\Organisation;
 use App\Models\Search\UniversalSearch;
-use App\Models\Traits\HasTenantAddress;
+use App\Models\Traits\HasAddresses;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Web\Website;
 use Eloquent;
@@ -124,7 +124,7 @@ use Spatie\Sluggable\SlugOptions;
  */
 class Shop extends Model
 {
-    use HasTenantAddress;
+    use HasAddresses;
     use SoftDeletes;
     use HasSlug;
 

@@ -16,19 +16,15 @@ use App\Models\Inventory\Warehouse;
 use App\Models\Market\Shop;
 use App\Models\Media\Media;
 use App\Models\Procurement\Agent;
-use App\Models\Procurement\AgentOrganisation;
+use App\Models\Procurement\PurchaseOrder;
 use App\Models\Procurement\Supplier;
-use App\Models\Procurement\SupplierOrganisation;
 use App\Models\Procurement\SupplierProduct;
-use App\Models\Procurement\SupplierProductOrganisation;
 use App\Models\SysAdmin\SysUser;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
@@ -75,6 +71,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Supplier> $mySuppliers
  * @property-read \App\Models\Organisation\OrganisationProcurementStats|null $procurementStats
  * @property-read \App\Models\Organisation\OrganisationProductionStats|null $productionStats
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, PurchaseOrder> $purchaseOrders
  * @property-read \App\Models\Organisation\OrganisationSalesStats|null $salesStats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Shop> $shops
  * @property-read \App\Models\Organisation\OrganisationStats|null $stats
@@ -199,44 +196,6 @@ class Organisation extends Model implements HasMedia
         return $this->hasMany(Domain::class);
     }
 
-    public function mySuppliers(): MorphMany
-    {
-        return $this->morphMany(Supplier::class, 'owner');
-    }
-
-    public function suppliers(): BelongsToMany
-    {
-        return $this->belongsToMany(Supplier::class)
-            ->using(SupplierOrganisation::class)
-            ->withPivot(['source_id','agent_id','status'])
-            ->withTimestamps();
-    }
-
-    public function myAgents(): HasMany
-    {
-        return $this->hasMany(Agent::class, 'owner_id');
-    }
-
-    public function agents(): BelongsToMany
-    {
-        return $this->belongsToMany(Agent::class)
-            ->using(AgentOrganisation::class)
-            ->withPivot(['source_id', 'status'])
-            ->withTimestamps();
-    }
-
-    public function supplierProducts(): BelongsToMany
-    {
-        return $this->belongsToMany(SupplierProduct::class)
-            ->using(SupplierProductOrganisation::class)
-            ->withPivot(['source_id', 'status'])
-            ->withTimestamps();
-    }
-
-    public function stocks(): MorphMany
-    {
-        return $this->morphMany(Stock::class, 'owner');
-    }
 
     public function sysUser(): MorphOne
     {
@@ -272,6 +231,11 @@ class Organisation extends Model implements HasMedia
     public function warehouses(): HasMany
     {
         return $this->hasMany(Warehouse::class);
+    }
+
+    public function purchaseOrders(): HasMany
+    {
+        return $this->hasMany(PurchaseOrder::class);
     }
 
 }

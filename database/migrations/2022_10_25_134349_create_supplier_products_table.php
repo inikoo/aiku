@@ -35,8 +35,7 @@ return new class () extends Migration {
             $table->unsignedInteger('units_per_pack')->nullable()->comment('units per pack');
             $table->unsignedInteger('units_per_carton')->nullable()->comment('units per carton');
             $table->jsonb('settings');
-            $table->jsonb('shared_data');
-            $table->jsonb('organisation_data');
+            $table->jsonb('data');
             $table->timestampsTz();
             $table->softDeletesTz();
             $table->string('source_type')->index()->nullable();

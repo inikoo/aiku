@@ -25,7 +25,7 @@ class UpdateAgent
 
     public function handle(Agent $agent, array $modelData): Agent
     {
-        $agent = $this->update($agent, $modelData, ['shared_data','tenant_data', 'settings']);
+        $agent = $this->update($agent, $modelData, ['data', 'settings']);
         AgentHydrateUniversalSearch::dispatch($agent);
         return $agent;
     }

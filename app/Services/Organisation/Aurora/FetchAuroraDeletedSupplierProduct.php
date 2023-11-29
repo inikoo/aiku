@@ -29,7 +29,7 @@ class FetchAuroraDeletedSupplierProduct extends FetchAurora
             return;
         }
 
-        $sharedData = [];
+        $data       = [];
         $settings   = [];
 
         $status = true;
@@ -55,7 +55,7 @@ class FetchAuroraDeletedSupplierProduct extends FetchAurora
             $created_at = $auroraDeletedData->{'Supplier Part From'};
         }
 
-        $sharedData['raw_price'] = $auroraDeletedData->{'Supplier Part Unit Cost'} ?? 0;
+        $data['raw_price'] = $auroraDeletedData->{'Supplier Part Unit Cost'} ?? 0;
 
 
 
@@ -75,7 +75,7 @@ class FetchAuroraDeletedSupplierProduct extends FetchAurora
                 'stock_quantity_status' => 'no-applicable',
                 'deleted_at'            => $deleted_at,
 
-                'shared_data' => $sharedData,
+                'data'        => $data,
                 'settings'    => $settings,
                 'created_at'  => $created_at,
                 'source_id'   => $auroraDeletedData->{'Supplier Part Key'}

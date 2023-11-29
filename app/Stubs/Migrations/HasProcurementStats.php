@@ -7,7 +7,6 @@
 
 namespace App\Stubs\Migrations;
 
-use App\Enums\Procurement\AgentOrganisation\AgentOrganisationStatusEnum;
 use App\Enums\Procurement\PurchaseOrderItem\PurchaseOrderItemStateEnum;
 use App\Enums\Procurement\PurchaseOrderItem\PurchaseOrderItemStatusEnum;
 use App\Enums\Procurement\SupplierDelivery\SupplierDeliveryStateEnum;
@@ -24,9 +23,7 @@ trait HasProcurementStats
         $table->unsignedInteger('number_agents')->default(0)->comment('Active agents, status=true');
         $table->unsignedInteger('number_archived_agents')->default(0)->comment('Archived agents, status=false');
 
-        foreach (AgentOrganisationStatusEnum::cases() as $agentTenantStatus) {
-            $table->unsignedInteger('number_agents_status_'.$agentTenantStatus->snake())->default(0);
-        }
+
 
         return $table;
     }

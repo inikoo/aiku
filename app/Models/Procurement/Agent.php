@@ -10,9 +10,9 @@ namespace App\Models\Procurement;
 use App\Actions\Organisation\Group\Hydrators\GroupHydrateProcurement;
 use App\Actions\Organisation\Organisation\Hydrators\OrganisationHydrateProcurement;
 use App\Models\Assets\Currency;
+use App\Models\Organisation\Group;
 use App\Models\Search\UniversalSearch;
-use App\Models\Organisation\Organisation;
-use App\Models\Traits\HasAddress;
+use App\Models\Traits\HasAddresses;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasPhoto;
 use App\Models\Traits\HasUniversalSearch;
@@ -37,12 +37,10 @@ use Spatie\Sluggable\SlugOptions;
  * App\Models\Procurement\Agent
  *
  * @property int $id
+ * @property int $group_id
  * @property bool $status
- * @property bool $is_private
  * @property string $slug
  * @property string $code
- * @property string $owner_type Who can edit this model Organisation|Agent|Supplier
- * @property int $owner_id
  * @property string|null $name
  * @property int|null $image_id
  * @property string|null $contact_name
@@ -56,18 +54,18 @@ use Spatie\Sluggable\SlugOptions;
  * @property array $location
  * @property int $currency_id
  * @property array $settings
- * @property array $shared_data
- * @property array $tenant_data
+ * @property array $data
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  * @property string|null $source_type
  * @property int|null $source_id
+ * @property-read Collection<int, \App\Models\Helpers\Address> $addresses
  * @property-read Collection<int, \OwenIt\Auditing\Models\Audit> $audits
  * @property-read Currency $currency
  * @property-read array $es_audits
+ * @property-read Group $group
  * @property-read MediaCollection<int, \App\Models\Media\Media> $media
- * @property-read Organisation $owner
  * @property-read Collection<int, \App\Models\Procurement\SupplierProduct> $products
  * @property-read Collection<int, \App\Models\Procurement\PurchaseOrder> $purchaseOrders
  * @property-read \App\Models\Procurement\AgentStats|null $stats
@@ -86,17 +84,15 @@ use Spatie\Sluggable\SlugOptions;
 class Agent extends Model implements HasMedia, Auditable
 {
     use SoftDeletes;
-    use HasAddress;
+    use HasAddresses;
     use HasSlug;
-
     use HasUniversalSearch;
     use HasPhoto;
     use HasFactory;
     use HasHistory;
 
     protected $casts = [
-        'shared_data' => 'array',
-        'tenant_data' => 'array',
+        'data'        => 'array',
         'settings'    => 'array',
         'location'    => 'array',
         'status'      => 'boolean',
@@ -104,8 +100,7 @@ class Agent extends Model implements HasMedia, Auditable
     ];
 
     protected $attributes = [
-        'shared_data' => '{}',
-        'tenant_data' => '{}',
+        'data'        => '{}',
         'settings'    => '{}',
         'location'    => '{}',
     ];
@@ -142,6 +137,11 @@ class Agent extends Model implements HasMedia, Auditable
             ->saveSlugsTo('slug');
     }
 
+    public function group(): BelongsTo
+    {
+        return $this->belongsTo(Group::class);
+    }
+
     public function stats(): HasOne
     {
         return $this->hasOne(AgentStats::class);
@@ -162,11 +162,6 @@ class Agent extends Model implements HasMedia, Auditable
         return $this->belongsTo(Currency::class);
     }
 
-    public function owner(): BelongsTo
-    {
-        return $this->belongsTo(Organisation::class, 'owner_id');
-    }
-
     public function getRouteKeyName(): string
     {
         return 'slug';
@@ -182,9 +177,5 @@ class Agent extends Model implements HasMedia, Auditable
         return $this->morphMany(SupplierDelivery::class, 'provider');
     }
 
-    public function tenantIds(): array
-    {
-        return AgentOrganisation::where('agent_id', $this->id)->get()->pluck('tenant_id')->all();
-    }
 
 }

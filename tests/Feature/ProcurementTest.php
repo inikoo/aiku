@@ -7,11 +7,7 @@
 
 
 use App\Actions\Goods\TradeUnit\StoreTradeUnit;
-use App\Actions\Procurement\Agent\ChangeAgentOwner;
-use App\Actions\Procurement\Agent\UpdateAgent;
-use App\Actions\Procurement\Agent\UpdateAgentIsPrivate;
-use App\Actions\Procurement\Marketplace\Agent\StoreMarketplaceAgent;
-use App\Actions\Procurement\Marketplace\Supplier\StoreMarketplaceSupplier;
+use App\Actions\Procurement\Agent\StoreAgent;
 use App\Actions\Procurement\PurchaseOrder\AddItemPurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\DeletePurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\StorePurchaseOrder;
@@ -25,10 +21,9 @@ use App\Actions\Procurement\PurchaseOrder\UpdateStateToManufacturedPurchaseOrder
 use App\Actions\Procurement\PurchaseOrder\UpdateStateToReceivedPurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\UpdateStateToSettledPurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\UpdateStateToSubmittedPurchaseOrder;
-use App\Actions\Procurement\Supplier\GetSupplier;
+use App\Actions\Procurement\Supplier\StoreSupplier;
 use App\Actions\Procurement\SupplierProduct\StoreSupplierProduct;
 use App\Actions\Procurement\SupplierProduct\SyncSupplierProductTradeUnits;
-use App\Actions\Organisation\Organisation\AttachAgent;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Models\Goods\TradeUnit;
 use App\Models\Procurement\Agent;
@@ -36,8 +31,6 @@ use App\Models\Procurement\PurchaseOrder;
 use App\Models\Procurement\PurchaseOrderItem;
 use App\Models\Procurement\Supplier;
 use App\Models\Procurement\SupplierProduct;
-use App\Models\Organisation\Organisation;
-use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Validation\ValidationException;
 
 beforeAll(function () {
@@ -47,23 +40,21 @@ beforeAll(function () {
 
 beforeEach(function () {
     $this->organisation = createOrganisation();
-
+    $this->group        = group();
 });
 
 test('create agent', function () {
     $modelData = Agent::factory()->definition();
-    $agent     = StoreMarketplaceAgent::make()->action(
-        organisation: $this->organisation,
+    $agent     = StoreAgent::make()->action(
+        group: $this->group,
         objectData: $modelData
     );
 
     expect($agent)->toBeInstanceOf(Agent::class)
-        ->and($this->organisation->procurementStats->number_agents)->toBe(1)
-        ->and($this->organisation->procurementStats->number_agents_status_owner)->toBe(1)
-        ->and($this->organisation->procurementStats->number_archived_agents)->toBe(0);
+        ->and($this->group->procurementStats->number_agents)->toBe(1)
+        ->and($this->group->procurementStats->number_archived_agents)->toBe(0);
 
-    $organisation2 = Organisation::where('slug', 'aus')->first();
-    expect($organisation2->procurementStats->number_agents_status_owner)->toBe(0);
+
 
     return $agent;
 });
@@ -71,96 +62,54 @@ test('create agent', function () {
 
 test('create another agent', function () {
     $modelData = Agent::factory()->definition();
-    $agent     = StoreMarketplaceAgent::make()->action(
-        organisation: $this->organisation,
+    $agent     = StoreAgent::make()->action(
+        group: $this->group,
         objectData: $modelData
     );
 
     expect($agent)->toBeInstanceOf(Agent::class)
-        ->and($agent->owner_type)->toBe('Organisation')
-        ->and($agent->owner_id)->toBe($this->organisation->id)
-        ->and($this->organisation->procurementStats->number_agents)->toBe(2)
-        ->and($this->organisation->procurementStats->number_agents_status_owner)->toBe(2)
-        ->and($this->organisation->procurementStats->number_archived_agents)->toBe(0);
+        ->and($this->group->procurementStats->number_agents)->toBe(2)
+        ->and($this->group->procurementStats->number_archived_agents)->toBe(0);
+
     return $agent;
 });
 
 
-test('attach agent to other tenant', function ($agent) {
-    expect($agent)->toBeInstanceOf(Agent::class);
-    $organisation2 = Organisation::where('slug', 'aus')->first();
-    AttachAgent::run(
-        tenant:$organisation2,
-        agent:$agent
-    );
-
-    expect($organisation2->procurementStats->number_agents)->toBe(1)
-        ->and($organisation2->procurementStats->number_agents_status_owner)->toBe(0)
-        ->and($organisation2->procurementStats->number_agents_status_adopted)->toBe(1);
-})->depends('create another agent');
-
-
-test('change agent visibility', function ($agent) {
-    expect($agent->is_private)->toBeFalsy();
-    $agent = UpdateAgentIsPrivate::run($agent, true);
-    expect($agent->is_private)->toBeTrue();
-    $agent = UpdateAgentIsPrivate::run($agent, false);
-    expect($agent->is_private)->toBeFalse();
-})->depends('create agent');
-
-test('change agent owner', function ($agent) {
-    $agent = ChangeAgentOwner::run($agent, $this->organisation);
-
-    $this->assertModelExists($agent);
-})->depends('create agent');
-
-test('check if last tenant cant update', function ($agent) {
-    $organisation2 = Organisation::where('slug', 'aus')->first();
-    $organisation2->makeCurrent();
-
-    expect(function () use ($agent) {
-        UpdateAgent::make()->action($agent, Agent::factory()->definition());
-    })->toThrow(ValidationException::class);
-})->depends('create agent');
-
 test('create independent supplier', function () {
-    $supplier = StoreMarketplaceSupplier::make()->action(
-        owner: $this->organisation,
-        agent: null,
+    $supplier = StoreSupplier::make()->action(
+        parent: $this->group,
         modelData: Supplier::factory()->definition()
     );
     expect($supplier)->toBeInstanceOf(Supplier::class)
         ->and($supplier->agent_id)->toBeNull()
-        ->and($this->organisation->procurementStats->number_suppliers)->toBe(1);
+        ->and($this->group->procurementStats->number_suppliers)->toBe(1);
 
 
     return $supplier;
 });
 
 test('create independent supplier 2', function () {
-    $supplier = StoreMarketplaceSupplier::make()->action(
-        owner: $this->organisation,
-        agent: null,
+    $supplier = StoreSupplier::make()->action(
+        parent: $this->group,
         modelData: Supplier::factory()->definition(),
     );
     expect($supplier)->toBeInstanceOf(Supplier::class)
         ->and($supplier->agent_id)->toBeNull()
-        ->and($this->organisation->procurementStats->number_suppliers)->toBe(2);
+        ->and($this->group->procurementStats->number_suppliers)->toBe(2);
 
 
     return $supplier;
 });
 
 test('number independent supplier should be two', function () {
-    $this->assertEquals(2, $this->organisation->procurementStats->number_suppliers);
+    $this->assertEquals(2, $this->group->procurementStats->number_suppliers);
 });
 
 test('create supplier in agent', function ($agent) {
     expect($agent->stats->number_suppliers)->toBe(0);
 
-    $supplier = StoreMarketplaceSupplier::make()->action(
-        owner: $this->organisation,
-        agent: $agent,
+    $supplier = StoreSupplier::make()->action(
+        parent: $agent,
         modelData: Supplier::factory()->definition()
     );
     $agent->refresh();
@@ -189,14 +138,7 @@ test('create supplier product in agent supplier', function ($supplier) {
     expect($supplierProduct)->toBeInstanceOf(SupplierProduct::class);
 })->depends('create supplier in agent');
 
-test('others tenant can view supplier', function ($agent) {
-    $organisation = Organisation::where('slug', 'aus')->first();
 
-
-    $supplier = GetSupplier::run($agent);
-
-    expect($supplier)->toBeInstanceOf(LengthAwarePaginator::class);
-})->depends('create agent');
 
 test('create trade unit', function () {
     $tradeUnit = StoreTradeUnit::make()->action(TradeUnit::factory()->definition());
@@ -206,7 +148,7 @@ test('create trade unit', function () {
 });
 
 test('create purchase order independent supplier', function ($supplier) {
-    $purchaseOrder = StorePurchaseOrder::make()->action($supplier, PurchaseOrder::factory()->definition());
+    $purchaseOrder = StorePurchaseOrder::make()->action($this->organisation, $supplier, PurchaseOrder::factory()->definition());
 
     expect($purchaseOrder)->toBeInstanceOf(PurchaseOrder::class)
         ->and($supplier->stats->number_purchase_orders)->toBe(1);
@@ -229,14 +171,13 @@ test('add items to purchase order', function ($purchaseOrder) {
 
 
 test('delete purchase order', function () {
-    $supplier = StoreMarketplaceSupplier::make()->action(
-        owner: $this->organisation,
-        agent: null,
+    $supplier = StoreSupplier::make()->action(
+        parent: $this->group,
         modelData: Supplier::factory()->definition()
     );
     StoreSupplierProduct::make()->action($supplier, SupplierProduct::factory()->definition());
 
-    $purchaseOrder = StorePurchaseOrder::make()->action($supplier, PurchaseOrder::factory()->definition());
+    $purchaseOrder = StorePurchaseOrder::make()->action($this->organisation, $supplier, PurchaseOrder::factory()->definition());
 
 
     expect($supplier->stats->number_purchase_orders)->toBe(1);
@@ -281,7 +222,7 @@ test('update purchase order', function ($agent) {
 })->depends('create purchase order independent supplier');
 
 test('create purchase order by agent', function ($agent) {
-    $purchaseOrder = StorePurchaseOrder::make()->action($agent, PurchaseOrder::factory()->definition());
+    $purchaseOrder = StorePurchaseOrder::make()->action($this->organisation, $agent, PurchaseOrder::factory()->definition());
     $this->assertModelExists($purchaseOrder);
 })->depends('create agent');
 

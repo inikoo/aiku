@@ -19,7 +19,7 @@ class UpdateSupplier
 
     public function handle(Supplier $supplier, array $modelData): Supplier
     {
-        $supplier = $this->update($supplier, $modelData, ['shared_data','tenant_data','settings']);
+        $supplier = $this->update($supplier, $modelData, ['data','settings']);
         SupplierHydrateUniversalSearch::dispatch($supplier);
         return $supplier;
     }

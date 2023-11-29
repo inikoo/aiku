@@ -1,20 +1,18 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Sun, 25 Jun 2023 09:32:07 Malaysia Time, Pantai Lembeng, Bali, Id
+ * Created: Wed, 29 Nov 2023 23:00:18 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Procurement\Marketplace\Agent;
+namespace App\Actions\Procurement\Agent;
 
 use App\Actions\Assets\Currency\SetCurrencyHistoricFields;
-use App\Actions\Helpers\GroupAddress\StoreGroupAddressAttachToModel;
-use App\Actions\Procurement\Agent\Hydrators\AgentHydrateUniversalSearch;
+use App\Actions\Helpers\Address\StoreAddressAttachToModel;
 use App\Actions\Organisation\Group\Hydrators\GroupHydrateProcurement;
-use App\Actions\Organisation\Organisation\Hydrators\OrganisationHydrateProcurement;
-use App\Enums\Procurement\AgentOrganisation\AgentOrganisationStatusEnum;
+use App\Actions\Procurement\Agent\Hydrators\AgentHydrateUniversalSearch;
+use App\Models\Organisation\Group;
 use App\Models\Procurement\Agent;
-use App\Models\Organisation\Organisation;
 use App\Rules\ValidAddress;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
@@ -24,7 +22,7 @@ use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class StoreMarketplaceAgent
+class StoreAgent
 {
     use AsAction;
     use WithAttributes;
@@ -39,27 +37,19 @@ class StoreMarketplaceAgent
         return $request->user()->hasPermissionTo("procurement.edit");
     }
 
-    public function handle(Organisation $owner, array $modelData, array $addressData = []): Agent
+    public function handle(Group $group, array $modelData, array $addressData = []): Agent
     {
-        $modelData['owner_type'] = 'Organisation';
         /** @var Agent $agent */
-        $agent = $owner->myAgents()->create($modelData);
+        $agent = $group->agents()->create($modelData);
         $agent->stats()->create();
 
-        $owner->agents()->attach(
-            $agent,
-            ['status' => AgentOrganisationStatusEnum::OWNER]
-        );
-
         SetCurrencyHistoricFields::run($agent->currency, $agent->created_at);
-
-        StoreGroupAddressAttachToModel::run($agent, $addressData, ['scope' => 'contact']);
+        StoreAddressAttachToModel::run($agent, $addressData, ['scope' => 'contact']);
         $agent->location = $agent->getLocation();
         $agent->save();
 
-        GroupHydrateProcurement::run(app('currentTenant')->group);
+        GroupHydrateProcurement::run($group);
         AgentHydrateUniversalSearch::dispatch($agent);
-        OrganisationHydrateProcurement::dispatch(app('currentTenant'));
 
 
         return $agent;
@@ -86,14 +76,14 @@ class StoreMarketplaceAgent
         }
     }
 
-    public function action(Organisation $organisation, $objectData): Agent
+    public function action(Group $group, $objectData): Agent
     {
         $this->asAction = true;
         $this->setRawAttributes($objectData);
         $validatedData = $this->validateAttributes();
 
         return $this->handle(
-            owner: $organisation,
+            group: $group,
             modelData: Arr::except($validatedData, 'address'),
             addressData: Arr::get($validatedData, 'address')
         );
@@ -108,7 +98,7 @@ class StoreMarketplaceAgent
         $request->validate();
         $validatedData=$request->validated();
         return $this->handle(
-            owner: app('currentTenant'),
+            group: group(),
             modelData: Arr::except($validatedData, 'address'),
             addressData: Arr::get($validatedData, 'address')
         );

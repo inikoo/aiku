@@ -15,7 +15,7 @@ use App\Models\Helpers\Address;
 use App\Models\Market\Shop;
 use App\Models\OMS\Order;
 use App\Models\Search\UniversalSearch;
-use App\Models\Traits\HasTenantAddress;
+use App\Models\Traits\HasAddresses;
 use App\Models\Traits\HasUniversalSearch;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
@@ -89,7 +89,7 @@ class DeliveryNote extends Model
 {
     use SoftDeletes;
     use HasSlug;
-    use HasTenantAddress;
+    use HasAddresses;
 
     use HasUniversalSearch;
     use HasFactory;
