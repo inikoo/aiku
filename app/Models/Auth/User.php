@@ -57,7 +57,6 @@ use Spatie\MediaLibrary\InteractsWithMedia;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
  * @property-read \App\Models\Notifications\FcmToken|null $fcmToken
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Notifications\FcmToken> $fcmTokens
- * @property-read array $es_audits
  * @property-read Language $language
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Media\Media> $media
  * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
@@ -136,7 +135,6 @@ class User extends Authenticatable implements HasMedia, Auditable
 
     public function parent(): MorphTo
     {
-        /** @noinspection PhpUndefinedMethodInspection */
         return $this->morphTo()->withTrashed();
     }
 

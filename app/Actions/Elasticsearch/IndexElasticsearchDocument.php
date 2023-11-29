@@ -7,7 +7,7 @@
 
 namespace App\Actions\Elasticsearch;
 
-use App\Enums\Elasticsearch\ElasticsearchTypeEnum;
+use App\Enums\Elasticsearch\ElasticsearchUserRequestTypeEnum;
 use App\Models\Backup\ActionHistory;
 use App\Models\Backup\VisitHistory;
 use Elastic\Elasticsearch\Client;
@@ -23,7 +23,7 @@ class IndexElasticsearchDocument
     use AsAction;
     use AsObject;
 
-    public function handle(string $index, array $body, string $type = ElasticsearchTypeEnum::VISIT->value, bool $isRestore = false): bool|Elasticsearch
+    public function handle(string $index, array $body, string $type = ElasticsearchUserRequestTypeEnum::VISIT->value, bool $isRestore = false): bool|Elasticsearch
     {
         $client = BuildElasticsearchClient::run();
 
@@ -35,11 +35,11 @@ class IndexElasticsearchDocument
         ];
 
         if (!$isRestore) {
-            if ($type == ElasticsearchTypeEnum::VISIT->value) {
+            if ($type == ElasticsearchUserRequestTypeEnum::VISIT->value) {
                 VisitHistory::create($params);
             }
 
-            if ($type == ElasticsearchTypeEnum::ACTION->value) {
+            if ($type == ElasticsearchUserRequestTypeEnum::ACTION->value) {
                 ActionHistory::create($params);
             }
         }

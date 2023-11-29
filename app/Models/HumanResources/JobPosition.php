@@ -36,7 +36,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
- * @property-read array $es_audits
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Role> $roles
  * @method static Builder|JobPosition newModelQuery()
  * @method static Builder|JobPosition newQuery()

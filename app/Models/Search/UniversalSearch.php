@@ -1,13 +1,12 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Sun, 12 Nov 2023 00:40:58 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Wed, 12 Jul 2023 13:07:45 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
 namespace App\Models\Search;
 
-use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
@@ -18,7 +17,7 @@ use Laravel\Scout\Searchable;
  * App\Models\Search\UniversalSearch
  *
  * @property int $id
- * @property array $organisations
+ * @property mixed $organisations
  * @property string|null $model_type
  * @property int|null $model_id
  * @property string|null $section
@@ -30,29 +29,19 @@ use Laravel\Scout\Searchable;
  * @method static Builder|UniversalSearch newModelQuery()
  * @method static Builder|UniversalSearch newQuery()
  * @method static Builder|UniversalSearch query()
- * @mixin Eloquent
+ * @mixin \Eloquent
  */
 class UniversalSearch extends Model
 {
     use Searchable;
 
-    protected $casts = [
-        'organisations'            => 'array',
-
-
-    ];
-
-    protected $attributes = [
-        'organisations'            => '{}',
-    ];
-
     protected $guarded = [];
 
-
+    protected $table = 'universal_searches';
 
     public function searchableAs(): string
     {
-        return config('app.universal_search_index');
+        return config('elasticsearch.index_prefix').'search';
     }
 
     public function toSearchableArray(): array
@@ -64,6 +53,5 @@ class UniversalSearch extends Model
     {
         return $this->morphTo();
     }
-
 
 }

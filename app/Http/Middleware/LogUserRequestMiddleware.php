@@ -3,7 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Actions\Auth\User\LogUserRequest;
-use App\Enums\Elasticsearch\ElasticsearchTypeEnum;
+use App\Enums\Elasticsearch\ElasticsearchUserRequestTypeEnum;
 use Closure;
 use Illuminate\Http\Request;
 
@@ -27,7 +27,7 @@ class LogUserRequestMiddleware
                 ],
                 $request->ip(),
                 $request->header('User-Agent'),
-                ElasticsearchTypeEnum::VISIT->value,
+                ElasticsearchUserRequestTypeEnum::VISIT->value,
                 $user,
             );
 

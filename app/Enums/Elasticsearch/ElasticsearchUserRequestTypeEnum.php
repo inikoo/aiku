@@ -9,10 +9,13 @@ namespace App\Enums\Elasticsearch;
 
 use App\Enums\EnumHelperTrait;
 
-enum ElasticsearchTypeEnum: string
+enum ElasticsearchUserRequestTypeEnum: string
 {
     use EnumHelperTrait;
 
-    case VISIT   = 'VISIT';
-    case ACTION  = 'ACTION';
+    case VISIT        = 'visit';
+    case ACTION       = 'action';
+    case FAIL_LOGIN   = 'fail_login';
+    case LOGIN        = 'login';
+    case LOGOUT       = 'logout';
 }

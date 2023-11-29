@@ -9,7 +9,7 @@ namespace App\Actions\Helpers\History;
 
 use App\Actions\Auth\User\Traits\WithFormattedUserHistories;
 use App\Actions\Elasticsearch\BuildElasticsearchClient;
-use App\Enums\Elasticsearch\ElasticsearchTypeEnum;
+use App\Enums\Elasticsearch\ElasticsearchUserRequestTypeEnum;
 use App\InertiaTable\InertiaTable;
 use Closure;
 use Elastic\Elasticsearch\Client;
@@ -46,7 +46,7 @@ class IndexHistories
                                 'must' => [
                                     ['match' => ['auditable_type' => $auditableType]],
                                     ['match' => ['auditable_id' => $auditableId]],
-                                    ['match' => ['type' => ElasticsearchTypeEnum::ACTION->value]],
+                                    ['match' => ['type' => ElasticsearchUserRequestTypeEnum::ACTION->value]],
                                 ],
                                 'should' => [
                                     ['match' => ['user_id' => auth()->user()->id]],

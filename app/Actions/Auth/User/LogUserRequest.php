@@ -9,7 +9,7 @@ namespace App\Actions\Auth\User;
 
 use App\Actions\Elasticsearch\IndexElasticsearchDocument;
 use App\Actions\Traits\WithOrganisationJob;
-use App\Enums\Elasticsearch\ElasticsearchTypeEnum;
+use App\Enums\Elasticsearch\ElasticsearchUserRequestTypeEnum;
 use App\Models\Auth\User;
 use hisorange\BrowserDetect\Parser as Browser;
 use Illuminate\Support\Carbon;
@@ -26,7 +26,7 @@ class LogUserRequest
         $organisation    = app('currentTenant');
         $indexType       = 'user_requests_';
 
-        if ($type == ElasticsearchTypeEnum::ACTION->value) {
+        if ($type == ElasticsearchUserRequestTypeEnum::ACTION->value) {
             $indexType = 'history_';
         }
 

@@ -10,10 +10,10 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Services\ScoutElasticSearch\EloquentHitsIteratorAggregate;
 use Elastic\Elasticsearch\Client;
 use Elastic\Elasticsearch\ClientBuilder;
 use Illuminate\Support\ServiceProvider;
-use Matchish\ScoutElasticSearch\ElasticSearch\EloquentHitsIteratorAggregate;
 use Matchish\ScoutElasticSearch\ElasticSearch\HitsIteratorAggregate;
 
 final class ElasticSearchServiceProvider extends ServiceProvider

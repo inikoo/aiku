@@ -67,7 +67,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $delete_comment
  * @property int|null $source_id
  * @property-read Collection<int, \OwenIt\Auditing\Models\Audit> $audits
- * @property-read array $es_audits
  * @property-read Collection<int, Issue> $issues
  * @property-read Collection<int, \App\Models\HumanResources\JobPosition> $jobPositions
  * @property-read MediaCollection<int, \App\Models\Media\Media> $media

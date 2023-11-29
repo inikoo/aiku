@@ -119,7 +119,7 @@ return [
     | Encryption Key
     |--------------------------------------------------------------------------
     |
-    | This key is used by the Illuminate encrypter service and should be set
+    | This key is used by the Illuminate encrypted service and should be set
     | to a random, 32 character string, otherwise these encrypted strings
     | will not be safe. Please do this before deploying an application!
     |
@@ -135,7 +135,7 @@ return [
     |--------------------------------------------------------------------------
     |
     | These configuration options determine the driver used to determine and
-    | manage Laravel's "maintenance mode" status. The "cache" driver will
+    | manage Laravel "maintenance mode" status. The "cache" driver will
     | allow maintenance mode to be controlled across multiple machines.
     |
     | Supported drivers: "file", "cache"
@@ -229,5 +229,4 @@ return [
 
     'domain'                 => env('APP_CENTRAL_DOMAIN'),
     'media_domain'           => env('MEDIA_DOMAIN'),
-    'universal_search_index' => env('APP_NAME', 'aiku').(env('APP_ENV') == 'testing' ? '_testing' : '').'_search'
 ];

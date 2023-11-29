@@ -9,7 +9,6 @@ namespace App\Actions\Organisation\Organisation;
 
 use App\Actions\Accounting\PaymentServiceProvider\StorePaymentServiceProvider;
 use App\Actions\Assets\Currency\SetCurrencyHistoricFields;
-use App\Actions\Elasticsearch\CreateElasticSearchOrganisationAlias;
 
 use App\Actions\Organisation\Group\Hydrators\GroupHydrateOrganisations;
 use App\Models\Assets\Country;
@@ -45,8 +44,6 @@ class StoreOrganisation
 
         SetCurrencyHistoricFields::run($organisation->currency, $organisation->created_at);
 
-
-        CreateElasticSearchOrganisationAlias::run($organisation);
         SetOrganisationLogo::run($organisation);
         $organisation->stats()->create();
         $organisation->humanResourcesStats()->create();

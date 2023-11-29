@@ -48,7 +48,6 @@ use App\Models\Inventory\Location;
  * @property int|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
  * @property-read Customer $customer
- * @property-read array $es_audits
  * @property-read Location|null $location
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
  * @method static Builder|StoredItem newModelQuery()

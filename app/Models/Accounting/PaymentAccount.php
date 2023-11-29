@@ -40,7 +40,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $deleted_at
  * @property int|null $source_id
  * @property-read Collection<int, \OwenIt\Auditing\Models\Audit> $audits
- * @property-read array $es_audits
  * @property-read Organisation $organisation
  * @property-read \App\Models\Accounting\PaymentServiceProvider $paymentServiceProvider
  * @property-read Collection<int, \App\Models\Accounting\Payment> $payments

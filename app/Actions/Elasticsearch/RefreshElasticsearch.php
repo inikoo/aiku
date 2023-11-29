@@ -26,38 +26,36 @@ class RefreshElasticsearch
     /**
      * @throws \Exception
      */
-    public function handle()
+    public function handle(): void
     {
+        $indices = ['search', 'content_blocks', 'customer_users_requests', 'organisation_users_requests'];
+
         $client = BuildElasticsearchClient::run();
         if ($client instanceof Exception) {
             throw $client;
         } else {
-            $params = [
-                'index' => config('app.universal_search_index')
-            ];
+            foreach ($indices as $index) {
+                $params = [
+                    'index' => config('elasticsearch.index_prefix').$index
+                ];
 
-            $response = $client->indices()->exists($params);
+                $response = $client->indices()->exists($params);
 
-            if ($response->getStatusCode() != 404) {
-                $client->indices()->delete($params);
+                if ($response->getStatusCode() != 404) {
+                    $client->indices()->delete($params);
+                }
+
+                $client->indices()->create($params);
             }
-
-            return $client->indices()->create($params);
         }
-
     }
 
     public function asCommand(Command $command): int
     {
         try {
-            $response = $this->handle();
-            if ($response['acknowledged']) {
-                $command->line("Elasticsearch indices successfully refreshed 🔃");
+            $this->handle();
 
-                return 0;
-            }
-
-            return 1;
+            return 0;
         } catch (Exception $exception) {
             $msg = $exception->getMessage();
             $command->error("Elasticsearch indices refresh failed ($msg)");
