@@ -34,3 +34,4 @@ load_aurora_db.sh
 /load_migration.sh
 /load_my_snapshot.sh
 /dump_aurora_db.sh
+.phpstorm.meta.php
