@@ -10,15 +10,12 @@ namespace App\Models\Organisation;
 use App\Models\Accounting\PaymentServiceProvider;
 use App\Models\Assets\Currency;
 use App\Models\Central\Domain;
+use App\Models\Dispatch\Shipper;
 use App\Models\HumanResources\Employee;
-use App\Models\Inventory\Stock;
 use App\Models\Inventory\Warehouse;
 use App\Models\Market\Shop;
 use App\Models\Media\Media;
-use App\Models\Procurement\Agent;
 use App\Models\Procurement\PurchaseOrder;
-use App\Models\Procurement\Supplier;
-use App\Models\Procurement\SupplierProduct;
 use App\Models\SysAdmin\SysUser;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -54,7 +51,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $deleted_at
  * @property-read \App\Models\Organisation\OrganisationAccountingStats|null $accountingStats
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Agent> $agents
  * @property-read \App\Models\Organisation\OrganisationCRMStats|null $crmStats
  * @property-read Currency $currency
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Domain> $domains
@@ -67,17 +63,13 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Organisation\OrganisationMailStats|null $mailStats
  * @property-read \App\Models\Organisation\OrganisationMarketStats|null $marketStats
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, Media> $media
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Agent> $myAgents
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Supplier> $mySuppliers
  * @property-read \App\Models\Organisation\OrganisationProcurementStats|null $procurementStats
  * @property-read \App\Models\Organisation\OrganisationProductionStats|null $productionStats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, PurchaseOrder> $purchaseOrders
  * @property-read \App\Models\Organisation\OrganisationSalesStats|null $salesStats
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Shipper> $shippers
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Shop> $shops
  * @property-read \App\Models\Organisation\OrganisationStats|null $stats
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Stock> $stocks
- * @property-read \Illuminate\Database\Eloquent\Collection<int, SupplierProduct> $supplierProducts
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Supplier> $suppliers
  * @property-read SysUser|null $sysUser
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Warehouse> $warehouses
  * @property-read \App\Models\Organisation\OrganisationWebStats|null $webStats
@@ -236,6 +228,11 @@ class Organisation extends Model implements HasMedia
     public function purchaseOrders(): HasMany
     {
         return $this->hasMany(PurchaseOrder::class);
+    }
+
+    public function shippers(): HasMany
+    {
+        return $this->hasMany(Shipper::class);
     }
 
 }

@@ -8,11 +8,13 @@
 namespace App\Models\Dispatch;
 
 use App\Models\Helpers\Issue;
+use App\Models\Organisation\Organisation;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -25,6 +27,7 @@ use Spatie\Sluggable\SlugOptions;
  * App\Models\Dispatch\Shipper
  *
  * @property int $id
+ * @property int $organisation_id
  * @property string $slug
  * @property string $code
  * @property string|null $api_shipper
@@ -41,6 +44,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  * @property int|null $source_id
+ * @property-read Organisation|null $group
  * @property-read Collection<int, Issue> $issues
  * @property-read Collection<int, \App\Models\Dispatch\Shipment> $shipments
  * @method static \Database\Factories\Dispatch\ShipperFactory factory($count = null, $state = [])
@@ -78,6 +82,10 @@ class Shipper extends Model
             ->doNotGenerateSlugsOnUpdate();
     }
 
+    public function group(): BelongsTo
+    {
+        return $this->belongsTo(Organisation::class);
+    }
     public function shipments(): HasMany
     {
         return $this->hasMany(Shipment::class);

@@ -8,6 +8,7 @@
 namespace App\Actions\Dispatch\Shipper;
 
 use App\Models\Dispatch\Shipper;
+use App\Models\Organisation\Organisation;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
@@ -16,9 +17,11 @@ class StoreShipper
     use AsAction;
     use WithAttributes;
 
-    public function handle(array $modelData): Shipper
+    public function handle(Organisation $organisation, array $modelData): Shipper
     {
-        return Shipper::create($modelData);
+        /** @var Shipper $shipper */
+        $shipper= $organisation->shippers()->create($modelData);
+        return $shipper;
     }
 
     public function rules(): array
@@ -36,11 +39,11 @@ class StoreShipper
         ];
     }
 
-    public function action(array $objectData): Shipper
+    public function action(Organisation $organisation, $objectData): Shipper
     {
         $this->setRawAttributes($objectData);
         $validatedData = $this->validateAttributes();
 
-        return $this->handle($validatedData);
+        return $this->handle($organisation, $validatedData);
     }
 }
