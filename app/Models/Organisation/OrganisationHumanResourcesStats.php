@@ -28,10 +28,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_employees_gender_other
  * @property int $number_job_positions
  * @property int $number_workplaces
- * @property int $number_clocking_machines
- * @property int $number_clockings
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
  * @property int $number_workplaces_type_hq
  * @property int $number_workplaces_type_branch
  * @property int $number_workplaces_type_home
@@ -39,36 +35,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_workplaces_type_client_premises
  * @property int $number_workplaces_type_road
  * @property int $number_workplaces_type_other
+ * @property int $number_clocking_machines
+ * @property int $number_clockings
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Organisation\Organisation $organisation
  * @method static \Illuminate\Database\Eloquent\Builder|OrganisationHumanResourcesStats newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|OrganisationHumanResourcesStats newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|OrganisationHumanResourcesStats query()
- * @method static \Illuminate\Database\Eloquent\Builder|OrganisationHumanResourcesStats whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|OrganisationHumanResourcesStats whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|OrganisationHumanResourcesStats whereNumberClockingMachines($value)
- * @method static \Illuminate\Database\Eloquent\Builder|OrganisationHumanResourcesStats whereNumberClockings($value)
- * @method static \Illuminate\Database\Eloquent\Builder|OrganisationHumanResourcesStats whereNumberEmployees($value)
- * @method static \Illuminate\Database\Eloquent\Builder|OrganisationHumanResourcesStats whereNumberEmployeesGenderFemale($value)
- * @method static \Illuminate\Database\Eloquent\Builder|OrganisationHumanResourcesStats whereNumberEmployeesGenderMale($value)
- * @method static \Illuminate\Database\Eloquent\Builder|OrganisationHumanResourcesStats whereNumberEmployeesGenderOther($value)
- * @method static \Illuminate\Database\Eloquent\Builder|OrganisationHumanResourcesStats whereNumberEmployeesStateHired($value)
- * @method static \Illuminate\Database\Eloquent\Builder|OrganisationHumanResourcesStats whereNumberEmployeesStateLeft($value)
- * @method static \Illuminate\Database\Eloquent\Builder|OrganisationHumanResourcesStats whereNumberEmployeesStateWorking($value)
- * @method static \Illuminate\Database\Eloquent\Builder|OrganisationHumanResourcesStats whereNumberEmployeesTypeEmployee($value)
- * @method static \Illuminate\Database\Eloquent\Builder|OrganisationHumanResourcesStats whereNumberEmployeesTypeTemporalWorker($value)
- * @method static \Illuminate\Database\Eloquent\Builder|OrganisationHumanResourcesStats whereNumberEmployeesTypeVolunteer($value)
- * @method static \Illuminate\Database\Eloquent\Builder|OrganisationHumanResourcesStats whereNumberEmployeesTypeWorkExperience($value)
- * @method static \Illuminate\Database\Eloquent\Builder|OrganisationHumanResourcesStats whereNumberJobPositions($value)
- * @method static \Illuminate\Database\Eloquent\Builder|OrganisationHumanResourcesStats whereNumberWorkplaces($value)
- * @method static \Illuminate\Database\Eloquent\Builder|OrganisationHumanResourcesStats whereNumberWorkplacesTypeBranch($value)
- * @method static \Illuminate\Database\Eloquent\Builder|OrganisationHumanResourcesStats whereNumberWorkplacesTypeClientPremises($value)
- * @method static \Illuminate\Database\Eloquent\Builder|OrganisationHumanResourcesStats whereNumberWorkplacesTypeGroupPremisses($value)
- * @method static \Illuminate\Database\Eloquent\Builder|OrganisationHumanResourcesStats whereNumberWorkplacesTypeHome($value)
- * @method static \Illuminate\Database\Eloquent\Builder|OrganisationHumanResourcesStats whereNumberWorkplacesTypeHq($value)
- * @method static \Illuminate\Database\Eloquent\Builder|OrganisationHumanResourcesStats whereNumberWorkplacesTypeOther($value)
- * @method static \Illuminate\Database\Eloquent\Builder|OrganisationHumanResourcesStats whereNumberWorkplacesTypeRoad($value)
- * @method static \Illuminate\Database\Eloquent\Builder|OrganisationHumanResourcesStats whereOrganisationId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|OrganisationHumanResourcesStats whereUpdatedAt($value)
  * @mixin \Eloquent
  */
 class OrganisationHumanResourcesStats extends Model

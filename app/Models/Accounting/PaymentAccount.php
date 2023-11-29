@@ -7,6 +7,7 @@
 
 namespace App\Models\Accounting;
 
+use App\Models\Organisation\Organisation;
 use App\Models\Traits\HasHistory;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
@@ -24,7 +25,7 @@ use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
 /**
- * App\Models\Payments\PaymentAccount
+ * App\Models\Accounting\PaymentAccount
  *
  * @property int $id
  * @property int $payment_service_provider_id
@@ -39,6 +40,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $source_id
  * @property-read Collection<int, \OwenIt\Auditing\Models\Audit> $audits
  * @property-read array $es_audits
+ * @property-read Organisation|null $organisation
  * @property-read \App\Models\Accounting\PaymentServiceProvider $paymentServiceProvider
  * @property-read Collection<int, \App\Models\Accounting\Payment> $payments
  * @property-read \App\Models\Accounting\PaymentAccountStats|null $stats
@@ -80,6 +82,11 @@ class PaymentAccount extends Model implements Auditable
             ->generateSlugsFrom('code')
             ->saveSlugsTo('slug')
             ->doNotGenerateSlugsOnUpdate();
+    }
+
+    public function organisation(): BelongsTo
+    {
+        return $this->belongsTo(Organisation::class);
     }
 
     public function paymentServiceProvider(): BelongsTo

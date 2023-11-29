@@ -61,8 +61,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Organisation\OrganisationCRMStats|null $crmStats
  * @property-read Currency $currency
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Domain> $domains
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Employee> $employees
  * @property-read \App\Models\Organisation\OrganisationFulfilmentStats|null $fulfilmentStats
  * @property-read \App\Models\Organisation\Group $group
+ * @property-read \App\Models\Organisation\OrganisationHumanResourcesStats|null $humanResourcesStats
  * @property-read \App\Models\Organisation\OrganisationInventoryStats|null $inventoryStats
  * @property-read Media|null $logo
  * @property-read \App\Models\Organisation\OrganisationMailStats|null $mailStats
@@ -73,6 +75,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Organisation\OrganisationProcurementStats|null $procurementStats
  * @property-read \App\Models\Organisation\OrganisationProductionStats|null $productionStats
  * @property-read \App\Models\Organisation\OrganisationSalesStats|null $salesStats
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Shop> $shops
  * @property-read \App\Models\Organisation\OrganisationStats|null $stats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Stock> $stocks
  * @property-read \Illuminate\Database\Eloquent\Collection<int, SupplierProduct> $supplierProducts

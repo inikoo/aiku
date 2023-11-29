@@ -18,6 +18,7 @@ use App\Actions\CRM\Prospect\StoreProspect;
 use App\Actions\CRM\Prospect\UpdateProspect;
 use App\Actions\Dropshipping\CustomerClient\StoreCustomerClient;
 use App\Actions\Dropshipping\CustomerClient\UpdateCustomerClient;
+use App\Actions\Helpers\CurrencyExchange\GetCurrencyExchange;
 use App\Actions\Market\ShippingZone\StoreShippingZone;
 use App\Actions\Market\ShippingZone\UpdateShippingZone;
 use App\Actions\Market\ShippingZoneSchema\StoreShippingZoneSchema;
@@ -276,7 +277,7 @@ test('delete order', function ($order) {
 })->depends('create order');
 
 test('create customer client', function () {
-    $shop           = StoreShop::make()->action(Shop::factory()->definition());
+    $shop           = StoreShop::make()->action($this->organisation, Shop::factory()->definition());
     $customer       = StoreCustomer::make()->action($shop, Customer::factory()->definition(), Address::factory()->definition(), );
     $customerClient = StoreCustomerClient::make()->action($customer, CustomerClient::factory()->definition(), Address::factory()->definition(), );
     $this->assertModelExists($customerClient);
@@ -324,7 +325,14 @@ test('update payment account', function ($paymentAccount) {
 test(
     'create payment',
     function ($paymentAccount) {
-        $shop     = StoreShop::make()->action(Shop::factory()->definition());
+
+
+
+        GetCurrencyExchange::shouldRun()
+            //->with(42)
+            ->andReturn(2);
+
+        $shop     = StoreShop::make()->action($this->organisation, Shop::factory()->definition());
         $customer = StoreCustomer::make()->action(
             $shop,
             Customer::factory()->definition(),

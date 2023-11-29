@@ -18,8 +18,6 @@ use App\Actions\Marketing\OfferCampaign\StoreOfferCampaign;
 use App\Actions\Marketing\OfferCampaign\UpdateOfferCampaign;
 use App\Actions\Marketing\OfferComponent\StoreOfferComponent;
 use App\Actions\Marketing\OfferComponent\UpdateOfferComponent;
-use App\Actions\Organisation\Group\StoreGroup;
-use App\Actions\Organisation\Organisation\StoreOrganisation;
 use App\Enums\Market\Product\ProductTypeEnum;
 use App\Models\Market\Product;
 use App\Models\Market\ProductCategory;
@@ -27,8 +25,6 @@ use App\Models\Market\Shop;
 use App\Models\Marketing\Offer;
 use App\Models\Marketing\OfferCampaign;
 use App\Models\Marketing\OfferComponent;
-use App\Models\Organisation\Group;
-use App\Models\Organisation\Organisation;
 
 beforeAll(function () {
     loadDB('test_base_database.dump');
@@ -36,16 +32,11 @@ beforeAll(function () {
 
 
 beforeEach(function () {
-    $organisation = Organisation::first();
-    if (!$organisation) {
-        $group        = StoreGroup::make()->action(Group::factory()->definition());
-        $organisation = StoreOrganisation::make()->action($group, Organisation::factory()->definition());
-    }
-
+    $this->organisation = createOrganisation();
 });
 
 test('create shop', function () {
-    $shop = StoreShop::make()->action(Shop::factory()->definition());
+    $shop = StoreShop::make()->action($this->organisation, Shop::factory()->definition());
 
     expect($shop)->toBeInstanceOf(Shop::class);
 
@@ -121,9 +112,9 @@ test('create product', function ($shop) {
     $productData = array_merge(
         Product::factory()->definition(),
         [
-            'owner_type'=> 'Organisation',
-            'owner_id'  => app('currentTenant')->id,
-            'type'      => ProductTypeEnum::PHYSICAL_GOOD->value,
+            'owner_type' => 'Organisation',
+            'owner_id'   => $this->organisation->id,
+            'type'       => ProductTypeEnum::PHYSICAL_GOOD->value,
 
         ]
     );

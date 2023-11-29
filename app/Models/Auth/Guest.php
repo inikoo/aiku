@@ -49,6 +49,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
  * @property-read array $es_audits
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, JobPosition> $jobPositions
  * @property-read MediaCollection<int, \App\Models\Media\Media> $media
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
  * @property-read \App\Models\Auth\User|null $user

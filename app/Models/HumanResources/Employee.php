@@ -36,6 +36,7 @@ use Spatie\Sluggable\SlugOptions;
  * App\Models\HumanResources\Employee
  *
  * @property int $id
+ * @property int $organisation_id
  * @property string $slug
  * @property string|null $work_email
  * @property string|null $contact_name

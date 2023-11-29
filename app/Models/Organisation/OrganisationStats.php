@@ -15,10 +15,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *
  * @property int $id
  * @property int $organisation_id
- * @property int $number_employees
- * @property int $number_employees_state_hired
- * @property int $number_employees_state_working
- * @property int $number_employees_state_left
  * @property int $number_guests
  * @property int $number_guests_status_active
  * @property int $number_guests_status_inactive

@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 20 Jun 2023 20:32:25 Malaysia Time, Pantai Lembeng, Bali, Id
+ * Created: Tue, 20 Jun 2023 20:32:25 Malaysia Time, Pantai Lembeng, Bali, Indonesia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
@@ -85,7 +85,7 @@ class StoreCustomer
 
         ShopHydrateCustomers::dispatch($customer->shop)->delay($this->hydratorsDelay);
         ShopHydrateCustomerInvoices::dispatch($customer->shop)->delay($this->hydratorsDelay);
-        OrganisationHydrateCustomers::dispatch(app('currentTenant'))->delay($this->hydratorsDelay);
+        OrganisationHydrateCustomers::dispatch($customer->shop->organisation)->delay($this->hydratorsDelay);
 
         //        CustomerHydrateUniversalSearch::dispatch($customer);
 

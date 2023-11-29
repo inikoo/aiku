@@ -30,6 +30,7 @@ use App\Models\Helpers\TaxNumber;
 use App\Models\Mail\Outbox;
 use App\Models\Marketing\OfferCampaign;
 use App\Models\OMS\Order;
+use App\Models\Organisation\Organisation;
 use App\Models\Search\UniversalSearch;
 use App\Models\Traits\HasTenantAddress;
 use App\Models\Traits\HasUniversalSearch;
@@ -97,6 +98,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Market\ShopMailStats|null $mailStats
  * @property-read Collection<int, OfferCampaign> $offerCampaigns
  * @property-read Collection<int, Order> $orders
+ * @property-read Organisation $organisation
  * @property-read Collection<int, Outbox> $outboxes
  * @property-read Collection<int, PaymentAccount> $paymentAccounts
  * @property-read Collection<int, PaymentServiceProvider> $paymentServiceProviders
@@ -157,6 +159,11 @@ class Shop extends Model
             ->saveSlugsTo('slug')
             ->doNotGenerateSlugsOnUpdate()
             ->slugsShouldBeNoLongerThan(6);
+    }
+
+    public function organisation(): BelongsTo
+    {
+        return $this->belongsTo(Organisation::class);
     }
 
     public function crmStats(): HasOne

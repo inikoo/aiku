@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 20 Jun 2023 20:33:12 Malaysia Time, Pantai Lembeng, Bali, Id
+ * Created: Tue, 20 Jun 2023 20:33:12 Malaysia Time, Pantai Lembeng, Bali, Indonesia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
@@ -17,7 +17,7 @@ trait HasHydrators
     public function orderHydrators(Order $order): void
     {
         HydrateOrder::make()->originalItems($order);
-        OrganisationHydrateOrders::run(app('currentTenant'));
+        OrganisationHydrateOrders::run($order->shop->organisation);
 
         if($order->customer) {
             $parent = $order->customer;

@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 20 Jun 2023 20:33:12 Malaysia Time, Pantai Lembeng, Bali, Id
+ * Created: Tue, 20 Jun 2023 20:33:12 Malaysia Time, Pantai Lembeng, Bali, Indonesia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
@@ -63,7 +63,7 @@ class StoreOrder
 
         HydrateOrder::make()->originalItems($order);
 
-        OrganisationHydrateOrders::dispatch(app('currentTenant'))->delay($this->hydratorsDelay);
+        OrganisationHydrateOrders::dispatch($order->shop->organisation)->delay($this->hydratorsDelay);
         if (class_basename($parent) == 'Shop') {
             ShopHydrateOrders::dispatch($parent)->delay($this->hydratorsDelay);
         } else {

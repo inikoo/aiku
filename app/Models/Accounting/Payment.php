@@ -7,10 +7,6 @@
 
 namespace App\Models\Accounting;
 
-use App\Actions\Accounting\PaymentAccount\Hydrators\PaymentAccountHydratePayments;
-use App\Actions\Accounting\PaymentServiceProvider\Hydrators\PaymentServiceProviderHydratePayments;
-use App\Actions\Market\Shop\Hydrators\ShopHydratePayments;
-use App\Actions\Organisation\Organisation\Hydrators\OrganisationHydrateAccounting;
 use App\Enums\Accounting\Payment\PaymentStateEnum;
 use App\Enums\Accounting\Payment\PaymentStatusEnum;
 use App\Enums\Accounting\Payment\PaymentSubsequentStatusEnum;
@@ -98,7 +94,7 @@ class Payment extends Model
         return 'slug';
     }
 
-    protected static function booted()
+    protected static function booted(): void
     {
         static::creating(
             function (Payment $payment) {
@@ -106,14 +102,7 @@ class Payment extends Model
             }
         );
 
-        static::created(
-            function (Payment $payment) {
-                OrganisationHydrateAccounting::dispatch(app('currentTenant'));
-                PaymentServiceProviderHydratePayments::dispatch($payment->paymentAccount->paymentServiceProvider);
-                PaymentAccountHydratePayments::dispatch($payment->paymentAccount);
-                ShopHydratePayments::dispatch($payment->shop);
-            }
-        );
+
     }
 
     public function getSlugOptions(): SlugOptions

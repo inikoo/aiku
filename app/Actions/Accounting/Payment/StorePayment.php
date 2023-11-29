@@ -8,7 +8,11 @@
 namespace App\Actions\Accounting\Payment;
 
 use App\Actions\Accounting\Payment\Hydrators\PaymentHydrateUniversalSearch;
+use App\Actions\Accounting\PaymentAccount\Hydrators\PaymentAccountHydratePayments;
+use App\Actions\Accounting\PaymentServiceProvider\Hydrators\PaymentServiceProviderHydratePayments;
 use App\Actions\Helpers\CurrencyExchange\GetCurrencyExchange;
+use App\Actions\Market\Shop\Hydrators\ShopHydratePayments;
+use App\Actions\Organisation\Organisation\Hydrators\OrganisationHydrateAccounting;
 use App\Enums\Accounting\Payment\PaymentStateEnum;
 use App\Enums\Accounting\Payment\PaymentStatusEnum;
 use App\Models\Accounting\Payment;
@@ -32,12 +36,19 @@ class StorePayment
         $modelData['shop_id']     = $customer->shop_id;
 
         data_fill($modelData, 'currency_id', $customer->shop->currency_id);
-        data_fill($modelData, 'tc_amount', GetCurrencyExchange::run($customer->shop->currency, app('currentTenant')->currency));
-        data_fill($modelData, 'gc_amount', GetCurrencyExchange::run($customer->shop->currency, app('currentTenant')->group->currency));
+        data_fill($modelData, 'tc_amount', GetCurrencyExchange::run($customer->shop->currency, $paymentAccount->organisation->currency));
+        data_fill($modelData, 'gc_amount', GetCurrencyExchange::run($customer->shop->currency, $paymentAccount->organisation->group->currency));
         data_fill($modelData, 'date', gmdate('Y-m-d H:i:s'));
 
         /** @var Payment $payment */
         $payment = $paymentAccount->payments()->create($modelData);
+
+        OrganisationHydrateAccounting::dispatch($paymentAccount->organisation);
+        PaymentServiceProviderHydratePayments::dispatch($payment->paymentAccount->paymentServiceProvider);
+        PaymentAccountHydratePayments::dispatch($payment->paymentAccount);
+        ShopHydratePayments::dispatch($payment->shop);
+
+
         PaymentHydrateUniversalSearch::dispatch($payment);
 
         return $payment;

@@ -36,6 +36,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read Currency $currency
+ * @property-read \App\Models\Organisation\GroupHumanResourcesStats|null $humanResourcesStats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Organisation\Organisation> $organisations
  * @property-read \App\Models\Organisation\GroupProcurementStats|null $procurementStats
  * @method static \Database\Factories\Organisation\GroupFactory factory($count = null, $state = [])
