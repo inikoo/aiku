@@ -27,6 +27,6 @@ trait HasHydrators
 
         HydrateSupplierDeliveries::dispatch($supplierDelivery);
 
-        OrganisationHydrateProcurement::dispatch(app('currentTenant'));
+        OrganisationHydrateProcurement::dispatch($supplierDelivery->organisation);
     }
 }

@@ -16,6 +16,7 @@ use App\Models\Inventory\Warehouse;
 use App\Models\Market\Shop;
 use App\Models\Media\Media;
 use App\Models\Procurement\PurchaseOrder;
+use App\Models\Procurement\SupplierDelivery;
 use App\Models\SysAdmin\SysUser;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -70,6 +71,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Shipper> $shippers
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Shop> $shops
  * @property-read \App\Models\Organisation\OrganisationStats|null $stats
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, SupplierDelivery> $supplierDeliveries
  * @property-read SysUser|null $sysUser
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Warehouse> $warehouses
  * @property-read \App\Models\Organisation\OrganisationWebStats|null $webStats
@@ -228,6 +230,11 @@ class Organisation extends Model implements HasMedia
     public function purchaseOrders(): HasMany
     {
         return $this->hasMany(PurchaseOrder::class);
+    }
+
+    public function supplierDeliveries(): HasMany
+    {
+        return $this->hasMany(SupplierDelivery::class);
     }
 
     public function shippers(): HasMany

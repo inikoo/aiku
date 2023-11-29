@@ -1,13 +1,14 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 09 May 2023 14:50:49 Malaysia Time, Pantai Lembeng, Bali, Id
+ * Created: Tue, 09 May 2023 14:50:49 Malaysia Time, Pantai Lembeng, Bali, Indonesia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
 namespace App\Actions\Procurement\SupplierDelivery;
 
 use App\Actions\Procurement\SupplierDelivery\Traits\HasHydrators;
+use App\Models\Organisation\Organisation;
 use App\Models\Procurement\Agent;
 use App\Models\Procurement\SupplierDelivery;
 use App\Models\Procurement\Supplier;
@@ -25,8 +26,9 @@ class StoreSupplierDelivery
 
     private Supplier|Agent $parent;
 
-    public function handle(Agent|Supplier $parent, array $modelData): SupplierDelivery
+    public function handle(Organisation $organisation, Agent|Supplier $parent, array $modelData): SupplierDelivery
     {
+        data_set($modelData, 'organisation_id', $organisation->id);
         /** @var SupplierDelivery $supplierDelivery */
         $supplierDelivery = $parent->supplierDeliveries()->create($modelData);
 
@@ -38,8 +40,8 @@ class StoreSupplierDelivery
     public function rules(): array
     {
         return [
-            'number'        => ['required', 'numeric', 'unique:supplier_deliveries,number'],
-            'date'          => ['required', 'date']
+            'number' => ['required', 'numeric', 'unique:supplier_deliveries,number'],
+            'date'   => ['required', 'date']
         ];
     }
 
@@ -47,18 +49,18 @@ class StoreSupplierDelivery
     {
         $supplierDelivery = $this->parent->SupplierDeliveries()->count();
 
-        if(!$this->force && $supplierDelivery>= 1) {
+        if (!$this->force && $supplierDelivery >= 1) {
             $validator->errors()->add('supplier_delivery', 'Are you sure want to create new supplier delivery?');
         }
     }
 
-    public function action(Agent|Supplier $parent, array $objectData, bool $force = false): SupplierDelivery
+    public function action(Organisation $organisation, Agent|Supplier $parent, array $objectData, bool $force = false): SupplierDelivery
     {
         $this->parent = $parent;
         $this->force  = $force;
         $this->setRawAttributes($objectData);
         $validatedData = $this->validateAttributes();
 
-        return $this->handle($parent, $validatedData);
+        return $this->handle($organisation, $parent, $validatedData);
     }
 }

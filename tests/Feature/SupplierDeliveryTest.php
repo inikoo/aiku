@@ -39,7 +39,7 @@ test('create independent supplier', function () {
 
 
     $supplier = StoreSupplier::make()->action(
-        parent: $this->organisation,
+        parent: $this->group,
         modelData: Supplier::factory()->definition()
     );
 
@@ -93,7 +93,7 @@ test('create supplier delivery', function ($supplier) {
         'date'      => date('Y-m-d')
     ];
 
-    $supplierDelivery = StoreSupplierDelivery::make()->action($supplier, $arrayData);
+    $supplierDelivery = StoreSupplierDelivery::make()->action($this->organisation, $supplier, $arrayData);
 
     expect($supplierDelivery->provider_id)->toBe($supplier->id)
         ->and($supplierDelivery->number)->toBeNumeric($arrayData['number'])

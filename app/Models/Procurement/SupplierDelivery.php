@@ -10,12 +10,14 @@ namespace App\Models\Procurement;
 use App\Enums\Procurement\SupplierDelivery\SupplierDeliveryStateEnum;
 use App\Enums\Procurement\SupplierDelivery\SupplierDeliveryStatusEnum;
 use App\Models\Helpers\Address;
+use App\Models\Organisation\Organisation;
 use App\Models\Traits\HasAddresses;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
@@ -28,6 +30,7 @@ use Spatie\Sluggable\SlugOptions;
  * App\Models\Procurement\SupplierDelivery
  *
  * @property int $id
+ * @property int $organisation_id
  * @property string $slug
  * @property int $provider_id
  * @property string $provider_type
@@ -57,6 +60,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $source_id
  * @property-read Collection<int, Address> $addresses
  * @property-read Collection<int, \App\Models\Procurement\SupplierDeliveryItem> $items
+ * @property-read Organisation $organisation
  * @property-read Model|\Eloquent $provider
  * @property-read Collection<int, \App\Models\Procurement\PurchaseOrder> $purchaseOrders
  * @method static \Database\Factories\Procurement\SupplierDeliveryFactory factory($count = null, $state = [])
@@ -99,6 +103,12 @@ class SupplierDelivery extends Model
     {
         return 'slug';
     }
+
+    public function organisation(): BelongsTo
+    {
+        return $this->belongsTo(Organisation::class);
+    }
+
 
     public function purchaseOrders(): BelongsToMany
     {
