@@ -12,12 +12,8 @@ use App\Actions\Mail\DispatchedEmail\UpdateDispatchedEmail;
 use App\Actions\Mail\Mailshot\StoreMailshot;
 use App\Actions\Mail\Mailshot\UpdateMailshot;
 use App\Actions\Market\Shop\StoreShop;
-use App\Actions\Organisation\Group\StoreGroup;
-use App\Actions\Organisation\Organisation\StoreOrganisation;
 use App\Models\Mail\Mailshot;
 use App\Models\Market\Shop;
-use App\Models\Organisation\Group;
-use App\Models\Organisation\Organisation;
 
 beforeAll(function () {
     loadDB('test_base_database.dump');
@@ -25,16 +21,13 @@ beforeAll(function () {
 
 
 beforeEach(function () {
-    $organisation = Organisation::first();
-    if (!$organisation) {
-        $group        = StoreGroup::make()->action(Group::factory()->definition());
-        $organisation = StoreOrganisation::make()->action($group, Organisation::factory()->definition());
-    }
+    $this->organisation = createOrganisation();
+    $this->group        = group();
 
 });
 
 test('get outbox from shop', function () {
-    $shop   = StoreShop::make()->action(Shop::factory()->definition());
+    $shop   = StoreShop::make()->action($this->organisation, Shop::factory()->definition());
     $outbox = $shop->outboxes()->first();
     $this->assertModelExists($outbox);
 

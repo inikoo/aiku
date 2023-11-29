@@ -57,14 +57,14 @@ class DeleteCustomer
         foreach ($customer->clients as $client) {
             DeleteCustomerClient::run(
                 customerClient: $client,
-                skipHydrate:    true,
-                deletedData:    $dependantDeletedData
+                skipHydrate: true,
+                deletedData: $dependantDeletedData
             );
         }
 
         foreach ($customer->webUsers as $webUser) {
             DeleteWebUser::run(
-                webUser:     $webUser,
+                webUser: $webUser,
                 skipHydrate: true,
                 deletedData: $dependantDeletedData
             );
@@ -72,7 +72,7 @@ class DeleteCustomer
 
         foreach ($customer->orders as $order) {
             DeleteOrder::run(
-                order:       $order,
+                order: $order,
                 skipHydrate: true,
                 deletedData: $dependantDeletedData
             );
@@ -81,14 +81,14 @@ class DeleteCustomer
         foreach ($customer->fulfilmentOrders as $fulfilmentOrder) {
             DeleteFulfilmentOrder::run(
                 fulfilmentOrder: $fulfilmentOrder,
-                skipHydrate:     true,
-                deletedData:     $dependantDeletedData
+                skipHydrate: true,
+                deletedData: $dependantDeletedData
             );
         }
 
         foreach ($customer->products as $product) {
             DeleteProduct::run(
-                product:     $product,
+                product: $product,
                 skipHydrate: true,
                 deletedData: $dependantDeletedData
             );
@@ -96,7 +96,7 @@ class DeleteCustomer
 
         foreach ($customer->stocks as $stock) {
             DeleteStock::run(
-                stock:       $stock,
+                stock: $stock,
                 skipHydrate: true,
                 deletedData: $dependantDeletedData
             );
@@ -116,20 +116,15 @@ class DeleteCustomer
 
     public function asCommand(Command $command): int
     {
-        $this->getTenant($command)->execute(
-            function () use ($command) {
-                $customer = Customer::findOrFail($command->argument('id'));
-                $customer = $this->handle($customer);
+        $customer = Customer::findOrFail($command->argument('id'));
+        $customer = $this->handle($customer);
 
-                print_r($this->deletedDependants);
+        //print_r($this->deletedDependants);
 
-                // $this->table(
-                //     ['Name', 'Email'],
-                //     User::all(['name', 'email'])->toArray()
-                // );
-            }
-        );
-
+        // $this->table(
+        //     ['Name', 'Email'],
+        //     User::all(['name', 'email'])->toArray()
+        // );
 
 
         return 0;
