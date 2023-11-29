@@ -8,6 +8,8 @@
 namespace App\Models\Organisation;
 
 use App\Models\Assets\Currency;
+use App\Models\Inventory\Stock;
+use App\Models\Inventory\StockFamily;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -37,8 +39,11 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $updated_at
  * @property-read Currency $currency
  * @property-read \App\Models\Organisation\GroupHumanResourcesStats|null $humanResourcesStats
+ * @property-read \App\Models\Organisation\GroupInventoryStats|null $inventoryStats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Organisation\Organisation> $organisations
  * @property-read \App\Models\Organisation\GroupProcurementStats|null $procurementStats
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, StockFamily> $stockFamilies
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Stock> $stocks
  * @method static \Database\Factories\Organisation\GroupFactory factory($count = null, $state = [])
  * @method static Builder|Group newModelQuery()
  * @method static Builder|Group newQuery()
@@ -69,6 +74,16 @@ class Group extends Model
         return 'slug';
     }
 
+    public function stockFamilies(): HasMany
+    {
+        return $this->hasMany(StockFamily::class);
+    }
+    public function stocks(): HasMany
+    {
+        return $this->hasMany(Stock::class);
+    }
+
+
     public function humanResourcesStats(): HasOne
     {
         return $this->hasOne(GroupHumanResourcesStats::class);
@@ -76,6 +91,11 @@ class Group extends Model
     public function procurementStats(): HasOne
     {
         return $this->hasOne(GroupProcurementStats::class);
+    }
+
+    public function inventoryStats(): HasOne
+    {
+        return $this->hasOne(GroupInventoryStats::class);
     }
 
     public function organisations(): HasMany

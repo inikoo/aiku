@@ -12,7 +12,6 @@ use App\Actions\Organisation\Organisation\Hydrators\OrganisationHydrateAccountin
 use App\Actions\Organisation\Organisation\Hydrators\OrganisationHydrateCustomers;
 use App\Actions\Organisation\Organisation\Hydrators\OrganisationHydrateEmployees;
 use App\Actions\Organisation\Organisation\Hydrators\OrganisationHydrateGuests;
-use App\Actions\Organisation\Organisation\Hydrators\OrganisationHydrateInventory;
 use App\Actions\Organisation\Organisation\Hydrators\OrganisationHydrateMarket;
 use App\Actions\Organisation\Organisation\Hydrators\OrganisationHydrateOrders;
 use App\Actions\Organisation\Organisation\Hydrators\OrganisationHydrateProcurement;
@@ -24,7 +23,7 @@ use App\Models\Organisation\Organisation;
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 
-class HydrateTenant extends HydrateModel
+class HydrateOrganisation extends HydrateModel
 {
     use WithNormalise;
 
@@ -38,7 +37,6 @@ class HydrateTenant extends HydrateModel
         OrganisationHydrateEmployees::run($organisation);
         OrganisationHydrateGuests::run($organisation);
         OrganisationHydrateWarehouse::run($organisation);
-        OrganisationHydrateInventory::run($organisation);
         OrganisationHydrateMarket::run($organisation);
         $this->fulfilmentStats();
         OrganisationHydrateUsers::run($organisation);

@@ -8,8 +8,9 @@
 namespace App\Actions\Inventory\StockFamily;
 
 use App\Actions\Inventory\StockFamily\Hydrators\StockFamilyHydrateUniversalSearch;
-use App\Actions\Organisation\Organisation\Hydrators\OrganisationHydrateInventory;
+use App\Actions\Organisation\Group\Hydrators\GroupHydrateInventory;
 use App\Models\Inventory\StockFamily;
+use App\Models\Organisation\Group;
 use App\Rules\CaseSensitive;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
@@ -22,14 +23,14 @@ class StoreStockFamily
     use AsAction;
     use WithAttributes;
 
-    private bool $asAction=false;
+    private bool $asAction = false;
 
-    public function handle($modelData): StockFamily
+    public function handle(Group $group, $modelData): StockFamily
     {
         /** @var StockFamily $stockFamily */
-        $stockFamily = StockFamily::create($modelData);
+        $stockFamily = $group->stockFamilies()->create($modelData);
         $stockFamily->stats()->create();
-        OrganisationHydrateInventory::dispatch(app('currentTenant'));
+        GroupHydrateInventory::dispatch(group());
         StockFamilyHydrateUniversalSearch::dispatch($stockFamily);
 
         return $stockFamily;
@@ -37,37 +38,38 @@ class StoreStockFamily
 
     public function authorize(ActionRequest $request): bool
     {
-        if($this->asAction) {
+        if ($this->asAction) {
             return true;
         }
+
         return $request->user()->hasPermissionTo("inventory.warehouses.edit");
     }
 
     public function rules(): array
     {
         return [
-            'code'  => ['required', 'unique:stock_families', 'between:2,9', 'alpha_dash', new CaseSensitive('stock_families')],
-            'name'  => ['required', 'string']
+            'code' => ['required', 'unique:stock_families', 'between:2,9', 'alpha_dash', new CaseSensitive('stock_families')],
+            'name' => ['required', 'string']
         ];
     }
 
-    public function action(array $objectData): StockFamily
+    public function action(Group $group, array $objectData): StockFamily
     {
-        $this->asAction=true;
+        $this->asAction = true;
         $this->setRawAttributes($objectData);
         $validatedData = $this->validateAttributes();
 
-        return $this->handle($validatedData);
+        return $this->handle($group, $validatedData);
     }
 
     public function asController(ActionRequest $request): StockFamily
     {
         $request->validate();
 
-        return $this->handle($request->validated());
+        return $this->handle(group(), $request->validated());
     }
 
-    /** @noinspection PhpUnusedParameterInspection */
+
     public function htmlResponse(StockFamily $stockFamily): RedirectResponse
     {
         return Redirect::route('inventory.stock-families.index');

@@ -184,7 +184,7 @@ class StoreOrganisation
             return 1;
         }
 
-        $organisation = $this->handle($validatedData);
+        $organisation = $this->handle(group(), $validatedData);
 
         $command->info("Organisation $organisation->slug created successfully 🎉");
 

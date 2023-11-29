@@ -28,6 +28,7 @@ use Spatie\Sluggable\SlugOptions;
  * App\Models\Accounting\PaymentAccount
  *
  * @property int $id
+ * @property int $organisation_id
  * @property int $payment_service_provider_id
  * @property string $code
  * @property string $slug
@@ -40,7 +41,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $source_id
  * @property-read Collection<int, \OwenIt\Auditing\Models\Audit> $audits
  * @property-read array $es_audits
- * @property-read Organisation|null $organisation
+ * @property-read Organisation $organisation
  * @property-read \App\Models\Accounting\PaymentServiceProvider $paymentServiceProvider
  * @property-read Collection<int, \App\Models\Accounting\Payment> $payments
  * @property-read \App\Models\Accounting\PaymentAccountStats|null $stats

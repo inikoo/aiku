@@ -26,7 +26,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_employees_gender_male
  * @property int $number_employees_gender_female
  * @property int $number_employees_gender_other
- * @property int $number_job_positions
  * @property int $number_workplaces
  * @property int $number_workplaces_type_hq
  * @property int $number_workplaces_type_branch

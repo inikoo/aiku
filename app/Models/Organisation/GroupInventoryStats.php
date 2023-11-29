@@ -14,10 +14,26 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 
 /**
- * App\Models\Organisation\OrganisationInventoryStats
+ * App\Models\Organisation\GroupInventoryStats
  *
  * @property int $id
- * @property int $organisation_id
+ * @property int $group_id
+ * @property int $number_stock_families
+ * @property int $number_stock_families_state_in_process
+ * @property int $number_stock_families_state_active
+ * @property int $number_stock_families_state_discontinuing
+ * @property int $number_stock_families_state_discontinued
+ * @property int $number_stocks
+ * @property int $number_stocks_state_in_process
+ * @property int $number_stocks_state_active
+ * @property int $number_stocks_state_discontinuing
+ * @property int $number_stocks_state_discontinued
+ * @property int $number_stocks_quantity_status_excess
+ * @property int $number_stocks_quantity_status_ideal
+ * @property int $number_stocks_quantity_status_low
+ * @property int $number_stocks_quantity_status_critical
+ * @property int $number_stocks_quantity_status_out_of_stock
+ * @property int $number_stocks_quantity_status_error
  * @property int $number_warehouses
  * @property int $number_warehouse_areas
  * @property int $number_locations
@@ -47,20 +63,20 @@ use Illuminate\Support\Carbon;
  * @property int $number_deliveries_cancelled_at_state_dispatched
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read \App\Models\Organisation\Organisation $organisation
- * @method static Builder|OrganisationInventoryStats newModelQuery()
- * @method static Builder|OrganisationInventoryStats newQuery()
- * @method static Builder|OrganisationInventoryStats query()
+ * @property-read \App\Models\Organisation\Group $group
+ * @method static Builder|GroupInventoryStats newModelQuery()
+ * @method static Builder|GroupInventoryStats newQuery()
+ * @method static Builder|GroupInventoryStats query()
  * @mixin Eloquent
  */
-class OrganisationInventoryStats extends Model
+class GroupInventoryStats extends Model
 {
-    protected $table = 'organisation_inventory_stats';
+    protected $table = 'group_inventory_stats';
 
     protected $guarded = [];
 
-    public function organisation(): BelongsTo
+    public function group(): BelongsTo
     {
-        return $this->belongsTo(Organisation::class);
+        return $this->belongsTo(Group::class);
     }
 }

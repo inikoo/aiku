@@ -33,7 +33,7 @@ class StoreWarehouseArea
         $warehouseArea = $warehouse->warehouseAreas()->create($modelData);
         $warehouseArea->stats()->create();
         WarehouseAreaHydrateUniversalSearch::dispatch($warehouseArea);
-        OrganisationHydrateWarehouse::dispatch(app('currentTenant'));
+        OrganisationHydrateWarehouse::dispatch($warehouse->organisation);
         WarehouseHydrateWarehouseAreas::dispatch($warehouse);
         return $warehouseArea;
     }

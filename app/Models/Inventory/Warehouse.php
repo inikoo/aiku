@@ -8,6 +8,7 @@
 namespace App\Models\Inventory;
 
 use App\Models\Helpers\Issue;
+use App\Models\Organisation\Organisation;
 use App\Models\Search\UniversalSearch;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
@@ -16,6 +17,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
@@ -30,6 +32,7 @@ use Spatie\Sluggable\SlugOptions;
  * App\Models\Inventory\Warehouse
  *
  * @property int $id
+ * @property int $organisation_id
  * @property string $slug
  * @property string $code
  * @property string $name
@@ -43,6 +46,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read array $es_audits
  * @property-read Collection<int, Issue> $issues
  * @property-read Collection<int, \App\Models\Inventory\Location> $locations
+ * @property-read Organisation $organisation
  * @property-read \App\Models\Inventory\WarehouseStats|null $stats
  * @property-read UniversalSearch|null $universalSearch
  * @property-read Collection<int, \App\Models\Inventory\WarehouseArea> $warehouseAreas
@@ -85,7 +89,10 @@ class Warehouse extends Model implements Auditable
             ->slugsShouldBeNoLongerThan(4);
     }
 
-
+    public function organisation(): BelongsTo
+    {
+        return $this->belongsTo(Organisation::class);
+    }
     public function warehouseAreas(): HasMany
     {
         return $this->hasMany(WarehouseArea::class);

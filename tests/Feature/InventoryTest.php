@@ -23,8 +23,6 @@ use App\Actions\Inventory\Warehouse\StoreWarehouse;
 use App\Actions\Inventory\Warehouse\UpdateWarehouse;
 use App\Actions\Inventory\WarehouseArea\StoreWarehouseArea;
 use App\Actions\Inventory\WarehouseArea\UpdateWarehouseArea;
-use App\Actions\Organisation\Group\StoreGroup;
-use App\Actions\Organisation\Organisation\StoreOrganisation;
 use App\Enums\Inventory\Stock\LostAndFoundStockStateEnum;
 use App\Models\Goods\TradeUnit;
 use App\Models\Inventory\Location;
@@ -33,47 +31,49 @@ use App\Models\Inventory\LostAndFoundStock;
 use App\Models\Inventory\Stock;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
-use App\Models\Organisation\Group;
-use App\Models\Organisation\Organisation;
 use Illuminate\Validation\ValidationException;
 
 beforeAll(function () {
     loadDB('test_base_database.dump');
 });
 
-
 beforeEach(function () {
-    $organisation = Organisation::first();
-    if (!$organisation) {
-        $group        = StoreGroup::make()->action(Group::factory()->definition());
-        $organisation = StoreOrganisation::make()->action($group, Organisation::factory()->definition());
-    }
-
+    $this->organisation = createOrganisation();
+    $this->group        =group();
 });
 
 test('create warehouse', function () {
-    $warehouse = StoreWarehouse::make()->action([
+    $warehouse = StoreWarehouse::make()->action(
+        $this->organisation,
+        [
         'code' => 'ts12',
         'name' => 'testName',
-    ]);
+    ]
+    );
     expect($warehouse)->toBeInstanceOf(Warehouse::class)
-        ->and(app('currentTenant')->inventoryStats->number_warehouses)->toBe(1);
+        ->and($this->organisation->inventoryStats->number_warehouses)->toBe(1);
 
     return $warehouse;
 });
 
 test('warehouse cannot be created with same code', function () {
-    StoreWarehouse::make()->action([
+    StoreWarehouse::make()->action(
+        $this->organisation,
+        [
         'code' => 'ts12',
         'name' => 'testName',
-    ]);
+    ]
+    );
 })->depends('create warehouse')->throws(ValidationException::class);
 
 test('warehouse cannot be created with same code case is sensitive', function () {
-    StoreWarehouse::make()->action([
+    StoreWarehouse::make()->action(
+        $this->organisation,
+        [
         'code' => 'TS12',
         'name' => 'testName',
-    ]);
+    ]
+    );
 })->depends('create warehouse')->throws(ValidationException::class);
 
 test('update warehouse', function ($warehouse) {
@@ -84,7 +84,7 @@ test('update warehouse', function ($warehouse) {
 test('create warehouse area', function ($warehouse) {
     $warehouseArea = StoreWarehouseArea::make()->action($warehouse, WarehouseArea::factory()->definition());
     expect($warehouseArea)->toBeInstanceOf($warehouseArea::class)
-        ->and(app('currentTenant')->inventoryStats->number_warehouse_areas)->toBe(1);
+        ->and($this->organisation->inventoryStats->number_warehouse_areas)->toBe(1);
 
     return $warehouseArea;
 })->depends('create warehouse');
@@ -98,9 +98,9 @@ test('create location in warehouse', function ($warehouse) {
     $location = StoreLocation::make()->action($warehouse, Location::factory()->definition());
     $warehouse->refresh();
     expect($location)->toBeInstanceOf(Location::class)
-        ->and(app('currentTenant')->inventoryStats->number_locations)->toBe(1)
-        ->and(app('currentTenant')->inventoryStats->number_locations_state_operational)->toBe(1)
-        ->and(app('currentTenant')->inventoryStats->number_locations_state_broken)->toBe(0)
+        ->and($this->organisation->inventoryStats->number_locations)->toBe(1)
+        ->and($this->organisation->inventoryStats->number_locations_state_operational)->toBe(1)
+        ->and($this->organisation->inventoryStats->number_locations_state_broken)->toBe(0)
         ->and($warehouse->stats->number_locations)->toBe(1)
         ->and($warehouse->stats->number_locations_state_operational)->toBe(1)
         ->and($warehouse->stats->number_locations_state_broken)->toBe(0);
@@ -112,9 +112,9 @@ test('create location in warehouse area', function ($warehouseArea) {
     $warehouse = $warehouseArea->warehouse;
 
     expect($location)->toBeInstanceOf(Location::class)
-        ->and(app('currentTenant')->inventoryStats->number_locations)->toBe(2)
-        ->and(app('currentTenant')->inventoryStats->number_locations_state_operational)->toBe(2)
-        ->and(app('currentTenant')->inventoryStats->number_locations_state_broken)->toBe(0)
+        ->and($this->organisation->inventoryStats->number_locations)->toBe(2)
+        ->and($this->organisation->inventoryStats->number_locations_state_operational)->toBe(2)
+        ->and($this->organisation->inventoryStats->number_locations_state_broken)->toBe(0)
         ->and($warehouse->stats->number_locations)->toBe(2)
         ->and($warehouse->stats->number_locations_state_operational)->toBe(2)
         ->and($warehouse->stats->number_locations_state_broken)->toBe(0)
@@ -132,7 +132,7 @@ test('create stock families', function () {
         'name'  => 'ABC Stocks'
     ];
 
-    $stockFamily = StoreStockFamily::make()->action($arrayData);
+    $stockFamily = StoreStockFamily::make()->action($this->group, $arrayData);
 
     expect($stockFamily->code)->toBe($arrayData['code']);
 
@@ -142,7 +142,7 @@ test('create stock families', function () {
 test('create stock', function () {
     $tradeUnit = StoreTradeUnit::make()->action(TradeUnit::factory()->definition());
 
-    $stock = StoreStock::make()->action(app('currentTenant'), Stock::factory()->definition());
+    $stock = StoreStock::make()->action($this->group, Stock::factory()->definition());
 
     SyncStockTradeUnits::run($stock, [
         $tradeUnit->id => [
@@ -151,7 +151,7 @@ test('create stock', function () {
     ]);
 
     expect($stock)->toBeInstanceOf(Stock::class)
-        ->and(app('currentTenant')->inventoryStats->number_stocks)->toBe(1);
+        ->and($this->group->inventoryStats->number_stocks)->toBe(1);
 
     return $stock->fresh();
 });
@@ -159,7 +159,7 @@ test('create stock', function () {
 
 test('create another stock', function () {
     $tradeUnit = StoreTradeUnit::make()->action(TradeUnit::factory()->definition());
-    $stock     = StoreStock::make()->action(app('currentTenant'), Stock::factory()->definition());
+    $stock     = StoreStock::make()->action($this->group, Stock::factory()->definition());
 
     SyncStockTradeUnits::run($stock, [
         $tradeUnit->id => [
@@ -167,7 +167,7 @@ test('create another stock', function () {
         ]
     ]);
     expect($stock)->toBeInstanceOf(Stock::class)
-        ->and(app('currentTenant')->inventoryStats->number_stocks)->toBe(2);
+        ->and($this->group->inventoryStats->number_stocks)->toBe(2);
 
     return $stock->fresh();
 });

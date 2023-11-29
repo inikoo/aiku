@@ -18,14 +18,14 @@ return new class () extends Migration {
     {
         Schema::create('stocks', function (Blueprint $table) {
             $table->increments('id');
+            $table->unsignedSmallInteger('group_id');
+            $table->foreign('group_id')->references('id')->on('public.groups')->onUpdate('cascade')->onDelete('cascade');
+            $table->unsignedSmallInteger('organisation_id')->nullable();
+            $table->foreign('organisation_id')->references('id')->on('organisations')->onUpdate('cascade')->onDelete('cascade');
+            $table->unsignedInteger('customer_id')->index()->nullable();
+            $table->foreign('customer_id')->references('id')->on('customers')->onUpdate('cascade')->onDelete('cascade');
             $table->string('slug')->unique()->collation('und_ns');
             $table = $this->assertCodeDescription($table);
-            $table->string('owner_type')->comment('Organisation|Customer');
-            $table->unsignedInteger('owner_id');
-            $table->index([
-                'owner_type',
-                'owner_id'
-            ]);
             $table->unsignedSmallInteger('stock_family_id')->index()->nullable();
             $table->foreign('stock_family_id')->references('id')->on('stock_families');
             $table->string('trade_unit_composition')->default(StockTradeUnitCompositionEnum::MATCH->value)->nullable();

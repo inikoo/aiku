@@ -10,15 +10,12 @@ namespace App\Actions\Inventory\Stock;
 
 use App\Actions\Inventory\Stock\Hydrators\StockHydrateUniversalSearch;
 use App\Actions\Inventory\StockFamily\Hydrators\StockFamilyHydrateStocks;
-use App\Actions\Organisation\Organisation\Hydrators\OrganisationHydrateInventory;
-use App\Models\CRM\Customer;
+use App\Actions\Organisation\Group\Hydrators\GroupHydrateInventory;
 use App\Models\Inventory\Stock;
 use App\Models\Inventory\StockFamily;
-use App\Models\Organisation\Organisation;
-use App\Rules\CaseSensitive;
+use App\Models\Organisation\Group;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
-use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
@@ -28,20 +25,14 @@ class StoreStock
     use AsAction;
     use WithAttributes;
 
-    public function handle(Organisation|Customer|StockFamily $owner, $modelData): Stock
+    private bool $asAction = false;
+
+    public function handle(Group $group, $modelData): Stock
     {
-        if (class_basename($owner) === 'StockFamily') {
-            $modelData['owner_type'] = "StockFamily";
-        } elseif (class_basename($owner) === 'Customer') {
-            $modelData['owner_type'] = "Customer";
-        } else {
-            $modelData['owner_type'] = "Organisation";
-        }
-        $modelData['owner_id'] = $owner->id;
         /** @var Stock $stock */
-        $stock = $owner->stocks()->create($modelData);
+        $stock = $group->stocks()->create($modelData);
         $stock->stats()->create();
-        OrganisationHydrateInventory::dispatch(app('currentTenant'));
+        GroupHydrateInventory::dispatch(group());
         if ($stock->stock_family_id) {
             StockFamilyHydrateStocks::dispatch($stock->stockFamily);
         }
@@ -56,32 +47,38 @@ class StoreStock
     public function rules(ActionRequest $request): array
     {
         return [
-            'code'          => ['required', 'unique:locations', 'between:2,64', 'alpha_dash', new CaseSensitive('stocks')],
-            /*'code' => [
-                'required', 'alpha_dash',
-                Rule::unique('stocks', 'code')->where(
-                    fn ($query) => $query->where('owner_type', 'Customer')->where('owner_id', $request->user()?->customer->id)
-                )
-            ], */
-            'name'  => ['required','max:255']
+            'code'            => ['required', 'iunique:stocks', 'between:2,64', 'alpha_dash'],
+            'name'            => ['required', 'max:255'],
+            'stock_family_id' => ['sometimes', 'nullable', 'exists:stock_families,id'],
         ];
     }
 
-    public function action(Organisation|Customer|StockFamily $owner, $objectData): Stock
+    public function action(Group $group, $objectData): Stock
     {
-        return $this->handle($owner, $objectData);
+        $this->asAction = true;
+        $this->setRawAttributes($objectData);
+        $validatedData = $this->validateAttributes();
+
+        return $this->handle($group, $validatedData);
     }
 
     public function inStockFamily(StockFamily $stockFamily, ActionRequest $request): Stock
     {
+        $this->fillFromRequest($request);
+        $this->fill(
+            [
+                'stock_family_id' => $stockFamily->id
+            ]
+        );
+
         $request->validate();
 
-        return $this->handle($stockFamily, $request->validated());
+        return $this->handle(group(), $request->validated());
     }
 
     public function htmlResponse(Stock $stock): RedirectResponse
     {
-        if(!$stock->stock_family_id) {
+        if (!$stock->stock_family_id) {
             return Redirect::route('inventory.stock-families.show.stocks.show', [
                 $stock->stockFamily->slug,
                 $stock->slug

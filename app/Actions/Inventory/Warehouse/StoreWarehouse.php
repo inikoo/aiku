@@ -10,6 +10,7 @@ namespace App\Actions\Inventory\Warehouse;
 use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydrateUniversalSearch;
 use App\Actions\Organisation\Organisation\Hydrators\OrganisationHydrateWarehouse;
 use App\Models\Inventory\Warehouse;
+use App\Models\Organisation\Organisation;
 use App\Rules\CaseSensitive;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
@@ -22,14 +23,15 @@ class StoreWarehouse
     use AsAction;
     use WithAttributes;
 
-    private bool $asAction=false;
+    private bool $asAction = false;
 
 
-    public function handle($modelData): Warehouse
+    public function handle(Organisation $organisation, $modelData): Warehouse
     {
-        $warehouse = Warehouse::create($modelData);
+        /** @var Warehouse $warehouse */
+        $warehouse = $organisation->warehouses()->create($modelData);
         $warehouse->stats()->create();
-        OrganisationHydrateWarehouse::run(app('currentTenant'));
+        OrganisationHydrateWarehouse::run($organisation);
         WarehouseHydrateUniversalSearch::dispatch($warehouse);
 
         return $warehouse;
@@ -37,44 +39,43 @@ class StoreWarehouse
 
     public function authorize(ActionRequest $request): bool
     {
-        if($this->asAction) {
+        if ($this->asAction) {
             return true;
         }
+
         return $request->user()->hasPermissionTo("inventory.warehouses.edit");
     }
 
     public function rules(): array
     {
         return [
-            'code'         => ['required', 'unique:warehouses', 'between:2,4', 'alpha_dash', new CaseSensitive('warehouses')],
-            'name'         => ['required', 'max:250', 'string'],
+            'code' => ['required', 'unique:warehouses', 'between:2,4', 'alpha_dash', new CaseSensitive('warehouses')],
+            'name' => ['required', 'max:250', 'string'],
         ];
     }
 
-    public function action(array $objectData): Warehouse
+    public function action(Organisation $organisation, array $objectData): Warehouse
     {
-        $this->asAction=true;
+        $this->asAction = true;
         $this->setRawAttributes($objectData);
         $validatedData = $this->validateAttributes();
 
-        return $this->handle($validatedData);
+        return $this->handle($organisation, $validatedData);
     }
 
 
-    public function asController(ActionRequest $request): Warehouse
+    public function asController(Organisation $organisation, ActionRequest $request): Warehouse
     {
         $request->validate();
 
-        return $this->handle($request->validated());
+        return $this->handle($organisation, $request->validated());
     }
 
-    /** @noinspection PhpUnusedParameterInspection */
+
     public function htmlResponse(Warehouse $warehouse): RedirectResponse
     {
         return Redirect::route('inventory.warehouses.index');
     }
-
-
 
 
 }

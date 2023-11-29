@@ -16,12 +16,5 @@ trait HasOrganisationHydrate
         return $organisation->id;
     }
 
-    public function getJobTags(): array
-    {
-        /** @var \App\Models\Organisation\Organisation $organisation */
-        $organisation=app('currentTenant');
-        return ['central','tenant:'.$organisation->slug];
-    }
-
 
 }

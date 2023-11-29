@@ -57,10 +57,8 @@ beforeAll(function () {
     loadDB('test_base_database.dump');
 });
 
-
 beforeEach(function () {
     $this->organisation = createOrganisation();
-
 });
 
 test('create shop', function () {

@@ -1,28 +1,28 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Sun, 23 Apr 2023 11:33:30 Malaysia Time, Sanur, Bali, Indonesia
+ * Created: Wed, 29 Nov 2023 21:44:19 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Organisation\Organisation\Hydrators;
+namespace App\Actions\Organisation\Group\Hydrators;
 
 use App\Enums\Inventory\Stock\StockQuantityStatusEnum;
 use App\Enums\Inventory\Stock\StockStateEnum;
 use App\Enums\Inventory\StockFamily\StockFamilyStateEnum;
 use App\Models\Inventory\Stock;
 use App\Models\Inventory\StockFamily;
-use App\Models\Organisation\Organisation;
+use App\Models\Organisation\Group;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class OrganisationHydrateInventory implements ShouldBeUnique
+class GroupHydrateInventory implements ShouldBeUnique
 {
     use AsAction;
-    use HasOrganisationHydrate;
 
-    public function handle(Organisation $organisation): void
+
+    public function handle(Group $group): void
     {
         $stats  = [
             'number_stocks'         => Stock::count(),
@@ -58,6 +58,11 @@ class OrganisationHydrateInventory implements ShouldBeUnique
         }
 
 
-        $organisation->inventoryStats->update($stats);
+        $group->inventoryStats->update($stats);
+    }
+
+    public function getJobUniqueId(Group $group): string
+    {
+        return $group->id;
     }
 }

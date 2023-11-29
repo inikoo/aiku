@@ -57,6 +57,7 @@ use Spatie\Sluggable\SlugOptions;
  * App\Models\Market\Shop
  *
  * @property int $id
+ * @property int $organisation_id
  * @property string $slug
  * @property string $code
  * @property string $name

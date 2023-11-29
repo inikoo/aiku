@@ -32,12 +32,15 @@ class StoreLocation
     {
         if (class_basename($parent::class) == 'WarehouseArea') {
             $modelData['warehouse_id'] = $parent->warehouse_id;
+            $organisation              = $parent->warehouse->organisation;
+        } else {
+            $organisation = $parent->organisation;
         }
 
         /** @var Location $location */
         $location = $parent->locations()->create($modelData);
         $location->stats()->create();
-        OrganisationHydrateWarehouse::dispatch(app('currentTenant'));
+        OrganisationHydrateWarehouse::dispatch($organisation);
 
         if($location->warehouse_area_id) {
             WarehouseAreaHydrateLocations::dispatch($location->warehouseArea);

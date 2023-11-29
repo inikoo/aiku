@@ -8,6 +8,7 @@
 namespace App\Actions\Organisation\Group;
 
 use App\Actions\HydrateModel;
+use App\Actions\Organisation\Group\Hydrators\GroupHydrateInventory;
 use App\Actions\Organisation\Group\Hydrators\GroupHydrateProcurement;
 use App\Actions\Organisation\Group\Hydrators\GroupHydrateOrganisations;
 use App\Actions\Traits\WithNormalise;
@@ -26,6 +27,7 @@ class HydrateGroup extends HydrateModel
     {
         GroupHydrateOrganisations::run($group);
         GroupHydrateProcurement::run($group);
+        GroupHydrateInventory::run($group);
     }
 
 

@@ -15,8 +15,6 @@ use App\Actions\Inventory\Stock\StoreStock;
 use App\Actions\Market\Shop\StoreShop;
 use App\Actions\OMS\Order\StoreOrder;
 use App\Actions\OMS\Transaction\StoreTransaction;
-use App\Actions\Organisation\Group\StoreGroup;
-use App\Actions\Organisation\Organisation\StoreOrganisation;
 use App\Enums\Dispatch\DeliveryNote\DeliveryNoteStateEnum;
 use App\Enums\Dispatch\DeliveryNote\DeliveryNoteStatusEnum;
 use App\Enums\Mail\Outbox\OutboxTypeEnum;
@@ -24,22 +22,14 @@ use App\Models\Helpers\Address;
 use App\Models\Inventory\Stock;
 use App\Models\Market\Shop;
 use App\Models\OMS\Transaction;
-use App\Models\Organisation\Group;
-use App\Models\Organisation\Organisation;
 use Throwable;
 
 beforeAll(function () {
     loadDB('test_base_database.dump');
 });
 
-
 beforeEach(function () {
-    $organisation = Organisation::first();
-    if (!$organisation) {
-        $group        = StoreGroup::make()->action(Group::factory()->definition());
-        $organisation = StoreOrganisation::make()->action($group, Organisation::factory()->definition());
-    }
-
+    $this->organisation = createOrganisation();
 });
 
 test('create shipper', function () {
@@ -48,7 +38,7 @@ test('create shipper', function () {
         'name'  => 'ABC Shipping'
     ];
 
-    $createdShipper = StoreShipper::make()->action($arrayData);
+    $createdShipper = StoreShipper::make()->action($this->organisation, $arrayData);
     expect($createdShipper->code)->toBe($arrayData['code']);
 
     return $createdShipper;
@@ -66,7 +56,7 @@ test('update shipper', function ($createdShipper) {
 })->depends('create shipper');
 
 test('create shop', function () {
-    $shop = StoreShop::make()->action(Shop::factory()->definition());
+    $shop = StoreShop::make()->action($this->organisation, Shop::factory()->definition());
 
     expect($shop->paymentAccounts()->count())->toBe(1)
         ->and($shop->outboxes()->count())->toBe(count(OutboxTypeEnum::values()));
@@ -179,7 +169,7 @@ test('remove delivery note', function ($deliveryNote) {
 
 test('create shipment', function ($deliveryNote, $shipper) {
     $arrayData = [
-        'code' => 'ASTOID'
+        'code' => 'AAA'
     ];
     $shipper['api_shipper'] = '';
 
@@ -191,7 +181,7 @@ test('create shipment', function ($deliveryNote, $shipper) {
 
 test('update shipment', function ($lastShipment) {
     $arrayData = [
-        'code' => 'ASTOAU'
+        'code' => 'BBB'
     ];
 
     $shipment = UpdateShipment::make()->action($lastShipment, $arrayData);

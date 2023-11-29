@@ -38,6 +38,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $id
  * @property int $organisation_id
  * @property string $slug
+ * @property string $alias
  * @property string|null $work_email
  * @property string|null $contact_name
  * @property string|null $email
@@ -48,6 +49,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property GenderEnum|null $gender
  * @property string|null $worker_number
  * @property string|null $job_title
+ * @property string|null $job_position
  * @property EmployeeTypeEnum $type
  * @property EmployeeStateEnum $state
  * @property string|null $employment_start_at
@@ -62,6 +64,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
+ * @property string|null $delete_comment
  * @property int|null $source_id
  * @property-read Collection<int, \OwenIt\Auditing\Models\Audit> $audits
  * @property-read array $es_audits

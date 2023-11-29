@@ -35,6 +35,7 @@ class StoreGroup
 
         $group->procurementStats()->create();
         $group->humanResourcesStats()->create();
+        $group->inventoryStats()->create();
 
         foreach (MailroomCodeEnum::cases() as $case) {
             StoreMailroom::run(

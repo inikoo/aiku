@@ -13,19 +13,12 @@ use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
-use Illuminate\Support\Carbon;
 
 /**
  * App\Models\HumanResources\EmployeeJobPosition
  *
- * @property int $id
- * @property int $job_position_id
- * @property int $employee_id
- * @property float|null $share
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
- * @property-read \App\Models\HumanResources\Employee $employee
- * @property-read \App\Models\HumanResources\JobPosition $jobPosition
+ * @property-read \App\Models\HumanResources\Employee|null $employee
+ * @property-read \App\Models\HumanResources\JobPosition|null $jobPosition
  * @method static Builder|EmployeeJobPosition newModelQuery()
  * @method static Builder|EmployeeJobPosition newQuery()
  * @method static Builder|EmployeeJobPosition query()

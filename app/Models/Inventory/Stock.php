@@ -39,12 +39,13 @@ use Spatie\Sluggable\SlugOptions;
  * App\Models\Inventory\Stock
  *
  * @property int $id
+ * @property int $group_id
+ * @property int|null $organisation_id
+ * @property int|null $customer_id
  * @property string $slug
  * @property string $code
  * @property string|null $name
  * @property string|null $description
- * @property string $owner_type Organisation|Customer
- * @property int $owner_id
  * @property int|null $stock_family_id
  * @property StockTradeUnitCompositionEnum|null $trade_unit_composition
  * @property StockStateEnum $state
@@ -91,7 +92,6 @@ class Stock extends Model implements HasMedia
 {
     use SoftDeletes;
     use HasSlug;
-
     use HasUniversalSearch;
     use HasImages;
     use HasFactory;

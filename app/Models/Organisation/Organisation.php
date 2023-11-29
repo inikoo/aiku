@@ -12,6 +12,7 @@ use App\Models\Assets\Currency;
 use App\Models\Central\Domain;
 use App\Models\HumanResources\Employee;
 use App\Models\Inventory\Stock;
+use App\Models\Inventory\Warehouse;
 use App\Models\Market\Shop;
 use App\Models\Media\Media;
 use App\Models\Procurement\Agent;
@@ -81,6 +82,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, SupplierProduct> $supplierProducts
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Supplier> $suppliers
  * @property-read SysUser|null $sysUser
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Warehouse> $warehouses
  * @property-read \App\Models\Organisation\OrganisationWebStats|null $webStats
  * @method static \Database\Factories\Organisation\OrganisationFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder|Organisation newModelQuery()
@@ -267,5 +269,9 @@ class Organisation extends Model implements HasMedia
         return $this->hasMany(Shop::class);
     }
 
+    public function warehouses(): HasMany
+    {
+        return $this->hasMany(Warehouse::class);
+    }
 
 }

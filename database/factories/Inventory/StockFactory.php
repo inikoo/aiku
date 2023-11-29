@@ -10,6 +10,7 @@ class StockFactory extends Factory
     {
         return [
             'code'     => fake()->lexify(),
+            'name'     => fake()->name(),
         ];
     }
 }
