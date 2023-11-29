@@ -35,3 +35,4 @@ load_aurora_db.sh
 /load_my_snapshot.sh
 /dump_aurora_db.sh
 .phpstorm.meta.php
+_ide_helper.php
