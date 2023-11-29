@@ -7,8 +7,6 @@
 
 namespace Tests\Feature;
 
-use App\Actions\Organisation\Group\StoreGroup;
-use App\Actions\Organisation\Organisation\StoreOrganisation;
 use App\Actions\Procurement\PurchaseOrder\AddItemPurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\StorePurchaseOrder;
 use App\Actions\Procurement\Supplier\StoreSupplier;
@@ -22,8 +20,6 @@ use App\Actions\Procurement\SupplierDeliveryItem\StoreSupplierDeliveryItemBySele
 use App\Actions\Procurement\SupplierDeliveryItem\UpdateStateToCheckedSupplierDeliveryItem;
 use App\Actions\Procurement\SupplierProduct\StoreSupplierProduct;
 use App\Enums\Procurement\SupplierDelivery\SupplierDeliveryStateEnum;
-use App\Models\Organisation\Group;
-use App\Models\Organisation\Organisation;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\Procurement\PurchaseOrderItem;
 use App\Models\Procurement\Supplier;
@@ -34,22 +30,16 @@ beforeAll(function () {
     loadDB('test_base_database.dump');
 });
 
-
 beforeEach(function () {
-    $organisation = Organisation::first();
-    if (!$organisation) {
-        $group        = StoreGroup::make()->action(Group::factory()->definition());
-        $organisation = StoreOrganisation::make()->action($group, Organisation::factory()->definition());
-    }
-
+    $this->organisation = createOrganisation();
+    $this->group        = group();
 });
 
 test('create independent supplier', function () {
 
 
     $supplier = StoreSupplier::make()->action(
-        owner:app('currentTenant'),
-        agent: null,
+        parent: $this->organisation,
         modelData: Supplier::factory()->definition()
     );
 
@@ -59,7 +49,7 @@ test('create independent supplier', function () {
 
 test('create purchase order while no products', function ($supplier) {
     expect(function () use ($supplier) {
-        StorePurchaseOrder::make()->action($supplier, PurchaseOrder::factory()->definition());
+        StorePurchaseOrder::make()->action($this->organisation, $supplier, PurchaseOrder::factory()->definition());
     })->toThrow(ValidationException::class);
 })->depends('create independent supplier');
 
@@ -88,7 +78,7 @@ test('create purchase order', function ($supplier) {
         'exchange'      => 1.40
     ];
 
-    $purchaseOrder = StorePurchaseOrder::make()->action($supplier->fresh(), $arrayData);
+    $purchaseOrder = StorePurchaseOrder::make()->action($this->organisation, $supplier->fresh(), $arrayData);
 
     expect($purchaseOrder->provider_id)->toBe($supplier->id)
         ->and($purchaseOrder->number)->toBe($arrayData['number'])->and($purchaseOrder->date)->toBe($arrayData['date'])
