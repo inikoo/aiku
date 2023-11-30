@@ -1,4 +1,9 @@
 <?php
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Sat, 25 Nov 2023 01:49:25 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2023, Raul A Perusquia Flores
+ */
 
 namespace App\InertiaTable;
 
@@ -11,14 +16,14 @@ class Filter implements Arrayable
         public string $key,
         public string $label,
         public array $options,
-        public ?string $value = null,
         public bool $noFilterOption,
         public string $noFilterOptionLabel,
-        public string $type
+        public string $type,
+        public ?string $value = null,
     ) {
     }
 
-    public function toArray()
+    public function toArray(): array
     {
         $options = $this->options;
 

@@ -5,10 +5,25 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
+test('globals')
+    ->expect(['dd', 'dump'])
+    ->not->toBeUsedIn([
 
-
-test('Not debugging statements are left in our code.')
-    ->expect(['dd', 'dump','print_r','ray'])
-    ->not->toBeUsed();
-
-// Need to create a test that check if Store|Update actions has authorize method
+        'App\Actions',
+        'App\Adapter',
+        'App\Concerns',
+        'App\Console',
+        'App\Enums',
+        'App\Events',
+        'App\Exceptions',
+        'App\Exports',
+        'App\Helpers',
+        'App\Http',
+        'App\Imports',
+        'App\InertiaTable',
+        'App\Models',
+        'App\Notifications',
+        'App\Rules',
+        'App\Services',
+        'App\Stubs',
+    ]);

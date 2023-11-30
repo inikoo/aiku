@@ -13,7 +13,7 @@ class SearchInput implements Arrayable
     ) {
     }
 
-    public function toArray()
+    public function toArray(): array
     {
         return [
             'key'   => $this->key,
