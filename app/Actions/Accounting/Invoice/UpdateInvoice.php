@@ -31,7 +31,7 @@ class UpdateInvoice
     {
         return [
             'number'      => ['sometimes', 'unique:invoices', 'numeric'],
-            'currency_id' => ['sometimes', 'required', 'exists:central.currencies,id']
+            'currency_id' => ['sometimes', 'required', 'exists:currencies,id']
         ];
     }
 

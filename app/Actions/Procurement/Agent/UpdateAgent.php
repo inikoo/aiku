@@ -48,7 +48,7 @@ class UpdateAgent
             'email'         => ['nullable', 'email'],
             'phone'         => ['nullable', 'phone:AUTO'],
             'address'       => ['sometimes', 'required', new ValidAddress()],
-            'currency_id'   => ['sometimes', 'required', 'exists:central.currencies,id'],
+            'currency_id'   => ['sometimes', 'required', 'exists:currencies,id'],
         ];
     }
 

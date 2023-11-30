@@ -41,3 +41,5 @@ _ide_helper.php
 /private
 /clover.xml
 /.npmrc
+/public/images
+/store/app/media

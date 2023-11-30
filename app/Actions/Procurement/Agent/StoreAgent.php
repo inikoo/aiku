@@ -65,7 +65,7 @@ class StoreAgent
             'email'        => ['nullable', 'email'],
             'phone'        => ['nullable', 'phone:AUTO'],
             'address'      => ['required', new ValidAddress()],
-            'currency_id'  => ['required', 'exists:central.currencies,id'],
+            'currency_id'  => ['required', 'exists:currencies,id'],
         ];
     }
 

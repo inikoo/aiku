@@ -56,9 +56,9 @@ class UpdateShop
             'identity_document_type'   => ['sometimes', 'nullable', 'string'],
             'type'                     => ['sometimes', 'required', Rule::in(ShopTypeEnum::values())],
             'subtype'                  => ['sometimes', 'required', Rule::in(ShopSubtypeEnum::values())],
-            'currency_id'              => ['sometimes', 'required', 'exists:central.currencies,id'],
-            'language_id'              => ['sometimes', 'required', 'exists:central.languages,id'],
-            'timezone_id'              => ['sometimes', 'required', 'exists:central.timezones,id'],
+            'currency_id'              => ['sometimes', 'required', 'exists:currencies,id'],
+            'language_id'              => ['sometimes', 'required', 'exists:languages,id'],
+            'timezone_id'              => ['sometimes', 'required', 'exists:timezones,id'],
         ];
     }
 

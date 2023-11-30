@@ -31,7 +31,7 @@ return [
     'disks' => [
         'local' => [
             'driver' => 'local',
-            'root'   => storage_path('app/central'),
+            'root'   => storage_path('app'),
             'throw'  => false,
         ],
         'datasets' => [

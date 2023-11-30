@@ -72,7 +72,7 @@ class StoreInvoice
     {
         return [
             'number'      => ['required', 'unique:invoices', 'numeric'],
-            'currency_id' => ['required', 'exists:central.currencies,id']
+            'currency_id' => ['required', 'exists:currencies,id']
         ];
     }
 

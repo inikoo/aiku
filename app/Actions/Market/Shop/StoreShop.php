@@ -128,10 +128,10 @@ class StoreShop
             'identity_document_type'   => ['nullable', 'string'],
             'type'                     => ['required', Rule::in(ShopTypeEnum::values())],
             'subtype'                  => ['required', Rule::in(ShopSubtypeEnum::values())],
-            'country_id'               => ['required', 'exists:central.countries,id'],
-            'currency_id'              => ['required', 'exists:central.currencies,id'],
-            'language_id'              => ['required', 'exists:central.languages,id'],
-            'timezone_id'              => ['required', 'exists:central.timezones,id'],
+            'country_id'               => ['required', 'exists:countries,id'],
+            'currency_id'              => ['required', 'exists:currencies,id'],
+            'language_id'              => ['required', 'exists:languages,id'],
+            'timezone_id'              => ['required', 'exists:timezones,id'],
         ];
     }
 
