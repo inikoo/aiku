@@ -42,4 +42,4 @@ _ide_helper.php
 /clover.xml
 /.npmrc
 /public/images
-/store/app/media
+/storage/app/media

@@ -10,7 +10,6 @@ namespace Tests\Feature;
 use App\Actions\Auth\Guest\StoreGuest;
 use App\Actions\Auth\Guest\UpdateGuest;
 use App\Actions\Auth\User\DeleteUser;
-use App\Actions\Auth\User\StoreUser;
 use App\Actions\Auth\User\UpdateUser;
 use App\Actions\Auth\User\UpdateUserStatus;
 use App\Actions\Auth\User\UserAddRoles;
@@ -19,7 +18,6 @@ use App\Actions\Auth\User\UserSyncRoles;
 use App\Models\Auth\Guest;
 use App\Models\Auth\Role;
 use App\Models\Auth\User;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
@@ -40,7 +38,8 @@ test('roles are seeded', function () {
 
 test('create guest', function () {
     $guestData = Guest::factory()->definition();
-    Arr::set($guestData, 'phone', '+6281212121212');
+    data_set($guestData, 'username', 'hello');
+    data_set($guestData, 'phone', '+6281212121212');
     $guest = StoreGuest::make()->action(
         $this->group,
         $guestData
@@ -59,62 +58,49 @@ test('update guest', function ($guest) {
     expect($guest->contact_name)->toBe('Aiku');
 })->depends('create guest');
 
-test('create user for guest', function ($guest) {
-    Hash::shouldReceive('make')->andReturn('1234567');
-    /** @noinspection PhpUndefinedMethodInspection */
-    Hash::makePartial();
-    $userData  = User::factory()->definition();
 
-    $user = StoreUser::make()->action($guest, $userData);
-    expect($user)->toBeInstanceOf(User::class)
-        ->and($user->password)->toBe('1234567')
-        ->and($user->parent)->toBeInstanceOf(Guest::class);
 
-    return $user;
-})->depends('create guest');
-
-test('fail to create user for guest with invalid usernames', function () {
+test('fail to create guest with invalid usernames', function () {
 
     $guestData = Guest::factory()->definition();
-    $guest2    = StoreGuest::make()->action(
-        $this->group,
-        $guestData
-    );
 
-
-    $userData = User::factory()->definition();
-    Arr::set($userData, 'username', 'create');
-
-    expect(function () use ($guest2, $userData) {
-        StoreUser::make()->action($guest2, $userData);
+    data_set($guestData, 'username', 'create');
+    expect(function () use ($guestData) {
+        StoreGuest::make()->action(
+            $this->group,
+            $guestData
+        );
     })->toThrow(ValidationException::class);
 
-    Arr::set($userData, 'username', 'export');
-    expect(function () use ($guest2, $userData) {
-        StoreUser::make()->action($guest2, $userData);
+    data_set($guestData, 'username', 'export');
+    expect(function () use ($guestData) {
+        StoreGuest::make()->action(
+            $this->group,
+            $guestData
+        );
     })->toThrow(ValidationException::class);
 
 });
 
 
-test('update user password', function ($user) {
+test('update user password', function ($guest) {
     Hash::shouldReceive('make')
         ->andReturn('hello1234');
     /** @noinspection PhpUndefinedMethodInspection */
     Hash::makePartial();
 
-    $user = UpdateUser::make()->action($user, [
+    $user = UpdateUser::make()->action($guest->user, [
         'password' => 'secret'
     ]);
 
     expect($user->password)->toBe('hello1234');
 
     return $user;
-})->depends('create user for guest');
+})->depends('create guest');
 
-test('update user username', function ($user) {
-    expect($user->username)->toBe('hello');
-    $user = UpdateUser::make()->action($user, [
+test('update user username', function ($guest) {
+    expect($guest->user->username)->toBe('hello');
+    $user = UpdateUser::make()->action($guest->user, [
         'username' => 'aiku'
     ]);
 
@@ -122,30 +108,30 @@ test('update user username', function ($user) {
         ->and($user->status)->toBeTrue();
 
     return $user;
-})->depends('create user for guest');
+})->depends('create guest');
 
 
 
 
-test('add user roles', function ($user) {
-    expect($user->hasRole(['super-admin', 'system-admin']))->toBeFalse();
+test('add user roles', function ($guest) {
+    expect($guest->user->hasRole(['super-admin', 'system-admin']))->toBeFalse();
 
-    $user = UserAddRoles::make()->action($user, ['super-admin', 'system-admin']);
-
-    expect($user->hasRole(['super-admin', 'system-admin']))->toBeTrue();
-})->depends('create user for guest');
-
-test('remove user roles', function ($user) {
-    $user = UserRemoveRoles::make()->action($user, ['super-admin', 'system-admin']);
-
-    expect($user->hasRole(['super-admin', 'system-admin']))->toBeFalse();
-})->depends('create user for guest');
-
-test('sync user roles', function ($user) {
-    $user = UserSyncRoles::make()->action($user, ['super-admin', 'system-admin']);
+    $user = UserAddRoles::make()->action($guest->user, ['super-admin', 'system-admin']);
 
     expect($user->hasRole(['super-admin', 'system-admin']))->toBeTrue();
-})->depends('create user for guest');
+})->depends('create guest');
+
+test('remove user roles', function ($guest) {
+    $user = UserRemoveRoles::make()->action($guest->user, ['super-admin', 'system-admin']);
+
+    expect($user->hasRole(['super-admin', 'system-admin']))->toBeFalse();
+})->depends('create guest');
+
+test('sync user roles', function ($guest) {
+    $user = UserSyncRoles::make()->action($guest->user, ['super-admin', 'system-admin']);
+
+    expect($user->hasRole(['super-admin', 'system-admin']))->toBeTrue();
+})->depends('create guest');
 
 
 

@@ -19,7 +19,7 @@ class LogUserFirebaseMiddleware
     {
         $user = $request->user();
 
-        if ($user && env('LIVE_USERS_LIST')) {
+        if ($user && env('ORGANISATION_USER_LIVE_LIST')) {
             $route = [
                 'icon'      => Arr::get($request->route()->action, 'icon'),
                 'label'     => Arr::get($request->route()->action, 'label'),

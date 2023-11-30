@@ -10,7 +10,7 @@ namespace App\Models\Auth;
 use App\Actions\Organisation\Organisation\Hydrators\OrganisationHydrateUsers;
 use App\Enums\Auth\User\UserAuthTypeEnum;
 use App\Models\Assets\Language;
-use App\Models\Organisation\Organisation;
+use App\Models\Organisation\Group;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\WithPushNotifications;
 use App\Models\Traits\HasHistory;
@@ -28,6 +28,8 @@ use Laravel\Sanctum\HasApiTokens;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\Sluggable\HasSlug;
+use Spatie\Sluggable\SlugOptions;
 
 /**
  * App\Models\Auth\User
@@ -92,6 +94,7 @@ class User extends Authenticatable implements HasMedia, Auditable
     use WithPushNotifications;
     use HasUniversalSearch;
     use InteractsWithMedia;
+    use HasSlug;
 
     protected $guarded = [
     ];
@@ -114,6 +117,22 @@ class User extends Authenticatable implements HasMedia, Auditable
         'data'     => '{}',
         'settings' => '{}',
     ];
+
+    public function getSlugOptions(): SlugOptions
+    {
+        return SlugOptions::create()
+            ->generateSlugsFrom(function () {
+                return head(explode('@', trim($this->username)));
+            })
+            ->saveSlugsTo('slug')
+            ->slugsShouldBeNoLongerThan(16);
+    }
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('avatar')
+            ->singleFile();
+    }
 
     public function routeNotificationForFcm(): array
     {
@@ -141,9 +160,9 @@ class User extends Authenticatable implements HasMedia, Auditable
     }
 
 
-    public function tenant(): BelongsTo
+    public function group(): BelongsTo
     {
-        return $this->belongsTo(Organisation::class);
+        return $this->belongsTo(Group::class);
     }
 
 
@@ -154,7 +173,7 @@ class User extends Authenticatable implements HasMedia, Auditable
 
     public function getRouteKeyName(): string
     {
-        return 'username';
+        return 'slug';
     }
 
     protected function avatar(): Attribute
@@ -169,9 +188,5 @@ class User extends Authenticatable implements HasMedia, Auditable
         return $this->belongsTo(Language::class);
     }
 
-    public function registerMediaCollections(): void
-    {
-        $this->addMediaCollection('profile')
-            ->singleFile();
-    }
+
 }

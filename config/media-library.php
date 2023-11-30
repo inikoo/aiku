@@ -13,13 +13,13 @@ return [
      * The disk on which to store added files and derived images by default. Choose
      * one or more of the disks you've configured in config/filesystems.php.
      */
-    'disk_name' => env('MEDIA_DISK', 'group_public'),
+    'disk_name' => env('MEDIA_DISK', 'media'),
 
     /*
      * The maximum file size of an item in bytes.
      * Adding a larger file will result in an exception.
      */
-    'max_file_size' => 1024 * 1024 * 20, // 10MB
+    'max_file_size' => 1024 * 1024 * 50, // 50MB
 
     /*
      * This queue will be used to generate derived and responsive images.

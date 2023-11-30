@@ -7,6 +7,7 @@
 
 namespace App\Actions\Auth\User;
 
+use App\Actions\Auth\User\UI\SetUserAvatar;
 use App\Actions\Central\User\Hydrators\UserHydrateUniversalSearch;
 use App\Models\Auth\Guest;
 use App\Models\Auth\User;
@@ -31,6 +32,7 @@ class StoreUser
     public function handle(Guest|Employee|Supplier|Agent $parent, array $objectData = []): User
     {
 
+        data_set($objectData, 'group_id', $parent->group_id);
 
         $type = match (class_basename($parent)) {
             'Guest', 'Employee', 'Supplier', 'Agent' => strtolower(class_basename($parent)),
@@ -41,10 +43,9 @@ class StoreUser
 
         /** @var User $user */
         $user = $parent->user()->create($objectData);
-
         $user->stats()->create();
-
         $user->refresh();
+        SetUserAvatar::dispatch($user);
         UserHydrateUniversalSearch::dispatch($user);
 
 

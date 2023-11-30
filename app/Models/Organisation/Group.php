@@ -128,6 +128,11 @@ class Group extends Model
         return $this->hasMany(Mailroom::class);
     }
 
+    public function users(): HasMany
+    {
+        return $this->hasMany(Guest::class);
+    }
+
     public function guests(): HasMany
     {
         return $this->hasMany(Guest::class);

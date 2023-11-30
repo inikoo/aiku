@@ -51,14 +51,14 @@ class AppServiceProvider extends ServiceProvider
         Relation::morphMap(
             [
                 'Admin'                 => 'App\Models\SysAdmin\Admin',
+                'Group'                 => 'App\Models\Organisation\Group',
+                'Organisation'          => 'App\Models\Organisation\Organisation',
                 'User'                  => 'App\Models\Auth\User',
-                'GroupUser'             => 'App\Models\Auth\GroupUser',
                 'Employee'              => 'App\Models\HumanResources\Employee',
                 'Guest'                 => 'App\Models\Auth\Guest',
                 'Customer'              => 'App\Models\CRM\Customer',
                 'Prospect'              => 'App\Models\Deals\Prospect',
                 'Shop'                  => 'App\Models\Market\Shop',
-                'Organisation'          => 'App\Models\Tenancy\Tenant',
                 'SysUser'               => 'App\Models\SysAdmin\SysUser',
                 'ProductCategory'       => 'App\Models\Market\ProductCategory',
                 'Product'               => 'App\Models\Market\Product',

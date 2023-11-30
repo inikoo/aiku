@@ -1,4 +1,9 @@
 <?php
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Thu, 30 Nov 2023 23:48:56 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2023, Raul A Perusquia Flores
+ */
 
 return [
 
@@ -39,41 +44,47 @@ return [
             'root'   => database_path('seeders/datasets'),
             'throw'  => false,
         ],
-
-
         'public' => [
             'driver'     => 'local',
-            'root'       => storage_path('app/public/central'),
+            'root'       => storage_path('app/public'),
             'url'        => env('APP_URL').'/storage',
             'visibility' => 'public',
             'throw'      => false,
         ],
-        'group' => [
+        'media'  => [
             'driver' => 'local',
-            'root'   => env('FILESYSTEM_GROUP_ROOT', storage_path('app/group')),
+            'root'   => storage_path('app/media'),
             'throw'  => false,
         ],
-        'group_public' => [
-            'driver'     => 'local',
-            'root'       => env('FILESYSTEM_GROUP_PUBLIC_ROOT', storage_path('app/public/group')),
-            'url'        => env('APP_URL').'/group/storage',
-            'visibility' => 'public',
-            'throw'      => false,
-        ],
-
-        'backups' => [
-            'driver' => 'local',
-            'root'   => storage_path('backups'),
-            'throw'  => false,
-        ],
-
         'r2' => [
             'driver'   => 's3',
             'key'      => env('CLOUDFLARE_R2_ACCESS_KEY'),
             'secret'   => env('CLOUDFLARE_R2_SECRET_KEY'),
-            'region'   => 'us-east-1',
-            'bucket'   => env('CLOUDFLARE_R2_BUCKET'),
+            'region'   => env('CLOUDFLARE_R2_REGION', 'auto'),
             'endpoint' => env('CLOUDFLARE_R2_ENDPOINT'),
+            'bucket'   => env('CLOUDFLARE_R2_BUCKET_NAME'),
+        ],
+        'media-r2' => [
+            'driver'   => 's3',
+            'key'      => env('CLOUDFLARE_R2_ACCESS_KEY'),
+            'secret'   => env('CLOUDFLARE_R2_SECRET_KEY'),
+            'region'   => env('CLOUDFLARE_R2_REGION', 'auto'),
+            'endpoint' => env('CLOUDFLARE_R2_ENDPOINT'),
+            'bucket'   => env('CLOUDFLARE_R2_MEDIA_BUCKET_NAME'),
+        ],
+        'google' => [
+            'driver'       => 'google',
+            'clientId'     => env('GOOGLE_DRIVE_CLIENT_ID'),
+            'clientSecret' => env('GOOGLE_DRIVE_CLIENT_SECRET'),
+            'refreshToken' => env('GOOGLE_DRIVE_REFRESH_TOKEN'),
+            'folder'       => env('GOOGLE_DRIVE_FOLDER'), // without folder is root of drive or team drive
+            //'teamDriveId' => env('GOOGLE_DRIVE_TEAM_DRIVE_ID'),
+            //'sharedFolderId' => env('GOOGLE_DRIVE_SHARED_FOLDER_ID'),
+        ],
+        'backups' => [
+            'driver' => 'local',
+            'root'   => storage_path('backups'),
+            'throw'  => false,
         ],
     ],
 
@@ -89,7 +100,7 @@ return [
     */
 
     'links' => [
-        public_path('storage') => storage_path('app/public'),
+        public_path('images') => resource_path('images/'),
     ],
 
 ];

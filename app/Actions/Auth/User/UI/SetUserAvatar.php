@@ -9,7 +9,6 @@ namespace App\Actions\Auth\User\UI;
 
 use App\Models\Auth\User;
 use App\Models\Media\Media;
-use App\Models\Organisation\Group;
 use Exception;
 use Illuminate\Console\Command;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -18,49 +17,53 @@ class SetUserAvatar
 {
     use AsAction;
 
-    public function handle(User $user): User
+    public function handle(User $user): array
     {
         try {
-            $seed = $user->id;
             /** @var Media $media */
-            $media = $user->addMediaFromUrl("https://avatars.dicebear.com/api/identicon/$seed.svg")
+            $media = $user->addMediaFromUrl("https://api.dicebear.com/7.x/identicon/svg?seed=".$user->slug)
                 ->preservingOriginal()
-                ->usingFileName($user->username."-avatar.sgv")
-                ->toMediaCollection('profile', 'group');
+                ->withProperties(
+                    [
+                        'group_id' => $user->group_id
+                    ]
+                )
+                ->usingName($user->slug."-avatar")
+                ->usingFileName($user->slug."-avatar.sgv")
+                ->toMediaCollection('avatar');
 
             $avatarID = $media->id;
-
             $user->update(['avatar_id' => $avatarID]);
-        } catch(Exception) {
-            //
+
+            return ['result' => 'success'];
+        } catch (Exception $e) {
+            return ['result' => 'error', 'message' => $e->getMessage()];
         }
-        return $user;
     }
 
 
-    public string $commandSignature = 'maintenance:reset-central-user-avatar {group : Group slug} {username : User username}';
+    public string $commandSignature = 'user:avatar {slug : User slug}';
 
     public function asCommand(Command $command): int
     {
-
         try {
-            $group=Group::where('slug', $command->argument('group'))->firstOrFail();
+            $user = User::where('slug', $command->argument('slug'))->firstOrFail();
         } catch (Exception) {
-            $command->error('Group not found');
-            return 1;
-        }
-
-        $group->owner->makeCurrent();
-
-        $user = User::where('username', $command->argument('username'))->first();
-        if (!$user) {
             $command->error('User not found');
+
             return 1;
-        } else {
-            $this->handle($user);
         }
 
+        $result = $this->handle($user);
 
-        return 0;
+        if ($result['result'] === 'success') {
+            $command->info('Avatar set');
+
+            return 0;
+        } else {
+            $command->error($result['message']);
+
+            return 1;
+        }
     }
 }

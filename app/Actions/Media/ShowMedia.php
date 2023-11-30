@@ -17,31 +17,25 @@ class ShowMedia
     use AsAction;
 
 
-    public function authorize(ActionRequest $request): bool
+    public function authorize(): bool
     {
-        return $request->route('centralMedia')->tenants->pluck('id')->contains(app('currentTenant')->id);
-    }
-
-    /*
-        public function getAuthorizationFailure(): void
-        {
-          // todo: show a image
-        }
-    */
-
-    public function asController(Media $centralMedia, ActionRequest $request): Media
-    {
-        return $centralMedia;
+        return true;
     }
 
 
-    public function htmlResponse(Media $centralMedia): BinaryFileResponse
+    public function asController(Media $media, ActionRequest $request): Media
+    {
+        return $media;
+    }
+
+
+    public function htmlResponse(Media $media): BinaryFileResponse
     {
         $headers = [
-            'Content-Type'   => $centralMedia->mime_type,
-            'Content-Length' => $centralMedia->size,
+            'Content-Type'   => $media->mime_type,
+            'Content-Length' => $media->size,
         ];
 
-        return response()->file($centralMedia->getPath(), $headers);
+        return response()->file($media->getPath(), $headers);
     }
 }

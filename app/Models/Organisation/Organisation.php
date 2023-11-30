@@ -115,6 +115,12 @@ class Organisation extends Model implements HasMedia
         return 'slug';
     }
 
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('logo')
+            ->singleFile();
+    }
+
     public function employees(): HasMany
     {
         return $this->hasMany(Employee::class);
@@ -189,8 +195,6 @@ class Organisation extends Model implements HasMedia
     {
         return $this->hasMany(Domain::class);
     }
-
-
     public function sysUser(): MorphOne
     {
         return $this->morphOne(SysUser::class, 'userable');
@@ -209,12 +213,6 @@ class Organisation extends Model implements HasMedia
     public function logo(): HasOne
     {
         return $this->hasOne(Media::class, 'id', 'logo_id');
-    }
-
-    public function registerMediaCollections(): void
-    {
-        $this->addMediaCollection('logo')
-            ->singleFile();
     }
 
     public function shops(): HasMany

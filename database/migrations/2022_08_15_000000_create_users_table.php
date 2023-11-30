@@ -17,6 +17,9 @@ return new class () extends Migration {
     {
         Schema::create('users', function (Blueprint $table) {
             $table->smallIncrements('id');
+            $table->unsignedSmallInteger('group_id');
+            $table->foreign('group_id')->references('id')->on('groups')->onUpdate('cascade')->onDelete('cascade');
+            $table->string('slug')->unique()->collation('und_ns');
             $table->boolean('status')->default(true);
             $table->string('username')->unique()->collation('und_ns');
             $table->string('password')->nullable();
@@ -37,7 +40,6 @@ return new class () extends Migration {
             $table=$this->softDeletes($table);
             $table->unsignedInteger('source_id')->nullable()->unique();
             $table->string('legacy_password')->nullable()->index()->comment('source password');
-            $table->unique(['parent_type','parent_id']);
 
         });
         DB::statement('CREATE INDEX ON users USING gin (contact_name gin_trgm_ops) ');
