@@ -14,7 +14,7 @@ import { library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { getDatabase, ref as dbRef, set, onValue, get } from 'firebase/database';
 import { initializeApp } from "firebase/app"
-import serviceAccount from "@/../../private/firebase/aiku-firebase.json"
+//import serviceAccount from "@/../../private/firebase/aiku-firebase.json" delete this!
 
 
 
