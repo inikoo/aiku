@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Fri, 12 May 2023 10:34:26 Malaysia Time, Pantai Lembeng, Bali, Id
+ * Created: Fri, 12 May 2023 10:34:26 Malaysia Time, Pantai Lembeng, Bali, Indonesia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
@@ -33,7 +33,7 @@ class GetFirstLoadProps
         $auth = app('firebase.auth');
 
         if($user) {
-            $customTokenFirebasePrefix = 'tenant_' . app('currentTenant')->slug . '_user_' . $user->username . '_token_' . $user->id;
+            $customTokenFirebasePrefix = 'org_user_' . $user->username . '_token_' . $user->id;
             $cache                     = Cache::get($customTokenFirebasePrefix);
 
             if(blank($cache)) {
@@ -44,7 +44,6 @@ class GetFirstLoadProps
         }
 
         return [
-            'tenant'     => app('currentTenant') ? app('currentTenant')->only('name', 'code', 'logo_id') : null,
             'localeData' =>
                 [
                     'language'        => LanguageResource::make($language)->getArray(),

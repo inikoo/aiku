@@ -15,10 +15,10 @@ class StoreUserLogFirebase
     use AsObject;
     use AsAction;
 
-    public function handle(string $username, string $organisationSlug, array $route): void
+    public function handle(string $username, int $groupId, array $route): void
     {
-        $database  = app('firebase.database');
-        $path      = 'tenants/'.$organisationSlug . '/active_users/' . $username;
+        $database = app('firebase.database');
+        $path     = 'org/'.$groupId.'/active_users/'.$username;
 
         $reference = $database->getReference($path);
 
@@ -26,7 +26,6 @@ class StoreUserLogFirebase
             'route'       => $route,
             'last_active' => now()
         ]);
-
         //CheckUserStatusFirebase::dispatch($organisation);
     }
 }

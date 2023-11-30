@@ -20,20 +20,17 @@ class LogUserFirebaseMiddleware
         $user = $request->user();
 
         if ($user && env('LIVE_USERS_LIST')) {
-            $organisation = app('currentTenant');
-
             $route = [
                 'icon'      => Arr::get($request->route()->action, 'icon'),
                 'label'     => Arr::get($request->route()->action, 'label'),
                 'name'      => request()->route()->getName(),
                 'arguments' => request()->route()->originalParameters()
             ];
-            //  dd($route);
 
-            StoreUserLogFirebase::dispatch($user->username, $organisation->slug, $route);
+            StoreUserLogFirebase::dispatch($user->username, $user->group_id, $route);
 
             if ($request->route()->getName() == 'logout') {
-                DeleteUserLogFirebase::dispatch($user, $organisation);
+                DeleteUserLogFirebase::dispatch($user, $user->group_id);
             }
         }
 

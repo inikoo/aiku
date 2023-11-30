@@ -417,7 +417,9 @@ class GetLayout
             ];
         }
 
-        if ($user->can('fulfilment.view') and app('currentTenant')->marketStats->number_shops_subtype_fulfilment) {
+        if ($user->can('fulfilment.view')
+            //  and app('currentTenant')->marketStats->number_shops_subtype_fulfilment
+        ) {
             $navigation['fulfilment'] = [
                 'label'   => __('fulfilment'),
                 'icon'    => ['fal', 'fa-dolly-flatbed-alt'],
