@@ -1,14 +1,6 @@
 <script setup>
 import { ref, computed } from 'vue'
 import fontLibrary from './Components/fonts.js'
-// import { fas } from '../../../../../private/pro-solid-svg-icons';
-// import { fal } from '../../../../../private/pro-light-svg-icons';
-// import { far } from '../../../../../private/pro-regular-svg-icons';
-// import { fad } from '../../../../../private/pro-duotone-svg-icons';
-// import { fab } from "@fortawesome/free-brands-svg-icons"
-import { library } from '@fortawesome/fontawesome-svg-core'
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-// library.add(fas, fal, far, fad, fab)
 const props = defineProps({
   label: {
     type: String,

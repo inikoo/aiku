@@ -36,7 +36,7 @@ import {
     faPoop,
     faPaperPlane,
     faPaperclip
-} from "@/../private/pro-light-svg-icons";
+} from '@fal/';
 import TableMarketplaceSupplierProducts from "@/Pages/Tables/TableMarketplaceSupplierProducts.vue";
 
 library.add(

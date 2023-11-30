@@ -19,7 +19,7 @@ import {
     faPaperclip,
     faCube,
     faHandReceiving, faClipboard, faPoop, faScanner, faDollarSign
-} from "@/../private/pro-light-svg-icons";
+} from '@fal/';
 import { computed, defineAsyncComponent, ref } from "vue";
 import { useTabChange } from "@/Composables/tab-change";
 import ModelDetails from "@/Pages/ModelDetails.vue";

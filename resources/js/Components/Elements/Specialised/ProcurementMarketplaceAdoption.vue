@@ -6,7 +6,7 @@
 
 <script setup lang="ts">
 import { library } from "@fortawesome/fontawesome-svg-core"
-import {faCheckCircle,faPlusCircle,faPauseCircle,faScrubber } from "@/../private/pro-solid-svg-icons"
+import {faCheckCircle,faPlusCircle,faPauseCircle,faScrubber } from '@fas/'
 
 library.add(faCheckCircle,faPlusCircle,faPauseCircle,faScrubber)
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";

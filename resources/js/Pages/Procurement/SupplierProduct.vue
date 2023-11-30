@@ -36,7 +36,7 @@ import {
     faTruck,
     faTerminal,
     faCameraRetro, faPaperclip, faPoop, faMoneyBill, faClipboard
-} from "@/../private/pro-light-svg-icons";
+} from '@fal/';
 import AgentShowcase from "@/Pages/Procurement/AgentShowcase.vue";
 import TableSupplierProducts from "@/Pages/Tables/TableSupplierProducts.vue";
 import TablePurchaseOrders from "@/Pages/Tables/TablePurchaseOrders.vue";

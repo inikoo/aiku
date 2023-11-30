@@ -32,7 +32,7 @@ import { router } from '@inertiajs/vue3'
 //     faTasksAlt,
 //     faBullhorn,
 //     faLightbulb
-// } from "@/../private/pro-light-svg-icons"
+// } from '@fal/'
 import { useLayoutStore } from "@/Stores/layout.js"
 import { computed } from "vue";
 

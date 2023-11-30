@@ -6,14 +6,14 @@ import {library} from '@fortawesome/fontawesome-svg-core';
 import {
     faAnalytics, faBrowser,
     faChartLine, faDraftingCompass, faRoad, faSlidersH, faUsersClass
-} from "@/../private/pro-light-svg-icons";
+} from '@fal/';
 
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 import { computed, defineAsyncComponent, ref } from "vue";
 import { useTabChange } from "@/Composables/tab-change";
 import ModelDetails from "@/Pages/ModelDetails.vue";
 import Tabs from "@/Components/Navigation/Tabs.vue";
-import { faClock } from "@/../private/pro-solid-svg-icons";
+import { faClock } from '@fas/';
 import { capitalize } from "@/Composables/capitalize"
 
 library.add(

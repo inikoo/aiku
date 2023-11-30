@@ -1,6 +1,6 @@
 <script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faTimes } from "@/../private/pro-light-svg-icons"
+import { faTimes } from '@fal/'
 import { library } from '@fortawesome/fontawesome-svg-core'
 library.add(faTimes)
 

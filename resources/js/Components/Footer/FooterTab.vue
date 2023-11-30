@@ -21,7 +21,7 @@
 <script setup lang="ts">
 import { useLayoutStore } from "@/Stores/layout"
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faThumbtack } from "@/../private/pro-solid-svg-icons"
+import { faThumbtack } from '@fas/'
 import { library } from '@fortawesome/fontawesome-svg-core'
 
 const props = defineProps<{

@@ -8,7 +8,7 @@
 import {Head} from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 import {library} from '@fortawesome/fontawesome-svg-core';
-import {faInventory, faWarehouse, faMapSigns, faChartLine} from '@/../private/pro-light-svg-icons';
+import {faInventory, faWarehouse, faMapSigns, faChartLine} from '@fal/';
 import Tabs from "@/Components/Navigation/Tabs.vue";
 import {computed, defineAsyncComponent, ref} from "vue";
 import WarehouseDashboard from "@/Pages/Inventory/WarehouseDashboard.vue";

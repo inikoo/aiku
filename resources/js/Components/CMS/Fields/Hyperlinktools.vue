@@ -1,10 +1,7 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue"
-import { library } from '@fortawesome/fontawesome-svg-core';
-// import { fas } from '../../../../private/pro-solid-svg-icons';
-// import { fab } from "@fortawesome/free-brands-svg-icons"
+import { ref } from "vue"
+
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-// library.add( fab, fas)
 const props = defineProps<{
 	data: Object
 	save: Function

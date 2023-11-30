@@ -1,8 +1,8 @@
 <template>
     <div>
-        <component :is="component[theme]" :columSelected="columSelected" :social="props.social" :saveSocialmedia="saveSocialmedia"
-            :navigation="props.navigation" :changeColums="props.changeColums" :copyRight="copyRight" :copyRightSave="copyRightSave"
-            :selectedColums="selectedColums" :saveItemTitle="saveItemTitle" :saveTextArea="saveTextArea" :saveInfo="saveInfo"
+        <component :is="component[theme]" :columnSelected="columnSelected" :social="props.social" :saveSocialmedia="saveSocialmedia"
+            :navigation="props.navigation" :changeColumns="props.changeColumns" :copyRight="copyRight" :copyRightSave="copyRightSave"
+            :selectedColumns="selectedColumns" :saveItemTitle="saveItemTitle" :saveTextArea="saveTextArea" :saveInfo="saveInfo"
             :tool="tool" :saveLink="saveLink"/>
     </div>
 </template>
@@ -16,9 +16,9 @@ const props = defineProps<{
     theme: number,
     social: Object,
     navigation: Object,
-    changeColums: Function,
-    selectedColums: Function,
-    columSelected: Object
+    changeColumns: Function,
+    selectedColumns: Function,
+    columnSelected: Object
     saveItemTitle: Function
     saveTextArea:Function
     tool:Object

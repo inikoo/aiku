@@ -10,7 +10,7 @@ import PageHeading from '@/Components/Headings/PageHeading.vue';
 
 
 import {library} from '@fortawesome/fontawesome-svg-core';
-import { faInventory, faWarehouse, faMapSigns, faChartLine, faClock } from "@/../private/pro-light-svg-icons";
+import { faInventory, faWarehouse, faMapSigns, faChartLine, faClock } from '@fal/';
 import Tabs from "@/Components/Navigation/Tabs.vue";
 import { computed, defineAsyncComponent, ref } from "vue";
 import { useTabChange } from "@/Composables/tab-change";

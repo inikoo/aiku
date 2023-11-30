@@ -7,7 +7,7 @@
 <script setup lang="ts">
 
 import {library} from '@fortawesome/fontawesome-svg-core';
-import {faPlus} from '@/../private/pro-solid-svg-icons';
+import {faPlus} from '@fas/';
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 
 library.add(faPlus);

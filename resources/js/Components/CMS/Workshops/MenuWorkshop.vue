@@ -9,7 +9,7 @@ import { ref , watch ,watchEffect } from 'vue'
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { RadioGroup, RadioGroupLabel, RadioGroupOption } from '@headlessui/vue'
 import Menu from '@/Components/CMS/Menu/index.vue'
-import { faHandPointer, faHandRock, faPlus } from '../../../../private/pro-solid-svg-icons';
+import { faHandPointer, faHandRock, faPlus } from '@fas/';
 // import { fab } from "@fortawesome/free-brands-svg-icons"
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { v4 as uuidv4 } from 'uuid';
@@ -244,7 +244,7 @@ const navigation = ref({
 })
 
 const selectedTheme = ref(Dummy.theme[0])
-const columsTypeTheme = ref(null)
+const columnsTypeTheme = ref(null)
 const handtools = ref(Dummy.tools[0])
 const selectedNav = ref(null)
 
@@ -455,7 +455,7 @@ const EditItemLinkInTools = (value,type) => {
                             <!-- Mode -->
                             <div class="mt-8" v-if="get(selectedNav,'type') == 'group'">
                                 <div class="flex items-center justify-between">
-                                    <h2 class="text-sm font-medium text-gray-900">{{ `Colums tools ${selectedNav.name}`
+                                    <h2 class="text-sm font-medium text-gray-900">{{ `Columns tools ${selectedNav.name}`
                                     }}</h2>
                                 </div>
                                 <div>

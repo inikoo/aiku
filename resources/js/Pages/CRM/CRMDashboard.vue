@@ -14,7 +14,7 @@ import {library} from '@fortawesome/fontawesome-svg-core';
 import { capitalize } from "@/Composables/capitalize"
 import {
    faShoppingCart
-} from "@/../private/pro-light-svg-icons";
+} from '@fal/';
 import FlatTreeMap from "@/Components/Navigation/FlatTreeMap.vue";
 
 library.add(

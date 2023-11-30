@@ -21,7 +21,7 @@ import {
     faCubes,
     faCube,
     faCameraRetro
-} from "@/../private/pro-light-svg-icons";
+} from '@fal/';
 import { computed, defineAsyncComponent, ref } from "vue";
 import { useTabChange } from "@/Composables/tab-change";
 import TableProducts from "@/Pages/Tables/TableProducts.vue";

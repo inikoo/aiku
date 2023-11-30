@@ -1,6 +1,6 @@
 <!--
   This example requires some changes to your config:
-  
+
   ```
   // tailwind.config.js
   module.exports = {
@@ -54,8 +54,8 @@ library.add(
 const props = defineProps<{
 	social: Object
 	navigation: Object
-	selectedColums: Function
-	columSelected: Object
+	selectedColumns: Function
+	columnSelected: Object
 	saveItemTitle: Function
 	saveTextArea: Function
 	tool: Object
@@ -88,8 +88,8 @@ const childLog = (a, b, c) => {
 						<div :class="[
 							'space-y-3',
 							'w-1/4',
-							columSelected.id !== element.id ? '' : 'border',
-						]" @click="props.selectedColums(element)">
+							columnSelected.id !== element.id ? '' : 'border',
+						]" @click="props.selectedColumns(element)">
 							<!-- <h3 class="text-sm font-bold leading-6 text-gray-700 capitalize">{{ element.title }}</h3> -->
 							<Input :data="element" :save="props.saveItemTitle" keyValue="title"
 								cssClass="text-sm font-bold leading-6 text-gray-700 capitalize" />

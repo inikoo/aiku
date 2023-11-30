@@ -2,8 +2,8 @@
 // This file is used on TenantApp, PublicApp
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faLanguage } from '@/../private/pro-light-svg-icons'
-import { faSpinnerThird } from '@/../private/pro-duotone-svg-icons'
+import { faLanguage } from '@fal/'
+import { faSpinnerThird } from '@fad/'
 import { library } from '@fortawesome/fontawesome-svg-core'
 library.add(faLanguage, faSpinnerThird)
 import { useLocaleStore } from "@/Stores/locale"
@@ -33,7 +33,7 @@ defineEmits<{
         <FontAwesomeIcon v-if="form.processing" icon='fad fa-spinner-third' class='animate-spin mr-2' aria-hidden='true' />
         <FontAwesomeIcon v-else icon="fal fa-language" class="text-xs mr-1 h-5 " />
         <div class="h-full font-extralight text-xs flex items-center gap-x-1 leading-none">
-            {{ locale.language.code }} 
+            {{ locale.language.code }}
         </div>
         <div class="absolute inset-0 bg-transparent" @click="isTabActive == 'language' ? $emit('isTabActive', !isTabActive) : $emit('isTabActive', 'language')" />
 

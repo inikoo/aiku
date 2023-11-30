@@ -29,7 +29,7 @@
 import { ref } from 'vue'
 import { Switch } from '@headlessui/vue'
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faMoonStars, faLightbulbOn, faCheck } from "@/../private/pro-light-svg-icons"
+import { faMoonStars, faLightbulbOn, faCheck } from '@fal/'
 library.add(faMoonStars, faLightbulbOn, faCheck)
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 const isDark = ref(false)

@@ -7,10 +7,10 @@
 <script setup>
 import { Link } from "@inertiajs/vue3";
 import { library } from "@fortawesome/fontawesome-svg-core";
-import { faEmptySet, faMoneyCheckAlt, faPeopleArrows,faSlidersH } from "@/../private/pro-light-svg-icons";
-import { faPencil, faArrowLeft, faBorderAll, faTrashAlt } from "@/../private/pro-regular-svg-icons";
+import { faEmptySet, faMoneyCheckAlt, faPeopleArrows,faSlidersH } from '@fal/';
+import { faPencil, faArrowLeft, faBorderAll, faTrashAlt } from '@far/';
 
-import { faPlus } from "@/../private/pro-solid-svg-icons";
+import { faPlus } from '@fas/';
 import Button from "@/Components/Elements/Buttons/Button.vue";
 import { capitalize } from "@/Composables/capitalize";
 import { useLocaleStore } from "@/Stores/locale.js";

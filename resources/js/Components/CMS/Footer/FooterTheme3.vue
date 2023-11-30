@@ -17,8 +17,8 @@ library.add(faFacebook, faInstagram, faTwitter, faGithub, faYoutube)
 const props = defineProps<{
     social: Object
     navigation: Object
-    selectedColums: Function
-    columSelected: Object
+    selectedColumns: Function
+    columnSelected: Object
     saveItemTitle: Function
     saveTextArea: Function
     tool: Object
@@ -31,7 +31,7 @@ const props = defineProps<{
 
 const listData = ref(props.navigation.filter((item)=> item.type == 'list')[0])
 onMounted(() => {
-  props.selectedColums(props.navigation.filter((item)=> item.type == 'list')[0]);
+  props.selectedColumns(props.navigation.filter((item)=> item.type == 'list')[0]);
 });
 
 </script>

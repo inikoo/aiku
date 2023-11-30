@@ -11,7 +11,7 @@ import {
     faCashRegister,
     faCreditCard,
     faMoneyCheckAlt
-} from "@/../private/pro-light-svg-icons";
+} from '@fal/';
 
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 import FlatTreeMap from '@/Components/Navigation/FlatTreeMap.vue';

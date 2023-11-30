@@ -7,7 +7,7 @@
 
 <script setup lang="ts">
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faDollarSign } from "@/../private/pro-regular-svg-icons"
+import { faDollarSign } from '@far/'
 import { library } from '@fortawesome/fontawesome-svg-core'
 library.add(faDollarSign)
 

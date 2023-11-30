@@ -15,7 +15,7 @@ import {
     faPeopleArrows,
     faClipboard, faTruck, faCameraRetro,
     faPersonDolly,faAddressBook
-} from "@/../private/pro-light-svg-icons";
+} from '@fal/';
 import Tabs from "@/Components/Navigation/Tabs.vue";
 import {computed, defineAsyncComponent, ref} from "vue";
 import ModelDetails from "@/Pages/ModelDetails.vue";

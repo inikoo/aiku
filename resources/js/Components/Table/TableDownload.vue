@@ -1,11 +1,10 @@
 <script setup>
-import { Link } from "@inertiajs/vue3"
 import { ref } from "vue"
 import { trans } from 'laravel-vue-i18n'
 
 import ButtonWithDropdown from "./ButtonWithDropdown.vue"
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faDownload } from "@/../private/pro-solid-svg-icons"
+import { faDownload } from '@fas/'
 import { library } from '@fortawesome/fontawesome-svg-core'
 library.add(faDownload)
 

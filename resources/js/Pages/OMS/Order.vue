@@ -12,7 +12,7 @@ import {
     faBars,
     faDollarSign, faEnvelope, faFileInvoiceDollar,
     faPaperclip, faRoad, faStickyNote, faTag, faThList, faTruck, faUserTag
-} from "../../../private/pro-light-svg-icons";
+} from '@fal/';
 import TablePayments from "@/Pages/Tables/TablePayments.vue";
 import TableInvoices from "@/Pages/Tables/TableInvoices.vue";
 import TableDeliveryNotes from "@/Pages/Tables/TableDeliveryNotes.vue";

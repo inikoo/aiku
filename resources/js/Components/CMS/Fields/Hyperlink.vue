@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue"
 import { Popover, PopoverButton, PopoverPanel } from "@headlessui/vue"
-import { faLink, faEdit, faTrash } from "../../../../private/pro-solid-svg-icons"
+import { faLink, faEdit, faTrash } from '@fas/'
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
 library.add(faLink, faEdit, faTrash)

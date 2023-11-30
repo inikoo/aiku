@@ -8,7 +8,7 @@ import {Head} from '@inertiajs/vue3'
 import PageHeading from '@/Components/Headings/PageHeading.vue'
 import FlatTreeMap from '@/Components/Navigation/FlatTreeMap.vue'
 import {library} from '@fortawesome/fontawesome-svg-core'
-import {faInventory, faWarehouse, faMapSigns, faBox, faBoxesAlt} from '@/../private/pro-light-svg-icons'
+import {faInventory, faWarehouse, faMapSigns, faBox, faBoxesAlt} from '@fal/'
 import { capitalize } from "@/Composables/capitalize"
 
 defineProps(['title', 'pageHead', 'flatTreeMaps'])

@@ -1,11 +1,7 @@
 <script setup lang="ts">
-// T3
-import { ref } from 'vue'
+
 import { RadioGroup, RadioGroupLabel, RadioGroupOption, RadioGroupDescription } from '@headlessui/vue'
-// import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-// import { faCheck } from '@/../private/pro-regular-svg-icons'
-// import { library } from '@fortawesome/fontawesome-svg-core'
-// library.add(faCheck)
+
 const props = defineProps(['form', 'fieldName', 'fieldData'])
 
 const compareObjects = (objA, objB) => {
@@ -46,7 +42,7 @@ const compareObjects = (objA, objB) => {
                                 :value="option" v-slot="{ active, checked }">
                                 <div
                                     :class="[
-                                        'cursor-pointer focus:outline-none flex items-center justify-center rounded-md py-3 px-3 text-sm font-medium capitalize', 
+                                        'cursor-pointer focus:outline-none flex items-center justify-center rounded-md py-3 px-3 text-sm font-medium capitalize',
                                         active ? 'ring-2 ring-indigo-600 ring-offset-2' : '',
                                         checked ? 'bg-indigo-600 text-white hover:bg-indigo-500' : 'ring-1 ring-inset ring-gray-300 bg-white text-gray-700 hover:bg-gray-50',
                                     ]">

@@ -7,8 +7,8 @@
 
 <script setup lang="ts">
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faExclamationCircle, faCheckCircle } from "@/../private/pro-solid-svg-icons"
-import { faCopy } from "@/../private/pro-light-svg-icons"
+import { faExclamationCircle, faCheckCircle } from '@fas/'
+import { faCopy } from '@fal/'
 import { library } from '@fortawesome/fontawesome-svg-core'
 library.add(faExclamationCircle, faCheckCircle, faCopy);
 

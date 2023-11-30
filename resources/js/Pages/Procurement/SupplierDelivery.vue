@@ -31,7 +31,7 @@ import {
     faTruck,
     faTerminal,
     faCameraRetro
-} from "@/../private/pro-light-svg-icons";
+} from '@fal/';
 
 library.add(
     faInventory,

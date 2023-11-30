@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref } from 'vue'
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faChevronDown, faCheckSquare, faSquare } from "@/../private/pro-regular-svg-icons"
+import { faChevronDown, faCheckSquare, faSquare } from '@far/'
 import { library } from '@fortawesome/fontawesome-svg-core'
 library.add(faChevronDown, faCheckSquare, faSquare)
 
@@ -75,7 +75,7 @@ const doubleClick = (key: string, element: string) => {
                     </div>
                 </div>
             </div>
-            
+
             <!-- Button -->
             <Menu as="div" class="relative inline-block text-left" v-slot="{ open }">
                 <!-- Initial button -->
@@ -111,7 +111,7 @@ const doubleClick = (key: string, element: string) => {
             </Menu>
         </div>
 
-        
+
         <!-- <div v-s -->
     </div>
 </template>

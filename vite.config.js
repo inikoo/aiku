@@ -3,6 +3,7 @@ import laravel from 'laravel-vite-plugin';
 import vue from '@vitejs/plugin-vue';
 import inertia from './resources/scripts/vite/inertia-layout';
 import i18n from 'laravel-vue-i18n/vite';
+import { fileURLToPath, URL } from "node:url";
 
 export default defineConfig(
     {
@@ -23,20 +24,24 @@ export default defineConfig(
                 }),
             i18n(),
 
+
         ],
         ssr    : {
             noExternal: ['@inertiajs/server'],
         },
+      resolve: {
+        alias: {
+          '@fad': fileURLToPath(
+            new URL('./private/fa/pro-duotone-svg-icons', import.meta.url)),
+          '@fal': fileURLToPath(
+            new URL('./private/fa/pro-light-svg-icons', import.meta.url)),
+          '@far': fileURLToPath(
+            new URL('./private/fa/pro-regular-svg-icons', import.meta.url)),
+          '@fas': fileURLToPath(
+            new URL('./private/fa/pro-solid-svg-icons', import.meta.url)),
+        },
+      },
         build: {
-
-            rollupOptions: {
-                output:{
-                    manualChunks(id) {
-                        if (id.includes('node_modules')) {
-                            return id.toString().split('node_modules/')[1].split('/')[0].toString();
-                        }
-                    }
-                }
-            }
+          sourcemap: true,
         }
     });

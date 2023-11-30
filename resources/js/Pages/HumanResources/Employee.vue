@@ -7,8 +7,8 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
 import {library} from '@fortawesome/fontawesome-svg-core';
-import { faEnvelope, faIdCard, faPhone, faSignature, faUser, faBirthdayCake, faVenusMars, faHashtag, faHeading, faHospitalUser, faClock, faPaperclip, faTimes, faCameraRetro} from "@/../private/pro-light-svg-icons";
-import {faCheckCircle} from '@/../private/pro-solid-svg-icons';
+import { faEnvelope, faIdCard, faPhone, faSignature, faUser, faBirthdayCake, faVenusMars, faHashtag, faHeading, faHospitalUser, faClock, faPaperclip, faTimes, faCameraRetro} from '@fal/';
+import {faCheckCircle} from '@fas/';
 import { router } from '@inertiajs/vue3'
 import { capitalize } from "@/Composables/capitalize"
 

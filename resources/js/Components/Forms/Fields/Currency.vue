@@ -21,11 +21,11 @@
         <p v-if="form.errors[fieldName]" class="mt-2 text-sm text-red-600" id="email-error">{{ form.errors[fieldName] }}</p>
     </div>
 </template>
-  
+
 <script setup lang="ts">
 import Multiselect from '@vueform/multiselect'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faExclamationCircle, faCheckCircle } from "@/../private/pro-solid-svg-icons"
+import { faExclamationCircle, faCheckCircle } from '@fas/'
 import { library } from '@fortawesome/fontawesome-svg-core'
 library.add(faExclamationCircle, faCheckCircle);
 
@@ -42,6 +42,5 @@ const props = defineProps<{
 // Value of the currency (form[fieldName]) is a number
 // The value of option Afghan Afghani (AFN) is 1
 </script>
-  
+
 <style src="@vueform/multiselect/themes/default.css"></style>
-  

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { faMapMarkerAlt } from "../../../resources/private/pro-light-svg-icons";
+import { faMapMarkerAlt } from '@fal/';
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 

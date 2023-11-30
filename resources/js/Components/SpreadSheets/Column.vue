@@ -5,17 +5,16 @@
   -->
 
 <script setup lang="ts">
-import { ref, onBeforeMount, watch, onMounted, onUnmounted } from 'vue';
 import Popper from "vue3-popper";
-import SettingColums from './SettingColums.vue';
-import { faEllipsisV } from '@/../private/pro-regular-svg-icons';
+import SettingColumns from './SettingColumns.vue';
+import { faEllipsisV } from '@far/';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 library.add(faEllipsisV);
 
 const props = defineProps({
     onCopyAll: {
-        type: Function, 
+        type: Function,
         required: true
     },
     onCopyRow: {
@@ -59,7 +58,7 @@ const updateDataAndSetFocus = () => {
 
 
 </script>
-  
+
 <template>
     <div class="flex">
         <div class="w-11/12" v-if="column.readonly">{{ row[column.prop] }}</div>
@@ -77,17 +76,17 @@ const updateDataAndSetFocus = () => {
         <div class="w-1/12 flex justify-center items-center">
             <Popper v-if="!column.readonly" arrow class="w-full border-0">
                 <template #content>
-                    <SettingColums :onCopyAll="onCopyAll" :column="{ rowIndex, colIndex, column }" 
+                    <SettingColumns :onCopyAll="onCopyAll" :column="{ rowIndex, colIndex, column }"
                         :lengthData="setData.length" :onCopyAllEmpty="onCopyAllEmpty" :onCopyRow ="onCopyRow" />
                 </template>
               <div class="setting" >
                 <font-awesome-icon :icon="['far', 'ellipsis-v']" />
-              </div>  
+              </div>
             </Popper>
         </div>
     </div>
 </template>
-  
+
 <style>
 .setting {
     display: flex;

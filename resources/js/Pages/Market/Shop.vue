@@ -14,8 +14,8 @@ import {
     faFolderTree,
     faChartLine,
     faShoppingCart, faStickyNote
-} from "@/../private/pro-light-svg-icons";
-import { faCheckCircle } from "@/../private/pro-solid-svg-icons";
+} from '@fal/';
+import { faCheckCircle } from '@fas/';
 
 import PageHeading from "@/Components/Headings/PageHeading.vue";
 import { capitalize } from "@/Composables/capitalize";

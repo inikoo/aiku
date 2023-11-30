@@ -7,7 +7,7 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
 import {library} from '@fortawesome/fontawesome-svg-core';
-import { faUserHardHat, faClock,faTerminal} from "@/../private/pro-light-svg-icons";
+import { faUserHardHat, faClock,faTerminal} from '@fal/';
 
 import { capitalize } from "@/Composables/capitalize"
 

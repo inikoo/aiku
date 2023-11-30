@@ -38,3 +38,6 @@ load_aurora_db.sh
 _ide_helper.php
 /codecov
 /upload_coverage.sh
+/private
+/clover.xml
+/.npmrc

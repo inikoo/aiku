@@ -6,7 +6,7 @@
 
 <script setup>
 
-import {faExclamationCircle, faCheckCircle} from '@/../private/pro-solid-svg-icons';
+import {faExclamationCircle, faCheckCircle} from '@fas/';
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome';
 import {VueTelInput} from 'vue-tel-input';

@@ -12,7 +12,7 @@ import FlatTreeMap from '@/Components/Navigation/FlatTreeMap.vue';
 defineProps(['title', 'pageHead', 'flatTreeMaps']);
 
 import {library} from '@fortawesome/fontawesome-svg-core';
-import {faFlask} from '@/../private/pro-light-svg-icons';
+import {faFlask} from '@fal/';
 import { capitalize } from "@/Composables/capitalize"
 
 library.add(faFlask);

@@ -10,7 +10,7 @@ import {
 } from '@headlessui/vue'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faChevronDown, faCheck } from "@/../private/pro-solid-svg-icons"
+import { faChevronDown, faCheck } from '@fas/'
 import { library } from '@fortawesome/fontawesome-svg-core'
 library.add(faChevronDown, faCheck)
 

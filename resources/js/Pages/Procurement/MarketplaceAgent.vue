@@ -19,7 +19,7 @@ import {
     faTruck,
     faTerminal,
     faCameraRetro,faPeopleArrows
-} from "@/../private/pro-light-svg-icons";
+} from '@fal/';
 import TableMarketplaceSuppliers from "@/Pages/Tables/TableMarketplaceSuppliers.vue";
 import TableMarketplaceSupplierProducts from "@/Pages/Tables/TableMarketplaceSupplierProducts.vue";
 import MarketplaceAgentShowcase from "@/Pages/Procurement/MarketplaceAgentShowcase.vue";

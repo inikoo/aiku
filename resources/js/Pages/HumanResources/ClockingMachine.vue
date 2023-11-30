@@ -10,7 +10,7 @@ import PageHeading from '@/Components/Headings/PageHeading.vue';
 
 
 import {library} from '@fortawesome/fontawesome-svg-core';
-import { faEnvelope, faIdCard, faPhone, faSignature, faUser, faBuilding, faBirthdayCake, faVenusMars, faHashtag, faHeading, faHospitalUser, faClock, faPaperclip, faTimes, faCameraRetro} from "@/../private/pro-light-svg-icons";
+import { faEnvelope, faIdCard, faPhone, faSignature, faUser, faBuilding, faBirthdayCake, faVenusMars, faHashtag, faHeading, faHospitalUser, faClock, faPaperclip, faTimes, faCameraRetro} from '@fal/';
 import Tabs from "@/Components/Navigation/Tabs.vue";
 import { computed, defineAsyncComponent, ref } from "vue";
 import { useTabChange } from "@/Composables/tab-change";
@@ -19,7 +19,7 @@ import TableClockings from "@/Pages/Tables/TableClockings.vue";
 import TableHistories from "@/Pages/Tables/TableHistories.vue";
 
 import { capitalize } from "@/Composables/capitalize"
-import {faCheckCircle} from "../../../private/pro-solid-svg-icons";
+import {faCheckCircle} from '@fas/';
 library.add(
     faIdCard,
     faUser,

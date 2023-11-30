@@ -15,7 +15,7 @@ defineProps(['title', 'pageHead', 'flatTreeMaps']);
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {
     faMoneyCheckAlt, faCashRegister, faFileInvoiceDollar, faCoins,
-} from '@/../private/pro-light-svg-icons';
+} from '@fal/';
 
 library.add(faCoins, faMoneyCheckAlt, faCashRegister, faFileInvoiceDollar);
 

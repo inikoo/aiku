@@ -16,7 +16,7 @@ import {
     faHandReceiving,
     faPoop, faClipboard, faTruck, faCameraRetro, faPaperclip, faPaperPlane, faClock,
     faPersonDolly
-} from "@/../private/pro-light-svg-icons";
+} from '@fal/';
 import Tabs from "@/Components/Navigation/Tabs.vue";
 import { computed, defineAsyncComponent, ref } from "vue";
 import { useTabChange } from "@/Composables/tab-change";

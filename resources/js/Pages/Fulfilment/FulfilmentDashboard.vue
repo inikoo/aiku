@@ -14,7 +14,7 @@ import { capitalize } from "@/Composables/capitalize"
 defineProps(['title', 'pageHead', 'flatTreeMaps']);
 
 import { library } from '@fortawesome/fontawesome-svg-core';
-import { faBusinessTime, faNarwhal, faUserTie } from "@/../private/pro-light-svg-icons";
+import { faBusinessTime, faNarwhal, faUserTie } from '@fal/';
 import FlatTreeMap from "@/Components/Navigation/FlatTreeMap.vue";
 
 library.add(

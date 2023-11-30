@@ -8,8 +8,8 @@
 
 import { useForm } from '@inertiajs/vue3';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-import { faSave } from '@/../private/pro-light-svg-icons';
-import { faAsterisk } from '@/../private/pro-solid-svg-icons';
+import { faSave } from '@fal/';
+import { faAsterisk } from '@fas/';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import Input from '@/Components/Forms/Fields/Input.vue';
 import Phone from '@/Components/Forms/Fields/Phone.vue';

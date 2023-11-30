@@ -12,7 +12,7 @@ import {
     faCameraRetro,
     faCube,
     faFolder, faMoneyBillWave, faProjectDiagram, faTag, faUser
-} from "@/../private/pro-light-svg-icons";
+} from '@fal/';
 
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 import { computed, defineAsyncComponent, ref } from "vue";

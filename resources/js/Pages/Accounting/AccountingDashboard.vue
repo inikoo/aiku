@@ -9,13 +9,13 @@ import {Head} from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 import FlatTreeMap from '@/Components/Navigation/FlatTreeMap.vue';
 import { capitalize } from "@/Composables/capitalize"
-
-defineProps(['title', 'pageHead', 'flatTreeMaps']);
-
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {
-    faMoneyCheckAlt, faCashRegister, faFileInvoiceDollar, faCoins,
-} from '@/../private/pro-light-svg-icons';
+  faMoneyCheckAlt, faCashRegister, faFileInvoiceDollar, faCoins,
+} from '@fal/';
+defineProps(['title', 'pageHead', 'flatTreeMaps']);
+
+
 
 library.add(faCoins, faMoneyCheckAlt, faCashRegister, faFileInvoiceDollar);
 

@@ -12,7 +12,7 @@ import { trans } from 'laravel-vue-i18n';
 import { library } from "@fortawesome/fontawesome-svg-core";
 import {
     faStore
-} from "@/../private/pro-light-svg-icons"
+} from '@fal/'
 import { useLayoutStore } from "@/Stores/layout";
 
 library.add(faStore);

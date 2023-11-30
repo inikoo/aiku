@@ -95,7 +95,7 @@ import {
     faListOl,
     faUndo,
     faRedo,
-} from "@/../private/pro-regular-svg-icons"
+} from '@far/'
 library.add(faBold, faItalic, faUnderline, faTrashAlt, faListUl, faListOl, faUndo, faRedo)
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 

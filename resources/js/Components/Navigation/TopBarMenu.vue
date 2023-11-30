@@ -7,7 +7,7 @@ import { useLayoutStore } from '@/Stores/layout.js';
 import { router } from '@inertiajs/vue3';
 
 import { library } from "@fortawesome/fontawesome-svg-core";
-import { faChevronDown } from "@/../private/pro-light-svg-icons";
+import { faChevronDown } from '@fal/';
 library.add(faChevronDown);
 
 

@@ -51,7 +51,7 @@ import {
     faChevronDown,
     faGlobe,
     faLanguage
-} from "@/../private/pro-light-svg-icons"
+} from '@fal/'
 
 
 library.add(

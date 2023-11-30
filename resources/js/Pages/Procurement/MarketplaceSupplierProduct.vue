@@ -21,7 +21,7 @@ import {
     faTruck,
     faTerminal,
     faCameraRetro
-} from "@/../private/pro-light-svg-icons";
+} from '@fal/';
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Pages/ModelChangelog.vue'))
 

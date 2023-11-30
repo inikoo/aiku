@@ -19,7 +19,7 @@ import TableProducts from "@/Pages/Tables/TableProducts.vue";
 import { useTabChange } from "@/Composables/tab-change";
 import {
     faCube,faFolder,faFolderTree
-} from "@/../private/pro-light-svg-icons";
+} from '@fal/';
 
 library.add(
     faCube,faFolder,faFolderTree

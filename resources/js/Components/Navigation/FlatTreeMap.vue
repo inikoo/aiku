@@ -6,7 +6,7 @@
 <script setup>
 import { Link } from '@inertiajs/vue3';
 import { library } from '@fortawesome/fontawesome-svg-core';
-import { faEmptySet, faStar, faWrench, faWarehouse, faStore, faCashRegister, faMoneyCheckAlt } from '@/../private/pro-light-svg-icons';
+import { faEmptySet, faStar, faWrench, faWarehouse, faStore, faCashRegister, faMoneyCheckAlt } from '@fal/';
 library.add(faEmptySet, faStar, faWrench, faWarehouse, faStore, faCashRegister, faMoneyCheckAlt);
 import { useLocaleStore } from '@/Stores/locale.js';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
@@ -30,7 +30,7 @@ const locale = useLocaleStore();
                                 <span class="hidden lg:inline">{{ node.name }}</span>
                                 <span class="inline lg:hidden">{{ node.shortName ?? node.name }}</span>
                             </p>
-                            
+
                             <!-- Bars and count -->
                             <span v-if="node.index"
                                 class="font-medium text-gray-500 group-hover:text-gray-900 whitespace-nowrap">

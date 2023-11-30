@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { faYinYang } from "@/../private/pro-light-svg-icons";
+import { faYinYang } from '@fal/';
 import { capitalize } from "@/Composables/capitalize"
 
 library.add(faYinYang);

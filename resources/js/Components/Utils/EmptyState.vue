@@ -2,8 +2,8 @@
 import { Link } from "@inertiajs/vue3"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faCactus, faIslandTropical, faSkullCow, faFish } from "@/../private/pro-light-svg-icons"
-import { faPlus } from "@/../private/pro-regular-svg-icons"
+import { faCactus, faIslandTropical, faSkullCow, faFish } from '@fal/'
+import { faPlus } from '@far/'
 import { library } from '@fortawesome/fontawesome-svg-core'
 library.add(faPlus, faCactus, faIslandTropical, faSkullCow, faFish)
 import { trans } from 'laravel-vue-i18n'
