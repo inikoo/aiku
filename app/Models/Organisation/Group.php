@@ -9,6 +9,7 @@ namespace App\Models\Organisation;
 
 use App\Models\Assets\Currency;
 use App\Models\Auth\Guest;
+use App\Models\HumanResources\Employee;
 use App\Models\Inventory\Stock;
 use App\Models\Inventory\StockFamily;
 use App\Models\Mail\Mailroom;
@@ -43,6 +44,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Agent> $agents
  * @property-read Currency $currency
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Employee> $employees
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Guest> $guests
  * @property-read \App\Models\Organisation\GroupHumanResourcesStats|null $humanResourcesStats
  * @property-read \App\Models\Organisation\GroupInventoryStats|null $inventoryStats
@@ -52,6 +54,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, StockFamily> $stockFamilies
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Stock> $stocks
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Supplier> $suppliers
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Guest> $users
  * @method static \Database\Factories\Organisation\GroupFactory factory($count = null, $state = [])
  * @method static Builder|Group newModelQuery()
  * @method static Builder|Group newQuery()
@@ -128,6 +131,11 @@ class Group extends Model
     public function guests(): HasMany
     {
         return $this->hasMany(Guest::class);
+    }
+
+    public function employees(): HasMany
+    {
+        return $this->hasMany(Employee::class);
     }
 
     public function currency(): BelongsTo

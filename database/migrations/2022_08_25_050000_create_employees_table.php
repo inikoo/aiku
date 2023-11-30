@@ -20,6 +20,8 @@ return new class () extends Migration {
     {
         Schema::create('employees', function (Blueprint $table) {
             $table->smallIncrements('id');
+            $table->unsignedSmallInteger('group_id');
+            $table->foreign('group_id')->references('id')->on('groups')->onUpdate('cascade')->onDelete('cascade');
             $table->unsignedSmallInteger('organisation_id');
             $table->foreign('organisation_id')->references('id')->on('organisations')->onUpdate('cascade')->onDelete('cascade');
             $table->string('slug')->unique()->collation('und_ns');

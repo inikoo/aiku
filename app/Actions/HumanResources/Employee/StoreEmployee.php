@@ -37,6 +37,8 @@ class StoreEmployee
 
     public function handle(Organisation $organisation, array $modelData): Employee
     {
+        data_set($modelData, 'group_id', $organisation->group_id);
+
         $positions = Arr::get($modelData, 'positions', []);
 
         $credentials = Arr::only($modelData, ['username', 'password', 'reset_password']);

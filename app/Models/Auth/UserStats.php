@@ -25,8 +25,6 @@ use Illuminate\Support\Carbon;
  * @property int $number_failed_logins
  * @property string|null $last_failed_login_ip
  * @property string|null $last_failed_login_at
- * @property int $number_other_organisations
- * @property int $number_other_active_organisations
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read \App\Models\Auth\User $user

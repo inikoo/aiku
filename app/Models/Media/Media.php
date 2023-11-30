@@ -13,6 +13,8 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media as BaseMedia;
  * App\Models\Media\Media
  *
  * @property int $id
+ * @property int $group_id
+ * @property int|null $organisation_id
  * @property string $model_type
  * @property int $model_id
  * @property string|null $uuid

@@ -12,6 +12,7 @@ use App\Enums\HumanResources\Employee\EmployeeTypeEnum;
 use App\Enums\Miscellaneous\GenderEnum;
 use App\Models\Auth\User;
 use App\Models\Helpers\Issue;
+use App\Models\Organisation\Group;
 use App\Models\Search\UniversalSearch;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasPhoto;
@@ -21,6 +22,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -36,6 +38,7 @@ use Spatie\Sluggable\SlugOptions;
  * App\Models\HumanResources\Employee
  *
  * @property int $id
+ * @property int $group_id
  * @property int $organisation_id
  * @property string $slug
  * @property string $alias
@@ -67,6 +70,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $delete_comment
  * @property int|null $source_id
  * @property-read Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read Group $group
  * @property-read Collection<int, Issue> $issues
  * @property-read Collection<int, \App\Models\HumanResources\JobPosition> $jobPositions
  * @property-read MediaCollection<int, \App\Models\Media\Media> $media
@@ -144,6 +148,11 @@ class Employee extends Model implements HasMedia, Auditable
     public function issues(): MorphToMany
     {
         return $this->morphToMany(Issue::class, 'issuable');
+    }
+
+    public function group(): BelongsTo
+    {
+        return $this->belongsTo(Group::class);
     }
 
 }
