@@ -19,9 +19,9 @@ return new class () extends Migration {
             $table->string('password');
             $table->boolean('status')->default(true)->index();
             $table->unsignedSmallInteger('language_id');
-            $table->foreign('language_id')->references('id')->on('public.languages');
+            $table->foreign('language_id')->references('id')->on('languages');
             $table->unsignedSmallInteger('timezone_id');
-            $table->foreign('timezone_id')->references('id')->on('public.timezones');
+            $table->foreign('timezone_id')->references('id')->on('timezones');
             $table->string('email')->nullable();
             $table->jsonb('data');
             $table->jsonb('settings');

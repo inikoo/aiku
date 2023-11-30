@@ -27,8 +27,6 @@ return new class () extends Migration {
             $table->string('last_failed_login_ip')->nullable();
             $table->datetime('last_failed_login_at')->nullable();
 
-            $table->unsignedSmallInteger('number_other_organisations')->default(0);
-            $table->unsignedSmallInteger('number_other_active_organisations')->default(0);
             $table->timestampsTz();
         });
     }

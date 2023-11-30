@@ -15,6 +15,10 @@ trait MediaTable
     {
 
         $table->increments('id');
+        $table->unsignedSmallInteger('group_id');
+        $table->foreign('group_id')->references('id')->on('groups')->onUpdate('cascade')->onDelete('cascade');
+        $table->unsignedSmallInteger('organisation_id')->index()->nullable();
+        $table->foreign('organisation_id')->references('id')->on('organisations')->onUpdate('cascade')->onDelete('cascade');
         $table->morphs('model');
         $table->uuid()->nullable()->unique();
         $table->string('collection_name');

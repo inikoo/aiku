@@ -15,7 +15,7 @@ return new class () extends Migration {
         Schema::create('shippers', function (Blueprint $table) {
             $table->smallIncrements('id');
             $table->unsignedSmallInteger('organisation_id');
-            $table->foreign('organisation_id')->references('id')->on('public.organisations')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreign('organisation_id')->references('id')->on('organisations')->onUpdate('cascade')->onDelete('cascade');
             $table->string('slug')->unique()->collation('und_ns');
             $table->string('code')->index();
             $table->string('api_shipper')->nullable()->index();

@@ -52,7 +52,7 @@ return new class () extends Migration {
             $table->decimal('items_net', 16)->default(0);
 
             $table->unsignedSmallInteger('currency_id');
-            $table->foreign('currency_id')->references('id')->on('public.currencies');
+            $table->foreign('currency_id')->references('id')->on('currencies');
             $table->decimal('exchange', 16, 6)->default(1);
 
             $table->decimal('charges', 16)->default(0);

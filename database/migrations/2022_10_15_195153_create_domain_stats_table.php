@@ -15,7 +15,7 @@ return new class () extends Migration {
         Schema::create('domain_stats', function (Blueprint $table) {
             $table->smallIncrements('id');
             $table->unsignedSmallInteger('domain_id');
-            $table->foreign('domain_id')->references('id')->on('public.domains')->onDelete('cascade');
+            $table->foreign('domain_id')->references('id')->on('domains')->onDelete('cascade');
             $table->timestampsTz();
         });
     }

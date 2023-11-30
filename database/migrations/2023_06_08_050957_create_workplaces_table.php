@@ -20,7 +20,7 @@ return new class () extends Migration {
             $table->string('slug')->unique()->collation('und_ns');
             $table->string('name')->collation('und_ns');
             $table->unsignedSmallInteger('timezone_id')->nullable();
-            $table->foreign('timezone_id')->references('id')->on('public.timezones');
+            $table->foreign('timezone_id')->references('id')->on('timezones');
             $table->unsignedBigInteger('address_id')->nullable()->index();
             $table->foreign('address_id')->references('id')->on('addresses');
             $table->jsonb('data');

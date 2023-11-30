@@ -18,7 +18,7 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('supplier_id');
             $table->foreign('supplier_id')->references('id')->on('suppliers');
             $table->unsignedSmallInteger('organisation_id');
-            $table->foreign('organisation_id')->references('id')->on('public.organisations');
+            $table->foreign('organisation_id')->references('id')->on('organisations');
             $table->unsignedSmallInteger('agent_id')->nullable();
             $table->foreign('agent_id')->references('id')->on('agents');
             $table->string('status')->default(SupplierOrganisationStatusEnum::ADOPTED->value);

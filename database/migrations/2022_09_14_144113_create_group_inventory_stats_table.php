@@ -20,7 +20,7 @@ return new class () extends Migration {
         Schema::create('group_inventory_stats', function (Blueprint $table) {
             $table->smallIncrements('id');
             $table->unsignedSmallInteger('group_id');
-            $table->foreign('group_id')->references('id')->on('public.groups')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreign('group_id')->references('id')->on('groups')->onUpdate('cascade')->onDelete('cascade');
             $table->unsignedBigInteger('number_stock_families')->default(0);
 
             foreach (StockFamilyStateEnum::cases() as $stockFamilyState) {

@@ -21,7 +21,7 @@ return new class () extends Migration {
             $table->string('number');
             $table->string('type')->nullable()->index();
             $table->unsignedSmallInteger('country_id')->nullable()->index();
-            $table->foreign('country_id')->references('id')->on('public.countries');
+            $table->foreign('country_id')->references('id')->on('countries');
             $table->string('status')->index()->default(TaxNumberStatusEnum::UNKNOWN->value);
             $table->boolean('valid')->default(false);
             $table->jsonb('data');

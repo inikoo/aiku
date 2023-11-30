@@ -20,7 +20,7 @@ return new class () extends Migration {
             $table->string('code');
             $table->string('name');
             $table->unsignedSmallInteger('currency_id');
-            $table->foreign('currency_id')->references('id')->on('public.currencies');
+            $table->foreign('currency_id')->references('id')->on('currencies');
             $table->smallInteger('number_organisations')->default(0);
             $table->softDeletesTz();
             $table->timestampsTz();

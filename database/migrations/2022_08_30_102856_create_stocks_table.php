@@ -19,7 +19,7 @@ return new class () extends Migration {
         Schema::create('stocks', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedSmallInteger('group_id');
-            $table->foreign('group_id')->references('id')->on('public.groups')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreign('group_id')->references('id')->on('groups')->onUpdate('cascade')->onDelete('cascade');
             $table->unsignedSmallInteger('organisation_id')->nullable();
             $table->foreign('organisation_id')->references('id')->on('organisations')->onUpdate('cascade')->onDelete('cascade');
             $table->unsignedInteger('customer_id')->index()->nullable();

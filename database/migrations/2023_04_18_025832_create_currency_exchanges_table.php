@@ -15,7 +15,7 @@ return new class () extends Migration {
         Schema::create('currency_exchanges', function (Blueprint $table) {
             $table->id();
             $table->unsignedSmallInteger('currency_id');
-            $table->foreign('currency_id')->references('id')->on('public.currencies');
+            $table->foreign('currency_id')->references('id')->on('currencies');
             $table->decimal('exchange');
             $table->date('date');
             $table->timestampsTz();

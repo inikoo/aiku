@@ -17,7 +17,7 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('agent_id');
             $table->foreign('agent_id')->references('id')->on('agents');
             $table->unsignedSmallInteger('organisation_id');
-            $table->foreign('organisation_id')->references('id')->on('public.organisations');
+            $table->foreign('organisation_id')->references('id')->on('organisations');
             $table->timestampsTz();
             $table->unsignedInteger('source_id')->index()->nullable();
 

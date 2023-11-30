@@ -29,7 +29,7 @@ return new class () extends Migration {
             $table->string('state')->index()->default(PaymentStateEnum::APPROVING->value);
             $table->string('subsequent_status')->index()->nullable();
             $table->unsignedSmallInteger('currency_id');
-            $table->foreign('currency_id')->references('id')->on('public.currencies');
+            $table->foreign('currency_id')->references('id')->on('currencies');
             $table->decimal('amount', 12);
             $table->decimal('tc_amount', 12)->comment('amount in tenancy currency');
             $table->decimal('gc_amount', 12)->nullable()->comment('amount in group currency');

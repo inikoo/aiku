@@ -18,7 +18,7 @@ return new class () extends Migration {
         Schema::create('organisation_sales_stats', function (Blueprint $table) {
             $table->smallIncrements('id');
             $table->unsignedSmallInteger('organisation_id');
-            $table->foreign('organisation_id')->references('id')->on('public.organisations')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreign('organisation_id')->references('id')->on('organisations')->onUpdate('cascade')->onDelete('cascade');
 
 
 
@@ -29,7 +29,7 @@ return new class () extends Migration {
 
 
             $table->unsignedSmallInteger('currency_id')->nullable();
-            $table->foreign('currency_id')->references('id')->on('public.currencies');
+            $table->foreign('currency_id')->references('id')->on('currencies');
 
             $table=$this->dateIntervals($table);
 

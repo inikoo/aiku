@@ -25,7 +25,7 @@ return new class () extends Migration {
                 $table->string('administrative_area')->nullable();
                 $table->string('country_code', 2)->nullable()->index();
                 $table->unsignedSmallInteger('country_id')->nullable()->index();
-                $table->foreign('country_id')->references('id')->on('public.countries');
+                $table->foreign('country_id')->references('id')->on('countries');
                 $table->string('checksum')->index()->nullable();
                 $table->boolean('historic')->index()->default(false);
                 $table->unsignedInteger('usage')->default(0);

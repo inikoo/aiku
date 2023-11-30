@@ -16,7 +16,7 @@ return new class () extends Migration {
         Schema::create('shops', function (Blueprint $table) {
             $table->smallIncrements('id');
             $table->unsignedSmallInteger('organisation_id');
-            $table->foreign('organisation_id')->references('id')->on('public.organisations')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreign('organisation_id')->references('id')->on('organisations')->onUpdate('cascade')->onDelete('cascade');
             $table->string('slug')->unique()->collation('und_ns');
             $table->string('code')->unique()->collation('und_ns');
             $table->string('name')->collation('und_ns');
@@ -35,13 +35,13 @@ return new class () extends Migration {
             $table->date('open_at')->nullable();
             $table->date('closed_at')->nullable();
             $table->unsignedSmallInteger('country_id');
-            $table->foreign('country_id')->references('id')->on('public.countries');
+            $table->foreign('country_id')->references('id')->on('countries');
             $table->unsignedSmallInteger('language_id');
-            $table->foreign('language_id')->references('id')->on('public.languages');
+            $table->foreign('language_id')->references('id')->on('languages');
             $table->unsignedSmallInteger('currency_id');
-            $table->foreign('currency_id')->references('id')->on('public.currencies');
+            $table->foreign('currency_id')->references('id')->on('currencies');
             $table->unsignedSmallInteger('timezone_id');
-            $table->foreign('timezone_id')->references('id')->on('public.timezones');
+            $table->foreign('timezone_id')->references('id')->on('timezones');
             $table->jsonb('data');
             $table->jsonb('settings');
             $table->timestampsTz();

@@ -17,7 +17,7 @@ return new class () extends Migration {
         Schema::create('purchase_orders', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedSmallInteger('organisation_id');
-            $table->foreign('organisation_id')->references('id')->on('public.organisations')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreign('organisation_id')->references('id')->on('organisations')->onUpdate('cascade')->onDelete('cascade');
             $table->string('slug')->unique()->collation('und_ns');
             $table->unsignedInteger('provider_id')->index();
             $table->string('provider_type');
@@ -35,7 +35,7 @@ return new class () extends Migration {
             $table->dateTimeTz('settled_at')->nullable();
             $table->dateTimeTz('cancelled_at')->nullable();
             $table->unsignedSmallInteger('currency_id');
-            $table->foreign('currency_id')->references('id')->on('public.currencies');
+            $table->foreign('currency_id')->references('id')->on('currencies');
             $table->decimal('exchange', 16, 6)->default(1);
             $table->smallInteger('number_of_items')->default(0);
             $table->float('gross_weight', 16)->default(null)->nullable();

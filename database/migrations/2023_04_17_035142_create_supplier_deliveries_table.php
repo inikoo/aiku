@@ -17,7 +17,7 @@ return new class () extends Migration {
         Schema::create('supplier_deliveries', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedSmallInteger('organisation_id');
-            $table->foreign('organisation_id')->references('id')->on('public.organisations')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreign('organisation_id')->references('id')->on('organisations')->onUpdate('cascade')->onDelete('cascade');
             $table->string('slug')->unique()->collation('und_ns');
             $table->unsignedInteger('provider_id')->index();
             $table->string('provider_type');

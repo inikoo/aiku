@@ -18,7 +18,7 @@ return new class () extends Migration {
         Schema::create('stock_families', function (Blueprint $table) {
             $table->smallIncrements('id');
             $table->unsignedSmallInteger('group_id');
-            $table->foreign('group_id')->references('id')->on('public.groups')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreign('group_id')->references('id')->on('groups')->onUpdate('cascade')->onDelete('cascade');
             $table->string('slug')->unique()->collation('und_ns');
             $table->string('state')->default(StockFamilyStateEnum::IN_PROCESS->value)->index();
             $table = $this->assertCodeDescription($table);
