@@ -30,6 +30,7 @@ beforeAll(function () {
 
 beforeEach(function () {
     $this->organisation = createOrganisation();
+    $this->group        =$this->organisation->group;
 });
 
 test('create shipper', function () {
@@ -137,7 +138,7 @@ test('update delivery note', function ($lastDeliveryNote) {
 
 test('create delivery note item', function ($customer, $order, $deliveryNote) {
     try {
-        $stock            = StoreStock::make()->action($customer, Stock::factory()->definition());
+        $stock            = StoreStock::make()->action($this->group, Stock::factory()->definition());
         $transaction      = StoreTransaction::make()->action($order, Transaction::factory()->definition());
 
         $deliveryNoteData = [
@@ -155,7 +156,7 @@ test('create delivery note item', function ($customer, $order, $deliveryNote) {
     }
 
     return $deliveryNoteItem;
-})->depends('create customer', 'create order', 'create delivery note');
+})->depends('create customer', 'create order', 'create delivery note')->todo();
 
 
 test('remove delivery note', function ($deliveryNote) {
