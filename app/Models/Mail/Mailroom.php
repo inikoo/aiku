@@ -7,26 +7,33 @@
 
 namespace App\Models\Mail;
 
+use App\Enums\Mail\Mailroom\MailroomTypeEnum;
+use App\Models\Organisation\Group;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Carbon;
+use Spatie\Sluggable\HasSlug;
+use Spatie\Sluggable\SlugOptions;
 
 /**
  * App\Models\Mail\Mail
  *
  * @property int $id
- * @property string $code
+ * @property int $group_id
+ * @property string $slug
+ * @property MailroomTypeEnum $type
+ * @property string $name
  * @property array $data
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
+ * @property-read Group $group
  * @property-read Collection<int, \App\Models\Mail\Outbox> $outboxes
  * @property-read \App\Models\Mail\MailroomStats|null $stats
- * @method static \Database\Factories\Mail\MailroomFactory factory($count = null, $state = [])
  * @method static Builder|Mailroom newModelQuery()
  * @method static Builder|Mailroom newQuery()
  * @method static Builder|Mailroom query()
@@ -34,9 +41,10 @@ use Illuminate\Support\Carbon;
  */
 class Mailroom extends Model
 {
-    use HasFactory;
+    use HasSlug;
 
     protected $casts = [
+        'type' => MailroomTypeEnum::class,
         'data' => 'array',
     ];
 
@@ -46,9 +54,19 @@ class Mailroom extends Model
 
     protected $guarded = [];
 
+    public function getSlugOptions(): SlugOptions
+    {
+        return SlugOptions::create()
+            ->generateSlugsFrom(function () {
+                return $this->type->value.'-'.$this->group->slug;
+            })
+            ->saveSlugsTo('slug')
+            ->doNotGenerateSlugsOnUpdate();
+    }
+
     public function getRouteKeyName(): string
     {
-        return 'code';
+        return 'slug';
     }
 
     public function stats(): HasOne
@@ -59,5 +77,10 @@ class Mailroom extends Model
     public function outboxes(): HasMany
     {
         return $this->hasMany(Outbox::class);
+    }
+
+    public function group(): BelongsTo
+    {
+        return $this->belongsTo(Group::class);
     }
 }

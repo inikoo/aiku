@@ -9,7 +9,7 @@ namespace App\Enums\Mail\Mailroom;
 
 use App\Enums\EnumHelperTrait;
 
-enum MailroomCodeEnum: string
+enum MailroomTypeEnum: string
 {
     use EnumHelperTrait;
 
@@ -20,9 +20,9 @@ enum MailroomCodeEnum: string
     public function label(): string
     {
         return match ($this) {
-            MailroomCodeEnum::MARKETING             => 'Marketing',
-            MailroomCodeEnum::CUSTOMER_NOTIFICATION => 'Customer notifications',
-            MailroomCodeEnum::USER_NOTIFICATION     => 'User notifications',
+            MailroomTypeEnum::MARKETING             => 'Marketing',
+            MailroomTypeEnum::CUSTOMER_NOTIFICATION => 'Customer notifications',
+            MailroomTypeEnum::USER_NOTIFICATION     => 'User notifications',
         };
     }
 }
