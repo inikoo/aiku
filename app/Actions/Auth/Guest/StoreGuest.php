@@ -9,19 +9,21 @@ namespace App\Actions\Auth\Guest;
 
 use App\Actions\Auth\Guest\Hydrators\GuestHydrateUniversalSearch;
 use App\Actions\Auth\User\StoreUser;
+use App\Actions\HumanResources\SyncJobPosition;
 use App\Enums\Auth\Guest\GuestTypeEnum;
 use App\Models\Auth\Guest;
 use App\Models\Auth\User;
+use App\Models\HumanResources\JobPosition;
 use App\Models\Organisation\Group;
 use App\Rules\AlphaDashDot;
 use Exception;
 use Illuminate\Console\Command;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Password;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
@@ -35,9 +37,38 @@ class StoreGuest
 
     public function handle(Group $group, array $modelData): Guest
     {
+        $positions = Arr::get($modelData, 'positions', []);
+        Arr::forget($modelData, 'positions');
+
+
         /** @var Guest $guest */
-        $guest = $group->guests()->create($modelData);
+        $guest = $group->guests()->create(
+            Arr::except($modelData, [
+                'username',
+                'password',
+                'reset_password'
+            ])
+        );
+
         GuestHydrateUniversalSearch::dispatch($guest);
+
+        StoreUser::make()->action(
+            $guest,
+            [
+                'username'       => Arr::get($modelData, 'username'),
+                'password'       => Arr::get($modelData, 'password'),
+                'contact_name'   => $guest->contact_name,
+                'email'          => $guest->email,
+                'reset_password' => Arr::get($modelData, 'reset_password', false),
+            ]
+        );
+
+        $jobPositions = [];
+        foreach ($positions as $position) {
+            $jobPosition    = JobPosition::firstWhere('slug', $position);
+            $jobPositions[] = $jobPosition->id;
+        }
+        SyncJobPosition::run($guest, $jobPositions);
 
         return $guest;
     }
@@ -61,14 +92,16 @@ class StoreGuest
     public function rules(): array
     {
         return [
-            'type'         => ['required', Rule::in(GuestTypeEnum::values())],
-            'username'     => ['sometimes', 'nullable', new AlphaDashDot(), 'unique:App\Models\SysAdmin\SysUser,username', Rule::notIn(['export', 'create'])],
-            'company_name' => ['nullable', 'string', 'max:255'],
-            'contact_name' => ['required', 'string', 'max:255'],
-            'phone'        => ['nullable', 'phone:AUTO'],
-            'email'        => ['nullable', 'email'],
-
-
+            'type'           => ['required', Rule::in(GuestTypeEnum::values())],
+            'alias'          => ['required', 'iunique:guests', 'string', 'max:12'],
+            'username'       => ['required', 'required', new AlphaDashDot(), 'iunique:users'],
+            'company_name'   => ['nullable', 'string', 'max:255'],
+            'contact_name'   => ['required', 'string', 'max:255'],
+            'phone'          => ['nullable', 'phone:AUTO'],
+            'email'          => ['nullable', 'email'],
+            'positions.*'    => ['exists:job_positions,slug'],
+            'password'       => ['sometimes', 'required', 'max:255', app()->isLocal() || app()->environment('testing') ? null : Password::min(8)->uncompromised()],
+            'reset_password' => ['sometimes', 'boolean']
         ];
     }
 
@@ -108,11 +141,9 @@ class StoreGuest
         return $this->handle($group, $validatedData);
     }
 
-    public string $commandSignature = 'guest:create {group : group slug} {name} {type : Guest type contractor|external_employee|external_administrator} {--e|email=} {--t|phone=}  {--identity_document_number=} {--identity_document_type=}';
+    public string $commandSignature = 'guest:create {group : group slug} {name} {alias} {type : Guest type contractor|external_employee|external_administrator} {--P|password=} {--e|email=} {--t|phone=} {--identity_document_number=} {--identity_document_type=}';
 
-    /**
-     * @throws ModelNotFoundException
-     */
+
     public function asCommand(Command $command): int
     {
         $this->trusted = true;
@@ -124,21 +155,27 @@ class StoreGuest
 
             return 1;
         }
-
-
-        $this->fill([
+        $fields = [
             'type'         => $command->argument('type'),
             'contact_name' => $command->argument('name'),
             'email'        => $command->option('email'),
             'phone'        => $command->option('phone'),
-        ]);
+            'alias'        => $command->argument('alias'),
+            'username'     => $command->argument('alias'),
+            'password'     => $command->option('password') ?? (app()->isLocal() ? 'hello' : wordwrap(Str::random(), 4, '-', true))
+        ];
+
+        if ($command->argument('type') == GuestTypeEnum::EXTERNAL_ADMINISTRATOR->value) {
+            $fields['positions'] = ['admin'];
+        }
 
 
-        $validatedData = $this->validateAttributes();
+        $this->fill($fields);
+
+        $guest = $this->handle($group, $this->validateAttributes());
 
 
-        $guest = $this->handle($group, $validatedData);
-        $command->info("Guest <fg=yellow>$guest->slug</> created in <fg=yellow>$group->slug</> 👍");
+        $command->info("Guest <fg=yellow>$guest->slug</> created 👍");
 
 
         return 0;

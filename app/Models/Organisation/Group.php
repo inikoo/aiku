@@ -43,6 +43,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Agent> $agents
  * @property-read Currency $currency
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Guest> $guests
  * @property-read \App\Models\Organisation\GroupHumanResourcesStats|null $humanResourcesStats
  * @property-read \App\Models\Organisation\GroupInventoryStats|null $inventoryStats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Mailroom> $mailrooms

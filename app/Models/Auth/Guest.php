@@ -33,7 +33,9 @@ use Spatie\Sluggable\SlugOptions;
  * App\Models\Auth\Guest
  *
  * @property int $id
+ * @property int $group_id
  * @property string $slug
+ * @property string $alias
  * @property bool $status
  * @property GuestTypeEnum $type
  * @property string|null $contact_name
@@ -48,8 +50,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
+ * @property string|null $delete_comment
  * @property int|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read Group $group
  * @property-read \Illuminate\Database\Eloquent\Collection<int, JobPosition> $jobPositions
  * @property-read MediaCollection<int, \App\Models\Media\Media> $media
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch

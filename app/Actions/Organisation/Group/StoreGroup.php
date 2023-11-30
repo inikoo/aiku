@@ -23,8 +23,6 @@ class StoreGroup
     use AsAction;
     use WithAttributes;
 
-    public string $commandSignature = 'group:create {code} {name} {currency_code}';
-
     public function handle(array $modelData): Group
     {
 
@@ -67,6 +65,8 @@ class StoreGroup
         $validatedData = $this->validateAttributes();
         return $this->handle($validatedData);
     }
+
+    public string $commandSignature = 'group:create {code} {name} {currency_code}';
 
     public function asCommand(Command $command): int
     {
