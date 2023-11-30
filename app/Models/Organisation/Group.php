@@ -8,8 +8,10 @@
 namespace App\Models\Organisation;
 
 use App\Models\Assets\Currency;
+use App\Models\Auth\Guest;
 use App\Models\Inventory\Stock;
 use App\Models\Inventory\StockFamily;
+use App\Models\Mail\Mailroom;
 use App\Models\Procurement\Agent;
 use App\Models\Procurement\Supplier;
 use Eloquent;
@@ -43,6 +45,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Currency $currency
  * @property-read \App\Models\Organisation\GroupHumanResourcesStats|null $humanResourcesStats
  * @property-read \App\Models\Organisation\GroupInventoryStats|null $inventoryStats
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Mailroom> $mailrooms
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Organisation\Organisation> $organisations
  * @property-read \App\Models\Organisation\GroupProcurementStats|null $procurementStats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, StockFamily> $stockFamilies
@@ -114,6 +117,16 @@ class Group extends Model
     public function organisations(): HasMany
     {
         return $this->hasMany(Organisation::class);
+    }
+
+    public function mailrooms(): HasMany
+    {
+        return $this->hasMany(Mailroom::class);
+    }
+
+    public function guests(): HasMany
+    {
+        return $this->hasMany(Guest::class);
     }
 
     public function currency(): BelongsTo

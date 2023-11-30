@@ -15,7 +15,6 @@ use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Enums\Mail\Outbox\OutboxTypeEnum;
 use App\Enums\Market\Shop\ShopSubtypeEnum;
 use App\Enums\Market\Shop\ShopTypeEnum;
-use App\Models\Mail\Mailroom;
 use App\Models\Market\Shop;
 use App\Models\Organisation\Organisation;
 use Illuminate\Http\RedirectResponse;
@@ -76,7 +75,7 @@ class StoreShop
 
         foreach (OutboxTypeEnum::cases() as $case) {
             if ($case->scope() == 'shop') {
-                $mailroom = Mailroom::where('code', $case->mailroomCode()->value)->first();
+                $mailroom = $organisation->group->mailrooms()->where('type', $case->mailroomType()->value)->first();
 
                 StoreOutbox::run(
                     $mailroom,

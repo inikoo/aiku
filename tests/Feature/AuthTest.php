@@ -16,13 +16,9 @@ use App\Actions\Auth\User\UpdateUserStatus;
 use App\Actions\Auth\User\UserAddRoles;
 use App\Actions\Auth\User\UserRemoveRoles;
 use App\Actions\Auth\User\UserSyncRoles;
-use App\Actions\Organisation\Group\StoreGroup;
-use App\Actions\Organisation\Organisation\StoreOrganisation;
 use App\Models\Auth\Guest;
 use App\Models\Auth\Role;
 use App\Models\Auth\User;
-use App\Models\Organisation\Group;
-use App\Models\Organisation\Organisation;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash;
@@ -34,36 +30,8 @@ beforeAll(function () {
 
 
 beforeEach(function () {
-    $organisation = Organisation::first();
-    if (!$organisation) {
-        $group  = StoreGroup::make()->action(
-            array_merge(
-                Group::factory()->definition(),
-                [
-                    'code' => 'ACME'
-                ]
-            )
-        );
-        $organisation = StoreOrganisation::make()->action(
-            $group,
-            array_merge(
-                Organisation::factory()->definition(),
-                [
-                    'code' => 'AGB'
-                ]
-            )
-        );
-        StoreOrganisation::make()->action(
-            $group,
-            array_merge(
-                Organisation::factory()->definition(),
-                [
-                    'code' => 'AUS'
-                ]
-            )
-        );
-    }
-    $this->organisation=$organisation;
+    $this->organisation = createOrganisation();
+    $this->group        = group();
 });
 
 test('roles are seeded', function () {
@@ -74,6 +42,7 @@ test('create guest', function () {
     $guestData = Guest::factory()->definition();
     Arr::set($guestData, 'phone', '+6281212121212');
     $guest = StoreGuest::make()->action(
+        $this->group,
         $guestData
     );
 
@@ -108,6 +77,7 @@ test('fail to create user for guest with invalid usernames', function () {
 
     $guestData = Guest::factory()->definition();
     $guest2    = StoreGuest::make()->action(
+        $this->group,
         $guestData
     );
 

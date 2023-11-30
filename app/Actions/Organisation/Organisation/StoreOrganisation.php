@@ -100,15 +100,20 @@ class StoreOrganisation
 
     public function getCommandSignature(): string
     {
-        return 'create:organisation {code}  {email} {name} {country_code} {currency_code} {--l|language_code= : Language code} {--tz|timezone= : Timezone}
-        {--g|group_slug= : group slug}
-        {--s|source= : source for migration from other system}
-
-        ';
+        return 'org:create {group} {code} {email} {name} {country_code} {currency_code} {--l|language_code= : Language code} {--tz|timezone= : Timezone}
+        {--s|source= : source for migration from other system}';
     }
 
     public function asCommand(Command $command): int
     {
+
+        try {
+            $group = Group::where('code', $command->argument('group'))->firstOrFail();
+        } catch (Exception $e) {
+            $command->error($e->getMessage());
+            return 1;
+        }
+
         try {
             $country = Country::where('code', $command->argument('country_code'))->firstOrFail();
         } catch (Exception $e) {
@@ -181,7 +186,7 @@ class StoreOrganisation
             return 1;
         }
 
-        $organisation = $this->handle(group(), $validatedData);
+        $organisation = $this->handle($group, $validatedData);
 
         $command->info("Organisation $organisation->slug created successfully 🎉");
 

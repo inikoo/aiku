@@ -9,12 +9,14 @@ namespace App\Models\Auth;
 
 use App\Enums\Auth\Guest\GuestTypeEnum;
 use App\Models\HumanResources\JobPosition;
+use App\Models\Organisation\Group;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -141,5 +143,10 @@ class Guest extends Model implements HasMedia, Auditable
     public function jobPositions(): MorphToMany
     {
         return $this->morphToMany(JobPosition::class, 'job_positionable');
+    }
+
+    public function group(): BelongsTo
+    {
+        return $this->belongsTo(Group::class);
     }
 }

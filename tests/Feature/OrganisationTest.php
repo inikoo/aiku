@@ -10,7 +10,6 @@ use App\Actions\Organisation\Organisation\StoreOrganisation;
 use App\Actions\SysAdmin\Admin\StoreAdmin;
 use App\Actions\SysAdmin\SysUser\CreateSysUserAccessToken;
 use App\Actions\SysAdmin\SysUser\StoreSysUser;
-use App\Enums\Mail\Mailroom\MailroomCodeEnum;
 use App\Models\Mail\Mailroom;
 use App\Models\Organisation\Group;
 use App\Models\SysAdmin\Admin;
@@ -38,18 +37,24 @@ test('create group', function () {
     return $group;
 });
 
+test('create group by command', function () {
+    $this->artisan('group:create', [
+        'code'          => 'TEST2',
+        'name'          => 'Test Group',
+        'currency_code' => Currency::where('code', 'USD')->firstOrFail()->code
+    ])->assertSuccessful();
+    $group = Group::where('code', 'TEST')->firstOrFail();
+    expect($group)->toBeInstanceOf(Group::class);
+    return $group;
+});
+
+
+
 test('mailrooms seeded correctly', function () {
 
     $mailrooms = Mailroom::all();
-    expect($mailrooms->count())->toBe(3);
+    expect($mailrooms->count())->toBe(6);
 
-    $mailroomCustomerNotifications = Mailroom::where('code', MailroomCodeEnum::CUSTOMER_NOTIFICATION)->firstOrFail();
-    $mailroomMarketing             = Mailroom::where('code', MailroomCodeEnum::MARKETING)->firstOrFail();
-    $mailroomUserNotifications     = Mailroom::where('code', MailroomCodeEnum::USER_NOTIFICATION)->firstOrFail();
-
-    expect($mailroomCustomerNotifications->code)->toBe(MailroomCodeEnum::CUSTOMER_NOTIFICATION->value)
-        ->and($mailroomMarketing->code)->toBe(MailroomCodeEnum::MARKETING->value)
-        ->and($mailroomUserNotifications->code)->toBe(MailroomCodeEnum::USER_NOTIFICATION->value);
 });
 
 test('create a system admin', function () {
@@ -80,7 +85,19 @@ test('create organisation', function (Group $group) {
     return $organisation;
 })->depends('create group');
 
-
+test('create organisation by command', function () {
+    $this->artisan('org:create', [
+        'group'         => 'TEST2',
+        'code'          => 'TEST',
+        'email'         => 'a@example.com',
+        'name'          => 'Test Organisation in group 2',
+        'country_code'  => 'MY',
+        'currency_code' => 'MYR',
+    ])->assertSuccessful();
+    $organisation = Organisation::where('code', 'TEST')->firstOrFail();
+    expect($organisation)->toBeInstanceOf(Organisation::class);
+    return $organisation;
+})->depends('create group by command');
 
 test('create organisation sys-user', function ($organisation) {
     $arrayData = [

@@ -9,7 +9,7 @@ namespace App\Actions\Organisation\Group;
 
 use App\Actions\Mail\Mailroom\StoreMailroom;
 use App\Actions\Organisation\Group\Hydrators\GroupHydrateJobPositions;
-use App\Enums\Mail\Mailroom\MailroomCodeEnum;
+use App\Enums\Mail\Mailroom\MailroomTypeEnum;
 use App\Models\Assets\Currency;
 use App\Models\Organisation\Group;
 use Exception;
@@ -23,7 +23,7 @@ class StoreGroup
     use AsAction;
     use WithAttributes;
 
-    public string $commandSignature = 'create:group {code} {name} {currency_code}';
+    public string $commandSignature = 'group:create {code} {name} {currency_code}';
 
     public function handle(array $modelData): Group
     {
@@ -37,10 +37,12 @@ class StoreGroup
         $group->humanResourcesStats()->create();
         $group->inventoryStats()->create();
 
-        foreach (MailroomCodeEnum::cases() as $case) {
+        foreach (MailroomTypeEnum::cases() as $case) {
             StoreMailroom::run(
+                $group,
                 [
-                    'code' => $case->value
+                    'name' => $case->label(),
+                    'type' => $case
                 ]
             );
         }

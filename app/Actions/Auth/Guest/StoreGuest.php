@@ -12,8 +12,9 @@ use App\Actions\Auth\User\StoreUser;
 use App\Enums\Auth\Guest\GuestTypeEnum;
 use App\Models\Auth\Guest;
 use App\Models\Auth\User;
-use App\Models\Organisation\Organisation;
+use App\Models\Organisation\Group;
 use App\Rules\AlphaDashDot;
+use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\RedirectResponse;
@@ -32,9 +33,10 @@ class StoreGuest
 
     private bool $trusted = false;
 
-    public function handle(array $modelData): Guest
+    public function handle(Group $group, array $modelData): Guest
     {
-        $guest = Guest::create($modelData);
+        /** @var Guest $guest */
+        $guest = $group->guests()->create($modelData);
         GuestHydrateUniversalSearch::dispatch($guest);
 
         return $guest;
@@ -70,19 +72,19 @@ class StoreGuest
         ];
     }
 
-    public function asController(ActionRequest $request): Guest
+    public function asController(Group $group, ActionRequest $request): Guest
     {
         $request->validate();
 
         $modelData = $request->validated();
 
-        $guest = $this->handle(Arr::except($modelData, ['username']));
+        $guest = $this->handle($group, Arr::except($modelData, ['username']));
 
         $user = User::where('username', Arr::get($modelData, 'username'))->first();
         if (!$user) {
             StoreUser::run(
                 parent: $guest,
-                modelData:array_merge(
+                modelData: array_merge(
                     [
                         'username' => Arr::get($modelData, 'username'),
                         'password' => (app()->isLocal() ? 'hello' : wordwrap(Str::random(), 4, '-', true))
@@ -97,18 +99,16 @@ class StoreGuest
     }
 
 
-
-
-    public function action(array $objectData): Guest
+    public function action(Group $group, array $objectData): Guest
     {
         $this->trusted = true;
         $this->setRawAttributes($objectData);
         $validatedData = $this->validateAttributes();
 
-        return $this->handle($validatedData);
+        return $this->handle($group, $validatedData);
     }
 
-    public string $commandSignature = 'create:guest {tenant : tenant slug} {name} {type : Guest type contractor|external_employee|external_administrator} {--e|email=} {--t|phone=}  {--identity_document_number=} {--identity_document_type=}';
+    public string $commandSignature = 'guest:create {group : group slug} {name} {type : Guest type contractor|external_employee|external_administrator} {--e|email=} {--t|phone=}  {--identity_document_number=} {--identity_document_type=}';
 
     /**
      * @throws ModelNotFoundException
@@ -116,7 +116,14 @@ class StoreGuest
     public function asCommand(Command $command): int
     {
         $this->trusted = true;
-        $organisation  = Organisation::where('slug', $command->argument('tenant'))->firstOrFail();
+
+        try {
+            $group = Group::where('code', $command->argument('group'))->firstOrFail();
+        } catch (Exception $e) {
+            $command->error($e->getMessage());
+
+            return 1;
+        }
 
 
         $this->fill([
@@ -130,8 +137,8 @@ class StoreGuest
         $validatedData = $this->validateAttributes();
 
 
-        $guest = $this->handle($validatedData);
-        $command->info("Guest <fg=yellow>$guest->slug</> created in <fg=yellow>$organisation->slug</> 👍");
+        $guest = $this->handle($group, $validatedData);
+        $command->info("Guest <fg=yellow>$guest->slug</> created in <fg=yellow>$group->slug</> 👍");
 
 
         return 0;
