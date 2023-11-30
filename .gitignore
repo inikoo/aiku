@@ -36,3 +36,5 @@ load_aurora_db.sh
 /dump_aurora_db.sh
 .phpstorm.meta.php
 _ide_helper.php
+/codecov
+/upload_coverage.sh
