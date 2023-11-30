@@ -16,15 +16,26 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 2
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: npm-${{ hashFiles('package-lock.json') }}
+          restore-keys: npm-
       - name: Npm install
-        run: npm ci
+        run: npm ci --ignore-scripts
       - name: Composer install
         run: composer install --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
       - name: Prepare environment
         run:  |
           ln -s ../../../../env.aiku.testing .env.testing
           ln -s ../../../../env.aiku.testing .env
+          mkdir private
+          cd private
+          ln -s ../../../../../artifacts/fa .
       - name: Generate database dumps 📚
         run: ./generate_testing_db_dumps.sh ${{vars.TESTING_DB_PORT}}
+      - name: build app
+        run: npm run build
       - name: Run test
         run: vendor/bin/pest
