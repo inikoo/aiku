@@ -7,7 +7,6 @@
 
 namespace App\Actions\Procurement\Supplier\Hydrators;
 
-use App\Actions\Traits\WithOrganisationJob;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStatusEnum;
 use App\Models\Procurement\Supplier;
@@ -18,7 +17,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class SupplierHydratePurchaseOrders implements ShouldBeUnique
 {
     use AsAction;
-    use WithOrganisationJob;
+
 
     public function handle(Supplier $supplier): void
     {

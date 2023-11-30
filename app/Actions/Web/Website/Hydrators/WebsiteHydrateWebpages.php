@@ -7,7 +7,6 @@
 
 namespace App\Actions\Web\Website\Hydrators;
 
-use App\Actions\Traits\WithOrganisationJob;
 use App\Models\Web\Website;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -15,7 +14,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class WebsiteHydrateWebpages implements ShouldBeUnique
 {
     use AsAction;
-    use WithOrganisationJob;
+
 
     public function handle(Website $website): void
     {

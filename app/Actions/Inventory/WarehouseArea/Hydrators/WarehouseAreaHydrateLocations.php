@@ -7,14 +7,13 @@
 
 namespace App\Actions\Inventory\WarehouseArea\Hydrators;
 
-use App\Actions\Traits\WithOrganisationJob;
 use App\Models\Inventory\WarehouseArea;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class WarehouseAreaHydrateLocations
 {
     use AsAction;
-    use WithOrganisationJob;
+
 
     public function handle(WarehouseArea $warehouseArea): void
     {

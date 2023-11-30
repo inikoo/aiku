@@ -7,7 +7,6 @@
 
 namespace App\Actions\Procurement\PurchaseOrder\Hydrators;
 
-use App\Actions\Traits\WithOrganisationJob;
 use App\Models\Procurement\PurchaseOrder;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -15,7 +14,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class PurchaseOrderHydrateItems implements ShouldBeUnique
 {
     use AsAction;
-    use WithOrganisationJob;
+
 
     public function handle(PurchaseOrder $purchaseOrder): void
     {

@@ -7,14 +7,13 @@
 
 namespace App\Actions\CRM\Customer\Hydrators;
 
-use App\Actions\Traits\WithOrganisationJob;
 use App\Models\CRM\Customer;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class CustomerHydrateWebUsers
 {
     use AsAction;
-    use WithOrganisationJob;
+
 
     public function handle(Customer $customer): void
     {

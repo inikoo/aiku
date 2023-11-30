@@ -7,14 +7,13 @@
 
 namespace App\Actions\Inventory\StockFamily\Hydrators;
 
-use App\Actions\Traits\WithOrganisationJob;
 use App\Models\Inventory\StockFamily;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class StockFamilyHydrateUniversalSearch
 {
     use AsAction;
-    use WithOrganisationJob;
+
 
     public function handle(StockFamily $stockFamily): void
     {

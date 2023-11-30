@@ -7,7 +7,6 @@
 
 namespace App\Actions\Organisation\Organisation\Hydrators;
 
-use App\Actions\Traits\WithOrganisationJob;
 use App\Enums\OMS\Order\OrderStateEnum;
 use App\Models\OMS\Order;
 use App\Models\Organisation\Organisation;
@@ -18,7 +17,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class OrganisationHydrateOrders implements ShouldBeUnique
 {
     use AsAction;
-    use WithOrganisationJob;
+
 
     public function handle(Organisation $organisation): void
     {

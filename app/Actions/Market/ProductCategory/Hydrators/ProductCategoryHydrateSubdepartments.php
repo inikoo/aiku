@@ -7,7 +7,6 @@
 
 namespace App\Actions\Market\ProductCategory\Hydrators;
 
-use App\Actions\Traits\WithOrganisationJob;
 use App\Models\Market\ProductCategory;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -15,7 +14,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class ProductCategoryHydrateSubdepartments implements ShouldBeUnique
 {
     use AsAction;
-    use WithOrganisationJob;
+
 
     public function handle(ProductCategory $productCategory): void
     {

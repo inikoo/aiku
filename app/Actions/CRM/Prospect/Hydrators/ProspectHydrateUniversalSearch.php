@@ -7,14 +7,13 @@
 
 namespace App\Actions\CRM\Prospect\Hydrators;
 
-use App\Actions\Traits\WithOrganisationJob;
 use App\Models\CRM\Prospect;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class ProspectHydrateUniversalSearch
 {
     use AsAction;
-    use WithOrganisationJob;
+
 
     public function handle(Prospect $prospect): void
     {

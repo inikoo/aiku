@@ -8,14 +8,14 @@
 namespace App\Actions\Central\User\Hydrators;
 
 use App\Actions\Traits\WithRoutes;
-use App\Actions\Traits\WithOrganisationJob;
+
 use App\Models\Auth\User;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class UserHydrateUniversalSearch
 {
     use AsAction;
-    use WithOrganisationJob;
+
     use WithRoutes;
 
     public function handle(User $user): void

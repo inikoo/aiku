@@ -7,14 +7,13 @@
 
 namespace App\Actions\Dispatch\DeliveryNote\Hydrators;
 
-use App\Actions\Traits\WithOrganisationJob;
 use App\Models\Dispatch\DeliveryNote;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class DeliveryNoteHydrateUniversalSearch
 {
     use AsAction;
-    use WithOrganisationJob;
+
 
     public function handle(DeliveryNote $deliveryNote): void
     {

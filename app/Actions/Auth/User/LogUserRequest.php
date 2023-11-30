@@ -8,7 +8,7 @@
 namespace App\Actions\Auth\User;
 
 use App\Actions\Elasticsearch\IndexElasticsearchDocument;
-use App\Actions\Traits\WithOrganisationJob;
+
 use App\Enums\Elasticsearch\ElasticsearchUserRequestTypeEnum;
 use App\Models\Auth\User;
 use hisorange\BrowserDetect\Parser as Browser;
@@ -19,7 +19,7 @@ use Stevebauman\Location\Facades\Location;
 class LogUserRequest
 {
     use AsAction;
-    use WithOrganisationJob;
+
 
     public function handle(Carbon $datetime, array $routeData, string $ip, string $userAgent, string $type, User $user): void
     {

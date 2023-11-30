@@ -7,7 +7,6 @@
 
 namespace App\Actions\Market\Product\Hydrators;
 
-use App\Actions\Traits\WithOrganisationJob;
 use App\Models\Market\Product;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -18,7 +17,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class ProductInitialiseImageID implements ShouldBeUnique
 {
     use AsAction;
-    use WithOrganisationJob;
+
 
     public function handle(Product $product): void
     {

@@ -8,7 +8,7 @@
 namespace App\Actions\CRM\Customer\Hydrators;
 
 use App\Actions\Traits\WithElasticsearch;
-use App\Actions\Traits\WithOrganisationJob;
+
 use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
 use App\Enums\CRM\Customer\CustomerTradeStateEnum;
 use App\Models\Accounting\Invoice;
@@ -20,7 +20,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class CustomerHydrateInvoices implements ShouldBeUnique
 {
     use AsAction;
-    use WithOrganisationJob;
+
     use WithElasticsearch;
 
     public function handle(Customer $customer): void

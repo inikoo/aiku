@@ -7,14 +7,13 @@
 
 namespace App\Actions\Market\Product\Hydrators;
 
-use App\Actions\Traits\WithOrganisationJob;
 use App\Models\Market\Product;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class ProductHydrateUniversalSearch
 {
     use AsAction;
-    use WithOrganisationJob;
+
 
     public function handle(Product $product): void
     {

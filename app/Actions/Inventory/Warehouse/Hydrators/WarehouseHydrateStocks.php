@@ -7,7 +7,6 @@
 
 namespace App\Actions\Inventory\Warehouse\Hydrators;
 
-use App\Actions\Traits\WithOrganisationJob;
 use App\Models\Inventory\Warehouse;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -15,7 +14,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class WarehouseHydrateStocks implements ShouldBeUnique
 {
     use AsAction;
-    use WithOrganisationJob;
+
 
     public function handle(Warehouse $warehouse): void
     {

@@ -7,7 +7,6 @@
 
 namespace App\Actions\Procurement\Supplier\Hydrators;
 
-use App\Actions\Traits\WithOrganisationJob;
 use App\Enums\Procurement\SupplierDelivery\SupplierDeliveryStateEnum;
 use App\Enums\Procurement\SupplierDeliveryItem\SupplierDeliveryItemStateEnum;
 use App\Models\Procurement\SupplierDelivery;
@@ -17,7 +16,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class SupplierDeliveriesHydrateItems implements ShouldBeUnique
 {
     use AsAction;
-    use WithOrganisationJob;
+
 
     public function handle(SupplierDelivery $supplierDelivery): void
     {

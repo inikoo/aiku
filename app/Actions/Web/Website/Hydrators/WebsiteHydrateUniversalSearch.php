@@ -7,14 +7,13 @@
 
 namespace App\Actions\Web\Website\Hydrators;
 
-use App\Actions\Traits\WithOrganisationJob;
 use App\Models\Web\Website;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class WebsiteHydrateUniversalSearch
 {
     use AsAction;
-    use WithOrganisationJob;
+
 
     public function handle(Website $website): void
     {

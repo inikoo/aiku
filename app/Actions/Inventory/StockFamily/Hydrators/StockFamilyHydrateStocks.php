@@ -7,7 +7,6 @@
 
 namespace App\Actions\Inventory\StockFamily\Hydrators;
 
-use App\Actions\Traits\WithOrganisationJob;
 use App\Enums\Inventory\Stock\StockQuantityStatusEnum;
 use App\Enums\Inventory\Stock\StockStateEnum;
 use App\Models\Inventory\Stock;
@@ -19,7 +18,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class StockFamilyHydrateStocks implements ShouldBeUnique
 {
     use AsAction;
-    use WithOrganisationJob;
+
 
     public function handle(StockFamily $stockFamily): void
     {

@@ -7,14 +7,13 @@
 
 namespace App\Actions\Fulfilment\StoredItem\Hydrators;
 
-use App\Actions\Traits\WithOrganisationJob;
 use App\Models\Fulfilment\StoredItem;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class StoredItemHydrateUniversalSearch
 {
     use AsAction;
-    use WithOrganisationJob;
+
 
     public function handle(StoredItem $storedItem): void
     {

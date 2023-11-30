@@ -7,14 +7,13 @@
 
 namespace App\Actions\HumanResources\ClockingMachine\Hydrators;
 
-use App\Actions\Traits\WithOrganisationJob;
 use App\Models\Inventory\WarehouseArea;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class ClockingMachineHydrateClockings
 {
     use AsAction;
-    use WithOrganisationJob;
+
 
     public function handle(WarehouseArea $warehouseArea): void
     {

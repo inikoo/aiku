@@ -7,14 +7,13 @@
 
 namespace App\Actions\Procurement\SupplierProduct\Hydrators;
 
-use App\Actions\Traits\WithOrganisationJob;
 use App\Models\Procurement\SupplierProduct;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class SupplierProductHydrateUniversalSearch
 {
     use AsAction;
-    use WithOrganisationJob;
+
 
     public function handle(SupplierProduct $supplierProduct): void
     {

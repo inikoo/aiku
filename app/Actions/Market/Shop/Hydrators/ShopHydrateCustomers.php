@@ -7,7 +7,6 @@
 
 namespace App\Actions\Market\Shop\Hydrators;
 
-use App\Actions\Traits\WithOrganisationJob;
 use App\Enums\CRM\Customer\CustomerStateEnum;
 use App\Enums\CRM\Customer\CustomerTradeStateEnum;
 use App\Models\CRM\Customer;
@@ -19,7 +18,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class ShopHydrateCustomers implements ShouldBeUnique
 {
     use AsAction;
-    use WithOrganisationJob;
+
 
     public function handle(Shop $shop): void
     {
