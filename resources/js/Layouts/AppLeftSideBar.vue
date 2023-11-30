@@ -9,56 +9,56 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { Link } from "@inertiajs/vue3"
 import { ref, onMounted, onUnmounted } from 'vue'
 import { router } from '@inertiajs/vue3'
-// import { library } from "@fortawesome/fontawesome-svg-core"
-// import {
-// 	faHome,
-// 	faDollyFlatbedAlt,
-// 	faConveyorBeltAlt,
-// 	faUsers,
-// 	faUserHardHat,
-// 	faBars,
-// 	faUsersCog,
-// 	faTachometerAltFast,
-// 	faInventory,
-// 	faStoreAlt,
-// 	faUser,
-// 	faIndustry,
-//     faBoxUsd,
-// 	faDollyEmpty,
-// 	faShoppingCart,
-// 	faAbacus,
-// 	faParachuteBox,
-// 	faChevronDown,
-//     faTasksAlt,
-//     faBullhorn,
-//     faLightbulb
-// } from '@fal/'
+ import { library } from "@fortawesome/fontawesome-svg-core"
+ import {
+ 	faHome,
+ 	faDollyFlatbedAlt,
+ 	faConveyorBeltAlt,
+ 	faUsers,
+ 	faUserHardHat,
+ 	faBars,
+ 	faUsersCog,
+ 	faTachometerAltFast,
+ 	faInventory,
+ 	faStoreAlt,
+ 	faUser,
+ 	faIndustry,
+     faBoxUsd,
+ 	faDollyEmpty,
+ 	faShoppingCart,
+ 	faAbacus,
+ 	faParachuteBox,
+ 	faChevronDown,
+     faTasksAlt,
+     faBullhorn,
+     faLightbulb
+ } from '@fal/'
 import { useLayoutStore } from "@/Stores/layout.js"
 import { computed } from "vue";
 
-// library.add(
-// 	faHome,
-// 	faDollyFlatbedAlt,
-// 	faConveyorBeltAlt,
-// 	faUsers,
-// 	faUserHardHat,
-// 	faBars,
-// 	faUsersCog,
-// 	faTachometerAltFast,
-// 	faInventory,
-// 	faStoreAlt,
-// 	faUser,
-// 	faIndustry,
-//     faBoxUsd,
-// 	faDollyEmpty,
-// 	faShoppingCart,
-// 	faAbacus,
-// 	faParachuteBox,
-// 	faChevronDown,
-//     faTasksAlt,
-//     faBullhorn,
-//     faLightbulb,
-// )
+ library.add(
+ 	faHome,
+ 	faDollyFlatbedAlt,
+ 	faConveyorBeltAlt,
+ 	faUsers,
+ 	faUserHardHat,
+ 	faBars,
+ 	faUsersCog,
+ 	faTachometerAltFast,
+ 	faInventory,
+ 	faStoreAlt,
+ 	faUser,
+ 	faIndustry,
+     faBoxUsd,
+ 	faDollyEmpty,
+ 	faShoppingCart,
+ 	faAbacus,
+ 	faParachuteBox,
+ 	faChevronDown,
+     faTasksAlt,
+     faBullhorn,
+     faLightbulb,
+ )
 
 const layout = useLayoutStore()
 //const props = defineProps(["currentRoute"])
