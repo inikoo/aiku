@@ -1,11 +1,10 @@
 import {initializeApp} from 'firebase/app';
-import {getDatabase, ref as dbRef} from 'firebase/database';
+import {getDatabase, set, ref as dbRef} from 'firebase/database';
 import {useDatabaseList} from 'vuefire';
-import {
-    initializeAppCheck,
-    ReCaptchaEnterpriseProvider,
-} from 'firebase/app-check';
-
+// import {
+//     initializeAppCheck,
+//     ReCaptchaEnterpriseProvider,
+// } from 'firebase/app-check';
 
 const firebaseConfig = {
     apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -18,26 +17,38 @@ const firebaseConfig = {
     measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
 
+// Init Firebase with config
 const firebaseApp = initializeApp(firebaseConfig);
-  initializeAppCheck(firebaseApp, {
-     provider: new ReCaptchaEnterpriseProvider(import.meta.env.VITE_RECAPTCHA_APP_KEY),
- });
 
-let getDb = getDatabase(firebaseApp);
+//todo activate this
+//initializeAppCheck(firebaseApp, {provider: new ReCaptchaEnterpriseProvider(import.meta.env.VITE_RECAPTCHA_APP_KEY),});
 
-export const getDbRef = (tenant) => {
-    return dbRef(getDb, tenant);
+let db = getDatabase(firebaseApp);
+
+export const getDbRef = (column) => {
+    return dbRef(db, column);
 };
 
+// Get the data
 export const getDataFirebase = (column) => {
-    let getData = null;
 
     try {
-        getData = useDatabaseList(getDbRef(column));
+        return useDatabaseList(getDbRef(column));
     } catch (error) {
-        console.error('An error occurred while fetching data from Firebase:',
-                      error);
+        console.error('An error occurred while fetching data from Firebase:', error);
+        return [];
     }
 
-    return getData;
 };
+
+export const setDataFirebase = async (column, data) => {
+    const dbReference = getDbRef(column);
+    console.log('vuefire',dbReference)
+    try {
+      await set(dbReference, data);
+      console.log('Data set successfully in Firebase:', data);
+    } catch (error) {
+      console.error('Error setting data in Firebase:', error);
+      throw error; // You can handle the error further as needed
+    }
+  };
