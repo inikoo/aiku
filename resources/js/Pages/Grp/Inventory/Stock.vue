@@ -22,12 +22,12 @@ import {
 } from '@fal/';
 import { computed, defineAsyncComponent, ref } from "vue";
 import { useTabChange } from "@/Composables/tab-change";
-import ModelDetails from "@/Pages/ModelDetails.vue";
-import TableSupplierProducts from "@/Pages/Tables/TableSupplierProducts.vue";
-import TableProducts from "@/Pages/Tables/TableProducts.vue";
+import ModelDetails from "@/Components/ModelDetails.vue";
+import TableSupplierProducts from "@/Components/Tables/TableSupplierProducts.vue";
+import TableProducts from "@/Components/Tables/TableProducts.vue";
 import Tabs from "@/Components/Navigation/Tabs.vue";
-import TableLocations from "@/Pages/Tables/TableLocations.vue";
-import StockShowcase from "@/Pages/Inventory/StockShowcase.vue";
+import TableLocations from "@/Components/Tables/TableLocations.vue";
+import StockShowcase from "@/Components/Showcases/Grp/StockShowcase.vue";
 import { capitalize } from "@/Composables/capitalize"
 library.add(
     faInventory,
@@ -46,7 +46,7 @@ library.add(
 
 const locale = useLocaleStore();
 
-const ModelChangelog = defineAsyncComponent(() => import('@/Pages/ModelChangelog.vue'))
+const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChangelog.vue'))
 
 const props = defineProps<{
     title: string,

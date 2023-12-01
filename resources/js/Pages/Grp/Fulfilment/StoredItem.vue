@@ -8,16 +8,11 @@
 import {Head} from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 import { capitalize } from "@/Composables/capitalize"
-import TableCustomers from "@/Pages/Tables/TableCustomers.vue";
+import TableCustomers from "@/Components/Tables/TableCustomers.vue";
 import Tabs from "@/Components/Navigation/Tabs.vue";
 import {computed, ref} from "vue";
 import {useTabChange} from "@/Composables/tab-change";
-import CustomerShowcase from "@/Pages/CRM/CustomerShowcase.vue";
-import TableProducts from "@/Pages/Tables/TableProducts.vue";
-import TableOrders from "@/Pages/Tables/TableOrders.vue";
-import ModelDetails from "@/Pages/ModelDetails.vue";
-import TableDispatchedEmails from "@/Pages/Tables/TableDispatchedEmails.vue";
-import TableHistories from "@/Pages/Tables/TableHistories.vue";
+import TableHistories from "@/Components/Tables/TableHistories.vue";
 
 const props = defineProps<{
     title: string

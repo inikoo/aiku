@@ -22,12 +22,12 @@ import { capitalize } from "@/Composables/capitalize";
 import Tabs from "@/Components/Navigation/Tabs.vue";
 import { computed, ref } from "vue";
 import { useTabChange } from "@/Composables/tab-change";
-import TableDepartments from "@/Pages/Tables/TableDepartments.vue";
-import TableFamilies from "@/Pages/Tables/TableFamilies.vue";
-import TableProducts from "@/Pages/Tables/TableProducts.vue";
-import ModelDetails from "@/Pages/ModelDetails.vue";
-import TableHistories from "@/Pages/Tables/TableHistories.vue";
-import ShopShowcase from "@/Pages/Market/ShopShowcase.vue";
+import TableDepartments from "@/Components/Tables/TableDepartments.vue";
+import TableFamilies from "@/Components/Tables/TableFamilies.vue";
+import TableProducts from "@/Components/Tables/TableProducts.vue";
+import ModelDetails from "@/Components/ModelDetails.vue";
+import TableHistories from "@/Components/Tables/TableHistories.vue";
+import ShopShowcase from "@/Components/Showcases/Grp/ShopShowcase.vue";
 
 library.add(faChartLine, faCheckCircle, faFolderTree, faFolder, faCube, faShoppingCart, faFileInvoice, faStickyNote);
 

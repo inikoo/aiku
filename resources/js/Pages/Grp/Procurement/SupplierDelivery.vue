@@ -8,11 +8,11 @@ import { Head } from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 import Tabs from "@/Components/Navigation/Tabs.vue";
 import {computed, defineAsyncComponent, ref} from "vue";
-import ModelDetails from "@/Pages/ModelDetails.vue";
+import ModelDetails from "@/Components/ModelDetails.vue";
 import {useTabChange} from "@/Composables/tab-change";
 import { capitalize } from "@/Composables/capitalize"
 
-const ModelChangelog = defineAsyncComponent(() => import('@/Pages/ModelChangelog.vue'))
+const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChangelog.vue'))
 
 const props = defineProps<{
     title: string,

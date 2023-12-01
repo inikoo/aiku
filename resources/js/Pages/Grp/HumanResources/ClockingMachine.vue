@@ -14,9 +14,9 @@ import { faEnvelope, faIdCard, faPhone, faSignature, faUser, faBuilding, faBirth
 import Tabs from "@/Components/Navigation/Tabs.vue";
 import { computed, defineAsyncComponent, ref } from "vue";
 import { useTabChange } from "@/Composables/tab-change";
-import ModelDetails from "@/Pages/ModelDetails.vue";
-import TableClockings from "@/Pages/Tables/TableClockings.vue";
-import TableHistories from "@/Pages/Tables/TableHistories.vue";
+import ModelDetails from "@/Components/ModelDetails.vue";
+import TableClockings from "@/Components/Tables/TableClockings.vue";
+import TableHistories from "@/Components/Tables/TableHistories.vue";
 
 import { capitalize } from "@/Composables/capitalize"
 import {faCheckCircle} from '@fas/';
@@ -40,7 +40,7 @@ library.add(
     faBuilding
 );
 
-const ModelChangelog = defineAsyncComponent(() => import('@/Pages/ModelChangelog.vue'))
+const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChangelog.vue'))
 
 const props = defineProps<{
     title: string,

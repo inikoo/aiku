@@ -18,14 +18,14 @@ import {
 } from '@fal/';
 import Tabs from "@/Components/Navigation/Tabs.vue";
 import {computed, defineAsyncComponent, ref} from "vue";
-import ModelDetails from "@/Pages/ModelDetails.vue";
+import ModelDetails from "@/Components/ModelDetails.vue";
 import {useTabChange} from "@/Composables/tab-change";
-import TableSuppliers from "@/Pages/Tables/TableSuppliers.vue";
-import TableSupplierProducts from "@/Pages/Tables/TableSupplierProducts.vue";
-import AgentShowcase from "@/Pages/Procurement/AgentShowcase.vue";
+import TableSuppliers from "@/Components/Tables/TableSuppliers.vue";
+import TableSupplierProducts from "@/Components/Tables/TableSupplierProducts.vue";
+import AgentShowcase from "@/Components/Showcases/Grp/AgentShowcase.vue";
 import { capitalize } from "@/Composables/capitalize"
 
-const ModelChangelog = defineAsyncComponent(() => import('@/Pages/ModelChangelog.vue'))
+const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChangelog.vue'))
 
 const props = defineProps<{
     title: string,
@@ -41,9 +41,9 @@ const props = defineProps<{
     errors?: object,
     history: object
 }>()
-import TablePurchaseOrders from "@/Pages/Tables/TablePurchaseOrders.vue";
+import TablePurchaseOrders from "@/Components/Tables/TablePurchaseOrders.vue";
 import {useForm} from "@inertiajs/vue3";
-import TableHistories from "@/Pages/Tables/TableHistories.vue";
+import TableHistories from "@/Components/Tables/TableHistories.vue";
 
 library.add(
     faInventory,

@@ -13,10 +13,10 @@ import {
     faDollarSign, faEnvelope, faFileInvoiceDollar,
     faPaperclip, faRoad, faStickyNote, faTag, faThList, faTruck, faUserTag
 } from '@fal/';
-import TablePayments from "@/Pages/Tables/TablePayments.vue";
-import TableInvoices from "@/Pages/Tables/TableInvoices.vue";
-import TableDeliveryNotes from "@/Pages/Tables/TableDeliveryNotes.vue";
-import ModelDetails from "@/Pages/ModelDetails.vue";
+import TablePayments from "@/Components/Tables/TablePayments.vue";
+import TableInvoices from "@/Components/Tables/TableInvoices.vue";
+import TableDeliveryNotes from "@/Components/Tables/TableDeliveryNotes.vue";
+import ModelDetails from "@/Components/ModelDetails.vue";
 import {useTabChange} from "@/Composables/tab-change";
 import {computed, defineAsyncComponent, ref} from "vue";
 import Tabs from "@/Components/Navigation/Tabs.vue";
@@ -39,7 +39,7 @@ library.add(
 );
 
 
-const ModelChangelog = defineAsyncComponent(() => import('@/Pages/ModelChangelog.vue'))
+const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChangelog.vue'))
 
 const props = defineProps<{
     title: string,

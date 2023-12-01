@@ -17,15 +17,15 @@ import {
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 import {computed, defineAsyncComponent, ref} from "vue";
 import {useTabChange} from "@/Composables/tab-change";
-import TablePayments from "@/Pages/Tables/TablePayments.vue";
-import ModelDetails from "@/Pages/ModelDetails.vue";
+import TablePayments from "@/Components/Tables/TablePayments.vue";
+import ModelDetails from "@/Components/ModelDetails.vue";
 import Tabs from "@/Components/Navigation/Tabs.vue";
 import { capitalize } from "@/Composables/capitalize"
-import TableHistories from "@/Pages/Tables/TableHistories.vue";
+import TableHistories from "@/Components/Tables/TableHistories.vue";
 
 library.add(faCoins, faChartLine, faInfoCircle,faMoneyCheckAlt);
 
-const ModelChangelog = defineAsyncComponent(() => import('@/Pages/ModelChangelog.vue'))
+const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChangelog.vue'))
 
 const props = defineProps<{
     title: string,

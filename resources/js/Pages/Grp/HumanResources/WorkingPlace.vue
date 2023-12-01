@@ -10,7 +10,7 @@ import {library} from '@fortawesome/fontawesome-svg-core';
 import { faEnvelope, faIdCard, faPhone, faSignature, faUser, faBuilding, faBirthdayCake, faVenusMars, faHashtag, faHeading, faHospitalUser, faClock, faPaperclip, faTimes, faCameraRetro} from '@fal/';
 import {faCheckCircle} from '@fas/';
 import { capitalize } from "@/Composables/capitalize"
-import TableHistories from "@/Pages/Tables/TableHistories.vue";
+import TableHistories from "@/Components/Tables/TableHistories.vue";
 
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 
@@ -35,13 +35,13 @@ library.add(
 )
 import { computed, defineAsyncComponent, ref } from "vue";
 import { useTabChange } from "@/Composables/tab-change";
-import ModelDetails from "@/Pages/ModelDetails.vue";
+import ModelDetails from "@/Components/ModelDetails.vue";
 import Tabs from "@/Components/Navigation/Tabs.vue";
-import TableClockingMachine from "@/Pages/Tables/TableClockingMachines.vue";
-import TableClockings from "@/Pages/Tables/TableClockings.vue";
+import TableClockingMachine from "@/Components/Tables/TableClockingMachines.vue";
+import TableClockings from "@/Components/Tables/TableClockings.vue";
 
 
-const ModelChangelog = defineAsyncComponent(() => import('@/Pages/ModelChangelog.vue'))
+const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChangelog.vue'))
 
 const props = defineProps<{
     title: string,

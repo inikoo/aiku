@@ -14,14 +14,14 @@ import {
     faFolder, faMoneyBillWave, faProjectDiagram, faRoad, faShoppingCart, faStream, faUsers
 } from '@fal/';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
-import ModelDetails from "@/Pages/ModelDetails.vue";
-import TableOrders from "@/Pages/Tables/TableOrders.vue";
+import ModelDetails from "@/Components/ModelDetails.vue";
+import TableOrders from "@/Components/Tables/TableOrders.vue";
 import {useTabChange} from "@/Composables/tab-change";
 import {computed, defineAsyncComponent, ref} from "vue";
 import Tabs from "@/Components/Navigation/Tabs.vue";
-import TableMailshots from "@/Pages/Tables/TableMailshots.vue";
-import TableCustomers from "@/Pages/Tables/TableCustomers.vue";
-import ProductShowcase from "@/Pages/Market/ProductShowcase.vue";
+import TableMailshots from "@/Components/Tables/TableMailshots.vue";
+import TableCustomers from "@/Components/Tables/TableCustomers.vue";
+import ProductShowcase from "@/Components/Showcases/Grp/ProductShowcase.vue";
 import { capitalize } from "@/Composables/capitalize"
 
 library.add(
@@ -38,7 +38,7 @@ library.add(
     faRoad
 );
 
-const ModelChangelog = defineAsyncComponent(() => import('@/Pages/ModelChangelog.vue'))
+const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChangelog.vue'))
 
 const props = defineProps<{
     title: string,

@@ -4,14 +4,28 @@
   -  Copyright (c) 2022, Raul A Perusquia Flores
   -->
 <script setup lang="ts">
-import { Head, useForm } from "@inertiajs/vue3";
+import { Head } from "@inertiajs/vue3";
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 import Tabs from "@/Components/Navigation/Tabs.vue";
 import {computed, defineAsyncComponent, ref} from "vue";
-import ModelDetails from "@/Pages/ModelDetails.vue";
+import ModelDetails from "@/Components/ModelDetails.vue";
 import {useTabChange} from "@/Composables/tab-change";
-
-const ModelChangelog = defineAsyncComponent(() => import('@/Pages/ModelChangelog.vue'))
+import {library} from '@fortawesome/fontawesome-svg-core';
+import {
+  faInventory,
+  faWarehouse,
+  faPersonDolly,
+  faBoxUsd,
+  faTruck,
+  faTerminal,
+  faCameraRetro, faPaperclip, faPoop, faMoneyBill, faClipboard
+} from '@fal/';
+import AgentShowcase from "@/Components/Showcases/Grp/AgentShowcase.vue";
+import TableSupplierProducts from "@/Components/Tables/TableSupplierProducts.vue";
+import TablePurchaseOrders from "@/Components/Tables/TablePurchaseOrders.vue";
+import { capitalize } from "@/Composables/capitalize"
+import TableHistories from "@/Components/Tables/TableHistories.vue";
+const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChangelog.vue'))
 
 const props = defineProps<{
     title: string,
@@ -27,21 +41,7 @@ const props = defineProps<{
 
     },
 }>()
-import {library} from '@fortawesome/fontawesome-svg-core';
-import {
-    faInventory,
-    faWarehouse,
-    faPersonDolly,
-    faBoxUsd,
-    faTruck,
-    faTerminal,
-    faCameraRetro, faPaperclip, faPoop, faMoneyBill, faClipboard
-} from '@fal/';
-import AgentShowcase from "@/Pages/Procurement/AgentShowcase.vue";
-import TableSupplierProducts from "@/Pages/Tables/TableSupplierProducts.vue";
-import TablePurchaseOrders from "@/Pages/Tables/TablePurchaseOrders.vue";
-import { capitalize } from "@/Composables/capitalize"
-import TableHistories from "@/Pages/Tables/TableHistories.vue";
+
 
 library.add(
     faInventory,

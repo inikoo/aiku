@@ -7,7 +7,7 @@
 <script setup lang="ts">
 import {Head} from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
-import TableWarehouseAreas from "@/Pages/Tables/TableWarehouseAreas.vue";
+import TableWarehouseAreas from "@/Components/Tables/TableWarehouseAreas.vue";
 import { capitalize } from "@/Composables/capitalize"
 
 

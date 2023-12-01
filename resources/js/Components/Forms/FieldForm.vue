@@ -158,9 +158,9 @@ const checkVerification = async () => {
                     <!-- Button: Save -->
                     <span class="ml-2 flex-shrink-0">
                         <button v-if="!fieldData.verification" class="align-bottom" :disabled="form.processing || !form.isDirty" type="submit">
-                            <FontAwesomeIcon v-if="form.isDirty" icon="fad fa-save" class="h-8 text-org-600"
-                                :style="{
-                                    '--fa-secondary-color': 'rgb(0, 255, 4)']
+                          <FontAwesomeIcon v-if="form.isDirty" icon="fad fa-save" class="h-8 text-org-600"
+                                           :style="{
+                                    '--fa-secondary-color': [layout.systemName === 'org' ? 'rgb(69, 38, 80)' : 'rgb(0, 255, 4)']
                                 }" aria-hidden="true" />
                             <FontAwesomeIcon v-else icon="fal fa-save" class="h-8 text-gray-300" aria-hidden="true" />
                         </button>

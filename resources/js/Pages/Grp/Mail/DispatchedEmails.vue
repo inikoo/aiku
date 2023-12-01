@@ -7,7 +7,7 @@
 <script setup lang="ts">
 import { Head } from "@inertiajs/vue3";
 import PageHeading from "@/Components/Headings/PageHeading.vue";
-import TableDispatchedEmails from "@/Pages/Tables/TableDispatchedEmails.vue";
+import TableDispatchedEmails from "@/Components/Tables/TableDispatchedEmails.vue";
 import { capitalize } from "@/Composables/capitalize"
 
 const props = defineProps<{

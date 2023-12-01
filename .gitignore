@@ -43,3 +43,7 @@ _ide_helper.php
 /storage/app/media
 /public/public.hot
 /public/grp.hot
+/public/grp/assets/
+/public/public/assets/
+/public/grp/manifest.json
+/public/public/manifest.json

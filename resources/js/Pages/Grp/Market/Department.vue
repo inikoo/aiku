@@ -17,14 +17,14 @@ import {
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 import { computed, defineAsyncComponent, ref } from "vue";
 import { useTabChange } from "@/Composables/tab-change";
-import ModelDetails from "@/Pages/ModelDetails.vue";
-import TableCustomers from "@/Pages/Tables/TableCustomers.vue";
+import ModelDetails from "@/Components/ModelDetails.vue";
+import TableCustomers from "@/Components/Tables/TableCustomers.vue";
 import Tabs from "@/Components/Navigation/Tabs.vue";
-import TableMailshots from "@/Pages/Tables/TableMailshots.vue";
+import TableMailshots from "@/Components/Tables/TableMailshots.vue";
 import { faDiagramNext } from "@fortawesome/free-solid-svg-icons";
-import TableProducts from "@/Pages/Tables/TableProducts.vue";
-import TableFamilies from "@/Pages/Tables/TableFamilies.vue";
-import TableHistories from "@/Pages/Tables/TableHistories.vue";
+import TableProducts from "@/Components/Tables/TableProducts.vue";
+import TableFamilies from "@/Components/Tables/TableFamilies.vue";
+import TableHistories from "@/Components/Tables/TableHistories.vue";
 import { capitalize } from "@/Composables/capitalize"
 library.add(
     faFolder,
@@ -41,7 +41,7 @@ library.add(
     faFolders
 );
 
-const ModelChangelog = defineAsyncComponent(() => import('@/Pages/ModelChangelog.vue'))
+const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChangelog.vue'))
 
 const props = defineProps<{
     title: string,

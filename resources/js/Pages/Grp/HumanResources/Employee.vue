@@ -17,11 +17,11 @@ import PageHeading from '@/Components/Headings/PageHeading.vue';
 
 import { computed, defineAsyncComponent, ref } from "vue";
 import { useTabChange } from "@/Composables/tab-change";
-import ModelDetails from "@/Pages/ModelDetails.vue";
-import DataModel from "@/Pages/DataModel.vue";
+import ModelDetails from "@/Components/ModelDetails.vue";
+import DataModel from "@/Components/DataModel.vue";
 
 import Tabs from "@/Components/Navigation/Tabs.vue";
-import TableHistories from "@/Pages/Tables/TableHistories.vue";
+import TableHistories from "@/Components/Tables/TableHistories.vue";
 
 library.add(
     faIdCard,
@@ -46,7 +46,7 @@ const createEmployeeUser = () =>{
     router.post(route('grp.hr.employees.show.user.store',props['employee'].data.id), {})
 }
 
-const ModelChangelog = defineAsyncComponent(() => import('@/Pages/ModelChangelog.vue'))
+const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChangelog.vue'))
 
 const props = defineProps<{
     title: string,

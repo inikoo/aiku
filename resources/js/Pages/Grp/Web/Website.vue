@@ -15,11 +15,11 @@ import {
 import PageHeading from "@/Components/Headings/PageHeading.vue";
 import { computed, defineAsyncComponent, ref } from "vue";
 import { useTabChange } from "@/Composables/tab-change";
-import ModelDetails from "@/Pages/ModelDetails.vue";
+import ModelDetails from "@/Components/ModelDetails.vue";
 import Tabs from "@/Components/Navigation/Tabs.vue";
-import TableWebpages from "@/Pages/Tables/TableWebpages.vue";
+import TableWebpages from "@/Components/Tables/TableWebpages.vue";
 import { capitalize } from "@/Composables/capitalize";
-import TableHistories from "@/Pages/Tables/TableHistories.vue";
+import TableHistories from "@/Components/Tables/TableHistories.vue";
 
 library.add(
   faChartLine,

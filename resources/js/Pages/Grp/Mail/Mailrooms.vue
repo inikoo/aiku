@@ -11,10 +11,10 @@ import { capitalize } from "@/Composables/capitalize"
 import Tabs from "@/Components/Navigation/Tabs.vue";
 import { computed, ref } from "vue";
 
-import TableMailrooms from "@/Pages/Tables/TableMailrooms.vue";
-import TableOutboxes from "@/Pages/Tables/TableOutboxes.vue";
-import TableMailshots from "@/Pages/Tables/TableMailshots.vue";
-import TableDispatchedEmails from "@/Pages/Tables/TableDispatchedEmails.vue";
+import TableMailrooms from "@/Components/Tables/TableMailrooms.vue";
+import TableOutboxes from "@/Components/Tables/TableOutboxes.vue";
+import TableMailshots from "@/Components/Tables/TableMailshots.vue";
+import TableDispatchedEmails from "@/Components/Tables/TableDispatchedEmails.vue";
 import { useTabChange } from "@/Composables/tab-change";
 
 

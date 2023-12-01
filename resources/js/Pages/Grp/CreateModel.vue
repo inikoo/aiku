@@ -1,6 +1,6 @@
 <!--
   - Author: Raul Perusquia <raul@inikoo.com>
-  - Created: Tue, 14 Mar 2023 19:09:33 Malaysia Time, Kuala Lumpur, Malaysia
+  - Created: Sat, 02 Dec 2023 04:03:21 Malaysia Time, Kuala Lumpur, Malaysia
   - Copyright (c) 2023, Raul A Perusquia Flores
   -->
 
@@ -114,7 +114,7 @@ onMounted(() => {
 
 </script>
 
-<template layout="CustomerApp">
+<template layout="App">
     <div class="rounded-lg bg-white shadow">
         <div class="divide-y divide-gray-200 lg:grid grid-flow-col lg:grid-cols-12 lg:divide-y-0 lg:divide-x">
 

@@ -17,15 +17,15 @@ import {
     faPaperclip, faPaperPlane, faStickyNote,
     faTags,faCube,faCodeBranch
 } from '@fal/';
-import ModelDetails from "@/Pages/ModelDetails.vue";
-import TableOrders from "@/Pages/Tables/TableOrders.vue";
+import ModelDetails from "@/Components/ModelDetails.vue";
+import TableOrders from "@/Components/Tables/TableOrders.vue";
 import {useTabChange} from "@/Composables/tab-change";
 import {computed, defineAsyncComponent, ref} from "vue";
 import Tabs from "@/Components/Navigation/Tabs.vue";
-import TableProducts from "@/Pages/Tables/TableProducts.vue";
-import CustomerShowcase from "@/Pages/CRM/CustomerShowcase.vue";
 
-import TableDispatchedEmails from "@/Pages/Tables/TableDispatchedEmails.vue";
+import CustomerShowcase from "@/Components/Showcases/Grp/CustomerShowcase.vue";
+
+import TableDispatchedEmails from "@/Components/Tables/TableDispatchedEmails.vue";
 
 library.add(
     faStickyNote,
@@ -40,7 +40,7 @@ library.add(
     faCodeBranch
 )
 
-const ModelChangelog = defineAsyncComponent(() => import('@/Pages/ModelChangelog.vue'))
+const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChangelog.vue'))
 
 const props = defineProps<{
     title: string,
@@ -80,7 +80,7 @@ import {
     TransitionRoot,
 } from "@headlessui/vue";
 import AgentShowcase from "@/Pages/Procurement/AgentShowcase.vue";
-import TableStoredItems from "@/Pages/Tables/TableStoredItems.vue";
+import TableStoredItems from "@/Components/Tables/TableStoredItems.vue";
 
 
 const isOpen = ref(false);

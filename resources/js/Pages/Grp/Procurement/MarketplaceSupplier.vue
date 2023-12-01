@@ -8,11 +8,11 @@ import { Head } from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 import Tabs from "@/Components/Navigation/Tabs.vue";
 import {computed, defineAsyncComponent, ref} from "vue";
-import ModelDetails from "@/Pages/ModelDetails.vue";
+import ModelDetails from "@/Components/ModelDetails.vue";
 import {useTabChange} from "@/Composables/tab-change";
 import { capitalize } from "@/Composables/capitalize"
 // import MarketplaceSupplierShowcase from "@/Pages/Procurement/MarketplaceSupplierShowcase.vue";
-const ModelChangelog = defineAsyncComponent(() => import('@/Pages/ModelChangelog.vue'))
+const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChangelog.vue'))
 
 const props = defineProps<{
     title: string,
@@ -37,7 +37,7 @@ import {
     faPaperPlane,
     faPaperclip
 } from '@fal/';
-import TableMarketplaceSupplierProducts from "@/Pages/Tables/TableMarketplaceSupplierProducts.vue";
+import TableMarketplaceSupplierProducts from "@/Components/Tables/TableMarketplaceSupplierProducts.vue";
 
 library.add(
     faInventory,

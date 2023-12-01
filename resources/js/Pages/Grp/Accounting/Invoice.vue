@@ -16,15 +16,15 @@ import {
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 import { computed, defineAsyncComponent, ref } from "vue";
 import { useTabChange } from "@/Composables/tab-change";
-import ModelDetails from "@/Pages/ModelDetails.vue";
-import TablePayments from "@/Pages/Tables/TablePayments.vue";
+import ModelDetails from "@/Components/ModelDetails.vue";
+import TablePayments from "@/Components/Tables/TablePayments.vue";
 import Tabs from "@/Components/Navigation/Tabs.vue";
 import { faClock } from '@fas/';
 import { capitalize } from "@/Composables/capitalize"
 
 library.add(faFolder, faCube, faChartLine, faCreditCard, faClock, faPercent);
 
-const ModelChangelog = defineAsyncComponent(() => import('@/Pages/ModelChangelog.vue'))
+const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChangelog.vue'))
 
 const props = defineProps<{
     title: string,
