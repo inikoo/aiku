@@ -4,73 +4,97 @@
   - Copyright (c) 2023, Raul A Perusquia Flores
   -->
 
-
 <script setup lang="ts">
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import PureInput from "@/Components/Pure/PureInput.vue"
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faExclamationCircle, faCheckCircle } from '@fas/'
 import { faCopy } from '@fal/'
-import { library } from '@fortawesome/fontawesome-svg-core'
-library.add(faExclamationCircle, faCheckCircle, faCopy);
+import { faSpinnerThird } from '@fad/'
+import { library } from "@fortawesome/fontawesome-svg-core"
+import { set, get } from "lodash"
+library.add(faExclamationCircle, faCheckCircle, faSpinnerThird, faCopy)
+import { ref, watch, defineEmits } from "vue"
 
 const props = defineProps<{
-    form: any,
-    fieldName: string,
-    options?: any,
+    form: any
+    fieldName: string
+    options?: any
     fieldData?: {
-        placeholder?: string
+        type: string
+        placeholder: string
         readonly?: boolean
-        copyButton?: boolean
+        copyButton: boolean
+        maxLength?: number
     }
 }>()
 
-const copyText = (text: string) => {
-    const textarea = document.createElement("textarea")
-    textarea.value = text
-    document.body.appendChild(textarea)
-    textarea.select()
-    document.execCommand("copy")
-    textarea.remove()
+const emits = defineEmits()
+
+
+const setFormValue = (data: Object, fieldName: String) => {
+    if (Array.isArray(fieldName)) {
+        return getNestedValue(data, fieldName)
+    } else {
+        return data[fieldName]
+    }
 }
 
+const getNestedValue = (obj: Object, keys: Array) => {
+    return keys.reduce((acc, key) => {
+        if (acc && typeof acc === "object" && key in acc) return acc[key]
+        return null
+    }, obj)
+};
+
+const value = ref(setFormValue(props.form, props.fieldName));
+
+watch(value, (newValue) => {
+    // Update the form field value when the value ref changes
+    updateFormValue(newValue);
+    props.form.errors[props.fieldName] = ''
+});
+
+const updateFormValue = (newValue) => {
+    let target = props.form;
+    if (Array.isArray(props.fieldName)) {
+        set(target, props.fieldName, newValue);
+    } else {
+        target[props.fieldName] = newValue;
+    }
+    emits("update:form", target);
+};
 </script>
 <template>
     <div class="relative">
         <div class="relative">
-            <input
-                v-model.trim="form[fieldName]"
-                :readonly="fieldData.readonly"
-                :type="props.options?.type ?? 'text'" @input="form.errors[fieldName] = ''"
-                :placeholder="fieldData?.placeholder"
-                class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md read-only:bg-gray-100 read-only:ring-0 read-only:ring-transparent read-only:text-gray-500"
-            />
-            <div v-if="fieldData.copyButton" class="absolute inset-y-0 right-0 group cursor-pointer px-1.5 flex justify-center items-center text-gray-600"
-                @click="copyText(form[fieldName])">
-                <FontAwesomeIcon
-                    icon="fal fa-copy"
-                    class="text-lg leading-none mr-1 opacity-20 group-hover:opacity-75 group-active:opacity-100"
-                    aria-hidden="true"
-                />
-            </div>
-            <div v-if="form.errors[fieldName] || form.recentlySuccessful"
-                class="absolute inset-y-2/4 right-0 pr-3 flex items-center pointer-events-none">
-                <FontAwesomeIcon icon="fas fa-exclamation-circle" v-if="form.errors[fieldName]" class="h-5 w-5 text-red-500"
-                    aria-hidden="true" />
-                <FontAwesomeIcon icon="fas fa-check-circle" v-if="form.recentlySuccessful"
-                    class="mt-1.5  h-5 w-5 text-green-500" aria-hidden="true" />
-            </div>
+            <PureInput v-model="value" :inputName="fieldName" :readonly="fieldData?.readonly"
+                :type="fieldData?.type ?? 'text'" :placeholder="fieldData?.placeholder" :maxlength="fieldData?.maxLength"
+                :copyButton="fieldData?.copyButton">
+                <!-- Icon: Error, Success, Loading -->
+                <template #stateIcon>
+                    <div class="mr-2 h-full flex items-center pointer-events-none">
+                        <FontAwesomeIcon v-if="get(form, ['errors', `${fieldName}`])" icon="fas fa-exclamation-circle"
+                            class="h-5 w-5 text-red-500" aria-hidden="true" />
+                        <FontAwesomeIcon v-if="form.recentlySuccessful" icon="fas fa-check-circle"
+                            class="h-5 w-5 text-green-500" aria-hidden="true" />
+                        <FontAwesomeIcon v-if="form.processing" icon="fad fa-spinner-third" class="h-5 w-5 animate-spin" />
+                    </div>
+                </template>
+            </PureInput>
+
+
         </div>
 
         <!-- Counter: Letters and Words -->
-        <div v-if="props.options?.counter" class="grid grid-flow-col text-xs italic text-gray-500 mt-2 space-x-12 justify-start">
+        <div v-if="props.options?.counter"
+            class="grid grid-flow-col text-xs italic text-gray-500 mt-2 space-x-12 justify-start">
+            <p class="">Letters: {{ form[fieldName]?.length ?? 0 }}</p>
             <p class="">
-                Letters: {{ form[fieldName].length }}
-            </p>
-            <p class="">
-                Words: {{ form[fieldName].trim().split(/\s+/).filter(Boolean).length }}
+                Words: {{ form[fieldName]?.trim().split(/\s+/).filter(Boolean).length ?? 0 }}
             </p>
         </div>
     </div>
-    <p v-if="form.errors[fieldName]" class="mt-2 text-sm text-red-600" :id="`${fieldName}-error`">{{ form.errors[fieldName] }}</p>
+    <p v-if="get(form, ['errors', `${fieldName}`])" class="mt-2 text-sm text-red-600" :id="`${fieldName}-error`">
+        {{ form.errors[fieldName] }}
+    </p>
 </template>
-
-
