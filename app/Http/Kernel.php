@@ -14,7 +14,7 @@ use App\Http\Middleware\EncryptCookies;
 use App\Http\Middleware\ForceJsonResponse;
 use App\Http\Middleware\HandlePublicInertiaRequests;
 use App\Http\Middleware\SetLocale;
-use App\Http\Middleware\HandleInertiaRequests;
+use App\Http\Middleware\HandleInertiaGrpRequests;
 use App\Http\Middleware\PreventRequestsDuringMaintenance;
 use App\Http\Middleware\RedirectIfAuthenticated;
 use App\Http\Middleware\TrimStrings;
@@ -41,13 +41,6 @@ use Monicahq\Cloudflare\Http\Middleware\TrustProxies;
 
 class Kernel extends HttpKernel
 {
-    /**
-     * The application's global HTTP middleware stack.
-     *
-     * These middleware are run during every request to your application.
-     *
-     * @var array<int, class-string|string>
-     */
     protected $middleware = [
         // \App\Http\Middleware\TrustHosts::class,
         TrustProxies::class,
@@ -58,11 +51,6 @@ class Kernel extends HttpKernel
         ConvertEmptyStringsToNull::class,
     ];
 
-    /**
-     * The application's route middleware groups.
-     *
-     * @var array<string, array<int, class-string|string>>
-     */
     protected $middlewareGroups = [
 
         'public'   => [
@@ -75,6 +63,17 @@ class Kernel extends HttpKernel
             HandlePublicInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
         ],
+        'grp'   => [
+            EncryptCookies::class,
+            AddQueuedCookiesToResponse::class,
+            StartSession::class,
+            ShareErrorsFromSession::class,
+            VerifyCsrfToken::class,
+            SubstituteBindings::class,
+            HandleInertiaGrpRequests::class,
+            AddLinkHeadersForPreloadedAssets::class,
+        ],
+
         'webhooks-api' => [
             ForceJsonResponse::class,
             EnsureFrontendRequestsAreStateful::class,
@@ -105,7 +104,7 @@ class Kernel extends HttpKernel
             ShareErrorsFromSession::class,
             VerifyCsrfToken::class,
             SubstituteBindings::class,
-            HandleInertiaRequests::class,
+           // HandleInertiaRequests::class,
             SetLocale::class,
             LogUserRequestMiddleware::class,
             LogUserFirebaseMiddleware::class
@@ -118,7 +117,7 @@ class Kernel extends HttpKernel
             ShareErrorsFromSession::class,
             VerifyCsrfToken::class,
             SubstituteBindings::class,
-            HandleInertiaRequests::class,
+           // HandleInertiaRequests::class,
             SetLocale::class,
             LogUserRequestMiddleware::class,
             LogUserFirebaseMiddleware::class
@@ -152,7 +151,7 @@ class Kernel extends HttpKernel
         'signed'           => ValidateSignature::class,
         'throttle'         => ThrottleRequests::class,
         'verified'         => EnsureEmailIsVerified::class,
-        'inertia'          => HandleInertiaRequests::class,
+        'inertia'          => HandleInertiaGrpRequests::class,
 
     ];
 }

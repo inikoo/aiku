@@ -16,8 +16,8 @@ trait HasUIAgents
         return array_merge(
             (new ProcurementDashboard())->getBreadcrumbs(),
             [
-                'procurement.agents.index' => [
-                    'route'      => 'procurement.agents.index',
+                'grp.procurement.agents.index' => [
+                    'route'      => 'grp.procurement.agents.index',
                     'modelLabel' => [
                         'label' => __('agents')
                     ],

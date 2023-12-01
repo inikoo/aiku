@@ -8,4 +8,4 @@
 use App\Actions\Media\ShowMedia;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/{media}', ShowMedia::class)->name('.show');
+Route::get('/{media}', ShowMedia::class)->name('show');

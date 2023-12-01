@@ -159,24 +159,24 @@ class IndexSupplierProducts extends InertiaAction
         };
 
         return match ($routeName) {
-            'procurement.supplier-products.index'            =>
+            'grp.procurement.supplier-products.index'            =>
             array_merge(
                 ProcurementDashboard::make()->getBreadcrumbs(),
                 $headCrumb(
                     [
-                        'name'=> 'procurement.supplier-products.index',
+                        'name'=> 'grp.procurement.supplier-products.index',
                         null
                     ]
                 ),
             ),
 
 
-            'procurement.agents.show.supplier-products.index' =>
+            'grp.procurement.agents.show.supplier-products.index' =>
             array_merge(
                 (new ShowAgent())->getBreadcrumbs($routeParameters['supplierProduct']),
                 $headCrumb(
                     [
-                        'name'      => 'procurement.agents.show.supplier-products.index',
+                        'name'      => 'grp.procurement.agents.show.supplier-products.index',
                         'parameters'=>
                             [
                                 $routeParameters['supplierProduct']->slug

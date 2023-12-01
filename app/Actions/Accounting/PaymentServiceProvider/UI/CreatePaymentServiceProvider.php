@@ -34,7 +34,7 @@ class CreatePaymentServiceProvider extends InertiaAction
                             'style' => 'cancel',
                             'label' => __('cancel'),
                             'route' => [
-                                'name'       => 'accounting.payment-service-providers.index',
+                                'name'       => 'grp.accounting.payment-service-providers.index',
                                 'parameters' => array_values($this->originalParameters)
                             ],
                         ]
@@ -74,7 +74,7 @@ class CreatePaymentServiceProvider extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->can('inventory.warehouses.edit');
+        return $request->user()->hasPermissionTo('inventory.warehouses.edit');
     }
 
 

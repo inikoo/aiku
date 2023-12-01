@@ -127,7 +127,7 @@ class IndexEmployees extends InertiaAction
                             'tooltip' => __('new employee'),
                             'label'   => __('employee'),
                             'route'   => [
-                                'name'       => 'hr.employees.create',
+                                'name'       => 'grp.hr.employees.create',
                                 'parameters' => array_values($this->originalParameters)
                             ]
                         ] : null
@@ -143,7 +143,7 @@ class IndexEmployees extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('hr.edit');
+        $this->canEdit = $request->user()->hasPermissionTo('hr.edit');
 
         return
             (
@@ -174,7 +174,7 @@ class IndexEmployees extends InertiaAction
                             'style' => 'create',
                             'label' => __('employee'),
                             'route' => [
-                                'name'       => 'hr.employees.create',
+                                'name'       => 'grp.hr.employees.create',
                                 'parameters' => array_values($this->originalParameters)
                             ]
                         ] : false
@@ -203,7 +203,7 @@ class IndexEmployees extends InertiaAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => [
-                            'name' => 'hr.employees.index'
+                            'name' => 'grp.hr.employees.index'
                         ],
                         'label' => __('employees'),
                         'icon'  => 'fal fa-bars',

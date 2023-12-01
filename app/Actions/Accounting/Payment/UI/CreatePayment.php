@@ -28,8 +28,8 @@ class CreatePayment extends InertiaAction
                     'cancelCreate' => [
                         'route' => [
                             'name' => match ($request->route()->getName()) {
-                                'accounting.payment-accounts.show.payments.create' => 'accounting.payment-accounts.show',
-                                default                                            => preg_replace('/create$/', 'index', $request->route()->getName())
+                                'grp.accounting.payment-accounts.show.payments.create' => 'grp.accounting.payment-accounts.show',
+                                default                                                => preg_replace('/create$/', 'index', $request->route()->getName())
                             },
                             'parameters' => array_values($this->originalParameters)
                         ]
@@ -94,7 +94,7 @@ class CreatePayment extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->can('accounting.edit');
+        return $request->user()->hasPermissionTo('accounting.edit');
     }
 
 

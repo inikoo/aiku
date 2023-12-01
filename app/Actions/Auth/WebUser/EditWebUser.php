@@ -49,8 +49,8 @@ class EditWebUser extends InertiaAction
     public function htmlResponse(WebUser $webUser, ActionRequest $request): Response
     {
         $scope     = match ($request->route()->getName()) {
-            'crm.customers.show.web-users.edit' => $request->route()->parameters()['customer'],
-            default                             => app('currentTenant')
+            'grp.crm.customers.show.web-users.edit' => $request->route()->parameters()['customer'],
+            default                                 => app('currentTenant')
         };
         $container = null;
         if (class_basename($scope) == 'Customer') {

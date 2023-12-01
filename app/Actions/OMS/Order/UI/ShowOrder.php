@@ -39,7 +39,7 @@ class ShowOrder extends InertiaAction
     public function authorize(ActionRequest $request): bool
     {
         //TODO Change permission
-        $this->canEdit = $request->user()->can('shops.orders.edit');
+        $this->canEdit = $request->user()->hasPermissionTo('shops.orders.edit');
 
         return $request->user()->hasPermissionTo("shops.orders.view");
     }
@@ -122,8 +122,8 @@ class ShowOrder extends InertiaAction
     {
         $this->fillFromRequest($request);
 
-        $this->set('canEdit', $request->user()->can('hr.edit'));
-        $this->set('canViewUsers', $request->user()->can('users.view'));
+        $this->set('canEdit', $request->user()->hasPermissionTo('hr.edit'));
+        $this->set('canViewUsers', $request->user()->hasPermissionTo('users.view'));
     }
 
     public function jsonResponse(Order $order): OrderResource

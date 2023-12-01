@@ -59,7 +59,7 @@ class IndexJobPositions extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('hr.edit');
+        $this->canEdit = $request->user()->hasPermissionTo('hr.edit');
         return
             (
                 $request->user()->tokenCan('root') or
@@ -97,7 +97,7 @@ class IndexJobPositions extends InertiaAction
                             'tooltip' => __('new job position'),
                             'label'   => __('job position'),
                             'route'   => [
-                                'name'       => 'hr.job-positions.create',
+                                'name'       => 'grp.hr.job-positions.create',
                                 'parameters' => array_values($this->originalParameters)
                             ]
                         ] : null
@@ -125,7 +125,7 @@ class IndexJobPositions extends InertiaAction
                             'style' => 'create',
                             'label' => __('job position'),
                             'route' => [
-                                'name'       => 'hr.job-positions.create',
+                                'name'       => 'grp.hr.job-positions.create',
                                 'parameters' => array_values($this->originalParameters)
                             ]
                         ] : false
@@ -156,7 +156,7 @@ class IndexJobPositions extends InertiaAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => [
-                            'name' => 'hr.job-positions.index'
+                            'name' => 'grp.hr.job-positions.index'
                         ],
                         'label' => __('positions'),
                         'icon'  => 'fal fa-bars',

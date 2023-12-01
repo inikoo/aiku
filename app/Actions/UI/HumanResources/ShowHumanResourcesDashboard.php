@@ -49,12 +49,12 @@ class ShowHumanResourcesDashboard
                     [
                         'name' => __('employees'),
                         'stat' => $organisation->stats->number_employees,
-                        'href' => ['hr.employees.index']
+                        'href' => ['grp.hr.employees.index']
                     ],
                     [
                         'name' => __('working places'),
                         'stat' => $organisation->stats->number_employees_state_working,
-                        'href' => ['hr.working-places.index']
+                        'href' => ['grp.hr.working-places.index']
                     ]
                 ]
 
@@ -72,7 +72,7 @@ class ShowHumanResourcesDashboard
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name' => 'hr.dashboard'
+                                'name' => 'grp.hr.dashboard'
                             ],
                             'label' => __('human resources'),
                         ]

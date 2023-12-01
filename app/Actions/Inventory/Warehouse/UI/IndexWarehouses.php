@@ -29,7 +29,7 @@ class IndexWarehouses extends InertiaAction
 {
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('inventory.warehouses.edit');
+        $this->canEdit = $request->user()->hasPermissionTo('inventory.warehouses.edit');
         return
             (
                 $request->user()->tokenCan('root') or
@@ -105,7 +105,7 @@ class IndexWarehouses extends InertiaAction
                             'tooltip' => __('new warehouse'),
                             'label'   => __('warehouse'),
                             'route'   => [
-                                'name'       => 'inventory.warehouses.create',
+                                'name'       => 'grp.inventory.warehouses.create',
                                 'parameters' => array_values($this->originalParameters)
                             ]
                         ] : null
@@ -142,13 +142,13 @@ class IndexWarehouses extends InertiaAction
                         'icon'  => 'fal fa-warehouse'
                     ],
                     'actions'=> [
-                        $this->canEdit && $this->routeName == 'inventory.warehouses.index' ? [
+                        $this->canEdit && $this->routeName == 'grp.inventory.warehouses.index' ? [
                             'type'    => 'button',
                             'style'   => 'create',
                             'tooltip' => __('new warehouse'),
                             'label'   => __('warehouse'),
                             'route'   => [
-                                'name'       => 'inventory.warehouses.create',
+                                'name'       => 'grp.inventory.warehouses.create',
                                 'parameters' => array_values($this->originalParameters)
                             ]
                         ] : false,
@@ -168,7 +168,7 @@ class IndexWarehouses extends InertiaAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => [
-                            'name' => 'inventory.warehouses.index'
+                            'name' => 'grp.inventory.warehouses.index'
                         ],
                         'label' => __('warehouses'),
                         'icon'  => 'fal fa-bars',

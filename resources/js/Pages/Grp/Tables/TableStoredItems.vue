@@ -15,13 +15,13 @@ const props = defineProps<{
 
 function storedItemRoute(storedItem) {
     switch (route().current()) {
-        case 'fulfilment.stored-items.index':
+        case 'grp.fulfilment.stored-items.index':
             return route(
-                'fulfilment.stored-items.show',
+                'grp.fulfilment.stored-items.show',
                 [storedItem.slug]);
         default:
             return route(
-                'fulfilment.stored-items.show',
+                'grp.fulfilment.stored-items.show',
                 [storedItem.slug]);
     }
 }

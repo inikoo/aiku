@@ -27,7 +27,7 @@ class EditSupplier extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('procurement.edit');
+        $this->canEdit = $request->user()->hasPermissionTo('procurement.edit');
 
         return $request->user()->hasPermissionTo("procurement.view");
     }
@@ -284,7 +284,7 @@ class EditSupplier extends InertiaAction
     public function getPrevious(Supplier $supplier, ActionRequest $request): ?array
     {
         $previous = Supplier::where('code', '<', $supplier->code)->when(true, function ($query) use ($supplier, $request) {
-            if ($request->route()->getName() == 'procurement.marketplace.agents.show.suppliers.show') {
+            if ($request->route()->getName() == 'grp.procurement.marketplace.agents.show.suppliers.show') {
                 $query->where('suppliers.agent_id', $supplier->agent_id);
             }
         })->orderBy('code', 'desc')->first();
@@ -296,7 +296,7 @@ class EditSupplier extends InertiaAction
     public function getNext(Supplier $supplier, ActionRequest $request): ?array
     {
         $next = Supplier::where('code', '>', $supplier->code)->when(true, function ($query) use ($supplier, $request) {
-            if ($request->route()->getName() == 'procurement.agents.show.suppliers.show') {
+            if ($request->route()->getName() == 'grp.procurement.agents.show.suppliers.show') {
                 $query->where('suppliers.agent_id', $supplier->agent_id);
             }
         })->orderBy('code')->first();
@@ -311,7 +311,7 @@ class EditSupplier extends InertiaAction
         }
 
         return match ($routeName) {
-            'procurement.suppliers.edit'=> [
+            'grp.procurement.suppliers.edit'=> [
                 'label'=> $supplier->name,
                 'route'=> [
                     'name'      => $routeName,
@@ -321,7 +321,7 @@ class EditSupplier extends InertiaAction
 
                 ]
             ],
-            'procurement.agents.show.suppliers.edit' => [
+            'grp.procurement.agents.show.suppliers.edit' => [
                 'label'=> $supplier->name,
                 'route'=> [
                     'name'      => $routeName,

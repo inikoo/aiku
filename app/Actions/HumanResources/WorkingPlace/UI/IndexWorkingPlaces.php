@@ -81,7 +81,7 @@ class IndexWorkingPlaces extends InertiaAction
                             'tooltip' => __('new working place'),
                             'label'   => __('working place'),
                             'route'   => [
-                                'name'       => 'hr.working-places.create',
+                                'name'       => 'grp.hr.working-places.create',
                                 'parameters' => array_values($this->originalParameters)
                             ]
                         ] : null
@@ -96,7 +96,7 @@ class IndexWorkingPlaces extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('hr.working-places.edit');
+        $this->canEdit = $request->user()->hasPermissionTo('hr.working-places.edit');
 
         return
             (
@@ -128,7 +128,7 @@ class IndexWorkingPlaces extends InertiaAction
                             'style' => 'create',
                             'label' => __('working place'),
                             'route' => [
-                                'name'       => 'hr.working-places.create',
+                                'name'       => 'grp.hr.working-places.create',
                                 'parameters' => array_values($this->originalParameters)
                             ]
                         ] : false
@@ -161,7 +161,7 @@ class IndexWorkingPlaces extends InertiaAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => [
-                            'name' => 'hr.working-places.index'
+                            'name' => 'grp.hr.working-places.index'
                         ],
                         'label' => __('working places'),
                         'icon'  => 'fal fa-bars',

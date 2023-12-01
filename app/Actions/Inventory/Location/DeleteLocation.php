@@ -70,7 +70,7 @@ class DeleteLocation
     {
         if (class_basename($parent::class) == 'WarehouseArea') {
             return Redirect::route(
-                route: 'hr.working-place.show.clocking-machines.show.locations.index',
+                route: 'grp.hr.working-place.show.clocking-machines.show.locations.index',
                 parameters: [
                     'warehouse'       => $parent->warehouse->slug,
                     'warehouseArea'   => $parent->slug
@@ -79,13 +79,13 @@ class DeleteLocation
 
         } elseif (class_basename($parent::class) == 'Warehouse') {
             return Redirect::route(
-                route: 'inventory.warehouse-areas.show.locations.index',
+                route: 'grp.inventory.warehouse-areas.show.locations.index',
                 parameters: [
                     'warehouse' => $parent->slug
                 ]
             );
         } else {
-            return Redirect::route('inventory.locations.index');
+            return Redirect::route('grp.inventory.locations.index');
         }
     }
 

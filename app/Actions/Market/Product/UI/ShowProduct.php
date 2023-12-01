@@ -33,8 +33,8 @@ class ShowProduct extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit   = $request->user()->can('shops.products.edit');
-        $this->canDelete = $request->user()->can('shops.products.edit');
+        $this->canEdit   = $request->user()->hasPermissionTo('shops.products.edit');
+        $this->canDelete = $request->user()->hasPermissionTo('shops.products.edit');
 
         return $request->user()->hasPermissionTo("shops.products.view");
     }

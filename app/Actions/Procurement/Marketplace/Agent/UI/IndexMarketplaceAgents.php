@@ -87,7 +87,7 @@ class IndexMarketplaceAgents extends InertiaAction
                             'tooltip' => __('new agent'),
                             'label'   => __('agent'),
                             'route'   => [
-                                'name'       => 'procurement.marketplace.agents.create',
+                                'name'       => 'grp.procurement.marketplace.agents.create',
                                 'parameters' => array_values($this->originalParameters)
                             ]
                         ] : null
@@ -109,7 +109,7 @@ class IndexMarketplaceAgents extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('procurement.edit');
+        $this->canEdit = $request->user()->hasPermissionTo('procurement.edit');
 
         return
             (
@@ -146,13 +146,13 @@ class IndexMarketplaceAgents extends InertiaAction
                     'title'  => __("agent's marketplace"),
 
                     'actions'=> [
-                        $this->canEdit && $this->routeName == 'procurement.marketplace.agents.index' ? [
+                        $this->canEdit && $this->routeName == 'grp.procurement.marketplace.agents.index' ? [
                             'type'    => 'button',
                             'style'   => 'create',
                             'tooltip' => __('new agent'),
                             'label'   => __('agent'),
                             'route'   => [
-                                'name'       => 'procurement.marketplace.agents.create',
+                                'name'       => 'grp.procurement.marketplace.agents.create',
                                 'parameters' => array_values($this->originalParameters)
                             ]
                         ] : false,
@@ -173,7 +173,7 @@ class IndexMarketplaceAgents extends InertiaAction
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name' => 'procurement.marketplace.agents.index'
+                                'name' => 'grp.procurement.marketplace.agents.index'
                             ],
                             'label' => __("agent's marketplace"),
                             'icon'  => 'fal fa-bars'

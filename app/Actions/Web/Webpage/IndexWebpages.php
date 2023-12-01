@@ -180,27 +180,27 @@ class IndexWebpages extends InertiaAction
         };
 
         return match ($routeName) {
-            'web.webpages.index' =>
+            'grp.web.webpages.index' =>
             array_merge(
                 ShowDashboard::make()->getBreadcrumbs(),
                 $headCrumb(
                     [
-                        'name' => 'web.webpages.index',
+                        'name' => 'grp.web.webpages.index',
                         null
                     ]
                 ),
             ),
 
 
-            'web.websites.show.webpages.index' =>
+            'grp.web.websites.show.webpages.index' =>
             array_merge(
                 (new ShowWebsite())->getBreadcrumbs(
-                    'web.websites.show',
+                    'grp.web.websites.show',
                     $routeParameters
                 ),
                 $headCrumb(
                     [
-                        'name'       => 'web.websites.show.webpages.index',
+                        'name'       => 'grp.web.websites.show.webpages.index',
                         'parameters' => $routeParameters
                     ]
                 )

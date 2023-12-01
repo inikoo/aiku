@@ -96,7 +96,7 @@ class IndexFulfilmentOrders extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('shops.products.edit');
+        $this->canEdit = $request->user()->hasPermissionTo('shops.products.edit');
 
         return
             (
@@ -166,7 +166,7 @@ class IndexFulfilmentOrders extends InertiaAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => [
-                            'name' => 'fulfilment.orders.index'
+                            'name' => 'grp.fulfilment.orders.index'
                         ],
                         'label' => __('orders'),
                         'icon'  => 'fal fa-bars',

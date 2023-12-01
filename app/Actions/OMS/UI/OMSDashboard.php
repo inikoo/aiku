@@ -75,7 +75,7 @@ class OMSDashboard
 
         // dd($routeParameters);
         return match ($routeName) {
-            'oms.shops.show.dashboard' =>
+            'grp.oms.shops.show.dashboard' =>
             array_merge(
                 ShowDashboard::make()->getBreadcrumbs(),
                 [
@@ -83,7 +83,7 @@ class OMSDashboard
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name'       => 'oms.shops.show.dashboard',
+                                'name'       => 'grp.oms.shops.show.dashboard',
                                 'parameters' => $routeParameters
                             ],
                             'label' => __('OMS').' ('.$routeParameters['shop']->code.')',
@@ -99,7 +99,7 @@ class OMSDashboard
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name' => 'oms.dashboard'
+                                'name' => 'grp.oms.dashboard'
                             ],
                             'label' => __('OMS').' ('.__('all shops').')',
                         ]

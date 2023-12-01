@@ -132,7 +132,7 @@ class CreateOrder extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->can('shops.orders.edit');
+        return $request->user()->hasPermissionTo('shops.orders.edit');
     }
 
 

@@ -10,7 +10,7 @@ const form = useForm({
 });
 
 const submit = () => {
-    form.post(route('register'), {
+    form.post(route('grp.register'), {
         onFinish: () => form.reset('password'),
     });
 };
@@ -22,14 +22,14 @@ const submit = () => {
     <Head title="Register" />
     <div class="min-h-full flex flex-col justify-center py-12 sm:px-6 lg:px-8">
         <div class="sm:mx-auto sm:w-full sm:max-w-md">
-            <Link :href="route('welcome')">
+            <Link :href="route('grp.welcome')">
             <img class="mx-auto h-12 w-auto" src="art/new-logo-name.png" alt="Aiku" />
             </Link>
             <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">Create a new account</h2>
             <p class="mt-2 text-center text-sm text-gray-600">
                 Existing user?
                 {{ ' ' }}
-                <Link :href="route('login')" class="font-medium text-indigo-600 hover:text-indigo-500"> log in </Link>
+                <Link :href="route('grp.login')" class="font-medium text-indigo-600 hover:text-indigo-500"> log in </Link>
             </p>
         </div>
 

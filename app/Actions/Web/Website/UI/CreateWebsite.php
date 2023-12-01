@@ -23,7 +23,7 @@ class CreateWebsite extends InertiaAction
 {
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->can('shops.edit');
+        return $request->user()->hasPermissionTo('shops.edit');
     }
 
 
@@ -44,7 +44,7 @@ class CreateWebsite extends InertiaAction
     {
         $this->initialisation($request);
         if ($shop->website) {
-            return Redirect::route('web.websites.show', [
+            return Redirect::route('grp.web.websites.show', [
                 $shop->website->slug
             ]);
         }
@@ -163,7 +163,7 @@ class CreateWebsite extends InertiaAction
             ),
             'Organisation' => array_merge(
                 IndexWebsites::make()->getBreadcrumbs(
-                    'web.websites.index',
+                    'grp.web.websites.index',
                     []
                 ),
                 [

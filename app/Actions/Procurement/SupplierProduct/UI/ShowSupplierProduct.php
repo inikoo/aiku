@@ -34,7 +34,7 @@ class ShowSupplierProduct extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('procurement.suppliers.edit');
+        $this->canEdit = $request->user()->hasPermissionTo('procurement.suppliers.edit');
 
         return $request->user()->hasPermissionTo("procurement.view");
     }
@@ -123,13 +123,13 @@ class ShowSupplierProduct extends InertiaAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => [
-                                'name' => 'procurement.supplier-products.index',
+                                'name' => 'grp.procurement.supplier-products.index',
                             ],
                             'label' => __('supplierProduct')
                         ],
                         'model' => [
                             'route' => [
-                                'name'       => 'procurement.supplier-products.show',
+                                'name'       => 'grp.procurement.supplier-products.show',
                                 'parameters' => [$supplierProduct->slug]
                             ],
                             'label' => $supplierProduct->name,
@@ -147,9 +147,9 @@ class ShowSupplierProduct extends InertiaAction
         $query = SupplierProduct::where('code', '<', $supplierProduct->code);
 
         $query = match ($request->route()->getName()) {
-            'procurement.agents.show.supplier-products.show' => $query->where('supplier_products.agent_id', $request->route()->parameters['agent']->id),
-            'procurement.agents.show.show.supplier.supplier-products.show',
-            'procurement.supplier.supplier-products.show' => $query->where('supplier_products.supplier_id', $request->route()->parameters['supplier']->id),
+            'grp.procurement.agents.show.supplier-products.show' => $query->where('supplier_products.agent_id', $request->route()->parameters['agent']->id),
+            'grp.procurement.agents.show.show.supplier.supplier-products.show',
+            'grp.procurement.supplier.supplier-products.show' => $query->where('supplier_products.supplier_id', $request->route()->parameters['supplier']->id),
 
             default => $query
         };
@@ -165,9 +165,9 @@ class ShowSupplierProduct extends InertiaAction
         $query = SupplierProduct::where('code', '>', $supplierProduct->code);
 
         $query = match ($request->route()->getName()) {
-            'procurement.agents.show.supplier-products.show' => $query->where('supplier_products.agent_id', $request->route()->parameters['agent']->id),
-            'procurement.agents.show.show.supplier.supplier-products.show',
-            'procurement.supplier.supplier-products.show' => $query->where('supplier_products.supplier_id', $request->route()->parameters['supplier']->id),
+            'grp.procurement.agents.show.supplier-products.show' => $query->where('supplier_products.agent_id', $request->route()->parameters['agent']->id),
+            'grp.procurement.agents.show.show.supplier.supplier-products.show',
+            'grp.procurement.supplier.supplier-products.show' => $query->where('supplier_products.supplier_id', $request->route()->parameters['supplier']->id),
 
             default => $query
         };
@@ -184,7 +184,7 @@ class ShowSupplierProduct extends InertiaAction
         }
 
         return match ($routeName) {
-            'procurement.supplier-products.show' => [
+            'grp.procurement.supplier-products.show' => [
                 'label' => $supplierProduct->code,
                 'route' => [
                     'name'       => $routeName,
@@ -194,7 +194,7 @@ class ShowSupplierProduct extends InertiaAction
 
                 ]
             ],
-            'procurement.agents.show.supplier-products.show' => [
+            'grp.procurement.agents.show.supplier-products.show' => [
                 'label' => $supplierProduct->code,
                 'route' => [
                     'name'       => $routeName,

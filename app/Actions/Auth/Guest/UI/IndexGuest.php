@@ -110,7 +110,7 @@ class IndexGuest extends InertiaAction
                             'tooltip' => __('new guest'),
                             'label'   => __('guest'),
                             'route'   => [
-                                'name'       => 'sysadmin.guests.create',
+                                'name'       => 'grp.sysadmin.guests.create',
                                 'parameters' => array_values($this->originalParameters)
                             ]
                         ] : null
@@ -126,7 +126,7 @@ class IndexGuest extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('sysadmin.guests.edit');
+        $this->canEdit = $request->user()->hasPermissionTo('sysadmin.guests.edit');
 
         return
             (
@@ -152,13 +152,13 @@ class IndexGuest extends InertiaAction
                 'pageHead'    => [
                     'title'  => __('guests'),
                     'actions'=> [
-                        $this->canEdit && $this->routeName == 'sysadmin.guests.index' ? [
+                        $this->canEdit && $this->routeName == 'grp.sysadmin.guests.index' ? [
                             'type'  => 'button',
                             'style' => 'create',
                             'label' => __('guest'),
                             'route' => [
 
-                                'name'       => 'sysadmin.guests.create',
+                                'name'       => 'grp.sysadmin.guests.create',
                                 'parameters' => array_values($this->originalParameters)
                             ]
 
@@ -187,7 +187,7 @@ class IndexGuest extends InertiaAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => [
-                            'name' => 'sysadmin.guests.index',
+                            'name' => 'grp.sysadmin.guests.index',
                         ],
                         'label' => __('guests'),
                         'icon'  => 'fal fa-bars',

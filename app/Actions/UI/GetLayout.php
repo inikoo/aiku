@@ -24,7 +24,7 @@ class GetLayout
     {
         $navigation = [];
 
-        if ($user->can('business-intelligence.view')) {
+        if ($user->hasPermissionTo('business-intelligence.view')) {
             $navigation['business_intelligence'] = [
                 'label' => __('Business Intelligence'),
 
@@ -32,8 +32,8 @@ class GetLayout
                 'icon'  => ['fal', 'fa-lightbulb'],
 
                 'route' => [
-                    'all'      => 'business_intelligence.dashboard',
-                    'selected' => 'business_intelligence.shops.show.dashboard'
+                    'all'      => 'grp.business_intelligence.dashboard',
+                    'selected' => 'grp.business_intelligence.shops.show.dashboard'
                 ],
 
                 'topMenu' => [
@@ -48,8 +48,8 @@ class GetLayout
                                 'icon'  => ['fal', 'fa-tasks-alt'],
                                 'route' =>
                                     [
-                                        'all'      => ['business_intelligence.dashboard'],
-                                        'selected' => ['business_intelligence.shops.show.dashboard'],
+                                        'all'      => ['grp.business_intelligence.dashboard'],
+                                        'selected' => ['grp.business_intelligence.shops.show.dashboard'],
 
                                     ]
                             ],
@@ -61,7 +61,7 @@ class GetLayout
             ];
         }
 
-        if ($user->can('shops.view')) {
+        if ($user->hasPermissionTo('shops.view')) {
             $navigation['shops'] = [
                 'scope' => 'shops',
                 'icon'  => ['fal', 'fa-store-alt'],
@@ -72,7 +72,7 @@ class GetLayout
 
                 ],
                 'route' => [
-                    'all'      => 'shops.index',
+                    'all'      => 'grp.shops.index',
                     'selected' => 'shops.show'
                 ],
 
@@ -86,8 +86,8 @@ class GetLayout
                                 'tooltip' => __('shops'),
                                 'icon'    => ['fal', 'fa-store-alt'],
                                 'route'   => [
-                                    'all'      => 'shops.index',
-                                    'selected' => 'shops.show',
+                                    'all'      => 'grp.shops.index',
+                                    'selected' => 'grp.shops.show',
 
                                 ],
                                 'label'   => [
@@ -102,8 +102,8 @@ class GetLayout
                                 'tooltip' => __('Departments'),
                                 'icon'    => ['fal', 'fa-folder-tree'],
                                 'route'   => [
-                                    'all'      => 'shops.departments.index',
-                                    'selected' => 'shops.show.departments.index',
+                                    'all'      => 'grp.shops.departments.index',
+                                    'selected' => 'grp.shops.show.departments.index',
                                 ]
                             ],
                             [
@@ -111,8 +111,8 @@ class GetLayout
                                 'tooltip' => __('Families'),
                                 'icon'    => ['fal', 'fa-folder'],
                                 'route'   => [
-                                    'all'      => 'shops.families.index',
-                                    'selected' => 'shops.show.families.index',
+                                    'all'      => 'grp.shops.families.index',
+                                    'selected' => 'grp.shops.show.families.index',
                                 ]
                             ],
                             [
@@ -120,8 +120,8 @@ class GetLayout
                                 'tooltip' => __('Products'),
                                 'icon'    => ['fal', 'fa-cube'],
                                 'route'   => [
-                                    'all'      => 'shops.products.index',
-                                    'selected' => 'shops.show.products.index',
+                                    'all'      => 'grp.shops.products.index',
+                                    'selected' => 'grp.shops.show.products.index',
                                 ]
                             ],
                         ]
@@ -132,7 +132,7 @@ class GetLayout
             ];
         }
 
-        if ($user->can('websites.view')) {
+        if ($user->hasPermissionTo('websites.view')) {
             $navigation['web'] = [
                 'scope' => 'websites',
                 'icon'  => ['fal', 'fa-globe'],
@@ -142,8 +142,8 @@ class GetLayout
 
                 ],
                 'route' => [
-                    'all'      => 'web.dashboard',
-                    'selected' => 'web.websites.dashboard'
+                    'all'      => 'grp.web.dashboard',
+                    'selected' => 'grp.web.websites.dashboard'
                 ],
 
 
@@ -153,7 +153,7 @@ class GetLayout
                         [
                             'icon'  => ['fal', 'fa-chart-network'],
                             'route' => [
-                                'name' => 'web.dashboard',
+                                'name' => 'grp.web.dashboard',
                             ]
                         ],
                     ],
@@ -165,8 +165,8 @@ class GetLayout
                                 'tooltip' => __('websites'),
                                 'icon'    => ['fal', 'fa-globe'],
                                 'route'   => [
-                                    'all'      => 'web.websites.index',
-                                    'selected' => 'web.websites.show',
+                                    'all'      => 'grp.web.websites.index',
+                                    'selected' => 'grp.web.websites.show',
 
                                 ],
                                 'label'   => [
@@ -180,8 +180,8 @@ class GetLayout
                                 'tooltip' => __('Webpages'),
                                 'icon'    => ['fal', 'fa-browser'],
                                 'route'   => [
-                                    'all'      => ['web.webpages.index'],
-                                    'selected' => ['web.websites.show.webpages.index'],
+                                    'all'      => ['grp.web.webpages.index'],
+                                    'selected' => ['grp.web.websites.show.webpages.index'],
 
                                 ]
                             ],
@@ -194,12 +194,12 @@ class GetLayout
             ];
         }
 
-        if ($user->can('marketing.view')) {
+        if ($user->hasPermissionTo('marketing.view')) {
             $navigation['marketing'] = [
                 'scope'   => 'shops',
                 'label'   => __('Marketing'),
                 'icon'    => ['fal', 'fa-bullhorn'],
-                'route'   => 'marketing.hub',
+                'route'   => 'grp.marketing.hub',
                 'topMenu' => [
                     'subSections' => [],
                     'dropdown'    => [
@@ -210,15 +210,15 @@ class GetLayout
             ];
         }
 
-        if ($user->can('crm.view')) {
+        if ($user->hasPermissionTo('crm.view')) {
             $navigation['crm'] = [
                 'scope' => 'shops',
                 'label' => __('Customers'),
                 'icon'  => ['fal', 'fa-user'],
 
                 'route'   => [
-                    'all'      => 'crm.dashboard',
-                    'selected' => 'crm.shops.show.dashboard',
+                    'all'      => 'grp.crm.dashboard',
+                    'selected' => 'grp.crm.shops.show.dashboard',
                 ],
                 'topMenu' => [
                     'dropdown' => [
@@ -228,8 +228,8 @@ class GetLayout
                                 'icon'    => ['fal', 'fa-chart-network'],
                                 'route'   =>
                                     [
-                                        'all'      => ['crm.dashboard'],
-                                        'selected' => ['crm.shops.show.dashboard'],
+                                        'all'      => ['grp.crm.dashboard'],
+                                        'selected' => ['grp.crm.shops.show.dashboard'],
                                     ]
                             ],
                             [
@@ -237,8 +237,8 @@ class GetLayout
                                 'tooltip' => __('Customers'),
                                 'icon'    => ['fal', 'fa-user'],
                                 'route'   => [
-                                    'all'      => ['crm.customers.index'],
-                                    'selected' => ['crm.shops.show.customers.index'],
+                                    'all'      => ['grp.crm.customers.index'],
+                                    'selected' => ['grp.crm.shops.show.customers.index'],
 
                                 ]
                             ],
@@ -247,8 +247,8 @@ class GetLayout
                                 'tooltip' => __('Prospects'),
                                 'icon'    => ['fal', 'fa-user-plus'],
                                 'route'   => [
-                                    'all'      => ['crm.prospects.index'],
-                                    'selected' => ['crm.shops.show.prospects.index'],
+                                    'all'      => ['grp.crm.prospects.index'],
+                                    'selected' => ['grp.crm.shops.show.prospects.index'],
 
                                 ]
                             ],
@@ -261,14 +261,14 @@ class GetLayout
             ];
         }
 
-        if ($user->can('oms.view')) {
+        if ($user->hasPermissionTo('oms.view')) {
             $navigation['oms'] = [
                 'scope'   => 'shops',
                 'label'   => __('Orders'),
                 'icon'    => ['fal', 'fa-shopping-cart'],
                 'route'   => [
-                    'all'      => 'oms.dashboard',
-                    'selected' => 'oms.shops.show.dashboard',
+                    'all'      => 'grp.oms.dashboard',
+                    'selected' => 'grp.oms.shops.show.dashboard',
                 ],
                 'topMenu' => [
                     'dropdown' => [
@@ -279,8 +279,8 @@ class GetLayout
                                 'icon'    => ['fal', 'fa-tasks-alt'],
                                 'route'   =>
                                     [
-                                        'all'      => ['oms.dashboard'],
-                                        'selected' => ['oms.shops.show.dashboard'],
+                                        'all'      => ['grp.oms.dashboard'],
+                                        'selected' => ['grp.oms.shops.show.dashboard'],
 
                                     ]
                             ],
@@ -290,8 +290,8 @@ class GetLayout
                                 'tooltip' => __('Orders'),
                                 'icon'    => ['fal', 'fa-shopping-cart'],
                                 'route'   => [
-                                    'all'      => ['oms.orders.index'],
-                                    'selected' => ['oms.shops.show.orders.index'],
+                                    'all'      => ['grp.oms.orders.index'],
+                                    'selected' => ['grp.oms.shops.show.orders.index'],
 
                                 ]
                             ],
@@ -300,8 +300,8 @@ class GetLayout
                                 'tooltip' => __('Delivery notes'),
                                 'icon'    => ['fal', 'fa-truck'],
                                 'route'   => [
-                                    'all'      => ['oms.delivery-notes.index'],
-                                    'selected' => ['oms.shops.show.delivery-notes.index'],
+                                    'all'      => ['grp.oms.delivery-notes.index'],
+                                    'selected' => ['grp.oms.shops.show.delivery-notes.index'],
 
                                 ]
                             ],
@@ -310,8 +310,8 @@ class GetLayout
                                 'tooltip' => __('Invoices'),
                                 'icon'    => ['fal', 'fa-file-invoice-dollar'],
                                 'route'   => [
-                                    'all'      => ['oms.invoices.index'],
-                                    'selected' => ['oms.shops.show.invoices.index'],
+                                    'all'      => ['grp.oms.invoices.index'],
+                                    'selected' => ['grp.oms.shops.show.invoices.index'],
 
                                 ]
                             ],
@@ -323,32 +323,32 @@ class GetLayout
             ];
         }
 
-        if ($user->can('dispatch.view')) {
+        if ($user->hasPermissionTo('dispatch.view')) {
             $navigation['dispatch'] = [
                 'label'   => __('Dispatch'),
                 'icon'    => ['fal', 'fa-conveyor-belt-alt'],
-                'route'   => 'dispatch.hub',
+                'route'   => 'grp.dispatch.hub',
                 'topMenu' => [
                     'subSections' => []
                 ]
             ];
         }
 
-        if ($user->can('inventory.view')) {
+        if ($user->hasPermissionTo('inventory.view')) {
             $navigation['inventory'] = [
                 'scope'   => 'warehouses',
                 'label'   => __('inventory'),
                 'icon'    => ['fal', 'fa-inventory'],
                 'route'   => [
-                    'all'      => 'inventory.dashboard',
-                    'selected' => 'inventory.warehouses.show',
+                    'all'      => 'grp.inventory.dashboard',
+                    'selected' => 'grp.inventory.warehouses.show',
                 ],
                 'topMenu' => [
                     'subSections' => [
                         [
                             'icon'  => ['fal', 'fa-chart-network'],
                             'route' => [
-                                'name' => 'inventory.dashboard',
+                                'name' => 'grp.inventory.dashboard',
                             ]
                         ],
 
@@ -417,19 +417,19 @@ class GetLayout
             ];
         }
 
-        if ($user->can('fulfilment.view')
+        if ($user->hasPermissionTo('fulfilment.view')
             //  and app('currentTenant')->marketStats->number_shops_subtype_fulfilment
         ) {
             $navigation['fulfilment'] = [
                 'label'   => __('fulfilment'),
                 'icon'    => ['fal', 'fa-dolly-flatbed-alt'],
-                'route'   => 'fulfilment.dashboard',
+                'route'   => 'grp.fulfilment.dashboard',
                 'topMenu' => [
                     'subSections' => [
                         [
                             'icon'  => ['fal', 'fa-chart-network'],
                             'route' => [
-                                'name' => 'fulfilment.dashboard',
+                                'name' => 'grp.fulfilment.dashboard',
                             ]
                         ],
 
@@ -437,7 +437,7 @@ class GetLayout
                             'label' => __('customers'),
                             'icon'  => ['fal', 'fa-user-tie'],
                             'route' => [
-                                'name' => 'fulfilment.customers.index',
+                                'name' => 'grp.fulfilment.customers.index',
                             ]
                         ],
                         [
@@ -445,7 +445,7 @@ class GetLayout
                             'tooltip' => __('stored items'),
                             'icon'    => ['fal', 'fa-narwhal'],
                             'route'   => [
-                                'name' => 'fulfilment.stored-items.index',
+                                'name' => 'grp.fulfilment.stored-items.index',
                             ]
                         ],
                         [
@@ -453,7 +453,7 @@ class GetLayout
                             'tooltip' => __('orders'),
                             'icon'    => ['fal', 'fa-business-time'],
                             'route'   => [
-                                'name' => 'fulfilment.orders.index',
+                                'name' => 'grp.fulfilment.orders.index',
                             ]
                         ],
 
@@ -465,18 +465,18 @@ class GetLayout
             ];
         }
 
-        if ($user->can('production.view')) {
+        if ($user->hasPermissionTo('production.view')) {
             $navigation['production'] = [
                 'label'   => __('production'),
                 'icon'    => ['fal', 'fa-industry'],
-                'route'   => 'production.dashboard',
+                'route'   => 'grp.production.dashboard',
                 'topMenu' => [
                     'subSections' => [
                         [
                             'label' => __('raw materials'),
                             'icon'  => ['fal', 'fa-network-wired'],
                             'route' => [
-                                'name' => 'hr.job-positions.index',
+                                'name' => 'grp.hr.job-positions.index',
 
                             ]
                         ],
@@ -484,7 +484,7 @@ class GetLayout
                             'label' => __('employees'),
                             'icon'  => ['fal', 'fa-terminal'],
                             'route' => [
-                                'name' => 'hr.employees.index',
+                                'name' => 'grp.hr.employees.index',
 
                             ]
                         ],
@@ -492,7 +492,7 @@ class GetLayout
                             'label' => __('calendar'),
                             'icon'  => ['fal', 'fa-calendar'],
                             'route' => [
-                                'name' => 'hr.calendars.index',
+                                'name' => 'grp.hr.calendars.index',
 
                             ]
                         ],
@@ -500,7 +500,7 @@ class GetLayout
                             'label' => __('time sheets'),
                             'icon'  => ['fal', 'fa-stopwatch'],
                             'route' => [
-                                'name' => 'hr.time-sheets.index',
+                                'name' => 'grp.hr.time-sheets.index',
 
                             ]
                         ],
@@ -508,7 +508,7 @@ class GetLayout
                             'label' => __('clocking machines'),
                             'icon'  => ['fal', 'fa-chess-clock'],
                             'route' => [
-                                'name' => 'hr.clocking-machines.index',
+                                'name' => 'grp.hr.clocking-machines.index',
 
                             ]
                         ]
@@ -518,18 +518,18 @@ class GetLayout
             ];
         }
 
-        if ($user->can('procurement.view')) {
+        if ($user->hasPermissionTo('procurement.view')) {
             $navigation['procurement'] = [
                 'label'   => __('procurement'),
                 'icon'    => ['fal', 'fa-box-usd'],
-                'route'   => 'procurement.dashboard',
+                'route'   => 'grp.procurement.dashboard',
                 'topMenu' => [
                     'subSections' => [
                         [
                             'label' => __('agents'),
                             'icon'  => ['fal', 'fa-people-arrows'],
                             'route' => [
-                                'name' => 'procurement.agents.index',
+                                'name' => 'grp.procurement.agents.index',
 
                             ]
                         ],
@@ -537,7 +537,7 @@ class GetLayout
                             'label' => __('suppliers'),
                             'icon'  => ['fal', 'fa-person-dolly'],
                             'route' => [
-                                'name' => 'procurement.suppliers.index',
+                                'name' => 'grp.procurement.suppliers.index',
 
                             ]
                         ],
@@ -545,7 +545,7 @@ class GetLayout
                             'label' => __('purchase orders'),
                             'icon'  => ['fal', 'fa-clipboard-list'],
                             'route' => [
-                                'name' => 'procurement.purchase-orders.index',
+                                'name' => 'grp.procurement.purchase-orders.index',
 
                             ]
                         ],
@@ -554,14 +554,14 @@ class GetLayout
             ];
         }
 
-        if ($user->can('accounting.view')) {
+        if ($user->hasPermissionTo('accounting.view')) {
             $navigation['accounting'] = [
                 'scope' => 'shops',
                 'label' => __('Accounting'),
                 'icon'  => ['fal', 'fa-abacus'],
                 'route' => [
-                    'all'      => 'accounting.dashboard',
-                    'selected' => 'accounting.dashboard',
+                    'all'      => 'grp.accounting.dashboard',
+                    'selected' => 'grp.accounting.dashboard',
                 ],
 
 
@@ -571,7 +571,7 @@ class GetLayout
                             'label' => __('Payment accounts'),
                             'icon'  => ['fal', 'fa-money-check-alt'],
                             'route' => [
-                                'name' => 'accounting.payment-accounts.index',
+                                'name' => 'grp.accounting.payment-accounts.index',
                             ]
                         ],
                     ],
@@ -583,8 +583,8 @@ class GetLayout
                                 'tooltip' => __('Customers'),
                                 'icon'    => ['fal', 'fa-user'],
                                 'route'   => [
-                                    'all'      => ['crm.customers.index'],
-                                    'selected' => ['crm.shops.show.customers.index'],
+                                    'all'      => ['grp.crm.customers.index'],
+                                    'selected' => ['grp.crm.shops.show.customers.index'],
 
                                 ]
                             ],
@@ -593,8 +593,8 @@ class GetLayout
                                 'tooltip' => __('Prospects'),
                                 'icon'    => ['fal', 'fa-user-plus'],
                                 'route'   => [
-                                    'all'      => ['crm.prospects.index'],
-                                    'selected' => ['crm.shops.show.prospects.index'],
+                                    'all'      => ['grp.crm.prospects.index'],
+                                    'selected' => ['grp.crm.shops.show.prospects.index'],
 
                                 ]
                             ],
@@ -606,18 +606,18 @@ class GetLayout
             ];
         }
 
-        if ($user->can('hr.view')) {
+        if ($user->hasPermissionTo('hr.view')) {
             $navigation['hr'] = [
                 'label'   => __('human resources'),
                 'icon'    => ['fal', 'fa-user-hard-hat'],
-                'route'   => 'hr.dashboard',
+                'route'   => 'grp.hr.dashboard',
                 'topMenu' => [
                     'subSections' => [
                         [
                             'label' => __('job positions'),
                             'icon'  => ['fal', 'fa-network-wired'],
                             'route' => [
-                                'name' => 'hr.job-positions.index',
+                                'name' => 'grp.hr.job-positions.index',
 
                             ]
                         ],
@@ -625,7 +625,7 @@ class GetLayout
                             'label' => __('employees'),
                             'icon'  => ['fal', 'fa-user-hard-hat'],
                             'route' => [
-                                'name' => 'hr.employees.index',
+                                'name' => 'grp.hr.employees.index',
 
                             ]
                         ],
@@ -633,7 +633,7 @@ class GetLayout
                             'label' => __('calendar'),
                             'icon'  => ['fal', 'fa-calendar'],
                             'route' => [
-                                'name' => 'hr.calendars.index',
+                                'name' => 'grp.hr.calendars.index',
 
                             ]
                         ],
@@ -641,7 +641,7 @@ class GetLayout
                             'label' => __('time sheets'),
                             'icon'  => ['fal', 'fa-stopwatch'],
                             'route' => [
-                                'name' => 'hr.time-sheets.index',
+                                'name' => 'grp.hr.time-sheets.index',
 
                             ]
                         ],
@@ -649,7 +649,7 @@ class GetLayout
                             'label' => __('working place'),
                             'icon'  => ['fal', 'fa-building'],
                             'route' => [
-                                'name' => 'hr.working-places.index',
+                                'name' => 'grp.hr.working-places.index',
 
                             ]
                         ]
@@ -658,18 +658,18 @@ class GetLayout
             ];
         }
 
-        if ($user->can('sysadmin.view')) {
+        if ($user->hasPermissionTo('sysadmin.view')) {
             $navigation['sysadmin'] = [
                 'label'   => __('sysadmin'),
                 'icon'    => ['fal', 'fa-users-cog'],
-                'route'   => 'sysadmin.dashboard',
+                'route'   => 'grp.sysadmin.dashboard',
                 'topMenu' => [
                     'subSections' => [
                         [
                             'label' => __('users'),
                             'icon'  => ['fal', 'fa-terminal'],
                             'route' => [
-                                'name' => 'sysadmin.users.index',
+                                'name' => 'grp.sysadmin.users.index',
 
                             ]
                         ],
@@ -677,7 +677,7 @@ class GetLayout
                             'label' => __('guests'),
                             'icon'  => ['fal', 'fa-user-alien'],
                             'route' => [
-                                'name' => 'sysadmin.guests.index',
+                                'name' => 'grp.sysadmin.guests.index',
 
                             ]
                         ],
@@ -685,7 +685,7 @@ class GetLayout
                             'label' => __('system settings'),
                             'icon'  => ['fal', 'fa-cog'],
                             'route' => [
-                                'name' => 'sysadmin.settings.edit',
+                                'name' => 'grp.sysadmin.settings.edit',
 
                             ]
                         ],

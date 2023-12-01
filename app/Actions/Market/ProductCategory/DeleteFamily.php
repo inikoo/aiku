@@ -52,7 +52,7 @@ class DeleteFamily
 
     public function htmlResponse(ProductCategory $family): RedirectResponse
     {
-        return Redirect::route('shops.show', $family->shop->slug);
+        return Redirect::route('grp.shops.show', $family->shop->slug);
     }
 
 }

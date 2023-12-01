@@ -17,13 +17,13 @@ const props = defineProps<{
 
 function supplierDeliveryRoute(supplierDelivery: SupplierDeliveries) {
     switch (route().current()) {
-        case 'procurement.supplier-deliveries.index':
+        case 'grp.procurement.supplier-deliveries.index':
             return route(
-                'procurement.supplier-deliveries.show',
+                'grp.procurement.supplier-deliveries.show',
                 [supplierDelivery.slug]);
         default:
             return route(
-                'procurement.supplier-deliveries.show',
+                'grp.procurement.supplier-deliveries.show',
                 [supplierDelivery.slug]);
     }
 }

@@ -55,7 +55,7 @@ class WebsitesDashboard
                         [
                             'name'  => __('websites'),
                             'icon'  => ['fal', 'fa-globe'],
-                            'href'  => ['web.websites.index'],
+                            'href'  => ['grp.web.websites.index'],
                             'index' => [
                                 'number' => $organisation->webStats->number_websites
                             ]
@@ -82,7 +82,7 @@ class WebsitesDashboard
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name' => 'web.dashboard'
+                                'name' => 'grp.web.dashboard'
                             ],
                             'label' => __('websites dashboard'),
                         ]

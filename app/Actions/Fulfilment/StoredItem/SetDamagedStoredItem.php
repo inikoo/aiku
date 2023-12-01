@@ -43,6 +43,6 @@ class SetDamagedStoredItem
 
     public function htmlResponse(StoredItem $storedItem, ActionRequest $request): RedirectResponse
     {
-        return Redirect::route('fulfilment.stored-items.show', $storedItem->slug);
+        return Redirect::route('grp.fulfilment.stored-items.show', $storedItem->slug);
     }
 }

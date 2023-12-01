@@ -33,7 +33,7 @@ class CreatePaymentAccount extends InertiaAction
                             'style' => 'cancel',
                             'label' => __('cancel'),
                             'route' => [
-                                'name'       => 'accounting.payment-accounts.index',
+                                'name'       => 'grp.accounting.payment-accounts.index',
                                 'parameters' => array_values($this->originalParameters)
                             ],
                         ]
@@ -69,7 +69,7 @@ class CreatePaymentAccount extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->can('accounting.edit');
+        return $request->user()->hasPermissionTo('accounting.edit');
     }
 
 

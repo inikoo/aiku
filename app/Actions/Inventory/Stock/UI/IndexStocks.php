@@ -31,7 +31,7 @@ class IndexStocks extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('inventory.stocks.edit');
+        $this->canEdit = $request->user()->hasPermissionTo('inventory.stocks.edit');
 
         return
             (

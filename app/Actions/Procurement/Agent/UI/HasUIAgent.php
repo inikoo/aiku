@@ -17,12 +17,12 @@ trait HasUIAgent
         return array_merge(
             (new ProcurementDashboard())->getBreadcrumbs(),
             [
-                'procurement.agents.show' => [
-                    'route'           => 'procurement.agents.show',
+                'grp.procurement.agents.show' => [
+                    'route'           => 'grp.procurement.agents.show',
                     'routeParameters' => $agent->slug,
                     'name'            => $agent->code,
                     'index'           => [
-                        'route'   => 'procurement.agents.index',
+                        'route'   => 'grp.procurement.agents.index',
                         'overlay' => __('agents list')
                     ],
                     'modelLabel'      => [

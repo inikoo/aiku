@@ -65,7 +65,7 @@ class IndexPurchaseOrderItems extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('procurement.edit');
+        $this->canEdit = $request->user()->hasPermissionTo('procurement.edit');
         return
             (
                 $request->user()->tokenCan('root') or
@@ -96,7 +96,7 @@ class IndexPurchaseOrderItems extends InertiaAction
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name' => 'procurement.purchase-orders.index'
+                                'name' => 'grp.procurement.purchase-orders.index'
                             ],
                             'label' => __('purchase orders'),
                             'icon'  => 'fal fa-bars'

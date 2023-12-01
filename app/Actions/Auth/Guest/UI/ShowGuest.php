@@ -34,8 +34,8 @@ class ShowGuest extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit   = $request->user()->can('sysadmin.users.edit');
-        $this->canDelete = $request->user()->can('sysadmin.users.edit');
+        $this->canEdit   = $request->user()->hasPermissionTo('sysadmin.users.edit');
+        $this->canDelete = $request->user()->hasPermissionTo('sysadmin.users.edit');
         return $request->user()->hasPermissionTo("sysadmin.view");
     }
 
@@ -68,7 +68,7 @@ class ShowGuest extends InertiaAction
                             'type'  => 'button',
                             'style' => 'delete',
                             'route' => [
-                                'name'       => 'sysadmin.guests.remove',
+                                'name'       => 'grp.sysadmin.guests.remove',
                                 'parameters' => array_values($this->originalParameters)
                             ]
                         ] : false
@@ -113,8 +113,8 @@ class ShowGuest extends InertiaAction
         };
 
         return match ($routeName) {
-            'sysadmin.guests.show',
-            'sysadmin.guests.edit' =>
+            'grp.sysadmin.guests.show',
+            'grp.sysadmin.guests.edit' =>
 
             array_merge(
                 SysAdminDashboard::make()->getBreadcrumbs(),
@@ -122,11 +122,11 @@ class ShowGuest extends InertiaAction
                     $routeParameters['guest'],
                     [
                         'index' => [
-                            'name'       => 'sysadmin.guests.index',
+                            'name'       => 'grp.sysadmin.guests.index',
                             'parameters' => []
                         ],
                         'model' => [
-                            'name'       => 'sysadmin.guests.show',
+                            'name'       => 'grp.sysadmin.guests.show',
                             'parameters' => [$routeParameters['guest']->slug]
                         ]
                     ],
@@ -157,7 +157,7 @@ class ShowGuest extends InertiaAction
             return null;
         }
         return match ($routeName) {
-            'sysadmin.guests.show'=> [
+            'grp.sysadmin.guests.show'=> [
                 'label'=> $guest->contact_name,
                 'route'=> [
                     'name'      => $routeName,

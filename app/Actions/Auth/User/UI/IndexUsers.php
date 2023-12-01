@@ -132,7 +132,7 @@ class IndexUsers extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('sysadmin.edit');
+        $this->canEdit = $request->user()->hasPermissionTo('sysadmin.edit');
 
         return
             (
@@ -205,12 +205,12 @@ class IndexUsers extends InertiaAction
         };
 
         return match ($routeName) {
-            'sysadmin.users.index' =>
+            'grp.sysadmin.users.index' =>
             array_merge(
                 SysAdminDashboard::make()->getBreadcrumbs(),
                 $headCrumb(
                     [
-                        'name' => 'sysadmin.users.index',
+                        'name' => 'grp.sysadmin.users.index',
                         null
                     ]
                 ),

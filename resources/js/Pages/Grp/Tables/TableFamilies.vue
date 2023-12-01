@@ -18,18 +18,18 @@ const props = defineProps<{
 
 function familyRoute(family: Family) {
     switch (route().current()) {
-        case 'shops.show':
-        case 'shops.show.families.index':
+        case 'grp.shops.show':
+        case 'grp.shops.show.families.index':
             return route(
-                'shops.show.families.show',
+                'grp.shops.show.families.show',
                 [route().params['shop'], family.slug]);
-        case 'shops.show.departments.show':
+        case 'grp.shops.show.departments.show':
             return route(
-                'shops.show.departments.show.families.show',
+                'grp.shops.show.departments.show.families.show',
                 [route().params['shop'],route().params['department'], family.slug]);
         default:
             return route(
-                'shops.show.families.show',
+                'grp.shops.show.families.show',
                 [family.shop_slug,family.slug]);
     }
 }

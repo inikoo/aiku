@@ -33,7 +33,7 @@ class ShowFulfilmentCustomer extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('crm.customers.edit');
+        $this->canEdit = $request->user()->hasPermissionTo('crm.customers.edit');
 
         return $request->user()->hasPermissionTo("shops.customers.view");
     }
@@ -74,7 +74,7 @@ class ShowFulfilmentCustomer extends InertiaAction
                             'tooltip' => __('new stored items'),
                             'label'   => __('create stored items'),
                             'route'   => [
-                                'name'       => 'fulfilment.stored-items.create',
+                                'name'       => 'grp.fulfilment.stored-items.create',
                                 'parameters' => [$customer->slug]
                             ]
                         ],
@@ -84,7 +84,7 @@ class ShowFulfilmentCustomer extends InertiaAction
                             'tooltip' => __('upload stored items'),
                             'label'   => __('upload stored items'),
                             'route'   => [
-                                'name'       => 'fulfilment.stored-items.create', // TODO Create Action for upload CSV/XLSX
+                                'name'       => 'grp.fulfilment.stored-items.create', // TODO Create Action for upload CSV/XLSX
                                 'parameters' => [$customer->slug]
                             ]
                         ],*/
@@ -147,18 +147,18 @@ class ShowFulfilmentCustomer extends InertiaAction
         };
 
         return match ($routeName) {
-            'fulfilment.customers.show' =>
+            'grp.fulfilment.customers.show' =>
             array_merge(
                 ShowDashboard::make()->getBreadcrumbs(),
                 $headCrumb(
                     $routeParameters['customer'],
                     [
                         'index' => [
-                            'name'       => 'fulfilment.customers.index',
+                            'name'       => 'grp.fulfilment.customers.index',
                             'parameters' => []
                         ],
                         'model' => [
-                            'name'       => 'fulfilment.customers.show',
+                            'name'       => 'grp.fulfilment.customers.show',
                             'parameters' => [$routeParameters['customer']->slug]
                         ]
                     ],
@@ -200,7 +200,7 @@ class ShowFulfilmentCustomer extends InertiaAction
         }
 
         return match ($routeName) {
-            'fulfilment.customers.show' ,
+            'grp.fulfilment.customers.show' ,
             'shops.customers.show'=> [
                 'label'=> $customer->name,
                 'route'=> [

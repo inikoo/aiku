@@ -26,21 +26,21 @@ function paymentsRoute(payment: Payment) {
             return route(
                 'orders.show.payments.show',
                 [route().params['order'],payment.slug]);
-        case 'accounting.payment-service-providers.show.payment-accounts.show.payments.index':
+        case 'grp.accounting.payment-service-providers.show.payment-accounts.show.payments.index':
             return route(
-                'accounting.payment-service-providers.show.payment-accounts.show.payments.show',
+                'grp.accounting.payment-service-providers.show.payment-accounts.show.payments.show',
                 [payment.payment_service_providers_slug,payment.payment_accounts_slug, payment.slug]);
-        case 'accounting.payment-service-providers.show.payments.index':
+        case 'grp.accounting.payment-service-providers.show.payments.index':
             return route(
-                'accounting.payment-service-providers.show.payments.show',
+                'grp.accounting.payment-service-providers.show.payments.show',
                 [payment.payment_service_providers_slug, payment.slug]);
-        case 'accounting.payment-accounts.show.payments.index':
+        case 'grp.accounting.payment-accounts.show.payments.index':
             return route(
-                'accounting.payment-accounts.show.payments.show',
+                'grp.accounting.payment-accounts.show.payments.show',
                 [payment.payment_accounts_slug, payment.slug]);
         default:
             return route(
-                'accounting.payments.index',
+                'grp.accounting.payments.index',
                 [payment.slug]);
     }
 

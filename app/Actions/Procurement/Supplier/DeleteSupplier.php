@@ -40,7 +40,7 @@ class DeleteSupplier
 
     public function htmlResponse(): RedirectResponse
     {
-        return Redirect::route('procurement.agents.index');
+        return Redirect::route('grp.procurement.agents.index');
     }
 
 }

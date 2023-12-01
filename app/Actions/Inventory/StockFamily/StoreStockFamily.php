@@ -72,6 +72,6 @@ class StoreStockFamily
 
     public function htmlResponse(StockFamily $stockFamily): RedirectResponse
     {
-        return Redirect::route('inventory.stock-families.index');
+        return Redirect::route('grp.inventory.stock-families.index');
     }
 }

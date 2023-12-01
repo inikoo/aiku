@@ -137,9 +137,9 @@ class StoreSupplier
             /** @var Agent $agent */
             $agent = $supplier->owner;
 
-            return Redirect::route('procurement.marketplace.agents.show.suppliers.index', $agent->slug);
+            return Redirect::route('grp.procurement.marketplace.agents.show.suppliers.index', $agent->slug);
         }
 
-        return Redirect::route('procurement.marketplace.suppliers.show', $supplier->slug);
+        return Redirect::route('grp.procurement.marketplace.suppliers.show', $supplier->slug);
     }
 }

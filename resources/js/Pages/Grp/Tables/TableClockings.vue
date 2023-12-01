@@ -16,31 +16,31 @@ const props = defineProps<{
 
 function clockingRoute(clocking: Clocking) {
     switch (route().current()) {
-        case 'hr.clocking-machines.show':
+        case 'grp.hr.clocking-machines.show':
             return route(
-                'hr.clocking-machines.show.clockings.show',
+                'grp.hr.clocking-machines.show.clockings.show',
                 [route().params['clockingMachine'], clocking.slug]);
 
-        case 'hr.working-places.show.clocking-machines.show':
+        case 'grp.hr.working-places.show.clocking-machines.show':
             return route(
-                'hr.working-places.show.clocking-machines.show.clockings.show',
+                'grp.hr.working-places.show.clocking-machines.show.clockings.show',
                 [route().params['workplace'],route().params['clockingMachine'], clocking.slug]);
-        case 'hr.working-places.show.clockings.index':
+        case 'grp.hr.working-places.show.clockings.index':
             return route(
-                'hr.working-places.show.clockings.show',
+                'grp.hr.working-places.show.clockings.show',
                 [clocking.workplace_slug, clocking.slug]);
-        case 'hr.clocking-machines.clockings.index':
+        case 'grp.hr.clocking-machines.clockings.index':
             return route(
-                'hr.clocking-machines.show.clockings.show',
+                'grp.hr.clocking-machines.show.clockings.show',
                 [clocking.clocking_machine_slug, clocking.slug]);
-        case 'hr.working-places.show.clocking-machines.show.clockings.index':
+        case 'grp.hr.working-places.show.clocking-machines.show.clockings.index':
             return route(
-                'hr.working-places.show.clocking-machines.show.clockings.show',
+                'grp.hr.working-places.show.clocking-machines.show.clockings.show',
                 [clocking.workplace_slug, clocking.clocking_machine_slug, clocking.slug]
             )
         default:
             return route(
-                'hr.clockings.show',
+                'grp.hr.clockings.show',
                 [clocking.slug]);
     }
 

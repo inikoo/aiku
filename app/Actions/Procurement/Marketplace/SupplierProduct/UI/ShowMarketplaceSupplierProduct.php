@@ -30,7 +30,7 @@ class ShowMarketplaceSupplierProduct extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('procurement.suppliers.edit');
+        $this->canEdit = $request->user()->hasPermissionTo('procurement.suppliers.edit');
 
         return $request->user()->hasPermissionTo("procurement.view");
     }
@@ -88,7 +88,7 @@ class ShowMarketplaceSupplierProduct extends InertiaAction
                         ],
                     'title' => $supplierProduct->name,
 
-                    'edit' => $this->canEdit &&  $request->route()->getName()=='procurement.marketplace.agents.show.suppliers.show.supplier-products.edit' ? [
+                    'edit' => $this->canEdit &&  $request->route()->getName()=='grp.procurement.marketplace.agents.show.suppliers.show.supplier-products.edit' ? [
                         'route' => [
                             'name'       => preg_replace('/show$/', 'edit', $this->routeName),
                             'parameters' => array_values($this->originalParameters)
@@ -137,22 +137,22 @@ class ShowMarketplaceSupplierProduct extends InertiaAction
 
         //        dd($routeName);
         return match ($routeName) {
-            'procurement.marketplace.suppliers.show.supplier-products.show' => array_merge(
+            'grp.procurement.marketplace.suppliers.show.supplier-products.show' => array_merge(
                 (new ShowMarketplaceSupplier())->getBreadcrumbs(
-                    'procurement.marketplace.suppliers.show.supplier-products.show',
+                    'grp.procurement.marketplace.suppliers.show.supplier-products.show',
                     ['supplier' => $routeParameters['supplier']]
                 ),
                 $headCrumb(
                     $routeParameters['supplierProduct'],
                     [
                         'index' => [
-                            'name'       => 'procurement.marketplace.suppliers.show.supplier-products.index',
+                            'name'       => 'grp.procurement.marketplace.suppliers.show.supplier-products.index',
                             'parameters' => [
                                 $routeParameters['supplier']->slug
                             ]
                         ],
                         'model' => [
-                            'name'       => 'procurement.marketplace.suppliers.show.supplier-products.show',
+                            'name'       => 'grp.procurement.marketplace.suppliers.show.supplier-products.show',
                             'parameters' => [
                                 $routeParameters['supplier']->slug,
                                 $routeParameters['supplierProduct']->slug
@@ -164,24 +164,24 @@ class ShowMarketplaceSupplierProduct extends InertiaAction
             ),
 
 
-            'procurement.marketplace.supplier-products.show' => array_merge(
+            'grp.procurement.marketplace.supplier-products.show' => array_merge(
                 (new ProcurementDashboard())->getBreadcrumbs(),
                 $headCrumb(
                     $routeParameters['supplierProduct'],
                     [
                         'index' => [
-                            'name'       => 'procurement.marketplace.supplier-products.index',
+                            'name'       => 'grp.procurement.marketplace.supplier-products.index',
                             'parameters' => []
                         ],
                         'model' => [
-                            'name'       => 'procurement.marketplace.supplier-products.show',
+                            'name'       => 'grp.procurement.marketplace.supplier-products.show',
                             'parameters' => [$routeParameters['supplierProduct']->slug]
                         ]
                     ],
                     $suffix
                 )
             ),
-            'procurement.marketplace.agents.show.supplier-products.show' => array_merge(
+            'grp.procurement.marketplace.agents.show.supplier-products.show' => array_merge(
                 (new ShowMarketplaceAgent())->getBreadcrumbs(
                     ['agent' => $routeParameters['agent']]
                 ),
@@ -189,13 +189,13 @@ class ShowMarketplaceSupplierProduct extends InertiaAction
                     $routeParameters['supplierProduct'],
                     [
                         'index' => [
-                            'name'       => 'procurement.marketplace.agents.show.supplier-products.index',
+                            'name'       => 'grp.procurement.marketplace.agents.show.supplier-products.index',
                             'parameters' => [
                                 $routeParameters['agent']->slug
                             ]
                         ],
                         'model' => [
-                            'name'       => 'procurement.marketplace.agents.show.supplier-products.show',
+                            'name'       => 'grp.procurement.marketplace.agents.show.supplier-products.show',
                             'parameters' => [
                                 $routeParameters['agent']->slug,
                                 $routeParameters['supplierProduct']->slug
@@ -215,9 +215,9 @@ class ShowMarketplaceSupplierProduct extends InertiaAction
         $query = SupplierProduct::where('code', '<', $supplierProduct->code);
 
         $query = match ($request->route()->getName()) {
-            'procurement.marketplace.agents.show.supplier-products.show' => $query->where('supplier_products.agent_id', $request->route()->parameters['agent']->id),
-            'procurement.marketplace.agents.show.show.supplier.supplier-products.show',
-            'procurement.marketplace.supplier.supplier-products.show' => $query->where('supplier_products.supplier_id', $request->route()->parameters['supplier']->id),
+            'grp.procurement.marketplace.agents.show.supplier-products.show' => $query->where('supplier_products.agent_id', $request->route()->parameters['agent']->id),
+            'grp.procurement.marketplace.agents.show.show.supplier.supplier-products.show',
+            'grp.procurement.marketplace.supplier.supplier-products.show' => $query->where('supplier_products.supplier_id', $request->route()->parameters['supplier']->id),
 
             default => $query
         };
@@ -233,9 +233,9 @@ class ShowMarketplaceSupplierProduct extends InertiaAction
         $query = SupplierProduct::where('code', '>', $supplierProduct->code);
 
         $query = match ($request->route()->getName()) {
-            'procurement.marketplace.agents.show.supplier-products.show' => $query->where('supplier_products.agent_id', $request->route()->parameters['agent']->id),
-            'procurement.marketplace.agents.show.show.supplier.supplier-products.show',
-            'procurement.marketplace.supplier.supplier-products.show' => $query->where('supplier_products.supplier_id', $request->route()->parameters['supplier']->id),
+            'grp.procurement.marketplace.agents.show.supplier-products.show' => $query->where('supplier_products.agent_id', $request->route()->parameters['agent']->id),
+            'grp.procurement.marketplace.agents.show.show.supplier.supplier-products.show',
+            'grp.procurement.marketplace.supplier.supplier-products.show' => $query->where('supplier_products.supplier_id', $request->route()->parameters['supplier']->id),
 
             default => $query
         };
@@ -253,7 +253,7 @@ class ShowMarketplaceSupplierProduct extends InertiaAction
 
 
         return match ($routeName) {
-            'procurement.marketplace.supplier-products.show' => [
+            'grp.procurement.marketplace.supplier-products.show' => [
                 'label' => $supplierProduct->code,
                 'route' => [
                     'name'       => $routeName,
@@ -263,7 +263,7 @@ class ShowMarketplaceSupplierProduct extends InertiaAction
 
                 ]
             ],
-            'procurement.marketplace.agents.show.supplier-products.show' => [
+            'grp.procurement.marketplace.agents.show.supplier-products.show' => [
                 'label' => $supplierProduct->code,
                 'route' => [
                     'name'       => $routeName,

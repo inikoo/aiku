@@ -89,7 +89,7 @@ class IndexOrders extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('shops.products.edit');
+        $this->canEdit = $request->user()->hasPermissionTo('shops.products.edit');
 
         return
             (
@@ -166,28 +166,28 @@ class IndexOrders extends InertiaAction
         };
 
         return match ($routeName) {
-            'crm.orders.index' =>
+            'grp.crm.orders.index' =>
             array_merge(
                 (new CRMDashboard())->getBreadcrumbs(
-                    'crm.dashboard',
+                    'grp.crm.dashboard',
                     $routeParameters
                 ),
                 $headCrumb(
                     [
-                        'name' => 'crm.orders.index',
+                        'name' => 'grp.crm.orders.index',
                         null
                     ]
                 ),
             ),
-            'crm.shops.show.orders.index' =>
+            'grp.crm.shops.show.orders.index' =>
             array_merge(
                 (new CRMDashboard())->getBreadcrumbs(
-                    'crm.shops.show.dashboard',
+                    'grp.crm.shops.show.dashboard',
                     $routeParameters
                 ),
                 $headCrumb(
                     [
-                        'name'       => 'crm.shops.show.orders.index',
+                        'name'       => 'grp.crm.shops.show.orders.index',
                         'parameters' => $routeParameters
                     ]
                 )

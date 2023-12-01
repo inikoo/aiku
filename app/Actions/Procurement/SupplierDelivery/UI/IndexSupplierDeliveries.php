@@ -62,7 +62,7 @@ class IndexSupplierDeliveries extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('procurement.edit');
+        $this->canEdit = $request->user()->hasPermissionTo('procurement.edit');
 
         return
             (
@@ -95,9 +95,9 @@ class IndexSupplierDeliveries extends InertiaAction
                 'title'       => __('supplier deliveries'),
                 'pageHead'    => [
                     'title'  => __('supplier deliveries'),
-                    'create' => $this->canEdit && $this->routeName == 'procurement.supplier-deliveries.index' ? [
+                    'create' => $this->canEdit && $this->routeName == 'grp.procurement.supplier-deliveries.index' ? [
                         'route' => [
-                            'name'       => 'procurement.supplier-deliveries.create',
+                            'name'       => 'grp.procurement.supplier-deliveries.create',
                             'parameters' => array_values($this->originalParameters)
                         ],
                         'label' => __('supplier deliveries')
@@ -120,7 +120,7 @@ class IndexSupplierDeliveries extends InertiaAction
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name' => 'procurement.supplier-deliveries.index'
+                                'name' => 'grp.procurement.supplier-deliveries.index'
                             ],
                             'label' => __('supplier deliveries'),
                             'icon'  => 'fal fa-bars'

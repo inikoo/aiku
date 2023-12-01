@@ -27,7 +27,7 @@ class EditMarketplaceSupplier extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('procurement.edit');
+        $this->canEdit = $request->user()->hasPermissionTo('procurement.edit');
 
         return $request->user()->hasPermissionTo("procurement.view");
     }
@@ -283,7 +283,7 @@ class EditMarketplaceSupplier extends InertiaAction
     public function getPrevious(Supplier $supplier, ActionRequest $request): ?array
     {
         $previous = Supplier::where('code', '<', $supplier->code)->when(true, function ($query) use ($supplier, $request) {
-            if ($request->route()->getName() == 'procurement.marketplace.agents.show.suppliers.show') {
+            if ($request->route()->getName() == 'grp.procurement.marketplace.agents.show.suppliers.show') {
                 $query->where('suppliers.agent_id', $supplier->agent_id);
             }
         })->orderBy('code', 'desc')->first();
@@ -295,7 +295,7 @@ class EditMarketplaceSupplier extends InertiaAction
     public function getNext(Supplier $supplier, ActionRequest $request): ?array
     {
         $next = Supplier::where('code', '>', $supplier->code)->when(true, function ($query) use ($supplier, $request) {
-            if ($request->route()->getName() == 'procurement.marketplace.agents.show.suppliers.edit') {
+            if ($request->route()->getName() == 'grp.procurement.marketplace.agents.show.suppliers.edit') {
                 $query->where('suppliers.agent_id', $supplier->agent_id);
             }
         })->orderBy('code')->first();
@@ -310,7 +310,7 @@ class EditMarketplaceSupplier extends InertiaAction
         }
 
         return match ($routeName) {
-            'procurement.marketplace.suppliers.edit'=> [
+            'grp.procurement.marketplace.suppliers.edit'=> [
                 'label'=> $supplier->name,
                 'route'=> [
                     'name'      => $routeName,
@@ -320,7 +320,7 @@ class EditMarketplaceSupplier extends InertiaAction
 
                 ]
             ],
-            'procurement.marketplace.agents.show.suppliers.edit' => [
+            'grp.procurement.marketplace.agents.show.suppliers.edit' => [
                 'label'=> $supplier->name,
                 'route'=> [
                     'name'      => $routeName,

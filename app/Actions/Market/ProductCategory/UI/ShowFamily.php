@@ -33,8 +33,8 @@ class ShowFamily extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit   = $request->user()->can('shops.edit');
-        $this->canDelete = $request->user()->can('shops.edit');
+        $this->canEdit   = $request->user()->hasPermissionTo('shops.edit');
+        $this->canDelete = $request->user()->hasPermissionTo('shops.edit');
 
         return $request->user()->hasPermissionTo("shops.families.view");
     }

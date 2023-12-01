@@ -39,12 +39,12 @@ class CreateWarehouseAreas extends InertiaAction
                             'style' => 'delete',
                             'label' => __('clear'),
                             'route' => match ($request->route()->getName()) {
-                                'inventory.warehouse-areas.index' => [
-                                    'name'       => 'inventory.warehouse-areas.create-multi-clear',
+                                'grp.oms.warehouse-areas.index' => [
+                                    'name'       => 'grp.oms.warehouse-areas.create-multi-clear',
                                     'parameters' => array_values($this->originalParameters)
                                 ],
                                 default => [
-                                    'name'       => 'inventory.warehouses.show.warehouse-areas.create-multi-clear',
+                                    'name'       => 'grp.oms.warehouses.show.warehouse-areas.create-multi-clear',
                                     'parameters' => array_values($this->originalParameters)
                                 ]
                             }
@@ -78,7 +78,7 @@ class CreateWarehouseAreas extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->can('inventory.warehouse-areas.edit');
+        return $request->user()->hasPermissionTo('inventory.warehouse-areas.edit');
     }
 
 

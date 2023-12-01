@@ -245,7 +245,7 @@ const user = ref(usePage().props.auth.user);
                   class="flex max-w-xs items-center rounded-full bg-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
                   <span class="sr-only">{{ trans("Open user menu") }}</span>
                   <img v-if="layout.avatar_id" class="h-8 w-8 rounded-full"
-                       :src="route('media.group.show',layout.avatar_id)"
+                       :src="route('grp.media.show',layout.avatar_id)"
                        alt="" />
                 </MenuButton>
 
@@ -255,7 +255,7 @@ const user = ref(usePage().props.auth.user);
                   <MenuItems class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-200 focus:outline-none">
                     <div class="py-1">
                       <MenuItem v-slot="{ active,close }">
-                        <Link as="ul" type="button" :href="route('profile.show')" @click="close"
+                        <Link as="ul" type="button" :href="route('grp.profile.show')" @click="close"
                               :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm cursor-pointer']">
                           {{ trans("View profile") }}
                         </Link>
@@ -265,14 +265,14 @@ const user = ref(usePage().props.auth.user);
 
                     <div class="py-1">
                       <MenuItem v-slot="{ active }">
-                        <Link as="ul" type="button" :href="route('dashboard.tv')" :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm cursor-pointer']">
+                        <Link as="ul" type="button" :href="route('grp.dashboard.tv')" :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm cursor-pointer']">
                           DashTV
                         </Link>
                       </MenuItem>
                     </div>
                     <div class="py-1">
                       <MenuItem v-slot="{ active }">
-                        <Link as="ul" type="button" method="post" :href="route('logout')"
+                        <Link as="ul" type="button" method="post" :href="route('grp.logout')"
                               :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm cursor-pointer']">Logout
                         </Link>
                       </MenuItem>

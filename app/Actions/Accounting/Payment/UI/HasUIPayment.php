@@ -25,7 +25,7 @@ trait HasUIPayment
                     'name'            => $payment->slug,
                     'index'           =>
                         match ($routeName) {
-                            'shops.show.orders.show.payments.show', 'orders.show,payments.show' => null,
+                            'grp.shops.show.orders.show.payments.show', 'orders.show,payments.show' => null,
                             default => [
                                 'route'           => preg_replace('/show$/', 'index', $routeName),
                                 'routeParameters' => function () use ($parameters) {
@@ -47,9 +47,9 @@ trait HasUIPayment
         };
 
         return match ($routeName) {
-            'shops.show.orders.show.payments.show' => array_merge(
+            'grp.shops.show.orders.show.payments.show' => array_merge(
                 (new ShowOrder())->getBreadcrumbs(
-                    'shops.show.orders.show',
+                    'grp.shops.show.orders.show',
                     [
                         'shop'  => $routeParameters['shop'],
                         'order' => $routeParameters['order']
@@ -77,23 +77,23 @@ trait HasUIPayment
                     ]
                 )
             ),
-            'accounting.payments.show' => array_merge(
-                AccountingDashboard::make()->getBreadcrumbs('accounting.dashboard', []),
+            'grp.accounting.payments.show' => array_merge(
+                AccountingDashboard::make()->getBreadcrumbs('grp.accounting.dashboard', []),
                 $headCrumb([$routeParameters['payment']->slug])
             ),
-            'accounting.payment-service-provider.show.payments.show' => array_merge(
+            'grp.accounting.payment-service-provider.show.payments.show' => array_merge(
                 (new ShowPaymentServiceProvider())
                     ->getBreadcrumbs($routeParameters['payment']->paymentAccount->paymentServiceProvider),
                 $headCrumb([$routeParameters['payment']->paymentAccount->paymentServiceProvider->slug, $routeParameters['payment']->slug])
             ),
-            'accounting.payment-accounts.show.payments.show' => array_merge(
+            'grp.accounting.payment-accounts.show.payments.show' => array_merge(
                 (new ShowPaymentAccount())
-                    ->getBreadcrumbs('accounting.payment-accounts.show', $routeParameters['payment']->paymentAccount),
+                    ->getBreadcrumbs('grp.accounting.payment-accounts.show', $routeParameters['payment']->paymentAccount),
                 $headCrumb([$routeParameters['payment']->paymentAccount->slug, $routeParameters['payment']->slug])
             ),
-            'accounting.payment-service-provider.show.payment-accounts.show.payments.show' => array_merge(
+            'grp.accounting.payment-service-provider.show.payment-accounts.show.payments.show' => array_merge(
                 (new ShowPaymentAccount())
-                    ->getBreadcrumbs('accounting.payment-service-provider.show.payment-accounts.show', $routeParameters['payment']->paymentAccount),
+                    ->getBreadcrumbs('grp.accounting.payment-service-provider.show.payment-accounts.show', $routeParameters['payment']->paymentAccount),
                 $headCrumb(
                     [
                         $routeParameters['payment']->paymentAccount->paymentServiceProvider->slug,

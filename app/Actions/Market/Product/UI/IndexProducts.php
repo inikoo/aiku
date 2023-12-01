@@ -32,7 +32,7 @@ class IndexProducts extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('shops.products.edit');
+        $this->canEdit = $request->user()->hasPermissionTo('shops.products.edit');
 
         return
             (

@@ -87,7 +87,7 @@ class IndexPaymentServiceProviders extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('accounting.edit');
+        $this->canEdit = $request->user()->hasPermissionTo('accounting.edit');
         return
             (
                 $request->user()->tokenCan('root') or
@@ -136,13 +136,13 @@ class IndexPaymentServiceProviders extends InertiaAction
     public function getBreadcrumbs($suffix=null): array
     {
         return array_merge(
-            AccountingDashboard::make()->getBreadcrumbs('accounting.dashboard', []),
+            AccountingDashboard::make()->getBreadcrumbs('grp.accounting.dashboard', []),
             [
                  [
                      'type'   => 'simple',
                      'simple' => [
                          'route' => [
-                             'name' => 'accounting.payment-service-providers.index',
+                             'name' => 'grp.accounting.payment-service-providers.index',
                          ],
                          'label' => __('providers'),
                          'icon'  => 'fal fa-bars',

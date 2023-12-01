@@ -27,7 +27,7 @@ class CreateSupplierDelivery extends InertiaAction
                     'title'        => __('new supplier delivery'),
                     'cancelCreate' => [
                         'route' => [
-                            'name'       => 'procurement.supplier-deliveries.index',
+                            'name'       => 'grp.procurement.supplier-deliveries.index',
                             'parameters' => array_values($this->originalParameters)
                         ],
                     ]
@@ -64,7 +64,7 @@ class CreateSupplierDelivery extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->can('procurement.edit');
+        return $request->user()->hasPermissionTo('procurement.edit');
     }
 
 

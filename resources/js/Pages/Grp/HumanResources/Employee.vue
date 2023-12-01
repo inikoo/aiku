@@ -43,7 +43,7 @@ library.add(
 )
 
 const createEmployeeUser = () =>{
-    router.post(route('hr.employees.show.user.store',props['employee'].data.id), {})
+    router.post(route('grp.hr.employees.show.user.store',props['employee'].data.id), {})
 }
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Pages/ModelChangelog.vue'))

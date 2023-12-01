@@ -36,8 +36,8 @@ class ShowAgent extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit   = $request->user()->can('procurement.agents.edit');
-        $this->canDelete = $request->user()->can('procurement.agents.edit');
+        $this->canEdit   = $request->user()->hasPermissionTo('procurement.agents.edit');
+        $this->canDelete = $request->user()->hasPermissionTo('procurement.agents.edit');
 
         return $request->user()->hasPermissionTo("procurement.view");
     }
@@ -92,7 +92,7 @@ class ShowAgent extends InertiaAction
                             'type'  => 'button',
                             'style' => 'delete',
                             'route' => [
-                                'name'       => 'procurement.agents.remove',
+                                'name'       => 'grp.procurement.agents.remove',
                                 'parameters' => array_values($this->originalParameters)
                             ]
                         ] : false,
@@ -103,7 +103,7 @@ class ShowAgent extends InertiaAction
                             'name'     => trans_choice('supplier|suppliers', $agent->stats->number_suppliers),
                             'number'   => $agent->stats->number_suppliers,
                             'href'     => [
-                                'procurement.agents.show.suppliers.index',
+                                'grp.procurement.agents.show.suppliers.index',
                                 $agent->slug
                             ],
                             'leftIcon' => [
@@ -115,7 +115,7 @@ class ShowAgent extends InertiaAction
                             'name'     => trans_choice('product|products', $agent->stats->number_supplier_products),
                             'number'   => $agent->stats->number_supplier_products,
                             'href'     => [
-                                'procurement.agents.show.suppliers.index',
+                                'grp.procurement.agents.show.suppliers.index',
                                 $agent->slug
                             ],
                             'leftIcon' => [
@@ -188,7 +188,7 @@ class ShowAgent extends InertiaAction
                 /* modelOperations: [
                     'createLink' => $this->canEdit ? [
                         'route' => [
-                            'name'       => 'procurement.agents.show.purchase-orders.create',
+                            'name'       => 'grp.procurement.agents.show.purchase-orders.create',
                             'parameters' => array_values([$agent->slug])
                         ],
                         'label' => __('purchase_orders')
@@ -201,7 +201,7 @@ class ShowAgent extends InertiaAction
                 /* modelOperations: [
                     'createLink' => $this->canEdit ? [
                         'route' => [
-                            'name'       => 'procurement.agents.show.supplier-products-orders.create',
+                            'name'       => 'grp.procurement.agents.show.supplier-products-orders.create',
                             'parameters' => array_values([$agent->slug])
                         ],
                         'label' => __('supplier products')
@@ -214,7 +214,7 @@ class ShowAgent extends InertiaAction
                 /* modelOperations: [
                      'createLink' => $this->canEdit ? [
                          'route' => [
-                             'name'       => 'procurement.agents.show.suppliers.create',
+                             'name'       => 'grp.procurement.agents.show.suppliers.create',
                              'parameters' => array_values([$agent->slug])
                          ],
                          'label' => __('suppliers')
@@ -241,13 +241,13 @@ class ShowAgent extends InertiaAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => [
-                                'name' => 'procurement.agents.index',
+                                'name' => 'grp.procurement.agents.index',
                             ],
                             'label' => __('agent')
                         ],
                         'model' => [
                             'route' => [
-                                'name'       => 'procurement.agents.show',
+                                'name'       => 'grp.procurement.agents.show',
                                 'parameters' => [$routeParameters['agent']->slug]
                             ],
                             'label' => $routeParameters['agent']->code,
@@ -281,7 +281,7 @@ class ShowAgent extends InertiaAction
         }
 
         return match ($routeName) {
-            'procurement.agents.show' => [
+            'grp.procurement.agents.show' => [
                 'label' => $agent->name,
                 'route' => [
                     'name'       => $routeName,

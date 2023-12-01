@@ -26,7 +26,7 @@ class ShowCalendar extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('hr.edit');
+        $this->canEdit = $request->user()->hasPermissionTo('hr.edit');
 
         return $request->user()->hasPermissionTo("hr.view");
     }
@@ -99,13 +99,13 @@ class ShowCalendar extends InertiaAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => [
-                                'name' => 'hr.employees.index',
+                                'name' => 'grp.hr.employees.index',
                             ],
                             'label' => __('employees')
                         ],
                         'model' => [
                             'route' => [
-                                'name'       => 'hr.employees.show',
+                                'name'       => 'grp.hr.employees.show',
                                 'parameters' => [$employee->slug]
                             ],
                             'label' => $employee->worker_number,
@@ -137,7 +137,7 @@ class ShowCalendar extends InertiaAction
             return null;
         }
         return match ($routeName) {
-            'hr.employees.show'=> [
+            'grp.hr.employees.show'=> [
                 'label'=> $employee->contact_name,
                 'route'=> [
                     'name'      => $routeName,

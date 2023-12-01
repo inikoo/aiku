@@ -27,7 +27,7 @@ class IndexStockFamilies extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('inventory.stocks.edit');
+        $this->canEdit = $request->user()->hasPermissionTo('inventory.stocks.edit');
 
         return
             (
@@ -104,7 +104,7 @@ class IndexStockFamilies extends InertiaAction
                             'tooltip' => __('new stock family'),
                             'label'   => __('stock family'),
                             'route'   => [
-                                'name'       => 'inventory.stock-families.create',
+                                'name'       => 'grp.oms.stock-families.create',
                                 'parameters' => array_values($this->originalParameters)
                             ]
                         ] : null
@@ -138,13 +138,13 @@ class IndexStockFamilies extends InertiaAction
                         'icon'  => 'fal fa-boxes-alt'
                     ],
                     'actions'=> [
-                        $this->canEdit && $request->route()->getName() == 'inventory.stock-families.index' ? [
+                        $this->canEdit && $request->route()->getName() == 'grp.oms.stock-families.index' ? [
                             'type'    => 'button',
                             'style'   => 'create',
                             'tooltip' => __('new SKU family'),
                             'label'   => __('SKU family'),
                             'route'   => [
-                                'name'       => 'inventory.stock-families.create',
+                                'name'       => 'grp.oms.stock-families.create',
                                 'parameters' => array_values($this->originalParameters)
                             ]
                         ] : false,
@@ -164,7 +164,7 @@ class IndexStockFamilies extends InertiaAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => [
-                            'name' => 'inventory.stock-families.index'
+                            'name' => 'grp.oms.stock-families.index'
                         ],
                         'label' => __("SKUs families"),
                         'icon'  => 'fal fa-bars',

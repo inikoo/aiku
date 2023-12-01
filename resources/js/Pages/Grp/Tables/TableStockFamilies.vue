@@ -17,9 +17,9 @@ const props = defineProps<{
 function stockFamilyRoute(stockFamily: StockFamily) {
     switch (route().current()) {
 
-        case 'inventory.stock-families.index':
+        case 'grp.oms.stock-families.index':
             return route(
-                'inventory.stock-families.show',
+                'grp.oms.stock-families.show',
                 [stockFamily.slug, stockFamily.slug]);
     }
 
@@ -42,7 +42,7 @@ function stockFamilyRoute(stockFamily: StockFamily) {
                 {{ stockFamily['name'] }}
         </template>
         <template #cell(number_stocks)="{ item: stockFamily }">
-            <Link :href="route('inventory.stock-families.show.stocks.index',stockFamily['slug'])">
+            <Link :href="route('grp.inventory.stock-families.show.stocks.index',stockFamily['slug'])">
                 {{ stockFamily['number_stocks'] }}
             </Link>
         </template>

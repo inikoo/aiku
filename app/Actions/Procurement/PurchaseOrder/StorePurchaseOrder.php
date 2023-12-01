@@ -100,7 +100,7 @@ class StorePurchaseOrder
 
         $purchaseOrder = $this->handle($organisation, $agent, $modelData);
 
-        return redirect()->route('procurement.purchase-orders.show', $purchaseOrder->slug);
+        return redirect()->route('grp.procurement.purchase-orders.show', $purchaseOrder->slug);
     }
 
     public function inSupplier(Organisation $organisation, Supplier $supplier, ActionRequest $request): \Illuminate\Http\RedirectResponse|PurchaseOrder
@@ -117,6 +117,6 @@ class StorePurchaseOrder
 
         $purchaseOrder = $this->handle($organisation, $supplier, $modelData);
 
-        return redirect()->route('procurement.purchase-orders.show', $purchaseOrder->slug);
+        return redirect()->route('grp.procurement.purchase-orders.show', $purchaseOrder->slug);
     }
 }

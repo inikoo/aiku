@@ -64,6 +64,6 @@ class StorePaymentServiceProvider
 
     public function htmlResponse(PaymentServiceProvider $paymentServiceProvider): RedirectResponse
     {
-        return Redirect::route('accounting.payment-service-providers.show', $paymentServiceProvider->slug);
+        return Redirect::route('grp.accounting.payment-service-providers.show', $paymentServiceProvider->slug);
     }
 }

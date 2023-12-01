@@ -17,7 +17,7 @@ class CreateFamily extends InertiaAction
 {
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->can('shops.departments.edit');
+        return $request->user()->hasPermissionTo('shops.departments.edit');
     }
 
 

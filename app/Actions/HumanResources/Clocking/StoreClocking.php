@@ -73,12 +73,12 @@ class StoreClocking
     public function htmlResponse(Clocking $clocking): RedirectResponse
     {
         if(!$clocking->clocking_machine_id) {
-            return Redirect::route('hr.working-places.show.clockings.show', [
+            return Redirect::route('grp.hr.working-places.show.clockings.show', [
                 $clocking->workplace->slug,
                 $clocking->slug
             ]);
         } else {
-            return Redirect::route('hr.working-places.show.clocking-machines.show.clockings.show', [
+            return Redirect::route('grp.hr.working-places.show.clocking-machines.show.clockings.show', [
                 $clocking->workplace->slug,
                 $clocking->clockingMachine->slug,
                 $clocking->slug

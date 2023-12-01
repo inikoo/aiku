@@ -101,7 +101,7 @@ class IndexPaymentAccounts extends InertiaAction
                             'tooltip' => __('new payment account'),
                             'label'   => __('payment account'),
                             'route'   => [
-                                'name'       => 'accounting.payment-accounts.create',
+                                'name'       => 'grp.accounting.payment-accounts.create',
                                 'parameters' => array_values($this->originalParameters)
                             ]
                         ] : null
@@ -115,7 +115,7 @@ class IndexPaymentAccounts extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('accounting.edit');
+        $this->canEdit = $request->user()->hasPermissionTo('accounting.edit');
 
         return
             (
@@ -173,13 +173,13 @@ class IndexPaymentAccounts extends InertiaAction
                             'style' => 'create',
                             'label' => __('payment account'),
                             'route' => [
-                                'name'       => 'accounting.payment-accounts.create',
+                                'name'       => 'grp.accounting.payment-accounts.create',
                                 'parameters' => array_values($this->originalParameters)
                             ]
                         ] : false
                     ],
                     'container' => match ($routeName) {
-                        'accounting.shops.show.payment-accounts.index' => [
+                        'grp.accounting.shops.show.payment-accounts.index' => [
                             'icon'    => ['fal', 'fa-store-alt'],
                             'tooltip' => __('Shop'),
                             'label'   => Str::possessive($routeParameters['shop']->name)
@@ -217,17 +217,17 @@ class IndexPaymentAccounts extends InertiaAction
         };
 
         return match ($routeName) {
-            'accounting.shops.show.payment-accounts.index' =>
+            'grp.accounting.shops.show.payment-accounts.index' =>
             array_merge(
-                AccountingDashboard::make()->getBreadcrumbs('accounting.shops.show.dashboard', $routeParameters),
+                AccountingDashboard::make()->getBreadcrumbs('grp.accounting.shops.show.dashboard', $routeParameters),
                 $headCrumb($routeParameters)
             ),
-            'accounting.payment-accounts.index' =>
+            'grp.accounting.payment-accounts.index' =>
             array_merge(
-                AccountingDashboard::make()->getBreadcrumbs('accounting.dashboard', []),
+                AccountingDashboard::make()->getBreadcrumbs('grp.accounting.dashboard', []),
                 $headCrumb()
             ),
-            'accounting.payment-service-providers.show.payment-accounts.index' =>
+            'grp.accounting.payment-service-providers.show.payment-accounts.index' =>
             array_merge(
                 ShowPaymentServiceProvider::make()->getBreadcrumbs(
                     $routeParameters

@@ -16,8 +16,8 @@ trait HasUIStockFamilies
         return array_merge(
             (new InventoryDashboard())->getBreadcrumbs(),
             [
-                'inventory.stock-families.index' => [
-                    'route'      => 'inventory.stock-families.index',
+                'grp.oms.stock-families.index' => [
+                    'route'      => 'grp.inventory.stock-families.index',
                     'modelLabel' => [
                         'label' => __('families')
                     ],

@@ -29,7 +29,7 @@ class ShowStoredItem extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('fulfilment.edit');
+        $this->canEdit = $request->user()->hasPermissionTo('fulfilment.edit');
 
         return $request->user()->hasPermissionTo("fulfilment.view");
     }
@@ -63,7 +63,7 @@ class ShowStoredItem extends InertiaAction
                             'tooltip' => __('return to customer'),
                             'label'   => __($this->storedItem->status == StoredItemStatusEnum::RETURNED ? 'returned' : 'return to customer'),
                             'route'   => [
-                                'name'       => 'fulfilment.stored-items.setReturn',
+                                'name'       => 'grp.fulfilment.stored-items.setReturn',
                                 'parameters' => array_values($this->originalParameters)
                             ],
                             'disabled' => $this->storedItem->status == StoredItemStatusEnum::RETURNED
@@ -84,7 +84,7 @@ class ShowStoredItem extends InertiaAction
                             'tooltip' => __('set as damaged'),
                             'label'   => __($this->storedItem->status == StoredItemStatusEnum::DAMAGED ? 'damaged' : 'set as damaged'),
                             'route'   => [
-                                'name'       => 'fulfilment.stored-items.setDamaged',
+                                'name'       => 'grp.fulfilment.stored-items.setDamaged',
                                 'parameters' => array_values($this->originalParameters)
                             ],
                             'disabled' => $this->storedItem->status == StoredItemStatusEnum::DAMAGED
@@ -120,13 +120,13 @@ class ShowStoredItem extends InertiaAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => [
-                                'name' => 'fulfilment.stored-items.index',
+                                'name' => 'grp.fulfilment.stored-items.index',
                             ],
                             'label' => __('stored items')
                         ],
                         'model' => [
                             'route' => [
-                                'name'       => 'fulfilment.stored-items.show',
+                                'name'       => 'grp.fulfilment.stored-items.show',
                                 'parameters' => array_values($this->originalParameters)
                             ],
                             'label' => $storedItem->slug,

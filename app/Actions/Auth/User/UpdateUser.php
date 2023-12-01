@@ -31,7 +31,7 @@ class UpdateUser
         if ($this->asAction) {
             return true;
         }
-        return  $request->user()->can('sysadmin.edit');
+        return  $request->user()->hasPermissionTo('sysadmin.edit');
 
     }
 

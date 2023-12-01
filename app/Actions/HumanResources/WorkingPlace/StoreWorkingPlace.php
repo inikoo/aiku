@@ -64,6 +64,6 @@ class StoreWorkingPlace
 
     public function htmlResponse(Workplace $workplace): RedirectResponse
     {
-        return Redirect::route('hr.working-places.show', $workplace->slug);
+        return Redirect::route('grp.hr.working-places.show', $workplace->slug);
     }
 }

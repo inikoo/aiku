@@ -23,7 +23,7 @@ class EditStock extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('inventory.stocks.edit');
+        $this->canEdit = $request->user()->hasPermissionTo('inventory.stocks.edit');
         return $request->user()->hasPermissionTo("inventory.stocks.view");
     }
 
@@ -121,7 +121,7 @@ class EditStock extends InertiaAction
     public function getPrevious(Stock $stock, ActionRequest $request): ?array
     {
         $previous = Stock::where('code', '<', $stock->code)->when(true, function ($query) use ($stock, $request) {
-            if ($request->route()->getName() == 'inventory.stock-families.show.stocks.edit') {
+            if ($request->route()->getName() == 'grp.inventory.stock-families.show.stocks.edit') {
                 $query->where('stock_family_id', $stock->stockFamily->id);
             }
         })->orderBy('code', 'desc')->first();
@@ -131,7 +131,7 @@ class EditStock extends InertiaAction
     public function getNext(Stock $stock, ActionRequest $request): ?array
     {
         $next = Stock::where('code', '>', $stock->code)->when(true, function ($query) use ($stock, $request) {
-            if ($request->route()->getName() == 'inventory.stock-families.show.stocks.edit') {
+            if ($request->route()->getName() == 'grp.inventory.stock-families.show.stocks.edit') {
                 $query->where('stock_family_id', $stock->stockFamily->id);
             }
         })->orderBy('code')->first();
@@ -146,7 +146,7 @@ class EditStock extends InertiaAction
         }
 
         return match ($routeName) {
-            'inventory.stocks.edit' => [
+            'grp.inventory.stocks.edit' => [
                 'label' => $stock->name,
                 'route' => [
                     'name'       => $routeName,
@@ -155,7 +155,7 @@ class EditStock extends InertiaAction
                     ]
                 ]
             ],
-            'inventory.stock-families.show.stocks.edit' => [
+            'grp.inventory.stock-families.show.stocks.edit' => [
                 'label' => $stock->name,
                 'route' => [
                     'name'       => $routeName,

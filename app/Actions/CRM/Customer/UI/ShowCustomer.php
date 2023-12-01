@@ -32,8 +32,8 @@ class ShowCustomer extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit   = $request->user()->can('crm.customers.edit');
-        $this->canDelete = $request->user()->can('crm.customers.edit');
+        $this->canEdit   = $request->user()->hasPermissionTo('crm.customers.edit');
+        $this->canDelete = $request->user()->hasPermissionTo('crm.customers.edit');
 
         return $request->user()->hasPermissionTo("shops.customers.view");
     }
@@ -139,7 +139,7 @@ class ShowCustomer extends InertiaAction
                             'type'  => 'button',
                             'style' => 'delete',
                             'route' => [
-                                'name'       => 'crm.customers.remove',
+                                'name'       => 'grp.crm.customers.remove',
                                 'parameters' => $request->route()->originalParameters()
                             ]
 
@@ -207,19 +207,19 @@ class ShowCustomer extends InertiaAction
         };
 
         return match ($routeName) {
-            'crm.customers.show',
-            'crm.customers.edit'
+            'grp.crm.customers.show',
+            'grp.crm.customers.edit'
             => array_merge(
                 ShowDashboard::make()->getBreadcrumbs(),
                 $headCrumb(
                     $routeParameters['customer'],
                     [
                         'index' => [
-                            'name'       => 'crm.customers.index',
+                            'name'       => 'grp.crm.customers.index',
                             'parameters' => []
                         ],
                         'model' => [
-                            'name'       => 'crm.customers.show',
+                            'name'       => 'grp.crm.customers.show',
                             'parameters' => [$routeParameters['customer']]
                         ]
                     ],
@@ -227,21 +227,21 @@ class ShowCustomer extends InertiaAction
                 ),
             ),
 
-            'crm.shops.show.customers.show',
-            'crm.shops.show.customers.edit'
+            'grp.crm.shops.show.customers.show',
+            'grp.crm.shops.show.customers.edit'
             => array_merge(
                 (new ShowShop())->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     $routeParameters['customer'],
                     [
                         'index' => [
-                            'name'       => 'crm.shops.show.customers.index',
+                            'name'       => 'grp.crm.shops.show.customers.index',
                             'parameters' => [
                                 $routeParameters['shop']->slug,
                             ]
                         ],
                         'model' => [
-                            'name'       => 'crm.shops.show.customers.show',
+                            'name'       => 'grp.crm.shops.show.customers.show',
                             'parameters' => [
                                 $routeParameters['shop']->slug,
                                 $routeParameters['customer']->slug
@@ -284,7 +284,7 @@ class ShowCustomer extends InertiaAction
         }
 
         return match ($routeName) {
-            'crm.customers.show' => [
+            'grp.crm.customers.show' => [
                 'label' => $customer->name,
                 'route' => [
                     'name'       => $routeName,
@@ -294,7 +294,7 @@ class ShowCustomer extends InertiaAction
 
                 ]
             ],
-            'crm.shops.show.customers.show' => [
+            'grp.crm.shops.show.customers.show' => [
                 'label' => $customer->name,
                 'route' => [
                     'name'       => $routeName,

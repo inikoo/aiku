@@ -18,9 +18,9 @@ const props = defineProps<{
 
 function employeeRoute(employee: Employee) {
     switch (route().current()) {
-        case 'hr.employees.index':
+        case 'grp.hr.employees.index':
             return route(
-                'hr.employees.show',
+                'grp.hr.employees.show',
                 [employee.slug]);
 
     }

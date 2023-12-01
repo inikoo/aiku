@@ -52,13 +52,13 @@ class CreateMarketplaceSupplier extends InertiaAction
                             'style' => 'cancel',
                             'label' => __('cancel'),
                             'route' => match ($request->route()->getName()) {
-                                'procurement.marketplace.agents.show.suppliers.create' =>
+                                'grp.procurement.marketplace.agents.show.suppliers.create' =>
                                 [
-                                    'name'       => 'procurement.marketplace.agents.show',
+                                    'name'       => 'grp.procurement.marketplace.agents.show',
                                     'parameters' => array_values($this->originalParameters)
                                 ],
                                 default => [
-                                    'name'       => 'procurement.marketplace.suppliers.index',
+                                    'name'       => 'grp.procurement.marketplace.suppliers.index',
                                     'parameters' => array_values($this->originalParameters)
                                 ],
                             }
@@ -281,7 +281,7 @@ class CreateMarketplaceSupplier extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->can('procurement.edit');
+        return $request->user()->hasPermissionTo('procurement.edit');
     }
 
 
@@ -304,7 +304,7 @@ class CreateMarketplaceSupplier extends InertiaAction
     {
         return array_merge(
             match ($routeName) {
-                'procurement.marketplace.agents.show.suppliers.create' =>
+                'grp.procurement.marketplace.agents.show.suppliers.create' =>
                 ShowMarketplaceAgent::make()->getBreadcrumbs(
                     routeParameters: $routeParameters,
                 ),
@@ -320,8 +320,8 @@ class CreateMarketplaceSupplier extends InertiaAction
 
 
                         'label' => match ($routeName) {
-                            'procurement.marketplace.agents.show.suppliers.create' => __("creating agent's supplier"),
-                            default                                                => __("creating supplier")
+                            'grp.procurement.marketplace.agents.show.suppliers.create' => __("creating agent's supplier"),
+                            default                                                    => __("creating supplier")
                         }
 
                     ]

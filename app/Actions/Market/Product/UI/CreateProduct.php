@@ -111,7 +111,7 @@ class CreateProduct extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->can('shops.products.edit');
+        return $request->user()->hasPermissionTo('shops.products.edit');
     }
 
 

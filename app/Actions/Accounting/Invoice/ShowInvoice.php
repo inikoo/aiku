@@ -98,8 +98,8 @@ class ShowInvoice extends InertiaAction
     {
         $this->fillFromRequest($request);
 
-        $this->set('canEdit', $request->user()->can('hr.edit'));
-        $this->set('canViewUsers', $request->user()->can('users.view'));
+        $this->set('canEdit', $request->user()->hasPermissionTo('hr.edit'));
+        $this->set('canViewUsers', $request->user()->hasPermissionTo('users.view'));
     }
 
     #[Pure] public function jsonResponse(Invoice $invoice): InvoiceResource
@@ -114,12 +114,12 @@ class ShowInvoice extends InertiaAction
         return array_merge(
             (new IndexShops())->getBreadcrumbs(),
             [
-                'shops.show' => [
+                'grp.shops.show' => [
                     'route'           => 'shops.show',
                     'routeParameters' => $invoice->id,
                     'name'            => $invoice->number,
                     'index'           => [
-                        'route'   => 'shops.index',
+                        'route'   => 'grp.shops.index',
                         'overlay' => __('Invoices list')
                     ],
                     'modelLabel' => [
@@ -149,7 +149,7 @@ class ShowInvoice extends InertiaAction
             return null;
         }
         return match ($routeName) {
-            'accounting.invoices.show'=> [
+            'grp.accounting.invoices.show'=> [
                 'label'=> $invoice->number,
                 'route'=> [
                     'name'      => $routeName,

@@ -10,19 +10,20 @@ namespace App\Http\Middleware;
 
 use App\Actions\UI\GetFirstLoadProps;
 use App\Http\Resources\UI\LoggedUserResource;
+use App\Models\Auth\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Inertia\Middleware;
 use Tightenco\Ziggy\Ziggy;
 
-class HandleInertiaRequests extends Middleware
+class HandleInertiaGrpRequests extends Middleware
 {
-    protected $rootView = 'app';
+    protected $rootView = 'app-grp';
 
     public function share(Request $request): array
     {
 
-        /** @var \App\Models\Auth\User $user */
+        /** @var User $user */
         $user = $request->user();
 
         $firstLoadOnlyProps = [];

@@ -69,7 +69,7 @@ class MarketingHub extends InertiaAction
                             [
                                 'name'  => __('mailroom'),
                                 'icon'  => ['fal', 'fa-mailbox'],
-                                'href'  => ['marketing.mailrooms.index'],
+                                'href'  => ['grp.marketing.mailrooms.index'],
                                 'index' => [
                                     'number' => $routeParameters['shop']
                                 ]
@@ -78,7 +78,7 @@ class MarketingHub extends InertiaAction
                             [
                                 'name'  => __('outboxes'),
                                 'icon'  => ['fal', 'fa-inbox-out'],
-                                'href'  => ['marketing.outboxes.index'],
+                                'href'  => ['grp.marketing.outboxes.index'],
                                 'index' => [
                                     'number' => $this->outbox
                                 ]
@@ -87,7 +87,7 @@ class MarketingHub extends InertiaAction
                             [
                                 'name'  => __('mailshots'),
                                 'icon'  => ['fal', 'fa-mail-bulk'],
-                                'href'  => ['marketing.mailshots.index'],
+                                'href'  => ['grp.marketing.mailshots.index'],
                                 'index' => [
                                     'number' => $this->outbox
 
@@ -97,7 +97,7 @@ class MarketingHub extends InertiaAction
                             [
                                 'name'  => __('dispatched emails'),
                                 'icon'  => ['fal', 'fa-envelope'],
-                                'href'  => ['marketing.dispatched-emails.index'],
+                                'href'  => ['grp.marketing.dispatched-emails.index'],
                                 'index' => [
                                     'number' => $this->outbox
                                 ]
@@ -112,7 +112,7 @@ class MarketingHub extends InertiaAction
                             [
                                 'name'  => __('mailroom'),
                                 'icon'  => ['fal', 'fa-mailbox'],
-                                'href'  => ['marketing.mailrooms.index'],
+                                'href'  => ['grp.marketing.mailrooms.index'],
                                 'index' => [
                                     'number' => $this->outbox
                                 ]
@@ -121,7 +121,7 @@ class MarketingHub extends InertiaAction
                             [
                                 'name'  => __('outboxes'),
                                 'icon'  => ['fal', 'fa-inbox-out'],
-                                'href'  => ['marketing.outboxes.index'],
+                                'href'  => ['grp.marketing.outboxes.index'],
                                 'index' => [
                                     'number' => $this->outbox
                                 ]
@@ -130,7 +130,7 @@ class MarketingHub extends InertiaAction
                             [
                                 'name'  => __('mailshots'),
                                 'icon'  => ['fal', 'fa-mail-bulk'],
-                                'href'  => ['marketing.mailshots.index'],
+                                'href'  => ['grp.marketing.mailshots.index'],
                                 'index' => [
                                     'number' => $this->outbox
 
@@ -140,7 +140,7 @@ class MarketingHub extends InertiaAction
                             [
                                 'name'  => __('dispatched emails'),
                                 'icon'  => ['fal', 'fa-envelope'],
-                                'href'  => ['marketing.dispatched-emails.index'],
+                                'href'  => ['grp.marketing.dispatched-emails.index'],
                                 'index' => [
                                     'number' => $this->outbox
                                 ]
@@ -160,14 +160,14 @@ class MarketingHub extends InertiaAction
     public function getBreadcrumbs($routeName, $routeParameters): array
     {
         return match ($routeName) {
-            'marketing.hub' => array_merge(
+            'grp.marketing.hub' => array_merge(
                 ShowDashboard::make()->getBreadcrumbs(),
                 [
                     [
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name' => 'marketing.hub'
+                                'name' => 'grp.marketing.hub'
                             ],
                             'label' => __('marketing').' ('.__('all shops').')',
                             'icon'  => 'fal fa-bullhorn'
@@ -175,7 +175,7 @@ class MarketingHub extends InertiaAction
                     ],
                 ]
             ),
-            'marketing.shops.show.hub' =>
+            'grp.marketing.shops.show.hub' =>
             array_merge(
                 ShowDashboard::make()->getBreadcrumbs(),
                 [
@@ -183,7 +183,7 @@ class MarketingHub extends InertiaAction
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name'       => 'marketing.hub',
+                                'name'       => 'grp.marketing.hub',
                                 'parameters' => $routeParameters['shop']->slug
                             ],
                             'label' => __('marketing').' ('.$routeParameters['shop']->code.')',

@@ -18,21 +18,21 @@ const props = defineProps<{
 function supplierProductRoute(supplierProduct: SupplierProduct) {
     // console.log(route().current())
     switch (route().current()) {
-        case 'procurement.suppliers.show':
+        case 'grp.procurement.suppliers.show':
             return route(
-                'procurement.suppliers.show.supplier-products.show',
+                'grp.procurement.suppliers.show.supplier-products.show',
                 [supplierProduct.supplier_slug, supplierProduct.slug])
-        case 'procurement.agents.show':
+        case 'grp.procurement.agents.show':
             return route(
-                'procurement.agents.show.supplier-products.show',
+                'grp.procurement.agents.show.supplier-products.show',
                 [supplierProduct.agent_slug, supplierProduct.slug]);
-        case 'procurement.agents.show.suppliers.show':
+        case 'grp.procurement.agents.show.suppliers.show':
             return route(
-                'procurement.agents.show.suppliers.show.supplier-products.show',
+                'grp.procurement.agents.show.suppliers.show.supplier-products.show',
                 [supplierProduct.agent_slug, supplierProduct.supplier_slug, supplierProduct.slug]);
         default:
             return route(
-                'procurement.supplier-products.show',
+                'grp.procurement.supplier-products.show',
                 [supplierProduct.slug]);
     }
 }

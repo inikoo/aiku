@@ -22,7 +22,7 @@ class CreateShops extends InertiaAction
 {
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('shops');
+        $this->canEdit = $request->user()->hasPermissionTo('shops');
 
         return
             (
@@ -50,7 +50,7 @@ class CreateShops extends InertiaAction
                     'exitEdit' => [
                         'label' => __('Back'),
                         'route' => [
-                            'name'       => 'shops.index',
+                            'name'       => 'grp.shops.index',
                             'parameters' => array_values($this->originalParameters)
                         ],
                     ],

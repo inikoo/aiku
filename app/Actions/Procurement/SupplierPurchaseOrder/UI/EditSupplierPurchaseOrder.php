@@ -22,7 +22,7 @@ class EditSupplierPurchaseOrder extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('procurement.edit');
+        $this->canEdit = $request->user()->hasPermissionTo('procurement.edit');
         return $request->user()->hasPermissionTo("procurement.view");
     }
 

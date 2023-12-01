@@ -136,7 +136,7 @@ class StoreCustomer
 
     public function htmlResponse(Customer $customer): RedirectResponse
     {
-        return Redirect::route('crm.shops.show.customers.show', [$customer->shop->slug, $customer->slug]);
+        return Redirect::route('grp.crm.shops.show.customers.show', [$customer->shop->slug, $customer->slug]);
     }
 
 

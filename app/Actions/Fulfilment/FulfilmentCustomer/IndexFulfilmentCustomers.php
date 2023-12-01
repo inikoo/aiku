@@ -94,7 +94,7 @@ class IndexFulfilmentCustomers extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('crm.customers.edit');
+        $this->canEdit = $request->user()->hasPermissionTo('crm.customers.edit');
 
         return
             (
@@ -154,7 +154,7 @@ class IndexFulfilmentCustomers extends InertiaAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => [
-                            'name' => 'fulfilment.customers.index'
+                            'name' => 'grp.fulfilment.customers.index'
                         ],
                         'label' => __('customers'),
                         'icon'  => 'fal fa-bars',

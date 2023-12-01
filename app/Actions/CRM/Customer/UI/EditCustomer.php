@@ -23,7 +23,7 @@ class EditCustomer extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('crm.customers.edit');
+        $this->canEdit = $request->user()->hasPermissionTo('crm.customers.edit');
 
         return $request->user()->hasPermissionTo("shops.customers.edit");
     }
@@ -148,7 +148,7 @@ class EditCustomer extends InertiaAction
         }
 
         return match ($routeName) {
-            'crm.customers.edit' => [
+            'grp.crm.customers.edit' => [
                 'label'=> $customer->name,
                 'route'=> [
                     'name'      => $routeName,
@@ -158,7 +158,7 @@ class EditCustomer extends InertiaAction
 
                 ]
             ],
-            'crm.shops.show.customers.edit'=> [
+            'grp.crm.shops.show.customers.edit'=> [
                 'label'=> $customer->name,
                 'route'=> [
                     'name'      => $routeName,

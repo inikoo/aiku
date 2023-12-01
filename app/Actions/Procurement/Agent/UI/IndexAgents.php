@@ -80,7 +80,7 @@ class IndexAgents extends InertiaAction
                             'tooltip' => __('new agent'),
                             'label'   => __('agent'),
                             'route'   => [
-                                'name'       => 'procurement.agents.create',
+                                'name'       => 'grp.procurement.agents.create',
                                 'parameters' => array_values($this->originalParameters)
                             ]
                         ] : null
@@ -98,7 +98,7 @@ class IndexAgents extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('procurement.edit');
+        $this->canEdit = $request->user()->hasPermissionTo('procurement.edit');
 
         return
             (
@@ -135,13 +135,13 @@ class IndexAgents extends InertiaAction
                         'icon'  => 'fal fa-people-arrows'
                     ],
                     'actions'=> [
-                        $this->canEdit && $this->routeName == 'procurement.agents.index' ? [
+                        $this->canEdit && $this->routeName == 'grp.procurement.agents.index' ? [
                             'type'    => 'button',
                             'style'   => 'create',
                             'tooltip' => __('new agent'),
                             'label'   => __('agent'),
                             'route'   => [
-                                'name'       => 'procurement.agents.create',
+                                'name'       => 'grp.procurement.agents.create',
                                 'parameters' => array_values($this->originalParameters)
                             ]
                         ] : false,
@@ -162,7 +162,7 @@ class IndexAgents extends InertiaAction
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name' => 'procurement.agents.index'
+                                'name' => 'grp.procurement.agents.index'
                             ],
                             'label' => __('agents'),
                             'icon'  => 'fal fa-bars'

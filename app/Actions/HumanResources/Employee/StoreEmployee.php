@@ -141,6 +141,6 @@ class StoreEmployee
 
     public function htmlResponse(Employee $employee): RedirectResponse
     {
-        return Redirect::route('org.hr.employees.show', $employee->slug);
+        return Redirect::route('grp.org.hr.employees.show', $employee->slug);
     }
 }

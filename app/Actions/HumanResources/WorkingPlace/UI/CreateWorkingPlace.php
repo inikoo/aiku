@@ -38,7 +38,7 @@ class CreateWorkingPlace extends InertiaAction
                             'style' => 'cancel',
                             'label' => __('cancel'),
                             'route' => [
-                                'name'       => 'hr.working-places.index',
+                                'name'       => 'grp.hr.working-places.index',
                                 'parameters' => array_values($this->originalParameters)
                             ],
                         ]
@@ -100,7 +100,7 @@ class CreateWorkingPlace extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->can('hr.edit');
+        return $request->user()->hasPermissionTo('hr.edit');
     }
 
 

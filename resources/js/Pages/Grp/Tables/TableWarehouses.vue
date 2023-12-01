@@ -17,9 +17,9 @@ const props = defineProps<{
 function warehouseRoute(warehouse: Warehouse) {
     switch (route().current()) {
 
-        case 'inventory.warehouses.index':
+        case 'grp.oms.warehouses.index':
             return route(
-                'inventory.warehouses.show',
+                'grp.oms.warehouses.show',
                 [warehouse.slug, warehouse.slug]);
     }
 
@@ -38,7 +38,7 @@ function warehouseRoute(warehouse: Warehouse) {
             </Link>
         </template>
         <template #cell(number_warehouse_areas)="{ item: warehouse }">
-            <Link :href="route('inventory.warehouses.show.warehouse-areas.index',warehouse['slug'])">
+            <Link :href="route('grp.inventory.warehouses.show.warehouse-areas.index',warehouse['slug'])">
                 {{ warehouse['number_warehouse_areas'] }}
             </Link>
         </template>

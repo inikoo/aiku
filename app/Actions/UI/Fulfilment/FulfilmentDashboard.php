@@ -54,7 +54,7 @@ class FulfilmentDashboard
                         [
                             'name'  => __('Customers'),
                             'icon'  => ['fal', 'fa-user-tie'],
-                            'href'  => ['fulfilment.customers.index'],
+                            'href'  => ['grp.fulfilment.customers.index'],
                             'index' => [
                                 'number' => $this->tenant->fulfilmentStats->number_customers_with_stored_items
                             ],
@@ -63,7 +63,7 @@ class FulfilmentDashboard
                         [
                             'name'  => __('Stored Items'),
                             'icon'  => ['fal', 'fa-narwhal'],
-                            'href'  => ['fulfilment.stored-items.index'],
+                            'href'  => ['grp.fulfilment.stored-items.index'],
                             'index' => [
                                 'number' => $this->tenant->fulfilmentStats->number_stored_items
                             ],
@@ -73,7 +73,7 @@ class FulfilmentDashboard
                         [
                             'name'  => __('Orders'),
                             'icon'  => ['fal', 'fa-business-time'],
-                            'href'  => ['fulfilment.orders.index'],
+                            'href'  => ['grp.fulfilment.orders.index'],
                             'index' => [
                                 'number' => $this->tenant->fulfilmentStats->number_customers_with_assets
                             ],
@@ -96,7 +96,7 @@ class FulfilmentDashboard
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name' => 'fulfilment.dashboard'
+                                'name' => 'grp.fulfilment.dashboard'
                             ],
                             'label' => __('fulfilment'),
                         ]

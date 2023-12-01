@@ -39,8 +39,8 @@ class ShowSupplier extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit   = $request->user()->can('procurement.suppliers.edit');
-        $this->canDelete = $request->user()->can('procurement.suppliers.edit');
+        $this->canEdit   = $request->user()->hasPermissionTo('procurement.suppliers.edit');
+        $this->canDelete = $request->user()->hasPermissionTo('procurement.suppliers.edit');
 
         return $request->user()->hasPermissionTo("procurement.view");
     }
@@ -95,7 +95,7 @@ class ShowSupplier extends InertiaAction
                             'type'  => 'button',
                             'style' => 'delete',
                             'route' => [
-                                'name'       => 'procurement.suppliers.remove',
+                                'name'       => 'grp.procurement.suppliers.remove',
                                 'parameters' => array_values($this->originalParameters)
                             ]
                         ] : false,
@@ -103,7 +103,7 @@ class ShowSupplier extends InertiaAction
                             'type'  => 'button',
                             'style' => 'create',
                             'route' => [
-                                'name'       => 'procurement.suppliers.show.purchase-orders.create',
+                                'name'       => 'grp.procurement.suppliers.show.purchase-orders.create',
                                 'parameters' => array_values($this->originalParameters)
                             ],
                             'label' => __('purchase order')
@@ -114,7 +114,7 @@ class ShowSupplier extends InertiaAction
                             'name'     => trans_choice('Purchases|Sales', $supplier->stats->number_open_purchase_orders),
                             'number'   => $supplier->stats->number_open_purchase_orders,
                             'href'     => [
-                                'procurement.supplier-products.show',
+                                'grp.procurement.supplier-products.show',
                                 $supplier->slug
                             ],
                             'leftIcon' => [
@@ -126,7 +126,7 @@ class ShowSupplier extends InertiaAction
                             'name'     => trans_choice('product|products', $supplier->stats->number_supplier_products),
                             'number'   => $supplier->stats->number_supplier_products,
                             'href'     => [
-                                'procurement.supplier-products.show',
+                                'grp.procurement.supplier-products.show',
                                 $supplier->slug
                             ],
                             'leftIcon' => [
@@ -202,25 +202,25 @@ class ShowSupplier extends InertiaAction
         };
 
         return match ($routeName) {
-            'procurement.suppliers.show' =>
+            'grp.procurement.suppliers.show' =>
             array_merge(
                 ProcurementDashboard::make()->getBreadcrumbs(),
                 $headCrumb(
                     $routeParameters['supplier'],
                     [
                         'index' => [
-                            'name'       => 'procurement.suppliers.index',
+                            'name'       => 'grp.procurement.suppliers.index',
                             'parameters' => []
                         ],
                         'model' => [
-                            'name'       => 'procurement.suppliers.show',
+                            'name'       => 'grp.procurement.suppliers.show',
                             'parameters' => [$routeParameters['supplier']->slug]
                         ]
                     ],
                     $suffix
                 ),
             ),
-            'procurement.agents.show.suppliers.show' =>
+            'grp.procurement.agents.show.suppliers.show' =>
             array_merge(
                 (new ShowAgent())->getBreadcrumbs(
                     ['agent'=> $routeParameters['agent']]
@@ -229,13 +229,13 @@ class ShowSupplier extends InertiaAction
                     $routeParameters['supplier'],
                     [
                         'index' => [
-                            'name'       => 'procurement.agents.show.suppliers.index',
+                            'name'       => 'grp.procurement.agents.show.suppliers.index',
                             'parameters' => [
                                 $routeParameters['agent']->slug,
                             ]
                         ],
                         'model' => [
-                            'name'       => 'procurement.agents.show.suppliers.show',
+                            'name'       => 'grp.procurement.agents.show.suppliers.show',
                             'parameters' => [
                                 $routeParameters['agent']->slug,
                                 $routeParameters['supplier']->slug
@@ -260,7 +260,7 @@ class ShowSupplier extends InertiaAction
     {
 
         $previous = Supplier::where('code', '<', $supplier->code)->when(true, function ($query) use ($supplier, $request) {
-            if ($request->route()->getName() == 'procurement.agents.show.suppliers.show') {
+            if ($request->route()->getName() == 'grp.procurement.agents.show.suppliers.show') {
                 $query->where('suppliers.agent_id', $supplier->agent_id);
             }
         })->orderBy('code', 'desc')->first();
@@ -272,7 +272,7 @@ class ShowSupplier extends InertiaAction
     public function getNext(Supplier $supplier, ActionRequest $request): ?array
     {
         $next = Supplier::where('code', '>', $supplier->code)->when(true, function ($query) use ($supplier, $request) {
-            if ($request->route()->getName() == 'procurement.agents.show.suppliers.show') {
+            if ($request->route()->getName() == 'grp.procurement.agents.show.suppliers.show') {
                 $query->where('suppliers.agent_id', $supplier->agent_id);
             }
         })->orderBy('code')->first();
@@ -287,7 +287,7 @@ class ShowSupplier extends InertiaAction
         }
 
         return match ($routeName) {
-            'procurement.suppliers.show'=> [
+            'grp.procurement.suppliers.show'=> [
                 'label'=> $supplier->code,
                 'route'=> [
                     'name'      => $routeName,
@@ -297,7 +297,7 @@ class ShowSupplier extends InertiaAction
 
                 ]
             ],
-            'procurement.agents.show.suppliers.show' => [
+            'grp.procurement.agents.show.suppliers.show' => [
                 'label'=> $supplier->code,
                 'route'=> [
                     'name'      => $routeName,

@@ -20,13 +20,13 @@ const locale = useLocaleStore();
 
 function supplierRoute(supplier: Supplier) {
     switch (route().current()) {
-        case 'procurement.suppliers.index':
+        case 'grp.procurement.suppliers.index':
             return route(
-                'procurement.suppliers.show',
+                'grp.procurement.suppliers.show',
                 [supplier.slug]);
         default:
             return route(
-                'procurement.agents.show.suppliers.show',
+                'grp.procurement.agents.show.suppliers.show',
                 [
                     supplier.agent_slug,
                     supplier.slug

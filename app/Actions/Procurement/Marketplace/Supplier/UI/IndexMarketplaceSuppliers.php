@@ -97,7 +97,7 @@ class IndexMarketplaceSuppliers extends InertiaAction
                             'tooltip' => __('new supplier'),
                             'label'   => __('supplier'),
                             'route'   => [
-                                'name'       => 'procurement.marketplace.suppliers.create',
+                                'name'       => 'grp.procurement.marketplace.suppliers.create',
                                 'parameters' => array_values($this->originalParameters)
                             ]
                         ] : null
@@ -118,7 +118,7 @@ class IndexMarketplaceSuppliers extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('procurement.edit');
+        $this->canEdit = $request->user()->hasPermissionTo('procurement.edit');
 
         return
             (
@@ -180,11 +180,11 @@ class IndexMarketplaceSuppliers extends InertiaAction
                             'route'   =>
                                 match (class_basename($parent)) {
                                     'Agent' => [
-                                        'name'       => 'procurement.marketplace.agents.show.suppliers.create',
+                                        'name'       => 'grp.procurement.marketplace.agents.show.suppliers.create',
                                         'parameters' => array_values($this->originalParameters)
                                     ],
                                     default => [
-                                        'name'       => 'procurement.marketplace.suppliers.create',
+                                        'name'       => 'grp.procurement.marketplace.suppliers.create',
                                         'parameters' => array_values($this->originalParameters)
                                     ],
                                 },
@@ -214,24 +214,24 @@ class IndexMarketplaceSuppliers extends InertiaAction
         };
 
         return match ($routeName) {
-            'procurement.marketplace.suppliers.index' =>
+            'grp.procurement.marketplace.suppliers.index' =>
             array_merge(
                 ProcurementDashboard::make()->getBreadcrumbs(),
                 $headCrumb(
                     [
-                        'name' => 'procurement.marketplace.suppliers.index',
+                        'name' => 'grp.procurement.marketplace.suppliers.index',
                         null
                     ]
                 ),
             ),
 
 
-            'procurement.marketplace.agents.show.suppliers.index' =>
+            'grp.procurement.marketplace.agents.show.suppliers.index' =>
             array_merge(
                 (new ShowMarketplaceAgent())->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     [
-                        'name'       => 'procurement.marketplace.agents.show.suppliers.index',
+                        'name'       => 'grp.procurement.marketplace.agents.show.suppliers.index',
                         'parameters' =>
                             [
                                 $routeParameters['agent']->slug

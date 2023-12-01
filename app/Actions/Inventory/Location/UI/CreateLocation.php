@@ -37,7 +37,7 @@ class CreateLocation extends InertiaAction
                             'style' => 'cancel',
                             'label' => __('cancel'),
                             'route' => [
-                                'name'       => 'inventory.warehouses.show.locations.index',
+                                'name'       => 'grp.inventory.warehouses.show.locations.index',
                                 'parameters' => array_values($this->originalParameters)
                             ],
                         ]
@@ -98,7 +98,7 @@ class CreateLocation extends InertiaAction
 
                     ],
                     'route' => match ($request->route()->getName()) {
-                        'inventory.warehouses.show.locations.create' => [
+                        'grp.inventory.warehouses.show.locations.create' => [
                             'name'      => 'models.warehouse.location.store',
                             'arguments' => [$request->route()->parameters['warehouse']->slug]
                         ],
@@ -117,7 +117,7 @@ class CreateLocation extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->can('inventory');
+        return $request->user()->hasPermissionTo('inventory');
     }
 
 

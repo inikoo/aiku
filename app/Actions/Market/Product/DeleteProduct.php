@@ -69,6 +69,6 @@ class DeleteProduct
 
     public function htmlResponse(Product $product): RedirectResponse
     {
-        return Redirect::route('shops.show', $product->shop->slug);
+        return Redirect::route('grp.shops.show', $product->shop->slug);
     }
 }

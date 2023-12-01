@@ -26,7 +26,7 @@ class EditMarketplaceAgent extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('procurement.edit');
+        $this->canEdit = $request->user()->hasPermissionTo('procurement.edit');
 
         return $request->user()->hasPermissionTo("procurement.view");
     }
@@ -186,7 +186,7 @@ class EditMarketplaceAgent extends InertiaAction
         }
 
         return match ($routeName) {
-            'procurement.marketplace.agents.edit' => [
+            'grp.procurement.marketplace.agents.edit' => [
                 'label' => $agent->name,
                 'route' => [
                     'name'       => $routeName,

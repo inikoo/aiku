@@ -66,7 +66,7 @@ class IndexCalendars extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('hr.edit');
+        $this->canEdit = $request->user()->hasPermissionTo('hr.edit');
 
         return
             (
@@ -93,7 +93,7 @@ class IndexCalendars extends InertiaAction
                     'title'  => __('employees'),
                     'create' => $this->canEdit ? [
                         'route' => [
-                            'name'       => 'hr.employees.create',
+                            'name'       => 'grp.hr.employees.create',
                             'parameters' => array_values($this->originalParameters)
                         ],
                         'label' => __('employee')
@@ -122,7 +122,7 @@ class IndexCalendars extends InertiaAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => [
-                            'name' => 'hr.employees.index'
+                            'name' => 'grp.hr.employees.index'
                         ],
                         'label' => __('employees'),
                         'icon'  => 'fal fa-bars',

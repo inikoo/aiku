@@ -28,7 +28,7 @@ class ShowPurchaseOrder extends InertiaAction
 {
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('procurement.edit');
+        $this->canEdit = $request->user()->hasPermissionTo('procurement.edit');
 
         return $request->user()->hasPermissionTo("procurement.view");
     }
@@ -105,13 +105,13 @@ class ShowPurchaseOrder extends InertiaAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => [
-                                'name' => 'procurement.purchase-orders.index',
+                                'name' => 'grp.procurement.purchase-orders.index',
                             ],
                             'label' => __('purchaseOrder')
                         ],
                         'model' => [
                             'route' => [
-                                'name'       => 'procurement.purchase-orders.show',
+                                'name'       => 'grp.procurement.purchase-orders.show',
                                 'parameters' => [$purchaseOrder->slug]
                             ],
                             'label' => $purchaseOrder->number,
@@ -144,7 +144,7 @@ class ShowPurchaseOrder extends InertiaAction
         }
 
         return match ($routeName) {
-            'procurement.purchase-orders.show'=> [
+            'grp.procurement.purchase-orders.show'=> [
                 'label'=> $purchaseOrder->number,
                 'route'=> [
                     'name'      => $routeName,

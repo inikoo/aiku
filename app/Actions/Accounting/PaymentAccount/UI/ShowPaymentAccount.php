@@ -35,7 +35,7 @@ class ShowPaymentAccount extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('accounting.edit');
+        $this->canEdit = $request->user()->hasPermissionTo('accounting.edit');
 
         return $request->user()->hasPermissionTo("accounting.view");
     }
@@ -83,8 +83,8 @@ class ShowPaymentAccount extends InertiaAction
                     'title'  => $paymentAccount->slug,
                     'create' => $this->canEdit
                     && (
-                        $request->route()->getName() == 'accounting.payment-service-providers.show.payment-accounts.show' or
-                        $request->route()->getName() == 'accounting.payment-accounts.show'
+                        $request->route()->getName() == 'grp.accounting.payment-service-providers.show.payment-accounts.show' or
+                        $request->route()->getName() == 'grp.accounting.payment-accounts.show'
                     ) ? [
                         'route' => [
                             'name'       => preg_replace('/show$/', 'show.payments.create', $request->route()->getName()),
@@ -97,12 +97,12 @@ class ShowPaymentAccount extends InertiaAction
                             'name'     => trans_choice('payment | payments', $paymentAccount->stats->number_payments),
                             'number'   => $paymentAccount->stats->number_payments,
                             'href'     => match ($request->route()->getName()) {
-                                'accounting.payment-service-providers.show.payment-accounts.show' => [
-                                    'accounting.payment-service-providers.show.payment-accounts.show.payments.index',
+                                'grp.accounting.payment-service-providers.show.payment-accounts.show' => [
+                                    'grp.accounting.payment-service-providers.show.payment-accounts.show.payments.index',
                                     [$paymentAccount->paymentServiceProvider->slug, $paymentAccount->slug]
                                 ],
                                 default => [
-                                    'accounting.payment-accounts.show.payments.index',
+                                    'grp.accounting.payment-accounts.show.payments.index',
                                     $paymentAccount->slug
                                 ]
                             },
@@ -143,7 +143,7 @@ class ShowPaymentAccount extends InertiaAction
             modelOperations: [
                 'createLink' => $this->canEdit ? [
                     'route' => [
-                        'name'       => 'accounting.payment-accounts.show.payments.create',
+                        'name'       => 'grp.accounting.payment-accounts.show.payments.create',
                         'parameters' => array_values([$paymentAccount->slug])
                     ],
                     'label' => __('products')
@@ -182,20 +182,20 @@ class ShowPaymentAccount extends InertiaAction
         };
 
         return match ($routeName) {
-            'accounting.shops.show.payment-accounts.show' =>
+            'grp.accounting.shops.show.payment-accounts.show' =>
             array_merge(
-                (new  AccountingDashboard())->getBreadcrumbs('accounting.shops.show.dashboard', $routeParameters),
+                (new  AccountingDashboard())->getBreadcrumbs('grp.accounting.shops.show.dashboard', $routeParameters),
                 $headCrumb(
                     $routeParameters['paymentAccount'],
                     [
                         'index' => [
-                            'name'       => 'accounting.shops.show.payment-accounts.index',
+                            'name'       => 'grp.accounting.shops.show.payment-accounts.index',
                             'parameters' => [
                                 $routeParameters['shop']->slug,
                             ]
                         ],
                         'model' => [
-                            'name'       => 'accounting.shops.show.payment-accounts.show',
+                            'name'       => 'grp.accounting.shops.show.payment-accounts.show',
                             'parameters' => [
                                 $routeParameters['shop']->slug,
                                 $routeParameters['paymentAccount']->slug
@@ -205,38 +205,38 @@ class ShowPaymentAccount extends InertiaAction
                     $suffix
                 )
             ),
-            'accounting.payment-accounts.show' =>
+            'grp.accounting.payment-accounts.show' =>
             array_merge(
-                (new  AccountingDashboard())->getBreadcrumbs('accounting.dashboard', $routeParameters),
+                (new  AccountingDashboard())->getBreadcrumbs('grp.accounting.dashboard', $routeParameters),
                 $headCrumb(
                     $routeParameters['paymentAccount'],
                     [
                         'index' => [
-                            'name'       => 'accounting.payment-accounts.index',
+                            'name'       => 'grp.accounting.payment-accounts.index',
                             'parameters' => []
                         ],
                         'model' => [
-                            'name'       => 'accounting.payment-accounts.show',
+                            'name'       => 'grp.accounting.payment-accounts.show',
                             'parameters' => [$routeParameters['paymentAccount']->slug]
                         ]
                     ],
                     $suffix
                 )
             ),
-            'accounting.payment-service-providers.show.payment-accounts.show' =>
+            'grp.accounting.payment-service-providers.show.payment-accounts.show' =>
             array_merge(
                 ShowPaymentServiceProvider::make()->getBreadcrumbs($routeParameters['paymentServiceProvider']),
                 $headCrumb(
                     $routeParameters['paymentAccount'],
                     [
                         'index' => [
-                            'name'       => 'accounting.payment-service-providers.show.payment-accounts.index',
+                            'name'       => 'grp.accounting.payment-service-providers.show.payment-accounts.index',
                             'parameters' => [
                                 $routeParameters['paymentServiceProvider']->slug,
                             ]
                         ],
                         'model' => [
-                            'name'       => 'accounting.payment-service-providers.show.payment-accounts.show',
+                            'name'       => 'grp.accounting.payment-service-providers.show.payment-accounts.show',
                             'parameters' => [
                                 $routeParameters['paymentServiceProvider']->slug,
                                 $routeParameters['paymentAccount']->slug
@@ -271,7 +271,7 @@ class ShowPaymentAccount extends InertiaAction
         }
 
         return match ($routeName) {
-            'accounting.payment-accounts.show' => [
+            'grp.accounting.payment-accounts.show' => [
                 'label' => $paymentAccount->name,
                 'route' => [
                     'name'       => $routeName,
@@ -281,7 +281,7 @@ class ShowPaymentAccount extends InertiaAction
 
                 ]
             ],
-            'accounting.payment-service-providers.show.payment-accounts.show' => [
+            'grp.accounting.payment-service-providers.show.payment-accounts.show' => [
                 'label' => $paymentAccount->name,
                 'route' => [
                     'name'       => $routeName,

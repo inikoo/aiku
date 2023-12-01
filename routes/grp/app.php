@@ -5,7 +5,6 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
 

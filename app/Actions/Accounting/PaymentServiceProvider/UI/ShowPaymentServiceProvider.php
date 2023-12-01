@@ -32,8 +32,8 @@ class ShowPaymentServiceProvider extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit   = $request->user()->can('accounting.edit');
-        $this->canDelete = $request->user()->can('accounting.edit');
+        $this->canEdit   = $request->user()->hasPermissionTo('accounting.edit');
+        $this->canDelete = $request->user()->hasPermissionTo('accounting.edit');
 
         return $request->user()->hasPermissionTo("accounting.view");
     }
@@ -75,7 +75,7 @@ class ShowPaymentServiceProvider extends InertiaAction
                             'type'  => 'button',
                             'style' => 'delete',
                             'route' => [
-                                'name'       => 'accounting.payment-service-providers.remove',
+                                'name'       => 'grp.accounting.payment-service-providers.remove',
                                 'parameters' => array_values($this->originalParameters)
                             ]
                         ] : false
@@ -85,7 +85,7 @@ class ShowPaymentServiceProvider extends InertiaAction
                             'name'     => trans_choice('account | accounts', $paymentServiceProvider->stats->number_accounts),
                             'number'   => $paymentServiceProvider->stats->number_accounts,
                             'href'     => [
-                                'accounting.payment-service-providers.show.payment-accounts.index',
+                                'grp.accounting.payment-service-providers.show.payment-accounts.index',
                                 $paymentServiceProvider->slug
                             ],
                             'leftIcon' => [
@@ -97,7 +97,7 @@ class ShowPaymentServiceProvider extends InertiaAction
                             'name'     => trans_choice('payment | payments', $paymentServiceProvider->stats->number_payments),
                             'number'   => $paymentServiceProvider->stats->number_payments,
                             'href'     => [
-                                'accounting.payment-service-providers.show.payments.index',
+                                'grp.accounting.payment-service-providers.show.payments.index',
                                 $paymentServiceProvider->slug
                             ],
                             'leftIcon' => [
@@ -154,7 +154,7 @@ class ShowPaymentServiceProvider extends InertiaAction
                 modelOperations: [
                      'createLink' => $this->canEdit ? [
                          'route' => [
-                            'name'       => 'accounting.payment-service-providers.show.payments.create',
+                            'name'       => 'grp.accounting.payment-service-providers.show.payments.create',
                             'parameters' => array_values($this->originalParameters)
                          ],
                          'label' => __('payment')
@@ -167,7 +167,7 @@ class ShowPaymentServiceProvider extends InertiaAction
             //            modelOperations: [
             //                'createLink' => $this->canEdit ? [
             //                    'route' => [
-            //                        'name'       => 'accounting.payment-service-providers.show.payment-accounts.create',
+            //                        'name'       => 'grp.accounting.payment-service-providers.show.payment-accounts.create',
             //                        'parameters' => array_values($this->originalParameters)
             //                    ],
             //                    'label' => __('payment account')
@@ -184,20 +184,20 @@ class ShowPaymentServiceProvider extends InertiaAction
     public function getBreadcrumbs(PaymentServiceProvider $paymentServiceProvider, $suffix = null): array
     {
         return array_merge(
-            AccountingDashboard::make()->getBreadcrumbs('accounting.dashboard', []),
+            AccountingDashboard::make()->getBreadcrumbs('grp.accounting.dashboard', []),
             [
                 [
                     'type'           => 'modelWithIndex',
                     'modelWithIndex' => [
                         'index' => [
                             'route' => [
-                                'name' => 'accounting.payment-service-providers.index',
+                                'name' => 'grp.accounting.payment-service-providers.index',
                             ],
                             'label' => __('providers')
                         ],
                         'model' => [
                             'route' => [
-                                'name'       => 'accounting.payment-service-providers.show',
+                                'name'       => 'grp.accounting.payment-service-providers.show',
                                 'parameters' => [$paymentServiceProvider->slug]
                             ],
                             'label' => $paymentServiceProvider->slug,
@@ -228,7 +228,7 @@ class ShowPaymentServiceProvider extends InertiaAction
             return null;
         }
         return match ($routeName) {
-            'accounting.payment-service-providers.show'=> [
+            'grp.accounting.payment-service-providers.show'=> [
                 'label'=> $paymentServiceProvider->code,
                 'route'=> [
                     'name'      => $routeName,

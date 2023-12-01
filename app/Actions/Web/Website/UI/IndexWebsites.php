@@ -27,7 +27,7 @@ class IndexWebsites extends InertiaAction
 {
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('websites.edit');
+        $this->canEdit = $request->user()->hasPermissionTo('websites.edit');
 
         return
             (
@@ -159,7 +159,7 @@ class IndexWebsites extends InertiaAction
                             'tooltip' => __('Create a no shop connected website'),
                             'label'   => __('new static website'),
                             'route'   => [
-                                'name' => 'web.websites.create',
+                                'name' => 'grp.web.websites.create',
                             ]
                         ] : false,
 
@@ -189,12 +189,12 @@ class IndexWebsites extends InertiaAction
         };
 
         return match ($routeName) {
-            'web.websites.index' =>
+            'grp.web.websites.index' =>
             array_merge(
                 ShowDashboard::make()->getBreadcrumbs(),
                 $headCrumb(
                     [
-                        'name' => 'web.websites.index',
+                        'name' => 'grp.web.websites.index',
                         null
                     ]
                 ),

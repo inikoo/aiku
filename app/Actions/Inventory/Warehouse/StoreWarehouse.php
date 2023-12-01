@@ -74,7 +74,7 @@ class StoreWarehouse
 
     public function htmlResponse(Warehouse $warehouse): RedirectResponse
     {
-        return Redirect::route('inventory.warehouses.index');
+        return Redirect::route('grp.inventory.warehouses.index');
     }
 
 

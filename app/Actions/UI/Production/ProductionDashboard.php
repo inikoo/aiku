@@ -54,7 +54,7 @@ class ProductionDashboard
                         [
                             'name'  => __('Products'),
                             'icon'  => ['fal', 'fa-flask'],
-                            'href'  => ['production.products.index'],
+                            'href'  => ['grp.production.products.index'],
                             'index' => [
                                 'number' => $this->tenant->productionStats->number_products
                             ]
@@ -76,7 +76,7 @@ class ProductionDashboard
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name' => 'production.dashboard'
+                                'name' => 'grp.production.dashboard'
                             ],
                             'label' => __('production'),
                         ]

@@ -104,7 +104,7 @@ class ShowDispatchHub
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name' => 'dispatch.hub'
+                                'name' => 'grp.dispatch.hub'
                             ],
                             'label' => __('dispatch'),
                         ]

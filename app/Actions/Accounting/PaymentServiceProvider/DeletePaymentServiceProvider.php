@@ -42,7 +42,7 @@ class DeletePaymentServiceProvider
 
     public function htmlResponse(): RedirectResponse
     {
-        return Redirect::route('accounting.payment-service-providers.index');
+        return Redirect::route('grp.accounting.payment-service-providers.index');
     }
 
 }

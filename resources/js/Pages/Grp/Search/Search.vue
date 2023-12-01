@@ -39,7 +39,7 @@ function handleSearchInput() {
     timeoutId = setTimeout(() => {
         console.log(searchInput.value);
         router.get(
-            route('search.run', {
+            route('grp.search.run', {
                 _query: {
                     q: searchInput.value
                 }

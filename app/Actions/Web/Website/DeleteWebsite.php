@@ -51,7 +51,7 @@ class DeleteWebsite
 
     public function htmlResponse(): RedirectResponse
     {
-        return Redirect::route('web.websites.index');
+        return Redirect::route('grp.web.websites.index');
     }
 
 }

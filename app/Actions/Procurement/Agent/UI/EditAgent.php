@@ -26,7 +26,7 @@ class EditAgent extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('procurement.edit');
+        $this->canEdit = $request->user()->hasPermissionTo('procurement.edit');
 
         return $request->user()->hasPermissionTo("procurement.view");
     }
@@ -184,7 +184,7 @@ class EditAgent extends InertiaAction
         }
 
         return match ($routeName) {
-            'procurement.agents.edit' => [
+            'grp.procurement.agents.edit' => [
                 'label' => $agent->name,
                 'route' => [
                     'name'       => $routeName,

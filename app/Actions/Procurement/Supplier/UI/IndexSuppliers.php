@@ -126,7 +126,7 @@ class IndexSuppliers extends InertiaAction
                             'tooltip' => __('new supplier'),
                             'label'   => __('supplier'),
                             'route'   => [
-                                'name'       => 'procurement.suppliers.create',
+                                'name'       => 'grp.procurement.suppliers.create',
                                 'parameters' => array_values($this->originalParameters)
                             ]
                         ] : null
@@ -143,7 +143,7 @@ class IndexSuppliers extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('procurement.suppliers.edit');
+        $this->canEdit = $request->user()->hasPermissionTo('procurement.suppliers.edit');
 
         return
             (
@@ -199,7 +199,7 @@ class IndexSuppliers extends InertiaAction
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name' => 'procurement.suppliers.index'
+                                'name' => 'grp.procurement.suppliers.index'
                             ],
                             'label' => __('suppliers'),
                             'icon'  => 'fal fa-bars'

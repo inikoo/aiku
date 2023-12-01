@@ -22,7 +22,7 @@ class EditSupplierDelivery extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('procurement.edit');
+        $this->canEdit = $request->user()->hasPermissionTo('procurement.edit');
         return $request->user()->hasPermissionTo("procurement.view");
     }
 
@@ -100,7 +100,7 @@ class EditSupplierDelivery extends InertiaAction
             return null;
         }
         return match ($routeName) {
-            'procurement.supplier-deliveries.edit'=> [
+            'grp.procurement.supplier-deliveries.edit'=> [
                 'label'=> $supplierDelivery->number,
                 'route'=> [
                     'name'      => $routeName,

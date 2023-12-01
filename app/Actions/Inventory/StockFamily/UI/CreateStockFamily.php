@@ -18,7 +18,7 @@ class CreateStockFamily extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->can('inventory.stocks.edit');
+        return $request->user()->hasPermissionTo('inventory.stocks.edit');
     }
 
     public function asController(ActionRequest $request): Response
@@ -47,7 +47,7 @@ class CreateStockFamily extends InertiaAction
                             'style' => 'cancel',
                             'label' => __('cancel'),
                             'route' => [
-                                'name'       => 'inventory.stock-families.index',
+                                'name'       => 'grp.oms.stock-families.index',
                                 'parameters' => array_values($this->originalParameters)
                             ],
                         ]

@@ -94,7 +94,7 @@ class IndexMailshots extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('mail.edit');
+        $this->canEdit = $request->user()->hasPermissionTo('mail.edit');
         return
             (
                 $request->user()->tokenCan('root') or

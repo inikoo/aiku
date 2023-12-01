@@ -23,12 +23,12 @@ const helperMarketplaces = [
     {
         title: trans('Agents Marketplace'),
         label: trans('Agents'),
-        route: 'procurement.marketplace.agents.index',
+        route: 'grp.procurement.marketplace.agents.index',
     },
     {
         title: trans('Supplier Marketplace'),
         label: trans('Supplier'),
-        route: 'procurement.marketplace.suppliers.index',
+        route: 'grp.procurement.marketplace.suppliers.index',
     },
 ]
 

@@ -35,7 +35,7 @@ class CreateMarketplaceAgent extends InertiaAction
                             'style' => 'cancel',
                             'label' => __('cancel'),
                             'route' => [
-                                'name'       => 'procurement.marketplace.agents.index',
+                                'name'       => 'grp.procurement.marketplace.agents.index',
                                 'parameters' => array_values($this->originalParameters)
                             ],
                         ]
@@ -139,7 +139,7 @@ class CreateMarketplaceAgent extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->can('procurement.edit');
+        return $request->user()->hasPermissionTo('procurement.edit');
     }
 
 

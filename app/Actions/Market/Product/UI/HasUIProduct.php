@@ -22,7 +22,7 @@ trait HasUIProduct
                     'routeParameters' => $product->id,
                     'name'            => $product->code,
                     'index'           => [
-                        'route'   => 'shops.index',
+                        'route'   => 'grp.shops.index',
                         'overlay' => __('Products list')
                     ],
                     'modelLabel' => [

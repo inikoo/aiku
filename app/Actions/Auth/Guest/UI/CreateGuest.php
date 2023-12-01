@@ -34,7 +34,7 @@ class CreateGuest extends InertiaAction
                             'style' => 'cancel',
                             'label' => __('cancel'),
                             'route' => [
-                                'name'       => 'sysadmin.guests.index',
+                                'name'       => 'grp.sysadmin.guests.index',
                                 'parameters' => array_values($this->originalParameters)
                             ],
                         ]
@@ -55,7 +55,7 @@ class CreateGuest extends InertiaAction
                                 ],
                                 'guestCredentials' => [
                                     'type'    => 'guest-credentials',
-                                    'apiUrl'  => route('json.group-users.index') . '?filter[contact_name]=',
+                                    'apiUrl'  => route('grp.json.group-users.index') . '?filter[contact_name]=',
                                     'label'   => 'Guest Credentials',
                                     'value'   => 'newGroupUser',
                                     'options' => [
@@ -125,7 +125,7 @@ class CreateGuest extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->can('sysadmin.users.edit');
+        return $request->user()->hasPermissionTo('sysadmin.users.edit');
     }
 
 

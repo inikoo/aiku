@@ -17,26 +17,26 @@ const props = defineProps<{
 
 function stockRoute(stock: Stock) {
     switch (route().current()) {
-        case 'inventory.stock-families.show.stocks.index':
+        case 'grp.oms.stock-families.show.stocks.index':
             return route(
-                'inventory.stock-families.show.stocks.show',
+                'grp.oms.stock-families.show.stocks.show',
                 [stock.family_slug,stock.slug]);
         default:
             return route(
-                'inventory.stocks.show',
+                'grp.oms.stocks.show',
                 [stock.slug]);
     }
 }
 
 function stockFamilyRoute(stock: Stock) {
     switch (route().current()) {
-        case 'inventory.stocks.index':
+        case 'grp.oms.stocks.index':
             return route(
-                'inventory.stock-families.show',
+                'grp.oms.stock-families.show',
                 [stock.family_slug]);
         default:
             return route(
-                'inventory.stock-families.show',
+                'grp.oms.stock-families.show',
                 [stock.family_slug]);
     }
 }

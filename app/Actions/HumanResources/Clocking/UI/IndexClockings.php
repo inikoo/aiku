@@ -103,7 +103,7 @@ class IndexClockings extends InertiaAction
                             'tooltip' => __('new clocking'),
                             'label'   => __('clocking'),
                             'route'   => [
-                                'name'       => 'hr.working-places.show.clockings.create',
+                                'name'       => 'grp.hr.working-places.show.clockings.create',
                                 'parameters' => array_values($this->originalParameters)
                             ]
                         ] : null
@@ -147,7 +147,7 @@ class IndexClockings extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('hr.clockings.edit');
+        $this->canEdit = $request->user()->hasPermissionTo('hr.clockings.edit');
 
         return
             (
@@ -177,8 +177,8 @@ class IndexClockings extends InertiaAction
                     'actions'=> [
                         $this->canEdit
                         && (
-                            $request->route()->getName() == 'hr.working-places.show.clockings.index' or
-                            $request->route()->getName() == 'hr.working-places.show.clocking-machines.show.clockings.index'
+                            $request->route()->getName() == 'grp.hr.working-places.show.clockings.index' or
+                            $request->route()->getName() == 'grp.hr.working-places.show.clocking-machines.show.clockings.index'
                         )
                             ? [
                             'type'  => 'button',
@@ -186,12 +186,12 @@ class IndexClockings extends InertiaAction
                             'label' => __('clockings'),
                             'route' =>
                                 match ($request->route()->getName()) {
-                                    'hr.working-places.show.clockings.index' => [
-                                        'name'       => 'hr.working-places.show.clockings.create',
+                                    'grp.hr.working-places.show.clockings.index' => [
+                                        'name'       => 'grp.hr.working-places.show.clockings.create',
                                         'parameters' => $request->route()->originalParameters()
                                     ],
                                     default => [
-                                        'name'       => 'hr.working-places.show.clocking-machines.show.clockings.create',
+                                        'name'       => 'grp.hr.working-places.show.clocking-machines.show.clockings.create',
                                         'parameters' => $request->route()->originalParameters()
                                     ]
                                 }
@@ -220,54 +220,54 @@ class IndexClockings extends InertiaAction
             ];
         };
         return match ($routeName) {
-            'hr.clockings.index' =>
+            'grp.hr.clockings.index' =>
             array_merge(
                 (new ShowHumanResourcesDashboard())->getBreadcrumbs(),
                 $headCrumb(
                     [
-                        'name' => 'hr.clockings.index',
+                        'name' => 'grp.hr.clockings.index',
                         null
                     ]
                 )
             ),
-            'hr.working-places.show.clockings.index' =>
+            'grp.hr.working-places.show.clockings.index' =>
             array_merge(
                 (new ShowWorkingPlace())->getBreadcrumbs($routeParameters['workplace']),
                 $headCrumb([
-                    'name'       => 'hr.working-places.show.clockings.index',
+                    'name'       => 'grp.hr.working-places.show.clockings.index',
                     'parameters' =>
                         [
                             $routeParameters['workplace']->slug
                         ]
                 ])
             ),
-            'hr.clocking-machines.show.clockings.index' =>
+            'grp.hr.clocking-machines.show.clockings.index' =>
             array_merge(
                 (new ShowClockingMachine())->getBreadcrumbs(
-                    'hr.clocking-machines.show',
+                    'grp.hr.clocking-machines.show',
                     [
                         'clockingMachine' => $routeParameters['clockingMachine']
                     ]
                 ),
                 $headCrumb([
-                    'name'       => 'hr.clocking-machines.show.clockings.index',
+                    'name'       => 'grp.hr.clocking-machines.show.clockings.index',
                     'parameters' =>
                         [
                             $routeParameters['clockingMachine']->slug
                         ]
                 ])
             ),
-            'hr.working-places.show.clocking-machines.show.clockings.index' =>
+            'grp.hr.working-places.show.clocking-machines.show.clockings.index' =>
             array_merge(
                 (new ShowClockingMachine())->getBreadcrumbs(
-                    'hr.working-places.show.clocking-machines.show',
+                    'grp.hr.working-places.show.clocking-machines.show',
                     [
                         'workplace'       => $routeParameters['workplace'],
                         'clockingMachine' => $routeParameters['clockingMachine']
                     ]
                 ),
                 $headCrumb([
-                    'name'       => 'hr.working-places.show.clocking-machines.show.clockings.index',
+                    'name'       => 'grp.hr.working-places.show.clocking-machines.show.clockings.index',
                     'parameters' =>
                         [
                             $routeParameters['workplace']->slug,

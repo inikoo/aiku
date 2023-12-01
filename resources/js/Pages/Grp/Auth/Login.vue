@@ -12,7 +12,7 @@ const form = useForm({
                      });
 
 const submit = () => {
-    form.post(route('login'), {
+    form.post(route('grp.login'), {
         onFinish: () => form.reset('password'),
     });
 };

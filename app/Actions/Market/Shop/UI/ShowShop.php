@@ -36,8 +36,8 @@ class ShowShop extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit   = $request->user()->can('shops.edit');
-        $this->canDelete = $request->user()->can('shops.edit');
+        $this->canEdit   = $request->user()->hasPermissionTo('shops.edit');
+        $this->canDelete = $request->user()->hasPermissionTo('shops.edit');
 
         return $request->user()->hasPermissionTo("shops.view");
     }
@@ -102,7 +102,7 @@ class ShowShop extends InertiaAction
                         [
                             'name'  => __('customers'),
                             'icon'  => ['fal', 'fa-user'],
-                            'href'  => ['crm.shops.show.customers.index', $shop->slug],
+                            'href'  => ['grp.crm.shops.show.customers.index', $shop->slug],
                             'index' => [
                                 'number' => $shop->crmStats->number_customers
                             ]
@@ -110,7 +110,7 @@ class ShowShop extends InertiaAction
                         [
                             'name'  => __('prospects'),
                             'icon'  => ['fal', 'fa-user'],
-                            'href'  => ['crm.shops.show.prospects.index', $shop->slug],
+                            'href'  => ['grp.crm.shops.show.prospects.index', $shop->slug],
                             'index' => [
                                 'number' => 'TBD'// $shop->stats->number_customers
                             ]
@@ -148,7 +148,7 @@ class ShowShop extends InertiaAction
                         [
                             'name'  => __('orders'),
                             'icon'  => ['fal', 'fa-shopping-cart'],
-                            'href'  => ['crm.shops.show.orders.index', $shop->slug],
+                            'href'  => ['grp.crm.shops.show.orders.index', $shop->slug],
                             'index' => [
                                 'number' => $shop->stats->number_orders
                             ]
@@ -156,7 +156,7 @@ class ShowShop extends InertiaAction
                         [
                             'name'  => __('invoices'),
                             'icon'  => ['fal', 'fa-file-invoice'],
-                            'href'  => ['crm.shops.show.invoices.index', $shop->slug],
+                            'href'  => ['grp.crm.shops.show.invoices.index', $shop->slug],
                             'index' => [
                                 'number' => $shop->stats->number_invoices
                             ]
@@ -164,7 +164,7 @@ class ShowShop extends InertiaAction
                         [
                             'name'  => __('delivery-notes'),
                             'icon'  => ['fal', 'fa-sticky-note'],
-                            'href'  => ['crm.shops.show.delivery-notes.index', $shop->slug],
+                            'href'  => ['grp.crm.shops.show.delivery-notes.index', $shop->slug],
                             'index' => [
                                 'number' => $shop->stats->number_deliveries
                             ]
@@ -274,8 +274,8 @@ class ShowShop extends InertiaAction
     {
         $this->fillFromRequest($request);
 
-        $this->set('canEdit', $request->user()->can('hr.edit'));
-        $this->set('canViewUsers', $request->user()->can('users.view'));
+        $this->set('canEdit', $request->user()->hasPermissionTo('hr.edit'));
+        $this->set('canViewUsers', $request->user()->hasPermissionTo('users.view'));
     }
 
     public function jsonResponse(Shop $shop): ShopResource
@@ -295,7 +295,7 @@ class ShowShop extends InertiaAction
                         'modelWithIndex' => [
                             'index' => [
                                 'route' => [
-                                    'name' => 'shops.index'
+                                    'name' => 'grp.shops.index'
                                 ],
                                 'label' => __('shops'),
                                 'icon'  => 'fal fa-bars'

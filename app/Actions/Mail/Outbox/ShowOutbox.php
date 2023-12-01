@@ -33,7 +33,7 @@ class ShowOutbox extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('mail.edit');
+        $this->canEdit = $request->user()->hasPermissionTo('mail.edit');
         return $request->user()->hasPermissionTo('marketing.view');
     }
 

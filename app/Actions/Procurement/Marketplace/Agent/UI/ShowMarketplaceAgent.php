@@ -37,8 +37,8 @@ class ShowMarketplaceAgent extends InertiaAction
         $agentID           =$request->route()->parameters()['agent']->id;
         $agentIsOwned      =$organisation->myAgents->contains($agentID);
 
-        $this->canEdit   = $agentIsOwned and $request->user()->can('procurement.edit') ;
-        $this->canDelete = $agentIsOwned and $request->user()->can('procurement.edit');
+        $this->canEdit   = $agentIsOwned and $request->user()->hasPermissionTo('procurement.edit') ;
+        $this->canDelete = $agentIsOwned and $request->user()->hasPermissionTo('procurement.edit');
 
 
         return $request->user()->hasPermissionTo("procurement.view");
@@ -90,7 +90,7 @@ class ShowMarketplaceAgent extends InertiaAction
                             'type'  => 'button',
                             'style' => 'delete',
                             'route' => [
-                                'name'       => 'procurement.marketplace.agents.remove',
+                                'name'       => 'grp.procurement.marketplace.agents.remove',
                                 'parameters' => array_values($this->originalParameters)
                             ]
                         ] : false,
@@ -98,7 +98,7 @@ class ShowMarketplaceAgent extends InertiaAction
                             'type'  => 'button',
                             'style' => 'create',
                             'route' => [
-                                'name'       => 'procurement.marketplace.agents.show.suppliers.create',
+                                'name'       => 'grp.procurement.marketplace.agents.show.suppliers.create',
                                 'parameters' => array_values($this->originalParameters)
                             ],
                             'label' => __('supplier')
@@ -107,7 +107,7 @@ class ShowMarketplaceAgent extends InertiaAction
                     /*
                     'meta'   => [
                         [
-                            'href'     => ['procurement.marketplace.agents.show.suppliers.index', $agent->slug],
+                            'href'     => ['grp.procurement.marketplace.agents.show.suppliers.index', $agent->slug],
                             'name'     => trans_choice('supplier|suppliers', $agent->stats->number_suppliers),
                             'number'   => $agent->stats->number_suppliers,
                             'leftIcon' => [
@@ -116,7 +116,7 @@ class ShowMarketplaceAgent extends InertiaAction
                             ],
                         ],
                         [
-                            'href'     => ['procurement.marketplace.agents.show.supplier-products.index', $agent->slug],
+                            'href'     => ['grp.procurement.marketplace.agents.show.supplier-products.index', $agent->slug],
                             'name'     => trans_choice('product|products', $agent->stats->number_supplier_products),
                             'number'   => $agent->stats->number_supplier_products,
                             'leftIcon' => [
@@ -161,7 +161,7 @@ class ShowMarketplaceAgent extends InertiaAction
                 /* modelOperations: [
                     'createLink' => $this->canEdit ? [
                         'route' => [
-                            'name'       => 'procurement.marketplace.agents.show.suppliers.create',
+                            'name'       => 'grp.procurement.marketplace.agents.show.suppliers.create',
                             'parameters' => array_values($this->originalParameters)
                         ],
                         'label' => __('suppliers')
@@ -175,7 +175,7 @@ class ShowMarketplaceAgent extends InertiaAction
                     /* modelOperations: [
                         'createLink' => $this->canEdit ? [
                             'route' => [
-                                'name'       => 'procurement.marketplace.agents.show.supplier-products.create',
+                                'name'       => 'grp.procurement.marketplace.agents.show.supplier-products.create',
                                 'parameters' => array_values($this->originalParameters)
                             ],
                             'label' => __('product')
@@ -202,13 +202,13 @@ class ShowMarketplaceAgent extends InertiaAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => [
-                                'name' => 'procurement.marketplace.agents.index',
+                                'name' => 'grp.procurement.marketplace.agents.index',
                             ],
                             'label' => __("agent's marketplace"),
                         ],
                         'model' => [
                             'route' => [
-                                'name'       => 'procurement.marketplace.agents.show',
+                                'name'       => 'grp.procurement.marketplace.agents.show',
                                 'parameters' => [$routeParameters['agent']->slug]
                             ],
                             'label' => $routeParameters['agent']->code,
@@ -242,7 +242,7 @@ class ShowMarketplaceAgent extends InertiaAction
         }
 
         return match ($routeName) {
-            'procurement.marketplace.agents.show' => [
+            'grp.procurement.marketplace.agents.show' => [
                 'label' => $agent->name,
                 'route' => [
                     'name'       => $routeName,

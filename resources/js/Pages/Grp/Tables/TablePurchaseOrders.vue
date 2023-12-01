@@ -17,13 +17,13 @@ const props = defineProps<{
 
 function PurchaseOrderRoute(purchaseOrder: PurchaseOrder) {
     switch (route().current()) {
-        case 'procurement.purchase-orders.index':
+        case 'grp.procurement.purchase-orders.index':
             return route(
-                'procurement.purchase-orders.show',
+                'grp.procurement.purchase-orders.show',
                 [purchaseOrder.slug]);
-        case 'procurement.agents.show':
+        case 'grp.procurement.agents.show':
             return route(
-                'procurement.purchase-orders.show',
+                'grp.procurement.purchase-orders.show',
                 [purchaseOrder.slug]);
     }
 }

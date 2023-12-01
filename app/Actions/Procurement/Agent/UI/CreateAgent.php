@@ -35,7 +35,7 @@ class CreateAgent extends InertiaAction
                             'style' => 'cancel',
                             'label' => __('cancel'),
                             'route' => [
-                                'name'       => 'procurement.agents.index',
+                                'name'       => 'grp.procurement.agents.index',
                                 'parameters' => array_values($this->originalParameters)
                             ],
                         ]
@@ -134,7 +134,7 @@ class CreateAgent extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->can('procurement.edit');
+        return $request->user()->hasPermissionTo('procurement.edit');
     }
 
 

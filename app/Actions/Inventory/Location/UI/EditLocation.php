@@ -25,7 +25,7 @@ class EditLocation extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('inventory.locations.edit');
+        $this->canEdit = $request->user()->hasPermissionTo('inventory.locations.edit');
         return $request->user()->hasPermissionTo("inventory.warehouses.view");
     }
 
@@ -146,11 +146,11 @@ class EditLocation extends InertiaAction
     {
         $previous=Location::where('slug', '<', $location->slug)->when(true, function ($query) use ($location, $request) {
             switch ($request->route()->getName()) {
-                case 'inventory.warehouses.show.locations.edit':
+                case 'grp.inventory.warehouses.show.locations.edit':
                     $query->where('locations.warehouse_id', $location->warehouse_id);
                     break;
-                case 'inventory.warehouses.show.warehouse-areas.show.locations.edit':
-                case 'inventory.warehouse-areas.show.locations.show':
+                case 'grp.inventory.warehouses.show.warehouse-areas.show.locations.edit':
+                case 'grp.inventory.warehouse-areas.show.locations.show':
                     $query->where('locations.warehouse_area_id', $location->warehouse_area_id);
                     break;
 
@@ -165,11 +165,11 @@ class EditLocation extends InertiaAction
     {
         $next = Location::where('slug', '>', $location->slug)->when(true, function ($query) use ($location, $request) {
             switch ($request->route()->getName()) {
-                case 'inventory.warehouses.show.locations.edit':
+                case 'grp.inventory.warehouses.show.locations.edit':
                     $query->where('locations.warehouse_id', $location->warehouse_id);
                     break;
-                case 'inventory.warehouses.show.warehouse-areas.show.locations.edit':
-                case 'inventory.warehouse-areas.show.locations.show':
+                case 'grp.inventory.warehouses.show.warehouse-areas.show.locations.edit':
+                case 'grp.inventory.warehouse-areas.show.locations.show':
                     $query->where('locations.warehouse_area_id', $location->warehouse_area_id);
                     break;
 
@@ -185,7 +185,7 @@ class EditLocation extends InertiaAction
             return null;
         }
         return match ($routeName) {
-            'inventory.locations.edit'=> [
+            'grp.inventory.locations.edit'=> [
                 'label'=> $location->slug,
                 'route'=> [
                     'name'      => $routeName,
@@ -195,7 +195,7 @@ class EditLocation extends InertiaAction
 
                 ]
             ],
-            'inventory.warehouse-areas.show.locations.edit' => [
+            'grp.inventory.warehouse-areas.show.locations.edit' => [
                 'label'=> $location->slug,
                 'route'=> [
                     'name'      => $routeName,
@@ -206,7 +206,7 @@ class EditLocation extends InertiaAction
 
                 ]
             ],
-            'inventory.warehouses.show.locations.edit'=> [
+            'grp.inventory.warehouses.show.locations.edit'=> [
                 'label'=> $location->slug,
                 'route'=> [
                     'name'      => $routeName,
@@ -217,7 +217,7 @@ class EditLocation extends InertiaAction
 
                 ]
             ],
-            'inventory.warehouses.show.warehouse-areas.show.locations.edit' => [
+            'grp.inventory.warehouses.show.warehouse-areas.show.locations.edit' => [
                 'label'=> $location->slug,
                 'route'=> [
                     'name'      => $routeName,

@@ -33,8 +33,8 @@ class ShowStockFamily extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit   = $request->user()->can('inventory.stocks.edit');
-        $this->canDelete = $request->user()->can('inventory.stocks.edit');
+        $this->canEdit   = $request->user()->hasPermissionTo('inventory.stocks.edit');
+        $this->canDelete = $request->user()->hasPermissionTo('inventory.stocks.edit');
 
         return $request->user()->hasPermissionTo("inventory.stocks.view");
     }
@@ -78,7 +78,7 @@ class ShowStockFamily extends InertiaAction
                             'type'  => 'button',
                             'style' => 'delete',
                             'route' => [
-                                'name'       => 'inventory.stock-families.remove',
+                                'name'       => 'grp.oms.stock-families.remove',
                                 'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ] : false
@@ -88,7 +88,7 @@ class ShowStockFamily extends InertiaAction
                             'name'     => trans_choice('stock | stocks', $stockFamily->stats->number_stocks),
                             'number'   => $stockFamily->stats->number_stocks,
                             'href'     => [
-                                'inventory.stock-families.show.stocks.index',
+                                'grp.oms.stock-families.show.stocks.index',
                                 $stockFamily->slug
                             ],
                             'leftIcon' => [
@@ -144,14 +144,14 @@ class ShowStockFamily extends InertiaAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => [
-                                'name' => 'inventory.stock-families.index',
+                                'name' => 'grp.oms.stock-families.index',
                             ],
                             'label' => __('SKUs families'),
                             'icon'  => 'fal fa-bars'
                         ],
                         'model' => [
                             'route' => [
-                                'name'       => 'inventory.stock-families.show',
+                                'name'       => 'grp.oms.stock-families.show',
                                 'parameters' => [$stockFamily->slug]
                             ],
                             'label' => $stockFamily->code,
@@ -186,7 +186,7 @@ class ShowStockFamily extends InertiaAction
         }
 
         return match ($routeName) {
-            'inventory.stock-families.show' => [
+            'grp.oms.stock-families.show' => [
                 'label' => $stockFamily->name,
                 'route' => [
                     'name'       => $routeName,

@@ -86,12 +86,12 @@ class StoreLocation
     public function htmlResponse(Location $location): RedirectResponse
     {
         if(!$location->warehouse_area_id) {
-            return Redirect::route('inventory.warehouses.show.locations.show', [
+            return Redirect::route('grp.inventory.warehouses.show.locations.show', [
                 $location->warehouse->slug,
                 $location->slug
             ]);
         } else {
-            return Redirect::route('inventory.warehouses.show.warehouse-areas.show.locations.show', [
+            return Redirect::route('grp.inventory.warehouses.show.warehouse-areas.show.locations.show', [
                 $location->warehouse->slug,
                 $location->warehouseArea->slug,
                 $location->slug

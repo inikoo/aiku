@@ -47,12 +47,12 @@ class SysAdminDashboard
                     [
                         'name' => __('users'),
                         'stat' => $organisation->stats->number_users_status_active,
-                        'href' => ['sysadmin.users.index']
+                        'href' => ['grp.sysadmin.users.index']
                     ],
                     [
                         'name' => __('guests'),
                         'stat' => $organisation->stats->number_guests_status_active,
-                        'href' => ['sysadmin.guests.index']
+                        'href' => ['grp.sysadmin.guests.index']
                     ]
                 ]
 
@@ -72,7 +72,7 @@ class SysAdminDashboard
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name' => 'sysadmin.dashboard'
+                                'name' => 'grp.sysadmin.dashboard'
                             ],
                             'label'  => __('system administration'),
                         ]

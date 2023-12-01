@@ -79,12 +79,12 @@ class StoreStock
     public function htmlResponse(Stock $stock): RedirectResponse
     {
         if (!$stock->stock_family_id) {
-            return Redirect::route('inventory.stock-families.show.stocks.show', [
+            return Redirect::route('grp.inventory.stock-families.show.stocks.show', [
                 $stock->stockFamily->slug,
                 $stock->slug
             ]);
         } else {
-            return Redirect::route('inventory.stocks.show', [
+            return Redirect::route('grp.inventory.stocks.show', [
                 $stock->slug
             ]);
         }

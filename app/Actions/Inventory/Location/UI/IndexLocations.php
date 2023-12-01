@@ -35,7 +35,7 @@ class IndexLocations extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('inventory.edit');
+        $this->canEdit = $request->user()->hasPermissionTo('inventory.edit');
 
         return
             (
@@ -155,7 +155,7 @@ class IndexLocations extends InertiaAction
                                 'tooltip' => __('new location'),
                                 'label'   => __('location'),
                                 'route'   => [
-                                    'name'       => 'inventory.warehouses.create',
+                                    'name'       => 'grp.inventory.warehouses.create',
                                     'parameters' => array_values($this->originalParameters)
                                 ]
                             ] : null
@@ -171,7 +171,7 @@ class IndexLocations extends InertiaAction
                                 'tooltip' => __('new location'),
                                 'label'   => __('location'),
                                 'route'   => [
-                                    'name'       => 'inventory.warehouses.show.locations.create',
+                                    'name'       => 'grp.inventory.warehouses.show.locations.create',
                                     'parameters' => array_values($this->originalParameters)
                                 ]
                             ] : null
@@ -187,7 +187,7 @@ class IndexLocations extends InertiaAction
                                 'tooltip' => __('new location'),
                                 'label'   => __('location'),
                                 'route'   => [
-                                    'name'       => 'inventory.warehouses.show.warehouse-areas.show.locations.create',
+                                    'name'       => 'grp.inventory.warehouses.show.warehouse-areas.show.locations.create',
                                     'parameters' => array_values($this->originalParameters)
                                 ]
                             ] : null
@@ -244,20 +244,20 @@ class IndexLocations extends InertiaAction
                     'actions'=> [
                         $this->canEdit
                         && (
-                            $this->routeName == 'inventory.warehouses.show.locations.index' or
-                            $this->routeName == 'inventory.warehouses.show.warehouse-areas.show.locations.index'
+                            $this->routeName == 'grp.inventory.warehouses.show.locations.index' or
+                            $this->routeName == 'grp.inventory.warehouses.show.warehouse-areas.show.locations.index'
                         )
                             ? [
                             'type'  => 'button',
                             'style' => 'create',
                             'label' => __('locations'),
                             'route' => match ($this->routeName) {
-                                'inventory.warehouses.show.locations.index' => [
-                                    'name'       => 'inventory.warehouses.show.locations.create',
+                                'grp.inventory.warehouses.show.locations.index' => [
+                                    'name'       => 'grp.inventory.warehouses.show.locations.create',
                                     'parameters' => array_values($this->originalParameters)
                                 ],
                                 default => [
-                                    'name'       => 'inventory.warehouses.show.warehouse-areas.show.locations.create',
+                                    'name'       => 'grp.inventory.warehouses.show.warehouse-areas.show.locations.create',
                                     'parameters' => array_values($this->originalParameters)
                                 ]
                             }
@@ -286,54 +286,54 @@ class IndexLocations extends InertiaAction
         };
 
         return match ($routeName) {
-            'inventory.locations.index' =>
+            'grp.inventory.locations.index' =>
             array_merge(
                 (new InventoryDashboard())->getBreadcrumbs(),
                 $headCrumb(
                     [
-                        'name' => 'inventory.locations.index',
+                        'name' => 'grp.inventory.locations.index',
                         null
                     ]
                 )
             ),
-            'inventory.warehouses.show.locations.index' =>
+            'grp.inventory.warehouses.show.locations.index' =>
             array_merge(
                 (new ShowWarehouse())->getBreadcrumbs($routeParameters['warehouse']),
                 $headCrumb([
-                    'name'       => 'inventory.warehouses.show.locations.index',
+                    'name'       => 'grp.inventory.warehouses.show.locations.index',
                     'parameters' =>
                         [
                             $routeParameters['warehouse']->slug
                         ]
                 ])
             ),
-            'inventory.warehouse-areas.show.locations.index' =>
+            'grp.inventory.warehouse-areas.show.locations.index' =>
             array_merge(
                 (new ShowWarehouseArea())->getBreadcrumbs(
-                    'inventory.warehouse-areas.show',
+                    'grp.inventory.warehouse-areas.show',
                     [
                         'warehouseArea' => $routeParameters['warehouseArea']
                     ]
                 ),
                 $headCrumb([
-                    'name'       => 'inventory.warehouse-areas.show.locations.index',
+                    'name'       => 'grp.inventory.warehouse-areas.show.locations.index',
                     'parameters' =>
                         [
                             $routeParameters['warehouseArea']->slug
                         ]
                 ])
             ),
-            'inventory.warehouses.show.warehouse-areas.show.locations.index' =>
+            'grp.inventory.warehouses.show.warehouse-areas.show.locations.index' =>
             array_merge(
                 (new ShowWarehouseArea())->getBreadcrumbs(
-                    'inventory.warehouses.show.warehouse-areas.show',
+                    'grp.inventory.warehouses.show.warehouse-areas.show',
                     [
                         'warehouse'     => $routeParameters['warehouse'],
                         'warehouseArea' => $routeParameters['warehouseArea']
                     ]
                 ),
                 $headCrumb([
-                    'name'       => 'inventory.warehouses.show.warehouse-areas.show.locations.index',
+                    'name'       => 'grp.inventory.warehouses.show.warehouse-areas.show.locations.index',
                     'parameters' =>
                         [
                             $routeParameters['warehouse']->slug,

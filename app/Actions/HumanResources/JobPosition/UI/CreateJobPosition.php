@@ -36,7 +36,7 @@ class CreateJobPosition extends InertiaAction
                             'style' => 'cancel',
                             'label' => __('cancel'),
                             'route' => [
-                                'name'       => 'hr.job-positions.index',
+                                'name'       => 'grp.hr.job-positions.index',
                                 'parameters' => array_values($this->originalParameters)
                             ],
                         ]
@@ -84,7 +84,7 @@ class CreateJobPosition extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->can('hr.edit');
+        return $request->user()->hasPermissionTo('hr.edit');
     }
 
 

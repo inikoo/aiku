@@ -86,7 +86,7 @@ class EditSystemSettings
                             "icon"   => "fab fa-google",
                             "button" => [
                                 "title"   => !file_exists($this->getTokenPath()) ? "Authorize" : "Authorized",
-                                "route"   => route('google.drive.authorize'),
+                                "route"   => route('grp.google.drive.authorize'),
                                 "disable" => file_exists($this->getTokenPath())
                             ],
                             "fields" => [
@@ -139,7 +139,7 @@ class EditSystemSettings
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name' => 'sysadmin.settings.edit'
+                                'name' => 'grp.sysadmin.settings.edit'
                             ],
                             'label'  => __('settings'),
                         ]

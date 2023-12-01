@@ -114,7 +114,7 @@ class EditWarehouse extends InertiaAction
         }
 
         return match ($routeName) {
-            'inventory.warehouses.edit' => [
+            'grp.inventory.warehouses.edit' => [
                 'label' => $warehouse->name,
                 'route' => [
                     'name'       => $routeName,

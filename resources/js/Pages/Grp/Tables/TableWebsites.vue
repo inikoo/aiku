@@ -17,9 +17,9 @@ const props = defineProps<{
 
 function websiteRoute(website: Website) {
     switch (route().current()) {
-        case 'web.websites.index':
+        case 'grp.web.websites.index':
             return route(
-                'web.websites.show',
+                'grp.web.websites.show',
                 [website.slug]);
     }
 }

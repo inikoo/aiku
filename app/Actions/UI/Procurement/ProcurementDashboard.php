@@ -56,7 +56,7 @@ class ProcurementDashboard
                         [
                             'name'         => __('agents'),
                             'icon'         => ['fal', 'fa-people-arrows'],
-                            'href'         => ['procurement.agents.index'],
+                            'href'         => ['grp.procurement.agents.index'],
                             'index'        => [
                                 'number' => $this->tenant->procurementStats->number_agents
                             ],
@@ -64,7 +64,7 @@ class ProcurementDashboard
                                 'tooltip'    => __('marketplace agents'),
                                 'icon'       => ['fal', 'fa-store'],
                                 'labelStyle' => 'bordered',
-                                'href'       => ['procurement.marketplace.agents.index'],
+                                'href'       => ['grp.procurement.marketplace.agents.index'],
 
                             ]
 
@@ -72,7 +72,7 @@ class ProcurementDashboard
                         [
                             'name'         => __('suppliers'),
                             'icon'         => ['fal', 'fa-person-dolly'],
-                            'href'         => ['procurement.suppliers.index'],
+                            'href'         => ['grp.procurement.suppliers.index'],
                             'index'        => [
                                 'number' => $this->tenant->procurementStats->number_suppliers_type_supplier
                             ],
@@ -80,7 +80,7 @@ class ProcurementDashboard
                                 'tooltip'    => __('marketplace suppliers'),
                                 'icon'       => ['fal', 'fa-store'],
                                 'labelStyle' => 'bordered',
-                                'href'       => ['procurement.marketplace.suppliers.index'],
+                                'href'       => ['grp.procurement.marketplace.suppliers.index'],
 
                             ]
 
@@ -89,7 +89,7 @@ class ProcurementDashboard
                             'name'         => __('supplier products'),
                             'shortName'    => __('products'),
                             'icon'         => ['fal', 'fa-box-usd'],
-                            'href'         => ['procurement.supplier-products.index'],
+                            'href'         => ['grp.procurement.supplier-products.index'],
                             'index'        => [
                                 'number' => $this->tenant->procurementStats->number_supplier_products
                             ],
@@ -97,7 +97,7 @@ class ProcurementDashboard
                                 'tooltip'    => __('marketplace suppliers'),
                                 'icon'       => ['fal', 'fa-store'],
                                 'labelStyle' => 'bordered',
-                                'href'       => ['procurement.marketplace.supplier-products.index'],
+                                'href'       => ['grp.procurement.marketplace.supplier-products.index'],
 
                             ]
 
@@ -108,7 +108,7 @@ class ProcurementDashboard
                         [
                             'name'  => __('purchase orders'),
                             'icon'  => ['fal', 'fa-clipboard-list'],
-                            'href'  => ['procurement.purchase-orders.index'],
+                            'href'  => ['grp.procurement.purchase-orders.index'],
                             'index' => [
                                 'number' => $this->tenant->procurementStats->number_purchase_orders
                             ]
@@ -117,7 +117,7 @@ class ProcurementDashboard
                         [
                             'name'  => __('supplier deliveries'),
                             'icon'  => ['fal', 'fa-truck-container'],
-                            'href'  => ['procurement.supplier-deliveries.index'],
+                            'href'  => ['grp.procurement.supplier-deliveries.index'],
                             'index' => [
                                 'number' => $this->tenant->procurementStats->number_deliveries
                             ]
@@ -140,7 +140,7 @@ class ProcurementDashboard
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name' => 'procurement.dashboard'
+                                'name' => 'grp.procurement.dashboard'
                             ],
                             'label' => __('procurement'),
                         ]

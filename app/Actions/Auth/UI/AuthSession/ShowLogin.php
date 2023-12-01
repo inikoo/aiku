@@ -18,6 +18,7 @@ class ShowLogin
 
     public function handle(): Response
     {
+
         return Inertia::render('Auth/Login', [
             'status'           => session('status'),
         ]);

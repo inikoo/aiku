@@ -16,7 +16,7 @@ class CreateDepartments extends InertiaAction
 {
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('shops');
+        $this->canEdit = $request->user()->hasPermissionTo('shops');
 
         return
             (

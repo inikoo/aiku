@@ -40,7 +40,7 @@ class DeleteMarketplaceAgent
 
     public function htmlResponse(): RedirectResponse
     {
-        return Redirect::route('procurement.marketplace.agents.index');
+        return Redirect::route('grp.procurement.marketplace.agents.index');
     }
 
 }

@@ -22,7 +22,7 @@ class RemoveGuest extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('sysadmin.edit');
+        $this->canEdit = $request->user()->hasPermissionTo('sysadmin.edit');
         return $request->user()->hasPermissionTo("sysadmin.view");
     }
 

@@ -26,8 +26,8 @@ class ShowWebsiteWorkshop extends InertiaAction
 {
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit   = $request->user()->can('websites.edit');
-        $this->canDelete = $request->user()->can('websites.edit');
+        $this->canEdit   = $request->user()->hasPermissionTo('websites.edit');
+        $this->canDelete = $request->user()->hasPermissionTo('websites.edit');
 
         return $request->user()->hasPermissionTo("websites.view");
     }
@@ -157,7 +157,7 @@ class ShowWebsiteWorkshop extends InertiaAction
 
 
         return match ($routeName) {
-            'web.websites.workshop' =>
+            'grp.web.websites.workshop' =>
 
             array_merge(
                 ShowDashboard::make()->getBreadcrumbs(),
@@ -166,11 +166,11 @@ class ShowWebsiteWorkshop extends InertiaAction
                     $routeParameters['website'],
                     [
                         'index' => [
-                            'name'       => 'web.websites.index',
+                            'name'       => 'grp.web.websites.index',
                             'parameters' => []
                         ],
                         'model' => [
-                            'name'       => 'web.websites.show',
+                            'name'       => 'grp.web.websites.show',
                             'parameters' => [$routeParameters['website']->slug]
                         ]
                     ],
@@ -203,7 +203,7 @@ class ShowWebsiteWorkshop extends InertiaAction
         }
 
         return match ($routeName) {
-            'web.websites.workshop' => [
+            'grp.web.websites.workshop' => [
                 'label' => $website->name,
                 'route' => [
                     'name'       => $routeName,

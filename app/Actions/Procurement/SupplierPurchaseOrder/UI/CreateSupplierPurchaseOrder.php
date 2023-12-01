@@ -27,7 +27,7 @@ class CreateSupplierPurchaseOrder extends InertiaAction
                     'title'        => __('new purchase order'),
                     'cancelCreate' => [
                         'route' => [
-                            'name'       => 'procurement.supplier-purchase-orders.index',
+                            'name'       => 'grp.procurement.supplier-purchase-orders.index',
                             'parameters' => array_values($this->originalParameters)
                         ],
                     ]
@@ -59,7 +59,7 @@ class CreateSupplierPurchaseOrder extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->can('procurement.edit');
+        return $request->user()->hasPermissionTo('procurement.edit');
     }
 
 

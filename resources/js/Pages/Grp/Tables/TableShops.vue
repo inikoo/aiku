@@ -16,7 +16,7 @@ const props = defineProps<{
 
 function shopRoute(shop: Shop) {
     switch (route().current()) {
-        case 'shops.index':
+        case 'grp.shops.index':
             return route(
                 'shops.show',
                 [shop.slug]);

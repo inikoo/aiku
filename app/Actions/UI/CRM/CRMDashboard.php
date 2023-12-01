@@ -79,7 +79,7 @@ class CRMDashboard
                                 [
                                     'name'  => __('customers'),
                                     'icon'  => ['fal', 'fa-user'],
-                                    'href'  => ['crm.shops.show.customers.index', $scope->slug],
+                                    'href'  => ['grp.crm.shops.show.customers.index', $scope->slug],
                                     'index' => [
                                         'number' => $scope->crmStats->number_customers
                                     ]
@@ -95,7 +95,7 @@ class CRMDashboard
                                 [
                                     'name'  => __('customers'),
                                     'icon'  => ['fal', 'fa-user'],
-                                    'href'  => ['crm.customers.index'],
+                                    'href'  => ['grp.crm.customers.index'],
                                     'index' => [
                                         'number' => $scope->crmStats->number_customers
                                     ]
@@ -118,7 +118,7 @@ class CRMDashboard
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
         return match ($routeName) {
-            'crm.shops.show.dashboard' =>
+            'grp.crm.shops.show.dashboard' =>
             array_merge(
                 ShowDashboard::make()->getBreadcrumbs(),
                 [
@@ -126,7 +126,7 @@ class CRMDashboard
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name'       => 'crm.shops.show.dashboard',
+                                'name'       => 'grp.crm.shops.show.dashboard',
                                 'parameters' => $routeParameters
                             ],
                             'label' => __('CRM').' ('.$routeParameters['shop']->code.')',
@@ -142,7 +142,7 @@ class CRMDashboard
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name' => 'crm.dashboard'
+                                'name' => 'grp.crm.dashboard'
                             ],
                             'label' => __('CRM').' ('.__('all shops').')',
                         ]

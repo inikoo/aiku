@@ -29,7 +29,7 @@ class CreateClockingMachine extends InertiaAction
                     'title'        => __('new clocking machine'),
                     'cancelCreate' => [
                         'route' => [
-                            'name'       => 'hr.working-places.show.clocking-machines.index',
+                            'name'       => 'grp.hr.working-places.show.clocking-machines.index',
                             'parameters' => array_values($this->originalParameters)
                         ],
                     ]
@@ -59,7 +59,7 @@ class CreateClockingMachine extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->can('hr.clocking-machines.edit');
+        return $request->user()->hasPermissionTo('hr.clocking-machines.edit');
     }
 
 

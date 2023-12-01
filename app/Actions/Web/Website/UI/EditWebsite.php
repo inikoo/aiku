@@ -24,7 +24,7 @@ class EditWebsite extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('websites.edit');
+        $this->canEdit = $request->user()->hasPermissionTo('websites.edit');
         return $request->user()->hasPermissionTo("websites.edit");
 
     }
@@ -294,7 +294,7 @@ class EditWebsite extends InertiaAction
         }
 
         return match ($routeName) {
-            'web.websites.edit' => [
+            'grp.web.websites.edit' => [
                 'label' => $website->name,
                 'route' => [
                     'name'       => $routeName,

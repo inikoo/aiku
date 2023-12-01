@@ -70,7 +70,7 @@ class CreateUserFromEmployee
         /** @var Employee $employee */
         $employee = $user->parent;
 
-        return Redirect::route('hr.employees.show', $employee->id)->with('notification', [
+        return Redirect::route('grp.hr.employees.show', $employee->id)->with('notification', [
             'type'   => 'newUser',
             'message'=> __('New user created'),
             'fields' => [

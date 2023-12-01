@@ -34,7 +34,7 @@ class ShowWebpageVariant extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('websites.edit');
+        $this->canEdit = $request->user()->hasPermissionTo('websites.edit');
         return $request->user()->hasPermissionTo("websites.view");
     }
 
@@ -103,8 +103,8 @@ class ShowWebpageVariant extends InertiaAction
     {
         $this->fillFromRequest($request);
 
-        $this->set('canEdit', $request->user()->can('hr.edit'));
-        $this->set('canViewUsers', $request->user()->can('users.view'));
+        $this->set('canEdit', $request->user()->hasPermissionTo('hr.edit'));
+        $this->set('canViewUsers', $request->user()->hasPermissionTo('users.view'));
     }
 
     #[Pure] public function jsonResponse(WebpageVariant $webpageVariant): WebpageResource

@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function () {
     Route::get('login', ShowLogin::class)->name('login');
-    Route::post('login', Login::class);
+    Route::post('login', Login::class)->name('login.store');
 });
 
 Route::middleware('auth')->group(function () {

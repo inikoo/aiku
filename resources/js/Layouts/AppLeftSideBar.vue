@@ -155,7 +155,7 @@ const generateLabel = (item) => {
 		@mouseenter="isHover = true" @mouseleave="isHover = false"
 	>
 		<div class="flex flex-grow flex-col h-full overflow-y-auto custom-hide-scrollbar border-r border-gray-200 pb-4">
-			<Link :href="route('dashboard.show')" class="flex flex-col justify-center text-indigo-700 font-logo md:hidden py-3 text-center gap-y-2">
+			<Link :href="route('grp.dashboard.show')" class="flex flex-col justify-center text-indigo-700 font-logo md:hidden py-3 text-center gap-y-2">
 				<img class="h-6" :src="`/media/group/${layout.tenant.logo_id}`" :alt="layout.tenant.code" />
 				<span>{{ layout.tenant.name }}</span>
 			</Link>

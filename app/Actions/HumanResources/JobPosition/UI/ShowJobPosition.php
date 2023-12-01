@@ -30,8 +30,8 @@ class ShowJobPosition extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit   = $request->user()->can('hr.edit');
-        $this->canDelete = $request->user()->can('hr.edit');
+        $this->canEdit   = $request->user()->hasPermissionTo('hr.edit');
+        $this->canDelete = $request->user()->hasPermissionTo('hr.edit');
         return $request->user()->hasPermissionTo("hr.view");
     }
 
@@ -68,7 +68,7 @@ class ShowJobPosition extends InertiaAction
                             'type'  => 'button',
                             'style' => 'delete',
                             'route' => [
-                                'name'       => 'hr.job-positions.remove',
+                                'name'       => 'grp.hr.job-positions.remove',
                                 'parameters' => $request->route()->originalParameters()
                             ]
 
@@ -135,13 +135,13 @@ class ShowJobPosition extends InertiaAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => [
-                                'name' => 'hr.job-positions.index',
+                                'name' => 'grp.hr.job-positions.index',
                             ],
                             'label' => __('positions')
                         ],
                         'model' => [
                             'route' => [
-                                'name'       => 'hr.job-positions.show',
+                                'name'       => 'grp.hr.job-positions.show',
                                 'parameters' => [$jobPosition->slug]
                             ],
                             'label' => $jobPosition->name,
@@ -175,7 +175,7 @@ class ShowJobPosition extends InertiaAction
         }
 
         return match ($routeName) {
-            'hr.job-positions.show' => [
+            'grp.hr.job-positions.show' => [
                 'label' => $jobPosition->name,
                 'route' => [
                     'name'       => $routeName,

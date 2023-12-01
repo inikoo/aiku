@@ -17,12 +17,12 @@ trait HasUIStockFamily
         return array_merge(
             (new InventoryDashboard())->getBreadcrumbs(),
             [
-                'inventory.stocks.show' => [
-                    'route'           => 'inventory.stock-families.show',
+                'grp.oms.stocks.show' => [
+                    'route'           => 'grp.oms.stock-families.show',
                     'routeParameters' => $stockFamily->slug,
                     'name'            => $stockFamily->code,
                     'index'           => [
-                        'route'   => 'inventory.stock-families.index',
+                        'route'   => 'grp.oms.stock-families.index',
                         'overlay' => __('stocks family list')
                     ],
                     'modelLabel'      => [

@@ -80,7 +80,7 @@ class AccountingDashboard
                                 [
                                     'name'  => __('accounts'),
                                     'icon'  => ['fal', 'fa-money-check-alt'],
-                                    'href'  => ['accounting.shops.show.payment-accounts.index', $scope->slug],
+                                    'href'  => ['grp.accounting.shops.show.payment-accounts.index', $scope->slug],
                                     'index' => [
                                         'number' => $scope->accountingStats->number_payment_accounts
                                     ]
@@ -89,7 +89,7 @@ class AccountingDashboard
                                 [
                                     'name'  => __('payments'),
                                     'icon'  => ['fal', 'fa-coins'],
-                                    'href'  => ['accounting.shops.show.payments.index', $scope->slug],
+                                    'href'  => ['grp.accounting.shops.show.payments.index', $scope->slug],
                                     'index' => [
                                         'number' => $scope->accountingStats->number_payments
                                     ]
@@ -98,7 +98,7 @@ class AccountingDashboard
                                 [
                                     'name'  => __('invoices'),
                                     'icon'  => ['fal', 'fa-file-invoice-dollar'],
-                                    'href'  => ['accounting.shops.show.invoices.index', $scope->slug],
+                                    'href'  => ['grp.accounting.shops.show.invoices.index', $scope->slug],
                                     'index' => [
                                         'number' => $scope->accountingStats->number_invoices
                                     ]
@@ -113,7 +113,7 @@ class AccountingDashboard
                                 [
                                     'name'  => __('accounts'),
                                     'icon'  => ['fal', 'fa-money-check-alt'],
-                                    'href'  => ['accounting.payment-accounts.index'],
+                                    'href'  => ['grp.accounting.payment-accounts.index'],
                                     'index' => [
                                         'number' => $scope->accountingStats->number_payment_accounts
                                     ],
@@ -121,7 +121,7 @@ class AccountingDashboard
                                         'tooltip'    => __('payment methods'),
                                         'icon'       => ['fal', 'fa-cash-register'],
                                         'labelStyle' => 'bordered',
-                                        'href'       => ['accounting.payment-service-providers.index'],
+                                        'href'       => ['grp.accounting.payment-service-providers.index'],
 
                                     ]
 
@@ -129,7 +129,7 @@ class AccountingDashboard
                                 [
                                     'name'  => __('payments'),
                                     'icon'  => ['fal', 'fa-coins'],
-                                    'href'  => ['accounting.payments.index'],
+                                    'href'  => ['grp.accounting.payments.index'],
                                     'index' => [
                                         'number' => $scope->accountingStats->number_payments
                                     ]
@@ -138,7 +138,7 @@ class AccountingDashboard
                                 [
                                     'name'  => __('invoices'),
                                     'icon'  => ['fal', 'fa-file-invoice-dollar'],
-                                    'href'  => ['accounting.invoices.index'],
+                                    'href'  => ['grp.accounting.invoices.index'],
                                     'index' => [
                                         'number' => $scope->accountingStats->number_invoices
                                     ]
@@ -157,7 +157,7 @@ class AccountingDashboard
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
         return match ($routeName) {
-            'accounting.shops.show.dashboard' =>
+            'grp.accounting.shops.show.dashboard' =>
             array_merge(
                 ShowShop::make()->getBreadcrumbs($routeParameters),
                 [
@@ -165,7 +165,7 @@ class AccountingDashboard
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name'       => 'accounting.shops.show.dashboard',
+                                'name'       => 'grp.accounting.shops.show.dashboard',
                                 'parameters' => $routeParameters
                             ],
                             'label' => __('accounting'),
@@ -181,7 +181,7 @@ class AccountingDashboard
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name' => 'accounting.dashboard'
+                                'name' => 'grp.accounting.dashboard'
                             ],
                             'label' => __('accounting'),
                         ]

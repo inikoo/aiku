@@ -40,7 +40,7 @@ class DeleteGuest
 
     public function htmlResponse(): RedirectResponse
     {
-        return Redirect::route('sysadmin.guests.index');
+        return Redirect::route('grp.sysadmin.guests.index');
     }
 
 }

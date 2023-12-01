@@ -46,7 +46,7 @@ defineEmits<{
                     {{ option.name }}
                 </div> -->
                 <form v-if="Object.keys(locale.languageOptions).length > 0"
-                    @submit.prevent="form.patch(route('models.profile.update'))"
+                    @submit.prevent="form.patch(route('grp.models.profile.update'))"
                     v-for="(option, index) in locale.languageOptions"
                     :class="[ option.id == locale.language.id ? 'bg-gray-600 hover:bg-gray-500' : 'hover:bg-gray-600 ', 'grid ']"
                 >

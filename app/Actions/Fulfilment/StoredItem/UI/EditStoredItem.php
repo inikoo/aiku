@@ -27,7 +27,7 @@ class EditStoredItem extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('fulfilment.edit');
+        $this->canEdit = $request->user()->hasPermissionTo('fulfilment.edit');
 
         return
             (
@@ -87,7 +87,7 @@ class EditStoredItem extends InertiaAction
                                     'label'    => __('location'),
                                     'value'    => '',
                                     'required' => true,
-                                    'apiUrl'   => route('json.locations') . '?filter[slug]=',
+                                    'apiUrl'   => route('grp.json.locations') . '?filter[slug]=',
                                 ]
                             ]
                         ]
@@ -120,7 +120,7 @@ class EditStoredItem extends InertiaAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => [
-                            'name' => 'fulfilment.stored-items.index'
+                            'name' => 'grp.fulfilment.stored-items.index'
                         ],
                         'label' => __('stored items'),
                         'icon'  => 'fal fa-bars',

@@ -34,8 +34,8 @@ class ShowWarehouse extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit   = $request->user()->can('inventory.edit');
-        $this->canDelete = $request->user()->can('inventory.edit');
+        $this->canEdit   = $request->user()->hasPermissionTo('inventory.edit');
+        $this->canDelete = $request->user()->hasPermissionTo('inventory.edit');
 
         return $request->user()->hasPermissionTo("inventory.view");
     }
@@ -79,7 +79,7 @@ class ShowWarehouse extends InertiaAction
                             'type'  => 'button',
                             'style' => 'delete',
                             'route' => [
-                                'name'       => 'inventory.warehouses.remove',
+                                'name'       => 'grp.inventory.warehouses.remove',
                                 'parameters' => array_values($this->originalParameters)
                             ]
                         ] : false
@@ -89,7 +89,7 @@ class ShowWarehouse extends InertiaAction
                             'name'     => trans_choice('warehouse area|warehouse areas', $warehouse->stats->number_warehouse_areas),
                             'number'   => $warehouse->stats->number_warehouse_areas,
                             'href'     => [
-                                'inventory.warehouses.show.warehouse-areas.index',
+                                'grp.inventory.warehouses.show.warehouse-areas.index',
                                 $warehouse->slug
                             ],
                             'leftIcon' => [
@@ -101,7 +101,7 @@ class ShowWarehouse extends InertiaAction
                             'name'     => trans_choice('location|locations', $warehouse->stats->number_locations),
                             'number'   => $warehouse->stats->number_locations,
                             'href'     => [
-                                'inventory.warehouses.show.locations.index',
+                                'grp.inventory.warehouses.show.locations.index',
                                 $warehouse->slug
                             ],
                             'leftIcon' => [
@@ -163,7 +163,7 @@ class ShowWarehouse extends InertiaAction
                 /* modelOperations: [
                       'createLink' => $this->canEdit ? [
                           'route' => [
-                              'name'       => 'inventory.warehouses.show.warehouse-areas.create',
+                              'name'       => 'grp.inventory.warehouses.show.warehouse-areas.create',
                               'parameters' => array_values([$warehouse->slug])
                           ],
                           'label' => __('area'),
@@ -178,7 +178,7 @@ class ShowWarehouse extends InertiaAction
                 /* modelOperations: [
                     'createLink' => $this->canEdit ? [
                         'route' => [
-                            'name'       => 'inventory.warehouses.show.locations.create',
+                            'name'       => 'grp.inventory.warehouses.show.locations.create',
                             'parameters' => array_values([$warehouse->slug])
                         ],
                         'label' => __('location'),
@@ -206,14 +206,14 @@ class ShowWarehouse extends InertiaAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => [
-                                'name' => 'inventory.warehouses.index',
+                                'name' => 'grp.inventory.warehouses.index',
                             ],
                             'label' => __('warehouse'),
                             'icon'  => 'fal fa-bars'
                         ],
                         'model' => [
                             'route' => [
-                                'name'       => 'inventory.warehouses.show',
+                                'name'       => 'grp.inventory.warehouses.show',
                                 'parameters' => [$warehouse->slug]
                             ],
                             'label' => $warehouse->code,
@@ -248,7 +248,7 @@ class ShowWarehouse extends InertiaAction
         }
 
         return match ($routeName) {
-            'inventory.warehouses.show' => [
+            'grp.inventory.warehouses.show' => [
                 'label' => $warehouse->name,
                 'route' => [
                     'name'       => $routeName,

@@ -79,7 +79,7 @@ class StoreWebsite
 
     public function htmlResponse(Website $website): RedirectResponse
     {
-        return Redirect::route('websites.show', [
+        return Redirect::route('grp.websites.show', [
             $website->slug
         ]);
     }

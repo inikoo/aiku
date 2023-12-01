@@ -63,6 +63,6 @@ class CallbackClientGoogleDrive
         }
         file_put_contents($tokenPath, json_encode($client->getAccessToken()));
 
-        return redirect()->route('sysadmin.settings.edit');
+        return redirect()->route('grp.sysadmin.settings.edit');
     }
 }

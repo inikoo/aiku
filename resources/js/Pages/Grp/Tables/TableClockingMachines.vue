@@ -16,18 +16,18 @@ import {ClockingMachine} from "@/types/clocking-machine";
 
 function clockingMachineRoute(clockingMachine : ClockingMachine) {
     switch (route().current()) {
-        case 'hr.working-places.show':
-        case 'hr.working-places.show.clocking-machines.index':
+        case 'grp.hr.working-places.show':
+        case 'grp.hr.working-places.show.clocking-machines.index':
             return route(
                 "hr.working-places.show.clocking-machines.show",
                 [
                     clockingMachine.workplace_slug,
                     clockingMachine.slug
                 ]);
-        case 'hr.clocking-machines.index':
+        case 'grp.hr.clocking-machines.index':
         default:
             return route(
-                'hr.clocking-machines.show',
+                'grp.hr.clocking-machines.show',
                 [clockingMachine.slug]);
     }
 }

@@ -29,8 +29,8 @@ class ShowWebUser extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit   = $request->user()->can('crm.customers.edit');
-        $this->canDelete = $request->user()->can('crm.customers.edit');
+        $this->canEdit   = $request->user()->hasPermissionTo('crm.customers.edit');
+        $this->canDelete = $request->user()->hasPermissionTo('crm.customers.edit');
         return $request->user()->hasPermissionTo("crm.customers.view");
     }
 
@@ -62,8 +62,8 @@ class ShowWebUser extends InertiaAction
     {
         //dd($request->route()->getName());
         $scope = match ($request->route()->getName()) {
-            'crm.customers.show.web-users.show' => $request->route()->parameters()['customer'],
-            default                             => app('currentTenant')
+            'grp.crm.customers.show.web-users.show' => $request->route()->parameters()['customer'],
+            default                                 => app('currentTenant')
         };
 
         $container = null;
@@ -113,8 +113,8 @@ class ShowWebUser extends InertiaAction
     {
         $this->fillFromRequest($request);
 
-        $this->set('canEdit', $request->user()->can('hr.edit'));
-        $this->set('canViewUsers', $request->user()->can('users.view'));
+        $this->set('canEdit', $request->user()->hasPermissionTo('hr.edit'));
+        $this->set('canViewUsers', $request->user()->hasPermissionTo('users.view'));
     }
 
     public function jsonResponse(WebUser $webUser): WebUserResource
@@ -148,21 +148,21 @@ class ShowWebUser extends InertiaAction
         };
 
         return match ($routeName) {
-            'crm.customers.show.web-users.show' =>
+            'grp.crm.customers.show.web-users.show' =>
             array_merge(
                 ShowCustomer::make()->getBreadcrumbs(
-                    'crm.customers.show',
+                    'grp.crm.customers.show',
                     ['customer' => $routeParameters['customer']]
                 ),
                 $headCrumb(
                     $routeParameters['webUser'],
                     [
                         'index' => [
-                            'name'       => 'crm.customers.show.web-users.index',
+                            'name'       => 'grp.crm.customers.show.web-users.index',
                             'parameters' => [$routeParameters['customer']->slug]
                         ],
                         'model' => [
-                            'name'       => 'crm.customers.show.web-users.show',
+                            'name'       => 'grp.crm.customers.show.web-users.show',
                             'parameters' => $routeParameters
                         ]
                     ],

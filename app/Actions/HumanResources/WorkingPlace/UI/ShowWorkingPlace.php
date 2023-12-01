@@ -33,8 +33,8 @@ class ShowWorkingPlace extends InertiaAction
     }
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit   = $request->user()->can('hr.edit');
-        $this->canDelete = $request->user()->can('hr.edit');
+        $this->canEdit   = $request->user()->hasPermissionTo('hr.edit');
+        $this->canDelete = $request->user()->hasPermissionTo('hr.edit');
         return $request->user()->hasPermissionTo("hr.view");
     }
 
@@ -78,7 +78,7 @@ class ShowWorkingPlace extends InertiaAction
                             'type'  => 'button',
                             'style' => 'delete',
                             'route' => [
-                                'name'       => 'hr.working-places.remove',
+                                'name'       => 'grp.hr.working-places.remove',
                                 'parameters' => $request->route()->originalParameters()
                             ]
 
@@ -89,7 +89,7 @@ class ShowWorkingPlace extends InertiaAction
                             'name'     => trans_choice('clocking machine|clocking machines', 0 /*$workplace->stats->number_clocking_machines */),
                             'number'   => 0/* $workplace->stats->number_clocking_machines */,
                             'href'     => [
-                                'hr.working-places.show.clocking-machines.index',
+                                'grp.hr.working-places.show.clocking-machines.index',
                                 $workplace->slug
                             ],
                             'leftIcon' => [
@@ -101,7 +101,7 @@ class ShowWorkingPlace extends InertiaAction
                             'name'     => trans_choice('clocking|clockings', 0 /* $workplace->stats->number_clockings */),
                             'number'   => 0/* $workplace->stats->number_clockings */,
                             'href'     => [
-                                'hr.working-places.show.clockings.index',
+                                'grp.hr.working-places.show.clockings.index',
                                 $workplace->slug
                             ],
                             'leftIcon' => [
@@ -150,7 +150,7 @@ class ShowWorkingPlace extends InertiaAction
             /* modelOperations:[
                     'createLink' => $this->canEdit ? [
                         'route' => [
-                            'name'       => 'hr.working-places.show.clockings.create',
+                            'name'       => 'grp.hr.working-places.show.clockings.create',
                             'parameters' => array_values($this->originalParameters)
                         ],
                         'label' => __('clocking')
@@ -162,7 +162,7 @@ class ShowWorkingPlace extends InertiaAction
                 /* modelOperations: [
                         'createLink' => $this->canEdit ? [
                             'route' => [
-                                'name'       => 'hr.working-places.show.clocking-machines.create',
+                                'name'       => 'grp.hr.working-places.show.clocking-machines.create',
                                 'parameters' => array_values($this->originalParameters)
                             ],
                             'label' => __('clocking machine')
@@ -189,14 +189,14 @@ class ShowWorkingPlace extends InertiaAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => [
-                                'name' => 'hr.working-places.index',
+                                'name' => 'grp.hr.working-places.index',
                             ],
                             'label' => __('working place'),
                             'icon'  => 'fal fa-bars'
                         ],
                         'model' => [
                             'route' => [
-                                'name'       => 'hr.working-places.show',
+                                'name'       => 'grp.hr.working-places.show',
                                 'parameters' => [$workplace->slug]
                             ],
                             'label' => $workplace->slug,
@@ -231,7 +231,7 @@ class ShowWorkingPlace extends InertiaAction
         }
 
         return match ($routeName) {
-            'hr.working-places.show' => [
+            'grp.hr.working-places.show' => [
                 'label' => $workplace->name,
                 'route' => [
                     'name'       => $routeName,

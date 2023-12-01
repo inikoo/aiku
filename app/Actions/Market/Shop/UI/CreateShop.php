@@ -39,7 +39,7 @@ class CreateShop extends InertiaAction
                             'style' => 'cancel',
                             'label' => __('cancel'),
                             'route' => [
-                                'name'       => 'shops.index',
+                                'name'       => 'grp.shops.index',
                                 'parameters' => array_values($this->originalParameters)
                             ],
                         ]
@@ -157,7 +157,7 @@ class CreateShop extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->can('shops.edit');
+        return $request->user()->hasPermissionTo('shops.edit');
     }
 
 

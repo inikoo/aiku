@@ -38,7 +38,7 @@ class ShowUser extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('sysadmin.users.edit');
+        $this->canEdit = $request->user()->hasPermissionTo('sysadmin.users.edit');
         return $request->user()->hasPermissionTo("sysadmin.view");
     }
 
@@ -116,8 +116,8 @@ class ShowUser extends InertiaAction
         };
 
         return match ($routeName) {
-            'sysadmin.users.show',
-            'sysadmin.users.edit' =>
+            'grp.sysadmin.users.show',
+            'grp.sysadmin.users.edit' =>
 
             array_merge(
                 SysAdminDashboard::make()->getBreadcrumbs(),
@@ -125,11 +125,11 @@ class ShowUser extends InertiaAction
                     $routeParameters['user'],
                     [
                         'index' => [
-                            'name'       => 'sysadmin.users.index',
+                            'name'       => 'grp.sysadmin.users.index',
                             'parameters' => []
                         ],
                         'model' => [
-                            'name'       => 'sysadmin.users.show',
+                            'name'       => 'grp.sysadmin.users.show',
                             'parameters' => [$routeParameters['user']->username]
                         ]
                     ],
@@ -162,7 +162,7 @@ class ShowUser extends InertiaAction
             return null;
         }
         return match ($routeName) {
-            'sysadmin.users.show' => [
+            'grp.sysadmin.users.show' => [
                 'label' => $user->username,
                 'route' => [
                     'name'       => $routeName,

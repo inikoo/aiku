@@ -32,7 +32,7 @@ class IndexShops extends InertiaAction
 {
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('shops');
+        $this->canEdit = $request->user()->hasPermissionTo('shops');
 
         return
             (
@@ -140,7 +140,7 @@ class IndexShops extends InertiaAction
                         'title' => __('shop')
                     ],
                     'actions' => [
-                        $this->canEdit && $this->routeName=='shops.index' ? [
+                        $this->canEdit && $this->routeName=='grp.shops.index' ? [
                             'type'    => 'button',
                             'style'   => 'create',
                             'tooltip' => __('new shop'),
@@ -199,7 +199,7 @@ class IndexShops extends InertiaAction
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name' => 'shops.index'
+                                'name' => 'grp.shops.index'
                             ],
                             'label' => __('shops'),
                             'icon'  => 'fal fa-bars'

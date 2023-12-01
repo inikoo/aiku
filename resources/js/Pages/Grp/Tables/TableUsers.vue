@@ -19,9 +19,9 @@ const props = defineProps<{
 
 function userRoute(user: User) {
     switch (route().current()) {
-        case 'sysadmin.users.index':
+        case 'grp.sysadmin.users.index':
             return route(
-                'sysadmin.users.show',
+                'grp.sysadmin.users.show',
                 [user.username]);
     }
 }
@@ -42,9 +42,9 @@ function userRoute(user: User) {
             {{ user['parent']['name'] }}
         </template>
         <template #cell(parent_type)="{ item: user }">
-            <Link v-if="user['parent_type'] === 'Employee'" :href="route('hr.employees.show', user['parent']['slug'])">
+            <Link v-if="user['parent_type'] === 'Employee'" :href="route('grp.hr.employees.show', user['parent']['slug'])">
             {{ trans('Employee') }}</Link>
-            <Link v-else-if="user['parent_type'] === 'Guest'" :href="route('sysadmin.guests.show', user['parent']['slug'])">
+            <Link v-else-if="user['parent_type'] === 'Guest'" :href="route('grp.sysadmin.guests.show', user['parent']['slug'])">
             {{ trans('Guest') }}</Link>
         </template>
 

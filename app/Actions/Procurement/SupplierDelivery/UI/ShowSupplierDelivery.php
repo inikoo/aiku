@@ -23,7 +23,7 @@ class ShowSupplierDelivery extends InertiaAction
 {
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('procurement.edit');
+        $this->canEdit = $request->user()->hasPermissionTo('procurement.edit');
 
         return $request->user()->hasPermissionTo("procurement.view");
     }
@@ -82,13 +82,13 @@ class ShowSupplierDelivery extends InertiaAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => [
-                                'name' => 'procurement.supplier-deliveries.index',
+                                'name' => 'grp.procurement.supplier-deliveries.index',
                             ],
                             'label' => __('supplier delivery')
                         ],
                         'model' => [
                             'route' => [
-                                'name'       => 'procurement.supplier-deliveries.show',
+                                'name'       => 'grp.procurement.supplier-deliveries.show',
                                 'parameters' => [$supplierDelivery->slug]
                             ],
                             'label' => $supplierDelivery->number,
@@ -120,7 +120,7 @@ class ShowSupplierDelivery extends InertiaAction
             return null;
         }
         return match ($routeName) {
-            'procurement.supplier-deliveries.show'=> [
+            'grp.procurement.supplier-deliveries.show'=> [
                 'label'=> $supplierDelivery->number,
                 'route'=> [
                     'name'      => $routeName,

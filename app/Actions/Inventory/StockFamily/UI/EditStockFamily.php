@@ -125,7 +125,7 @@ class EditStockFamily extends InertiaAction
         }
 
         return match ($routeName) {
-            'inventory.stock-families.edit' => [
+            'grp.oms.stock-families.edit' => [
                 'label' => $stockFamily->name,
                 'route' => [
                     'name'       => $routeName,

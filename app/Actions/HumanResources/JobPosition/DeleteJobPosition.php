@@ -40,7 +40,7 @@ class DeleteJobPosition
 
     public function htmlResponse(): RedirectResponse
     {
-        return Redirect::route('hr.job-positions.index');
+        return Redirect::route('grp.hr.job-positions.index');
     }
 
 }

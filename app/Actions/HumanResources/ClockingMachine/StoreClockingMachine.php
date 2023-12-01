@@ -59,7 +59,7 @@ class StoreClockingMachine
     public function htmlResponse(ClockingMachine $clockingMachine): RedirectResponse
     {
         return Redirect::route(
-            'hr.working-places.show.clocking-machines.show',
+            'grp.hr.working-places.show.clocking-machines.show',
             [
                 'workplace'       => $clockingMachine->workplace->slug,
                 'clockingMachine' => $clockingMachine->slug

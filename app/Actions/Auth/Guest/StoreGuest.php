@@ -183,7 +183,7 @@ class StoreGuest
 
     public function htmlResponse(Guest $guest): RedirectResponse
     {
-        return Redirect::route('sysadmin.guests.show', $guest->slug);
+        return Redirect::route('grp.sysadmin.guests.show', $guest->slug);
     }
 
 }

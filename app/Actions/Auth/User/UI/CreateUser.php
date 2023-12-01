@@ -29,7 +29,7 @@ class CreateUser extends InertiaAction
                             'style' => 'cancel',
                             'label' => __('cancel'),
                             'route' => [
-                                'name'       => 'sysadmin.users.index',
+                                'name'       => 'grp.sysadmin.users.index',
                                 'parameters' => array_values($this->originalParameters)
                             ],
                         ]
@@ -71,7 +71,7 @@ class CreateUser extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->can('sysadmin.users.edit');
+        return $request->user()->hasPermissionTo('sysadmin.users.edit');
     }
 
 

@@ -17,9 +17,9 @@ const props = defineProps<{
 
 function guestRoute(guest: Guest) {
     switch (route().current()) {
-        case 'sysadmin.guests.index':
+        case 'grp.sysadmin.guests.index':
             return route(
-                'sysadmin.guests.show',
+                'grp.sysadmin.guests.show',
                 [guest.slug]);
 
     }

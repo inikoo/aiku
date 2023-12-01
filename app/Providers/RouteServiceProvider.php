@@ -39,6 +39,9 @@ class RouteServiceProvider extends ServiceProvider
             ->name('public.')
             ->group(base_path('routes/public/web/app.php'));
 
+        Route::middleware('grp')
+            ->name('grp.')
+            ->group(base_path('routes/grp/app.php'));
         /*
         Route::prefix('api')
             ->domain(config('app.domain'))

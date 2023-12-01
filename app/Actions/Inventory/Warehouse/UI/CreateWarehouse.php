@@ -33,7 +33,7 @@ class CreateWarehouse extends InertiaAction
                             'style' => 'cancel',
                             'label' => __('cancel'),
                             'route' => [
-                                'name'       => 'inventory.warehouses.index',
+                                'name'       => 'grp.inventory.warehouses.index',
                                 'parameters' => array_values($this->originalParameters)
                             ],
                         ]
@@ -72,7 +72,7 @@ class CreateWarehouse extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->can('inventory.warehouses.edit');
+        return $request->user()->hasPermissionTo('inventory.warehouses.edit');
     }
 
 

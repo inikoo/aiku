@@ -23,7 +23,7 @@ class EditWarehouseArea extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->can('inventory.warehouse-areas.edit');
+        $this->canEdit = $request->user()->hasPermissionTo('inventory.warehouse-areas.edit');
         return $request->user()->hasPermissionTo("inventory.warehouses.edit");
     }
 
@@ -123,7 +123,7 @@ class EditWarehouseArea extends InertiaAction
     public function getPrevious(WarehouseArea $warehouseArea, ActionRequest $request): ?array
     {
         $previous = WarehouseArea::where('code', '<', $warehouseArea->code)->when(true, function ($query) use ($warehouseArea, $request) {
-            if ($request->route()->getName() == 'inventory.warehouses.show.warehouse-areas.edit') {
+            if ($request->route()->getName() == 'grp.oms.warehouses.show.warehouse-areas.edit') {
                 $query->where('warehouse_id', $warehouseArea->warehouse_id);
             }
         })->orderBy('code', 'desc')->first();
@@ -133,7 +133,7 @@ class EditWarehouseArea extends InertiaAction
     public function getNext(WarehouseArea $warehouseArea, ActionRequest $request): ?array
     {
         $next = WarehouseArea::where('code', '>', $warehouseArea->code)->when(true, function ($query) use ($warehouseArea, $request) {
-            if ($request->route()->getName() == 'inventory.warehouses.show.warehouse-areas.edit') {
+            if ($request->route()->getName() == 'grp.oms.warehouses.show.warehouse-areas.edit') {
                 $query->where('warehouse_id', $warehouseArea->warehouse->id);
             }
         })->orderBy('code')->first();
@@ -148,7 +148,7 @@ class EditWarehouseArea extends InertiaAction
         }
 
         return match ($routeName) {
-            'inventory.warehouse-areas.edit' => [
+            'grp.oms.warehouse-areas.edit' => [
                 'label' => $warehouseArea->name,
                 'route' => [
                     'name'       => $routeName,
@@ -158,7 +158,7 @@ class EditWarehouseArea extends InertiaAction
 
                 ]
             ],
-            'inventory.warehouses.show.warehouse-areas.edit' => [
+            'grp.oms.warehouses.show.warehouse-areas.edit' => [
                 'label' => $warehouseArea->name,
                 'route' => [
                     'name'       => $routeName,

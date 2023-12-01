@@ -65,7 +65,7 @@ class StoreWarehouseArea
 
     public function htmlResponse(WarehouseArea $warehouseArea): RedirectResponse
     {
-        return Redirect::route('inventory.warehouses.show.warehouse-areas.index', $warehouseArea->warehouse->slug);
+        return Redirect::route('grp.inventory.warehouses.show.warehouse-areas.index', $warehouseArea->warehouse->slug);
     }
 
     public function action(Warehouse $warehouse, array $objectData): WarehouseArea

@@ -39,7 +39,7 @@ class UpdateWebUser
             return true;
         }
 
-        return $request->user()->can('crm.customers.edit');
+        return $request->user()->hasPermissionTo('crm.customers.edit');
     }
 
     public function rules(): array
