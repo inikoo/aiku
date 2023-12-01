@@ -16,11 +16,6 @@ Route::post('test', function (\Illuminate\Http\Request $request) {
 
 Route::get('unit/export', ExportUnit::class);
 
-Route::get('/', function () {
-    return Inertia::render('Central/Welcome', [
-
-    ]);
-})->name('.welcome');
 
 require __DIR__ . '/auth.php';
 

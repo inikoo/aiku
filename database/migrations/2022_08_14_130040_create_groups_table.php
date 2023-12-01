@@ -17,6 +17,7 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('owner_id')->nullable()->comment('Organisation who owns this model');
             $table->ulid()->index();
             $table->string('slug')->unique()->collation('und_ns');
+            $table->string('subdomain')->nullable()->unique()->collation('und_ns');
             $table->string('code');
             $table->string('name');
             $table->unsignedSmallInteger('currency_id');

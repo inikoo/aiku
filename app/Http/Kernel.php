@@ -12,7 +12,7 @@ use App\Http\Middleware\LogUserFirebaseMiddleware;
 use App\Http\Middleware\LogUserRequestMiddleware;
 use App\Http\Middleware\EncryptCookies;
 use App\Http\Middleware\ForceJsonResponse;
-use App\Http\Middleware\HandleCentralInertiaRequests;
+use App\Http\Middleware\HandlePublicInertiaRequests;
 use App\Http\Middleware\SetLocale;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\PreventRequestsDuringMaintenance;
@@ -27,6 +27,7 @@ use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 use Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull;
 use Illuminate\Foundation\Http\Middleware\ValidatePostSize;
+use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
 use Illuminate\Http\Middleware\HandleCors;
 use Illuminate\Http\Middleware\SetCacheHeaders;
 use Illuminate\Routing\Middleware\SubstituteBindings;
@@ -64,6 +65,16 @@ class Kernel extends HttpKernel
      */
     protected $middlewareGroups = [
 
+        'public'   => [
+            EncryptCookies::class,
+            AddQueuedCookiesToResponse::class,
+            StartSession::class,
+            ShareErrorsFromSession::class,
+            VerifyCsrfToken::class,
+            SubstituteBindings::class,
+            HandlePublicInertiaRequests::class,
+            AddLinkHeadersForPreloadedAssets::class,
+        ],
         'webhooks-api' => [
             ForceJsonResponse::class,
             EnsureFrontendRequestsAreStateful::class,
@@ -84,7 +95,7 @@ class Kernel extends HttpKernel
             ShareErrorsFromSession::class,
             VerifyCsrfToken::class,
             SubstituteBindings::class,
-            HandleCentralInertiaRequests::class,
+            HandlePublicInertiaRequests::class,
             SetLocale::class,
         ],
         'app'     => [

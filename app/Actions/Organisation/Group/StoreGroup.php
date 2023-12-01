@@ -25,7 +25,6 @@ class StoreGroup
 
     public function handle(array $modelData): Group
     {
-
         data_set($modelData, 'ulid', Str::ulid());
 
         /** @var Group $group */
@@ -46,6 +45,7 @@ class StoreGroup
         }
 
         GroupHydrateJobPositions::run($group);
+
         return $group;
     }
 
@@ -55,6 +55,7 @@ class StoreGroup
             'code'        => ['sometimes', 'required', 'unique:groups', 'between:2,6'],
             'name'        => ['sometimes', 'required', 'max:64'],
             'currency_id' => ['sometimes', 'required', 'exists:currencies,id'],
+            'subdomain'   => ['sometimes', 'nullable', 'unique:groups', 'between:2,64'],
         ];
     }
 
@@ -63,10 +64,11 @@ class StoreGroup
     {
         $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
+
         return $this->handle($validatedData);
     }
 
-    public string $commandSignature = 'group:create {code} {name} {currency_code}';
+    public string $commandSignature = 'group:create {code} {name} {currency_code} {--s|subdomain=}';
 
     public function asCommand(Command $command): int
     {
@@ -74,18 +76,21 @@ class StoreGroup
             $currency = Currency::where('code', $command->argument('currency_code'))->firstOrFail();
         } catch (Exception $e) {
             $command->error($e->getMessage());
+
             return 1;
         }
         $this->setRawAttributes([
             'code'        => $command->argument('code'),
             'name'        => $command->argument('name'),
-            'currency_id' => $currency->id
+            'currency_id' => $currency->id,
+            'subdomain'   => $command->option('subdomain') ?? null,
         ]);
 
         try {
             $validatedData = $this->validateAttributes();
         } catch (Exception $e) {
             $command->error($e->getMessage());
+
             return 1;
         }
 

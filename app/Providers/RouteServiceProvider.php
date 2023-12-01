@@ -34,6 +34,12 @@ class RouteServiceProvider extends ServiceProvider
         $this->configureRateLimiting();
 
 
+        Route::middleware('public')
+            ->domain(config('app.domain'))
+            ->name('public.')
+            ->group(base_path('routes/public/web/app.php'));
+
+        /*
         Route::prefix('api')
             ->domain(config('app.domain'))
             ->middleware('central-api')
@@ -55,8 +61,9 @@ class RouteServiceProvider extends ServiceProvider
         Route::namespace($this->namespace)->prefix('api')
             ->middleware('api-tenant')
             ->group(base_path('routes/tenant/api.php'));
-
         Route::namespace($this->namespace)->group(base_path('routes/tenant/app.php'));
+        */
+
     }
 
     /**
