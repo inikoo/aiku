@@ -6,11 +6,6 @@
  */
 
 
-
-Route::prefix('deployments')
-    ->name('deployments.')
-    ->group(__DIR__.'/deployments.php');
-
 Route::prefix('aurora')
     ->name('aurora.')
     ->group(__DIR__.'/aurora.php');

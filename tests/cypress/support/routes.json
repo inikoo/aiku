@@ -442,44 +442,6 @@
       "HEAD"
     ]
   },
-  "deployments.latest": {
-    "name": "deployments.latest",
-    "domain": "aiku.test",
-    "action": "App\\Actions\\DevOps\\Deployment\\ShowDeployment@latest",
-    "uri": "api/deployments/latest",
-    "method": [
-      "GET",
-      "HEAD"
-    ]
-  },
-  "deployments.show": {
-    "name": "deployments.show",
-    "domain": "aiku.test",
-    "action": "App\\Actions\\DevOps\\Deployment\\ShowDeployment",
-    "uri": "api/deployments/{deployment}",
-    "method": [
-      "GET",
-      "HEAD"
-    ]
-  },
-  "deployments.store": {
-    "name": "deployments.store",
-    "domain": "aiku.test",
-    "action": "App\\Actions\\DevOps\\Deployment\\StoreDeployment",
-    "uri": "api/deployments/create",
-    "method": [
-      "POST"
-    ]
-  },
-  "deployments.latest.edit": {
-    "name": "deployments.latest.edit",
-    "domain": "aiku.test",
-    "action": "App\\Actions\\DevOps\\Deployment\\UpdateDeployment@latest",
-    "uri": "api/deployments/latest/edit",
-    "method": [
-      "PATCH"
-    ]
-  },
   "aurora.shops": {
     "name": "aurora.shops",
     "domain": "aiku.test",
