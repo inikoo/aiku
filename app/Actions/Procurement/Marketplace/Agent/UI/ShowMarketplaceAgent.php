@@ -16,7 +16,7 @@ use App\Http\Resources\Procurement\AgentResource;
 use App\Http\Resources\Procurement\MarketplaceSupplierProductResource;
 use App\Http\Resources\Procurement\MarketplaceSupplierResource;
 use App\Models\Procurement\Agent;
-use App\Models\Organisation\Organisation;
+use App\Models\Grouping\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;

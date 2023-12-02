@@ -8,7 +8,7 @@
 namespace App\Models\Dispatch;
 
 use App\Models\Helpers\Issue;
-use App\Models\Organisation\Organisation;
+use App\Models\Grouping\Organisation;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;

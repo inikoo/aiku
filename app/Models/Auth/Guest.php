@@ -9,7 +9,7 @@ namespace App\Models\Auth;
 
 use App\Enums\Auth\Guest\GuestTypeEnum;
 use App\Models\HumanResources\JobPosition;
-use App\Models\Organisation\Group;
+use App\Models\Grouping\Group;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
 use Eloquent;

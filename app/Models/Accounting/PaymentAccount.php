@@ -7,7 +7,7 @@
 
 namespace App\Models\Accounting;
 
-use App\Models\Organisation\Organisation;
+use App\Models\Grouping\Organisation;
 use App\Models\Traits\HasHistory;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;

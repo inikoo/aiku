@@ -7,10 +7,10 @@
 
 namespace App\Models\Auth;
 
-use App\Actions\Organisation\Organisation\Hydrators\OrganisationHydrateUsers;
+use App\Actions\Grouping\Organisation\Hydrators\OrganisationHydrateUsers;
 use App\Enums\Auth\User\UserAuthTypeEnum;
 use App\Models\Assets\Language;
-use App\Models\Organisation\Group;
+use App\Models\Grouping\Group;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\WithPushNotifications;
 use App\Models\Traits\HasHistory;

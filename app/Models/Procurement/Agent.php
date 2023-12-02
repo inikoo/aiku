@@ -7,10 +7,10 @@
 
 namespace App\Models\Procurement;
 
-use App\Actions\Organisation\Group\Hydrators\GroupHydrateProcurement;
-use App\Actions\Organisation\Organisation\Hydrators\OrganisationHydrateProcurement;
+use App\Actions\Grouping\Group\Hydrators\GroupHydrateProcurement;
+use App\Actions\Grouping\Organisation\Hydrators\OrganisationHydrateProcurement;
 use App\Models\Assets\Currency;
-use App\Models\Organisation\Group;
+use App\Models\Grouping\Group;
 use App\Models\Search\UniversalSearch;
 use App\Models\Traits\HasAddresses;
 use App\Models\Traits\HasHistory;

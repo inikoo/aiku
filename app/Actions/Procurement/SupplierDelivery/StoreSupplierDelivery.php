@@ -8,7 +8,7 @@
 namespace App\Actions\Procurement\SupplierDelivery;
 
 use App\Actions\Procurement\SupplierDelivery\Traits\HasHydrators;
-use App\Models\Organisation\Organisation;
+use App\Models\Grouping\Organisation;
 use App\Models\Procurement\Agent;
 use App\Models\Procurement\SupplierDelivery;
 use App\Models\Procurement\Supplier;

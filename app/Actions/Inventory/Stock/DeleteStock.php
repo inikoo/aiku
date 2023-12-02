@@ -8,7 +8,7 @@
 namespace App\Actions\Inventory\Stock;
 
 use App\Actions\Inventory\StockFamily\Hydrators\StockFamilyHydrateStocks;
-use App\Actions\Organisation\Group\Hydrators\GroupHydrateInventory;
+use App\Actions\Grouping\Group\Hydrators\GroupHydrateInventory;
 use App\Actions\Traits\WithActionUpdate;
 use App\Actions\Traits\WithOrganisationArgument;
 use App\Models\Inventory\Stock;

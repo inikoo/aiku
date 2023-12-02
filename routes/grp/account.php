@@ -6,6 +6,6 @@
  */
 
 
-use App\Actions\Organisation\Organisation\ShowAccount;
+use App\Actions\Grouping\Organisation\ShowAccount;
 
 Route::get('/', ShowAccount::class)->name('show');

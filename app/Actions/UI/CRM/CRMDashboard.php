@@ -10,7 +10,7 @@ namespace App\Actions\UI\CRM;
 use App\Actions\UI\Dashboard\ShowDashboard;
 use App\Actions\UI\WithInertia;
 use App\Models\Market\Shop;
-use App\Models\Organisation\Organisation;
+use App\Models\Grouping\Organisation;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;

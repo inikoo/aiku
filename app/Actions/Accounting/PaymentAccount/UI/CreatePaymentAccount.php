@@ -10,7 +10,7 @@ namespace App\Actions\Accounting\PaymentAccount\UI;
 use App\Actions\InertiaAction;
 use App\Models\Accounting\PaymentServiceProvider;
 use App\Models\Market\Shop;
-use App\Models\Organisation\Organisation;
+use App\Models\Grouping\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;

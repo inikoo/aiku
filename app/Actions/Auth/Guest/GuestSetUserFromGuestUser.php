@@ -11,7 +11,7 @@ use App\Actions\Auth\User\StoreUser;
 use App\Models\Auth\GroupUser;
 use App\Models\Auth\Guest;
 use App\Models\Auth\User;
-use App\Models\Organisation\Organisation;
+use App\Models\Grouping\Organisation;
 use Exception;
 use Illuminate\Console\Command;
 use Lorisleiva\Actions\Concerns\AsAction;

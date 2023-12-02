@@ -11,7 +11,7 @@ use App\Actions\Auth\User\UpdateUser;
 use App\Actions\Traits\WithOrganisationsArgument;
 use App\Actions\Traits\WithOrganisationSource;
 use App\Models\Market\Shop;
-use App\Models\Organisation\Organisation;
+use App\Models\Grouping\Organisation;
 use App\Services\Organisation\SourceOrganisationService;
 use Exception;
 use Illuminate\Console\Command;

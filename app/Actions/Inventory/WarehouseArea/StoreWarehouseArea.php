@@ -10,7 +10,7 @@ namespace App\Actions\Inventory\WarehouseArea;
 
 use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydrateWarehouseAreas;
 use App\Actions\Inventory\WarehouseArea\Hydrators\WarehouseAreaHydrateUniversalSearch;
-use App\Actions\Organisation\Organisation\Hydrators\OrganisationHydrateWarehouse;
+use App\Actions\Grouping\Organisation\Hydrators\OrganisationHydrateWarehouse;
 use App\Models\Inventory\WarehouseArea;
 use App\Models\Inventory\Warehouse;
 use App\Rules\CaseSensitive;

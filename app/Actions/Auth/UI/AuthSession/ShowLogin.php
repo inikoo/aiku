@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Thu, 15 Jun 2023 11:58:09 Malaysia Time, Pantai Lembeng, Bali, Id
+ * Created: Thu, 15 Jun 2023 11:58:09 Malaysia Time, Pantai Lembeng, Bali, Indonesia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
@@ -18,10 +18,7 @@ class ShowLogin
 
     public function handle(): Response
     {
-
-        return Inertia::render('Auth/Login', [
-            'status'           => session('status'),
-        ]);
+        return Inertia::render('Auth/Login');
     }
 
 }

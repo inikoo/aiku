@@ -13,7 +13,7 @@ use App\Actions\Traits\WithOrganisationsArgument;
 use App\Actions\Traits\WithOrganisationSource;
 use App\Models\Dispatch\DeliveryNote;
 use App\Models\Dropshipping\CustomerClient;
-use App\Models\Organisation\Organisation;
+use App\Models\Grouping\Organisation;
 use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;

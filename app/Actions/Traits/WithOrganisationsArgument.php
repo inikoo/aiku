@@ -7,7 +7,7 @@
 
 namespace App\Actions\Traits;
 
-use App\Models\Organisation\Organisation;
+use App\Models\Grouping\Organisation;
 use Illuminate\Console\Command;
 use Illuminate\Support\LazyCollection;
 

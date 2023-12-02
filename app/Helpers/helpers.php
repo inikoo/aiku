@@ -5,7 +5,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-use App\Models\Organisation\Group;
+use App\Models\Grouping\Group;
 
 if (!function_exists('group')) {
     function group(): ?Group

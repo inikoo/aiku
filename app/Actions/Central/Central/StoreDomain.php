@@ -11,7 +11,7 @@ use App\Actions\SysAdmin\SysUser\StoreSysUser;
 use App\Enums\Web\Website\WebsiteEngineEnum;
 use App\Enums\Web\Website\WebsiteStateEnum;
 use App\Models\Central\Domain;
-use App\Models\Organisation\Organisation;
+use App\Models\Grouping\Organisation;
 use App\Models\Web\Website;
 use Illuminate\Support\Str;
 use Lorisleiva\Actions\Concerns\AsAction;

@@ -14,7 +14,7 @@ use App\Enums\Auth\Guest\GuestTypeEnum;
 use App\Models\Auth\Guest;
 use App\Models\Auth\User;
 use App\Models\HumanResources\JobPosition;
-use App\Models\Organisation\Group;
+use App\Models\Grouping\Group;
 use App\Rules\AlphaDashDot;
 use Exception;
 use Illuminate\Console\Command;

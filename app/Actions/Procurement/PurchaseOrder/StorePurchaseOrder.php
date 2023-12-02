@@ -9,10 +9,10 @@ namespace App\Actions\Procurement\PurchaseOrder;
 
 use App\Actions\Procurement\Agent\Hydrators\AgentHydratePurchaseOrders;
 use App\Actions\Procurement\Supplier\Hydrators\SupplierHydratePurchaseOrders;
-use App\Actions\Organisation\Organisation\Hydrators\OrganisationHydrateProcurement;
+use App\Actions\Grouping\Organisation\Hydrators\OrganisationHydrateProcurement;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Procurement\SupplierProduct\SupplierProductStateEnum;
-use App\Models\Organisation\Organisation;
+use App\Models\Grouping\Organisation;
 use App\Models\Procurement\Agent;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\Procurement\Supplier;

@@ -9,7 +9,7 @@ namespace App\Actions\Notifications;
 
 use App\Actions\Mail\DispatchedEmail\UpdateDispatchedEmail;
 use App\Models\Mail\DispatchedEmail;
-use App\Models\Organisation\Organisation;
+use App\Models\Grouping\Organisation;
 use Aws\Sns\Message;
 use Aws\Sns\MessageValidator;
 use Lorisleiva\Actions\Concerns\AsAction;

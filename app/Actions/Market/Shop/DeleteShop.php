@@ -7,7 +7,7 @@
 
 namespace App\Actions\Market\Shop;
 
-use App\Actions\Organisation\Organisation\Hydrators\OrganisationHydrateMarket;
+use App\Actions\Grouping\Organisation\Hydrators\OrganisationHydrateMarket;
 use App\Models\Market\Shop;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;

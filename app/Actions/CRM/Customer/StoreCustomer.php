@@ -11,7 +11,7 @@ use App\Actions\Helpers\Address\StoreAddressAttachToModel;
 use App\Actions\Helpers\SerialReference\GetSerialReference;
 use App\Actions\Market\Shop\Hydrators\ShopHydrateCustomerInvoices;
 use App\Actions\Market\Shop\Hydrators\ShopHydrateCustomers;
-use App\Actions\Organisation\Organisation\Hydrators\OrganisationHydrateCustomers;
+use App\Actions\Grouping\Organisation\Hydrators\OrganisationHydrateCustomers;
 use App\Enums\CRM\Customer\CustomerStatusEnum;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Enums\Market\Shop\ShopSubtypeEnum;

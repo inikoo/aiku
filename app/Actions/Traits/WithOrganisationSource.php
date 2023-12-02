@@ -7,7 +7,7 @@
 
 namespace App\Actions\Traits;
 
-use App\Models\Organisation\Organisation;
+use App\Models\Grouping\Organisation;
 use App\Services\Organisation\AuroraOrganisationService;
 use Exception;
 use Illuminate\Support\Arr;

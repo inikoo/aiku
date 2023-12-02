@@ -12,7 +12,7 @@ namespace App\Actions\SourceFetch\Aurora;
 
 use App\Actions\Traits\WithOrganisationsArgument;
 use App\Actions\Traits\WithOrganisationSource;
-use App\Models\Organisation\Organisation;
+use App\Models\Grouping\Organisation;
 use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Bus;

@@ -19,7 +19,7 @@ use App\InertiaTable\InertiaTable;
 use App\Models\Auth\WebUser;
 use App\Models\CRM\Customer;
 use App\Models\Market\Shop;
-use App\Models\Organisation\Organisation;
+use App\Models\Grouping\Organisation;
 use App\Models\Web\Website;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;

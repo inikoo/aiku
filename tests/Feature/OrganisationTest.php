@@ -5,16 +5,16 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-use App\Actions\Organisation\Group\StoreGroup;
-use App\Actions\Organisation\Organisation\StoreOrganisation;
+use App\Actions\Grouping\Group\StoreGroup;
+use App\Actions\Grouping\Organisation\StoreOrganisation;
 use App\Actions\SysAdmin\Admin\StoreAdmin;
 use App\Actions\SysAdmin\SysUser\CreateSysUserAccessToken;
 use App\Actions\SysAdmin\SysUser\StoreSysUser;
 use App\Models\Mail\Mailroom;
-use App\Models\Organisation\Group;
+use App\Models\Grouping\Group;
 use App\Models\SysAdmin\Admin;
 use App\Models\SysAdmin\SysUser;
-use App\Models\Organisation\Organisation;
+use App\Models\Grouping\Organisation;
 use Laravel\Sanctum\PersonalAccessToken;
 use Laravel\Sanctum\Sanctum;
 use App\Models\Assets\Currency;

@@ -13,7 +13,7 @@ use App\Actions\Market\Shop\UI\ShowShop;
 use App\Http\Resources\Market\FamilyResource;
 use App\Models\Market\ProductCategory;
 use App\Models\Market\Shop;
-use App\Models\Organisation\Organisation;
+use App\Models\Grouping\Organisation;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;

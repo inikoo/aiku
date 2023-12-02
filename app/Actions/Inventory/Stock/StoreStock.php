@@ -10,10 +10,10 @@ namespace App\Actions\Inventory\Stock;
 
 use App\Actions\Inventory\Stock\Hydrators\StockHydrateUniversalSearch;
 use App\Actions\Inventory\StockFamily\Hydrators\StockFamilyHydrateStocks;
-use App\Actions\Organisation\Group\Hydrators\GroupHydrateInventory;
+use App\Actions\Grouping\Group\Hydrators\GroupHydrateInventory;
 use App\Models\Inventory\Stock;
 use App\Models\Inventory\StockFamily;
-use App\Models\Organisation\Group;
+use App\Models\Grouping\Group;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;

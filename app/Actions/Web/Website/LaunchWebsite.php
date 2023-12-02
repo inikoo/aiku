@@ -7,7 +7,7 @@
 
 namespace App\Actions\Web\Website;
 
-use App\Actions\Organisation\Organisation\Hydrators\OrganisationHydrateWeb;
+use App\Actions\Grouping\Organisation\Hydrators\OrganisationHydrateWeb;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Web\Website\WebsiteStateEnum;
 use App\Models\Web\Website;

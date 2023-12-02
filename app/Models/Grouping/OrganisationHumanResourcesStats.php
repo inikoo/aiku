@@ -1,0 +1,57 @@
+<?php
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Fri, 15 Sep 2023 16:06:07 Malaysia Time, Pantai Lembeng, Bali, Indonesia
+ * Copyright (c) 2023, Raul A Perusquia Flores
+ */
+
+namespace App\Models\Grouping;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+/**
+ * App\Models\Organisation\OrganisationHumanResourcesStats
+ *
+ * @property int $id
+ * @property int $organisation_id
+ * @property int $number_employees
+ * @property int $number_employees_state_hired
+ * @property int $number_employees_state_working
+ * @property int $number_employees_state_left
+ * @property int $number_employees_type_employee
+ * @property int $number_employees_type_volunteer
+ * @property int $number_employees_type_temporal_worker
+ * @property int $number_employees_type_work_experience
+ * @property int $number_employees_gender_male
+ * @property int $number_employees_gender_female
+ * @property int $number_employees_gender_other
+ * @property int $number_workplaces
+ * @property int $number_workplaces_type_hq
+ * @property int $number_workplaces_type_branch
+ * @property int $number_workplaces_type_home
+ * @property int $number_workplaces_type_group_premisses
+ * @property int $number_workplaces_type_client_premises
+ * @property int $number_workplaces_type_road
+ * @property int $number_workplaces_type_other
+ * @property int $number_clocking_machines
+ * @property int $number_clockings
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\Grouping\Organisation $organisation
+ * @method static \Illuminate\Database\Eloquent\Builder|OrganisationHumanResourcesStats newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|OrganisationHumanResourcesStats newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|OrganisationHumanResourcesStats query()
+ * @mixin \Eloquent
+ */
+class OrganisationHumanResourcesStats extends Model
+{
+    protected $table = 'organisation_human_resources_stats';
+
+    protected $guarded = [];
+
+    public function organisation(): BelongsTo
+    {
+        return $this->belongsTo(Organisation::class);
+    }
+}

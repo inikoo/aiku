@@ -9,7 +9,7 @@ namespace App\Actions\Mail\Mailroom;
 
 use App\Enums\Mail\Mailroom\MailroomTypeEnum;
 use App\Models\Mail\Mailroom;
-use App\Models\Organisation\Group;
+use App\Models\Grouping\Group;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;

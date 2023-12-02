@@ -12,7 +12,7 @@ use App\Enums\HumanResources\Employee\EmployeeTypeEnum;
 use App\Enums\Miscellaneous\GenderEnum;
 use App\Models\Auth\User;
 use App\Models\Helpers\Issue;
-use App\Models\Organisation\Group;
+use App\Models\Grouping\Group;
 use App\Models\Search\UniversalSearch;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasPhoto;

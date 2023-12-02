@@ -8,9 +8,9 @@
 namespace App\Actions\Inventory\StockFamily;
 
 use App\Actions\Inventory\StockFamily\Hydrators\StockFamilyHydrateUniversalSearch;
-use App\Actions\Organisation\Group\Hydrators\GroupHydrateInventory;
+use App\Actions\Grouping\Group\Hydrators\GroupHydrateInventory;
 use App\Models\Inventory\StockFamily;
-use App\Models\Organisation\Group;
+use App\Models\Grouping\Group;
 use App\Rules\CaseSensitive;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;

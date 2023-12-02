@@ -10,7 +10,7 @@ namespace App\Actions\Inventory\Location;
 use App\Actions\Inventory\Location\Hydrators\LocationHydrateUniversalSearch;
 use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydrateLocations;
 use App\Actions\Inventory\WarehouseArea\Hydrators\WarehouseAreaHydrateLocations;
-use App\Actions\Organisation\Organisation\Hydrators\OrganisationHydrateWarehouse;
+use App\Actions\Grouping\Organisation\Hydrators\OrganisationHydrateWarehouse;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;

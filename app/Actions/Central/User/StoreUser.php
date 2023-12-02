@@ -9,7 +9,7 @@ namespace App\Actions\Central\User;
 
 use App\Actions\Central\User\Hydrators\UserHydrateUniversalSearch;
 use App\Models\Central\User;
-use App\Models\Organisation\Organisation;
+use App\Models\Grouping\Organisation;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class StoreUser

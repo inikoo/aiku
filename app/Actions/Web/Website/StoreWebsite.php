@@ -8,7 +8,7 @@
 namespace App\Actions\Web\Website;
 
 use App\Actions\Central\Central\StoreDomain;
-use App\Actions\Organisation\Organisation\Hydrators\OrganisationHydrateWeb;
+use App\Actions\Grouping\Organisation\Hydrators\OrganisationHydrateWeb;
 use App\Actions\Web\Website\Hydrators\WebsiteHydrateUniversalSearch;
 use App\Models\Market\Shop;
 use App\Models\Web\Website;

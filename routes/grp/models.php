@@ -66,7 +66,7 @@ use App\Actions\Market\Shop\StoreShop;
 use App\Actions\Market\Shop\UpdateShop;
 use App\Actions\OMS\Order\StoreOrder;
 use App\Actions\OMS\Order\UpdateOrder;
-use App\Actions\Organisation\Organisation\UpdateSystemSettings;
+use App\Actions\Grouping\Organisation\UpdateSystemSettings;
 use App\Actions\Procurement\Agent\DeleteAgent;
 use App\Actions\Procurement\Agent\StoreAgent;
 use App\Actions\Procurement\Agent\UpdateAgent;

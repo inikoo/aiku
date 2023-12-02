@@ -8,10 +8,10 @@
 namespace App\Actions\Accounting\PaymentAccount;
 
 use App\Actions\Accounting\PaymentServiceProvider\Hydrators\PaymentServiceProviderHydrateAccounts;
-use App\Actions\Organisation\Organisation\Hydrators\OrganisationHydrateAccounting;
+use App\Actions\Grouping\Organisation\Hydrators\OrganisationHydrateAccounting;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentServiceProvider;
-use App\Models\Organisation\Organisation;
+use App\Models\Grouping\Organisation;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;

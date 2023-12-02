@@ -12,7 +12,7 @@ use App\Actions\Accounting\PaymentAccount\Hydrators\PaymentAccountHydratePayment
 use App\Actions\Accounting\PaymentServiceProvider\Hydrators\PaymentServiceProviderHydratePayments;
 use App\Actions\Helpers\CurrencyExchange\GetCurrencyExchange;
 use App\Actions\Market\Shop\Hydrators\ShopHydratePayments;
-use App\Actions\Organisation\Organisation\Hydrators\OrganisationHydrateAccounting;
+use App\Actions\Grouping\Organisation\Hydrators\OrganisationHydrateAccounting;
 use App\Enums\Accounting\Payment\PaymentStateEnum;
 use App\Enums\Accounting\Payment\PaymentStatusEnum;
 use App\Models\Accounting\Payment;

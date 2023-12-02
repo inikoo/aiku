@@ -12,7 +12,7 @@ namespace App\Actions\CRM\Customer;
 use App\Actions\Auth\WebUser\HydrateWebUser;
 use App\Actions\Auth\WebUser\StoreWebUser;
 use App\Models\CRM\Customer;
-use App\Models\Organisation\Organisation;
+use App\Models\Grouping\Organisation;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;

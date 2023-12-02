@@ -13,7 +13,7 @@ use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Fulfilment\StoredItemResource;
 use App\Models\CRM\Customer;
 use App\Models\Fulfilment\StoredItem;
-use App\Models\Organisation\Organisation;
+use App\Models\Grouping\Organisation;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;

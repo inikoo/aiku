@@ -11,7 +11,7 @@ use App\Actions\Auth\User\StoreUser;
 use App\Enums\Auth\User\UserAuthTypeEnum;
 use App\Models\Auth\User;
 use App\Models\HumanResources\Employee;
-use App\Models\Organisation\Organisation;
+use App\Models\Grouping\Organisation;
 use Illuminate\Console\Command;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;

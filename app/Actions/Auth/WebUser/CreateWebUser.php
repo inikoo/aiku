@@ -12,7 +12,7 @@ use App\Actions\Market\Shop\UI\ShowShop;
 use App\Enums\Auth\WebUser\WebUserTypeEnum;
 use App\Models\CRM\Customer;
 use App\Models\Market\Shop;
-use App\Models\Organisation\Organisation;
+use App\Models\Grouping\Organisation;
 use App\Models\Web\Website;
 use Inertia\Inertia;
 use Inertia\Response;

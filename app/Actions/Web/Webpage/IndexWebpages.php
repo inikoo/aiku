@@ -12,7 +12,7 @@ use App\Actions\UI\Dashboard\ShowDashboard;
 use App\Actions\Web\Website\UI\ShowWebsite;
 use App\Http\Resources\Web\WebpageResource;
 use App\InertiaTable\InertiaTable;
-use App\Models\Organisation\Organisation;
+use App\Models\Grouping\Organisation;
 use App\Models\Web\Webpage;
 use App\Models\Web\Website;
 use Closure;

@@ -10,7 +10,7 @@ namespace App\Actions\OMS\Order;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\OMS\Order\OrderStateEnum;
 use App\Models\OMS\Order;
-use App\Models\Organisation\Organisation;
+use App\Models\Grouping\Organisation;
 use Illuminate\Console\Command;
 use Illuminate\Validation\ValidationException;
 

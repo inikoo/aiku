@@ -7,7 +7,7 @@
 
 namespace App\Actions\HumanResources\JobPosition;
 
-use App\Actions\Organisation\Group\Hydrators\GroupHydrateJobPositions;
+use App\Actions\Grouping\Group\Hydrators\GroupHydrateJobPositions;
 use App\Models\HumanResources\JobPosition;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;

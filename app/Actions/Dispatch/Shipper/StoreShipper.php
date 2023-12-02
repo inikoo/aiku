@@ -8,7 +8,7 @@
 namespace App\Actions\Dispatch\Shipper;
 
 use App\Models\Dispatch\Shipper;
-use App\Models\Organisation\Organisation;
+use App\Models\Grouping\Organisation;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 

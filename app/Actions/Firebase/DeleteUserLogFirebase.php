@@ -8,7 +8,7 @@
 namespace App\Actions\Firebase;
 
 use App\Models\Auth\User;
-use App\Models\Organisation\Organisation;
+use App\Models\Grouping\Organisation;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\AsObject;
 

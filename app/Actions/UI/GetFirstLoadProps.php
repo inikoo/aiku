@@ -9,6 +9,7 @@ namespace App\Actions\UI;
 
 use App\Actions\Assets\Language\UI\GetLanguagesOptions;
 use App\Http\Resources\Assets\LanguageResource;
+use App\Http\Resources\Grouping\Group\GroupResource;
 use App\Models\Assets\Language;
 use App\Models\Auth\User;
 use Cache;
@@ -32,11 +33,11 @@ class GetFirstLoadProps
 
         $auth = app('firebase.auth');
 
-        if($user) {
-            $customTokenFirebasePrefix = 'org_user_' . $user->username . '_token_' . $user->id;
+        if ($user) {
+            $customTokenFirebasePrefix = 'org_user_'.$user->username.'_token_'.$user->id;
             $cache                     = Cache::get($customTokenFirebasePrefix);
 
-            if(blank($cache)) {
+            if (blank($cache)) {
                 $customToken = $auth->createCustomToken($customTokenFirebasePrefix);
                 $auth->signInWithCustomToken($customToken);
                 Cache::put($customTokenFirebasePrefix, $customToken->toString(), 3600);
@@ -44,6 +45,7 @@ class GetFirstLoadProps
         }
 
         return [
+            'group'      => $user ? GroupResource::make(app('group'))->getArray() : null,
             'localeData' =>
                 [
                     'language'        => LanguageResource::make($language)->getArray(),
@@ -59,14 +61,14 @@ class GetFirstLoadProps
             },
 
 
-            'layoutShopsList' => function () use ($user) {
+            'layoutShopsList'      => function () use ($user) {
                 if ($user) {
                     return GetShops::run($user);
                 } else {
                     return [];
                 }
             },
-            'layoutWebsitesList' => function () use ($user) {
+            'layoutWebsitesList'   => function () use ($user) {
                 if ($user) {
                     return GetWebsites::run($user);
                 } else {

@@ -10,7 +10,7 @@ namespace App\Actions\Market\Product\UI;
 use App\Actions\InertiaAction;
 use App\Enums\Market\Product\ProductTypeEnum;
 use App\Models\Market\Shop;
-use App\Models\Organisation\Organisation;
+use App\Models\Grouping\Organisation;
 use Exception;
 use Inertia\Inertia;
 use Inertia\Response;

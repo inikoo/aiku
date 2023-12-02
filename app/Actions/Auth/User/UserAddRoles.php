@@ -10,7 +10,7 @@ namespace App\Actions\Auth\User;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Auth\Role;
 use App\Models\Auth\User;
-use App\Models\Organisation\Organisation;
+use App\Models\Grouping\Organisation;
 use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Validation\Validator;

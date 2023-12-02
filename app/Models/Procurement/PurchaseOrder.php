@@ -11,7 +11,7 @@ use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStatusEnum;
 use App\Models\Assets\Currency;
 use App\Models\Helpers\Address;
-use App\Models\Organisation\Organisation;
+use App\Models\Grouping\Organisation;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasAddresses;
 use Eloquent;

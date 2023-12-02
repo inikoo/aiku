@@ -8,7 +8,7 @@
 namespace App\Models\Inventory;
 
 use App\Models\Helpers\Issue;
-use App\Models\Organisation\Organisation;
+use App\Models\Grouping\Organisation;
 use App\Models\Search\UniversalSearch;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;

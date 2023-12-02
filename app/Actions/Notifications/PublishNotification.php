@@ -9,7 +9,7 @@ namespace App\Actions\Notifications;
 
 use App\Actions\Mail\EmailAddress\SendEmailAddress;
 use App\Models\Auth\User;
-use App\Models\Organisation\Organisation;
+use App\Models\Grouping\Organisation;
 use Illuminate\Support\Collection;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\AsObject;

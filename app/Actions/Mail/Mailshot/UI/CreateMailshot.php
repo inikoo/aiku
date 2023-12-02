@@ -10,7 +10,7 @@ namespace App\Actions\Mail\Mailshot\UI;
 use App\Actions\InertiaAction;
 use App\Models\Mail\Mailroom;
 use App\Models\Mail\Outbox;
-use App\Models\Organisation\Organisation;
+use App\Models\Grouping\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;

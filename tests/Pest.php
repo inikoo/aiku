@@ -5,9 +5,9 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-use App\Actions\Organisation\Group\StoreGroup;
-use App\Actions\Organisation\Organisation\StoreOrganisation;
-use App\Models\Organisation\Organisation;
+use App\Actions\Grouping\Group\StoreGroup;
+use App\Actions\Grouping\Organisation\StoreOrganisation;
+use App\Models\Grouping\Organisation;
 use Symfony\Component\Process\Process;
 use Tests\TestCase;
 
@@ -33,9 +33,9 @@ function loadDB($dumpName): void
 
 function createOrganisation(): Organisation
 {
-    $group=\App\Models\Organisation\Group::first();
+    $group=\App\Models\Grouping\Group::first();
     if(!$group) {
-        $group = StoreGroup::make()->action(\App\Models\Organisation\Group::factory()->definition());
+        $group = StoreGroup::make()->action(\App\Models\Grouping\Group::factory()->definition());
     }
 
     $organisation = Organisation::first();
