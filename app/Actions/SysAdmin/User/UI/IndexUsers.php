@@ -10,7 +10,7 @@ namespace App\Actions\SysAdmin\User\UI;
 use App\Actions\InertiaAction;
 use App\Actions\SysAdmin\UserRequest\IndexUserRequestLogs;
 use App\Actions\UI\SysAdmin\ShowSysAdminDashboard;
-use App\Enums\Auth\User\UserTypeEnum;
+use App\Enums\SysAdmin\User\UserTypeEnum;
 use App\Enums\UI\UsersTabsEnum;
 use App\Http\Resources\SysAdmin\UserRequestLogsResource;
 use App\Http\Resources\SysAdmin\UserResource;

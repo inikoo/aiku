@@ -10,7 +10,7 @@ namespace App\Actions\SourceFetch\Aurora;
 use App\Actions\SysAdmin\User\StoreUser;
 use App\Actions\SysAdmin\User\UpdateUser;
 use App\Actions\SysAdmin\User\UserSyncRoles;
-use App\Enums\Auth\User\UserAuthTypeEnum;
+use App\Enums\SysAdmin\User\UserAuthTypeEnum;
 use App\Models\SysAdmin\User;
 use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;

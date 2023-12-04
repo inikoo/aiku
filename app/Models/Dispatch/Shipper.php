@@ -44,7 +44,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  * @property int|null $source_id
- * @property-read Organisation $group
+ * @property-read Organisation|null $group
  * @property-read Collection<int, Issue> $issues
  * @property-read Collection<int, \App\Models\Dispatch\Shipment> $shipments
  * @method static \Database\Factories\Dispatch\ShipperFactory factory($count = null, $state = [])

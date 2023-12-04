@@ -8,7 +8,7 @@
 namespace App\Extensions;
 
 use App\Actions\SysAdmin\User\UpdateUser;
-use App\Enums\Auth\User\UserAuthTypeEnum;
+use App\Enums\SysAdmin\User\UserAuthTypeEnum;
 use App\Models\SysAdmin\User;
 use Illuminate\Auth\EloquentUserProvider;
 use Illuminate\Contracts\Auth\Authenticatable;

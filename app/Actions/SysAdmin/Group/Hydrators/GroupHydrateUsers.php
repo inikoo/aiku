@@ -7,7 +7,7 @@
 
 namespace App\Actions\SysAdmin\Group\Hydrators;
 
-use App\Enums\Auth\User\UserTypeEnum;
+use App\Enums\SysAdmin\User\UserTypeEnum;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\User;
 use Illuminate\Support\Arr;

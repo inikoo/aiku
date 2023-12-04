@@ -7,7 +7,6 @@
 
 namespace App\Models\SysAdmin;
 
-use App\Enums\Auth\Guest\GuestTypeEnum;
 use App\Models\HumanResources\JobPosition;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
@@ -35,7 +34,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $slug
  * @property string $alias
  * @property bool $status
- * @property GuestTypeEnum $type
  * @property string|null $contact_name
  * @property string|null $company_name
  * @property string|null $email
@@ -51,7 +49,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $delete_comment
  * @property int|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
- * @property-read Group $group
+ * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \Illuminate\Database\Eloquent\Collection<int, JobPosition> $jobPositions
  * @property-read MediaCollection<int, \App\Models\Media\Media> $media
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
@@ -70,7 +68,6 @@ class Guest extends Model implements HasMedia, Auditable
     use HasSlug;
     use InteractsWithMedia;
     use SoftDeletes;
-
     use HasFactory;
     use HasHistory;
     use HasUniversalSearch;
@@ -80,7 +77,6 @@ class Guest extends Model implements HasMedia, Auditable
         'data'          => 'array',
         'date_of_birth' => 'datetime:Y-m-d',
         'status'        => 'boolean',
-        'type'          => GuestTypeEnum::class
     ];
 
     protected $attributes = [

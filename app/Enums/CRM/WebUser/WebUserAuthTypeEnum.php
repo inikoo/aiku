@@ -1,15 +1,15 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Thu, 15 Jun 2023 08:28:49 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Tue, 05 Dec 2023 00:29:17 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Enums\Auth\User;
+namespace App\Enums\CRM\WebUser;
 
 use App\Enums\EnumHelperTrait;
 
-enum UserAuthTypeEnum: string
+enum WebUserAuthTypeEnum: string
 {
     use EnumHelperTrait;
 

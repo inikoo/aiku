@@ -5,7 +5,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Enums\Auth\User;
+namespace App\Enums\SysAdmin\User;
 
 use App\Enums\EnumHelperTrait;
 use App\Models\SysAdmin\Group;

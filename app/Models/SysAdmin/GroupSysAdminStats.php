@@ -27,7 +27,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_users_type_agent
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read Group $group
+ * @property-read \App\Models\SysAdmin\Group $group
  * @method static \Illuminate\Database\Eloquent\Builder|GroupSysAdminStats newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|GroupSysAdminStats newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|GroupSysAdminStats query()

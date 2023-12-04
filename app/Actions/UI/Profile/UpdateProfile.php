@@ -9,7 +9,7 @@ namespace App\Actions\UI\Profile;
 
 use App\Actions\SysAdmin\User\UI\SetUserAvatarFromImage;
 use App\Actions\Traits\WithActionUpdate;
-use App\Enums\Auth\User\SynchronisableUserFieldsEnum;
+use App\Enums\SysAdmin\User\SynchronisableUserFieldsEnum;
 use App\Models\SysAdmin\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Arr;

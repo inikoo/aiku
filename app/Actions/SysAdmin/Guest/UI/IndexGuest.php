@@ -9,7 +9,6 @@ namespace App\Actions\SysAdmin\Guest\UI;
 
 use App\Actions\InertiaAction;
 use App\Actions\UI\SysAdmin\ShowSysAdminDashboard;
-use App\Enums\Auth\Guest\GuestTypeEnum;
 use App\Http\Resources\SysAdmin\GuestResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\SysAdmin\Group;
@@ -41,15 +40,7 @@ class IndexGuest extends InertiaAction
                         $query->where('users.status', array_pop($elements) === 'active');
                     }
 
-                ],
-                'type'   => [
-                    'label'    => __('Type'),
-                    'elements' => GuestTypeEnum::labels(),
-                    'engine'   => function ($query, $elements) {
-                        $query->whereIn('guests.type', $elements);
-                    }
-
-                ],
+                ]
             ];
     }
 

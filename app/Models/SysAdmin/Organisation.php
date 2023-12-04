@@ -72,7 +72,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Shop> $shops
  * @property-read \App\Models\SysAdmin\OrganisationStats|null $stats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, SupplierDelivery> $supplierDeliveries
- * @property-read SysUser|null $sysUser
+ * @property-read \App\Models\SysAdmin\SysUser|null $sysUser
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Warehouse> $warehouses
  * @property-read \App\Models\SysAdmin\OrganisationWebStats|null $webStats
  * @method static \Database\Factories\SysAdmin\OrganisationFactory factory($count = null, $state = [])

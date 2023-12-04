@@ -11,7 +11,6 @@ use App\Actions\HumanResources\SyncJobPosition;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateGuests;
 use App\Actions\SysAdmin\Guest\Hydrators\GuestHydrateUniversalSearch;
 use App\Actions\SysAdmin\User\StoreUser;
-use App\Enums\Auth\Guest\GuestTypeEnum;
 use App\Models\SysAdmin\Group;
 use App\Models\HumanResources\JobPosition;
 use App\Models\SysAdmin\Guest;
@@ -23,7 +22,6 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Str;
-use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -71,6 +69,7 @@ class StoreGuest
         }
         SyncJobPosition::run($guest, $jobPositions);
         GroupHydrateGuests::dispatch($group);
+
         return $guest;
     }
 
@@ -93,7 +92,6 @@ class StoreGuest
     public function rules(): array
     {
         return [
-            'type'           => ['required', Rule::in(GuestTypeEnum::values())],
             'alias'          => ['required', 'iunique:guests', 'string', 'max:12'],
             'username'       => ['required', 'required', new AlphaDashDot(), 'iunique:users'],
             'company_name'   => ['nullable', 'string', 'max:255'],
@@ -143,7 +141,8 @@ class StoreGuest
     }
 
     public string $commandSignature = 'guest:create {group : group slug} {name} {alias}
-    {type : Guest type contractor|external_employee|external_administrator} {--P|password=} {--e|email=} {--t|phone=} {--identity_document_number=} {--identity_document_type=}';
+     {--position=*}
+     {--P|password=} {--e|email=} {--t|phone=} {--identity_document_number=} {--identity_document_type=}';
 
 
     public function asCommand(Command $command): int
@@ -158,7 +157,7 @@ class StoreGuest
             return 1;
         }
         $fields = [
-            'type'         => $command->argument('type'),
+            'positions'    => $command->option('position'),
             'contact_name' => $command->argument('name'),
             'email'        => $command->option('email'),
             'phone'        => $command->option('phone'),
@@ -166,11 +165,6 @@ class StoreGuest
             'username'     => $command->argument('alias'),
             'password'     => $command->option('password') ?? (app()->isLocal() ? 'hello' : wordwrap(Str::random(), 4, '-', true))
         ];
-
-        if ($command->argument('type') == GuestTypeEnum::EXTERNAL_ADMINISTRATOR->value) {
-            $fields['positions'] = ['admin'];
-        }
-
 
         $this->fill($fields);
 

@@ -8,7 +8,7 @@
 namespace App\Actions\HumanResources\Employee;
 
 use App\Actions\SysAdmin\User\StoreUser;
-use App\Enums\Auth\User\UserAuthTypeEnum;
+use App\Enums\SysAdmin\User\UserAuthTypeEnum;
 use App\Models\SysAdmin\Organisation;
 use App\Models\HumanResources\Employee;
 use App\Models\SysAdmin\User;

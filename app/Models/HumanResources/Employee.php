@@ -74,7 +74,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, \App\Models\HumanResources\JobPosition> $jobPositions
  * @property-read MediaCollection<int, \App\Models\Media\Media> $media
  * @property-read UniversalSearch|null $universalSearch
- * @property-read \App\Models\SysAdmin\User|null $user
+ * @property-read User|null $user
  * @method static \Database\Factories\HumanResources\EmployeeFactory factory($count = null, $state = [])
  * @method static Builder|Employee newModelQuery()
  * @method static Builder|Employee newQuery()

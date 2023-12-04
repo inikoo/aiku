@@ -8,10 +8,8 @@
 namespace App\Actions\SysAdmin\Guest;
 
 use App\Actions\Traits\WithActionUpdate;
-use App\Enums\Auth\Guest\GuestTypeEnum;
 use App\Http\Resources\SysAdmin\GuestResource;
 use App\Models\SysAdmin\Guest;
-use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateGuest
@@ -44,8 +42,6 @@ class UpdateGuest
             'phone'                    => ['sometimes', 'nullable', 'phone:AUTO'],
             'identity_document_number' => ['sometimes', 'nullable', 'string'],
             'identity_document_type'   => ['sometimes', 'nullable', 'string'],
-            'type'                     => ['sometimes', 'required', Rule::in(GuestTypeEnum::values())],
-
         ];
     }
 

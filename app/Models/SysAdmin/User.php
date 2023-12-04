@@ -8,7 +8,7 @@
 namespace App\Models\SysAdmin;
 
 use App\Actions\Helpers\Images\GetPictureSources;
-use App\Enums\Auth\User\UserAuthTypeEnum;
+use App\Enums\SysAdmin\User\UserAuthTypeEnum;
 use App\Helpers\ImgProxy\Image;
 use App\Models\Assets\Language;
 use App\Models\Media\Media;
@@ -61,7 +61,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Media|null $avatar
  * @property-read \App\Models\Notifications\FcmToken|null $fcmToken
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Notifications\FcmToken> $fcmTokens
- * @property-read Group $group
+ * @property-read \App\Models\SysAdmin\Group $group
  * @property-read Language $language
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, Media> $media
  * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications

@@ -7,7 +7,6 @@
 
 namespace Database\Factories\SysAdmin;
 
-use App\Enums\Auth\Guest\GuestTypeEnum;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class GuestFactory extends Factory
@@ -20,7 +19,6 @@ class GuestFactory extends Factory
             'email'                    => fake()->email,
             'identity_document_number' => fake('en_GB')->vat(),
             'identity_document_type'   => 'passport',
-            'type'                     => GuestTypeEnum::CONTRACTOR->value,
             'username'                 => fake()->userName,
             'password'                 => fake()->password,
         ];

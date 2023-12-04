@@ -18,7 +18,7 @@ class ShowLogin
 
     public function handle(): Response
     {
-        return Inertia::render('Auth/Login');
+        return Inertia::render('SysAdmin/Login');
     }
 
 }

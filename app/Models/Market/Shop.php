@@ -85,7 +85,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $source_id
  * @property-read \App\Models\Market\ShopAccountingStats|null $accountingStats
  * @property-read Collection<int, Address> $addresses
- * @property-read \App\Models\SysAdmin\ApiTenantUser|null $apiTenantUser
+ * @property-read ApiTenantUser|null $apiTenantUser
  * @property-read Country $country
  * @property-read \App\Models\Market\ShopCRMStats|null $crmStats
  * @property-read Currency $currency

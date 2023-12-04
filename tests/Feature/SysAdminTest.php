@@ -168,9 +168,9 @@ test('create guest from command', function (Group $group) {
             'group'      => $group->code,
             'name'       => 'Pika',
             'alias'      => 'pika',
-            'type'       => 'external_administrator',
             '--password' => 'hello1234',
-            '--email'    => 'pika@inikoo.com'
+            '--email'    => 'pika@inikoo.com',
+            '--position' => 'admin'
         ]
     )->assertSuccessful();
 })->depends('create group');

@@ -43,7 +43,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Central\DomainStats|null $stats
  * @property-read SysUser|null $sysUser
  * @property-read Organisation|null $tenant
- * @property-read Website $website
+ * @property-read Website|null $website
  * @method static Builder|Domain newModelQuery()
  * @method static Builder|Domain newQuery()
  * @method static Builder|Domain onlyTrashed()

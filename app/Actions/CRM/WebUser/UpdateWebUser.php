@@ -8,7 +8,6 @@
 namespace App\Actions\CRM\WebUser;
 
 use App\Actions\Traits\WithActionUpdate;
-use App\Enums\Auth\WebUser\WebUserAuthTypeEnum;
 use App\Models\SysAdmin\WebUser;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Hash;
@@ -26,7 +25,7 @@ class UpdateWebUser
     {
         if (Arr::exists($modelData, 'password')) {
             data_set($modelData, 'password', Hash::make($modelData['password']));
-            data_set($modelData, 'auth_type', WebUserAuthTypeEnum::DEFAULT);
+            data_set($modelData, 'auth_type', \App\Enums\CRM\WebUser\WebUserAuthTypeEnum::DEFAULT);
             data_set($modelData, 'data.legacy_password', null);
         }
 

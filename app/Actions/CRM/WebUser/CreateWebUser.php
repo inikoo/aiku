@@ -9,10 +9,10 @@ namespace App\Actions\CRM\WebUser;
 
 use App\Actions\InertiaAction;
 use App\Actions\Market\Shop\UI\ShowShop;
-use App\Enums\Auth\WebUser\WebUserTypeEnum;
+use App\Enums\CRM\WebUser\WebUserTypeEnum;
 use App\Models\CRM\Customer;
-use App\Models\SysAdmin\Organisation;
 use App\Models\Market\Shop;
+use App\Models\SysAdmin\Organisation;
 use App\Models\Web\Website;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -52,7 +52,7 @@ class CreateWebUser extends InertiaAction
                             WebUserTypeEnum::WEB->value => [
                                 'label' => __('Customer')
                             ],
-                            WebUserTypeEnum::API->value => [
+                            \App\Enums\CRM\WebUser\WebUserTypeEnum::API->value => [
                                 'label' => __('API user')
                             ]
                         ]

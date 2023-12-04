@@ -7,7 +7,7 @@
 
 namespace App\Stubs\Migrations;
 
-use App\Enums\Auth\User\UserTypeEnum;
+use App\Enums\SysAdmin\User\UserTypeEnum;
 use Illuminate\Database\Schema\Blueprint;
 
 trait HasSysAdminStats

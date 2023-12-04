@@ -8,11 +8,9 @@
 namespace App\Actions\SysAdmin\Guest\UI;
 
 use App\Actions\InertiaAction;
-use App\Enums\Auth\Guest\GuestTypeEnum;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
-use Spatie\LaravelOptions\Options;
 
 class CreateGuest extends InertiaAction
 {
@@ -43,43 +41,18 @@ class CreateGuest extends InertiaAction
                 'formData'    => [
                     'blueprint' => [
                         [
-                            'title' => __('Type/Login credentials'),
+                            'title' => __('Credentials'),
 
                             'fields' => [
-                                'type'             => [
-                                    'type'    => 'radio',
-                                    'mode'    => 'normal',
-                                    'label'   => __('type'),
-                                    'value'   => GuestTypeEnum::CONTRACTOR->value,
-                                    'options' => Options::forEnum(GuestTypeEnum::class)
+                                'username'             => [
+                                    'type'    => 'input',
+                                    'label'   => __('username'),
                                 ],
-                                'guestCredentials' => [
-                                    'type'    => 'guest-credentials',
-                                    'apiUrl'  => route('grp.json.group-users.index') . '?filter[contact_name]=',
-                                    'label'   => 'Guest Credentials',
-                                    'value'   => 'newGroupUser',
-                                    'options' => [
-                                        'newGroupUser' => [
-                                            'label'             => __('Create new user'),
-                                            'hooks'             => [
-                                                'route' => [
-                                                    'name' => 'models.guest.store',
-                                                ],
-                                                'field' => [
-                                                    'username' => [
-                                                        'type'     => 'input',
-                                                        'label'    => __('username'),
-                                                        'value'    => '',
-                                                        'required' => true,
-                                                    ],
-                                                ]
-                                            ],
+                                'password'             => [
+                                    'type'    => 'password',
+                                    'label'   => __('password'),
+                                ],
 
-                                        ]
-                                    ],
-
-
-                                ]
                             ],
 
                         ],

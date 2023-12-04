@@ -68,7 +68,7 @@ return [
     |             may want to set its priority in app/Http/Kernel.php's
     |             $middlewarePriory array, to apply it as early in the stack
     |             as possible. If you want to capture user attributes, it
-    |             must come *after* \Illuminate\Auth\Middleware\Authorize.
+    |             must come *after* \Illuminate\SysAdmin\Middleware\Authorize.
     |
     | visitors:   If 'record_user_id' is true, we'll save the user's ID in the
     |             transaction. If no user is logged in, the transaction will

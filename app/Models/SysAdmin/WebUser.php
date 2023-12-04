@@ -8,8 +8,8 @@
 namespace App\Models\SysAdmin;
 
 use App\Actions\CRM\Customer\Hydrators\CustomerHydrateWebUsers;
-use App\Enums\Auth\WebUser\WebUserAuthTypeEnum;
-use App\Enums\Auth\WebUser\WebUserTypeEnum;
+use App\Enums\CRM\WebUser\WebUserAuthTypeEnum;
+use App\Enums\CRM\WebUser\WebUserTypeEnum;
 use App\Models\CRM\Customer;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;

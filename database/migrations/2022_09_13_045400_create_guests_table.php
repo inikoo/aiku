@@ -5,7 +5,6 @@
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
-use App\Enums\Auth\Guest\GuestTypeEnum;
 use App\Stubs\Migrations\HasContact;
 use App\Stubs\Migrations\HasSoftDeletes;
 use Illuminate\Database\Migrations\Migration;
@@ -25,7 +24,6 @@ return new class () extends Migration {
             $table->string('slug')->unique()->collation('und_ns');
             $table->string('alias')->collation('und_ns');
             $table->boolean('status')->index()->default(true);
-            $table->string('type')->default(GuestTypeEnum::CONTRACTOR->value);
             $table = $this->contactFields(table: $table, withPersonalDetails: true);
             $table->jsonb('data');
             $table->timestampsTz();
