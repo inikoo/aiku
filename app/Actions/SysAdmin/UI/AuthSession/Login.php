@@ -85,9 +85,9 @@ class Login
             app()->setLocale($language);
         }
 
-        return back();
+        //return back();
 
-        //  return redirect()->intended(RouteServiceProvider::HOME);
+        return redirect()->intended('dashboard');
     }
 
     public function rules(): array
