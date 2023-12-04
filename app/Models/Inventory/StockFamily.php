@@ -7,7 +7,7 @@
 
 namespace App\Models\Inventory;
 
-use App\Actions\Grouping\Group\Hydrators\GroupHydrateInventory;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateInventory;
 use App\Enums\Inventory\StockFamily\StockFamilyStateEnum;
 use App\Models\Search\UniversalSearch;
 use App\Models\Traits\HasUniversalSearch;

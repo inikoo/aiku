@@ -10,7 +10,7 @@ namespace App\Http\Middleware;
 
 use App\Actions\UI\GetFirstLoadProps;
 use App\Http\Resources\UI\LoggedUserResource;
-use App\Models\Auth\User;
+use App\Models\SysAdmin\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Inertia\Middleware;

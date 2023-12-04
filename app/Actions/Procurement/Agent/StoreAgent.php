@@ -9,9 +9,9 @@ namespace App\Actions\Procurement\Agent;
 
 use App\Actions\Assets\Currency\SetCurrencyHistoricFields;
 use App\Actions\Helpers\Address\StoreAddressAttachToModel;
-use App\Actions\Grouping\Group\Hydrators\GroupHydrateProcurement;
 use App\Actions\Procurement\Agent\Hydrators\AgentHydrateUniversalSearch;
-use App\Models\Grouping\Group;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateProcurement;
+use App\Models\SysAdmin\Group;
 use App\Models\Procurement\Agent;
 use App\Rules\ValidAddress;
 use Illuminate\Http\RedirectResponse;

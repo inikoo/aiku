@@ -8,10 +8,11 @@
 namespace App\Actions\Inventory\Stock;
 
 use App\Actions\Inventory\StockFamily\Hydrators\StockFamilyHydrateStocks;
-use App\Actions\Grouping\Group\Hydrators\GroupHydrateInventory;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateInventory;
 use App\Actions\Traits\WithActionUpdate;
 use App\Actions\Traits\WithOrganisationArgument;
 use App\Models\Inventory\Stock;
+use Exception;
 use Illuminate\Console\Command;
 
 class DeleteStock
@@ -19,7 +20,7 @@ class DeleteStock
     use WithActionUpdate;
     use WithOrganisationArgument;
 
-    public string $commandSignature = 'delete:stock {tenant} {id}';
+    public string $commandSignature = 'delete:stock {stock}';
 
     public function handle(Stock $stock, array $deletedData = [], bool $skipHydrate = false): Stock
     {
@@ -39,9 +40,15 @@ class DeleteStock
 
     public function asCommand(Command $command): int
     {
-        $this->getTenant($command)->execute(
-            fn () => $this->handle(Stock::findOrFail($command->argument('id')))
-        );
+
+        try {
+            $stock= Stock::findOrFail($command->argument('stock'));
+        } catch (Exception $e) {
+            $command->error('Stock not found '.$e->getMessage());
+            return 1;
+        }
+
+        $this->handle($stock);
 
         return 0;
     }

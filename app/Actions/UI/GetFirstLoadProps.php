@@ -9,9 +9,9 @@ namespace App\Actions\UI;
 
 use App\Actions\Assets\Language\UI\GetLanguagesOptions;
 use App\Http\Resources\Assets\LanguageResource;
-use App\Http\Resources\Grouping\Group\GroupResource;
+use App\Http\Resources\SysAdmin\Group\GroupResource;
 use App\Models\Assets\Language;
-use App\Models\Auth\User;
+use App\Models\SysAdmin\User;
 use Cache;
 use Illuminate\Support\Facades\App;
 use Lorisleiva\Actions\Concerns\AsObject;

@@ -5,7 +5,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-use App\Models\Grouping\Group;
+use App\Models\SysAdmin\Group;
 
 if (!function_exists('group')) {
     function group(): ?Group

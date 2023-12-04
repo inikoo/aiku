@@ -17,7 +17,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 /**
  * @property Outbox $outbox
- * @property \App\Models\Auth\User $user
+ * @property \App\Models\SysAdmin\User $user
  */
 class MarketingHub extends InertiaAction
 {

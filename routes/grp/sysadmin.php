@@ -6,20 +6,20 @@
  */
 
 
-use App\Actions\Auth\Guest\ExportGuests;
-use App\Actions\Auth\Guest\UI\CreateGuest;
-use App\Actions\Auth\Guest\UI\EditGuest;
-use App\Actions\Auth\Guest\UI\IndexGuest;
-use App\Actions\Auth\Guest\UI\RemoveGuest;
-use App\Actions\Auth\Guest\UI\ShowGuest;
-use App\Actions\Auth\User\ExportUsers;
-use App\Actions\Auth\User\UI\CreateUser;
-use App\Actions\Auth\User\UI\EditUser;
-use App\Actions\Auth\User\UI\IndexUsers;
-use App\Actions\Auth\User\UI\ShowUser;
+use App\Actions\SysAdmin\Guest\ExportGuests;
+use App\Actions\SysAdmin\Guest\UI\CreateGuest;
+use App\Actions\SysAdmin\Guest\UI\EditGuest;
+use App\Actions\SysAdmin\Guest\UI\IndexGuest;
+use App\Actions\SysAdmin\Guest\UI\RemoveGuest;
+use App\Actions\SysAdmin\Guest\UI\ShowGuest;
+use App\Actions\SysAdmin\User\ExportUsers;
+use App\Actions\SysAdmin\User\UI\CreateUser;
+use App\Actions\SysAdmin\User\UI\EditUser;
+use App\Actions\SysAdmin\User\UI\IndexUsers;
+use App\Actions\SysAdmin\User\UI\ShowUser;
 use App\Actions\UI\Dashboard\ShowDashTV;
-use App\Actions\UI\SysAdmin\SysAdminDashboard;
 use App\Actions\UI\SysAdmin\EditSystemSettings;
+use App\Actions\UI\SysAdmin\SysAdminDashboard;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [

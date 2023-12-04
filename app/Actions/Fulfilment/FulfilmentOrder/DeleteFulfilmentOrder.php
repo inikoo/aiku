@@ -9,7 +9,7 @@ namespace App\Actions\Fulfilment\FulfilmentOrder;
 
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Fulfilment\FulfilmentOrder;
-use App\Models\Grouping\Organisation;
+use App\Models\SysAdmin\Organisation;
 use Illuminate\Console\Command;
 
 class DeleteFulfilmentOrder

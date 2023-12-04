@@ -7,9 +7,8 @@
 
 namespace App\Actions\Notifications;
 
-use App\Actions\Mail\EmailAddress\SendEmailAddress;
-use App\Models\Auth\User;
-use App\Models\Grouping\Organisation;
+use App\Models\SysAdmin\Organisation;
+use App\Models\SysAdmin\User;
 use Illuminate\Support\Collection;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\AsObject;
@@ -29,9 +28,9 @@ class PublishNotification
                 PublishPushNotification::dispatch($user, $content);
             }
 
-            if(in_array('mail', $target)) {
-                //                SendEmailAddress::run($content, $user->email);
-            }
+            //if(in_array('mail', $target)) {
+            //                SendEmailAddress::run($content, $user->email);
+            //}
         }
     }
 

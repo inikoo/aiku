@@ -7,8 +7,8 @@
 
 namespace App\Http\Resources\UniversalSearch;
 
-use App\Http\Resources\Auth\UserSearchResultResource;
 use App\Http\Resources\HumanResources\EmployeeSearchResultResource;
+use App\Http\Resources\SysAdmin\UserSearchResultResource;
 use App\Http\Resources\Web\WebsiteSearchResultResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 

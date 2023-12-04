@@ -7,9 +7,9 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-use App\Actions\Auth\Guest\StoreGuest;
-use App\Actions\Auth\Guest\UpdateGuest;
-use App\Models\Auth\Guest;
+use App\Actions\SysAdmin\Guest\StoreGuest;
+use App\Actions\SysAdmin\Guest\UpdateGuest;
+use App\Models\SysAdmin\Guest;
 use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;

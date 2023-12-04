@@ -7,11 +7,11 @@
 
 namespace App\Actions\HumanResources\Employee;
 
-use App\Actions\Auth\User\StoreUser;
+use App\Actions\SysAdmin\User\StoreUser;
 use App\Enums\Auth\User\UserAuthTypeEnum;
-use App\Models\Auth\User;
+use App\Models\SysAdmin\Organisation;
 use App\Models\HumanResources\Employee;
-use App\Models\Grouping\Organisation;
+use App\Models\SysAdmin\User;
 use Illuminate\Console\Command;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;

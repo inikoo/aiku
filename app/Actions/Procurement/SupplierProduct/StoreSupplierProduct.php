@@ -11,7 +11,7 @@ use App\Actions\Procurement\Agent\Hydrators\AgentHydrateSuppliers;
 use App\Actions\Procurement\HistoricSupplierProduct\StoreHistoricSupplierProduct;
 use App\Actions\Procurement\Supplier\Hydrators\SupplierHydrateSupplierProducts;
 use App\Actions\Procurement\SupplierProduct\Hydrators\SupplierProductHydrateUniversalSearch;
-use App\Actions\Grouping\Group\Hydrators\GroupHydrateProcurement;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateProcurement;
 use App\Models\Procurement\Supplier;
 use App\Models\Procurement\SupplierProduct;
 use Lorisleiva\Actions\Concerns\AsAction;

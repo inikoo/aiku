@@ -9,10 +9,10 @@
 
 namespace App\Actions\CRM\Customer;
 
-use App\Actions\Auth\WebUser\HydrateWebUser;
-use App\Actions\Auth\WebUser\StoreWebUser;
+use App\Actions\CRM\WebUser\HydrateWebUser;
+use App\Actions\CRM\WebUser\StoreWebUser;
 use App\Models\CRM\Customer;
-use App\Models\Grouping\Organisation;
+use App\Models\SysAdmin\Organisation;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;

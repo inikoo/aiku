@@ -10,7 +10,7 @@ namespace App\Models\Procurement;
 use App\Enums\Procurement\SupplierDelivery\SupplierDeliveryStateEnum;
 use App\Enums\Procurement\SupplierDelivery\SupplierDeliveryStatusEnum;
 use App\Models\Helpers\Address;
-use App\Models\Grouping\Organisation;
+use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasAddresses;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;

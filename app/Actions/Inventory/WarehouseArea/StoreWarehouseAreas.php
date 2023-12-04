@@ -10,9 +10,9 @@ namespace App\Actions\Inventory\WarehouseArea;
 
 use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydrateWarehouseAreas;
 use App\Actions\Inventory\WarehouseArea\Hydrators\WarehouseAreaHydrateUniversalSearch;
-use App\Actions\Grouping\Organisation\Hydrators\OrganisationHydrateWarehouse;
-use App\Models\Inventory\WarehouseArea;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWarehouse;
 use App\Models\Inventory\Warehouse;
+use App\Models\Inventory\WarehouseArea;
 use App\Rules\CaseSensitive;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
@@ -56,19 +56,19 @@ class StoreWarehouseAreas
     }
 
 
-    public function asController(Warehouse $warehouse, ActionRequest $request): WarehouseAreas
+    public function asController(Warehouse $warehouse, ActionRequest $request): WarehouseArea
     {
         $request->validate();
 
         return $this->handle($warehouse, $request->validated());
     }
 
-    public function htmlResponse(WarehouseAreas $warehouseArea): RedirectResponse
+    public function htmlResponse(WarehouseArea $warehouseArea): RedirectResponse
     {
         return Redirect::route('grp.inventory.warehouses.show.warehouse-areas.index', $warehouseArea->warehouse->slug);
     }
 
-    public function action(Warehouse $warehouse, array $objectData): WarehouseAreas
+    public function action(Warehouse $warehouse, array $objectData): WarehouseArea
     {
         $this->asAction = true;
         $this->setRawAttributes($objectData);

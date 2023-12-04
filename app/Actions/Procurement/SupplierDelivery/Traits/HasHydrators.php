@@ -10,7 +10,7 @@ namespace App\Actions\Procurement\SupplierDelivery\Traits;
 use App\Actions\Procurement\Agent\Hydrators\AgentHydrateSupplierDeliveries;
 use App\Actions\Procurement\Supplier\Hydrators\HydrateSupplierDeliveries;
 use App\Actions\Procurement\Supplier\Hydrators\SupplierHydrateSupplierDeliveries;
-use App\Actions\Grouping\Organisation\Hydrators\OrganisationHydrateProcurement;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateProcurement;
 use App\Models\Procurement\SupplierDelivery;
 
 trait HasHydrators

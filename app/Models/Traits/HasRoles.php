@@ -7,8 +7,8 @@
 
 namespace App\Models\Traits;
 
-use App\Models\Auth\Role;
 use App\Models\HumanResources\JobPosition;
+use App\Models\SysAdmin\Role;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Spatie\Permission\PermissionRegistrar;
 use Spatie\Permission\Traits\HasRoles as SpatieHasRoles;

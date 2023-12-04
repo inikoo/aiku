@@ -7,16 +7,16 @@
 
 use App\Actions\HumanResources\ClockingMachine\StoreClockingMachine;
 use App\Actions\HumanResources\ClockingMachine\UpdateClockingMachine;
+use App\Actions\HumanResources\Employee\CreateUserFromEmployee;
 use App\Actions\HumanResources\Employee\StoreEmployee;
 use App\Actions\HumanResources\Employee\UpdateEmployee;
+use App\Actions\HumanResources\Employee\UpdateEmployeeWorkingHours;
 use App\Actions\HumanResources\WorkingPlace\UpdateWorkingPlace;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
-use App\Models\Auth\User;
 use App\Models\Helpers\Address;
-use App\Models\HumanResources\Workplace;
 use App\Models\HumanResources\Employee;
-use App\Actions\HumanResources\Employee\UpdateEmployeeWorkingHours;
-use App\Actions\HumanResources\Employee\CreateUserFromEmployee;
+use App\Models\HumanResources\Workplace;
+use App\Models\SysAdmin\User;
 
 beforeAll(function () {
     loadDB('test_base_database.dump');

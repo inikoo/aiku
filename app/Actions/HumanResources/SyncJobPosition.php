@@ -9,8 +9,8 @@ namespace App\Actions\HumanResources;
 
 use App\Actions\HumanResources\Employee\Hydrators\EmployeeHydrateJobPositionsShare;
 use App\Actions\HumanResources\JobPosition\HydrateJobPosition;
-use App\Models\Auth\Guest;
 use App\Models\HumanResources\Employee;
+use App\Models\SysAdmin\Guest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class SyncJobPosition

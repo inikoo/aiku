@@ -8,7 +8,7 @@
 namespace App\Actions\Google\Drive;
 
 use App\Actions\Google\Drive\Traits\WithTokenPath;
-use App\Models\Grouping\Organisation;
+use App\Models\SysAdmin\Organisation;
 use Google_Client;
 use Google_Service_Drive;
 use Illuminate\Http\RedirectResponse;

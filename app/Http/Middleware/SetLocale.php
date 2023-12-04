@@ -17,7 +17,7 @@ class SetLocale
 {
     public function handle(Request $request, Closure $next)
     {
-        /** @var \App\Models\Auth\User $user */
+        /** @var \App\Models\SysAdmin\User $user */
         if ($user = auth()->user()) {
             $language=Language::find($user->language_id);
             $locale  =$language->code;

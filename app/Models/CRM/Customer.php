@@ -13,7 +13,6 @@ use App\Enums\CRM\Customer\CustomerStatusEnum;
 use App\Enums\CRM\Customer\CustomerTradeStateEnum;
 use App\Models\Accounting\Invoice;
 use App\Models\Accounting\Payment;
-use App\Models\Auth\WebUser;
 use App\Models\Dropshipping\CustomerClient;
 use App\Models\Fulfilment\FulfilmentOrder;
 use App\Models\Fulfilment\StoredItem;
@@ -25,8 +24,9 @@ use App\Models\Market\Product;
 use App\Models\Market\Shop;
 use App\Models\OMS\Order;
 use App\Models\Search\UniversalSearch;
-use App\Models\Traits\HasPhoto;
+use App\Models\SysAdmin\WebUser;
 use App\Models\Traits\HasAddresses;
+use App\Models\Traits\HasPhoto;
 use App\Models\Traits\HasUniversalSearch;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
@@ -43,7 +43,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection;
-
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 

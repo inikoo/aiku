@@ -10,9 +10,9 @@ namespace App\Actions\UI;
 use App\Http\Resources\UI\ShopsNavigationResource;
 use App\Http\Resources\UI\WarehousesNavigationResource;
 use App\Http\Resources\UI\WebsitesNavigationResource;
-use App\Models\Auth\User;
 use App\Models\Inventory\Warehouse;
 use App\Models\Market\Shop;
+use App\Models\SysAdmin\User;
 use App\Models\Web\Website;
 use Lorisleiva\Actions\Concerns\AsAction;
 

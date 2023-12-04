@@ -19,10 +19,10 @@ use App\Models\Accounting\PaymentServiceProviderShop;
 use App\Models\Assets\Country;
 use App\Models\Assets\Currency;
 use App\Models\Assets\Timezone;
-use App\Models\Auth\ApiTenantUser;
 use App\Models\CRM\Customer;
 use App\Models\CRM\Prospect;
 use App\Models\Fulfilment\FulfilmentOrder;
+use App\Models\SysAdmin\Organisation;
 use App\Models\Helpers\Address;
 use App\Models\Helpers\Issue;
 use App\Models\Helpers\SerialReference;
@@ -30,8 +30,8 @@ use App\Models\Helpers\TaxNumber;
 use App\Models\Mail\Outbox;
 use App\Models\Marketing\OfferCampaign;
 use App\Models\OMS\Order;
-use App\Models\Grouping\Organisation;
 use App\Models\Search\UniversalSearch;
+use App\Models\SysAdmin\ApiTenantUser;
 use App\Models\Traits\HasAddresses;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Web\Website;
@@ -49,7 +49,6 @@ use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
-
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -86,7 +85,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $source_id
  * @property-read \App\Models\Market\ShopAccountingStats|null $accountingStats
  * @property-read Collection<int, Address> $addresses
- * @property-read ApiTenantUser|null $apiTenantUser
+ * @property-read \App\Models\SysAdmin\ApiTenantUser|null $apiTenantUser
  * @property-read Country $country
  * @property-read \App\Models\Market\ShopCRMStats|null $crmStats
  * @property-read Currency $currency

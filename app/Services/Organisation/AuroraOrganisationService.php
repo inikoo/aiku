@@ -10,7 +10,7 @@ namespace App\Services\Organisation;
 
 use AllowDynamicProperties;
 use App\Models\Dispatch\DeliveryNote;
-use App\Models\Grouping\Organisation;
+use App\Models\SysAdmin\Organisation;
 use App\Services\Organisation\Aurora\FetchAuroraAgent;
 use App\Services\Organisation\Aurora\FetchAuroraCustomer;
 use App\Services\Organisation\Aurora\FetchAuroraCustomerClient;

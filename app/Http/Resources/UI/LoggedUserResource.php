@@ -8,7 +8,7 @@
 namespace App\Http\Resources\UI;
 
 use App\Http\Resources\HasSelfCall;
-use App\Models\Auth\User;
+use App\Models\SysAdmin\User;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**

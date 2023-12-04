@@ -8,9 +8,9 @@
 namespace App\Actions\Inventory\Warehouse;
 
 use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydrateUniversalSearch;
-use App\Actions\Grouping\Organisation\Hydrators\OrganisationHydrateWarehouse;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWarehouse;
+use App\Models\SysAdmin\Organisation;
 use App\Models\Inventory\Warehouse;
-use App\Models\Grouping\Organisation;
 use App\Rules\CaseSensitive;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;

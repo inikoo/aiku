@@ -7,7 +7,7 @@
 
 namespace App\Actions\CRM\Customer;
 
-use App\Actions\Auth\WebUser\DeleteWebUser;
+use App\Actions\CRM\WebUser\DeleteWebUser;
 use App\Actions\Dropshipping\CustomerClient\DeleteCustomerClient;
 use App\Actions\Fulfilment\FulfilmentOrder\DeleteFulfilmentOrder;
 use App\Actions\Inventory\Stock\DeleteStock;

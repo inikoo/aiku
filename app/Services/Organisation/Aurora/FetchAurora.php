@@ -7,7 +7,7 @@
 
 namespace App\Services\Organisation\Aurora;
 
-use App\Models\Grouping\Organisation;
+use App\Models\SysAdmin\Organisation;
 use App\Services\Organisation\SourceOrganisationService;
 
 class FetchAurora

@@ -6,7 +6,7 @@
  */
 
 
-use App\Actions\Auth\WebUser\IndexWebUser;
+use App\Actions\CRM\WebUser\IndexWebUser;
 use App\Actions\UI\Websites\WebsitesDashboard;
 use App\Actions\Web\Webpage\IndexWebpages;
 use App\Actions\Web\Website\UI\CreateWebsite;

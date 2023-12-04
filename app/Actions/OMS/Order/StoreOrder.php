@@ -11,7 +11,7 @@ use App\Actions\Helpers\Address\AttachHistoricAddressToModel;
 use App\Actions\Helpers\Address\StoreHistoricAddress;
 use App\Actions\Market\Shop\Hydrators\ShopHydrateOrders;
 use App\Actions\OMS\Order\Hydrators\OrderHydrateUniversalSearch;
-use App\Actions\Grouping\Organisation\Hydrators\OrganisationHydrateOrders;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateOrders;
 use App\Models\CRM\Customer;
 use App\Models\Dropshipping\CustomerClient;
 use App\Models\Helpers\Address;

@@ -7,8 +7,8 @@
 
 namespace App\Actions;
 
-use App\Models\Auth\WebUser;
 use App\Models\Central\Domain;
+use App\Models\SysAdmin\WebUser;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsController;

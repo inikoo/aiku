@@ -7,7 +7,6 @@
 
 namespace App\Exports\Auth;
 
-use App\Models\Auth\Guest;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Database\Query\Builder;
 use Maatwebsite\Excel\Concerns\FromQuery;
@@ -17,12 +16,12 @@ use Maatwebsite\Excel\Concerns\WithMapping;
 
 class GuestsExport implements FromQuery, WithMapping, ShouldAutoSize, WithHeadings
 {
-    public function query(): Relation|\Illuminate\Database\Eloquent\Builder|Guest|Builder
+    public function query(): Relation|\Illuminate\Database\Eloquent\Builder|\App\Models\SysAdmin\Guest|Builder
     {
-        return Guest::query();
+        return \App\Models\SysAdmin\Guest::query();
     }
 
-    /** @var Guest $row */
+    /** @var \App\Models\SysAdmin\Guest $row */
     public function map($row): array
     {
         return [

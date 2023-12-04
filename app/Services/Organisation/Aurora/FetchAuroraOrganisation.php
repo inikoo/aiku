@@ -7,7 +7,7 @@
 
 namespace App\Services\Organisation\Aurora;
 
-use App\Models\Grouping\Organisation;
+use App\Models\SysAdmin\Organisation;
 use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\App;

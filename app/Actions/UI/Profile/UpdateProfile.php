@@ -7,10 +7,10 @@
 
 namespace App\Actions\UI\Profile;
 
-use App\Actions\Auth\User\UI\SetUserAvatarFromImage;
+use App\Actions\SysAdmin\User\UI\SetUserAvatarFromImage;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Auth\User\SynchronisableUserFieldsEnum;
-use App\Models\Auth\User;
+use App\Models\SysAdmin\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rules\File;
@@ -46,7 +46,7 @@ class UpdateProfile
     {
         return [
             'password'    => ['sometimes', 'required', app()->isLocal() || app()->environment('testing') ? null : Password::min(8)->uncompromised()],
-            'email'       => 'sometimes|required|email|unique:App\Models\Auth\GroupUser,email',
+            'email'       => 'sometimes|required|email|unique:App\Models\SysAdmin\GroupUser,email',
             'about'       => 'sometimes|nullable|string|max:255',
             'language_id' => ['sometimes', 'required', 'exists:languages,id'],
             'avatar'      => [

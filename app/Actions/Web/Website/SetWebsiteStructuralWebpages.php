@@ -8,7 +8,7 @@
 namespace App\Actions\Web\Website;
 
 use App\Actions\Web\Webpage\StoreWebpage;
-use App\Models\Grouping\Organisation;
+use App\Models\SysAdmin\Organisation;
 use App\Models\Web\Webpage;
 use App\Models\Web\Website;
 use Illuminate\Console\Command;

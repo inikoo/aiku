@@ -5,10 +5,10 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-use App\Actions\Grouping\Group\StoreGroup;
-use App\Actions\Grouping\Organisation\StoreOrganisation;
-use App\Models\Grouping\Group;
-use App\Models\Grouping\Organisation;
+use App\Actions\SysAdmin\Group\StoreGroup;
+use App\Actions\SysAdmin\Organisation\StoreOrganisation;
+use App\Models\SysAdmin\Group;
+use App\Models\SysAdmin\Organisation;
 use Symfony\Component\Process\Process;
 use Tests\TestCase;
 

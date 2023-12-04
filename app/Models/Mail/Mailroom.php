@@ -8,7 +8,7 @@
 namespace App\Models\Mail;
 
 use App\Enums\Mail\Mailroom\MailroomTypeEnum;
-use App\Models\Grouping\Group;
+use App\Models\SysAdmin\Group;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;

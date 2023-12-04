@@ -5,9 +5,9 @@
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
-use App\Actions\Auth\UI\AuthSession\Login;
-use App\Actions\Auth\UI\AuthSession\Logout;
-use App\Actions\Auth\UI\AuthSession\ShowLogin;
+use App\Actions\SysAdmin\UI\AuthSession\Login;
+use App\Actions\SysAdmin\UI\AuthSession\Logout;
+use App\Actions\SysAdmin\UI\AuthSession\ShowLogin;
 use App\Http\Controllers\Auth\ConfirmablePasswordController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 use App\Http\Controllers\Auth\EmailVerificationPromptController;

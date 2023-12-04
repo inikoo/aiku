@@ -8,7 +8,7 @@
 namespace App\Actions;
 
 use App\Actions\Traits\WithOrganisationsArgument;
-use App\Models\Grouping\Organisation;
+use App\Models\SysAdmin\Organisation;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;

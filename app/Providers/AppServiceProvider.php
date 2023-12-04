@@ -51,11 +51,11 @@ class AppServiceProvider extends ServiceProvider
         Relation::morphMap(
             [
                 'Admin'                 => 'App\Models\SysAdmin\Admin',
-                'Group'                 => 'App\Models\Grouping\Group',
-                'Organisation'          => 'App\Models\Grouping\Organisation',
-                'User'                  => 'App\Models\Auth\User',
+                'Group'                 => 'App\Models\SysAdmin\Group',
+                'Organisation'          => 'App\Models\SysAdmin\Organisation',
+                'User'                  => 'App\Models\SysAdmin\User',
                 'Employee'              => 'App\Models\HumanResources\Employee',
-                'Guest'                 => 'App\Models\Auth\Guest',
+                'Guest'                 => 'App\Models\SysAdmin\Guest',
                 'Customer'              => 'App\Models\CRM\Customer',
                 'Prospect'              => 'App\Models\Deals\Prospect',
                 'Shop'                  => 'App\Models\Market\Shop',
@@ -64,13 +64,13 @@ class AppServiceProvider extends ServiceProvider
                 'Product'               => 'App\Models\Market\Product',
                 'HistoricProduct'       => 'App\Models\Market\HistoricProduct',
                 'Supplier'              => 'App\Models\Procurement\Supplier',
-                'WebUser'               => 'App\Models\Auth\WebUser',
+                'WebUser'               => 'App\Models\SysAdmin\WebUser',
                 'Domain'                => 'App\Models\Central\Domain',
                 'Order'                 => 'App\Models\OMS\Order',
                 'Agent'                 => 'App\Models\Procurement\Agent',
                 'Location'              => 'App\Models\Inventory\Location',
                 'TradeUnit'             => 'App\Models\Goods\TradeUnit',
-                'ApiTenantUser'         => 'App\Models\Auth\ApiTenantUser',
+                'ApiTenantUser'         => 'App\Models\SysAdmin\ApiTenantUser',
                 'Website'               => 'App\Models\Web\Website'
             ]
         );

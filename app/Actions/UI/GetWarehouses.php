@@ -7,8 +7,8 @@
 
 namespace App\Actions\UI;
 
-use App\Models\Auth\User;
 use App\Models\Inventory\Warehouse;
+use App\Models\SysAdmin\User;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 class GetWarehouses

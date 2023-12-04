@@ -8,7 +8,7 @@
 namespace App\Actions\Fulfilment\StoredItem;
 
 use App\Actions\CRM\Customer\Hydrators\CustomerHydrateStoredItems;
-use App\Actions\Grouping\Organisation\Hydrators\OrganisationHydrateFulfilment;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateFulfilment;
 use App\Enums\Fulfilment\StoredItem\StoredItemTypeEnum;
 use App\Models\CRM\Customer;
 use App\Models\Fulfilment\StoredItem;

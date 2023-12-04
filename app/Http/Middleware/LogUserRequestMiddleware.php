@@ -2,7 +2,7 @@
 
 namespace App\Http\Middleware;
 
-use App\Actions\Auth\User\LogUserRequest;
+use App\Actions\SysAdmin\User\LogUserRequest;
 use App\Enums\Elasticsearch\ElasticsearchUserRequestTypeEnum;
 use Closure;
 use Illuminate\Http\Request;
@@ -14,7 +14,7 @@ class LogUserRequestMiddleware
      */
     public function handle(Request $request, Closure $next)
     {
-        /* @var \App\Models\Auth\User $user */
+        /* @var \App\Models\SysAdmin\User $user */
         $user = $request->user();
 
         if (!app()->runningUnitTests() && $user && env('USER_REQUEST_LOGGING')) {

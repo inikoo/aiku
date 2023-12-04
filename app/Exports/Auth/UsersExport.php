@@ -7,7 +7,7 @@
 
 namespace App\Exports\Auth;
 
-use App\Models\Auth\User;
+use App\Models\SysAdmin\User;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Database\Query\Builder;
 use Maatwebsite\Excel\Concerns\FromQuery;
@@ -19,7 +19,7 @@ class UsersExport implements FromQuery, WithMapping, ShouldAutoSize, WithHeading
 {
     public function query(): Relation|\Illuminate\Database\Eloquent\Builder|User|Builder
     {
-        return User::query();
+        return \App\Models\SysAdmin\User::query();
     }
 
     /** @var User $row */

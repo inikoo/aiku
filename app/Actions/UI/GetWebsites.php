@@ -7,7 +7,7 @@
 
 namespace App\Actions\UI;
 
-use App\Models\Auth\User;
+use App\Models\SysAdmin\User;
 use App\Models\Web\Website;
 use Lorisleiva\Actions\Concerns\AsObject;
 

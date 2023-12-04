@@ -19,7 +19,7 @@ class UserResource extends JsonResource
 {
     public function toArray($request): array|Arrayable|JsonSerializable
     {
-        /** @var \App\Models\Auth\User $user */
+        /** @var \App\Models\SysAdmin\User $user */
         $user = $this;
         return [
             'id'                 => $user->id,

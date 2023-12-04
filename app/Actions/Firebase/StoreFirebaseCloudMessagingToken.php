@@ -8,7 +8,7 @@
 namespace App\Actions\Firebase;
 
 use App\Models\Notifications\FcmToken;
-use App\Models\Grouping\Organisation;
+use App\Models\SysAdmin\Organisation;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\AsObject;

@@ -7,9 +7,9 @@
 
 namespace App\Http\Requests\Auth;
 
-use App\Actions\Auth\User\Hydrators\UserHydrateLogin;
-use App\Actions\Auth\User\Hydrators\UserHydrateFailLogin;
-use App\Models\Auth\User;
+use App\Actions\SysAdmin\User\Hydrators\UserHydrateFailLogin;
+use App\Actions\SysAdmin\User\Hydrators\UserHydrateLogin;
+use App\Models\SysAdmin\User;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;

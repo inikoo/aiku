@@ -9,8 +9,8 @@ namespace Database\Seeders;
 
 use App\Actions\HumanResources\JobPosition\StoreJobPosition;
 use App\Actions\HumanResources\JobPosition\UpdateJobPosition;
-use App\Models\Auth\Role;
 use App\Models\HumanResources\JobPosition;
+use App\Models\SysAdmin\Role;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Arr;
 

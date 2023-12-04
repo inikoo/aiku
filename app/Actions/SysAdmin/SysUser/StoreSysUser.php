@@ -12,7 +12,7 @@ use App\Models\Assets\Timezone;
 use App\Models\Central\Domain;
 use App\Models\SysAdmin\Admin;
 use App\Models\SysAdmin\SysUser;
-use App\Models\Grouping\Organisation;
+use App\Models\SysAdmin\Organisation;
 use App\Rules\AlphaDashDot;
 use Exception;
 use Illuminate\Console\Command;

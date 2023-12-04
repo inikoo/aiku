@@ -9,8 +9,8 @@ namespace App\Actions\HumanResources\Employee;
 
 use App\Actions\HumanResources\Employee\Hydrators\EmployeeHydrateWeekWorkingHours;
 use App\Http\Resources\SysAdmin\UserResource;
-use App\Models\Auth\User;
 use App\Models\HumanResources\Employee;
+use App\Models\SysAdmin\User;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 

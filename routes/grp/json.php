@@ -6,8 +6,8 @@
  */
 
 
-use App\Actions\Auth\User\GetAllUsers;
 use App\Actions\Inventory\Location\GetLocations;
+use App\Actions\SysAdmin\User\GetAllUsers;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/users', GetAllUsers::class)->name('users');

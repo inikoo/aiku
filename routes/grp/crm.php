@@ -6,15 +6,15 @@
  */
 
 
-use App\Actions\Auth\WebUser\EditWebUser;
-use App\Actions\Auth\WebUser\IndexWebUser;
-use App\Actions\Auth\WebUser\ShowWebUser;
 use App\Actions\CRM\Customer\UI\CreateCustomer;
 use App\Actions\CRM\Customer\UI\EditCustomer;
 use App\Actions\CRM\Customer\UI\IndexCustomers;
 use App\Actions\CRM\Customer\UI\RemoveCustomer;
 use App\Actions\CRM\Customer\UI\ShowCustomer;
 use App\Actions\CRM\Prospect\IndexProspects;
+use App\Actions\CRM\WebUser\EditWebUser;
+use App\Actions\CRM\WebUser\IndexWebUser;
+use App\Actions\CRM\WebUser\ShowWebUser;
 use App\Actions\OMS\Order\UI\ShowOrder;
 use App\Actions\UI\CRM\CRMDashboard;
 

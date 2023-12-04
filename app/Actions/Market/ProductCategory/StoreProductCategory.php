@@ -12,7 +12,7 @@ use App\Actions\Market\Shop\Hydrators\ShopHydrateDepartments;
 use App\Enums\Market\ProductCategory\ProductCategoryTypeEnum;
 use App\Models\Market\ProductCategory;
 use App\Models\Market\Shop;
-use App\Models\Grouping\Organisation;
+use App\Models\SysAdmin\Organisation;
 use App\Rules\CaseSensitive;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;

@@ -7,9 +7,9 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-use App\Actions\Auth\WebUser\StoreWebUser;
-use App\Actions\Auth\WebUser\UpdateWebUser;
-use App\Models\Auth\WebUser;
+use App\Actions\CRM\WebUser\StoreWebUser;
+use App\Actions\CRM\WebUser\UpdateWebUser;
+use App\Models\SysAdmin\WebUser;
 use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;

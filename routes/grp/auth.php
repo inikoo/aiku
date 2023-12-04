@@ -6,9 +6,9 @@
  *  Version 4.0
  */
 
-use App\Actions\Auth\UI\AuthSession\Login;
-use App\Actions\Auth\UI\AuthSession\Logout;
-use App\Actions\Auth\UI\AuthSession\ShowLogin;
+use App\Actions\SysAdmin\UI\AuthSession\Login;
+use App\Actions\SysAdmin\UI\AuthSession\Logout;
+use App\Actions\SysAdmin\UI\AuthSession\ShowLogin;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function () {

@@ -1,0 +1,70 @@
+<?php
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Mon, 04 Dec 2023 16:15:10 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2023, Raul A Perusquia Flores
+ */
+
+namespace App\Actions\SysAdmin\Organisation;
+
+use App\Models\SysAdmin\Organisation;
+use App\Models\Media\Media;
+use Exception;
+use Illuminate\Console\Command;
+use Lorisleiva\Actions\Concerns\AsAction;
+
+class SetOrganisationLogo
+{
+    use AsAction;
+
+    public function handle(Organisation $organisation): array
+    {
+
+        try {
+            $seed       = 'organisation-'.$organisation->id;
+            /** @var Media $media */
+            $media      = $organisation->addMediaFromUrl("https://api.dicebear.com/6.x/shapes/svg?seed=$seed")
+                ->preservingOriginal()
+                ->withProperties(
+                    [
+                        'group_id' => $organisation->group_id
+                    ]
+                )
+                ->usingFileName($organisation->slug."-logo.sgv")
+                ->toMediaCollection('logo');
+
+            $logoId = $media->id;
+
+            $organisation->update(['logo_id' => $logoId]);
+            return ['result' => 'success'];
+        } catch(Exception $e) {
+            return ['result' => 'error', 'message' => $e->getMessage()];
+        }
+    }
+
+
+    public string $commandSignature = 'org:logo {organisation : Organisation slug}';
+
+    public function asCommand(Command $command): int
+    {
+
+        try {
+            $organisation=Organisation::where('slug', $command->argument('organisation'))->firstOrFail();
+        } catch (Exception) {
+            $command->error('Organisation not found');
+            return 1;
+        }
+
+
+        $result=$this->handle($organisation);
+        if($result['result']==='success') {
+            $command->info('Logo set');
+            return 0;
+        } else {
+            $command->error($result['message']);
+            return 1;
+        }
+
+
+    }
+}

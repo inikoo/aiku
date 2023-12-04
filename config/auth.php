@@ -1,9 +1,9 @@
 <?php
 
-use App\Models\Auth\ApiTenantUser;
-use App\Models\Auth\User;
-use App\Models\Auth\WebUser;
+use App\Models\SysAdmin\ApiTenantUser;
 use App\Models\SysAdmin\SysUser;
+use App\Models\SysAdmin\User;
+use App\Models\SysAdmin\WebUser;
 
 return [
 

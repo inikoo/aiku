@@ -6,13 +6,13 @@
  */
 
 
-use App\Actions\Auth\WebUser\CreateWebUser;
-use App\Actions\Auth\WebUser\IndexWebUser;
-use App\Actions\Auth\WebUser\ShowWebUser;
 use App\Actions\CRM\Customer\UI\CreateCustomer;
 use App\Actions\CRM\Customer\UI\EditCustomer;
 use App\Actions\CRM\Customer\UI\IndexCustomers;
 use App\Actions\CRM\Customer\UI\ShowCustomer;
+use App\Actions\CRM\WebUser\CreateWebUser;
+use App\Actions\CRM\WebUser\IndexWebUser;
+use App\Actions\CRM\WebUser\ShowWebUser;
 use App\Actions\OMS\Order\UI\ShowOrder;
 use Illuminate\Support\Facades\Route;
 

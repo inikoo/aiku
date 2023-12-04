@@ -9,7 +9,7 @@ namespace App\Models\Central;
 
 use App\Models\Market\Shop;
 use App\Models\SysAdmin\SysUser;
-use App\Models\Grouping\Organisation;
+use App\Models\SysAdmin\Organisation;
 use App\Models\Web\Website;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;

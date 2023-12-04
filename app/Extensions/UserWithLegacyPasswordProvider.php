@@ -7,9 +7,9 @@
 
 namespace App\Extensions;
 
-use App\Actions\Auth\User\UpdateUser;
+use App\Actions\SysAdmin\User\UpdateUser;
 use App\Enums\Auth\User\UserAuthTypeEnum;
-use App\Models\Auth\User;
+use App\Models\SysAdmin\User;
 use Illuminate\Auth\EloquentUserProvider;
 use Illuminate\Contracts\Auth\Authenticatable;
 

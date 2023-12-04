@@ -13,7 +13,7 @@ use App\Actions\Inventory\StockFamily\UI\ShowStockFamily;
 use App\Http\Resources\Inventory\StockResource;
 use App\Models\Inventory\Stock;
 use App\Models\Inventory\StockFamily;
-use App\Models\Grouping\Organisation;
+use App\Models\SysAdmin\Organisation;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;

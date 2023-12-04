@@ -8,7 +8,7 @@
 namespace App\Actions\SourceFetch\Aurora;
 
 use App\Actions\Traits\WithOrganisationSource;
-use App\Models\Grouping\Organisation;
+use App\Models\SysAdmin\Organisation;
 use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;

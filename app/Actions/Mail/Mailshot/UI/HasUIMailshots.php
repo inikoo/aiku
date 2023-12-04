@@ -11,7 +11,7 @@ use App\Actions\Mail\Mailroom\ShowMailroom;
 use App\Actions\UI\Marketing\MarketingHub;
 use App\Models\Mail\Mailroom;
 use App\Models\Mail\Outbox;
-use App\Models\Grouping\Organisation;
+use App\Models\SysAdmin\Organisation;
 
 trait HasUIMailshots
 {
