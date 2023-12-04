@@ -32,8 +32,8 @@ class StoreUser
 
     public function handle(Guest|Employee|Supplier|Agent $parent, array $objectData = []): User
     {
-
         data_set($objectData, 'group_id', $parent->group_id);
+        data_set($objectData, 'contact_name', $parent->contact_name);
 
         $type = match (class_basename($parent)) {
             'Guest', 'Employee', 'Supplier', 'Agent' => strtolower(class_basename($parent)),
@@ -71,7 +71,6 @@ class StoreUser
             'email'    => ['required', 'email', 'unique:App\Models\SysAdmin\SysUser,email']
         ];
     }
-
 
 
     public function action(Guest|Employee $parent, array $objectData = []): User

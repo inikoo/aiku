@@ -8,6 +8,7 @@
 namespace App\Enums\Auth\User;
 
 use App\Enums\EnumHelperTrait;
+use App\Models\SysAdmin\Group;
 
 enum UserTypeEnum: string
 {
@@ -28,9 +29,9 @@ enum UserTypeEnum: string
         ];
     }
 
-    public static function count(): array
+    public static function count(Group $group): array
     {
-        $stats = app('currentTenant')->stats;
+        $stats = $group->sysadminStats;
 
         return [
             'employee' => $stats->number_users_type_employee,

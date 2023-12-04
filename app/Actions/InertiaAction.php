@@ -28,9 +28,7 @@ class InertiaAction
     protected int $perPage = 50;
     private array $rawInputs;
 
-    protected function getElementGroups(): void
-    {
-    }
+
 
     public function initialisation(ActionRequest $request): static
     {
@@ -38,8 +36,6 @@ class InertiaAction
         $this->originalParameters = $request->route()->originalParameters();
         $this->rawInputs          = $request->all();
         $request->validate();
-        $this->getElementGroups();
-
 
         return $this;
     }

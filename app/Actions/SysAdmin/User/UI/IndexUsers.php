@@ -15,6 +15,7 @@ use App\Enums\UI\UsersTabsEnum;
 use App\Http\Resources\SysAdmin\UserRequestLogsResource;
 use App\Http\Resources\SysAdmin\UserResource;
 use App\InertiaTable\InertiaTable;
+use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\User;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -27,9 +28,14 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexUsers extends InertiaAction
 {
-    protected function getElementGroups(): void
+    /**
+     * @var \App\Models\SysAdmin\Group
+     */
+    private Group $group;
+
+    protected function getElementGroups(Group $group): array
     {
-        $this->elementGroups =
+        return
             [
                 'status' => [
                     'label'    => __('Status'),
@@ -37,11 +43,11 @@ class IndexUsers extends InertiaAction
                         'active'    =>
                             [
                                 __('Active'),
-                                app('currentTenant')->stats->number_users_status_active
+                                $group->sysadminStats->number_users_status_active
                             ],
                         'suspended' => [
                             __('Suspended'),
-                            app('currentTenant')->stats->number_users_status_inactive
+                            $group->sysadminStats->number_users_status_inactive
                         ]
                     ],
                     'engine'   => function ($query, $elements) {
@@ -53,7 +59,7 @@ class IndexUsers extends InertiaAction
                     'label'    => __('Type'),
                     'elements' => array_merge_recursive(
                         UserTypeEnum::labels(),
-                        UserTypeEnum::count()
+                        UserTypeEnum::count($group)
                     ),
                     'engine'   => function ($query, $elements) {
                         $query->whereIn('type', $elements);
@@ -64,8 +70,9 @@ class IndexUsers extends InertiaAction
 
 
     /** @noinspection PhpUndefinedMethodInspection */
-    public function handle($prefix = null): LengthAwarePaginator
+    public function handle(Group $group, $prefix = null): LengthAwarePaginator
     {
+        $this->group  =$group;
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
                 $query->whereAnyWordStartWith('contact_name', $value)
@@ -81,7 +88,7 @@ class IndexUsers extends InertiaAction
 
         $queryBuilder = QueryBuilder::for(User::class)
             ->whereNotNull('type');
-        foreach ($this->elementGroups as $key => $elementGroup) {
+        foreach ($this->getElementGroups($group) as $key => $elementGroup) {
             $queryBuilder->whereElementGroup(
                 prefix: $prefix,
                 key: $key,
@@ -100,16 +107,16 @@ class IndexUsers extends InertiaAction
             ->withQueryString();
     }
 
-    public function tableStructure(?array $modelOperations = null, $prefix = null): Closure
+    public function tableStructure(Group $group, ?array $modelOperations = null, $prefix = null): Closure
     {
-        return function (InertiaTable $table) use ($modelOperations, $prefix) {
+        return function (InertiaTable $table) use ($modelOperations, $prefix, $group) {
             if ($prefix) {
                 $table
                     ->name($prefix)
                     ->pageName($prefix.'Page');
             }
 
-            foreach ($this->elementGroups as $key => $elementGroup) {
+            foreach ($this->getElementGroups($group) as $key => $elementGroup) {
                 $table->elementGroup(
                     key: $key,
                     label: $elementGroup['label'],
@@ -176,6 +183,7 @@ class IndexUsers extends InertiaAction
             ]
         )->table(
             $this->tableStructure(
+                group: $this->group,
                 prefix: 'users'
             )
         )
@@ -186,7 +194,7 @@ class IndexUsers extends InertiaAction
     {
         $this->initialisation($request)->withTab(UsersTabsEnum::values());
 
-        return $this->handle(prefix: 'users');
+        return $this->handle(group: app('group'), prefix: 'users');
     }
 
     public function getBreadcrumbs(string $routeName): array

@@ -9,6 +9,7 @@ import { Link } from '@inertiajs/vue3';
 import Table from '@/Components/Table/Table.vue';
 import { User } from "@/types/user";
 import { trans } from "laravel-vue-i18n";
+import Image from "@/Components/Image.vue";
 
 
 const props = defineProps<{
@@ -37,6 +38,11 @@ function userRoute(user: User) {
                 <template v-if="user['username']">{{ user['username'] }}</template>
                 <span v-else class="italic">{{ trans('Not set') }}</span>
             </Link>
+        </template>
+        <template #cell(avatar)="{ item: user }">
+            <div class="flex justify-center">
+                <Image :src="user['avatar']" class="w-6 aspect-square rounded-full" :alt="user.username"/>
+            </div>
         </template>
         <template #cell(name)="{ item: user }">
             {{ user['parent']['name'] }}

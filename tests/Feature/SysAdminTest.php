@@ -148,6 +148,7 @@ test('create guest', function (Group $group) {
     expect($guest)->toBeInstanceOf(Guest::class)
         ->and($guest->user)->toBeInstanceOf(User::class)
         ->and($guest->user->username)->toBe('hello')
+        ->and($guest->user->contact_name)->toBe($guest->contact_name)
         ->and($guest->phone)->toBe('+6281212121212')
         ->and($group->sysadminStats->number_guests)->toBe(1)
         ->and($group->sysadminStats->number_guests_status_active)->toBe(1)
