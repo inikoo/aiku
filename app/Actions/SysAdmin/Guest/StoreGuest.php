@@ -142,7 +142,8 @@ class StoreGuest
         return $this->handle($group, $validatedData);
     }
 
-    public string $commandSignature = 'guest:create {group : group slug} {name} {alias} {type : Guest type contractor|external_employee|external_administrator} {--P|password=} {--e|email=} {--t|phone=} {--identity_document_number=} {--identity_document_type=}';
+    public string $commandSignature = 'guest:create {group : group slug} {name} {alias}
+    {type : Guest type contractor|external_employee|external_administrator} {--P|password=} {--e|email=} {--t|phone=} {--identity_document_number=} {--identity_document_type=}';
 
 
     public function asCommand(Command $command): int

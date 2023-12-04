@@ -9,7 +9,7 @@ namespace App\Actions\SysAdmin\Guest\UI;
 
 use App\Actions\Helpers\History\IndexHistories;
 use App\Actions\InertiaAction;
-use App\Actions\UI\SysAdmin\SysAdminDashboard;
+use App\Actions\UI\SysAdmin\ShowSysAdminDashboard;
 use App\Enums\UI\GuestTabsEnum;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\SysAdmin\GuestResource;
@@ -117,7 +117,7 @@ class ShowGuest extends InertiaAction
             'grp.sysadmin.guests.edit' =>
 
             array_merge(
-                SysAdminDashboard::make()->getBreadcrumbs(),
+                ShowSysAdminDashboard::make()->getBreadcrumbs(),
                 $headCrumb(
                     $routeParameters['guest'],
                     [

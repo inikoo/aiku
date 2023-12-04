@@ -8,7 +8,7 @@
 namespace App\Actions\SysAdmin\Guest\UI;
 
 use App\Actions\InertiaAction;
-use App\Actions\UI\SysAdmin\SysAdminDashboard;
+use App\Actions\UI\SysAdmin\ShowSysAdminDashboard;
 use App\Enums\Auth\Guest\GuestTypeEnum;
 use App\Http\Resources\SysAdmin\GuestResource;
 use App\InertiaTable\InertiaTable;
@@ -181,7 +181,7 @@ class IndexGuest extends InertiaAction
     public function getBreadcrumbs($suffix = null): array
     {
         return array_merge(
-            (new SysAdminDashboard())->getBreadcrumbs(),
+            (new ShowSysAdminDashboard())->getBreadcrumbs(),
             [
                 [
                     'type'   => 'simple',

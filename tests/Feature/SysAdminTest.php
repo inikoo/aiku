@@ -30,22 +30,24 @@ use App\Models\SysAdmin\User;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+use Inertia\Testing\AssertableInertia;
 use Laravel\Sanctum\PersonalAccessToken;
 use Laravel\Sanctum\Sanctum;
+
+use function Pest\Laravel\{get};
+use function Pest\Laravel\{actingAs};
 
 beforeAll(function () {
     loadDB('test_base_database.dump');
     Sanctum::usePersonalAccessTokenModel(PersonalAccessToken::class);
-
 });
 
 test('create group', function () {
+    $modelData = Group::factory()->definition();
 
-    $modelData=Group::factory()->definition();
-
-    $modelData =array_merge($modelData, [
-        'code'        => 'TEST',
-        'name'        => 'Test Group',
+    $modelData = array_merge($modelData, [
+        'code' => 'TEST',
+        'name' => 'Test Group',
     ]);
 
     $group = StoreGroup::make()->action($modelData);
@@ -55,7 +57,6 @@ test('create group', function () {
 });
 
 test('create group by command', function () {
-
     $this->artisan('group:create', [
         'code'          => 'TEST2',
         'name'          => 'Test Group',
@@ -64,16 +65,14 @@ test('create group by command', function () {
     ])->assertSuccessful();
     $group = Group::where('code', 'TEST')->firstOrFail();
     expect($group)->toBeInstanceOf(Group::class);
+
     return $group;
 });
 
 
-
 test('mailrooms seeded correctly', function () {
-
     $mailrooms = Mailroom::all();
     expect($mailrooms->count())->toBe(6);
-
 });
 
 test('create a system admin', function () {
@@ -101,6 +100,7 @@ test('create organisation', function (Group $group) {
     $modelData    = Organisation::factory()->definition();
     $organisation = StoreOrganisation::make()->action($group, $modelData);
     expect($organisation)->toBeInstanceOf(Organisation::class);
+
     return $organisation;
 })->depends('create group');
 
@@ -115,6 +115,7 @@ test('create organisation by command', function () {
     ])->assertSuccessful();
     $organisation = Organisation::where('code', 'TEST')->firstOrFail();
     expect($organisation)->toBeInstanceOf(Organisation::class);
+
     return $organisation;
 })->depends('create group by command');
 
@@ -156,7 +157,22 @@ test('create guest', function (Group $group) {
         ->and($group->sysadminStats->number_users_status_active)->toBe(1)
         ->and($group->sysadminStats->number_users_status_inactive)->toBe(0)
         ->and($group->sysadminStats->number_users_type_guest)->toBe(1);
+
     return $guest;
+})->depends('create group');
+
+test('create guest from command', function (Group $group) {
+    $this->artisan(
+        'guest:create',
+        [
+            'group'      => $group->code,
+            'name'       => 'Pika',
+            'alias'      => 'pika',
+            'type'       => 'external_administrator',
+            '--password' => 'hello1234',
+            '--email'    => 'pika@inikoo.com'
+        ]
+    )->assertSuccessful();
 })->depends('create group');
 
 test('update guest', function ($guest) {
@@ -168,7 +184,6 @@ test('update guest', function ($guest) {
 })->depends('create guest');
 
 test('fail to create guest with invalid usernames', function (Group $group) {
-
     $guestData = Guest::factory()->definition();
 
     data_set($guestData, 'username', 'create');
@@ -186,7 +201,6 @@ test('fail to create guest with invalid usernames', function (Group $group) {
             $guestData
         );
     })->toThrow(ValidationException::class);
-
 })->depends('create group');
 
 
@@ -238,15 +252,27 @@ test('sync user roles', function ($guest) {
 })->depends('create guest');
 
 
-
 test('user status change', function ($user) {
     expect($user->status)->toBeTrue();
     $user = UpdateUserStatus::make()->action($user, false);
     expect($user->status)->toBeFalse();
 })->depends('update user password');
 
-test('delete group user', function ($user) {
+test('delete user', function ($user) {
     expect($user)->toBeInstanceOf(User::class);
     $user = DeleteUser::make()->action($user);
     expect($user->deleted_at)->toBeInstanceOf(Carbon::class);
 })->depends('update user password');
+
+test('can show hr dashboard', function (Guest $guest) {
+    actingAs($guest->user);
+    $response = get(route('grp.sysadmin.dashboard'));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('SysAdmin/SysAdminDashboard')
+            ->has('breadcrumbs', 2)
+            ->where('stats.0.stat', 1)->where('stats.0.href.name', 'grp.sysadmin.users.index')
+            ->where('stats.1.stat', 1)->where('stats.1.href.name', 'grp.sysadmin.guests.index');
+    });
+})->depends('create guest')->todo();

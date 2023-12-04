@@ -19,12 +19,12 @@ use App\Actions\SysAdmin\User\UI\IndexUsers;
 use App\Actions\SysAdmin\User\UI\ShowUser;
 use App\Actions\UI\Dashboard\ShowDashTV;
 use App\Actions\UI\SysAdmin\EditSystemSettings;
-use App\Actions\UI\SysAdmin\SysAdminDashboard;
+use App\Actions\UI\SysAdmin\ShowSysAdminDashboard;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [
-    'uses'   => SysAdminDashboard::class,
-     'icon'  => 'users-cog',
+    'uses'   => ShowSysAdminDashboard::class,
+    'icon'   => 'users-cog',
     'label'  => 'sysadmin'
 ])->name('dashboard');
 Route::get('/settings', EditSystemSettings::class)->name('settings.edit');

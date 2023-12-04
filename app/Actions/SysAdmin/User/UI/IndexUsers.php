@@ -9,7 +9,7 @@ namespace App\Actions\SysAdmin\User\UI;
 
 use App\Actions\InertiaAction;
 use App\Actions\SysAdmin\UserRequest\IndexUserRequestLogs;
-use App\Actions\UI\SysAdmin\SysAdminDashboard;
+use App\Actions\UI\SysAdmin\ShowSysAdminDashboard;
 use App\Enums\Auth\User\UserTypeEnum;
 use App\Enums\UI\UsersTabsEnum;
 use App\Http\Resources\SysAdmin\UserRequestLogsResource;
@@ -215,7 +215,7 @@ class IndexUsers extends InertiaAction
         return match ($routeName) {
             'grp.sysadmin.users.index' =>
             array_merge(
-                SysAdminDashboard::make()->getBreadcrumbs(),
+                ShowSysAdminDashboard::make()->getBreadcrumbs(),
                 $headCrumb(
                     [
                         'name' => 'grp.sysadmin.users.index',
