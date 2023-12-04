@@ -12,6 +12,7 @@ use App\Actions\UI\SysAdmin\ShowSysAdminDashboard;
 use App\Enums\Auth\Guest\GuestTypeEnum;
 use App\Http\Resources\SysAdmin\GuestResource;
 use App\InertiaTable\InertiaTable;
+use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Guest;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -24,6 +25,11 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexGuest extends InertiaAction
 {
+    /**
+     * @var \App\Models\SysAdmin\Group
+     */
+    private Group $group;
+
     protected function getElementGroups(): void
     {
         $this->elementGroups =
@@ -49,12 +55,13 @@ class IndexGuest extends InertiaAction
 
 
     /** @noinspection PhpUndefinedMethodInspection */
-    public function handle($prefix = null): LengthAwarePaginator
+    public function handle(Group $group, $prefix = null): LengthAwarePaginator
     {
+        $this->group  = $group;
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->whereAnyWordStartWith('contact_name', $value)
-                    ->orWhere('guests.slug', 'ILIKE', "$value%");
+                $query->whereAnyWordStartWith('guests.contact_name', $value)
+                    ->orWhereStartWith('guests.alias', $value);
             });
         });
 
@@ -82,16 +89,16 @@ class IndexGuest extends InertiaAction
 
         return $queryBuilder
             ->defaultSort('guests.slug')
-            ->select(['guests.id', 'slug', 'guests.contact_name','guests.email','number_logins','last_login_at','number_failed_logins','last_failed_login_at'])
-            ->allowedSorts(['slug', 'contact_name','email','number_logins','last_login_at','number_failed_logins','last_failed_login_at'])
+            ->select(['guests.id', 'guests.slug', 'guests.contact_name', 'guests.email', 'number_logins', 'last_login_at', 'number_failed_logins', 'last_failed_login_at'])
+            ->allowedSorts(['slug', 'contact_name', 'email', 'number_logins', 'last_login_at', 'number_failed_logins', 'last_failed_login_at'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
     }
 
-    public function tableStructure($prefix = null): Closure
+    public function tableStructure(Group $group, $prefix = null): Closure
     {
-        return function (InertiaTable $table) use ($prefix) {
+        return function (InertiaTable $table) use ($prefix, $group) {
             if ($prefix) {
                 $table
                     ->name($prefix)
@@ -103,7 +110,7 @@ class IndexGuest extends InertiaAction
                     [
                         'title'       => __('no guest'),
                         'description' => $this->canEdit ? __('Get started by creating a new guest.') : null,
-                        'count'       => app('currentTenant')->stats->number_guests_status_active,
+                        'count'       => $group->sysadminStats->number_guests_status_active,
                         'action'      => $this->canEdit ? [
                             'type'    => 'button',
                             'style'   => 'create',
@@ -119,7 +126,6 @@ class IndexGuest extends InertiaAction
                 ->column(key: 'slug', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'contact_name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'email', label: __('email'), canBeHidden: false, sortable: true, searchable: true)
-
                 ->defaultSort('slug');
         };
     }
@@ -150,8 +156,8 @@ class IndexGuest extends InertiaAction
                 'breadcrumbs' => $this->getBreadcrumbs(),
                 'title'       => __('guests'),
                 'pageHead'    => [
-                    'title'  => __('guests'),
-                    'actions'=> [
+                    'title'   => __('guests'),
+                    'actions' => [
                         $this->canEdit && $this->routeName == 'grp.sysadmin.guests.index' ? [
                             'type'  => 'button',
                             'style' => 'create',
@@ -167,7 +173,7 @@ class IndexGuest extends InertiaAction
                 ],
                 'data'        => GuestResource::collection($guests),
             ]
-        )->table($this->tableStructure());
+        )->table($this->tableStructure($this->group));
     }
 
 
@@ -175,7 +181,7 @@ class IndexGuest extends InertiaAction
     {
         $this->initialisation($request);
 
-        return $this->handle();
+        return $this->handle(app('group'));
     }
 
     public function getBreadcrumbs($suffix = null): array
