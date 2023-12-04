@@ -5,6 +5,8 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
+use App\Models\Helpers\Audit;
+
 return [
 
     'enabled' => env('AUDITING_ENABLED', true),
@@ -18,7 +20,7 @@ return [
     |
     */
 
-    'implementation' => OwenIt\Auditing\Models\Audit::class,
+    'implementation' => Audit::class,
 
     /*
     |--------------------------------------------------------------------------
@@ -47,9 +49,10 @@ return [
     |
     */
     'resolvers' => [
-        'ip_address' => OwenIt\Auditing\Resolvers\IpAddressResolver::class,
-        'user_agent' => OwenIt\Auditing\Resolvers\UserAgentResolver::class,
-        'url'        => OwenIt\Auditing\Resolvers\UrlResolver::class,
+        'ip_address'    => OwenIt\Auditing\Resolvers\IpAddressResolver::class,
+        'user_agent'    => OwenIt\Auditing\Resolvers\UserAgentResolver::class,
+        'url'           => OwenIt\Auditing\Resolvers\UrlResolver::class,
+        'group_id'      => \App\AuditResolvers\AuditGroupResolver::class,
     ],
 
     /*
@@ -89,7 +92,7 @@ return [
     |
     */
 
-    'exclude' => [],
+    'exclude' => ['id', 'password', 'slug', 'created_at', 'updated_at', 'uuid'],
 
     /*
     |--------------------------------------------------------------------------
@@ -108,7 +111,8 @@ return [
 
     'empty_values'         => true,
     'allowed_empty_values' => [
-        'retrieved'
+        'retrieved',
+        'created'
     ],
 
     /*
@@ -166,9 +170,9 @@ return [
     | Audit Console
     |--------------------------------------------------------------------------
     |
-    | Whether console events should be audited (eg. php artisan db:seed).
+    | Whether console events should be audited (e.g. php artisan db:seed).
     |
     */
 
-    'console' => false,
+    'console' => true,
 ];

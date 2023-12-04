@@ -73,7 +73,7 @@ class RemoveCustomer extends InertiaAction
                 ],
                 'data'      => $this->getAction(
                     route:[
-                        'name'       => 'models.customer.delete',
+                        'name'       => 'grp.models.customer.delete',
                         'parameters' => array_values($request->route()->originalParameters())
                     ]
                 )

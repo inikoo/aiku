@@ -93,11 +93,11 @@ class RemoveFamily extends InertiaAction
                     route:
                     match ($this->routeName) {
                         'shops.families.remove' => [
-                            'name'       => 'models.family.delete',
+                            'name'       => 'grp.models.family.delete',
                             'parameters' => $request->route()->originalParameters()
                         ],
                         'shops.show.families.remove' => [
-                            'name'       => 'models.shop.family.delete',
+                            'name'       => 'grp.models.shop.family.delete',
                             'parameters' => $request->route()->originalParameters()
                         ]
                     }

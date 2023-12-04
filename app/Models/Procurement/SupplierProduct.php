@@ -58,7 +58,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $source_id
  * @property SupplierProductQuantityStatusEnum $quantity_status
  * @property-read \App\Models\Procurement\Agent|null $agent
- * @property-read Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Collection<int, \App\Models\Procurement\HistoricSupplierProduct> $historicRecords
  * @property-read \App\Models\Procurement\SupplierProductStats|null $stats
  * @property-read \App\Models\Procurement\Supplier|null $supplier

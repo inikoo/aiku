@@ -165,12 +165,12 @@ test('create guest from command', function (Group $group) {
     $this->artisan(
         'guest:create',
         [
-            'group'      => $group->code,
-            'name'       => 'Pika',
-            'alias'      => 'pika',
-            '--password' => 'hello1234',
-            '--email'    => 'pika@inikoo.com',
-            '--position' => 'admin'
+            'group'         => $group->code,
+            'name'          => 'Pika',
+            'username'      => 'pika',
+            '--password'    => 'hello1234',
+            '--email'       => 'pika@inikoo.com',
+            '--position'    => 'admin'
         ]
     )->assertSuccessful();
 })->depends('create group');

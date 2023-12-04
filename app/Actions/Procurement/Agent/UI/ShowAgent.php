@@ -74,7 +74,7 @@ class ShowAgent extends InertiaAction
                     'title'         => $agent->name,
                     'create_direct' => $this->canEdit ? [
                         'route' => [
-                            'name'       => 'models.agent.purchase-order.store',
+                            'name'       => 'grp.models.agent.purchase-order.store',
                             'parameters' => array_values($this->originalParameters)
                         ],
                         'label' => __('purchase order')

@@ -94,7 +94,7 @@ class EditStoredItem extends InertiaAction
                     ],
                     'args' => [
                         'updateRoute' => [
-                            'name'       => 'models.stored-items.update',
+                            'name'       => 'grp.models.stored-items.update',
                             'parameters' => $storedItem->slug
                         ],
                     ]

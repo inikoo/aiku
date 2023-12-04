@@ -86,7 +86,7 @@ class CreateWorkingPlace extends InertiaAction
 
                     ],
                     'route'      => [
-                            'name'       => 'models.working-place.store',
+                            'name'       => 'grp.models.working-place.store',
 
                     ]
 

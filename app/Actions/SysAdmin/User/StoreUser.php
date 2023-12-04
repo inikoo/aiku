@@ -44,9 +44,10 @@ class StoreUser
 
         /** @var \App\Models\SysAdmin\User $user */
         $user = $parent->user()->create($objectData);
+
         $user->stats()->create();
         $user->refresh();
-        SetUserAvatar::dispatch($user);
+        SetUserAvatar::dispatch(user: $user, saveHistory: false);
         UserHydrateUniversalSearch::dispatch($user);
         GroupHydrateUsers::dispatch($user->group);
 

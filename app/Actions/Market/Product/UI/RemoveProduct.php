@@ -88,11 +88,11 @@ class RemoveProduct extends InertiaAction
                     route:
                     match ($request->route()->getName()) {
                         'shops.products.remove' => [
-                            'name'       => 'models.product.delete',
+                            'name'       => 'grp.models.product.delete',
                             'parameters' => $request->route()->originalParameters()
                         ],
                         'shops.show.products.remove' => [
-                            'name'       => 'models.shop.product.delete',
+                            'name'       => 'grp.models.shop.product.delete',
                             'parameters' => $request->route()->originalParameters()
                         ]
                     }

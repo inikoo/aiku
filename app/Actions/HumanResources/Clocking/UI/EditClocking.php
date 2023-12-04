@@ -98,7 +98,7 @@ class EditClocking extends InertiaAction
                     ],
                     'args' => [
                         'updateRoute' => [
-                            'name'       => 'models.clocking.update',
+                            'name'       => 'grp.models.clocking.update',
                             'parameters' => $clocking->slug
 
                         ],

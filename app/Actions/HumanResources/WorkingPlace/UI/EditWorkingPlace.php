@@ -108,7 +108,7 @@ class EditWorkingPlace extends InertiaAction
                     ],
                     'args'      => [
                         'updateRoute' => [
-                            'name'       => 'models.working-place.update',
+                            'name'       => 'grp.models.working-place.update',
                             'parameters' => $workplace->slug
 
                         ],

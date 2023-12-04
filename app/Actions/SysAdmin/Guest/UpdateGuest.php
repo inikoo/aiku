@@ -20,9 +20,22 @@ class UpdateGuest
 
     public function handle(Guest $guest, array $modelData): Guest
     {
-        return $this->update($guest, $modelData, [
+        $guest= $this->update($guest, $modelData, [
             'data',
         ]);
+
+        if ($guest->wasChanged('status')) {
+
+            if (!$guest->status) {
+                $guest->user->update(
+                    [
+                        'status' => $guest->status
+                    ]
+                );
+            }
+        }
+
+        return $guest;
     }
 
     public function authorize(ActionRequest $request): bool

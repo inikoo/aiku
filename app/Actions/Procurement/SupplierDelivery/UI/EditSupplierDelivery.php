@@ -71,7 +71,7 @@ class EditSupplierDelivery extends InertiaAction
                     ],
                     'args' => [
                         'updateRoute' => [
-                            'name'      => 'models.supplier-delivery.update',
+                            'name'      => 'grp.models.supplier-delivery.update',
                             'parameters'=> $supplierDelivery->slug
 
                         ],

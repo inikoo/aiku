@@ -45,12 +45,14 @@ class CreateGuest extends InertiaAction
 
                             'fields' => [
                                 'username'             => [
-                                    'type'    => 'input',
-                                    'label'   => __('username'),
+                                    'type'     => 'input',
+                                    'label'    => __('username'),
+                                    'required' => true
                                 ],
                                 'password'             => [
-                                    'type'    => 'password',
-                                    'label'   => __('password'),
+                                    'type'     => 'password',
+                                    'label'    => __('password'),
+                                    'required' => true
                                 ],
 
                             ],
@@ -85,7 +87,7 @@ class CreateGuest extends InertiaAction
 
                     ],
                     'route'     => [
-                        'name' => 'models.guest.store',
+                        'name' => 'grp.models.guest.store',
 
                     ]
 

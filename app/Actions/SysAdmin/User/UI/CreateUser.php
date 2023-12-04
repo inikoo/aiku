@@ -60,7 +60,7 @@ class CreateUser extends InertiaAction
                         ]
                     ],
                     'route'     => [
-                        'name' => 'models.user.update',
+                        'name' => 'grp.models.user.update',
                     ]
                 ],
 

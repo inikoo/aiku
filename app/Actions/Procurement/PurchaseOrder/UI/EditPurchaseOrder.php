@@ -69,7 +69,7 @@ class EditPurchaseOrder extends InertiaAction
                     ],
                     'args' => [
                         'updateRoute' => [
-                            'name'      => 'models.purchase-order.update',
+                            'name'      => 'grp.models.purchase-order.update',
                             'parameters'=> $purchaseOrder->slug
 
                         ],

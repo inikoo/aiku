@@ -253,7 +253,7 @@ class EditWebsite extends InertiaAction
                     ],
                         'args'      => [
                             'updateRoute' => [
-                                'name'       => 'models.website.update',
+                                'name'       => 'grp.models.website.update',
                                 'parameters' => $website->slug
                             ],
                         ]

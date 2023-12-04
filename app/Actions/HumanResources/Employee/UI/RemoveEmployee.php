@@ -72,7 +72,7 @@ class RemoveEmployee extends InertiaAction
                 ],
                 'data'      => $this->getAction(
                     route:[
-                        'name'       => 'models.employee.delete',
+                        'name'       => 'grp.models.employee.delete',
                         'parameters' => array_values($this->originalParameters)
                     ]
                 )

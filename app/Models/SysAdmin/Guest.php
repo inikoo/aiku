@@ -48,7 +48,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $deleted_at
  * @property string|null $delete_comment
  * @property int|null $source_id
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \Illuminate\Database\Eloquent\Collection<int, JobPosition> $jobPositions
  * @property-read MediaCollection<int, \App\Models\Media\Media> $media
@@ -97,23 +97,11 @@ class Guest extends Model implements HasMedia, Auditable
             ->doNotGenerateSlugsOnUpdate();
     }
 
-    protected static function booted(): void
+    public function generateTags(): array
     {
-
-        static::updated(function (Guest $guest) {
-            if (!$guest->wasRecentlyCreated) {
-                if ($guest->wasChanged('status')) {
-
-                    if (!$guest->status) {
-                        $guest->user->update(
-                            [
-                                'status' => $guest->status
-                            ]
-                        );
-                    }
-                }
-            }
-        });
+        return [
+            'sysadmin'
+        ];
     }
 
 

@@ -48,7 +48,7 @@ class CreateSupplierPurchaseOrder extends InertiaAction
                         ]
                     ],
                     'route'      => [
-                        'name'       => 'models.supplier-purchase-order.update',
+                        'name'       => 'grp.models.supplier-purchase-order.update',
                     ]
                 ],
 

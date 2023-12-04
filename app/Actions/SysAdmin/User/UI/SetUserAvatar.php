@@ -17,7 +17,7 @@ class SetUserAvatar
 {
     use AsAction;
 
-    public function handle(User $user): array
+    public function handle(User $user, bool $saveHistory = true): array
     {
         try {
             /** @var Media $media */
@@ -33,7 +33,14 @@ class SetUserAvatar
                 ->toMediaCollection('avatar');
 
             $avatarID = $media->id;
-            $user->update(['avatar_id' => $avatarID]);
+
+            if($saveHistory) {
+                $user->update(['avatar_id' => $avatarID]);
+            } else {
+                $user->updateQuietly(['avatar_id' => $avatarID]);
+            }
+
+
 
             return ['result' => 'success'];
         } catch (Exception $e) {

@@ -70,7 +70,7 @@ class RemoveShop extends InertiaAction
                 ],
                 'data'      => $this->getAction(
                     route:[
-                        'name'       => 'models.shop.delete',
+                        'name'       => 'grp.models.shop.delete',
                         'parameters' => $request->route()->originalParameters()
                     ]
                 )

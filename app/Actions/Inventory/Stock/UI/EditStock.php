@@ -99,7 +99,7 @@ class EditStock extends InertiaAction
 
                     'args' => [
                         'updateRoute' => [
-                            'name'       => 'models.stock.update',
+                            'name'       => 'grp.models.stock.update',
                             'parameters' => $stock->slug
 
                         ],

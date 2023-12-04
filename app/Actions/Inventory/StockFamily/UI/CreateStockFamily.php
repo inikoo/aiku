@@ -72,7 +72,7 @@ class CreateStockFamily extends InertiaAction
                         ]
                     ],
                     'route' => [
-                        'name' => 'models.stock-family.store',
+                        'name' => 'grp.models.stock-family.store',
                     ]
                 ],
 

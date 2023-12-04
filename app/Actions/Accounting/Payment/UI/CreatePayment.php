@@ -85,7 +85,7 @@ class CreatePayment extends InertiaAction
                         ]
                     ],
                     'route' => [
-                        'name' => 'models.payment-account.store'
+                        'name' => 'grp.models.payment-account.store'
                     ]
                 ],
             ]

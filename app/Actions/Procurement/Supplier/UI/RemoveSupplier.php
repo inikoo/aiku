@@ -73,7 +73,7 @@ class RemoveSupplier extends InertiaAction
                 ],
                 'data'     => $this->getAction(
                     route:[
-                        'name'       => 'models.supplier.delete',
+                        'name'       => 'grp.models.supplier.delete',
                         'parameters' => array_values($this->originalParameters)
                     ]
                 )

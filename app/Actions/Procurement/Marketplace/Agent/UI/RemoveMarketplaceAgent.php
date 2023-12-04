@@ -73,7 +73,7 @@ class RemoveMarketplaceAgent extends InertiaAction
                 ],
                 'data'     => $this->getAction(
                     route:[
-                        'name'       => 'models.marketplace-agent.delete',
+                        'name'       => 'grp.models.marketplace-agent.delete',
                         'parameters' => array_values($this->originalParameters)
                     ]
                 )

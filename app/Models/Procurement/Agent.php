@@ -61,7 +61,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $source_type
  * @property int|null $source_id
  * @property-read Collection<int, \App\Models\Helpers\Address> $addresses
- * @property-read Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Currency $currency
  * @property-read Group $group
  * @property-read MediaCollection<int, \App\Models\Media\Media> $media

@@ -64,7 +64,7 @@ class CreateWarehouseArea extends InertiaAction
 
                     ],
                     'route'     => [
-                        'name'      => 'models.warehouse.warehouse-area.store',
+                        'name'      => 'grp.models.warehouse.warehouse-area.store',
                         'arguments' => [$request->route()->parameters['warehouse']->slug]
                     ]
                 ],

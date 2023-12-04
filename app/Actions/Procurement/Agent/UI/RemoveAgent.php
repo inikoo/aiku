@@ -72,7 +72,7 @@ class RemoveAgent extends InertiaAction
                 ],
                 'data'     => $this->getAction(
                     route:[
-                        'name'       => 'models.agent.delete',
+                        'name'       => 'grp.models.agent.delete',
                         'parameters' => array_values($this->originalParameters)
                     ]
                 )

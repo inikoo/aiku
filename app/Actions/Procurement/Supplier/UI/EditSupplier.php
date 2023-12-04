@@ -261,7 +261,7 @@ class EditSupplier extends InertiaAction
                     ],
                     'args' => [
                         'updateRoute' => [
-                            'name'      => 'models.supplier.update',
+                            'name'      => 'grp.models.supplier.update',
                             'parameters'=> $supplier->slug
 
                         ],

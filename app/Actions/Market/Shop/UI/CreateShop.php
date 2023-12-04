@@ -147,7 +147,7 @@ class CreateShop extends InertiaAction
                         ],
                     ],
                     'route'     => [
-                        'name' => 'models.shop.store',
+                        'name' => 'grp.models.shop.store',
                     ]
                 ],
 

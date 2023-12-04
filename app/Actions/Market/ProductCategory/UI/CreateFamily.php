@@ -82,11 +82,11 @@ class CreateFamily extends InertiaAction
                         ],
                     'route' => match ($this->routeName) {
                         'shops.show.families.create' => [
-                            'name'      => 'models.shop.family.store',
+                            'name'      => 'grp.models.shop.family.store',
                             'arguments' => [$request->route()->parameters['shop']->slug]
                         ],
                         default => [
-                            'name' => 'models.family.store'
+                            'name' => 'grp.models.family.store'
                         ]
                     }
                 ]

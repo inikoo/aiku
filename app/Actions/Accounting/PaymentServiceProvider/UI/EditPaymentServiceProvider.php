@@ -82,7 +82,7 @@ class EditPaymentServiceProvider extends InertiaAction
                     ],
                     'args' => [
                         'updateRoute' => [
-                            'name'      => 'models.payment-service-provider.update',
+                            'name'      => 'grp.models.payment-service-provider.update',
                             'parameters'=> $paymentServiceProvider->slug
 
                         ],

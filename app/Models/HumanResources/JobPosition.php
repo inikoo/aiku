@@ -34,7 +34,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $share_work_time
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Role> $roles
  * @method static Builder|JobPosition newModelQuery()
  * @method static Builder|JobPosition newQuery()

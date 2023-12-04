@@ -86,11 +86,11 @@ class RemoveWarehouseArea extends InertiaAction
                     route:
                     match ($this->routeName) {
                         'grp.oms.warehouse-areas.remove' => [
-                            'name'       => 'models.warehouse-area.delete',
+                            'name'       => 'grp.models.warehouse-area.delete',
                             'parameters' => $request->route()->originalParameters()
                         ],
                         'grp.oms.warehouses.show.warehouse-areas.remove' => [
-                            'name'       => 'models.warehouse.warehouse-area.delete',
+                            'name'       => 'grp.models.warehouse.warehouse-area.delete',
                             'parameters' => $request->route()->originalParameters()
                         ]
                     }

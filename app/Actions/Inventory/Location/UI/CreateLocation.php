@@ -99,11 +99,11 @@ class CreateLocation extends InertiaAction
                     ],
                     'route' => match ($request->route()->getName()) {
                         'grp.inventory.warehouses.show.locations.create' => [
-                            'name'      => 'models.warehouse.location.store',
+                            'name'      => 'grp.models.warehouse.location.store',
                             'arguments' => [$request->route()->parameters['warehouse']->slug]
                         ],
                         default => [
-                            'name'      => 'models.warehouse-area.location.store',
+                            'name'      => 'grp.models.warehouse-area.location.store',
                             'arguments' => [
                                 $request->route()->parameters['warehouseArea']->slug
                             ]

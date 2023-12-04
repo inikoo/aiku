@@ -123,7 +123,7 @@ class EditLocation extends InertiaAction
 
                     'args' => [
                         'updateRoute' => [
-                            'name'       => 'models.location.update',
+                            'name'       => 'grp.models.location.update',
                             'parameters' => $location->slug
 
                         ],

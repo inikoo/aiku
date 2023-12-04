@@ -79,11 +79,11 @@ class CreateStock extends InertiaAction
                     ],
                     'route' => match ($request->route()->getName()) {
                         'grp.inventory.stock-families.show.stocks.create' => [
-                            'name'      => 'models.stock-family.stock.store',
+                            'name'      => 'grp.models.stock-family.stock.store',
                             'arguments' => [$request->route()->parameters['stockFamily']->slug]
                         ],
                         default => [
-                            'name'      => 'models.stock.store',
+                            'name'      => 'grp.models.stock.store',
                             'arguments' => []
                         ]
                     }

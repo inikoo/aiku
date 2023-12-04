@@ -70,7 +70,7 @@ class RemovePaymentServiceProvider extends InertiaAction
                 ],
                 'data'      => $this->getAction(
                     route:[
-                        'name'       => 'models.payment-service-provider.delete',
+                        'name'       => 'grp.models.payment-service-provider.delete',
                         'parameters' => $request->route()->originalParameters()
                     ]
                 )

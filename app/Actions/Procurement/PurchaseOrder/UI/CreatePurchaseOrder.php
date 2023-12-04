@@ -50,7 +50,7 @@ class CreatePurchaseOrder extends InertiaAction
                         ]
                     ],
                     'route'      => [
-                        'name'       => 'models.purchase-order.store',
+                        'name'       => 'grp.models.purchase-order.store',
                     ]
                 ],
             ]

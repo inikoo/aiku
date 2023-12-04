@@ -264,11 +264,11 @@ class CreateMarketplaceSupplier extends InertiaAction
                     'route'     =>
                         match (class_basename($owner)) {
                             'Agent' => [
-                                'name'       => 'models.agent.supplier.store',
+                                'name'       => 'grp.models.agent.supplier.store',
                                 'arguments'  => $owner->slug
                             ],
                             default => [
-                                'name' => 'models.supplier.store',
+                                'name' => 'grp.models.supplier.store',
                             ]
                         }
 

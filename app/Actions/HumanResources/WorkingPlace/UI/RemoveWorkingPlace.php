@@ -72,7 +72,7 @@ class RemoveWorkingPlace extends InertiaAction
                 ],
                 'data'      => $this->getAction(
                     route:[
-                        'name'       => 'models.working-place.delete',
+                        'name'       => 'grp.models.working-place.delete',
                         'parameters' => $request->route()->originalParameters()
                     ]
                 )

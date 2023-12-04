@@ -95,7 +95,7 @@ class EditCustomer extends InertiaAction
                     ],
                     'args'      => [
                         'updateRoute' => [
-                            'name'       => 'models.customer.update',
+                            'name'       => 'grp.models.customer.update',
                             'parameters' => $customer->slug
 
                         ],

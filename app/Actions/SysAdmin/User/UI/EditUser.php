@@ -107,7 +107,7 @@ class EditUser extends InertiaAction
                     ],
                     'args' => [
                         'updateRoute' => [
-                            'name'      => 'models.user.update',
+                            'name'      => 'grp.models.user.update',
                             'parameters'=> [$user->username]
 
                         ],

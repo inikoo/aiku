@@ -125,7 +125,7 @@ class CreateAgent extends InertiaAction
                         ]
                     ],
                     'route' => [
-                        'name' => 'models.agent.store',
+                        'name' => 'grp.models.agent.store',
                     ]
                 ],
             ]

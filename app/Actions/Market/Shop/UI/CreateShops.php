@@ -96,7 +96,7 @@ class CreateShops extends InertiaAction
                     ],
                 ],
                 'saveRoute' => [
-                    'name' => 'models.shop.store-multi',
+                    'name' => 'grp.models.shop.store-multi',
                 ]
 
             ]

@@ -70,7 +70,7 @@ class RemoveWebsite extends InertiaAction
                 ],
                 'data'      => $this->getAction(
                     route:[
-                        'name'       => 'models.website.delete',
+                        'name'       => 'grp.models.website.delete',
                         'parameters' => $request->route()->originalParameters()
                     ]
                 )

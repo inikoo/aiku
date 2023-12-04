@@ -46,7 +46,7 @@ use App\Models\Inventory\Location;
  * @property array $data
  * @property Carbon|null $deleted_at
  * @property int|null $source_id
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Customer $customer
  * @property-read Location|null $location
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch

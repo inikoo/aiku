@@ -93,11 +93,11 @@ class RemoveDepartment extends InertiaAction
                     route:
                     match ($this->routeName) {
                         'shops.departments.remove' => [
-                            'name'       => 'models.department.delete',
+                            'name'       => 'grp.models.department.delete',
                             'parameters' => $request->route()->originalParameters()
                         ],
                         'shops.show.departments.remove' => [
-                            'name'       => 'models.shop.department.delete',
+                            'name'       => 'grp.models.shop.department.delete',
                             'parameters' => $request->route()->originalParameters()
                         ]
                     }

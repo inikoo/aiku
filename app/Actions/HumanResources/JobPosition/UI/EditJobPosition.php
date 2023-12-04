@@ -91,7 +91,7 @@ class EditJobPosition extends InertiaAction
                     ],
                     'args'      => [
                         'updateRoute' => [
-                            'name'       => 'models.job-position.update',
+                            'name'       => 'grp.models.job-position.update',
                             'parameters' => $jobPosition->slug
 
                         ],

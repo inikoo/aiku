@@ -74,7 +74,7 @@ class RemoveMarketplaceSupplier extends InertiaAction
                 ],
                 'data'     => $this->getAction(
                     route:[
-                        'name'       => 'models.marketplace-supplier.delete',
+                        'name'       => 'grp.models.marketplace-supplier.delete',
                         'parameters' => array_values($this->originalParameters)
                     ]
                 )

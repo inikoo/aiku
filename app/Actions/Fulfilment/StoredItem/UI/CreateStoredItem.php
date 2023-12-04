@@ -82,7 +82,7 @@ class CreateStoredItem extends InertiaAction
                         ]
                     ],
                     'route' => [
-                        'name'      => 'models.stored-items.store',
+                        'name'      => 'grp.models.stored-items.store',
                         'arguments' => array_values($this->originalParameters)
                     ]
                 ],

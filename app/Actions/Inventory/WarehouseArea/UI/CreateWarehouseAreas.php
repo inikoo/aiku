@@ -70,7 +70,7 @@ class CreateWarehouseAreas extends InertiaAction
                     ]
                 ],
                 'saveRoute' => [
-                    'name' => 'models.warehouse-area.store-multi',
+                    'name' => 'grp.models.warehouse-area.store-multi',
                 ]
             ]
         );

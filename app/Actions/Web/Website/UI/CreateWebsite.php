@@ -129,11 +129,11 @@ class CreateWebsite extends InertiaAction
                     'route'     =>
                         match (class_basename($scope)) {
                             'Shop' => [
-                                'name'      => 'models.shop.website.store',
+                                'name'      => 'grp.models.shop.website.store',
                                 'arguments' => [$parent->slug]
                             ],
                             'Organisation' => [
-                                'name' => 'models.website.store',
+                                'name' => 'grp.models.website.store',
                             ],
                         }
 

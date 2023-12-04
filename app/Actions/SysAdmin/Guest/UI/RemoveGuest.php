@@ -74,7 +74,7 @@ class RemoveGuest extends InertiaAction
                 ],
                 'data'      => $this->getAction(
                     route:[
-                        'name'       => 'models.guest.delete',
+                        'name'       => 'grp.models.guest.delete',
                         'parameters' => array_values($this->originalParameters)
                     ]
                 )

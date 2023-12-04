@@ -14,13 +14,13 @@ use App\Actions\SysAdmin\User\StoreUser;
 use App\Models\SysAdmin\Group;
 use App\Models\HumanResources\JobPosition;
 use App\Models\SysAdmin\Guest;
-use App\Models\SysAdmin\User;
 use App\Rules\AlphaDashDot;
 use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Validation\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
 use Lorisleiva\Actions\ActionRequest;
@@ -84,8 +84,17 @@ class StoreGuest
 
     public function prepareForValidation(): void
     {
+        $this->set('alias', $this->get('username'));
+
         if ($this->get('phone')) {
             $this->set('phone', preg_replace('/[^0-9+]/', '', $this->get('phone')));
+        }
+    }
+
+    public function afterValidator(Validator $validator, ActionRequest $request): void
+    {
+        if ($validator->errors()->has('alias')) {
+            $validator->errors()->add('username', $validator->errors()->first('alias'));
         }
     }
 
@@ -104,30 +113,12 @@ class StoreGuest
         ];
     }
 
-    public function asController(Group $group, ActionRequest $request): Guest
+
+    public function asController(ActionRequest $request): Guest
     {
-        $request->validate();
+        $this->fillFromRequest($request);
 
-        $modelData = $request->validated();
-
-        $guest = $this->handle($group, Arr::except($modelData, ['username']));
-
-        $user = User::where('username', Arr::get($modelData, 'username'))->first();
-        if (!$user) {
-            StoreUser::run(
-                parent: $guest,
-                modelData: array_merge(
-                    [
-                        'username' => Arr::get($modelData, 'username'),
-                        'password' => (app()->isLocal() ? 'hello' : wordwrap(Str::random(), 4, '-', true))
-
-                    ]
-                )
-            );
-        }
-
-
-        return $guest;
+        return $this->handle(app('group'), $this->validateAttributes());
     }
 
 
@@ -140,7 +131,7 @@ class StoreGuest
         return $this->handle($group, $validatedData);
     }
 
-    public string $commandSignature = 'guest:create {group : group slug} {name} {alias}
+    public string $commandSignature = 'guest:create {group : group slug} {name} {username}
      {--position=*}
      {--P|password=} {--e|email=} {--t|phone=} {--identity_document_number=} {--identity_document_type=}';
 
@@ -151,6 +142,7 @@ class StoreGuest
 
         try {
             $group = Group::where('code', $command->argument('group'))->firstOrFail();
+            app()->instance('group', $group);
         } catch (Exception $e) {
             $command->error($e->getMessage());
 
@@ -161,8 +153,7 @@ class StoreGuest
             'contact_name' => $command->argument('name'),
             'email'        => $command->option('email'),
             'phone'        => $command->option('phone'),
-            'alias'        => $command->argument('alias'),
-            'username'     => $command->argument('alias'),
+            'username'     => $command->argument('username'),
             'password'     => $command->option('password') ?? (app()->isLocal() ? 'hello' : wordwrap(Str::random(), 4, '-', true))
         ];
 

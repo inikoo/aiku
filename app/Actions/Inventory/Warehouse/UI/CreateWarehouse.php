@@ -62,7 +62,7 @@ class CreateWarehouse extends InertiaAction
                         ]
                     ],
                     'route'      => [
-                        'name'       => 'models.warehouse.store',
+                        'name'       => 'grp.models.warehouse.store',
                     ]
                 ],
 

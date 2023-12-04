@@ -78,7 +78,7 @@ class EditPaymentAccount extends InertiaAction
                     ],
                     'args' => [
                         'updateRoute' => [
-                            'name'      => 'models.payment-account.update',
+                            'name'      => 'grp.models.payment-account.update',
                             'parameters'=> $paymentAccount->slug
 
                         ],

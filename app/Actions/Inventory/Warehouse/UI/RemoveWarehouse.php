@@ -72,7 +72,7 @@ class RemoveWarehouse extends InertiaAction
                 ],
                 'data'      => $this->getAction(
                     route:[
-                        'name'       => 'models.warehouse.delete',
+                        'name'       => 'grp.models.warehouse.delete',
                         'parameters' => $request->route()->originalParameters()
                     ]
                 )

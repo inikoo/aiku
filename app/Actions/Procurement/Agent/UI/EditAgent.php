@@ -130,7 +130,7 @@ class EditAgent extends InertiaAction
                                     'component' => 'removeModelAction',
                                     'data'      => RemoveAgent::make()->getAction(
                                         route:[
-                                            'name'       => 'models.agent.delete',
+                                            'name'       => 'grp.models.agent.delete',
                                             'parameters' => array_values($this->originalParameters)
                                         ]
                                     )
@@ -144,7 +144,7 @@ class EditAgent extends InertiaAction
 
                     'args' => [
                         'updateRoute' => [
-                            'name'       => 'models.marketplace-agent.update',
+                            'name'       => 'grp.models.marketplace-agent.update',
                             'parameters' => $agent->slug
 
                         ],

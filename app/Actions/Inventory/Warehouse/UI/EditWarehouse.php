@@ -78,7 +78,7 @@ class EditWarehouse extends InertiaAction
                     ],
                     'args' => [
                         'updateRoute' => [
-                            'name'      => 'models.warehouse.update',
+                            'name'      => 'grp.models.warehouse.update',
                             'parameters'=> $warehouse->slug
 
                         ],

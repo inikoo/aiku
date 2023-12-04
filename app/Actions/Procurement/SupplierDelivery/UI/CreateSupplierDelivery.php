@@ -53,7 +53,7 @@ class CreateSupplierDelivery extends InertiaAction
                         ]
                     ],
                     'route'      => [
-                        'name'       => 'models.supplier-delivery.store',
+                        'name'       => 'grp.models.supplier-delivery.store',
                     ]
                 ],
 

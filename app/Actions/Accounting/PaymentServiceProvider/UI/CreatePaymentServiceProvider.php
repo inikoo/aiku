@@ -64,7 +64,7 @@ class CreatePaymentServiceProvider extends InertiaAction
                         ]
                     ],
                     'route'      => [
-                        'name'       => 'models.payment-service-provider.store',
+                        'name'       => 'grp.models.payment-service-provider.store',
                     ]
                 ],
 

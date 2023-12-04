@@ -79,7 +79,7 @@ class CreateEmployee extends InertiaAction
 
                     ],
                     'route'      => [
-                            'name'       => 'models.employee.store',
+                            'name'       => 'grp.models.employee.store',
 
                     ]
 

@@ -70,7 +70,7 @@ class CreateJobPosition extends InertiaAction
 
                     ],
                     'route'      => [
-                            'name'       => 'models.job-position.store',
+                            'name'       => 'grp.models.job-position.store',
 
                     ]
 

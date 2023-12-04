@@ -102,7 +102,7 @@ class EditEmployee extends InertiaAction
                     ],
                     'args'      => [
                         'updateRoute' => [
-                            'name'       => 'models.employee.update',
+                            'name'       => 'grp.models.employee.update',
                             'parameters' => $employee->slug
 
                         ],

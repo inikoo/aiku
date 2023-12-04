@@ -48,7 +48,7 @@ class CreateClockingMachine extends InertiaAction
                         ],
                     ],
                     'route'     => [
-                        'name'      => 'models.working-place.clocking-machine.store',
+                        'name'      => 'grp.models.working-place.clocking-machine.store',
                         'arguments' => [$request->route()->parameters['workplace']->slug]
                     ]
                 ],

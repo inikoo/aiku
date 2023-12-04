@@ -72,7 +72,7 @@ class RemoveStockFamily extends InertiaAction
                 ],
                 'data'      => $this->getAction(
                     route:[
-                        'name'       => 'models.stock-family.delete',
+                        'name'       => 'grp.models.stock-family.delete',
                         'parameters' => $request->route()->originalParameters()
                     ]
                 )
