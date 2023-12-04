@@ -14,7 +14,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 
 /**
- * App\Models\Organisation\GroupProcurementStats
+ * App\Models\Grouping\GroupProcurementStats
  *
  * @property int $id
  * @property int $group_id

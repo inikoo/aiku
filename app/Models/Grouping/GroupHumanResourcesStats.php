@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * App\Models\Organisation\OrganisationHumanResourcesStats
+ * App\Models\Grouping\OrganisationHumanResourcesStats
  *
  * @property int $id
  * @property int $group_id

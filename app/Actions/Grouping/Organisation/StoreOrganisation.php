@@ -44,6 +44,7 @@ class StoreOrganisation
 
         SetCurrencyHistoricFields::run($organisation->currency, $organisation->created_at);
 
+
         SetOrganisationLogo::run($organisation);
         $organisation->stats()->create();
         $organisation->humanResourcesStats()->create();

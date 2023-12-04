@@ -7,6 +7,7 @@
 
 use App\Actions\Grouping\Group\StoreGroup;
 use App\Actions\Grouping\Organisation\StoreOrganisation;
+use App\Models\Grouping\Group;
 use App\Models\Grouping\Organisation;
 use Symfony\Component\Process\Process;
 use Tests\TestCase;
@@ -33,9 +34,9 @@ function loadDB($dumpName): void
 
 function createOrganisation(): Organisation
 {
-    $group=\App\Models\Grouping\Group::first();
+    $group=Group::first();
     if(!$group) {
-        $group = StoreGroup::make()->action(\App\Models\Grouping\Group::factory()->definition());
+        $group = StoreGroup::make()->action(Group::factory()->definition());
     }
 
     $organisation = Organisation::first();

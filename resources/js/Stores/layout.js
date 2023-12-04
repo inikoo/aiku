@@ -45,7 +45,14 @@ export const useLayoutStore = defineStore("layout", {
                 activeUsers: false,
                 language   : false
             },
-            avatar_id             : null
+            avatar_thumbnail: {
+                original: "",
+                original_2x: "",
+                avif: "",
+                avif_2x: "",
+                webp: "",
+                webp_2x: "",
+            },
         }
     )
 

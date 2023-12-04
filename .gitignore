@@ -3,6 +3,14 @@
 /public/build
 /public/hot
 /public/storage
+/public/tenants/
+/public/images
+/public/public.hot
+/public/grp.hot
+/public/grp/assets/
+/public/public/assets/
+/public/grp/manifest.json
+/public/public/manifest.json
 /storage/*.key
 /vendor
 .env
@@ -24,7 +32,7 @@ lang/php_*.json
 /storage/tenants
 tt
 prod-diff.sh
-/public/tenants/
+
 /hash
 /create_aurora_tenants.sh
 load_aurora_db.sh
@@ -39,11 +47,6 @@ _ide_helper.php
 /private
 /clover.xml
 /.npmrc
-/public/images
+
 /storage/app/media
-/public/public.hot
-/public/grp.hot
-/public/grp/assets/
-/public/public/assets/
-/public/grp/manifest.json
-/public/public/manifest.json
+

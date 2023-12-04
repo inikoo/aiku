@@ -26,11 +26,13 @@ beforeAll(function () {
 });
 
 test('create group', function () {
-    $modelData = [
+
+    $modelData=Group::factory()->definition();
+
+    $modelData =array_merge($modelData, [
         'code'        => 'TEST',
         'name'        => 'Test Group',
-        'currency_id' => Currency::where('code', 'USD')->firstOrFail()->id
-    ];
+    ]);
 
     $group = StoreGroup::make()->action($modelData);
     expect($group)->toBeInstanceOf(Group::class);
@@ -38,10 +40,13 @@ test('create group', function () {
 });
 
 test('create group by command', function () {
+
+
     $this->artisan('group:create', [
         'code'          => 'TEST2',
         'name'          => 'Test Group',
-        'currency_code' => Currency::where('code', 'USD')->firstOrFail()->code
+        'currency_code' => Currency::where('code', 'USD')->firstOrFail()->code,
+        'country_code'  => 'US'
     ])->assertSuccessful();
     $group = Group::where('code', 'TEST')->firstOrFail();
     expect($group)->toBeInstanceOf(Group::class);

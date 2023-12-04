@@ -33,7 +33,7 @@ php artisan db:seed
 php artisan telescope:clear
 pg_dump -Fc -f "devops/devel/snapshots/fresh.dump" ${DB}
 echo "🏢 create group"
-php artisan group:create aw AW GBP --subdomain=aw
+php artisan group:create aw AW GB GBP --subdomain=aw
 php artisan org:create aw awa indo@inikoo.com 'Advantage' ID IDR
 php artisan org:create aw inikoo raul@inikoo.com 'Inikoo' GB GBP
 php artisan guest:create aw 'Mr Aiku' aiku external_administrator -e aiku@inikoo.com

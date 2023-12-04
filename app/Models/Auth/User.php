@@ -8,14 +8,16 @@
 namespace App\Models\Auth;
 
 use App\Actions\Grouping\Organisation\Hydrators\OrganisationHydrateUsers;
+use App\Actions\Helpers\Images\GetPictureSources;
 use App\Enums\Auth\User\UserAuthTypeEnum;
+use App\Helpers\ImgProxy\Image;
 use App\Models\Assets\Language;
 use App\Models\Grouping\Group;
+use App\Models\Media\Media;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\WithPushNotifications;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasRoles;
-use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -23,7 +25,6 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Support\Arr;
 use Laravel\Sanctum\HasApiTokens;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\MediaLibrary\HasMedia;
@@ -59,11 +60,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $source_id
  * @property string|null $legacy_password source password
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read Media|null $avatar
  * @property-read \App\Models\Notifications\FcmToken|null $fcmToken
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Notifications\FcmToken> $fcmTokens
  * @property-read Group $group
  * @property-read Language $language
- * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Media\Media> $media
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, Media> $media
  * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
  * @property-read \Illuminate\Database\Eloquent\Model|\Eloquent $parent
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Permission\Models\Permission> $permissions
@@ -134,6 +136,25 @@ class User extends Authenticatable implements HasMedia, Auditable
             ->singleFile();
     }
 
+    public function avatar(): HasOne
+    {
+        return $this->hasOne(Media::class, 'id', 'avatar_id');
+    }
+
+    public function language(): BelongsTo
+    {
+        return $this->belongsTo(Language::class);
+    }
+
+    public function avatarImageSources($width = 0, $height = 0)
+    {
+        if($this->avatar) {
+            $avatarThumbnail = (new Image())->make($this->avatar->getImgProxyFilename())->resize($width, $height);
+            return GetPictureSources::run($avatarThumbnail);
+        }
+        return null;
+    }
+
     public function routeNotificationForFcm(): array
     {
         return $this->fcmTokens->pluck('fcm_token')->toArray();
@@ -176,17 +197,7 @@ class User extends Authenticatable implements HasMedia, Auditable
         return 'slug';
     }
 
-    protected function avatar(): Attribute
-    {
-        return new Attribute(
-            get: fn () => Arr::get($this->data, 'avatar')
-        );
-    }
 
-    public function language(): BelongsTo
-    {
-        return $this->belongsTo(Language::class);
-    }
 
 
 }

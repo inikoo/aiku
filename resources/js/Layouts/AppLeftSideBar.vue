@@ -35,6 +35,7 @@ import { router } from '@inertiajs/vue3'
  } from '@fal/'
 import { useLayoutStore } from "@/Stores/layout.js"
 import { computed } from "vue";
+import Image from "@/Components/Image.vue";
 
  library.add(
  	faHome,
@@ -156,8 +157,8 @@ const generateLabel = (item) => {
 	>
 		<div class="flex flex-grow flex-col h-full overflow-y-auto custom-hide-scrollbar border-r border-gray-200 pb-4">
 			<Link :href="route('grp.dashboard.show')" class="flex flex-col justify-center text-indigo-700 font-logo md:hidden py-3 text-center gap-y-2">
-				<img class="h-6" :src="`/media/group/${layout.tenant.logo_id}`" :alt="layout.tenant.code" />
-				<span>{{ layout.tenant.name }}</span>
+        <Image :src="layout.group.logo" class="h-7 md:h-5 shadow" :alt="layout.group.code"/>
+				<span>{{ layout.group.name }}</span>
 			</Link>
 			<div class="flex flex-grow flex-col pb-16">
 				<nav class="flex-1 space-y-1" aria-label="Sidebar">

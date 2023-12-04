@@ -15,6 +15,7 @@ use App\Models\Inventory\StockFamily;
 use App\Models\Mail\Mailroom;
 use App\Models\Procurement\Agent;
 use App\Models\Procurement\Supplier;
+use App\Models\Traits\HasLogo;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -25,19 +26,25 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
 /**
- * App\Models\Organisation\Group
+ * App\Models\Grouping\Group
  *
  * @property int $id
- * @property int|null $owner_id Organisation who owns this model
  * @property string $ulid
  * @property string $slug
+ * @property string|null $subdomain
  * @property string $code
  * @property string $name
- * @property int $currency_id
+ * @property int $country_id
+ * @property int $language_id
+ * @property int $timezone_id
+ * @property int $currency_id customer accounting currency
+ * @property int|null $logo_id
  * @property int $number_organisations
  * @property Carbon|null $deleted_at
  * @property Carbon|null $created_at
@@ -48,14 +55,16 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Guest> $guests
  * @property-read \App\Models\Grouping\GroupHumanResourcesStats|null $humanResourcesStats
  * @property-read \App\Models\Grouping\GroupInventoryStats|null $inventoryStats
+ * @property-read \App\Models\Media\Media|null $logo
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Mailroom> $mailrooms
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Media\Media> $media
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Grouping\Organisation> $organisations
  * @property-read \App\Models\Grouping\GroupProcurementStats|null $procurementStats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, StockFamily> $stockFamilies
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Stock> $stocks
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Supplier> $suppliers
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Guest> $users
- * @method static \Database\Factories\Organisation\GroupFactory factory($count = null, $state = [])
+ * @method static \Database\Factories\Grouping\GroupFactory factory($count = null, $state = [])
  * @method static Builder|Group newModelQuery()
  * @method static Builder|Group newQuery()
  * @method static Builder|Group onlyTrashed()
@@ -64,11 +73,13 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|Group withoutTrashed()
  * @mixin Eloquent
  */
-class Group extends Model
+class Group extends Model implements HasMedia
 {
     use SoftDeletes;
     use HasSlug;
     use HasFactory;
+    use InteractsWithMedia;
+    use HasLogo;
 
     protected $guarded = [];
 
@@ -146,5 +157,11 @@ class Group extends Model
     public function currency(): BelongsTo
     {
         return $this->belongsTo(Currency::class);
+    }
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('logo')
+            ->singleFile();
     }
 }

@@ -18,6 +18,7 @@ use App\Models\Media\Media;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\Procurement\SupplierDelivery;
 use App\Models\SysAdmin\SysUser;
+use App\Models\Traits\HasLogo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -30,7 +31,7 @@ use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
 /**
- * App\Models\Organisation\Organisation
+ * App\Models\Grouping\Organisation
  *
  * @property int $id
  * @property int $group_id
@@ -46,7 +47,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $country_id
  * @property int $language_id
  * @property int $timezone_id
- * @property int $currency_id organisation accounting currency
+ * @property int $currency_id customer accounting currency
  * @property int|null $logo_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
@@ -75,7 +76,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read SysUser|null $sysUser
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Warehouse> $warehouses
  * @property-read \App\Models\Grouping\OrganisationWebStats|null $webStats
- * @method static \Database\Factories\Organisation\OrganisationFactory factory($count = null, $state = [])
+ * @method static \Database\Factories\Grouping\OrganisationFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder|Organisation newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Organisation newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Organisation query()
@@ -86,7 +87,7 @@ class Organisation extends Model implements HasMedia
     use HasFactory;
     use HasSlug;
     use InteractsWithMedia;
-
+    use HasLogo;
 
     protected $casts = [
         'data'     => 'array',
@@ -115,11 +116,7 @@ class Organisation extends Model implements HasMedia
         return 'slug';
     }
 
-    public function registerMediaCollections(): void
-    {
-        $this->addMediaCollection('logo')
-            ->singleFile();
-    }
+
 
     public function employees(): HasMany
     {
@@ -238,6 +235,12 @@ class Organisation extends Model implements HasMedia
     public function shippers(): HasMany
     {
         return $this->hasMany(Shipper::class);
+    }
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('logo')
+            ->singleFile();
     }
 
 }

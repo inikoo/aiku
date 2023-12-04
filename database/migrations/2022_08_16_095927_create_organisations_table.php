@@ -5,11 +5,13 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
+use App\Stubs\Migrations\HasAssets;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
+    use HasAssets;
     public function up(): void
     {
         Schema::create('organisations', function (Blueprint $table) {
@@ -25,15 +27,7 @@ return new class () extends Migration {
             $table->jsonb('data');
             $table->jsonb('settings');
             $table->jsonb('source');
-            $table->unsignedSmallInteger('country_id');
-            $table->foreign('country_id')->references('id')->on('countries');
-            $table->unsignedSmallInteger('language_id');
-            $table->foreign('language_id')->references('id')->on('languages');
-            $table->unsignedSmallInteger('timezone_id');
-            $table->foreign('timezone_id')->references('id')->on('timezones');
-            $table->unsignedSmallInteger('currency_id')->comment('organisation accounting currency');
-            $table->foreign('currency_id')->references('id')->on('currencies');
-            $table->unsignedInteger('logo_id')->nullable();
+            $table = $this->assets($table);
             $table->timestampsTz();
             $table->softDeletesTz();
         });

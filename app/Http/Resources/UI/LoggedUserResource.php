@@ -8,6 +8,7 @@
 namespace App\Http\Resources\UI;
 
 use App\Http\Resources\HasSelfCall;
+use App\Models\Auth\User;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
@@ -21,10 +22,13 @@ class LoggedUserResource extends JsonResource
 
     public function toArray($request): array
     {
+        /** @var User $user */
+        $user = $this;
+
         return [
-            'username'  => $this->username,
-            'email'     => $this->email,
-            'avatar_id' => $this->avatar_id
+            'username'         => $user->username,
+            'email'            => $user->email,
+            'avatar_thumbnail' => !blank($user->avatar_id) ? $user->avatarImageSources(0, 48) : null,
 
         ];
     }

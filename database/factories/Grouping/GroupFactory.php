@@ -1,11 +1,11 @@
 <?php
 /*
- * Author: Artha <artha@aw-advantage.com>
- * Created: Tue, 25 Apr 2023 14:35:52 Central Indonesia Time, Sanur, Bali, Indonesia
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Tue, 25 Apr 2023 20:31:30 Malaysia Time, Sanur, Bali, Indonesia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace Database\Factories\Organisation;
+namespace Database\Factories\Grouping;
 
 use App\Models\Assets\Country;
 use App\Models\Assets\Currency;
@@ -13,7 +13,7 @@ use App\Models\Assets\Language;
 use App\Models\Assets\Timezone;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-class OrganisationFactory extends Factory
+class GroupFactory extends Factory
 {
     public function definition(): array
     {
@@ -22,11 +22,9 @@ class OrganisationFactory extends Factory
         $timezone = Timezone::where('name', fake()->timezone('US'))->firstOrFail();
         $currency = Currency::where('code', 'USD')->firstOrFail();
 
-
         return [
             'code'        => fake()->lexify(),
             'name'        => fake()->company(),
-            'email'       => fake()->safeEmail(),
             'country_id'  => $country->id,
             'language_id' => $language->id,
             'timezone_id' => $timezone->id,

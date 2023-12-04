@@ -7,6 +7,7 @@
 
 namespace App\Models\Media;
 
+use App\Models\Traits\IsMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media as BaseMedia;
 
 /**
@@ -15,10 +16,13 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media as BaseMedia;
  * @property int $id
  * @property int $group_id
  * @property int|null $organisation_id
- * @property string $model_type
- * @property int $model_id
+ * @property int|null $customer_id
+ * @property string $slug
+ * @property string|null $model_type
+ * @property int|null $model_id
  * @property string|null $uuid
  * @property string $collection_name
+ * @property string|null $scope
  * @property string $name
  * @property string $file_name
  * @property string|null $mime_type
@@ -29,6 +33,8 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media as BaseMedia;
  * @property array $custom_properties
  * @property array $generated_conversions
  * @property array $responsive_images
+ * @property string|null $checksum
+ * @property bool $is_animated
  * @property int|null $order_column
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
@@ -43,7 +49,12 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media as BaseMedia;
  */
 class Media extends BaseMedia
 {
+    use IsMedia;
     protected $table = 'media';
 
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
 
 }

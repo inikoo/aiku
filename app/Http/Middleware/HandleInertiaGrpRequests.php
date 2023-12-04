@@ -46,7 +46,6 @@ class HandleInertiaGrpRequests extends Middleware
 
 
 
-
         return array_merge(
             $firstLoadOnlyProps,
             [

@@ -8,6 +8,7 @@
 namespace App\Http\Resources\Grouping\Group;
 
 use App\Http\Resources\HasSelfCall;
+use App\Models\Grouping\Group;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
@@ -17,11 +18,16 @@ use Illuminate\Http\Resources\Json\JsonResource;
 class GroupResource extends JsonResource
 {
     use HasSelfCall;
+
     public function toArray($request): array
     {
+        /** @var Group $user */
+        $group = $this;
+
         return [
-            'slug' => $this->slug,
-            'name' => $this->name
+            'slug' => $group->slug,
+            'name' => $group->name,
+            'logo' => $group->logoImageSources(48, 48),
         ];
     }
 }
