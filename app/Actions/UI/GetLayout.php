@@ -658,6 +658,37 @@ class GetLayout
             ];
         }
 
+
+        if ($user->hasPermissionTo('procurement.view')) {
+            $navigation['procurement'] = [
+                'label'   => __('procurement'),
+                'icon'    => ['fal', 'fa-box-usd'],
+                'route'   => 'grp.procurement.dashboard',
+                'topMenu' => [
+                    'subSections' => [
+                        [
+                            'label' => __('agents'),
+                            'icon'  => ['fal', 'fa-people-arrows'],
+                            'route' => [
+                                'name' => 'grp.procurement.agents.index',
+
+                            ]
+                        ],
+                        [
+                            'label' => __('suppliers'),
+                            'icon'  => ['fal', 'fa-person-dolly'],
+                            'route' => [
+                                'name' => 'grp.procurement.suppliers.index',
+
+                            ]
+                        ],
+
+                    ]
+                ]
+            ];
+        }
+
+
         if ($user->hasPermissionTo('sysadmin.view')) {
             $navigation['sysadmin'] = [
                 'label'   => __('sysadmin'),
