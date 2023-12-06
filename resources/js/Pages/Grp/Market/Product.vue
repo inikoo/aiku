@@ -12,7 +12,7 @@ import {
     faBullhorn, faCameraRetro,
     faCube,
     faFolder, faMoneyBillWave, faProjectDiagram, faRoad, faShoppingCart, faStream, faUsers
-} from '@fal/';
+} from '@fal';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 import ModelDetails from "@/Components/ModelDetails.vue";
 import TableOrders from "@/Components/Tables/TableOrders.vue";

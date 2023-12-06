@@ -2,7 +2,7 @@
 import { useCopyText } from '@/Composables/useCopyText'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faCopy } from '@fal/'
+import { faCopy } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 library.add(faCopy)
 

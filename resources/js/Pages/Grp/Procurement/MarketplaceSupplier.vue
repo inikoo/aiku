@@ -36,7 +36,7 @@ import {
     faPoop,
     faPaperPlane,
     faPaperclip
-} from '@fal/';
+} from '@fal';
 import TableMarketplaceSupplierProducts from "@/Components/Tables/TableMarketplaceSupplierProducts.vue";
 
 library.add(

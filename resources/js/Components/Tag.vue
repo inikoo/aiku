@@ -3,7 +3,7 @@ import { computed } from 'vue'
 import { useStringToHex } from '@/Composables/useStringToHex'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faTimes } from '@fal/'
+import { faTimes } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 library.add(faTimes)
 

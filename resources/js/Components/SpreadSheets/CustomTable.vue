@@ -2,7 +2,7 @@
 import { ref, onBeforeMount, watch, onMounted, onUnmounted} from 'vue';
 import { cloneDeep, get as getL } from 'lodash';
 import Button from '../Elements/Buttons/Button.vue';
-import { faSave, faPlus } from '@far/';
+import { faSave, faPlus } from '@far';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { getDatabase, ref as dbRef, set, onValue, get } from 'firebase/database';

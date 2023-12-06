@@ -8,7 +8,7 @@ import {
     faPersonDolly, faBoxFull,
     faBan, faArrowUp,
     faBuilding, faMale
-} from '@fal/';
+} from '@fal';
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 

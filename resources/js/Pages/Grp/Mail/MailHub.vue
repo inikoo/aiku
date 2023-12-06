@@ -15,7 +15,7 @@ defineProps(['title', 'pageHead', 'flatTreeMaps']);
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {
     faMoneyCheckAlt, faCashRegister, faFileInvoiceDollar, faCoins, faEnvelope, faMailBulk, faInboxOut, faMailbox
-} from '@fal/';
+} from '@fal';
 
 library.add(faCoins, faMoneyCheckAlt, faCashRegister, faFileInvoiceDollar, faEnvelope, faMailBulk, faInboxOut, faMailbox);
 

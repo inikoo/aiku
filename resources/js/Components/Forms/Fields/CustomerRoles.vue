@@ -2,7 +2,7 @@
 import { get } from 'lodash'
 import { reactive, watch, ref, watchEffect } from 'vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faLock } from '@fal/'
+import { faLock } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 library.add(faLock)
 

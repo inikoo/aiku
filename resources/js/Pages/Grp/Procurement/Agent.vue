@@ -15,7 +15,7 @@ import {
     faPeopleArrows,
     faClipboard, faTruck, faCameraRetro,
     faPersonDolly,faAddressBook
-} from '@fal/';
+} from '@fal';
 import Tabs from "@/Components/Navigation/Tabs.vue";
 import {computed, defineAsyncComponent, ref} from "vue";
 import ModelDetails from "@/Components/ModelDetails.vue";

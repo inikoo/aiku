@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { faYinYang } from '@fal/';
+import { faYinYang } from '@fal';
 import { capitalize } from "@/Composables/capitalize"
 
 library.add(faYinYang);

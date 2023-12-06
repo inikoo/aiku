@@ -21,7 +21,7 @@ import {
     faTruck,
     faTerminal,
     faCameraRetro
-} from '@fal/';
+} from '@fal';
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChangelog.vue'))
 

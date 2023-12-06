@@ -1,6 +1,6 @@
 <script setup lang='ts'>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faTimesCircle, faCheckCircle, faExclamationCircle, faInfoCircle } from '@fal/'
+import { faTimesCircle, faCheckCircle, faExclamationCircle, faInfoCircle } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 library.add(faTimesCircle, faCheckCircle, faExclamationCircle, faInfoCircle)
 

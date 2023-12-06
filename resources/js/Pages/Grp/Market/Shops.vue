@@ -19,7 +19,7 @@ import TableProducts from "@/Components/Tables/TableProducts.vue";
 import { useTabChange } from "@/Composables/tab-change";
 import {
     faCube,faFolder,faFolderTree
-} from '@fal/';
+} from '@fal';
 
 library.add(
     faCube,faFolder,faFolderTree

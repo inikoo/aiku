@@ -21,7 +21,7 @@ const stats = [
 ];
 
 import {library} from '@fortawesome/fontawesome-svg-core';
-import {faBriefcase, faIndent} from '@fal/';
+import {faBriefcase, faIndent} from '@fal';
 import Tabs from '@/Components/Navigation/Tabs.vue';
 
 library.add(faBriefcase, faIndent);

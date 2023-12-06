@@ -15,7 +15,7 @@ import {useTabChange} from "@/Composables/tab-change";
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {
     faInventory,faExchange, faBox
-} from '@fal/';
+} from '@fal';
 import LocationShowcase from "@/Components/Showcases/Grp/LocationShowcase.vue";
 import { capitalize } from "@/Composables/capitalize"
 

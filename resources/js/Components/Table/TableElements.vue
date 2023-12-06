@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faChevronDown, faCheckSquare, faSquare } from '@far/'
+import { faChevronDown, faCheckSquare, faSquare } from '@far'
 import { library } from '@fortawesome/fontawesome-svg-core'
 library.add(faChevronDown, faCheckSquare, faSquare)
 

@@ -8,7 +8,7 @@
 import {  useForm } from '@inertiajs/vue3'
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import { faExclamationCircle, faCheckCircle, faAsterisk } from '@fas/'
+import { faExclamationCircle, faCheckCircle, faAsterisk } from '@fas'
 import { library } from "@fortawesome/fontawesome-svg-core"
 import Input from '@/Components/Forms/Fields/Input.vue'
 import SenderEmail from '@/Components/Forms/Fields/SenderEmail.vue'

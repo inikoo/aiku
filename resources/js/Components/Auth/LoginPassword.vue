@@ -6,7 +6,7 @@
 <script setup>
 import {onMounted, ref} from 'vue';
 import {library} from '@fortawesome/fontawesome-svg-core';
-import {faEye, faEyeSlash} from '@far/';
+import {faEye, faEyeSlash} from '@far';
 import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome';
 
 library.add(faEye, faEyeSlash);

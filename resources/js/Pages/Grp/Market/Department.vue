@@ -12,7 +12,7 @@ import {
     faCameraRetro, faClock,
     faCube, faCubes,
     faFolder, faMoneyBillWave, faProjectDiagram, faTags, faUser,faFolders
-} from '@fal/';
+} from '@fal';
 
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 import { computed, defineAsyncComponent, ref } from "vue";

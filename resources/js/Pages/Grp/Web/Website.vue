@@ -10,7 +10,7 @@ import { library } from "@fortawesome/fontawesome-svg-core";
 import {
   faAnalytics, faBrowser,
   faChartLine, faDraftingCompass, faRoad, faSlidersH, faUsersClass, faClock
-} from '@fal/';
+} from '@fal';
 
 import PageHeading from "@/Components/Headings/PageHeading.vue";
 import { computed, defineAsyncComponent, ref } from "vue";

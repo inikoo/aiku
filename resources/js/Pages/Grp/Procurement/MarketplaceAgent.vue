@@ -19,7 +19,7 @@ import {
     faTruck,
     faTerminal,
     faCameraRetro,faPeopleArrows
-} from '@fal/';
+} from '@fal';
 import TableMarketplaceSuppliers from "@/Components/Tables/TableMarketplaceSuppliers.vue";
 import TableMarketplaceSupplierProducts from "@/Components/Tables/TableMarketplaceSupplierProducts.vue";
 import MarketplaceAgentShowcase from "@/Components/Showcases/Grp/MarketplaceAgentShowcase.vue";

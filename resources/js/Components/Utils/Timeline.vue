@@ -5,7 +5,7 @@ import 'swiper/css'
 import 'swiper/css/navigation'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faCalendarAlt, faSparkles } from '@fal/'
+import { faCalendarAlt, faSparkles } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { useFormatTime } from '@/Composables/useFormatTime';
 library.add(faCalendarAlt, faSparkles)

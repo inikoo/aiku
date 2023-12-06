@@ -6,8 +6,8 @@
 
 <script setup lang="ts">
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faPaperPlane } from '@fas/'
-import { faEnvelope, faPhone, faHouse } from '@fal/'
+import { faPaperPlane } from '@fas'
+import { faEnvelope, faPhone, faHouse } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import PureMultiselect from '@/Components/Pure/PureMultiselect.vue'
 import PureInput from '@/Components/Pure/PureInput.vue'

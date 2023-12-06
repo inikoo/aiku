@@ -2,8 +2,8 @@
 // This file is used on TenantApp, PublicApp
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faLanguage } from '@fal/'
-import { faSpinnerThird } from '@fad/'
+import { faLanguage } from '@fal'
+import { faSpinnerThird } from '@fad'
 import { library } from '@fortawesome/fontawesome-svg-core'
 library.add(faLanguage, faSpinnerThird)
 import { useLocaleStore } from "@/Stores/locale"

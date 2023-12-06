@@ -21,7 +21,7 @@ import {
     faCubes,
     faCube,
     faCameraRetro
-} from '@fal/';
+} from '@fal';
 import { computed, defineAsyncComponent, ref } from "vue";
 import { useTabChange } from "@/Composables/tab-change";
 import TableProducts from "@/Components/Tables/TableProducts.vue";

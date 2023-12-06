@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import Multiselect from "@vueform/multiselect"
-import { faInfoCircle } from '@far/'
+import { faInfoCircle } from '@far'
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { ref, onMounted, watch, onUnmounted } from 'vue'
 import axios from "axios"
 import Tag from "@/Components/Tag.vue"
 import { notify } from "@kyvg/vue3-notification"
 import { get, set, isArray, isNull} from 'lodash'
-import { faTimes } from '@far/';
+import { faTimes } from '@far';
 import {trans} from "laravel-vue-i18n";
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import { useFormatTime } from '@/Composables/useFormatTime';

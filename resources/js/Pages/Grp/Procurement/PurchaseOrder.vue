@@ -36,7 +36,7 @@ import {
     faTerminal,
     faInfoCircle,
     faCameraRetro
-} from '@fal/';
+} from '@fal';
 import TableHistories from "@/Components/Tables/TableHistories.vue";
 // import TablePurchaseOrders from "@/Components/Tables/TablePurchaseOrders.vue";
 

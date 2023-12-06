@@ -3,7 +3,7 @@
 import { ref } from 'vue'
 import { RadioGroup, RadioGroupLabel, RadioGroupOption, RadioGroupDescription } from '@headlessui/vue'
 // import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-// import { faCheck } from '@far/'
+// import { faCheck } from '@far'
 // import { library } from '@fortawesome/fontawesome-svg-core'
 // library.add(faCheck)
 const props = defineProps<{

@@ -19,7 +19,7 @@ import {
   faTruck,
   faTerminal,
   faCameraRetro, faPaperclip, faPoop, faMoneyBill, faClipboard
-} from '@fal/';
+} from '@fal';
 import AgentShowcase from "@/Components/Showcases/Grp/AgentShowcase.vue";
 import TableSupplierProducts from "@/Components/Tables/TableSupplierProducts.vue";
 import TablePurchaseOrders from "@/Components/Tables/TablePurchaseOrders.vue";

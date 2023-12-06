@@ -10,7 +10,7 @@ import { ref, watch } from 'vue'
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { RadioGroup, RadioGroupLabel, RadioGroupOption } from '@headlessui/vue'
 import Footer from '@/Components/CMS/Footer/index.vue'
-import { faHandPointer, faHandRock, faPlus } from '@fas/';
+import { faHandPointer, faHandRock, faPlus } from '@fas';
 // import { fab } from "@fortawesome/free-brands-svg-icons"
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { v4 as uuidv4 } from 'uuid';

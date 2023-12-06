@@ -14,7 +14,7 @@ import ModelDetails from "@/Components/ModelDetails.vue";
 import TableUserRequestLogs from "@/Components/Tables/TableUserRequestLogs.vue";
 import TableHistories from "@/Components/Tables/TableHistories.vue";
 import Tabs from "@/Components/Navigation/Tabs.vue";
-import { faIdCard, faUser, faClock, faDatabase, faEnvelope, faHexagon, faFile } from '@fal/';
+import { faIdCard, faUser, faClock, faDatabase, faEnvelope, faHexagon, faFile } from '@fal';
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { capitalize } from "@/Composables/capitalize"
 

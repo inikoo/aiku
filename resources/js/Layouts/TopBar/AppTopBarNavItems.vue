@@ -12,7 +12,7 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 // import {
 //     faPeopleArrows, faPersonDolly, faClipboardList, faTerminal, faUserAlien, faCog, faNetworkWired, faCalendar, faStopwatch, faChessClock,
 //     faBuilding, faBox, faBoxesAlt, faTachometer, faChartNetwork, faNarwhal, faBusinessTime, faUserTie
-// } from '@fal/';
+// } from '@fal';
 import { useLayoutStore } from "@/Stores/layout";
 import { capitalize } from "@/Composables/capitalize";
 
