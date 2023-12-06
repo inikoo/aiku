@@ -7,19 +7,23 @@
 
 namespace App\Actions\SysAdmin\Guest;
 
-use App\Actions\HumanResources\SyncJobPosition;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateGuests;
 use App\Actions\SysAdmin\Guest\Hydrators\GuestHydrateUniversalSearch;
+use App\Actions\SysAdmin\Organisation\SeedOrganisationPermissions;
 use App\Actions\SysAdmin\User\StoreUser;
+use App\Actions\SysAdmin\User\UserAddRoles;
+use App\Enums\SysAdmin\Authorisation\RolesEnum;
 use App\Models\SysAdmin\Group;
-use App\Models\HumanResources\JobPosition;
 use App\Models\SysAdmin\Guest;
+use App\Models\SysAdmin\Organisation;
+use App\Models\SysAdmin\Role;
 use App\Rules\AlphaDashDot;
 use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
@@ -36,8 +40,8 @@ class StoreGuest
 
     public function handle(Group $group, array $modelData): Guest
     {
-        $positions = Arr::get($modelData, 'positions', []);
-        Arr::forget($modelData, 'positions');
+        $rolesNames = Arr::get($modelData, 'roles', []);
+        Arr::forget($modelData, 'roles');
 
 
         /** @var \App\Models\SysAdmin\Guest $guest */
@@ -51,7 +55,7 @@ class StoreGuest
 
         GuestHydrateUniversalSearch::dispatch($guest);
 
-        StoreUser::make()->action(
+        $user = StoreUser::make()->action(
             $guest,
             [
                 'username'       => Arr::get($modelData, 'username'),
@@ -62,12 +66,22 @@ class StoreGuest
             ]
         );
 
-        $jobPositions = [];
-        foreach ($positions as $position) {
-            $jobPosition    = JobPosition::firstWhere('slug', $position);
-            $jobPositions[] = $jobPosition->id;
+        $roles = [];
+        foreach ($rolesNames as $roleName) {
+            $role    = Role::where('name', $roleName)->where('group_id', $group->id)->first();
+            $roles[] = $role->name;
+
+            if ($role->name === RolesEnum::SUPER_ADMIN->value) {
+                foreach (Organisation::all() as $organisation) {
+                    UserAddRoles::run($user, [
+                        Role::where('name', SeedOrganisationPermissions::make()->getRoleName(RolesEnum::ORG_ADMIN->value, $organisation))->first()
+                    ]);
+                }
+            }
         }
-        SyncJobPosition::run($guest, $jobPositions);
+        UserAddRoles::run($user, $roles);
+
+
         GroupHydrateGuests::dispatch($group);
 
         return $guest;
@@ -101,13 +115,16 @@ class StoreGuest
     public function rules(): array
     {
         return [
-            'alias'          => ['required', 'iunique:guests', 'string', 'max:12'],
-            'username'       => ['required', 'required', new AlphaDashDot(), 'iunique:users'],
+            'alias'          => ['required', 'iunique:guests', 'string', 'max:12',Rule::notIn(['export', 'create'])],
+            'username'       => ['required', 'required', new AlphaDashDot(), 'iunique:users',Rule::notIn(['export', 'create'])],
             'company_name'   => ['nullable', 'string', 'max:255'],
             'contact_name'   => ['required', 'string', 'max:255'],
             'phone'          => ['nullable', 'phone:AUTO'],
             'email'          => ['nullable', 'email'],
-            'positions.*'    => ['exists:job_positions,slug'],
+            'roles.*'        => [
+                Rule::exists('roles', 'name')
+                    ->where('group_id', app('group')->id)
+            ],
             'password'       => ['sometimes', 'required', 'max:255', app()->isLocal() || app()->environment('testing') ? null : Password::min(8)->uncompromised()],
             'reset_password' => ['sometimes', 'boolean']
         ];
@@ -132,7 +149,7 @@ class StoreGuest
     }
 
     public string $commandSignature = 'guest:create {group : group slug} {name} {username}
-     {--position=*}
+     {--roles=*}
      {--P|password=} {--e|email=} {--t|phone=} {--identity_document_number=} {--identity_document_type=}';
 
 
@@ -143,13 +160,14 @@ class StoreGuest
         try {
             $group = Group::where('code', $command->argument('group'))->firstOrFail();
             app()->instance('group', $group);
+            setPermissionsTeamId($group->id);
         } catch (Exception $e) {
             $command->error($e->getMessage());
 
             return 1;
         }
         $fields = [
-            'positions'    => $command->option('position'),
+            'roles'        => $command->option('roles'),
             'contact_name' => $command->argument('name'),
             'email'        => $command->option('email'),
             'phone'        => $command->option('phone'),

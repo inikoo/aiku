@@ -34,7 +34,10 @@ php artisan telescope:clear
 pg_dump -Fc -f "devops/devel/snapshots/fresh.dump" ${DB}
 echo "🏢 create group"
 php artisan group:create aw AW GB GBP --subdomain=aw
+pg_dump -Fc -f "devops/devel/snapshots/group.dump" ${DB}
+
 php artisan org:create aw awa indo@inikoo.com 'Advantage' ID IDR
 php artisan org:create aw inikoo raul@inikoo.com 'Inikoo' GB GBP
-php artisan guest:create aw 'Mr Aiku' aiku -e aiku@inikoo.com --position=admin
-pg_dump -Fc -f "devops/devel/snapshots/org.dump" ${DB}
+
+php artisan guest:create aw 'Mr Aiku' aiku -e aiku@inikoo.com --roles=super-admin
+pg_dump -Fc -f "devops/devel/snapshots/guests.dump" ${DB}

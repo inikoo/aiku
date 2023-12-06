@@ -8,7 +8,6 @@
 namespace App\Models\Traits;
 
 use App\Models\HumanResources\JobPosition;
-use App\Models\SysAdmin\Role;
 use Spatie\Permission\Traits\HasRoles as SpatieHasRoles;
 
 trait HasRoles
@@ -36,22 +35,6 @@ trait HasRoles
         }
     }
 
-    public function assignDirectRole(Role $role): void
-    {
-        $this->assignRole($role);
-        $this->roles()->updateExistingPivot($role->id, ['direct_role' => true]);
-    }
-
-    public function removeDirectRole(Role $role): void
-    {
-        $currentRole=$this->roles()->wherePivot('role_id', $role->id)->first();
-
-        if ($currentRole &&  $currentRole->pivot->job_position_role) {
-            $this->roles()->updateExistingPivot($role->id, ['direct_role' => false]);
-        } else {
-            $this->removeRole($role->id);
-        }
-    }
 
 
 }

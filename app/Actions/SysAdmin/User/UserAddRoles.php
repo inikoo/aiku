@@ -27,8 +27,8 @@ class UserAddRoles
     public function handle(User $user, array $roles): User
     {
 
-
         foreach ($roles as $role) {
+
             $user->assignRole($role);
         }
 

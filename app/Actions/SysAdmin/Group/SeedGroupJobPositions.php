@@ -47,8 +47,7 @@ class SeedGroupJobPositions extends Seeder
                 );
             }
 
-            //todo
-            /*
+
             $roles = [];
             foreach ($jobPositionData['roles'] as $roleName) {
                 if ($role = (new Role())->where('name', $roleName)->first()) {
@@ -57,7 +56,7 @@ class SeedGroupJobPositions extends Seeder
             }
 
             $jobPosition->roles()->sync($roles);
-            */
+
         }
     }
 

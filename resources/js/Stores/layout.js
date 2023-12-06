@@ -8,67 +8,68 @@ import { defineStore } from "pinia";
 import { trans } from "laravel-vue-i18n";
 
 export const useLayoutStore = defineStore("layout", {
-    state: () => (
-        {
-            avatar_thumbnail: {
-                original: "",
-                original_2x: "",
-                avif: "",
-                avif_2x: "",
-                webp: "",
-                webp_2x: "",
-            },
-            booted                : false,
-            navigation            : [],
-            shopsInDropDown       : {},
-            shops                 : {},
-            currentShopSlug       : null,
-            currentShopData       : {
-                slug: null,
-                name: trans("All shops"),
-                code: trans("All")
-            },
-            websitesInDropDown    : {},
-            websites              : {},
-            currentWebsiteSlug    : null,
-            currentWebsiteData    : {
-                slug: null,
-                name: trans("All websites"),
-                code: trans("All")
-            },
-            warehousesInDropDown  : {},
-            warehouses            : {},
-            currentWarehouseSlug  : null,
-            currentWarehouseData  : {
-                slug: null,
-                name: trans("All warehouses"),
-                code: trans("All")
-            },
-            group                 : {},
-            organisation          : {},
-            currentRoute          : "",
-            currentRouteParameters: {},
-            currentModule         : "",
-            rightSidebar: {
-                activeUsers: {
-                    users: [],
-                    count: 0,
-                    show: false,
-                },
-                language: {
-                    show: false,
-                },
-            },
-            systemName: '',  // For styling navigation depend on which App
-            user: {
-                username: "",
-                name: "",
-                avatar_thumbnail: null,
-                customer_slug: null,
-                customer_name: null,
-            },
+  state: () => (
+    {
+      avatar_thumbnail      : {
+        original   : "",
+        original_2x: "",
+        avif       : "",
+        avif_2x    : "",
+        webp       : "",
+        webp_2x    : ""
+      },
+      booted                : false,
+      groupNavigation       : [],
+      orgNavigation       : [],
+      shopsInDropDown       : {},
+      shops                 : {},
+      currentShopSlug       : null,
+      currentShopData       : {
+        slug: null,
+        name: trans("All shops"),
+        code: trans("All")
+      },
+      websitesInDropDown    : {},
+      websites              : {},
+      currentWebsiteSlug    : null,
+      currentWebsiteData    : {
+        slug: null,
+        name: trans("All websites"),
+        code: trans("All")
+      },
+      warehousesInDropDown  : {},
+      warehouses            : {},
+      currentWarehouseSlug  : null,
+      currentWarehouseData  : {
+        slug: null,
+        name: trans("All warehouses"),
+        code: trans("All")
+      },
+      group                 : {},
+      organisation          : {},
+      currentRoute          : "",
+      currentRouteParameters: {},
+      currentModule         : "",
+      rightSidebar          : {
+        activeUsers: {
+          users: [],
+          count: 0,
+          show : false
+        },
+        language   : {
+          show: false
         }
-    )
+      },
+      systemName            : "",  // For styling navigation depend on which App
+      user                  : {
+        username        : "",
+        name            : "",
+        avatar_thumbnail: null,
+        customer_slug   : null,
+        customer_name   : null
+      }
+    }
+  )
 
 });
 

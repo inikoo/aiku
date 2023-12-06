@@ -64,7 +64,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Stock> $stocks
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Supplier> $suppliers
  * @property-read \App\Models\SysAdmin\GroupSysAdminStats|null $sysadminStats
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\Guest> $users
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\User> $users
  * @method static \Database\Factories\SysAdmin\GroupFactory factory($count = null, $state = [])
  * @method static Builder|Group newModelQuery()
  * @method static Builder|Group newQuery()
@@ -146,7 +146,7 @@ class Group extends Model implements HasMedia
 
     public function users(): HasMany
     {
-        return $this->hasMany(Guest::class);
+        return $this->hasMany(User::class);
     }
 
     public function guests(): HasMany

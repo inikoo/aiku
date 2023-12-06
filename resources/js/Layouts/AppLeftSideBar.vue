@@ -161,9 +161,10 @@ const generateLabel = (item) => {
 			</Link>
 			<div class="flex flex-grow flex-col pb-16">
 				<nav class="flex-1 space-y-1" aria-label="Sidebar">
+         {{ layout.groupNavigation}}
 					<!-- LeftSide Links -->
 					<Link
-						v-for="(item, itemKey) in layout.navigation"
+						v-for="(item, itemKey) in layout.groupNavigation"
 						:key="itemKey"
 						:href="generateRoute(item)"
 						:class="[

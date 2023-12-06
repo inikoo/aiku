@@ -30,26 +30,27 @@ class SeedGroupPermissions
         $groupRoles       = collect(RolesEnum::getRolesWithScope('group'));
 
 
-        $currentPermissions = Permission::where('scope', 'group')->pluck('name');
+        $currentPermissions = Permission::where('scope_type', 'group')->pluck('name');
         $currentPermissions->diff($groupPermissions)
             ->each(function ($permissionName) {
                 Permission::where('name', $permissionName)->first()->delete();
             });
 
 
-        $currentRoles = Role::where('scope', 'group')->pluck('name');
+        $currentRoles = Role::where('scope_type', 'group')->pluck('name');
         $currentRoles->diff($groupRoles)
             ->each(function ($roleName) {
                 Role::where('name', $roleName)->first()->delete();
             });
 
 
-        $groupPermissions->each(function ($permissionName) {
+        $groupPermissions->each(function ($permissionName) use ($group) {
             try {
                 Permission::create(
                     [
-                        'name'  => $permissionName,
-                        'scope' => 'group'
+                        'name'       => $permissionName,
+                        'scope_type' => 'group',
+                        'scope_id'   => $group->id,
                     ]
                 );
             } catch (Exception) {
@@ -62,9 +63,10 @@ class SeedGroupPermissions
                 if (!$role = (new Role())->where('name', $case->value)->first()) {
                     $role = Role::create(
                         [
-                            'name'     => $case->value,
-                            'group_id' => null,
-                            'scope'    => 'group'
+                            'name'       => $case->value,
+                            'group_id'   => $group->id,
+                            'scope_type' => 'group',
+                            'scope_id'   => $group->id,
                         ]
                     );
                 }

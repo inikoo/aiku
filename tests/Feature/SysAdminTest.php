@@ -138,6 +138,8 @@ test('roles are seeded', function () {
 })->todo();
 
 test('create guest', function (Group $group) {
+    app()->instance('group', $group);
+    setPermissionsTeamId($group->id);
     $guestData = Guest::factory()->definition();
     data_set($guestData, 'username', 'hello');
     data_set($guestData, 'phone', '+6281212121212');
@@ -165,17 +167,19 @@ test('create guest from command', function (Group $group) {
     $this->artisan(
         'guest:create',
         [
-            'group'         => $group->code,
-            'name'          => 'Pika',
-            'username'      => 'pika',
-            '--password'    => 'hello1234',
-            '--email'       => 'pika@inikoo.com',
-            '--position'    => 'admin'
+            'group'      => $group->code,
+            'name'       => 'Pika',
+            'username'   => 'pika',
+            '--password' => 'hello1234',
+            '--email'    => 'pika@inikoo.com',
+            '--roles'    => 'super-admin'
         ]
     )->assertSuccessful();
 })->depends('create group');
 
 test('update guest', function ($guest) {
+    app()->instance('group', $guest->group);
+    setPermissionsTeamId($guest->group->id);
     $guest = UpdateGuest::make()->action($guest, ['contact_name' => 'Pika']);
     expect($guest->contact_name)->toBe('Pika');
 
@@ -184,9 +188,13 @@ test('update guest', function ($guest) {
 })->depends('create guest');
 
 test('fail to create guest with invalid usernames', function (Group $group) {
+    app()->instance('group', $group);
+    setPermissionsTeamId($group->id);
+
     $guestData = Guest::factory()->definition();
 
     data_set($guestData, 'username', 'create');
+
     expect(function () use ($guestData, $group) {
         StoreGuest::make()->action(
             $group,

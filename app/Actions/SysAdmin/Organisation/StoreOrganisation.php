@@ -10,12 +10,14 @@ namespace App\Actions\SysAdmin\Organisation;
 use App\Actions\Accounting\PaymentServiceProvider\StorePaymentServiceProvider;
 use App\Actions\Assets\Currency\SetCurrencyHistoricFields;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateOrganisations;
+use App\Actions\SysAdmin\User\UserAddRoles;
 use App\Models\Assets\Country;
 use App\Models\Assets\Currency;
 use App\Models\Assets\Language;
 use App\Models\Assets\Timezone;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
+use App\Models\SysAdmin\Role;
 use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
@@ -30,6 +32,9 @@ class StoreOrganisation
 
     public function handle(Group $group, array $modelData): Organisation
     {
+
+
+
         data_set($modelData, 'ulid', Str::ulid());
 
 
@@ -38,6 +43,18 @@ class StoreOrganisation
         /** @var Organisation $organisation */
         $organisation = $group->organisations()->create($modelData);
         SeedOrganisationPermissions::run($organisation);
+
+        $superAdmins = $group->users()->with('roles')->get()->filter(
+            fn ($user) => $user->roles->where('name', 'super-admin')->toArray()
+        );
+
+        foreach($superAdmins as $superAdmin) {
+            UserAddRoles::run($superAdmin, [
+                Role::where('name', SeedOrganisationPermissions::make()->getRoleName('org-admin', $organisation))->first()
+            ]);
+        }
+
+
 
         $organisation->refresh();
 

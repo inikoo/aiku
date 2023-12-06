@@ -21,6 +21,7 @@ class BindGroupInstance
             });
 
             app()->instance('group', $group);
+            setPermissionsTeamId($group->id);
         }
 
 

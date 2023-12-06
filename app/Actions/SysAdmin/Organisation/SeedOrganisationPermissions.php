@@ -30,14 +30,14 @@ class SeedOrganisationPermissions
         $organisationRoles       = collect(RolesEnum::getRolesWithScope('group'));
 
 
-        $currentPermissions = Permission::where('scope', 'organisation')->pluck('name');
+        $currentPermissions = Permission::where('scope_type', 'organisation')->pluck('name');
         $currentPermissions->diff($organisationPermissions)
             ->each(function ($permissionName) use ($organisation) {
                 Permission::where('name', $this->getPermissionName($permissionName, $organisation))->first()->delete();
             });
 
 
-        $currentRoles = Role::where('scope', 'organisation')->pluck('name');
+        $currentRoles = Role::where('scope_type', 'organisation')->pluck('name');
         $currentRoles->diff($organisationRoles)
             ->each(function ($roleName) use ($organisation) {
                 Role::where(
@@ -51,8 +51,9 @@ class SeedOrganisationPermissions
             try {
                 Permission::create(
                     [
-                        'name'  => $this->getPermissionName($permissionName, $organisation),
-                        'scope' => 'organization'
+                        'name'       => $this->getPermissionName($permissionName, $organisation),
+                        'scope_type' => 'organization',
+                        'scope_id'   => $organisation->id,
                     ]
                 );
             } catch (Exception) {
@@ -65,8 +66,9 @@ class SeedOrganisationPermissions
                 if (!$role = (new Role())->where('name', $this->getRoleName($case->value, $organisation))->first()) {
                     $role = Role::create(
                         [
-                            'name'  => $this->getRoleName($case->value, $organisation),
-                            'scope' => 'organization'
+                            'name'       => $this->getRoleName($case->value, $organisation),
+                            'scope_type' => 'organization',
+                            'scope_id'   => $organisation->id,
                         ]
                     );
                 }

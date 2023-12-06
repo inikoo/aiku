@@ -89,9 +89,7 @@ class Guest extends Model implements HasMedia, Auditable
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
-            ->generateSlugsFrom(function () {
-                return head(explode(' ', trim($this->contact_name)));
-            })
+            ->generateSlugsFrom('alias')
             ->saveSlugsTo('slug')
             ->slugsShouldBeNoLongerThan(16)
             ->doNotGenerateSlugsOnUpdate();
