@@ -10,7 +10,7 @@ import {Head} from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 import { capitalize } from "@/Composables/capitalize"
 import {library} from '@fortawesome/fontawesome-svg-core';
-import {faGlobe} from '@fal/';
+import {faGlobe} from '@fal';
 library.add(faGlobe);
 
 const props = defineProps(['title', 'pageHead', 'parent']);

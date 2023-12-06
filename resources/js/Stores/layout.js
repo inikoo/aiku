@@ -10,6 +10,14 @@ import { trans } from "laravel-vue-i18n";
 export const useLayoutStore = defineStore("layout", {
     state: () => (
         {
+            avatar_thumbnail: {
+                original: "",
+                original_2x: "",
+                avif: "",
+                avif_2x: "",
+                webp: "",
+                webp_2x: "",
+            },
             booted                : false,
             navigation            : [],
             shopsInDropDown       : {},
@@ -41,17 +49,23 @@ export const useLayoutStore = defineStore("layout", {
             currentRoute          : "",
             currentRouteParameters: {},
             currentModule         : "",
-            rightSidebar          : {
-                activeUsers: false,
-                language   : false
+            rightSidebar: {
+                activeUsers: {
+                    users: [],
+                    count: 0,
+                    show: false,
+                },
+                language: {
+                    show: false,
+                },
             },
-            avatar_thumbnail: {
-                original: "",
-                original_2x: "",
-                avif: "",
-                avif_2x: "",
-                webp: "",
-                webp_2x: "",
+            systemName: '',  // For styling navigation depend on which App
+            user: {
+                username: "",
+                name: "",
+                avatar_thumbnail: null,
+                customer_slug: null,
+                customer_name: null,
             },
         }
     )

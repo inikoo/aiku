@@ -8,7 +8,7 @@
 import {Head} from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 import {library} from '@fortawesome/fontawesome-svg-core';
-import {faGlobe} from '@fal/';
+import {faGlobe} from '@fal';
 import { capitalize } from "@/Composables/capitalize"
 
 library.add(faGlobe);

@@ -1,6 +1,6 @@
 <script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faSearch } from '@far/'
+import { faSearch } from '@far'
 import { library } from '@fortawesome/fontawesome-svg-core'
 library.add(faSearch)
 

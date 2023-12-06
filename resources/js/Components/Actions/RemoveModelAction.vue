@@ -8,7 +8,7 @@
 import { Link } from '@inertiajs/vue3'
 import { trans } from "laravel-vue-i18n";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
-import { faTrashAlt } from '@fal/'
+import { faTrashAlt } from '@fal'
 import { library } from "@fortawesome/fontawesome-svg-core";
 library.add(faTrashAlt)
 

@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { faInfoCircle } from '@far/'
+import { faInfoCircle } from '@far'
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { ref, watch, reactive, onMounted } from 'vue'
 import descriptor from './descriptor'
 import { get, set, isArray } from 'lodash'
-import { faExclamationCircle, faCheckCircle, faChevronDown, faChevronRight } from '@fas/';
-import { faBoxOpen } from '@fal/';
+import { faExclamationCircle, faCheckCircle, faChevronDown, faChevronRight } from '@fas';
+import { faBoxOpen } from '@fal';
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { trans } from "laravel-vue-i18n";

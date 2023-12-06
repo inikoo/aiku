@@ -13,7 +13,7 @@ import { library } from "@fortawesome/fontawesome-svg-core";
 import {
     faTasksAlt, faUser, faUserPlus, faCube, faFolderTree, faFolder, faTruck, faFileInvoiceDollar, faBrowser,
     faWarehouse, faMapSigns
-} from '@fal/';
+} from '@fal';
 import { useLayoutStore } from "@/Stores/layout";
 import { capitalize } from "@/Composables/capitalize";
 

@@ -2,7 +2,7 @@
 import { computed, ref, watch, nextTick } from "vue";
 import find from "lodash-es/find";
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faFilter } from '@far/'
+import { faFilter } from '@far'
 import { library } from '@fortawesome/fontawesome-svg-core'
 library.add(faFilter)
 

@@ -12,7 +12,7 @@ import {
     faCoins,
     faInfoCircle,
     faMoneyCheckAlt
-} from '@fal/';
+} from '@fal';
 
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 import {computed, defineAsyncComponent, ref} from "vue";

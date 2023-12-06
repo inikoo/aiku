@@ -3,7 +3,7 @@ import { trans } from 'laravel-vue-i18n'
 import { ref } from 'vue'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faEye, faEyeSlash } from '@fas/'
+import { faEye, faEyeSlash } from '@fas'
 import { library } from '@fortawesome/fontawesome-svg-core'
 library.add(faEye, faEyeSlash)
 

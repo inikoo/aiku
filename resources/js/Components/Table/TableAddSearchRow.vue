@@ -1,7 +1,7 @@
 <script setup>
 import ButtonWithDropdown from "./ButtonWithDropdown.vue";
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faFilter } from '@fas/'
+import { faFilter } from '@fas'
 import { library } from '@fortawesome/fontawesome-svg-core'
 library.add(faFilter)
 import { ref } from "vue";

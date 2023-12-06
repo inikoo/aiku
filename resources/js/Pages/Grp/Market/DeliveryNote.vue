@@ -10,7 +10,7 @@ import {library} from '@fortawesome/fontawesome-svg-core';
 import {
     faCube,
     faFolder,
-} from '@fal/';
+} from '@fal';
 
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 import { capitalize } from "@/Composables/capitalize"

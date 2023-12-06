@@ -12,7 +12,7 @@ import { capitalize } from "@/Composables/capitalize"
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {
   faMoneyCheckAlt, faCashRegister, faFileInvoiceDollar, faCoins,
-} from '@fal/';
+} from '@fal';
 defineProps(['title', 'pageHead', 'flatTreeMaps']);
 
 

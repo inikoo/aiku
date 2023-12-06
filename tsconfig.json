@@ -13,10 +13,10 @@
         "skipLibCheck": true,
         "paths": {
             "@/*": ["./resources/js/*"],
-            "@fad/*": ["./private/fa/pro-duotone-svg-icons/*"],
-            "@fal/*": ["./private/fa/pro-light-svg-icons/*"],
-            "@far/*": ["./private/fa/pro-regular-svg-icons/*"],
-            "@fas/*": ["./private/fa/pro-solid-svg-icons/*"]
+            "@fad": ["./private/fa/pro-duotone-svg-icons"],
+            "@fal": ["./private/fa/pro-light-svg-icons"],
+            "@far": ["./private/fa/pro-regular-svg-icons"],
+            "@fas": ["./private/fa/pro-solid-svg-icons"]
         }
     },
     "include": ["resources/js/**/*.ts", "resources/js/**/*.d.ts", "resources/js/**/*.vue"]

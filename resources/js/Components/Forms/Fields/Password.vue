@@ -8,7 +8,7 @@
 <script setup>
 import {ref} from 'vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-import { faExclamationCircle, faCheckCircle, faEye, faEyeSlash } from '@fas/';
+import { faExclamationCircle, faCheckCircle, faEye, faEyeSlash } from '@fas';
 import { library } from '@fortawesome/fontawesome-svg-core';
 library.add(faExclamationCircle, faCheckCircle, faEye, faEyeSlash);
 

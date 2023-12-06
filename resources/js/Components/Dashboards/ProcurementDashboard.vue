@@ -13,7 +13,7 @@ import { capitalize } from "@/Composables/capitalize"
 defineProps(['title', 'pageHead', 'flatTreeMaps']);
 
 import {library} from '@fortawesome/fontawesome-svg-core';
-import {faPeopleArrows, faBoxUsd, faPersonDolly, faTruckContainer, faClipboardList} from '@fal/';
+import {faPeopleArrows, faBoxUsd, faPersonDolly, faTruckContainer, faClipboardList} from '@fal';
 
 library.add(faPeopleArrows, faBoxUsd, faPersonDolly, faTruckContainer, faClipboardList);
 

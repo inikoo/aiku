@@ -7,7 +7,7 @@
 <script setup lang="ts">
 import Popper from "vue3-popper";
 import SettingColumns from './SettingColumns.vue';
-import { faEllipsisV } from '@far/';
+import { faEllipsisV } from '@far';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 library.add(faEllipsisV);

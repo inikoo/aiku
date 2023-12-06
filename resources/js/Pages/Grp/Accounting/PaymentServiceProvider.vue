@@ -12,7 +12,7 @@ import {
     faCoins,
     faMoneyCheckAlt,
     faChartLine
-} from '@fal/';
+} from '@fal';
 
 import PageHeading from "@/Components/Headings/PageHeading.vue";
 import ModelStats from "@/Components/Navigation/FlatTreeMap.vue";

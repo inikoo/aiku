@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import { faEnvelope, faAsterisk, faCodeBranch, faTags } from '@fal/'
+import { faEnvelope, faAsterisk, faCodeBranch, faTags } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import QueryInformatics from '@/Components/Queries/QueryInformatics.vue'
 import { trans } from "laravel-vue-i18n"
