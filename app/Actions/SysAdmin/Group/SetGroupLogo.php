@@ -64,7 +64,5 @@ class SetGroupLogo
             $command->error($result['message']);
             return 1;
         }
-
-
     }
 }

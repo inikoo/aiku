@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Fri, 16 Jun 2023 11:39:33 Malaysia Time, Pantai Lembeng, Bali, Id
+ * Created: Fri, 16 Jun 2023 11:39:33 Malaysia Time, Pantai Lembeng, Bali, Indonesia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
@@ -14,9 +14,9 @@ return new class () extends Migration {
     {
         Schema::create('job_position_role', function (Blueprint $table) {
             $table->unsignedSmallInteger('job_position_id')->index();
-            $table->foreign('job_position_id')->references('id')->on('job_positions');
+            $table->foreign('job_position_id')->references('id')->on('job_positions')->onDelete('cascade');
             $table->unsignedSmallInteger('role_id')->index();
-            $table->foreign('role_id')->references('id')->on('roles');
+            $table->foreign('role_id')->references('id')->on('roles')->onDelete('cascade');
             $table->timestampsTz();
         });
     }

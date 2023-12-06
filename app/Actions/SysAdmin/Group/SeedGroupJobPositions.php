@@ -5,24 +5,27 @@
  *  Copyright (c) 2022, Raul A Perusquia F
  */
 
-namespace Database\Seeders;
+namespace App\Actions\SysAdmin\Group;
 
 use App\Actions\HumanResources\JobPosition\StoreJobPosition;
 use App\Actions\HumanResources\JobPosition\UpdateJobPosition;
-use App\Models\HumanResources\JobPosition;
+use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Role;
+use Illuminate\Console\Command;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Arr;
+use Lorisleiva\Actions\Concerns\AsAction;
 
-class JobPositionSeeder extends Seeder
+class SeedGroupJobPositions extends Seeder
 {
-    public function run(): void
+    use AsAction;
+    public function handle(Group $group): void
     {
         $jobPositions = collect(config("blueprint.job_positions.positions"));
 
 
         foreach ($jobPositions as $jobPositionData) {
-            $jobPosition = JobPosition::where('code', $jobPositionData['code'])->first();
+            $jobPosition = $group->josPositions()->where('code', $jobPositionData['code'])->first();
             if ($jobPosition) {
                 UpdateJobPosition::run(
                     $jobPosition,
@@ -33,7 +36,8 @@ class JobPositionSeeder extends Seeder
                     ]
                 );
             } else {
-                $jobPosition= StoreJobPosition::run(
+                $jobPosition= StoreJobPosition::make()->action(
+                    $group,
                     [
                         'code'       => $jobPositionData['code'],
                         'name'       => $jobPositionData['name'],
@@ -43,6 +47,8 @@ class JobPositionSeeder extends Seeder
                 );
             }
 
+            //todo
+            /*
             $roles = [];
             foreach ($jobPositionData['roles'] as $roleName) {
                 if ($role = (new Role())->where('name', $roleName)->first()) {
@@ -51,6 +57,19 @@ class JobPositionSeeder extends Seeder
             }
 
             $jobPosition->roles()->sync($roles);
+            */
         }
+    }
+
+    public string $commandSignature = 'group:seed-job-positions';
+
+    public function asCommand(Command $command): int
+    {
+
+        foreach (Group::all() as $group) {
+            $command->info("Seeding job positions for group: $group->name");
+            $this->handle($group);
+        }
+        return 0;
     }
 }

@@ -19,6 +19,7 @@ use Spatie\Permission\Models\Permission as SpatiePermission;
  * @property int $id
  * @property string $name
  * @property string $guard_name
+ * @property string $scope
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read Collection<int, SpatiePermission> $permissions
@@ -26,9 +27,11 @@ use Spatie\Permission\Models\Permission as SpatiePermission;
  * @property-read Collection<int, \App\Models\SysAdmin\User> $users
  * @method static Builder|Permission newModelQuery()
  * @method static Builder|Permission newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Permission permission($permissions)
+ * @method static \Illuminate\Database\Eloquent\Builder|Permission permission($permissions, $without = false)
  * @method static Builder|Permission query()
- * @method static \Illuminate\Database\Eloquent\Builder|Permission role($roles, $guard = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Permission role($roles, $guard = null, $without = false)
+ * @method static \Illuminate\Database\Eloquent\Builder|Permission withoutPermission($permissions)
+ * @method static \Illuminate\Database\Eloquent\Builder|Permission withoutRole($roles, $guard = null)
  * @mixin Eloquent
  */
 class Permission extends SpatiePermission

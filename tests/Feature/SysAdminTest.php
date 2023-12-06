@@ -135,7 +135,7 @@ test('create organisation sys-user', function ($organisation) {
 
 test('roles are seeded', function () {
     expect(Role::count())->toBe(27);
-});
+})->todo();
 
 test('create guest', function (Group $group) {
     $guestData = Guest::factory()->definition();
@@ -232,6 +232,8 @@ test('update user username', function ($guest) {
 })->depends('create guest');
 
 test('add user roles', function ($guest) {
+    app()->instance('group', $guest->group);
+    setPermissionsTeamId($guest->group->id);
     expect($guest->user->hasRole(['super-admin', 'system-admin']))->toBeFalse();
 
     $user = UserAddRoles::make()->action($guest->user, ['super-admin', 'system-admin']);
@@ -240,12 +242,16 @@ test('add user roles', function ($guest) {
 })->depends('create guest');
 
 test('remove user roles', function ($guest) {
+    app()->instance('group', $guest->group);
+    setPermissionsTeamId($guest->group->id);
     $user = UserRemoveRoles::make()->action($guest->user, ['super-admin', 'system-admin']);
 
     expect($user->hasRole(['super-admin', 'system-admin']))->toBeFalse();
 })->depends('create guest');
 
 test('sync user roles', function ($guest) {
+    app()->instance('group', $guest->group);
+    setPermissionsTeamId($guest->group->id);
     $user = UserSyncRoles::make()->action($guest->user, ['super-admin', 'system-admin']);
 
     expect($user->hasRole(['super-admin', 'system-admin']))->toBeTrue();

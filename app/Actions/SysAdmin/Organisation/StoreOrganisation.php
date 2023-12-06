@@ -37,7 +37,7 @@ class StoreOrganisation
 
         /** @var Organisation $organisation */
         $organisation = $group->organisations()->create($modelData);
-
+        SeedOrganisationPermissions::run($organisation);
 
         $organisation->refresh();
 
@@ -114,7 +114,7 @@ class StoreOrganisation
             $command->error($e->getMessage());
             return 1;
         }
-
+        setPermissionsTeamId($group->id);
         try {
             $country = Country::where('code', $command->argument('country_code'))->firstOrFail();
         } catch (Exception $e) {

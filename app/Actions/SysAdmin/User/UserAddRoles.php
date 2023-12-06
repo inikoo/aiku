@@ -29,7 +29,7 @@ class UserAddRoles
 
 
         foreach ($roles as $role) {
-            $user->assignDirectRole($role);
+            $user->assignRole($role);
         }
 
         return $user;

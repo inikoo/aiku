@@ -22,9 +22,80 @@ class GetLayout
 
     public function handle(User $user): array
     {
+
+        $groupNavigation=[];
+
+
+        if ($user->hasPermissionTo('supply-chain.view')) {
+            $navigation['procurement'] = [
+                'label'   => __('procurement'),
+                'icon'    => ['fal', 'fa-box-usd'],
+                'route'   => 'grp.procurement.dashboard',
+                'topMenu' => [
+                    'subSections' => [
+                        [
+                            'label' => __('agents'),
+                            'icon'  => ['fal', 'fa-people-arrows'],
+                            'route' => [
+                                'name' => 'grp.procurement.agents.index',
+
+                            ]
+                        ],
+                        [
+                            'label' => __('suppliers'),
+                            'icon'  => ['fal', 'fa-person-dolly'],
+                            'route' => [
+                                'name' => 'grp.procurement.suppliers.index',
+
+                            ]
+                        ],
+
+                    ]
+                ]
+            ];
+        }
+
+
+        if ($user->hasPermissionTo('sysadmin.view')) {
+            $navigation['sysadmin'] = [
+                'label'   => __('sysadmin'),
+                'icon'    => ['fal', 'fa-users-cog'],
+                'route'   => 'grp.sysadmin.dashboard',
+                'topMenu' => [
+                    'subSections' => [
+                        [
+                            'label' => __('users'),
+                            'icon'  => ['fal', 'fa-terminal'],
+                            'route' => [
+                                'name' => 'grp.sysadmin.users.index',
+
+                            ]
+                        ],
+                        [
+                            'label' => __('guests'),
+                            'icon'  => ['fal', 'fa-user-alien'],
+                            'route' => [
+                                'name' => 'grp.sysadmin.guests.index',
+
+                            ]
+                        ],
+                        [
+                            'label' => __('system settings'),
+                            'icon'  => ['fal', 'fa-cog'],
+                            'route' => [
+                                'name' => 'grp.sysadmin.settings.edit',
+
+                            ]
+                        ],
+                    ]
+                ]
+            ];
+        }
+
+
         $navigation = [];
 
-        if ($user->hasPermissionTo('business-intelligence.view')) {
+        if ($user->hasPermissionTo('org-business-intelligence')) {
             $navigation['business_intelligence'] = [
                 'label' => __('Business Intelligence'),
 
@@ -659,74 +730,10 @@ class GetLayout
         }
 
 
-        if ($user->hasPermissionTo('procurement.view')) {
-            $navigation['procurement'] = [
-                'label'   => __('procurement'),
-                'icon'    => ['fal', 'fa-box-usd'],
-                'route'   => 'grp.procurement.dashboard',
-                'topMenu' => [
-                    'subSections' => [
-                        [
-                            'label' => __('agents'),
-                            'icon'  => ['fal', 'fa-people-arrows'],
-                            'route' => [
-                                'name' => 'grp.procurement.agents.index',
-
-                            ]
-                        ],
-                        [
-                            'label' => __('suppliers'),
-                            'icon'  => ['fal', 'fa-person-dolly'],
-                            'route' => [
-                                'name' => 'grp.procurement.suppliers.index',
-
-                            ]
-                        ],
-
-                    ]
-                ]
-            ];
-        }
-
-
-        if ($user->hasPermissionTo('sysadmin.view')) {
-            $navigation['sysadmin'] = [
-                'label'   => __('sysadmin'),
-                'icon'    => ['fal', 'fa-users-cog'],
-                'route'   => 'grp.sysadmin.dashboard',
-                'topMenu' => [
-                    'subSections' => [
-                        [
-                            'label' => __('users'),
-                            'icon'  => ['fal', 'fa-terminal'],
-                            'route' => [
-                                'name' => 'grp.sysadmin.users.index',
-
-                            ]
-                        ],
-                        [
-                            'label' => __('guests'),
-                            'icon'  => ['fal', 'fa-user-alien'],
-                            'route' => [
-                                'name' => 'grp.sysadmin.guests.index',
-
-                            ]
-                        ],
-                        [
-                            'label' => __('system settings'),
-                            'icon'  => ['fal', 'fa-cog'],
-                            'route' => [
-                                'name' => 'grp.sysadmin.settings.edit',
-
-                            ]
-                        ],
-                    ]
-                ]
-            ];
-        }
 
 
         return [
+            'groupNavigation'      => $groupNavigation,
             'navigation'           => $navigation,
             'shopsInDropDown'      => ShopsNavigationResource::collection(Shop::all()),
             'websitesInDropDown'   => WebsitesNavigationResource::collection(Website::all()),

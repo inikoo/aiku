@@ -14,6 +14,8 @@ return new class () extends Migration {
     {
         Schema::create('job_positions', function (Blueprint $table) {
             $table->smallIncrements('id');
+            $table->unsignedSmallInteger('group_id');
+            $table->foreign('group_id')->references('id')->on('groups')->onUpdate('cascade')->onDelete('cascade');
             $table->string('slug')->unique()->collation('und_ns');
             $table->string('code')->index()->collation('und_ns');
             $table->string('name')->index()->collation('und_ns_ci');
@@ -26,6 +28,9 @@ return new class () extends Migration {
             $table->double('number_work_time')->default(0);
             $table->decimal('share_work_time', 7, 6)->nullable();
             $table->timestampsTz();
+            $table->index([
+                'code','group_id'
+            ]);
         });
     }
 

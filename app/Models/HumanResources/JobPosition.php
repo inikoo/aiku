@@ -22,6 +22,7 @@ use Spatie\Sluggable\SlugOptions;
  * App\Models\HumanResources\JobPosition
  *
  * @property int $id
+ * @property int $group_id
  * @property string $slug
  * @property string $code
  * @property string $name

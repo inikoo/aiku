@@ -20,15 +20,16 @@ class SyncJobPosition
     public function handle(Employee|Guest $model, array $jobPositions): void
     {
         $model->jobPositions()->sync($jobPositions);
-        if($organisationUser=$model->user) {
+        if($user=$model->user) {
 
             $roles=[];
             foreach($model->jobPositions as $jobPosition) {
                 $roles=array_merge($roles, $jobPosition->roles()->pluck('id')->all());
             }
 
-            $organisationUser->roles()->sync($roles);
-            $organisationUser->refresh();
+
+            $user->roles()->sync($roles);
+            $user->refresh();
         }
 
 

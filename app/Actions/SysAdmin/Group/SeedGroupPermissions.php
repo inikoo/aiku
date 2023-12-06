@@ -1,0 +1,97 @@
+<?php
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Wed, 06 Dec 2023 12:29:26 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2023, Raul A Perusquia Flores
+ */
+
+namespace App\Actions\SysAdmin\Group;
+
+use App\Enums\SysAdmin\Authorisation\GroupPermissionsEnum;
+use App\Enums\SysAdmin\Authorisation\RolesEnum;
+use App\Models\SysAdmin\Group;
+use App\Models\SysAdmin\Permission;
+use App\Models\SysAdmin\Role;
+use Exception;
+use Illuminate\Console\Command;
+use Lorisleiva\Actions\Concerns\AsAction;
+use Spatie\Permission\PermissionRegistrar;
+
+class SeedGroupPermissions
+{
+    use AsAction;
+
+    public function handle(Group $group): void
+    {
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
+
+
+        $groupPermissions = collect(GroupPermissionsEnum::getAllValues());
+        $groupRoles       = collect(RolesEnum::getRolesWithScope('group'));
+
+
+        $currentPermissions = Permission::where('scope', 'group')->pluck('name');
+        $currentPermissions->diff($groupPermissions)
+            ->each(function ($permissionName) {
+                Permission::where('name', $permissionName)->first()->delete();
+            });
+
+
+        $currentRoles = Role::where('scope', 'group')->pluck('name');
+        $currentRoles->diff($groupRoles)
+            ->each(function ($roleName) {
+                Role::where('name', $roleName)->first()->delete();
+            });
+
+
+        $groupPermissions->each(function ($permissionName) {
+            try {
+                Permission::create(
+                    [
+                        'name'  => $permissionName,
+                        'scope' => 'group'
+                    ]
+                );
+            } catch (Exception) {
+            }
+        });
+
+
+        foreach (RolesEnum::cases() as $case) {
+            if ($case->scope() === 'group') {
+                if (!$role = (new Role())->where('name', $case->value)->first()) {
+                    $role = Role::create(
+                        [
+                            'name'     => $case->value,
+                            'group_id' => null,
+                            'scope'    => 'group'
+                        ]
+                    );
+                }
+                $permissions = [];
+                foreach ($case->getPermissions() as $permissionName) {
+                    if ($permission = (new Permission())->where('name', $permissionName)->first()) {
+                        $permissions[] = $permission;
+                    }
+                }
+
+                $role->syncPermissions($permissions);
+            }
+        }
+    }
+
+
+    public string $commandSignature = 'group:seed-permissions';
+
+    public function asCommand(Command $command): int
+    {
+        foreach (Group::all() as $group) {
+            $command->info("Seeding permissions for group: $group->name");
+            setPermissionsTeamId($group->id);
+            $this->handle($group);
+        }
+
+        return 0;
+    }
+
+}

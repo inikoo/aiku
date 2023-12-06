@@ -32,6 +32,9 @@ class StoreGroup
 
         /** @var Group $group */
         $group = Group::create($modelData);
+        app()->instance('group', $group);
+        SeedGroupPermissions::run($group);
+        SeedGroupJobPositions::run($group);
 
         $group->procurementStats()->create();
         $group->sysadminStats()->create();

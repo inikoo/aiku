@@ -9,6 +9,7 @@ namespace App\Models\SysAdmin;
 
 use App\Models\Assets\Currency;
 use App\Models\HumanResources\Employee;
+use App\Models\HumanResources\JobPosition;
 use App\Models\Inventory\Stock;
 use App\Models\Inventory\StockFamily;
 use App\Models\Mail\Mailroom;
@@ -53,6 +54,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\Guest> $guests
  * @property-read \App\Models\SysAdmin\GroupHumanResourcesStats|null $humanResourcesStats
  * @property-read \App\Models\SysAdmin\GroupInventoryStats|null $inventoryStats
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, JobPosition> $josPositions
  * @property-read \App\Models\Media\Media|null $logo
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Mailroom> $mailrooms
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Media\Media> $media
@@ -160,6 +162,11 @@ class Group extends Model implements HasMedia
     public function currency(): BelongsTo
     {
         return $this->belongsTo(Currency::class);
+    }
+
+    public function josPositions(): HasMany
+    {
+        return $this->hasMany(JobPosition::class);
     }
 
     public function registerMediaCollections(): void

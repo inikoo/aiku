@@ -8,10 +8,25 @@
 
 return [
 
-
-
     'business-intelligence',
-    'business-intelligence.view',
+
+    'sysadmin',
+    'sysadmin.view',
+    'sysadmin.edit',
+
+
+    'procurement',
+    'procurement.edit',
+    'procurement.view',
+
+    'supply-chain',
+    'supply-chain.edit',
+    'supply-chain.view',
+
+    //=== organisation
+
+
+    'org-business-intelligence',
 
     'shops',
     'shops',
@@ -57,9 +72,9 @@ return [
     'production.edit',
     'production.view',
 
-    'procurement',
-    'procurement.edit',
-    'procurement.view',
+    'buyer',
+    'buyer.edit',
+    'buyer.view',
 
     'accounting',
     'accounting.view',
@@ -72,12 +87,7 @@ return [
     'hr.attendance',
 
 
-    'sysadmin',
-    'sysadmin.view',
-    'sysadmin.create',
-    'sysadmin.edit',
-    'sysadmin.delete',
-    'sysadmin.look-and-field',
+
 
     'fulfilment',
     'fulfilment.edit',
