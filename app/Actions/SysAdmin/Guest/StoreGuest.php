@@ -9,7 +9,6 @@ namespace App\Actions\SysAdmin\Guest;
 
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateGuests;
 use App\Actions\SysAdmin\Guest\Hydrators\GuestHydrateUniversalSearch;
-use App\Actions\SysAdmin\Organisation\SeedOrganisationPermissions;
 use App\Actions\SysAdmin\User\StoreUser;
 use App\Actions\SysAdmin\User\UserAddRoles;
 use App\Enums\SysAdmin\Authorisation\RolesEnum;
@@ -74,7 +73,7 @@ class StoreGuest
             if ($role->name === RolesEnum::SUPER_ADMIN->value) {
                 foreach (Organisation::all() as $organisation) {
                     UserAddRoles::run($user, [
-                        Role::where('name', SeedOrganisationPermissions::make()->getRoleName(RolesEnum::ORG_ADMIN->value, $organisation))->first()
+                        Role::where('name', RolesEnum::getRoleName(RolesEnum::ORG_ADMIN->value, $organisation))->first()
                     ]);
                 }
             }

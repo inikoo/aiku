@@ -63,10 +63,10 @@ class SeedOrganisationPermissions
 
         foreach (RolesEnum::cases() as $case) {
             if ($case->scope() === 'Organisation') {
-                if (!$role = (new Role())->where('name', $this->getRoleName($case->value, $organisation))->first()) {
+                if (!$role = (new Role())->where('name', RolesEnum::getRoleName($case->value, $organisation))->first()) {
                     $role = Role::create(
                         [
-                            'name'       => $this->getRoleName($case->value, $organisation),
+                            'name'       => RolesEnum::getRoleName($case->value, $organisation),
                             'scope_type' => 'Organisation',
                             'scope_id'   => $organisation->id,
                         ]
@@ -75,10 +75,7 @@ class SeedOrganisationPermissions
                 $organisationPermissions = [];
 
                 foreach ($case->getPermissions() as $permissionName) {
-
-                    //    dd($this->getPermissionName($permissionName->value, $organisation));
-
-                    if ($permission = (new Permission())->where('name', $this->getPermissionName($permissionName->value, $organisation))->first()) {
+                    if ($permission = (new Permission())->where('name', OrganisationPermissionsEnum::getPermissionName($permissionName->value, $organisation))->first()) {
                         $organisationPermissions[] = $permission;
                     }
                 }
@@ -87,19 +84,6 @@ class SeedOrganisationPermissions
         }
     }
 
-
-    public function getPermissionName(string $rawName, Organisation $organisation): string
-    {
-        $permissionComponents = explode('.', $rawName);
-        $permissionComponents = array_merge(array_slice($permissionComponents, 0, 1), [$organisation->slug], array_slice($permissionComponents, 1));
-
-        return join('.', $permissionComponents);
-    }
-
-    public function getRoleName(string $rawName, Organisation $organisation): string
-    {
-        return $rawName.'-'.$organisation->slug;
-    }
 
     public string $commandSignature = 'org:seed-permissions';
 

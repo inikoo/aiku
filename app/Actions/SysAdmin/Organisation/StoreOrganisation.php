@@ -11,6 +11,7 @@ use App\Actions\Accounting\PaymentServiceProvider\StorePaymentServiceProvider;
 use App\Actions\Assets\Currency\SetCurrencyHistoricFields;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateOrganisations;
 use App\Actions\SysAdmin\User\UserAddRoles;
+use App\Enums\SysAdmin\Authorisation\RolesEnum;
 use App\Models\Assets\Country;
 use App\Models\Assets\Currency;
 use App\Models\Assets\Language;
@@ -50,7 +51,7 @@ class StoreOrganisation
 
         foreach($superAdmins as $superAdmin) {
             UserAddRoles::run($superAdmin, [
-                Role::where('name', SeedOrganisationPermissions::make()->getRoleName('org-admin', $organisation))->first()
+                Role::where('name', RolesEnum::getRoleName('org-admin', $organisation))->first()
             ]);
         }
 
