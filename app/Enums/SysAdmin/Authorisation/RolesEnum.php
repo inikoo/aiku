@@ -17,18 +17,29 @@ enum RolesEnum: string
 
     case SUPPLY_CHAIN = 'supply-chain';
 
-    case ORG_ADMIN   = 'org-admin';
-    case PROCUREMENT = 'procurement';
+    case ORG_ADMIN              = 'org-admin';
+    case PROCUREMENT_CLERK      = 'procurement-clerk';
+    case PROCUREMENT_SUPERVISOR = 'procurement-supervisor';
 
+    case HUMAN_RESOURCES_CLERK      = 'human-resources-clerk';
+    case HUMAN_RESOURCES_SUPERVISOR = 'human-resources-supervisor';
+
+    case ACCOUNTING_CLERK      = 'accounting-clerk';
+    case ACCOUNTING_SUPERVISOR = 'accounting-supervisor';
 
     public function label(): string
     {
         return match ($this) {
-            RolesEnum::SUPER_ADMIN  => __('Super admin'),
-            RolesEnum::SYSTEM_ADMIN => __('System admin'),
-            RolesEnum::SUPPLY_CHAIN => __('Supply chain'),
-            RolesEnum::PROCUREMENT  => __('Procurement'),
-            RolesEnum::ORG_ADMIN    => __('Organisation admin'),
+            RolesEnum::SUPER_ADMIN                => __('Super admin'),
+            RolesEnum::SYSTEM_ADMIN               => __('System admin'),
+            RolesEnum::SUPPLY_CHAIN               => __('Supply chain'),
+            RolesEnum::PROCUREMENT_CLERK          => __('Procurement clerk'),
+            RolesEnum::PROCUREMENT_SUPERVISOR     => __('Procurement supervisor'),
+            RolesEnum::ORG_ADMIN                  => __('Organisation admin'),
+            RolesEnum::HUMAN_RESOURCES_CLERK      => __('Human resources clerk'),
+            RolesEnum::HUMAN_RESOURCES_SUPERVISOR => __('Human resources supervisor'),
+            RolesEnum::ACCOUNTING_CLERK           => __('Accounting clerk'),
+            RolesEnum::ACCOUNTING_SUPERVISOR      => __('Accounting supervisor'),
         };
     }
 
@@ -50,8 +61,26 @@ enum RolesEnum: string
                 OrganisationPermissionsEnum::ORG_BUSINESS_INTELLIGENCE,
                 OrganisationPermissionsEnum::PROCUREMENT
             ],
-            RolesEnum::PROCUREMENT => [
+            RolesEnum::PROCUREMENT_CLERK => [
                 OrganisationPermissionsEnum::PROCUREMENT
+            ],
+            RolesEnum::HUMAN_RESOURCES_CLERK => [
+                OrganisationPermissionsEnum::HUMAN_RESOURCES
+            ],
+            RolesEnum::HUMAN_RESOURCES_SUPERVISOR => [
+                OrganisationPermissionsEnum::HUMAN_RESOURCES,
+                OrganisationPermissionsEnum::SUPERVISOR_HUMAN_RESOURCES
+            ],
+            RolesEnum::ACCOUNTING_CLERK => [
+                OrganisationPermissionsEnum::ACCOUNTING,
+            ],
+            RolesEnum::ACCOUNTING_SUPERVISOR => [
+                OrganisationPermissionsEnum::ACCOUNTING,
+                OrganisationPermissionsEnum::SUPERVISOR_ACCOUNTING
+            ],
+            RolesEnum::PROCUREMENT_SUPERVISOR => [
+                OrganisationPermissionsEnum::PROCUREMENT,
+                OrganisationPermissionsEnum::SUPERVISOR_PROCUREMENT
             ],
         };
     }
@@ -65,18 +94,6 @@ enum RolesEnum: string
             default                 => 'Organisation'
         };
     }
-
-
-    public function isTeam(): bool
-    {
-        return match ($this) {
-            RolesEnum::SUPER_ADMIN,
-            RolesEnum::SYSTEM_ADMIN,
-            RolesEnum::SUPPLY_CHAIN => false,
-            default                 => true
-        };
-    }
-
 
     public static function getRolesWithScope(Group|Organisation $scope): array
     {
@@ -103,19 +120,5 @@ enum RolesEnum: string
     }
 
 
-    public static function getAllValues(): array
-    {
-        return array_column(RolesEnum::cases(), 'value');
-    }
-
-    public static function getTeamValues(): array
-    {
-        return array_column(array_filter(RolesEnum::cases(), fn ($role) => $role->isTeam()), 'value');
-    }
-
-    public static function getNonTeamValues(): array
-    {
-        return array_column(array_filter(RolesEnum::cases(), fn ($role) => !$role->isTeam()), 'value');
-    }
 
 }
