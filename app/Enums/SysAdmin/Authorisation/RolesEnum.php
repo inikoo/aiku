@@ -7,6 +7,9 @@
 
 namespace App\Enums\SysAdmin\Authorisation;
 
+use App\Models\SysAdmin\Group;
+use App\Models\SysAdmin\Organisation;
+
 enum RolesEnum: string
 {
     case SUPER_ADMIN  = 'super-admin';
@@ -58,11 +61,10 @@ enum RolesEnum: string
         return match ($this) {
             RolesEnum::SUPER_ADMIN,
             RolesEnum::SYSTEM_ADMIN,
-            RolesEnum::SUPPLY_CHAIN => 'group',
-            default                 => 'organisation'
+            RolesEnum::SUPPLY_CHAIN => 'Group',
+            default                 => 'Organisation'
         };
     }
-
 
 
     public function isTeam(): bool
@@ -76,11 +78,29 @@ enum RolesEnum: string
     }
 
 
-    public static function getRolesWithScope(string $scope): array
+    public static function getRolesWithScope(Group|Organisation $scope): array
     {
-        return array_column(array_filter(RolesEnum::cases(), fn ($role) => $role->scope()==$scope), 'value');
+        $rawRoleNames = array_column(
+            array_filter(RolesEnum::cases(), fn ($role) => $role->scope() == class_basename($scope)),
+            'value'
+        );
+
+        $rolesNames = [];
+        foreach ($rawRoleNames as $rawRolesName) {
+            $rolesNames[] = self::getRoleName($rawRolesName, $scope);
+        }
+
+        return $rolesNames;
     }
 
+
+    public static function getRoleName(string $rawName, Group|Organisation $scope): string
+    {
+        return match (class_basename($scope)) {
+            'Organisation' => $rawName.'-'.$scope->slug,
+            default        => $rawName
+        };
+    }
 
 
     public static function getAllValues(): array

@@ -11,6 +11,7 @@ use App\Actions\Helpers\Images\GetPictureSources;
 use App\Enums\SysAdmin\User\UserAuthTypeEnum;
 use App\Helpers\ImgProxy\Image;
 use App\Models\Assets\Language;
+use App\Models\Market\Shop;
 use App\Models\Media\Media;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasRoles;
@@ -20,6 +21,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -46,6 +48,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $about
  * @property int|null $parent_id
  * @property string|null $parent_type
+ * @property int $number_authorised_organisations
+ * @property int $number_authorised_shops
  * @property string|null $remember_token
  * @property array $data
  * @property array $settings
@@ -58,6 +62,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $source_id
  * @property string|null $legacy_password source password
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\Organisation> $authorisedOrganisations
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Shop> $authorisedShops
  * @property-read Media|null $avatar
  * @property-read \App\Models\Notifications\FcmToken|null $fcmToken
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Notifications\FcmToken> $fcmTokens
@@ -190,7 +196,19 @@ class User extends Authenticatable implements HasMedia, Auditable
         return 'slug';
     }
 
+    public function authorisedOrganisations(): MorphToMany
+    {
+        return $this->morphedByMany(
+            Organisation::class,
+            'model',
+            'user_has_authorised_models'
+        )->withTimestamps();
+    }
 
+    public function authorisedShops(): MorphToMany
+    {
+        return $this->morphedByMany(Shop::class, 'model', 'user_has_authorised_models')->withTimestamps();
+    }
 
 
 }

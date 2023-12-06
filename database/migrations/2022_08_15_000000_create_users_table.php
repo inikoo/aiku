@@ -30,6 +30,8 @@ return new class () extends Migration {
             $table->text('about')->nullable();
             $table->unsignedInteger('parent_id')->nullable();
             $table->string('parent_type')->nullable();
+            $table->unsignedSmallInteger('number_authorised_organisations')->default(0);
+            $table->unsignedSmallInteger('number_authorised_shops')->default(0);
             $table->rememberToken();
             $table->jsonb('data');
             $table->jsonb('settings');

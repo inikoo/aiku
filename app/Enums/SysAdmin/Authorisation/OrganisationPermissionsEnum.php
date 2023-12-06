@@ -7,6 +7,8 @@
 
 namespace App\Enums\SysAdmin\Authorisation;
 
+use App\Models\SysAdmin\Organisation;
+
 enum OrganisationPermissionsEnum: string
 {
     case ORG_BUSINESS_INTELLIGENCE = 'org-business-intelligence';
@@ -18,10 +20,25 @@ enum OrganisationPermissionsEnum: string
     case PROCUREMENT_VIEW = 'procurement.view';
 
 
-    public static function getAllValues(): array
+    public static function getAllValues(Organisation $organisation): array
     {
-        return array_column(OrganisationPermissionsEnum::cases(), 'value');
+
+        $rawPermissionsNames = array_column(OrganisationPermissionsEnum::cases(), 'value');
+
+        $permissionsNames    = [];
+        foreach ($rawPermissionsNames as $rawPermissionsName) {
+            $permissionsNames[] = self::getPermissionName($rawPermissionsName, $organisation);
+        }
+
+        return $permissionsNames;
     }
 
+    public static function getPermissionName(string $rawName, Organisation $organisation): string
+    {
+        $permissionComponents = explode('.', $rawName);
+        $permissionComponents = array_merge(array_slice($permissionComponents, 0, 1), [$organisation->slug], array_slice($permissionComponents, 1));
+
+        return join('.', $permissionComponents);
+    }
 
 }

@@ -7,12 +7,11 @@
 
 namespace App\Actions\SysAdmin\User;
 
+use App\Actions\SysAdmin\User\Hydrators\UserHydrateAuthorisedModels;
+use App\Actions\SysAdmin\User\Traits\WithRolesCommand;
 use App\Actions\Traits\WithActionUpdate;
-use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\Role;
 use App\Models\SysAdmin\User;
-use Exception;
-use Illuminate\Console\Command;
 use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -21,6 +20,7 @@ class UserRemoveRoles
 {
     use AsAction;
     use WithActionUpdate;
+    use WithRolesCommand;
 
     private bool $trusted = false;
 
@@ -29,7 +29,7 @@ class UserRemoveRoles
         foreach ($roles as $role) {
             $user->removeRole($role);
         }
-
+        UserHydrateAuthorisedModels::dispatch($user);
         return $user;
     }
 
@@ -89,47 +89,8 @@ class UserRemoveRoles
         return $this->handle($user, $this->get('roles'));
     }
 
-    public string $commandSignature = 'user:remove-roles {tenant : tenant slug} {user : User username} {roles* : list of roles}';
+    public string $commandSignature = 'user:remove-roles {user : User slug} {roles* : list of roles}';
 
-
-    public function asCommand(Command $command): int
-    {
-        $this->trusted = true;
-
-
-        try {
-            $organisation = Organisation::where('slug', $command->argument('tenant'))->firstOrFail();
-        } catch (Exception) {
-            $command->error("Organisation {$command->argument('tenant')} not found");
-
-            return 1;
-        }
-
-
-
-
-
-        try {
-            $user = User::where('username', $command->argument('user'))->firstOrFail();
-        } catch (Exception) {
-            $command->error("User {$command->argument('user')} not found");
-
-            return 1;
-        }
-
-
-        $this->fill([
-            'role_names' => $command->argument('roles'),
-        ]);
-
-        $this->validateAttributes();
-        $groupUser = $this->handle($user, $this->get('roles'));
-
-
-        $command->info("Group User <fg=yellow>$groupUser->username</> added roles: ".join($command->argument('roles'))." 👍");
-
-        return 0;
-    }
 
 
 }

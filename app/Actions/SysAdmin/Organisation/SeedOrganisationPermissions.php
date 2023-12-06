@@ -26,33 +26,21 @@ class SeedOrganisationPermissions
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
 
-        $organisationPermissions = collect(OrganisationPermissionsEnum::getAllValues());
-        $organisationRoles       = collect(RolesEnum::getRolesWithScope('group'));
+        $organisationPermissions = collect(OrganisationPermissionsEnum::getAllValues($organisation));
 
 
-        $currentPermissions = Permission::where('scope_type', 'organisation')->pluck('name');
+        $currentPermissions = Permission::where('scope_type', 'Organisation')->where('scope_id', $organisation->id)->pluck('name');
         $currentPermissions->diff($organisationPermissions)
             ->each(function ($permissionName) use ($organisation) {
-                Permission::where('name', $this->getPermissionName($permissionName, $organisation))->first()->delete();
+                Permission::where('name', $permissionName)->first()->delete();
             });
-
-
-        $currentRoles = Role::where('scope_type', 'organisation')->pluck('name');
-        $currentRoles->diff($organisationRoles)
-            ->each(function ($roleName) use ($organisation) {
-                Role::where(
-                    'name',
-                    $this->getRoleName($roleName, $organisation)
-                )->first()->delete();
-            });
-
 
         $organisationPermissions->each(function ($permissionName) use ($organisation) {
             try {
                 Permission::create(
                     [
-                        'name'       => $this->getPermissionName($permissionName, $organisation),
-                        'scope_type' => 'organization',
+                        'name'       => $permissionName,
+                        'scope_type' => 'Organisation',
                         'scope_id'   => $organisation->id,
                     ]
                 );
@@ -60,22 +48,38 @@ class SeedOrganisationPermissions
             }
         });
 
+        $organisationRoles = collect(RolesEnum::getRolesWithScope($organisation));
+
+
+        $currentRoles = Role::where('scope_type', 'Organisation')->where('scope_id', $organisation->id)->pluck('name');
+        $currentRoles->diff($organisationRoles)
+            ->each(function ($roleName) use ($organisation) {
+                Role::where(
+                    'name',
+                    $roleName
+                )->first()->delete();
+            });
+
 
         foreach (RolesEnum::cases() as $case) {
-            if ($case->scope() === 'organisation') {
+            if ($case->scope() === 'Organisation') {
                 if (!$role = (new Role())->where('name', $this->getRoleName($case->value, $organisation))->first()) {
                     $role = Role::create(
                         [
                             'name'       => $this->getRoleName($case->value, $organisation),
-                            'scope_type' => 'organization',
+                            'scope_type' => 'Organisation',
                             'scope_id'   => $organisation->id,
                         ]
                     );
                 }
                 $organisationPermissions = [];
+
                 foreach ($case->getPermissions() as $permissionName) {
+
+                    //    dd($this->getPermissionName($permissionName->value, $organisation));
+
                     if ($permission = (new Permission())->where('name', $this->getPermissionName($permissionName->value, $organisation))->first()) {
-                        $organisationPermissions[] =  $permission;
+                        $organisationPermissions[] = $permission;
                     }
                 }
                 $role->syncPermissions($organisationPermissions);
