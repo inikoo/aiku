@@ -1,14 +1,13 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Mon, 04 Dec 2023 17:45:09 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Sat, 09 Dec 2023 02:13:11 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Sysadmin\User\Hydrators;
+namespace App\Actions\SysAdmin\User\Hydrators;
 
 use App\Actions\Traits\WithRoutes;
-
 use App\Models\SysAdmin\User;
 use Lorisleiva\Actions\Concerns\AsAction;
 

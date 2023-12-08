@@ -8,7 +8,7 @@
 namespace App\Actions\SysAdmin\User;
 
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateUsers;
-use App\Actions\Sysadmin\User\Hydrators\UserHydrateUniversalSearch;
+use App\Actions\SysAdmin\User\Hydrators\UserHydrateUniversalSearch;
 use App\Actions\SysAdmin\User\UI\SetUserAvatar;
 use App\Models\HumanResources\Employee;
 use App\Models\Procurement\Agent;

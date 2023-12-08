@@ -7,8 +7,7 @@
 
 
 use App\Actions\Inventory\Location\GetLocations;
-use App\Actions\SysAdmin\User\GetAllUsers;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/users', GetAllUsers::class)->name('users');
+//todo use IndexLocations instead of GetLocations
 Route::get('/locations', GetLocations::class)->name('locations');

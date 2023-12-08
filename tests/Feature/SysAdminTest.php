@@ -7,6 +7,7 @@
 
 use App\Actions\SysAdmin\Admin\StoreAdmin;
 use App\Actions\SysAdmin\Group\StoreGroup;
+use App\Actions\SysAdmin\Group\UpdateGroup;
 use App\Actions\SysAdmin\Guest\StoreGuest;
 use App\Actions\SysAdmin\Guest\UpdateGuest;
 use App\Actions\SysAdmin\Organisation\StoreOrganisation;
@@ -57,6 +58,19 @@ test('create group', function () {
     return $group;
 });
 
+test('HydrateGroup command', function (Group $group) {
+    $this->artisan('hydrate:group', [
+        'group' => $group->slug,
+    ])->assertSuccessful();
+})->depends('create group');
+
+test('set group logo by command', function (Group $group) {
+    $this->artisan('group:logo', [
+        'group' => $group->slug,
+    ])->assertSuccessful();
+})->depends('create group');
+
+
 test('create group by command', function () {
     $this->artisan('group:create', [
         'code'          => 'TEST2',
@@ -69,6 +83,11 @@ test('create group by command', function () {
 
     return $group;
 });
+
+test('update group name', function (Group $group) {
+    $group = UpdateGroup::make()->action($group, ['name' => 'Test Group 2']);
+    expect($group->name)->toBe('Test Group 2');
+})->depends('create group');
 
 
 test('mailrooms seeded correctly', function () {
@@ -166,10 +185,16 @@ test('create guest', function (Group $group) {
         ->and($group->sysadminStats->number_users_status_active)->toBe(1)
         ->and($group->sysadminStats->number_users_status_inactive)->toBe(0)
         ->and($group->sysadminStats->number_users_type_guest)->toBe(1);
-    ;
+
 
     return $guest;
 })->depends('create group');
+
+test('UserHydrateAuthorisedModels command', function (Guest $guest) {
+    $this->artisan('user:hydrate-authorised-models', [
+        'user' => $guest->user->slug,
+    ])->assertSuccessful();
+})->depends('create guest');
 
 test('create guest from command', function (Group $group) {
     $this->artisan(
