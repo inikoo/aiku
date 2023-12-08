@@ -227,6 +227,6 @@ return [
     'aurora_image_path' => env('AURORA_IMAGE_PATH'),
 
 
-    'domain'                 => env('APP_CENTRAL_DOMAIN'),
+    'domain'                 => env('APP_DOMAIN'),
     'media_domain'           => env('MEDIA_DOMAIN'),
 ];

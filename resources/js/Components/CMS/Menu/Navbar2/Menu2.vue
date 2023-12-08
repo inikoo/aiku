@@ -104,7 +104,7 @@ const mobileMenuOpen = ref(false)
 
             <div class="space-y-6 border-t border-gray-200 px-4 py-6">
               <div class="flow-root" v-if="user == null">
-                <Link :href="route('grp.login')" class="-m-2 block p-2 font-medium text-gray-900">{{ trans("Login") }}</Link>
+                <Link :href="route('grp.login.show')" class="-m-2 block p-2 font-medium text-gray-900">{{ trans("Login") }}</Link>
               </div>
               <div class="flow-root" v-if="user == null">
                 <Link :href="route('grp.register')" class="-m-2 block p-2 font-medium text-gray-900">{{ trans("Register") }}

@@ -44,6 +44,14 @@ beforeAll(function () {
     Sanctum::usePersonalAccessTokenModel(PersonalAccessToken::class);
 });
 
+beforeEach(function () {
+
+    Config::set(
+        'inertia.testing.page_paths',
+        [resource_path('js/Pages/Grp')]
+    );
+});
+
 test('create group', function () {
     $modelData = Group::factory()->definition();
 
@@ -128,6 +136,7 @@ test('set organisation logo by command', function (Organisation $organisation) {
 })->depends('create organisation');
 
 test('create organisation by command', function () {
+
     $this->artisan('org:create', [
         'group'         => 'TEST2',
         'code'          => 'TEST',
@@ -174,14 +183,15 @@ test('create organisation sys-user', function ($organisation) {
 })->depends('create organisation');
 
 test('roles are seeded', function () {
-    expect(Role::count())->toBe(27);
-})->todo();
+    expect(Role::count())->toBe(17);
+});
 
 test('create guest', function (Group $group) {
     app()->instance('group', $group);
     setPermissionsTeamId($group->id);
     $guestData = Guest::factory()->definition();
     data_set($guestData, 'username', 'hello');
+    data_set($guestData, 'password', 'secret-password');
     data_set($guestData, 'phone', '+6281212121212');
     data_set($guestData, 'roles', ['supply-chain', 'org-admin-acme']);
 
@@ -214,17 +224,29 @@ test('UserHydrateAuthorisedModels command', function (Guest $guest) {
 })->depends('create guest');
 
 test('create guest from command', function (Group $group) {
+
     $this->artisan(
         'guest:create',
         [
             'group'      => $group->code,
-            'name'       => 'Pika',
+            'name'       => 'Mr Pika',
             'username'   => 'pika',
             '--password' => 'hello1234',
             '--email'    => 'pika@inikoo.com',
             '--roles'    => 'super-admin'
         ]
     )->assertSuccessful();
+
+    /** @var Guest $guest */
+    $guest=$group->guests()->where('alias', 'pika')->firstOrFail();
+    $group->refresh();
+    expect($guest->user->username)->toBe('pika')
+        ->and($group->sysadminStats->number_guests)->toBe(2)
+        ->and($group->sysadminStats->number_guests_status_active)->toBe(2)
+        ->and($group->sysadminStats->number_users)->toBe(2);
+
+    return $guest;
+
 })->depends('create group');
 
 test('update guest', function ($guest) {
@@ -277,9 +299,9 @@ test('update user password', function ($guest) {
     return $user;
 })->depends('create guest');
 
-test('update user username', function ($guest) {
-    expect($guest->user->username)->toBe('hello');
-    $user = UpdateUser::make()->action($guest->user, [
+test('update user username', function (User $user) {
+    expect($user->username)->toBe('hello');
+    $user = UpdateUser::make()->action($user, [
         'username' => 'new-username'
     ]);
 
@@ -287,7 +309,7 @@ test('update user username', function ($guest) {
         ->and($user->status)->toBeTrue();
 
     return $user;
-})->depends('create guest');
+})->depends('update user password');
 
 test('add user roles', function ($guest) {
     app()->instance('group', $guest->group);
@@ -328,19 +350,6 @@ test('delete user', function ($user) {
     expect($user->deleted_at)->toBeInstanceOf(Carbon::class);
 })->depends('update user password');
 
-test('can show hr dashboard', function (Guest $guest) {
-    actingAs($guest->user);
-    $response = get(route('grp.sysadmin.dashboard'));
-
-    $response->assertInertia(function (AssertableInertia $page) {
-        $page
-            ->component('SysAdmin/SysAdminDashboard')
-            ->has('breadcrumbs', 2)
-            ->where('stats.0.stat', 1)->where('stats.0.href.name', 'grp.sysadmin.users.index')
-            ->where('stats.1.stat', 1)->where('stats.1.href.name', 'grp.sysadmin.guests.index');
-    });
-})->depends('create guest')->todo();
-
 test('Hydrate group via command', function (Group $group) {
     $this->artisan('hydrate:group', [
         'group' => $group->slug,
@@ -354,3 +363,36 @@ test('Hydrate organisation via command', function (Organisation $organisation) {
     $this->artisan('hydrate:organisations', [])->assertSuccessful();
 
 })->depends('create organisation');
+
+test('can show app login', function () {
+    Config::set(
+        'inertia.testing.page_paths',
+        [resource_path('js/Pages/Grp')]
+    );
+    $response = get(route('grp.login.show'));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page->component('SysAdmin/Login');
+    });
+});
+
+test('can not login with wrong credentials', function (Guest $guest) {
+
+    $response = $this->post(route('grp.login.store'), [
+        'username' => $guest->user->username,
+        'password' => 'wrong password',
+    ]);
+
+    $response->assertRedirect('http://app.'.config('app.domain'));
+    $response->assertSessionHasErrors('username');
+})->depends('create guest');
+
+test('can login', function (Guest $guest) {
+
+    $response = $this->post(route('grp.login.store'), [
+        'username' => $guest->user->username,
+        'password' => 'hello1234',
+    ]);
+    $response->assertRedirect(route('grp.dashboard.show'));
+    $this->assertAuthenticatedAs($guest->user);
+})->depends('create guest from command');

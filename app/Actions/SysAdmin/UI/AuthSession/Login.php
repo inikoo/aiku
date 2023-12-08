@@ -23,14 +23,13 @@ class Login
 {
     use AsController;
 
-    private string $gate              = 'web';
+    private string $gate = 'web';
 
     /**
      * @throws \Illuminate\Validation\ValidationException
      */
     public function handle(ActionRequest $request): RedirectResponse
     {
-
         $this->ensureIsNotRateLimited($request);
 
         if (!Auth::guard($this->gate)->attempt(
@@ -50,7 +49,7 @@ class Login
 */
 
             throw ValidationException::withMessages([
-                'username'=> trans('auth.failed'),
+                'username' => trans('auth.failed'),
             ]);
         }
 
@@ -93,8 +92,8 @@ class Login
     public function rules(): array
     {
         return [
-            'username'               => ['required',  'string'],
-            'password'               => ['required', 'string'],
+            'username' => ['required', 'string'],
+            'password' => ['required', 'string'],
         ];
     }
 

@@ -29,7 +29,7 @@ const submit = () => {
             <p class="mt-2 text-center text-sm text-gray-600">
                 Existing user?
                 {{ ' ' }}
-                <Link :href="route('grp.login')" class="font-medium text-indigo-600 hover:text-indigo-500"> log in </Link>
+                <Link :href="route('grp.login.show')" class="font-medium text-indigo-600 hover:text-indigo-500"> log in </Link>
             </p>
         </div>
 

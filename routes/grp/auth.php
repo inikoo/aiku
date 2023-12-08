@@ -12,7 +12,7 @@ use App\Actions\SysAdmin\UI\AuthSession\ShowLogin;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function () {
-    Route::get('login', ShowLogin::class)->name('login');
+    Route::get('login', ShowLogin::class)->name('login.show');
     Route::post('login', Login::class)->name('login.store');
 });
 
