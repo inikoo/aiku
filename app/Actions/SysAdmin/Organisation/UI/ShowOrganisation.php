@@ -1,30 +1,43 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Mon, 04 Dec 2023 16:15:10 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Sat, 09 Dec 2023 03:25:37 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\SysAdmin\Organisation;
+namespace App\Actions\SysAdmin\Organisation\UI;
 
 use App\Actions\InertiaAction;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
+use Lorisleiva\Actions\ActionRequest;
 
-class ShowAccount extends InertiaAction
+class ShowOrganisation extends InertiaAction
 {
     private Organisation $organisation;
 
-    public function asController(): void
+
+    public function handle(Organisation $organisation): Organisation
     {
-        $this->tenant = app('currentTenant');
+        return $organisation;
+    }
+
+    public function authorize(ActionRequest $request): bool
+    {
+        return $request->user()->hasPermissionTo('sysadmin.edit');
+    }
+
+    public function asController(Organisation $organisation): Organisation
+    {
+        $this->validateAttributes();
+        return $this->handle($organisation);
     }
 
 
-    public function htmlResponse(): Response
+    public function htmlResponse(Organisation $organisation): Response
     {
-        $this->validateAttributes();
+
 
 
         return Inertia::render(
@@ -33,7 +46,7 @@ class ShowAccount extends InertiaAction
                 'breadcrumbs' => $this->getBreadcrumbs(),
                 'title'       => __('account'),
                 'pageHead'    => [
-                    'title' => $this->tenant->name,
+                    'title' => $organisation->name,
                 ],
 
                 'tabs' => [
@@ -51,18 +64,7 @@ class ShowAccount extends InertiaAction
                     ]
                 ],
 
-                'contents' => [
-                    [
-                        'title' => __('Inventory'),
-                        'items' => [
-                            [
-                                'title' => __('Warehouses'),
-                                'count' => $this->tenant->inventoryStats->number_warehouses,
-                                'href'  => ['index.warehouses.index']
-                            ]
-                        ]
-                    ]
-                ]
+
 
 
             ]

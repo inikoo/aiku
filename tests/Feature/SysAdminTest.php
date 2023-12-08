@@ -11,6 +11,7 @@ use App\Actions\SysAdmin\Group\UpdateGroup;
 use App\Actions\SysAdmin\Guest\StoreGuest;
 use App\Actions\SysAdmin\Guest\UpdateGuest;
 use App\Actions\SysAdmin\Organisation\StoreOrganisation;
+use App\Actions\SysAdmin\Organisation\UpdateOrganisation;
 use App\Actions\SysAdmin\SysUser\CreateSysUserAccessToken;
 use App\Actions\SysAdmin\SysUser\StoreSysUser;
 use App\Actions\SysAdmin\User\DeleteUser;
@@ -58,18 +59,11 @@ test('create group', function () {
     return $group;
 });
 
-test('HydrateGroup command', function (Group $group) {
-    $this->artisan('hydrate:group', [
-        'group' => $group->slug,
-    ])->assertSuccessful();
-})->depends('create group');
-
 test('set group logo by command', function (Group $group) {
     $this->artisan('group:logo', [
         'group' => $group->slug,
     ])->assertSuccessful();
 })->depends('create group');
-
 
 test('create group by command', function () {
     $this->artisan('group:create', [
@@ -127,6 +121,12 @@ test('create organisation', function (Group $group) {
     return $organisation;
 })->depends('create group');
 
+test('set organisation logo by command', function (Organisation $organisation) {
+    $this->artisan('org:logo', [
+        'organisation' => $organisation->slug,
+    ])->assertSuccessful();
+})->depends('create organisation');
+
 test('create organisation by command', function () {
     $this->artisan('org:create', [
         'group'         => 'TEST2',
@@ -141,6 +141,23 @@ test('create organisation by command', function () {
 
     return $organisation;
 })->depends('create group by command');
+
+test('update organisation name', function (Organisation $organisation) {
+    $organisation = UpdateOrganisation::make()->action(
+        $organisation,
+        ['name' => 'Test New Organisation 2']
+    );
+    expect($organisation->name)->toBe('Test New Organisation 2');
+})->depends('create organisation by command');
+
+test('set organisation google key', function (Organisation $organisation) {
+    $this->artisan('org:set-google-key', [
+        'organisation'               => $organisation->slug,
+        'google_cloud_client_id'     => '1234567890',
+        'google_cloud_client_secret' => '1234567890',
+        'google_drive_folder_key'    => '1234567890'
+    ])->assertSuccessful();
+})->depends('create organisation by command');
 
 test('create organisation sys-user', function ($organisation) {
     $arrayData = [
@@ -323,3 +340,17 @@ test('can show hr dashboard', function (Guest $guest) {
             ->where('stats.1.stat', 1)->where('stats.1.href.name', 'grp.sysadmin.guests.index');
     });
 })->depends('create guest')->todo();
+
+test('Hydrate group via command', function (Group $group) {
+    $this->artisan('hydrate:group', [
+        'group' => $group->slug,
+    ])->assertSuccessful();
+})->depends('create group');
+
+test('Hydrate organisation via command', function (Organisation $organisation) {
+    $this->artisan('hydrate:organisations', [
+        'organisations' => [$organisation->slug],
+    ])->assertSuccessful();
+    $this->artisan('hydrate:organisations', [])->assertSuccessful();
+
+})->depends('create organisation');

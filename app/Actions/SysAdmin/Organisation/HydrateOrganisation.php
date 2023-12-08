@@ -19,23 +19,17 @@ use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWeb;
 use App\Actions\Traits\WithNormalise;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Console\Command;
-use Illuminate\Support\Collection;
 
 class HydrateOrganisation extends HydrateModel
 {
     use WithNormalise;
 
-    public string $commandSignature = 'hydrate:tenants {tenants?*}';
 
-
-    public function handle(): void
+    public function handle(Organisation $organisation): void
     {
-        /** @var \App\Models\SysAdmin\Organisation $organisation */
-        $organisation = app('currentTenant');
         OrganisationHydrateEmployees::run($organisation);
         OrganisationHydrateWarehouse::run($organisation);
         OrganisationHydrateMarket::run($organisation);
-        $this->fulfilmentStats();
         OrganisationHydrateAccounting::run($organisation);
         OrganisationHydrateCustomers::run($organisation);
         OrganisationHydrateOrders::run($organisation);
@@ -43,35 +37,31 @@ class HydrateOrganisation extends HydrateModel
         OrganisationHydrateWeb::run($organisation);
     }
 
-    public function fulfilmentStats()
-    {
-        /** @var \App\Models\SysAdmin\Organisation $organisation */
-        $organisation = app('currentTenant');
-    }
 
-
-
-    protected function getAllModels(): Collection
-    {
-        return Organisation::all();
-    }
+    public string $commandSignature = 'hydrate:organisations {organisations?*}';
 
     public function asCommand(Command $command): int
     {
-        $organisations = $this->getTenants($command);
-
-        $exitCode = 0;
-
-        foreach ($organisations as $organisation) {
-            $result = (int)$organisation->execute(function () {
-                $this->handle();
-            });
-
-            if ($result !== 0) {
-                $exitCode = $result;
-            }
+        $numberOrganisationsHydrated = 0;
+        if ($command->argument('organisations')) {
+            $organisations = Organisation::whereIn('slug', $command->argument('organisations'))->get();
+        } else {
+            $organisations = Organisation::all();
         }
 
-        return $exitCode;
+
+        foreach ($organisations as $organisation) {
+            $command->info("Hydrating organisation $organisation->name");
+            $this->handle($organisation);
+            $numberOrganisationsHydrated++;
+        }
+
+        if ($numberOrganisationsHydrated === 0) {
+            $command->error("No organisations hydrated");
+
+            return 1;
+        }
+
+        return 0;
     }
 }

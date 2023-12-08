@@ -8,20 +8,20 @@
 namespace App\Actions\SysAdmin\Organisation;
 
 use App\Actions\Traits\WithActionUpdate;
+use App\Models\SysAdmin\Organisation;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdateSystemSettings
+class UpdateOrganisation
 {
     use WithActionUpdate;
 
     private bool $asAction = false;
 
-    public function handle(array $modelData): void
+    public function handle(Organisation $organisation, array $modelData): Organisation
     {
-        $organisation = app('currentTenant');
-
-        $this->update($organisation, $modelData, ['data', 'settings']);
+        return $this->update($organisation, $modelData, ['data', 'settings']);
     }
+
 
     public function authorize(ActionRequest $request): bool
     {
@@ -43,7 +43,7 @@ class UpdateSystemSettings
     }
 
 
-    public function asController(ActionRequest $request): void
+    public function asController(Organisation $organisation, ActionRequest $request): Organisation
     {
         $this->fillFromRequest($request);
 
@@ -62,17 +62,18 @@ class UpdateSystemSettings
             );
         }
 
-        $this->handle(
+        return $this->handle(
+            organisation: $organisation,
             modelData: $modelData
         );
     }
 
-    public function action($objectData): void
+    public function action(Organisation $organisation, $objectData): Organisation
     {
         $this->asAction = true;
         $this->setRawAttributes($objectData);
         $validatedData = $this->validateAttributes();
 
-        $this->handle($validatedData);
+        return $this->handle($organisation, $validatedData);
     }
 }

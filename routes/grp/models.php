@@ -78,7 +78,7 @@ use App\Actions\Procurement\SupplierDelivery\UpdateSupplierDelivery;
 use App\Actions\SysAdmin\Guest\DeleteGuest;
 use App\Actions\SysAdmin\Guest\StoreGuest;
 use App\Actions\SysAdmin\Guest\UpdateGuest;
-use App\Actions\SysAdmin\Organisation\UpdateSystemSettings;
+use App\Actions\SysAdmin\Organisation\UpdateOrganisation;
 use App\Actions\SysAdmin\User\UpdateUser;
 use App\Actions\UI\Profile\UpdateProfile;
 use App\Actions\Web\Website\DeleteWebsite;
@@ -225,4 +225,4 @@ Route::delete('/marketplace-agent/{marketplaceAgent}', DeleteMarketplaceAgent::c
 
 Route::patch('/marketplace-supplier/{marketplaceSupplier}', UpdateMarketplaceSupplier::class)->name('marketplace-supplier.update');
 
-Route::patch('/system-settings', UpdateSystemSettings::class)->name('system-settings.update');
+Route::patch('/system-settings', UpdateOrganisation::class)->name('system-settings.update');

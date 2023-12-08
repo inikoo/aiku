@@ -6,6 +6,6 @@
  */
 
 
-use App\Actions\SysAdmin\Organisation\ShowAccount;
+use App\Actions\SysAdmin\Organisation\UI\ShowOrganisation;
 
-Route::get('/', ShowAccount::class)->name('show');
+Route::get('/', ShowOrganisation::class)->name('show');
