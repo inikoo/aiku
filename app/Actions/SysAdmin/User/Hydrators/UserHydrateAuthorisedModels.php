@@ -18,6 +18,8 @@ class UserHydrateAuthorisedModels
 
     public function handle(User $user): void
     {
+        setPermissionsTeamId($user->group->id);
+
         $authorisedOrganisations = [];
         $authorisedShops         = [];
 
@@ -52,7 +54,7 @@ class UserHydrateAuthorisedModels
 
             return 1;
         }
-        setPermissionsTeamId($user->group->id);
+
         $this->handle($user);
 
         $command->info("User authorised models hydrated 💦");

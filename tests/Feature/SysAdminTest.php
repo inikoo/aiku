@@ -51,7 +51,8 @@ test('create group', function () {
     ]);
 
     $group = StoreGroup::make()->action($modelData);
-    expect($group)->toBeInstanceOf(Group::class);
+    expect($group)->toBeInstanceOf(Group::class)
+        ->and($group->roles()->count())->toBe(3);
 
     return $group;
 });
@@ -97,9 +98,12 @@ test('create a system admin user access token', function () {
 });
 
 test('create organisation', function (Group $group) {
-    $modelData    = Organisation::factory()->definition();
+    $modelData = Organisation::factory()->definition();
+    data_set($modelData, 'code', 'acme');
     $organisation = StoreOrganisation::make()->action($group, $modelData);
-    expect($organisation)->toBeInstanceOf(Organisation::class);
+    expect($organisation)->toBeInstanceOf(Organisation::class)
+        ->and($organisation->roles()->count())->toBe(7)
+        ->and($group->roles()->count())->toBe(10);
 
     return $organisation;
 })->depends('create group');
@@ -143,6 +147,8 @@ test('create guest', function (Group $group) {
     $guestData = Guest::factory()->definition();
     data_set($guestData, 'username', 'hello');
     data_set($guestData, 'phone', '+6281212121212');
+    data_set($guestData, 'roles', ['supply-chain', 'org-admin-acme']);
+
     $guest = StoreGuest::make()->action(
         $group,
         $guestData
@@ -152,6 +158,7 @@ test('create guest', function (Group $group) {
         ->and($guest->user)->toBeInstanceOf(User::class)
         ->and($guest->user->username)->toBe('hello')
         ->and($guest->user->contact_name)->toBe($guest->contact_name)
+        ->and($guest->user->authorisedOrganisations()->count())->toBe(1)
         ->and($guest->phone)->toBe('+6281212121212')
         ->and($group->sysadminStats->number_guests)->toBe(1)
         ->and($group->sysadminStats->number_guests_status_active)->toBe(1)
@@ -159,6 +166,7 @@ test('create guest', function (Group $group) {
         ->and($group->sysadminStats->number_users_status_active)->toBe(1)
         ->and($group->sysadminStats->number_users_status_inactive)->toBe(0)
         ->and($group->sysadminStats->number_users_type_guest)->toBe(1);
+    ;
 
     return $guest;
 })->depends('create group');
@@ -242,11 +250,11 @@ test('update user username', function ($guest) {
 test('add user roles', function ($guest) {
     app()->instance('group', $guest->group);
     setPermissionsTeamId($guest->group->id);
-    expect($guest->user->hasRole(['super-admin', 'system-admin']))->toBeFalse();
+    expect($guest->user->hasRole(['supply-chain']))->toBeTrue();
 
-    $user = UserAddRoles::make()->action($guest->user, ['super-admin', 'system-admin']);
+    $user = UserAddRoles::make()->action($guest->user, ['system-admin']);
 
-    expect($user->hasRole(['super-admin', 'system-admin']))->toBeTrue();
+    expect($user->hasRole(['supply-chain', 'system-admin']))->toBeTrue();
 })->depends('create guest');
 
 test('remove user roles', function ($guest) {

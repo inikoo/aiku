@@ -69,6 +69,7 @@ class SeedOrganisationPermissions
                             'name'       => RolesEnum::getRoleName($case->value, $organisation),
                             'scope_type' => 'Organisation',
                             'scope_id'   => $organisation->id,
+                            'group_id'   => $organisation->group_id,
                         ]
                     );
                 }

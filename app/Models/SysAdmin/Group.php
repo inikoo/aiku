@@ -174,4 +174,9 @@ class Group extends Model implements HasMedia
         $this->addMediaCollection('logo')
             ->singleFile();
     }
+
+    public function roles(): HasMany
+    {
+        return $this->hasMany(Role::class);
+    }
 }
