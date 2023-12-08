@@ -75,8 +75,7 @@ trait WithAuroraParsers
 {
     protected function parseDate($value): ?string
     {
-        return ($value                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   != '' && $value != '0000-00-00 00:00:00'
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               && $value  != '2018-00-00 00:00:00') ? Carbon::parse($value)->format('Y-m-d') : null;
+        return ($value != '' && $value != '0000-00-00 00:00:00' && $value != '2018-00-00 00:00:00') ? Carbon::parse($value)->format('Y-m-d') : null;
     }
 
 
@@ -247,8 +246,6 @@ trait WithAuroraParsers
     }
 
 
-
-
     public function parseHistoricItem($sourceId): HistoricProduct
     {
         $auroraData = DB::connection('aurora')
@@ -330,14 +327,16 @@ trait WithAuroraParsers
 
     public function parseSupplier($sourceId): ?Supplier
     {
-        $supplierTenant= SupplierOrganisation::where('source_id', $sourceId)->where('tenant_id', app('currentTenant')->id)->first();
+        $supplierTenant = SupplierOrganisation::where('source_id', $sourceId)->where('tenant_id', app('currentTenant')->id)->first();
+
         return Supplier::withTrashed()->find($supplierTenant?->supplier_id);
 
     }
 
     public function parseAgent($sourceId): ?Agent
     {
-        $agentTenant= AgentOrganisation::where('source_id', $sourceId)->where('tenant_id', app('currentTenant')->id)->first();
+        $agentTenant = AgentOrganisation::where('source_id', $sourceId)->where('tenant_id', app('currentTenant')->id)->first();
+
         return Agent::withTrashed()->find($agentTenant?->agent_id);
     }
 
@@ -366,8 +365,7 @@ trait WithAuroraParsers
 
     public function parseOrder(?int $sourceId): ?Order
     {
-
-        if(!$sourceId) {
+        if (!$sourceId) {
             return null;
         }
 
