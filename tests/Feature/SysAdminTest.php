@@ -252,12 +252,13 @@ test('create guest from command', function (Group $group) {
 test('update guest', function ($guest) {
     app()->instance('group', $guest->group);
     setPermissionsTeamId($guest->group->id);
-    $guest = UpdateGuest::make()->action($guest, ['contact_name' => 'Pika']);
-    expect($guest->contact_name)->toBe('Pika');
+    $guest = UpdateGuest::make()->action($guest, ['contact_name' => 'Wow']);
+    expect($guest->contact_name)->toBe('Wow');
 
-    $guest = UpdateGuest::make()->action($guest, ['contact_name' => 'Aiku']);
-    expect($guest->contact_name)->toBe('Aiku');
-})->depends('create guest');
+    $guest = UpdateGuest::make()->action($guest, ['contact_name' => 'John']);
+    expect($guest->contact_name)->toBe('John');
+    return $guest;
+})->depends('create guest from command');
 
 test('fail to create guest with invalid usernames', function (Group $group) {
     app()->instance('group', $group);
@@ -297,10 +298,10 @@ test('update user password', function ($guest) {
     expect($user->password)->toBe('hello1234');
 
     return $user;
-})->depends('create guest');
+})->depends('update guest');
 
 test('update user username', function (User $user) {
-    expect($user->username)->toBe('hello');
+    expect($user->username)->toBe('pika');
     $user = UpdateUser::make()->action($user, [
         'username' => 'new-username'
     ]);
@@ -385,14 +386,22 @@ test('can not login with wrong credentials', function (Guest $guest) {
 
     $response->assertRedirect('http://app.'.config('app.domain'));
     $response->assertSessionHasErrors('username');
+
+    $user=$guest->user;
+    $user->refresh();
+    expect($user->stats->number_failed_logins)->toBe(1);
 })->depends('create guest');
 
 test('can login', function (Guest $guest) {
-
     $response = $this->post(route('grp.login.store'), [
         'username' => $guest->user->username,
-        'password' => 'hello1234',
+        'password' => 'secret-password',
     ]);
     $response->assertRedirect(route('grp.dashboard.show'));
     $this->assertAuthenticatedAs($guest->user);
-})->depends('create guest from command');
+
+    $user=$guest->user;
+    $user->refresh();
+    expect($user->stats->number_logins)->toBe(1);
+
+})->depends('create guest');

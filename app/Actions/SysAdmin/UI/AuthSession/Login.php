@@ -7,6 +7,8 @@
 
 namespace App\Actions\SysAdmin\UI\AuthSession;
 
+use App\Actions\SysAdmin\User\LogUserFailLogin;
+use App\Actions\SysAdmin\User\LogUserLogin;
 use App\Models\SysAdmin\Group;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Http\RedirectResponse;
@@ -38,15 +40,12 @@ class Login
         )) {
             RateLimiter::hit($this->throttleKey($request));
 
-            /*
-            LogOrganisationUserFailLogin::dispatch(
-                organisation: organisation(),
+            LogUserFailLogin::dispatch(
                 credentials: $request->validated(),
                 ip: request()->ip(),
                 userAgent: $request->header('User-Agent'),
                 datetime: now()
             );
-*/
 
             throw ValidationException::withMessages([
                 'username' => trans('auth.failed'),
@@ -64,16 +63,13 @@ class Login
 
         app()->instance('group', $group);
 
+        LogUserLogin::dispatch(
+            user: $user,
+            ip: request()->ip(),
+            userAgent: $request->header('User-Agent'),
+            datetime: now()
+        );
 
-        /*
-                LogOrganisationUserLogin::dispatch(
-                    organisation:organisation(),
-                    organisationUser:$organisationUser,
-                    ip: request()->ip(),
-                    userAgent: $request->header('User-Agent'),
-                    datetime: now()
-                );
-        */
 
         $request->session()->regenerate();
         Session::put('reloadLayout', '1');

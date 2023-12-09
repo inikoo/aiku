@@ -60,6 +60,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Media\Media> $media
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\Organisation> $organisations
  * @property-read \App\Models\SysAdmin\GroupProcurementStats|null $procurementStats
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\Role> $roles
  * @property-read \Illuminate\Database\Eloquent\Collection<int, StockFamily> $stockFamilies
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Stock> $stocks
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Supplier> $suppliers

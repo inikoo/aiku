@@ -8,8 +8,6 @@
 namespace App\Actions\Elasticsearch;
 
 use App\Enums\Elasticsearch\ElasticsearchUserRequestTypeEnum;
-use App\Models\Backup\ActionHistory;
-use App\Models\Backup\VisitHistory;
 use Elastic\Elasticsearch\Client;
 use Elastic\Elasticsearch\Exception\ClientResponseException;
 use Elastic\Elasticsearch\Exception\ServerResponseException;
@@ -34,15 +32,6 @@ class IndexElasticsearchDocument
             'body'   => $body
         ];
 
-        if (!$isRestore) {
-            if ($type == ElasticsearchUserRequestTypeEnum::VISIT->value) {
-                VisitHistory::create($params);
-            }
-
-            if ($type == ElasticsearchUserRequestTypeEnum::ACTION->value) {
-                ActionHistory::create($params);
-            }
-        }
 
         try {
             if ($client instanceof Client) {

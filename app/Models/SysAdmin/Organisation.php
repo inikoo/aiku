@@ -68,6 +68,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\OrganisationProcurementStats|null $procurementStats
  * @property-read \App\Models\SysAdmin\OrganisationProductionStats|null $productionStats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, PurchaseOrder> $purchaseOrders
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\Role> $roles
  * @property-read \App\Models\SysAdmin\OrganisationSalesStats|null $salesStats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Shipper> $shippers
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Shop> $shops
