@@ -4,29 +4,39 @@
   -  Copyright (c) 2022, Raul A Perusquia Flores
   -->
 
-<script setup>
-import {Link} from '@inertiajs/vue3';
+<script setup lang="ts">
+import { Link } from "@inertiajs/vue3";
+import { capitalize } from "@/Composables/capitalize";
+import { useLayoutStore } from "@/Stores/layout";
+import { useLocaleStore } from "@/Stores/locale.js";
+import { routeType } from "@/types/route";
 
-defineProps(['stats']);
+defineProps<{
+  stats: {
+    name: string
+    href?: routeType
+    stat?: number
+  }[]
+}>();
+const locale = useLocaleStore();
 
 </script>
 
 <template>
-
-
-    <div>
-        <dl class="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-3">
-            <div v-for="item in stats" :key="item.name" class="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6">
-                <dt class="truncate text-sm font-medium text-gray-500 capitalize">{{ item.name }}</dt>
-                <dd class="mt-1 text-3xl font-semibold tracking-tight text-gray-900">
-                    <Link class="special-underline" v-if="item.href" :href="route(item.href[0])">{{ item.stat }}</Link>
-                    <span v-else>{{ item.stat }}</span>
-                </dd>
-            </div>
-        </dl>
-    </div>
-
-
+  <div>
+    <dl class="grid grid-cols-1 gap-5 sm:grid-cols-3">
+      <div v-for="item in stats" :key="item.name" class="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6">
+        <dt class="truncate text-sm font-medium text-gray-500 capitalize">{{ item.name }}</dt>
+        <dd class="mt-1 text-3xl font-semibold tracking-tight text-gray-600">
+          <Link v-if="item.href" :href="route(item.href.name, item.href.parameters)"
+                :class="[`inline-block specialUnderline${capitalize(useLayoutStore().systemName)}`]">
+            {{ locale.number(item.stat ?? 0) }}
+          </Link>
+          <span v-else>
+            {{ locale.number(item.stat ?? 0) }}
+          </span>
+        </dd>
+      </div>
+    </dl>
+  </div>
 </template>
-
-

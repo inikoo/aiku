@@ -7,6 +7,8 @@
 
 namespace App\Actions\SysAdmin\Organisation;
 
+use App\Actions\Helpers\Avatars\GetDiceBearAvatar;
+use App\Enums\Helpers\Avatars\DiceBearStylesEnum;
 use App\Models\Media\Media;
 use App\Models\SysAdmin\Organisation;
 use Exception;
@@ -19,11 +21,10 @@ class SetOrganisationLogo
 
     public function handle(Organisation $organisation): array
     {
-
         try {
-            $seed       = 'organisation-'.$organisation->id;
+            $seed = 'organisation-'.$organisation->id;
             /** @var Media $media */
-            $media      = $organisation->addMediaFromUrl("https://api.dicebear.com/6.x/shapes/svg?seed=$seed")
+            $media = $organisation->addMediaFromString(GetDiceBearAvatar::run(DiceBearStylesEnum::RINGS, $seed))
                 ->preservingOriginal()
                 ->withProperties(
                     [
@@ -36,8 +37,9 @@ class SetOrganisationLogo
             $logoId = $media->id;
 
             $organisation->update(['logo_id' => $logoId]);
+
             return ['result' => 'success'];
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             return ['result' => 'error', 'message' => $e->getMessage()];
         }
     }
@@ -47,20 +49,22 @@ class SetOrganisationLogo
 
     public function asCommand(Command $command): int
     {
-
         try {
-            $organisation=Organisation::where('slug', $command->argument('organisation'))->firstOrFail();
+            $organisation = Organisation::where('slug', $command->argument('organisation'))->firstOrFail();
         } catch (Exception) {
             $command->error('Organisation not found');
+
             return 1;
         }
 
-        $result=$this->handle($organisation);
-        if($result['result']==='success') {
+        $result = $this->handle($organisation);
+        if ($result['result'] === 'success') {
             $command->info('Logo set');
+
             return 0;
         } else {
             $command->error($result['message']);
+
             return 1;
         }
 

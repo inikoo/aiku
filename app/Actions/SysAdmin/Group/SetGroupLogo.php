@@ -7,6 +7,8 @@
 
 namespace App\Actions\SysAdmin\Group;
 
+use App\Actions\Helpers\Avatars\GetDiceBearAvatar;
+use App\Enums\Helpers\Avatars\DiceBearStylesEnum;
 use App\Models\SysAdmin\Group;
 use App\Models\Media\Media;
 use Exception;
@@ -23,7 +25,7 @@ class SetGroupLogo
         try {
             $seed       = 'group-'.$group->id;
             /** @var Media $media */
-            $media      = $group->addMediaFromUrl("https://api.dicebear.com/6.x/shapes/svg?seed=$seed")
+            $media = $group->addMediaFromString(GetDiceBearAvatar::run(DiceBearStylesEnum::SHAPES, $seed))
                 ->preservingOriginal()
                 ->withProperties(
                     [

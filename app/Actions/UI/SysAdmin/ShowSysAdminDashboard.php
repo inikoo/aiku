@@ -47,12 +47,12 @@ class ShowSysAdminDashboard
                     [
                         'name' => __('users'),
                         'stat' => $group->sysadminStats->number_users_status_active,
-                        'href' => ['grp.sysadmin.users.index']
+                        'href' => ['name'=>'grp.sysadmin.users.index']
                     ],
                     [
                         'name' => __('guests'),
                         'stat' => $group->sysadminStats->number_guests_status_active,
-                        'href' => ['grp.sysadmin.guests.index']
+                        'href' => ['name'=>'grp.sysadmin.guests.index']
                     ]
                 ]
 

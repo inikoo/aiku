@@ -5,16 +5,17 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
+use App\Actions\Helpers\Avatars\GetDiceBearAvatar;
 use App\Actions\SysAdmin\Admin\StoreAdmin;
 use App\Actions\SysAdmin\Group\StoreGroup;
 use App\Actions\SysAdmin\Group\UpdateGroup;
+use App\Actions\SysAdmin\Guest\DeleteGuest;
 use App\Actions\SysAdmin\Guest\StoreGuest;
 use App\Actions\SysAdmin\Guest\UpdateGuest;
 use App\Actions\SysAdmin\Organisation\StoreOrganisation;
 use App\Actions\SysAdmin\Organisation\UpdateOrganisation;
 use App\Actions\SysAdmin\SysUser\CreateSysUserAccessToken;
 use App\Actions\SysAdmin\SysUser\StoreSysUser;
-use App\Actions\SysAdmin\User\DeleteUser;
 use App\Actions\SysAdmin\User\UpdateUser;
 use App\Actions\SysAdmin\User\UpdateUserStatus;
 use App\Actions\SysAdmin\User\UserAddRoles;
@@ -31,6 +32,7 @@ use App\Models\SysAdmin\SysUser;
 use App\Models\SysAdmin\User;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 use Inertia\Testing\AssertableInertia;
 use Laravel\Sanctum\PersonalAccessToken;
@@ -45,6 +47,11 @@ beforeAll(function () {
 });
 
 beforeEach(function () {
+    /*
+        GetDiceBearAvatar::mock()
+            ->shouldReceive('handle')
+            ->andReturn(Storage::disk('art')->get('avatars/default.svg'));
+    */
 
     Config::set(
         'inertia.testing.page_paths',
@@ -345,10 +352,10 @@ test('user status change', function ($user) {
     expect($user->status)->toBeFalse();
 })->depends('update user password');
 
-test('delete user', function ($user) {
-    expect($user)->toBeInstanceOf(User::class);
-    $user = DeleteUser::make()->action($user);
-    expect($user->deleted_at)->toBeInstanceOf(Carbon::class);
+test('delete guest', function ($user) {
+
+    $guest = DeleteGuest::make()->action($user->parent);
+    expect($guest->deleted_at)->toBeInstanceOf(Carbon::class);
 })->depends('update user password');
 
 test('Hydrate group via command', function (Group $group) {
@@ -404,4 +411,28 @@ test('can login', function (Guest $guest) {
     $user->refresh();
     expect($user->stats->number_logins)->toBe(1);
 
+})->depends('create guest');
+
+test('can show hr dashboard', function (Guest $guest) {
+
+    $group=$guest->group;
+    app()->instance('group', $guest->group);
+    setPermissionsTeamId($group->id);
+
+    $guest = StoreGuest::make()->action(
+        $group,
+        Guest::factory()->definition()
+    );
+
+    actingAs($guest->user);
+
+    $response = get(route('grp.sysadmin.dashboard'));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('SysAdmin/SysAdminDashboard')
+            ->has('breadcrumbs', 2)
+            ->where('stats.0.stat', 2)->where('stats.0.href.name', 'grp.sysadmin.users.index')
+            ->where('stats.1.stat', 2)->where('stats.1.href.name', 'grp.sysadmin.guests.index');
+    });
 })->depends('create guest');

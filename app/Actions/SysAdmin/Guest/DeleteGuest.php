@@ -7,21 +7,25 @@
 
 namespace App\Actions\SysAdmin\Guest;
 
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateGuests;
+use App\Actions\SysAdmin\User\DeleteUser;
 use App\Models\SysAdmin\Guest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsController;
+use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
 class DeleteGuest
 {
-    use AsController;
+    use AsAction;
     use WithAttributes;
 
     public function handle(Guest $guest): Guest
     {
         $guest->delete();
+        DeleteUser::run($guest->user);
+        GroupHydrateGuests::dispatch($guest->group);
 
         return $guest;
     }
@@ -35,6 +39,11 @@ class DeleteGuest
     {
         $request->validate();
 
+        return $this->handle($guest);
+    }
+
+    public function action(Guest $guest): Guest
+    {
         return $this->handle($guest);
     }
 

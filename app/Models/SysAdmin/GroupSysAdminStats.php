@@ -25,8 +25,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_users_type_guest
  * @property int $number_users_type_supplier
  * @property int $number_users_type_agent
- * @property int $number_known_user_failed_logins
- * @property int $number_unknown_user_failed_logins
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\SysAdmin\Group $group

@@ -39,6 +39,11 @@ return [
             'root'   => storage_path('app'),
             'throw'  => false,
         ],
+        'art' => [
+            'driver' => 'local',
+            'root'   => resource_path('art'),
+            'throw'  => false,
+        ],
         'datasets' => [
             'driver' => 'local',
             'root'   => database_path('seeders/datasets'),

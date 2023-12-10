@@ -7,6 +7,8 @@
 
 namespace App\Actions\SysAdmin\User\UI;
 
+use App\Actions\Helpers\Avatars\GetDiceBearAvatar;
+use App\Enums\Helpers\Avatars\DiceBearStylesEnum;
 use App\Models\Media\Media;
 use App\Models\SysAdmin\User;
 use Exception;
@@ -19,9 +21,10 @@ class SetUserAvatar
 
     public function handle(User $user, bool $saveHistory = true): array
     {
+        $seed=$user->slug;
         try {
             /** @var Media $media */
-            $media = $user->addMediaFromUrl("https://api.dicebear.com/7.x/identicon/svg?seed=".$user->slug)
+            $media = $user->addMediaFromString(GetDiceBearAvatar::run(DiceBearStylesEnum::IDENTICON, $seed))
                 ->preservingOriginal()
                 ->withProperties(
                     [
