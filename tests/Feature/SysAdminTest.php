@@ -47,11 +47,12 @@ beforeAll(function () {
 });
 
 beforeEach(function () {
-    /*
-        GetDiceBearAvatar::mock()
-            ->shouldReceive('handle')
-            ->andReturn(Storage::disk('art')->get('avatars/default.svg'));
-    */
+
+
+    GetDiceBearAvatar::mock()
+        ->shouldReceive('handle')
+        ->andReturn(Storage::disk('art')->get('avatars/shapes.svg'));
+
 
     Config::set(
         'inertia.testing.page_paths',
@@ -143,7 +144,6 @@ test('set organisation logo by command', function (Organisation $organisation) {
 })->depends('create organisation');
 
 test('create organisation by command', function () {
-
     $this->artisan('org:create', [
         'group'         => 'TEST2',
         'code'          => 'TEST',
@@ -231,7 +231,6 @@ test('UserHydrateAuthorisedModels command', function (Guest $guest) {
 })->depends('create guest');
 
 test('create guest from command', function (Group $group) {
-
     $this->artisan(
         'guest:create',
         [
@@ -245,7 +244,7 @@ test('create guest from command', function (Group $group) {
     )->assertSuccessful();
 
     /** @var Guest $guest */
-    $guest=$group->guests()->where('alias', 'pika')->firstOrFail();
+    $guest = $group->guests()->where('alias', 'pika')->firstOrFail();
     $group->refresh();
     expect($guest->user->username)->toBe('pika')
         ->and($group->sysadminStats->number_guests)->toBe(2)
@@ -264,6 +263,7 @@ test('update guest', function ($guest) {
 
     $guest = UpdateGuest::make()->action($guest, ['contact_name' => 'John']);
     expect($guest->contact_name)->toBe('John');
+
     return $guest;
 })->depends('create guest from command');
 
@@ -353,7 +353,6 @@ test('user status change', function ($user) {
 })->depends('update user password');
 
 test('delete guest', function ($user) {
-
     $guest = DeleteGuest::make()->action($user->parent);
     expect($guest->deleted_at)->toBeInstanceOf(Carbon::class);
 })->depends('update user password');
@@ -385,7 +384,6 @@ test('can show app login', function () {
 });
 
 test('can not login with wrong credentials', function (Guest $guest) {
-
     $response = $this->post(route('grp.login.store'), [
         'username' => $guest->user->username,
         'password' => 'wrong password',
@@ -394,7 +392,7 @@ test('can not login with wrong credentials', function (Guest $guest) {
     $response->assertRedirect('http://app.'.config('app.domain'));
     $response->assertSessionHasErrors('username');
 
-    $user=$guest->user;
+    $user = $guest->user;
     $user->refresh();
     expect($user->stats->number_failed_logins)->toBe(1);
 })->depends('create guest');
@@ -407,15 +405,14 @@ test('can login', function (Guest $guest) {
     $response->assertRedirect(route('grp.dashboard.show'));
     $this->assertAuthenticatedAs($guest->user);
 
-    $user=$guest->user;
+    $user = $guest->user;
     $user->refresh();
     expect($user->stats->number_logins)->toBe(1);
 
 })->depends('create guest');
 
 test('can show hr dashboard', function (Guest $guest) {
-
-    $group=$guest->group;
+    $group = $guest->group;
     app()->instance('group', $guest->group);
     setPermissionsTeamId($group->id);
 

@@ -21,7 +21,7 @@ class GetDiceBearAvatar
         try {
             $svg = file_get_contents("https://api.dicebear.com/7.x/".$style->value."/svg?seed=$seed");
         } catch (Exception) {
-            $svg= Storage::disk('art')->get('avatars/default.svg');
+            $svg= Storage::disk('art')->get('avatars/shapes.svg');
         }
         return $svg;
 

@@ -5,6 +5,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
+use App\Actions\Helpers\Avatars\GetDiceBearAvatar;
 use App\Actions\SysAdmin\Group\StoreGroup;
 use App\Actions\SysAdmin\Organisation\StoreOrganisation;
 use App\Models\SysAdmin\Group;
@@ -34,6 +35,10 @@ function loadDB($dumpName): void
 
 function createOrganisation(): Organisation
 {
+    GetDiceBearAvatar::mock()
+        ->shouldReceive('handle')
+        ->andReturn(Storage::disk('art')->get('avatars/shapes.svg'));
+
     $group=Group::first();
     if(!$group) {
         $group = StoreGroup::make()->action(Group::factory()->definition());

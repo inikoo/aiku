@@ -42,7 +42,7 @@ return [
         'art' => [
             'driver' => 'local',
             'root'   => resource_path('art'),
-            'throw'  => false,
+            'throw'  => true,
         ],
         'datasets' => [
             'driver' => 'local',
