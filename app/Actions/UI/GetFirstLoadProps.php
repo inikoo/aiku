@@ -12,7 +12,6 @@ use App\Http\Resources\Assets\LanguageResource;
 use App\Http\Resources\SysAdmin\Group\GroupResource;
 use App\Models\Assets\Language;
 use App\Models\SysAdmin\User;
-use Cache;
 use Illuminate\Support\Facades\App;
 use Lorisleiva\Actions\Concerns\AsObject;
 
@@ -31,18 +30,8 @@ class GetFirstLoadProps
             $language = Language::where('code', 'en')->first();
         }
 
-        $auth = app('firebase.auth');
 
-        if ($user) {
-            $customTokenFirebasePrefix = 'org_user_'.$user->username.'_token_'.$user->id;
-            $cache                     = Cache::get($customTokenFirebasePrefix);
 
-            if (blank($cache)) {
-                $customToken = $auth->createCustomToken($customTokenFirebasePrefix);
-                $auth->signInWithCustomToken($customToken);
-                Cache::put($customTokenFirebasePrefix, $customToken->toString(), 3600);
-            }
-        }
 
         return [
             'group'      => $user ? GroupResource::make(app('group'))->getArray() : null,

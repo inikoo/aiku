@@ -23,7 +23,7 @@ import { usePage, router, Link } from "@inertiajs/vue3"
 import Footer from "@/Components/Footer/Footer.vue"
 
 import { useLayoutStore } from "@/Stores/layout"
-import { useLocaleStore } from "@/Stores/locale"
+
 
 import AppLeftSideBar from "@/Layouts/AppLeftSideBar.vue"
 import AppRightSideBar from "@/Layouts/AppRightSideBar.vue"
@@ -234,8 +234,7 @@ if (usePage().props.auth.user.avatar_thumbnail) {
 
     </div>
 
-    <!-- Footer -->
-    <!-- <AppFooter appScope="tenants" /> -->
+
     <Footer />
 </template>
 

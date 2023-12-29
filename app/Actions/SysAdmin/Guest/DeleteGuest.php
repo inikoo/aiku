@@ -21,6 +21,9 @@ class DeleteGuest
     use AsAction;
     use WithAttributes;
 
+
+    private bool $isAction=false;
+
     public function handle(Guest $guest): Guest
     {
         $guest->delete();
@@ -32,6 +35,9 @@ class DeleteGuest
 
     public function authorize(ActionRequest $request): bool
     {
+        if($this->isAction) {
+            return true;
+        }
         return $request->user()->hasPermissionTo("sysadmin.edit");
     }
 
@@ -44,6 +50,7 @@ class DeleteGuest
 
     public function action(Guest $guest): Guest
     {
+        $this->isAction=true;
         return $this->handle($guest);
     }
 

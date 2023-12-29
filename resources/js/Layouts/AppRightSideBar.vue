@@ -3,13 +3,6 @@ import { useLocaleStore } from "@/Stores/locale"
 import { useLayoutStore } from "@/Stores/layout"
 
 
-import { getDataFirebase } from '@/Composables/firebase'
-
-// todo change this for the proper database path
-const activities = getDataFirebase('aw');
-
-
-
 type UserOnline = {
     id: string
     is_active: boolean
