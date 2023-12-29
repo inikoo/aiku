@@ -20,27 +20,30 @@ class ShowHumanResourcesDashboard
     use AsAction;
     use WithInertia;
 
+
+    private Organisation $organisation;
+
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("hr.view");
+        return $request->user()->hasPermissionTo("human-resources.{$this->organisation->slug}.view");
     }
 
 
-    public function asController(): void
+    public function asController(Organisation $organisation, ActionRequest $request): ActionRequest
     {
+        $this->organisation = $organisation;
         $this->validateAttributes();
+
+        return $request;
     }
 
 
-    public function htmlResponse(): Response
+    public function htmlResponse(ActionRequest $request): Response
     {
-        /** @var Organisation $organisation */
-        $organisation = app('currentTenant');
-
         return Inertia::render(
-            'HumanResources/ShowHumanResourcesDashboard',
+            'HumanResources/HumanResourcesDashboard',
             [
-                'breadcrumbs' => $this->getBreadcrumbs(),
+                'breadcrumbs' => $this->getBreadcrumbs($request->route()->originalParameters()),
                 'title'       => __('human resources'),
                 'pageHead'    => [
                     'title' => __('human resources'),
@@ -48,13 +51,19 @@ class ShowHumanResourcesDashboard
                 'stats'       => [
                     [
                         'name' => __('employees'),
-                        'stat' => $organisation->stats->number_employees,
-                        'href' => ['grp.hr.employees.index']
+                        'stat' => $this->organisation->humanResourcesStats->number_employees,
+                        'href' => [
+                            'name'       => 'grp.org.hr.employees.index',
+                            'parameters' => $request->route()->originalParameters()
+                        ]
                     ],
                     [
                         'name' => __('working places'),
-                        'stat' => $organisation->stats->number_employees_state_working,
-                        'href' => ['grp.hr.working-places.index']
+                        'stat' => $this->organisation->humanResourcesStats->number_employees_state_working,
+                        'href' => [
+                            'name'       => 'grp.org.hr.working-places.index',
+                            'parameters' => $request->route()->originalParameters()
+                        ]
                     ]
                 ]
 
@@ -62,7 +71,7 @@ class ShowHumanResourcesDashboard
         );
     }
 
-    public function getBreadcrumbs(): array
+    public function getBreadcrumbs($routeParameters): array
     {
         return
             array_merge(
@@ -72,7 +81,8 @@ class ShowHumanResourcesDashboard
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name' => 'grp.hr.dashboard'
+                                'name'       => 'grp.org.hr.dashboard',
+                                'parameters' => $routeParameters
                             ],
                             'label' => __('human resources'),
                         ]

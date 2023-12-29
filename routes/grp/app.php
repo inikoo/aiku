@@ -31,7 +31,7 @@ Route::middleware([
             ->group(__DIR__."/sysadmin.php");
         Route::prefix("org/{organisation}")
             ->name("org.")
-            ->group(__DIR__."/org.php");
+            ->group(__DIR__."/org/org.php");
 
         /*
 

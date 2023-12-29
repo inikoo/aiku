@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Fri, 29 Dec 2023 14:35:33 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Fri, 29 Dec 2023 22:12:42 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
@@ -13,7 +13,11 @@ Route::prefix("dashboard")
 
 Route::prefix("hr")
     ->name("hr.")
-    ->group(__DIR__."/org/hr.php");
+    ->group(__DIR__."/hr.php");
+
+Route::prefix("models")
+    ->name("models.")
+    ->group(__DIR__."/models.php");
 
 /*
 
@@ -70,9 +74,7 @@ Route::prefix("marketing")
 Route::prefix("sessions")
     ->name("sessions.")
     ->group(__DIR__."/sessions.php");
-Route::prefix("models")
-    ->name("models.")
-    ->group(__DIR__."/models.php");
+
 Route::prefix("media")
     ->name("media.")
     ->group(__DIR__."/media.php");

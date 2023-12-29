@@ -23,9 +23,6 @@ use App\Actions\HumanResources\Clocking\UpdateClocking;
 use App\Actions\HumanResources\ClockingMachine\DeleteClockingMachine;
 use App\Actions\HumanResources\ClockingMachine\StoreClockingMachine;
 use App\Actions\HumanResources\ClockingMachine\UpdateClockingMachine;
-use App\Actions\HumanResources\Employee\DeleteEmployee;
-use App\Actions\HumanResources\Employee\StoreEmployee;
-use App\Actions\HumanResources\Employee\UpdateEmployee;
 use App\Actions\HumanResources\JobPosition\DeleteJobPosition;
 use App\Actions\HumanResources\JobPosition\StoreJobPosition;
 use App\Actions\HumanResources\JobPosition\UpdateJobPosition;
@@ -126,9 +123,6 @@ Route::delete('/family/{family}', DeleteFamily::class)->name('family.delete');
 Route::post('/order/', StoreOrder::class)->name('order.store');
 Route::patch('/order/{order}', UpdateOrder::class)->name('order.update');
 
-Route::patch('/employee/{employee}', UpdateEmployee::class)->name('employee.update');
-Route::post('/employee/', StoreEmployee::class)->name('employee.store');
-Route::delete('/employee/{employee}', DeleteEmployee::class)->name('employee.delete');
 
 Route::patch('/position/{employee}', UpdateJobPosition::class)->name('job-position.update');
 Route::post('/position/', StoreJobPosition::class)->name('job-position.store');

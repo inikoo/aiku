@@ -28,7 +28,7 @@ class DeleteEmployee
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("hr.edit");
+        return $request->user()->hasPermissionTo("human-resources.{$this->organisation->slug}.edit");
     }
 
     public function asController(Employee $employee, ActionRequest $request): Employee

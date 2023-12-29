@@ -43,7 +43,7 @@ class StoreJobPosition
         if($this->trusted) {
             return true;
         }
-        return $request->user()->hasPermissionTo("hr.edit");
+        return $request->user()->hasPermissionTo("human-resources.{$this->organisation->slug}.edit");
     }
 
 

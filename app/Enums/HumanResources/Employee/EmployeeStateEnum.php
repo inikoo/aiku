@@ -8,6 +8,7 @@
 namespace App\Enums\HumanResources\Employee;
 
 use App\Enums\EnumHelperTrait;
+use App\Models\SysAdmin\Organisation;
 
 enum EmployeeStateEnum: string
 {
@@ -26,9 +27,9 @@ enum EmployeeStateEnum: string
         ];
     }
 
-    public static function count(): array
+    public static function count(Organisation $organisation): array
     {
-        $stats=app('currentTenant')->stats;
+        $stats=$organisation->humanResourcesStats;
         return [
             'hired'         => $stats->number_employees_state_hired,
             'working'       => $stats->number_employees_state_working,

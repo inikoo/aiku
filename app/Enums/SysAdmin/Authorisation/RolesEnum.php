@@ -49,7 +49,7 @@ enum RolesEnum: string
             RolesEnum::SUPER_ADMIN => [
                 GroupPermissionsEnum::GROUP_BUSINESS_INTELLIGENCE,
                 GroupPermissionsEnum::SYSADMIN,
-                GroupPermissionsEnum::SUPPLY_CHAIN
+                GroupPermissionsEnum::SUPPLY_CHAIN,
             ],
             RolesEnum::SYSTEM_ADMIN => [
                 GroupPermissionsEnum::SYSADMIN
@@ -59,7 +59,9 @@ enum RolesEnum: string
             ],
             RolesEnum::ORG_ADMIN => [
                 OrganisationPermissionsEnum::ORG_BUSINESS_INTELLIGENCE,
-                OrganisationPermissionsEnum::PROCUREMENT
+                OrganisationPermissionsEnum::PROCUREMENT,
+                OrganisationPermissionsEnum::HUMAN_RESOURCES,
+                OrganisationPermissionsEnum::SUPERVISOR_HUMAN_RESOURCES
             ],
             RolesEnum::PROCUREMENT_CLERK => [
                 OrganisationPermissionsEnum::PROCUREMENT

@@ -10,6 +10,7 @@ namespace App\Actions\HumanResources\Employee;
 use App\Actions\HumanResources\Employee\Hydrators\EmployeeHydrateUniversalSearch;
 use App\Actions\HumanResources\Employee\Hydrators\EmployeeHydrateWeekWorkingHours;
 use App\Actions\HumanResources\SyncJobPosition;
+use App\Actions\InertiaOrganisationAction;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateEmployees;
 use App\Actions\SysAdmin\User\StoreUser;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
@@ -24,14 +25,9 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Enum;
 use Illuminate\Validation\Rules\Password;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsAction;
-use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class StoreEmployee
+class StoreEmployee extends InertiaOrganisationAction
 {
-    use AsAction;
-    use WithAttributes;
-
     private bool $asAction = false;
 
 
@@ -92,7 +88,7 @@ class StoreEmployee
             return true;
         }
 
-        return $request->user()->hasPermissionTo("hr.edit");
+        return $request->user()->hasPermissionTo("human-resources.{$this->organisation->slug}.edit");
     }
 
 
@@ -134,9 +130,9 @@ class StoreEmployee
 
     public function asController(Organisation $organisation, ActionRequest $request): Employee
     {
-        $request->validate();
+        $this->initialisation($organisation, $request);
 
-        return $this->handle($organisation, $request->validated());
+        return $this->handle($organisation, $this->validatedData);
     }
 
     public function htmlResponse(Employee $employee): RedirectResponse

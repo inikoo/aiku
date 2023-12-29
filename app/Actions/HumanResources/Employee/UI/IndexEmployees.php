@@ -7,13 +7,14 @@
 
 namespace App\Actions\HumanResources\Employee\UI;
 
-use App\Actions\InertiaAction;
+use App\Actions\InertiaOrganisationAction;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
 use App\Enums\HumanResources\Employee\EmployeeTypeEnum;
 use App\Http\Resources\HumanResources\EmployeeInertiaResource;
 use App\Http\Resources\HumanResources\EmployeeResource;
 use App\Models\HumanResources\Employee;
+use App\Models\SysAdmin\Organisation;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -24,36 +25,34 @@ use App\InertiaTable\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
-class IndexEmployees extends InertiaAction
+class IndexEmployees extends InertiaOrganisationAction
 {
-    protected function getElementGroups(): void
+    protected function getElementGroups(): array
     {
-        $this->elementGroups =
-            [
-                'state' => [
-                    'label'    => __('State'),
-                    'elements' => array_merge_recursive(
-                        EmployeeStateEnum::labels(),
-                        EmployeeStateEnum::count()
-                    ),
+        return [
+            'state' => [
+                'label'    => __('State'),
+                'elements' => array_merge_recursive(
+                    EmployeeStateEnum::labels(),
+                    EmployeeStateEnum::count($this->organisation)
+                ),
 
-                    'engine'   => function ($query, $elements) {
-                        $query->whereIn('state', $elements);
-                    }
+                'engine' => function ($query, $elements) {
+                    $query->whereIn('state', $elements);
+                }
 
-                ],
-                'type'  => [
-                    'label'    => __('Type'),
-                    'elements' => EmployeeTypeEnum::labels(),
-                    'engine'   => function ($query, $elements) {
-                        $query->whereIn('type', $elements);
-                    }
-                ],
-            ];
+            ],
+            'type'  => [
+                'label'    => __('Type'),
+                'elements' => EmployeeTypeEnum::labels(),
+                'engine'   => function ($query, $elements) {
+                    $query->whereIn('type', $elements);
+                }
+            ],
+        ];
     }
 
-
-    public function handle($prefix=null): LengthAwarePaginator
+    public function handle($prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -67,8 +66,8 @@ class IndexEmployees extends InertiaAction
         }
 
 
-        $queryBuilder=QueryBuilder::for(Employee::class);
-        foreach ($this->elementGroups as $key => $elementGroup) {
+        $queryBuilder = QueryBuilder::for(Employee::class);
+        foreach ($this->getElementGroups() as $key => $elementGroup) {
             /** @noinspection PhpUndefinedMethodInspection */
             $queryBuilder->whereElementGroup(
                 prefix: $prefix,
@@ -89,28 +88,22 @@ class IndexEmployees extends InertiaAction
             ->withQueryString();
     }
 
-
-
-    public function tableStructure(?array $modelOperations = null, $prefix=null): Closure
+    public function tableStructure(?array $modelOperations = null, $prefix = null): Closure
     {
         return function (InertiaTable $table) use ($modelOperations, $prefix) {
-
-
-
             if ($prefix) {
                 $table
                     ->name($prefix)
                     ->pageName($prefix.'Page');
             }
 
-            foreach ($this->elementGroups as $key => $elementGroup) {
+            foreach ($this->getElementGroups() as $key => $elementGroup) {
                 $table->elementGroup(
                     key: $key,
                     label: $elementGroup['label'],
                     elements: $elementGroup['elements']
                 );
             }
-
 
 
             $table
@@ -120,15 +113,17 @@ class IndexEmployees extends InertiaAction
                     [
                         'title'       => __('no employees'),
                         'description' => $this->canEdit ? __('Get started by creating a new employee.') : null,
-                        'count'       => app('currentTenant')->stats->number_employees,
+                        'count'       => $this->organisation->humanResourcesStats->number_employees,
                         'action'      => $this->canEdit ? [
                             'type'    => 'button',
                             'style'   => 'create',
                             'tooltip' => __('new employee'),
                             'label'   => __('employee'),
                             'route'   => [
-                                'name'       => 'grp.hr.employees.create',
-                                'parameters' => array_values($this->originalParameters)
+                                'name'       => 'grp.org.hr.employees.create',
+                                'parameters' => [
+                                    'organisation' => $this->organisation->slug
+                                ]
                             ]
                         ] : null
                     ]
@@ -143,13 +138,9 @@ class IndexEmployees extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo('hr.edit');
+        $this->canEdit = $request->user()->hasPermissionTo("human-resources.{$this->organisation->slug}.edit");
 
-        return
-            (
-                $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo('hr.view')
-            );
+        return $request->user()->hasPermissionTo("human-resources.{$this->organisation->slug}.view");
     }
 
 
@@ -159,23 +150,23 @@ class IndexEmployees extends InertiaAction
     }
 
 
-    public function htmlResponse(LengthAwarePaginator $employees): Response
+    public function htmlResponse(LengthAwarePaginator $employees, ActionRequest $request): Response
     {
         return Inertia::render(
             'HumanResources/Employees',
             [
-                'breadcrumbs' => $this->getBreadcrumbs(),
+                'breadcrumbs' => $this->getBreadcrumbs($request->route()->originalParameters()),
                 'title'       => __('employees'),
                 'pageHead'    => [
-                    'title'  => __('employees'),
-                    'actions'=> [
+                    'title'   => __('employees'),
+                    'actions' => [
                         $this->canEdit ? [
                             'type'  => 'button',
                             'style' => 'create',
                             'label' => __('employee'),
                             'route' => [
-                                'name'       => 'grp.hr.employees.create',
-                                'parameters' => array_values($this->originalParameters)
+                                'name'       => 'grp.org.hr.employees.create',
+                                'parameters' => $request->route()->originalParameters()
                             ]
                         ] : false
                     ]
@@ -186,24 +177,25 @@ class IndexEmployees extends InertiaAction
     }
 
 
-    public function asController(ActionRequest $request): LengthAwarePaginator
+    public function asController(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisation($request);
+        $this->initialisation($organisation, $request);
 
         return $this->handle();
     }
 
 
-    public function getBreadcrumbs(): array
+    public function getBreadcrumbs($routeParameters): array
     {
         return array_merge(
-            (new ShowHumanResourcesDashboard())->getBreadcrumbs(),
+            (new ShowHumanResourcesDashboard())->getBreadcrumbs($routeParameters),
             [
                 [
                     'type'   => 'simple',
                     'simple' => [
                         'route' => [
-                            'name' => 'grp.hr.employees.index'
+                            'name'       => 'grp.org.hr.employees.index',
+                            'parameters' => $routeParameters
                         ],
                         'label' => __('employees'),
                         'icon'  => 'fal fa-bars',
