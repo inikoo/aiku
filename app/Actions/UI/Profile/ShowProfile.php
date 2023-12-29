@@ -48,9 +48,6 @@ class ShowProfile
                     [
                         "title"   => __("profile"),
                         "icon"    => "fa-light fa-user-circle",
-                        "notes"   => __(
-                            "This information will be synchronised in all your workspaces."
-                        ),
                         "current" => true,
                         "fields"  => [
                             "email"  => [
@@ -66,7 +63,7 @@ class ShowProfile
                             "avatar" => [
                                 "type"  => "avatar",
                                 "label" => __("photo"),
-                                "value" => $user->avatar_id ? route('grp.media.show', $user->avatar_id) : null,
+                                "value" => $user->avatarImageSources(320, 320)
                             ],
 
                         ],

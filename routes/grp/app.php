@@ -20,6 +20,21 @@ Route::middleware([
         Route::prefix("dashboard")
             ->name("dashboard.")
             ->group(__DIR__."/dashboard.php");
+        Route::prefix("procurement")
+            ->name("procurement.")
+            ->group(__DIR__."/procurement.php");
+        Route::prefix("profile")
+            ->name("profile.")
+            ->group(__DIR__."/profile.php");
+        Route::prefix("sysadmin")
+            ->name("sysadmin.")
+            ->group(__DIR__."/sysadmin.php");
+        Route::prefix("org/{organisation}")
+            ->name("org.")
+            ->group(__DIR__."/org.php");
+
+        /*
+
         Route::prefix("account")
             ->name("account.")
             ->group(__DIR__."/account.php");
@@ -44,9 +59,7 @@ Route::middleware([
         Route::prefix("production")
             ->name("production.")
             ->group(__DIR__."/production.php");
-        Route::prefix("procurement")
-            ->name("procurement.")
-            ->group(__DIR__."/procurement.php");
+
         Route::prefix("shops")
             ->name("shops.")
             ->group(__DIR__."/shops.php");
@@ -65,12 +78,7 @@ Route::middleware([
         Route::prefix("dispatch")
             ->name("dispatch.")
             ->group(__DIR__."/dispatch.php");
-        Route::prefix("profile")
-            ->name("profile.")
-            ->group(__DIR__."/profile.php");
-        Route::prefix("sysadmin")
-            ->name("sysadmin.")
-            ->group(__DIR__."/sysadmin.php");
+
         Route::prefix("accounting")
             ->name("accounting.")
             ->group(__DIR__."/accounting.php");
@@ -95,7 +103,8 @@ Route::middleware([
         Route::prefix("google")
             ->name("google.")
             ->group(__DIR__."/google.php");
-    });
 
+*/
+    });
     require __DIR__."/auth.php";
 });
