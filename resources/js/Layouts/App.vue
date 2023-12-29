@@ -40,7 +40,7 @@ library.add(faSearch, faBell, faTachometerAltFast, faGlobe)
 
 
 initialiseApp()
-
+console.log('ttttttttttttttttttt')
 router.on("navigate", () => {
     if (route().params.hasOwnProperty("shop")) {
         layout.currentShopData = layout.shops[route().params["shop"]]
@@ -136,10 +136,10 @@ if (usePage().props.auth.user.avatar_thumbnail) {
                                         class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-200 focus:outline-none">
                                         <div class="py-1">
                                             <MenuItem v-slot="{ active, close }">
-                                            <Link as="ul" type="button" :href="route('grp.profile.show')" @click="close"
-                                                :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm cursor-pointer']">
-                                            {{ trans("View profile") }}
-                                            </Link>
+                                                <Link as="ul" type="button" :href="route('grp.profile.show')" @click="close"
+                                                    :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm cursor-pointer']">
+                                                {{ trans("View profile") }}
+                                                </Link>
                                             </MenuItem>
 
                                         </div>

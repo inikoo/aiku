@@ -120,7 +120,7 @@ export const initialiseApp = () => {
       layout.app = usePage().props.app;
     }
 
-    layout.systemName = "aiku";
+    layout.systemName = "Aiku";
 
     layout.currentRouteParameters = route().params;
     layout.currentRoute = route().current();
