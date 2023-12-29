@@ -58,7 +58,7 @@ class Login
         $user = auth($this->gate)->user();
 
         $group = Cache::remember('bound-group', 3600, function () use ($user) {
-            return Group::where('subdomain', $user->group)->firstOrFail();
+            return Group::where('subdomain', $user->group->subdomain)->firstOrFail();
         });
 
         app()->instance('group', $group);

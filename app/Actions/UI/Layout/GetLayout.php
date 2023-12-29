@@ -1,11 +1,11 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Wed, 07 Sept 2022 22:03:00 Malaysia Time, Kuala Lumpur, Malaysia
- *  Copyright (c) 2022, Raul A Perusquia Flores
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Fri, 08 Dec 2023 22:08:13 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\UI;
+namespace App\Actions\UI\Layout;
 
 use App\Http\Resources\UI\ShopsNavigationResource;
 use App\Http\Resources\UI\WarehousesNavigationResource;
@@ -22,10 +22,10 @@ class GetLayout
 
     public function handle(User $user): array
     {
-        dd(GetGroupNavigation::run($user), );
+
         return [
             'groupNavigation'      => GetGroupNavigation::run($user),
-            'orgNavigation'        => GetOrganisationNavigation::run($user),
+            'organisations'        => GetOrganisations::run($user),
             'shopsInDropDown'      => ShopsNavigationResource::collection(Shop::all()),
             'websitesInDropDown'   => WebsitesNavigationResource::collection(Website::all()),
             'warehousesInDropDown' => WarehousesNavigationResource::collection(Warehouse::all()),

@@ -1,11 +1,11 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Wed, 06 Dec 2023 17:02:18 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Fri, 08 Dec 2023 22:08:21 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\UI;
+namespace App\Actions\UI\Layout;
 
 use App\Models\SysAdmin\User;
 use Lorisleiva\Actions\Concerns\AsAction;

@@ -49,7 +49,7 @@
         "monicahq/laravel-cloudflare": "^3.3",
         "mpdf/qrcode": "^1.2",
         "opcodesio/log-viewer": "^1.2",
-        "owen-it/laravel-auditing": "^13.5",
+        "owen-it/laravel-auditing": "13.5.1",
         "phlak/semver": "^4.0",
         "predis/predis": "^2.1",
         "propaganistas/laravel-phone": "^5.0",
