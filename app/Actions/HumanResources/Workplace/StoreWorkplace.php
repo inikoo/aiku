@@ -80,10 +80,10 @@ class StoreWorkplace
         return Redirect::route('org.hr.workplaces.show', $workplace->slug);
     }
 
-    public function action(Organisation $organisation, array $objectData): Workplace
+    public function action(Organisation $organisation, array $modelData): Workplace
     {
         $this->asAction = true;
-        $this->setRawAttributes($objectData);
+        $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 
         return $this->handle($organisation, $validatedData);

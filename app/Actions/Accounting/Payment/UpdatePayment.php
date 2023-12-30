@@ -39,10 +39,10 @@ class UpdatePayment
             'reference'         => ['sometimes', 'required', 'unique:payments', 'between:2,64', 'alpha_dash'],
         ];
     }
-    public function action(Payment $payment, array $objectData): Payment
+    public function action(Payment $payment, array $modelData): Payment
     {
         $this->asAction=true;
-        $this->setRawAttributes($objectData);
+        $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 
         return $this->handle($payment, $validatedData);

@@ -62,10 +62,10 @@ class StoreJobPosition
         ];
     }
 
-    public function action(Group $group, array $objectData): JobPosition
+    public function action(Group $group, array $modelData): JobPosition
     {
         $this->trusted = true;
-        $this->setRawAttributes($objectData);
+        $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 
         return $this->handle($group, $validatedData);

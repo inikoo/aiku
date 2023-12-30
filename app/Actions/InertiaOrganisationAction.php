@@ -25,10 +25,15 @@ class InertiaOrganisationAction
     protected bool $canEdit             = false;
     protected array $validatedData;
 
-    public function initialisation(Organisation $organisation, ActionRequest $request): static
+    public function initialisation(Organisation $organisation, ActionRequest|array $request): static
     {
         $this->organisation          = $organisation;
-        $this->fillFromRequest($request);
+        if(is_array($request)) {
+            $this->setRawAttributes($request);
+        } else {
+            $this->fillFromRequest($request);
+
+        }
         $this->validatedData=$this->validateAttributes();
 
         return $this;

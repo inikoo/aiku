@@ -31,7 +31,7 @@ use Illuminate\Support\Carbon;
  * @property array $data
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property int|null $source_id
+ * @property string|null $source_id
  * @property-read Model|\Eloquent $stockable
  * @method static Builder|StockMovement newModelQuery()
  * @method static Builder|StockMovement newQuery()

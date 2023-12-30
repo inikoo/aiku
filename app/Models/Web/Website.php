@@ -48,7 +48,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $launched_at
  * @property string|null $closed_at
  * @property Carbon|null $deleted_at
- * @property int|null $source_id
+ * @property string|null $source_id
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Shop $shop
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch

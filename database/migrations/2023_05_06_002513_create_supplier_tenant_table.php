@@ -23,7 +23,7 @@ return new class () extends Migration {
             $table->foreign('agent_id')->references('id')->on('agents');
             $table->string('status')->default(SupplierOrganisationStatusEnum::ADOPTED->value);
             $table->timestampsTz();
-            $table->unsignedInteger('source_id')->index()->nullable();
+            $table->string('source_id')->index()->nullable();
             $table->index(['organisation_id','source_id']);
 
         });

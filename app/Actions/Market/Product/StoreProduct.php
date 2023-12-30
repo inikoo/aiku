@@ -88,10 +88,10 @@ class StoreProduct
         ];
     }
 
-    public function action(Shop|Product $parent, array $objectData): Product
+    public function action(Shop|Product $parent, array $modelData): Product
     {
 
-        $this->setRawAttributes($objectData);
+        $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 
         return $this->handle($parent, $validatedData);

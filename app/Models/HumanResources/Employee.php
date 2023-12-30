@@ -13,6 +13,7 @@ use App\Enums\Miscellaneous\GenderEnum;
 use App\Models\SysAdmin\Group;
 use App\Models\Helpers\Issue;
 use App\Models\Search\UniversalSearch;
+use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\User;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasPhoto;
@@ -68,12 +69,13 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  * @property string|null $delete_comment
- * @property int|null $source_id
+ * @property string|null $source_id
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Group $group
  * @property-read Collection<int, Issue> $issues
  * @property-read Collection<int, \App\Models\HumanResources\JobPosition> $jobPositions
  * @property-read MediaCollection<int, \App\Models\Media\Media> $media
+ * @property-read Organisation $organisation
  * @property-read UniversalSearch|null $universalSearch
  * @property-read User|null $user
  * @property-read Collection<int, \App\Models\HumanResources\Workplace> $workplaces
@@ -154,6 +156,11 @@ class Employee extends Model implements HasMedia, Auditable
     public function group(): BelongsTo
     {
         return $this->belongsTo(Group::class);
+    }
+
+    public function organisation(): BelongsTo
+    {
+        return $this->belongsTo(Organisation::class);
     }
 
     public function workplaces(): BelongsToMany

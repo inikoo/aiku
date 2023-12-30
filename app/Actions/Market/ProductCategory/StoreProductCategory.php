@@ -69,9 +69,9 @@ class StoreProductCategory
         ];
     }
 
-    public function action(Shop|ProductCategory $parent, array $objectData): ProductCategory
+    public function action(Shop|ProductCategory $parent, array $modelData): ProductCategory
     {
-        $this->setRawAttributes($objectData);
+        $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 
         return $this->handle($parent, $validatedData);

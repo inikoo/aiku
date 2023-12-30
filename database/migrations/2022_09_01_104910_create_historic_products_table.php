@@ -29,7 +29,7 @@ return new class () extends Migration {
 
             $table->dateTimeTz('created_at')->nullable();
             $table->dateTimeTz('deleted_at')->nullable();
-            $table->unsignedInteger('source_id')->nullable()->unique();
+            $table->string('source_id')->nullable()->unique();
         });
     }
 

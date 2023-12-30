@@ -38,7 +38,7 @@ trait HasProcurementSubject
         $table->timestampsTz();
         $table->softDeletesTz();
         $table->string('source_type')->index()->nullable();
-        $table->unsignedInteger('source_id')->index()->nullable();
+        $table->string('source_id')->index()->nullable();
         return $table;
     }
 }

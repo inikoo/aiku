@@ -54,10 +54,10 @@ class UpdateCustomerClient
         return $this->handle($customerClient, $request->all());
     }
 
-    public function action(CustomerClient $customerClient, $objectData): CustomerClient
+    public function action(CustomerClient $customerClient, $modelData): CustomerClient
     {
         $this->asAction = true;
-        $this->setRawAttributes($objectData);
+        $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 
         return $this->handle($customerClient, $validatedData);

@@ -36,7 +36,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
- * @property int|null $source_id
+ * @property string|null $source_id
  * @property int|null $source_alt_id
  * @property-read Model|\Eloquent $item
  * @property-read Transaction|null $transaction

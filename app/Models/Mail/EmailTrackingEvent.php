@@ -23,7 +23,7 @@ use Illuminate\Support\Carbon;
  * @property array $data
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property int|null $source_id
+ * @property string|null $source_id
  * @method static Builder|EmailTrackingEvent newModelQuery()
  * @method static Builder|EmailTrackingEvent newQuery()
  * @method static Builder|EmailTrackingEvent query()

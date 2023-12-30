@@ -84,10 +84,10 @@ class StoreWebsite
         ]);
     }
 
-    public function action(Shop $parent, array $objectData): Website
+    public function action(Shop $parent, array $modelData): Website
     {
         $this->asAction = true;
-        $this->setRawAttributes($objectData);
+        $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 
         return $this->handle($parent, $validatedData);

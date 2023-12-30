@@ -55,9 +55,9 @@ class StoreDeliveryNote
         ];
     }
 
-    public function action(Order $order, array $objectData, Address $address): DeliveryNote
+    public function action(Order $order, array $modelData, Address $address): DeliveryNote
     {
-        $this->setRawAttributes($objectData);
+        $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 
         return $this->handle($order, $validatedData, $address);

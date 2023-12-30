@@ -44,10 +44,10 @@ class UpdatePaymentServiceProvider
         return $this->handle($paymentServiceProvider, $request->all());
     }
 
-    public function action(PaymentServiceProvider $paymentServiceProvider, $objectData): PaymentServiceProvider
+    public function action(PaymentServiceProvider $paymentServiceProvider, $modelData): PaymentServiceProvider
     {
         $this->asAction=true;
-        $this->setRawAttributes($objectData);
+        $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 
         return $this->handle($paymentServiceProvider, $validatedData);

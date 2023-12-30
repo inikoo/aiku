@@ -28,7 +28,9 @@ class FetchDeletedEmployees extends FetchAction
                     modelData: $employeeData['employee']
                 );
             } else {
-                $employee = StoreEmployee::run(
+                $workplace = $organisationSource->getOrganisation()->workplaces()->first();
+                $employee  = StoreEmployee::run(
+                    parent: $workplace,
                     modelData:    $employeeData['employee'],
                 );
             }

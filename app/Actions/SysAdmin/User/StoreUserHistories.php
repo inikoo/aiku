@@ -16,8 +16,8 @@ class StoreUserHistories
     use AsAction;
     use WithAttributes;
 
-    public function handle(array $objectData = []): Audit
+    public function handle(array $modelData = []): Audit
     {
-        return Audit::create($objectData);
+        return Audit::create($modelData);
     }
 }

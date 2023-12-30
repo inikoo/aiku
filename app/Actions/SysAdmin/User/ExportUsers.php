@@ -23,9 +23,9 @@ class ExportUsers
     /**
      * @throws \Throwable
      */
-    public function handle(array $objectData): BinaryFileResponse
+    public function handle(array $modelData): BinaryFileResponse
     {
-        $type = $objectData['type'];
+        $type = $modelData['type'];
 
         return $this->export(new UsersExport(), 'users', $type);
     }

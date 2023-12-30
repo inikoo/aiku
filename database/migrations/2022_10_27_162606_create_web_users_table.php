@@ -35,7 +35,7 @@ return new class () extends Migration {
             $table->softDeletesTz();
             $table->unique(['website_id', 'email']);
             $table->unique(['website_id', 'username']);
-            $table->unsignedInteger('source_id')->nullable()->unique();
+            $table->string('source_id')->nullable()->unique();
         });
     }
 

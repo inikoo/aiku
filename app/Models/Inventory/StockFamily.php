@@ -37,7 +37,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
- * @property int|null $source_id
+ * @property string|null $source_id
  * @property-read \App\Models\Inventory\StockFamilyStats|null $stats
  * @property-read Collection<int, \App\Models\Inventory\Stock> $stocks
  * @property-read UniversalSearch|null $universalSearch

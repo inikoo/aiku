@@ -48,10 +48,10 @@ class StoreMailroom
         ];
     }
 
-    public function action(Group $group, array $objectData): Mailroom
+    public function action(Group $group, array $modelData): Mailroom
     {
         $this->asAction = true;
-        $this->setRawAttributes($objectData);
+        $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 
         return $this->handle($group, $validatedData);

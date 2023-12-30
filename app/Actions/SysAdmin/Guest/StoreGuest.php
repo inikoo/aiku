@@ -118,8 +118,8 @@ class StoreGuest
             'username'       => ['required', 'required', new AlphaDashDot(), 'iunique:users',Rule::notIn(['export', 'create'])],
             'company_name'   => ['nullable', 'string', 'max:255'],
             'contact_name'   => ['required', 'string', 'max:255'],
-            'phone'          => ['nullable', 'phone:AUTO'],
-            'email'          => ['nullable', 'email'],
+            'phone'          => ['sometimes','nullable', 'phone:AUTO'],
+            'email'          => ['sometimes','nullable', 'email'],
             'roles.*'        => [
                 Rule::exists('roles', 'name')
                     ->where('group_id', app('group')->id)
@@ -138,10 +138,10 @@ class StoreGuest
     }
 
 
-    public function action(Group $group, array $objectData): Guest
+    public function action(Group $group, array $modelData): Guest
     {
         $this->trusted = true;
-        $this->setRawAttributes($objectData);
+        $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 
         return $this->handle($group, $validatedData);

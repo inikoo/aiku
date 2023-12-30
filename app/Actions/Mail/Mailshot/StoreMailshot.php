@@ -47,10 +47,10 @@ class StoreMailshot
     }
     */
 
-    public function action(Outbox $outbox, array $objectData): Mailshot
+    public function action(Outbox $outbox, array $modelData): Mailshot
     {
         $this->asAction=true;
-        $this->setRawAttributes($objectData);
+        $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 
         return $this->handle($outbox, $validatedData);

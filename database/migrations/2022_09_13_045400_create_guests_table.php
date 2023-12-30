@@ -28,7 +28,7 @@ return new class () extends Migration {
             $table->jsonb('data');
             $table->timestampsTz();
             $table = $this->softDeletes($table);
-            $table->unsignedInteger('source_id')->nullable()->unique();
+            $table->string('source_id')->nullable()->unique();
         });
 
         DB::statement('CREATE INDEX ON guests USING gin (contact_name gin_trgm_ops) ');

@@ -12,6 +12,7 @@ use App\Actions\HumanResources\Employee\UpdateEmployee;
 use App\Actions\HumanResources\Employee\UpdateEmployeeWorkingHours;
 use App\Actions\Utils\StoreImage;
 use App\Models\HumanResources\Employee;
+use App\Models\HumanResources\Workplace;
 use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
@@ -24,18 +25,19 @@ class FetchEmployees extends FetchAction
     {
         if ($employeeData = $organisationSource->fetchEmployee($organisationSourceId)) {
             if ($employee = Employee::where('source_id', $employeeData['employee']['source_id'])->first()) {
-                $employee = UpdateEmployee::run(
+
+
+                $employee = UpdateEmployee::make()->action(
                     employee: $employee,
                     modelData: $employeeData['employee']
                 );
             } else {
 
-
-
-
+                /* @var $workplace Workplace */
                 $workplace = $organisationSource->getOrganisation()->workplaces()->first();
 
-                $employee = StoreEmployee::run(
+
+                $employee = StoreEmployee::make()->action(
                     parent: $workplace,
                     modelData: $employeeData['employee'],
                 );

@@ -38,10 +38,10 @@ class UpdateOutbox
         ];
     }
 
-    public function action(Outbox $outbox, $objectData): Outbox
+    public function action(Outbox $outbox, $modelData): Outbox
     {
         $this->asAction=true;
-        $this->setRawAttributes($objectData);
+        $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 
         return $this->handle($outbox, $validatedData);

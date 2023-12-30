@@ -42,9 +42,9 @@ class UpdateStateToCheckedSupplierDeliveryItem
         ];
     }
 
-    public function action(SupplierDeliveryItem $supplierDeliveryItem, $objectData): SupplierDeliveryItem
+    public function action(SupplierDeliveryItem $supplierDeliveryItem, $modelData): SupplierDeliveryItem
     {
-        $this->setRawAttributes($objectData);
+        $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 
         return $this->handle($supplierDeliveryItem, $validatedData);

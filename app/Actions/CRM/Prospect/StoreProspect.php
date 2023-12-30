@@ -53,10 +53,10 @@ class StoreProspect
         ];
     }
 
-    public function action(Shop $shop, array $objectData, array $addressesData): Prospect
+    public function action(Shop $shop, array $modelData, array $addressesData): Prospect
     {
         $this->asAction = true;
-        $this->setRawAttributes($objectData);
+        $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 
         return $this->handle($shop, $validatedData, $addressesData);

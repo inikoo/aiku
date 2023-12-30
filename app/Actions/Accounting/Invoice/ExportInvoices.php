@@ -23,9 +23,9 @@ class ExportInvoices
     /**
      * @throws \Throwable
      */
-    public function handle(array $objectData): BinaryFileResponse
+    public function handle(array $modelData): BinaryFileResponse
     {
-        $type = $objectData['type'];
+        $type = $modelData['type'];
 
         return $this->export(new InvoicesExport(), 'invoices', $type);
     }

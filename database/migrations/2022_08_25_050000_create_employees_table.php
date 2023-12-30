@@ -44,7 +44,7 @@ return new class () extends Migration {
             $table->jsonb('errors');
             $table->timestampsTz();
             $table=$this->softDeletes($table);
-            $table->unsignedInteger('source_id')->nullable()->unique();
+            $table->string('source_id')->nullable()->unique();
         });
         DB::statement("CREATE INDEX ON employees (lower('worker_number')) ");
         DB::statement("CREATE INDEX ON employees (lower('alias')) ");

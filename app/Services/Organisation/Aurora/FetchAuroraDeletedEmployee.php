@@ -25,13 +25,13 @@ class FetchAuroraDeletedEmployee extends FetchAurora
                 'identity_document_number' => $auDeletedModel->data->{'Staff Official ID'},
                 'date_of_birth'            => $this->parseDate($auDeletedModel->data->{'Staff Birthday'}),
                 'worker_number'            => $auDeletedModel->data->{'Staff ID'},
-                'slug'                     => strtolower($auDeletedModel->data->{'Staff Alias'}),
+                'alias'                    => strtolower($auDeletedModel->data->{'Staff Alias'}.'-deleted'),
                 'employment_start_at'      => $this->parseDate($auDeletedModel->data->{'Staff Valid From'}),
                 'employment_end_at'        => $this->parseDate($auDeletedModel->data->{'Staff Valid To'}),
                 'type'                     => Str::snake($auDeletedModel->data->{'Staff Type'}, '-'),
 
 
-                'source_id'  => $auDeletedModel->data->{'Staff Key'},
+                'source_id'  => $this->organisation->id.':'.$auDeletedModel->data->{'Staff Key'},
                 'state'      => match ($auDeletedModel->data->{'Staff Currently Working'}) {
                     'No'    => 'left',
                     default => 'working'

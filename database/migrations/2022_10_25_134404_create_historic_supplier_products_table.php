@@ -33,7 +33,7 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('currency_id')->nullable();
             $table->foreign('currency_id')->references('id')->on('currencies');
 
-            $table->unsignedInteger('source_id')->nullable()->unique();
+            $table->string('source_id')->nullable()->unique();
         });
     }
 

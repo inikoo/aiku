@@ -38,12 +38,12 @@ class MoveStockLocation
         ];
     }
 
-    public function action(LocationStock $currentLocationStock, LocationStock $targetLocation, $objectData): LocationStock
+    public function action(LocationStock $currentLocationStock, LocationStock $targetLocation, $modelData): LocationStock
     {
-        $this->setRawAttributes($objectData);
+        $this->setRawAttributes($modelData);
         $this->validateAttributes();
 
-        return $this->handle($currentLocationStock, $targetLocation, $objectData);
+        return $this->handle($currentLocationStock, $targetLocation, $modelData);
     }
 
     public function asController(LocationStock $currentLocationStock, LocationStock $targetLocation, ActionRequest $request): LocationStock

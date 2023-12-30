@@ -66,7 +66,7 @@ return new class () extends Migration {
             $table->softDeletesTz();
 
 
-            $table->unsignedInteger('source_id')->nullable()->unique();
+            $table->string('source_id')->nullable()->unique();
         });
     }
 

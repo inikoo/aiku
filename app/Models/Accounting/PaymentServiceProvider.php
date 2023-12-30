@@ -33,7 +33,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
- * @property int|null $source_id
+ * @property string|null $source_id
  * @property-read Collection<int, \App\Models\Accounting\PaymentAccount> $accounts
  * @property-read Collection<int, \App\Models\Accounting\Payment> $payments
  * @property-read \App\Models\Accounting\PaymentServiceProviderStats|null $stats

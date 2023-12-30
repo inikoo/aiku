@@ -42,10 +42,10 @@ class UpdateWarehouseArea
         ];
     }
 
-    public function action(WarehouseArea $warehouseArea, $objectData): WarehouseArea
+    public function action(WarehouseArea $warehouseArea, $modelData): WarehouseArea
     {
         $this->asAction=true;
-        $this->setRawAttributes($objectData);
+        $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 
         return $this->handle($warehouseArea, $validatedData);

@@ -7,7 +7,6 @@
 
 namespace App\Actions\HumanResources\Clocking;
 
-use App\Actions\HumanResources\Clocking\Hydrators\ClockingHydrateUniversalSearch;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Inventory\LocationResource;
 use App\Models\HumanResources\Clocking;
@@ -23,7 +22,6 @@ class UpdateClocking
     {
         $clocking =  $this->update($clocking, $modelData, ['data']);
 
-        ClockingHydrateUniversalSearch::dispatch($clocking);
         //        HydrateClocking::run($clocking);
 
         return $clocking;
@@ -42,10 +40,10 @@ class UpdateClocking
             'code'         => ['sometimes', 'required', 'unique:locations', 'between:2,64', 'alpha_dash'],
         ];
     }
-    public function action(Clocking $clocking, array $objectData): Clocking
+    public function action(Clocking $clocking, array $modelData): Clocking
     {
         $this->asAction=true;
-        $this->setRawAttributes($objectData);
+        $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 
         return $this->handle($clocking, $validatedData);

@@ -53,10 +53,10 @@ class StoreStock
         ];
     }
 
-    public function action(Group $group, $objectData): Stock
+    public function action(Group $group, $modelData): Stock
     {
         $this->asAction = true;
-        $this->setRawAttributes($objectData);
+        $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 
         return $this->handle($group, $validatedData);

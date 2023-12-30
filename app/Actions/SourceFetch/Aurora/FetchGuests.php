@@ -13,6 +13,7 @@ use App\Actions\Utils\StoreImage;
 use App\Models\SysAdmin\Guest;
 use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
 class FetchGuests extends FetchAction
@@ -22,15 +23,25 @@ class FetchGuests extends FetchAction
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Guest
     {
         if ($guestData = $organisationSource->fetchGuest($organisationSourceId)) {
+
+
             if ($guest = Guest::where('source_id', $guestData['guest']['source_id'])->first()) {
-                $guest = UpdateGuest::run(
+                $guest = UpdateGuest::make()->action(
                     guest:     $guest,
-                    modelData: $guestData['guest']
+                    modelData: Arr::except($guestData['guest'], ['source_id','username','password'])
                 );
             } else {
-                $guest = StoreGuest::run(
+                $guest = StoreGuest::make()->action(
+                    group:     $organisationSource->getOrganisation()->group,
                     modelData: $guestData['guest'],
                 );
+
+                $guest->user->updateQuietly(
+                    [
+                        'source_id' => $guestData['user']['source_id'],
+                    ]
+                );
+
             }
 
 

@@ -36,7 +36,7 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('number_clicks')->default(0);
             $table->boolean('mask_as_spam')->default(false);
             $table->boolean('provoked_unsubscribe')->default(false);
-            $table->unsignedInteger('source_id')->nullable()->unique();
+            $table->string('source_id')->nullable()->unique();
         });
     }
 

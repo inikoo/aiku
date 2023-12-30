@@ -59,10 +59,10 @@ class StoreCustomerClient
         ];
     }
 
-    public function action(Customer $customer, array $objectData, array $addressesData): CustomerClient
+    public function action(Customer $customer, array $modelData, array $addressesData): CustomerClient
     {
         $this->asAction = true;
-        $this->setRawAttributes($objectData);
+        $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 
         return $this->handle($customer, $validatedData, $addressesData);

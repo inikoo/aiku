@@ -99,10 +99,10 @@ class StoreLocation
         }
     }
 
-    public function action(WarehouseArea|Warehouse $parent, array $objectData): Location
+    public function action(WarehouseArea|Warehouse $parent, array $modelData): Location
     {
         $this->asAction=true;
-        $this->setRawAttributes($objectData);
+        $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 
         return $this->handle($parent, $validatedData);

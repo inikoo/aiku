@@ -49,7 +49,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
- * @property int|null $source_id
+ * @property string|null $source_id
  * @property-read Customer $customer
  * @property-read Collection<int, DeliveryNoteItem> $deliveryNoteItems
  * @property-read Model|\Eloquent $item

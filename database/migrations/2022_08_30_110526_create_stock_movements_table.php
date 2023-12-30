@@ -24,7 +24,7 @@ return new class () extends Migration {
             $table->decimal('amount', 16, 3);
             $table->jsonb('data');
             $table->timestampsTz();
-            $table->unsignedInteger('source_id')->nullable()->index();
+            $table->string('source_id')->nullable()->index();
         });
     }
 

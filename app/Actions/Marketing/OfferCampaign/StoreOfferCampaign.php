@@ -34,9 +34,9 @@ class StoreOfferCampaign
         ];
     }
 
-    public function action(Shop $shop, array $objectData): OfferCampaign
+    public function action(Shop $shop, array $modelData): OfferCampaign
     {
-        $this->setRawAttributes($objectData);
+        $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 
         return $this->handle($shop, $validatedData);

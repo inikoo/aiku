@@ -48,10 +48,10 @@ class UpdateFamily
         ];
     }
 
-    public function action(ProductCategory $productCategory, array $objectData): ProductCategory
+    public function action(ProductCategory $productCategory, array $modelData): ProductCategory
     {
         $this->asAction=true;
-        $this->setRawAttributes($objectData);
+        $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
         return $this->handle($productCategory, $validatedData);
     }

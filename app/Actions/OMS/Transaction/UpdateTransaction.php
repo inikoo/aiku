@@ -28,9 +28,9 @@ class UpdateTransaction
         ];
     }
 
-    public function action(Transaction $transaction, array $objectData): Transaction
+    public function action(Transaction $transaction, array $modelData): Transaction
     {
-        $this->setRawAttributes($objectData);
+        $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 
         return $this->handle($transaction, $validatedData);

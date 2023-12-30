@@ -31,7 +31,7 @@ return new class () extends Migration {
             $table->dateTimeTz('deactivated_at')->nullable();
             $table->timestampsTz();
             $table->softDeletesTz();
-            $table->unsignedInteger('source_id')->nullable()->unique();
+            $table->string('source_id')->nullable()->unique();
         });
     }
 

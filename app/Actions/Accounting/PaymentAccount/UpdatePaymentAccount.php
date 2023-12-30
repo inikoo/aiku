@@ -38,10 +38,10 @@ class UpdatePaymentAccount
         ];
     }
 
-    public function action(PaymentAccount $paymentAccount, $objectData): PaymentAccount
+    public function action(PaymentAccount $paymentAccount, $modelData): PaymentAccount
     {
         $this->asAction=true;
-        $this->setRawAttributes($objectData);
+        $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 
         return $this->handle($paymentAccount, $validatedData);

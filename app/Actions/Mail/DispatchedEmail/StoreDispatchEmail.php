@@ -48,10 +48,10 @@ class StoreDispatchEmail
         ];
     }
 
-    public function action(Outbox|Mailshot $parent, string $email, array $objectData): DispatchedEmail
+    public function action(Outbox|Mailshot $parent, string $email, array $modelData): DispatchedEmail
     {
         $this->asAction=true;
-        $this->setRawAttributes($objectData);
+        $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 
         return $this->handle($parent, $email, $validatedData);

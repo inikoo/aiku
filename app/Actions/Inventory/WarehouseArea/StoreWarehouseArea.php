@@ -68,10 +68,10 @@ class StoreWarehouseArea
         return Redirect::route('grp.inventory.warehouses.show.warehouse-areas.index', $warehouseArea->warehouse->slug);
     }
 
-    public function action(Warehouse $warehouse, array $objectData): WarehouseArea
+    public function action(Warehouse $warehouse, array $modelData): WarehouseArea
     {
         $this->asAction = true;
-        $this->setRawAttributes($objectData);
+        $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 
         return $this->handle($warehouse, $validatedData);

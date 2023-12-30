@@ -30,7 +30,7 @@ return new class () extends Migration {
             $table->timestampsTz();
             $table->softDeletesTz();
 
-            $table->unsignedInteger('source_id')->nullable()->unique();
+            $table->string('source_id')->nullable()->unique();
         });
         DB::statement('CREATE INDEX ON prospects USING gin (name gin_trgm_ops) ');
         DB::statement('CREATE INDEX ON prospects USING gin (contact_name gin_trgm_ops) ');

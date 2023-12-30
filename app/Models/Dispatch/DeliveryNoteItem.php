@@ -33,7 +33,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
- * @property int|null $source_id
+ * @property string|null $source_id
  * @method static Builder|DeliveryNoteItem newModelQuery()
  * @method static Builder|DeliveryNoteItem newQuery()
  * @method static Builder|DeliveryNoteItem onlyTrashed()

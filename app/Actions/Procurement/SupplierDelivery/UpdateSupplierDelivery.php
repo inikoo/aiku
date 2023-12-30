@@ -35,9 +35,9 @@ class UpdateSupplierDelivery
         ];
     }
 
-    public function action(SupplierDelivery $supplierDelivery, array $objectData): SupplierDelivery
+    public function action(SupplierDelivery $supplierDelivery, array $modelData): SupplierDelivery
     {
-        $this->setRawAttributes($objectData);
+        $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 
         return $this->handle($supplierDelivery, $validatedData);

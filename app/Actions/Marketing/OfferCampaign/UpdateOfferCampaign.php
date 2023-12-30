@@ -35,9 +35,9 @@ class UpdateOfferCampaign
         ];
     }
 
-    public function action(OfferCampaign $offerCampaign, array $objectData): OfferCampaign
+    public function action(OfferCampaign $offerCampaign, array $modelData): OfferCampaign
     {
-        $this->setRawAttributes($objectData);
+        $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 
         return $this->handle($offerCampaign, $validatedData);

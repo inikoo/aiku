@@ -34,7 +34,7 @@ return new class () extends Migration {
             $table->timestampTz('launched_at')->nullable();
             $table->timestampTz('closed_at')->nullable();
             $table->softDeletesTz();
-            $table->unsignedInteger('source_id')->nullable()->unique();
+            $table->string('source_id')->nullable()->unique();
         });
     }
 

@@ -74,10 +74,10 @@ class StorePayment
         ];
     }
 
-    public function action(Customer $customer, PaymentAccount $paymentAccount, array $objectData): Payment
+    public function action(Customer $customer, PaymentAccount $paymentAccount, array $modelData): Payment
     {
         $this->asAction = true;
-        $this->setRawAttributes($objectData);
+        $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 
         return $this->handle($customer, $paymentAccount, $validatedData);

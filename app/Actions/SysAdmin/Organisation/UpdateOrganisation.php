@@ -68,10 +68,10 @@ class UpdateOrganisation
         );
     }
 
-    public function action(Organisation $organisation, $objectData): Organisation
+    public function action(Organisation $organisation, $modelData): Organisation
     {
         $this->asAction = true;
-        $this->setRawAttributes($objectData);
+        $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 
         return $this->handle($organisation, $validatedData);

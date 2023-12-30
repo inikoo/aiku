@@ -31,7 +31,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property int|null $source_id
+ * @property string|null $source_id
  * @property-read \App\Models\Dispatch\Shipper|null $shipper
  * @property-read UniversalSearch|null $universalSearch
  * @method static \Database\Factories\Dispatch\ShipmentFactory factory($count = null, $state = [])

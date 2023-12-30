@@ -37,9 +37,9 @@ class StoreTradeUnit
         ];
     }
 
-    public function action(array $objectData): TradeUnit
+    public function action(array $modelData): TradeUnit
     {
-        $this->setRawAttributes($objectData);
+        $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 
         return $this->handle($validatedData);

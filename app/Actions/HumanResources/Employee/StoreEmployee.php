@@ -19,6 +19,7 @@ use App\Models\SysAdmin\Organisation;
 use App\Models\HumanResources\Employee;
 use App\Models\HumanResources\JobPosition;
 use App\Rules\AlphaDashDot;
+use App\Rules\IUnique;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Redirect;
@@ -103,14 +104,7 @@ class StoreEmployee extends InertiaOrganisationAction
     }
 
 
-    public function action(Organisation $organisation, $objectData): Employee
-    {
-        $this->asAction = true;
-        $this->setRawAttributes($objectData);
-        $validatedData = $this->validateAttributes();
 
-        return $this->handle($organisation, $validatedData);
-    }
 
     public function prepareForValidation(ActionRequest $request): void
     {
@@ -122,26 +116,61 @@ class StoreEmployee extends InertiaOrganisationAction
     public function rules(): array
     {
         return [
-            'worker_number'       => ['required', 'max:64', 'iunique:employees', 'alpha_dash:ascii'],
-            'employment_start_at' => ['required', 'nullable', 'date'],
-            'work_email'          => ['present', 'nullable', 'email', 'iunique:employees'],
-            'alias'               => ['required', 'iunique:employees', 'string', 'max:12'],
+            'worker_number'       => ['required', 'max:64',  'alpha_dash',
+                                      new IUnique(
+                                          table: 'employees',
+                                          extraConditions: [
+                                              ['column' => 'organisation_id', 'value' => $this->organisation->id],
+                                          ]
+                                      ),
+
+                ],
+            'employment_start_at' => ['sometimes', 'nullable', 'date'],
+            'work_email'          => ['sometimes', 'nullable', 'email', 'iunique:employees'],
+            'alias'               => ['required',  'string', 'max:16',
+                                      new IUnique(
+                                          table: 'employees',
+                                          extraConditions: [
+                                              ['column' => 'organisation_id', 'value' => $this->organisation->id],
+                                          ]
+                                      ),
+                ],
             'contact_name'        => ['required', 'string', 'max:256'],
             'date_of_birth'       => ['sometimes', 'nullable', 'date', 'before_or_equal:today'],
-            'job_title'           => ['required', 'string', 'max:256'],
+            'job_title'           => ['sometimes', 'nullable', 'string', 'max:256'],
             'state'               => ['required', new Enum(EmployeeStateEnum::class)],
-            'positions'           => ['required', 'array'],
+            'positions'           => ['sometimes', 'array'],
             'positions.*'         => ['exists:job_positions,slug'],
-            'email'               => ['present', 'nullable', 'email'],
+            'email'               => ['sometimes', 'nullable', 'email'],
             'username'            => ['nullable', new AlphaDashDot(), 'iunique:organisation_users'],
             'password'            => ['exclude_if:username,null', 'required', 'max:255', app()->isLocal() || app()->environment('testing') ? null : Password::min(8)->uncompromised()],
-            'reset_password'      => ['sometimes', 'boolean']
+            'reset_password'      => ['sometimes', 'boolean'],
+            'source_id'           => ['sometimes', 'string', 'max:64'],
         ];
     }
 
-    public function asController(Organisation $organisation, ActionRequest $request): Employee
+    public function action(Organisation|Workplace $parent, $modelData): Employee
     {
-        $this->initialisation($organisation, $request);
+        $this->asAction = true;
+
+        if(class_basename($parent) === 'Workplace') {
+            $organisation = $parent->organisation;
+        } else {
+            $organisation = $parent;
+        }
+
+        $this->initialisation($organisation, $modelData);
+
+        return $this->handle($parent, $this->validatedData);
+    }
+
+    public function asController(Organisation|Workplace $parent, ActionRequest $request): Employee
+    {
+        if(class_basename($parent) === 'Workplace') {
+            $organisation = $parent->organisation;
+        } else {
+            $organisation = $parent;
+        }
 
         return $this->handle($organisation, $this->validatedData);
     }

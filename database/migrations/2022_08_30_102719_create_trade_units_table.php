@@ -29,7 +29,7 @@ return new class () extends Migration {
             $table->timestampsTz();
             $table->softDeletesTz();
             $table->string('source_type')->index()->nullable();
-            $table->unsignedInteger('source_id')->nullable();
+            $table->string('source_id')->nullable();
         });
     }
 

@@ -32,9 +32,9 @@ class StoreOfferComponent
         ];
     }
 
-    public function action(OfferCampaign $offerCampaign, array $objectData): OfferComponent
+    public function action(OfferCampaign $offerCampaign, array $modelData): OfferComponent
     {
-        $this->setRawAttributes($objectData);
+        $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 
         return $this->handle($offerCampaign, $validatedData);

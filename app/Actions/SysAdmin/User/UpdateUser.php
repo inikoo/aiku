@@ -66,10 +66,10 @@ class UpdateUser
         return $this->handle($user, $request->validated());
     }
 
-    public function action(User $user, $objectData): User
+    public function action(User $user, $modelData): User
     {
         $this->asAction = true;
-        $this->setRawAttributes($objectData);
+        $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 
         return $this->handle($user, $validatedData);

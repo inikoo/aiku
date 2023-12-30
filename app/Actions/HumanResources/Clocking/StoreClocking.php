@@ -86,10 +86,10 @@ class StoreClocking
         }
     }
 
-    public function action(ClockingMachine|Workplace $parent, array $objectData): Clocking
+    public function action(ClockingMachine|Workplace $parent, array $modelData): Clocking
     {
         $this->asAction=true;
-        $this->setRawAttributes($objectData);
+        $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 
         return $this->handle($parent, $validatedData);

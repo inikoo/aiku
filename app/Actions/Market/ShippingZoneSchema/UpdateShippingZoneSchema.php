@@ -36,9 +36,9 @@ class UpdateShippingZoneSchema
         ];
     }
 
-    public function action(ShippingZoneSchema $shippingZoneSchema, array $objectData): ShippingZoneSchema
+    public function action(ShippingZoneSchema $shippingZoneSchema, array $modelData): ShippingZoneSchema
     {
-        $this->setRawAttributes($objectData);
+        $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 
         return $this->handle($shippingZoneSchema, $validatedData);

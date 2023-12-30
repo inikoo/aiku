@@ -39,9 +39,9 @@ class StoreShipper
         ];
     }
 
-    public function action(Organisation $organisation, $objectData): Shipper
+    public function action(Organisation $organisation, $modelData): Shipper
     {
-        $this->setRawAttributes($objectData);
+        $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 
         return $this->handle($organisation, $validatedData);

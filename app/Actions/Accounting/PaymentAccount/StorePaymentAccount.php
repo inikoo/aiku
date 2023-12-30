@@ -52,10 +52,10 @@ class StorePaymentAccount
         ];
     }
 
-    public function action(Organisation $organisation, PaymentServiceProvider $paymentServiceProvider, array $objectData): PaymentAccount
+    public function action(Organisation $organisation, PaymentServiceProvider $paymentServiceProvider, array $modelData): PaymentAccount
     {
         $this->asAction = true;
-        $this->setRawAttributes($objectData);
+        $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 
         return $this->handle($organisation, $paymentServiceProvider, $validatedData);

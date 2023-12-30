@@ -31,9 +31,9 @@ class UpdateOrder
         ];
     }
 
-    public function action(Order $order, array $objectData): Order
+    public function action(Order $order, array $modelData): Order
     {
-        $this->setRawAttributes($objectData);
+        $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 
         return $this->handle($order, $validatedData);

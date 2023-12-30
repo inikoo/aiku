@@ -40,7 +40,7 @@ return new class () extends Migration {
             $table->unsignedInteger('avatar_id')->nullable();
             $table->timestampsTz();
             $table=$this->softDeletes($table);
-            $table->unsignedInteger('source_id')->nullable()->unique();
+            $table->string('source_id')->nullable()->unique();
             $table->string('legacy_password')->nullable()->index()->comment('source password');
 
         });

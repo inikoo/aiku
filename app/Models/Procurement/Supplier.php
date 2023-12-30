@@ -61,7 +61,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  * @property string|null $source_type
- * @property int|null $source_id
+ * @property string|null $source_id
  * @property-read Collection<int, \App\Models\Helpers\Address> $addresses
  * @property-read \App\Models\Procurement\Agent|null $agent
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits

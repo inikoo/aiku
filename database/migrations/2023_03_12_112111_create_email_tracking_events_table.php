@@ -20,7 +20,7 @@ return new class () extends Migration {
             $table->string('type');
             $table->jsonb('data');
             $table->timestampsTz();
-            $table->unsignedInteger('source_id')->nullable()->unique();
+            $table->string('source_id')->nullable()->unique();
         });
     }
 

@@ -76,10 +76,10 @@ class StoreAgent
         }
     }
 
-    public function action(Group $group, $objectData): Agent
+    public function action(Group $group, $modelData): Agent
     {
         $this->asAction = true;
-        $this->setRawAttributes($objectData);
+        $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 
         return $this->handle(

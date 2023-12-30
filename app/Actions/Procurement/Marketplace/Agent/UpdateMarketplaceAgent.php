@@ -52,12 +52,12 @@ class UpdateMarketplaceAgent
         ];
     }
 
-    public function action(Agent $agent, $objectData): Agent
+    public function action(Agent $agent, $modelData): Agent
     {
         $this->agent  =$agent;
         $this->action = true;
 
-        $this->setRawAttributes($objectData);
+        $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 
         return $this->handle($agent, $validatedData);

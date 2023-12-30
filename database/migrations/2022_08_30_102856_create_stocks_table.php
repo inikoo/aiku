@@ -49,7 +49,7 @@ return new class () extends Migration {
             $table->dateTimeTz('discontinuing_at')->nullable();
             $table->dateTimeTz('discontinued_at')->nullable();
             $table->softDeletesTz();
-            $table->unsignedInteger('source_id')->nullable()->unique();
+            $table->string('source_id')->nullable()->unique();
         });
         DB::statement('CREATE INDEX ON stocks USING gin (name gin_trgm_ops) ');
 

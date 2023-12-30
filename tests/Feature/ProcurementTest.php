@@ -47,7 +47,7 @@ test('create agent', function () {
     $modelData = Agent::factory()->definition();
     $agent     = StoreAgent::make()->action(
         group: $this->group,
-        objectData: $modelData
+        modelData: $modelData
     );
 
     expect($agent)->toBeInstanceOf(Agent::class)
@@ -64,7 +64,7 @@ test('create another agent', function () {
     $modelData = Agent::factory()->definition();
     $agent     = StoreAgent::make()->action(
         group: $this->group,
-        objectData: $modelData
+        modelData: $modelData
     );
 
     expect($agent)->toBeInstanceOf(Agent::class)

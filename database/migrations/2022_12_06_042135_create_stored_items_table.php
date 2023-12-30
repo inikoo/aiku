@@ -33,7 +33,7 @@ return new class () extends Migration {
             $table->dateTimeTz('settled_at')->nullable();
             $table->jsonb('data');
             $table->softDeletesTz();
-            $table->unsignedInteger('source_id')->nullable()->unique();
+            $table->string('source_id')->nullable()->unique();
         });
     }
 

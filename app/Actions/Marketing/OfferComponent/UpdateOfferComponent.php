@@ -35,9 +35,9 @@ class UpdateOfferComponent
         ];
     }
 
-    public function action(OfferComponent $offerComponent, array $objectData): OfferComponent
+    public function action(OfferComponent $offerComponent, array $modelData): OfferComponent
     {
-        $this->setRawAttributes($objectData);
+        $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 
         return $this->handle($offerComponent, $validatedData);

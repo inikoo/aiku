@@ -32,9 +32,9 @@ class StoreShippingZoneSchema
         ];
     }
 
-    public function action(Shop $shop, array $objectData): ShippingZoneSchema
+    public function action(Shop $shop, array $modelData): ShippingZoneSchema
     {
-        $this->setRawAttributes($objectData);
+        $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 
         return $this->handle($shop, $validatedData);

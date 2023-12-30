@@ -51,10 +51,10 @@ class StoreSupplierPurchaseOrder
         }
     }
 
-    public function action(Agent|Supplier $parent, array $objectData): PurchaseOrder
+    public function action(Agent|Supplier $parent, array $modelData): PurchaseOrder
     {
         $this->parent = $parent;
-        $this->setRawAttributes($objectData);
+        $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 
         return $this->handle($parent, $validatedData);

@@ -43,7 +43,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  * @property string|null $source_type
- * @property int|null $source_id
+ * @property string|null $source_id
  * @property-read MediaCollection<int, \App\Models\Media\Media> $media
  * @property-read Collection<int, Product> $products
  * @property-read Collection<int, Stock> $stocks

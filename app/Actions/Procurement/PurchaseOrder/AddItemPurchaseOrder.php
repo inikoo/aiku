@@ -34,9 +34,9 @@ class AddItemPurchaseOrder
         ];
     }
 
-    public function action(PurchaseOrder $purchaseOrder, array $objectData): PurchaseOrderItem
+    public function action(PurchaseOrder $purchaseOrder, array $modelData): PurchaseOrderItem
     {
-        $this->setRawAttributes($objectData);
+        $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 
         return $this->handle($purchaseOrder, $validatedData);

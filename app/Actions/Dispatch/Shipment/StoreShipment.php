@@ -48,9 +48,9 @@ class StoreShipment
         ];
     }
 
-    public function action(DeliveryNote $deliveryNote, Shipper $shipper, array $objectData): Shipment
+    public function action(DeliveryNote $deliveryNote, Shipper $shipper, array $modelData): Shipment
     {
-        $this->setRawAttributes($objectData);
+        $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 
         return $this->handle($deliveryNote, $shipper, $validatedData);

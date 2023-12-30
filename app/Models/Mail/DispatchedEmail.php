@@ -38,7 +38,7 @@ use Illuminate\Support\Carbon;
  * @property int $number_clicks
  * @property bool $mask_as_spam
  * @property bool $provoked_unsubscribe
- * @property int|null $source_id
+ * @property string|null $source_id
  * @property-read Collection<int, \App\Models\Mail\EmailTrackingEvent> $emailTrackingEvents
  * @method static \Database\Factories\Mail\DispatchedEmailFactory factory($count = null, $state = [])
  * @method static Builder|DispatchedEmail newModelQuery()

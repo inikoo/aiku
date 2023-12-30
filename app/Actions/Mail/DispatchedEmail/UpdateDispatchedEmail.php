@@ -36,10 +36,10 @@ class UpdateDispatchedEmail
             'code'         => ['sometimes', 'required', 'unique:dispatched_emails', 'between:2,64', 'alpha_dash'],
         ];
     }
-    public function action(DispatchedEmail $dispatchedEmail, array $objectData): DispatchedEmail
+    public function action(DispatchedEmail $dispatchedEmail, array $modelData): DispatchedEmail
     {
         $this->asAction=true;
-        $this->setRawAttributes($objectData);
+        $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 
         return $this->handle($dispatchedEmail, $validatedData);

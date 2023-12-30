@@ -42,10 +42,10 @@ class UpdateLocation
             'code'         => ['sometimes', 'required', 'unique:locations', 'between:2,64', 'alpha_dash'],
         ];
     }
-    public function action(Location $location, array $objectData): Location
+    public function action(Location $location, array $modelData): Location
     {
         $this->asAction=true;
-        $this->setRawAttributes($objectData);
+        $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 
         return $this->handle($location, $validatedData);

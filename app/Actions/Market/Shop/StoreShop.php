@@ -146,10 +146,10 @@ class StoreShop
         }
     }
 
-    public function action(Organisation $organisation, array $objectData): Shop
+    public function action(Organisation $organisation, array $modelData): Shop
     {
         $this->asAction = true;
-        $this->setRawAttributes($objectData);
+        $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 
         return $this->handle($organisation, $validatedData);

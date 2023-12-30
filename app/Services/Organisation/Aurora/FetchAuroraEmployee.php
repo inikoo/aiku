@@ -67,29 +67,43 @@ class FetchAuroraEmployee extends FetchAurora
 
         $this->parsedData['working_hours'] = $working_hours ?? [];
 
-        $this->parsedData['employee'] = [
-            'alias'                            => $this->auroraModelData->{'Staff Alias'},
-            'contact_name'                     => $this->auroraModelData->{'Staff Name'},
-            'email'                            => $this->auroraModelData->{'Staff Email'} ?: null,
-            'phone'                            => $this->auroraModelData->{'Staff Telephone'} ?: null,
-            'identity_document_number'         => $this->auroraModelData->{'Staff Official ID'} ?: null,
-            'date_of_birth'                    => $this->parseDate($this->auroraModelData->{'Staff Birthday'}),
-            'worker_number'                    => $this->auroraModelData->{'Staff ID'} ?: null,
-            'employment_start_at'              => $this->parseDate($this->auroraModelData->{'Staff Valid From'}),
-            'created_at'                       => $this->auroraModelData->{'Staff Valid From'},
-            'emergency_contact'                => $this->auroraModelData->{'Staff Next of Kind'} ?: null,
-            'job_title'                        => $this->auroraModelData->{'Staff Job Title'} ?: null,
-            'salary'                           => $salary,
 
-            'employment_end_at' => $this->parseDate($this->auroraModelData->{'Staff Valid To'}),
-            'type'              => Str::snake($this->auroraModelData->{'Staff Type'}, '-'),
-            'state'             => match ($this->auroraModelData->{'Staff Currently Working'}) {
+        $positions = [];
+
+
+
+        if ($this->auroraModelData->{'Staff ID'}) {
+            $workerNumber = preg_replace('/[()]/', '', $this->auroraModelData->{'Staff ID'});
+            $workerNumber = preg_replace('/\s+/', '-', $workerNumber);
+
+        } else {
+            $workerNumber = $this->auroraModelData->{'Staff Key'};
+        }
+
+        $this->parsedData['employee'] = [
+            'alias'                    => $this->auroraModelData->{'Staff Alias'},
+            'contact_name'             => $this->auroraModelData->{'Staff Name'},
+            'email'                    => $this->auroraModelData->{'Staff Email'} ?: null,
+            'phone'                    => $this->auroraModelData->{'Staff Telephone'} ?: null,
+            'identity_document_number' => $this->auroraModelData->{'Staff Official ID'} ?: null,
+            'date_of_birth'            => $this->parseDate($this->auroraModelData->{'Staff Birthday'}),
+            'worker_number'            => $workerNumber,
+            'created_at'               => $this->auroraModelData->{'Staff Valid From'},
+            'emergency_contact'        => $this->auroraModelData->{'Staff Next of Kind'} ?: null,
+            'job_title'                => $this->auroraModelData->{'Staff Job Title'} ?: null,
+            'salary'                   => $salary,
+            'employment_start_at'      => $this->parseDate($this->auroraModelData->{'Staff Valid From'}),
+            'employment_end_at'        => $this->parseDate($this->auroraModelData->{'Staff Valid To'}),
+            'type'                     => Str::snake($this->auroraModelData->{'Staff Type'}, '-'),
+            'state'                    => match ($this->auroraModelData->{'Staff Currently Working'}) {
                 'No'    => 'left',
                 default => 'working'
             },
-            'data'              => $data,
-            'errors'            => $errors,
-            'source_id'         => $this->auroraModelData->{'Staff Key'},
+            'data'                     => $data,
+            'errors'                   => $errors,
+            'source_id'                => $this->organisation->id.':'.$this->auroraModelData->{'Staff Key'},
+            'positions'                => $positions,
+            'username'                 => null,
 
         ];
     }
@@ -117,7 +131,7 @@ class FetchAuroraEmployee extends FetchAurora
                     ',',
                     $this->parseJobPosition(
                         isSupervisor: $this->auroraModelData->{'Staff Is Supervisor'} == 'Yes',
-                        sourceCode:   $sourceStaffPosition
+                        sourceCode: $sourceStaffPosition
                     )
                 )
             );

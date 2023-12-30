@@ -25,7 +25,7 @@ return new class () extends Migration {
             $table->dateTimeTz('last_used_at')->nullable();
             $table->timestampsTz();
             $table->softDeletesTz();
-            $table->unsignedInteger('source_id')->index()->nullable();
+            $table->string('source_id')->index()->nullable();
         });
     }
 

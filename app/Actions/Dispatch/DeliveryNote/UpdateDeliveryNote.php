@@ -38,9 +38,9 @@ class UpdateDeliveryNote
         ];
     }
 
-    public function action(DeliveryNote $deliveryNote, array $objectData): DeliveryNote
+    public function action(DeliveryNote $deliveryNote, array $modelData): DeliveryNote
     {
-        $this->setRawAttributes($objectData);
+        $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 
         return $this->handle($deliveryNote, $validatedData);

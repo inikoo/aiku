@@ -44,10 +44,10 @@ class UpdateMailroom
         return $this->handle($mailroom, $request->all());
     }
 
-    public function action(Mailroom $mailroom, $objectData): Mailroom
+    public function action(Mailroom $mailroom, $modelData): Mailroom
     {
         $this->asAction=true;
-        $this->setRawAttributes($objectData);
+        $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 
         return $this->handle($mailroom, $validatedData);

@@ -38,7 +38,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $deleted_at
  * @property string|null $deleted_by_type
  * @property int|null $deleted_by_id
- * @property int|null $source_id
+ * @property string|null $source_id
  * @property-read \App\Models\HumanResources\ClockingMachine|null $clockingMachine
  * @property-read \App\Models\HumanResources\Workplace|null $workplace
  * @method static Builder|Clocking newModelQuery()

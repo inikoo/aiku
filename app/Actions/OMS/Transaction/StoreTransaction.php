@@ -36,9 +36,9 @@ class StoreTransaction
         ];
     }
 
-    public function action(Order $order, array $objectData): Transaction
+    public function action(Order $order, array $modelData): Transaction
     {
-        $this->setRawAttributes($objectData);
+        $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 
         return $this->handle($order, $validatedData);

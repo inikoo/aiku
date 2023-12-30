@@ -35,9 +35,9 @@ class UpdateSupplierPurchaseOrder
         ];
     }
 
-    public function action(PurchaseOrder $supplierPurchaseOrder, array $objectData): PurchaseOrder
+    public function action(PurchaseOrder $supplierPurchaseOrder, array $modelData): PurchaseOrder
     {
-        $this->setRawAttributes($objectData);
+        $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 
         return $this->handle($supplierPurchaseOrder, $validatedData);

@@ -31,7 +31,7 @@ return new class () extends Migration {
             $table->timestampsTz();
             $table->softDeletes();
             $table->nullableMorphs('deleted_by');
-            $table->unsignedInteger('source_id')->nullable()->unique();
+            $table->string('source_id')->nullable()->unique();
             $table->unique(['subject_type', 'subject_id']);
             $table->unique(['generator_type', 'generator_id']);
         });

@@ -19,7 +19,7 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('organisation_id');
             $table->foreign('organisation_id')->references('id')->on('organisations');
             $table->timestampsTz();
-            $table->unsignedInteger('source_id')->index()->nullable();
+            $table->string('source_id')->index()->nullable();
 
         });
     }

@@ -30,20 +30,20 @@ class StoreUser
     private bool $asAction = false;
 
 
-    public function handle(Guest|Employee|Supplier|Agent $parent, array $objectData = []): User
+    public function handle(Guest|Employee|Supplier|Agent $parent, array $modelData = []): User
     {
-        data_set($objectData, 'group_id', $parent->group_id);
-        data_set($objectData, 'contact_name', $parent->contact_name);
+        data_set($modelData, 'group_id', $parent->group_id);
+        data_set($modelData, 'contact_name', $parent->contact_name);
 
         $type = match (class_basename($parent)) {
             'Guest', 'Employee', 'Supplier', 'Agent' => strtolower(class_basename($parent)),
             default => null
         };
 
-        data_set($objectData, 'type', $type);
+        data_set($modelData, 'type', $type);
 
-        /** @var \App\Models\SysAdmin\User $user */
-        $user = $parent->user()->create($objectData);
+        /** @var User $user */
+        $user = $parent->user()->create($modelData);
 
         $user->stats()->create();
         $user->refresh();
@@ -67,18 +67,18 @@ class StoreUser
     public function rules(): array
     {
         return [
-            'username' => ['required', new AlphaDashDot(), 'unique:App\Models\SysAdmin\SysUser,username', Rule::notIn(['export', 'create'])],
+            'username' => ['required', new AlphaDashDot(), 'unique:users,username', Rule::notIn(['export', 'create'])],
             'password' => ['required', app()->isLocal() || app()->environment('testing') ? null : Password::min(8)->uncompromised()],
-            'email'    => ['required', 'email', 'unique:App\Models\SysAdmin\SysUser,email']
+            'email'    => ['sometimes', 'nullable', 'email', 'unique:users,email']
         ];
     }
 
 
-    public function action(Guest|Employee $parent, array $objectData = []): User
+    public function action(Guest|Employee $parent, array $modelData = []): User
     {
         $this->asAction = true;
 
-        $this->setRawAttributes($objectData);
+        $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 
         return $this->handle($parent, $validatedData);

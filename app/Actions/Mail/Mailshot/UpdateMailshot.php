@@ -38,10 +38,10 @@ class UpdateMailshot
     //        ];
     //    }
 
-    public function action(Mailshot $mailshot, $objectData): Mailshot
+    public function action(Mailshot $mailshot, $modelData): Mailshot
     {
         $this->asAction=true;
-        $this->setRawAttributes($objectData);
+        $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 
         return $this->handle($mailshot, $validatedData);

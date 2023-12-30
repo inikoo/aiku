@@ -46,10 +46,10 @@ class StorePaymentServiceProvider
         ];
     }
 
-    public function action(array $objectData): PaymentServiceProvider
+    public function action(array $modelData): PaymentServiceProvider
     {
         $this->asAction=true;
-        $this->setRawAttributes($objectData);
+        $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 
         return $this->handle($validatedData);

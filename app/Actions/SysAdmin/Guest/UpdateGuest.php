@@ -66,10 +66,10 @@ class UpdateGuest
         return $this->handle($guest, $request->all());
     }
 
-    public function action(Guest $guest, $objectData): Guest
+    public function action(Guest $guest, $modelData): Guest
     {
         $this->asAction = true;
-        $this->setRawAttributes($objectData);
+        $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 
         return $this->handle($guest, $validatedData);

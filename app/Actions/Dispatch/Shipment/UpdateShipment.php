@@ -29,9 +29,9 @@ class UpdateShipment
         ];
     }
 
-    public function action(Shipment $shipment, array $objectData): Shipment
+    public function action(Shipment $shipment, array $modelData): Shipment
     {
-        $this->setRawAttributes($objectData);
+        $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 
         return $this->handle($shipment, $validatedData);

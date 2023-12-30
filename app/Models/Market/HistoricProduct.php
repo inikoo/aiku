@@ -31,7 +31,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $units units per outer
  * @property Carbon|null $created_at
  * @property Carbon|null $deleted_at
- * @property int|null $source_id
+ * @property string|null $source_id
  * @property-read \App\Models\Market\Product $product
  * @property-read \App\Models\Market\HistoricProductStats|null $stats
  * @method static Builder|HistoricProduct newModelQuery()

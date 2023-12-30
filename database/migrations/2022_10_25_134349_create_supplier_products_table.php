@@ -39,7 +39,7 @@ return new class () extends Migration {
             $table->timestampsTz();
             $table->softDeletesTz();
             $table->string('source_type')->index()->nullable();
-            $table->unsignedInteger('source_id')->nullable()->unique();
+            $table->string('source_id')->nullable()->unique();
         });
         DB::statement('CREATE INDEX ON supplier_products USING gin (name gin_trgm_ops) ');
     }

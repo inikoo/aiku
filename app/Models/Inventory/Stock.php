@@ -69,7 +69,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $discontinuing_at
  * @property Carbon|null $discontinued_at
  * @property Carbon|null $deleted_at
- * @property int|null $source_id
+ * @property string|null $source_id
  * @property-read MediaCollection<int, Media> $images
  * @property-read Collection<int, \App\Models\Inventory\Location> $locations
  * @property-read MediaCollection<int, Media> $media

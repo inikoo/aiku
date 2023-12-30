@@ -36,9 +36,9 @@ class UpdateShippingZone
         ];
     }
 
-    public function action(ShippingZone $shippingZone, array $objectData): ShippingZone
+    public function action(ShippingZone $shippingZone, array $modelData): ShippingZone
     {
-        $this->setRawAttributes($objectData);
+        $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 
         return $this->handle($shippingZone, $validatedData);

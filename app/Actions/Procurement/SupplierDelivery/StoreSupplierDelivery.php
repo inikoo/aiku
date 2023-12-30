@@ -54,11 +54,11 @@ class StoreSupplierDelivery
         }
     }
 
-    public function action(Organisation $organisation, Agent|Supplier $parent, array $objectData, bool $force = false): SupplierDelivery
+    public function action(Organisation $organisation, Agent|Supplier $parent, array $modelData, bool $force = false): SupplierDelivery
     {
         $this->parent = $parent;
         $this->force  = $force;
-        $this->setRawAttributes($objectData);
+        $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 
         return $this->handle($organisation, $parent, $validatedData);

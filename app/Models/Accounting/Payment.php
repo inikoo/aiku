@@ -52,7 +52,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  * @property bool $with_refund
- * @property int|null $source_id
+ * @property string|null $source_id
  * @property-read Currency $currency
  * @property-read Customer $customer
  * @property-read \App\Models\Accounting\PaymentAccount $paymentAccount

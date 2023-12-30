@@ -76,11 +76,11 @@ class StorePurchaseOrder
         }
     }
 
-    public function action(Organisation $organisation, Agent|Supplier $provider, array $objectData, bool $force = false): \Illuminate\Http\RedirectResponse|PurchaseOrder
+    public function action(Organisation $organisation, Agent|Supplier $provider, array $modelData, bool $force = false): \Illuminate\Http\RedirectResponse|PurchaseOrder
     {
         $this->provider = $provider;
         $this->force    = $force;
-        $this->setRawAttributes($objectData);
+        $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 
         return $this->handle($organisation, $provider, $validatedData);

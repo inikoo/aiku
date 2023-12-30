@@ -66,9 +66,9 @@ class StoreSupplierProduct
         ];
     }
 
-    public function action(Supplier $supplier, array $objectData, bool $skipHistoric = false): SupplierProduct
+    public function action(Supplier $supplier, array $modelData, bool $skipHistoric = false): SupplierProduct
     {
-        $this->setRawAttributes($objectData);
+        $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 
         return $this->handle($supplier, $validatedData, $skipHistoric);

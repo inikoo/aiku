@@ -20,7 +20,7 @@ use Illuminate\Support\Carbon;
  * @property int $organisation_id
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property int|null $source_id
+ * @property string|null $source_id
  * @method static Builder|SupplierProductOrganisation newModelQuery()
  * @method static Builder|SupplierProductOrganisation newQuery()
  * @method static Builder|SupplierProductOrganisation query()

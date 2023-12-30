@@ -47,7 +47,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  * @property string|null $delete_comment
- * @property int|null $source_id
+ * @property string|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \Illuminate\Database\Eloquent\Collection<int, JobPosition> $jobPositions
@@ -132,5 +132,15 @@ class Guest extends Model implements HasMedia, Auditable
     public function group(): BelongsTo
     {
         return $this->belongsTo(Group::class);
+    }
+
+    public function getGroup(): Group
+    {
+        return $this->group;
+    }
+
+    public function getGroupId(): int
+    {
+        return $this->group_id;
     }
 }

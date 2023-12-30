@@ -67,10 +67,10 @@ class StoreClockingMachine
         );
     }
 
-    public function action(Workplace $workplace, array $objectData): ClockingMachine
+    public function action(Workplace $workplace, array $modelData): ClockingMachine
     {
         $this->asAction = true;
-        $this->setRawAttributes($objectData);
+        $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 
         return $this->handle($workplace, $validatedData);

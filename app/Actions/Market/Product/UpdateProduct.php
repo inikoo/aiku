@@ -58,10 +58,10 @@ class UpdateProduct
         return $this->handle($product, $request->all());
     }
 
-    public function action(Product $product, array $objectData): Product
+    public function action(Product $product, array $modelData): Product
     {
         $this->asAction=true;
-        $this->setRawAttributes($objectData);
+        $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 
         return $this->handle($product, $validatedData);

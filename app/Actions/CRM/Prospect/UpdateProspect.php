@@ -54,10 +54,10 @@ class UpdateProspect
         return $this->handle($prospect, $request->all());
     }
 
-    public function action(Prospect $prospect, $objectData): Prospect
+    public function action(Prospect $prospect, $modelData): Prospect
     {
         $this->asAction = true;
-        $this->setRawAttributes($objectData);
+        $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 
         return $this->handle($prospect, $validatedData);

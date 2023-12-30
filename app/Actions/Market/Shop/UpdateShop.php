@@ -73,10 +73,10 @@ class UpdateShop
     }
 
 
-    public function action(Shop $shop, $objectData): Shop
+    public function action(Shop $shop, $modelData): Shop
     {
         $this->asAction = true;
-        $this->setRawAttributes($objectData);
+        $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 
         return $this->handle($shop, $validatedData);

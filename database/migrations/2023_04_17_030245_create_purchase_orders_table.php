@@ -48,7 +48,7 @@ return new class () extends Migration {
             $table->decimal('cost_total', 16)->default(0);
             $table->timestampsTz();
             $table->softDeletesTz();
-            $table->unsignedInteger('source_id')->nullable()->unique();
+            $table->string('source_id')->nullable()->unique();
 
 
             $table->index(['provider_id', 'provider_type']);

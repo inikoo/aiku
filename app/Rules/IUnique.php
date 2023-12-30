@@ -64,9 +64,10 @@ class IUnique implements ValidationRule
                     continue;
                 }
 
-                $count = $count->where($columnCollection['column'], $columnCollection['operator'], $columnCollection['value']);
+                $count->where($columnCollection['column'], $columnCollection['operator'], $columnCollection['value']);
             }
         }
+
 
 
         if ($count->count() != 0) {

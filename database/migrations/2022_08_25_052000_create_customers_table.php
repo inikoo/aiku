@@ -35,7 +35,7 @@ return new class () extends Migration {
             $table->jsonb('data');
             $table->timestampsTz();
             $table->softDeletesTz();
-            $table->unsignedInteger('source_id')->nullable()->unique();
+            $table->string('source_id')->nullable()->unique();
             $table->unique(['shop_id', 'reference']);
         });
         DB::statement('CREATE INDEX ON customers USING gin (name gin_trgm_ops) ');

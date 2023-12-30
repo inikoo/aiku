@@ -56,10 +56,10 @@ class UpdateWarehouse
         );
     }
 
-    public function action(Warehouse $warehouse, $objectData): Warehouse
+    public function action(Warehouse $warehouse, $modelData): Warehouse
     {
         $this->asAction = true;
-        $this->setRawAttributes($objectData);
+        $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 
         return $this->handle($warehouse, $validatedData);

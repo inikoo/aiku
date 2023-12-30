@@ -35,9 +35,9 @@ class UpdateOffer
         ];
     }
 
-    public function action(Offer $offer, array $objectData): Offer
+    public function action(Offer $offer, array $modelData): Offer
     {
-        $this->setRawAttributes($objectData);
+        $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 
         return $this->handle($offer, $validatedData);

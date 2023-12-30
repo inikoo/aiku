@@ -40,7 +40,7 @@ return new class () extends Migration {
             $table->timestampsTz();
             $table->softDeletesTz();
             $table->boolean('with_refund')->default(false);
-            $table->unsignedInteger('source_id')->index()->nullable();
+            $table->string('source_id')->index()->nullable();
         });
     }
 

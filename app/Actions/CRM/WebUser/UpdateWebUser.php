@@ -57,10 +57,10 @@ class UpdateWebUser
         return $this->handle($webUser, $request->validated());
     }
 
-    public function action(WebUser $webUser, $objectData): WebUser
+    public function action(WebUser $webUser, $modelData): WebUser
     {
         $this->asAction = true;
-        $this->setRawAttributes($objectData);
+        $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 
         return $this->handle($webUser, $validatedData);

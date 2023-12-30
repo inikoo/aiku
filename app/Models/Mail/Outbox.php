@@ -37,7 +37,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
- * @property int|null $source_id
+ * @property string|null $source_id
  * @property-read Collection<int, \App\Models\Mail\DispatchedEmail> $dispatchedEmails
  * @property-read Collection<int, \App\Models\Mail\Mailshot> $mailshots
  * @property-read Shop|null $shop
