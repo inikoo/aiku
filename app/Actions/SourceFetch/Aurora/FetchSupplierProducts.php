@@ -18,7 +18,7 @@ use JetBrains\PhpStorm\NoReturn;
 
 class FetchSupplierProducts extends FetchAction
 {
-    public string $commandSignature = 'fetch:supplier-products {tenants?*} {--s|source_id=} {--d|db_suffix=}';
+    public string $commandSignature = 'fetch:supplier-products {organisations?*} {--s|source_id=} {--d|db_suffix=}';
 
 
     #[NoReturn] public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?SupplierProduct

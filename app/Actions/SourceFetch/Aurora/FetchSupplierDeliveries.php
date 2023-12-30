@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\DB;
 
 class FetchSupplierDeliveries extends FetchAction
 {
-    public string $commandSignature = 'fetch:supplier-deliveries {tenants?*} {--s|source_id=}';
+    public string $commandSignature = 'fetch:supplier-deliveries {organisations?*} {--s|source_id=}';
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?SupplierDelivery
     {

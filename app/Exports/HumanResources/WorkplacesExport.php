@@ -1,4 +1,9 @@
 <?php
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Sat, 30 Dec 2023 21:59:07 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2023, Raul A Perusquia Flores
+ */
 
 namespace App\Exports\HumanResources;
 
@@ -10,7 +15,7 @@ use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 
-class WorkingPlacesExport implements FromQuery, WithMapping, ShouldAutoSize, WithHeadings
+class WorkplacesExport implements FromQuery, WithMapping, ShouldAutoSize, WithHeadings
 {
     public function query(): Relation|\Illuminate\Database\Eloquent\Builder|Workplace|Builder
     {

@@ -13,7 +13,7 @@ use Illuminate\Support\Collection;
 
 class HydrateSupplierDeliveries extends HydrateModel
 {
-    public string $commandSignature = 'hydrate:supplierDeliveries {tenants?*} {--i|id=}';
+    public string $commandSignature = 'hydrate:supplierDeliveries {organisations?*} {--i|id=}';
 
     public function handle(SupplierDelivery $supplierDelivery): void
     {

@@ -19,7 +19,7 @@ use JetBrains\PhpStorm\NoReturn;
 
 class FetchInvoices extends FetchAction
 {
-    public string $commandSignature = 'fetch:invoices {tenants?*} {--s|source_id=} {--N|only_new : Fetch only new} {--w|with=* : Accepted values: transactions} {--d|db_suffix=} {--r|reset}';
+    public string $commandSignature = 'fetch:invoices {organisations?*} {--s|source_id=} {--N|only_new : Fetch only new} {--w|with=* : Accepted values: transactions} {--d|db_suffix=} {--r|reset}';
 
     #[NoReturn] public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Invoice
     {

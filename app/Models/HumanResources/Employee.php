@@ -23,6 +23,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -75,6 +76,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read MediaCollection<int, \App\Models\Media\Media> $media
  * @property-read UniversalSearch|null $universalSearch
  * @property-read User|null $user
+ * @property-read Collection<int, \App\Models\HumanResources\Workplace> $workplaces
  * @method static \Database\Factories\HumanResources\EmployeeFactory factory($count = null, $state = [])
  * @method static Builder|Employee newModelQuery()
  * @method static Builder|Employee newQuery()
@@ -153,5 +155,21 @@ class Employee extends Model implements HasMedia, Auditable
     {
         return $this->belongsTo(Group::class);
     }
+
+    public function workplaces(): BelongsToMany
+    {
+        return $this->belongsToMany(Workplace::class)->withTimestamps();
+    }
+
+    public function getGroup(): Group
+    {
+        return $this->group;
+    }
+
+    public function getGroupId(): int
+    {
+        return $this->group_id;
+    }
+
 
 }

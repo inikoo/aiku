@@ -7,9 +7,9 @@
 
 namespace App\Actions\HumanResources\Clocking\UI;
 
-use App\Actions\Helpers\History\IndexHistories;
+use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\HumanResources\ClockingMachine\UI\ShowClockingMachine;
-use App\Actions\HumanResources\WorkingPlace\UI\ShowWorkingPlace;
+use App\Actions\HumanResources\Workplace\UI\ShowWorkplace;
 use App\Actions\InertiaAction;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
 use App\Enums\UI\ClockingTabsEnum;
@@ -138,10 +138,10 @@ class ShowClocking extends InertiaAction
                     : Inertia::lazy(fn () => GetClockingShowcase::run($clocking)),
 
                 ClockingTabsEnum::HISTORY->value => $this->tab == ClockingTabsEnum::HISTORY->value ?
-                    fn () => HistoryResource::collection(IndexHistories::run($clocking))
-                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistories::run($clocking)))
+                    fn () => HistoryResource::collection(IndexHistory::run($clocking))
+                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($clocking)))
             ]
-        )->table(IndexHistories::make()->tableStructure());
+        )->table(IndexHistory::make()->tableStructure());
     }
 
 
@@ -175,7 +175,7 @@ class ShowClocking extends InertiaAction
         return match ($routeName) {
             'grp.hr.clockings.show' =>
             array_merge(
-                ShowHumanResourcesDashboard::make()->getBreadcrumbs(),
+                ShowHumanResourcesDashboard::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     $routeParameters['clocking'],
                     [
@@ -192,7 +192,7 @@ class ShowClocking extends InertiaAction
                 ),
             ),
             'grp.hr.working-places.show.clockings.show' => array_merge(
-                (new ShowWorkingPlace())->getBreadcrumbs($routeParameters['workplace']),
+                (new ShowWorkplace())->getBreadcrumbs($routeParameters['workplace']),
                 $headCrumb(
                     $routeParameters['clocking'],
                     [

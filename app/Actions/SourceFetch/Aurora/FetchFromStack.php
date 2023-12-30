@@ -28,7 +28,7 @@ class FetchFromStack
     use WithOrganisationSource;
 
 
-    public string $commandSignature = 'fetch:stack {tenants?*} {--M|max_run_time=0 : max fun time in seconds}';
+    public string $commandSignature = 'fetch:stack {organisations?*} {--M|max_run_time=0 : max fun time in seconds}';
     protected float $startTime;
     protected ?float $maxRunTime = 0;
 
@@ -132,7 +132,7 @@ class FetchFromStack
 
         $this->maxRunTime = $command->option('max_run_time');
 
-        $organisations  = $this->getTenants($command);
+        $organisations  = $this->getOrganisations($command);
         $exitCode       = 0;
 
         foreach ($organisations as $organisation) {
@@ -141,7 +141,7 @@ class FetchFromStack
                  * @throws \Exception
                  */
                 function (Organisation $organisation) use ($command) {
-                    $organisationSource = $this->getTenantSource($organisation);
+                    $organisationSource = $this->getOrganisationSource($organisation);
                     $organisationSource->initialisation(app('currentTenant'));
 
                     $this->handle($organisationSource);

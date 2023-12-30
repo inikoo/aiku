@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\DB;
 
 class FetchEmailTrackingEvents extends FetchAction
 {
-    public string $commandSignature = 'fetch:email-tracking-events {tenants?*} {--s|source_id=}';
+    public string $commandSignature = 'fetch:email-tracking-events {organisations?*} {--s|source_id=}';
 
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?EmailTrackingEvent

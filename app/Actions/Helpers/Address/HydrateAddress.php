@@ -14,7 +14,7 @@ use Illuminate\Support\Collection;
 
 class HydrateAddress extends HydrateModel
 {
-    public string $commandSignature = 'hydrate:address {tenants?*} {--i|id=}';
+    public string $commandSignature = 'hydrate:address {organisations?*} {--i|id=}';
 
 
     public function handle(Address $address): void

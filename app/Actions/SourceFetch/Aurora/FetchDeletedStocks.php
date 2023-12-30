@@ -17,7 +17,7 @@ use JetBrains\PhpStorm\NoReturn;
 
 class FetchDeletedStocks extends FetchAction
 {
-    public string $commandSignature = 'fetch:deleted-stocks {tenants?*} {--s|source_id=} {--d|db_suffix=}';
+    public string $commandSignature = 'fetch:deleted-stocks {organisations?*} {--s|source_id=} {--d|db_suffix=}';
 
 
     #[NoReturn] public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Stock
@@ -32,7 +32,7 @@ class FetchDeletedStocks extends FetchAction
                     );
                 } else {
                     $stock = StoreStock::run(
-                        owner:     $organisationSource->tenant,
+                        owner:     $organisationSource->getOrganisation(),
                         modelData: $deletedStockData['stock']
                     );
                 }

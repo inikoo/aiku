@@ -15,6 +15,16 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *
  * @property int $id
  * @property int $organisation_id
+ * @property int $number_workplaces
+ * @property int $number_workplaces_type_hq
+ * @property int $number_workplaces_type_branch
+ * @property int $number_workplaces_type_home
+ * @property int $number_workplaces_type_group_premisses
+ * @property int $number_workplaces_type_client_premises
+ * @property int $number_workplaces_type_road
+ * @property int $number_workplaces_type_other
+ * @property int $number_clocking_machines
+ * @property int $number_clockings
  * @property int $number_employees
  * @property int $number_employees_state_hired
  * @property int $number_employees_state_working
@@ -26,16 +36,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_employees_gender_male
  * @property int $number_employees_gender_female
  * @property int $number_employees_gender_other
- * @property int $number_workplaces
- * @property int $number_workplaces_type_hq
- * @property int $number_workplaces_type_branch
- * @property int $number_workplaces_type_home
- * @property int $number_workplaces_type_group_premisses
- * @property int $number_workplaces_type_client_premises
- * @property int $number_workplaces_type_road
- * @property int $number_workplaces_type_other
- * @property int $number_clocking_machines
- * @property int $number_clockings
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\SysAdmin\Organisation $organisation

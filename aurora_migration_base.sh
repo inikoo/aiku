@@ -14,56 +14,42 @@ DB_PORT="${1:-$DB_PORT}"
 DB_COLLATE="${2:-$DB_COLLATE}"
 
 DB=aiku
-tenants=( aw sk es aroma  )
-echo -e "🧹 Cleaning up"
-rm -rf devops/devel/tokens/*
-rm -rf devops/devel/snapshots/*
+BACKUP_DB=aiku_backup
 
-rm -rf public/tenants
-rm -rf public/central
-rm -rf storage/app/tenants
-rm -rf storage/app/tenants
-rm -rf storage/app/tenant
-rm -rf storage/app/central
-rm -rf storage/app/group
-
-rm -rf storage/app/public/tenants
-rm -rf storage/app/public/central
-echo -e "✨ Resetting database ${ITALIC}${DB}${NONE}"
+echo -e "🧼 Cleaning storage"
+rm -rf storage/app/media
+echo -e "✨ Resetting databases ${ITALIC}${DB}${NONE}"
 dropdb --force --if-exists ${DB}
-createdb --template=template0 --lc-collate="${DB_COLLATE}" --lc-ctype="${DB_COLLATE}"  ${DB}
+createdb --template=template0 --lc-collate="${DB_COLLATE}" --lc-ctype="${DB_COLLATE}" ${DB}
+dropdb --force --if-exists ${BACKUP_DB}
+createdb --template=template0 --lc-collate="${DB_COLLATE}" --lc-ctype="${DB_COLLATE}" ${BACKUP_DB}
 echo -e "✨ Resetting elasticsearch"
 php artisan es:refresh
+#echo -e "✨ Resetting firebase"
+#php artisan firebase:flush
+echo "Public assets link 🔗"
+php artisan storage:link
+echo "Clear horizon 🧼"
+php artisan horizon:clear
+php artisan horizon:terminate
+echo "Clear cache 🧼"
+php artisan cache:clear
+redis-cli KEYS "wowsbar_database_*" | xargs redis-cli DEL
 echo "🌱 Migrating and seeding database"
-php artisan migrate --path=database/migrations/central --database=central
+php artisan migrate --database=backup --path=database/migrations/backup
+php artisan migrate
 php artisan db:seed
-echo "👮 Creating admin"
-php artisan create:admin root 'Aiku team' 'raul@inikoo.com'
-echo "👮 Creating admin user"
-php artisan create:sys-user Admin root -a
-php artisan access-token:sys-user root root '*' > devops/devel/tokens/admin.token
-echo "🏗️ Creating AW group and tenants"
-./create_aurora_tenants.sh
-php artisan fetch:tenants -d _base
-echo "⚙： Setting up tenants"
-for tenant in "${tenants[@]}"
-do
-    php artisan create:sys-user Tenant "$organisation" -a
-    TOKEN=$(php artisan access-token:sys-user "$organisation" "tenant-$organisation" tenant-root)
-    php artisan fetch:prepare-aurora "$TOKEN" "$organisation"
-    echo "$TOKEN" > "devops/devel/tokens/tenant-$organisation-root.token"
-    echo -e "🔐 $organisation token: $TOKEN\n"
-done
-php artisan tenants:artisan 'scout:flush App\Models\Search\UniversalSearch -q'
+php artisan telescope:clear
+pg_dump -Fc -f "devops/devel/snapshots/fresh.dump" ${DB}
+echo "🏢 create group"
+./create_aurora_organisations.sh
+php artisan fetch:organisations -d _base
+
+
 php artisan create:group-user awg aiku "Development Team" devel@aiku.io -a
 pg_dump -Fc -f "devops/devel/snapshots/au_init.dump" ${DB}
-for tenant in "${tenants[@]}"
-do
-    php artisan create:guest "$organisation" "Aiku" external_administrator
-    php artisan guest:user-from-guest-user "$organisation" aiku aiku
-    php artisan user:add-roles "$organisation" aiku super-admin
-done
-pg_dump -Fc -f "devops/devel/snapshots/au_init_tenants.dump" ${DB}
+
+
 php artisan fetch:employees  -d _base
 php artisan fetch:deleted-employees  -d _base
 php artisan fetch:guests  -d _base

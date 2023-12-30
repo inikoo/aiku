@@ -19,12 +19,12 @@ class RegenerateSlugs
 
     public string $commandSignature = 'maintenance:regenerate-slugs
     {model : model name}
-    {tenants?*} ';
+    {organisations?*} ';
 
 
     public function asCommand(Command $command): int
     {
-        $organisations  = $this->getTenants($command);
+        $organisations  = $this->getOrganisations($command);
         $exitCode       = 0;
 
         foreach ($organisations as $organisation) {

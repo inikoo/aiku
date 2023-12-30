@@ -33,13 +33,21 @@ class StoreImage
         string $collection='photo'
     ): Employee|Guest|Product|Stock|TradeUnit|Customer|SupplierProduct|Supplier|Agent {
         $checksum = md5_file($image_path);
-        if ($subject->getMedia($collection, ['checksum' => $checksum])->count() == 0) {
+
+        $media = $subject->media()->where('collection_name', $collection)->where('checksum', $checksum)->first();
+
+        if (!$media) {
             $subject->addMedia($image_path)
                 ->preservingOriginal()
-                ->withCustomProperties(['checksum' => $checksum])
+                ->withProperties(
+                    [
+                        'checksum'    => $checksum,
+                        'group_id'    => $subject->getGroupId()
+                    ]
+                )
                 ->usingName($filename)
                 ->usingFileName(dechex(crc32($checksum)).".".pathinfo($image_path, PATHINFO_EXTENSION))
-                ->toMediaCollection($collection, 'group');
+                ->toMediaCollection($collection);
         }
         return $subject;
     }

@@ -1,34 +1,35 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 14 Mar 2023 19:09:33 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Thu, 21 Sep 2023 11:34:13 Malaysia Time, Pantai Lembeng, Bali, Indonesia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\HumanResources\WorkingPlace\UI;
+namespace App\Actions\HumanResources\Workplace\UI;
 
 use App\Actions\Assets\Country\UI\GetAddressData;
-use App\Actions\InertiaAction;
+use App\Actions\InertiaOrganisationAction;
 use App\Enums\HumanResources\Workplace\WorkplaceTypeEnum;
 use App\Http\Resources\Helpers\AddressFormFieldsResource;
 use App\Models\Helpers\Address;
+use App\Models\SysAdmin\Organisation;
 use Exception;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\LaravelOptions\Options;
 
-class CreateWorkingPlace extends InertiaAction
+class CreateWorkplace extends InertiaOrganisationAction
 {
     /**
      * @throws Exception
      */
-    public function handle(): Response
+    public function handle(ActionRequest $request): Response
     {
         return Inertia::render(
             'CreateModel',
             [
-                'breadcrumbs' => $this->getBreadcrumbs(),
+                'breadcrumbs' => $this->getBreadcrumbs($request->route()->originalParameters()),
                 'title'       => __('new workplace'),
                 'pageHead'    => [
                     'title'        => __('new workplace'),
@@ -38,8 +39,8 @@ class CreateWorkingPlace extends InertiaAction
                             'style' => 'cancel',
                             'label' => __('cancel'),
                             'route' => [
-                                'name'       => 'grp.hr.working-places.index',
-                                'parameters' => array_values($this->originalParameters)
+                                'name'       => 'org.hr.workplaces.index',
+                                'parameters' => array_values($request->route()->originalParameters())
                             ],
                         ]
                     ]
@@ -47,7 +48,7 @@ class CreateWorkingPlace extends InertiaAction
                 'formData' => [
                     'blueprint' => [
                         [
-                            'title'  => __('name'),
+                            'title'  => __('work place'),
                             'fields' => [
                                 'name' => [
                                     'type'          => 'input',
@@ -70,7 +71,7 @@ class CreateWorkingPlace extends InertiaAction
                                     'value'   => AddressFormFieldsResource::make(
                                         new Address(
                                             [
-                                                'country_id' => app('currentTenant')->country_id,
+                                                'country_id' => $this->organisation->country_id,
 
                                             ]
                                         )
@@ -86,7 +87,7 @@ class CreateWorkingPlace extends InertiaAction
 
                     ],
                     'route'      => [
-                            'name'       => 'grp.models.working-place.store',
+                            'name'       => 'org.models.workplace.store',
 
                     ]
 
@@ -107,18 +108,18 @@ class CreateWorkingPlace extends InertiaAction
     /**
      * @throws Exception
      */
-    public function asController(ActionRequest $request): Response
+    public function asController(Organisation $organisation, ActionRequest $request): Response
     {
-        $this->initialisation($request);
+        $this->initialisation($organisation, $request);
 
-        return $this->handle();
+        return $this->handle($request);
     }
 
 
-    public function getBreadcrumbs(): array
+    public function getBreadcrumbs(array $routeParameters): array
     {
         return array_merge(
-            IndexWorkingPlaces::make()->getBreadcrumbs(),
+            IndexWorkplaces::make()->getBreadcrumbs($routeParameters),
             [
                 [
                     'type'          => 'creatingModel',

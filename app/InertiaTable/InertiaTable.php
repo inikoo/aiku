@@ -12,7 +12,7 @@ class InertiaTable
 {
     private string $name          = 'default';
     private string $pageName      = 'page';
-    private array $perPageOptions = [10, 50, 100, 500, 1000];
+    private array $perPageOptions = [10, 25, 50, 100, 250];
     private Request $request;
     private Collection $columns;
     private Collection $searchInputs;
@@ -24,6 +24,7 @@ class InertiaTable
 
     private Collection $emptyState;
     private Collection $modelOperations;
+    private Collection $exportLinks;
 
     private static bool|string $defaultGlobalSearch = false;
     private static array $defaultQueryBuilderConfig = [];
@@ -36,6 +37,7 @@ class InertiaTable
         $this->elementGroups   = new Collection();
         $this->filters         = new Collection();
         $this->modelOperations = new Collection();
+        $this->exportLinks     = new Collection();
         $this->emptyState      = new Collection();
 
         if (static::$defaultGlobalSearch !== false) {
@@ -43,7 +45,7 @@ class InertiaTable
         }
     }
 
-    public static function defaultGlobalSearch(bool|string $label = 'Search...'): void
+    public static function defaultGlobalSearch(bool|string $label = 'Search on table...'): void
     {
         static::$defaultGlobalSearch = $label !== false ? __($label) : false;
     }
@@ -106,7 +108,6 @@ class InertiaTable
 
     protected function getQueryBuilderProps(): array
     {
-
         return [
             'defaultVisibleToggleableColumns' => $this->columns->reject->hidden->map->key->sort()->values(),
             'columns'                         => $this->transformColumns(),
@@ -129,6 +130,7 @@ class InertiaTable
             'perPageOptions'                  => $this->perPageOptions,
             'elementGroups'                   => $this->transformElementGroups(),
             'modelOperations'                 => $this->modelOperations,
+            'exportLinks'                     => $this->exportLinks,
             'emptyState'                      => $this->emptyState,
             'title'                           => $this->title
         ];
@@ -144,7 +146,7 @@ class InertiaTable
         return $this->columns->map(function (Column $column) use ($columns, $sort) {
             $key = $column->key;
 
-            if (!empty($columns)) {
+            if (!empty($columns) && is_array($columns)) {
                 $column->hidden = !in_array($key, $columns);
             }
 
@@ -225,23 +227,29 @@ class InertiaTable
         }
 
 
-        $this->elementGroups = $this->elementGroups->reject(function (ElementGroup $column) use ($key) {
-            return $column->key === $key;
-        })->push(
+        $this->elementGroups->put(
+            $key,
             new ElementGroup(
                 key: $key,
                 label: $label,
                 elements: $elements
             )
-        )->values();
+        );
 
 
         return $this;
     }
 
 
-    public function column(string $key = null, array|string $label = null, bool $canBeHidden = true, bool $hidden = false, bool $sortable = false, bool $searchable = false): self
-    {
+    public function column(
+        string $key = null,
+        array|string $label = null,
+        bool $canBeHidden = true,
+        bool $hidden = false,
+        bool $sortable = false,
+        bool $searchable = false,
+        string $type = null
+    ): self {
         if (is_string($label)) {
             $label = $label ?: Str::headline($key);
             $key   = $key ?: Str::kebab($label);
@@ -259,7 +267,8 @@ class InertiaTable
                 canBeHidden: $canBeHidden,
                 hidden: $hidden,
                 sortable: $sortable,
-                sorted: false
+                sorted: false,
+                type: $type
             )
         )->values();
 
@@ -267,19 +276,26 @@ class InertiaTable
             $this->searchInput($column->key, $column->label);
         }
 
+
         return $this;
     }
 
 
     public function withGlobalSearch(string $label = null): self
     {
-        return $this->searchInput('global', $label ?: __('Search...'));
+        return $this->searchInput('global', $label ?: __('Search on table...'));
     }
 
     public function withModelOperations(array $modelOperations = null): self
     {
-
         $this->modelOperations = collect($modelOperations);
+
+        return $this;
+    }
+
+    public function withExportLinks(array $exportLinks = null): self
+    {
+        $this->exportLinks = collect($exportLinks);
 
         return $this;
     }
@@ -343,6 +359,7 @@ class InertiaTable
         $props = array_merge($response->getQueryBuilderProps(), [
             $this->name => $this->getQueryBuilderProps(),
         ]);
+
         return $response->with('queryBuilderProps', $props);
     }
 }

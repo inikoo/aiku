@@ -34,7 +34,6 @@ class FetchAction
     protected ?Shop $shop;
     protected array $with;
     protected bool $onlyNew = false;
-    private ?Organisation $organisation;
 
     protected int $hydrateDelay = 0;
 
@@ -82,81 +81,12 @@ class FetchAction
     {
         $this->hydrateDelay = 120;
 
-        $organisations  = $this->getTenants($command);
-        $exitCode       = 0;
+        $organisations = $this->getOrganisations($command);
+        $exitCode      = 0;
 
 
         foreach ($organisations as $organisation) {
-            $result = (int)$organisation->execute(function () use ($command, $organisation) {
-                if (in_array($command->getName(), ['fetch:customers', 'fetch:web-users', 'fetch:products']) and $command->option('shop')) {
-                    $this->shop = Shop::where('slug', $command->option('shop'))->firstOrFail();
-                }
-
-                if (in_array($command->getName(), [
-                    'fetch:stocks',
-                    'fetch:products',
-                    'fetch:orders',
-                    'fetch:invoices',
-                    'fetch:customers',
-                    'fetch:delivery-notes',
-                    'fetch:purchase-orders',
-                    'fetch:suppliers'
-
-                ])) {
-                    $this->onlyNew = (bool)$command->option('only_new');
-                }
-
-                if (in_array($command->getName(), ['fetch:customers', 'fetch:orders', 'fetch:invoices', 'fetch:delivery-notes'])) {
-                    $this->with = $command->option('with');
-                }
-
-                try {
-                    $organisationSource = $this->getTenantSource($organisation);
-                } catch (Exception $exception) {
-                    $command->error($exception->getMessage());
-
-                    return 1;
-                }
-
-                $organisationSource->initialisation(app('currentTenant'), $command->option('db_suffix') ?? '');
-
-                if (in_array($command->getName(), [
-                        'fetch:stocks',
-                        'fetch:products',
-                        'fetch:orders',
-                        'fetch:invoices',
-                        'fetch:customers',
-                        'fetch:web-users',
-                        'fetch:delivery-notes',
-                        'fetch:purchase-orders'
-                    ]) and $command->option('reset')) {
-                    $this->reset();
-                }
-
-                $command->info('');
-
-                if ($command->option('source_id')) {
-                    $this->handle($organisationSource, $command->option('source_id'));
-                } else {
-                    if (!$command->option('quiet') and !$command->getOutput()->isDebug()) {
-                        $info = '✊ '.$command->getName().' '.$organisation->slug;
-                        if ($this->shop) {
-                            $info .= ' shop:'.$this->shop->slug;
-                        }
-                        $command->line($info);
-                        $this->progressBar = $command->getOutput()->createProgressBar($this->count() ?? 0);
-                        $this->progressBar->setFormat('debug');
-                        $this->progressBar->start();
-                    } else {
-                        $command->line('Steps '.number_format($this->count()));
-                    }
-
-                    $this->fetchAll($organisationSource, $command);
-                    $this->progressBar?->finish();
-                }
-
-                return 0;
-            });
+            $result = $this->processOrganisation($command, $organisation);
 
             if ($result !== 0) {
                 $exitCode = $result;
@@ -166,13 +96,86 @@ class FetchAction
         return $exitCode;
     }
 
+    public function processOrganisation(Command $command, Organisation $organisation): int
+    {
+        if (in_array($command->getName(), ['fetch:customers', 'fetch:web-users', 'fetch:products']) and $command->option('shop')) {
+            $this->shop = Shop::where('slug', $command->option('shop'))->firstOrFail();
+        }
+
+        if (in_array($command->getName(), [
+            'fetch:stocks',
+            'fetch:products',
+            'fetch:orders',
+            'fetch:invoices',
+            'fetch:customers',
+            'fetch:delivery-notes',
+            'fetch:purchase-orders',
+            'fetch:suppliers'
+
+        ])) {
+            $this->onlyNew = (bool)$command->option('only_new');
+        }
+
+        if (in_array($command->getName(), ['fetch:customers', 'fetch:orders', 'fetch:invoices', 'fetch:delivery-notes'])) {
+            $this->with = $command->option('with');
+        }
+
+        try {
+            $organisationSource = $this->getOrganisationSource($organisation);
+        } catch (Exception $exception) {
+            $command->error($exception->getMessage());
+
+            return 1;
+        }
+
+        $organisationSource->initialisation($organisation, $command->option('db_suffix') ?? '');
+
+        if (in_array($command->getName(), [
+                'fetch:stocks',
+                'fetch:products',
+                'fetch:orders',
+                'fetch:invoices',
+                'fetch:customers',
+                'fetch:web-users',
+                'fetch:delivery-notes',
+                'fetch:purchase-orders'
+            ]) and $command->option('reset')) {
+            $this->reset();
+        }
+
+        $command->info('');
+
+        if ($command->option('source_id')) {
+            $this->handle($organisationSource, $command->option('source_id'));
+        } else {
+            if (!$command->option('quiet') and !$command->getOutput()->isDebug()) {
+                $info = '✊ '.$command->getName().' '.$organisation->slug;
+                if ($this->shop) {
+                    $info .= ' shop:'.$this->shop->slug;
+                }
+                $command->line($info);
+                $this->progressBar = $command->getOutput()->createProgressBar($this->count() ?? 0);
+                $this->progressBar->setFormat('debug');
+                $this->progressBar->start();
+            } else {
+                $command->line('Steps '.number_format($this->count()));
+            }
+
+            $this->fetchAll($organisationSource, $command);
+            $this->progressBar?->finish();
+        }
+
+        return 0;
+
+    }
+
 
     public function authorize(ActionRequest $request): bool
     {
         if ($request->user()->userable_type == 'Organisation') {
-            $this->tenant = $request->user()->tenant;
+            $organisation = $request->user()->organisation;
 
-            if ($this->tenant->id and $request->user()->tokenCan('aurora')) {
+            if ($organisation->id and $request->user()->tokenCan('aurora')) {
                 return true;
             }
         }
@@ -188,21 +191,18 @@ class FetchAction
     }
 
 
-    public function asController(ActionRequest $request)
+    /**
+     * @throws \Exception
+     */
+    public function asController(Organisation $organisation, ActionRequest $request): ?Model
     {
         $validatedData = $request->validated();
 
-        return $this->tenant->execute(
-            /**
-             * @throws \Exception
-             */
-            function (Organisation $organisation) use ($validatedData) {
-                $organisationSource = $this->getTenantSource($organisation);
-                $organisationSource->initialisation(app('currentTenant'));
 
-                return $this->handle($organisationSource, Arr::get($validatedData, 'id'));
-            }
-        );
+        $organisationSource = $this->getOrganisationSource($organisation);
+        $organisationSource->initialisation($organisation);
+
+        return $this->handle($organisationSource, Arr::get($validatedData, 'id'));
     }
 
     public function jsonResponse($model): array

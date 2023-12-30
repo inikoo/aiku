@@ -18,7 +18,7 @@ use App\Services\Organisation\SourceOrganisationService;
 
 class FetchServices extends FetchAction
 {
-    public string $commandSignature = 'fetch:services {tenants?*} {--s|source_id=} {--d|db_suffix=}';
+    public string $commandSignature = 'fetch:services {organisations?*} {--s|source_id=} {--d|db_suffix=}';
 
     #[NoReturn] public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Product
     {

@@ -16,7 +16,7 @@ use JetBrains\PhpStorm\NoReturn;
 
 class FetchOutboxes extends FetchAction
 {
-    public string $commandSignature = 'fetch:outboxes {tenants?*} {--s|source_id=}';
+    public string $commandSignature = 'fetch:outboxes {organisations?*} {--s|source_id=}';
 
 
     #[NoReturn] public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Outbox

@@ -12,6 +12,7 @@ use App\Models\Assets\Currency;
 use App\Models\Central\Domain;
 use App\Models\Dispatch\Shipper;
 use App\Models\HumanResources\Employee;
+use App\Models\HumanResources\Workplace;
 use App\Models\Inventory\Warehouse;
 use App\Models\Market\Shop;
 use App\Models\Media\Media;
@@ -77,6 +78,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\SysUser|null $sysUser
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Warehouse> $warehouses
  * @property-read \App\Models\SysAdmin\OrganisationWebStats|null $webStats
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Workplace> $workplaces
  * @method static \Database\Factories\SysAdmin\OrganisationFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder|Organisation newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Organisation newQuery()
@@ -117,11 +119,14 @@ class Organisation extends Model implements HasMedia
         return 'slug';
     }
 
-
-
     public function employees(): HasMany
     {
         return $this->hasMany(Employee::class);
+    }
+
+    public function workplaces(): HasMany
+    {
+        return $this->hasMany(Workplace::class);
     }
 
     public function stats(): HasOne

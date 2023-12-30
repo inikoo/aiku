@@ -64,8 +64,6 @@ class SeedOrganisationPermissions
         foreach (RolesEnum::cases() as $case) {
             if ($case->scope() === 'Organisation') {
 
-                print $case->value . "\n";
-
                 if (!$role = (new Role())->where('name', RolesEnum::getRoleName($case->value, $organisation))->first()) {
                     $role = Role::create(
                         [

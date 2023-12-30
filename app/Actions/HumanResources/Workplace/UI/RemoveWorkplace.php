@@ -1,11 +1,11 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Sat, 24 Jun 2023 10:58:06 Malaysia Time, Pantai Lembeng, Bali, Id
+ * Created: Thu, 21 Sep 2023 11:34:13 Malaysia Time, Pantai Lembeng, Bali, Indonesia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\HumanResources\WorkingPlace\UI;
+namespace App\Actions\HumanResources\Workplace\UI;
 
 use App\Actions\InertiaAction;
 use App\Models\HumanResources\Workplace;
@@ -13,7 +13,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class RemoveWorkingPlace extends InertiaAction
+class RemoveWorkplace extends InertiaAction
 {
     public function handle(Workplace $workplace): Workplace
     {
@@ -22,7 +22,7 @@ class RemoveWorkingPlace extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("human-resources.{$this->organisation->slug}.edit");
+        return $request->user()->hasPermissionTo("hr.edit");
     }
 
     public function asController(Workplace $workplace, ActionRequest $request): Workplace
@@ -72,7 +72,7 @@ class RemoveWorkingPlace extends InertiaAction
                 ],
                 'data'      => $this->getAction(
                     route:[
-                        'name'       => 'grp.models.working-place.delete',
+                        'name'       => 'models.workplace.delete',
                         'parameters' => $request->route()->originalParameters()
                     ]
                 )
@@ -83,6 +83,6 @@ class RemoveWorkingPlace extends InertiaAction
 
     public function getBreadcrumbs(Workplace $workplace): array
     {
-        return ShowWorkingPlace::make()->getBreadcrumbs($workplace, suffix: '('.__('deleting').')');
+        return ShowWorkplace::make()->getBreadcrumbs($workplace, suffix: '('.__('deleting').')');
     }
 }

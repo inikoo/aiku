@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\DB;
 
 class FetchEmployees extends FetchAction
 {
-    public string $commandSignature = 'fetch:employees {tenants?*} {--s|source_id=} {--d|db_suffix=}';
+    public string $commandSignature = 'fetch:employees {organisations?*} {--s|source_id=} {--d|db_suffix=}';
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Employee
     {
@@ -29,7 +29,14 @@ class FetchEmployees extends FetchAction
                     modelData: $employeeData['employee']
                 );
             } else {
+
+
+
+
+                $workplace = $organisationSource->getOrganisation()->workplaces()->first();
+
                 $employee = StoreEmployee::run(
+                    parent: $workplace,
                     modelData: $employeeData['employee'],
                 );
             }

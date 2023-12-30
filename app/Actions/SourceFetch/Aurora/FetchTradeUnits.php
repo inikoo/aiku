@@ -17,7 +17,7 @@ use JetBrains\PhpStorm\NoReturn;
 
 class FetchTradeUnits extends FetchAction
 {
-    public string $commandSignature = 'fetch:trade-units {tenants?*} {--s|source_id=} {--d|db_suffix=}';
+    public string $commandSignature = 'fetch:trade-units {organisations?*} {--s|source_id=} {--d|db_suffix=}';
 
     #[NoReturn] public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?TradeUnit
     {

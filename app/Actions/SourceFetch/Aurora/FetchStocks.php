@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\DB;
 
 class FetchStocks extends FetchAction
 {
-    public string $commandSignature = 'fetch:stocks {tenants?*} {--s|source_id=} {--N|only_new : Fetch only new} {--d|db_suffix=} {--r|reset}';
+    public string $commandSignature = 'fetch:stocks {organisations?*} {--s|source_id=} {--N|only_new : Fetch only new} {--d|db_suffix=} {--r|reset}';
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Stock
     {
@@ -30,7 +30,7 @@ class FetchStocks extends FetchAction
                 );
             } else {
                 $stock = StoreStock::run(
-                    owner: $organisationSource->tenant,
+                    owner: $organisationSource->getOrganisation(),
                     modelData: $stockData['stock']
                 );
             }

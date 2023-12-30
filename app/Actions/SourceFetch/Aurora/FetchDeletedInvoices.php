@@ -17,7 +17,7 @@ use JetBrains\PhpStorm\NoReturn;
 
 class FetchDeletedInvoices extends FetchAction
 {
-    public string $commandSignature = 'fetch:deleted-invoices {tenants?*} {--s|source_id=}';
+    public string $commandSignature = 'fetch:deleted-invoices {organisations?*} {--s|source_id=}';
 
 
     #[NoReturn] public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Invoice

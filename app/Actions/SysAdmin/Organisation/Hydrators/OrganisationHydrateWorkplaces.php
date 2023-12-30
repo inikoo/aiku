@@ -8,11 +8,10 @@
 namespace App\Actions\SysAdmin\Organisation\Hydrators;
 
 use App\Models\SysAdmin\Organisation;
-use App\Models\HumanResources\Workplace;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class OrganisationHydrateWorkingPlace implements ShouldBeUnique
+class OrganisationHydrateWorkplaces implements ShouldBeUnique
 {
     use AsAction;
 
@@ -20,9 +19,9 @@ class OrganisationHydrateWorkingPlace implements ShouldBeUnique
     public function handle(Organisation $organisation): void
     {
         $stats = [
-            'number_workplace' => Workplace::count()
+            'number_workplaces' => $organisation->workplaces()->count()
         ];
 
-        $organisation->stats->update($stats);
+        $organisation->humanResourcesStats->update($stats);
     }
 }

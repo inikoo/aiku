@@ -24,7 +24,7 @@ class FetchReset
     use WithOrganisationsArgument;
     use WithAttributes;
 
-    public string $commandSignature = 'fetch:reset {tenants?*}';
+    public string $commandSignature = 'fetch:reset {organisations?*}';
 
 
     private function setAuroraConnection($databaseName): void
@@ -38,7 +38,7 @@ class FetchReset
 
     public function asCommand(Command $command): int
     {
-        $organisations  = $this->getTenants($command);
+        $organisations  = $this->getOrganisations($command);
         $exitCode       = 0;
 
         foreach ($organisations as $organisation) {

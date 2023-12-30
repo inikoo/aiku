@@ -7,7 +7,7 @@
 
 namespace App\Actions\HumanResources\ClockingMachine\UI;
 
-use App\Actions\HumanResources\WorkingPlace\UI\ShowWorkingPlace;
+use App\Actions\HumanResources\Workplace\UI\ShowWorkplace;
 use App\Actions\InertiaAction;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
 use App\Http\Resources\HumanResources\ClockingMachineResource;
@@ -176,7 +176,7 @@ class IndexClockingMachines extends InertiaAction
         return match ($routeName) {
             'grp.hr.clocking-machines.index' =>
             array_merge(
-                (new ShowHumanResourcesDashboard())->getBreadcrumbs(),
+                (new ShowHumanResourcesDashboard())->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     [
                         'name' => 'grp.hr.clocking-machines.index',
@@ -187,7 +187,7 @@ class IndexClockingMachines extends InertiaAction
             'grp.hr.working-places.show.clocking-machines.index',
             =>
             array_merge(
-                (new ShowWorkingPlace())->getBreadcrumbs(
+                (new ShowWorkplace())->getBreadcrumbs(
                     $routeParameters['workplace']
                 ),
                 $headCrumb([

@@ -7,9 +7,9 @@
 
 namespace App\Actions\HumanResources\ClockingMachine\UI;
 
-use App\Actions\Helpers\History\IndexHistories;
+use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\HumanResources\Clocking\UI\IndexClockings;
-use App\Actions\HumanResources\WorkingPlace\UI\ShowWorkingPlace;
+use App\Actions\HumanResources\Workplace\UI\ShowWorkplace;
 use App\Actions\InertiaAction;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
 use App\Enums\UI\ClockingMachineTabsEnum;
@@ -125,12 +125,12 @@ class ShowClockingMachine extends InertiaAction
                     : Inertia::lazy(fn () => ClockingResource::collection(IndexClockings::run($clockingMachine))),
 
                 ClockingMachineTabsEnum::HISTORY->value => $this->tab == ClockingMachineTabsEnum::HISTORY->value ?
-                    fn () => HistoryResource::collection(IndexHistories::run($clockingMachine))
-                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistories::run($clockingMachine)))
+                    fn () => HistoryResource::collection(IndexHistory::run($clockingMachine))
+                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($clockingMachine)))
 
             ]
         )->table(IndexClockings::make()->tableStructure())
-            ->table(IndexHistories::make()->tableStructure());
+            ->table(IndexHistory::make()->tableStructure());
     }
 
 
@@ -163,7 +163,7 @@ class ShowClockingMachine extends InertiaAction
         return match ($routeName) {
             'grp.hr.clocking-machines.show' =>
             array_merge(
-                (new ShowHumanResourcesDashboard())->getBreadcrumbs(),
+                (new ShowHumanResourcesDashboard())->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     $routeParameters['clockingMachine'],
                     [
@@ -183,7 +183,7 @@ class ShowClockingMachine extends InertiaAction
             ),
             'grp.hr.working-places.show.clocking-machines.show' =>
             array_merge(
-                (new ShowWorkingPlace())->getBreadcrumbs($routeParameters['workplace']),
+                (new ShowWorkplace())->getBreadcrumbs($routeParameters['workplace']),
                 $headCrumb(
                     $routeParameters['clockingMachine'],
                     [

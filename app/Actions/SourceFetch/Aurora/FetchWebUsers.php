@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\DB;
 
 class FetchWebUsers extends FetchAction
 {
-    public string $commandSignature = 'fetch:web-users {tenants?*} {--s|source_id=} {--S|shop= : Shop slug} {--d|db_suffix=} {--r|reset}';
+    public string $commandSignature = 'fetch:web-users {organisations?*} {--s|source_id=} {--S|shop= : Shop slug} {--d|db_suffix=} {--r|reset}';
 
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?WebUser

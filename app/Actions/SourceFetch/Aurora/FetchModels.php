@@ -25,7 +25,7 @@ class FetchModels
     use WithOrganisationsArgument;
     use WithOrganisationSource;
 
-    public string $commandSignature = 'fetch:models {tenants?*}';
+    public string $commandSignature = 'fetch:models {organisations?*}';
 
 
     #[NoReturn] public function handle(SourceOrganisationService $organisationSource): void
@@ -44,7 +44,7 @@ class FetchModels
 
     public function asCommand(Command $command): int
     {
-        $organisations  = $this->getTenants($command);
+        $organisations  = $this->getOrganisations($command);
         $exitCode       = 0;
 
         foreach ($organisations as $organisation) {
@@ -53,7 +53,7 @@ class FetchModels
                  * @throws \Exception
                  */
                 function (Organisation $organisation) use ($command) {
-                    $organisationSource = $this->getTenantSource($organisation);
+                    $organisationSource = $this->getOrganisationSource($organisation);
                     $organisationSource->initialisation(app('currentTenant'));
 
                     $this->handle($organisationSource);

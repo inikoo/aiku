@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Mon, 06 Mar 2023 18:46:17 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Sat, 30 Dec 2023 15:00:18 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
@@ -13,7 +13,7 @@ use App\Actions\HumanResources\Clocking\UI\EditClocking;
 use App\Actions\HumanResources\Clocking\UI\IndexClockings;
 use App\Actions\HumanResources\Clocking\UI\RemoveClocking;
 use App\Actions\HumanResources\Clocking\UI\ShowClocking;
-use App\Actions\HumanResources\ClockingMachine\ExportWorkingPlaces;
+use App\Actions\HumanResources\ClockingMachine\ExportWorkplaces;
 use App\Actions\HumanResources\ClockingMachine\UI\CreateClockingMachine;
 use App\Actions\HumanResources\ClockingMachine\UI\EditClockingMachine;
 use App\Actions\HumanResources\ClockingMachine\UI\IndexClockingMachines;
@@ -33,11 +33,11 @@ use App\Actions\HumanResources\JobPosition\UI\RemoveJobPosition;
 use App\Actions\HumanResources\JobPosition\UI\ShowJobPosition;
 use App\Actions\HumanResources\TimeSheet\IndexTimesheets;
 use App\Actions\HumanResources\TimeSheet\ShowTimeSheet;
-use App\Actions\HumanResources\WorkingPlace\UI\CreateWorkingPlace;
-use App\Actions\HumanResources\WorkingPlace\UI\EditWorkingPlace;
-use App\Actions\HumanResources\WorkingPlace\UI\IndexWorkingPlaces;
-use App\Actions\HumanResources\WorkingPlace\UI\RemoveWorkingPlace;
-use App\Actions\HumanResources\WorkingPlace\UI\ShowWorkingPlace;
+use App\Actions\HumanResources\Workplace\UI\CreateWorkplace;
+use App\Actions\HumanResources\Workplace\UI\EditWorkplace;
+use App\Actions\HumanResources\Workplace\UI\IndexWorkplaces;
+use App\Actions\HumanResources\Workplace\UI\RemoveWorkplace;
+use App\Actions\HumanResources\Workplace\UI\ShowWorkplace;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
 use Illuminate\Support\Facades\Route;
 
@@ -72,12 +72,12 @@ Route::get('/calendars/{calendar}', ShowCalendar::class)->name('calendars.show')
 Route::get('/time-sheets', IndexTimeSheets::class)->name('time-sheets.index');
 Route::get('/time-sheets/{timeSheet}', ShowTimesheet::class)->name('time-sheets.show');
 
-Route::get('/working-places', IndexWorkingPlaces::class)->name('working-places.index');
-Route::get('/working-places/create', CreateWorkingPlace::class)->name('working-places.create');
-Route::get('/working-places/export', ExportWorkingPlaces::class)->name('working-places.export');
-Route::get('/working-places/{workplace}', ShowWorkingPlace::class)->name('working-places.show');
-Route::get('/working-places/{workplace}/edit', EditWorkingPlace::class)->name('working-places.edit');
-Route::get('/working-places/{workplace}/delete', RemoveWorkingPlace::class)->name('working-places.remove');
+Route::get('/working-places', IndexWorkplaces::class)->name('working-places.index');
+Route::get('/working-places/create', CreateWorkplace::class)->name('working-places.create');
+Route::get('/working-places/export', ExportWorkplaces::class)->name('working-places.export');
+Route::get('/working-places/{workplace}', ShowWorkplace::class)->name('working-places.show');
+Route::get('/working-places/{workplace}/edit', EditWorkplace::class)->name('working-places.edit');
+Route::get('/working-places/{workplace}/delete', RemoveWorkplace::class)->name('working-places.remove');
 
 Route::scopeBindings()->group(function () {
     Route::get('/clocking-machines/{clockingMachine}/clockings', [IndexClockings::class, 'inClockingMachine'])->name('clocking-machines.clockings.index');

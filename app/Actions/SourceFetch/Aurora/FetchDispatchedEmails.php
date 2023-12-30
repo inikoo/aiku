@@ -17,7 +17,7 @@ use JetBrains\PhpStorm\NoReturn;
 
 class FetchDispatchedEmails extends FetchAction
 {
-    public string $commandSignature = 'fetch:dispatched-emails {tenants?*} {--s|source_id=}';
+    public string $commandSignature = 'fetch:dispatched-emails {organisations?*} {--s|source_id=}';
 
 
     #[NoReturn] public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?DispatchedEmail

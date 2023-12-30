@@ -8,21 +8,26 @@
 namespace App\Models\HumanResources;
 
 use App\Actions\Utils\Abbreviate;
+use App\Enums\HumanResources\Workplace\WorkplaceTypeEnum;
 use App\Models\Assets\Timezone;
 use App\Models\Helpers\Address;
 use App\Models\Search\UniversalSearch;
+use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasAddresses;
+use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 
+use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -30,8 +35,9 @@ use Spatie\Sluggable\SlugOptions;
  * App\Models\HumanResources\Workplace
  *
  * @property int $id
+ * @property int $organisation_id
  * @property bool $status
- * @property string $type
+ * @property WorkplaceTypeEnum $type
  * @property string $slug
  * @property string $name
  * @property int|null $timezone_id
@@ -42,9 +48,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  * @property-read Collection<int, Address> $addresses
+ * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Collection<int, \App\Models\HumanResources\ClockingMachine> $clockingMachines
  * @property-read Collection<int, \App\Models\HumanResources\Clocking> $clockings
- * @property-read Model|\Eloquent $owner
+ * @property-read Collection<int, \App\Models\HumanResources\Employee> $employees
+ * @property-read Organisation $organisation
+ * @property-read \App\Models\HumanResources\WorkplaceStats|null $stats
  * @property-read Timezone|null $timezone
  * @property-read UniversalSearch|null $universalSearch
  * @method static Builder|Workplace newModelQuery()
@@ -55,25 +64,31 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|Workplace withoutTrashed()
  * @mixin Eloquent
  */
-class Workplace extends Model
+class Workplace extends Model implements Auditable
 {
     use HasSlug;
     use HasUniversalSearch;
     use SoftDeletes;
     use HasAddresses;
+    use HasHistory;
 
     protected $casts = [
-        'data'        => 'array',
-        'location'    => 'array',
-        'status'      => 'boolean',
+        'data'     => 'array',
+        'location' => 'array',
+        'status'   => 'boolean',
+        'type'     => WorkplaceTypeEnum::class
     ];
 
     protected $attributes = [
-        'data'        => '{}',
-        'location'    => '{}',
+        'data'     => '{}',
+        'location' => '{}',
     ];
 
     protected $guarded = [];
+
+    protected array $auditExclude = [
+        'location','id'
+    ];
 
     public function getRouteKeyName(): string
     {
@@ -96,9 +111,9 @@ class Workplace extends Model
         return $this->belongsTo(Timezone::class);
     }
 
-    public function owner(): MorphTo
+    public function organisation(): BelongsTo
     {
-        return $this->morphTo('owner');
+        return $this->belongsTo(Organisation::class);
     }
 
     public function clockingMachines(): HasMany
@@ -109,6 +124,16 @@ class Workplace extends Model
     public function clockings(): HasMany
     {
         return $this->hasMany(Clocking::class);
+    }
+
+    public function stats(): HasOne
+    {
+        return $this->hasOne(WorkplaceStats::class);
+    }
+
+    public function employees(): BelongsToMany
+    {
+        return $this->belongsToMany(Employee::class)->withTimestamps();
     }
 
 }

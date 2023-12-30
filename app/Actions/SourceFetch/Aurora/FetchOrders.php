@@ -20,7 +20,7 @@ use Illuminate\Support\Facades\DB;
 
 class FetchOrders extends FetchAction
 {
-    public string $commandSignature = 'fetch:orders {tenants?*}  {--s|source_id=} {--d|db_suffix=} {--w|with=* : Accepted values: transactions payments} {--N|only_new : Fetch only new} {--d|db_suffix=} {--r|reset}';
+    public string $commandSignature = 'fetch:orders {organisations?*}  {--s|source_id=} {--d|db_suffix=} {--w|with=* : Accepted values: transactions payments} {--N|only_new : Fetch only new} {--d|db_suffix=} {--r|reset}';
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Order
     {

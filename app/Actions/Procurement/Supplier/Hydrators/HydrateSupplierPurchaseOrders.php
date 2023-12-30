@@ -14,7 +14,7 @@ use Illuminate\Support\Collection;
 
 class HydrateSupplierPurchaseOrders extends HydrateModel
 {
-    public string $commandSignature = 'hydrate:supplierPurchaseOrder {tenants?*} {--i|id=}';
+    public string $commandSignature = 'hydrate:supplierPurchaseOrder {organisations?*} {--i|id=}';
 
     public function handle(PurchaseOrder $supplierDelivery): void
     {

@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\DB;
 
 class FetchPayments extends FetchAction
 {
-    public string $commandSignature = 'fetch:payments {tenants?*} {--s|source_id=}';
+    public string $commandSignature = 'fetch:payments {organisations?*} {--s|source_id=}';
 
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Payment

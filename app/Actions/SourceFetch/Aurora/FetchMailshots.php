@@ -17,7 +17,7 @@ use JetBrains\PhpStorm\NoReturn;
 
 class FetchMailshots extends FetchAction
 {
-    public string $commandSignature = 'fetch:mailshots {tenants?*} {--s|source_id=}';
+    public string $commandSignature = 'fetch:mailshots {organisations?*} {--s|source_id=}';
 
 
     #[NoReturn] public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Mailshot

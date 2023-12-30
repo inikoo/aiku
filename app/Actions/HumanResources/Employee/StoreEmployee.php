@@ -14,6 +14,7 @@ use App\Actions\InertiaOrganisationAction;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateEmployees;
 use App\Actions\SysAdmin\User\StoreUser;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
+use App\Models\HumanResources\Workplace;
 use App\Models\SysAdmin\Organisation;
 use App\Models\HumanResources\Employee;
 use App\Models\HumanResources\JobPosition;
@@ -31,8 +32,18 @@ class StoreEmployee extends InertiaOrganisationAction
     private bool $asAction = false;
 
 
-    public function handle(Organisation $organisation, array $modelData): Employee
+    public function handle(Organisation|Workplace $parent, array $modelData): Employee
     {
+
+        if(class_basename($parent) === 'Workplace') {
+            $organisation = $parent->organisation;
+            data_set($modelData, 'organisation_id', $organisation->id);
+
+        } else {
+            $organisation = $parent;
+        }
+
+
         data_set($modelData, 'group_id', $organisation->group_id);
 
         $positions = Arr::get($modelData, 'positions', []);
@@ -43,7 +54,7 @@ class StoreEmployee extends InertiaOrganisationAction
         Arr::forget($modelData, ['username', 'password', 'reset_password']);
 
         /** @var Employee $employee */
-        $employee = $organisation->employees()->create($modelData);
+        $employee = $parent->employees()->create($modelData);
 
 
         if (Arr::get($credentials, 'username')) {

@@ -9,14 +9,13 @@ namespace App\Actions\Web\Website;
 
 use App\Actions\HydrateModel;
 
-;
-
+use App\Actions\Web\Website\Hydrators\WebsiteHydrateWebpages;
 use App\Models\Web\Website;
 use Illuminate\Support\Collection;
 
 class HydrateWebsite extends HydrateModel
 {
-    public string $commandSignature = 'hydrate:websites {tenants?*} {--i|id=} ';
+    public string $commandSignature = 'hydrate:websites {organisations?*} {--i|id=} ';
 
 
     public function handle(Website $website): void

@@ -22,10 +22,10 @@ class FetchAurora
 
     public function __construct(SourceOrganisationService $organisationSource)
     {
-        $this->tenantSource    = $organisationSource;
-        $this->tenant          = $organisationSource->tenant;
-        $this->parsedData      = null;
-        $this->auroraModelData = null;
+        $this->organisationSource    = $organisationSource;
+        $this->organisation          = $organisationSource->organisation;
+        $this->parsedData            = null;
+        $this->auroraModelData       = null;
     }
 
     public function fetch(int $id): ?array

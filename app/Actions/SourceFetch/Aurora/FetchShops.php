@@ -22,7 +22,7 @@ use JetBrains\PhpStorm\NoReturn;
 
 class FetchShops extends FetchAction
 {
-    public string $commandSignature = 'fetch:shops {tenants?*} {--s|source_id=} {--d|db_suffix=}';
+    public string $commandSignature = 'fetch:shops {organisations?*} {--s|source_id=} {--d|db_suffix=}';
 
 
     #[NoReturn] public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Shop

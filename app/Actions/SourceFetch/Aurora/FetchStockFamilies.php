@@ -17,7 +17,7 @@ use JetBrains\PhpStorm\NoReturn;
 
 class FetchStockFamilies extends FetchAction
 {
-    public string $commandSignature = 'fetch:stock-families {tenants?*} {--s|source_id=} {--d|db_suffix=}';
+    public string $commandSignature = 'fetch:stock-families {organisations?*} {--s|source_id=} {--d|db_suffix=}';
 
     #[NoReturn] public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?StockFamily
     {

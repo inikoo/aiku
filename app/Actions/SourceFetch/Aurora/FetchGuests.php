@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\DB;
 
 class FetchGuests extends FetchAction
 {
-    public string $commandSignature = 'fetch:guests {tenants?*} {--s|source_id=} {--d|db_suffix=}';
+    public string $commandSignature = 'fetch:guests {organisations?*} {--s|source_id=} {--d|db_suffix=}';
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Guest
     {

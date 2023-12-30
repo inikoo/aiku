@@ -20,7 +20,10 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('group_id');
             $table->foreign('group_id')->references('id')->on('groups')->onUpdate('cascade')->onDelete('cascade');
             $table->unsignedSmallInteger('number_job_positions')->default(0);
-            $this->humanResourcesStats($table);
+            $this->getWorkplaceFieldStats($table);
+            $this->getEmployeeFieldStats($table);
+            $this->getClockingFieldStats($table);
+            $table->timestampsTz();
         });
     }
 

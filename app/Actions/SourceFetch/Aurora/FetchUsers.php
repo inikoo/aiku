@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\DB;
 
 class FetchUsers extends FetchAction
 {
-    public string $commandSignature = 'fetch:users {tenants?*} {--s|source_id=} {--d|db_suffix=}';
+    public string $commandSignature = 'fetch:users {organisations?*} {--s|source_id=} {--d|db_suffix=}';
 
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?User

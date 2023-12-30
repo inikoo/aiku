@@ -83,6 +83,11 @@ use Illuminate\Support\Facades\DB;
         $this->organisation = $organisation;
     }
 
+    public function getOrganisation(): Organisation
+    {
+        return $this->organisation;
+    }
+
     public function fetchOrganisation(Organisation $organisation): ?array
     {
         return (new FetchAuroraOrganisation($this))->fetch();

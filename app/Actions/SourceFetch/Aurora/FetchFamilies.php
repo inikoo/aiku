@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\DB;
 
 class FetchFamilies extends FetchAction
 {
-    public string $commandSignature = 'fetch:families {tenants?*} {--s|source_id=} {--d|db_suffix=}';
+    public string $commandSignature = 'fetch:families {organisations?*} {--s|source_id=} {--d|db_suffix=}';
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?ProductCategory
     {

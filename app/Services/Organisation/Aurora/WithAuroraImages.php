@@ -29,7 +29,7 @@ trait WithAuroraImages
     {
         $image_path = sprintf(
             config('app.aurora_image_path'),
-            Arr::get($this->tenant->source, 'account_code')
+            Arr::get($this->organisation->source, 'account_code')
         );
 
 

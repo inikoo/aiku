@@ -13,7 +13,7 @@ use Illuminate\Support\Collection;
 
 class HydrateWebUser extends HydrateModel
 {
-    public string $commandSignature = 'hydrate:web-user {tenants?*} {--i|id=}';
+    public string $commandSignature = 'hydrate:web-user {organisations?*} {--i|id=}';
 
 
     public function handle(WebUser $webUser): void

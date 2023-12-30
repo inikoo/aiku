@@ -15,7 +15,7 @@ use Illuminate\Support\Collection;
 
 class HydratePaymentServiceProvider extends HydrateModel
 {
-    public string $commandSignature = 'hydrate:payment-service-providers {tenants?*} {--i|id=} ';
+    public string $commandSignature = 'hydrate:payment-service-providers {organisations?*} {--i|id=} ';
 
     public function handle(PaymentServiceProvider $paymentServiceProvider): void
     {

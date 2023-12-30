@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\DB;
 
 class FetchAgents extends FetchAction
 {
-    public string $commandSignature = 'fetch:agents {tenants?*} {--s|source_id=} {--d|db_suffix=}';
+    public string $commandSignature = 'fetch:agents {organisations?*} {--s|source_id=} {--d|db_suffix=}';
 
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Agent
