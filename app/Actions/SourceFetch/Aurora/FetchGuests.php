@@ -25,12 +25,14 @@ class FetchGuests extends FetchAction
         if ($guestData = $organisationSource->fetchGuest($organisationSourceId)) {
 
 
+
             if ($guest = Guest::where('source_id', $guestData['guest']['source_id'])->first()) {
                 $guest = UpdateGuest::make()->action(
                     guest:     $guest,
                     modelData: Arr::except($guestData['guest'], ['source_id','username','password'])
                 );
             } else {
+
                 $guest = StoreGuest::make()->action(
                     group:     $organisationSource->getOrganisation()->group,
                     modelData: $guestData['guest'],

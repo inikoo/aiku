@@ -47,7 +47,7 @@ echo "🏢 create group"
 php artisan fetch:organisations -d "${DB_SUFFIX}"
 
 
-php artisan guest:create aw 'Mr Aiku' aiku -e aiku@inikoo.com --roles=super-admin
+php artisan guest:create awg 'Mr Aiku' aiku -e aiku@inikoo.com --roles=super-admin
 pg_dump -Fc -f "devops/devel/snapshots/au_init.dump" ${DB}
 
 php artisan fetch:employees  -d "${DB_SUFFIX}"

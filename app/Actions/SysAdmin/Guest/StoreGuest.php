@@ -35,7 +35,11 @@ class StoreGuest
     use AsAction;
     use WithAttributes;
 
-    private bool $trusted = false;
+    private bool $asAction = false;
+
+    private Group $group;
+
+    private bool $validatePhone=false;
 
     public function handle(Group $group, array $modelData): Guest
     {
@@ -88,7 +92,7 @@ class StoreGuest
 
     public function authorize(ActionRequest $request): bool
     {
-        if ($this->trusted) {
+        if ($this->asAction) {
             return true;
         }
 
@@ -97,8 +101,9 @@ class StoreGuest
 
     public function prepareForValidation(): void
     {
-        $this->set('alias', $this->get('username'));
-
+        if (!$this->has('alias')) {
+            $this->set('alias', $this->get('username'));
+        }
         if ($this->get('phone')) {
             $this->set('phone', preg_replace('/[^0-9+]/', '', $this->get('phone')));
         }
@@ -113,19 +118,28 @@ class StoreGuest
 
     public function rules(): array
     {
+
+        $phoneValidation=['sometimes', 'nullable'];
+
+        if($this->validatePhone) {
+            $phoneValidation[]= 'phone:AUTO';
+        }
+
+
         return [
-            'alias'          => ['required', 'iunique:guests', 'string', 'max:12',Rule::notIn(['export', 'create'])],
-            'username'       => ['required', 'required', new AlphaDashDot(), 'iunique:users',Rule::notIn(['export', 'create'])],
+            'alias'          => ['required', 'iunique:guests', 'string', 'max:12', Rule::notIn(['export', 'create'])],
+            'username'       => ['required', 'required', new AlphaDashDot(), 'iunique:users', Rule::notIn(['export', 'create'])],
             'company_name'   => ['nullable', 'string', 'max:255'],
             'contact_name'   => ['required', 'string', 'max:255'],
-            'phone'          => ['sometimes','nullable', 'phone:AUTO'],
-            'email'          => ['sometimes','nullable', 'email'],
+            'phone'          => $phoneValidation,
+            'email'          => ['sometimes', 'nullable', 'email'],
             'roles.*'        => [
                 Rule::exists('roles', 'name')
-                    ->where('group_id', app('group')->id)
+                    ->where('group_id', $this->group->id)
             ],
-            'password'       => ['sometimes', 'required', 'max:255', app()->isLocal() || app()->environment('testing') ? null : Password::min(8)->uncompromised()],
-            'reset_password' => ['sometimes', 'boolean']
+            'password'          => ['sometimes', 'required', 'max:255', app()->isLocal() || app()->environment('testing') ? null : Password::min(8)->uncompromised()],
+            'reset_password'    => ['sometimes', 'boolean'],
+            'source_id'         => ['sometimes', 'string'],
         ];
     }
 
@@ -133,6 +147,7 @@ class StoreGuest
     public function asController(ActionRequest $request): Guest
     {
         $this->fillFromRequest($request);
+        $this->group = app('group');
 
         return $this->handle(app('group'), $this->validateAttributes());
     }
@@ -140,11 +155,12 @@ class StoreGuest
 
     public function action(Group $group, array $modelData): Guest
     {
-        $this->trusted = true;
-        $this->setRawAttributes($modelData);
-        $validatedData = $this->validateAttributes();
+        $this->asAction = true;
+        $this->group    = $group;
 
-        return $this->handle($group, $validatedData);
+        $this->setRawAttributes($modelData);
+
+        return $this->handle($group, $this->validateAttributes());
     }
 
     public string $commandSignature = 'guest:create {group : group slug} {name} {username}
@@ -154,10 +170,11 @@ class StoreGuest
 
     public function asCommand(Command $command): int
     {
-        $this->trusted = true;
+        $this->asAction = true;
 
         try {
-            $group = Group::where('code', $command->argument('group'))->firstOrFail();
+            $group       = Group::where('code', $command->argument('group'))->firstOrFail();
+            $this->group = $group;
             app()->instance('group', $group);
             setPermissionsTeamId($group->id);
         } catch (Exception $e) {

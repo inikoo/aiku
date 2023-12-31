@@ -7,6 +7,7 @@
 
 namespace App\Services\Organisation\Aurora;
 
+use App\Models\SysAdmin\Guest;
 use App\Models\SysAdmin\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -32,8 +33,13 @@ class FetchAuroraGuest extends FetchAurora
         $this->auroraModelData->userData = $userData;
 
 
-        $username = Str::snake($userData->{'User Handle'});
+        $username = Str::snake(str_replace(' ', '', strtolower($this->auroraModelData->userData->{'User Handle'})));
         if (User::where('username', $username)->exists()) {
+            return $this->parsedData;
+        }
+
+        $alias=$this->auroraModelData->{'Staff Alias'};
+        if (Guest::where('alias', $alias)->exists()) {
             return $this->parsedData;
         }
 
@@ -57,15 +63,17 @@ class FetchAuroraGuest extends FetchAurora
         }
 
 
+
+
         $this->parsedData['guest'] = [
 
-            'alias'         => strtolower($this->auroraModelData->{'Staff Alias'}),
+            'alias'         => $this->auroraModelData->{'Staff Alias'},
             'contact_name'  => $this->auroraModelData->{'Staff Name'},
             'date_of_birth' => $this->parseDate($this->auroraModelData->{'Staff Birthday'}),
             'created_at'    => $this->auroraModelData->{'Staff Valid From'},
             'data'          => $data,
             'source_id'     => $this->organisation->id.':'.$this->auroraModelData->{'Staff Key'},
-            'username'      => Str::snake(str_replace($this->auroraModelData->userData->{'User Handle'}, ' ', '')),
+            'username'      => Str::snake(str_replace(' ', '', strtolower($this->auroraModelData->userData->{'User Handle'}))),
             'password'      => app()->environment('local') ? 'hello' : Str::random(),
 
         ];

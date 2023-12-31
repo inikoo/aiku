@@ -10,22 +10,26 @@ namespace App\Actions\SysAdmin\Guest;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\SysAdmin\GuestResource;
 use App\Models\SysAdmin\Guest;
+use App\Rules\IUnique;
+use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateGuest
 {
     use WithActionUpdate;
 
-    private bool $asAction = false;
+    private bool $asAction      = false;
+    private bool $validatePhone = false;
+
+    private Guest $guest;
 
     public function handle(Guest $guest, array $modelData): Guest
     {
-        $guest= $this->update($guest, $modelData, [
+        $guest = $this->update($guest, $modelData, [
             'data',
         ]);
 
         if ($guest->wasChanged('status')) {
-
             if (!$guest->status) {
                 $guest->user->update(
                     [
@@ -49,10 +53,35 @@ class UpdateGuest
 
     public function rules(): array
     {
+        $phoneValidation = ['sometimes', 'nullable'];
+
+        if ($this->validatePhone) {
+            $phoneValidation[] = 'phone:AUTO';
+        }
+
+
         return [
+            'alias'                    => [
+                'required',
+                'string',
+                'max:12',
+                Rule::notIn(['export', 'create']),
+                new IUnique(
+                    table: 'guests',
+                    extraConditions: [
+                        [
+                            'column'   => 'id',
+                            'operator' => '!=',
+                            'value'    => $this->guest->id
+                        ],
+                    ]
+                ),
+
+            ],
+            'company_name'             => ['sometimes', 'nullable', 'string', 'max:255'],
             'contact_name'             => ['sometimes', 'required', 'string', 'max:255'],
             'email'                    => ['sometimes', 'nullable', 'email', 'max:255'],
-            'phone'                    => ['sometimes', 'nullable', 'phone:AUTO'],
+            'phone'                    => $phoneValidation,
             'identity_document_number' => ['sometimes', 'nullable', 'string'],
             'identity_document_type'   => ['sometimes', 'nullable', 'string'],
         ];
@@ -61,14 +90,18 @@ class UpdateGuest
 
     public function asController(Guest $guest, ActionRequest $request): Guest
     {
-        $request->validate();
+        $this->guest = $guest;
 
-        return $this->handle($guest, $request->all());
+        $this->fillFromRequest($request);
+        $validatedData = $this->validateAttributes();
+
+        return $this->handle($guest, $validatedData);
     }
 
     public function action(Guest $guest, $modelData): Guest
     {
         $this->asAction = true;
+        $this->guest    = $guest;
         $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 
