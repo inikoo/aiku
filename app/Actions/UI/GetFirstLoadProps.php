@@ -10,7 +10,6 @@ namespace App\Actions\UI;
 use App\Actions\Assets\Language\UI\GetLanguagesOptions;
 use App\Actions\UI\Layout\GetLayout;
 use App\Http\Resources\Assets\LanguageResource;
-use App\Http\Resources\SysAdmin\Group\GroupResource;
 use App\Models\Assets\Language;
 use App\Models\SysAdmin\User;
 use Illuminate\Support\Facades\App;
@@ -34,7 +33,7 @@ class GetFirstLoadProps
 
         return
             [
-            'group'      => $user ? GroupResource::make(app('group'))->getArray() : null,
+
             'localeData' =>
                 [
                     'language'        => LanguageResource::make($language)->getArray(),
@@ -44,48 +43,7 @@ class GetFirstLoadProps
             'layout' => GetLayout::run($user)
 
 
-            /*
 
-            'layoutCurrentShopSlug' => function () use ($user) {
-                if ($user) {
-                    return GetCurrentShopSlug::run($user);
-                } else {
-                    return null;
-                }
-            },
-
-
-            'layoutShopsList'      => function () use ($user) {
-                if ($user) {
-                    return GetShops::run($user);
-                } else {
-                    return [];
-                }
-            },
-            'layoutWebsitesList'   => function () use ($user) {
-                if ($user) {
-                    return GetWebsites::run($user);
-                } else {
-                    return [];
-                }
-            },
-            'layoutWarehousesList' => function () use ($user) {
-                if ($user) {
-                    return GetWarehouses::run($user);
-                } else {
-                    return [];
-                }
-            },
-
-            'layout' => function () use ($user) {
-                if ($user) {
-                    return GetLayout::run($user);
-                } else {
-                    return [];
-                }
-            }
-
-            */
 
         ];
     }

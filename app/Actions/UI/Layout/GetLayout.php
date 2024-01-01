@@ -7,6 +7,8 @@
 
 namespace App\Actions\UI\Layout;
 
+use App\Http\Resources\SysAdmin\Group\GroupResource;
+use App\Http\Resources\SysAdmin\Organisation\OrganisationResource;
 use App\Http\Resources\UI\ShopsNavigationResource;
 use App\Http\Resources\UI\WarehousesNavigationResource;
 use App\Http\Resources\UI\WebsitesNavigationResource;
@@ -28,15 +30,62 @@ class GetLayout
 
 
         return [
+
+            'group'         => GroupResource::make(app('group'))->getArray(),
+            'organisations' => OrganisationResource::collection($user->authorisedOrganisations),
+
             'navigation' => [
                 'grp' => GetGroupNavigation::run($user),
-                'org' => GetOrganisations::run($user),
+                'org' => GetOrganisationsLayout::run($user),
             ]
 
 
             // 'shopsInDropDown'      => ShopsNavigationResource::collection(Shop::all()),
             // 'websitesInDropDown'   => WebsitesNavigationResource::collection(Website::all()),
             // 'warehousesInDropDown' => WarehousesNavigationResource::collection(Warehouse::all()),
+            /*
+
+                      'layoutCurrentShopSlug' => function () use ($user) {
+                          if ($user) {
+                              return GetCurrentShopSlug::run($user);
+                          } else {
+                              return null;
+                          }
+                      },
+
+
+                      'layoutShopsList'      => function () use ($user) {
+                          if ($user) {
+                              return GetShops::run($user);
+                          } else {
+                              return [];
+                          }
+                      },
+                      'layoutWebsitesList'   => function () use ($user) {
+                          if ($user) {
+                              return GetWebsites::run($user);
+                          } else {
+                              return [];
+                          }
+                      },
+                      'layoutWarehousesList' => function () use ($user) {
+                          if ($user) {
+                              return GetWarehouses::run($user);
+                          } else {
+                              return [];
+                          }
+                      },
+
+                      'layout' => function () use ($user) {
+                          if ($user) {
+                              return GetLayout::run($user);
+                          } else {
+                              return [];
+                          }
+                      }
+
+                      */
+
 
         ];
     }
