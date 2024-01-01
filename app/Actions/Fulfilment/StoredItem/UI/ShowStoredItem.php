@@ -7,7 +7,7 @@
 
 namespace App\Actions\Fulfilment\StoredItem\UI;
 
-use App\Actions\Helpers\History\IndexHistories;
+use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\InertiaAction;
 use App\Actions\UI\Fulfilment\FulfilmentDashboard;
 use App\Enums\Fulfilment\StoredItem\StoredItemStatusEnum;
@@ -97,11 +97,11 @@ class ShowStoredItem extends InertiaAction
                 ],
 
                 StoredItemTabsEnum::HISTORY->value => $this->tab == StoredItemTabsEnum::HISTORY->value ?
-                    fn () => HistoryResource::collection(IndexHistories::run($this->storedItem))
-                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistories::run($this->storedItem)))
+                    fn () => HistoryResource::collection(IndexHistory::run($this->storedItem))
+                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($this->storedItem)))
 
             ]
-        )->table(IndexHistories::make()->tableStructure());
+        )->table(IndexHistory::make()->tableStructure());
     }
 
 

@@ -7,10 +7,9 @@
 
 namespace App\Actions\Inventory\Stock\UI;
 
-use App\Actions\Helpers\History\IndexHistories;
+use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\InertiaAction;
 use App\Actions\Inventory\StockFamily\UI\ShowStockFamily;
-
 use App\Actions\UI\Inventory\InventoryDashboard;
 use App\Enums\UI\StockTabsEnum;
 use App\Http\Resources\History\HistoryResource;
@@ -102,8 +101,8 @@ class ShowStock extends InertiaAction
                      : Inertia::lazy(fn () => GetStockShowcase::run($stock)),
 
                  StockTabsEnum::HISTORY->value => $this->tab == StockTabsEnum::HISTORY->value ?
-                     fn () => HistoryResource::collection(IndexHistories::run($stock))
-                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistories::run($stock)))
+                     fn () => HistoryResource::collection(IndexHistory::run($stock))
+                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($stock)))
 
 
              ]

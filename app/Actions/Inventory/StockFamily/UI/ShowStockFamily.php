@@ -7,7 +7,7 @@
 
 namespace App\Actions\Inventory\StockFamily\UI;
 
-use App\Actions\Helpers\History\IndexHistories;
+use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\InertiaAction;
 use App\Actions\Inventory\Stock\UI\IndexStocks;
 use App\Actions\UI\Inventory\InventoryDashboard;
@@ -122,8 +122,8 @@ class ShowStockFamily extends InertiaAction
                         )
                     )),
                 StockFamilyTabsEnum::HISTORY->value => $this->tab == StockFamilyTabsEnum::HISTORY->value ?
-                    fn () => HistoryResource::collection(IndexHistories::run($stockFamily))
-                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistories::run($stockFamily)))
+                    fn () => HistoryResource::collection(IndexHistory::run($stockFamily))
+                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($stockFamily)))
             ]
         )->table();
     }

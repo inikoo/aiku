@@ -8,7 +8,7 @@
 namespace App\Actions\Market\ProductCategory\UI;
 
 use App\Actions\CRM\Customer\UI\IndexCustomers;
-use App\Actions\Helpers\History\IndexHistories;
+use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\InertiaAction;
 use App\Actions\Mail\Mailshot\IndexMailshots;
 use App\Actions\Market\Product\UI\IndexProducts;
@@ -145,8 +145,8 @@ class ShowDepartment extends InertiaAction
                     )),
 
                 DepartmentTabsEnum::HISTORY->value => $this->tab == DepartmentTabsEnum::HISTORY->value ?
-                    fn () => HistoryResource::collection(IndexHistories::run($department))
-                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistories::run($department))),
+                    fn () => HistoryResource::collection(IndexHistory::run($department))
+                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($department))),
 
 
                 DepartmentTabsEnum::FAMILIES->value  => $this->tab == DepartmentTabsEnum::FAMILIES->value ?
@@ -215,7 +215,7 @@ class ShowDepartment extends InertiaAction
                     prefix: 'products'
                 )
             )
-            ->table(IndexHistories::make()->tableStructure());
+            ->table(IndexHistory::make()->tableStructure());
     }
 
 

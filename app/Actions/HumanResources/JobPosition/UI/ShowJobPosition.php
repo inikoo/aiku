@@ -1,13 +1,13 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Fri, 16 Jun 2023 11:39:33 Malaysia Time, Pantai Lembeng, Bali, Id
+ * Created: Fri, 16 Jun 2023 11:39:33 Malaysia Time, Pantai Lembeng, Bali, Indonesia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
 namespace App\Actions\HumanResources\JobPosition\UI;
 
-use App\Actions\Helpers\History\IndexHistories;
+use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\HumanResources\Employee\UI\IndexEmployees;
 use App\Actions\InertiaAction;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
@@ -48,7 +48,7 @@ class ShowJobPosition extends InertiaAction
             'HumanResources/JobPosition',
             [
                 'title'       => __('position'),
-                'breadcrumbs' => $this->getBreadcrumbs($jobPosition),
+                'breadcrumbs' => $this->getBreadcrumbs($request->route()->originalParameters()),
                 'navigation'  => [
                     'previous' => $this->getPrevious($jobPosition, $request),
                     'next'     => $this->getNext($jobPosition, $request),
@@ -113,8 +113,8 @@ class ShowJobPosition extends InertiaAction
 
 
                 JobPositionTabsEnum::HISTORY->value => $this->tab == JobPositionTabsEnum::HISTORY->value ?
-                fn () => HistoryResource::collection(IndexHistories::run($jobPosition))
-                : Inertia::lazy(fn () => HistoryResource::collection(IndexHistories::run($jobPosition)))
+                fn () => HistoryResource::collection(IndexHistory::run($jobPosition))
+                : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($jobPosition)))
             ]
         );
     }
@@ -125,10 +125,11 @@ class ShowJobPosition extends InertiaAction
         return new JobPositionResource($jobPosition);
     }
 
-    public function getBreadcrumbs(JobPosition $jobPosition, $suffix = null): array
+    public function getBreadcrumbs(array $routeParameters, $suffix = null): array
     {
+        $jobPosition = JobPosition::where('slug', $routeParameters['jobPosition'])->first();
         return array_merge(
-            (new ShowHumanResourcesDashboard())->getBreadcrumbs(),
+            (new ShowHumanResourcesDashboard())->getBreadcrumbs($routeParameters),
             [
                 [
                     'type'           => 'modelWithIndex',

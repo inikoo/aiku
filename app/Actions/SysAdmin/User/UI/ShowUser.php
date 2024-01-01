@@ -7,7 +7,7 @@
 
 namespace App\Actions\SysAdmin\User\UI;
 
-use App\Actions\Helpers\History\IndexHistories;
+use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\InertiaAction;
 use App\Actions\SysAdmin\UserRequest\ShowUserRequestLogs;
 use App\Actions\Traits\WithElasticsearch;
@@ -82,12 +82,12 @@ class ShowUser extends InertiaAction
 
 
                 UserTabsEnum::HISTORY->value => $this->tab == UserTabsEnum::HISTORY->value ?
-                    fn () => HistoryResource::collection(IndexHistories::run($user))
-                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistories::run($user)))
+                    fn () => HistoryResource::collection(IndexHistory::run($user))
+                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($user)))
 
             ]
         )->table(ShowUserRequestLogs::make()->tableStructure())
-            ->table(IndexHistories::make()->tableStructure());
+            ->table(IndexHistory::make()->tableStructure());
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters, string $suffix = ''): array

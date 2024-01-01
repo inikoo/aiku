@@ -7,7 +7,7 @@
 
 namespace App\Actions\Procurement\Supplier\UI;
 
-use App\Actions\Helpers\History\IndexHistories;
+use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\InertiaAction;
 use App\Actions\Procurement\Agent\UI\ShowAgent;
 use App\Actions\Procurement\PurchaseOrder\UI\IndexPurchaseOrders;
@@ -166,14 +166,14 @@ class ShowSupplier extends InertiaAction
                     : Inertia::lazy(fn () => SupplierDeliveryResource::collection(IndexSupplierDeliveries::run($supplier))),
 
                 SupplierTabsEnum::HISTORY->value => $this->tab == SupplierTabsEnum::HISTORY->value ?
-                    fn () => HistoryResource::collection(IndexHistories::run($supplier))
-                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistories::run($supplier)))
+                    fn () => HistoryResource::collection(IndexHistory::run($supplier))
+                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($supplier)))
             ]
         )->table(IndexSupplierProducts::make()->tableStructure())
         ->table(IndexSupplierProducts::make()->tableStructure())
         ->table(IndexPurchaseOrders::make()->tableStructure())
         ->table(IndexSupplierDeliveries::make()->tableStructure())
-        ->table(IndexHistories::make()->tableStructure());
+        ->table(IndexHistory::make()->tableStructure());
     }
 
 

@@ -8,7 +8,7 @@
 namespace App\Actions\Web\Website\UI;
 
 use App\Actions\CRM\WebUser\IndexWebUser;
-use App\Actions\Helpers\History\IndexHistories;
+use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\InertiaAction;
 use App\Actions\UI\Dashboard\ShowDashboard;
 use App\Actions\UI\WithInertia;
@@ -135,8 +135,8 @@ class ShowWebsite extends InertiaAction
                         )
                     )),
                 WebsiteTabsEnum::CHANGELOG->value => $this->tab == WebsiteTabsEnum::CHANGELOG->value ?
-                    fn () => HistoryResource::collection(IndexHistories::run($website))
-                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistories::run($website)))
+                    fn () => HistoryResource::collection(IndexHistory::run($website))
+                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($website)))
             ]
         )->table(
             IndexWebpageVariants::make()->tableStructure(
@@ -155,7 +155,7 @@ class ShowWebsite extends InertiaAction
                 ],
                 prefix: 'web_users'
             )
-        )->table(IndexHistories::make()->tableStructure());
+        )->table(IndexHistory::make()->tableStructure());
     }
 
 

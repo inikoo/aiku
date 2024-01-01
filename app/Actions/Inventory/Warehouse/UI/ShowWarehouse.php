@@ -7,7 +7,7 @@
 
 namespace App\Actions\Inventory\Warehouse\UI;
 
-use App\Actions\Helpers\History\IndexHistories;
+use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\InertiaAction;
 use App\Actions\Inventory\Location\UI\IndexLocations;
 use App\Actions\Inventory\WarehouseArea\UI\IndexWarehouseAreas;
@@ -153,8 +153,8 @@ class ShowWarehouse extends InertiaAction
                     )),
 
                 WarehouseTabsEnum::HISTORY->value => $this->tab == WarehouseTabsEnum::HISTORY->value ?
-                    fn () => HistoryResource::collection(IndexHistories::run($warehouse))
-                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistories::run($warehouse)))
+                    fn () => HistoryResource::collection(IndexHistory::run($warehouse))
+                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($warehouse)))
 
             ]
         )->table(
@@ -187,7 +187,7 @@ class ShowWarehouse extends InertiaAction
                 ],
                 prefix: 'locations' */
             )
-        )->table(IndexHistories::make()->tableStructure());
+        )->table(IndexHistory::make()->tableStructure());
     }
 
 

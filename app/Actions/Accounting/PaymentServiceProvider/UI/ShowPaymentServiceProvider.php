@@ -10,7 +10,7 @@ namespace App\Actions\Accounting\PaymentServiceProvider\UI;
 use App\Actions\Accounting\Payment\UI\IndexPayments;
 use App\Actions\Accounting\PaymentAccount\UI\IndexPaymentAccounts;
 use App\Actions\Accounting\PaymentServiceProvider\GetPaymentServiceProviderShowcase;
-use App\Actions\Helpers\History\IndexHistories;
+use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\InertiaAction;
 use App\Actions\UI\Accounting\AccountingDashboard;
 use App\Enums\UI\PaymentServiceProviderTabsEnum;
@@ -145,8 +145,8 @@ class ShowPaymentServiceProvider extends InertiaAction
                     )),
 
                 PaymentServiceProviderTabsEnum::HISTORY->value => $this->tab == PaymentServiceProviderTabsEnum::HISTORY->value ?
-                    fn () => HistoryResource::collection(IndexHistories::run($paymentServiceProvider))
-                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistories::run($paymentServiceProvider)))
+                    fn () => HistoryResource::collection(IndexHistory::run($paymentServiceProvider))
+                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($paymentServiceProvider)))
             ]
         )
         ->table(
@@ -175,7 +175,7 @@ class ShowPaymentServiceProvider extends InertiaAction
             //            ],
             //            prefix: 'payments'
         ))
-        ->table(IndexHistories::make()->tableStructure());
+        ->table(IndexHistory::make()->tableStructure());
     }
     public function jsonResponse(PaymentServiceProvider $paymentServiceProvider): PaymentServiceProviderResource
     {

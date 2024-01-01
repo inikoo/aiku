@@ -7,7 +7,7 @@
 
 namespace App\Actions\Procurement\Agent\UI;
 
-use App\Actions\Helpers\History\IndexHistories;
+use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\InertiaAction;
 use App\Actions\Procurement\PurchaseOrder\UI\IndexPurchaseOrders;
 use App\Actions\Procurement\Supplier\UI\IndexSuppliers;
@@ -180,8 +180,8 @@ class ShowAgent extends InertiaAction
                     )),
 
                 AgentTabsEnum::HISTORY->value => $this->tab == AgentTabsEnum::HISTORY->value ?
-                    fn () => HistoryResource::collection(IndexHistories::run($agent))
-                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistories::run($agent)))
+                    fn () => HistoryResource::collection(IndexHistory::run($agent))
+                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($agent)))
             ]
         )->table(
             IndexPurchaseOrders::make()->tableStructure(
@@ -222,7 +222,7 @@ class ShowAgent extends InertiaAction
                  ],
                  prefix: 'suppliers' */
             )
-        )->table(IndexHistories::make()->tableStructure());
+        )->table(IndexHistory::make()->tableStructure());
     }
 
 

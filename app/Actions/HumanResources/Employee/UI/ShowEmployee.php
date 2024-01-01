@@ -7,7 +7,7 @@
 
 namespace App\Actions\HumanResources\Employee\UI;
 
-use App\Actions\Helpers\History\IndexHistories;
+use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\InertiaAction;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
 use App\Enums\UI\EmployeeTabsEnum;
@@ -47,7 +47,7 @@ class ShowEmployee extends InertiaAction
             'HumanResources/Employee',
             [
                 'title'       => __('employee'),
-                'breadcrumbs' => $this->getBreadcrumbs($employee),
+                'breadcrumbs' => $this->getBreadcrumbs($request->route()->originalParameters()),
                 'navigation'  => [
                     'previous' => $this->getPrevious($employee, $request),
                     'next'     => $this->getNext($employee, $request),
@@ -102,10 +102,10 @@ class ShowEmployee extends InertiaAction
                     : Inertia::lazy(fn () => $this->getData($employee)),
 
                 EmployeeTabsEnum::HISTORY->value => $this->tab == EmployeeTabsEnum::HISTORY->value ?
-                    fn () => HistoryResource::collection(IndexHistories::run($employee))
-                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistories::run($employee)))
+                    fn () => HistoryResource::collection(IndexHistory::run($employee))
+                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($employee)))
             ]
-        )->table(IndexHistories::make()->tableStructure());
+        )->table(IndexHistory::make()->tableStructure());
     }
 
     public function getData(Employee $employee): array
@@ -118,10 +118,11 @@ class ShowEmployee extends InertiaAction
         return new EmployeeResource($employee);
     }
 
-    public function getBreadcrumbs(Employee $employee, $suffix = null): array
+    public function getBreadcrumbs(array $routeParameters, $suffix = null): array
     {
+        $employee= Employee::where('slug', $routeParameters['employee'])->first();
         return array_merge(
-            (new ShowHumanResourcesDashboard())->getBreadcrumbs(),
+            (new ShowHumanResourcesDashboard())->getBreadcrumbs($routeParameters),
             [
                 [
                     'type'           => 'modelWithIndex',
