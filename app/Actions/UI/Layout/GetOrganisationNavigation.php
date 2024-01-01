@@ -415,7 +415,7 @@ class GetOrganisationNavigation
         }
 
         if ($user->hasPermissionTo('fulfilment.view')
-            //  and app('currentTenant')->marketStats->number_shops_subtype_fulfilment
+            //  and app('currentTenant')->marketStats->number_shops_type_fulfilment
         ) {
             $navigation['fulfilment'] = [
                 'label'   => __('fulfilment'),

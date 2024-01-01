@@ -73,8 +73,8 @@ class IndexShops extends InertiaAction
 
         return $queryBuilder
             ->defaultSort('shops.code')
-            ->select(['code', 'id', 'name', 'slug','type','subtype'])
-            ->allowedSorts(['code', 'name','type','subtype'])
+            ->select(['code', 'id', 'name', 'slug','type'])
+            ->allowedSorts(['code', 'name','type'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -113,7 +113,6 @@ class IndexShops extends InertiaAction
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'type', label: __('type'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'subtype', label: __('subtype'), canBeHidden: false, sortable: true, searchable: true)
                 ->defaultSort('code');
         };
     }

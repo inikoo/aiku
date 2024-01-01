@@ -8,7 +8,6 @@
 namespace App\Services\Organisation\Aurora;
 
 use App\Actions\Utils\Abbreviate;
-use App\Enums\Market\Shop\ShopTypeEnum;
 use App\Models\Market\Shop;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -49,12 +48,8 @@ class FetchAuroraShop extends FetchAurora
 
         $this->parsedData['shop'] = [
 
-            'type'         =>
-                match ($this->auroraModelData->{'Store Type'}) {
-                    'Dropshipping', 'Fulfilment' => ShopTypeEnum::FULFILMENT_HOUSE->value,
-                    default => ShopTypeEnum::SHOP->value
-                },
-            'subtype'      => strtolower($this->auroraModelData->{'Store Type'}),
+
+            'type'         => strtolower($this->auroraModelData->{'Store Type'}),
             'code'         => $this->auroraModelData->code,
             'name'         => $this->auroraModelData->{'Store Name'},
             'company_name' => $this->auroraModelData->{'Store Company Name'},

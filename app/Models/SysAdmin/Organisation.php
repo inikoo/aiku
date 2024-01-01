@@ -8,7 +8,9 @@
 namespace App\Models\SysAdmin;
 
 use App\Models\Accounting\PaymentServiceProvider;
+use App\Models\Assets\Country;
 use App\Models\Assets\Currency;
+use App\Models\Assets\Timezone;
 use App\Models\Dispatch\Shipper;
 use App\Models\HumanResources\Employee;
 use App\Models\HumanResources\Workplace;
@@ -53,6 +55,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $deleted_at
  * @property-read \App\Models\SysAdmin\OrganisationAccountingStats|null $accountingStats
+ * @property-read Country $country
  * @property-read \App\Models\SysAdmin\OrganisationCRMStats|null $crmStats
  * @property-read Currency $currency
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Employee> $employees
@@ -74,6 +77,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\OrganisationStats|null $stats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, SupplierDelivery> $supplierDeliveries
  * @property-read \App\Models\SysAdmin\SysUser|null $sysUser
+ * @property-read Timezone $timezone
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Warehouse> $warehouses
  * @property-read \App\Models\SysAdmin\OrganisationWebStats|null $webStats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Workplace> $workplaces
@@ -190,6 +194,16 @@ class Organisation extends Model implements HasMedia
     public function currency(): BelongsTo
     {
         return $this->belongsTo(Currency::class);
+    }
+
+    public function country(): BelongsTo
+    {
+        return $this->belongsTo(Country::class);
+    }
+
+    public function timezone(): BelongsTo
+    {
+        return $this->belongsTo(Timezone::class);
     }
 
     public function sysUser(): MorphOne

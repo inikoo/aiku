@@ -8,7 +8,6 @@
 namespace App\Models\Market;
 
 use App\Enums\Market\Shop\ShopStateEnum;
-use App\Enums\Market\Shop\ShopSubtypeEnum;
 use App\Enums\Market\Shop\ShopTypeEnum;
 use App\Models\Accounting\Invoice;
 use App\Models\Accounting\Payment;
@@ -71,7 +70,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property array $location
  * @property ShopStateEnum $state
  * @property ShopTypeEnum $type
- * @property ShopSubtypeEnum|null $subtype
  * @property string|null $open_at
  * @property string|null $closed_at
  * @property int $country_id
@@ -136,7 +134,6 @@ class Shop extends Model
         'settings' => 'array',
         'location' => 'array',
         'type'     => ShopTypeEnum::class,
-        'subtype'  => ShopSubtypeEnum::class,
         'state'    => ShopStateEnum::class
     ];
 

@@ -86,7 +86,7 @@ class IndexFulfilmentCustomers extends InertiaAction
             );
 
             $table->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
-            if (class_basename($parent) == 'Shop' and $parent->subtype == 'dropshipping') {
+            if (class_basename($parent) == 'Shop' and $parent->typr == 'dropshipping') {
                 $table->column(key: 'number_active_clients', label: __('clients'), canBeHidden: false, sortable: true);
             }
         };

@@ -11,7 +11,6 @@ use App\Actions\InertiaOrganisationAction;
 use App\Actions\Market\Shop\Hydrators\ShopHydrateUniversalSearch;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateMarket;
 use App\Actions\Traits\WithActionUpdate;
-use App\Enums\Market\Shop\ShopSubtypeEnum;
 use App\Enums\Market\Shop\ShopTypeEnum;
 use App\Http\Resources\Market\ShopResource;
 use App\Models\Market\Shop;
@@ -31,7 +30,7 @@ class UpdateShop extends InertiaOrganisationAction
     {
         $shop =  $this->update($shop, $modelData, ['data', 'settings']);
         ShopHydrateUniversalSearch::dispatch($shop);
-        if ($shop->wasChanged(['type', 'subtype', 'state'])) {
+        if ($shop->wasChanged(['type', 'state'])) {
             OrganisationHydrateMarket::dispatch(app('currentTenant'));
         }
 
@@ -73,7 +72,6 @@ class UpdateShop extends InertiaOrganisationAction
             'identity_document_number' => ['sometimes', 'nullable', 'string'],
             'identity_document_type'   => ['sometimes', 'nullable', 'string'],
             'type'                     => ['sometimes', 'required', Rule::in(ShopTypeEnum::values())],
-            'subtype'                  => ['sometimes', 'required', Rule::in(ShopSubtypeEnum::values())],
             'currency_id'              => ['sometimes', 'required', 'exists:currencies,id'],
             'language_id'              => ['sometimes', 'required', 'exists:languages,id'],
             'timezone_id'              => ['sometimes', 'required', 'exists:timezones,id'],

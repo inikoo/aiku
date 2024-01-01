@@ -14,7 +14,7 @@ use App\Actions\Market\Shop\Hydrators\ShopHydrateCustomers;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateCustomers;
 use App\Enums\CRM\Customer\CustomerStatusEnum;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
-use App\Enums\Market\Shop\ShopSubtypeEnum;
+use App\Enums\Market\Shop\ShopTypeEnum;
 use App\Models\CRM\Customer;
 use App\Models\Market\Shop;
 use Illuminate\Http\RedirectResponse;
@@ -41,9 +41,9 @@ class StoreCustomer
      */
     public function handle(Shop $shop, array $customerData, array $customerAddressesData = []): Customer
     {
-        if ($shop->subtype == ShopSubtypeEnum::DROPSHIPPING) {
+        if ($shop->type == ShopTypeEnum::DROPSHIPPING) {
             $customerData['is_dropshipping'] = true;
-        } elseif ($shop->subtype == ShopSubtypeEnum::FULFILMENT) {
+        } elseif ($shop->type == ShopTypeEnum::FULFILMENT) {
             $customerData['is_fulfilment'] = true;
         }
 

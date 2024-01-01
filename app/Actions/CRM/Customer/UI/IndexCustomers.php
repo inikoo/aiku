@@ -149,9 +149,9 @@ class IndexCustomers extends InertiaAction
                         ],
                         'Shop' => [
                             'title'       => __("No customers found"),
-                            'description' => $parent->type == ShopTypeEnum::FULFILMENT_HOUSE ? __("You can add your customer 🤷🏽‍♂️") : null,
+                            'description' => $parent->type == ShopTypeEnum::FULFILMENT ? __("You can add your customer 🤷🏽‍♂️") : null,
                             'count'       => $parent->crmStats->number_customers,
-                            'action'      => $parent->type == ShopTypeEnum::FULFILMENT_HOUSE ? [
+                            'action'      => $parent->type == ShopTypeEnum::FULFILMENT ? [
                                 'type'    => 'button',
                                 'style'   => 'create',
                                 'tooltip' => __('new customer'),
@@ -184,7 +184,7 @@ class IndexCustomers extends InertiaAction
                 )
                 ->column(key: 'slug', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
-            if (class_basename($parent) == 'Shop' and $parent->subtype == 'dropshipping') {
+            if (class_basename($parent) == 'Shop' and $parent->type == 'dropshipping') {
                 $table->column(key: 'number_active_clients', label: __('clients'), canBeHidden: false, sortable: true);
             }
         };

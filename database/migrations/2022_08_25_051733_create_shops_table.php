@@ -33,7 +33,6 @@ return new class () extends Migration {
             $table->jsonb('location');
             $table->string('state')->index()->default(ShopStateEnum::IN_PROCESS->value);
             $table->string('type')->index();
-            $table->string('subtype')->nullable();
             $table->date('open_at')->nullable();
             $table->date('closed_at')->nullable();
             $table->unsignedSmallInteger('country_id');

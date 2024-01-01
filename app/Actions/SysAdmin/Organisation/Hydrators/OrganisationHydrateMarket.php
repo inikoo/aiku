@@ -8,7 +8,6 @@
 namespace App\Actions\SysAdmin\Organisation\Hydrators;
 
 use App\Enums\Market\Shop\ShopStateEnum;
-use App\Enums\Market\Shop\ShopSubtypeEnum;
 use App\Enums\Market\Shop\ShopTypeEnum;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Market\Shop;
@@ -44,25 +43,6 @@ class OrganisationHydrateMarket
             $stats['number_shops_type_'.$shopType->snake()] = Arr::get($shopTypesCount, $shopType->value, 0);
         }
 
-        $shopSubtypesCount = Shop::selectRaw('subtype, count(*) as total')
-            ->groupBy('subtype')
-            ->pluck('total', 'subtype')->all();
-
-
-        foreach (ShopSubtypeEnum::cases() as $shopSubtype) {
-            $stats['number_shops_subtype_'.$shopSubtype->snake()] = Arr::get($shopSubtypesCount, $shopSubtype->value, 0);
-        }
-
-        $shopStatesSubtypesCount = Shop::selectRaw("concat(state,'_',subtype) as state_subtype, count(*) as total")
-            ->groupBy('state', 'state_subtype')
-            ->pluck('total', 'state_subtype')->all();
-
-
-        foreach (ShopStateEnum::cases() as $shopState) {
-            foreach (ShopSubtypeEnum::cases() as $shopSubtype) {
-                $stats['number_shops_state_subtype_'.$shopState->snake().'_'.$shopSubtype->snake()] = Arr::get($shopStatesSubtypesCount, $shopState->value.'_'.$shopSubtype->value, 0);
-            }
-        }
 
         $organisation->marketStats->update($stats);
     }

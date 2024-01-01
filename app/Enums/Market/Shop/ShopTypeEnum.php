@@ -13,16 +13,18 @@ enum ShopTypeEnum: string
 {
     use EnumHelperTrait;
 
-    case SHOP             = 'shop';
-    case FULFILMENT_HOUSE = 'fulfilment-house';
-    case AGENT            = 'agent';
+    case B2B          = 'b2b';
+    case B2C          = 'b2c';
+    case FULFILMENT   = 'fulfilment';
+    case DROPSHIPPING = 'dropshipping';
 
     public static function labels(): array
     {
         return [
-            'shop'              => 'Shop',
-            'fulfilment-house'  => 'Fulfilment House',
-            'agent'             => 'Agent'
+            'b2b'              => __('B2B'),
+            'b2c'              => __('B2C'),
+            'fulfilment'       => __('Fulfilment'),
+            'dropshipping'     => __('Dropshipping')
         ];
     }
 }

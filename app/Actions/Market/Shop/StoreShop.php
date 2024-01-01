@@ -14,11 +14,16 @@ use App\Actions\Mail\Outbox\StoreOutbox;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateMarket;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Enums\Mail\Outbox\OutboxTypeEnum;
-use App\Enums\Market\Shop\ShopSubtypeEnum;
 use App\Enums\Market\Shop\ShopTypeEnum;
+use App\Models\Assets\Country;
+use App\Models\Assets\Currency;
+use App\Models\Assets\Language;
+use App\Models\Assets\Timezone;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Market\Shop;
 use App\Rules\IUnique;
+use Exception;
+use Illuminate\Console\Command;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
@@ -39,7 +44,7 @@ class StoreShop extends InertiaOrganisationAction
         $shop->accountingStats()->create();
         $shop->mailStats()->create();
         $shop->crmStats()->create();
-        if ($shop->subtype == ShopSubtypeEnum::FULFILMENT) {
+        if ($shop->type == ShopTypeEnum::FULFILMENT) {
             $shop->fulfilmentStats()->create();
         }
 
@@ -101,17 +106,7 @@ class StoreShop extends InertiaOrganisationAction
         return $request->user()->hasPermissionTo("shops.edit");
     }
 
-    public function prepareForValidation(ActionRequest $request): void
-    {
-        $request->merge(
-            [
-                'type' => match ($this->get('subtype')) {
-                    'fulfilment' => 'fulfilment-house',
-                    'b2b', 'b2c', 'dropshipping' => 'shop',
-                }
-            ]
-        );
-    }
+
 
     public function rules(): array
     {
@@ -137,7 +132,6 @@ class StoreShop extends InertiaOrganisationAction
             'identity_document_number' => ['nullable', 'string'],
             'identity_document_type'   => ['nullable', 'string'],
             'type'                     => ['required', Rule::in(ShopTypeEnum::values())],
-            'subtype'                  => ['required', Rule::in(ShopSubtypeEnum::values())],
             'country_id'               => ['required', 'exists:countries,id'],
             'currency_id'              => ['required', 'exists:currencies,id'],
             'language_id'              => ['required', 'exists:languages,id'],
@@ -146,6 +140,10 @@ class StoreShop extends InertiaOrganisationAction
         ];
     }
 
+    public function htmlResponse(Shop $shop): RedirectResponse
+    {
+        return Redirect::route('grp.shops.show', $shop->slug);
+    }
 
     public function afterValidator(Validator $validator, ActionRequest $request): void
     {
@@ -172,8 +170,95 @@ class StoreShop extends InertiaOrganisationAction
         return $this->handle($organisation, $this->validatedData);
     }
 
-    public function htmlResponse(Shop $shop): RedirectResponse
+
+    public string $commandSignature = 'shop:create {organisation : organisation slug} {code} {name} {type} {--contact_name=} {--company_name=} {--email=} {--phone=} {--identity_document_number=} {--identity_document_type=} {--country_id=} {--currency_id=} {--language_id=} {--timezone_id=}';
+
+
+    public function asCommand(Command $command): int
     {
-        return Redirect::route('grp.shops.show', $shop->slug);
+        $this->asAction = true;
+
+        try {
+            $organisation = Organisation::where('slug', $command->argument('organisation'))->firstOrFail();
+        } catch (Exception $e) {
+            $command->error($e->getMessage());
+
+            return 1;
+        }
+
+        if ($command->option('country')) {
+            try {
+                $country = Country::where('code', $command->option('country'))->firstOrFail();
+            } catch (Exception $e) {
+                $command->error($e->getMessage());
+
+                return 1;
+            }
+        } else {
+            $country = $organisation->country;
+        }
+
+        if ($command->option('currency')) {
+            try {
+                $currency = Currency::where('code', $command->option('currency'))->firstOrFail();
+            } catch (Exception $e) {
+                $command->error($e->getMessage());
+
+                return 1;
+            }
+        } else {
+            $currency = $organisation->currency;
+        }
+
+        if ($command->option('language')) {
+            try {
+                $language = Language::where('code', $command->option('language'))->firstOrFail();
+            } catch (Exception $e) {
+                $command->error($e->getMessage());
+
+                return 1;
+            }
+        } else {
+            $language = $organisation->language;
+        }
+
+        if ($command->option('timezone')) {
+            try {
+                $timezone = Timezone::where('name', $command->option('timezone'))->firstOrFail();
+            } catch (Exception $e) {
+                $command->error($e->getMessage());
+
+                return 1;
+            }
+        } else {
+            $timezone = $organisation->timezone;
+        }
+
+
+        $this->setRawAttributes([
+            'code'        => $command->argument('code'),
+            'name'        => $command->argument('name'),
+            'type'        => $command->argument('type'),
+            'timezone_id' => $timezone->id,
+            'country_id'  => $country->id,
+            'currency_id' => $currency->id,
+            'language_id' => $language->id,
+        ]);
+
+        try {
+            $validatedData = $this->validateAttributes();
+        } catch (Exception $e) {
+            $command->error($e->getMessage());
+
+            return 1;
+        }
+
+        $shop = $this->handle($organisation, $validatedData);
+
+        $command->info("Shop $shop->code created successfully 🎉");
+
+        return 0;
     }
+
+
 }

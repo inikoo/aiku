@@ -31,7 +31,7 @@ class StoreWebsite extends InertiaOrganisationAction
         data_set($modelData, 'group_id', $shop->group_id);
         data_set($modelData, 'organisation_id', $shop->organisation_id);
 
-        data_set($modelData, 'type', $shop->subtype);
+        data_set($modelData, 'type', $shop->type);
         /** @var Website $website */
         $website = $shop->website()->create($modelData);
         $website->webStats()->create();

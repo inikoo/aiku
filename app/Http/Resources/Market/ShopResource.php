@@ -16,7 +16,6 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property string $name
  * @property string $warehouse_area_slug
  * @property mixed $type
- * @property mixed $subtype
  */
 class ShopResource extends JsonResource
 {
@@ -28,7 +27,6 @@ class ShopResource extends JsonResource
             'code'    => $this->code,
             'name'    => $this->name,
             'type'    => $this->type,
-            'subtype' => $this->subtype,
 
         ];
     }
