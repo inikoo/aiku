@@ -20,15 +20,23 @@ class GetLayout
 {
     use AsAction;
 
-    public function handle(User $user): array
+    public function handle(?User $user): array
     {
+        if (!$user) {
+            return [];
+        }
+
 
         return [
-            'groupNavigation'      => GetGroupNavigation::run($user),
-            'organisations'        => GetOrganisations::run($user),
-            'shopsInDropDown'      => ShopsNavigationResource::collection(Shop::all()),
-            'websitesInDropDown'   => WebsitesNavigationResource::collection(Website::all()),
-            'warehousesInDropDown' => WarehousesNavigationResource::collection(Warehouse::all()),
+            'navigation' => [
+                'grp' => GetGroupNavigation::run($user),
+                'org' => GetOrganisations::run($user),
+            ]
+
+
+            // 'shopsInDropDown'      => ShopsNavigationResource::collection(Shop::all()),
+            // 'websitesInDropDown'   => WebsitesNavigationResource::collection(Website::all()),
+            // 'warehousesInDropDown' => WarehousesNavigationResource::collection(Warehouse::all()),
 
         ];
     }

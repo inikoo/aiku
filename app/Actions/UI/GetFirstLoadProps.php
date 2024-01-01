@@ -32,15 +32,19 @@ class GetFirstLoadProps
         }
 
 
-
-
-        return [
+        return
+            [
             'group'      => $user ? GroupResource::make(app('group'))->getArray() : null,
             'localeData' =>
                 [
                     'language'        => LanguageResource::make($language)->getArray(),
                     'languageOptions' => GetLanguagesOptions::make()->translated(),
                 ],
+
+            'layout' => GetLayout::run($user)
+
+
+            /*
 
             'layoutCurrentShopSlug' => function () use ($user) {
                 if ($user) {
@@ -80,6 +84,9 @@ class GetFirstLoadProps
                     return [];
                 }
             }
+
+            */
+
         ];
     }
 }
