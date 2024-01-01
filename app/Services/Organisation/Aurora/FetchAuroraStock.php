@@ -51,7 +51,7 @@ class FetchAuroraStock extends FetchAurora
             ->where('Category Branch Type', 'Head')
             ->where('Subject Key', $sourceID)
             ->where('Subject', 'Part')->first()) {
-            $stockFamily   = FetchStockFamilies::run($this->tenantSource, $row->{'Category Key'});
+            $stockFamily   = FetchStockFamilies::run($this->organisationSource, $row->{'Category Key'});
             $stockFamilyId = $stockFamily->id;
         }
 

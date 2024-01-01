@@ -39,11 +39,11 @@ class StoreWebsite
         /** @var Website $website */
         $website = $shop->website()->create($modelData);
         $website->webStats()->create();
-        StoreDomain::run(app('currentTenant'), $website, [
+        StoreDomain::run($shop->organisation, $website, [
             'slug'   => $website->code,
             'domain' => $website->domain
         ]);
-        OrganisationHydrateWeb::dispatch(app('currentTenant'));
+        OrganisationHydrateWeb::dispatch($shop->organisation);
         WebsiteHydrateUniversalSearch::dispatch($website);
         return $website;
     }

@@ -36,7 +36,7 @@ class FetchAuroraOrder extends FetchAurora
 
         if ($this->auroraModelData->{'Order Customer Client Key'} != "") {
             $parent = FetchCustomerClients::run(
-                $this->tenantSource,
+                $this->organisationSource,
                 $this->auroraModelData->{'Order Customer Client Key'},
             );
         } else {
