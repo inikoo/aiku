@@ -18,16 +18,16 @@ class FetchAuroraLocation extends FetchAurora
         $parent = null;
 
         if (is_numeric($this->auroraModelData->{'Location Warehouse Area Key'})) {
-            $parent = FetchWarehouseAreas::run($this->tenantSource, $this->auroraModelData->{'Location Warehouse Area Key'});
+            $parent = FetchWarehouseAreas::run($this->organisationSource, $this->auroraModelData->{'Location Warehouse Area Key'});
         }
         if (!$parent) {
-            $parent = FetchWarehouses::run($this->tenantSource, $this->auroraModelData->{'Location Warehouse Key'});
+            $parent = FetchWarehouses::run($this->organisationSource, $this->auroraModelData->{'Location Warehouse Key'});
         }
 
         $this->parsedData['parent']   = $parent;
         $this->parsedData['location'] = [
-            'code'      => $this->auroraModelData->{'Location Code'},
-            'source_id' => $this->auroraModelData->{'Location Key'},
+            'code'                     => $this->auroraModelData->{'Location Code'},
+            'source_id'                => $this->organisation->id.':'.$this->auroraModelData->{'Location Key'},
         ];
     }
 

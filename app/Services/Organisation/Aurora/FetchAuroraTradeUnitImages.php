@@ -46,7 +46,7 @@ class FetchAuroraTradeUnitImages extends FetchAurora
         $this->parsedData['images'] = $images;
 
         $this->parsedData['trade_unit'] = [
-            'source_id' => $this->auroraModelData->{'Part SKU'},
+            'source_id'                => $this->organisation->id.':'.$this->auroraModelData->{'Part SKU'},
         ];
 
 

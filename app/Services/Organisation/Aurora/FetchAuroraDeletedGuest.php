@@ -11,12 +11,17 @@ use Illuminate\Support\Facades\DB;
 
 class FetchAuroraDeletedGuest extends FetchAurora
 {
+    use WithAuroraImages;
+    use WithAuroraParsers;
+
+
+
     protected function parseModel(): void
     {
         $auDeletedModel            = json_decode(gzuncompress($this->auroraModelData->{'Staff Deleted Metadata'}));
         $this->parsedData['guest'] =
             [
-                'slug'                     => strtolower($auDeletedModel->data->{'Staff Alias'}),
+                'alias'                    => $this->auroraModelData->{'Staff Alias'},
                 'contact_name'             => $auDeletedModel->data->{'Staff Name'},
                 'email'                    => $auDeletedModel->data->{'Staff Email'},
                 'phone'                    => $auDeletedModel->data->{'Staff Telephone'},

@@ -21,9 +21,9 @@ class FetchAuroraWarehouseArea extends FetchAurora
 
         $this->parsedData['warehouse']      = $this->parseWarehouse($this->auroraModelData->{'Warehouse Area Warehouse Key'});
         $this->parsedData['warehouse_area'] = [
-            'name'      => $this->auroraModelData->{'Warehouse Area Name'} ?? 'Name not set',
-            'code'      => Str::kebab($code),
-            'source_id' => $this->auroraModelData->{'Warehouse Area Key'},
+            'name'                     => $this->auroraModelData->{'Warehouse Area Name'} ?? 'Name not set',
+            'code'                     => Str::kebab($code),
+            'source_id'                => $this->organisation->id.':'.$this->auroraModelData->{'Warehouse Area Key'},
         ];
     }
 

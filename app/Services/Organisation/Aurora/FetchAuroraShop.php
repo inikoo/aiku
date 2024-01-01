@@ -35,8 +35,8 @@ class FetchAuroraShop extends FetchAurora
 
             'type'         =>
                 match ($this->auroraModelData->{'Store Type'}) {
-                    'Dropshipping', 'Fulfilment' => ShopTypeEnum::FULFILMENT_HOUSE,
-                    default => ShopTypeEnum::SHOP
+                    'Dropshipping', 'Fulfilment' => ShopTypeEnum::FULFILMENT_HOUSE->value,
+                    default => ShopTypeEnum::SHOP->value
                 },
             'subtype'      => strtolower($this->auroraModelData->{'Store Type'}),
             'code'         => $this->auroraModelData->{'Store Code'},
@@ -57,7 +57,7 @@ class FetchAuroraShop extends FetchAurora
             'closed_at'   => $this->parseDate($this->auroraModelData->{'Store Valid To'}),
             'created_at'  => $this->parseDate($this->auroraModelData->{'Store Valid From'}),
 
-            'source_id' => $this->auroraModelData->{'Store Key'},
+            'source_id' => $this->organisation->id.':'.$this->auroraModelData->{'Store Key'},
             'settings'  => [
                 'can_collect' => $this->auroraModelData->{'Store Can Collect'} === 'Yes'
             ]

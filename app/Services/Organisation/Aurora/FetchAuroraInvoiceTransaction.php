@@ -22,9 +22,9 @@ class FetchAuroraInvoiceTransaction extends FetchAurora
                 'item_id'     => $historicItem->id,
                 'tax_band_id' => $taxBand->id ?? null,
 
-                'quantity'  => $this->auroraModelData->{'Delivery Note Quantity'},
-                'net'       => $this->auroraModelData->{'Order Transaction Amount'},
-                'source_id' => $this->auroraModelData->{'Order Transaction Fact Key'},
+                'quantity'                 => $this->auroraModelData->{'Delivery Note Quantity'},
+                'net'                      => $this->auroraModelData->{'Order Transaction Amount'},
+                'source_id'                => $this->organisation->id.':'.$this->auroraModelData->{'Order Transaction Fact Key'},
 
             ];
         } else {

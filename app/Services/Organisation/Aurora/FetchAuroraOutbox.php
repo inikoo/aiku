@@ -18,8 +18,8 @@ class FetchAuroraOutbox extends FetchAurora
 
         $this->parsedData['shop']   = $this->parseShop($this->auroraModelData->{'Email Campaign Type Store Key'});
         $this->parsedData['outbox'] = [
-            'source_id' => $this->auroraModelData->{'Email Campaign Type Key'},
-            'state'     => Str::kebab($this->auroraModelData->{'Email Campaign Type Status'})
+            'source_id'                => $this->organisation->id.':'.$this->auroraModelData->{'Email Campaign Type Key'},
+            'state'                    => Str::kebab($this->auroraModelData->{'Email Campaign Type Status'})
         ];
     }
 

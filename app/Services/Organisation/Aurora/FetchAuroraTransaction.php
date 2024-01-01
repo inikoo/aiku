@@ -70,9 +70,9 @@ class FetchAuroraTransaction extends FetchAurora
                 'quantity_fail'       => $this->auroraModelData->{'No Shipped Due Out of Stock'},
 
 
-                'discounts' => $this->auroraModelData->{'Order Transaction Total Discount Amount'},
-                'net'       => $this->auroraModelData->{'Order Transaction Amount'},
-                'source_id' => $this->auroraModelData->{'Order Transaction Fact Key'},
+                'discounts'                => $this->auroraModelData->{'Order Transaction Total Discount Amount'},
+                'net'                      => $this->auroraModelData->{'Order Transaction Amount'},
+                'source_id'                => $this->organisation->id.':'.$this->auroraModelData->{'Order Transaction Fact Key'},
 
             ];
         } else {

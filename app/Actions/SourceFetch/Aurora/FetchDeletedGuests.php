@@ -13,13 +13,12 @@ use App\Models\SysAdmin\Guest;
 use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
-use JetBrains\PhpStorm\NoReturn;
 
 class FetchDeletedGuests extends FetchAction
 {
     public string $commandSignature = 'fetch:deleted-guests {organisations?*} {--s|source_id=} {--d|db_suffix=}';
 
-    #[NoReturn] public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Guest
+    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Guest
     {
         if ($deletedGuestData = $organisationSource->fetchDeletedGuest($organisationSourceId)) {
             if ($guest = Guest::withTrashed()->where('source_id', $deletedGuestData['guest']['source_id'])->first()) {
@@ -29,6 +28,7 @@ class FetchDeletedGuests extends FetchAction
                 );
             } else {
                 $guest = StoreGuest::run(
+                    group:     $organisationSource->getOrganisation()->group,
                     modelData: $deletedGuestData['guest'],
                 );
             }

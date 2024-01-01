@@ -23,10 +23,10 @@ class FetchAuroraPaymentAccount extends FetchAurora
         $this->parsedData['paymentAccount'] = [
 
 
-            'code'      => $this->auroraModelData->{'Payment Account Code'},
-            'name'      => $this->auroraModelData->{'Payment Account Name'},
-            'data'      => $data,
-            'source_id' => $this->auroraModelData->{'Payment Account Key'},
+            'code'                     => $this->auroraModelData->{'Payment Account Code'},
+            'name'                     => $this->auroraModelData->{'Payment Account Name'},
+            'data'                     => $data,
+            'source_id'                => $this->organisation->id.':'.$this->auroraModelData->{'Payment Account Key'},
 
 
         ];

@@ -55,10 +55,10 @@ php artisan fetch:deleted-employees  -d "${DB_SUFFIX}"
 pg_dump -Fc -f "devops/devel/snapshots/employees.dump" ${DB}
 
 php artisan fetch:guests  -d "${DB_SUFFIX}"
-php artisan fetch:deleted-guests  -d "${DB_SUFFIX}"
-pg_dump -Fc -f "devops/devel/snapshots/au_hr.dump" ${DB}
-php artisan fetch:users  -d "${DB_SUFFIX}"
-pg_dump -Fc -f "devops/devel/snapshots/au_users.dump" ${DB}
+#php artisan fetch:deleted-guests  -d "${DB_SUFFIX}"
+pg_dump -Fc -f "devops/devel/snapshots/guests.dump" ${DB}
+#php artisan fetch:users  -d "${DB_SUFFIX}"
+#pg_dump -Fc -f "devops/devel/snapshots/au_users.dump" ${DB}
 php artisan fetch:shops -d "${DB_SUFFIX}"
 php artisan fetch:websites -d "${DB_SUFFIX}"
 php artisan fetch:payment-service-providers -d "${DB_SUFFIX}"

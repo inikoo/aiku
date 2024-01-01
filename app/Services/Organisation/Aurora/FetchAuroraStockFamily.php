@@ -14,10 +14,10 @@ class FetchAuroraStockFamily extends FetchAurora
     protected function parseModel(): void
     {
         $this->parsedData['stock_family'] = [
-            'code'      => $this->auroraModelData->{'Category Code'},
-            'name'      => $this->auroraModelData->{'Category Label'},
-            'source_id' => $this->auroraModelData->{'Category Key'},
-            'state'     => match ($this->auroraModelData->{'Part Category Status'}) {
+            'code'                     => $this->auroraModelData->{'Category Code'},
+            'name'                     => $this->auroraModelData->{'Category Label'},
+            'source_id'                => $this->organisation->id.':'.$this->auroraModelData->{'Category Key'},
+            'state'                    => match ($this->auroraModelData->{'Part Category Status'}) {
                 'InUse'         => 'active',
                 'Discontinuing' => 'discontinuing',
                 'NotInUse'      => 'discontinued',
