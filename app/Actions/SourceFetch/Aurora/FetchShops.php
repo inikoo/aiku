@@ -18,19 +18,18 @@ use App\Models\Market\Shop;
 use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
-use JetBrains\PhpStorm\NoReturn;
 
 class FetchShops extends FetchAction
 {
     public string $commandSignature = 'fetch:shops {organisations?*} {--s|source_id=} {--d|db_suffix=}';
 
 
-    #[NoReturn] public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Shop
+    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Shop
     {
         if ($shopData = $organisationSource->fetchShop($organisationSourceId)) {
             if ($shop = Shop::where('source_id', $shopData['shop']['source_id'])
                 ->first()) {
-                $shop = UpdateShop::run(
+                $shop = UpdateShop::make()->action(
                     shop: $shop,
                     modelData: $shopData['shop']
                 );
@@ -60,7 +59,10 @@ class FetchShops extends FetchAction
                     }
                 }
             } else {
-                $shop = StoreShop::run(
+
+
+                $shop = StoreShop::make()->action(
+                    organisation: $organisationSource->getOrganisation(),
                     modelData: $shopData['shop']
                 );
 
@@ -92,8 +94,10 @@ class FetchShops extends FetchAction
             }
 
 
+            $shopSourceId = explode(':', $shop->source_id);
+
             $auroraOutboxes = DB::connection('aurora')->table('Email Campaign Type Dimension')
-                ->where('Email Campaign Type Store Key', $shop->source_id)
+                ->where('Email Campaign Type Store Key', $shopSourceId[1])
                 ->get()
                 ->pluck('Email Campaign Type Key', 'Email Campaign Type Code')->all();
 
@@ -131,7 +135,7 @@ class FetchShops extends FetchAction
                 if ($sourceId) {
                     $outbox->update(
                         [
-                            'source_id' => $sourceId
+                            'source_id' => $organisationSource->getOrganisation()->id.':'.$sourceId
                         ]
                     );
                 }

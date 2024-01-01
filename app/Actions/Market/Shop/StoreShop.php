@@ -9,6 +9,7 @@ namespace App\Actions\Market\Shop;
 
 use App\Actions\Accounting\PaymentAccount\StorePaymentAccount;
 use App\Actions\Assets\Currency\SetCurrencyHistoricFields;
+use App\Actions\InertiaOrganisationAction;
 use App\Actions\Mail\Outbox\StoreOutbox;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateMarket;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
@@ -22,14 +23,9 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsAction;
-use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class StoreShop
+class StoreShop extends InertiaOrganisationAction
 {
-    use AsAction;
-    use WithAttributes;
-
     private bool $asAction = false;
 
     public function handle(Organisation $organisation, array $modelData): Shop
@@ -43,7 +39,6 @@ class StoreShop
         if ($shop->subtype == ShopSubtypeEnum::FULFILMENT) {
             $shop->fulfilmentStats()->create();
         }
-
 
 
         $shop->serialReferences()->create(
@@ -132,6 +127,7 @@ class StoreShop
             'currency_id'              => ['required', 'exists:currencies,id'],
             'language_id'              => ['required', 'exists:languages,id'],
             'timezone_id'              => ['required', 'exists:timezones,id'],
+            'source_id'                => ['sometimes', 'string']
         ];
     }
 
@@ -149,18 +145,16 @@ class StoreShop
     public function action(Organisation $organisation, array $modelData): Shop
     {
         $this->asAction = true;
-        $this->setRawAttributes($modelData);
-        $validatedData = $this->validateAttributes();
+        $this->initialisation($organisation, $modelData);
 
-        return $this->handle($organisation, $validatedData);
+        return $this->handle($organisation, $this->validatedData);
     }
 
     public function asController(Organisation $organisation, ActionRequest $request): Shop
     {
-        $this->fillFromRequest($request);
-        $request->validate();
+        $this->initialisation($organisation, $request);
 
-        return $this->handle($organisation, $request->validated());
+        return $this->handle($organisation, $this->validatedData);
     }
 
     public function htmlResponse(Shop $shop): RedirectResponse

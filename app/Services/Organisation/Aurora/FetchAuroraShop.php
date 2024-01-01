@@ -7,12 +7,28 @@
 
 namespace App\Services\Organisation\Aurora;
 
+use App\Actions\Utils\Abbreviate;
 use App\Enums\Market\Shop\ShopTypeEnum;
+use App\Models\Market\Shop;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class FetchAuroraShop extends FetchAurora
 {
+    public function fetch(int $id): ?array
+    {
+        $this->auroraModelData = $this->fetchData($id);
+
+        $code    = strtolower($this->auroraModelData->{'Store Code'});
+        $sourceId=$this->organisation->id.':'.$this->auroraModelData->{'Store Key'};
+        if(Shop::where('code', $code)->whereNot('source_id', $sourceId)->exists()) {
+            $code=$code.strtolower(Abbreviate::run(string:$this->organisation->slug, maximumLength:2));
+        }
+        $this->auroraModelData->code=$code;
+        $this->parseModel();
+        return $this->parsedData;
+    }
+
     protected function parseModel(): void
     {
         $this->parsedData['source_department_key'] = $this->auroraModelData->{'Store Department Category Key'};
@@ -39,7 +55,7 @@ class FetchAuroraShop extends FetchAurora
                     default => ShopTypeEnum::SHOP->value
                 },
             'subtype'      => strtolower($this->auroraModelData->{'Store Type'}),
-            'code'         => $this->auroraModelData->{'Store Code'},
+            'code'         => $this->auroraModelData->code,
             'name'         => $this->auroraModelData->{'Store Name'},
             'company_name' => $this->auroraModelData->{'Store Company Name'},
             'contact_name' => $this->auroraModelData->{'Store Contact Name'},

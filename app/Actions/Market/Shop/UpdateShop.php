@@ -7,6 +7,7 @@
 
 namespace App\Actions\Market\Shop;
 
+use App\Actions\InertiaOrganisationAction;
 use App\Actions\Market\Shop\Hydrators\ShopHydrateUniversalSearch;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateMarket;
 use App\Actions\Traits\WithActionUpdate;
@@ -14,12 +15,15 @@ use App\Enums\Market\Shop\ShopSubtypeEnum;
 use App\Enums\Market\Shop\ShopTypeEnum;
 use App\Http\Resources\Market\ShopResource;
 use App\Models\Market\Shop;
+use App\Rules\IUnique;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdateShop
+class UpdateShop extends InertiaOrganisationAction
 {
     use WithActionUpdate;
+
+    private Shop $shop;
 
     private bool $asAction = false;
 
@@ -47,7 +51,19 @@ class UpdateShop
     {
         return [
             'name'                     => ['sometimes', 'required', 'string', 'max:255'],
-            'code'                     => ['sometimes', 'required', 'unique:shops', 'between:2,4', 'alpha_dash'],
+            'code'                     => ['sometimes', 'required', 'between:2,4', 'alpha_dash',
+                                           new IUnique(
+                                               table: 'shops',
+                                               extraConditions: [
+                                                   [
+                                                       'column'   => 'id',
+                                                       'operator' => '!=',
+                                                       'value'    => $this->shop->id
+                                                   ],
+                                               ]
+                                           ),
+
+                ],
             'contact_name'             => ['sometimes', 'nullable', 'string', 'max:255'],
             'company_name'             => ['sometimes', 'nullable', 'string', 'max:255'],
             'email'                    => ['sometimes', 'nullable', 'email'],
@@ -62,24 +78,22 @@ class UpdateShop
         ];
     }
 
-    public function asController(Shop $shop, ActionRequest $request): Shop
-    {
-        $this->fillFromRequest($request);
-
-        return $this->handle(
-            shop:$shop,
-            modelData: $this->validateAttributes()
-        );
-    }
-
-
     public function action(Shop $shop, $modelData): Shop
     {
         $this->asAction = true;
-        $this->setRawAttributes($modelData);
-        $validatedData = $this->validateAttributes();
+        $this->shop     = $shop;
 
-        return $this->handle($shop, $validatedData);
+        $this->initialisation($shop->organisation, $modelData);
+
+        return $this->handle($shop, $this->validatedData);
+    }
+
+    public function asController(Shop $shop, ActionRequest $request): Shop
+    {
+        $this->shop = $shop;
+        $this->initialisation($shop->organisation, $request);
+
+        return $this->handle($shop, $this->validatedData);
     }
 
     public function jsonResponse(Shop $shop): ShopResource
