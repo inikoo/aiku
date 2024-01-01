@@ -11,11 +11,11 @@ use App\Actions\HumanResources\Employee\CreateUserFromEmployee;
 use App\Actions\HumanResources\Employee\StoreEmployee;
 use App\Actions\HumanResources\Employee\UpdateEmployee;
 use App\Actions\HumanResources\Employee\UpdateEmployeeWorkingHours;
+use App\Actions\HumanResources\Workplace\StoreWorkplace;
 use App\Actions\HumanResources\Workplace\UpdateWorkplace;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
 use App\Models\Helpers\Address;
 use App\Models\HumanResources\Employee;
-use App\Models\HumanResources\Workplace;
 use App\Models\SysAdmin\User;
 
 beforeAll(function () {
@@ -29,6 +29,35 @@ beforeEach(function () {
 test('check seeded job positions', function () {
     expect($this->organisation->group->humanResourcesStats->number_job_positions)->toBe(20);
 });
+
+test('create working place successful', function () {
+    $arrayData = [
+        'name'    => 'aa',
+        'type'    => 'branch',
+        'address' => [
+            'country_id' => $this->organisation->country_id
+        ],
+    ];
+
+
+    $createdWorkplace = StoreWorkplace::run($this->organisation, $arrayData);
+
+    expect($createdWorkplace->name)->toBe($arrayData['name']);
+
+    return $createdWorkplace;
+});
+
+test('update working place successful', function ($createdWorkplace) {
+    $arrayData        = [
+        'name' => 'vica smith',
+        'type' => 'home',
+    ];
+    $addressData      = Address::create(Address::factory()->definition())->toArray();
+    $updatedWorkplace = UpdateWorkplace::run($createdWorkplace, $arrayData, $addressData);
+
+    expect($updatedWorkplace->name)->toBe($arrayData['name']);
+})->depends('create working place successful');
+
 
 test('create employee successful', function () {
     $arrayData = [
@@ -83,30 +112,6 @@ test('create user from employee', function () {
         ->and($user->contact_name)->toBe($lastEmployee->contact_name);
 });
 
-test('create working place successful', function () {
-    $arrayData = [
-        'name' => 'artha',
-        'type' => 'branch'
-    ];
-
-
-    $createdWorkplace = Workplace::create($arrayData);
-
-    expect($createdWorkplace->name)->toBe($arrayData['name']);
-
-    return $createdWorkplace;
-});
-
-test('update working place successful', function ($createdWorkplace) {
-    $arrayData        = [
-        'name' => 'vica smith',
-        'type' => 'home',
-    ];
-    $addressData      = Address::create(Address::factory()->definition())->toArray();
-    $updatedWorkplace = UpdateWorkplace::run($createdWorkplace, $arrayData, $addressData);
-
-    expect($updatedWorkplace->name)->toBe($arrayData['name']);
-})->depends('create working place successful');
 
 test('create clocking machines', function ($createdWorkplace) {
     $arrayData = [

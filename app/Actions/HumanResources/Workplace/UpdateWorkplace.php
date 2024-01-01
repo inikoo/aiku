@@ -34,7 +34,7 @@ class UpdateWorkplace
             $workplace->save();
         }
         if ($workplace->wasChanged('type')) {
-            OrganisationHydrateWorkplaces::run();
+            OrganisationHydrateWorkplaces::run($workplace->organisation);
         }
 
         WorkplaceHydrateUniversalSearch::dispatch($workplace);

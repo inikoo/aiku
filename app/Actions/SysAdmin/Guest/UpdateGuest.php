@@ -62,7 +62,7 @@ class UpdateGuest
 
         return [
             'alias'                    => [
-                'required',
+                'sometimes',
                 'string',
                 'max:12',
                 Rule::notIn(['export', 'create']),
