@@ -16,7 +16,7 @@ return new class () extends Migration {
             $table->unsignedInteger('supplier_product_id')->index();
             $table->string('type')->index();
             $table->foreign('supplier_product_id')->references('id')->on('supplier_products');
-            $table->unsignedBigInteger('media_id')->index();
+            $table->unsignedInteger('media_id')->index();
             $table->foreign('media_id')->references('id')->on('media');
             $table->unique(['supplier_product_id', 'media_id']);
             $table->string('owner_type')->index();

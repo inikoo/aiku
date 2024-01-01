@@ -21,18 +21,18 @@ return new class () extends Migration {
             $table->smallIncrements('id');
             $table->unsignedSmallInteger('group_id');
             $table->foreign('group_id')->references('id')->on('groups')->onUpdate('cascade')->onDelete('cascade');
-            $table->unsignedBigInteger('number_stock_families')->default(0);
+            $table->unsignedInteger('number_stock_families')->default(0);
 
             foreach (StockFamilyStateEnum::cases() as $stockFamilyState) {
-                $table->unsignedBigInteger('number_stock_families_state_'.$stockFamilyState->snake())->default(0);
+                $table->unsignedInteger('number_stock_families_state_'.$stockFamilyState->snake())->default(0);
             }
 
-            $table->unsignedBigInteger('number_stocks')->default(0);
+            $table->unsignedInteger('number_stocks')->default(0);
             foreach (StockStateEnum::cases() as $stockState) {
-                $table->unsignedBigInteger('number_stocks_state_'.$stockState->snake())->default(0);
+                $table->unsignedInteger('number_stocks_state_'.$stockState->snake())->default(0);
             }
             foreach (StockQuantityStatusEnum::cases() as $stockQuantityStatus) {
-                $table->unsignedBigInteger('number_stocks_quantity_status_'.$stockQuantityStatus->snake())->default(0);
+                $table->unsignedInteger('number_stocks_quantity_status_'.$stockQuantityStatus->snake())->default(0);
             }
             $table= $this->inventoryStats($table);
             $table->timestampsTz();

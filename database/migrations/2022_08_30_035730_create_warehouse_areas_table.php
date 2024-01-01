@@ -23,7 +23,7 @@ return new class () extends Migration {
             $table->decimal('value')->default(0);
             $table->timestampsTz();
             $table->softDeletesTz();
-            $table->unsignedSmallInteger('source_id')->nullable()->unique();
+            $table->string('source_id')->nullable()->unique();
         });
     }
 

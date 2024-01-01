@@ -19,9 +19,9 @@ trait HasInventoryStats
         $table->unsignedSmallInteger('number_warehouse_areas')->default(0);
         $table = $this->locationsStats($table);
 
-        $table->unsignedBigInteger('number_deliveries')->default(0);
-        $table->unsignedBigInteger('number_deliveries_type_order')->default(0);
-        $table->unsignedBigInteger('number_deliveries_type_replacement')->default(0);
+        $table->unsignedInteger('number_deliveries')->default(0);
+        $table->unsignedInteger('number_deliveries_type_order')->default(0);
+        $table->unsignedInteger('number_deliveries_type_replacement')->default(0);
 
         $deliveryStates = [
             'submitted',
@@ -35,11 +35,11 @@ trait HasInventoryStats
         ];
 
         foreach ($deliveryStates as $deliveryState) {
-            $table->unsignedBigInteger('number_deliveries_state_'.str_replace('-', '_', $deliveryState))->default(0);
+            $table->unsignedInteger('number_deliveries_state_'.str_replace('-', '_', $deliveryState))->default(0);
         }
 
         foreach ($deliveryStates as $deliveryState) {
-            $table->unsignedBigInteger('number_deliveries_cancelled_at_state_'.str_replace('-', '_', $deliveryState))->default(0);
+            $table->unsignedInteger('number_deliveries_cancelled_at_state_'.str_replace('-', '_', $deliveryState))->default(0);
         }
 
         return $table;

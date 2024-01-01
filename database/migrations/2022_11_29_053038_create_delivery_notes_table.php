@@ -32,7 +32,7 @@ return new class () extends Migration {
             $table->string('phone')->nullable();
 
 
-            $table->unsignedBigInteger('shipment_id')->nullable()->index();
+            $table->unsignedInteger('shipment_id')->nullable()->index();
             $table->foreign('shipment_id')->references('id')->on('shipments');
 
             $table->decimal('weight', 16)->nullable()->default(0);

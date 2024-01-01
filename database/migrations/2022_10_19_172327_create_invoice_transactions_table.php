@@ -15,7 +15,7 @@ return new class () extends Migration {
         Schema::create('invoice_transactions', function (Blueprint $table) {
             $table->increments('id');
 
-            $table->unsignedBigInteger('shop_id')->index();
+            $table->unsignedInteger('shop_id')->index();
             $table->foreign('shop_id')->references('id')->on('shops');
 
             $table->unsignedInteger('customer_id')->index();
@@ -45,7 +45,7 @@ return new class () extends Migration {
             $table->softDeletesTz();
 
             $table->string('source_id')->nullable();
-            $table->unsignedBigInteger('source_alt_id')->nullable();
+            $table->unsignedInteger('source_alt_id')->nullable();
         });
     }
 

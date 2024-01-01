@@ -14,7 +14,7 @@ return new class () extends Migration {
     {
         Schema::create('issuables', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('issue_id')->index();
+            $table->unsignedInteger('issue_id')->index();
             $table->foreign('issue_id')->references('id')->on('issues');
             $table->morphs('issuable');
             $table->timestampsTz();

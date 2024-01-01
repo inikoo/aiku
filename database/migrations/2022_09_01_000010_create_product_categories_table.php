@@ -18,7 +18,7 @@ return new class () extends Migration {
             $table->smallIncrements('id');
             $table->string('slug')->unique()->collation('und_ns');
             $table = $this->assertCodeDescription($table);
-            $table->unsignedBigInteger('image_id')->nullable();
+            $table->unsignedInteger('image_id')->nullable();
             $table->unsignedSmallInteger('shop_id')->nullable();
             $table->foreign('shop_id')->references('id')->on('shops');
             $table->unsignedInteger('parent_id');

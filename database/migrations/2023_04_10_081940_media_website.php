@@ -16,7 +16,7 @@ return new class () extends Migration {
             $table->unsignedInteger('website_id')->index();
             $table->string('type')->index();
             $table->foreign('website_id')->references('id')->on('websites');
-            $table->unsignedBigInteger('media_id')->index();
+            $table->unsignedInteger('media_id')->index();
             $table->unique(['website_id', 'media_id']);
             $table->string('owner_type')->index();
             $table->unsignedInteger('owner_id');

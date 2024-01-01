@@ -23,9 +23,9 @@ return new class () extends Migration {
 
 
 
-            $table->unsignedBigInteger('number_invoices')->default(0);
-            $table->unsignedBigInteger('number_invoices_type_invoice')->default(0);
-            $table->unsignedBigInteger('number_invoices_type_refund')->default(0);
+            $table->unsignedInteger('number_invoices')->default(0);
+            $table->unsignedInteger('number_invoices_type_invoice')->default(0);
+            $table->unsignedInteger('number_invoices_type_refund')->default(0);
 
 
             $table->unsignedSmallInteger('currency_id')->nullable();

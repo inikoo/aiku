@@ -18,7 +18,7 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('organisation_id')->nullable()->index();
             $table->foreign('organisation_id')->references('id')->on('organisations')->onUpdate('cascade')->onDelete('cascade');
             $table->string('model')->index();
-            $table->unsignedBigInteger('serial')->default(0);
+            $table->unsignedInteger('serial')->default(0);
             $table->string('format')->default("%06d");
             $table->jsonb('data');
             $table->timestampsTz();

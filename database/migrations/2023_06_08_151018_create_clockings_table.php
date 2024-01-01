@@ -18,10 +18,10 @@ return new class () extends Migration {
             $table->string('type')->index();
             $table->string('subject_type')->nullable();
             $table->unsignedInteger('subject_id')->nullable();
-            $table->unsignedBigInteger('time_tracking_id')->index()->nullable();
-            $table->unsignedBigInteger('workplace_id')->nullable()->index();
+            $table->unsignedInteger('time_tracking_id')->index()->nullable();
+            $table->unsignedInteger('workplace_id')->nullable()->index();
             $table->foreign('workplace_id')->references('id')->on('workplaces');
-            $table->unsignedBigInteger('clocking_machine_id')->nullable()->index();
+            $table->unsignedInteger('clocking_machine_id')->nullable()->index();
             $table->foreign('clocking_machine_id')->references('id')->on('clocking_machines');
             $table->dateTimeTz('clocked_at');
             $table->string('generator_type')->nullable();

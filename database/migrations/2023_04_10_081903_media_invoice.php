@@ -16,7 +16,7 @@ return new class () extends Migration {
             $table->unsignedInteger('invoice_id')->index();
             $table->string('type')->index();
             $table->foreign('invoice_id')->references('id')->on('invoices');
-            $table->unsignedBigInteger('media_id')->index();
+            $table->unsignedInteger('media_id')->index();
             $table->unique(['invoice_id', 'media_id']);
             $table->string('owner_type')->index();
             $table->unsignedInteger('owner_id');

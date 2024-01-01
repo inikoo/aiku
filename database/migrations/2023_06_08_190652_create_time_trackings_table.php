@@ -23,9 +23,9 @@ return new class () extends Migration {
             $table->foreign('workplace_id')->references('id')->on('workplaces');
             $table->dateTimeTz('starts_at')->nullable();
             $table->dateTimeTz('ends_at')->nullable();
-            $table->unsignedBigInteger('start_clocking_id')->nullable()->index();
+            $table->unsignedInteger('start_clocking_id')->nullable()->index();
             $table->foreign('start_clocking_id')->references('id')->on('clockings');
-            $table->unsignedBigInteger('end_clocking_id')->nullable()->index();
+            $table->unsignedInteger('end_clocking_id')->nullable()->index();
             $table->foreign('end_clocking_id')->references('id')->on('clockings');
             $table->timestampsTz();
             $table->softDeletesTz();

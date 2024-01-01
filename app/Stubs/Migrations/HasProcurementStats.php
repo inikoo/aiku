@@ -55,12 +55,12 @@ trait HasProcurementStats
 
 
         foreach (SupplierProductStateEnum::cases() as $productState) {
-            $table->unsignedBigInteger('number_supplier_products_state_'.$productState->snake())->default(0);
+            $table->unsignedInteger('number_supplier_products_state_'.$productState->snake())->default(0);
         }
 
 
         foreach (SupplierProductQuantityStatusEnum::cases() as $productStockQuantityStatus) {
-            $table->unsignedBigInteger('number_supplier_products_stock_quantity_status_'.$productStockQuantityStatus->snake())->default(0);
+            $table->unsignedInteger('number_supplier_products_stock_quantity_status_'.$productStockQuantityStatus->snake())->default(0);
         }
 
 
@@ -91,11 +91,11 @@ trait HasProcurementStats
         $table->unsignedInteger('number_deliveries')->default(0)->comment('Number supplier deliveries (except cancelled)');
 
         foreach (SupplierDeliveryStateEnum::cases() as $supplierDeliveryState) {
-            $table->unsignedBigInteger('number_supplier_deliveries_state_'.$supplierDeliveryState->snake())->default(0);
+            $table->unsignedInteger('number_supplier_deliveries_state_'.$supplierDeliveryState->snake())->default(0);
         }
 
         foreach (SupplierDeliveryStatusEnum::cases() as $supplierDeliveryStatus) {
-            $table->unsignedBigInteger('number_supplier_deliveries_status_'.$supplierDeliveryStatus->snake())->default(0);
+            $table->unsignedInteger('number_supplier_deliveries_status_'.$supplierDeliveryStatus->snake())->default(0);
         }
 
         return $table;

@@ -27,8 +27,8 @@ return new class () extends Migration {
             $table->jsonb('settings');
             $table->dateTimeTz('audited_at')->nullable()->index();
             $table->timestampsTz();
-            $table->unsignedBigInteger('source_stock_id')->nullable();
-            $table->unsignedBigInteger('source_location_id')->nullable();
+            $table->unsignedInteger('source_stock_id')->nullable();
+            $table->unsignedInteger('source_location_id')->nullable();
             $table->unique(['stock_id', 'location_id']);
         });
     }

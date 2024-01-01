@@ -41,7 +41,7 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('number_locations')->default(0);
             $table->decimal('unit_value', 16)->nullable();
             $table->decimal('value_in_locations', 16)->default(0);
-            $table->unsignedBigInteger('image_id')->nullable();
+            $table->unsignedInteger('image_id')->nullable();
             $table->jsonb('settings');
             $table->jsonb('data');
             $table->timestampsTz();

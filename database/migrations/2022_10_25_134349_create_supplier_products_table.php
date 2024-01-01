@@ -21,7 +21,7 @@ return new class () extends Migration {
             $table->string('trade_unit_composition')->default(SupplierProductTradeUnitCompositionEnum::MATCH->value)->nullable();
             $table->string('slug')->unique()->collation('und_ns');
             $table->unsignedInteger('current_historic_supplier_product_id')->index()->nullable();
-            $table->unsignedBigInteger('image_id')->nullable();
+            $table->unsignedInteger('image_id')->nullable();
             $table->foreign('image_id')->references('id')->on('media');
             $table->unsignedInteger('supplier_id')->nullable();
             $table->foreign('supplier_id')->references('id')->on('suppliers');

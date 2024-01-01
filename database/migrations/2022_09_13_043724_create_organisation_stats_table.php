@@ -17,9 +17,9 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('organisation_id');
             $table->foreign('organisation_id')->references('id')->on('organisations')->onUpdate('cascade')->onDelete('cascade');
             $table->unsignedSmallInteger('number_images')->default(0);
-            $table->unsignedBigInteger('filesize_images')->default(0);
+            $table->unsignedInteger('filesize_images')->default(0);
             $table->unsignedSmallInteger('number_attachments')->default(0);
-            $table->unsignedBigInteger('filesize_attachments')->default(0);
+            $table->unsignedInteger('filesize_attachments')->default(0);
 
 
             $table->boolean('has_fulfilment')->default('false');

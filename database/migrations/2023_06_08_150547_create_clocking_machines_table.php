@@ -16,12 +16,12 @@ return new class () extends Migration {
             $table->smallIncrements('id');
             $table->string('slug')->unique()->collation('und_ns');
             $table->string('code')->index()->collation('und_ns');
-            $table->unsignedBigInteger('workplace_id')->index();
+            $table->unsignedSmallInteger('workplace_id')->index();
             $table->foreign('workplace_id')->references('id')->on('workplaces');
             $table->jsonb('data');
             $table->timestampsTz();
             $table->softDeletes();
-            $table->unsignedBigInteger('source_id')->nullable()->unique();
+            $table->string('source_id')->nullable()->unique();
         });
     }
 

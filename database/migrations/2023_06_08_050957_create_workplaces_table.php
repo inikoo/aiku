@@ -23,7 +23,7 @@ return new class () extends Migration {
             $table->string('name')->collation('und_ns');
             $table->unsignedSmallInteger('timezone_id')->nullable();
             $table->foreign('timezone_id')->references('id')->on('timezones');
-            $table->unsignedBigInteger('address_id')->nullable()->index();
+            $table->unsignedInteger('address_id')->nullable()->index();
             $table->foreign('address_id')->references('id')->on('addresses');
             $table->jsonb('data');
             $table->jsonb('location');
