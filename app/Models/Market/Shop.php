@@ -56,6 +56,7 @@ use Spatie\Sluggable\SlugOptions;
  * App\Models\Market\Shop
  *
  * @property int $id
+ * @property int $group_id
  * @property int $organisation_id
  * @property string $slug
  * @property string $code
@@ -82,7 +83,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
- * @property int|null $source_id
+ * @property string|null $source_id
  * @property-read \App\Models\Market\ShopAccountingStats|null $accountingStats
  * @property-read Collection<int, Address> $addresses
  * @property-read ApiTenantUser|null $apiTenantUser

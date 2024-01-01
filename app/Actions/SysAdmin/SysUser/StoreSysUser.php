@@ -9,7 +9,6 @@ namespace App\Actions\SysAdmin\SysUser;
 
 use App\Models\Assets\Language;
 use App\Models\Assets\Timezone;
-use App\Models\Central\Domain;
 use App\Models\SysAdmin\Admin;
 use App\Models\SysAdmin\SysUser;
 use App\Models\SysAdmin\Organisation;
@@ -28,7 +27,7 @@ class StoreSysUser
     use WithAttributes;
 
 
-    public function handle(Admin|Organisation|Domain $userable, array $userData): SysUser
+    public function handle(Admin|Organisation $userable, array $userData): SysUser
     {
         if (empty($userData['language_id'])) {
             $language                = Language::where('code', config('app.locale'))->firstOrFail();
@@ -56,7 +55,7 @@ class StoreSysUser
         ];
     }
 
-    public function action(Admin|Organisation|Domain $userable, $modelData): SysUser
+    public function action(Admin|Organisation $userable, $modelData): SysUser
     {
         $this->fill($modelData);
         $validatedData = $this->validateAttributes();
@@ -82,7 +81,6 @@ class StoreSysUser
             $userable = match ($command->argument('userable')) {
                 'Admin'               => Admin::where('slug', $command->argument('userable_slug'))->firstOrFail(),
                 'Organisation'        => Organisation::where('slug', $command->argument('userable_slug'))->firstOrFail(),
-                'Domain'              => Domain::where('slug', $command->argument('userable_slug'))->firstOrFail(),
                 default               => null
             };
         } catch (Exception $e) {
@@ -104,9 +102,7 @@ class StoreSysUser
             if ($userable instanceof Admin) {
                 $prefix = 'root-';
             }
-            if ($userable instanceof Domain) {
-                $prefix = 'domain-';
-            }
+
 
             $username = $prefix.$userable->slug;
         }
@@ -123,9 +119,7 @@ class StoreSysUser
         ]);
 
 
-        if (!$userable instanceof Domain) {
-            $this->attributes['email'] = $userable->email;
-        }
+
 
         try {
             $validatedData = $this->validateAttributes();

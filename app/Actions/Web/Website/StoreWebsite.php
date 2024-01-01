@@ -7,68 +7,82 @@
 
 namespace App\Actions\Web\Website;
 
-use App\Actions\Central\Central\StoreDomain;
+use App\Actions\InertiaOrganisationAction;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWeb;
 use App\Actions\Web\Website\Hydrators\WebsiteHydrateUniversalSearch;
+use App\Enums\Web\Website\WebsiteStateEnum;
 use App\Models\Market\Shop;
 use App\Models\Web\Website;
-use App\Rules\CaseSensitive;
+use App\Rules\IUnique;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsAction;
-use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class StoreWebsite
+class StoreWebsite extends InertiaOrganisationAction
 {
-    use AsAction;
-    use WithAttributes;
-
-
-    /**
-     * @var true
-     */
     private bool $asAction = false;
     private mixed $shop;
 
 
     public function handle(Shop $shop, array $modelData): Website
     {
+
+        data_set($modelData, 'group_id', $shop->group_id);
+        data_set($modelData, 'organisation_id', $shop->organisation_id);
+
         data_set($modelData, 'type', $shop->subtype);
         /** @var Website $website */
         $website = $shop->website()->create($modelData);
         $website->webStats()->create();
-        StoreDomain::run($shop->organisation, $website, [
-            'slug'   => $website->code,
-            'domain' => $website->domain
-        ]);
+
+
+        //AddWebsiteToCloudflare::run($website);
+
         OrganisationHydrateWeb::dispatch($shop->organisation);
         WebsiteHydrateUniversalSearch::dispatch($website);
+
         return $website;
     }
 
     public function authorize(ActionRequest $request): bool
     {
+        if ($this->asAction) {
+            return true;
+        }
         return $request->user()->hasPermissionTo("shops.edit");
     }
 
     public function rules(): array
     {
         return [
-            'domain' => ['required', new CaseSensitive('websites')],
-            'code'   => ['required', 'unique:websites','max:8'],
-            'name'   => ['required']
+            'domain'    => ['required',
+                            new IUnique(
+                                table: 'websites',
+                                extraConditions: [
+                                    [
+                                        'column' => 'group_id', 'value' => $this->organisation->group_id
+                                    ],
+                                    [
+                                        'column' => 'state','operation'=>'!=', 'value' => WebsiteStateEnum::CLOSED->value
+                                    ],
+                                ]
+                            ),
+                ],
+            'code'      => ['required', 'max:8',
+                            new IUnique(
+                                table: 'websites',
+                                extraConditions: [
+                                    ['column' => 'group_id', 'value' => $this->organisation->group_id],
+                                ]
+                            ),
+                ],
+            'name'      => ['required'],
+            'source_id' => ['sometimes', 'string']
         ];
     }
 
-    public function asController(Shop $shop, ActionRequest $request): Website
-    {
-        $this->shop = $shop;
-        $request->validate();
 
-        return $this->handle($shop, $request->validated());
-    }
 
     public function afterValidator(Validator $validator): void
     {
@@ -84,12 +98,20 @@ class StoreWebsite
         ]);
     }
 
-    public function action(Shop $parent, array $modelData): Website
+    public function asController(Shop $shop, ActionRequest $request): Website
+    {
+        $this->shop = $shop;
+        $this->initialisation($shop->organisation, $request);
+
+        return $this->handle($shop, $this->validatedData);
+    }
+
+    public function action(Shop $shop, array $modelData): Website
     {
         $this->asAction = true;
-        $this->setRawAttributes($modelData);
-        $validatedData = $this->validateAttributes();
+        $this->shop     = $shop;
+        $this->initialisation($shop->organisation, $modelData);
+        return $this->handle($shop, $this->validatedData);
 
-        return $this->handle($parent, $validatedData);
     }
 }

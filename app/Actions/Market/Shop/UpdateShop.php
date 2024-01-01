@@ -55,6 +55,8 @@ class UpdateShop extends InertiaOrganisationAction
                                            new IUnique(
                                                table: 'shops',
                                                extraConditions: [
+
+                                                   ['column' => 'group_id', 'value' => $this->organisation->group_id],
                                                    [
                                                        'column'   => 'id',
                                                        'operator' => '!=',

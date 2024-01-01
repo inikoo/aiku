@@ -8,8 +8,8 @@
 namespace App\Actions\Mail\EmailAddress;
 
 use App\Actions\Mail\EmailAddress\Traits\AwsClient;
-use App\Actions\Web\Domain\AddDomainDnsRecordCloudflare;
-use App\Enums\Central\Domain\DnsCloudflareTypeEnum;
+use App\Actions\Web\Website\Utils\AddDomainDnsRecordCloudflare;
+use App\Enums\Web\DnsCloudflareTypeEnum;
 use Illuminate\Console\Command;
 use Lorisleiva\Actions\Concerns\AsAction;
 

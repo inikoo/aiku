@@ -47,7 +47,7 @@ class FetchAuroraStoredItem extends FetchAurora
             'notes'       => $this->auroraModelData->{'Fulfilment Asset Note'},
             'created_at'  => $this->auroraModelData->{'Fulfilment Asset From'} ?? null,
             'received_at' => $received_at,
-            'source_id'   => $this->auroraModelData->{'Fulfilment Asset Key'},
+            'source_id'   => $this->organisation->id.':'.$this->auroraModelData->{'Fulfilment Asset Key'},
         ];
     }
 

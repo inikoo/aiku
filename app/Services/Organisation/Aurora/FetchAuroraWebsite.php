@@ -7,12 +7,35 @@
 
 namespace App\Services\Organisation\Aurora;
 
+use App\Actions\Utils\Abbreviate;
 use App\Enums\Web\Website\WebsiteEngineEnum;
 use App\Enums\Web\Website\WebsiteStateEnum;
+use App\Models\Web\Website;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraWebsite extends FetchAurora
 {
+    public function fetch(int $id): ?array
+    {
+        $this->auroraModelData = $this->fetchData($id);
+
+
+        $code = strtolower($this->auroraModelData->{'Website Code'});
+        $code = preg_replace('/\.com$/', '', $code);
+        $code = preg_replace('/\.eu$/', '', $code);
+        $code = preg_replace('/\.biz$/', '', $code);
+
+
+        $sourceId = $this->organisation->id.':'.$this->auroraModelData->{'Website Key'};
+        if (Website::where('code', $code)->whereNot('source_id', $sourceId)->exists()) {
+            $code = $code.strtolower(Abbreviate::run(string: $this->organisation->slug, maximumLength: 2));
+        }
+        $this->auroraModelData->code = $code;
+        $this->parseModel();
+
+        return $this->parsedData;
+    }
+
     protected function parseModel(): void
     {
         $this->parsedData['shop'] = $this->parseShop($this->auroraModelData->{'Website Store Key'});
@@ -26,21 +49,17 @@ class FetchAuroraWebsite extends FetchAurora
 
         $domain = preg_replace('/^www\./', '', strtolower($this->auroraModelData->{'Website URL'}));
 
-        $code = strtolower($this->auroraModelData->{'Website Code'});
-        $code = preg_replace('/\.com$/', '', $code);
-        $code = preg_replace('/\.eu$/', '', $code);
-        $code = preg_replace('/\.biz$/', '', $code);
 
         $this->parsedData['website'] =
             [
                 'engine'      => WebsiteEngineEnum::AURORA,
                 'name'        => $this->auroraModelData->{'Website Name'},
-                'code'        => $code,
+                'code'        => $this->auroraModelData->code,
                 'domain'      => $domain,
                 'state'       => $status,
                 'launched_at' => $this->parseDate($this->auroraModelData->{'Website Launched'}),
                 'created_at'  => $this->parseDate($this->auroraModelData->{'Website From'}),
-                'source_id'   => $this->auroraModelData->{'Website Key'},
+                'source_id'   => $this->organisation->id.':'.$this->auroraModelData->{'Website Key'},
 
             ];
     }

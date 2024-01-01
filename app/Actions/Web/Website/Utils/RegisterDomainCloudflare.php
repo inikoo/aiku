@@ -1,11 +1,11 @@
 <?php
 /*
- * Author: Artha <artha@aw-advantage.com>
- * Created: Tue, 27 Jun 2023 13:36:43 Central Indonesia Time, Sanur, Bali, Indonesia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Mon, 01 Jan 2024 20:52:05 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Web\Domain;
+namespace App\Actions\Web\Website\Utils;
 
 use GuzzleHttp\Promise\PromiseInterface;
 use Illuminate\Http\Client\Response;
@@ -20,11 +20,11 @@ class RegisterDomainCloudflare
     {
         $response = Http::withHeaders([
             'Content-Type'  => 'application/json',
-            'Authorization' => 'Bearer ' . env('CLOUDFLARE_API_TOKEN'),
-        ])->post(env('CLOUDFLARE_API_URL') . "/zones", [
+            'Authorization' => 'Bearer ' . config('app.cloudflare_api_token'),
+        ])->post(config('app.cloudflare_api_url') . "/zones", [
             "name"    => $domain,
             "account" => [
-                "id" => env("CLOUDFLARE_ACCOUNT_ID")
+                "id" => config("app.cloudflare_account_id")
             ]
         ]);
 

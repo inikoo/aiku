@@ -8,7 +8,7 @@
 namespace App\Actions\Mail\EmailAddress;
 
 use App\Actions\Mail\EmailAddress\Traits\AwsClient;
-use App\Actions\Web\Domain\DeleteDomainDnsRecordCloudflare;
+use App\Actions\Web\Website\Utils\DeleteDomainDnsRecordCloudflare;
 use Illuminate\Console\Command;
 use Lorisleiva\Actions\Concerns\AsAction;
 

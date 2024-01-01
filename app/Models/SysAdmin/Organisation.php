@@ -9,7 +9,6 @@ namespace App\Models\SysAdmin;
 
 use App\Models\Accounting\PaymentServiceProvider;
 use App\Models\Assets\Currency;
-use App\Models\Central\Domain;
 use App\Models\Dispatch\Shipper;
 use App\Models\HumanResources\Employee;
 use App\Models\HumanResources\Workplace;
@@ -56,7 +55,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\OrganisationAccountingStats|null $accountingStats
  * @property-read \App\Models\SysAdmin\OrganisationCRMStats|null $crmStats
  * @property-read Currency $currency
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Domain> $domains
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Employee> $employees
  * @property-read \App\Models\SysAdmin\OrganisationFulfilmentStats|null $fulfilmentStats
  * @property-read \App\Models\SysAdmin\Group $group
@@ -194,10 +192,6 @@ class Organisation extends Model implements HasMedia
         return $this->belongsTo(Currency::class);
     }
 
-    public function domains(): HasMany
-    {
-        return $this->hasMany(Domain::class);
-    }
     public function sysUser(): MorphOne
     {
         return $this->morphOne(SysUser::class, 'userable');

@@ -76,7 +76,7 @@ class FetchAuroraSupplierProduct extends FetchAurora
                 'data'        => $data,
                 'settings'    => $settings,
                 'created_at'  => $created_at,
-                'source_id'   => $this->auroraModelData->{'Supplier Part Key'}
+                'source_id'   => $this->organisation->id.':'.$this->auroraModelData->{'Supplier Part Key'}
             ];
     }
 

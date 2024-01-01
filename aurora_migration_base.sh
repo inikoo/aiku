@@ -60,7 +60,9 @@ pg_dump -Fc -f "devops/devel/snapshots/guests.dump" ${DB}
 #php artisan fetch:users  -d "${DB_SUFFIX}"
 #pg_dump -Fc -f "devops/devel/snapshots/au_users.dump" ${DB}
 php artisan fetch:shops -d "${DB_SUFFIX}"
+pg_dump -Fc -f "devops/devel/snapshots/shops.dump" ${DB}
 php artisan fetch:websites -d "${DB_SUFFIX}"
+pg_dump -Fc -f "devops/devel/snapshots/websites.dump" ${DB}
 php artisan fetch:payment-service-providers -d "${DB_SUFFIX}"
 php artisan fetch:payment-accounts -d "${DB_SUFFIX}"
 pg_dump -Fc -f "devops/devel/snapshots/au_shops.dump" ${DB}

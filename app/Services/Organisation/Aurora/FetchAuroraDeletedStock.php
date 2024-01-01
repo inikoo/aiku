@@ -34,7 +34,7 @@ class FetchAuroraDeletedStock extends FetchAurora
             [
                 'description' => $auroraDeletedData->{'Part Recommended Product Unit Name'} ?? null,
                 'code'        => $code,
-                'source_id'   => $this->auroraModelData->{'Part Deleted Key'},
+                'source_id'   => $this->organisation->id.':'.$this->auroraModelData->{'Part Deleted Key'},
                 'deleted_at'  => $deleted_at,
 
                 'created_at' => $auroraDeletedData->{'Part Valid From'} ?? null,

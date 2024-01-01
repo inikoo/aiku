@@ -18,6 +18,7 @@ use App\Enums\Market\Shop\ShopSubtypeEnum;
 use App\Enums\Market\Shop\ShopTypeEnum;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Market\Shop;
+use App\Rules\IUnique;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
@@ -30,6 +31,8 @@ class StoreShop extends InertiaOrganisationAction
 
     public function handle(Organisation $organisation, array $modelData): Shop
     {
+        data_set($modelData, 'group_id', $organisation->group_id);
+
         /** @var Shop $shop */
         $shop = $organisation->shops()->create($modelData);
         $shop->stats()->create();
@@ -114,7 +117,19 @@ class StoreShop extends InertiaOrganisationAction
     {
         return [
             'name'                     => ['required', 'string', 'max:255'],
-            'code'                     => ['required', 'unique:shops', 'between:2,4', 'alpha_dash'],
+            'code'                     => [
+                'required',
+                'between:2,4',
+                'alpha_dash',
+                new IUnique(
+                    table: 'shops',
+                    extraConditions: [
+                        ['column' => 'group_id', 'value' => $this->organisation->group_id],
+                    ]
+                ),
+
+
+            ],
             'contact_name'             => ['nullable', 'string', 'max:255'],
             'company_name'             => ['nullable', 'string', 'max:255'],
             'email'                    => ['nullable', 'email'],

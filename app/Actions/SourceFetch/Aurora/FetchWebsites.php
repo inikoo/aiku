@@ -30,7 +30,8 @@ class FetchWebsites extends FetchAction
                     modelData: $websiteData['website']
                 );
             } else {
-                $website = StoreWebsite::run(
+
+                $website = StoreWebsite::make()->action(
                     shop:      $websiteData['shop'],
                     modelData: $websiteData['website'],
                 );

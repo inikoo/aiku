@@ -1,11 +1,11 @@
 <?php
 /*
- * Author: Artha <artha@aw-advantage.com>
- * Created: Tue, 27 Jun 2023 13:36:43 Central Indonesia Time, Sanur, Bali, Indonesia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Mon, 01 Jan 2024 20:52:05 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Web\Domain;
+namespace App\Actions\Web\Website\Utils;
 
 use GuzzleHttp\Promise\PromiseInterface;
 use Illuminate\Http\Client\Response;
@@ -20,8 +20,8 @@ class DestroyDomainCloudflare
     {
         $response = Http::withHeaders([
             'Content-Type'  => 'application/json',
-            'Authorization' => 'Bearer ' . env('CLOUDFLARE_API_TOKEN'),
-        ])->delete(env('CLOUDFLARE_API_URL') . "/zones/" . $zoneId);
+            'Authorization' => 'Bearer ' . config('app.cloudflare_api_token'),
+        ])->delete(config('app.cloudflare_api_url') . "/zones/" . $zoneId);
 
         return $response->json();
     }
