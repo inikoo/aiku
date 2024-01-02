@@ -32,8 +32,9 @@ import {
   faBullhorn,
   faLightbulb
 } from "@fal";
-import AppLeftSideBarGrp from "@/Layouts/AppLeftSideBarGrp.vue";
-import { useLayoutStore } from "@/Stores/layout";
+import AppLeftSideBarGrp from "@/Layouts/AppLeftSideBarGrp.vue"
+import AppLeftSideBarOrg from "@/Layouts/AppLeftSideBarOrg.vue"
+import { useLayoutStore } from "@/Stores/layout"
 
 
 library.add(
@@ -71,7 +72,7 @@ const layout = useLayoutStore();
   <div class="w-8/12 mt-11 fixed md:border-r md:border-gray-200 bg-white md:flex md:flex-col md:inset-y-0 md:w-10 lg:mt-10 xl:w-56"
        @mouseenter="isHover = true" @mouseleave="isHover = false">
     <div class="flex flex-grow flex-col h-full overflow-y-auto custom-hide-scrollbar border-r border-gray-200 pb-4">
-        <AppLeftSideBarGrp/>
+        <AppLeftSideBarGrp />
         <AppLeftSideBarOrg v-for="x in manyFoods" />
     </div>
   </div>

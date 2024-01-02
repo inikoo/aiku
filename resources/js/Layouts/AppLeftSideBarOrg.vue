@@ -10,56 +10,12 @@ import { Link } from "@inertiajs/vue3"
 import { ref, onMounted, onUnmounted } from 'vue'
 import { router } from '@inertiajs/vue3'
  import { library } from "@fortawesome/fontawesome-svg-core"
- import {
- 	faHome,
- 	faDollyFlatbedAlt,
- 	faConveyorBeltAlt,
- 	faUsers,
- 	faUserHardHat,
- 	faBars,
- 	faUsersCog,
- 	faTachometerAltFast,
- 	faInventory,
- 	faStoreAlt,
- 	faUser,
- 	faIndustry,
-     faBoxUsd,
- 	faDollyEmpty,
- 	faShoppingCart,
- 	faAbacus,
- 	faParachuteBox,
- 	faChevronDown,
-     faTasksAlt,
-     faBullhorn,
-     faLightbulb
- } from '@fal'
+ import {  } from '@fal'
 import { useLayoutStore } from "@/Stores/layout.js"
-import { computed } from "vue";
-import Image from "@/Components/Image.vue";
+import { computed } from "vue"
+import Image from "@/Components/Image.vue"
 
- library.add(
- 	faHome,
- 	faDollyFlatbedAlt,
- 	faConveyorBeltAlt,
- 	faUsers,
- 	faUserHardHat,
- 	faBars,
- 	faUsersCog,
- 	faTachometerAltFast,
- 	faInventory,
- 	faStoreAlt,
- 	faUser,
- 	faIndustry,
-     faBoxUsd,
- 	faDollyEmpty,
- 	faShoppingCart,
- 	faAbacus,
- 	faParachuteBox,
- 	faChevronDown,
-     faTasksAlt,
-     faBullhorn,
-     faLightbulb,
- )
+library.add()
 
 const layout = useLayoutStore()
 
@@ -146,16 +102,16 @@ const generateLabel = (item) => {
 		@mouseenter="isHover = true" @mouseleave="isHover = false">
 		<div class="flex flex-grow flex-col h-full overflow-y-auto custom-hide-scrollbar border-r border-gray-200 pb-4">
 
-          <Link :href="route('grp.dashboard.show')" class="flex flex-col justify-center text-indigo-700 font-logo md:hidden py-3 text-center gap-y-2">
-            <Image :src="layout.group.logo" class="h-7 md:h-5 shadow" :alt="layout.group.code"/>
-				<span>{{ layout.group.name }}</span>
-			</Link>
+            <Link :href="route('grp.dashboard.show')" class="flex flex-col justify-center text-indigo-700 font-logo md:hidden py-3 text-center gap-y-2">
+                <Image :src="layout.group.logo" class="h-7 md:h-5 shadow" :alt="layout.group.code"/>
+                    <span>{{ layout.group.name }}</span>
+            </Link>
           <div class="flex flex-grow flex-col pb-16">
             <nav class="flex-1 space-y-1" aria-label="Sidebar">
 
 					<!-- LeftSide Links -->
 					<Link
-						v-for="(item, itemKey) in layout.groupNavigation"
+						v-for="(item, itemKey) in layout.navigation.org"
 						:key="itemKey"
 						:href="generateRoute(item)"
 						:class="[

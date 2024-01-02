@@ -37,8 +37,6 @@ export const useLayoutStore = defineStore("layout", {
                 name: trans("All websites"),
                 code: trans("All")
             },
-            warehousesInDropDown: {},
-            warehouses          : {},
             currentWarehouseSlug: null,
             currentWarehouseData: {
                 slug: null,
@@ -50,9 +48,11 @@ export const useLayoutStore = defineStore("layout", {
                 code: "",
                 name: ""
             },
-            currentOrganisation : null,
+            navigation: {
+                grp: [],
+                org: []
+            },
             organisations       : {},
-
             currentRoute          : "",
             currentRouteParameters: {},
             currentModule         : "",
@@ -73,7 +73,9 @@ export const useLayoutStore = defineStore("layout", {
                 avatar_thumbnail: null,
                 customer_slug   : null,
                 customer_name   : null
-            }
+            },
+            warehousesInDropDown: {},
+            warehouses          : {},
         }
     )
 

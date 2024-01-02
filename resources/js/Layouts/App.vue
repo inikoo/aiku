@@ -40,7 +40,7 @@ library.add(faSearch, faBell, faTachometerAltFast, faGlobe)
 
 
 initialiseApp()
-console.log('ttttttttttttttttttt')
+
 router.on("navigate", () => {
     if (route().params.hasOwnProperty("shop")) {
         layout.currentShopData = layout.shops[route().params["shop"]]
@@ -216,10 +216,10 @@ if (usePage().props.auth.user.avatar_thumbnail) {
 
         <!-- Sidebar: Left -->
         <div>
-            <div class="bg-gray-100/80 fixed top-0 w-screen h-screen z-10" v-if="sidebarOpen"
+            <!-- Mobile Helper: background to close hamburger -->
+            <div class="bg-gray-200/80 fixed top-0 w-screen h-screen z-10 md:hidden" v-if="sidebarOpen"
                 @click="sidebarOpen = !sidebarOpen" />
-            <AppLeftSideBar v-if="!sidebarOpen" class="hidden md:block" />
-            <AppLeftSideBar class="-left-2/3 transition-all duration-100 ease-in-out z-20 block md:hidden"
+            <AppLeftSideBar class="-left-2/3 transition-all duration-300 ease-in-out z-20 block md:left-[0]"
                 :class="{ 'left-[0]': sidebarOpen }" @click="sidebarOpen = !sidebarOpen" />
         </div>
 
