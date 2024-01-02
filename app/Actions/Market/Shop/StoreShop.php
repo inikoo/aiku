@@ -203,6 +203,7 @@ class StoreShop extends InertiaOrganisationAction
             return 1;
         }
         $this->organisation = $organisation;
+        setPermissionsTeamId($organisation->group->id);
 
         if ($command->option('country')) {
             try {

@@ -263,4 +263,6 @@ class Organisation extends Model implements HasMedia
         return $this->morphMany(Role::class, 'scope');
     }
 
+
+
 }

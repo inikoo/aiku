@@ -8,7 +8,7 @@
 namespace App\Actions\UI\Layout;
 
 use App\Http\Resources\SysAdmin\Group\GroupResource;
-use App\Http\Resources\SysAdmin\Organisation\OrganisationResource;
+use App\Http\Resources\SysAdmin\Organisation\UserOrganisationResource;
 use App\Http\Resources\UI\ShopsNavigationResource;
 use App\Http\Resources\UI\WarehousesNavigationResource;
 use App\Http\Resources\UI\WebsitesNavigationResource;
@@ -28,11 +28,10 @@ class GetLayout
             return [];
         }
 
-
         return [
 
             'group'         => GroupResource::make(app('group'))->getArray(),
-            'organisations' => OrganisationResource::collection($user->authorisedOrganisations),
+            'organisations' => UserOrganisationResource::collectionForUser($user->authorisedOrganisations, $user),
 
             'navigation' => [
                 'grp' => GetGroupNavigation::run($user),
