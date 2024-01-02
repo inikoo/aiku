@@ -11,17 +11,15 @@ import { ref, onMounted, onUnmounted } from "vue"
 import { router } from "@inertiajs/vue3"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import {faChevronLeft} from "@far"
+import { faBoxUsd, faUsersCog } from "@fal"
 import { useLayoutStore } from "@/Stores/layout.js"
 import { computed } from "vue"
 import Image from "@/Components/Image.vue"
 import { trans } from 'laravel-vue-i18n';
 
-library.add(faChevronLeft)
+library.add(faChevronLeft, faBoxUsd, faUsersCog)
 
 const layout = useLayoutStore()
-
-
-const isHover = ref(false)
 
 const currentIndexModule = computed(() => {
     return Object.keys(layout.groupNavigation).indexOf(layout.currentModule)
@@ -31,7 +29,7 @@ const currentIndexModule = computed(() => {
 onMounted(() => {
     if (localStorage.getItem('leftSideBar')) {
         // Read from local storage then store to Pinia
-        layout.leftSidebar.show = JSON.parse(localStorage.getItem('leftSideBar'))
+        layout.leftSidebar.show = JSON.parse(localStorage.getItem('leftSideBar') ?? '')
     }
 })
 
@@ -86,7 +84,6 @@ const handleToggleLeftbar = () => {
 <template>
     <div class="mt-11 fixed md:flex md:flex-col md:inset-y-0 lg:mt-10 bg-gradient-to-t from-org-700 to-org-600 h-full text-gray-400 transition-all duration-200 ease-in-out"
         :class="[layout.leftSidebar.show ? 'w-8/12 md:w-48' : 'w-8/12 md:w-10']"
-        @mouseenter="isHover = true" @mouseleave="isHover = false"
     >
         
         <Link :href="route('grp.dashboard.show')"
