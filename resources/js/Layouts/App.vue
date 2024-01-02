@@ -210,12 +210,13 @@ if (usePage().props.auth.user.avatar_thumbnail) {
       </DisclosurePanel> -->
         </Disclosure>
 
-        <!-- Breadcrumbs -->
-        <Breadcrumbs class="fixed md:left-10 xl:left-56 top-11 lg:top-10 z-[19] w-full"
+        <!-- Section: Breadcrumbs -->
+        <Breadcrumbs class="fixed top-11 lg:top-10 z-[19] w-full transition-all duration-200 ease-in-out"
+            :class="[layout.leftSidebar.show ? 'left-0 md:left-48' : 'left-0 md:left-10']"
             :breadcrumbs="usePage().props.breadcrumbs ?? []" :navigation="usePage().props.navigation ?? []" />
 
         <!-- Sidebar: Left -->
-        <div>
+        <div class="">
             <!-- Mobile Helper: background to close hamburger -->
             <div class="bg-gray-200/80 fixed top-0 w-screen h-screen z-10 md:hidden" v-if="sidebarOpen"
                 @click="sidebarOpen = !sidebarOpen" />
@@ -224,7 +225,9 @@ if (usePage().props.auth.user.avatar_thumbnail) {
         </div>
 
         <!-- Main Content -->
-        <main class="relative flex flex-col pt-16 pb-5 ml-0 md:ml-10 xl:ml-56 ">
+        <main
+            class="h-full relative flex flex-col pt-20 md:pt-16 pb-6 bg-gray-50 text-gray-700 transition-all duration-200 ease-in-out"
+            :class="[layout.leftSidebar.show ? 'ml-0 md:ml-48' : 'ml-0 md:ml-10']">
             <slot />
         </main>
 

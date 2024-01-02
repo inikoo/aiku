@@ -48,6 +48,9 @@ export const useLayoutStore = defineStore("layout", {
                 code: "",
                 name: ""
             },
+            leftSidebar: {
+                show: true,
+            },
             navigation: {
                 grp: [],
                 org: []
