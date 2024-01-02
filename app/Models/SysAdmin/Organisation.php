@@ -10,6 +10,7 @@ namespace App\Models\SysAdmin;
 use App\Models\Accounting\PaymentServiceProvider;
 use App\Models\Assets\Country;
 use App\Models\Assets\Currency;
+use App\Models\Assets\Language;
 use App\Models\Assets\Timezone;
 use App\Models\Dispatch\Shipper;
 use App\Models\HumanResources\Employee;
@@ -206,6 +207,11 @@ class Organisation extends Model implements HasMedia
         return $this->belongsTo(Timezone::class);
     }
 
+    public function language(): BelongsTo
+    {
+        return $this->belongsTo(Language::class);
+    }
+
     public function sysUser(): MorphOne
     {
         return $this->morphOne(SysUser::class, 'userable');
@@ -239,11 +245,6 @@ class Organisation extends Model implements HasMedia
     public function purchaseOrders(): HasMany
     {
         return $this->hasMany(PurchaseOrder::class);
-    }
-
-    public function supplierDeliveries(): HasMany
-    {
-        return $this->hasMany(SupplierDelivery::class);
     }
 
     public function shippers(): HasMany

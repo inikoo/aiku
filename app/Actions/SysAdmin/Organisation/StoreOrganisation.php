@@ -51,7 +51,7 @@ class StoreOrganisation
 
         foreach($superAdmins as $superAdmin) {
             UserAddRoles::run($superAdmin, [
-                Role::where('name', RolesEnum::getRoleName('org-admin', $organisation))->first()
+                Role::where('name', RolesEnum::getRoleName('org-admin', $organisation))->where('scope_id', $organisation->id)->first()
             ]);
         }
 

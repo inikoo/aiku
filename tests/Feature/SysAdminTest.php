@@ -47,8 +47,6 @@ beforeAll(function () {
 });
 
 beforeEach(function () {
-
-
     GetDiceBearAvatar::mock()
         ->shouldReceive('handle')
         ->andReturn(Storage::disk('art')->get('avatars/shapes.svg'));
@@ -252,7 +250,6 @@ test('create guest from command', function (Group $group) {
         ->and($group->sysadminStats->number_users)->toBe(2);
 
     return $guest;
-
 })->depends('create group');
 
 test('update guest', function ($guest) {
@@ -368,7 +365,6 @@ test('Hydrate organisation via command', function (Organisation $organisation) {
         'organisations' => [$organisation->slug],
     ])->assertSuccessful();
     $this->artisan('hydrate:organisations', [])->assertSuccessful();
-
 })->depends('create organisation');
 
 test('can show app login', function () {
@@ -408,7 +404,6 @@ test('can login', function (Guest $guest) {
     $user = $guest->user;
     $user->refresh();
     expect($user->stats->number_logins)->toBe(1);
-
 })->depends('create guest');
 
 test('can show hr dashboard', function (Guest $guest) {

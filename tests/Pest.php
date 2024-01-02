@@ -7,8 +7,10 @@
 
 use App\Actions\Helpers\Avatars\GetDiceBearAvatar;
 use App\Actions\SysAdmin\Group\StoreGroup;
+use App\Actions\SysAdmin\Guest\StoreGuest;
 use App\Actions\SysAdmin\Organisation\StoreOrganisation;
 use App\Models\SysAdmin\Group;
+use App\Models\SysAdmin\Guest;
 use App\Models\SysAdmin\Organisation;
 use Symfony\Component\Process\Process;
 use Tests\TestCase;
@@ -39,8 +41,8 @@ function createOrganisation(): Organisation
         ->shouldReceive('handle')
         ->andReturn(Storage::disk('art')->get('avatars/shapes.svg'));
 
-    $group=Group::first();
-    if(!$group) {
+    $group = Group::first();
+    if (!$group) {
         $group = StoreGroup::make()->action(Group::factory()->definition());
     }
 
@@ -50,4 +52,25 @@ function createOrganisation(): Organisation
     }
 
     return $organisation;
+}
+
+function createAdminGuest(Group $group): Guest
+{
+    $guest = Guest::first();
+    if (!$guest) {
+        app()->instance('group', $group);
+        setPermissionsTeamId($group->id);
+        $guest = StoreGuest::make()
+            ->action(
+                $group,
+                array_merge(
+                    Guest::factory()->definition(),
+                    [
+                        'roles' => ['super-admin']
+                    ]
+                )
+            );
+    }
+
+    return $guest;
 }

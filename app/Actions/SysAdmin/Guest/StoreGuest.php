@@ -12,6 +12,7 @@ use App\Actions\SysAdmin\Guest\Hydrators\GuestHydrateUniversalSearch;
 use App\Actions\SysAdmin\User\StoreUser;
 use App\Actions\SysAdmin\User\UserAddRoles;
 use App\Enums\SysAdmin\Authorisation\RolesEnum;
+use App\Models\Market\Shop;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Guest;
 use App\Models\SysAdmin\Organisation;
@@ -78,6 +79,11 @@ class StoreGuest
                 foreach (Organisation::all() as $organisation) {
                     UserAddRoles::run($user, [
                         Role::where('name', RolesEnum::getRoleName(RolesEnum::ORG_ADMIN->value, $organisation))->first()
+                    ]);
+                }
+                foreach (Shop::all() as $shop) {
+                    UserAddRoles::run($user, [
+                        Role::where('name', RolesEnum::getRoleName(RolesEnum::SHOP_ADMIN->value, $shop))->first()
                     ]);
                 }
             }

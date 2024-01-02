@@ -7,6 +7,8 @@
 
 namespace App\Enums\SysAdmin\Authorisation;
 
+use App\Models\Inventory\Warehouse;
+use App\Models\Market\Shop;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 
@@ -27,19 +29,31 @@ enum RolesEnum: string
     case ACCOUNTING_CLERK      = 'accounting-clerk';
     case ACCOUNTING_SUPERVISOR = 'accounting-supervisor';
 
+
+    case SHOP_ADMIN              = 'shop-admin';
+
+    case WAREHOUSE_ADMIN              = 'warehouse-admin';
+    case CUSTOMER_SERVICE_CLERK       = 'customer-service-clerk';
+
+    case CUSTOMER_SERVICE_SUPERVISOR = 'customer-service-supervisor';
+
     public function label(): string
     {
         return match ($this) {
-            RolesEnum::SUPER_ADMIN                => __('Super admin'),
-            RolesEnum::SYSTEM_ADMIN               => __('System admin'),
-            RolesEnum::SUPPLY_CHAIN               => __('Supply chain'),
-            RolesEnum::PROCUREMENT_CLERK          => __('Procurement clerk'),
-            RolesEnum::PROCUREMENT_SUPERVISOR     => __('Procurement supervisor'),
-            RolesEnum::ORG_ADMIN                  => __('Organisation admin'),
-            RolesEnum::HUMAN_RESOURCES_CLERK      => __('Human resources clerk'),
-            RolesEnum::HUMAN_RESOURCES_SUPERVISOR => __('Human resources supervisor'),
-            RolesEnum::ACCOUNTING_CLERK           => __('Accounting clerk'),
-            RolesEnum::ACCOUNTING_SUPERVISOR      => __('Accounting supervisor'),
+            RolesEnum::SUPER_ADMIN                 => __('Super admin'),
+            RolesEnum::SYSTEM_ADMIN                => __('System admin'),
+            RolesEnum::SUPPLY_CHAIN                => __('Supply chain'),
+            RolesEnum::PROCUREMENT_CLERK           => __('Procurement clerk'),
+            RolesEnum::PROCUREMENT_SUPERVISOR      => __('Procurement supervisor'),
+            RolesEnum::ORG_ADMIN                   => __('Organisation admin'),
+            RolesEnum::HUMAN_RESOURCES_CLERK       => __('Human resources clerk'),
+            RolesEnum::HUMAN_RESOURCES_SUPERVISOR  => __('Human resources supervisor'),
+            RolesEnum::ACCOUNTING_CLERK            => __('Accounting clerk'),
+            RolesEnum::ACCOUNTING_SUPERVISOR       => __('Accounting supervisor'),
+            RolesEnum::SHOP_ADMIN                  => __('Shop admin'),
+            RolesEnum::WAREHOUSE_ADMIN             => __('Warehouse admin'),
+            RolesEnum::CUSTOMER_SERVICE_CLERK      => __('Customer service clerk'),
+            RolesEnum::CUSTOMER_SERVICE_SUPERVISOR => __('Customer service supervisor'),
         };
     }
 
@@ -84,6 +98,17 @@ enum RolesEnum: string
                 OrganisationPermissionsEnum::PROCUREMENT,
                 OrganisationPermissionsEnum::SUPERVISOR_PROCUREMENT
             ],
+            RolesEnum::SHOP_ADMIN => [
+                ShopPermissionsEnum::CRM,
+                ShopPermissionsEnum::SUPERVISOR_CRM
+                ],
+            RolesEnum::CUSTOMER_SERVICE_CLERK => [
+                ShopPermissionsEnum::CRM,
+            ],
+            RolesEnum::CUSTOMER_SERVICE_SUPERVISOR => [
+                ShopPermissionsEnum::CRM,
+                ShopPermissionsEnum::SUPERVISOR_CRM
+            ],
         };
     }
 
@@ -93,11 +118,17 @@ enum RolesEnum: string
             RolesEnum::SUPER_ADMIN,
             RolesEnum::SYSTEM_ADMIN,
             RolesEnum::SUPPLY_CHAIN => 'Group',
-            default                 => 'Organisation'
+            RolesEnum::SHOP_ADMIN,
+            RolesEnum::CUSTOMER_SERVICE_CLERK,
+            RolesEnum::CUSTOMER_SERVICE_SUPERVISOR
+                                       => 'Shop',
+            RolesEnum::WAREHOUSE_ADMIN => 'Warehouse',
+
+            default => 'Organisation'
         };
     }
 
-    public static function getRolesWithScope(Group|Organisation $scope): array
+    public static function getRolesWithScope(Group|Organisation|Shop|Warehouse $scope): array
     {
         $rawRoleNames = array_column(
             array_filter(RolesEnum::cases(), fn ($role) => $role->scope() == class_basename($scope)),
@@ -113,14 +144,13 @@ enum RolesEnum: string
     }
 
 
-    public static function getRoleName(string $rawName, Group|Organisation $scope): string
+    public static function getRoleName(string $rawName, Group|Organisation|Shop|Warehouse $scope): string
     {
         return match (class_basename($scope)) {
-            'Organisation' => $rawName.'-'.$scope->slug,
-            default        => $rawName
+            'Organisation', 'Shop' => $rawName.'-'.$scope->slug,
+            default => $rawName
         };
     }
-
 
 
 }

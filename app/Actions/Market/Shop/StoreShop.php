@@ -12,15 +12,18 @@ use App\Actions\Assets\Currency\SetCurrencyHistoricFields;
 use App\Actions\InertiaOrganisationAction;
 use App\Actions\Mail\Outbox\StoreOutbox;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateMarket;
+use App\Actions\SysAdmin\User\UserAddRoles;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Enums\Mail\Outbox\OutboxTypeEnum;
 use App\Enums\Market\Shop\ShopTypeEnum;
+use App\Enums\SysAdmin\Authorisation\RolesEnum;
 use App\Models\Assets\Country;
 use App\Models\Assets\Currency;
 use App\Models\Assets\Language;
 use App\Models\Assets\Timezone;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Market\Shop;
+use App\Models\SysAdmin\Role;
 use App\Rules\IUnique;
 use Exception;
 use Illuminate\Console\Command;
@@ -62,6 +65,19 @@ class StoreShop extends InertiaOrganisationAction
             ]
         );
 
+        SeedShopPermissions::run($shop);
+
+        $orgAdmins = $organisation->group->users()->with('roles')->get()->filter(
+            fn ($user) => $user->roles->where('name', "org-admin-$organisation->slug")->toArray()
+        );
+
+
+
+        foreach($orgAdmins as $orgAdmin) {
+            UserAddRoles::run($orgAdmin, [
+                Role::where('name', RolesEnum::getRoleName('shop-admin', $shop))->first()
+            ]);
+        }
 
         SetCurrencyHistoricFields::run($shop->currency, $shop->created_at);
 
@@ -171,7 +187,8 @@ class StoreShop extends InertiaOrganisationAction
     }
 
 
-    public string $commandSignature = 'shop:create {organisation : organisation slug} {code} {name} {type} {--contact_name=} {--company_name=} {--email=} {--phone=} {--identity_document_number=} {--identity_document_type=} {--country_id=} {--currency_id=} {--language_id=} {--timezone_id=}';
+    public string $commandSignature = 'shop:create {organisation : organisation slug} {code} {name} {type}
+    {--contact_name=} {--company_name=} {--email=} {--phone=} {--identity_document_number=} {--identity_document_type=} {--country=} {--currency=} {--language=} {--timezone=}';
 
 
     public function asCommand(Command $command): int
@@ -185,6 +202,7 @@ class StoreShop extends InertiaOrganisationAction
 
             return 1;
         }
+        $this->organisation = $organisation;
 
         if ($command->option('country')) {
             try {
