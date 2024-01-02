@@ -77,3 +77,8 @@ test('update shop', function (Shop $shop) {
     expect($shop->name)->toBe('Test Shop Updated');
 
 })->depends('create shop');
+
+test('seed shop permissions from command', function () {
+    $this->artisan('shop:seed-permissions')->assertExitCode(0);
+
+})->depends('create shop by command');

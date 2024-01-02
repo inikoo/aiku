@@ -87,12 +87,12 @@ class SeedShopPermissions
     }
 
 
-    public string $commandSignature = 'org:seed-permissions';
+    public string $commandSignature = 'shop:seed-permissions';
 
     public function asCommand(Command $command): int
     {
         foreach (Shop::all() as $shop) {
-            $command->info("Seeding permissions for org: $shop->name");
+            $command->info("Seeding permissions for shop: $shop->name");
             setPermissionsTeamId($shop->group_id);
             $this->handle($shop);
         }
