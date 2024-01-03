@@ -5,10 +5,11 @@
   -->
 
 <script setup>
-import {Head} from '@inertiajs/vue3';
+import {Head, usePage} from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 import Stats from '@/Components/DataDisplay/Stats.vue';
 import { capitalize } from "@/Composables/capitalize"
+import { useLayoutStore } from "@/Stores/layout"
 
 defineProps(['title', 'pageHead', 'stats']);
 
@@ -18,7 +19,9 @@ defineProps(['title', 'pageHead', 'stats']);
     <Head :title="capitalize(title)"/>
     <PageHeading :data="pageHead"></PageHeading>
     <stats class="m-4" :stats="stats"/>
+<!-- <pre>{{ useLayoutStore() }}</pre> -->
 
+<pre>{{ usePage().props }}</pre>
 
 </template>
 
