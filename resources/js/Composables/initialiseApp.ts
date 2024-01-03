@@ -97,8 +97,7 @@ export const initialiseApp = () => {
 
     // Organisations
     if (usePage().props.layout?.organisations?.data) {
-      console.log(usePage().props.layout?.organisations?.data)
-      layout.organisations.currentOrganisations = 'xxx'
+      layout.organisations.currentOrganisations = ''
       usePage().props.layout.organisations.data.forEach(item => {
         layout.organisations.data[item.slug] = item
       })

@@ -95,8 +95,11 @@ const logoutAuth = () => {
                         <div class="pl-2 py-1">
                             <Menu as="div" class="relative inline-block text-left">
                                 <MenuButton
-                                    class="inline-flex w-32 justify-between items-center rounded bg-indigo-500 px-2.5 py-1 text-sm font-medium text-white hover:bg-indigo-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/75">
-                                    {{ route().v().params?.organisation ?? layout.organisations.currentOrganisations }}
+                                    class="inline-flex min-w-fit w-32 max-w-full whitespace-nowrap justify-between items-center gap-x-2 rounded px-2.5 py-1 text-sm font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-white/75"
+                                    :class="[ layout.organisations.currentOrganisations ? 'bg-indigo-500 text-white hover:bg-indigo-600' : 'bg-slate-100 hover:bg-slate-200 text-slate-600 ring-1 ring-slate-300']"
+                                >
+                                    <!-- {{ route().v().params?.organisation ?? 'Select Organisations' }} -->
+                                    {{ layout.organisations.currentOrganisations ? layout.organisations.currentOrganisations : 'Select Organisations' }}
                                     <FontAwesomeIcon icon='far fa-chevron-down' class='text-xs' aria-hidden='true' />
                                 </MenuButton>
                                 <transition>
