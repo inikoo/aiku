@@ -55,7 +55,10 @@ export const useLayoutStore = defineStore("layout", {
                 grp: [],
                 org: []
             },
-            organisations       : {},
+            organisations       : {
+                currentOrganisations: '',
+                data: {}
+            },
             currentRoute          : "",
             currentRouteParameters: {},
             currentModule         : "",

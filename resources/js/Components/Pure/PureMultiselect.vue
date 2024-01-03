@@ -4,7 +4,7 @@ import Multiselect from "@vueform/multiselect"
 const props = defineProps<{
     modelValue: string | number
     placeholder?: string
-    mode?: string
+    mode?: "single" | "multiple" | "tags"
     required?: boolean
     searchable?: boolean
     options: {

@@ -31,8 +31,7 @@ class GetLayout
         return [
 
             'group'         => GroupResource::make(app('group'))->getArray(),
-            // 'organisations' => UserOrganisationResource::collectionForUser($user->authorisedOrganisations, $user),
-            'organisations' => 'hello',
+            'organisations' => UserOrganisationResource::collectionForUser($user->authorisedOrganisations, $user),
             'navigation'    => [
                 'grp' => GetGroupNavigation::run($user),
                 'org' => GetOrganisationsLayout::run($user),

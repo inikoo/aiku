@@ -1,0 +1,73 @@
+/* Transition without name */
+.v-enter-active,
+.v-leave-active {
+    transition: opacity 0.1s ease;
+}
+
+.v-enter-from,
+.v-leave-to {
+    opacity: 0;
+}
+
+/* Transition name="slide-to-right" */
+.slide-to-right-enter-active {
+    transition: all 0.1s ease-out;
+}
+.slide-to-right-leave-active {
+    transition: all 0.1s cubic-bezier(1, 0.5, 0.8, 1);
+}
+.slide-to-right-enter-from {
+    transform: translateX(-20px);
+    opacity: 0;
+}
+.slide-to-right-leave-to {
+    transform: translateX(20px);
+    opacity: 0;
+}
+
+/* Transition name="slide-to-left" */
+.slide-to-left-enter-active {
+    transition: all 0.1s ease-out;
+}
+.slide-to-left-leave-active {
+    transition: all 0.1s cubic-bezier(1, 0.5, 0.8, 1);
+}
+.slide-to-left-enter-from {
+    transform: translateX(20px);
+    opacity: 0;
+}
+.slide-to-left-leave-to {
+    transform: translateX(-20px);
+    opacity: 0;
+}
+
+/* Transition name="slide-to-up" */
+/* Used in: Popup on FooterTab */
+.slide-to-up-enter-active {
+    transition: all 0.1s ease-out;
+}
+.slide-to-up-leave-active {
+    transition: all 0.1s cubic-bezier(1, 0.5, 0.8, 1);
+}
+.slide-to-up-enter-from, .slide-to-up-leave-to {
+    transform: translateY(100%);
+    scale: 0.1;
+    opacity: 0;
+}
+
+/* Transition for <li> vertical */
+.list-move,
+.list-enter-active,
+.list-leave-active {
+    transition: all 0.2s ease-in-out;
+}
+
+.list-enter-from,
+.list-leave-to {
+    opacity: 0;
+    transform: translateX(30px);
+}
+
+.list-leave-active {
+    position: absolute;
+}

@@ -95,6 +95,15 @@ export const initialiseApp = () => {
       layout.secondaryNavigation = usePage().props.layout.secondaryNavigation ?? null;
     }
 
+    // Organisations
+    if (usePage().props.layout?.organisations?.data) {
+      console.log(usePage().props.layout?.organisations?.data)
+      layout.organisations.currentOrganisations = 'xxx'
+      usePage().props.layout.organisations.data.forEach(item => {
+        layout.organisations.data[item.slug] = item
+      })
+    }
+
     // Set data of Locale (Language)
     if (usePage().props.localeData) {
       locale.language = usePage().props.localeData.language;

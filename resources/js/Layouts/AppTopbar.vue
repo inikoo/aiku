@@ -2,23 +2,23 @@
 import {Link, router, usePage} from "@inertiajs/vue3"
 import { useLayoutStore } from "@/Stores/layout"
 // import OrgTopBarNavs from "@/Layouts/Organisation/OrgTopBarNavs.vue"
-import { ref, onMounted } from "vue"
+import { ref, onMounted, computed, watchEffect } from 'vue'
 import { get } from 'lodash'
 import { liveUsers } from '@/Stores/active-users'
+import {capitalize} from "@/Composables/capitalize"
 
 
-import {
-    Menu,
-    MenuButton,
-    MenuItem,
-    MenuItems
-} from "@headlessui/vue";
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
+import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/vue"
 import { Disclosure } from "@headlessui/vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import SearchBar from "@/Components/SearchBar.vue"
 import { trans } from "laravel-vue-i18n"
 import Image from "@/Components/Image.vue"
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { faChevronDown } from '@far'
+import { faTerminal, faUserAlien, faCog } from '@fal'
+import { library } from '@fortawesome/fontawesome-svg-core'
+library.add(faChevronDown, faTerminal, faUserAlien, faCog)
 
 const props = defineProps<{
     sidebarOpen: boolean
@@ -32,11 +32,19 @@ defineEmits<{
 
 const layout = useLayoutStore()
 const showSearchDialog = ref(false)
+const valOrganisation = ref('Aiku')
 
 const logoutAuth = () => {
     router.post(route(props.urlPrefix + 'logout'))
     liveUsers().unsubscribe()  // Unsubscribe from Laravel Echo
 }
+
+// const organisationName = ref('')
+
+// watchEffect(() => {
+//     console.log('wwww')
+//     organisationName.value = route().v().params?.organisation ?? false
+// })
 
 </script>
 
@@ -45,7 +53,7 @@ const logoutAuth = () => {
         <div class="px-0">
             <div class="flex h-11 lg:h-10 flex-shrink-0">
                 <div class="border-b border-org-500 flex">
-                    <!-- Hamburger -->
+                    <!-- Mobile: Hamburger -->
                     <button class="block md:hidden w-10 h-10 relative focus:outline-none" @click="$emit('sidebarOpen', !sidebarOpen)">
                         <span class="sr-only">Open sidebar</span>
                         <div class="block w-5 absolute left-1/2 top-1/2   transform  -translate-x-1/2 -translate-y-1/2">
@@ -58,7 +66,7 @@ const logoutAuth = () => {
                     </button>
 
                     <!-- App Title: Image and Title -->
-                    <div class="bg-gradient-to-r from-org-700 to-org-600 flex flex-1 items-center justify-center md:justify-start transition-all duration-300 ease-in-out"
+                    <div class="bg-gradient-to-t from-gray-200 to-gray-50 flex flex-1 items-center justify-center md:justify-start transition-all duration-200 ease-in-out"
                         :class="[layout.leftSidebar.show ? 'md:w-48 md:pr-4' : 'md:w-10']"
                     >
                         <Link :href="layout.app?.url ?? '/'"
@@ -80,7 +88,57 @@ const logoutAuth = () => {
                 <div class="flex items-center w-full justify-between pr-6 space-x-3 border-b border-gray-200">
                     <!-- Section: Top menu -->
                     <!-- <OrgTopBarNavs /> -->
-                    <div></div>
+
+                    <!-- Section: Dropdown organisation -->
+                    <div class="flex items-center gap-x-2">
+                        <!-- Section: Dropdown -->
+                        <div class="pl-2 py-1">
+                            <Menu as="div" class="relative inline-block text-left">
+                                <MenuButton
+                                    class="inline-flex w-32 justify-between items-center rounded bg-indigo-500 px-2.5 py-1 text-sm font-medium text-white hover:bg-indigo-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/75">
+                                    {{ route().v().params?.organisation ?? layout.organisations.currentOrganisations }}
+                                    <FontAwesomeIcon icon='far fa-chevron-down' class='text-xs' aria-hidden='true' />
+                                </MenuButton>
+                                <transition>
+                                    <MenuItems
+                                        class="absolute left-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
+                                        <div class="px-1 py-1 space-y-1">
+                                            <MenuItem v-for="(item, itemKey) in layout.organisations.data" v-slot="{ active }">
+                                                <button @click="layout.organisations.currentOrganisations = itemKey" :class="[
+                                                    valOrganisation == item ? 'bg-indigo-500 text-white' : active ? 'bg-indigo-200 text-indigo-600' : 'text-slate-700',
+                                                    'group flex w-full items-center rounded px-2 py-2 text-sm',
+                                                ]">
+                                                    {{ itemKey }}
+                                                </button>
+                                            </MenuItem>
+                                        </div>
+                                    </MenuItems>
+                                </transition>
+                            </Menu>
+                        </div>
+
+                        <!-- Section: Subsections -->
+                        <div class="flex h-full">
+                            <Link
+                                v-for="menu in layout.navigation?.grp?.[layout.currentModule]?.topMenu.subSections"
+                                :href="route(menu.route.name,menu.route.parameters)"
+                                :id="get(menu,'label',menu.route.name)"
+                                class="group relative text-gray-700 group text-sm flex justify-end items-center cursor-pointer py-3 gap-x-2 px-4 md:px-4 lg:px-4"
+                                :title="capitalize(menu.tooltip??menu.label??'')">
+
+                                <div :class="[
+                                    route(layout.currentRoute, route().v().params).includes(route(menu.route.name,menu.route.parameters))
+                                    ? 'bottomNavigationActiveAiku'
+                                    : 'bottomNavigationAiku'
+                                ]"/>
+
+                                <FontAwesomeIcon :icon="menu.icon"
+                                    class="h-5 lg:h-3.5 w-auto group-hover:opacity-100 opacity-70 transition duration-100 ease-in-out"
+                                    aria-hidden="true"/>
+                                <span v-if="menu.label" class="hidden lg:inline capitalize whitespace-nowrap">{{ trans(menu.label) }}</span>
+                            </Link>
+                        </div>
+                    </div>
 
                     <!-- Avatar Group -->
                     <div class="flex justify-between">
@@ -99,6 +157,7 @@ const logoutAuth = () => {
                                 <font-awesome-icon aria-hidden="true" icon="fa-regular fa-bell" size="lg" />
                             </button>
                         </div>
+                        
                         <!-- Avatar Button -->
                         <Menu as="div" class="relative">
                             <MenuButton id="avatar-thumbnail"
