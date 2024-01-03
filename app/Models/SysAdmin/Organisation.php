@@ -7,6 +7,7 @@
 
 namespace App\Models\SysAdmin;
 
+use App\Enums\Accounting\PaymentServiceProvider\PaymentServiceProviderTypeEnum;
 use App\Models\Accounting\PaymentServiceProvider;
 use App\Models\Assets\Country;
 use App\Models\Assets\Currency;
@@ -19,7 +20,6 @@ use App\Models\Inventory\Warehouse;
 use App\Models\Market\Shop;
 use App\Models\Media\Media;
 use App\Models\Procurement\PurchaseOrder;
-use App\Models\Procurement\SupplierDelivery;
 use App\Models\Traits\HasLogo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -64,10 +64,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \App\Models\SysAdmin\OrganisationHumanResourcesStats|null $humanResourcesStats
  * @property-read \App\Models\SysAdmin\OrganisationInventoryStats|null $inventoryStats
+ * @property-read Language $language
  * @property-read Media|null $logo
  * @property-read \App\Models\SysAdmin\OrganisationMailStats|null $mailStats
  * @property-read \App\Models\SysAdmin\OrganisationMarketStats|null $marketStats
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, Media> $media
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, PaymentServiceProvider> $paymentServiceProviders
  * @property-read \App\Models\SysAdmin\OrganisationProcurementStats|null $procurementStats
  * @property-read \App\Models\SysAdmin\OrganisationProductionStats|null $productionStats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, PurchaseOrder> $purchaseOrders
@@ -76,7 +78,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Shipper> $shippers
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Shop> $shops
  * @property-read \App\Models\SysAdmin\OrganisationStats|null $stats
- * @property-read \Illuminate\Database\Eloquent\Collection<int, SupplierDelivery> $supplierDeliveries
  * @property-read \App\Models\SysAdmin\SysUser|null $sysUser
  * @property-read Timezone $timezone
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Warehouse> $warehouses
@@ -219,7 +220,7 @@ class Organisation extends Model implements HasMedia
 
     public function accountsServiceProvider(): PaymentServiceProvider
     {
-        return PaymentServiceProvider::where('data->service-code', 'accounts')->first();
+        return PaymentServiceProvider::where('type', PaymentServiceProviderTypeEnum::ACCOUNT)->first();
     }
 
     public function group(): BelongsTo
@@ -250,6 +251,11 @@ class Organisation extends Model implements HasMedia
     public function shippers(): HasMany
     {
         return $this->hasMany(Shipper::class);
+    }
+
+    public function paymentServiceProviders(): HasMany
+    {
+        return $this->hasMany(PaymentServiceProvider::class);
     }
 
     public function registerMediaCollections(): void

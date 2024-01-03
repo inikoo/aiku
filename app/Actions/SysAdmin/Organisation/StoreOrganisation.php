@@ -11,6 +11,7 @@ use App\Actions\Accounting\PaymentServiceProvider\StorePaymentServiceProvider;
 use App\Actions\Assets\Currency\SetCurrencyHistoricFields;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateOrganisations;
 use App\Actions\SysAdmin\User\UserAddRoles;
+use App\Enums\Accounting\PaymentServiceProvider\PaymentServiceProviderTypeEnum;
 use App\Enums\SysAdmin\Authorisation\RolesEnum;
 use App\Models\Assets\Country;
 use App\Models\Assets\Currency;
@@ -78,13 +79,11 @@ class StoreOrganisation
 
 
 
-        StorePaymentServiceProvider::run(
+        StorePaymentServiceProvider::make()->action(
+            organisation:$organisation,
             modelData: [
-                'type' => 'account',
-                'data' => [
-                    'service-code' => 'accounts'
-                ],
-                'code' => 'accounts'
+                'type' => PaymentServiceProviderTypeEnum::ACCOUNT->value,
+                'code' => $organisation->slug.'-accounts'
             ]
         );
 

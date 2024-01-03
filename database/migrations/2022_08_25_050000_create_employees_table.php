@@ -8,6 +8,7 @@
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
 use App\Enums\HumanResources\Employee\EmployeeTypeEnum;
 use App\Stubs\Migrations\HasContact;
+use App\Stubs\Migrations\HasGroupOrganisationRelationship;
 use App\Stubs\Migrations\HasSoftDeletes;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -16,18 +17,17 @@ use Illuminate\Support\Facades\Schema;
 return new class () extends Migration {
     use HasContact;
     use HasSoftDeletes;
+    use HasGroupOrganisationRelationship;
+
     public function up(): void
     {
         Schema::create('employees', function (Blueprint $table) {
             $table->smallIncrements('id');
-            $table->unsignedSmallInteger('group_id');
-            $table->foreign('group_id')->references('id')->on('groups')->onUpdate('cascade')->onDelete('cascade');
-            $table->unsignedSmallInteger('organisation_id');
-            $table->foreign('organisation_id')->references('id')->on('organisations')->onUpdate('cascade')->onDelete('cascade');
+            $table = $this->groupOrgRelationship($table);
             $table->string('slug')->unique()->collation('und_ns');
             $table->string('alias')->collation('und_ns');
             $table->string('work_email')->nullable()->collation('und_ns');
-            $table=$this->contactFields(table:$table, withCompany: false, withPersonalDetails: true);
+            $table = $this->contactFields(table: $table, withCompany: false, withPersonalDetails: true);
             $table->string('worker_number')->nullable()->collation('und_ns');
             $table->string('job_title')->nullable()->collation('und_ns');
             $table->string('job_position')->nullable()->collation('und_ns');
@@ -43,7 +43,7 @@ return new class () extends Migration {
             $table->jsonb('job_position_scopes');
             $table->jsonb('errors');
             $table->timestampsTz();
-            $table=$this->softDeletes($table);
+            $table = $this->softDeletes($table);
             $table->string('source_id')->nullable()->unique();
         });
         DB::statement("CREATE INDEX ON employees (lower('worker_number')) ");

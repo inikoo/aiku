@@ -7,6 +7,7 @@
 
 namespace App\Services\Organisation\Aurora;
 
+use App\Enums\Accounting\PaymentServiceProvider\PaymentServiceProviderTypeEnum;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -14,19 +15,37 @@ class FetchAuroraPaymentServiceProvider extends FetchAurora
 {
     protected function parseModel(): void
     {
-        $data = [
-            'service-code' => Str::lower($this->auroraModelData->{'Payment Service Provider Block'}),
-        ];
+        if ($this->auroraModelData->{'Payment Service Provider Type'} == 'Account') {
+            return;
+        }
+
+
+        $type = match (Str::lower($this->auroraModelData->{'Payment Service Provider Type'})) {
+            'eps'   => PaymentServiceProviderTypeEnum::ELECTRONIC_PAYMENT_SERVICE->value,
+            'ebep'  => PaymentServiceProviderTypeEnum::ELECTRONIC_BANKING_E_PAYMENT->value,
+            'cash'  => PaymentServiceProviderTypeEnum::CASH->value,
+            'bank'  => PaymentServiceProviderTypeEnum::BANK->value,
+            'bpl'   => PaymentServiceProviderTypeEnum::BUY_NOW_PAY_LATER->value,
+            'cond'  => PaymentServiceProviderTypeEnum::CASH_ON_DELIVERY->value,
+            default => 'error'
+        };
+
+
+        if ($type === 'error') {
+            dd(Str::lower($this->auroraModelData->{'Payment Service Provider Type'}));
+        }
+
+
+        $code = strtolower($this->organisation->slug.'-'.$this->auroraModelData->{'Payment Service Provider Code'});
+
 
 
         $this->parsedData['paymentServiceProvider'] = [
 
 
-            'code' => $this->auroraModelData->{'Payment Service Provider Code'},
-            'type' => Str::lower($this->auroraModelData->{'Payment Service Provider Type'}),
-            'data' => $data,
-
-            'source_id'                => $this->organisation->id.':'.$this->auroraModelData->{'Payment Service Provider Key'},
+            'code'      => $code,
+            'type'      => $type,
+            'source_id' => $this->organisation->id.':'.$this->auroraModelData->{'Payment Service Provider Key'},
 
 
         ];
@@ -45,7 +64,7 @@ class FetchAuroraPaymentServiceProvider extends FetchAurora
                 ->where('Payment Service Provider Key', $this->auroraModelData->{'Payment Service Provider Key'})
                 ->orderBy('Payment Created Date')->first();
 
-            if ($createdDateData and  $this->parseDate($createdDateData->{'date'})) {
+            if ($createdDateData and $this->parseDate($createdDateData->{'date'})) {
                 $this->parsedData['paymentServiceProvider']['created_at'] = $this->parseDate($createdDateData->{'date'});
             }
         }

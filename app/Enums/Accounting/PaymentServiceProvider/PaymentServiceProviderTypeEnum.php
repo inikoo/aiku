@@ -16,6 +16,8 @@ enum PaymentServiceProviderTypeEnum: string
     case CASH                         = 'cash';
     case BANK                         = 'bank';
     case ELECTRONIC_PAYMENT_SERVICE   = 'electronic_payment_service';
+
+    case ELECTRONIC_BANKING_E_PAYMENT = 'electronic_banking_e_payment';
     case CASH_ON_DELIVERY             = 'cash_on_delivery';
     case BUY_NOW_PAY_LATER            = 'buy_now_pay_later';
 

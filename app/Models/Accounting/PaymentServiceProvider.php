@@ -7,11 +7,14 @@
 
 namespace App\Models\Accounting;
 
+use App\Enums\Accounting\PaymentServiceProvider\PaymentServiceProviderTypeEnum;
+use App\Models\SysAdmin\Organisation;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -25,7 +28,9 @@ use Spatie\Sluggable\SlugOptions;
  * App\Models\Payments\PaymentServiceProvider
  *
  * @property int $id
- * @property string $type
+ * @property int $group_id
+ * @property int $organisation_id
+ * @property PaymentServiceProviderTypeEnum $type
  * @property string $code
  * @property string $slug
  * @property array $data
@@ -35,6 +40,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $deleted_at
  * @property string|null $source_id
  * @property-read Collection<int, \App\Models\Accounting\PaymentAccount> $accounts
+ * @property-read Organisation $organisation
  * @property-read Collection<int, \App\Models\Accounting\Payment> $payments
  * @property-read \App\Models\Accounting\PaymentServiceProviderStats|null $stats
  * @method static \Database\Factories\Accounting\PaymentServiceProviderFactory factory($count = null, $state = [])
@@ -55,6 +61,7 @@ class PaymentServiceProvider extends Model
 
     protected $casts = [
         'data' => 'array',
+        'type' => PaymentServiceProviderTypeEnum::class
     ];
 
     protected $attributes = [
@@ -89,5 +96,10 @@ class PaymentServiceProvider extends Model
     public function stats(): HasOne
     {
         return $this->hasOne(PaymentServiceProviderStats::class);
+    }
+
+    public function organisation(): BelongsTo
+    {
+        return $this->belongsTo(Organisation::class);
     }
 }

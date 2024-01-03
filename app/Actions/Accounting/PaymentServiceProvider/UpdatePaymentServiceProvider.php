@@ -7,16 +7,20 @@
 
 namespace App\Actions\Accounting\PaymentServiceProvider;
 
+use App\Actions\InertiaOrganisationAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Accounting\PaymentServiceProviderResource;
 use App\Models\Accounting\PaymentServiceProvider;
+use App\Rules\IUnique;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdatePaymentServiceProvider
+class UpdatePaymentServiceProvider extends InertiaOrganisationAction
 {
     use WithActionUpdate;
 
-    private bool $asAction=false;
+    private bool $asAction = false;
+
+    private PaymentServiceProvider $paymentServiceProvider;
 
     public function handle(PaymentServiceProvider $paymentServiceProvider, array $modelData): PaymentServiceProvider
     {
@@ -25,32 +29,51 @@ class UpdatePaymentServiceProvider
 
     public function authorize(ActionRequest $request): bool
     {
-        if($this->asAction) {
+        if ($this->asAction) {
             return true;
         }
+
         return $request->user()->hasPermissionTo("inventory.warehouses.edit");
     }
 
     public function rules(): array
     {
         return [
-            'code'         => ['sometimes', 'required', 'unique:payment_service_providers', 'between:2,9', 'alpha_dash'],
+            'code' => [
+                'sometimes',
+                'required',
+                'between:2,16',
+                'alpha_dash',
+                new IUnique(
+                    table: 'payment_service_providers',
+                    extraConditions: [
+                        ['column' => 'group_id', 'value' => $this->organisation->group_id],
+                        [
+                            'column'   => 'id',
+                            'operator' => '!=',
+                            'value'    => $this->paymentServiceProvider->id
+                        ],
+                    ]
+                ),
+            ],
         ];
     }
 
     public function asController(PaymentServiceProvider $paymentServiceProvider, ActionRequest $request): PaymentServiceProvider
     {
-        $request->validate();
-        return $this->handle($paymentServiceProvider, $request->all());
+        $this->paymentServiceProvider = $paymentServiceProvider;
+        $this->initialisation($paymentServiceProvider->organisation, $request);
+
+        return $this->handle($paymentServiceProvider, $this->validatedData);
     }
 
     public function action(PaymentServiceProvider $paymentServiceProvider, $modelData): PaymentServiceProvider
     {
-        $this->asAction=true;
-        $this->setRawAttributes($modelData);
-        $validatedData = $this->validateAttributes();
+        $this->asAction               = true;
+        $this->paymentServiceProvider = $paymentServiceProvider;
+        $this->initialisation($paymentServiceProvider->organisation, $modelData);
 
-        return $this->handle($paymentServiceProvider, $validatedData);
+        return $this->handle($paymentServiceProvider, $this->validatedData);
     }
 
     public function jsonResponse(PaymentServiceProvider $paymentServiceProvider): PaymentServiceProviderResource
