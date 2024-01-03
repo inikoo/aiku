@@ -291,7 +291,10 @@ test('update customer client', function ($customerClient) {
 })->depends('create customer client');
 
 test('create payment service provider', function () {
-    $paymentServiceProvider = StorePaymentServiceProvider::make()->action(PaymentServiceProvider::factory()->definition());
+    $paymentServiceProvider = StorePaymentServiceProvider::make()->action(
+        organisation: $this->organisation,
+        modelData: PaymentServiceProvider::factory()->definition()
+    );
     $this->assertModelExists($paymentServiceProvider);
 
     return $paymentServiceProvider;
