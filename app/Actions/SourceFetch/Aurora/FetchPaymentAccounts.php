@@ -13,31 +13,32 @@ use App\Models\Accounting\PaymentAccount;
 use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
-use JetBrains\PhpStorm\NoReturn;
 
 class FetchPaymentAccounts extends FetchAction
 {
     public string $commandSignature = 'fetch:payment-accounts {organisations?*} {--s|source_id=} {--d|db_suffix=}';
 
 
-    #[NoReturn] public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?PaymentAccount
+    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?PaymentAccount
     {
         if ($paymentAccountData = $organisationSource->fetchPaymentAccount($organisationSourceId)) {
             if ($paymentAccount = PaymentAccount::where('source_id', $paymentAccountData['paymentAccount']['source_id'])
                 ->first()) {
-                $paymentAccount = UpdatePaymentAccount::run(
+
+                $paymentAccount = UpdatePaymentAccount::make()->action(
                     paymentAccount: $paymentAccount,
                     modelData:      $paymentAccountData['paymentAccount']
                 );
             } else {
-                $paymentAccount = StorePaymentAccount::run(
+
+                $paymentAccount = StorePaymentAccount::make()->action(
                     paymentServiceProvider: $paymentAccountData['paymentServiceProvider'],
                     modelData: $paymentAccountData['paymentAccount']
                 );
             }
-
+            $sourceId=explode(':', $paymentAccount->source_id);
             DB::connection('aurora')->table('Payment Account Dimension')
-                ->where('Payment Account Key', $paymentAccount->source_id)
+                ->where('Payment Account Key', $sourceId[1])
                 ->update(['aiku_id' => $paymentAccount->id]);
 
             return $paymentAccount;

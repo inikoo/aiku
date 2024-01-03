@@ -13,6 +13,7 @@ use App\Actions\InertiaOrganisationAction;
 use App\Actions\Mail\Outbox\StoreOutbox;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateMarket;
 use App\Actions\SysAdmin\User\UserAddRoles;
+use App\Enums\Accounting\PaymentAccount\PaymentAccountTypeEnum;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Enums\Mail\Outbox\OutboxTypeEnum;
 use App\Enums\Market\Shop\ShopTypeEnum;
@@ -72,8 +73,7 @@ class StoreShop extends InertiaOrganisationAction
         );
 
 
-
-        foreach($orgAdmins as $orgAdmin) {
+        foreach ($orgAdmins as $orgAdmin) {
             UserAddRoles::run($orgAdmin, [
                 Role::where('name', RolesEnum::getRoleName('shop-admin', $shop))->first()
             ]);
@@ -81,13 +81,14 @@ class StoreShop extends InertiaOrganisationAction
 
         SetCurrencyHistoricFields::run($shop->currency, $shop->created_at);
 
-        $paymentAccount       = StorePaymentAccount::run($organisation, $organisation->accountsServiceProvider(), [
-            'code' => 'accounts-'.$shop->slug,
-            'name' => 'Accounts '.$shop->code,
-            'data' => [
-                'service-code' => 'accounts'
+        $paymentAccount       = StorePaymentAccount::make()->action(
+            $organisation->accountsServiceProvider(),
+            [
+                'code' => 'accounts-'.$shop->slug,
+                'name' => 'Accounts '.$shop->code,
+                'type' => PaymentAccountTypeEnum::ACCOUNT->value
             ]
-        ]);
+        );
         $paymentAccount->slug = 'accounts-'.$shop->slug;
         $paymentAccount->save();
         $shop = AttachPaymentAccountToShop::run($shop, $paymentAccount);
@@ -121,7 +122,6 @@ class StoreShop extends InertiaOrganisationAction
 
         return $request->user()->hasPermissionTo("shops.edit");
     }
-
 
 
     public function rules(): array

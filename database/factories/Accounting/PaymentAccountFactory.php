@@ -7,6 +7,7 @@
 
 namespace Database\Factories\Accounting;
 
+use App\Enums\Accounting\PaymentAccount\PaymentAccountTypeEnum;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class PaymentAccountFactory extends Factory
@@ -16,6 +17,7 @@ class PaymentAccountFactory extends Factory
         return [
             'code' => fake()->lexify('????'),
             'name' => fake()->company(),
+            'type' => PaymentAccountTypeEnum::CASH->value
         ];
     }
 }

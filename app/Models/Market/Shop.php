@@ -7,6 +7,7 @@
 
 namespace App\Models\Market;
 
+use App\Enums\Accounting\PaymentAccount\PaymentAccountTypeEnum;
 use App\Enums\Market\Shop\ShopStateEnum;
 use App\Enums\Market\Shop\ShopTypeEnum;
 use App\Models\Accounting\Invoice;
@@ -262,7 +263,7 @@ class Shop extends Model
 
     public function accounts(): PaymentAccount
     {
-        return $this->paymentAccounts()->where('payment_accounts.data->service-code', 'accounts')->first();
+        return $this->paymentAccounts()->where('type', PaymentAccountTypeEnum::ACCOUNT)->first();
     }
 
     public function outboxes(): HasMany

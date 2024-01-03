@@ -21,14 +21,14 @@ class PaymentAccountHydratePayments implements ShouldBeUnique
     public function handle(PaymentAccount $paymentAccount): void
     {
         $paymentRecords = $paymentAccount->payments()->count();
-        $refunds        = $paymentAccount->payments()->where('type', 'refund')->count();
+        $refunds        = $paymentAccount->payments()->where('payments.type', 'refund')->count();
 
         $amountTenantCurrencySuccessfullyPaid = $paymentAccount->payments()
             ->where('type', 'payment')
             ->where('status', 'success')
             ->sum('tc_amount');
         $amountTenantCurrencyRefunded         = $paymentAccount->payments()
-            ->where('type', 'refund')
+            ->where('payments.type', 'refund')
             ->where('status', 'success')
             ->sum('tc_amount');
 
@@ -50,7 +50,7 @@ class PaymentAccountHydratePayments implements ShouldBeUnique
             $stats["number_payment_records_state_{$state->snake()}"] = Arr::get($stateCounts, $state->value, 0);
         }
 
-        $stateCounts =$paymentAccount->payments()->where('type', 'payment')
+        $stateCounts =$paymentAccount->payments()->where('payments.type', 'payment')
             ->selectRaw('state, count(*) as total')
             ->groupBy('state')
             ->pluck('total', 'state')->all();
@@ -59,7 +59,7 @@ class PaymentAccountHydratePayments implements ShouldBeUnique
             $stats["number_payments_state_{$state->snake()}"] = Arr::get($stateCounts, $state->value, 0);
         }
 
-        $stateCounts =$paymentAccount->payments()->where('type', 'refund')
+        $stateCounts =$paymentAccount->payments()->where('payments.type', 'refund')
             ->selectRaw('state, count(*) as total')
             ->groupBy('state')
             ->pluck('total', 'state')->all();

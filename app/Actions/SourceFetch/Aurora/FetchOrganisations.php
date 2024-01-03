@@ -33,7 +33,7 @@ class FetchOrganisations
         if ($accountsServiceProviderData) {
             $organisation->accountsServiceProvider()->update(
                 [
-                    'source_id' => $accountsServiceProviderData->{'Payment Service Provider Key'}
+                    'source_id' => $organisation->id.':'.$accountsServiceProviderData->{'Payment Service Provider Key'}
                 ]
             );
         }

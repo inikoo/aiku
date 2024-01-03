@@ -82,7 +82,7 @@ class FetchShops extends FetchAction
                 if ($accountData) {
                     $shop->accounts()->update(
                         [
-                            'source_id' => $accountData->{'Payment Account Key'}
+                            'source_id' => $organisationSource->getOrganisation()->id.':'.$accountData->{'Payment Account Key'}
                         ]
                     );
                 }

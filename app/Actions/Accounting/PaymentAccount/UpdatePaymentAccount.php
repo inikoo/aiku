@@ -7,16 +7,20 @@
 
 namespace App\Actions\Accounting\PaymentAccount;
 
+use App\Actions\InertiaOrganisationAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Accounting\PaymentAccountResource;
 use App\Models\Accounting\PaymentAccount;
+use App\Rules\IUnique;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdatePaymentAccount
+class UpdatePaymentAccount extends InertiaOrganisationAction
 {
     use WithActionUpdate;
 
-    private bool $asAction=false;
+    private bool $asAction = false;
+
+    private PaymentAccount $paymentAccount;
 
     public function handle(PaymentAccount $paymentAccount, array $modelData): PaymentAccount
     {
@@ -25,31 +29,55 @@ class UpdatePaymentAccount
 
     public function authorize(ActionRequest $request): bool
     {
-        if($this->asAction) {
+        if ($this->asAction) {
             return true;
         }
+
         return $request->user()->hasPermissionTo("accounting.edit");
     }
+
     public function rules(): array
     {
         return [
-            'code'         => ['sometimes', 'required', 'unique:payment_accounts', 'between:2,9', 'alpha_dash'],
-            'name'         => ['sometimes', 'required', 'max:250', 'string'],
+            'code' => [
+                'sometimes',
+                'required',
+                'between:2,16',
+                'alpha_dash',
+                new IUnique(
+                    table: 'payment_accounts',
+                    extraConditions: [
+                        ['column' => 'group_id', 'value' => $this->organisation->group_id],
+                        [
+                            'column'   => 'id',
+                            'operator' => '!=',
+                            'value'    => $this->paymentAccount->id
+                        ],
+                    ]
+                ),
+            ],
+            'name' => ['sometimes', 'required', 'max:250', 'string'],
         ];
     }
 
     public function action(PaymentAccount $paymentAccount, $modelData): PaymentAccount
     {
-        $this->asAction=true;
-        $this->setRawAttributes($modelData);
-        $validatedData = $this->validateAttributes();
+        $this->asAction       = true;
+        $this->paymentAccount = $paymentAccount;
 
-        return $this->handle($paymentAccount, $validatedData);
+
+        $this->initialisation($paymentAccount->organisation, $modelData);
+
+        return $this->handle($paymentAccount, $this->validatedData);
     }
+
     public function asController(PaymentAccount $paymentAccount, ActionRequest $request): PaymentAccount
     {
-        $request->validate();
-        return $this->handle($paymentAccount, $request->all());
+        $this->paymentAccount = $paymentAccount;
+
+        $this->initialisation($paymentAccount->organisation, $request);
+
+        return $this->handle($paymentAccount, $this->validatedData);
     }
 
 

@@ -8,29 +8,28 @@
 namespace App\Actions\Accounting\PaymentAccount;
 
 use App\Actions\Accounting\PaymentServiceProvider\Hydrators\PaymentServiceProviderHydrateAccounts;
+use App\Actions\InertiaOrganisationAction;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateAccounting;
+use App\Enums\Accounting\PaymentAccount\PaymentAccountTypeEnum;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentServiceProvider;
-use App\Models\SysAdmin\Organisation;
+use App\Rules\IUnique;
+use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsAction;
-use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class StorePaymentAccount
+class StorePaymentAccount extends InertiaOrganisationAction
 {
-    use AsAction;
-    use WithAttributes;
-
     private bool $asAction = false;
 
-    public function handle(Organisation $organisation, PaymentServiceProvider $paymentServiceProvider, array $modelData): PaymentAccount
+    public function handle(PaymentServiceProvider $paymentServiceProvider, array $modelData): PaymentAccount
     {
-        data_set($modelData, 'organisation_id', $organisation->id);
+        data_set($modelData, 'group_id', $paymentServiceProvider->group_id);
+        data_set($modelData, 'organisation_id', $paymentServiceProvider->organisation_id);
         /** @var PaymentAccount $paymentAccount */
         $paymentAccount = $paymentServiceProvider->accounts()->create($modelData);
         $paymentAccount->stats()->create();
         PaymentServiceProviderHydrateAccounts::dispatch($paymentServiceProvider);
-        OrganisationHydrateAccounting::dispatch($organisation);
+        OrganisationHydrateAccounting::dispatch($paymentServiceProvider->organisation);
 
         return $paymentAccount;
     }
@@ -47,17 +46,29 @@ class StorePaymentAccount
     public function rules(): array
     {
         return [
-            'code' => ['required', 'unique:payment_accounts', 'between:2,9', 'alpha_dash'],
-            'name' => ['required', 'max:250', 'string'],
+            'type'      => ['required', Rule::in(PaymentAccountTypeEnum::values())],
+            'code'      => [
+                'required',
+                'between:2,16',
+                'alpha_dash',
+                new IUnique(
+                    table: 'payment_accounts',
+                    extraConditions: [
+                        ['column' => 'group_id', 'value' => $this->organisation->group_id],
+                    ]
+                ),
+            ],
+            'name'       => ['required', 'max:250', 'string'],
+            'is_accounts'=> ['sometimes', 'boolean'],
+            'source_id'  => ['sometimes', 'string'],
         ];
     }
 
-    public function action(Organisation $organisation, PaymentServiceProvider $paymentServiceProvider, array $modelData): PaymentAccount
+    public function action(PaymentServiceProvider $paymentServiceProvider, array $modelData): PaymentAccount
     {
         $this->asAction = true;
-        $this->setRawAttributes($modelData);
-        $validatedData = $this->validateAttributes();
+        $this->initialisation($paymentServiceProvider->organisation, $modelData);
 
-        return $this->handle($organisation, $paymentServiceProvider, $validatedData);
+        return $this->handle($paymentServiceProvider, $this->validatedData);
     }
 }

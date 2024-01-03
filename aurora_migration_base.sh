@@ -64,8 +64,9 @@ pg_dump -Fc -f "devops/devel/snapshots/shops.dump" ${DB}
 php artisan fetch:websites -d "${DB_SUFFIX}"
 pg_dump -Fc -f "devops/devel/snapshots/websites.dump" ${DB}
 php artisan fetch:payment-service-providers -d "${DB_SUFFIX}"
+pg_dump -Fc -f "devops/devel/snapshots/psp.dump" ${DB}
 php artisan fetch:payment-accounts -d "${DB_SUFFIX}"
-pg_dump -Fc -f "devops/devel/snapshots/au_shops.dump" ${DB}
+pg_dump -Fc -f "devops/devel/snapshots/pa.dump" ${DB}
 php artisan fetch:shippers -d "${DB_SUFFIX}"
 php artisan fetch:warehouses -d "${DB_SUFFIX}"
 php artisan fetch:warehouse-area -d "${DB_SUFFIX}"

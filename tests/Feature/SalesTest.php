@@ -311,7 +311,10 @@ test('update payment service provider code', function ($paymentServiceProvider) 
 })->depends('create payment service provider');
 
 test('create payment account', function ($paymentServiceProvider) {
-    $paymentAccount = StorePaymentAccount::make()->action($this->organisation, $paymentServiceProvider, PaymentAccount::factory()->definition());
+    $paymentAccount = StorePaymentAccount::make()->action(
+        $paymentServiceProvider,
+        PaymentAccount::factory()->definition()
+    );
     $this->assertModelExists($paymentAccount);
 
     return $paymentAccount;

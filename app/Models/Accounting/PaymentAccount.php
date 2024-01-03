@@ -7,6 +7,7 @@
 
 namespace App\Models\Accounting;
 
+use App\Enums\Accounting\PaymentAccount\PaymentAccountTypeEnum;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasHistory;
 use Eloquent;
@@ -28,11 +29,14 @@ use Spatie\Sluggable\SlugOptions;
  * App\Models\Accounting\PaymentAccount
  *
  * @property int $id
+ * @property int $group_id
  * @property int $organisation_id
  * @property int $payment_service_provider_id
+ * @property PaymentAccountTypeEnum $type
  * @property string $code
  * @property string $slug
  * @property string $name
+ * @property bool $is_accounts
  * @property array $data
  * @property string|null $last_used_at
  * @property Carbon|null $created_at
@@ -57,12 +61,12 @@ class PaymentAccount extends Model implements Auditable
 {
     use SoftDeletes;
     use HasSlug;
-
     use HasFactory;
     use HasHistory;
 
     protected $casts = [
         'data' => 'array',
+        'type' => PaymentAccountTypeEnum::class
     ];
 
     protected $attributes = [
@@ -103,4 +107,5 @@ class PaymentAccount extends Model implements Auditable
     {
         return $this->hasOne(PaymentAccountStats::class);
     }
+
 }
