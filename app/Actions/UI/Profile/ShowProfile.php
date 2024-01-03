@@ -154,7 +154,7 @@ class ShowProfile
                 "type"   => "simple",
                 "simple" => [
                     "route" => [
-                        "name" => "profile.show",
+                        "name" => "grp.profile.show",
                     ],
                     "label" => __("my profile"),
                 ],
