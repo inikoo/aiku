@@ -19,9 +19,10 @@ defineProps(['title', 'pageHead', 'stats']);
     <Head :title="capitalize(title)"/>
     <PageHeading :data="pageHead"></PageHeading>
     <stats class="m-4" :stats="stats"/>
-<!-- <pre>{{ useLayoutStore() }}</pre> -->
+    resources/js/Pages/Grp/SysAdmin/SysAdminDashboard.vue
+    <!-- <pre>{{ useLayoutStore() }}</pre> -->
 
-<pre>{{ usePage().props }}</pre>
+    <pre>{{ useLayoutStore().navigation.org }}</pre>
 
 </template>
 

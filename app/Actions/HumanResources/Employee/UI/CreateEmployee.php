@@ -129,6 +129,7 @@ class CreateEmployee extends InertiaOrganisationAction
                                     'mode'        => 'multiple',
                                     'searchable'  => true,
                                     'value'       => [],
+                                    'full'        => true
                                 ],
                             ]
                         ],
