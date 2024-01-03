@@ -26,6 +26,7 @@ import CustomerRoles from '@/Components/Forms/Fields/CustomerRoles.vue'
 import JobPosition from '@/Components/Forms/Fields/JobPosition.vue'
 import prospectRecipients from '@/Components/Forms/Fields/ProspectRecipients.vue'
 import ProspectQueryBuilder from '@/Components/Forms/Fields/ProspectQuery/ProspectQueryBuilder.vue'
+import EmployeePosition from '@/Components/Forms/Fields/EmployeePosition.vue'
 
 import { ref, onMounted } from 'vue'
 import Textarea from "@/Components/Forms/Fields/Textarea.vue"
@@ -66,6 +67,7 @@ const getComponent = (componentName: string) => {
         'prospectQueryBuilder': ProspectQueryBuilder,
         'prospectRecipients': prospectRecipients,
         'senderEmail': SenderEmail,
+        'employeePosition': EmployeePosition
     }
     return components[componentName] ?? null
 }

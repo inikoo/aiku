@@ -121,7 +121,7 @@ class CreateEmployee extends InertiaOrganisationAction
                                     'value'       => ''
                                 ],
                                 'positions' => [
-                                    'type'        => 'jobPosition',
+                                    'type'        => 'employeePosition',
                                     'required'    => true,
                                     'label'       => __('position'),
                                     'options'     => Options::forModels(JobPosition::class, label: 'name', value: 'name'),

@@ -17,16 +17,7 @@ const props = defineProps<{
 }>()
 
 interface selectedJob {
-    admin?: string
-    hr?: string
-    acc?: string
-    mrk?: string
-    web?: string
-    seo?: string
-    ppc?: string
-    social?: string
-    dev?: string
-    cus?: string
+    [key: string]: string
 }
 
 const optionsJob = {
@@ -178,26 +169,26 @@ const selectedBox: selectedJob = reactive({})
 
 // To preserved on first load (so the box is selected)
 for (const key in optionsJob) {
-    for (const item of optionsJob[key as keyof selectedJob]) {
+    for (const item of optionsJob[key]) {
         if ((props.form[props.fieldName].map((option: any) => option = option.code)).includes(item.code)) {
-            selectedBox[key as keyof selectedJob] = item.code;
+            selectedBox[key] = item.code;
         }
     }
 }
 
 // When the box is clicked
 const handleClickBox = (jobGroupName: string, jobCode: any) => {
-    if(selectedBox[jobGroupName as keyof selectedJob] == 'admin'){  // If the box clicked is 'admin'
-        if(selectedBox[jobGroupName as keyof selectedJob] == jobCode) {  // When active box clicked
-            selectedBox[jobGroupName as keyof selectedJob] = ""  // Deselect value
+    if(selectedBox[jobGroupName] == 'admin'){  // If the box clicked is 'admin'
+        if(selectedBox[jobGroupName] == jobCode) {  // When active box clicked
+            selectedBox[jobGroupName] = ""  // Deselect value
         } else {
-            selectedBox[jobGroupName as keyof selectedJob] = jobCode
+            selectedBox[jobGroupName] = jobCode
         }
     } else { // If the box clicked is not 'admin'
-        if(selectedBox[jobGroupName as keyof selectedJob] == jobCode && props.form[props.fieldName].length > 1) {  // When active box clicked
-            selectedBox[jobGroupName as keyof selectedJob] = ""  // Deselect value
+        if(selectedBox[jobGroupName] == jobCode && props.form[props.fieldName].length > 1) {  // When active box clicked
+            selectedBox[jobGroupName] = ""  // Deselect value
         } else {
-            selectedBox[jobGroupName as keyof selectedJob] = jobCode
+            selectedBox[jobGroupName] = jobCode
         }
     }
     props.form.errors[props.fieldName] = ''
@@ -227,16 +218,16 @@ watchEffect(() => {
                     @click.prevent="handleClickBox(keyJob, job.code)"
                     class="group h-full cursor-pointer flex items-center justify-start even:pl-10 odd:justify-center rounded-md py-3 px-3 font-medium capitalize disabled:text-gray-400 disabled:cursor-not-allowed disabled:ring-0 disabled:active:active:ring-offset-0"
                     :class="[
-                        selectedBox[keyJob as keyof selectedJob] == job.code ? 'text-lime-500' : ' text-gray-600'
+                        selectedBox[keyJob] == job.code ? 'text-lime-500' : ' text-gray-600'
                     ]"
                     :disabled="selectedBox.admin && job.code != 'admin'? true : false"
                 >
                     <span class="relative">
-                        <FontAwesomeIcon v-if="selectedBox[keyJob as keyof selectedJob] == 'admin'" icon='fas fa-check-circle' class='absolute -left-1 -translate-x-full top-1/2 -translate-y-1/2' aria-hidden='true' />
-                        <FontAwesomeIcon v-else-if="selectedBox[keyJob as keyof selectedJob] == job.code && !selectedBox.admin" icon='fas fa-check-circle' class='absolute -left-1 -translate-x-full top-1/2 -translate-y-1/2' aria-hidden='true' />
+                        <FontAwesomeIcon v-if="selectedBox[keyJob] == 'admin'" icon='fas fa-check-circle' class='absolute -left-1 -translate-x-full top-1/2 -translate-y-1/2' aria-hidden='true' />
+                        <FontAwesomeIcon v-else-if="selectedBox[keyJob] == job.code && !selectedBox.admin" icon='fas fa-check-circle' class='absolute -left-1 -translate-x-full top-1/2 -translate-y-1/2' aria-hidden='true' />
                         <FontAwesomeIcon v-else icon='fal fa-circle' class='absolute -left-1 -translate-x-full top-1/2 -translate-y-1/2' aria-hidden='true' />
                         <span :class="[
-                            selectedBox.admin && selectedBox[keyJob as keyof selectedJob] != 'admin' ? 'text-gray-300' : ' text-gray-500 group-hover:text-gray-800'
+                            selectedBox.admin && selectedBox[keyJob] != 'admin' ? 'text-gray-300' : ' text-gray-500 group-hover:text-gray-800'
                         ]">
                             {{job.name}}
                         </span>

@@ -30,6 +30,7 @@ import Language from "@/Components/Forms/Fields/Language.vue"
 import Permissions from "@/Components/Forms/Fields/Permissions.vue"
 import InputWithAddOn from '@/Components/Forms/Fields/InputWithAddOn.vue'
 import Checkbox from '@/Components/Forms/Fields/Checkbox.vue'
+import EmployeePosition from '@/Components/Forms/Fields/EmployeePosition.vue'
 
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
@@ -80,6 +81,7 @@ const components = {
     'language': Language,
     'permissions': Permissions,
     'checkbox': Checkbox,
+    'employeePosition': EmployeePosition
 };
 
 const getComponent = (componentName) => {
