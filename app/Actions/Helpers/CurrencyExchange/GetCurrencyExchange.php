@@ -8,6 +8,7 @@
 namespace App\Actions\Helpers\CurrencyExchange;
 
 use App\Models\Assets\Currency;
+use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -26,12 +27,16 @@ class GetCurrencyExchange
 
         $currencyExchange = (float)Cache::get($key);
         if (!$currencyExchange) {
+            try {
+                $currencyExchange = FetchCurrency::convert()
+                    ->from($baseCurrency->code)
+                    ->to($targetCurrency->code)
+                    ->date($date)
+                    ->get();
 
-            $currencyExchange = FetchCurrency::convert()
-                ->from($baseCurrency->code)
-                ->to($targetCurrency->code)
-                ->date($date)
-                ->get();
+            } catch (Exception) {
+                return null;
+            }
 
             if ($currencyExchange) {
                 Cache::add($key, $currencyExchange, now()->addMinutes(15));
