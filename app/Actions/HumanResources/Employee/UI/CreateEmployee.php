@@ -9,13 +9,18 @@ namespace App\Actions\HumanResources\Employee\UI;
 
 use App\Actions\InertiaOrganisationAction;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
+use App\Http\Resources\HumanResources\JobPositionResource;
+use App\Http\Resources\Inventory\WarehouseResource;
+use App\Http\Resources\Market\ShopResource;
+use App\Http\Resources\SysAdmin\Organisation\OrganisationResource;
 use App\Models\HumanResources\JobPosition;
+use App\Models\Inventory\Warehouse;
+use App\Models\Market\Shop;
 use App\Models\SysAdmin\Organisation;
 use Exception;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
-use Spatie\LaravelOptions\Options;
 
 class CreateEmployee extends InertiaOrganisationAction
 {
@@ -121,15 +126,17 @@ class CreateEmployee extends InertiaOrganisationAction
                                     'value'       => ''
                                 ],
                                 'positions' => [
-                                    'type'        => 'employeePosition',
-                                    'required'    => true,
-                                    'label'       => __('position'),
-                                    'options'     => Options::forModels(JobPosition::class, label: 'name', value: 'name'),
-                                    'placeholder' => __('Select a job position'),
-                                    'mode'        => 'multiple',
-                                    'searchable'  => true,
-                                    'value'       => [],
-                                    'full'        => true
+                                    'type'     => 'employeePosition',
+                                    'required' => true,
+                                    'label'    => __('position'),
+                                    'options'  => [
+                                        'positions'     => JobPositionResource::collection(JobPosition::all()),
+                                        'organisations' => OrganisationResource::collection(Organisation::all()),
+                                        'shops'         => ShopResource::collection(Shop::all()),
+                                        'warehouses'    => WarehouseResource::collection(Warehouse::all()),
+                                    ],
+                                    'value'    => [],
+                                    'full'     => true
                                 ],
                             ]
                         ],
