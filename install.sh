@@ -46,3 +46,6 @@ php artisan shop:create awa lomb "Lombok b2c shop" b2c
 php artisan shop:create awa java "Java Fulfilment" fulfilment
 php artisan shop:create inikoo au   "Au b2b shop" b2b
 pg_dump -Fc -f "devops/devel/snapshots/shops.dump" ${DB}
+php artisan warehouse:create inikoo wA 'Warehouse A'
+php artisan warehouse:create inikoo AB 'Warehouse B'
+php artisan warehouse:create awa AC 'AWA Warehouse C'

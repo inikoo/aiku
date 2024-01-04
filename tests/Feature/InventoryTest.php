@@ -39,16 +39,16 @@ beforeAll(function () {
 
 beforeEach(function () {
     $this->organisation = createOrganisation();
-    $this->group        =group();
+    $this->group        = group();
 });
 
 test('create warehouse', function () {
     $warehouse = StoreWarehouse::make()->action(
         $this->organisation,
         [
-        'code' => 'ts12',
-        'name' => 'testName',
-    ]
+            'code' => 'ts12',
+            'name' => 'testName',
+        ]
     );
     expect($warehouse)->toBeInstanceOf(Warehouse::class)
         ->and($this->organisation->inventoryStats->number_warehouses)->toBe(1);
@@ -60,9 +60,9 @@ test('warehouse cannot be created with same code', function () {
     StoreWarehouse::make()->action(
         $this->organisation,
         [
-        'code' => 'ts12',
-        'name' => 'testName',
-    ]
+            'code' => 'ts12',
+            'name' => 'testName',
+        ]
     );
 })->depends('create warehouse')->throws(ValidationException::class);
 
@@ -70,9 +70,9 @@ test('warehouse cannot be created with same code case is sensitive', function ()
     StoreWarehouse::make()->action(
         $this->organisation,
         [
-        'code' => 'TS12',
-        'name' => 'testName',
-    ]
+            'code' => 'TS12',
+            'name' => 'testName',
+        ]
     );
 })->depends('create warehouse')->throws(ValidationException::class);
 
@@ -80,6 +80,19 @@ test('update warehouse', function ($warehouse) {
     $warehouse = UpdateWarehouse::make()->action($warehouse, ['name' => 'Pika Ltd']);
     expect($warehouse->name)->toBe('Pika Ltd');
 })->depends('create warehouse');
+
+test('create warehouse by command', function () {
+    $this->artisan('warehouse:create', [
+        'organisation' => $this->organisation->slug,
+        'code'         => 'AA',
+        'name'         => 'testName A',
+    ])->assertExitCode(0);
+
+    $organisation = $this->organisation;
+    $organisation->refresh();
+    expect($organisation->inventoryStats->number_warehouses)->toBe(2);
+});
+
 
 test('create warehouse area', function ($warehouse) {
     $warehouseArea = StoreWarehouseArea::make()->action($warehouse, WarehouseArea::factory()->definition());
@@ -128,8 +141,8 @@ test('create location in warehouse area', function ($warehouseArea) {
 
 test('create stock families', function () {
     $arrayData = [
-        'code'  => 'ABC',
-        'name'  => 'ABC Stocks'
+        'code' => 'ABC',
+        'name' => 'ABC Stocks'
     ];
 
     $stockFamily = StoreStockFamily::make()->action($this->group, $arrayData);
@@ -193,7 +206,7 @@ test('move stock location', function () {
     $currentLocation = LocationStock::first();
     $targetLocation  = LocationStock::latest()->first();
 
-    $stock           = MoveStockLocation::make()->action($currentLocation, $targetLocation, [
+    $stock = MoveStockLocation::make()->action($currentLocation, $targetLocation, [
         'quantity' => 1
     ]);
 

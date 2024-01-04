@@ -13,6 +13,8 @@ use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWarehouse;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Inventory\Warehouse;
 use App\Rules\IUnique;
+use Exception;
+use Illuminate\Console\Command;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
@@ -81,5 +83,39 @@ class StoreWarehouse extends InertiaOrganisationAction
         return Redirect::route('grp.inventory.warehouses.index');
     }
 
+    public string $commandSignature = 'warehouse:create {organisation : organisation slug} {code} {name}';
+
+    public function asCommand(Command $command): int
+    {
+        $this->asAction = true;
+
+        try {
+            $organisation = Organisation::where('slug', $command->argument('organisation'))->firstOrFail();
+        } catch (Exception $e) {
+            $command->error($e->getMessage());
+
+            return 1;
+        }
+        $this->organisation = $organisation;
+        setPermissionsTeamId($organisation->group->id);
+
+        $this->setRawAttributes([
+            'code'        => $command->argument('code'),
+            'name'        => $command->argument('name'),
+        ]);
+
+        try {
+            $validatedData = $this->validateAttributes();
+        } catch (Exception $e) {
+            $command->error($e->getMessage());
+            return 1;
+        }
+
+        $shop = $this->handle($organisation, $validatedData);
+
+        $command->info("Warehouse $shop->code created successfully 🎉");
+
+        return 0;
+    }
 
 }
