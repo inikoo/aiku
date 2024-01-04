@@ -88,7 +88,7 @@ if (usePage().props.auth?.user?.avatar_thumbnail) {
 
         <!-- Main Content -->
         <main
-            class="h-full relative flex flex-col pt-20 md:pt-16 pb-6 bg-gray-50 text-gray-700 transition-all duration-200 ease-in-out"
+            class="h-full relative flex flex-col pt-20 md:pt-16 pb-6 text-gray-700 transition-all duration-200 ease-in-out"
             :class="[layout.leftSidebar.show ? 'ml-0 md:ml-48' : 'ml-0 md:ml-10']">
             <slot />
         </main>

@@ -79,12 +79,12 @@ const generateLabel = (item) => {
     
 
     <nav class="isolate relative flex flex-grow flex-col pb-4 h-full overflow-y-auto custom-hide-scrollbar flex-1 space-y-1" aria-label="Sidebar">
-        <!-- LeftSide Links -->
+        <!-- LeftSidebar: Org -->
         <Link v-if="layout.organisations.currentOrganisations"
             v-for="(item, itemKey) in layout.navigation.org[layout.organisations.currentOrganisations]"
             :key="itemKey"
             :href="item.route.name ? route(item.route.name, item.route.parameters) : '#'"
-            class="group flex items-center text-sm font-medium py-2"
+            class="group flex items-center text-sm py-2"
             :class="[
                 itemKey === layout.currentModule
                     ? 'navigationActiveAiku px-0.5'
@@ -103,11 +103,11 @@ const generateLabel = (item) => {
             </Transition>
         </Link>
 
-
+        <!-- LeftSidebar: Grp -->
         <Link v-else v-for="(item, itemKey, index) in layout.navigation.grp"
             :key="itemKey + index"
             :href="generateRoute(item)"
-            class="group flex items-center text-sm font-medium py-2"
+            class="group flex items-center text-sm py-2"
             :class="[
                 itemKey === layout.currentModule
                     ? 'navigationActiveAiku px-0.5'
@@ -117,7 +117,7 @@ const generateLabel = (item) => {
             :aria-current="itemKey === layout.currentModule ? 'page' : undefined"
         >
             <div class="flex items-center px-2">
-                <FontAwesomeIcon aria-hidden="true" class="flex-shrink-0 h-4 w-4" :icon="item.icon"/>
+                <FontAwesomeIcon aria-hidden="true" fixed-witdh class="h-4 w-4" :icon="item.icon"/>
             </div>
             <Transition>
                 <span class="capitalize leading-none whitespace-nowrap" :class="[layout.leftSidebar.show ? 'block md:block' : 'block md:hidden']">
