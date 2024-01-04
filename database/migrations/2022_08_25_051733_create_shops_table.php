@@ -6,21 +6,20 @@
  */
 
 use App\Enums\Market\Shop\ShopStateEnum;
+use App\Stubs\Migrations\HasGroupOrganisationRelationship;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
+    use HasGroupOrganisationRelationship;
     public function up(): void
     {
         Schema::create('shops', function (Blueprint $table) {
             $table->smallIncrements('id');
-            $table->unsignedSmallInteger('group_id');
-            $table->foreign('group_id')->references('id')->on('groups')->onUpdate('cascade')->onDelete('cascade');
-            $table->unsignedSmallInteger('organisation_id');
-            $table->foreign('organisation_id')->references('id')->on('organisations')->onUpdate('cascade')->onDelete('cascade');
+            $table=$this->groupOrgRelationship($table);
             $table->string('slug')->unique()->collation('und_ns');
-            $table->string('code')->unique()->collation('und_ns');
+            $table->string('code')->collation('und_ns');
             $table->string('name')->collation('und_ns');
             $table->string('company_name', 256)->nullable()->collation('und_ns');
             $table->string('contact_name', 256)->nullable()->collation('und_ns');
@@ -48,6 +47,7 @@ return new class () extends Migration {
             $table->timestampsTz();
             $table->softDeletesTz();
             $table->string('source_id')->nullable()->unique();
+            $table->unique(['group_id','code']);
         });
     }
 

@@ -17,7 +17,7 @@ class FetchAuroraWarehouse extends FetchAurora
         $this->parsedData["warehouse"] = [
             "name"       => $this->auroraModelData->{'Warehouse Name'},
             "code"       => Abbreviate::run($this->auroraModelData->{'Warehouse Name'}),
-            "source_id"  => $this->auroraModelData->{'Warehouse Key'},
+            "source_id"  => $this->organisation->id.':'.$this->auroraModelData->{'Warehouse Key'},
             "created_at" =>
                 $this->auroraModelData->{'Warehouse Valid From'} ?? null,
         ];

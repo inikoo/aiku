@@ -30,6 +30,7 @@ class FetchWarehouses extends FetchAction
                 );
             } else {
                 $warehouse = StoreWarehouse::run(
+                    organisation: $organisationSource->getOrganisation(),
                     modelData:    $warehouseData['warehouse'],
                 );
             }

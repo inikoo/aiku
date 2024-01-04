@@ -7,18 +7,19 @@
 
 namespace App\Actions\Inventory\Warehouse;
 
+use App\Actions\InertiaOrganisationAction;
 use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydrateUniversalSearch;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWarehouse;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Inventory\Warehouse;
-use App\Rules\CaseSensitive;
+use App\Rules\IUnique;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class StoreWarehouse
+class StoreWarehouse extends InertiaOrganisationAction
 {
     use AsAction;
     use WithAttributes;
@@ -28,6 +29,7 @@ class StoreWarehouse
 
     public function handle(Organisation $organisation, $modelData): Warehouse
     {
+        data_set($modelData, 'group_id', $organisation->group_id);
         /** @var Warehouse $warehouse */
         $warehouse = $organisation->warehouses()->create($modelData);
         $warehouse->stats()->create();
@@ -49,26 +51,33 @@ class StoreWarehouse
     public function rules(): array
     {
         return [
-            'code' => ['required', 'unique:warehouses', 'between:2,4', 'alpha_dash', new CaseSensitive('warehouses')],
-            'name' => ['required', 'max:250', 'string'],
+            'code' => ['required', 'unique:warehouses', 'between:2,4', 'alpha_dash',
+                       new IUnique(
+                           table: 'warehouses',
+                           extraConditions: [
+                               ['column' => 'group_id', 'value' => $this->organisation->group_id],
+                           ]
+                       ),
+                ],
+            'name'     => ['required', 'max:250', 'string'],
+            'source_id'=> ['sometimes','string','nullable'],
         ];
     }
 
     public function action(Organisation $organisation, array $modelData): Warehouse
     {
         $this->asAction = true;
-        $this->setRawAttributes($modelData);
-        $validatedData = $this->validateAttributes();
+        $this->initialisation($organisation, $modelData);
 
-        return $this->handle($organisation, $validatedData);
+        return $this->handle($organisation, $this->validatedData);
     }
 
 
     public function asController(Organisation $organisation, ActionRequest $request): Warehouse
     {
-        $request->validate();
+        $this->initialisation($organisation, $request);
 
-        return $this->handle($organisation, $request->validated());
+        return $this->handle($organisation, $this->validatedData);
     }
 
 

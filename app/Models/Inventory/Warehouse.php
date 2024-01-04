@@ -32,6 +32,7 @@ use Spatie\Sluggable\SlugOptions;
  * App\Models\Inventory\Warehouse
  *
  * @property int $id
+ * @property int $group_id
  * @property int $organisation_id
  * @property string $slug
  * @property string $code
