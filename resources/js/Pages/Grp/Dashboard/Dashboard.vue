@@ -13,7 +13,7 @@ import { useLayoutStore } from '@/Stores/layout'
 <template layout="App">
     <div>
         resources/js/Pages/Grp/Dashboard/Dashboard.vue
-        <pre>{{ route().v().params.organisation }}</pre>
+        <pre>{{ route().v()?.params?.organisation }}</pre>
         <pre>{{ usePage() }}</pre>
     </div>
 </template>

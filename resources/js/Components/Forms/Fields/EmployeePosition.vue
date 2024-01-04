@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { watchEffect, reactive, ref } from 'vue'
-import { RadioGroup, RadioGroupLabel, RadioGroupOption, RadioGroupDescription } from '@headlessui/vue'
+import { RadioGroup, RadioGroupLabel, RadioGroupOption } from '@headlessui/vue'
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/vue"
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faCircle, faCrown, faBars, faAbacus, faCommentsDollar } from '@fal'
+import { faCircle, faCrown, faBars, faAbacus, faCommentsDollar, faCheckDouble, faQuestionCircle } from '@fal'
 import { faExclamationCircle ,faCheckCircle } from '@fas'
 import { library } from '@fortawesome/fontawesome-svg-core'
-library.add(faCircle, faCrown, faBars, faAbacus, faCommentsDollar, faExclamationCircle, faCheckCircle)
+library.add(faCircle, faCrown, faBars, faAbacus, faCommentsDollar, faCheckDouble, faQuestionCircle, faExclamationCircle, faCheckCircle)
 
 const props = defineProps<{
     form?: any
@@ -20,7 +20,19 @@ interface selectedJob {
     [key: string]: string
 }
 
-const optionsJob = {
+interface optionsJob {
+    [key: string]: {
+        options: {
+            code: string
+            label: string
+            grade?: string
+        }[]
+        department: string
+        icon?: string
+    }
+}
+
+const optionsJob: optionsJob = {
     admin: {
         department: "admin",
         icon: 'fal fa-crown',
@@ -181,9 +193,24 @@ const optionsJob = {
     },
 }
 
+const availableShops = ['inikoo', 'Aiku', 'AW', 'AWA']
+
 // Temporary data
 const selectedBox: selectedJob = reactive({})
-const selectShop = reactive({})
+const selectedShop: {[key: string]: { value: string, selectedShops: string[]}} = reactive({
+    Webmaster: {
+        value: '',
+        selectedShops: []
+    },
+    Warehouse: {
+        value: '',
+        selectedShops: []
+    },
+    "Customer Service": {
+        value: '',
+        selectedShops: []
+    },
+})
 
 // To preserved on first load (so the box is selected)
 for (const key in optionsJob) {
@@ -212,6 +239,26 @@ const handleClickBox = (jobGroupName: string, jobCode: any) => {
     props.form.errors[props.fieldName] = ''
 }
 
+// Method: check if 2 arrays is includes same values
+const isEqual = (a: string[], b: string[]) => JSON.stringify([...a].sort()) === JSON.stringify([...b].sort())
+
+// On select shop
+const onSelectShop = (departmentName: string, shopName: string) => {
+    const index = selectedShop[departmentName].selectedShops.indexOf(shopName)
+
+    index === -1
+        ? selectedShop[departmentName].selectedShops.push(shopName)
+        : selectedShop[departmentName].selectedShops.splice(index, 1)
+}
+
+const onSelectUnselectShops = (departmentName: string) => {
+    if(isEqual(selectedShop[departmentName].selectedShops, availableShops)){
+        selectedShop[departmentName].selectedShops = []
+    } else {
+        selectedShop[departmentName].selectedShops = [...availableShops]
+    }
+}
+
 // To save the temporary data (selectedBox) to props.form
 watchEffect(() => {
     const tempObject = {...selectedBox}
@@ -223,55 +270,66 @@ watchEffect(() => {
 
 <template>
     <div class="relative">
-    <!-- <pre>dd {{ selectShop }} aa</pre> -->
+    <!-- <pre>dd {{ selectedShop }} aa</pre> -->
     <!-- <pre>{{ selectedBox }}</pre> -->
         <div class="flex flex-col text-xs divide-y-[1px]">
             <div v-for="(jobGroup, keyJob) in optionsJob" class="grid grid-cols-3 gap-x-1.5 px-2 items-center">
-                <!-- The box -->
+                <!-- Section: Department -->
                 <div class="flex items-center capitalize gap-x-1.5">
                     <FontAwesomeIcon v-if="jobGroup.icon" :icon="jobGroup.icon" class='text-gray-400' aria-hidden='true' />
                     {{ jobGroup.department }}
                 </div>
 
                 <!-- Section: Radio (the clickable area) -->
-                <div class="h-fit col-span-2 grid"
-                >
+                <div class="h-fit col-span-2 grid">
                     <div v-if="jobGroup.department == 'Customer Service' || jobGroup.department == 'Warehouse' || jobGroup.department == 'Webmaster'"
                         class="pt-2 h-full flex items-center row-span-1">
-                        <RadioGroup v-model="selectShop[jobGroup.department]">
+                        <RadioGroup v-model="selectedShop[jobGroup.department].value">
                             <RadioGroupLabel class="text-base font-semibold leading-6 text-gray-700 sr-only">Select the radio</RadioGroupLabel>
                             <div class="flex gap-x-4 justify-around">
                                 <!-- Select: All Shop -->
-                                <RadioGroupOption as="template" :key="jobGroup.department + keyJob + 1" value="ww" v-slot="{ active, checked }">
-                                    <div class="relative flex cursor-pointer rounded-lg border bg-white py-2 px-3 shadow-sm focus:outline-none"
-                                        :class="[checked ? 'ring-2 ring-gray-600' : 'border-gray-300']">
-                                        All shop
+                                <RadioGroupOption as="template" value="All shops" :key="jobGroup.department + keyJob + 1" v-slot="{ active, checked }">
+                                    <div class="relative flex items-center gap-x-1 cursor-pointer rounded-lg border bg-white py-2 px-3 shadow-sm focus:outline-none"
+                                        :class="[checked ? 'ring-2 ring-indigo-500' : 'border-gray-300']">
+                                        All shops and future shops
+                                        <FontAwesomeIcon v-tooltip="'This option will select all current shops and new shop added in the future.'" icon='fal fa-question-circle' class='text-gray-500 cursor-pointer' aria-hidden='true' />
                                     </div>
                                 </RadioGroupOption>
 
                                 <!-- Multiselect: Select Shop -->
-                                <RadioGroupOption as="template" :key="jobGroup.department + keyJob + 2" value="qq" v-slot="{ active, checked }">
+                                <RadioGroupOption as="template" value="selectShop" :key="jobGroup.department + keyJob + 2" v-slot="{ active, checked }">
                                     <div :class="[
                                         'relative flex cursor-pointer rounded-lg border bg-white py-2 px-3 shadow-sm focus:outline-none',
-                                        checked ? 'ring-2 ring-gray-600' : 'border-gray-300'
+                                        checked ? 'ring-2 ring-indigo-500' : 'border-gray-300'
                                     ]">
+                                        <div v-if="selectedShop[jobGroup.department].value != 'selectShop'" class="bg-transparent inset-0 absolute z-10" />
                                         <Menu as="div" class="relative inline-block text-left">
                                             <MenuButton
+                                                :disabled="selectedShop[jobGroup.department].value != 'selectShop'"
                                                 class="inline-flex min-w-fit w-32 max-w-full whitespace-nowrap justify-between items-center gap-x-2 rounded px-2.5 py-1 text-xs font-medium"
-                                                :class="[ true ? 'bg-indigo-500 text-white hover:bg-indigo-600' : 'bg-slate-100 hover:bg-slate-200 text-slate-600 ring-1 ring-slate-300']"
+                                                :class="[ selectedShop[jobGroup.department].value == 'selectShop' ? selectedShop[jobGroup.department].selectedShops.length ? 'bg-indigo-500 text-white hover:bg-indigo-600' : 'bg-slate-100 hover:bg-slate-200 text-slate-600 ring-1 ring-slate-300' : 'bg-slate-100 text-slate-400 ring-1 ring-slate-300']"
                                             >
-                                                <span class="">{{ true ? 'Select shop' : '' }}</span>
+                                                <span class="">{{ selectedShop[jobGroup.department].selectedShops.length ? selectedShop[jobGroup.department].selectedShops.length === 1 ? selectedShop[jobGroup.department].selectedShops[0] : `${selectedShop[jobGroup.department].selectedShops[0]} and +${selectedShop[jobGroup.department].selectedShops.length-1}` : 'Select shops' }}</span>
                                                 <FontAwesomeIcon icon='far fa-chevron-down' class='text-xs' aria-hidden='true' />
                                             </MenuButton>
                                             <transition>
                                                 <MenuItems
                                                     class="absolute left-0 mt-2 w-56 px-1 py-1 space-y-1 z-20 origin-top-right divide-y divide-gray-100 rounded bg-white shadow-lg ring-1 ring-slate-300 focus:outline-none">
-                                                    <MenuItem v-for="(item, itemKey) in 4" v-slot="{ active }">
-                                                        <button @click.prevent="true" :class="[
-                                                            true ? 'bg-indigo-500 text-white' : active ? 'bg-indigo-200 text-indigo-600' : 'text-slate-700',
+                                                    <MenuItem v-slot="{ active }">
+                                                        <button @click.prevent="onSelectUnselectShops(jobGroup.department)" :class="[
+                                                            'hover:bg-gray-100 text-slate-700 group flex gap-x-1 w-full items-center rounded px-2 py-2 text-sm',
+                                                        ]">
+                                                            <FontAwesomeIcon icon='fal fa-check-double' class='text-xs' aria-hidden='true' />
+                                                            {{ isEqual(selectedShop[jobGroup.department].selectedShops, availableShops) ? 'Unselect all shops' : 'Select all shops' }}
+                                                        </button>
+                                                    </MenuItem>
+
+                                                    <MenuItem v-for="(item, itemKey) in availableShops" v-slot="{ active }">
+                                                        <button @click.prevent="onSelectShop(jobGroup.department, item)" :class="[
+                                                            selectedShop[jobGroup.department].selectedShops.includes(item) ? 'bg-indigo-500 text-white' : active ? 'bg-indigo-200 text-indigo-600' : 'text-slate-700',
                                                             'group flex w-full items-center rounded px-2 py-2 text-sm',
                                                         ]">
-                                                            {{ itemKey }}
+                                                            {{ item }}
                                                         </button>
                                                     </MenuItem>
                                                 </MenuItems>
@@ -281,7 +339,6 @@ watchEffect(() => {
                                 </RadioGroupOption>
                             </div>
                         </RadioGroup>
-                        
                     </div>
                     
                     <div class="flex gap-x-2">
