@@ -8,33 +8,34 @@
 
 namespace App\Actions\Inventory\WarehouseArea;
 
+use App\Actions\InertiaOrganisationAction;
 use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydrateWarehouseAreas;
 use App\Actions\Inventory\WarehouseArea\Hydrators\WarehouseAreaHydrateUniversalSearch;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWarehouse;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
-use App\Rules\CaseSensitive;
+use App\Rules\IUnique;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsAction;
-use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class StoreWarehouseArea
+class StoreWarehouseArea extends InertiaOrganisationAction
 {
-    use AsAction;
-    use WithAttributes;
-
     private bool $asAction = false;
+
+    private Warehouse $warehouse;
 
     public function handle(Warehouse $warehouse, array $modelData): WarehouseArea
     {
+        data_set($modelData, 'group_id', $warehouse->group_id);
+        data_set($modelData, 'organisation_id', $warehouse->organisation_id);
         /** @var WarehouseArea $warehouseArea */
         $warehouseArea = $warehouse->warehouseAreas()->create($modelData);
         $warehouseArea->stats()->create();
         WarehouseAreaHydrateUniversalSearch::dispatch($warehouseArea);
         OrganisationHydrateWarehouse::dispatch($warehouse->organisation);
         WarehouseHydrateWarehouseAreas::dispatch($warehouse);
+
         return $warehouseArea;
     }
 
@@ -50,17 +51,39 @@ class StoreWarehouseArea
     public function rules(): array
     {
         return [
-            'code' => ['required', 'unique:warehouses', 'between:2,4', 'alpha_dash', new CaseSensitive('warehouse_areas')],
-            'name' => ['required', 'max:250', 'string'],
+            'code' => [
+                'required',
+                'max:16',
+                'alpha_dash',
+                new IUnique(
+                    table: 'warehouse_areas',
+                    extraConditions: [
+                        ['column' => 'warehouse_id', 'value' => $this->warehouse->id],
+                    ]
+                ),
+            ],
+            'name'     => ['required', 'max:250', 'string'],
+            'source_id'=> ['sometimes','string'],
         ];
     }
 
 
     public function asController(Warehouse $warehouse, ActionRequest $request): WarehouseArea
     {
-        $request->validate();
+        $this->warehouse = $warehouse;
+        $this->initialisation($warehouse->organisation, $request);
 
-        return $this->handle($warehouse, $request->validated());
+        return $this->handle($warehouse, $this->validatedData);
+    }
+
+    public function action(Warehouse $warehouse, array $modelData): WarehouseArea
+    {
+        $this->warehouse = $warehouse;
+        $this->asAction  = true;
+        $this->initialisation($warehouse->organisation, $modelData);
+
+
+        return $this->handle($warehouse, $this->validatedData);
     }
 
     public function htmlResponse(WarehouseArea $warehouseArea): RedirectResponse
@@ -68,12 +91,4 @@ class StoreWarehouseArea
         return Redirect::route('grp.inventory.warehouses.show.warehouse-areas.index', $warehouseArea->warehouse->slug);
     }
 
-    public function action(Warehouse $warehouse, array $modelData): WarehouseArea
-    {
-        $this->asAction = true;
-        $this->setRawAttributes($modelData);
-        $validatedData = $this->validateAttributes();
-
-        return $this->handle($warehouse, $validatedData);
-    }
 }

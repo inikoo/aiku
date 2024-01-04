@@ -16,14 +16,9 @@ use App\Rules\IUnique;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsAction;
-use Lorisleiva\Actions\Concerns\WithAttributes;
 
 class StoreWarehouse extends InertiaOrganisationAction
 {
-    use AsAction;
-    use WithAttributes;
-
     private bool $asAction = false;
 
 
@@ -51,7 +46,7 @@ class StoreWarehouse extends InertiaOrganisationAction
     public function rules(): array
     {
         return [
-            'code' => ['required', 'unique:warehouses', 'between:2,4', 'alpha_dash',
+            'code' => ['required','between:2,4', 'alpha_dash',
                        new IUnique(
                            table: 'warehouses',
                            extraConditions: [
@@ -60,7 +55,7 @@ class StoreWarehouse extends InertiaOrganisationAction
                        ),
                 ],
             'name'     => ['required', 'max:250', 'string'],
-            'source_id'=> ['sometimes','string','nullable'],
+            'source_id'=> ['sometimes','string'],
         ];
     }
 

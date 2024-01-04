@@ -9,6 +9,7 @@ namespace App\Models\Inventory;
 
 use App\Actions\Utils\Abbreviate;
 use App\Models\Search\UniversalSearch;
+use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
 use Eloquent;
@@ -30,6 +31,8 @@ use Spatie\Sluggable\SlugOptions;
  * App\Models\Inventory\WarehouseArea
  *
  * @property int $id
+ * @property int $group_id
+ * @property int $organisation_id
  * @property string $slug
  * @property int $warehouse_id
  * @property string $code
@@ -42,6 +45,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $source_id
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Collection<int, \App\Models\Inventory\Location> $locations
+ * @property-read Organisation $organisation
  * @property-read \App\Models\Inventory\WarehouseAreaStats|null $stats
  * @property-read UniversalSearch|null $universalSearch
  * @property-read \App\Models\Inventory\Warehouse $warehouse
@@ -76,7 +80,10 @@ class WarehouseArea extends Model implements Auditable
             ->slugsShouldBeNoLongerThan(4);
     }
 
-
+    public function organisation(): BelongsTo
+    {
+        return $this->belongsTo(Organisation::class);
+    }
 
     public function warehouse(): BelongsTo
     {

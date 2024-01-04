@@ -13,23 +13,22 @@ use App\Models\Inventory\WarehouseArea;
 use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
-use JetBrains\PhpStorm\NoReturn;
 
 class FetchWarehouseAreas extends FetchAction
 {
     public string $commandSignature = 'fetch:warehouse-areas {organisations?*} {--s|source_id=} {--d|db_suffix=}';
 
-    #[NoReturn] public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?WarehouseArea
+    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?WarehouseArea
     {
         if ($warehouseAreaData = $organisationSource->fetchWarehouseArea($organisationSourceId)) {
             if ($warehouseArea = WarehouseArea::withTrashed()->where('source_id', $warehouseAreaData['warehouse_area']['source_id'])
                 ->first()) {
-                $warehouseArea = UpdateWarehouseArea::run(
+                $warehouseArea = UpdateWarehouseArea::make()->action(
                     warehouseArea: $warehouseArea,
                     modelData:     $warehouseAreaData['warehouse_area']
                 );
             } else {
-                $warehouseArea = StoreWarehouseArea::run(
+                $warehouseArea = StoreWarehouseArea::make()->action(
                     warehouse: $warehouseAreaData['warehouse'],
                     modelData: $warehouseAreaData['warehouse_area'],
                 );

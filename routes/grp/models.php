@@ -43,7 +43,6 @@ use App\Actions\Inventory\Warehouse\StoreWarehouse;
 use App\Actions\Inventory\Warehouse\UpdateWarehouse;
 use App\Actions\Inventory\WarehouseArea\DeleteWarehouseArea;
 use App\Actions\Inventory\WarehouseArea\StoreWarehouseArea;
-use App\Actions\Inventory\WarehouseArea\StoreWarehouseAreas;
 use App\Actions\Inventory\WarehouseArea\UpdateWarehouseArea;
 use App\Actions\Mail\Outbox\UpdateOutbox;
 use App\Actions\Market\Product\DeleteProduct;
@@ -152,7 +151,6 @@ Route::patch('/warehouse/{warehouse}', UpdateWarehouse::class)->name('warehouse.
 Route::delete('/warehouse/{warehouse}', DeleteWarehouse::class)->name('warehouse.delete');
 
 Route::post('/warehouse/{warehouse}/area/', StoreWarehouseArea::class)->name('warehouse.warehouse-area.store');
-Route::post('/warehouse/{warehouse}/areas/', StoreWarehouseAreas::class)->name('warehouse.warehouse-areas.store');
 
 Route::patch('/area/{warehouseArea}', UpdateWarehouseArea::class)->name('warehouse-area.update');
 Route::delete('/area/{warehouseArea}', DeleteWarehouseArea::class)->name('warehouse-area.delete');

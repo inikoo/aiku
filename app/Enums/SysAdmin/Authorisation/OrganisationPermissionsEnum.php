@@ -17,6 +17,13 @@ enum OrganisationPermissionsEnum: string
     case INVENTORY_EDIT = 'inventory.edit';
     case INVENTORY_VIEW = 'inventory.view';
 
+    case INVENTORY_WAREHOUSE_EDIT = 'inventory.warehouse.edit';
+    case INVENTORY_WAREHOUSE_VIEW = 'inventory.warehouse.view';
+
+    case INVENTORY_STOCK_EDIT = 'inventory.stock.edit';
+    case INVENTORY_STOCK_VIEW = 'inventory.stock.view';
+
+
     case ACCOUNTING      = 'accounting';
     case ACCOUNTING_EDIT = 'accounting.edit';
     case ACCOUNTING_VIEW = 'accounting.view';

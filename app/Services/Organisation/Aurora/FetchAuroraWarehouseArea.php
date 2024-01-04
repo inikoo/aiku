@@ -14,12 +14,14 @@ class FetchAuroraWarehouseArea extends FetchAurora
 {
     protected function parseModel(): void
     {
-        $code=$this->auroraModelData->{'Warehouse Area Code'};
+        $code=strtolower($this->auroraModelData->{'Warehouse Area Code'});
+
+
         $code=preg_replace('/\s*warehouse$/i', '', $code);
 
 
 
-        $this->parsedData['warehouse']      = $this->parseWarehouse($this->auroraModelData->{'Warehouse Area Warehouse Key'});
+        $this->parsedData['warehouse']      = $this->parseWarehouse($this->organisation->id.':'.$this->auroraModelData->{'Warehouse Area Warehouse Key'});
         $this->parsedData['warehouse_area'] = [
             'name'                     => $this->auroraModelData->{'Warehouse Area Name'} ?? 'Name not set',
             'code'                     => Str::kebab($code),

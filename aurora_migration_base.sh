@@ -70,11 +70,12 @@ pg_dump -Fc -f "devops/devel/snapshots/pa.dump" ${DB}
 php artisan fetch:shippers -d "${DB_SUFFIX}"
 pg_dump -Fc -f "devops/devel/snapshots/shippers.dump" ${DB}
 php artisan fetch:warehouses -d "${DB_SUFFIX}"
+pg_dump -Fc -f "devops/devel/snapshots/warehouses.dump" ${DB}
 php artisan fetch:warehouse-area -d "${DB_SUFFIX}"
+pg_dump -Fc -f "devops/devel/snapshots/areas.dump" ${DB}
 php artisan fetch:locations -d "${DB_SUFFIX}"
 php artisan fetch:deleted-locations -d "${DB_SUFFIX}"
-
-pg_dump -Fc -f "devops/devel/snapshots/au_warehouses.dump" ${DB}
+pg_dump -Fc -f "devops/devel/snapshots/locations.dump" ${DB}
 
 for tenant in "${tenants[@]}"
 do

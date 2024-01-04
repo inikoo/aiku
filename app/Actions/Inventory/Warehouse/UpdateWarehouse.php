@@ -8,17 +8,21 @@
 
 namespace App\Actions\Inventory\Warehouse;
 
+use App\Actions\InertiaOrganisationAction;
 use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydrateUniversalSearch;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Inventory\WarehouseResource;
 use App\Models\Inventory\Warehouse;
+use App\Rules\IUnique;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdateWarehouse
+class UpdateWarehouse extends InertiaOrganisationAction
 {
     use WithActionUpdate;
 
     private bool $asAction = false;
+
+    private Warehouse $warehouse;
 
     public function handle(Warehouse $warehouse, array $modelData): Warehouse
     {
@@ -40,7 +44,14 @@ class UpdateWarehouse
     public function rules(): array
     {
         return [
-            'code' => ['sometimes', 'required', 'unique:warehouses', 'between:2,4', 'alpha'],
+            'code' => ['sometimes', 'required', 'max:16', 'alpha_dash',
+                       new IUnique(
+                           table: 'warehouses',
+                           extraConditions: [
+                               ['column' => 'group_id', 'value' => $this->organisation->group_id],
+                               ['column' => 'id', 'value' => $this->warehouse->id, 'operation' => '!=']
+                           ]
+                       ),],
             'name' => ['sometimes', 'required', 'max:250', 'string'],
         ];
     }
@@ -48,21 +59,27 @@ class UpdateWarehouse
 
     public function asController(Warehouse $warehouse, ActionRequest $request): Warehouse
     {
-        $this->fillFromRequest($request);
+        $this->warehouse = $warehouse;
+        $this->initialisation($warehouse->organisation, $request);
+
 
         return $this->handle(
             warehouse: $warehouse,
-            modelData: $this->validateAttributes()
+            modelData: $this->validatedData
         );
     }
 
     public function action(Warehouse $warehouse, $modelData): Warehouse
     {
-        $this->asAction = true;
-        $this->setRawAttributes($modelData);
-        $validatedData = $this->validateAttributes();
+        $this->asAction  = true;
+        $this->warehouse = $warehouse;
+        $this->initialisation($warehouse->organisation, $modelData);
 
-        return $this->handle($warehouse, $validatedData);
+
+        return $this->handle(
+            warehouse: $warehouse,
+            modelData: $this->validatedData
+        );
     }
 
     public function jsonResponse(Warehouse $warehouse): WarehouseResource
