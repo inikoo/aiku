@@ -3,7 +3,7 @@
     @apply bg-indigo-200/20 sm:border-l-4 sm:border-indigo-100 text-white font-semibold transition-all duration-100 ease-in-out
 }
 .navigationAiku {
-    @apply hover:bg-gray-300/30 text-indigo-200 font-semibold transition-all duration-100 ease-in-out
+    @apply hover:bg-gray-300/30 text-indigo-200 hover:text-indigo-50 font-semibold transition-all duration-100 ease-in-out
 }
 .navigationSecondActiveAiku {
     @apply bg-indigo-50 sm:border-l-4 sm:border-indigo-500 text-indigo-600 transition-all duration-100 ease-in-out
