@@ -7,6 +7,7 @@
 
 namespace App\Actions\Inventory\Location;
 
+use App\Actions\InertiaOrganisationAction;
 use App\Actions\Inventory\Location\Hydrators\LocationHydrateUniversalSearch;
 use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydrateLocations;
 use App\Actions\Inventory\WarehouseArea\Hydrators\WarehouseAreaHydrateLocations;
@@ -14,22 +15,27 @@ use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWarehouse;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
-use App\Rules\CaseSensitive;
+use App\Rules\IUnique;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class StoreLocation
+class StoreLocation extends InertiaOrganisationAction
 {
     use AsAction;
     use WithAttributes;
 
-    private bool $asAction=false;
+    private bool $asAction = false;
+
+    private Warehouse $warehouse;
 
     public function handle(WarehouseArea|Warehouse $parent, array $modelData): Location
     {
+        data_set($modelData, 'group_id', $parent->group_id);
+        data_set($modelData, 'organisation_id', $parent->organisation_id);
+
         if (class_basename($parent::class) == 'WarehouseArea') {
             $modelData['warehouse_id'] = $parent->warehouse_id;
             $organisation              = $parent->warehouse->organisation;
@@ -42,7 +48,7 @@ class StoreLocation
         $location->stats()->create();
         OrganisationHydrateWarehouse::dispatch($organisation);
 
-        if($location->warehouse_area_id) {
+        if ($location->warehouse_area_id) {
             WarehouseAreaHydrateLocations::dispatch($location->warehouseArea);
         }
 
@@ -54,38 +60,68 @@ class StoreLocation
 
     public function authorize(ActionRequest $request): bool
     {
-        if($this->asAction) {
+        if ($this->asAction) {
             return true;
         }
+
         return $request->user()->hasPermissionTo("inventory.warehouses.edit");
     }
+
     public function rules(): array
     {
         return [
-            'code'          => ['required', 'unique:locations', 'between:2,64', 'alpha_dash', new CaseSensitive('locations')],
-            'max_weight'    => ['nullable','numeric','min:0.1','max:1000000'],
-            'max_volume'    => ['nullable','numeric','min:0.1','max:1000000']
+            'code'       => [
+                'required',
+                'max:64',
+                'alpha_dash',
+                new IUnique(
+                    table: 'locations',
+                    extraConditions: [
+                        ['column' => 'warehouse_id', 'value' => $this->warehouse->id],
+                    ]
+                ),
+            ],
+            'max_weight' => ['nullable', 'numeric', 'min:0.1', 'max:1000000'],
+            'max_volume' => ['nullable', 'numeric', 'min:0.1', 'max:1000000'],
+            'source_id'  => ['sometimes', 'string'],
         ];
     }
 
     public function asController(Warehouse $warehouse, ActionRequest $request): Location
     {
-        $request->validate();
+        $this->warehouse = $warehouse;
+        $this->initialisation($warehouse->organisation, $request);
 
-        return $this->handle($warehouse, $request->validated());
+        return $this->handle($warehouse, $this->validatedData);
     }
 
 
     public function inWarehouseArea(WarehouseArea $warehouseArea, ActionRequest $request): Location
     {
-        $request->validate();
+        $this->warehouse = $warehouseArea->warehouse;
+        $this->initialisation($warehouseArea->organisation, $request);
 
-        return $this->handle($warehouseArea, $request->validated());
+        return $this->handle($warehouseArea, $this->validatedData);
+    }
+
+    public function action(WarehouseArea|Warehouse $parent, array $modelData): Location
+    {
+        $this->asAction = true;
+
+        if(class_basename($parent::class) == 'WarehouseArea') {
+            $this->warehouse = $parent->warehouse;
+        } else {
+            $this->warehouse = $parent;
+        }
+
+        $this->initialisation($parent->organisation, $modelData);
+
+        return $this->handle($parent, $this->validatedData);
     }
 
     public function htmlResponse(Location $location): RedirectResponse
     {
-        if(!$location->warehouse_area_id) {
+        if (!$location->warehouse_area_id) {
             return Redirect::route('grp.inventory.warehouses.show.locations.show', [
                 $location->warehouse->slug,
                 $location->slug
@@ -99,12 +135,5 @@ class StoreLocation
         }
     }
 
-    public function action(WarehouseArea|Warehouse $parent, array $modelData): Location
-    {
-        $this->asAction=true;
-        $this->setRawAttributes($modelData);
-        $validatedData = $this->validateAttributes();
 
-        return $this->handle($parent, $validatedData);
-    }
 }

@@ -9,6 +9,7 @@ namespace App\Models\Inventory;
 
 use App\Enums\Inventory\Location\LocationStatusEnum;
 use App\Models\Search\UniversalSearch;
+use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
 use Eloquent;
@@ -31,9 +32,11 @@ use Spatie\Sluggable\SlugOptions;
  * App\Models\Inventory\Location
  *
  * @property int $id
- * @property string $slug
+ * @property int $group_id
+ * @property int $organisation_id
  * @property int $warehouse_id
  * @property int|null $warehouse_area_id
+ * @property string $slug
  * @property LocationStatusEnum $status
  * @property string $code
  * @property string $stock_value
@@ -48,6 +51,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $source_id
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Collection<int, \App\Models\Inventory\LostAndFoundStock> $lostAndFoundStocks
+ * @property-read Organisation $organisation
  * @property-read \App\Models\Inventory\LocationStats|null $stats
  * @property-read Collection<int, \App\Models\Inventory\Stock> $stocks
  * @property-read UniversalSearch|null $universalSearch
@@ -91,6 +95,11 @@ class Location extends Model implements Auditable
             ->saveSlugsTo('slug');
     }
 
+
+    public function organisation(): BelongsTo
+    {
+        return $this->belongsTo(Organisation::class);
+    }
 
     public function warehouse(): BelongsTo
     {

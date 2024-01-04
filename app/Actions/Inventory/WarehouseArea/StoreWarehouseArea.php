@@ -78,11 +78,9 @@ class StoreWarehouseArea extends InertiaOrganisationAction
 
     public function action(Warehouse $warehouse, array $modelData): WarehouseArea
     {
-        $this->warehouse = $warehouse;
         $this->asAction  = true;
+        $this->warehouse = $warehouse;
         $this->initialisation($warehouse->organisation, $modelData);
-
-
         return $this->handle($warehouse, $this->validatedData);
     }
 

@@ -14,13 +14,6 @@ use Illuminate\Database\Eloquent\Model;
 /**
  * App\Models\Backup\ActionHistory
  *
- * @property int $id
- * @property string $index
- * @property string $type
- * @property bool $synced
- * @property array $body
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
  * @method static Builder|ActionHistory newModelQuery()
  * @method static Builder|ActionHistory newQuery()
  * @method static Builder|ActionHistory query()
