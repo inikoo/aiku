@@ -32,6 +32,7 @@ use App\Models\Marketing\OfferCampaign;
 use App\Models\OMS\Order;
 use App\Models\Search\UniversalSearch;
 use App\Models\SysAdmin\ApiTenantUser;
+use App\Models\SysAdmin\Role;
 use App\Models\Traits\HasAddresses;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Web\Website;
@@ -105,6 +106,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, Payment> $payments
  * @property-read Collection<int, \App\Models\Market\Product> $products
  * @property-read Collection<int, Prospect> $prospects
+ * @property-read Collection<int, Role> $roles
  * @property-read Collection<int, SerialReference> $serialReferences
  * @property-read Collection<int, \App\Models\Market\ShippingZoneSchema> $shippingZoneSchemas
  * @property-read \App\Models\Market\ShopStats|null $stats
@@ -305,5 +307,11 @@ class Shop extends Model
     {
         return $this->morphOne(ApiTenantUser::class, 'userable');
     }
+
+    public function roles(): MorphMany
+    {
+        return $this->morphMany(Role::class, 'scope');
+    }
+
 
 }

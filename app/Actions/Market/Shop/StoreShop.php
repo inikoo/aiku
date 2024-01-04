@@ -72,7 +72,6 @@ class StoreShop extends InertiaOrganisationAction
             fn ($user) => $user->roles->where('name', "org-admin-$organisation->slug")->toArray()
         );
 
-
         foreach ($orgAdmins as $orgAdmin) {
             UserAddRoles::run($orgAdmin, [
                 Role::where('name', RolesEnum::getRoleName('shop-admin', $shop))->first()

@@ -30,10 +30,12 @@ enum RolesEnum: string
     case ACCOUNTING_SUPERVISOR = 'accounting-supervisor';
 
 
-    case SHOP_ADMIN              = 'shop-admin';
+    case SHOP_ADMIN = 'shop-admin';
 
-    case WAREHOUSE_ADMIN              = 'warehouse-admin';
-    case CUSTOMER_SERVICE_CLERK       = 'customer-service-clerk';
+    case WAREHOUSE_ADMIN = 'warehouse-admin';
+
+    case STOCK_CONTROLLER       = 'stock-controller';
+    case CUSTOMER_SERVICE_CLERK = 'customer-service-clerk';
 
     case CUSTOMER_SERVICE_SUPERVISOR = 'customer-service-supervisor';
 
@@ -101,13 +103,26 @@ enum RolesEnum: string
             RolesEnum::SHOP_ADMIN => [
                 ShopPermissionsEnum::CRM,
                 ShopPermissionsEnum::SUPERVISOR_CRM
-                ],
+            ],
             RolesEnum::CUSTOMER_SERVICE_CLERK => [
                 ShopPermissionsEnum::CRM,
             ],
             RolesEnum::CUSTOMER_SERVICE_SUPERVISOR => [
                 ShopPermissionsEnum::CRM,
                 ShopPermissionsEnum::SUPERVISOR_CRM
+            ],
+            RolesEnum::WAREHOUSE_ADMIN => [
+                WarehousePermissionsEnum::WAREHOUSE,
+                WarehousePermissionsEnum::INVENTORY,
+                WarehousePermissionsEnum::DISPATCHING,
+                WarehousePermissionsEnum::SUPERVISOR_WAREHOUSES,
+                WarehousePermissionsEnum::SUPERVISOR_INVENTORY,
+                WarehousePermissionsEnum::SUPERVISOR_DISPATCHING,
+
+            ],
+            RolesEnum::STOCK_CONTROLLER => [
+                WarehousePermissionsEnum::INVENTORY,
+                WarehousePermissionsEnum::DISPATCHING,
             ],
         };
     }
@@ -121,8 +136,9 @@ enum RolesEnum: string
             RolesEnum::SHOP_ADMIN,
             RolesEnum::CUSTOMER_SERVICE_CLERK,
             RolesEnum::CUSTOMER_SERVICE_SUPERVISOR
-                                       => 'Shop',
-            RolesEnum::WAREHOUSE_ADMIN => 'Warehouse',
+            => 'Shop',
+            RolesEnum::WAREHOUSE_ADMIN,
+            RolesEnum::STOCK_CONTROLLER => 'Warehouse',
 
             default => 'Organisation'
         };
@@ -147,7 +163,7 @@ enum RolesEnum: string
     public static function getRoleName(string $rawName, Group|Organisation|Shop|Warehouse $scope): string
     {
         return match (class_basename($scope)) {
-            'Organisation', 'Shop' => $rawName.'-'.$scope->slug,
+            'Organisation', 'Shop', 'Warehouse' => $rawName.'-'.$scope->slug,
             default => $rawName
         };
     }

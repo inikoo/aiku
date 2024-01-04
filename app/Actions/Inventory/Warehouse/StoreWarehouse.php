@@ -10,8 +10,11 @@ namespace App\Actions\Inventory\Warehouse;
 use App\Actions\InertiaOrganisationAction;
 use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydrateUniversalSearch;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWarehouse;
+use App\Actions\SysAdmin\User\UserAddRoles;
+use App\Enums\SysAdmin\Authorisation\RolesEnum;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Inventory\Warehouse;
+use App\Models\SysAdmin\Role;
 use App\Rules\IUnique;
 use Exception;
 use Illuminate\Console\Command;
@@ -30,6 +33,19 @@ class StoreWarehouse extends InertiaOrganisationAction
         /** @var Warehouse $warehouse */
         $warehouse = $organisation->warehouses()->create($modelData);
         $warehouse->stats()->create();
+
+        SeedWarehousePermissions::run($warehouse);
+
+        $orgAdmins = $organisation->group->users()->with('roles')->get()->filter(
+            fn ($user) => $user->roles->where('name', "org-admin-$organisation->slug")->toArray()
+        );
+
+        foreach ($orgAdmins as $orgAdmin) {
+            UserAddRoles::run($orgAdmin, [
+                Role::where('name', RolesEnum::getRoleName('warehouse-admin', $warehouse))->first()
+            ]);
+        }
+
         OrganisationHydrateWarehouse::run($organisation);
         WarehouseHydrateUniversalSearch::dispatch($warehouse);
 

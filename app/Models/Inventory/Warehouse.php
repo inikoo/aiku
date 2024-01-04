@@ -10,6 +10,7 @@ namespace App\Models\Inventory;
 use App\Models\Helpers\Issue;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Search\UniversalSearch;
+use App\Models\SysAdmin\Role;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
 use Eloquent;
@@ -20,6 +21,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
@@ -47,6 +49,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, Issue> $issues
  * @property-read Collection<int, \App\Models\Inventory\Location> $locations
  * @property-read Organisation $organisation
+ * @property-read Collection<int, Role> $roles
  * @property-read \App\Models\Inventory\WarehouseStats|null $stats
  * @property-read UniversalSearch|null $universalSearch
  * @property-read Collection<int, \App\Models\Inventory\WarehouseArea> $warehouseAreas
@@ -117,4 +120,10 @@ class Warehouse extends Model implements Auditable
     {
         return $this->morphToMany(Issue::class, 'issuable');
     }
+
+    public function roles(): MorphMany
+    {
+        return $this->morphMany(Role::class, 'scope');
+    }
+
 }

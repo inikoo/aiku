@@ -11,6 +11,7 @@ use App\Actions\Helpers\Images\GetPictureSources;
 use App\Enums\SysAdmin\User\UserAuthTypeEnum;
 use App\Helpers\ImgProxy\Image;
 use App\Models\Assets\Language;
+use App\Models\Inventory\Warehouse;
 use App\Models\Market\Shop;
 use App\Models\Media\Media;
 use App\Models\Traits\HasHistory;
@@ -50,6 +51,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $parent_type
  * @property int $number_authorised_organisations
  * @property int $number_authorised_shops
+ * @property int $number_authorised_warehouses
  * @property string|null $remember_token
  * @property array $data
  * @property array $settings
@@ -64,6 +66,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\Organisation> $authorisedOrganisations
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Shop> $authorisedShops
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Warehouse> $authorisedWarehouses
  * @property-read Media|null $avatar
  * @property-read \App\Models\Notifications\FcmToken|null $fcmToken
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Notifications\FcmToken> $fcmTokens
@@ -210,5 +213,9 @@ class User extends Authenticatable implements HasMedia, Auditable
         return $this->morphedByMany(Shop::class, 'model', 'user_has_authorised_models')->withTimestamps();
     }
 
+    public function authorisedWarehouses(): MorphToMany
+    {
+        return $this->morphedByMany(Warehouse::class, 'model', 'user_has_authorised_models')->withTimestamps();
+    }
 
 }

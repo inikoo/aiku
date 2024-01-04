@@ -40,6 +40,7 @@ beforeAll(function () {
 beforeEach(function () {
     $this->organisation = createOrganisation();
     $this->group        = group();
+    $this->guest        = createAdminGuest($this->group);
 });
 
 test('create warehouse', function () {
@@ -50,8 +51,13 @@ test('create warehouse', function () {
             'name' => 'testName',
         ]
     );
+
     expect($warehouse)->toBeInstanceOf(Warehouse::class)
-        ->and($this->organisation->inventoryStats->number_warehouses)->toBe(1);
+        ->and($this->organisation->inventoryStats->number_warehouses)->toBe(1)
+        ->and($this->guest->user->authorisedWarehouses()->where('organisation_id', $this->organisation->id)->count())->toBe(1)
+        ->and($this->guest->user->number_authorised_warehouses)->toBe(1)
+        ->and($this->guest->user->hasPermissionTo("warehouses.$warehouse->slug"))->toBeTrue();
+
 
     return $warehouse;
 });
@@ -88,9 +94,21 @@ test('create warehouse by command', function () {
         'name'         => 'testName A',
     ])->assertExitCode(0);
 
+    $warehouse = Warehouse::where('code', 'AA')->first();
+
     $organisation = $this->organisation;
     $organisation->refresh();
-    expect($organisation->inventoryStats->number_warehouses)->toBe(2);
+
+
+    expect($organisation->inventoryStats->number_warehouses)->toBe(2)
+        ->and($warehouse->roles()->count())->toBe(2);
+});
+
+test('seed warehouse permissions', function () {
+    setPermissionsTeamId($this->group->id);
+    $this->artisan('warehouse:seed-permissions')->assertExitCode(0);
+    $warehouse = Warehouse::where('code', 'AA')->first();
+    expect($warehouse->roles()->count())->toBe(2);
 });
 
 

@@ -22,21 +22,26 @@ class UserHydrateAuthorisedModels
 
         $authorisedOrganisations = [];
         $authorisedShops         = [];
+        $authorisedWarehouses    =[];
 
         foreach ($user->getAllPermissions() as $permission) {
             if ($permission->scope_type === 'Organisation') {
                 $authorisedOrganisations[$permission->scope_id] = $permission->scope_id;
             } elseif ($permission->scope_type === 'Shop') {
                 $authorisedShops[$permission->scope_id] = $permission->scope_id;
+            } elseif ($permission->scope_type === 'Warehouse') {
+                $authorisedWarehouses[$permission->scope_id] = $permission->scope_id;
             }
         }
 
         $user->authorisedOrganisations()->sync($authorisedOrganisations);
         $user->authorisedShops()->sync($authorisedShops);
+        $user->authorisedWarehouses()->sync($authorisedWarehouses);
 
         $stats = [
             'number_authorised_organisations' => count($authorisedOrganisations),
             'number_authorised_shops'         => count($authorisedShops),
+            'number_authorised_warehouses'    => count($authorisedWarehouses),
         ];
 
         $user->update($stats);

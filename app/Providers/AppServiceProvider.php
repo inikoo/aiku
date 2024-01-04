@@ -68,10 +68,12 @@ class AppServiceProvider extends ServiceProvider
                 'WebUser'         => 'App\Models\SysAdmin\WebUser',
                 'Order'           => 'App\Models\OMS\Order',
                 'Agent'           => 'App\Models\Procurement\Agent',
-                'Location'        => 'App\Models\Inventory\Location',
                 'TradeUnit'       => 'App\Models\Goods\TradeUnit',
                 'ApiTenantUser'   => 'App\Models\SysAdmin\ApiTenantUser',
-                'Website'         => 'App\Models\Web\Website'
+                'Website'         => 'App\Models\Web\Website',
+                'Warehouse'       => 'App\Models\Inventory\Warehouse',
+                'WarehouseArea'   => 'App\Models\Inventory\WarehouseArea',
+                'Location'        => 'App\Models\Inventory\Location',
             ]
         );
     }
