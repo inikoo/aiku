@@ -29,7 +29,7 @@ class FetchAuroraAgent extends FetchAurora
                 'email'        => $this->auroraModelData->{'Agent Main Plain Email'},
                 'phone'        => $phone,
                 'currency_id'  => $this->parseCurrencyID($this->auroraModelData->{'Agent Default Currency Code'}),
-                'source_id'    => $this->auroraModelData->{'Agent Key'},
+                'source_id'    => $this->organisation->id.':'.$this->auroraModelData->{'Agent Key'},
                 'created_at'   => $this->auroraModelData->{'Agent Valid From'}
 
             ];

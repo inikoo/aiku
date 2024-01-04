@@ -56,7 +56,7 @@ class FetchAuroraPayment extends FetchAurora
             'data'               => $data,
             'currency_id'        => $this->parseCurrencyID($this->auroraModelData->{'Payment Currency Code'}),
 
-            'source_id'    => $this->auroraModelData->{'Payment Key'},
+            'source_id'    => $this->organisation->id.':'.$this->auroraModelData->{'Payment Key'},
             'date'         => $this->parseDate($this->auroraModelData->{'Payment Last Updated Date'}),
             'created_at'   => $this->parseDate($this->auroraModelData->{'Payment Created Date'}),
             'completed_at' => $this->parseDate($this->auroraModelData->{'Payment Completed Date'}),

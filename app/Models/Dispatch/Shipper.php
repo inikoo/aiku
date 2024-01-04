@@ -27,6 +27,7 @@ use Spatie\Sluggable\SlugOptions;
  * App\Models\Dispatch\Shipper
  *
  * @property int $id
+ * @property int $group_id
  * @property int $organisation_id
  * @property string $slug
  * @property string $code
@@ -44,8 +45,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  * @property string|null $source_id
- * @property-read Organisation $group
  * @property-read Collection<int, Issue> $issues
+ * @property-read Organisation $organisation
  * @property-read Collection<int, \App\Models\Dispatch\Shipment> $shipments
  * @method static \Database\Factories\Dispatch\ShipperFactory factory($count = null, $state = [])
  * @method static Builder|Shipper newModelQuery()
@@ -82,7 +83,7 @@ class Shipper extends Model
             ->doNotGenerateSlugsOnUpdate();
     }
 
-    public function group(): BelongsTo
+    public function organisation(): BelongsTo
     {
         return $this->belongsTo(Organisation::class);
     }

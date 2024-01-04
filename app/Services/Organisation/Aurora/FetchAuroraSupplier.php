@@ -62,7 +62,7 @@ class FetchAuroraSupplier extends FetchAurora
                 'email'        => $this->auroraModelData->{'Supplier Main Plain Email'},
                 'phone'        => $phone,
                 'currency_id'  => $this->parseCurrencyID($this->auroraModelData->{'Supplier Default Currency Code'}),
-                'source_id'    => $this->auroraModelData->{'Supplier Key'},
+                'source_id'    => $this->organisation->id.':'.$this->auroraModelData->{'Supplier Key'},
                 'created_at'   => $this->parseDate($this->auroraModelData->{'Supplier Valid From'}),
                 'deleted_at'   => $deleted_at,
 

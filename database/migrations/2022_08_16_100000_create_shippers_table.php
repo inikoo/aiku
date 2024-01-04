@@ -5,17 +5,18 @@
  *  Copyright (c) 2022, Raul A Perusquia F
  */
 
+use App\Stubs\Migrations\HasGroupOrganisationRelationship;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
-    public function up()
+    use HasGroupOrganisationRelationship;
+    public function up(): void
     {
         Schema::create('shippers', function (Blueprint $table) {
             $table->smallIncrements('id');
-            $table->unsignedSmallInteger('organisation_id');
-            $table->foreign('organisation_id')->references('id')->on('organisations')->onUpdate('cascade')->onDelete('cascade');
+            $table=$this->groupOrgRelationship($table);
             $table->string('slug')->unique()->collation('und_ns');
             $table->string('code')->index();
             $table->string('api_shipper')->nullable()->index();
@@ -31,10 +32,11 @@ return new class () extends Migration {
             $table->timestampsTz();
             $table->softDeletesTz();
             $table->string('source_id')->nullable()->unique();
+            $table->unique(['group_id','code']);
         });
     }
 
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('shippers');
     }

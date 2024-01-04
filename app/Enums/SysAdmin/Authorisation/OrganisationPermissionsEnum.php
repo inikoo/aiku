@@ -17,12 +17,9 @@ enum OrganisationPermissionsEnum: string
     case INVENTORY_EDIT = 'inventory.edit';
     case INVENTORY_VIEW = 'inventory.view';
 
-
-
     case ACCOUNTING      = 'accounting';
     case ACCOUNTING_EDIT = 'accounting.edit';
     case ACCOUNTING_VIEW = 'accounting.view';
-
 
     case HUMAN_RESOURCES      = 'human-resources';
     case HUMAN_RESOURCES_EDIT = 'human-resources.edit';
@@ -32,11 +29,15 @@ enum OrganisationPermissionsEnum: string
     case PROCUREMENT_EDIT = 'procurement.edit';
     case PROCUREMENT_VIEW = 'procurement.view';
 
+    case DISPATCHING      = 'dispatching';
+    case DISPATCHING_EDIT = 'dispatching.edit';
+    case DISPATCHING_VIEW = 'dispatching.view';
+
+
     case SUPERVISOR_HUMAN_RESOURCES = 'supervisor-human-resources';
     case SUPERVISOR_ACCOUNTING      = 'supervisor-accounting';
     case SUPERVISOR_PROCUREMENT     = 'supervisor-procurement';
-
-    case SUPERVISOR_INVENTORY = 'supervisor-inventory';
+    case SUPERVISOR_INVENTORY       = 'supervisor-inventory';
 
 
     public static function getAllValues(Organisation $organisation): array

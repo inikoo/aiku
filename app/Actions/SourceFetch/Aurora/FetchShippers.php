@@ -13,23 +13,25 @@ use App\Models\Dispatch\Shipper;
 use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
-use JetBrains\PhpStorm\NoReturn;
 
 class FetchShippers extends FetchAction
 {
     public string $commandSignature = 'fetch:shippers {organisations?*} {--s|source_id=} {--d|db_suffix=}';
 
-    #[NoReturn] public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Shipper
+    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Shipper
     {
         if ($shipperData = $organisationSource->fetchShipper($organisationSourceId)) {
             if ($shipper = Shipper::where('source_id', $shipperData['shipper']['source_id'])
                 ->first()) {
-                $shipper = UpdateShipper::run(
+
+                $shipper = UpdateShipper::make()->action(
                     shipper:   $shipper,
                     modelData: $shipperData['shipper']
                 );
             } else {
-                $shipper = StoreShipper::run(
+
+                $shipper = StoreShipper::make()->action(
+                    organisation: $organisationSource->getOrganisation(),
                     modelData: $shipperData['shipper'],
                 );
             }
