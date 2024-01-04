@@ -17,8 +17,6 @@ class GetOrganisationNavigation
 
     public function handle(User $user, Organisation $organisation): array
     {
-
-
         $navigation = [];
 
         if ($user->hasPermissionTo('org-business-intelligence.'.$organisation->slug)) {
@@ -58,361 +56,20 @@ class GetOrganisationNavigation
             ];
         }
 
-        if ($user->hasPermissionTo('shops.view')) {
-            $navigation['shops'] = [
-                'scope' => 'shops',
-                'icon'  => ['fal', 'fa-store-alt'],
-
-                'label' => [
-                    'all'      => __('Shops'),
-                    'selected' => __('Shop')
-
-                ],
-                'route' => [
-                    'all'      => 'grp.shops.index',
-                    'selected' => 'shops.show'
-                ],
-
-
-                'topMenu' => [
-
-                    'dropdown' => [
-                        'links' => [
-
-                            [
-                                'tooltip' => __('shops'),
-                                'icon'    => ['fal', 'fa-store-alt'],
-                                'route'   => [
-                                    'all'      => 'grp.shops.index',
-                                    'selected' => 'grp.shops.show',
-
-                                ],
-                                'label'   => [
-                                    'all'      => __('Shops'),
-                                    'selected' => __('Shop'),
-
-                                ]
-                            ],
-
-                            [
-                                'label'   => __('departments'),
-                                'tooltip' => __('Departments'),
-                                'icon'    => ['fal', 'fa-folder-tree'],
-                                'route'   => [
-                                    'all'      => 'grp.shops.departments.index',
-                                    'selected' => 'grp.shops.show.departments.index',
-                                ]
-                            ],
-                            [
-                                'label'   => __('families'),
-                                'tooltip' => __('Families'),
-                                'icon'    => ['fal', 'fa-folder'],
-                                'route'   => [
-                                    'all'      => 'grp.shops.families.index',
-                                    'selected' => 'grp.shops.show.families.index',
-                                ]
-                            ],
-                            [
-                                'label'   => __('products'),
-                                'tooltip' => __('Products'),
-                                'icon'    => ['fal', 'fa-cube'],
-                                'route'   => [
-                                    'all'      => 'grp.shops.products.index',
-                                    'selected' => 'grp.shops.show.products.index',
-                                ]
-                            ],
-                        ]
-                    ],
-
-
-                ],
-            ];
+        $navigation['shops_navigation']=[];
+        foreach ($organisation->authorisedModels()->where('user_id', $user->id)->where('model_type', 'Shop')->get() as $authorisedModel) {
+            $shop                                        =$authorisedModel->model;
+            $navigation['shops_navigation'][$shop->slug] = GetShopNavigation::run($shop, $user);
         }
 
-        if ($user->hasPermissionTo('websites.view')) {
-            $navigation['web'] = [
-                'scope' => 'websites',
-                'icon'  => ['fal', 'fa-globe'],
-                'label' => [
-                    'all'      => __('Websites'),
-                    'selected' => __('Website')
-
-                ],
-                'route' => [
-                    'all'      => 'grp.web.dashboard',
-                    'selected' => 'grp.web.websites.dashboard'
-                ],
-
-
-
-                'topMenu' => [
-                    'subSections' => [
-                        [
-                            'icon'  => ['fal', 'fa-chart-network'],
-                            'route' => [
-                                'name' => 'grp.web.dashboard',
-                            ]
-                        ],
-                    ],
-                    'dropdown' => [
-
-                        'links' => [
-
-                            [
-                                'tooltip' => __('websites'),
-                                'icon'    => ['fal', 'fa-globe'],
-                                'route'   => [
-                                    'all'      => 'grp.web.websites.index',
-                                    'selected' => 'grp.web.websites.show',
-
-                                ],
-                                'label'   => [
-                                    'all'      => __('Websites'),
-                                    'selected' => __('Website'),
-
-                                ]
-                            ],
-                            [
-                                'label'   => __('webpages'),
-                                'tooltip' => __('Webpages'),
-                                'icon'    => ['fal', 'fa-browser'],
-                                'route'   => [
-                                    'all'      => ['grp.web.webpages.index'],
-                                    'selected' => ['grp.web.websites.show.webpages.index'],
-
-                                ]
-                            ],
-
-                        ]
-                    ]
-                ]
-
-
-            ];
+        $navigation['warehouses_navigation']=[];
+        foreach ($organisation->authorisedModels()->where('user_id', $user->id)->where('model_type', 'Warehouse')->get() as $authorisedModel) {
+            $warehouse                                             =$authorisedModel->model;
+            $navigation['warehouses_navigation'][$warehouse->slug] = GetWarehouseNavigation::run($warehouse, $user);
         }
 
-        if ($user->hasPermissionTo('marketing.view')) {
-            $navigation['marketing'] = [
-                'scope'   => 'shops',
-                'label'   => __('Marketing'),
-                'icon'    => ['fal', 'fa-bullhorn'],
-                'route'   => 'grp.marketing.hub',
-                'topMenu' => [
-                    'subSections' => [],
-                    'dropdown'    => [
-
-                        'links' => []
-                    ]
-                ]
-            ];
-        }
-
-        if ($user->hasPermissionTo('crm.view')) {
-            $navigation['crm'] = [
-                'scope' => 'shops',
-                'label' => __('Customers'),
-                'icon'  => ['fal', 'fa-user'],
-
-                'route'   => [
-                    'all'      => 'grp.crm.dashboard',
-                    'selected' => 'grp.crm.shops.show.dashboard',
-                ],
-                'topMenu' => [
-                    'dropdown' => [
-                        'links' => [
-                            [
-                                'tooltip' => __('Dashboard'),
-                                'icon'    => ['fal', 'fa-chart-network'],
-                                'route'   =>
-                                    [
-                                        'all'      => ['grp.crm.dashboard'],
-                                        'selected' => ['grp.crm.shops.show.dashboard'],
-                                    ]
-                            ],
-                            [
-                                'label'   => __('customers'),
-                                'tooltip' => __('Customers'),
-                                'icon'    => ['fal', 'fa-user'],
-                                'route'   => [
-                                    'all'      => ['grp.crm.customers.index'],
-                                    'selected' => ['grp.crm.shops.show.customers.index'],
-
-                                ]
-                            ],
-                            [
-                                'label'   => __('prospects'),
-                                'tooltip' => __('Prospects'),
-                                'icon'    => ['fal', 'fa-user-plus'],
-                                'route'   => [
-                                    'all'      => ['grp.crm.prospects.index'],
-                                    'selected' => ['grp.crm.shops.show.prospects.index'],
-
-                                ]
-                            ],
 
 
-                        ]
-                    ]
-                ]
-
-            ];
-        }
-
-        if ($user->hasPermissionTo('oms.view')) {
-            $navigation['oms'] = [
-                'scope'   => 'shops',
-                'label'   => __('Orders'),
-                'icon'    => ['fal', 'fa-shopping-cart'],
-                'route'   => [
-                    'all'      => 'grp.oms.dashboard',
-                    'selected' => 'grp.oms.shops.show.dashboard',
-                ],
-                'topMenu' => [
-                    'dropdown' => [
-                        'links' => [
-                            [
-                                'label'   => 'OMS',
-                                'tooltip' => 'OMS',
-                                'icon'    => ['fal', 'fa-tasks-alt'],
-                                'route'   =>
-                                    [
-                                        'all'      => ['grp.oms.dashboard'],
-                                        'selected' => ['grp.oms.shops.show.dashboard'],
-
-                                    ]
-                            ],
-
-                            [
-                                'label'   => __('orders'),
-                                'tooltip' => __('Orders'),
-                                'icon'    => ['fal', 'fa-shopping-cart'],
-                                'route'   => [
-                                    'all'      => ['grp.oms.orders.index'],
-                                    'selected' => ['grp.oms.shops.show.orders.index'],
-
-                                ]
-                            ],
-                            [
-                                'label'   => __('delivery notes'),
-                                'tooltip' => __('Delivery notes'),
-                                'icon'    => ['fal', 'fa-truck'],
-                                'route'   => [
-                                    'all'      => ['grp.oms.delivery-notes.index'],
-                                    'selected' => ['grp.oms.shops.show.delivery-notes.index'],
-
-                                ]
-                            ],
-                            [
-                                'label'   => __('invoices'),
-                                'tooltip' => __('Invoices'),
-                                'icon'    => ['fal', 'fa-file-invoice-dollar'],
-                                'route'   => [
-                                    'all'      => ['grp.oms.invoices.index'],
-                                    'selected' => ['grp.oms.shops.show.invoices.index'],
-
-                                ]
-                            ],
-
-                        ]
-                    ]
-
-                ]
-            ];
-        }
-
-        if ($user->hasPermissionTo('dispatch.view')) {
-            $navigation['dispatch'] = [
-                'label'   => __('Dispatch'),
-                'icon'    => ['fal', 'fa-conveyor-belt-alt'],
-                'route'   => 'grp.dispatch.hub',
-                'topMenu' => [
-                    'subSections' => []
-                ]
-            ];
-        }
-
-        if ($user->hasPermissionTo("inventory.$organisation->slug.view")) {
-            $navigation['inventory'] = [
-                'scope'   => 'warehouses',
-                'label'   => __('inventory'),
-                'icon'    => ['fal', 'fa-inventory'],
-                'route'   => [
-                    'all'      => 'grp.inventory.dashboard',
-                    'selected' => 'grp.inventory.warehouses.show',
-                ],
-                'topMenu' => [
-                    'subSections' => [
-                        [
-                            'icon'  => ['fal', 'fa-chart-network'],
-                            'route' => [
-                                'name' => 'grp.inventory.dashboard',
-                            ]
-                        ],
-
-                        [
-                            'label' => __('SKUs'),
-                            'icon'  => ['fal', 'fa-box'],
-                            'route' => [
-                                'name' => 'inventory.stocks.index',
-                            ]
-                        ],
-                        [
-                            'label'   => __('SKUs Families'),
-                            'tooltip' => __('SKUs families'),
-                            'icon'    => ['fal', 'fa-boxes-alt'],
-                            'route'   => [
-                                'name' => 'inventory.stock-families.index',
-                            ]
-                        ],
-
-                    ],
-
-                    'dropdown' => [
-                        'links' => [
-
-
-                            [
-                                'tooltip' => __('warehouses'),
-                                'icon'    => ['fal', 'fa-store-alt'],
-                                'route'   => [
-                                    'all'      => 'inventory.warehouses.index',
-                                    'selected' => 'inventory.warehouses.show',
-
-                                ],
-                                'label'   => [
-                                    'all'      => __('Warehouses'),
-                                    'selected' => __('Warehouse'),
-
-                                ]
-                            ],
-
-
-                            [
-                                'label'   => __('warehouse areas'),
-                                'tooltip' => __('Warehouse Areas'),
-                                'icon'    => ['fal', 'fa-map-signs'],
-                                'route'   => [
-                                    'all'      => 'inventory.warehouse-areas.index',
-                                    'selected' => 'inventory.warehouses.show.warehouse-areas.index',
-
-                                ]
-                            ],
-                            [
-                                'label'   => __('locations'),
-                                'tooltip' => __('Locations'),
-                                'icon'    => ['fal', 'fa-inventory'],
-                                'route'   => [
-                                    'all'      => 'inventory.locations.index',
-                                    'selected' => 'inventory.warehouses.show.locations.index',
-
-                                ]
-                            ],
-                        ]
-                    ]
-
-                ]
-            ];
-        }
 
         if ($user->hasPermissionTo('fulfilment.view')
             //  and app('currentTenant')->marketStats->number_shops_type_fulfilment
@@ -455,7 +112,6 @@ class GetOrganisationNavigation
                         ],
 
                     ],
-
 
 
                 ]
@@ -654,8 +310,6 @@ class GetOrganisationNavigation
                 ]
             ];
         }
-
-
 
 
         return $navigation;

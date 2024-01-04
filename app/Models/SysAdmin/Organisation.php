@@ -56,6 +56,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $deleted_at
  * @property-read \App\Models\SysAdmin\OrganisationAccountingStats|null $accountingStats
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\OrganisationAuthorisedModels> $authorisedModels
  * @property-read Country $country
  * @property-read \App\Models\SysAdmin\OrganisationCRMStats|null $crmStats
  * @property-read Currency $currency
@@ -269,6 +270,10 @@ class Organisation extends Model implements HasMedia
         return $this->morphMany(Role::class, 'scope');
     }
 
+    public function authorisedModels(): HasMany
+    {
+        return $this->hasMany(OrganisationAuthorisedModels::class, 'org_id');
+    }
 
 
 }

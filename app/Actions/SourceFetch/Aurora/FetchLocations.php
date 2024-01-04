@@ -24,13 +24,11 @@ class FetchLocations extends FetchAction
         if ($locationData = $organisationSource->fetchLocation($organisationSourceId)) {
             if ($location = Location::withTrashed()->where('source_id', $locationData['location']['source_id'])
                 ->first()) {
-                //print_r($locationData['location']);
                 $location = UpdateLocation::make()->action(
                     location:  $location,
                     modelData: $locationData['location']
                 );
             } else {
-                //print_r($locationData['location']);
                 $location = StoreLocation::make()->action(
                     parent:    $locationData['parent'],
                     modelData: $locationData['location'],

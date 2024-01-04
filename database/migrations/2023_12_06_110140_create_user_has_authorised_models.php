@@ -13,6 +13,8 @@ return new class () extends Migration {
     public function up(): void
     {
         Schema::create('user_has_authorised_models', function (Blueprint $table) {
+            $table->unsignedInteger('org_id')->nullable()->comment('Not using organisation_id to avoid confusion with the organisation_id column in the users table');
+            $table->foreign('org_id')->references('id')->on('organisations')->onDelete('cascade');
             $table->unsignedInteger('user_id')->nullable();
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->string('model_type')->index();

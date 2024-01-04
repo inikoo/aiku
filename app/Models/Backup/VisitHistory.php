@@ -14,6 +14,13 @@ use Illuminate\Database\Eloquent\Model;
 /**
  * App\Models\Backup\VisitHistory
  *
+ * @property int $id
+ * @property string $index
+ * @property string $type
+ * @property bool $synced
+ * @property array $body
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
  * @method static Builder|VisitHistory newModelQuery()
  * @method static Builder|VisitHistory newQuery()
  * @method static Builder|VisitHistory query()

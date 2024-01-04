@@ -7,6 +7,8 @@
 
 namespace App\Actions\SysAdmin\User\Hydrators;
 
+use App\Models\Inventory\Warehouse;
+use App\Models\Market\Shop;
 use App\Models\SysAdmin\User;
 use Exception;
 use Illuminate\Console\Command;
@@ -26,11 +28,13 @@ class UserHydrateAuthorisedModels
 
         foreach ($user->getAllPermissions() as $permission) {
             if ($permission->scope_type === 'Organisation') {
-                $authorisedOrganisations[$permission->scope_id] = $permission->scope_id;
+                $authorisedOrganisations[$permission->scope_id] = ['org_id' => $permission->scope_id];
             } elseif ($permission->scope_type === 'Shop') {
-                $authorisedShops[$permission->scope_id] = $permission->scope_id;
+                $shop                                   =Shop::find($permission->scope_id);
+                $authorisedShops[$permission->scope_id] = ['org_id' => $shop->organisation_id];
             } elseif ($permission->scope_type === 'Warehouse') {
-                $authorisedWarehouses[$permission->scope_id] = $permission->scope_id;
+                $warehouse                                   =Warehouse::find($permission->scope_id);
+                $authorisedWarehouses[$permission->scope_id] = ['org_id' => $warehouse->organisation_id];
             }
         }
 
