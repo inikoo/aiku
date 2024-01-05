@@ -12,10 +12,7 @@ use App\Enums\HumanResources\Employee\EmployeeStateEnum;
 use App\Http\Resources\HumanResources\JobPositionResource;
 use App\Http\Resources\Inventory\WarehouseResource;
 use App\Http\Resources\Market\ShopResource;
-use App\Http\Resources\SysAdmin\Organisation\OrganisationResource;
 use App\Models\HumanResources\JobPosition;
-use App\Models\Inventory\Warehouse;
-use App\Models\Market\Shop;
 use App\Models\SysAdmin\Organisation;
 use Exception;
 use Inertia\Inertia;
@@ -131,9 +128,8 @@ class CreateEmployee extends InertiaOrganisationAction
                                     'label'    => __('position'),
                                     'options'  => [
                                         'positions'     => JobPositionResource::collection(JobPosition::all()),
-                                        'organisations' => OrganisationResource::collection(Organisation::all()),
-                                        'shops'         => ShopResource::collection(Shop::all()),
-                                        'warehouses'    => WarehouseResource::collection(Warehouse::all()),
+                                        'shops'         => ShopResource::collection($this->organisation->shops),
+                                        'warehouses'    => WarehouseResource::collection($this->organisation->warehouses),
                                     ],
                                     'value'    => [],
                                     'full'     => true
