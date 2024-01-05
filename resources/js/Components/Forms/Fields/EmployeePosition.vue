@@ -11,7 +11,27 @@ library.add(faCircle, faCrown, faBars, faAbacus, faCommentsDollar, faCheckDouble
 const props = defineProps<{
     form?: any
     fieldName: string
-    options: string[] | {}
+    options: {
+        positions: {
+            data: {
+                id: number
+                slug: string
+                name: string
+                number_employees: number
+            }[]
+        }
+        organisations: {}
+        shops: {
+            data: {
+                id: number
+                slug: string
+                code: string
+                name: string
+                type: string
+            }[]
+        }
+        warehouses: {}
+    }
     fieldData?: {
     }
 }>()
@@ -22,13 +42,14 @@ interface selectedJob {
 
 interface optionsJob {
     [key: string]: {
-        options: {
-            code: string
-            label: string
-            grade?: string
-        }[]
         department: string
         icon?: string
+        options: {
+            slug: string
+            label: string
+            grade?: string
+            number_employees: number
+        }[]
     }
 }
 
@@ -38,8 +59,9 @@ const optionsJob: optionsJob = {
         icon: 'fal fa-crown',
         options: [
             {
-                "code": "admin",
+                "slug": "admin",
                 "label": "Administrator",
+                number_employees: props.options.positions.data.find(position => position.slug == 'admin')?.number_employees ?? 0,
             }
         ],
     },
@@ -49,13 +71,15 @@ const optionsJob: optionsJob = {
         department: "Human Resources",
         options: [
             {
-                "code": "hr-m",
+                "slug": "hr-m",
                 "grade": "manager",
                 "label": "Manager",
+                number_employees: props.options.positions.data.find(position => position.slug == 'hr-m')?.number_employees ?? 0,
             }, {
-                "code": "hr-c",
+                "slug": "hr-c",
                 "grade": "clerk",
                 "label": "Worker",
+                number_employees: props.options.positions.data.find(position => position.slug == 'hr-c')?.number_employees ?? 0,
             }
         ],
     },
@@ -65,13 +89,15 @@ const optionsJob: optionsJob = {
         department: "Accounting",
         options: [
             {
-                "code": "acc-m",
+                "slug": "acc-m",
                 "grade": "manager",
                 "label": "Manager",
+                number_employees: props.options.positions.data.find(position => position.slug == 'acc-m')?.number_employees ?? 0,
             }, {
-                "code": "acc-c",
+                "slug": "acc-c",
                 "grade": "clerk",
                 "label": "Worker",
+                number_employees: props.options.positions.data.find(position => position.slug == 'acc-c')?.number_employees ?? 0,
             }
         ],
     },
@@ -81,13 +107,15 @@ const optionsJob: optionsJob = {
         department: "Marketing",
         options: [
             {
-                "code": "mrk-m",
+                "slug": "mrk-m",
                 "grade": "manager",
                 "label": "Manager",
+                number_employees: props.options.positions.data.find(position => position.slug == 'mrk-m')?.number_employees ?? 0,
             }, {
-                "code": "mrk-c",
+                "slug": "mrk-c",
                 "grade": "clerk",
                 "label": "Worker",
+                number_employees: props.options.positions.data.find(position => position.slug == 'mrk-c')?.number_employees ?? 0,
             }
         ],
     },
@@ -97,13 +125,15 @@ const optionsJob: optionsJob = {
         department: "Webmaster",
         options: [
             {
-                "code": "web-m",
+                "slug": "web-m",
                 "grade": "manager",
                 "label": "Manager",
+                number_employees: props.options.positions.data.find(position => position.slug == 'web-m')?.number_employees ?? 0,
             }, {
-                "code": "web-c",
+                "slug": "web-c",
                 "grade": "clerk",
                 "label": "Worker",
+                number_employees: props.options.positions.data.find(position => position.slug == 'web-c')?.number_employees ?? 0,
             }
         ],
     },
@@ -113,9 +143,10 @@ const optionsJob: optionsJob = {
         department: "Buyer",
         options: [
             {
-                "code": "buy",
+                "slug": "buy",
                 "grade": "buyer",
                 "label": "Buyer",
+                number_employees: props.options.positions.data.find(position => position.slug == 'buy')?.number_employees ?? 0,
             }
         ],
     },
@@ -125,17 +156,20 @@ const optionsJob: optionsJob = {
         department: "Warehouse",
         options: [
             {
-                "code": "wah-m",
+                "slug": "wah-m",
                 "grade": "manager",
                 "label": "Manager",
+                number_employees: props.options.positions.data.find(position => position.slug == 'wah-m')?.number_employees ?? 0,
             }, {
-                "code": "wah-sk",
+                "slug": "wah-sk",
                 "grade": "clerk",
                 "label": "Stock Keeper",
+                number_employees: props.options.positions.data.find(position => position.slug == 'wah-sk')?.number_employees ?? 0,
             }, {
-                "code": "wah-sc",
+                "slug": "wah-sc",
                 "grade": "clerk",
                 "label": "Stock Controller",
+                number_employees: props.options.positions.data.find(position => position.slug == 'wah-sc')?.number_employees ?? 0,
             }
         ],
     },
@@ -145,17 +179,20 @@ const optionsJob: optionsJob = {
         department: "Dispatch",
         options: [
             {
-                "code": "dist-m",
+                "slug": "dist-m",
                 "grade": "manager",
                 "label": "Manager",
+                number_employees: props.options.positions.data.find(position => position.slug == 'dist-m')?.number_employees ?? 0,
             }, {
-                "code": "dist-pik",
+                "slug": "dist-pik",
                 "grade": "clerk",
                 "label": "Picker",
+                number_employees: props.options.positions.data.find(position => position.slug == 'dist-pik')?.number_employees ?? 0,
             }, {
-                "code": "dist-pak",
+                "slug": "dist-pak",
                 "grade": "clerk",
                 "label": "Packer",
+                number_employees: props.options.positions.data.find(position => position.slug == 'dist-pak')?.number_employees ?? 0,
             }
         ],
     },
@@ -165,13 +202,15 @@ const optionsJob: optionsJob = {
         department: "Production",
         options: [
             {
-                "code": "prod-m",
+                "slug": "prod-m",
                 "grade": "manager",
                 "label": "Manager",
+                number_employees: props.options.positions.data.find(position => position.slug == 'prod-m')?.number_employees ?? 0,
             }, {
-                "code": "prod-w",
+                "slug": "prod-w",
                 "grade": "clerk",
                 "label": "Worker",
+                number_employees: props.options.positions.data.find(position => position.slug == 'prod-w')?.number_employees ?? 0,
             }
         ],
     },
@@ -181,19 +220,21 @@ const optionsJob: optionsJob = {
         department: "Customer Service",
         options: [
             {
-                "code": "cus-m",
+                "slug": "cus-m",
                 "grade": "manager",
                 "label": "Manager",
+                number_employees: props.options.positions.data.find(position => position.slug == 'cus-m')?.number_employees ?? 0,
             }, {
-                "code": "cus-c",
+                "slug": "cus-c",
                 "grade": "clerk",
                 "label": "Worker",
+                number_employees: props.options.positions.data.find(position => position.slug == 'cus-c')?.number_employees ?? 0,
             }
         ],
     },
 }
 
-const availableShops = ['inikoo', 'Aiku', 'AW', 'AWA']
+// const availableShops = ['inikoo', 'Aiku', 'AW', 'AWA']
 
 // Temporary data
 const selectedBox: selectedJob = reactive({})
@@ -215,8 +256,8 @@ const selectedShop: {[key: string]: { value: string, selectedShops: string[]}} =
 // To preserved on first load (so the box is selected)
 for (const key in optionsJob) {
     for (const item of optionsJob[key].options) {
-        if ((props.form[props.fieldName].map((option: any) => option = option.code)).includes(item.code)) {
-            selectedBox[key] = item.code
+        if ((props.form[props.fieldName].map((option: any) => option = option.slug)).includes(item.slug)) {
+            selectedBox[key] = item.slug
         }
     }
 }
@@ -239,8 +280,14 @@ const handleClickBox = (jobGroupName: string, jobCode: any) => {
     props.form.errors[props.fieldName] = ''
 }
 
-// Method: check if 2 arrays is includes same values
-const isEqual = (a: string[], b: string[]) => JSON.stringify([...a].sort()) === JSON.stringify([...b].sort())
+// Method: check if array value is exist in array of object is includes same values
+const isEqual = (arrayString: string[], arrayObject: {slug: string}[]) => {
+    if(!arrayString.length) {
+        // arrayString == 0
+        return false
+    }
+    return arrayString.every(value => arrayObject.some(obj => obj.slug === value))
+}
 
 // On select shop
 const onSelectShop = (departmentName: string, shopName: string) => {
@@ -251,11 +298,18 @@ const onSelectShop = (departmentName: string, shopName: string) => {
         : selectedShop[departmentName].selectedShops.splice(index, 1)
 }
 
+// On click select all/unselect all
 const onSelectUnselectShops = (departmentName: string) => {
-    if(isEqual(selectedShop[departmentName].selectedShops, availableShops)){
+    if(isEqual(selectedShop[departmentName].selectedShops, props.options.shops.data)){
+        // if all shop is alreayd selected then make it empty
         selectedShop[departmentName].selectedShops = []
     } else {
-        selectedShop[departmentName].selectedShops = [...availableShops]
+        selectedShop[departmentName].selectedShops = []
+        props.options.shops.data.forEach(shop => {
+            // console.log('foreach', shop)
+            selectedShop[departmentName].selectedShops.push(shop.slug)
+        })
+        // selectedShop[departmentName].selectedShops = [...props.options.shops.data]
     }
 }
 
@@ -270,10 +324,10 @@ watchEffect(() => {
 
 <template>
     <div class="relative">
-    <!-- <pre>dd {{ selectedShop }} aa</pre> -->
+    <pre>dd {{ options.organisations }} aa</pre>
     <!-- <pre>{{ selectedBox }}</pre> -->
         <div class="flex flex-col text-xs divide-y-[1px]">
-            <div v-for="(jobGroup, keyJob) in optionsJob" class="grid grid-cols-3 gap-x-1.5 px-2 items-center">
+            <div v-for="(jobGroup, keyJob) in optionsJob" class="grid grid-cols-3 gap-x-1.5 px-2 items-center even:bg-gray-50">
                 <!-- Section: Department -->
                 <div class="flex items-center capitalize gap-x-1.5">
                     <FontAwesomeIcon v-if="jobGroup.icon" :icon="jobGroup.icon" class='text-gray-400' aria-hidden='true' />
@@ -309,7 +363,7 @@ watchEffect(() => {
                                                 class="inline-flex min-w-fit w-32 max-w-full whitespace-nowrap justify-between items-center gap-x-2 rounded px-2.5 py-1 text-xs font-medium"
                                                 :class="[ selectedShop[jobGroup.department].value == 'selectShop' ? selectedShop[jobGroup.department].selectedShops.length ? 'bg-indigo-500 text-white hover:bg-indigo-600' : 'bg-slate-100 hover:bg-slate-200 text-slate-600 ring-1 ring-slate-300' : 'bg-slate-100 text-slate-400 ring-1 ring-slate-300']"
                                             >
-                                                <span class="">{{ selectedShop[jobGroup.department].selectedShops.length ? selectedShop[jobGroup.department].selectedShops.length === 1 ? selectedShop[jobGroup.department].selectedShops[0] : `${selectedShop[jobGroup.department].selectedShops[0]} and +${selectedShop[jobGroup.department].selectedShops.length-1}` : 'Select shops' }}</span>
+                                                <span class="">{{ selectedShop[jobGroup.department].selectedShops.length ? selectedShop[jobGroup.department].selectedShops.length === 1 ? options.shops.data.filter(shop => selectedShop[jobGroup.department].selectedShops.includes(shop.slug))[0].name : `${options.shops.data.filter(shop => selectedShop[jobGroup.department].selectedShops.includes(shop.slug))[0].name} and +${selectedShop[jobGroup.department].selectedShops.length-1}` : 'Select shops' }}</span>
                                                 <FontAwesomeIcon icon='far fa-chevron-down' class='text-xs' aria-hidden='true' />
                                             </MenuButton>
                                             <transition>
@@ -320,16 +374,16 @@ watchEffect(() => {
                                                             'hover:bg-gray-100 text-slate-700 group flex gap-x-1 w-full items-center rounded px-2 py-2 text-sm',
                                                         ]">
                                                             <FontAwesomeIcon icon='fal fa-check-double' class='text-xs' aria-hidden='true' />
-                                                            {{ isEqual(selectedShop[jobGroup.department].selectedShops, availableShops) ? 'Unselect all shops' : 'Select all shops' }}
+                                                            {{ isEqual(selectedShop[jobGroup.department].selectedShops, options.shops.data) ? 'Unselect all shops' : 'Select all shops' }}
                                                         </button>
                                                     </MenuItem>
 
-                                                    <MenuItem v-for="(item, itemKey) in availableShops" v-slot="{ active }">
-                                                        <button @click.prevent="onSelectShop(jobGroup.department, item)" :class="[
-                                                            selectedShop[jobGroup.department].selectedShops.includes(item) ? 'bg-indigo-500 text-white' : active ? 'bg-indigo-200 text-indigo-600' : 'text-slate-700',
+                                                    <MenuItem v-for="(shop, shopIndex) in options.shops.data" v-slot="{ active }">
+                                                        <button @click.prevent="onSelectShop(jobGroup.department, shop.slug)" :class="[
+                                                            selectedShop[jobGroup.department].selectedShops.includes(shop.slug) ? 'bg-indigo-500 text-white' : active ? 'bg-indigo-200 text-indigo-600' : 'text-slate-700',
                                                             'group flex w-full items-center rounded px-2 py-2 text-sm',
                                                         ]">
-                                                            {{ item }}
+                                                            {{ shop.name }}
                                                         </button>
                                                     </MenuItem>
                                                 </MenuItems>
@@ -341,25 +395,26 @@ watchEffect(() => {
                         </RadioGroup>
                     </div>
                     
-                    <div class="flex gap-x-2">
+                    <!-- Button: Radio position -->
+                    <div class="pl-2 flex gap-x-4">
                         <button v-for="job in jobGroup.options"
-                            @click.prevent="handleClickBox(keyJob, job.code)"
-                            class="group h-full cursor-pointer flex items-center justify-start even:pl-5 odd:justify-center rounded-md py-3 px-3 font-medium capitalize disabled:text-gray-400 disabled:cursor-not-allowed disabled:ring-0 disabled:active:active:ring-offset-0"
+                            @click.prevent="handleClickBox(keyJob, job.slug)"
+                            class="group h-full cursor-pointer flex items-center justify-start rounded-md py-3 px-3 font-medium capitalize disabled:text-gray-400 disabled:cursor-not-allowed disabled:ring-0 disabled:active:active:ring-offset-0"
                             :class="[
-                                selectedBox[keyJob] == job.code ? 'text-lime-500' : ' text-gray-600'
+                                selectedBox[keyJob] == job.slug ? 'text-lime-500' : ' text-gray-600'
                             ]"
-                            :disabled="selectedBox.admin && job.code != 'admin'? true : false"
+                            :disabled="selectedBox.admin && job.slug != 'admin'? true : false"
                         >
                             <span class="relative text-left">
                                 <div class="absolute -left-1 -translate-x-full top-1/2 -translate-y-1/2">
                                     <FontAwesomeIcon v-if="selectedBox[keyJob] == 'admin'" icon='fas fa-check-circle' fixed-width aria-hidden='true' />
-                                    <FontAwesomeIcon v-else-if="selectedBox[keyJob] == job.code && !selectedBox.admin" icon='fas fa-check-circle' fixed-width aria-hidden='true' />
+                                    <FontAwesomeIcon v-else-if="selectedBox[keyJob] == job.slug && !selectedBox.admin" icon='fas fa-check-circle' fixed-width aria-hidden='true' />
                                     <FontAwesomeIcon v-else icon='fal fa-circle' fixed-width aria-hidden='true' />
                                 </div>
-                                <span :class="[
+                                <span v-tooltip="job.number_employees + ' employees on this position'" :class="[
                                     selectedBox.admin && selectedBox[keyJob] != 'admin' ? 'text-gray-300' : ' text-gray-500 group-hover:text-gray-800'
                                 ]">
-                                    {{ job.label }}
+                                    {{ job.label }} ({{ job.number_employees }})
                                 </span>
                             </span>
                         </button>
