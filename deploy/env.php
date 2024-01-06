@@ -16,9 +16,9 @@ task('install:env', function () {
 
     $environment=currentHost()->get('environment');
     if($environment=='production') {
-        $dotenv = Dotenv::createImmutable(__DIR__, '.env.aiku.production.deploy');
+        $dotenv = Dotenv::createImmutable(__DIR__, '../.env.aiku.production.deploy');
     } else {
-        $dotenv = Dotenv::createImmutable(__DIR__, '.env.aiku.staging.deploy');
+        $dotenv = Dotenv::createImmutable(__DIR__, '../.env.aiku.staging.deploy');
     }
     $dotenv->load();
     set('remote_user', env('DEPLOY_REMOTE_USER'));

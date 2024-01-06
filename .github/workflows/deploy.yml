@@ -61,7 +61,7 @@ jobs:
         uses: newrelic/deployment-marker-action@v2.3.0
         with:
           apiKey: ${{ secrets.NEW_RELIC_API_KEY }}
-          guid: ${{ secrets.NEW_RELIC_DEPLOYMENT_ENTITY_GUID }}
+          guid: aiku
           version: ${{ steps.semver.outputs.next }}
           user: "${{ github.actor }}"
       - name: Create Sentry release
