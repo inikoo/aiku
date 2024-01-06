@@ -28,7 +28,7 @@ desc('Deploys your project');
 task('deploy', [
     'deploy:prepare',
     'deploy:vendors',
-//    'deploy:set-release',
+    'deploy:set-release',
     'artisan:storage:link',
     'artisan:config:cache',
     'artisan:route:cache',

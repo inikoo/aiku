@@ -22,4 +22,5 @@ task('install:env', function () {
     } else {
         set('remote_user', env('DEPLOY_REMOTE_DEVOPS_USER'));
     }
+    set('release_semver', env('RELEASE'));
 });

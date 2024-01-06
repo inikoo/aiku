@@ -1,0 +1,49 @@
+name: Deploy
+
+on:
+  push:
+    branches: [ "staging" ]
+
+concurrency: production_environment
+
+env:
+  HOME: /home/devops
+
+permissions:
+  contents: write
+
+jobs:
+  laravel-tests:
+    name: Deploy aiku staging 🚀
+    runs-on: [ self-hosted, linux, x64 ]
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Composer install
+        run: composer install --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+      - name: Get current date
+        id: date
+        run: echo "::set-output name=date::$(date +'%Y-%m-%d-%T')"
+      - name: Set release in .env
+        run: |
+          sed -i~ '/^RELEASE=/s/=.*/="${{ steps.date.outputs.date }}"/' ../../../../env.aiku.deploy
+      - name: Prepare environment
+        run: |
+          ln -s ../../../../env.aiku.deploy .env
+      - name: Launch 🚀
+        uses: deployphp/action@v1
+        with:
+          dep: deploy devops
+          skip-ssh-setup: true
+          ssh-config: ${{ secrets.DEPLOY_SSH_CONFIG }}
+      - name: Create Sentry release
+        uses: getsentry/action-release@v1
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+        with:
+          environment: staging
+          projects: ${{ secrets.SENTRY_PROJECTS }}
+          version: ${{ steps.date.outputs.date }}

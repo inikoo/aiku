@@ -1,0 +1,75 @@
+name: Deploy
+
+on:
+  push:
+    branches: [ "production" ]
+
+concurrency: production_environment
+
+env:
+  HOME: /home/devops
+
+permissions:
+  contents: write
+
+jobs:
+  laravel-tests:
+    name: Deploy aiku 🚀
+    runs-on: [ self-hosted, linux, x64 ]
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v35
+      - name: Composer install
+        run: composer install --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+      - name: Get Next Version
+        id: semver
+        uses: ietf-tools/semver-action@v1
+        with:
+          token: ${{ github.token }}
+          branch: production
+          noVersionBumpBehavior: current
+          patchList: fix, bugfix, perf, refactor, test, tests, clean, cleanup, pint, partial, review, update-deps, chores, review
+          patchAll: true
+      - name: Set release in .env
+        run: |
+          sed -i~ '/^RELEASE=/s/=.*/="${{ steps.semver.outputs.next }}"/' ../../../../env.aiku.deploy
+      - name: Prepare environment
+        run: |
+          ln -s ../../../../env.aiku.deploy .env
+      - name: Launch 🚀
+        uses: deployphp/action@v1
+        with:
+          dep: deploy
+          skip-ssh-setup: true
+          ssh-config: ${{ secrets.DEPLOY_SSH_CONFIG }}
+      - name: Create Release
+        uses: ncipollo/release-action@v1.12.0
+        with:
+          allowUpdates: true
+          draft: false
+          makeLatest: true
+          name: ${{ steps.semver.outputs.next }}
+          commit: 'production'
+          tag: ${{ steps.semver.outputs.next }}
+          token: ${{ github.token }}
+      - name: New Relic Application Deployment Marker
+        uses: newrelic/deployment-marker-action@v2.3.0
+        with:
+          apiKey: ${{ secrets.NEW_RELIC_API_KEY }}
+          guid: ${{ secrets.NEW_RELIC_DEPLOYMENT_ENTITY_GUID }}
+          version: ${{ steps.semver.outputs.next }}
+          user: "${{ github.actor }}"
+      - name: Create Sentry release
+        uses: getsentry/action-release@v1
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+        with:
+          environment: production
+          projects: ${{ secrets.SENTRY_PROJECTS }}
+          version: ${{ steps.semver.outputs.next }}
