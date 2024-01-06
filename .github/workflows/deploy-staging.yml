@@ -14,7 +14,7 @@ permissions:
 
 jobs:
   laravel-tests:
-    name: Deploy aiku staging 🚀
+    name: Deploy aiku staging 🎭
     runs-on: [ self-hosted, linux, x64 ]
     steps:
       - name: Checkout repo
@@ -28,10 +28,10 @@ jobs:
         run: echo "::set-output name=date::$(date +'%Y-%m-%d-%T')"
       - name: Set release in .env
         run: |
-          sed -i~ '/^RELEASE=/s/=.*/="${{ steps.date.outputs.date }}"/' ../../../../env.aiku.deploy
+          sed -i~ '/^RELEASE=/s/=.*/="${{ steps.date.outputs.date }}"/' ../../../../env.aiku.staging.deploy
       - name: Prepare environment
         run: |
-          ln -s ../../../../env.aiku.deploy .env
+          ln -s ../../../../env.aiku.staging.deploy .env.aiku.staging.deploy
       - name: Launch 🚀
         uses: deployphp/action@v1
         with:

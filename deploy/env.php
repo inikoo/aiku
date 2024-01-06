@@ -11,16 +11,16 @@ use Dotenv\Dotenv;
 
 require __DIR__ . '/../vendor/autoload.php';
 
-Dotenv::createImmutable(__DIR__ . '/../')->load();
-
 desc('Inject all necessary .env variables inside deployer config');
 task('install:env', function () {
 
     $environment=currentHost()->get('environment');
     if($environment=='production') {
-        set('remote_user', env('DEPLOY_REMOTE_USER'));
+        $dotenv = Dotenv::createImmutable(__DIR__, '.env.aiku.production.deploy');
     } else {
-        set('remote_user', env('DEPLOY_REMOTE_DEVOPS_USER'));
+        $dotenv = Dotenv::createImmutable(__DIR__, '.env.aiku.staging.deploy');
     }
+    $dotenv->load();
+    set('remote_user', env('DEPLOY_REMOTE_USER'));
     set('release_semver', env('RELEASE'));
 });
