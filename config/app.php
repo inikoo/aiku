@@ -205,7 +205,6 @@ return [
         App\Providers\MacroServiceProvider::class,
         ElasticSearchServiceProvider::class
 
-        //App\Providers\TelescopeServiceProvider::class,
     ],
 
     /*

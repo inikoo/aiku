@@ -41,20 +41,6 @@ return [
     'connections' => [
 
 
-        'central'  => [
-            'driver'         => 'pgsql',
-            'url'            => env('DATABASE_URL'),
-            'host'           => env('DB_HOST', '127.0.0.1'),
-            'port'           => env('DB_PORT', '5432'),
-            'database'       => env('DB_DATABASE', 'aiku'),
-            'username'       => env('DB_USERNAME', 'aiku'),
-            'password'       => env('DB_PASSWORD', ''),
-            'charset'        => 'utf8',
-            'prefix'         => '',
-            'prefix_indexes' => true,
-            'search_path'    => 'public',
-            'sslmode'        => 'prefer',
-        ],
 
         'aiku' => [
             'driver'         => 'pgsql',
@@ -105,23 +91,6 @@ return [
                 ? array_filter([
                                    PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
                                ]) : [],
-        ],
-
-        'for_backup'  => [
-            'driver'         => 'pgsql',
-            'url'            => env('DATABASE_URL'),
-            'host'           => env('DB_HOST', '127.0.0.1'),
-            'port'           => env('DB_PORT', '5432'),
-            'database'       => env('DB_DATABASE', 'backup_history'),
-            'username'       => env('DB_USERNAME', 'aiku'),
-            'password'       => env('DB_PASSWORD', ''),
-            'charset'        => 'utf8',
-            'prefix'         => '',
-            'prefix_indexes' => true,
-            'sslmode'        => 'prefer',
-            'dump'           => [
-                'add_extra_option' => '-Fc', // and any other pg_dump flags
-            ]
         ],
 
     ],
