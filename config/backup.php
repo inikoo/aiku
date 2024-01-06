@@ -86,7 +86,7 @@ return [
              * For a complete list of available customization options, see https://github.com/spatie/db-dumper
              */
             'databases' => [
-                'for_backup',
+                'aiku','backup'
             ],
         ],
 
