@@ -14,7 +14,7 @@ config:
 hosts:
   aiku:
     environment: 'production'
-    deploy_path: '~/'
+    deploy_path: '~/www'
     branch: production
   devops:
     environment: 'staging'
