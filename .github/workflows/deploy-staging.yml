@@ -35,7 +35,7 @@ jobs:
       - name: Launch 🚀
         uses: deployphp/action@v1
         with:
-          dep: deploy devops
+          dep: deploy staging
           skip-ssh-setup: true
           ssh-config: ${{ secrets.DEPLOY_SSH_CONFIG }}
       - name: Create Sentry release

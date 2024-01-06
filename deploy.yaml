@@ -9,16 +9,15 @@ config:
   application: 'aiku'
   host: 'aiku'
   repository: 'https://github.com/inikoo/aiku.git'
-  db_collate: 'C.UTF-8'
 
 hosts:
   aiku:
     environment: 'production'
     deploy_path: '~/www'
     branch: production
-  devops:
+  staging:
     environment: 'staging'
-    deploy_path: '~/aiku_staging'
+    deploy_path: '~/aiku'
     branch: staging
 tasks:
   build:
