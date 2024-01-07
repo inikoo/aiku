@@ -22,16 +22,8 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
             php-version: '8.2'
-      - name: Cache Composer dependencies
-        uses: actions/cache@v3
-        with:
-          path: /tmp/composer-cache
-          key: ${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
-      - name: Install dependencies
-        uses: php-actions/composer@v6
-        with:
-          dev: no
-          args: --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist --ignore-platform-reqs
+      - name: Composer install
+        run: composer install --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
       - name: Get current date
         id: date
         run: echo "date=$(date +'%Y-%m-%d-%T')" >> $GITHUB_OUTPUT
