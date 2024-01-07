@@ -30,7 +30,7 @@ jobs:
       - name: Install dependencies
         uses: php-actions/composer@v6
         with:
-          args: -no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+          args: --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
       - name: Get current date
         id: date
         run: echo "date=$(date +'%Y-%m-%d-%T')" >> $GITHUB_OUTPUT
