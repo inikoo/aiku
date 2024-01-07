@@ -41,6 +41,7 @@ jobs:
           dep: deploy aiku
           ssh-config: ${{ secrets.DEPLOY_SSH_CONFIG }}
           private-key: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
+          known-hosts: ${{ secrets.DEPLOYER_KNOWN_HOSTS }}
       - name: Create Release
         uses: ncipollo/release-action@v1.12.0
         with:

@@ -38,6 +38,7 @@ jobs:
           dep: deploy staging
           ssh-config: ${{ secrets.DEPLOY_SSH_CONFIG }}
           private-key: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
+          known-hosts: ${{ secrets.DEPLOYER_KNOWN_HOSTS }}
       - name: Create Sentry release
         uses: getsentry/action-release@v1
         env:
