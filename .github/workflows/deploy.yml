@@ -1,4 +1,4 @@
-name: Deploy
+name: Deploy Aiku
 
 on:
   push:
@@ -15,7 +15,7 @@ permissions:
 jobs:
   laravel-tests:
     name: Deploy aiku 🚀
-    runs-on: [ self-hosted, linux, x64 ]
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
@@ -33,18 +33,17 @@ jobs:
           noNewCommitBehavior: current
           patchList: fix, bugfix, perf, refactor, test, tests, clean, cleanup, pint, partial, review, update-deps, chores, review
           patchAll: true
-      - name: Set release in .env
+      - name: Set .env
         run: |
-          sed -i~ '/^RELEASE=/s/=.*/="${{ steps.semver.outputs.next }}"/' ../../../../env.aiku.production.deploy
-      - name: Prepare environment
-        run: |
-          ln -s ../../../../env.aiku.production.deploy .env.aiku.production.deploy
+          touch .env.aiku.production.deploy
+          echo RELEASE=${{ steps.semver.outputs.next }} >> .env.aiku.production.deploy
+          echo DEPLOY_REMOTE_USER=${{ secrets.PRODUCTION_DEPLOY_REMOTE_USER }} >> .env.aiku.production.deploy
       - name: Launch 🚀
         uses: deployphp/action@v1
         with:
           dep: deploy aiku
-          skip-ssh-setup: true
           ssh-config: ${{ secrets.DEPLOY_SSH_CONFIG }}
+          private-key: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
       - name: Create Release
         uses: ncipollo/release-action@v1.12.0
         with:
