@@ -30,7 +30,8 @@ jobs:
       - name: Install dependencies
         uses: php-actions/composer@v6
         with:
-          args: --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+          dev: no
+          args: --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist --ignore-platform-reqs
       - name: Get Next Version
         id: semver
         uses: ietf-tools/semver-action@v1
