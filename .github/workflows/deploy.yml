@@ -22,16 +22,18 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
-      - name: Cache Composer dependencies
-        uses: actions/cache@v3
+      - name: Get Composer Cache Directory
+        id: composer-cache
+        run: |
+          echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+      - uses: actions/cache@v3
         with:
-          path: /tmp/composer-cache
-          key: ${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
-      - name: Install dependencies
-        uses: php-actions/composer@v6
-        with:
-          dev: no
-          args: --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist --ignore-platform-reqs
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+      - name: Composer install
+        run: composer install --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
       - name: Get Next Version
         id: semver
         uses: ietf-tools/semver-action@v1

@@ -22,6 +22,16 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
             php-version: '8.2'
+      - name: Get Composer Cache Directory
+        id: composer-cache
+        run: |
+          echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+      - uses: actions/cache@v3
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
       - name: Composer install
         run: composer install --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
       - name: Get current date
