@@ -6,9 +6,6 @@ on:
 
 concurrency: production_environment
 
-env:
-  HOME: /home/devops
-
 permissions:
   contents: write
 
