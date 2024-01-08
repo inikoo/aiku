@@ -24,7 +24,7 @@ const locale = useLocaleStore()
         <ol v-if="nodes" role="list" class="divide-y divide-gray-300 rounded-md border border-gray-300 md:flex md:divide-y-0">
             <li v-for="(node, nodeIdx) in nodes" :key="node.name" class="relative flex flex-1 items-center">
                 <!-- Main Tree -->
-                <Link :href="route(node.href[0], node.href[1])" class="group flex-1 items-center">
+                <Link :href="route(node.href['name'], node.href['parameters'])" class="group flex-1 items-center">
                     <div class="flex items-center px-4 text-lg xl:px-6 py-4 font-medium gap-x-4">
                         <FontAwesomeIcon size="lg" :icon="node.icon" class="flex-shrink-0 text-gray-400" aria-hidden="true" />
                         <p class="md:leading-none md:text-sm lg:text-base inline capitalize font-medium text-gray-500 group-hover:text-gray-600">
@@ -44,7 +44,9 @@ const locale = useLocaleStore()
                 <!-- Sublink on right each section (Marketplace) -->
                 <div v-if="node.rightSubLink" class="pr-4 " :title="capitalize(node.rightSubLink.tooltip)">
                     <!-- {{ importIcon(node.rightSubLink.icon) }} -->
-                    <Link :href="route(node.rightSubLink.href[0])"
+                    <Link :href="route(
+                        node.rightSubLink.href['name'],
+                        node.rightSubLink.href['parameters'])"
                           class="w-9 h-9 flex flex-0 justify-center items-center border-2 text-gray-500 rounded-md cursor-pointer hover:text-white"
                           :class="useLayoutStore().appName === 'org' ? 'hover:bg-org-500 border-org-500' : 'hover:bg-gray-500 border-gray-500'"
                     >

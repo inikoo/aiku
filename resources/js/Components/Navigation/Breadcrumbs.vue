@@ -11,7 +11,7 @@ import { Menu, MenuButton, MenuItems, MenuItem } from "@headlessui/vue"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faChevronRight } from '@far'
-import { faBars } from '@far'
+import { faBars } from '@fal'
 import { faSparkles, faArrowFromLeft, faArrowLeft, faArrowRight } from '@fas'
 import { capitalize } from "@/Composables/capitalize"
 

@@ -19,6 +19,14 @@ Route::prefix("shops")
     ->name("shops.")
     ->group(__DIR__."/shops/shops.php");
 
+Route::prefix("inventory")
+    ->name("inventory.")
+    ->group(__DIR__."/inventory.php");
+
+Route::prefix("warehouses")
+    ->name("warehouses.")
+    ->group(__DIR__."/warehouses/warehouses.php");
+
 Route::prefix("models")
     ->name("models.")
     ->group(__DIR__."/models.php");

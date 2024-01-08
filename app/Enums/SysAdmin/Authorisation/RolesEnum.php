@@ -81,7 +81,7 @@ enum RolesEnum: string
                 OrganisationPermissionsEnum::HUMAN_RESOURCES,
                 OrganisationPermissionsEnum::SUPERVISOR_HUMAN_RESOURCES,
                 OrganisationPermissionsEnum::SHOPS,
-                OrganisationPermissionsEnum::WAREHOUSES,
+                OrganisationPermissionsEnum::INVENTORIES,
             ],
             RolesEnum::PROCUREMENT_CLERK => [
                 OrganisationPermissionsEnum::PROCUREMENT

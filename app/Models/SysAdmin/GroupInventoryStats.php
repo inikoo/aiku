@@ -18,6 +18,14 @@ use Illuminate\Support\Carbon;
  *
  * @property int $id
  * @property int $group_id
+ * @property int $number_warehouses
+ * @property int $number_warehouse_areas
+ * @property int $number_locations
+ * @property int $number_locations_state_operational
+ * @property int $number_locations_state_broken
+ * @property int $number_empty_locations
+ * @property int $number_locations_no_stock_slots
+ * @property string $stock_value
  * @property int $number_stock_families
  * @property int $number_stock_families_state_in_process
  * @property int $number_stock_families_state_active
@@ -34,14 +42,6 @@ use Illuminate\Support\Carbon;
  * @property int $number_stocks_quantity_status_critical
  * @property int $number_stocks_quantity_status_out_of_stock
  * @property int $number_stocks_quantity_status_error
- * @property int $number_warehouses
- * @property int $number_warehouse_areas
- * @property int $number_locations
- * @property int $number_locations_state_operational
- * @property int $number_locations_state_broken
- * @property int $number_empty_locations
- * @property int $number_locations_no_stock_slots
- * @property string $stock_value
  * @property int $number_deliveries
  * @property int $number_deliveries_type_order
  * @property int $number_deliveries_type_replacement

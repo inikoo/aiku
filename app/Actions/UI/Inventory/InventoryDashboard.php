@@ -7,6 +7,7 @@
 
 namespace App\Actions\UI\Inventory;
 
+use App\Actions\InertiaOrganisationAction;
 use App\Actions\UI\Dashboard\ShowDashboard;
 use App\Actions\UI\WithInertia;
 use App\Models\SysAdmin\Organisation;
@@ -23,45 +24,63 @@ class InventoryDashboard extends InertiaOrganisationAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("inventory.view");
+        return $request->user()->hasPermissionTo("inventories.{$this->organisation->slug}.view");
     }
 
 
-    public function asController(ActionRequest $request): void
+    public function asController(Organisation $organisation, ActionRequest $request): ActionRequest
     {
-        $this->user   = $request->user();
-        $this->tenant = app('currentTenant');
+        $this->initialisation($organisation, $request);
+
+        return $request;
     }
 
 
-    public function htmlResponse(): Response
+    public function htmlResponse(ActionRequest $request): Response
     {
-        $this->validateAttributes();
+        $routeParameters = $request->route()->originalParameters();
 
-
-        if ($this->tenant->inventoryStats->number_warehouses == 1) {
+        if ($this->organisation->inventoryStats->number_warehouses == 1) {
             $warehouse          = Warehouse::first();
             $warehousesNode     = [
                 'name' => __('warehouse'),
                 'icon' => ['fal', 'fa-warehouse'],
-                'href' => ['inventory.warehouses.show', $warehouse->slug],
+                'href' => [
+                    'name'       => 'grp.org.inventory.warehouses.show',
+                    'parameters' => [
+                        'organisation' => $this->organisation->slug,
+                        'warehouse'    => $warehouse->slug
+                    ]
+                ],
 
             ];
             $warehouseAreasNode = [
                 'name'      => __('warehouses areas'),
                 'shortName' => __('areas'),
                 'icon'      => ['fal', 'fa-map-signs'],
-                'href'      => ['inventory.warehouses.show.warehouse-areas.index', $warehouse->slug],
+                'href'      => [
+                    'name'       => 'grp.org.inventory.warehouses.show.warehouse-areas.index',
+                    'parameters' => [
+                        'organisation' => $this->organisation->slug,
+                        'warehouse'    => $warehouse->slug
+                    ]
+                ],
                 'index'     => [
-                    'number' => $this->tenant->inventoryStats->number_warehouse_areas
+                    'number' => $this->organisation->inventoryStats->number_warehouse_areas
                 ]
             ];
             $locationsNode      = [
                 'name'  => __('locations'),
                 'icon'  => ['fal', 'fa-inventory'],
-                'href'  => ['inventory.warehouses.show.locations.index', $warehouse->slug],
+                'href'  => [
+                    'name'       => 'grp.org.inventory.warehouses.show.locations.index',
+                    'parameters' => [
+                        'organisation' => $this->organisation->slug,
+                        'warehouse'    => $warehouse->slug
+                    ]
+                ],
                 'index' => [
-                    'number' => $this->tenant->inventoryStats->number_locations
+                    'number' => $this->organisation->inventoryStats->number_locations
                 ]
 
             ];
@@ -69,26 +88,35 @@ class InventoryDashboard extends InertiaOrganisationAction
             $warehousesNode     = [
                 'name'  => __('warehouses'),
                 'icon'  => ['fal', 'fa-warehouse'],
-                'href'  => ['inventory.warehouses.index'],
+                'href'  => [
+                    'name'       => 'grp.org.inventory.warehouses.index',
+                    'parameters' => $routeParameters
+                ],
                 'index' => [
-                    'number' => $this->tenant->inventoryStats->number_warehouses
+                    'number' => $this->organisation->inventoryStats->number_warehouses
                 ]
             ];
             $warehouseAreasNode = [
                 'name'      => __('warehouses areas'),
                 'shortName' => __('areas'),
                 'icon'      => ['fal', 'fa-map-signs'],
-                'href'      => ['inventory.warehouse-areas.index'],
+                'href'      => [
+                    'name'       => 'grp.org.inventory.warehouse-areas.index',
+                    'parameters' => $routeParameters
+                ],
                 'index'     => [
-                    'number' => $this->tenant->inventoryStats->number_warehouse_areas
+                    'number' => $this->organisation->inventoryStats->number_warehouse_areas
                 ]
             ];
             $locationsNode      = [
                 'name'  => __('locations'),
                 'icon'  => ['fal', 'fa-inventory'],
-                'href'  => ['inventory.locations.index'],
+                'href'  => [
+                    'name'       => 'grp.org.inventory.locations.index',
+                    'parameters' => $routeParameters
+                ],
                 'index' => [
-                    'number' => $this->tenant->inventoryStats->number_locations
+                    'number' => $this->organisation->inventoryStats->number_locations
                 ]
 
             ];
@@ -98,7 +126,7 @@ class InventoryDashboard extends InertiaOrganisationAction
         return Inertia::render(
             'Inventory/InventoryDashboard',
             [
-                'breadcrumbs'  => $this->getBreadcrumbs(),
+                'breadcrumbs'  => $this->getBreadcrumbs($request->route()->originalParameters()),
                 'title'        => __('inventory'),
                 'pageHead'     => [
                     'title' => __('inventory'),
@@ -113,18 +141,24 @@ class InventoryDashboard extends InertiaOrganisationAction
                         [
                             'name'  => __('SKUs families'),
                             'icon'  => ['fal', 'fa-boxes-alt'],
-                            'href'  => ['inventory.stock-families.index'],
+                            'href'  => [
+                                'name'       => 'grp.org.inventory.stock-families.index',
+                                'parameters' => $routeParameters
+                            ],
                             'index' => [
-                                'number' => $this->tenant->inventoryStats->number_stock_families
+                                'number' => $this->organisation->inventoryStats->number_stock_families
                             ]
 
                         ],
                         [
                             'name'  => 'SKUs',
                             'icon'  => ['fal', 'fa-box'],
-                            'href'  => ['inventory.stocks.index'],
+                            'href'  => [
+                                'name'       => 'grp.org.inventory.stocks.index',
+                                'parameters' => $routeParameters
+                            ],
                             'index' => [
-                                'number' => $this->tenant->inventoryStats->number_stocks
+                                'number' => $this->organisation->inventoryStats->number_stocks
                             ]
 
                         ]
@@ -136,7 +170,7 @@ class InventoryDashboard extends InertiaOrganisationAction
     }
 
 
-    public function getBreadcrumbs(): array
+    public function getBreadcrumbs(array $routeParameters): array
     {
         return
             array_merge(
@@ -146,7 +180,8 @@ class InventoryDashboard extends InertiaOrganisationAction
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name' => 'inventory.dashboard'
+                                'name'       => 'grp.org.inventory.dashboard',
+                                'parameters' => $routeParameters
                             ],
                             'label' => __('inventory'),
                         ]

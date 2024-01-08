@@ -7,10 +7,12 @@
 
 namespace App\Actions\Inventory\Warehouse\UI;
 
-use App\Actions\InertiaAction;
+use App\Actions\InertiaOrganisationAction;
 use App\Actions\UI\Inventory\InventoryDashboard;
 use App\Http\Resources\Inventory\WarehouseResource;
 use App\Models\Inventory\Warehouse;
+use App\Models\SysAdmin\Group;
+use App\Models\SysAdmin\Organisation;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -21,25 +23,20 @@ use App\InertiaTable\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
-/**
- * @property array $breadcrumbs
- * @property string $title
- */
-class IndexWarehouses extends InertiaAction
+class IndexWarehouses extends InertiaOrganisationAction
 {
+    private Organisation $parent;
+
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo('inventory.warehouses.edit');
-        return
-            (
-                $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo('inventory.view')
-            );
+        $this->canEdit = $request->user()->hasPermissionTo('shops');
+        return $request->user()->hasPermissionTo("shops.{$this->organisation->slug}.edit");
     }
 
-    public function asController(ActionRequest $request): LengthAwarePaginator
+    public function asController(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisation($request);
+        $this->parent = $organisation;
+        $this->initialisation($organisation, $request);
         return $this->handle();
     }
 
@@ -58,14 +55,13 @@ class IndexWarehouses extends InertiaAction
         }
 
         $queryBuilder = QueryBuilder::for(Warehouse::class);
-        foreach ($this->elementGroups as $key => $elementGroup) {
-            $queryBuilder->whereElementGroup(
-                prefix: $prefix,
-                key: $key,
-                allowedElements: array_keys($elementGroup['elements']),
-                engine: $elementGroup['engine']
-            );
+
+        if(class_basename($this->parent) == 'Organisation') {
+            $queryBuilder->where('organisation_id', $this->parent->id);
+        } else {
+            $queryBuilder->where('group_id', $this->parent->id);
         }
+
 
         return $queryBuilder
             ->defaultSort('warehouses.code')
@@ -84,7 +80,7 @@ class IndexWarehouses extends InertiaAction
             ->withQueryString();
     }
 
-    public function tableStructure($parent, $prefix = null): Closure
+    public function tableStructure(Organisation|Group $parent, $prefix = null): Closure
     {
         return function (InertiaTable $table) use ($parent, $prefix) {
             if ($prefix) {
@@ -98,7 +94,7 @@ class IndexWarehouses extends InertiaAction
                     [
                         'title'       => __('no warehouses'),
                         'description' => $this->canEdit ? __('Get started by creating a new warehouse.') : null,
-                        'count'       => app('currentTenant')->inventoryStats->number_warehouses,
+                        'count'       => $parent->inventoryStats->number_warehouses,
                         'action'      => $this->canEdit ? [
                             'type'    => 'button',
                             'style'   => 'create',
@@ -106,7 +102,7 @@ class IndexWarehouses extends InertiaAction
                             'label'   => __('warehouse'),
                             'route'   => [
                                 'name'       => 'grp.inventory.warehouses.create',
-                                'parameters' => array_values($this->originalParameters)
+                                'parameters' => $parent->slug
                             ]
                         ] : null
                     ]
@@ -129,11 +125,11 @@ class IndexWarehouses extends InertiaAction
     public function htmlResponse(LengthAwarePaginator $warehouses, ActionRequest $request): Response
     {
 
-        $parent = $request->route()->parameters() == [] ? app('currentTenant') : last($request->route()->parameters());
+
         return Inertia::render(
             'Inventory/Warehouses',
             [
-                'breadcrumbs' => $this->getBreadcrumbs(),
+                'breadcrumbs' => $this->getBreadcrumbs($request->route()->originalParameters()),
                 'title'       => __('warehouses'),
                 'pageHead'    => [
                     'title'   => __('warehouses'),
@@ -142,33 +138,36 @@ class IndexWarehouses extends InertiaAction
                         'icon'  => 'fal fa-warehouse'
                     ],
                     'actions'=> [
-                        $this->canEdit && $this->routeName == 'grp.inventory.warehouses.index' ? [
+                        $this->canEdit && $request->route()->routeName == 'grp.inventory.warehouses.index' ? [
                             'type'    => 'button',
                             'style'   => 'create',
                             'tooltip' => __('new warehouse'),
                             'label'   => __('warehouse'),
                             'route'   => [
                                 'name'       => 'grp.inventory.warehouses.create',
-                                'parameters' => array_values($this->originalParameters)
+                                'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ] : false,
                     ]
                 ],
                 'data' => WarehouseResource::collection($warehouses),
             ]
-        )->table($this->tableStructure($parent));
+        )->table($this->tableStructure($this->parent));
     }
 
-    public function getBreadcrumbs($suffix = null): array
+    public function getBreadcrumbs(array $routeParameters, $suffix = null): array
     {
+
+
         return array_merge(
-            (new InventoryDashboard())->getBreadcrumbs(),
+            (new InventoryDashboard())->getBreadcrumbs($routeParameters),
             [
                 [
                     'type'   => 'simple',
                     'simple' => [
                         'route' => [
-                            'name' => 'grp.inventory.warehouses.index'
+                            'name'       => 'grp.org.inventory.warehouses.index',
+                            'parameters' => $routeParameters
                         ],
                         'label' => __('warehouses'),
                         'icon'  => 'fal fa-bars',

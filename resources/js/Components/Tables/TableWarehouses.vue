@@ -16,16 +16,30 @@ const props = defineProps<{
 
 function warehouseRoute(warehouse: Warehouse) {
     switch (route().current()) {
-
-        case 'grp.oms.warehouses.index':
+        case 'grp.org.inventory.warehouses.index':
             return route(
-                'grp.oms.warehouses.show',
-                [warehouse.slug, warehouse.slug]);
+                'grp.org.inventory.warehouses.show',
+                [route().params['organisation'], warehouse.slug]);
     }
-
 }
 
+function warehouseAreasRoute(warehouse: Warehouse) {
+    switch (route().current()) {
+        case 'grp.org.inventory.warehouses.index':
+            return route(
+                'grp.org.inventory.warehouses.show.warehouse-areas.index',
+                [route().params['organisation'], warehouse.slug]);
+    }
+}
 
+function locationsRoute(warehouse: Warehouse) {
+    switch (route().current()) {
+        case 'grp.org.inventory.warehouses.index':
+            return route(
+                'grp.org.inventory.warehouses.show.locations.index',
+                [route().params['organisation'], warehouse.slug]);
+    }
+}
 
 </script>
 
@@ -33,13 +47,18 @@ function warehouseRoute(warehouse: Warehouse) {
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(code)="{ item: warehouse }">
-            <Link :href="warehouseRoute(warehouse)">
+            <Link :href="warehouseRoute(warehouse)" class="specialUnderline">
                 {{ warehouse['code'] }}
             </Link>
         </template>
         <template #cell(number_warehouse_areas)="{ item: warehouse }">
-            <Link :href="route('grp.inventory.warehouses.show.warehouse-areas.index',warehouse['slug'])">
+            <Link :href="warehouseAreasRoute(warehouse)" class="specialUnderline">
                 {{ warehouse['number_warehouse_areas'] }}
+            </Link>
+        </template>
+        <template #cell(number_locations)="{ item: warehouse }">
+            <Link :href="locationsRoute(warehouse)" class="specialUnderline">
+                {{ warehouse['number_locations'] }}
             </Link>
         </template>
     </Table>

@@ -7,6 +7,9 @@
 
 namespace App\Stubs\Migrations;
 
+use App\Enums\Inventory\Stock\StockQuantityStatusEnum;
+use App\Enums\Inventory\Stock\StockStateEnum;
+use App\Enums\Inventory\StockFamily\StockFamilyStateEnum;
 use Illuminate\Database\Schema\Blueprint;
 
 trait HasInventoryStats
@@ -18,6 +21,22 @@ trait HasInventoryStats
         $table->unsignedSmallInteger('number_warehouses')->default(0);
         $table->unsignedSmallInteger('number_warehouse_areas')->default(0);
         $table = $this->locationsStats($table);
+
+        $table->unsignedInteger('number_stock_families')->default(0);
+
+        foreach (StockFamilyStateEnum::cases() as $stockFamilyState) {
+            $table->unsignedInteger('number_stock_families_state_'.$stockFamilyState->snake())->default(0);
+        }
+
+        $table->unsignedInteger('number_stocks')->default(0);
+        foreach (StockStateEnum::cases() as $stockState) {
+            $table->unsignedInteger('number_stocks_state_'.$stockState->snake())->default(0);
+        }
+        foreach (StockQuantityStatusEnum::cases() as $stockQuantityStatus) {
+            $table->unsignedInteger('number_stocks_quantity_status_'.$stockQuantityStatus->snake())->default(0);
+        }
+
+
 
         $table->unsignedInteger('number_deliveries')->default(0);
         $table->unsignedInteger('number_deliveries_type_order')->default(0);

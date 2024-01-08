@@ -37,7 +37,6 @@ class IndexShops extends InertiaOrganisationAction
     public function authorize(ActionRequest $request): bool
     {
         $this->canEdit = $request->user()->hasPermissionTo('shops');
-
         return $request->user()->hasPermissionTo("shops.{$this->organisation->slug}.edit");
     }
 
@@ -105,7 +104,7 @@ class IndexShops extends InertiaOrganisationAction
                                 'label'   => __('shop'),
                                 'route'   => [
                                     'name'       => 'grp.org.shops.create',
-                                    'parameters' => $parent->id
+                                    'parameters' => $parent->slug
                                 ]
                             ] : null
                         ] : null

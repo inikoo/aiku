@@ -28,6 +28,10 @@ enum OrganisationPermissionsEnum: string
     case PROCUREMENT_VIEW = 'procurement.view';
 
 
+    case INVENTORIES      = 'inventories';
+    case INVENTORIES_EDIT = 'inventories.edit';
+    case INVENTORIES_VIEW = 'inventories.view';
+
 
     case SHOPS      = 'shops';
     case SHOPS_EDIT = 'shops.edit';
@@ -40,7 +44,7 @@ enum OrganisationPermissionsEnum: string
     case SUPERVISOR_HUMAN_RESOURCES = 'supervisor-human-resources';
     case SUPERVISOR_ACCOUNTING      = 'supervisor-accounting';
     case SUPERVISOR_PROCUREMENT     = 'supervisor-procurement';
-    //   case SUPERVISOR_INVENTORY       = 'supervisor-inventory';
+    //   case SUPERVISOR_INVENTORIES       = 'supervisor-inventories';
 
 
     public static function getAllValues(Organisation $organisation): array
