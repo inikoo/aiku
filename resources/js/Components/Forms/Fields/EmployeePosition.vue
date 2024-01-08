@@ -3,10 +3,11 @@ import { watchEffect, reactive, ref } from 'vue'
 import { RadioGroup, RadioGroupLabel, RadioGroupOption } from '@headlessui/vue'
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/vue"
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faCircle, faCrown, faBars, faAbacus, faCommentsDollar, faCheckDouble, faQuestionCircle } from '@fal'
+import { faCircle, faCrown, faBars, faAbacus, faCommentsDollar, faCheckDouble, faQuestionCircle, faTimes } from '@fal'
 import { faExclamationCircle ,faCheckCircle } from '@fas'
 import { library } from '@fortawesome/fontawesome-svg-core'
-library.add(faCircle, faCrown, faBars, faAbacus, faCommentsDollar, faCheckDouble, faQuestionCircle, faExclamationCircle, faCheckCircle)
+import { options } from 'floating-vue'
+library.add(faCircle, faCrown, faBars, faAbacus, faCommentsDollar, faCheckDouble, faQuestionCircle, faTimes, faExclamationCircle, faCheckCircle)
 
 const props = defineProps<{
     form?: any
@@ -44,32 +45,83 @@ interface optionsJob {
     [key: string]: {
         department: string
         icon?: string
-        options: {
+        subDepartment: {
             slug: string
             label: string
             grade?: string
             number_employees: number
         }[]
+        options?: {}
+        value: any
     }
 }
 
-const optionsJob: optionsJob = {
+const dummyShops = [
+    {
+        "id": 4,
+        "slug": "au",
+        "code": "au",
+        "name": "Au b2b shop",
+        "type": "b2b"
+    },
+    {
+        "id": 5,
+        "slug": "af",
+        "code": "af",
+        "name": "AFF Dom Shop",
+        "type": "b2b"
+    },
+    {
+        "id": 6,
+        "slug": "po",
+        "code": "po",
+        "name": "PRO Only 55 AP SHOP",
+        "type": "b2b"
+    }
+]
+
+const dummyWarehouses = [
+    {
+        "id": 4,
+        "slug": "wl",
+        "code": "wl",
+        "name": "Warehouse Lembeng Bali",
+        "type": "b2b"
+    },
+    {
+        "id": 5,
+        "slug": "wd",
+        "code": "wd",
+        "name": "Warehouse Dom Shop",
+        "type": "b2b"
+    },
+    {
+        "id": 6,
+        "slug": "wu",
+        "code": "wu",
+        "name": "WH UK Semantic",
+        "type": "b2b"
+    }
+]
+
+const optionsJob: optionsJob = reactive({
     admin: {
         department: "admin",
         icon: 'fal fa-crown',
-        options: [
+        subDepartment: [
             {
                 "slug": "admin",
                 "label": "Administrator",
                 number_employees: props.options.positions.data.find(position => position.slug == 'admin')?.number_employees ?? 0,
             }
         ],
+        value: null
     },
 
     hr: {
         icon: "fal fa-user-hard-hat",
         department: "Human Resources",
-        options: [
+        subDepartment: [
             {
                 "slug": "hr-m",
                 "grade": "manager",
@@ -82,12 +134,13 @@ const optionsJob: optionsJob = {
                 number_employees: props.options.positions.data.find(position => position.slug == 'hr-c')?.number_employees ?? 0,
             }
         ],
+        value: null
     },
 
     acc: {
         icon: "fal fa-abacus",
         department: "Accounting",
-        options: [
+        subDepartment: [
             {
                 "slug": "acc-m",
                 "grade": "manager",
@@ -100,12 +153,13 @@ const optionsJob: optionsJob = {
                 number_employees: props.options.positions.data.find(position => position.slug == 'acc-c')?.number_employees ?? 0,
             }
         ],
+        value: null
     },
 
     mrk: {
         icon: "fal fa-comments-dollar",
         department: "Marketing",
-        options: [
+        subDepartment: [
             {
                 "slug": "mrk-m",
                 "grade": "manager",
@@ -118,12 +172,14 @@ const optionsJob: optionsJob = {
                 number_employees: props.options.positions.data.find(position => position.slug == 'mrk-c')?.number_employees ?? 0,
             }
         ],
+        options: dummyShops,
+        value: null
     },
 
     web: {
         icon: 'fal fa-globe',
         department: "Webmaster",
-        options: [
+        subDepartment: [
             {
                 "slug": "web-m",
                 "grade": "manager",
@@ -136,12 +192,13 @@ const optionsJob: optionsJob = {
                 number_employees: props.options.positions.data.find(position => position.slug == 'web-c')?.number_employees ?? 0,
             }
         ],
+        options: dummyShops,
+        value: null
     },
 
     buy: {
-        // icon: "fal fa-user ",
         department: "Buyer",
-        options: [
+        subDepartment: [
             {
                 "slug": "buy",
                 "grade": "buyer",
@@ -149,12 +206,12 @@ const optionsJob: optionsJob = {
                 number_employees: props.options.positions.data.find(position => position.slug == 'buy')?.number_employees ?? 0,
             }
         ],
+        value: null
     },
 
     wah: {
-        // icon: "fal fa-user ",
         department: "Warehouse",
-        options: [
+        subDepartment: [
             {
                 "slug": "wah-m",
                 "grade": "manager",
@@ -172,12 +229,13 @@ const optionsJob: optionsJob = {
                 number_employees: props.options.positions.data.find(position => position.slug == 'wah-sc')?.number_employees ?? 0,
             }
         ],
+        options: dummyWarehouses,
+        value: null
     },
 
     dist: {
-        // icon: "fal fa-user ",
         department: "Dispatch",
-        options: [
+        subDepartment: [
             {
                 "slug": "dist-m",
                 "grade": "manager",
@@ -195,12 +253,13 @@ const optionsJob: optionsJob = {
                 number_employees: props.options.positions.data.find(position => position.slug == 'dist-pak')?.number_employees ?? 0,
             }
         ],
+        options: dummyWarehouses,
+        value: null
     },
 
     prod: {
-        // icon: "fal fa-user ",
         department: "Production",
-        options: [
+        subDepartment: [
             {
                 "slug": "prod-m",
                 "grade": "manager",
@@ -213,12 +272,12 @@ const optionsJob: optionsJob = {
                 number_employees: props.options.positions.data.find(position => position.slug == 'prod-w')?.number_employees ?? 0,
             }
         ],
+        value: null
     },
 
     cus: {
-        // icon: "fal fa-user ",
         department: "Customer Service",
-        options: [
+        subDepartment: [
             {
                 "slug": "cus-m",
                 "grade": "manager",
@@ -231,12 +290,13 @@ const optionsJob: optionsJob = {
                 number_employees: props.options.positions.data.find(position => position.slug == 'cus-c')?.number_employees ?? 0,
             }
         ],
+        options: dummyShops,
+        value: null
     },
-}
-
-// const availableShops = ['inikoo', 'Aiku', 'AW', 'AWA']
+})
 
 // Temporary data
+const openFinetune = ref('')
 const selectedBox: selectedJob = reactive({})
 const selectedShop: {[key: string]: { value: string, selectedShops: string[]}} = reactive({
     Webmaster: {
@@ -255,7 +315,7 @@ const selectedShop: {[key: string]: { value: string, selectedShops: string[]}} =
 
 // To preserved on first load (so the box is selected)
 for (const key in optionsJob) {
-    for (const item of optionsJob[key].options) {
+    for (const item of optionsJob[key].subDepartment) {
         if ((props.form[props.fieldName].map((option: any) => option = option.slug)).includes(item.slug)) {
             selectedBox[key] = item.slug
         }
@@ -263,7 +323,34 @@ for (const key in optionsJob) {
 }
 
 // When the box is clicked
-const handleClickBox = (jobGroupName: string, jobCode: any) => {
+const handleClickSubDepartment = (department: string, subDepartmentSlug: any) => {
+    if(department == 'admin'){  // If the box clicked is 'admin'
+        optionsJob[department].value = optionsJob[department].value == subDepartmentSlug ? "" : subDepartmentSlug
+    } else { // If the box clicked is not 'admin'
+        if(optionsJob[department].options){  // If have options shops/warehouses
+            console.log('eeee', optionsJob[department].value)
+            if(optionsJob[department].value && Object.values(optionsJob[department].value ?? {}).every(value => value === subDepartmentSlug)){
+                // console.log('www')
+                optionsJob[department].value = null
+            } else {
+                // console.log('qqq')
+                optionsJob[department].value = dummyShops.reduce((accumulator, shop) => {
+                    accumulator[shop.slug] = subDepartmentSlug
+                    return accumulator
+                }, {})
+            }
+        } else {
+            console.log('eeeeeeee')
+            optionsJob[department].value = optionsJob[department].value == subDepartmentSlug ? "" : subDepartmentSlug
+        }
+    }
+
+    // console.log(optionsJob[department].value)
+    props.form.errors[props.fieldName] = ''
+}
+
+// When the box warehouses/shops is clicked
+const onClickJobFinetune = (departmentName: string, jobGroupName: string, jobCode: any) => {
     if(selectedBox[jobGroupName] == 'admin'){  // If the box clicked is 'admin'
         if(selectedBox[jobGroupName] == jobCode) {  // When active box clicked
             selectedBox[jobGroupName] = ""  // Deselect value
@@ -324,10 +411,10 @@ watchEffect(() => {
 
 <template>
     <div class="relative">
-    <pre>dd {{ options.organisations }} aa</pre>
-    <!-- <pre>{{ selectedBox }}</pre> -->
+    <pre>{{ optionsJob.hr.value }} ======</pre>
+    <pre>{{ selectedShop }}</pre>
         <div class="flex flex-col text-xs divide-y-[1px]">
-            <div v-for="(jobGroup, keyJob) in optionsJob" class="grid grid-cols-3 gap-x-1.5 px-2 items-center even:bg-gray-50">
+            <div v-for="(jobGroup, departmentName) in optionsJob" class="grid grid-cols-3 gap-x-1.5 px-2 items-center even:bg-gray-50">
                 <!-- Section: Department -->
                 <div class="flex items-center capitalize gap-x-1.5">
                     <FontAwesomeIcon v-if="jobGroup.icon" :icon="jobGroup.icon" class='text-gray-400' aria-hidden='true' />
@@ -335,92 +422,82 @@ watchEffect(() => {
                 </div>
 
                 <!-- Section: Radio (the clickable area) -->
-                <div class="h-fit col-span-2 grid">
-                    <div v-if="jobGroup.department == 'Customer Service' || jobGroup.department == 'Warehouse' || jobGroup.department == 'Webmaster'"
-                        class="pt-2 h-full flex items-center row-span-1">
-                        <RadioGroup v-model="selectedShop[jobGroup.department].value">
-                            <RadioGroupLabel class="text-base font-semibold leading-6 text-gray-700 sr-only">Select the radio</RadioGroupLabel>
-                            <div class="flex gap-x-4 justify-around">
-                                <!-- Select: All Shop -->
-                                <RadioGroupOption as="template" value="All shops" :key="jobGroup.department + keyJob + 1" v-slot="{ active, checked }">
-                                    <div class="relative flex items-center gap-x-1 cursor-pointer rounded-lg border bg-white py-2 px-3 shadow-sm focus:outline-none"
-                                        :class="[checked ? 'ring-2 ring-indigo-500' : 'border-gray-300']">
-                                        All shops and future shops
-                                        <FontAwesomeIcon v-tooltip="'This option will select all current shops and new shop added in the future.'" icon='fal fa-question-circle' class='text-gray-500 cursor-pointer' aria-hidden='true' />
+                <div class="h-fit col-span-2 flex-col transition-all duration-200 ease-in-out">
+                    <div class="flex items-center divide-x divide-slate-300">
+                        <!-- Button: Radio position -->
+                        <div class="pl-2 flex items-center gap-x-4">
+                            <button v-for="job in jobGroup.subDepartment"
+                                @click.prevent="handleClickSubDepartment(departmentName, job.slug)"
+                                class="group h-full cursor-pointer flex items-center justify-start rounded-md py-3 px-3 font-medium capitalize disabled:text-gray-400 disabled:cursor-not-allowed disabled:ring-0 disabled:active:active:ring-offset-0"
+                                :class="[
+                                    (optionsJob[departmentName].options ? optionsJob[departmentName].value : optionsJob[departmentName].value == job.slug) && (optionsJob[departmentName].options ? Object.values(optionsJob[departmentName].value ?? {}).every(value => value === job.slug) : true) ? 'text-lime-500' : ' text-gray-600'
+                                ]"
+                                :disabled="optionsJob.admin.value && job.slug != 'admin' ? true : false"
+                            >
+                                <span class="relative text-left">
+                                    <div class="absolute -left-1 -translate-x-full top-1/2 -translate-y-1/2">
+                                        <FontAwesomeIcon v-if="optionsJob.admin.value" icon='fas fa-check-circle' fixed-width aria-hidden='true' />
+                                        <FontAwesomeIcon v-else-if="(optionsJob[departmentName].options ? optionsJob[departmentName].value : optionsJob[departmentName].value == job.slug) && (optionsJob[departmentName].options ? Object.values(optionsJob[departmentName].value ?? {}).every(value => value === job.slug) : true) && !optionsJob.admin.value" icon='fas fa-check-circle' fixed-width aria-hidden='true' />
+                                        <FontAwesomeIcon v-else icon='fal fa-circle' fixed-width aria-hidden='true' />
                                     </div>
-                                </RadioGroupOption>
-
-                                <!-- Multiselect: Select Shop -->
-                                <RadioGroupOption as="template" value="selectShop" :key="jobGroup.department + keyJob + 2" v-slot="{ active, checked }">
-                                    <div :class="[
-                                        'relative flex cursor-pointer rounded-lg border bg-white py-2 px-3 shadow-sm focus:outline-none',
-                                        checked ? 'ring-2 ring-indigo-500' : 'border-gray-300'
+                                    <span v-tooltip="job.number_employees + ' employees on this position'" :class="[
+                                        selectedBox.admin && selectedBox[departmentName] != 'admin' ? 'text-gray-300' : ' text-gray-500 group-hover:text-gray-800'
                                     ]">
-                                        <div v-if="selectedShop[jobGroup.department].value != 'selectShop'" class="bg-transparent inset-0 absolute z-10" />
-                                        <Menu as="div" class="relative inline-block text-left">
-                                            <MenuButton
-                                                :disabled="selectedShop[jobGroup.department].value != 'selectShop'"
-                                                class="inline-flex min-w-fit w-32 max-w-full whitespace-nowrap justify-between items-center gap-x-2 rounded px-2.5 py-1 text-xs font-medium"
-                                                :class="[ selectedShop[jobGroup.department].value == 'selectShop' ? selectedShop[jobGroup.department].selectedShops.length ? 'bg-indigo-500 text-white hover:bg-indigo-600' : 'bg-slate-100 hover:bg-slate-200 text-slate-600 ring-1 ring-slate-300' : 'bg-slate-100 text-slate-400 ring-1 ring-slate-300']"
-                                            >
-                                                <span class="">{{ selectedShop[jobGroup.department].selectedShops.length ? selectedShop[jobGroup.department].selectedShops.length === 1 ? options.shops.data.filter(shop => selectedShop[jobGroup.department].selectedShops.includes(shop.slug))[0].name : `${options.shops.data.filter(shop => selectedShop[jobGroup.department].selectedShops.includes(shop.slug))[0].name} and +${selectedShop[jobGroup.department].selectedShops.length-1}` : 'Select shops' }}</span>
-                                                <FontAwesomeIcon icon='far fa-chevron-down' class='text-xs' aria-hidden='true' />
-                                            </MenuButton>
-                                            <transition>
-                                                <MenuItems
-                                                    class="absolute left-0 mt-2 w-56 px-1 py-1 space-y-1 z-20 origin-top-right divide-y divide-gray-100 rounded bg-white shadow-lg ring-1 ring-slate-300 focus:outline-none">
-                                                    <MenuItem v-slot="{ active }">
-                                                        <button @click.prevent="onSelectUnselectShops(jobGroup.department)" :class="[
-                                                            'hover:bg-gray-100 text-slate-700 group flex gap-x-1 w-full items-center rounded px-2 py-2 text-sm',
-                                                        ]">
-                                                            <FontAwesomeIcon icon='fal fa-check-double' class='text-xs' aria-hidden='true' />
-                                                            {{ isEqual(selectedShop[jobGroup.department].selectedShops, options.shops.data) ? 'Unselect all shops' : 'Select all shops' }}
-                                                        </button>
-                                                    </MenuItem>
-
-                                                    <MenuItem v-for="(shop, shopIndex) in options.shops.data" v-slot="{ active }">
-                                                        <button @click.prevent="onSelectShop(jobGroup.department, shop.slug)" :class="[
-                                                            selectedShop[jobGroup.department].selectedShops.includes(shop.slug) ? 'bg-indigo-500 text-white' : active ? 'bg-indigo-200 text-indigo-600' : 'text-slate-700',
-                                                            'group flex w-full items-center rounded px-2 py-2 text-sm',
-                                                        ]">
-                                                            {{ shop.name }}
-                                                        </button>
-                                                    </MenuItem>
-                                                </MenuItems>
-                                            </transition>
-                                        </Menu>
-                                    </div>
-                                </RadioGroupOption>
-                            </div>
-                        </RadioGroup>
-                    </div>
-                    
-                    <!-- Button: Radio position -->
-                    <div class="pl-2 flex gap-x-4">
-                        <button v-for="job in jobGroup.options"
-                            @click.prevent="handleClickBox(keyJob, job.slug)"
-                            class="group h-full cursor-pointer flex items-center justify-start rounded-md py-3 px-3 font-medium capitalize disabled:text-gray-400 disabled:cursor-not-allowed disabled:ring-0 disabled:active:active:ring-offset-0"
-                            :class="[
-                                selectedBox[keyJob] == job.slug ? 'text-lime-500' : ' text-gray-600'
-                            ]"
-                            :disabled="selectedBox.admin && job.slug != 'admin'? true : false"
-                        >
-                            <span class="relative text-left">
-                                <div class="absolute -left-1 -translate-x-full top-1/2 -translate-y-1/2">
-                                    <FontAwesomeIcon v-if="selectedBox[keyJob] == 'admin'" icon='fas fa-check-circle' fixed-width aria-hidden='true' />
-                                    <FontAwesomeIcon v-else-if="selectedBox[keyJob] == job.slug && !selectedBox.admin" icon='fas fa-check-circle' fixed-width aria-hidden='true' />
-                                    <FontAwesomeIcon v-else icon='fal fa-circle' fixed-width aria-hidden='true' />
-                                </div>
-                                <span v-tooltip="job.number_employees + ' employees on this position'" :class="[
-                                    selectedBox.admin && selectedBox[keyJob] != 'admin' ? 'text-gray-300' : ' text-gray-500 group-hover:text-gray-800'
-                                ]">
-                                    {{ job.label }} ({{ job.number_employees }})
+                                        {{ job.label }} ({{ job.number_employees }})
+                                    </span>
                                 </span>
-                            </span>
-                        </button>
+                            </button>
+                        </div>
+
+                        <!-- Section: All shops & Fine tunes -->
+                        <div v-if="jobGroup.department == 'Customer Service' || jobGroup.department == 'Marketing' || jobGroup.department == 'Webmaster' || jobGroup.department == 'Dispatch' || jobGroup.department == 'Warehouse'" class="flex gap-x-2 px-3">
+                            <div class="flex gap-x-1 items-center">
+                                <input type="checkbox" :name="jobGroup.department + 'allshops'" :id="jobGroup.department + 'allshops'" class="h-3 w-3 appearance-none">
+                                <label :for="jobGroup.department + 'allshops'" class="cursor-pointer">{{ jobGroup.department == 'Dispatch' || jobGroup.department == 'Warehouse' ? 'All warehouses' : 'All shops'}}</label>
+                            </div>
+                            <div @click="() => openFinetune = jobGroup.department" class="underline whitespace-nowrap cursor-pointer">Fine tunes</div>
+                        </div>
                     </div>
+
+                    <!-- Fine tune content -->
+                    <transition mode="in-out">
+                        <div v-if="openFinetune == jobGroup.department" class="qwezxc">
+                            <div v-for="shop in jobGroup.options" class="flex gap-x-4">
+                                <div class="font-semibold">{{ shop.name }} </div>
+                                <div class="flex">
+                                    <button v-for="job in jobGroup.subDepartment"
+                                        @click.prevent="onClickJobFinetune(jobGroup.department, departmentName, job.slug)"
+                                        class="group h-full cursor-pointer flex items-center justify-start rounded-md px-3 font-medium capitalize disabled:text-gray-400 disabled:cursor-not-allowed disabled:ring-0 disabled:active:active:ring-offset-0"
+                                        :class="[
+                                            true ? 'text-lime-500' : ' text-gray-600'
+                                        ]"
+                                        :disabled="selectedBox.admin && job.slug != 'admin'? true : false"
+                                    >
+                                        <span class="relative text-left">
+                                            <div class="absolute -left-0.5 -translate-x-full top-1/2 -translate-y-1/2">
+                                                <FontAwesomeIcon v-if="selectedBox[departmentName] == 'admin'" icon='fas fa-check-circle' fixed-width aria-hidden='true' />
+                                                <FontAwesomeIcon v-else-if="selectedBox[departmentName] == job.slug && !selectedBox.admin" icon='fas fa-check-circle' fixed-width aria-hidden='true' />
+                                                <FontAwesomeIcon v-else icon='fal fa-circle' fixed-width aria-hidden='true' />
+                                            </div>
+                                            <span v-tooltip="job.number_employees + ' employees on this position'" :class="[
+                                                selectedBox.admin && selectedBox[departmentName] != 'admin' ? 'text-gray-300' : ' text-gray-500 group-hover:text-gray-700'
+                                            ]">
+                                                {{ job.label }} ({{ job.number_employees }})
+                                            </span>
+                                        </span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div @click="openFinetune = ''" class="mt-4 w-fit text-red-400 hover:text-red-500 cursor-pointer hover:">
+                                <FontAwesomeIcon icon='fal fa-times' class='' aria-hidden='true' />
+                                Close
+                            </div>
+                        </div>
+                    </transition>
+
                 </div>
             </div>
+
         </div>
 
         <!-- State: error icon & error description -->
