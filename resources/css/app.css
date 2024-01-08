@@ -16,9 +16,9 @@
     }
 }
 
-.prose a { @apply specialUnderlineAiku }
+.prose a { @apply specialUnderline }
 
-.specialUnderlineAiku {
+.specialUnderline {
     @apply bg-gradient-to-t from-emerald-300 to-emerald-200
     focus:ring-0 focus:outline-none focus:border-none
     bg-no-repeat [background-position:0%_100%]
@@ -30,15 +30,15 @@
 
 .qwezxc {
     /* For debug element */
-    @apply border border-red-500 
+    @apply border border-red-500
 }
 
 .zxcqwe {
     /* For debug element */
-    @apply border border-green-500 
+    @apply border border-green-500
 }
 
 .asdzxc {
     /* For debug element */
-    @apply ring-2 ring-offset-2 ring-red-500 
+    @apply ring-2 ring-offset-2 ring-red-500
 }

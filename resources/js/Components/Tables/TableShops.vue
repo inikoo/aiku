@@ -28,7 +28,7 @@ function shopRoute(shop: Shop) {
 <template>
     <Table :resource="data" :name="tab"  class="mt-5">
         <template #cell(code)="{ item: shop }">
-            <Link :href="shopRoute(shop)">
+            <Link :href="shopRoute(shop)" class="specialUnderline">
                 {{ shop['code'] }}
             </Link>
         </template>
