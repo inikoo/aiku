@@ -5,8 +5,6 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-use App\Actions\Market\Shop\UI\CreateShop;
-use App\Actions\Market\Shop\UI\IndexShops;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix("")
@@ -17,15 +15,9 @@ Route::prefix("hr")
     ->name("hr.")
     ->group(__DIR__."/hr.php");
 
-Route::name('shops.')->prefix('shops')->group(function () {
-    Route::get('/', IndexShops::class)->name('index');
-    Route::get('create', CreateShop::class)->name('create');
-    Route::prefix('{shop}')
-        ->group(__DIR__."/shops/shops.php");
-});
-
-
-
+Route::prefix("shops")
+    ->name("shops.")
+    ->group(__DIR__."/shops/shops.php");
 
 Route::prefix("models")
     ->name("models.")
