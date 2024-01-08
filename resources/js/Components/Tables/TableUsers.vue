@@ -10,6 +10,10 @@ import Table from '@/Components/Table/Table.vue';
 import { User } from "@/types/user";
 import { trans } from "laravel-vue-i18n";
 import Image from "@/Components/Image.vue";
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { faUserCircle } from '@fal'
+import { library } from '@fortawesome/fontawesome-svg-core'
+library.add(faUserCircle)
 
 
 const props = defineProps<{
@@ -39,14 +43,17 @@ function userRoute(user: User) {
                 <span v-else class="italic">{{ trans('Not set') }}</span>
             </Link>
         </template>
+
         <template #cell(avatar)="{ item: user }">
             <div class="flex justify-center">
-                <Image :src="user['avatar']" class="w-6 aspect-square rounded-full" :alt="user.username"/>
+                <Image :src="user['avatar']" class="w-6 aspect-square rounded-full overflow-hidden" :alt="user.username"/>
             </div>
         </template>
+
         <template #cell(name)="{ item: user }">
             {{ user['parent']['name'] }}
         </template>
+        
         <template #cell(parent_type)="{ item: user }">
             <Link v-if="user['parent_type'] === 'Employee'" :href="route('grp.hr.employees.show', user['parent']['slug'])">
             {{ trans('Employee') }}</Link>
