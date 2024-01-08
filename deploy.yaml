@@ -1,0 +1,29 @@
+import:
+  - deploy/env.php
+  - recipe/laravel.php
+  - deploy/deploy.php
+  - contrib/npm.php
+  - contrib/discord.php
+
+config:
+  application: 'aiku'
+  host: 'aiku'
+  repository: 'https://github.com/inikoo/aiku.git'
+
+hosts:
+  aiku:
+    environment: 'production'
+    deploy_path: '~/www'
+    branch: production
+  staging:
+    environment: 'staging'
+    deploy_path: '~/aiku'
+    branch: staging
+tasks:
+  build:
+    - run: uptime
+before:
+  deploy: install:env
+after:
+  deploy:failed: [deploy:unlock]
+  deploy:update_code: [npm:install, deploy:vendors]

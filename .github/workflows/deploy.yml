@@ -1,0 +1,84 @@
+name: Deploy Aiku
+
+on:
+  push:
+    branches: [ "production" ]
+
+concurrency: production_environment
+
+permissions:
+  contents: write
+
+jobs:
+  laravel-tests:
+    name: Deploy aiku 🚀
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+      - name: Get Composer Cache Directory
+        id: composer-cache
+        run: |
+          echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+      - uses: actions/cache@v3
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+      - name: Composer install
+        run: composer install --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+      - name: Get Next Version
+        id: semver
+        uses: ietf-tools/semver-action@v1
+        with:
+          token: ${{ github.token }}
+          branch: production
+          noVersionBumpBehavior: current
+          noNewCommitBehavior: current
+          patchList: fix, bugfix, perf, refactor, test, tests, clean, cleanup, pint, partial, review, update-deps, chores, review
+          patchAll: true
+      - name: Set .env
+        run: |
+          touch .env.aiku.production.deploy
+          echo RELEASE=${{ steps.semver.outputs.next }} >> .env.aiku.production.deploy
+          echo DEPLOY_REMOTE_USER=${{ secrets.PRODUCTION_DEPLOY_REMOTE_USER }} >> .env.aiku.production.deploy
+      - name: Launch 🚀
+        uses: deployphp/action@v1
+        with:
+          dep: deploy aiku
+          ssh-config: ${{ secrets.DEPLOY_SSH_CONFIG }}
+          private-key: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
+          known-hosts: ${{ secrets.DEPLOYER_KNOWN_HOSTS }}
+      - name: Create Release
+        uses: ncipollo/release-action@v1.12.0
+        with:
+          allowUpdates: true
+          draft: false
+          makeLatest: true
+          name: ${{ steps.semver.outputs.next }}
+          commit: 'production'
+          tag: ${{ steps.semver.outputs.next }}
+          token: ${{ github.token }}
+      - name: New Relic Application Deployment Marker
+        uses: newrelic/deployment-marker-action@v2.3.0
+        with:
+          apiKey: ${{ secrets.NEW_RELIC_API_KEY }}
+          guid: aiku
+          version: ${{ steps.semver.outputs.next }}
+          user: "${{ github.actor }}"
+      - name: Create Sentry release
+        uses: getsentry/action-release@v1
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+        with:
+          environment: production
+          projects: ${{ secrets.SENTRY_PROJECTS }}
+          version: ${{ steps.semver.outputs.next }}

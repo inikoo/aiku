@@ -1,21 +1,16 @@
 <?php
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Sun, 07 Jan 2024 01:55:35 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
 
 return [
 
     'dsn'         => env('SENTRY_LARAVEL_DSN', env('SENTRY_DSN')),
 
     // capture release as git sha
-    'release'     => trim(
-        exec(
-            'git '.(
-                (env('APP_ENV') == 'production' or env('APP_ENV') == 'staging')
-                    ?
-                    '--git-dir '.env('REPO_DIR')
-                    :
-                    ''
-            ).' log --pretty="%h" -n1 HEAD'
-        )
-    ),
+    'release' => env('SENTRY_RELEASE'),
     // When left empty or `null` the Laravel environment will be used
     'environment' => env('SENTRY_ENVIRONMENT'),
 

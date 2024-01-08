@@ -25,7 +25,7 @@ function loadDB($dumpName): void
     $process = new Process(
         [
             __DIR__.'/../devops/devel/reset_test_database.sh',
-            env('DB_DATABASE_TEST', 'aiku_test'),
+            env('DB_DATABASE_TEST', 'aiku_testing'),
             env('DB_PORT'),
             env('DB_USERNAME'),
             env('DB_PASSWORD'),
