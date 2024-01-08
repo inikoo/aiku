@@ -46,7 +46,7 @@ class ShowProfile
             "formData" => [
                 "blueprint" => [
                     [
-                        "title"   => __("profile"),
+                        "label"   => __("profile"),
                         "icon"    => "fa-light fa-user-circle",
                         "current" => true,
                         "fields"  => [
@@ -69,7 +69,7 @@ class ShowProfile
                         ],
                     ],
                     [
-                        "title"  => __("password"),
+                        "label"  => __("password"),
                         "icon"   => "fa-light fa-key",
                         "fields" => [
                             "password" => [
@@ -80,7 +80,7 @@ class ShowProfile
                         ],
                     ],
                     [
-                        "title"  => __("language"),
+                        "label"  => __("language"),
                         "icon"   => "fal fa-language",
                         "fields" => [
                             "language_id" => [
@@ -93,7 +93,7 @@ class ShowProfile
                         ],
                     ],
                     [
-                        "title"  => __("appearance"),
+                        "label"  => __("appearance"),
                         "icon"   => "fa-light fa-paint-brush",
                         "fields" => [
                             "colorMode" => [
@@ -109,7 +109,7 @@ class ShowProfile
                         ],
                     ],
                     [
-                        "title"  => __("notifications"),
+                        "label"  => __("notifications"),
                         "icon"   => "fa-light fa-bell",
                         "fields" => [
                             "notifications" => [

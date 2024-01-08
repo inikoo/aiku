@@ -95,14 +95,6 @@ export const initialiseApp = () => {
       layout.secondaryNavigation = usePage().props.layout.secondaryNavigation ?? null;
     }
 
-    // Organisations
-    if (usePage().props.layout?.organisations?.data) {
-      layout.organisations.currentOrganisations = ''
-      usePage().props.layout.organisations.data.forEach(item => {
-        layout.organisations.data[item.slug] = item
-      })
-    }
-
     // Set data of Locale (Language)
     if (usePage().props.localeData) {
       locale.language = usePage().props.localeData.language;
@@ -126,6 +118,24 @@ export const initialiseApp = () => {
     // Set logo app
     if (usePage().props.app) {
       layout.app = usePage().props.app;
+    }
+
+    // // Organisations
+    // if (usePage().props.layout?.organisations?.data) {
+    //   layout.organisations.currentOrganisations = ''
+    //   usePage().props.layout.organisations.data.forEach(item => {
+    //     layout.organisations.data[item.slug] = item
+    //   })
+    // }
+
+    // Set group
+    if (usePage().props.layout?.group) {
+      layout.group = usePage().props.layout.group
+    }
+
+    // Set organisations
+    if (usePage().props.layout?.organisations) {
+      layout.organisations = usePage().props.layout.organisations
     }
 
     layout.systemName = "Aiku";

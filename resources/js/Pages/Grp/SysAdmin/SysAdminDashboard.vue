@@ -22,7 +22,10 @@ defineProps(['title', 'pageHead', 'stats']);
     resources/js/Pages/Grp/SysAdmin/SysAdminDashboard.vue
     <!-- <pre>{{ useLayoutStore() }}</pre> -->
 
-    <pre>{{ useLayoutStore().navigation.org }}</pre>
+    <!-- <pre>{{ usePage().props.layout }}</pre> -->
+    ========================
+    <pre>{{ useLayoutStore().group }}</pre>
+    <pre>{{ useLayoutStore().organisations }}</pre>
 
 </template>
 

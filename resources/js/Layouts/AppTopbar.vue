@@ -16,9 +16,9 @@ import { trans } from "laravel-vue-i18n"
 import Image from "@/Components/Image.vue"
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faChevronDown } from '@far'
-import { faTerminal, faUserAlien, faCog } from '@fal'
+import { faTerminal, faUserAlien, faCog, faCity, faBuilding } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
-library.add(faChevronDown, faTerminal, faUserAlien, faCog)
+library.add(faChevronDown, faTerminal, faUserAlien, faCog, faCity, faBuilding)
 
 const props = defineProps<{
     sidebarOpen: boolean
@@ -95,24 +95,45 @@ const logoutAuth = () => {
                         <div class="pl-2 py-1">
                             <Menu as="div" class="relative inline-block text-left">
                                 <MenuButton
-                                    class="inline-flex min-w-fit w-32 max-w-full whitespace-nowrap justify-between items-center gap-x-2 rounded px-2.5 py-1 text-sm font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-white/75"
+                                    class="inline-flex min-w-fit w-32 max-w-full whitespace-nowrap justify-between items-center gap-x-2 rounded px-2.5 py-1 text-xs font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-white/75"
                                     :class="[ layout.organisations.currentOrganisations ? 'bg-indigo-500 text-white hover:bg-indigo-600' : 'bg-slate-100 hover:bg-slate-200 text-slate-600 ring-1 ring-slate-300']"
                                 >
-                                    <!-- {{ route().v().params?.organisation ?? 'Select Organisations' }} -->
-                                    {{ layout.organisations.currentOrganisations ? layout.organisations.currentOrganisations : 'Select Organisations' }}
+                                    {{ route().v().params?.organisation ?? 'Select group or organisations' }}
+                                    <!-- {{ layout.organisations.currentOrganisations ? layout.organisations.currentOrganisations : 'Select group or organisations' }} -->
                                     <FontAwesomeIcon icon='far fa-chevron-down' class='text-xs' aria-hidden='true' />
                                 </MenuButton>
                                 <transition>
                                     <MenuItems
                                         class="absolute left-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
                                         <div class="px-1 py-1 space-y-1">
+                                            <!-- Dropdown: Group -->
+                                            <div class="flex items-center gap-x-1.5 px-1">
+                                                <span class="text-[9px] leading-none text-gray-400">Groups</span>
+                                                <hr class="w-full rounded-full border-slate-300">
+                                            </div>
+                                            <MenuItem v-slot="{ active }">
+                                                <Link :href="route('grp.org.dashboard.show', { organisation: layout.group.slug })" :class="[
+                                                    valOrganisation == layout.group.slug ? 'bg-indigo-500 text-white' : active ? 'bg-slate-200/75 text-indigo-600' : 'text-slate-600',
+                                                    'group flex w-full gap-x-2 items-center rounded px-2 py-2 text-sm',
+                                                ]">
+                                                    <FontAwesomeIcon icon='fal fa-city' class='text-gray-400' aria-hidden='true' />
+                                                    <span class="font-semibold">{{ layout.group.name }}</span>
+                                                </Link>
+                                            </MenuItem>
+
+                                            <!-- Dropdown: Organisation -->
+                                            <div class="flex items-center gap-x-1.5 px-1">
+                                                <span class="text-[9px] leading-none text-gray-400">Organisations</span>
+                                                <hr class="w-full rounded-full border-slate-300">
+                                            </div>
                                             <MenuItem v-for="(item, itemKey) in layout.organisations.data" v-slot="{ active }">
-                                                <button @click="layout.organisations.currentOrganisations = itemKey" :class="[
-                                                    valOrganisation == item ? 'bg-indigo-500 text-white' : active ? 'bg-indigo-200 text-indigo-600' : 'text-slate-700',
+                                                <Link :href="route('grp.org.dashboard.show', { organisation: layout.group.slug })" :class="[
+                                                    valOrganisation == item ? 'bg-indigo-500 text-white' : active ? 'bg-slate-200/75 text-indigo-600' : 'text-slate-700',
                                                     'group flex w-full items-center rounded px-2 py-2 text-sm',
                                                 ]">
-                                                    {{ itemKey }}
-                                                </button>
+                                                    <FontAwesomeIcon icon='fal fa-building' class='text-gray-400' aria-hidden='true' />
+                                                    <span class="font-semibold">{{ itemKey }}</span>
+                                                </Link>
                                             </MenuItem>
                                         </div>
                                     </MenuItems>
