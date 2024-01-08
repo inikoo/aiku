@@ -11,6 +11,7 @@ use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\HumanResources\Clocking\UI\IndexClockings;
 use App\Actions\HumanResources\ClockingMachine\UI\IndexClockingMachines;
 use App\Actions\InertiaAction;
+use App\Actions\InertiaOrganisationAction;
 use App\Actions\Traits\Actions\WithActionButtons;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
 use App\Enums\UI\WorkplaceTabsEnum;
@@ -23,9 +24,10 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class ShowWorkplace extends InertiaAction
+class ShowWorkplace extends InertiaOrganisationAction
 {
     use WithActionButtons;
+
     public function handle(Workplace $workplace): Workplace
     {
         return $workplace;
@@ -33,10 +35,10 @@ class ShowWorkplace extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit   = $request->user()->hasPermissionTo('hr.edit');
-        $this->canDelete = $request->user()->hasPermissionTo('hr.edit');
+        $this->canEdit   = $request->user()->hasPermissionTo("human-resources.{$this->organisation->slug}.edit");
+        $this->canDelete = $request->user()->hasPermissionTo("human-resources.{$this->organisation->slug}.edit");
 
-        return $request->user()->hasPermissionTo("hr.view");
+        return $request->user()->hasPermissionTo("human-resources.{$this->organisation->slug}.edit");
     }
 
     public function asController(Workplace $workplace, ActionRequest $request): Workplace

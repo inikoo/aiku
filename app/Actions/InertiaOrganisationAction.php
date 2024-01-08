@@ -23,6 +23,7 @@ class InertiaOrganisationAction
     protected Organisation $organisation;
     protected ?string $tab              = null;
     protected bool $canEdit             = false;
+    protected bool $canDelete             = false;
     protected array $validatedData;
 
     public function initialisation(Organisation $organisation, ActionRequest|array $request): static
