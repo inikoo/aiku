@@ -52,7 +52,7 @@ class DeleteClockingMachine
 
     public function htmlResponse(ClockingMachine $clockingMachine): RedirectResponse
     {
-        return Redirect::route('grp.hr.working-places.show', $clockingMachine->workplace->slug);
+        return Redirect::route('grp.org.hr.workplaces.show', $clockingMachine->workplace->slug);
     }
 
 

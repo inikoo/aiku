@@ -10,7 +10,6 @@ import Table from '@/Components/Table/Table.vue';
 import { User } from "@/types/user";
 import { trans } from "laravel-vue-i18n";
 import Image from "@/Components/Image.vue";
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faUserCircle } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 library.add(faUserCircle)
@@ -53,9 +52,9 @@ function userRoute(user: User) {
         <template #cell(name)="{ item: user }">
             {{ user['parent']['name'] }}
         </template>
-        
+
         <template #cell(parent_type)="{ item: user }">
-            <Link v-if="user['parent_type'] === 'Employee'" :href="route('grp.hr.employees.show', user['parent']['slug'])">
+            <Link v-if="user['parent_type'] === 'Employee'" :href="route('grp.org.hr.employees.show', user['parent']['slug'])">
             {{ trans('Employee') }}</Link>
             <Link v-else-if="user['parent_type'] === 'Guest'" :href="route('grp.sysadmin.guests.show', user['parent']['slug'])">
             {{ trans('Guest') }}</Link>

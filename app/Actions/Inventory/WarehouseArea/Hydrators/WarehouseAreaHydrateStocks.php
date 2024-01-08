@@ -23,7 +23,7 @@ class WarehouseAreaHydrateStocks implements ShouldBeUnique
             $stockValue = +$location->stocks()->sum('value');
         }
 
-        $warehouseArea->stats->update(
+        $warehouseArea->stats()->update(
             [
                 'stock_value' => $stockValue
             ]

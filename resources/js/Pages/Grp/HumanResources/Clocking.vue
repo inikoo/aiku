@@ -39,7 +39,7 @@ import Tabs from "@/Components/Navigation/Tabs.vue";
 
 
 const createClocking = () =>{
-    router.post(route('grp.hr.clockings.store',props['clocking'].data.id), {})
+    router.post(route('grp.org.hr.clockings.store',props['clocking'].data.id), {})
 }
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChangelog.vue'))

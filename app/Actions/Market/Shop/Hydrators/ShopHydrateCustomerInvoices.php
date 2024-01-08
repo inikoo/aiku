@@ -33,7 +33,7 @@ class ShopHydrateCustomerInvoices implements ShouldBeUnique
             $stats['number_customers_trade_state_'.$tradeState->snake()] =
                 Arr::get($numberInvoicesStateCounts, $tradeState->value, 0);
         }
-        $shop->stats->update($stats);
+        $shop->stats()->update($stats);
     }
 
     public function getJobUniqueId(Shop $shop): string

@@ -97,7 +97,7 @@ class IndexJobPositions extends InertiaAction
                             'tooltip' => __('new job position'),
                             'label'   => __('job position'),
                             'route'   => [
-                                'name'       => 'grp.hr.job-positions.create',
+                                'name'       => 'grp.org.hr.job-positions.create',
                                 'parameters' => array_values($this->originalParameters)
                             ]
                         ] : null
@@ -125,7 +125,7 @@ class IndexJobPositions extends InertiaAction
                             'style' => 'create',
                             'label' => __('job position'),
                             'route' => [
-                                'name'       => 'grp.hr.job-positions.create',
+                                'name'       => 'grp.org.hr.job-positions.create',
                                 'parameters' => array_values($this->originalParameters)
                             ]
                         ] : false
@@ -156,7 +156,7 @@ class IndexJobPositions extends InertiaAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => [
-                            'name' => 'grp.hr.job-positions.index'
+                            'name' => 'grp.org.hr.job-positions.index'
                         ],
                         'label' => __('positions'),
                         'icon'  => 'fal fa-bars',

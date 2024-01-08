@@ -6,21 +6,23 @@
  */
 
 use App\Enums\HumanResources\Workplace\WorkplaceTypeEnum;
+use App\Stubs\Migrations\HasGroupOrganisationRelationship;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
+    use HasGroupOrganisationRelationship;
+
     public function up(): void
     {
         Schema::create('workplaces', function (Blueprint $table) {
             $table->smallIncrements('id');
-            $table->unsignedSmallInteger('organisation_id');
-            $table->foreign('organisation_id')->references('id')->on('organisations')->onUpdate('cascade')->onDelete('cascade');
+            $table = $this->groupOrgRelationship($table);
             $table->boolean('status')->index()->default(true);
             $table->string('type')->index()->default(WorkplaceTypeEnum::HQ->value);
             $table->string('slug')->unique()->collation('und_ns');
-            $table->string('name')->collation('und_ns');
+            $table->string('name')->collation('und_ns')->index();
             $table->unsignedSmallInteger('timezone_id')->nullable();
             $table->foreign('timezone_id')->references('id')->on('timezones');
             $table->unsignedInteger('address_id')->nullable()->index();
@@ -29,6 +31,7 @@ return new class () extends Migration {
             $table->jsonb('location');
             $table->timestamps();
             $table->softDeletesTz();
+            $table->unique(['group_id', 'slug']);
         });
         DB::statement('CREATE INDEX ON workplaces USING gin (name gin_trgm_ops) ');
 

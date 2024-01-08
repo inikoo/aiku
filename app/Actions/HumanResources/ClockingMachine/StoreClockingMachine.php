@@ -8,24 +8,28 @@
 namespace App\Actions\HumanResources\ClockingMachine;
 
 use App\Actions\HumanResources\ClockingMachine\Hydrators\ClockingMachineHydrateUniversalSearch;
+use App\Actions\InertiaOrganisationAction;
+use App\Enums\HumanResources\ClockingMachine\ClockingMachineTypeEnum;
+use App\Http\Resources\HumanResources\ClockingMachineResource;
 use App\Models\HumanResources\ClockingMachine;
 use App\Models\HumanResources\Workplace;
-use App\Rules\CaseSensitive;
+use App\Models\SysAdmin\Organisation;
+use App\Rules\IUnique;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsAction;
-use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class StoreClockingMachine
+class StoreClockingMachine extends InertiaOrganisationAction
 {
-    use AsAction;
-    use WithAttributes;
-
     private bool $asAction = false;
 
     public function handle(Workplace $workplace, array $modelData): ClockingMachine
     {
+        data_set($modelData, 'group_id', $workplace->group_id);
+        data_set($modelData, 'organisation_id', $workplace->organisation_id);
+
         /** @var ClockingMachine $clockingMachine */
         $clockingMachine =  $workplace->clockingMachines()->create($modelData);
         ClockingMachineHydrateUniversalSearch::dispatch($clockingMachine);
@@ -45,34 +49,51 @@ class StoreClockingMachine
     public function rules(): array
     {
         return [
-            'code'  => ['required', 'unique:clocking_machines', 'between:2,64', 'alpha_dash', new CaseSensitive('clocking_machines')],
+            'name'  => ['required', 'max:64', 'alpha_dash',
+                        new IUnique(
+                            table: 'workplaces',
+                            extraConditions: [
+                                ['column' => 'group_id', 'value' => $this->organisation->group_id],
+                            ]
+                        ),
+                ],
+            'type'    => ['required', Rule::enum(ClockingMachineTypeEnum::class)],
+            'nfc_tag' => ['sometimes', 'string'],
         ];
     }
 
-    public function asController(Workplace $workplace, ActionRequest $request): ClockingMachine
+    public function afterValidator(Validator $validator, ActionRequest $request): void
     {
-        $request->validate();
+        if ($this->get('type') == ClockingMachineTypeEnum::STATIC_NFC && empty($this->get('nfc_tag'))) {
+            $validator->errors()->add('nfc_tag', 'Invalid NFC Tag');
+        }
+    }
 
-        return $this->handle($workplace, $request->validated());
+    public function asController(Organisation $organisation, Workplace $workplace, ActionRequest $request): ClockingMachine
+    {
+        $this->initialisation($organisation, $request);
+        return $this->handle($workplace, $this->validatedData);
+    }
+
+    public function action(Workplace $workplace, array $modelData): ClockingMachine
+    {
+        $this->asAction = true;
+        $this->initialisation($workplace->organisation, $modelData);
+        return $this->handle($workplace, $this->validatedData);
     }
 
     public function htmlResponse(ClockingMachine $clockingMachine): RedirectResponse
     {
         return Redirect::route(
-            'grp.hr.working-places.show.clocking-machines.show',
+            'grp.org.hr.workplaces.show.clocking-machines.show',
             [
                 'workplace'       => $clockingMachine->workplace->slug,
                 'clockingMachine' => $clockingMachine->slug
             ]
         );
     }
-
-    public function action(Workplace $workplace, array $modelData): ClockingMachine
+    public function jsonResponse(ClockingMachine $clockingMachine): ClockingMachineResource
     {
-        $this->asAction = true;
-        $this->setRawAttributes($modelData);
-        $validatedData = $this->validateAttributes();
-
-        return $this->handle($workplace, $validatedData);
+        return ClockingMachineResource::make($clockingMachine);
     }
 }

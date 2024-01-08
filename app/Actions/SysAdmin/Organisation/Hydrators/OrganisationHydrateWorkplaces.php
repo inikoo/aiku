@@ -7,6 +7,9 @@
 
 namespace App\Actions\SysAdmin\Organisation\Hydrators;
 
+use App\Actions\Traits\WithEnumStats;
+use App\Enums\HumanResources\Workplace\WorkplaceTypeEnum;
+use App\Models\HumanResources\Workplace;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -14,14 +17,27 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class OrganisationHydrateWorkplaces implements ShouldBeUnique
 {
     use AsAction;
-
+    use WithEnumStats;
 
     public function handle(Organisation $organisation): void
     {
         $stats = [
             'number_workplaces' => $organisation->workplaces()->count()
         ];
+        $stats = array_merge(
+            $stats,
+            $this->getEnumStats(
+                model: 'workplaces',
+                field: 'type',
+                enum: WorkplaceTypeEnum::class,
+                models: Workplace::class,
+                where: function ($q) use ($organisation) {
+                    $q->where('organisation_id', $organisation->id);
+                }
+            )
+        );
 
-        $organisation->humanResourcesStats->update($stats);
+
+        $organisation->humanResourcesStats()->update($stats);
     }
 }

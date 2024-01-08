@@ -19,7 +19,7 @@ class ClockingMachineHydrateClockings
     {
         $numberLocations            = $warehouseArea->locations()->count();
         $numberOperationalLocations = $warehouseArea->locations()->where('status', 'operational')->count();
-        $warehouseArea->stats->update(
+        $warehouseArea->stats()->update(
             [
                 'number_locations'                   => $numberLocations,
                 'number_locations_state_operational' => $numberOperationalLocations,

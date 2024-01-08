@@ -9,10 +9,12 @@ namespace App\Actions\HumanResources\Workplace;
 
 use App\Actions\Helpers\Address\StoreAddressAttachToModel;
 use App\Actions\HumanResources\Workplace\Hydrators\WorkplaceHydrateUniversalSearch;
+use App\Actions\InertiaOrganisationAction;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWorkplaces;
 use App\Enums\HumanResources\Workplace\WorkplaceTypeEnum;
 use App\Models\HumanResources\Workplace;
 use App\Models\SysAdmin\Organisation;
+use App\Rules\IUnique;
 use App\Rules\ValidAddress;
 use Exception;
 use Illuminate\Console\Command;
@@ -21,19 +23,15 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rules\Enum;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsAction;
-use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class StoreWorkplace
+class StoreWorkplace extends InertiaOrganisationAction
 {
-    use AsAction;
-    use WithAttributes;
-
     private bool $asAction = false;
 
 
     public function handle(Organisation $organisation, array $modelData): Workplace
     {
+        data_set($modelData, 'group_id', $organisation->group_id);
         $addressData = Arr::get($modelData, 'address');
         Arr::forget($modelData, 'address');
         /** @var Workplace $workplace */
@@ -61,7 +59,16 @@ class StoreWorkplace
     public function rules(): array
     {
         return [
-            'name'    => ['required', 'max:255'],
+            'name'    => [
+                'required',
+                'max:255',
+                new IUnique(
+                    table: 'workplaces',
+                    extraConditions: [
+                        ['column' => 'group_id', 'value' => $this->organisation->group_id],
+                    ]
+                ),
+            ],
             'type'    => ['required', new Enum(WorkplaceTypeEnum::class)],
             'address' => ['required', new ValidAddress()]
         ];
@@ -69,24 +76,22 @@ class StoreWorkplace
 
     public function asController(Organisation $organisation, ActionRequest $request): Workplace
     {
-        $request->validate();
-        $validatedData = $request->validated();
+        $this->initialisation($organisation, $request);
 
-        return $this->handle($organisation, $validatedData);
+        return $this->handle($organisation, $this->validatedData);
     }
 
     public function htmlResponse(Workplace $workplace): RedirectResponse
     {
-        return Redirect::route('org.hr.workplaces.show', $workplace->slug);
+        return Redirect::route('grp.org.hr.workplaces.show', $workplace->slug);
     }
 
     public function action(Organisation $organisation, array $modelData): Workplace
     {
         $this->asAction = true;
-        $this->setRawAttributes($modelData);
-        $validatedData = $this->validateAttributes();
+        $this->initialisation($organisation, $modelData);
 
-        return $this->handle($organisation, $validatedData);
+        return $this->handle($organisation, $this->validatedData);
     }
 
     public string $commandSignature = 'workplace:create {organisation} {name} {type}';
@@ -103,25 +108,22 @@ class StoreWorkplace
             return 1;
         }
 
-
-        $this->setRawAttributes([
-            'address' => [
-                'country_id' => $organisation->country_id
-            ],
-            'name'    => $command->argument('name'),
-            'type'    => $command->argument('type'),
-
-        ]);
-
         try {
-            $validatedData = $this->validateAttributes();
+            $this->initialisation($organisation, [
+                'address' => [
+                    'country_id' => $organisation->country_id
+                ],
+                'name'    => $command->argument('name'),
+                'type'    => $command->argument('type'),
+
+            ]);
         } catch (Exception $e) {
             $command->error($e->getMessage());
 
             return 1;
         }
 
-        $workplace = $this->handle(organisation: $organisation, modelData: $validatedData);
+        $workplace = $this->handle(organisation: $organisation, modelData: $this->validatedData);
 
         $command->info("Workplace $workplace->slug created successfully 🎉");
 

@@ -26,6 +26,6 @@ class OrganisationHydrateFulfilment
             'number_stored_items'                => StoredItem::count()
         ];
 
-        $organisation->fulfilmentStats->update($stats);
+        $organisation->fulfilmentStats()->update($stats);
     }
 }

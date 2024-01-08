@@ -18,9 +18,9 @@ const props = defineProps<{
 
 function employeeRoute(employee: Employee) {
     switch (route().current()) {
-        case 'grp.hr.employees.index':
+        case 'grp.org.hr.employees.index':
             return route(
-                'grp.hr.employees.show',
+                'grp.org.hr.employees.show',
                 [employee.slug]);
 
     }
@@ -31,7 +31,7 @@ function employeeRoute(employee: Employee) {
 <template>
     <Table :resource="data" :name="tab" class="mt-5"   >
         <template #cell(slug)="{ item: employee }">
-            <Link :href="employeeRoute(employee)">
+            <Link :href="employeeRoute(employee)" class="specialUnderline">
                 {{ employee['slug'] }}
             </Link>
         </template>

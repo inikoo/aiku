@@ -23,7 +23,7 @@ class LocationHydrateStocks implements ShouldBeUnique
             'number_stock_slots' => $numberStockSlots,
         ];
 
-        $location->stats->update($stats);
+        $location->stats()->update($stats);
 
     }
 

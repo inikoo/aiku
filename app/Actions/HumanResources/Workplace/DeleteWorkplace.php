@@ -40,7 +40,7 @@ class DeleteWorkplace
 
     public function htmlResponse(): RedirectResponse
     {
-        return Redirect::route('org.hr.workplaces.index');
+        return Redirect::route('grp.org.hr.workplaces.index');
     }
 
 }

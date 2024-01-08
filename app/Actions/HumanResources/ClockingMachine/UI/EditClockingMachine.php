@@ -24,7 +24,7 @@ class EditClockingMachine extends InertiaAction
     public function authorize(ActionRequest $request): bool
     {
         $this->canEdit = $request->user()->hasPermissionTo('hr.clocking-machines.edit');
-        return $request->user()->hasPermissionTo("hr.working-places.edit");
+        return $request->user()->hasPermissionTo("hr.workplaces.edit");
     }
 
     public function asController(ClockingMachine $clockingMachine, ActionRequest $request): ClockingMachine

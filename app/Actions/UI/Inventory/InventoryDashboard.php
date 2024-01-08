@@ -16,11 +16,7 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-/**
- * @property Organisation $organisation
- * @property \App\Models\SysAdmin\User $user
- */
-class InventoryDashboard
+class InventoryDashboard extends InertiaOrganisationAction
 {
     use AsAction;
     use WithInertia;

@@ -39,7 +39,7 @@ class CreateWorkplace extends InertiaOrganisationAction
                             'style' => 'cancel',
                             'label' => __('cancel'),
                             'route' => [
-                                'name'       => 'org.hr.workplaces.index',
+                                'name'       => 'grp.org.hr.workplaces.index',
                                 'parameters' => array_values($request->route()->originalParameters())
                             ],
                         ]

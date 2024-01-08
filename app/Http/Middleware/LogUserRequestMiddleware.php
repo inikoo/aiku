@@ -31,7 +31,7 @@ class LogUserRequestMiddleware
                 $user,
             );
 
-            $user->stats->update(['last_active_at' => now()]);
+            $user->stats()->update(['last_active_at' => now()]);
         }
 
         return $next($request);

@@ -31,7 +31,7 @@ class ShopHydrateProducts implements ShouldBeUnique
         foreach (ProductStateEnum::cases() as $productState) {
             $stats['number_products_state_'.$productState->snake()] = Arr::get($stateCounts, $productState->value, 0);
         }
-        $shop->stats->update($stats);
+        $shop->stats()->update($stats);
     }
 
     public function getJobUniqueId(Shop $shop): string

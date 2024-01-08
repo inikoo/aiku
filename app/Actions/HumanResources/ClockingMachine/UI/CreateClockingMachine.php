@@ -29,7 +29,7 @@ class CreateClockingMachine extends InertiaAction
                     'title'        => __('new clocking machine'),
                     'cancelCreate' => [
                         'route' => [
-                            'name'       => 'grp.hr.working-places.show.clocking-machines.index',
+                            'name'       => 'grp.org.hr.workplaces.show.clocking-machines.index',
                             'parameters' => array_values($this->originalParameters)
                         ],
                     ]

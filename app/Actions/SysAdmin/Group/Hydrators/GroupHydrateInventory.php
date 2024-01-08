@@ -57,7 +57,7 @@ class GroupHydrateInventory
         }
 
 
-        $group->inventoryStats->update($stats);
+        $group->inventoryStats()->update($stats);
     }
 
 

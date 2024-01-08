@@ -41,7 +41,7 @@ class ShopHydrateInvoices implements ShouldBeUnique
 
         //        $this->storeElastic('invoice');
 
-        $shop->stats->update($stats);
+        $shop->stats()->update($stats);
     }
 
     public function getJobUniqueId(Shop $shop): string

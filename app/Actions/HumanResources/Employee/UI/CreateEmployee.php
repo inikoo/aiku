@@ -36,7 +36,7 @@ class CreateEmployee extends InertiaOrganisationAction
                             'style' => 'cancel',
                             'label' => __('cancel'),
                             'route' => [
-                                'name'       => 'grp.hr.employees.index',
+                                'name'       => 'grp.org.hr.employees.index',
                                 'parameters' => $request->route()->originalParameters()
                             ],
                         ]

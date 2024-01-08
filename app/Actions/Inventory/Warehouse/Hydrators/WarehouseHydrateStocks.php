@@ -19,7 +19,7 @@ class WarehouseHydrateStocks implements ShouldBeUnique
     public function handle(Warehouse $warehouse): void
     {
 
-        $warehouse->stats->update(
+        $warehouse->stats()->update(
             [
                 'stock_value' => $warehouse->locations()->sum('stock_value')
             ]

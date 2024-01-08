@@ -50,7 +50,7 @@ class GroupHydrateProcurement
             $stats['number_supplier_products_stock_quantity_status_'.$stockQuantityStatus->snake()] = Arr::get($stockQuantityStatusCounts, $stockQuantityStatus->value, 0);
         }
 
-        $group->procurementStats->update($stats);
+        $group->procurementStats()->update($stats);
     }
 
 

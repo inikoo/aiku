@@ -43,7 +43,7 @@ class SupplierHydrateSupplierProducts implements ShouldBeUnique
             $stats['number_supplier_products_stock_quantity_status_'.$stockQuantityStatus->snake()] = Arr::get($stockQuantityStatusCounts, $stockQuantityStatus->value, 0);
         }
 
-        $supplier->stats->update($stats);
+        $supplier->stats()->update($stats);
     }
 
     public function getJobUniqueId(Supplier $supplier): int

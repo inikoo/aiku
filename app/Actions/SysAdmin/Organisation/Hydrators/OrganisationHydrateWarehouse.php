@@ -35,6 +35,6 @@ class OrganisationHydrateWarehouse implements ShouldBeUnique
             'number_locations_state_broken'      => $locations-$operationalLocations
         ];
 
-        $organisation->inventoryStats->update($stats);
+        $organisation->inventoryStats()->update($stats);
     }
 }

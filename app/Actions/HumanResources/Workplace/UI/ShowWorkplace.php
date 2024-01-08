@@ -61,7 +61,7 @@ class ShowWorkplace extends InertiaOrganisationAction
                     'next'     => $this->getNext($workplace, $request),
                 ],
                 'pageHead'                         => [
-                    'icon'    =>
+                    'icon'        =>
                         [
                             'icon'  => ['fal', 'building'],
                             'title' => __('working place')
@@ -72,13 +72,14 @@ class ShowWorkplace extends InertiaOrganisationAction
                         $this->canEdit ? $this->getEditActionIcon($request) : null,
                     ],
 
+
                     'meta' => [
                         [
                             'label'    => trans_choice('clocking machine|clocking machines', $workplace->stats->number_clocking_machines),
                             'number'   => $workplace->stats->number_clocking_machines,
                             'href'     => [
-                                'name'       => 'org.hr.workplaces.show.clocking-machines.index',
-                                'parameters' => $workplace->slug
+                                'name'       => 'grp.org.hr.workplaces.show.clocking-machines.index',
+                                'parameters' => [$this->organisation->slug, $workplace->slug]
                             ],
                             'leftIcon' => [
                                 'icon'    => ['fal', 'chess-clock'],
@@ -89,8 +90,8 @@ class ShowWorkplace extends InertiaOrganisationAction
                             'label'    => trans_choice('clocking|clockings', $workplace->stats->number_clockings),
                             'number'   => $workplace->stats->number_clockings,
                             'href'     => [
-                                'name'       => 'org.hr.workplaces.show.clockings.index',
-                                'parameters' => $workplace->slug
+                                'name'       => 'grp.org.hr.workplaces.show.clockings.index',
+                                'parameters' => [$this->organisation->slug, $workplace->slug]
                             ],
                             'leftIcon' => [
                                 'icon'    => ['fal', 'clock'],
@@ -145,10 +146,11 @@ class ShowWorkplace extends InertiaOrganisationAction
             ]
         )->table(
             IndexClockings::make()->tableStructure(
+                parent: $workplace,
                 /* modelOperations:[
                         'createLink' => $this->canEdit ? [
                             'route' => [
-                                'name'       => 'org.hr.workplaces.show.clockings.create',
+                                'name'       => 'grp.org.hr.workplaces.show.clockings.create',
                                 'parameters' => array_values($this->originalParameters)
                             ],
                             'label' => __('clocking')
@@ -158,10 +160,11 @@ class ShowWorkplace extends InertiaOrganisationAction
             )
         )->table(
             IndexClockingMachines::make()->tableStructure(
+                parent: $workplace,
                 /* modelOperations: [
                         'createLink' => $this->canEdit ? [
                             'route' => [
-                                'name'       => 'org.hr.workplaces.show.clocking-machines.create',
+                                'name'       => 'grp.org.hr.workplaces.show.clocking-machines.create',
                                 'parameters' => array_values($this->originalParameters)
                             ],
                             'label' => __('clocking machine')
@@ -180,8 +183,7 @@ class ShowWorkplace extends InertiaOrganisationAction
 
     public function getBreadcrumbs($routeParameters, $suffix = null): array
     {
-
-        $workplace=Workplace::where('slug', $routeParameters['workplace'])->first();
+        $workplace = Workplace::where('slug', $routeParameters['workplace'])->first();
 
         return array_merge(
             (new ShowHumanResourcesDashboard())->getBreadcrumbs($routeParameters),
@@ -191,14 +193,15 @@ class ShowWorkplace extends InertiaOrganisationAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => [
-                                'name' => 'org.hr.workplaces.index',
+                                'name'       => 'grp.org.hr.workplaces.index',
+                                'parameters' => $routeParameters
                             ],
                             'label' => __('working place'),
                             'icon'  => 'fal fa-bars'
                         ],
                         'model' => [
                             'route' => [
-                                'name'       => 'org.hr.workplaces.show',
+                                'name'       => 'grp.org.hr.workplaces.show',
                                 'parameters' => $routeParameters
                             ],
                             'label' => $workplace->slug,
@@ -233,12 +236,13 @@ class ShowWorkplace extends InertiaOrganisationAction
         }
 
         return match ($routeName) {
-            'org.hr.workplaces.show' => [
+            'grp.org.hr.workplaces.show' => [
                 'label' => $workplace->name,
                 'route' => [
                     'name'       => $routeName,
                     'parameters' => [
-                        'workplace' => $workplace->slug
+                        'organisation' => $this->organisation->slug,
+                        'workplace'    => $workplace->slug
                     ]
                 ]
             ]

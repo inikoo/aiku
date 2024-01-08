@@ -23,7 +23,7 @@ class HydrateFulfilmentOrder extends HydrateModel
 
     public function originalItems(FulfilmentOrder $fulfilmentOrder): void
     {
-        $fulfilmentOrder->stats->update(
+        $fulfilmentOrder->stats()->update(
             [
                 'number_items_at_creation'=> $fulfilmentOrder->items()->count()
 

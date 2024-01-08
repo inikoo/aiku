@@ -16,31 +16,31 @@ const props = defineProps<{
 
 function clockingRoute(clocking: Clocking) {
     switch (route().current()) {
-        case 'grp.hr.clocking-machines.show':
+        case 'grp.org.hr.clocking-machines.show':
             return route(
-                'grp.hr.clocking-machines.show.clockings.show',
+                'grp.org.hr.clocking-machines.show.clockings.show',
                 [route().params['clockingMachine'], clocking.slug]);
 
-        case 'grp.hr.working-places.show.clocking-machines.show':
+        case 'grp.org.hr.workplaces.show.clocking-machines.show':
             return route(
-                'grp.hr.working-places.show.clocking-machines.show.clockings.show',
+                'grp.org.hr.workplaces.show.clocking-machines.show.clockings.show',
                 [route().params['workplace'],route().params['clockingMachine'], clocking.slug]);
-        case 'grp.hr.working-places.show.clockings.index':
+        case 'grp.org.hr.workplaces.show.clockings.index':
             return route(
-                'grp.hr.working-places.show.clockings.show',
+                'grp.org.hr.workplaces.show.clockings.show',
                 [clocking.workplace_slug, clocking.slug]);
-        case 'grp.hr.clocking-machines.clockings.index':
+        case 'grp.org.hr.clocking-machines.clockings.index':
             return route(
-                'grp.hr.clocking-machines.show.clockings.show',
+                'grp.org.hr.clocking-machines.show.clockings.show',
                 [clocking.clocking_machine_slug, clocking.slug]);
-        case 'grp.hr.working-places.show.clocking-machines.show.clockings.index':
+        case 'grp.org.hr.workplaces.show.clocking-machines.show.clockings.index':
             return route(
-                'grp.hr.working-places.show.clocking-machines.show.clockings.show',
+                'grp.org.hr.workplaces.show.clocking-machines.show.clockings.show',
                 [clocking.workplace_slug, clocking.clocking_machine_slug, clocking.slug]
             )
         default:
             return route(
-                'grp.hr.clockings.show',
+                'grp.org.hr.clockings.show',
                 [clocking.slug]);
     }
 

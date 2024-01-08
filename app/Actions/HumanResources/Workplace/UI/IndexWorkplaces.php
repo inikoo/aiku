@@ -42,6 +42,8 @@ class IndexWorkplaces extends InertiaOrganisationAction
 
         $queryBuilder=QueryBuilder::for(Workplace::class);
 
+        $queryBuilder->where('organisation_id', $this->organisation->id);
+
 
         return $queryBuilder
             ->defaultSort('slug')
@@ -75,7 +77,7 @@ class IndexWorkplaces extends InertiaOrganisationAction
                             'tooltip' => __('new working place'),
                             'label'   => __('working place'),
                             'route'   => [
-                                'name'       => 'grp.org.hr.working-places.create',
+                                'name'       => 'grp.org.hr.workplaces.create',
                                 'parameters' => array_values($this->originalParameters)
                             ]
                         ] : null
@@ -106,7 +108,7 @@ class IndexWorkplaces extends InertiaOrganisationAction
     {
 
         return Inertia::render(
-            'HumanResources/WorkingPlaces',
+            'HumanResources/Workplaces',
             [
                 'breadcrumbs' => $this->getBreadcrumbs($request->route()->originalParameters()),
                 'title'       => __('working places'),
@@ -118,7 +120,7 @@ class IndexWorkplaces extends InertiaOrganisationAction
                             'style' => 'create',
                             'label' => __('working place'),
                             'route' => [
-                                'name'       => 'grp.org.hr.working-places.create',
+                                'name'       => 'grp.org.hr.workplaces.create',
                                 'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ] : false
@@ -148,7 +150,7 @@ class IndexWorkplaces extends InertiaOrganisationAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => [
-                            'name'       => 'grp.org.hr.working-places.index',
+                            'name'       => 'grp.org.hr.workplaces.index',
                             'parameters' => $routeParameters
                         ],
                         'label' => __('working places'),

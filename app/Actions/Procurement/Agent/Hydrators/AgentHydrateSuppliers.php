@@ -22,7 +22,7 @@ class AgentHydrateSuppliers
             'number_suppliers'          => Supplier::where('agent_id', $agent->id)->where('status', true)->count(),
             'number_archived_suppliers' => Supplier::where('agent_id', $agent->id)->where('status', false)->count(),
         ];
-        $agent->stats->update($stats);
+        $agent->stats()->update($stats);
     }
 
 

@@ -40,7 +40,7 @@ class DeleteEmployee
 
     public function htmlResponse(): RedirectResponse
     {
-        return Redirect::route('grp.hr.employees.index');
+        return Redirect::route('grp.org.hr.employees.index');
     }
 
 }

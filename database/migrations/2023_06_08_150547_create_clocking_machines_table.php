@@ -5,23 +5,28 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
+use App\Stubs\Migrations\HasGroupOrganisationRelationship;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
+    use HasGroupOrganisationRelationship;
     public function up(): void
     {
         Schema::create('clocking_machines', function (Blueprint $table) {
             $table->smallIncrements('id');
-            $table->string('slug')->unique()->collation('und_ns');
-            $table->string('code')->index()->collation('und_ns');
+            $table = $this->groupOrgRelationship($table);
             $table->unsignedSmallInteger('workplace_id')->index();
             $table->foreign('workplace_id')->references('id')->on('workplaces');
+            $table->string('slug')->unique()->collation('und_ns');
+            $table->string('name')->index()->collation('und_ns');
+            $table->string('type')->index();
             $table->jsonb('data');
             $table->timestampsTz();
             $table->softDeletes();
             $table->string('source_id')->nullable()->unique();
+            $table->unique(['group_id', 'slug']);
         });
     }
 

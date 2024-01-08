@@ -42,7 +42,7 @@ class AgentHydrateSupplierProducts implements ShouldBeUnique
         foreach (SupplierProductQuantityStatusEnum::cases() as $stockQuantityStatus) {
             $stats['number_supplier_products_stock_quantity_status_'.$stockQuantityStatus->snake()] = Arr::get($stockQuantityStatusCounts, $stockQuantityStatus->value, 0);
         }
-        $agent->stats->update($stats);
+        $agent->stats()->update($stats);
     }
 
 

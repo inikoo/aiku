@@ -45,7 +45,7 @@ class StockFamilyHydrateStocks implements ShouldBeUnique
         }
 
 
-        $stockFamily->stats->update($stats);
+        $stockFamily->stats()->update($stats);
     }
 
     public function getJobUniqueId(StockFamily $stockFamily): int

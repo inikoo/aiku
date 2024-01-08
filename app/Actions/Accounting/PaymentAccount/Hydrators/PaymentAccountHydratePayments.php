@@ -68,7 +68,7 @@ class PaymentAccountHydratePayments implements ShouldBeUnique
             $stats["number_refunds_state_{$state->snake()}"] = Arr::get($stateCounts, $state->value, 0);
         }
 
-        $paymentAccount->stats->update($stats);
+        $paymentAccount->stats()->update($stats);
     }
 
     public function getJobUniqueId(PaymentAccount $paymentAccount): int

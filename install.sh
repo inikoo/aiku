@@ -49,3 +49,6 @@ pg_dump -Fc -f "devops/devel/snapshots/shops.dump" ${DB}
 php artisan warehouse:create inikoo wA 'Warehouse A'
 php artisan warehouse:create inikoo AB 'Warehouse B'
 php artisan warehouse:create awa AC 'AWA Warehouse C'
+
+php artisan workplace:create awa "Beach bar" hq
+php artisan workplace:create inikoo "Office B" hq

@@ -5,9 +5,6 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-use App\Enums\Inventory\Stock\StockQuantityStatusEnum;
-use App\Enums\Inventory\Stock\StockStateEnum;
-use App\Enums\Inventory\StockFamily\StockFamilyStateEnum;
 use App\Stubs\Migrations\HasInventoryStats;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;

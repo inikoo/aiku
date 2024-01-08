@@ -184,7 +184,7 @@ class EditWorkplace extends InertiaAction
         }
 
         return match ($routeName) {
-            'org.hr.workplaces.show' => [
+            'grp.org.hr.workplaces.show' => [
                 'label' => $workplace->name,
                 'route' => [
                     'name'       => $routeName,

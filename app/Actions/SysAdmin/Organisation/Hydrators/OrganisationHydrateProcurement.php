@@ -31,6 +31,6 @@ class OrganisationHydrateProcurement
             $stats['number_purchase_orders_status_'.$purchaseOrderStatusEnum->snake()] = Arr::get($purchaseOrderStatusCounts, $purchaseOrderStatusEnum->value, 0);
         }
 
-        $organisation->procurementStats->update($stats);
+        $organisation->procurementStats()->update($stats);
     }
 }

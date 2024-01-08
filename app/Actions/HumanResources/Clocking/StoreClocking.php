@@ -46,7 +46,7 @@ class StoreClocking
         if($this->asAction) {
             return true;
         }
-        return $request->user()->hasPermissionTo("hr.working-places.edit");
+        return $request->user()->hasPermissionTo("hr.workplaces.edit");
     }
     public function rules(): array
     {
@@ -73,12 +73,12 @@ class StoreClocking
     public function htmlResponse(Clocking $clocking): RedirectResponse
     {
         if(!$clocking->clocking_machine_id) {
-            return Redirect::route('grp.hr.working-places.show.clockings.show', [
+            return Redirect::route('grp.org.hr.workplaces.show.clockings.show', [
                 $clocking->workplace->slug,
                 $clocking->slug
             ]);
         } else {
-            return Redirect::route('grp.hr.working-places.show.clocking-machines.show.clockings.show', [
+            return Redirect::route('grp.org.hr.workplaces.show.clocking-machines.show.clockings.show', [
                 $clocking->workplace->slug,
                 $clocking->clockingMachine->slug,
                 $clocking->slug

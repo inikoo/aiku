@@ -14,9 +14,16 @@ use App\Actions\HumanResources\Employee\UpdateEmployeeWorkingHours;
 use App\Actions\HumanResources\Workplace\StoreWorkplace;
 use App\Actions\HumanResources\Workplace\UpdateWorkplace;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
+use App\Enums\HumanResources\Workplace\WorkplaceTypeEnum;
 use App\Models\Helpers\Address;
 use App\Models\HumanResources\Employee;
+use App\Models\HumanResources\Workplace;
 use App\Models\SysAdmin\User;
+
+use Inertia\Testing\AssertableInertia;
+
+use function Pest\Laravel\actingAs;
+use function Pest\Laravel\get;
 
 beforeAll(function () {
     loadDB('test_base_database.dump');
@@ -24,6 +31,13 @@ beforeAll(function () {
 
 beforeEach(function () {
     $this->organisation = createOrganisation();
+    $this->adminGuest   = createAdminGuest($this->organisation->group);
+
+    Config::set(
+        'inertia.testing.page_paths',
+        [resource_path('js/Pages/Grp')]
+    );
+    actingAs($this->adminGuest->user);
 });
 
 test('check seeded job positions', function () {
@@ -31,33 +45,43 @@ test('check seeded job positions', function () {
 });
 
 test('create working place successful', function () {
-    $arrayData = [
-        'name'    => 'aa',
-        'type'    => 'branch',
-        'address' => [
-            'country_id' => $this->organisation->country_id
-        ],
+    $modelData = [
+        'name'    => 'office',
+        'type'    => WorkplaceTypeEnum::BRANCH,
+        'address' => Address::factory()->definition()
     ];
 
+    $workplace = StoreWorkplace::make()->action($this->organisation, $modelData);
+    expect($workplace)->toBeInstanceOf(Workplace::class)
+        ->and($this->organisation->humanResourcesStats->number_workplaces)->toBe(1)
+        ->and($this->organisation->humanResourcesStats->number_workplaces_type_branch)->toBe(1);
 
-    $createdWorkplace = StoreWorkplace::run($this->organisation, $arrayData);
 
-    expect($createdWorkplace->name)->toBe($arrayData['name']);
-
-    return $createdWorkplace;
+    return $workplace;
 });
 
 test('update working place successful', function ($createdWorkplace) {
-    $arrayData        = [
-        'name' => 'vica smith',
-        'type' => 'home',
+    $arrayData = [
+        'name'    => 'vica smith',
+        'type'    => WorkplaceTypeEnum::HOME,
+        'address' => Address::create(Address::factory()->definition())->toArray()
     ];
-    $addressData      = Address::create(Address::factory()->definition())->toArray();
-    $updatedWorkplace = UpdateWorkplace::run($createdWorkplace, $arrayData, $addressData);
 
-    expect($updatedWorkplace->name)->toBe($arrayData['name']);
+    $updatedWorkplace = UpdateWorkplace::run($createdWorkplace, $arrayData);
+
+    expect($updatedWorkplace->name)->toBe($arrayData['name'])
+        ->and($this->organisation->humanResourcesStats->number_workplaces_type_branch)->toBe(0)
+        ->and($this->organisation->humanResourcesStats->number_workplaces_type_home)->toBe(1);
 })->depends('create working place successful');
 
+test('create working place by command', function () {
+    $this->artisan("workplace:create {$this->organisation->slug} office2 hq")->assertExitCode(0);
+    $this->artisan("workplace:create {$this->organisation->slug} office2 hq")->assertExitCode(1);
+    $workplace = Workplace::where('name', 'office2')->first();
+    $this->organisation->refresh();
+    expect($workplace)->not->toBeNull()
+        ->and($this->organisation->humanResourcesStats->number_workplaces)->toBe(2);
+});
 
 test('create employee successful', function () {
     $arrayData = [
@@ -113,13 +137,14 @@ test('create user from employee', function () {
 });
 
 
-test('create clocking machines', function ($createdWorkplace) {
+test('create clocking machines', function ($workplace) {
     $arrayData = [
-        'code' => 'ABC'
+        'name' => 'ABC',
+        'type' => 'static-nfc',
     ];
 
-    $clockingMachine = StoreClockingMachine::run($createdWorkplace, $arrayData);
-    expect($clockingMachine->code)->toBe($arrayData['code']);
+    $clockingMachine = StoreClockingMachine::run($workplace, $arrayData);
+    expect($clockingMachine->name)->toBe($arrayData['name']);
 
     return $clockingMachine;
 })->depends('create working place successful');
@@ -127,10 +152,73 @@ test('create clocking machines', function ($createdWorkplace) {
 
 test('update clocking machines', function ($createdClockingMachine) {
     $arrayData = [
-        'code' => 'ABC',
+        'name' => 'XYZ',
     ];
 
     $updatedClockingMachine = UpdateClockingMachine::run($createdClockingMachine, $arrayData);
 
-    expect($updatedClockingMachine->code)->toBe($arrayData['code']);
+    expect($updatedClockingMachine->name)->toBe($arrayData['name']);
 })->depends('create clocking machines');
+
+test('can show hr dashboard', function () {
+    $response = get(route('grp.org.hr.dashboard', $this->organisation->slug));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('HumanResources/HumanResourcesDashboard')
+            ->has('breadcrumbs', 2)
+            ->where('stats.0.stat', 1)->where('stats.0.href.name', 'grp.org.hr.employees.index')
+            ->where('stats.1.stat', 2)->where('stats.1.href.name', 'grp.org.hr.workplaces.index');
+    });
+});
+
+test('can show list of workplaces', function () {
+    $response = get(route('grp.org.hr.workplaces.index', $this->organisation->slug));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('HumanResources/Workplaces')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has('data.data', 2);
+    });
+});
+
+test('can show workplace', function () {
+    $workplace = Workplace::first();
+    $response  = get(route('grp.org.hr.workplaces.show', [$this->organisation->slug, $workplace->slug]));
+
+    $response->assertInertia(function (AssertableInertia $page) use ($workplace) {
+        $page
+            ->component('HumanResources/Workplace')
+            ->has('breadcrumbs', 3)
+            ->where('pageHead.meta.0.href.name', 'grp.org.hr.workplaces.show.clocking-machines.index')
+            ->where('pageHead.meta.0.href.parameters', [$this->organisation->slug, $workplace->slug])
+            ->has('tabs.navigation', 5);
+    });
+});
+
+test('can show list of employees', function () {
+    $response = get(route('grp.org.hr.employees.index', $this->organisation->slug));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('HumanResources/Employees')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has('data.data', 1);
+    });
+});
+
+test('can show employee', function () {
+    $employee = Employee::first();
+    expect($employee->user)->toBeInstanceOf(User::class);
+
+    $response = get(route('grp.org.hr.employees.show', [$this->organisation->slug, $employee->slug]));
+
+    $response->assertInertia(function (AssertableInertia $page) use ($employee) {
+        $page
+            ->component('HumanResources/Employee')
+            ->has('breadcrumbs', 3)
+            ->where('pageHead.meta.1.href.name', 'grp.org.sysadmin.users.show')
+            ->where('pageHead.meta.1.href.parameters', $employee->alias)
+            ->has('tabs.navigation', 7);
+    });
+})->todo();

@@ -35,6 +35,7 @@ use Spatie\Sluggable\SlugOptions;
  * App\Models\HumanResources\Workplace
  *
  * @property int $id
+ * @property int $group_id
  * @property int $organisation_id
  * @property bool $status
  * @property WorkplaceTypeEnum $type

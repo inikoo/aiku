@@ -32,7 +32,7 @@ class OrganisationHydrateOrders
             $stats['number_orders_state_' . $orderState->snake()] = Arr::get($stateCounts, $orderState->value, 0);
         }
 
-        $organisation->crmStats->update($stats);
+        $organisation->crmStats()->update($stats);
     }
 
 

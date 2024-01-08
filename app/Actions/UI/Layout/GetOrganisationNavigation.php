@@ -129,7 +129,7 @@ class GetOrganisationNavigation
                             'label' => __('raw materials'),
                             'icon'  => ['fal', 'fa-network-wired'],
                             'route' => [
-                                'name' => 'grp.hr.job-positions.index',
+                                'name' => 'grp.org.hr.job-positions.index',
 
                             ]
                         ],
@@ -137,7 +137,7 @@ class GetOrganisationNavigation
                             'label' => __('employees'),
                             'icon'  => ['fal', 'fa-terminal'],
                             'route' => [
-                                'name' => 'grp.hr.employees.index',
+                                'name' => 'grp.org.hr.employees.index',
 
                             ]
                         ],
@@ -145,7 +145,7 @@ class GetOrganisationNavigation
                             'label' => __('calendar'),
                             'icon'  => ['fal', 'fa-calendar'],
                             'route' => [
-                                'name' => 'grp.hr.calendars.index',
+                                'name' => 'grp.org.hr.calendars.index',
 
                             ]
                         ],
@@ -153,7 +153,7 @@ class GetOrganisationNavigation
                             'label' => __('time sheets'),
                             'icon'  => ['fal', 'fa-stopwatch'],
                             'route' => [
-                                'name' => 'grp.hr.time-sheets.index',
+                                'name' => 'grp.org.hr.time-sheets.index',
 
                             ]
                         ],
@@ -161,7 +161,7 @@ class GetOrganisationNavigation
                             'label' => __('clocking machines'),
                             'icon'  => ['fal', 'fa-chess-clock'],
                             'route' => [
-                                'name' => 'grp.hr.clocking-machines.index',
+                                'name' => 'grp.org.hr.clocking-machines.index',
 
                             ]
                         ]
@@ -263,14 +263,14 @@ class GetOrganisationNavigation
             $navigation['hr'] = [
                 'label'   => __('human resources'),
                 'icon'    => ['fal', 'fa-user-hard-hat'],
-                'route'   => 'grp.hr.dashboard',
+                'route'   => 'grp.org.hr.dashboard',
                 'topMenu' => [
                     'subSections' => [
                         [
                             'label' => __('job positions'),
                             'icon'  => ['fal', 'fa-network-wired'],
                             'route' => [
-                                'name' => 'grp.hr.job-positions.index',
+                                'name' => 'grp.org.hr.job-positions.index',
 
                             ]
                         ],
@@ -278,7 +278,7 @@ class GetOrganisationNavigation
                             'label' => __('employees'),
                             'icon'  => ['fal', 'fa-user-hard-hat'],
                             'route' => [
-                                'name' => 'grp.hr.employees.index',
+                                'name' => 'grp.org.hr.employees.index',
 
                             ]
                         ],
@@ -286,7 +286,7 @@ class GetOrganisationNavigation
                             'label' => __('calendar'),
                             'icon'  => ['fal', 'fa-calendar'],
                             'route' => [
-                                'name' => 'grp.hr.calendars.index',
+                                'name' => 'grp.org.hr.calendars.index',
 
                             ]
                         ],
@@ -294,7 +294,7 @@ class GetOrganisationNavigation
                             'label' => __('time sheets'),
                             'icon'  => ['fal', 'fa-stopwatch'],
                             'route' => [
-                                'name' => 'grp.hr.time-sheets.index',
+                                'name' => 'grp.org.hr.time-sheets.index',
 
                             ]
                         ],
@@ -302,7 +302,7 @@ class GetOrganisationNavigation
                             'label' => __('working place'),
                             'icon'  => ['fal', 'fa-building'],
                             'route' => [
-                                'name' => 'grp.hr.working-places.index',
+                                'name' => 'grp.org.hr.workplaces.index',
 
                             ]
                         ]

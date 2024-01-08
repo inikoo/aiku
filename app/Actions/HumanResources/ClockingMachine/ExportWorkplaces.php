@@ -27,7 +27,7 @@ class ExportWorkplaces
     {
         $type = $modelData['type'];
 
-        return $this->export(new WorkplacesExport(), 'working-places', $type);
+        return $this->export(new WorkplacesExport(), 'workplaces', $type);
     }
 
     /**

@@ -93,7 +93,7 @@ class IndexTimesheets extends InertiaAction
                     'title'  => __('employees'),
                     'create' => $this->canEdit ? [
                         'route' => [
-                            'name'       => 'grp.hr.employees.create',
+                            'name'       => 'grp.org.hr.employees.create',
                             'parameters' => array_values($this->originalParameters)
                         ],
                         'label' => __('employee')
@@ -122,7 +122,7 @@ class IndexTimesheets extends InertiaAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => [
-                            'name' => 'grp.hr.employees.index'
+                            'name' => 'grp.org.hr.employees.index'
                         ],
                         'label' => __('employees'),
                         'icon'  => 'fal fa-bars',

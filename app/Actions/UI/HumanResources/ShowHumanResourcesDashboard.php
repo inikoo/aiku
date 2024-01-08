@@ -59,9 +59,9 @@ class ShowHumanResourcesDashboard
                     ],
                     [
                         'name' => __('working places'),
-                        'stat' => $this->organisation->humanResourcesStats->number_employees_state_working,
+                        'stat' => $this->organisation->humanResourcesStats->number_workplaces,
                         'href' => [
-                            'name'       => 'grp.org.hr.working-places.index',
+                            'name'       => 'grp.org.hr.workplaces.index',
                             'parameters' => $request->route()->originalParameters()
                         ]
                     ]

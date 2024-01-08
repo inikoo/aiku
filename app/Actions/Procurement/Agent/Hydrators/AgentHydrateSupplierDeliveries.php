@@ -42,7 +42,7 @@ class AgentHydrateSupplierDeliveries implements ShouldBeUnique
             $stats['number_supplier_deliveries_status_'.$purchaseOrderStatusEnum->snake()] = Arr::get($purchaseOrderStatusCounts, $purchaseOrderStatusEnum->value, 0);
         }
 
-        $agent->stats->update($stats);
+        $agent->stats()->update($stats);
     }
 
     public function getJobUniqueId(Agent $agent): int

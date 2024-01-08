@@ -18,7 +18,7 @@ class WarehouseHydrateWarehouseAreas implements ShouldBeUnique
 
     public function handle(Warehouse $warehouse): void
     {
-        $warehouse->stats->update(
+        $warehouse->stats()->update(
             [
                 'number_warehouse_areas'=> $warehouse->warehouseAreas()->count()
 

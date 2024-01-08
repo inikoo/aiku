@@ -107,7 +107,7 @@ class IndexStoredItems extends InertiaAction
                     'actions' => [
                         'buttons' => [
                             'route' => [
-                                'name'       => 'grp.hr.employees.create',
+                                'name'       => 'grp.org.hr.employees.create',
                                 'parameters' => array_values($this->originalParameters)
                             ],
                             'label' => __('stored items')

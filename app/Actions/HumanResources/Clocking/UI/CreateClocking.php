@@ -36,7 +36,7 @@ class CreateClocking extends InertiaAction
                             'style' => 'cancel',
                             'label' => __('cancel'),
                             'route' => [
-                                'name'       => 'grp.hr.working-places.show.clockings.index',
+                                'name'       => 'grp.org.hr.workplaces.show.clockings.index',
                                 'parameters' => array_values($this->originalParameters)
                             ],
                         ]
@@ -71,7 +71,7 @@ class CreateClocking extends InertiaAction
 
                     ],
                     'route' => match ($request->route()->getName()) {
-                        'grp.hr.working-places.show.clockings.create' => [
+                        'grp.org.hr.workplaces.show.clockings.create' => [
                             'name'      => 'grp.models.working-place.clocking.store',
                             'arguments' => [$request->route()->parameters['workplace']->slug]
                         ],

@@ -44,6 +44,6 @@ class OrganisationHydrateMarket
         }
 
 
-        $organisation->marketStats->update($stats);
+        $organisation->marketStats()->update($stats);
     }
 }

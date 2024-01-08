@@ -22,7 +22,7 @@ class CustomerHydrateClients implements ShouldBeUnique
             'number_clients'        => $customer->clients->count(),
             'number_active_clients' => $customer->clients->where('status', true)->count(),
         ];
-        $customer->stats->update($stats);
+        $customer->stats()->update($stats);
     }
 
     public function getJobUniqueId(Customer $customer): int

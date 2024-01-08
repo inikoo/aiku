@@ -30,7 +30,7 @@ class ProductCategoryHydrateSubdepartments implements ShouldBeUnique
         foreach (FamilyStateEnum::cases() as $familyState) {
             $stats['number_families_state_'.$familyState->snake()] = Arr::get($stateCounts, $familyState->value, 0);
         }
-        $productCategory->stats->update($stats);
+        $productCategory->stats()->update($stats);
         */
     }
 

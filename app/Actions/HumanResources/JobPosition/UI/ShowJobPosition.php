@@ -68,7 +68,7 @@ class ShowJobPosition extends InertiaAction
                             'type'  => 'button',
                             'style' => 'delete',
                             'route' => [
-                                'name'       => 'grp.hr.job-positions.remove',
+                                'name'       => 'grp.org.hr.job-positions.remove',
                                 'parameters' => $request->route()->originalParameters()
                             ]
 
@@ -136,13 +136,13 @@ class ShowJobPosition extends InertiaAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => [
-                                'name' => 'grp.hr.job-positions.index',
+                                'name' => 'grp.org.hr.job-positions.index',
                             ],
                             'label' => __('positions')
                         ],
                         'model' => [
                             'route' => [
-                                'name'       => 'grp.hr.job-positions.show',
+                                'name'       => 'grp.org.hr.job-positions.show',
                                 'parameters' => [$jobPosition->slug]
                             ],
                             'label' => $jobPosition->name,
@@ -176,7 +176,7 @@ class ShowJobPosition extends InertiaAction
         }
 
         return match ($routeName) {
-            'grp.hr.job-positions.show' => [
+            'grp.org.hr.job-positions.show' => [
                 'label' => $jobPosition->name,
                 'route' => [
                     'name'       => $routeName,

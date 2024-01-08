@@ -23,7 +23,7 @@ class HydrateOrder extends HydrateModel
 
     public function originalItems(Order $order): void
     {
-        $order->stats->update(
+        $order->stats()->update(
             [
                 'number_items_at_creation'=> $order->transactions()->count()
 

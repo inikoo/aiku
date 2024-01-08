@@ -108,7 +108,7 @@ const getActionIcon = (action) => {
                             :icon="item['leftIcon']['icon']"
                             size="lg"
                             class="text-gray-400 pr-2" />
-                        <Link v-if="item.href" :href="route(item.href[0],item.href[1])">
+                        <Link v-if="item.href" :href="route(item.href['name'],item.href['parameters'])">
                             <span v-if="item.number">{{ locale.number(item.number) }}</span>
                             <FontAwesomeIcon v-else icon="fal fa-empty-set" />
                             {{ item.name }}

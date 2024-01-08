@@ -101,19 +101,19 @@ class RemoveClocking extends InertiaAction
                 'data'     => $this->getAction(
                     route:
                     match ($request->route()->getName()) {
-                        'grp.hr.clockings.remove' => [
+                        'grp.org.hr.clockings.remove' => [
                             'name'       => 'grp.models.clocking.delete',
                             'parameters' => $request->route()->originalParameters()
                         ],
-                        'grp.hr.working-places.show.clockings.remove' => [
+                        'grp.org.hr.workplaces.show.clockings.remove' => [
                             'name'       => 'grp.models.working-place.clocking.delete',
                             'parameters' => $request->route()->originalParameters()
                         ],
-                        'grp.hr.clocking-machines.show.clockings.remove' => [
+                        'grp.org.hr.clocking-machines.show.clockings.remove' => [
                             'name'       => 'grp.models.clocking-machine.clocking.delete',
                             'parameters' => $request->route()->originalParameters()
                         ],
-                        'grp.hr.working-places.show.clocking-machines.show.clockings.remove' => [
+                        'grp.org.hr.workplaces.show.clocking-machines.show.clockings.remove' => [
                             'name'       => 'grp.models.working-place.clocking-machine.clocking.delete',
                             'parameters' => $request->route()->originalParameters()
                         ]

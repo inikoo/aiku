@@ -16,10 +16,10 @@ import {Workplace} from "@/types/workplace";
 
 function workplaceRoute(workplace: Workplace) {
     switch (route().current()) {
-        case 'grp.hr.working-places.index':
+        case 'grp.org.hr.workplaces.index':
             return route(
-                'grp.hr.working-places.show',
-                [workplace.slug]);
+                'grp.org.hr.workplaces.show',
+                [route().params['organisation'],workplace.slug]);
 
     }
 
@@ -31,7 +31,7 @@ function workplaceRoute(workplace: Workplace) {
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(slug)="{ item: workplace }">
-            <Link :href="workplaceRoute(workplace)">
+            <Link :href="workplaceRoute(workplace)" class="specialUnderline">
                 {{ workplace['slug'] }}
             </Link>
         </template>

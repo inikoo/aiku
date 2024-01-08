@@ -17,9 +17,9 @@ const props = defineProps<{
 
 function jobPositionRoute(jobPosition: JobPosition) {
     switch (route().current()) {
-        case 'grp.hr.job-positions.index':
+        case 'grp.org.hr.job-positions.index':
             return route(
-                'grp.hr.job-positions.show',
+                'grp.org.hr.job-positions.show',
                 [jobPosition.slug]);
 
     }

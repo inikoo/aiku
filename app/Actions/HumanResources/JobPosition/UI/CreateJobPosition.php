@@ -36,7 +36,7 @@ class CreateJobPosition extends InertiaAction
                             'style' => 'cancel',
                             'label' => __('cancel'),
                             'route' => [
-                                'name'       => 'grp.hr.job-positions.index',
+                                'name'       => 'grp.org.hr.job-positions.index',
                                 'parameters' => array_values($this->originalParameters)
                             ],
                         ]

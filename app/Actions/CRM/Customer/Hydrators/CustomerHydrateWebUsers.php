@@ -21,7 +21,7 @@ class CustomerHydrateWebUsers
             'number_web_users'        => $customer->webUsers->count(),
             'number_active_web_users' => $customer->webUsers->where('status', true)->count(),
         ];
-        $customer->stats->update($stats);
+        $customer->stats()->update($stats);
     }
 
 

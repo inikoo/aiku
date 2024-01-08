@@ -85,7 +85,7 @@ class ShowEmployee extends InertiaAction
                             'type'  => 'button',
                             'style' => 'delete',
                             'route' => [
-                                'name'       => 'grp.hr.employees.remove',
+                                'name'       => 'grp.org.hr.employees.remove',
                                 'parameters' => $request->route()->originalParameters()
                             ]
 
@@ -129,13 +129,13 @@ class ShowEmployee extends InertiaAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => [
-                                'name' => 'grp.hr.employees.index',
+                                'name' => 'grp.org.hr.employees.index',
                             ],
                             'label' => __('employees')
                         ],
                         'model' => [
                             'route' => [
-                                'name'       => 'grp.hr.employees.show',
+                                'name'       => 'grp.org.hr.employees.show',
                                 'parameters' => [$employee->slug]
                             ],
                             'label' => $employee->slug,
@@ -169,7 +169,7 @@ class ShowEmployee extends InertiaAction
         }
 
         return match ($routeName) {
-            'grp.hr.employees.show' => [
+            'grp.org.hr.employees.show' => [
                 'label' => $employee->contact_name,
                 'route' => [
                     'name'       => $routeName,
