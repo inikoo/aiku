@@ -1,27 +1,23 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Mon, 06 Mar 2023 18:43:21 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Mon, 08 Jan 2024 20:47:31 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
 namespace App\Actions\UI\CRM;
 
+use App\Actions\InertiaOrganisationAction;
 use App\Actions\UI\Dashboard\ShowDashboard;
-use App\Actions\UI\WithInertia;
 use App\Models\Market\Shop;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsAction;
 
-class CRMDashboard
+class ShowOrganisationCRMDashboard extends InertiaOrganisationAction
 {
-    use AsAction;
-    use WithInertia;
-
     public function handle($scope)
     {
         return $scope;
@@ -29,17 +25,20 @@ class CRMDashboard
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("crm.view");
+
+        return $request->user()->hasPermissionTo("crm.{$this->organisation->slug}.view");
     }
 
 
-    public function inTenant(): Organisation
+    public function inOrganisation(Organisation $organisation, ActionRequest $request): Organisation
     {
-        return $this->handle(app('currentTenant'));
+        $this->initialisation($organisation, $request);
+        return $this->handle($organisation);
     }
 
-    public function inShop(Shop $shop): Shop
+    public function inShop(Organisation $organisation, Shop $shop, ActionRequest $request): Shop
     {
+        $this->initialisation($organisation, $request);
         return $this->handle($shop);
     }
 
@@ -60,7 +59,7 @@ class CRMDashboard
 
 
         return Inertia::render(
-            'CRM/CRMDashboard',
+            'CRM/ShowShopCRMDashboard',
             [
                 'breadcrumbs'  => $this->getBreadcrumbs(
                     $request->route()->getName(),

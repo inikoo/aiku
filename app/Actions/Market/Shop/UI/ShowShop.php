@@ -7,7 +7,7 @@
 
 namespace App\Actions\Market\Shop\UI;
 
-use App\Actions\InertiaAction;
+use App\Actions\InertiaOrganisationAction;
 use App\Actions\Market\Product\UI\IndexProducts;
 use App\Actions\Market\ProductCategory\UI\IndexDepartments;
 use App\Actions\Market\ProductCategory\UI\IndexFamilies;
@@ -19,15 +19,20 @@ use App\Http\Resources\Market\FamilyResource;
 use App\Http\Resources\Market\ProductResource;
 use App\Http\Resources\Market\ShopResource;
 use App\Models\Market\Shop;
+use App\Models\SysAdmin\Group;
+use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class ShowShop extends InertiaAction
+class ShowShop extends InertiaOrganisationAction
 {
     use AsAction;
     use WithInertia;
+
+
+    private Organisation|Group $parent;
 
     public function handle(Shop $shop): Shop
     {
@@ -36,16 +41,16 @@ class ShowShop extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit   = $request->user()->hasPermissionTo('shops.edit');
-        $this->canDelete = $request->user()->hasPermissionTo('shops.edit');
+        $this->canEdit   = $request->user()->hasPermissionTo("shops.{$this->parent->slug}.edit");
+        $this->canDelete = $request->user()->hasPermissionTo("shops.{$this->parent->slug}.edit");
 
-        return $request->user()->hasPermissionTo("shops.view");
+        return $request->user()->hasPermissionTo("shops.{$this->parent->slug}.view");
     }
 
-    public function asController(Shop $shop, ActionRequest $request): Shop
+    public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): Shop
     {
-        $this->initialisation($request)->withTab(ShopTabsEnum::values());
-
+        $this->parent=$organisation;
+        $this->initialisation($organisation, $request)->withTab(ShopTabsEnum::values());
         return $this->handle($shop);
     }
 
@@ -56,7 +61,7 @@ class ShowShop extends InertiaAction
             [
                 'title'        => __('shop'),
                 'breadcrumbs'  => $this->getBreadcrumbs(
-                    $request->route()->parameters
+                    $request->route()->originalParameters()
                 ),
                 'navigation'   => [
                     'previous' => $this->getPrevious($shop, $request),
@@ -74,7 +79,7 @@ class ShowShop extends InertiaAction
                             'style' => 'create',
                             'label' => __('website'),
                             'route' => [
-                                'name'       => 'shops.show.website.create',
+                                'name'       => 'grp.org.shops.show.website.create',
                                 'parameters' => $request->route()->originalParameters()
                             ]
 
@@ -83,10 +88,11 @@ class ShowShop extends InertiaAction
                             'type'  => 'button',
                             'style' => 'edit',
                             'route' => [
-                                'name'       => preg_replace('/show$/', 'edit', $this->routeName),
+                                'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
                                 'parameters' => $request->route()->originalParameters()
                             ]
                         ] : false,
+                        /*
                         $this->canDelete ? [
                             'type'  => 'button',
                             'style' => 'delete',
@@ -95,6 +101,7 @@ class ShowShop extends InertiaAction
                                 'parameters' => $request->route()->originalParameters()
                             ]
                         ] : false
+                        */
                     ]
                 ],
                 'flatTreeMaps' => [
@@ -286,6 +293,9 @@ class ShowShop extends InertiaAction
 
     public function getBreadcrumbs(array $routeParameters, $suffix = null): array
     {
+
+        $shop=Shop::where('slug', $routeParameters['shop'])->first();
+
         return
             array_merge(
                 ShowDashboard::make()->getBreadcrumbs(),
@@ -295,17 +305,18 @@ class ShowShop extends InertiaAction
                         'modelWithIndex' => [
                             'index' => [
                                 'route' => [
-                                    'name' => 'grp.org.shops.index'
+                                    'name'       => 'grp.org.shops.index',
+                                    'parameters' => $routeParameters
                                 ],
                                 'label' => __('shops'),
                                 'icon'  => 'fal fa-bars'
                             ],
                             'model' => [
                                 'route' => [
-                                    'name'       => 'shops.show',
-                                    'parameters' => [$routeParameters['shop']->slug]
+                                    'name'       => 'grp.org.shops.show',
+                                    'parameters' => $routeParameters
                                 ],
-                                'label' => $routeParameters['shop']->slug,
+                                'label' => $shop->code,
                                 'icon'  => 'fal fa-bars'
                             ]
 
@@ -338,12 +349,13 @@ class ShowShop extends InertiaAction
         }
 
         return match ($routeName) {
-            'shops.show' => [
+            'grp.org.shops.show' => [
                 'label' => $shop->name,
                 'route' => [
                     'name'       => $routeName,
                     'parameters' => [
-                        'shop' => $shop->slug
+                        'organisation'=> $this->parent->slug,
+                        'shop'        => $shop->slug
                     ]
 
                 ]

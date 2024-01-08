@@ -8,7 +8,7 @@
 namespace App\Actions\CRM\Customer\UI;
 
 use App\Actions\InertiaAction;
-use App\Actions\UI\CRM\CRMDashboard;
+use App\Actions\UI\CRM\ShowShopCRMDashboard;
 use App\Enums\Market\Shop\ShopTypeEnum;
 use App\Http\Resources\Sales\CustomerResource;
 use App\InertiaTable\InertiaTable;
@@ -247,7 +247,7 @@ class IndexCustomers extends InertiaAction
         return match ($routeName) {
             'grp.crm.customers.index' =>
             array_merge(
-                (new CRMDashboard())->getBreadcrumbs(
+                (new ShowShopCRMDashboard())->getBreadcrumbs(
                     'grp.crm.dashboard',
                     $routeParameters
                 ),
@@ -260,7 +260,7 @@ class IndexCustomers extends InertiaAction
             ),
             'grp.crm.shops.show.customers.index' =>
             array_merge(
-                (new CRMDashboard())->getBreadcrumbs(
+                (new ShowShopCRMDashboard())->getBreadcrumbs(
                     'grp.crm.shops.show.dashboard',
                     $routeParameters
                 ),

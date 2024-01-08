@@ -4,8 +4,6 @@
   - Copyright (c) 2023, Inikoo LTD
   -->
 
-
-
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
@@ -13,12 +11,12 @@ import {useLocaleStore} from '@/Stores/locale.js';
 import {library} from '@fortawesome/fontawesome-svg-core';
 import { capitalize } from "@/Composables/capitalize"
 import {
-   faShoppingCart
+   faShoppingCart,faStoreAlt
 } from '@fal';
-import FlatTreeMap from "@/Components/Navigation/FlatTreeMap.vue";
+import Stats from "@/Components/DataDisplay/Stats.vue";
 
 library.add(
-    faShoppingCart
+    faShoppingCart,faStoreAlt
 );
 
 
@@ -28,7 +26,7 @@ const locale = useLocaleStore();
 const props = defineProps<{
     title: string,
     pageHead: object,
-    flatTreeMaps: object
+    stats: object
 
 }>()
 
@@ -39,6 +37,6 @@ const props = defineProps<{
 <template layout="App">
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead"></PageHeading>
-    <FlatTreeMap class="mx-4" v-for="(treeMap,idx) in flatTreeMaps" :key="idx" :nodes="treeMap"/>
+    <stats class="p-4" :stats="stats"/>
 
 </template>
