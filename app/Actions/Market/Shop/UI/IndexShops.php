@@ -7,7 +7,7 @@
 
 namespace App\Actions\Market\Shop\UI;
 
-use App\Actions\InertiaAction;
+use App\Actions\InertiaOrganisationAction;
 use App\Actions\Market\Product\UI\IndexProducts;
 use App\Actions\Market\ProductCategory\UI\IndexDepartments;
 use App\Actions\Market\ProductCategory\UI\IndexFamilies;
@@ -19,6 +19,8 @@ use App\Http\Resources\Market\ProductResource;
 use App\Http\Resources\Market\ShopResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Market\Shop;
+use App\Models\SysAdmin\Group;
+use App\Models\SysAdmin\Organisation;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -28,27 +30,27 @@ use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
-class IndexShops extends InertiaAction
+class IndexShops extends InertiaOrganisationAction
 {
+    private Organisation|Group $parent;
+
     public function authorize(ActionRequest $request): bool
     {
         $this->canEdit = $request->user()->hasPermissionTo('shops');
 
-        return
-            (
-                $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo('shops.view')
-            );
+        return $request->user()->hasPermissionTo("shops.{$this->organisation->slug}.edit");
     }
 
-    public function asController(ActionRequest $request): LengthAwarePaginator
+    public function asController(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisation($request)->withTab(ShopsTabsEnum::values());
+        $this->parent = $organisation;
+        $this->initialisation($organisation, $request)->withTab(ShopsTabsEnum::values());
+
         return $this->handle();
     }
 
     /** @noinspection PhpUndefinedMethodInspection */
-    public function handle($prefix=null): LengthAwarePaginator
+    public function handle($prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -61,29 +63,26 @@ class IndexShops extends InertiaAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        $queryBuilder=QueryBuilder::for(Shop::class);
-        foreach ($this->elementGroups as $key => $elementGroup) {
-            $queryBuilder->whereElementGroup(
-                prefix: $prefix,
-                key: $key,
-                allowedElements: array_keys($elementGroup['elements']),
-                engine: $elementGroup['engine']
-            );
+        $queryBuilder = QueryBuilder::for(Shop::class);
+
+        if(class_basename($this->parent) == 'Organisation') {
+            $queryBuilder->where('organisation_id', $this->parent->id);
+        } else {
+            $queryBuilder->where('group_id', $this->parent->id);
         }
 
         return $queryBuilder
             ->defaultSort('shops.code')
-            ->select(['code', 'id', 'name', 'slug','type'])
-            ->allowedSorts(['code', 'name','type'])
+            ->select(['code', 'id', 'name', 'slug', 'type'])
+            ->allowedSorts(['code', 'name', 'type'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
     }
 
-    public function tableStructure($prefix): Closure
+    public function tableStructure(Organisation|Group $parent, $prefix): Closure
     {
-        return function (InertiaTable $table) use ($prefix) {
-
+        return function (InertiaTable $table) use ($prefix, $parent) {
             if ($prefix) {
                 $table
                     ->name($prefix)
@@ -94,21 +93,22 @@ class IndexShops extends InertiaAction
                 ->withGlobalSearch()
                 ->withModelOperations()
                 ->withEmptyState(
-                    [
-                        'title'       => __('No shops found'),
-                        'description' => $this->canEdit ? __('Get started by creating a shop. ✨') : null,
-                        'count'       => app('currentTenant')->marketStats->number_shops,
-                        'action'      => $this->canEdit ? [
-                            'type'    => 'button',
-                            'style'   => 'create',
-                            'tooltip' => __('new shop'),
-                            'label'   => __('shop'),
-                            'route'   => [
-                                'name'       => 'shops.create',
-                                'parameters' => array_values($this->originalParameters)
-                            ]
+                    class_basename($parent) == 'Organisation' ?
+                        [
+                            'title'       => __('No shops found'),
+                            'description' => $this->canEdit ? __('Get started by creating a shop. ✨') : null,
+                            'count'       => $parent->marketStats->number_shops,
+                            'action'      => $this->canEdit ? [
+                                'type'    => 'button',
+                                'style'   => 'create',
+                                'tooltip' => __('new shop'),
+                                'label'   => __('shop'),
+                                'route'   => [
+                                    'name'       => 'grp.org.shops.create',
+                                    'parameters' => $parent->id
+                                ]
+                            ] : null
                         ] : null
-                    ]
                 )
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
@@ -124,13 +124,10 @@ class IndexShops extends InertiaAction
 
     public function htmlResponse(LengthAwarePaginator $shops, ActionRequest $request): Response
     {
-
-        $scope=app('currentTenant');
-
         return Inertia::render(
             'Market/Shops',
             [
-                'breadcrumbs' => $this->getBreadcrumbs(),
+                'breadcrumbs' => $this->getBreadcrumbs($request->route()->getName(), $request->route()->originalParameters()),
                 'title'       => __('shops'),
                 'pageHead'    => [
                     'title'   => __('shops'),
@@ -139,7 +136,7 @@ class IndexShops extends InertiaAction
                         'title' => __('shop')
                     ],
                     'actions' => [
-                        $this->canEdit && $this->routeName=='grp.shops.index' ? [
+                        $this->canEdit ? [
                             'type'    => 'button',
                             'style'   => 'create',
                             'tooltip' => __('new shop'),
@@ -163,50 +160,55 @@ class IndexShops extends InertiaAction
                     : Inertia::lazy(fn () => ShopResource::collection($shops)),
 
                 ShopsTabsEnum::DEPARTMENTS->value => $this->tab == ShopsTabsEnum::DEPARTMENTS->value ?
-                    fn () => DepartmentResource::collection(IndexDepartments::run($scope, ShopsTabsEnum::DEPARTMENTS->value))
-                    : Inertia::lazy(fn () => DepartmentResource::collection(IndexDepartments::run($scope, ShopsTabsEnum::DEPARTMENTS->value))),
+                    fn () => DepartmentResource::collection(IndexDepartments::run($this->parent, ShopsTabsEnum::DEPARTMENTS->value))
+                    : Inertia::lazy(fn () => DepartmentResource::collection(IndexDepartments::run($this->parent, ShopsTabsEnum::DEPARTMENTS->value))),
 
                 ShopsTabsEnum::FAMILIES->value => $this->tab == ShopsTabsEnum::FAMILIES->value ?
-                    fn () => FamilyResource::collection(IndexFamilies::run($scope))
-                    : Inertia::lazy(fn () => FamilyResource::collection(IndexFamilies::run($scope))),
+                    fn () => FamilyResource::collection(IndexFamilies::run($this->parent))
+                    : Inertia::lazy(fn () => FamilyResource::collection(IndexFamilies::run($this->parent))),
 
                 ShopsTabsEnum::PRODUCTS->value => $this->tab == ShopsTabsEnum::PRODUCTS->value ?
-                    fn () => ProductResource::collection(IndexProducts::run($scope))
-                    : Inertia::lazy(fn () => ProductResource::collection(IndexProducts::run($scope))),
+                    fn () => ProductResource::collection(IndexProducts::run($this->parent))
+                    : Inertia::lazy(fn () => ProductResource::collection(IndexProducts::run($this->parent))),
 
 
             ]
-        )->table($this->tableStructure(prefix: 'shops'))
+        )->table($this->tableStructure(parent: $this->parent, prefix: 'shops'))
             ->table(
                 IndexDepartments::make()->tableStructure(
-                    parent:$scope,
+                    parent: $this->parent,
                     modelOperations: [],
                     prefix: 'departments'
                 )
             )
-            ->table(IndexFamilies::make()->tableStructure(parent:$scope, prefix: 'families'))
-            ->table(IndexDepartments::make()->tableStructure(parent:$scope, prefix: 'products'));
+            ->table(IndexFamilies::make()->tableStructure(parent: $this->parent, prefix: 'families'))
+            ->table(IndexDepartments::make()->tableStructure(parent: $this->parent, prefix: 'products'));
     }
 
-    public function getBreadcrumbs($suffix=null): array
+    public function getBreadcrumbs(string $routeName, array $routeParameters, $suffix = null): array
     {
-        return
-            array_merge(
-                (new ShowDashboard())->getBreadcrumbs(),
-                [
+        if ($routeName == 'grp.org.shops.index') {
+            return
+                array_merge(
+                    (new ShowDashboard())->getBreadcrumbs(),
                     [
-                        'type'   => 'simple',
-                        'simple' => [
-                            'route' => [
-                                'name' => 'grp.shops.index'
+                        [
+                            'type'   => 'simple',
+                            'simple' => [
+                                'route' => [
+                                    'name'       => 'grp.org.shops.index',
+                                    'parameters' => $routeParameters
+                                ],
+                                'label' => __('shops'),
+                                'icon'  => 'fal fa-bars'
                             ],
-                            'label' => __('shops'),
-                            'icon'  => 'fal fa-bars'
-                        ],
-                        'suffix'=> $suffix
+                            'suffix' => $suffix
 
+                        ]
                     ]
-                ]
-            );
+                );
+        }
+
+        return [];
     }
 }

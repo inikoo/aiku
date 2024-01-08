@@ -33,7 +33,7 @@ class GetShopNavigation
 
                 ],
                 'route' => [
-                    'all'      => 'grp.shops.index',
+                    'all'      => 'grp.org.shops.index',
                     'selected' => 'shops.show'
                 ],
 
@@ -47,7 +47,7 @@ class GetShopNavigation
                                 'tooltip' => __('shops'),
                                 'icon'    => ['fal', 'fa-store-alt'],
                                 'route'   => [
-                                    'all'      => 'grp.shops.index',
+                                    'all'      => 'grp.org.shops.index',
                                     'selected' => 'grp.shops.show',
 
                                 ],

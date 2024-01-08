@@ -11,36 +11,41 @@ use App\Actions\Assets\Country\UI\GetCountriesOptions;
 use App\Actions\Assets\Currency\UI\GetCurrenciesOptions;
 use App\Actions\Assets\Language\UI\GetLanguagesOptions;
 use App\Actions\Assets\TimeZone\UI\GetTimeZonesOptions;
-use App\Actions\InertiaAction;
+use App\Actions\InertiaOrganisationAction;
 use App\Enums\Market\Shop\ShopTypeEnum;
-use Exception;
+use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\LaravelOptions\Options;
 
-class CreateShop extends InertiaAction
+class CreateShop extends InertiaOrganisationAction
 {
+    public function handle()
+    {
+
+    }
+
     /**
-     * @throws Exception
+     * @throws \Exception
      */
-    public function handle(): Response
+    public function htmlResponse(ActionRequest $request): Response
     {
         return Inertia::render(
             'CreateModel',
             [
-                'breadcrumbs' => $this->getBreadcrumbs(),
+                'breadcrumbs' => $this->getBreadcrumbs($request->route()->originalParameters()),
                 'title'       => __('new shop'),
                 'pageHead'    => [
-                    'title'        => __('new shop'),
-                    'actions'      => [
+                    'title'   => __('new shop'),
+                    'actions' => [
                         [
                             'type'  => 'button',
                             'style' => 'cancel',
                             'label' => __('cancel'),
                             'route' => [
-                                'name'       => 'grp.shops.index',
-                                'parameters' => array_values($this->originalParameters)
+                                'name'       => 'grp.org.shops.index',
+                                'parameters' => $request->route()->originalParameters()
                             ],
                         ]
                     ]
@@ -63,13 +68,13 @@ class CreateShop extends InertiaAction
                                     'value'    => '',
                                 ],
                                 'type' => [
-                                    'type'         => 'select',
-                                    'label'        => __('type'),
-                                    'placeholder'  => __('Select one option'),
-                                    'options'      => Options::forEnum(ShopTypeEnum::class),
-                                    'required'     => true,
-                                    'mode'         => 'single',
-                                    'searchable'   => true
+                                    'type'        => 'select',
+                                    'label'       => __('type'),
+                                    'placeholder' => __('Select one option'),
+                                    'options'     => Options::forEnum(ShopTypeEnum::class),
+                                    'required'    => true,
+                                    'mode'        => 'single',
+                                    'searchable'  => true
                                 ],
                             ]
                         ],
@@ -161,20 +166,18 @@ class CreateShop extends InertiaAction
     }
 
 
-    /**
-     * @throws Exception
-     */
-    public function asController(ActionRequest $request): Response
-    {
-        $this->initialisation($request);
 
-        return $this->handle();
+    public function asController(Organisation $organisation, ActionRequest $request): ActionRequest
+    {
+        $this->initialisation($organisation, $request);
+
+        return $request;
     }
 
-    public function getBreadcrumbs(): array
+    public function getBreadcrumbs(array $routeParameters): array
     {
         return array_merge(
-            IndexShops::make()->getBreadcrumbs(),
+            IndexShops::make()->getBreadcrumbs('grp.org.shops.index', $routeParameters),
             [
                 [
                     'type'          => 'creatingModel',

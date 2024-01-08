@@ -24,13 +24,8 @@ use App\Actions\Market\ProductCategory\UI\RemoveFamily;
 use App\Actions\Market\ProductCategory\UI\ShowDepartment;
 use App\Actions\Market\ProductCategory\UI\ShowFamily;
 use App\Actions\Market\Shop\ExportShops;
-use App\Actions\Market\Shop\UI\CreateShop;
-use App\Actions\Market\Shop\UI\EditShop;
 use App\Actions\Market\Shop\UI\IndexShops;
 use App\Actions\Market\Shop\UI\CreateShops;
-use App\Actions\Market\Shop\UI\RemoveShop;
-use App\Actions\Market\Shop\UI\ShowShop;
-use App\Actions\Web\Website\UI\CreateWebsite;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/departments', [IndexDepartments::class, 'inTenant'])->name('departments.index');
@@ -50,16 +45,10 @@ Route::get('/products/{product}/edit', [EditProduct::class, 'inTenant'])->name('
 
 Route::get('/export', ExportShops::class)->name('export');
 
-Route::get('/', IndexShops::class)->name('index');
-Route::get('/create', CreateShop::class)->name('create');
-Route::get('/create-multi', CreateShops::class)->name('create-multi');
-Route::get('/create-multi/clear', CreateShops::class)->name('create-multi-clear');
-Route::get('/{shop}', ShowShop::class)->name('show');
-Route::get('/{shop}/edit', EditShop::class)->name('edit');
-Route::get('/{shop}/delete', RemoveShop::class)->name('remove');
-Route::get('/{shop}/website/create', [CreateWebsite::class,'inShop'])->name('show.website.create');
+//Route::get('/', IndexShops::class)->name('index');
 
-
+//Route::get('/create-multi', CreateShops::class)->name('create-multi');
+//Route::get('/create-multi/clear', CreateShops::class)->name('create-multi-clear');
 
 
 

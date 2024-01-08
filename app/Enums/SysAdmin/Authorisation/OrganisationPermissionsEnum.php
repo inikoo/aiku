@@ -29,6 +29,14 @@ enum OrganisationPermissionsEnum: string
 
 
 
+    case SHOPS      = 'shops';
+    case SHOPS_EDIT = 'shops.edit';
+    case SHOPS_VIEW = 'shops.view';
+
+    case WAREHOUSES      = 'warehouses';
+    case WAREHOUSES_EDIT = 'warehouses.edit';
+    case WAREHOUSES_VIEW = 'warehouses.view';
+
     case SUPERVISOR_HUMAN_RESOURCES = 'supervisor-human-resources';
     case SUPERVISOR_ACCOUNTING      = 'supervisor-accounting';
     case SUPERVISOR_PROCUREMENT     = 'supervisor-procurement';

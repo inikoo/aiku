@@ -50,7 +50,7 @@ class CreateShops extends InertiaAction
                     'exitEdit' => [
                         'label' => __('Back'),
                         'route' => [
-                            'name'       => 'grp.shops.index',
+                            'name'       => 'grp.org.shops.index',
                             'parameters' => array_values($this->originalParameters)
                         ],
                     ],

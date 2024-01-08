@@ -1,8 +1,8 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Mon, 06 Mar 2023 18:43:21 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Mon, 08 Jan 2024 17:46:19 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
 
@@ -18,6 +18,7 @@ use App\Actions\CRM\WebUser\ShowWebUser;
 use App\Actions\OMS\Order\UI\ShowOrder;
 use App\Actions\UI\CRM\CRMDashboard;
 
+/*
 Route::get('/', [CRMDashboard::class,'inTenant'])->name('dashboard');
 Route::get('/customers', [IndexCustomers::class, 'inTenant'])->name('customers.index');
 Route::get('/customers/{customer}', [ShowCustomer::class, 'inTenant'])->name('customers.show');
@@ -30,18 +31,18 @@ Route::get('/customers/{customer}/web-users/{webUser}/edit', [EditWebUser::class
 
 
 Route::get('/prospects', [IndexProspects::class, 'inTenant'])->name('prospects.index');
+*/
+
+Route::get('', [CRMDashboard::class,'inShop'])->name('dashboard');
+
+Route::get('/customers/create', CreateCustomer::class)->name('customers.create');
+Route::get('/customers', [IndexCustomers::class, 'inShop'])->name('customers.index');
+Route::get('/customers/{customer}', [ShowCustomer::class, 'inShop'])->name('customers.show');
+Route::get('/customers/{customer}/edit', [EditCustomer::class, 'inShop'])->name('customers.edit');
+Route::get('/customers/{customer}/orders/{order}', [ShowOrder::class,'inCustomerInShop'])->name('customers.show.orders.show');
+Route::get('/customers/{customer}/web-users', [IndexWebUser::class, 'inCustomerInShop'])->name('customers.show.web-users.index');
+Route::get('/customers/{customer}/web-users/{webUser}', [ShowWebUser::class, 'inCustomerInShop'])->name('customers.show.web-users.show');
+Route::get('/customers/{customer}/web-users/{webUser}/edit', [EditWebUser::class, 'inCustomerInShop'])->name('customers.show.web-users.edit');
 
 
-Route::get('/shop/{shop}', [CRMDashboard::class,'inShop'])->name('shops.show.dashboard');
-
-Route::get('/shop/{shop}/customers/create', CreateCustomer::class)->name('shops.show.customers.create');
-Route::get('/shop/{shop}/customers', [IndexCustomers::class, 'inShop'])->name('shops.show.customers.index');
-Route::get('/shop/{shop}/customers/{customer}', [ShowCustomer::class, 'inShop'])->name('shops.show.customers.show');
-Route::get('/shop/{shop}/customers/{customer}/edit', [EditCustomer::class, 'inShop'])->name('shops.show.customers.edit');
-Route::get('/shop/{shop}/customers/{customer}/orders/{order}', [ShowOrder::class,'inCustomerInShop'])->name('shops.show.customers.show.orders.show');
-Route::get('/shop/{shop}/customers/{customer}/web-users', [IndexWebUser::class, 'inCustomerInShop'])->name('shops.show.customers.show.web-users.index');
-Route::get('/shop/{shop}/customers/{customer}/web-users/{webUser}', [ShowWebUser::class, 'inCustomerInShop'])->name('shops.show.customers.show.web-users.show');
-Route::get('/shop/{shop}/customers/{customer}/web-users/{webUser}/edit', [EditWebUser::class, 'inCustomerInShop'])->name('shops.show.customers.show.web-users.edit');
-
-
-Route::get('/shop/{shop}/prospects', [IndexProspects::class, 'inShop'])->name('shops.show.prospects.index');
+Route::get('/prospects', [IndexProspects::class, 'inShop'])->name('prospects.index');

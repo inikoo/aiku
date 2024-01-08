@@ -295,7 +295,7 @@ class ShowShop extends InertiaAction
                         'modelWithIndex' => [
                             'index' => [
                                 'route' => [
-                                    'name' => 'grp.shops.index'
+                                    'name' => 'grp.org.shops.index'
                                 ],
                                 'label' => __('shops'),
                                 'icon'  => 'fal fa-bars'

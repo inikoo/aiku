@@ -119,7 +119,7 @@ class ShowInvoice extends InertiaAction
                     'routeParameters' => $invoice->id,
                     'name'            => $invoice->number,
                     'index'           => [
-                        'route'   => 'grp.shops.index',
+                        'route'   => 'grp.org.shops.index',
                         'overlay' => __('Invoices list')
                     ],
                     'modelLabel' => [

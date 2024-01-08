@@ -5,11 +5,16 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
+use App\Actions\Market\Shop\UI\EditShop;
+use App\Actions\Market\Shop\UI\RemoveShop;
+use App\Actions\Market\Shop\UI\ShowShop;
+use App\Actions\Web\Website\UI\CreateWebsite;
 use Illuminate\Support\Facades\Route;
 
-Route::prefix("")
-    ->name("dashboard.")
-    ->group(__DIR__."/dashboard.php");
+Route::get('', ShowShop::class)->name('show');
+Route::get('edit', EditShop::class)->name('edit');
+Route::get('delete', RemoveShop::class)->name('remove');
+Route::get('website/create', [CreateWebsite::class, 'inShop'])->name('show.website.create');
 
 Route::prefix("crm")
     ->name("crm.")

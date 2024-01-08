@@ -10,7 +10,6 @@ namespace App\Actions\HumanResources\Workplace\UI;
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\HumanResources\Clocking\UI\IndexClockings;
 use App\Actions\HumanResources\ClockingMachine\UI\IndexClockingMachines;
-use App\Actions\InertiaAction;
 use App\Actions\InertiaOrganisationAction;
 use App\Actions\Traits\Actions\WithActionButtons;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
@@ -20,6 +19,7 @@ use App\Http\Resources\HumanResources\ClockingMachineResource;
 use App\Http\Resources\HumanResources\ClockingResource;
 use App\Http\Resources\HumanResources\WorkPlaceResource;
 use App\Models\HumanResources\Workplace;
+use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -41,9 +41,9 @@ class ShowWorkplace extends InertiaOrganisationAction
         return $request->user()->hasPermissionTo("human-resources.{$this->organisation->slug}.edit");
     }
 
-    public function asController(Workplace $workplace, ActionRequest $request): Workplace
+    public function asController(Organisation $organisation, Workplace $workplace, ActionRequest $request): Workplace
     {
-        $this->initialisation($request)->withTab(WorkplaceTabsEnum::values());
+        $this->initialisation($organisation, $request)->withTab(WorkplaceTabsEnum::values());
 
         return $this->handle($workplace);
     }

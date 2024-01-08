@@ -11,11 +11,11 @@ use App\Models\Market\Shop;
 
 enum ShopPermissionsEnum: string
 {
-    case SHOP = 'shops';
+    case SHOP = 'shop';
 
-    case SHOP_EDIT = 'shops.edit';
+    case SHOP_EDIT = 'shop.edit';
 
-    case SHOP_VIEW = 'shops.view';
+    case SHOP_VIEW = 'shop.view';
 
     case CRM      = 'crm';
     case CRM_EDIT = 'crm.edit';

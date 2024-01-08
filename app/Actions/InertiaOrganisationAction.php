@@ -21,8 +21,8 @@ class InertiaOrganisationAction
 
 
     protected Organisation $organisation;
-    protected ?string $tab              = null;
-    protected bool $canEdit             = false;
+    protected ?string $tab                = null;
+    protected bool $canEdit               = false;
     protected bool $canDelete             = false;
     protected array $validatedData;
 
