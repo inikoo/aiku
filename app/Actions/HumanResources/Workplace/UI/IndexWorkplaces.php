@@ -7,12 +7,13 @@
 
 namespace App\Actions\HumanResources\Workplace\UI;
 
-use App\Actions\InertiaAction;
+use App\Actions\InertiaOrganisationAction;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
 use App\Http\Resources\HumanResources\WorkPlaceInertiaResource;
 use App\Http\Resources\HumanResources\WorkPlaceResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\HumanResources\Workplace;
+use App\Models\SysAdmin\Organisation;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -22,9 +23,10 @@ use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
-class IndexWorkplaces extends InertiaAction
+class IndexWorkplaces extends InertiaOrganisationAction
 {
-    /** @noinspection PhpUndefinedMethodInspection */
+    private array $originalParameters;
+
     public function handle($prefix=null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -39,15 +41,7 @@ class IndexWorkplaces extends InertiaAction
         }
 
         $queryBuilder=QueryBuilder::for(Workplace::class);
-        foreach ($this->elementGroups as $key => $elementGroup) {
-            /** @noinspection PhpUndefinedMethodInspection */
-            $queryBuilder->whereElementGroup(
-                prefix: $prefix,
-                key: $key,
-                allowedElements: array_keys($elementGroup['elements']),
-                engine: $elementGroup['engine']
-            );
-        }
+
 
         return $queryBuilder
             ->defaultSort('slug')
@@ -81,7 +75,7 @@ class IndexWorkplaces extends InertiaAction
                             'tooltip' => __('new working place'),
                             'label'   => __('working place'),
                             'route'   => [
-                                'name'       => 'org.hr.workplaces.create',
+                                'name'       => 'grp.org.hr.working-places.create',
                                 'parameters' => array_values($this->originalParameters)
                             ]
                         ] : null
@@ -96,13 +90,9 @@ class IndexWorkplaces extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo('hr.workplaces.edit');
+        $this->canEdit = $request->user()->hasPermissionTo("human-resources.{$this->organisation->slug}.edit");
 
-        return
-            (
-                $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo('hr.view')
-            );
+        return $request->user()->hasPermissionTo("human-resources.{$this->organisation->slug}.view");
     }
 
 
@@ -116,7 +106,7 @@ class IndexWorkplaces extends InertiaAction
     {
 
         return Inertia::render(
-            'HumanResources/Workplaces',
+            'HumanResources/WorkingPlaces',
             [
                 'breadcrumbs' => $this->getBreadcrumbs($request->route()->originalParameters()),
                 'title'       => __('working places'),
@@ -128,7 +118,7 @@ class IndexWorkplaces extends InertiaAction
                             'style' => 'create',
                             'label' => __('working place'),
                             'route' => [
-                                'name'       => 'org.hr.workplaces.create',
+                                'name'       => 'grp.org.hr.working-places.create',
                                 'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ] : false
@@ -141,10 +131,10 @@ class IndexWorkplaces extends InertiaAction
     }
 
 
-    public function asController(ActionRequest $request): LengthAwarePaginator
+    public function asController(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisation($request);
-
+        $this->initialisation($organisation, $request);
+        $this->originalParameters = $request->route()->originalParameters();
         return $this->handle();
     }
 
@@ -158,7 +148,8 @@ class IndexWorkplaces extends InertiaAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => [
-                            'name' => 'org.hr.workplaces.index'
+                            'name'       => 'grp.org.hr.working-places.index',
+                            'parameters' => $routeParameters
                         ],
                         'label' => __('working places'),
                         'icon'  => 'fal fa-bars',

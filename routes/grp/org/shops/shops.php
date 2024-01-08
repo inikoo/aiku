@@ -11,25 +11,14 @@ Route::prefix("")
     ->name("dashboard.")
     ->group(__DIR__."/dashboard.php");
 
-Route::prefix("hr")
-    ->name("hr.")
-    ->group(__DIR__."/hr.php");
-
-
-Route::prefix("shops/{shop}")
-    ->name("shops.")
-    ->group(__DIR__."/shops/shops.php");
-
-
-Route::prefix("models")
-    ->name("models.")
-    ->group(__DIR__."/models.php");
-
-/*
-
 Route::prefix("crm")
     ->name("crm.")
     ->group(__DIR__."/crm.php");
+
+
+/*
+
+
 
 Route::prefix("account")
     ->name("account.")

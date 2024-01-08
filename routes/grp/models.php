@@ -27,8 +27,6 @@ use App\Actions\HumanResources\JobPosition\DeleteJobPosition;
 use App\Actions\HumanResources\JobPosition\StoreJobPosition;
 use App\Actions\HumanResources\JobPosition\UpdateJobPosition;
 use App\Actions\HumanResources\Workplace\DeleteWorkplace;
-use App\Actions\HumanResources\Workplace\StoreWorkplace;
-use App\Actions\HumanResources\Workplace\UpdateWorkplace;
 use App\Actions\Inventory\Location\DeleteLocation;
 use App\Actions\Inventory\Location\StoreLocation;
 use App\Actions\Inventory\Location\UpdateLocation;
@@ -127,9 +125,6 @@ Route::patch('/position/{employee}', UpdateJobPosition::class)->name('job-positi
 Route::post('/position/', StoreJobPosition::class)->name('job-position.store');
 Route::delete('/position/{employee}', DeleteJobPosition::class)->name('job-position.delete');
 
-Route::patch('/working-place/{workplace}', UpdateWorkplace::class)->name('working-place.update');
-Route::post('/working-place/', StoreWorkplace::class)->name('working-place.store');
-Route::delete('/working-place/{workplace}', DeleteWorkplace::class)->name('working-place.delete');
 
 Route::patch('/clocking-machine/{clockingMachine}', UpdateClockingMachine::class)->name('clocking-machine.update');
 Route::post('/clocking-machine', StoreClockingMachine::class)->name('clocking-machine.store');

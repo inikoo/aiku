@@ -87,7 +87,8 @@ class CreateWorkplace extends InertiaOrganisationAction
 
                     ],
                     'route'      => [
-                            'name'       => 'org.models.workplace.store',
+                            'name'       => 'grp.org.models.working-place.store',
+                            'parameters' => $this->organisation->id
 
                     ]
 
@@ -101,7 +102,7 @@ class CreateWorkplace extends InertiaOrganisationAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo('hr.edit');
+        return $request->user()->hasPermissionTo("human-resources.{$this->organisation->slug}.edit");
     }
 
 
