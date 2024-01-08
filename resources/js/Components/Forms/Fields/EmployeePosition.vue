@@ -3,11 +3,23 @@ import { watchEffect, reactive, ref } from 'vue'
 import { RadioGroup, RadioGroupLabel, RadioGroupOption } from '@headlessui/vue'
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/vue"
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faCircle, faCrown, faBars, faAbacus, faCommentsDollar, faCheckDouble, faQuestionCircle, faTimes } from '@fal'
-import { faExclamationCircle ,faCheckCircle } from '@fas'
+import { faCircle, faCrown, faBars, faAbacus, faCommentsDollar, faCheckDouble, faQuestionCircle, faTimes, faCheckCircle as falCheckCircle } from '@fal'
+import { faExclamationCircle, faCheckCircle as fasCheckCircle } from '@fas'
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { options } from 'floating-vue'
-library.add(faCircle, faCrown, faBars, faAbacus, faCommentsDollar, faCheckDouble, faQuestionCircle, faTimes, faExclamationCircle, faCheckCircle)
+library.add(faCircle, faCrown, faBars, faAbacus, faCommentsDollar, faCheckDouble, faQuestionCircle, faTimes, faExclamationCircle, fasCheckCircle, falCheckCircle)
+
+interface TypeShop {
+    id: number
+    slug: string
+    code: string
+    name: string
+    type: string
+}
+
+interface TypeWarehouse {
+    name: string
+    slug: string
+}
 
 const props = defineProps<{
     form?: any
@@ -23,15 +35,11 @@ const props = defineProps<{
         }
         organisations: {}
         shops: {
-            data: {
-                id: number
-                slug: string
-                code: string
-                name: string
-                type: string
-            }[]
+            data: TypeShop[]
         }
-        warehouses: {}
+        warehouses: {
+            data: TypeWarehouse[]
+        }
     }
     fieldData?: {
     }
@@ -51,7 +59,7 @@ interface optionsJob {
             grade?: string
             number_employees: number
         }[]
-        options?: {}
+        options?: TypeShop[] | TypeWarehouse[]
         value: any
     }
 }
@@ -172,7 +180,7 @@ const optionsJob: optionsJob = reactive({
                 number_employees: props.options.positions.data.find(position => position.slug == 'mrk-c')?.number_employees ?? 0,
             }
         ],
-        options: dummyShops,
+        options: props.options.shops.data,
         value: null
     },
 
@@ -192,7 +200,7 @@ const optionsJob: optionsJob = reactive({
                 number_employees: props.options.positions.data.find(position => position.slug == 'web-c')?.number_employees ?? 0,
             }
         ],
-        options: dummyShops,
+        options: props.options.shops.data,
         value: null
     },
 
@@ -229,7 +237,7 @@ const optionsJob: optionsJob = reactive({
                 number_employees: props.options.positions.data.find(position => position.slug == 'wah-sc')?.number_employees ?? 0,
             }
         ],
-        options: dummyWarehouses,
+        options: props.options.warehouses.data,
         value: null
     },
 
@@ -253,7 +261,7 @@ const optionsJob: optionsJob = reactive({
                 number_employees: props.options.positions.data.find(position => position.slug == 'dist-pak')?.number_employees ?? 0,
             }
         ],
-        options: dummyWarehouses,
+        options: props.options.warehouses.data,
         value: null
     },
 
@@ -290,7 +298,7 @@ const optionsJob: optionsJob = reactive({
                 number_employees: props.options.positions.data.find(position => position.slug == 'cus-c')?.number_employees ?? 0,
             }
         ],
-        options: dummyShops,
+        options: props.options.shops.data,
         value: null
     },
 })
@@ -298,20 +306,20 @@ const optionsJob: optionsJob = reactive({
 // Temporary data
 const openFinetune = ref('')
 const selectedBox: selectedJob = reactive({})
-const selectedShop: {[key: string]: { value: string, selectedShops: string[]}} = reactive({
-    Webmaster: {
-        value: '',
-        selectedShops: []
-    },
-    Warehouse: {
-        value: '',
-        selectedShops: []
-    },
-    "Customer Service": {
-        value: '',
-        selectedShops: []
-    },
-})
+// const selectedShop: {[key: string]: { value: string, selectedShops: string[]}} = reactive({
+//     Webmaster: {
+//         value: '',
+//         selectedShops: []
+//     },
+//     Warehouse: {
+//         value: '',
+//         selectedShops: []
+//     },
+//     "Customer Service": {
+//         value: '',
+//         selectedShops: []
+//     },
+// })
 
 // To preserved on first load (so the box is selected)
 for (const key in optionsJob) {
@@ -328,19 +336,19 @@ const handleClickSubDepartment = (department: string, subDepartmentSlug: any) =>
         optionsJob[department].value = optionsJob[department].value == subDepartmentSlug ? "" : subDepartmentSlug
     } else { // If the box clicked is not 'admin'
         if(optionsJob[department].options){  // If have options shops/warehouses
-            console.log('eeee', optionsJob[department].value)
+            // console.log('eeee', optionsJob[department].value)
             if(optionsJob[department].value && Object.values(optionsJob[department].value ?? {}).every(value => value === subDepartmentSlug)){
                 // console.log('www')
                 optionsJob[department].value = null
             } else {
                 // console.log('qqq')
-                optionsJob[department].value = dummyShops.reduce((accumulator, shop) => {
+                optionsJob[department].value = props.options.shops.data.reduce((accumulator, shop) => {
                     accumulator[shop.slug] = subDepartmentSlug
                     return accumulator
                 }, {})
             }
         } else {
-            console.log('eeeeeeee')
+            // console.log('eeeeeeee')
             optionsJob[department].value = optionsJob[department].value == subDepartmentSlug ? "" : subDepartmentSlug
         }
     }
@@ -350,69 +358,64 @@ const handleClickSubDepartment = (department: string, subDepartmentSlug: any) =>
 }
 
 // When the box warehouses/shops is clicked
-const onClickJobFinetune = (departmentName: string, jobGroupName: string, jobCode: any) => {
-    if(selectedBox[jobGroupName] == 'admin'){  // If the box clicked is 'admin'
-        if(selectedBox[jobGroupName] == jobCode) {  // When active box clicked
-            selectedBox[jobGroupName] = ""  // Deselect value
-        } else {
-            selectedBox[jobGroupName] = jobCode
-        }
-    } else { // If the box clicked is not 'admin'
-        if(selectedBox[jobGroupName] == jobCode && props.form[props.fieldName].length > 1) {  // When active box clicked
-            selectedBox[jobGroupName] = ""  // Deselect value
-        } else {
-            selectedBox[jobGroupName] = jobCode
-        }
-    }
+const onClickJobFinetune = (departmentName: string, shopName: string, subDepartmentName: any) => {
+    // if(selectedBox[departmentName] == jobCode && props.form[props.fieldName].length > 1) {  // When active box clicked
+    //     selectedBox[departmentName] = ""  // Deselect value
+    // } else {
+    //     selectedBox[departmentName] = jobCode
+    // }
+    
+    optionsJob[departmentName].value[shopName] = optionsJob[departmentName].value[shopName] == subDepartmentName ? '' : subDepartmentName
+
     props.form.errors[props.fieldName] = ''
 }
 
 // Method: check if array value is exist in array of object is includes same values
-const isEqual = (arrayString: string[], arrayObject: {slug: string}[]) => {
-    if(!arrayString.length) {
-        // arrayString == 0
-        return false
-    }
-    return arrayString.every(value => arrayObject.some(obj => obj.slug === value))
-}
+// const isEqual = (arrayString: string[], arrayObject: {slug: string}[]) => {
+//     if(!arrayString.length) {
+//         // arrayString == 0
+//         return false
+//     }
+//     return arrayString.every(value => arrayObject.some(obj => obj.slug === value))
+// }
 
 // On select shop
-const onSelectShop = (departmentName: string, shopName: string) => {
-    const index = selectedShop[departmentName].selectedShops.indexOf(shopName)
+// const onSelectShop = (departmentName: string, shopName: string) => {
+//     const index = selectedShop[departmentName].selectedShops.indexOf(shopName)
 
-    index === -1
-        ? selectedShop[departmentName].selectedShops.push(shopName)
-        : selectedShop[departmentName].selectedShops.splice(index, 1)
-}
+//     index === -1
+//         ? selectedShop[departmentName].selectedShops.push(shopName)
+//         : selectedShop[departmentName].selectedShops.splice(index, 1)
+// }
 
 // On click select all/unselect all
-const onSelectUnselectShops = (departmentName: string) => {
-    if(isEqual(selectedShop[departmentName].selectedShops, props.options.shops.data)){
-        // if all shop is alreayd selected then make it empty
-        selectedShop[departmentName].selectedShops = []
-    } else {
-        selectedShop[departmentName].selectedShops = []
-        props.options.shops.data.forEach(shop => {
-            // console.log('foreach', shop)
-            selectedShop[departmentName].selectedShops.push(shop.slug)
-        })
-        // selectedShop[departmentName].selectedShops = [...props.options.shops.data]
-    }
-}
+// const onSelectUnselectShops = (departmentName: string) => {
+//     if(isEqual(selectedShop[departmentName].selectedShops, props.options.shops.data)){
+//         // if all shop is alreayd selected then make it empty
+//         selectedShop[departmentName].selectedShops = []
+//     } else {
+//         selectedShop[departmentName].selectedShops = []
+//         props.options.shops.data.forEach(shop => {
+//             // console.log('foreach', shop)
+//             selectedShop[departmentName].selectedShops.push(shop.slug)
+//         })
+//         // selectedShop[departmentName].selectedShops = [...props.options.shops.data]
+//     }
+// }
 
 // To save the temporary data (selectedBox) to props.form
-watchEffect(() => {
-    const tempObject = {...selectedBox}
-    selectedBox.admin ? '' : delete tempObject.admin
-    props.form[props.fieldName] = selectedBox.admin ? [selectedBox.admin] : Object.values(tempObject).filter(item=> item)
-})
+// watchEffect(() => {
+//     const tempObject = {...selectedBox}
+//     selectedBox.admin ? '' : delete tempObject.admin
+//     props.form[props.fieldName] = selectedBox.admin ? [selectedBox.admin] : Object.values(tempObject).filter(item=> item)
+// })
 
 </script>
 
 <template>
     <div class="relative">
-    <pre>{{ optionsJob.hr.value }} ======</pre>
-    <pre>{{ selectedShop }}</pre>
+    <!-- <pre>{{ options.warehouses.data }} ======</pre> -->
+    <!-- <pre>{{ selectedShop }}</pre> -->
         <div class="flex flex-col text-xs divide-y-[1px]">
             <div v-for="(jobGroup, departmentName) in optionsJob" class="grid grid-cols-3 gap-x-1.5 px-2 items-center even:bg-gray-50">
                 <!-- Section: Department -->
@@ -429,15 +432,14 @@ watchEffect(() => {
                             <button v-for="job in jobGroup.subDepartment"
                                 @click.prevent="handleClickSubDepartment(departmentName, job.slug)"
                                 class="group h-full cursor-pointer flex items-center justify-start rounded-md py-3 px-3 font-medium capitalize disabled:text-gray-400 disabled:cursor-not-allowed disabled:ring-0 disabled:active:active:ring-offset-0"
-                                :class="[
-                                    (optionsJob[departmentName].options ? optionsJob[departmentName].value : optionsJob[departmentName].value == job.slug) && (optionsJob[departmentName].options ? Object.values(optionsJob[departmentName].value ?? {}).every(value => value === job.slug) : true) ? 'text-lime-500' : ' text-gray-600'
-                                ]"
+                                :class="optionsJob.admin.value && job.slug == 'admin' ? 'text-lime-500' : ''"
                                 :disabled="optionsJob.admin.value && job.slug != 'admin' ? true : false"
                             >
                                 <span class="relative text-left">
                                     <div class="absolute -left-1 -translate-x-full top-1/2 -translate-y-1/2">
                                         <FontAwesomeIcon v-if="optionsJob.admin.value" icon='fas fa-check-circle' fixed-width aria-hidden='true' />
-                                        <FontAwesomeIcon v-else-if="(optionsJob[departmentName].options ? optionsJob[departmentName].value : optionsJob[departmentName].value == job.slug) && (optionsJob[departmentName].options ? Object.values(optionsJob[departmentName].value ?? {}).every(value => value === job.slug) : true) && !optionsJob.admin.value" icon='fas fa-check-circle' fixed-width aria-hidden='true' />
+                                        <FontAwesomeIcon v-else-if="(optionsJob[departmentName].options ? optionsJob[departmentName].value : optionsJob[departmentName].value == job.slug) && (optionsJob[departmentName].options ? Object.values(optionsJob[departmentName].value ?? {}).every(value => value === job.slug) : true) && !optionsJob.admin.value" icon='fas fa-check-circle' class="text-lime-500" fixed-width aria-hidden='true' />
+                                        <FontAwesomeIcon v-else-if="(optionsJob[departmentName].options ? optionsJob[departmentName].value : optionsJob[departmentName].value == job.slug) && (optionsJob[departmentName].options ? Object.values(optionsJob[departmentName].value ?? {}).some(value => value === job.slug) : true) && !optionsJob.admin.value" icon='fal fa-check-circle' class="text-lime-600" fixed-width aria-hidden='true' />
                                         <FontAwesomeIcon v-else icon='fal fa-circle' fixed-width aria-hidden='true' />
                                     </div>
                                     <span v-tooltip="job.number_employees + ' employees on this position'" :class="[
@@ -451,32 +453,35 @@ watchEffect(() => {
 
                         <!-- Section: All shops & Fine tunes -->
                         <div v-if="jobGroup.department == 'Customer Service' || jobGroup.department == 'Marketing' || jobGroup.department == 'Webmaster' || jobGroup.department == 'Dispatch' || jobGroup.department == 'Warehouse'" class="flex gap-x-2 px-3">
-                            <div class="flex gap-x-1 items-center">
+                            <!-- <div class="flex gap-x-1 items-center">
                                 <input type="checkbox" :name="jobGroup.department + 'allshops'" :id="jobGroup.department + 'allshops'" class="h-3 w-3 appearance-none">
                                 <label :for="jobGroup.department + 'allshops'" class="cursor-pointer">{{ jobGroup.department == 'Dispatch' || jobGroup.department == 'Warehouse' ? 'All warehouses' : 'All shops'}}</label>
-                            </div>
-                            <div @click="() => openFinetune = jobGroup.department" class="underline whitespace-nowrap cursor-pointer">Fine tunes</div>
+                            </div> -->
+                            <button @click.prevent="() => openFinetune = openFinetune == jobGroup.department ? '' : jobGroup.department"
+                                class="underline disabled:no-underline whitespace-nowrap cursor-pointer disabled:cursor-auto disabled:text-gray-400"
+                                :disabled="!jobGroup.value"
+                            >
+                                Advanced selection
+                            </button>
                         </div>
                     </div>
 
                     <!-- Fine tune content -->
                     <transition mode="in-out">
-                        <div v-if="openFinetune == jobGroup.department" class="qwezxc">
-                            <div v-for="shop in jobGroup.options" class="flex gap-x-4">
-                                <div class="font-semibold">{{ shop.name }} </div>
-                                <div class="flex">
+                        <div v-if="openFinetune == jobGroup.department" class="relative bg-slate-400/10 border border-gray-300 rounded-md py-2 px-2 space-y-0.5 mb-3">
+                            <div v-for="shop in jobGroup.options" class="grid grid-cols-3">
+                                <div class=" font-semibold">{{ shop.name }} </div>
+                                <div class="col-span-2 flex gap-x-2">
                                     <button v-for="job in jobGroup.subDepartment"
-                                        @click.prevent="onClickJobFinetune(jobGroup.department, departmentName, job.slug)"
+                                        @click.prevent="onClickJobFinetune(departmentName, shop.slug, job.slug)"
                                         class="group h-full cursor-pointer flex items-center justify-start rounded-md px-3 font-medium capitalize disabled:text-gray-400 disabled:cursor-not-allowed disabled:ring-0 disabled:active:active:ring-offset-0"
-                                        :class="[
-                                            true ? 'text-lime-500' : ' text-gray-600'
-                                        ]"
-                                        :disabled="selectedBox.admin && job.slug != 'admin'? true : false"
+
+                                        :disabled="!!optionsJob.admin.value"
                                     >
                                         <span class="relative text-left">
                                             <div class="absolute -left-0.5 -translate-x-full top-1/2 -translate-y-1/2">
-                                                <FontAwesomeIcon v-if="selectedBox[departmentName] == 'admin'" icon='fas fa-check-circle' fixed-width aria-hidden='true' />
-                                                <FontAwesomeIcon v-else-if="selectedBox[departmentName] == job.slug && !selectedBox.admin" icon='fas fa-check-circle' fixed-width aria-hidden='true' />
+                                                <FontAwesomeIcon v-if="optionsJob.admin.value" icon='fas fa-check-circle' fixed-width aria-hidden='true' />
+                                                <FontAwesomeIcon v-else-if="optionsJob[departmentName].value?.[shop.slug] == job.slug" icon='fas fa-check-circle' class="text-lime-500" fixed-width aria-hidden='true' />
                                                 <FontAwesomeIcon v-else icon='fal fa-circle' fixed-width aria-hidden='true' />
                                             </div>
                                             <span v-tooltip="job.number_employees + ' employees on this position'" :class="[
@@ -488,9 +493,9 @@ watchEffect(() => {
                                     </button>
                                 </div>
                             </div>
-                            <div @click="openFinetune = ''" class="mt-4 w-fit text-red-400 hover:text-red-500 cursor-pointer hover:">
+                            <div @click="openFinetune = ''" class="absolute top-1 right-2 w-fit px-1 text-slate-400 hover:text-slate-500 cursor-pointer hover:">
                                 <FontAwesomeIcon icon='fal fa-times' class='' aria-hidden='true' />
-                                Close
+                                <!-- Close -->
                             </div>
                         </div>
                     </transition>
