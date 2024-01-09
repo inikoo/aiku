@@ -9,14 +9,16 @@ namespace App\Actions\HumanResources\Workplace;
 
 use App\Actions\Helpers\Address\StoreAddressAttachToModel;
 use App\Actions\HumanResources\Workplace\Hydrators\WorkplaceHydrateUniversalSearch;
+use App\Actions\InertiaOrganisationAction;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWorkplaces;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\HumanResources\WorkPlaceResource;
 use App\Models\HumanResources\Workplace;
+use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdateWorkplace
+class UpdateWorkplace extends InertiaOrganisationAction
 {
     use WithActionUpdate;
 
@@ -45,7 +47,7 @@ class UpdateWorkplace
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("hr.edit");
+        return $request->user()->hasPermissionTo("human-resources.{$this->organisation->slug}.edit");
     }
 
     public function rules(): array
@@ -57,7 +59,7 @@ class UpdateWorkplace
         ];
     }
 
-    public function asController(Workplace $workplace, ActionRequest $request): Workplace
+    public function asController(Organisation $organisation, Workplace $workplace, ActionRequest $request): Workplace
     {
         $request->validate();
         $validated = $request->validated();

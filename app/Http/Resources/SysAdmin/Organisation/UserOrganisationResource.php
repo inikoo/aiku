@@ -28,7 +28,6 @@ class UserOrganisationResource extends JsonResource
 
         $user = self::$user;
 
-
         return [
             'slug'                  => $organisation->slug,
             'code'                  => $organisation->code,
