@@ -11,12 +11,14 @@ use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\HumanResources\ClockingMachine\UI\ShowClockingMachine;
 use App\Actions\HumanResources\Workplace\UI\ShowWorkplace;
 use App\Actions\InertiaAction;
+use App\Actions\InertiaOrganisationAction;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
 use App\Enums\UI\ClockingTabsEnum;
 use App\Http\Resources\History\HistoryResource;
 use App\Models\HumanResources\Clocking;
 use App\Models\HumanResources\ClockingMachine;
 use App\Models\HumanResources\Workplace;
+use App\Models\SysAdmin\Organisation;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -25,45 +27,46 @@ use Lorisleiva\Actions\ActionRequest;
 /**
  * @property Clocking $clocking
  */
-class ShowClocking extends InertiaAction
+class ShowClocking extends InertiaOrganisationAction
 {
     public function handle(Clocking $clocking): Clocking
     {
         return $clocking;
     }
+
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit   = $request->user()->hasPermissionTo('hr.edit');
-        $this->canDelete = $request->user()->hasPermissionTo('hr.edit');
-        return $request->user()->hasPermissionTo("hr.view");
+        $this->canEdit   = $request->user()->hasPermissionTo("human-resources.{$this->organisation->slug}.edit");
+        $this->canDelete = $request->user()->hasPermissionTo("human-resources.{$this->organisation->slug}.edit");
+        return $request->user()->hasPermissionTo("human-resources.{$this->organisation->slug}.edit");
     }
 
 
-    public function inTenant(Clocking $clocking, ActionRequest $request): Clocking
+    public function inTenant(Organisation $organisation, Clocking $clocking, ActionRequest $request): Clocking
     {
-        $this->initialisation($request)->withTab(ClockingTabsEnum::values());
+        $this->initialisation($organisation, $request)->withTab(ClockingTabsEnum::values());
         return $this->handle($clocking);
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inWorkplace(Workplace $workplace, Clocking $clocking, ActionRequest $request): Clocking
+    public function inWorkplace(Organisation $organisation, Workplace $workplace, Clocking $clocking, ActionRequest $request): Clocking
     {
-        $this->initialisation($request)->withTab(ClockingTabsEnum::values());
+        $this->initialisation($organisation, $request)->withTab(ClockingTabsEnum::values());
         return $this->handle($clocking);
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inClockingMachine(ClockingMachine $clockingMachine, Clocking $clocking, ActionRequest $request): Clocking
+    public function inClockingMachine(Organisation $organisation, ClockingMachine $clockingMachine, Clocking $clocking, ActionRequest $request): Clocking
     {
-        $this->initialisation($request)->withTab(ClockingTabsEnum::values());
+        $this->initialisation($organisation, $request)->withTab(ClockingTabsEnum::values());
         return $this->handle($clocking);
     }
 
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inWorkplaceInClockingMachine(Workplace $workplace, ClockingMachine $clockingMachine, Clocking $clocking, ActionRequest $request): Clocking
+    public function inWorkplaceInClockingMachine(Organisation $organisation, Workplace $workplace, ClockingMachine $clockingMachine, Clocking $clocking, ActionRequest $request): Clocking
     {
-        $this->initialisation($request)->withTab(ClockingTabsEnum::values());
+        $this->initialisation($organisation, $request)->withTab(ClockingTabsEnum::values());
         return $this->handle($clocking);
     }
 
@@ -94,7 +97,7 @@ class ShowClocking extends InertiaAction
                             'style' => 'edit',
                             'route' => [
                                 'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
-                                'parameters' => array_values($this->originalParameters)
+                                'parameters' => $request->route()->originalParameters()
                             ]
                         ] : false,
                         $this->canDelete ?

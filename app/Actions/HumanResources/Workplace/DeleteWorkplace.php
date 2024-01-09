@@ -7,6 +7,7 @@
 
 namespace App\Actions\HumanResources\Workplace;
 
+use App\Actions\InertiaOrganisationAction;
 use App\Models\HumanResources\Workplace;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
@@ -14,7 +15,7 @@ use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsController;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class DeleteWorkplace
+class DeleteWorkplace extends InertiaOrganisationAction
 {
     use AsController;
     use WithAttributes;
@@ -28,7 +29,7 @@ class DeleteWorkplace
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("hr.edit");
+        return $request->user()->hasPermissionTo("human-resources.{$this->organisation->slug}.edit");
     }
 
     public function asController(Workplace $workplace, ActionRequest $request): Workplace

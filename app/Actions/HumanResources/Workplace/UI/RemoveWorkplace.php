@@ -8,12 +8,15 @@
 namespace App\Actions\HumanResources\Workplace\UI;
 
 use App\Actions\InertiaAction;
+use App\Actions\InertiaOrganisationAction;
+use App\Enums\UI\WorkplaceTabsEnum;
 use App\Models\HumanResources\Workplace;
+use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class RemoveWorkplace extends InertiaAction
+class RemoveWorkplace extends InertiaOrganisationAction
 {
     public function handle(Workplace $workplace): Workplace
     {
@@ -22,12 +25,12 @@ class RemoveWorkplace extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("hr.edit");
+        return $request->user()->hasPermissionTo("human-resources.{$this->organisation->slug}.edit");
     }
 
-    public function asController(Workplace $workplace, ActionRequest $request): Workplace
+    public function asController(Organisation $organisation, Workplace $workplace, ActionRequest $request): Workplace
     {
-        $this->initialisation($request);
+        $this->initialisation($organisation, $request);
 
         return $this->handle($workplace);
     }
@@ -72,7 +75,7 @@ class RemoveWorkplace extends InertiaAction
                 ],
                 'data'      => $this->getAction(
                     route:[
-                        'name'       => 'models.workplace.delete',
+                        'name'       => 'grp.org.models.working-place.delete',
                         'parameters' => $request->route()->originalParameters()
                     ]
                 )

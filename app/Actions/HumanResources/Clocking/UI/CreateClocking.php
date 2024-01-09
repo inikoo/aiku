@@ -8,15 +8,17 @@
 namespace App\Actions\HumanResources\Clocking\UI;
 
 use App\Actions\InertiaAction;
+use App\Actions\InertiaOrganisationAction;
 use App\Models\HumanResources\ClockingMachine;
 use App\Models\HumanResources\Employee;
 use App\Models\HumanResources\Workplace;
+use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\LaravelOptions\Options;
 
-class CreateClocking extends InertiaAction
+class CreateClocking extends InertiaOrganisationAction
 {
     public function handle(ActionRequest $request): Response
     {
@@ -37,7 +39,7 @@ class CreateClocking extends InertiaAction
                             'label' => __('cancel'),
                             'route' => [
                                 'name'       => 'grp.org.hr.workplaces.show.clockings.index',
-                                'parameters' => array_values($this->originalParameters)
+                                'parameters' => $request->route()->originalParameters()
                             ],
                         ]
                     ]
@@ -90,13 +92,13 @@ class CreateClocking extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo('hr');
+        return $request->user()->hasPermissionTo("human-resources.{$this->organisation->slug}");
     }
 
 
-    public function inWorkplaceInClockingMachine(Workplace $workplace, ClockingMachine $clockingMachine, ActionRequest $request): Response
+    public function inWorkplaceInClockingMachine(Organisation $organisation, Workplace $workplace, ClockingMachine $clockingMachine, ActionRequest $request): Response
     {
-        $this->initialisation($request);
+        $this->initialisation($organisation, $request);
 
         return $this->handle($request);
     }

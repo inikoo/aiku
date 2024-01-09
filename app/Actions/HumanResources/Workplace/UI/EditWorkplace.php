@@ -9,10 +9,12 @@ namespace App\Actions\HumanResources\Workplace\UI;
 
 use App\Actions\Assets\Country\UI\GetAddressData;
 use App\Actions\InertiaAction;
+use App\Actions\InertiaOrganisationAction;
 use App\Enums\HumanResources\Workplace\WorkplaceTypeEnum;
 use App\Http\Resources\Helpers\AddressFormFieldsResource;
 use App\Models\Helpers\Address;
 use App\Models\HumanResources\Workplace;
+use App\Models\SysAdmin\Organisation;
 use Exception;
 use Illuminate\Support\Arr;
 use Inertia\Inertia;
@@ -20,7 +22,7 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\LaravelOptions\Options;
 
-class EditWorkplace extends InertiaAction
+class EditWorkplace extends InertiaOrganisationAction
 {
     public function handle(Workplace $workplace): Workplace
     {
@@ -29,12 +31,12 @@ class EditWorkplace extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("hr.edit");
+        return $request->user()->hasPermissionTo("human-resources.{$this->organisation->slug}.edit");
     }
 
-    public function asController(Workplace $workplace, ActionRequest $request): Workplace
+    public function asController(Organisation $organisation,  Workplace $workplace, ActionRequest $request): Workplace
     {
-        $this->initialisation($request);
+        $this->initialisation($organisation, $request);
 
         return $this->handle($workplace);
     }
@@ -146,14 +148,11 @@ class EditWorkplace extends InertiaAction
                     'blueprint' => $sections,
                     'args'      => [
                         'updateRoute' => [
-                            'name'       => 'models.workplace.update',
-                            'parameters' => $workplace->id
-
+                            'name'       => 'grp.org.models.working-place.update',
+                            'parameters' => $request->route()->originalParameters()
                         ],
                     ]
-
                 ],
-
             ]
         );
     }
@@ -189,7 +188,8 @@ class EditWorkplace extends InertiaAction
                 'route' => [
                     'name'       => $routeName,
                     'parameters' => [
-                        'workplace' => $workplace->slug
+                        'organisation' => $this->organisation->slug,
+                        'workplace'    => $workplace->slug
                     ]
                 ]
             ]
