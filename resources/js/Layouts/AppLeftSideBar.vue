@@ -43,8 +43,6 @@ const handleToggleLeftbar = () => {
         </div>
 
         <div class="flex flex-grow flex-col h-full overflow-y-auto custom-hide-scrollbar border-r border-gray-200 pb-4">
-            
-
             <AppLeftSideBarGrp />
             <!-- <AppLeftSideBarOrg v-for="x in manyFoods" /> -->
         </div>

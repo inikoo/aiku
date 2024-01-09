@@ -20,10 +20,10 @@ defineProps(['title', 'pageHead', 'stats']);
     <PageHeading :data="pageHead"></PageHeading>
     <stats class="m-4" :stats="stats"/>
     <div class="px-2 bg-amber-500 w-fit">resources/js/Pages/Grp/SysAdmin/SysAdminDashboard.vue</div>
-    <br>Usepage:
+    <!-- <br>Usepage:
     <pre>{{ usePage().props.layout.organisations }}</pre>
-<div class="mt-10"></div>
-    <br>UseLayoutStore:<pre>{{ useLayoutStore().organisations }}</pre>
+<div class="mt-10"></div> -->
+    <br>UseLayoutStore:<pre>{{ useLayoutStore().navigation.org }}</pre>
 
 </template>
 

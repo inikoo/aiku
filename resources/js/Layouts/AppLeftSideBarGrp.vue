@@ -10,13 +10,13 @@ import { Link } from "@inertiajs/vue3"
 import { ref, onMounted, onUnmounted } from "vue"
 import { router } from "@inertiajs/vue3"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faBoxUsd, faUsersCog, faLightbulb, faUserHardHat } from "@fal"
+import { faBoxUsd, faUsersCog, faLightbulb, faUserHardHat, faUser, faInventory } from "@fal"
 import { useLayoutStore } from "@/Stores/layout.js"
 import { computed } from "vue"
 import Image from "@/Components/Image.vue"
 import { trans } from 'laravel-vue-i18n';
 
-library.add(faBoxUsd, faUsersCog, faLightbulb, faUserHardHat)
+library.add(faBoxUsd, faUsersCog, faLightbulb, faUserHardHat, faUser, faInventory)
 
 const layout = useLayoutStore()
 
@@ -80,28 +80,83 @@ const generateLabel = (item) => {
 
     <nav class="isolate relative flex flex-grow flex-col pb-4 h-full overflow-y-auto custom-hide-scrollbar flex-1 space-y-1" aria-label="Sidebar">
         <!-- LeftSidebar: Org -->
-        <Link v-if="layout.organisations.currentOrganisations"
-            v-for="(item, itemKey) in layout.navigation.org[layout.organisations.currentOrganisations]"
-            :key="itemKey"
-            :href="item.route.name ? route(item.route.name, item.route.parameters) : '#'"
-            class="group flex items-center text-sm py-2"
-            :class="[
-                itemKey === layout.currentModule
-                    ? 'navigationActive px-0.5'
-                    : 'navigation px-1',
-                layout.leftSidebar.show ? 'px-3' : '',
-            ]"
-            :aria-current="itemKey === layout.currentModule ? 'page' : undefined"
-        >
-            <div class="flex items-center px-2">
-                <FontAwesomeIcon aria-hidden="true" class="flex-shrink-0 h-4 w-4" :icon="item.icon"/>
-            </div>
-            <Transition>
-                <span class="capitalize leading-none whitespace-nowrap" :class="[layout.leftSidebar.show ? 'block md:block' : 'block md:hidden']">
-                    {{ item.label }}
-                </span>
-            </Transition>
-        </Link>
+        <template v-if="route().v().params?.organisation">
+            <template v-for="(item, itemKey) in useLayoutStore().navigation.org[route().v().params?.organisation]"
+                    :key="itemKey"
+            >
+                <!-- If multi item -->
+                <div v-if="itemKey == 'shops_navigation' || itemKey == 'warehouses_navigation'"
+                    :class="[
+                        itemKey === layout.currentModule
+                            ? 'navigationActive px-0.5'
+                            : 'navigation px-1',
+                        layout.leftSidebar.show ? 'px-3' : '',
+                ]">
+                    <div class="capitalize">{{ itemKey.split('_')[0] }}</div>
+                    <div v-for="(asdzxc, xxx) in item"
+                        :href="asdzxc.route?.name ? route(asdzxc.route.name, asdzxc.route.parameters) : '#'"
+                        class="group flex items-center text-sm py-2"
+                        :class="[
+                            xxx === layout.currentModule
+                                ? 'navigationActive px-0.5'
+                                : 'navigation px-1',
+                            layout.leftSidebar.show ? 'px-3' : '',
+                        ]"
+                        :aria-current="xxx === layout.currentModule ? 'page' : undefined"
+                    >
+                        <!-- <div class="flex items-center px-2">
+                            <FontAwesomeIcon aria-hidden="true" class="flex-shrink-0 h-4 w-4" :icon="asdzxc.icon"/>
+                        </div> -->
+                        <Transition>
+                            <div class="capitalize leading-none whitespace-nowrap" :class="[layout.leftSidebar.show ? 'block md:block' : 'block md:hidden']">
+                                {{ xxx }}
+                                <Link v-for="(qqqqqqq, xxx) in asdzxc"
+                                    :href="qqqqqqq.route?.name ? route(qqqqqqq.route.name, qqqqqqq.route.parameters) : '#'"
+                                    class="group flex items-center text-sm py-2"
+                                    :class="[
+                                        xxx === layout.currentModule
+                                            ? 'navigationActive px-0.5'
+                                            : 'navigation px-1',
+                                        layout.leftSidebar.show ? 'px-3' : '',
+                                    ]"
+                                    :aria-current="xxx === layout.currentModule ? 'page' : undefined"
+                                >
+                                    <div class="flex items-center px-2">
+                                        <FontAwesomeIcon aria-hidden="true" class="flex-shrink-0 h-4 w-4" :icon="qqqqqqq.icon"/>
+                                    </div>
+                                    <Transition>
+                                        <span class="capitalize leading-none whitespace-nowrap" :class="[layout.leftSidebar.show ? 'block md:block' : 'block md:hidden']">
+                                            {{ qqqqqqq.label }}
+                                        </span>
+                                    </Transition>
+                                </Link>
+                            </div>
+                        </Transition>
+                    </div>
+                </div>
+
+                <Link v-else
+                    :href="item.route?.name ? route(item.route.name, item.route.parameters) : '#'"
+                    class="group flex items-center text-sm py-2"
+                    :class="[
+                        itemKey === layout.currentModule
+                            ? 'navigationActive px-0.5'
+                            : 'navigation px-1',
+                        layout.leftSidebar.show ? 'px-3' : '',
+                    ]"
+                    :aria-current="itemKey === layout.currentModule ? 'page' : undefined"
+                >
+                    <div class="flex items-center px-2">
+                        <FontAwesomeIcon aria-hidden="true" class="flex-shrink-0 h-4 w-4" :icon="item.icon"/>
+                    </div>
+                    <Transition>
+                        <span class="capitalize leading-none whitespace-nowrap" :class="[layout.leftSidebar.show ? 'block md:block' : 'block md:hidden']">
+                            {{ item.label }}
+                        </span>
+                    </Transition>
+                </Link>
+            </template>
+        </template>
 
         <!-- LeftSidebar: Grp -->
         <Link v-else v-for="(item, itemKey, index) in layout.navigation.grp"

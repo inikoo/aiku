@@ -98,7 +98,7 @@ const logoutAuth = () => {
                                     class="inline-flex min-w-fit w-32 max-w-full whitespace-nowrap justify-between items-center gap-x-2 rounded px-2.5 py-1 text-xs font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-white/75"
                                     :class="[ layout.organisations.currentOrganisations ? 'bg-indigo-500 text-white hover:bg-indigo-600' : 'bg-slate-100 hover:bg-slate-200 text-slate-600 ring-1 ring-slate-300']"
                                 >
-                                    {{ layout.organisations.data.find((item) => item.slug == route().v().params?.organisation)?.name ?? 'Select group or organisations' }}
+                                    {{ layout.organisations.data.find((item) => item.slug == route().v().params?.organisation)?.name ?? 'Select organisation' }}
                                     <!-- {{ layout.organisations.currentOrganisations ? layout.organisations.currentOrganisations : 'Select group or organisations' }} -->
                                     <FontAwesomeIcon icon='far fa-chevron-down' class='text-xs' aria-hidden='true' />
                                 </MenuButton>
@@ -107,19 +107,19 @@ const logoutAuth = () => {
                                         class="absolute left-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
                                         <div class="px-1 py-1 space-y-2.5">
                                             <!-- Dropdown: Group -->
-                                            <div>
-                                                <div class="flex items-center gap-x-1.5 px-1 mb-1">
-                                                    <FontAwesomeIcon icon='fal fa-city' class='text-gray-400 text-xxs' ariaa-hidden='true' />
+                                            <div class="">
+                                                <!-- <div class="flex items-center gap-x-1.5 px-1 mb-1">
                                                     <span class="text-[9px] leading-none text-gray-400">Groups</span>
                                                     <hr class="w-full rounded-full border-slate-300">
-                                                </div>
+                                                </div> -->
                                                 <MenuItem v-slot="{ active }">
-                                                    <Link :href="route('grp.org.dashboard.show', { organisation: layout.group.slug })" :class="[
-                                                        valOrganisation == layout.group.slug ? 'bg-indigo-500 text-white' : active ? 'bg-slate-200/75 text-indigo-600' : 'text-slate-600',
-                                                        'group flex w-full gap-x-2 items-center rounded px-2 py-2 text-sm',
-                                                    ]">
+                                                    <div @click="() => router.visit(route('grp.dashboard.show'))" :class="[
+                                                        !route().v().params?.organisation ? 'bg-indigo-500 text-white' : active ? 'bg-slate-200/75 text-indigo-600' : 'text-slate-600']"
+                                                        class="group flex w-full gap-x-2 items-center rounded pl-3 pr-2 py-2 text-sm cursor-pointer"
+                                                    >
+                                                        <FontAwesomeIcon icon='fal fa-city' class='' ariaa-hidden='true' />
                                                         <span class="font-semibold">{{ layout.group.name }}</span>
-                                                    </Link>
+                                                    </div>
                                                 </MenuItem>
                                             </div>
 
