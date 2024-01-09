@@ -100,9 +100,11 @@ class EditClocking extends InertiaOrganisationAction
                     ],
                     'args' => [
                         'updateRoute' => [
-                            'name'       => 'grp.models.clocking.update',
-                            'parameters' => $clocking->slug
-
+                            'name'       => 'grp.org.models.clocking.update',
+                            'parameters' => [
+                                'organisation' => $request->route()->parameters['organisation']->slug,
+                                'clocking'     => $clocking->slug
+                            ]
                         ],
                     ]
                 ]

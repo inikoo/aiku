@@ -17,6 +17,7 @@ use App\Enums\HumanResources\Employee\EmployeeStateEnum;
 use App\Http\Resources\HumanResources\EmployeeResource;
 use App\Models\HumanResources\Employee;
 use App\Models\HumanResources\JobPosition;
+use App\Models\SysAdmin\Organisation;
 use App\Rules\AlphaDashDot;
 use App\Rules\IUnique;
 use Illuminate\Support\Arr;
@@ -150,7 +151,7 @@ class UpdateEmployee extends InertiaOrganisationAction
         return $this->handle($employee, $this->validatedData);
     }
 
-    public function asController(Employee $employee, ActionRequest $request): Employee
+    public function asController(Organisation $organisation, Employee $employee, ActionRequest $request): Employee
     {
         $this->employee = $employee;
         $this->initialisation($employee->organisation, $request);

@@ -7,9 +7,11 @@
 
 namespace App\Actions\HumanResources\JobPosition;
 
+use App\Actions\InertiaOrganisationAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateJobPositions;
 use App\Models\HumanResources\JobPosition;
 use App\Models\SysAdmin\Group;
+use App\Models\SysAdmin\Organisation;
 use App\Rules\IUnique;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
@@ -17,7 +19,7 @@ use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class StoreJobPosition
+class StoreJobPosition extends InertiaOrganisationAction
 {
     use AsAction;
     use WithAttributes;
@@ -71,7 +73,7 @@ class StoreJobPosition
         return $this->handle($group, $validatedData);
     }
 
-    public function asController(ActionRequest $request): JobPosition
+    public function asController(Organisation $organisation, ActionRequest $request): JobPosition
     {
         $request->validate();
 
@@ -80,6 +82,9 @@ class StoreJobPosition
 
     public function htmlResponse(JobPosition $jobPosition): RedirectResponse
     {
-        return Redirect::route('grp.org.hr.job-positions.show', $jobPosition->slug);
+        return Redirect::route('grp.org.hr.job-positions.show', [
+            $this->organisation->slug,
+            $jobPosition->slug
+        ]);
     }
 }

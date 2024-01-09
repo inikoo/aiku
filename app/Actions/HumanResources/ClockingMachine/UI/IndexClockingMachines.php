@@ -98,12 +98,12 @@ class IndexClockingMachines extends InertiaOrganisationAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo('hr.workplaces.edit');
+        $this->canEdit = $request->user()->hasPermissionTo("hr.workplaces.{$this->organisation->slug}.edit");
 
         return
             (
                 $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo('hr.view')
+                $request->user()->hasPermissionTo("hr.{$this->organisation->slug}.view")
             );
     }
 
@@ -156,7 +156,7 @@ class IndexClockingMachines extends InertiaOrganisationAction
                 'data'        => ClockingMachineResource::collection($clockingMachines)
 
             ]
-        )->table($this->tableStructure());
+        )->table($this->tableStructure($this->organisation));
     }
 
 
@@ -182,7 +182,9 @@ class IndexClockingMachines extends InertiaOrganisationAction
                 $headCrumb(
                     [
                         'name' => 'grp.org.hr.clocking-machines.index',
-                        null
+                        'parameters' => [
+                            $routeParameters['organisation']->slug
+                        ]
                     ]
                 )
             ),
@@ -196,6 +198,7 @@ class IndexClockingMachines extends InertiaOrganisationAction
                     'name'       => 'grp.org.hr.workplaces.show.clocking-machines.index',
                     'parameters' =>
                         [
+                            $routeParameters['organisation']->slug,
                             $routeParameters['workplace']->slug
                         ]
                 ])

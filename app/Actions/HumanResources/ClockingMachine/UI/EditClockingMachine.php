@@ -8,13 +8,15 @@
 namespace App\Actions\HumanResources\ClockingMachine\UI;
 
 use App\Actions\InertiaAction;
+use App\Actions\InertiaOrganisationAction;
 use App\Models\HumanResources\ClockingMachine;
 use App\Models\HumanResources\Workplace;
+use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class EditClockingMachine extends InertiaAction
+class EditClockingMachine extends InertiaOrganisationAction
 {
     public function handle(ClockingMachine $clockingMachine): ClockingMachine
     {
@@ -23,28 +25,29 @@ class EditClockingMachine extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo('hr.clocking-machines.edit');
-        return $request->user()->hasPermissionTo("hr.workplaces.edit");
+        $this->canEdit = $request->user()->hasPermissionTo("hr.clocking-machines.{$this->organisation->slug}.edit");
+
+        return $request->user()->hasPermissionTo("hr.clocking-machines.{$this->organisation->slug}.edit");
     }
 
-    public function asController(ClockingMachine $clockingMachine, ActionRequest $request): ClockingMachine
+    public function asController(Organisation $organisation, ClockingMachine $clockingMachine, ActionRequest $request): ClockingMachine
     {
-        $this->initialisation($request);
+        $this->initialisation($organisation, $request);
 
         return $this->handle($clockingMachine);
     }
 
-    public function inTenant(ClockingMachine $clockingMachine, ActionRequest $request): ClockingMachine
+    public function inTenant(Organisation $organisation, ClockingMachine $clockingMachine, ActionRequest $request): ClockingMachine
     {
-        $this->initialisation($request);
+        $this->initialisation($organisation, $request);
 
         return $this->handle($clockingMachine);
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inWorkplace(Workplace $workplace, ClockingMachine $clockingMachine, ActionRequest $request): ClockingMachine
+    public function inWorkplace(Organisation $organisation, Workplace $workplace, ClockingMachine $clockingMachine, ActionRequest $request): ClockingMachine
     {
-        $this->initialisation($request);
+        $this->initialisation($organisation, $request);
         return $this->handle($clockingMachine);
     }
 
@@ -68,7 +71,7 @@ class EditClockingMachine extends InertiaAction
                             'style' => 'exitEdit',
                             'route' => [
                                 'name'       => preg_replace('/edit$/', 'show', $request->route()->getName()),
-                                'parameters' => array_values($this->originalParameters)
+                                'parameters' => $request->route()->originalParameters()
                             ]
                         ]
                     ]

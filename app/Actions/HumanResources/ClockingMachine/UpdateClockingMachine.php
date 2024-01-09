@@ -8,13 +8,15 @@
 namespace App\Actions\HumanResources\ClockingMachine;
 
 use App\Actions\HumanResources\ClockingMachine\Hydrators\ClockingMachineHydrateUniversalSearch;
+use App\Actions\InertiaOrganisationAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\HumanResources\ClockingMachineResource;
 use App\Models\HumanResources\ClockingMachine;
+use App\Models\SysAdmin\Organisation;
 use App\Rules\CaseSensitive;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdateClockingMachine
+class UpdateClockingMachine extends InertiaOrganisationAction
 {
     use WithActionUpdate;
 
@@ -41,7 +43,7 @@ class UpdateClockingMachine
         ];
     }
 
-    public function asController(ClockingMachine $clockingMachine, ActionRequest $request): ClockingMachine
+    public function asController(Organisation $organisation, ClockingMachine $clockingMachine, ActionRequest $request): ClockingMachine
     {
         $request->validate();
 

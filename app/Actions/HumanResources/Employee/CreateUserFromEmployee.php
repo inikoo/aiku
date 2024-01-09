@@ -56,7 +56,7 @@ class CreateUserFromEmployee
         return $user;
     }
 
-    public function asController(Employee $employee): User
+    public function asController(Organisation $organisation, Employee $employee): User
     {
         if ($employee->user) {
             return $employee->user;

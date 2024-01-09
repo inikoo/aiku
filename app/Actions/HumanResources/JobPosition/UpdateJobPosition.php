@@ -7,12 +7,14 @@
 
 namespace App\Actions\HumanResources\JobPosition;
 
+use App\Actions\InertiaOrganisationAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\HumanResources\JobPositionResource;
 use App\Models\HumanResources\JobPosition;
+use App\Models\SysAdmin\Organisation;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdateJobPosition
+class UpdateJobPosition extends InertiaOrganisationAction
 {
     use WithActionUpdate;
 
@@ -35,7 +37,7 @@ class UpdateJobPosition
         ];
     }
 
-    public function asController(JobPosition $jobPosition, ActionRequest $request): JobPosition
+    public function asController(Organisation $organisation, JobPosition $jobPosition, ActionRequest $request): JobPosition
     {
         $request->validate();
 

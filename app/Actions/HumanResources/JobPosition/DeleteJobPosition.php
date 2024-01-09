@@ -7,14 +7,16 @@
 
 namespace App\Actions\HumanResources\JobPosition;
 
+use App\Actions\InertiaOrganisationAction;
 use App\Models\HumanResources\JobPosition;
+use App\Models\SysAdmin\Organisation;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsController;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class DeleteJobPosition
+class DeleteJobPosition extends InertiaOrganisationAction
 {
     use AsController;
     use WithAttributes;
@@ -31,7 +33,7 @@ class DeleteJobPosition
         return $request->user()->hasPermissionTo("human-resources.{$this->organisation->slug}.edit");
     }
 
-    public function asController(JobPosition $jobPosition, ActionRequest $request): JobPosition
+    public function asController(Organisation $organisation, JobPosition $jobPosition, ActionRequest $request): JobPosition
     {
         $request->validate();
 
@@ -40,7 +42,9 @@ class DeleteJobPosition
 
     public function htmlResponse(): RedirectResponse
     {
-        return Redirect::route('grp.org.hr.job-positions.index');
+        return Redirect::route('grp.org.hr.job-positions.index', [
+            'organisation' => $this->organisation->slug
+        ]);
     }
 
 }

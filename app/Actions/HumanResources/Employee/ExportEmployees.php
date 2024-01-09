@@ -7,14 +7,16 @@
 
 namespace App\Actions\HumanResources\Employee;
 
+use App\Actions\InertiaOrganisationAction;
 use App\Actions\Traits\WithExportData;
 use App\Exports\HumanResources\EmployeesExport;
+use App\Models\SysAdmin\Organisation;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
-class ExportEmployees
+class ExportEmployees extends InertiaOrganisationAction
 {
     use AsAction;
     use WithAttributes;
@@ -33,7 +35,7 @@ class ExportEmployees
     /**
      * @throws \Throwable
      */
-    public function asController(ActionRequest $request): BinaryFileResponse
+    public function asController(Organisation $organisation, ActionRequest $request): BinaryFileResponse
     {
         $this->setRawAttributes($request->all());
         $this->validateAttributes();

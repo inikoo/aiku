@@ -8,12 +8,14 @@
 namespace App\Actions\HumanResources\ClockingMachine\UI;
 
 use App\Actions\InertiaAction;
+use App\Actions\InertiaOrganisationAction;
 use App\Models\HumanResources\Workplace;
+use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class CreateClockingMachine extends InertiaAction
+class CreateClockingMachine extends InertiaOrganisationAction
 {
     public function handle(ActionRequest $request): Response
     {
@@ -30,7 +32,7 @@ class CreateClockingMachine extends InertiaAction
                     'cancelCreate' => [
                         'route' => [
                             'name'       => 'grp.org.hr.workplaces.show.clocking-machines.index',
-                            'parameters' => array_values($this->originalParameters)
+                            'parameters' => $request->route()->originalParameters()
                         ],
                     ]
 
@@ -49,7 +51,10 @@ class CreateClockingMachine extends InertiaAction
                     ],
                     'route'     => [
                         'name'      => 'grp.models.working-place.clocking-machine.store',
-                        'arguments' => [$request->route()->parameters['workplace']->slug]
+                        'arguments' => [
+                            'organisation' => $request->route()->parameter('organisation')->slug,
+                            'workplace'    => $request->route()->parameter('workplace')->slug
+                        ]
                     ]
                 ],
 
@@ -59,13 +64,13 @@ class CreateClockingMachine extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo('hr.clocking-machines.edit');
+        return $request->user()->hasPermissionTo("hr.clocking-machines.{$this->organisation->slug}.edit");
     }
 
 
-    public function asController(Workplace $workplace, ActionRequest $request): Response
+    public function asController(Organisation $organisation, Workplace $workplace, ActionRequest $request): Response
     {
-        $this->initialisation($request);
+        $this->initialisation($organisation, $request);
 
         return $this->handle($request);
     }

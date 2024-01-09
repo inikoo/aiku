@@ -9,34 +9,36 @@ namespace App\Actions\HumanResources\Employee\UI;
 
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\InertiaAction;
+use App\Actions\InertiaOrganisationAction;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
 use App\Enums\UI\EmployeeTabsEnum;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\HumanResources\EmployeeResource;
 use App\Models\HumanResources\Employee;
+use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class ShowEmployee extends InertiaAction
+class ShowEmployee extends InertiaOrganisationAction
 {
     public function handle(Employee $employee): Employee
     {
         return $employee;
     }
 
-
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit   = $request->user()->hasPermissionTo('hr.edit');
-        $this->canDelete = $request->user()->hasPermissionTo('hr.edit');
-        return $request->user()->hasPermissionTo("hr.view");
+        $this->canEdit   = $request->user()->hasPermissionTo("human-resources.{$this->organisation->slug}.view");
+        $this->canDelete = $request->user()->hasPermissionTo("human-resources.{$this->organisation->slug}.view");
+
+        return $request->user()->hasPermissionTo("human-resources.{$this->organisation->slug}.view");
     }
 
-    public function asController(Employee $employee, ActionRequest $request): Employee
+    public function asController(Organisation $organisation, Employee $employee, ActionRequest $request): Employee
     {
-        $this->initialisation($request)->withTab(EmployeeTabsEnum::values());
+        $this->initialisation($organisation, $request)->withTab(EmployeeTabsEnum::values());
 
         return $this->handle($employee);
     }
@@ -130,13 +132,19 @@ class ShowEmployee extends InertiaAction
                         'index' => [
                             'route' => [
                                 'name' => 'grp.org.hr.employees.index',
+                                'parameters' => [
+                                    'organisation' => $this->organisation->slug
+                                ]
                             ],
                             'label' => __('employees')
                         ],
                         'model' => [
                             'route' => [
                                 'name'       => 'grp.org.hr.employees.show',
-                                'parameters' => [$employee->slug]
+                                'parameters' => [
+                                    'organisation' => $this->organisation->slug,
+                                    'employee' => $employee->slug
+                                ]
                             ],
                             'label' => $employee->slug,
                         ],
@@ -174,9 +182,9 @@ class ShowEmployee extends InertiaAction
                 'route' => [
                     'name'       => $routeName,
                     'parameters' => [
+                        'organisation' => $this->organisation->slug,
                         'employee' => $employee->slug
                     ]
-
                 ]
             ]
         };

@@ -7,11 +7,12 @@
 
 namespace App\Actions\HumanResources\JobPosition\UI;
 
-use App\Actions\InertiaAction;
+use App\Actions\InertiaOrganisationAction;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
 use App\Http\Resources\HumanResources\JobPositionResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\HumanResources\JobPosition;
+use App\Models\SysAdmin\Organisation;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -21,7 +22,7 @@ use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
-class IndexJobPositions extends InertiaAction
+class IndexJobPositions extends InertiaOrganisationAction
 {
     /** @noinspection PhpUndefinedMethodInspection */
     public function handle(string $prefix = null): LengthAwarePaginator
@@ -39,14 +40,6 @@ class IndexJobPositions extends InertiaAction
         });
 
         $queryBuilder=QueryBuilder::for(JobPosition::class);
-        foreach ($this->elementGroups as $key => $elementGroup) {
-            $queryBuilder->whereElementGroup(
-                prefix: $prefix,
-                key: $key,
-                allowedElements: array_keys($elementGroup['elements']),
-                engine: $elementGroup['engine']
-            );
-        }
 
         return $queryBuilder
             ->defaultSort('job_positions.slug')
@@ -59,11 +52,11 @@ class IndexJobPositions extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo('hr.edit');
+        $this->canEdit = $request->user()->hasPermissionTo("human-resources.{$this->organisation->slug}.edit");
         return
             (
                 $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo('hr.view')
+                $request->user()->hasPermissionTo("human-resources.{$this->organisation->slug}.view")
             );
     }
 
@@ -98,7 +91,9 @@ class IndexJobPositions extends InertiaAction
                             'label'   => __('job position'),
                             'route'   => [
                                 'name'       => 'grp.org.hr.job-positions.create',
-                                'parameters' => array_values($this->originalParameters)
+                                'parameters' => [
+                                    'organisation' => $this->organisation->slug
+                                ]
                             ]
                         ] : null
                     ]
@@ -126,7 +121,9 @@ class IndexJobPositions extends InertiaAction
                             'label' => __('job position'),
                             'route' => [
                                 'name'       => 'grp.org.hr.job-positions.create',
-                                'parameters' => array_values($this->originalParameters)
+                                'parameters' => [
+                                    'organisation' => $this->organisation->slug
+                                ]
                             ]
                         ] : false
                     ]
@@ -139,9 +136,9 @@ class IndexJobPositions extends InertiaAction
     }
 
 
-    public function asController(ActionRequest $request): LengthAwarePaginator
+    public function asController(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisation($request);
+        $this->initialisation($organisation, $request);
         $this->perPage = 100;
 
         return $this->handle();
@@ -156,7 +153,10 @@ class IndexJobPositions extends InertiaAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => [
-                            'name' => 'grp.org.hr.job-positions.index'
+                            'name' => 'grp.org.hr.job-positions.index',
+                            'parameters' => [
+                                'organisation' => $this->organisation->slug
+                            ]
                         ],
                         'label' => __('positions'),
                         'icon'  => 'fal fa-bars',

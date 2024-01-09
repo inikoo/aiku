@@ -30,16 +30,16 @@ class CreateWorkplace extends InertiaOrganisationAction
             'CreateModel',
             [
                 'breadcrumbs' => $this->getBreadcrumbs($request->route()->originalParameters()),
-                'title'       => __('new workplace'),
-                'pageHead'    => [
-                    'title'        => __('new workplace'),
-                    'actions'      => [
+                'title' => __('new workplace'),
+                'pageHead' => [
+                    'title' => __('new workplace'),
+                    'actions' => [
                         [
-                            'type'  => 'button',
+                            'type' => 'button',
                             'style' => 'cancel',
                             'label' => __('cancel'),
                             'route' => [
-                                'name'       => 'grp.org.hr.workplaces.index',
+                                'name' => 'grp.org.hr.workplaces.index',
                                 'parameters' => array_values($request->route()->originalParameters())
                             ],
                         ]
@@ -48,27 +48,27 @@ class CreateWorkplace extends InertiaOrganisationAction
                 'formData' => [
                     'blueprint' => [
                         [
-                            'title'  => __('work place'),
+                            'title' => __('work place'),
                             'fields' => [
                                 'name' => [
-                                    'type'          => 'input',
-                                    'label'         => __('name'),
-                                    'placeholder'   => __(''),
-                                    'required'      => true
+                                    'type' => 'input',
+                                    'label' => __('name'),
+                                    'placeholder' => __(''),
+                                    'required' => true
                                 ],
                                 'type' => [
-                                    'type'        => 'select',
-                                    'label'       => __('type'),
-                                    'options'     => Options::forEnum(WorkplaceTypeEnum::class),
+                                    'type' => 'select',
+                                    'label' => __('type'),
+                                    'options' => Options::forEnum(WorkplaceTypeEnum::class),
                                     'placeholder' => __('Select a type'),
-                                    'mode'        => 'single',
-                                    'required'    => true,
-                                    'searchable'  => true,
+                                    'mode' => 'single',
+                                    'required' => true,
+                                    'searchable' => true,
                                 ],
-                                'address'      => [
-                                    'type'    => 'address',
-                                    'label'   => __('Address'),
-                                    'value'   => AddressFormFieldsResource::make(
+                                'address' => [
+                                    'type' => 'address',
+                                    'label' => __('Address'),
+                                    'value' => AddressFormFieldsResource::make(
                                         new Address(
                                             [
                                                 'country_id' => $this->organisation->country_id,
@@ -80,20 +80,18 @@ class CreateWorkplace extends InertiaOrganisationAction
                                         'countriesAddressData' => GetAddressData::run()
 
                                     ],
-                                    'required'    => true,
+                                    'required' => true,
                                 ]
                             ]
                         ]
 
                     ],
-                    'route'      => [
-                            'name'       => 'grp.org.models.working-place.store',
-                            'parameters' => $this->organisation->id
-
+                    'route' => [
+                        'name' => 'grp.org.models.working-place.store',
+                        'parameters' => $this->organisation->slug
                     ]
 
                 ],
-
 
 
             ]
@@ -123,7 +121,7 @@ class CreateWorkplace extends InertiaOrganisationAction
             IndexWorkplaces::make()->getBreadcrumbs($routeParameters),
             [
                 [
-                    'type'          => 'creatingModel',
+                    'type' => 'creatingModel',
                     'creatingModel' => [
                         'label' => __('creating workplace'),
                     ]

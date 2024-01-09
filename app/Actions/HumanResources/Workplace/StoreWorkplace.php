@@ -83,7 +83,10 @@ class StoreWorkplace extends InertiaOrganisationAction
 
     public function htmlResponse(Workplace $workplace): RedirectResponse
     {
-        return Redirect::route('grp.org.hr.workplaces.show', $workplace->slug);
+        return Redirect::route('grp.org.hr.workplaces.show', [
+            'organisation' => $workplace->organisation->slug,
+            'workplace'    => $workplace->slug
+        ]);
     }
 
     public function action(Organisation $organisation, array $modelData): Workplace

@@ -7,12 +7,14 @@
 
 namespace App\Actions\HumanResources\Clocking;
 
+use App\Actions\InertiaOrganisationAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Inventory\LocationResource;
 use App\Models\HumanResources\Clocking;
+use App\Models\SysAdmin\Organisation;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdateClocking
+class UpdateClocking extends InertiaOrganisationAction
 {
     use WithActionUpdate;
 
@@ -32,8 +34,9 @@ class UpdateClocking
         if($this->asAction) {
             return true;
         }
-        return $request->user()->hasPermissionTo("inventory.locations.edit");
+        return $request->user()->hasPermissionTo("hr.workplaces.{$this->organisation->slug}.edit");
     }
+
     public function rules(): array
     {
         return [
@@ -49,7 +52,7 @@ class UpdateClocking
         return $this->handle($clocking, $validatedData);
     }
 
-    public function asController(Clocking $clocking, ActionRequest $request): Clocking
+    public function asController(Organisation $organisation, Clocking $clocking, ActionRequest $request): Clocking
     {
         $request->validate();
         return $this->handle($clocking, $request->all());

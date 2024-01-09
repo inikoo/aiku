@@ -87,6 +87,7 @@ class StoreClockingMachine extends InertiaOrganisationAction
         return Redirect::route(
             'grp.org.hr.workplaces.show.clocking-machines.show',
             [
+                'organisation'    => $this->organisation->slug,
                 'workplace'       => $clockingMachine->workplace->slug,
                 'clockingMachine' => $clockingMachine->slug
             ]
