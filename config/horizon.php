@@ -56,7 +56,7 @@ return [
 
     'prefix' => env(
         'HORIZON_PREFIX',
-        Str::slug(env('APP_NAME', 'laravel'), '_').'_horizon:'
+        Str::slug(env('APP_NAME', 'laravel'), '_').'_'.env('APP_ENV').'_horizon:'
     ),
 
     /*
@@ -167,22 +167,75 @@ return [
     'defaults' => [
         'supervisor-1' => [
             'connection'   => 'redis',
-            'queue'        => ['default','fetches'],
+            'queue'        => ['default'],
             'balance'      => 'auto',
             'maxProcesses' => 1,
             'maxTime'      => 0,
             'maxJobs'      => 0,
             'memory'       => 128,
             'tries'        => 1,
-            'timeout'      => 1830,
+            'timeout'      => 150,
             'nice'         => 0,
         ],
+        'supervisor-long-running' => [
+            'connection'          => 'redis-long-running',
+            'queue'               => 'default_long',
+            'balance'             => 'auto',
+            'autoScalingStrategy' => 'time',
+            'maxProcesses'        => 1,
+            'maxTime'             => 0,
+            'maxJobs'             => 0,
+            'memory'              => 128,
+            'tries'               => 1,
+            'timeout'             => 3600,
+            'nice'                => 0,
+        ],
+        'supervisor-ses' => [
+            'connection'          => 'redis-ses',
+            'queue'               => 'ses',
+            'balance'             => 'auto',
+            'autoScalingStrategy' => 'time',
+            'maxProcesses'        => 1,
+            'maxTime'             => 0,
+            'maxJobs'             => 0,
+            'memory'              => 128,
+            'tries'               => 1,
+            'timeout'             => 7200,
+            'nice'                => 0,
+        ]
     ],
 
     'environments' => [
         'production' => [
             'supervisor-1' => [
+                'maxProcesses'    => 15,
+                'balanceMaxShift' => 1,
+                'balanceCooldown' => 3,
+            ],
+            'supervisor-long-running' => [
                 'maxProcesses'    => 10,
+                'balanceMaxShift' => 1,
+                'balanceCooldown' => 3,
+            ],
+            'supervisor-ses' => [
+                'maxProcesses'    => 4,
+                'balanceMaxShift' => 1,
+                'balanceCooldown' => 3,
+            ],
+        ],
+        'staging' => [
+            'supervisor-1' => [
+                'maxProcesses'    => 15,
+                'balanceMaxShift' => 1,
+                'balanceCooldown' => 3,
+            ],
+            'supervisor-long-running' => [
+                'maxProcesses'    => 10,
+                'balanceMaxShift' => 1,
+                'balanceCooldown' => 3,
+            ],
+            'supervisor-ses' => [
+                'maxProcesses'    => 4,
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],
@@ -190,7 +243,15 @@ return [
 
         'local' => [
             'supervisor-1' => [
-                'maxProcesses' => 12,
+                'maxProcesses'    => 15,
+                'balanceMaxShift' => 1,
+                'balanceCooldown' => 3,
+            ],
+            'supervisor-long-running' => [
+                'maxProcesses' => 10,
+            ],
+            'supervisor-ses' => [
+                'maxProcesses' => 3,
             ],
         ],
     ],

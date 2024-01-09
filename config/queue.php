@@ -1,4 +1,9 @@
 <?php
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Tue, 09 Jan 2024 11:09:18 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
 
 return [
 
@@ -62,11 +67,27 @@ return [
             'after_commit' => false,
         ],
 
-        'redis' => [
+        'redis'              => [
             'driver'       => 'redis',
             'connection'   => 'default',
             'queue'        => env('REDIS_QUEUE', 'default'),
-            'retry_after'  => 1830,
+            'retry_after'  => 160,
+            'block_for'    => null,
+            'after_commit' => false,
+        ],
+        'redis-long-running' => [
+            'driver'       => 'redis',
+            'connection'   => 'default',
+            'queue'        => 'default_long',
+            'retry_after'  => 3650,
+            'block_for'    => null,
+            'after_commit' => false,
+        ],
+        'redis-ses'          => [
+            'driver'       => 'redis',
+            'connection'   => 'default',
+            'queue'        => 'ses',
+            'retry_after'  => 7250,
             'block_for'    => null,
             'after_commit' => false,
         ],

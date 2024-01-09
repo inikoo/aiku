@@ -19,13 +19,11 @@ defineProps(['title', 'pageHead', 'stats']);
     <Head :title="capitalize(title)"/>
     <PageHeading :data="pageHead"></PageHeading>
     <stats class="m-4" :stats="stats"/>
-    resources/js/Pages/Grp/SysAdmin/SysAdminDashboard.vue
-    <!-- <pre>{{ useLayoutStore() }}</pre> -->
-
-    <!-- <pre>{{ usePage().props.layout }}</pre> -->
-    ========================
-    <pre>{{ useLayoutStore().group }}</pre>
-    <pre>{{ useLayoutStore().organisations }}</pre>
+    <div class="px-2 bg-amber-500 w-fit">resources/js/Pages/Grp/SysAdmin/SysAdminDashboard.vue</div>
+    <br>Usepage:
+    <pre>{{ usePage().props.layout.organisations }}</pre>
+<div class="mt-10"></div>
+    <br>UseLayoutStore:<pre>{{ useLayoutStore().organisations }}</pre>
 
 </template>
 

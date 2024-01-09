@@ -1,19 +1,19 @@
-/* Navigation: Aikuanisation */
-.navigationActiveAiku {
+/* Navigation: Aiku */
+.navigationActive {
     @apply bg-indigo-200/20 sm:border-l-4 sm:border-indigo-100 text-white font-semibold transition-all duration-100 ease-in-out
 }
-.navigationAiku {
+.navigation {
     @apply hover:bg-gray-300/30 text-indigo-200 hover:text-indigo-50 font-semibold transition-all duration-100 ease-in-out
 }
-.navigationSecondActiveAiku {
+.navigationSecondActive {
     @apply bg-indigo-50 sm:border-l-4 sm:border-indigo-500 text-indigo-600 transition-all duration-100 ease-in-out
 }
-.navigationSecondAiku {
+.navigationSecond {
     @apply hover:bg-gray-100 text-gray-400 hover:text-gray-500 transition-all duration-100 ease-in-out
 }
-.bottomNavigationActiveAiku {
+.bottomNavigationActive {
     @apply bg-indigo-500 w-5/6 absolute h-0.5 rounded-full bottom-0 left-[50%] translate-x-[-50%] mx-auto transition-all duration-200 ease-in-out
 }
-.bottomNavigationAiku {
+.bottomNavigation {
     @apply bg-gray-400 w-0 group-hover:w-3/6 absolute h-0.5 rounded-full bottom-0 left-[50%] translate-x-[-50%] mx-auto transition-all duration-200 ease-in-out
 }
