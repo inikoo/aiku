@@ -87,8 +87,8 @@ const generateLabel = (item) => {
             class="group flex items-center text-sm py-2"
             :class="[
                 itemKey === layout.currentModule
-                    ? 'navigationActiveAiku px-0.5'
-                    : 'navigationAiku px-1',
+                    ? 'navigationActive px-0.5'
+                    : 'navigation px-1',
                 layout.leftSidebar.show ? 'px-3' : '',
             ]"
             :aria-current="itemKey === layout.currentModule ? 'page' : undefined"
@@ -110,8 +110,8 @@ const generateLabel = (item) => {
             class="group flex items-center text-sm py-2"
             :class="[
                 itemKey === layout.currentModule
-                    ? 'navigationActiveAiku px-0.5'
-                    : 'navigationAiku px-1',
+                    ? 'navigationActive px-0.5'
+                    : 'navigation px-1',
                 layout.leftSidebar.show ? 'px-3' : '',
             ]"
             :aria-current="itemKey === layout.currentModule ? 'page' : undefined"

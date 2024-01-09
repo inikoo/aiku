@@ -126,8 +126,8 @@ onBeforeUnmount(() => {
                         <div @click="currentTab = key"
                             :class="[
                                 key == currentTab
-                                    ? `navigationSecondActive${capitalize(layout.systemName)}`
-                                    : `navigationSecond${capitalize(layout.systemName)}`,
+                                    ? `navigationSecondActive`
+                                    : `navigationSecond`,
                                 'cursor-pointer group px-3 py-2 flex items-center text-sm font-medium',
                             ]">
                             <FontAwesomeIcon v-if="item.icon" aria-hidden="true" class="flex-shrink-0 -ml-1 mr-2 h-4 w-4"

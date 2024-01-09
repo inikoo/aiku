@@ -6,20 +6,8 @@
 @tailwind utilities;
 
 @layer utilities {
-    .special-underline {
-        @apply bg-gradient-to-r from-yellow-200 to-yellow-200 px-1
-        bg-no-repeat [background-position:0_88%]
-        [background-size:100%_0.2em]
-        motion-safe:transition-all motion-safe:duration-200
-        hover:[background-size:100%_100%]
-        focus:[background-size:100%_100%];
-    }
-}
-
-.prose a { @apply specialUnderline }
-
-.specialUnderline {
-    @apply bg-gradient-to-t from-emerald-300 to-emerald-200
+    .specialUnderline {
+    @apply bg-gradient-to-t from-yellow-300 to-yellow-200
     focus:ring-0 focus:outline-none focus:border-none
     bg-no-repeat [background-position:0%_100%]
     [background-size:100%_0.2em]
@@ -27,6 +15,11 @@
     hover:[background-size:100%_100%]
     focus:[background-size:100%_100%] px-1;
 }
+}
+
+.prose a { @apply specialUnderline }
+
+
 
 .qwezxc {
     /* For debug element */

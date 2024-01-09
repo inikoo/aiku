@@ -24,8 +24,6 @@ import InputWithAddOn from '@/Components/Forms/Fields/InputWithAddOn.vue'
 import Password from "@/Components/Forms/Fields/Password.vue"
 import CustomerRoles from '@/Components/Forms/Fields/CustomerRoles.vue'
 import JobPosition from '@/Components/Forms/Fields/JobPosition.vue'
-import prospectRecipients from '@/Components/Forms/Fields/ProspectRecipients.vue'
-import ProspectQueryBuilder from '@/Components/Forms/Fields/ProspectQuery/ProspectQueryBuilder.vue'
 import EmployeePosition from '@/Components/Forms/Fields/EmployeePosition.vue'
 
 import { ref, onMounted } from 'vue'
@@ -64,8 +62,6 @@ const getComponent = (componentName: string) => {
         'customerRoles': CustomerRoles,
         'textarea': Textarea,
         'jobPosition': JobPosition,
-        'prospectQueryBuilder': ProspectQueryBuilder,
-        'prospectRecipients': prospectRecipients,
         'senderEmail': SenderEmail,
         'employeePosition': EmployeePosition
     }
@@ -125,13 +121,9 @@ onMounted(() => {
                 <div class="sticky top-16">
                     <!-- <template v-for="(item, key) in formData['blueprint']">
                         <div v-if="item.title || item.icon" @click="jumpToElement(`field${key}`)" :class="[
-                            appName == 'customer'
-                            ? tabActive[key]
-                                    ? 'navigationSecondActiveCustomer'
-                                    : 'navigationSecondCustomer'
-                            : tabActive[key]
-                                    ? 'navigationActiveOrg'
-                                    : 'navigationOrg',
+                            tabActive[key]
+                                ? 'navigationSecondActive'
+                                : 'navigationSecond',
                             'cursor-pointer group border-l-4 px-3 py-2 flex items-center text-sm font-medium',
                         ]">
                             <FontAwesomeIcon v-if="item.icon" aria-hidden="true" class="flex-shrink-0 -ml-1 mr-3 h-6 w-6"
