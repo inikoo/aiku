@@ -8,15 +8,17 @@
 namespace App\Actions\HumanResources\TimeSheet;
 
 use App\Actions\InertiaAction;
+use App\Actions\InertiaOrganisationAction;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
 use App\Enums\UI\EmployeeTabsEnum;
 use App\Http\Resources\HumanResources\EmployeeResource;
 use App\Models\HumanResources\Employee;
+use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class ShowTimeSheet extends InertiaAction
+class ShowTimeSheet extends InertiaOrganisationAction
 {
     public function handle(Employee $employee): Employee
     {
@@ -26,14 +28,14 @@ class ShowTimeSheet extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo('hr.edit');
+        $this->canEdit = $request->user()->hasPermissionTo("human-resources.{$this->organisation->slug}.edit");
 
-        return $request->user()->hasPermissionTo("hr.view");
+        return $request->user()->hasPermissionTo("human-resources.{$this->organisation->slug}.edit");
     }
 
-    public function asController(Employee $employee, ActionRequest $request): Employee
+    public function asController(Organisation $organisation, Employee $employee, ActionRequest $request): Employee
     {
-        $this->initialisation($request)->withTab(EmployeeTabsEnum::values());
+        $this->initialisation($organisation, $request)->withTab(EmployeeTabsEnum::values());
         return $this->handle($employee);
     }
 
@@ -71,7 +73,7 @@ class ShowTimeSheet extends InertiaAction
                     'edit'  => $this->canEdit ? [
                         'route' => [
                             'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
-                            'parameters' => array_values($this->originalParameters)
+                            'parameters' => $request->route()->originalParameters()
                         ]
                     ] : false,
                 ],
@@ -92,7 +94,9 @@ class ShowTimeSheet extends InertiaAction
     public function getBreadcrumbs(Employee $employee, $suffix = null): array
     {
         return array_merge(
-            (new ShowHumanResourcesDashboard())->getBreadcrumbs(),
+            (new ShowHumanResourcesDashboard())->getBreadcrumbs([
+                'organisation' => $this->organisation->slug
+            ]),
             [
                 [
                     'type'           => 'modelWithIndex',
@@ -100,13 +104,19 @@ class ShowTimeSheet extends InertiaAction
                         'index' => [
                             'route' => [
                                 'name' => 'grp.org.hr.employees.index',
+                                'parameters' => [
+                                    'organisation' => $this->organisation->slug
+                                ]
                             ],
                             'label' => __('employees')
                         ],
                         'model' => [
                             'route' => [
                                 'name'       => 'grp.org.hr.employees.show',
-                                'parameters' => [$employee->slug]
+                                'parameters' => [
+                                    'organisation' => $this->organisation->slug,
+                                    'employee'  => $employee->slug
+                                ]
                             ],
                             'label' => $employee->worker_number,
                         ],
@@ -142,9 +152,9 @@ class ShowTimeSheet extends InertiaAction
                 'route'=> [
                     'name'      => $routeName,
                     'parameters'=> [
+                        'organisation'=> $this->organisation->slug,
                         'employee'=> $employee->slug
                     ]
-
                 ]
             ]
         };

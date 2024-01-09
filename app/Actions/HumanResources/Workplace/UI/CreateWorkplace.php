@@ -88,7 +88,7 @@ class CreateWorkplace extends InertiaOrganisationAction
                     ],
                     'route' => [
                         'name' => 'grp.org.models.working-place.store',
-                        'parameters' => $this->organisation->slug
+                        'parameters' => [$this->organisation->slug]
                     ]
 
                 ],
