@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import {Link, router, usePage} from "@inertiajs/vue3"
+import {Link, router} from "@inertiajs/vue3"
 import { useLayoutStore } from "@/Stores/layout"
-// import OrgTopBarNavs from "@/Layouts/Organisation/OrgTopBarNavs.vue"
-import { ref, onMounted, computed, watchEffect } from 'vue'
+import { ref} from 'vue'
 import { get } from 'lodash'
 import { liveUsers } from '@/Stores/active-users'
 import {capitalize} from "@/Composables/capitalize"
@@ -42,7 +41,7 @@ const logoutAuth = () => {
 // const organisationName = ref('')
 
 // watchEffect(() => {
-//     console.log('wwww')
+//     console.log('xxx')
 //     organisationName.value = route().v().params?.organisation ?? false
 // })
 
@@ -78,7 +77,7 @@ const logoutAuth = () => {
 
                             <Transition>
                                 <p v-if="layout.leftSidebar.show" class="bg-gradient-to-r from-indigo-700 to-indigo-500 text-transparent text-lg bg-clip-text font-bold whitespace-nowrap leading-none lg:truncate">
-                                    {{ layout.app?.name ? layout.app?.name : "Aiku" }}
+                                    Aiku
                                 </p>
                             </Transition>
                         </Link>
@@ -110,11 +109,11 @@ const logoutAuth = () => {
                                             <div>
                                                 <div class="flex items-center gap-x-1.5 px-1 mb-1">
                                                     <FontAwesomeIcon icon='fal fa-city' class='text-gray-400 text-xxs' ariaa-hidden='true' />
-                                                    <span class="text-[9px] leading-none text-gray-400">Groups</span>
+                                                    <span class="text-[9px] leading-none text-gray-400">{{trans('Group')}}</span>
                                                     <hr class="w-full rounded-full border-slate-300">
                                                 </div>
                                                 <MenuItem v-slot="{ active }">
-                                                    <Link :href="route('grp.org.dashboard.show', { organisation: layout.group.slug })" :class="[
+                                                    <Link :href="route('grp.dashboard.show')" :class="[
                                                         valOrganisation == layout.group.slug ? 'bg-indigo-500 text-white' : active ? 'bg-slate-200/75 text-indigo-600' : 'text-slate-600',
                                                         'group flex w-full gap-x-2 items-center rounded px-2 py-2 text-sm',
                                                     ]">
@@ -127,10 +126,10 @@ const logoutAuth = () => {
                                                 <!-- Dropdown: Organisation -->
                                                 <div class="flex items-center gap-x-1.5 px-1 mb-1">
                                                     <FontAwesomeIcon icon='fal fa-building' class='text-gray-400 text-xxs' aria-hidden='true' />
-                                                    <span class="text-[9px] leading-none text-gray-400">Organisations</span>
+                                                    <span class="text-[9px] leading-none text-gray-400">{{trans('Organisations')}}</span>
                                                     <hr class="w-full rounded-full border-slate-300">
                                                 </div>
-                                                <MenuItem v-for="(item, itemKey) in layout.organisations.data" v-slot="{ active }">
+                                                <MenuItem v-for="(item) in layout.organisations.data" v-slot="{ active }">
                                                     <div @click="() => router.visit(route('grp.org.dashboard.show', { organisation: item.slug }))" :class="[
                                                         item.slug == route().v().params?.organisation ? 'bg-indigo-500 text-white' : 'text-slate-600 hover:bg-slate-200/75 hover:text-indigo-600',
                                                         'group flex gap-x-2 w-full justify-start items-center rounded px-2 py-2 text-sm cursor-pointer',
@@ -166,7 +165,7 @@ const logoutAuth = () => {
                                 <FontAwesomeIcon :icon="menu.icon"
                                     class="h-5 lg:h-3.5 w-auto group-hover:opacity-100 opacity-70 transition duration-100 ease-in-out"
                                     aria-hidden="true"/>
-                                <span v-if="menu.label" class="hidden lg:inline capitalize whitespace-nowrap">{{ trans(menu.label) }}</span>
+                                <span v-if="menu.label" class="hidden lg:inline capitalize whitespace-nowrap">{{ menu.label }}</span>
                             </Link>
                         </div>
                     </div>
@@ -188,7 +187,7 @@ const logoutAuth = () => {
                                 <font-awesome-icon aria-hidden="true" icon="fa-regular fa-bell" size="lg" />
                             </button>
                         </div>
-                        
+
                         <!-- Avatar Button -->
                         <Menu as="div" class="relative">
                             <MenuButton id="avatar-thumbnail"
@@ -203,7 +202,7 @@ const logoutAuth = () => {
                                 <MenuItems class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-200 focus:outline-none">
                                     <div class="py-1">
                                         <MenuItem v-slot="{ active }">
-                                            <div as="ul" type="button" @click="router.visit(route(urlPrefix+'profile.show'))"
+                                            <div type="button" @click="router.visit(route(urlPrefix+'profile.show'))"
                                                 :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm cursor-pointer']">
                                                 {{ trans("View profile") }}
                                             </div>
