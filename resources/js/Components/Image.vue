@@ -40,19 +40,18 @@ watch(src, (newValue) => {
 
 const setImage = () => {
     if(!isNull(imageSrc.value)){
-        if (imageSrc.value.avif_2x) {
-        avif.value += ' 1x, ' + imageSrc.value.avif_2x + ' 2x'
-    }
+        if (imageSrc.value?.avif_2x) {
+            avif.value += ' 1x, ' + imageSrc.value.avif_2x + ' 2x'
+        }
 
-    if (imageSrc.value.webp_2x) {
-        webp.value += ' 1x, ' + imageSrc.value.webp_2x + ' 2x'
-    }
+        if (imageSrc.value?.webp_2x) {
+            webp.value += ' 1x, ' + imageSrc.value.webp_2x + ' 2x'
+        }
 
-    if (imageSrc.value.original_2x) {
-        original.value += ' 1x, ' + imageSrc.value.original_2x + ' 2x'
+        if (imageSrc.value?.original_2x) {
+            original.value += ' 1x, ' + imageSrc.value.original_2x + ' 2x'
+        }
     }
-    }
-
 }
 
 onBeforeMount(setImage)
@@ -60,10 +59,9 @@ onBeforeMount(setImage)
 </script>
 
 <template>
-
     <picture :class="[props.class ?? 'w-full h-full flex justify-center items-center']">
-        <source v-if="get(src, 'avif')" type="image/avif" :srcset="avif">
-        <source v-if="get(src, 'webp')" type="image/webp" :srcset="webp">
+        <!-- <source v-if="get(src, 'avif')" type="image/avif" :srcset="avif">
+        <source v-if="get(src, 'webp')" type="image/webp" :srcset="webp"> -->
         <img :class="[imageCover ? 'w-full h-full object-cover' : '']" :srcset="original" :src="get(src, 'original')" :alt="alt" style="height: inherit;">
     </picture>
 </template>
