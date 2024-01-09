@@ -98,43 +98,50 @@ const logoutAuth = () => {
                                     class="inline-flex min-w-fit w-32 max-w-full whitespace-nowrap justify-between items-center gap-x-2 rounded px-2.5 py-1 text-xs font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-white/75"
                                     :class="[ layout.organisations.currentOrganisations ? 'bg-indigo-500 text-white hover:bg-indigo-600' : 'bg-slate-100 hover:bg-slate-200 text-slate-600 ring-1 ring-slate-300']"
                                 >
-                                    {{ route().v().params?.organisation ?? 'Select group or organisations' }}
+                                    {{ layout.organisations.data.find((item) => item.slug == route().v().params?.organisation)?.name ?? 'Select group or organisations' }}
                                     <!-- {{ layout.organisations.currentOrganisations ? layout.organisations.currentOrganisations : 'Select group or organisations' }} -->
                                     <FontAwesomeIcon icon='far fa-chevron-down' class='text-xs' aria-hidden='true' />
                                 </MenuButton>
                                 <transition>
                                     <MenuItems
                                         class="absolute left-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
-                                        <div class="px-1 py-1 space-y-1">
+                                        <div class="px-1 py-1 space-y-2.5">
                                             <!-- Dropdown: Group -->
-                                            <div class="flex items-center gap-x-1.5 px-1">
-                                                <span class="text-[9px] leading-none text-gray-400">Groups</span>
-                                                <hr class="w-full rounded-full border-slate-300">
+                                            <div>
+                                                <div class="flex items-center gap-x-1.5 px-1 mb-1">
+                                                    <FontAwesomeIcon icon='fal fa-city' class='text-gray-400 text-xxs' ariaa-hidden='true' />
+                                                    <span class="text-[9px] leading-none text-gray-400">Groups</span>
+                                                    <hr class="w-full rounded-full border-slate-300">
+                                                </div>
+                                                <MenuItem v-slot="{ active }">
+                                                    <Link :href="route('grp.org.dashboard.show', { organisation: layout.group.slug })" :class="[
+                                                        valOrganisation == layout.group.slug ? 'bg-indigo-500 text-white' : active ? 'bg-slate-200/75 text-indigo-600' : 'text-slate-600',
+                                                        'group flex w-full gap-x-2 items-center rounded px-2 py-2 text-sm',
+                                                    ]">
+                                                        <span class="font-semibold">{{ layout.group.name }}</span>
+                                                    </Link>
+                                                </MenuItem>
                                             </div>
-                                            <MenuItem v-slot="{ active }">
-                                                <Link :href="route('grp.org.dashboard.show', { organisation: layout.group.slug })" :class="[
-                                                    valOrganisation == layout.group.slug ? 'bg-indigo-500 text-white' : active ? 'bg-slate-200/75 text-indigo-600' : 'text-slate-600',
-                                                    'group flex w-full gap-x-2 items-center rounded px-2 py-2 text-sm',
-                                                ]">
-                                                    <FontAwesomeIcon icon='fal fa-city' class='text-gray-400' aria-hidden='true' />
-                                                    <span class="font-semibold">{{ layout.group.name }}</span>
-                                                </Link>
-                                            </MenuItem>
 
-                                            <!-- Dropdown: Organisation -->
-                                            <div class="flex items-center gap-x-1.5 px-1">
-                                                <span class="text-[9px] leading-none text-gray-400">Organisations</span>
-                                                <hr class="w-full rounded-full border-slate-300">
+                                            <div>
+                                                <!-- Dropdown: Organisation -->
+                                                <div class="flex items-center gap-x-1.5 px-1 mb-1">
+                                                    <FontAwesomeIcon icon='fal fa-building' class='text-gray-400 text-xxs' aria-hidden='true' />
+                                                    <span class="text-[9px] leading-none text-gray-400">Organisations</span>
+                                                    <hr class="w-full rounded-full border-slate-300">
+                                                </div>
+                                                <MenuItem v-for="(item, itemKey) in layout.organisations.data" v-slot="{ active }">
+                                                    <div @click="() => router.visit(route('grp.org.dashboard.show', { organisation: item.slug }))" :class="[
+                                                        item.slug == route().v().params?.organisation ? 'bg-indigo-500 text-white' : 'text-slate-600 hover:bg-slate-200/75 hover:text-indigo-600',
+                                                        'group flex gap-x-2 w-full justify-start items-center rounded px-2 py-2 text-sm cursor-pointer',
+                                                    ]">
+                                                        <div class="h-5 rounded-full overflow-hidden ring-1 ring-slate-200 bg-slate-50">
+                                                            <Image :src="item.logo" />
+                                                        </div>
+                                                        <div class="font-semibold">{{ item.name }}</div>
+                                                    </div>
+                                                </MenuItem>
                                             </div>
-                                            <MenuItem v-for="(item, itemKey) in layout.organisations.data" v-slot="{ active }">
-                                                <Link :href="route('grp.org.dashboard.show', { organisation: layout.group.slug })" :class="[
-                                                    valOrganisation == item ? 'bg-indigo-500 text-white' : active ? 'bg-slate-200/75 text-indigo-600' : 'text-slate-700',
-                                                    'group flex w-full items-center rounded px-2 py-2 text-sm',
-                                                ]">
-                                                    <FontAwesomeIcon icon='fal fa-building' class='text-gray-400' aria-hidden='true' />
-                                                    <span class="font-semibold">{{ itemKey }}</span>
-                                                </Link>
-                                            </MenuItem>
                                         </div>
                                     </MenuItems>
                                 </transition>

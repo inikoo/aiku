@@ -16,6 +16,22 @@ module.exports = {
                 sans: ['Inter var', ...defaultTheme.fontFamily.sans],
                 logo: ['Fira Sans',...defaultTheme.fontFamily.sans]
             },
+            fontSize: {
+                xxs: ['0.6rem', {
+                    lineHeight: '0.8rem',
+                }]
+            },
+            keyframes: {
+                shimmer: {
+                    '100%': {
+                        transform: 'translateX(100%)',
+                    },
+                },
+            },
+            animation: {
+                skeleton: 'shimmer 1.3s ease-in-out infinite',
+                shimmer: 'shimmer 2.5s ease-in-out infinite',
+            }
         },
     },
 
