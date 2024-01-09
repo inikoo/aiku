@@ -10,7 +10,6 @@ namespace App\Actions\HumanResources\ClockingMachine\UI;
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\HumanResources\Clocking\UI\IndexClockings;
 use App\Actions\HumanResources\Workplace\UI\ShowWorkplace;
-use App\Actions\InertiaAction;
 use App\Actions\InertiaOrganisationAction;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
 use App\Enums\UI\ClockingMachineTabsEnum;
@@ -28,9 +27,9 @@ class ShowClockingMachine extends InertiaOrganisationAction
 {
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit   = $request->user()->hasPermissionTo("hr.{$this->organisation->slug}.edit");
-        $this->canDelete = $request->user()->hasPermissionTo("hr.{$this->organisation->slug}.edit");
-        return $request->user()->hasPermissionTo("hr.{$this->organisation->slug}.view");
+        $this->canEdit   = $request->user()->hasPermissionTo("human-resources.{$this->organisation->slug}.edit");
+        $this->canDelete = $request->user()->hasPermissionTo("human-resources.{$this->organisation->slug}.edit");
+        return $request->user()->hasPermissionTo("human-resources.{$this->organisation->slug}.view");
     }
 
     public function inTenant(Organisation $organisation, ClockingMachine $clockingMachine, ActionRequest $request): ClockingMachine
@@ -235,7 +234,7 @@ class ShowClockingMachine extends InertiaOrganisationAction
                 'route' => [
                     'name'       => $routeName,
                     'parameters' => [
-                        'organisation' => $this->organisation->slug,
+                        'organisation'    => $this->organisation->slug,
                         'clockingMachine' => $clockingMachine->slug
                     ]
                 ]

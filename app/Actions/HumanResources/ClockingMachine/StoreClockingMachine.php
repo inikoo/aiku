@@ -8,7 +8,10 @@
 namespace App\Actions\HumanResources\ClockingMachine;
 
 use App\Actions\HumanResources\ClockingMachine\Hydrators\ClockingMachineHydrateUniversalSearch;
+
+use App\Actions\HumanResources\Workplace\Hydrators\WorkplaceHydrateClockingMachines;
 use App\Actions\InertiaOrganisationAction;
+use App\Actions\SysAdmin\Organisation\OrganisationHydrateClockingMachines;
 use App\Enums\HumanResources\ClockingMachine\ClockingMachineTypeEnum;
 use App\Http\Resources\HumanResources\ClockingMachineResource;
 use App\Models\HumanResources\ClockingMachine;
@@ -16,6 +19,7 @@ use App\Models\HumanResources\Workplace;
 use App\Models\SysAdmin\Organisation;
 use App\Rules\IUnique;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
@@ -30,8 +34,17 @@ class StoreClockingMachine extends InertiaOrganisationAction
         data_set($modelData, 'group_id', $workplace->group_id);
         data_set($modelData, 'organisation_id', $workplace->organisation_id);
 
+        if (Arr::get($modelData, 'type') == ClockingMachineTypeEnum::STATIC_NFC->value) {
+            data_set($modelData, 'data.nfc_tag', $this->get('nfc_tag'));
+            Arr::forget($modelData, 'nfc_tag');
+        }
+
+
         /** @var ClockingMachine $clockingMachine */
         $clockingMachine =  $workplace->clockingMachines()->create($modelData);
+        OrganisationHydrateClockingMachines::dispatch($workplace->organisation);
+        WorkplaceHydrateClockingMachines::dispatch($workplace);
+
         ClockingMachineHydrateUniversalSearch::dispatch($clockingMachine);
         return $clockingMachine;
     }
@@ -49,7 +62,7 @@ class StoreClockingMachine extends InertiaOrganisationAction
     public function rules(): array
     {
         return [
-            'name'  => ['required', 'max:64', 'alpha_dash',
+            'name'  => ['required', 'max:64', 'string',
                         new IUnique(
                             table: 'workplaces',
                             extraConditions: [

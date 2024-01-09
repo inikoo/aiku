@@ -36,6 +36,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_employees_gender_female
  * @property int $number_employees_gender_other
  * @property int $number_clocking_machines
+ * @property int $number_clocking_machines_type_static_nfc
+ * @property int $number_clocking_machines_type_mobile_app
  * @property int $number_clockings
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at

@@ -7,7 +7,6 @@
 
 namespace App\Actions\HumanResources\TimeSheet;
 
-use App\Actions\InertiaAction;
 use App\Actions\InertiaOrganisationAction;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
 use App\Enums\UI\TabsAbbreviationEnum;
@@ -129,7 +128,7 @@ class IndexTimesheets extends InertiaOrganisationAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => [
-                            'name' => 'grp.org.hr.employees.index',
+                            'name'       => 'grp.org.hr.employees.index',
                             'parameters' => [
                                 'organisation' => $this->organisation->slug
                             ]

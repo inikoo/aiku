@@ -24,6 +24,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_workplaces_type_road
  * @property int $number_workplaces_type_other
  * @property int $number_clocking_machines
+ * @property int $number_clocking_machines_type_static_nfc
+ * @property int $number_clocking_machines_type_mobile_app
  * @property int $number_clockings
  * @property int $number_employees
  * @property int $number_employees_state_hired

@@ -35,9 +35,9 @@ function clockingMachineRoute(clockingMachine : ClockingMachine) {
 
 <template>
     <Table :resource="data" :name="tab" class="mt-5" >
-        <template #cell(code)="{ item: clockingMachine }">
+        <template #cell(name)="{ item: clockingMachine }">
             <Link :href="clockingMachineRoute(clockingMachine)">
-                {{ clockingMachine['code'] }}
+                {{ clockingMachine['name'] }}
             </Link>
         </template>
     </Table>

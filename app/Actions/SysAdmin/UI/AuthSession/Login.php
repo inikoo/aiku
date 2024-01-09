@@ -10,6 +10,7 @@ namespace App\Actions\SysAdmin\UI\AuthSession;
 use App\Actions\SysAdmin\User\LogUserFailLogin;
 use App\Actions\SysAdmin\User\LogUserLogin;
 use App\Models\SysAdmin\Group;
+use App\Models\SysAdmin\User;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
@@ -54,7 +55,7 @@ class Login
 
         RateLimiter::clear($this->throttleKey($request));
 
-        /** @var \App\Models\SysAdmin\User $user */
+        /** @var User $user */
         $user = auth($this->gate)->user();
 
         $group = Cache::remember('bound-group', 3600, function () use ($user) {

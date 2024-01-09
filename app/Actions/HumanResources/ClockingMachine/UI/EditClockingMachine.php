@@ -7,7 +7,6 @@
 
 namespace App\Actions\HumanResources\ClockingMachine\UI;
 
-use App\Actions\InertiaAction;
 use App\Actions\InertiaOrganisationAction;
 use App\Models\HumanResources\ClockingMachine;
 use App\Models\HumanResources\Workplace;
@@ -25,9 +24,9 @@ class EditClockingMachine extends InertiaOrganisationAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo("hr.clocking-machines.{$this->organisation->slug}.edit");
+        $this->canEdit = $request->user()->hasPermissionTo("human-resources.clocking-machines.{$this->organisation->slug}.edit");
 
-        return $request->user()->hasPermissionTo("hr.clocking-machines.{$this->organisation->slug}.edit");
+        return $request->user()->hasPermissionTo("human-resources.clocking-machines.{$this->organisation->slug}.edit");
     }
 
     public function asController(Organisation $organisation, ClockingMachine $clockingMachine, ActionRequest $request): ClockingMachine

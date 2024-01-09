@@ -20,7 +20,7 @@ class GuestFactory extends Factory
             'identity_document_number' => fake('en_GB')->vat(),
             'identity_document_type'   => 'passport',
             'username'                 => fake()->userName,
-            'password'                 => fake()->password,
+            'password'                 => 'password',
         ];
     }
 }

@@ -7,7 +7,6 @@
 
 namespace App\Actions\HumanResources\ClockingMachine\UI;
 
-use App\Actions\InertiaAction;
 use App\Actions\InertiaOrganisationAction;
 use App\Models\HumanResources\ClockingMachine;
 use App\Models\HumanResources\Workplace;

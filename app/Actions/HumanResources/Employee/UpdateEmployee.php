@@ -134,7 +134,7 @@ class UpdateEmployee extends InertiaOrganisationAction
             'positions'           => ['sometimes', 'array'],
             'positions.*'         => ['sometimes', 'exists:job_positions,slug'],
             'email'               => ['sometimes', 'nullable', 'email'],
-            'username'            => ['nullable', new AlphaDashDot(), 'iunique:organisation_users'],
+            'username'            => ['nullable', new AlphaDashDot(), 'iunique:users'],
             'password'            => ['exclude_if:username,null', 'required', 'max:255', app()->isLocal() || app()->environment('testing') ? null : Password::min(8)->uncompromised()],
             'reset_password'      => ['sometimes', 'boolean'],
             'source_id'           => ['sometimes', 'string', 'max:64'],

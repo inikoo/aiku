@@ -32,6 +32,9 @@ Route::middleware([
         Route::prefix("org/{organisation}")
             ->name("org.")
             ->group(__DIR__."/org/org.php");
+        Route::prefix("models")
+            ->name("models.")
+            ->group(__DIR__."/models.php");
 
         /*
 
@@ -88,9 +91,7 @@ Route::middleware([
         Route::prefix("sessions")
             ->name("sessions.")
             ->group(__DIR__."/sessions.php");
-        Route::prefix("models")
-            ->name("models.")
-            ->group(__DIR__."/models.php");
+
         Route::prefix("media")
             ->name("media.")
             ->group(__DIR__."/media.php");

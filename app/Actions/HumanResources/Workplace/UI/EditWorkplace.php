@@ -8,7 +8,6 @@
 namespace App\Actions\HumanResources\Workplace\UI;
 
 use App\Actions\Assets\Country\UI\GetAddressData;
-use App\Actions\InertiaAction;
 use App\Actions\InertiaOrganisationAction;
 use App\Enums\HumanResources\Workplace\WorkplaceTypeEnum;
 use App\Http\Resources\Helpers\AddressFormFieldsResource;
@@ -34,7 +33,7 @@ class EditWorkplace extends InertiaOrganisationAction
         return $request->user()->hasPermissionTo("human-resources.{$this->organisation->slug}.edit");
     }
 
-    public function asController(Organisation $organisation,  Workplace $workplace, ActionRequest $request): Workplace
+    public function asController(Organisation $organisation, Workplace $workplace, ActionRequest $request): Workplace
     {
         $this->initialisation($organisation, $request);
 

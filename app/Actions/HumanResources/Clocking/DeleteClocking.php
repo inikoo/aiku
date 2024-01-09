@@ -84,7 +84,7 @@ class DeleteClocking extends InertiaOrganisationAction
                 route: 'grp.org.hr.clocking-machines.show.clockings.index',
                 parameters: [
                     'organisation'      => $parent->organisation->slug,
-                    'workplace' => $parent->slug
+                    'workplace'         => $parent->slug
                 ]
             );
         } else {

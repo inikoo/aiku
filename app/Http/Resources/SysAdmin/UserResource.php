@@ -11,7 +11,6 @@ use App\Http\Resources\HumanResources\EmployeeResource;
 use App\Models\SysAdmin\User;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Arr;
 use JsonSerializable;
 
 class UserResource extends JsonResource
@@ -34,9 +33,11 @@ class UserResource extends JsonResource
                     default    => [],
                 };
             }),
-            'roles'        => Arr::join($user->getRoleNames()->toArray(), ', '),
             'created_at'   => $user->created_at,
             'updated_at'   => $user->updated_at,
+            'roles'        => $user->getRoleNames()->toArray(),
+            'permissions'  => $user->getAllPermissions()->pluck('name')->toArray()
+
         ];
     }
 }

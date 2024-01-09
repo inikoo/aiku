@@ -48,7 +48,9 @@ function createOrganisation(): Organisation
 
     $organisation = Organisation::first();
     if (!$organisation) {
-        $organisation = StoreOrganisation::make()->action($group, Organisation::factory()->definition());
+        $modelData = Organisation::factory()->definition();
+        data_set($modelData, 'code', 'acme');
+        $organisation = StoreOrganisation::make()->action($group, $modelData);
     }
 
     return $organisation;

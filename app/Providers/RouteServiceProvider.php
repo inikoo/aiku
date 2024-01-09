@@ -33,10 +33,21 @@ class RouteServiceProvider extends ServiceProvider
     {
         $this->configureRateLimiting();
 
+        /*
+        Route::prefix('webhooks')
+            ->domain(config('app.domain'))
+            ->middleware('webhooks')
+            ->group(base_path('routes/grp/webhooks/webhooks.php'));
+        */
+        Route::prefix('api')
+            ->domain(config('app.domain'))
+            ->middleware('api')
+            ->group(base_path('routes/grp/api/app.php'));
+
         Route::domain('app.'.config('app.domain'))
             ->middleware('grp')
             ->name('grp.')
-            ->group(base_path('routes/grp/app.php'));
+            ->group(base_path('routes/grp/web/app.php'));
 
 
 

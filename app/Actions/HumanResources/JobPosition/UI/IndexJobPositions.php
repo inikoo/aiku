@@ -153,7 +153,7 @@ class IndexJobPositions extends InertiaOrganisationAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => [
-                            'name' => 'grp.org.hr.job-positions.index',
+                            'name'       => 'grp.org.hr.job-positions.index',
                             'parameters' => [
                                 'organisation' => $this->organisation->slug
                             ]

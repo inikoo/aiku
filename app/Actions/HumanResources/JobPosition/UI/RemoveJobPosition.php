@@ -7,7 +7,6 @@
 
 namespace App\Actions\HumanResources\JobPosition\UI;
 
-use App\Actions\InertiaAction;
 use App\Actions\InertiaOrganisationAction;
 use App\Models\HumanResources\JobPosition;
 use App\Models\SysAdmin\Organisation;

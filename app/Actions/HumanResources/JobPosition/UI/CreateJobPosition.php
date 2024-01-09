@@ -7,7 +7,6 @@
 
 namespace App\Actions\HumanResources\JobPosition\UI;
 
-use App\Actions\InertiaAction;
 use App\Actions\InertiaOrganisationAction;
 use App\Models\Market\ProductCategory;
 use App\Models\SysAdmin\Organisation;
@@ -73,7 +72,7 @@ class CreateJobPosition extends InertiaOrganisationAction
                     ],
                     'route'      => [
                             'name'       => 'grp.models.job-position.store',
-                        'parameters' => ['organisation' => $this->organisation->slug]
+                        'parameters'     => ['organisation' => $this->organisation->slug]
 
                     ]
 

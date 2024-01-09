@@ -14,6 +14,7 @@ use App\Models\Assets\Currency;
 use App\Models\Assets\Language;
 use App\Models\Assets\Timezone;
 use App\Models\Dispatch\Shipper;
+use App\Models\HumanResources\ClockingMachine;
 use App\Models\HumanResources\Employee;
 use App\Models\HumanResources\Workplace;
 use App\Models\Inventory\Warehouse;
@@ -57,6 +58,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $deleted_at
  * @property-read \App\Models\SysAdmin\OrganisationAccountingStats|null $accountingStats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\OrganisationAuthorisedModels> $authorisedModels
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, ClockingMachine> $clockingMachines
  * @property-read Country $country
  * @property-read \App\Models\SysAdmin\OrganisationCRMStats|null $crmStats
  * @property-read Currency $currency
@@ -252,6 +254,11 @@ class Organisation extends Model implements HasMedia
     public function shippers(): HasMany
     {
         return $this->hasMany(Shipper::class);
+    }
+
+    public function clockingMachines(): HasMany
+    {
+        return $this->hasMany(ClockingMachine::class);
     }
 
     public function paymentServiceProviders(): HasMany

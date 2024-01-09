@@ -8,7 +8,6 @@
 namespace App\Actions\HumanResources\Employee\UI;
 
 use App\Actions\Helpers\History\IndexHistory;
-use App\Actions\InertiaAction;
 use App\Actions\InertiaOrganisationAction;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
 use App\Enums\UI\EmployeeTabsEnum;
@@ -131,7 +130,7 @@ class ShowEmployee extends InertiaOrganisationAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => [
-                                'name' => 'grp.org.hr.employees.index',
+                                'name'       => 'grp.org.hr.employees.index',
                                 'parameters' => [
                                     'organisation' => $this->organisation->slug
                                 ]
@@ -143,7 +142,7 @@ class ShowEmployee extends InertiaOrganisationAction
                                 'name'       => 'grp.org.hr.employees.show',
                                 'parameters' => [
                                     'organisation' => $this->organisation->slug,
-                                    'employee' => $employee->slug
+                                    'employee'     => $employee->slug
                                 ]
                             ],
                             'label' => $employee->slug,
@@ -183,7 +182,7 @@ class ShowEmployee extends InertiaOrganisationAction
                     'name'       => $routeName,
                     'parameters' => [
                         'organisation' => $this->organisation->slug,
-                        'employee' => $employee->slug
+                        'employee'     => $employee->slug
                     ]
                 ]
             ]

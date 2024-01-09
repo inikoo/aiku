@@ -48,7 +48,7 @@ class StoreClocking extends InertiaOrganisationAction
         if($this->asAction) {
             return true;
         }
-        return $request->user()->hasPermissionTo("hr.workplaces.{$this->organisation->slug}.edit");
+        return $request->user()->hasPermissionTo("human-resources.workplaces.{$this->organisation->slug}.edit");
     }
 
     public function rules(): array

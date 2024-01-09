@@ -28,7 +28,7 @@ class ShowCalendar extends InertiaAction
     {
         $this->canEdit = $request->user()->hasPermissionTo('hr.edit');
 
-        return $request->user()->hasPermissionTo("hr.view");
+        return $request->user()->hasPermissionTo("human-resources.view");
     }
 
     public function asController(Employee $employee, ActionRequest $request): Employee

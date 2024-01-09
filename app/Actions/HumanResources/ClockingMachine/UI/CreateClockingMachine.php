@@ -7,7 +7,6 @@
 
 namespace App\Actions\HumanResources\ClockingMachine\UI;
 
-use App\Actions\InertiaAction;
 use App\Actions\InertiaOrganisationAction;
 use App\Models\HumanResources\Workplace;
 use App\Models\SysAdmin\Organisation;
@@ -64,7 +63,7 @@ class CreateClockingMachine extends InertiaOrganisationAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("hr.clocking-machines.{$this->organisation->slug}.edit");
+        return $request->user()->hasPermissionTo("human-resources.clocking-machines.{$this->organisation->slug}.edit");
     }
 
 

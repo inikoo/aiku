@@ -7,6 +7,7 @@
 
 namespace App\Http;
 
+use App\Http\Middleware\ApiBindGroupInstance;
 use App\Http\Middleware\Authenticate;
 use App\Http\Middleware\BindGroupInstance;
 use App\Http\Middleware\LogUserFirebaseMiddleware;
@@ -54,7 +55,18 @@ class Kernel extends HttpKernel
 
     protected $middlewareGroups = [
 
-        'public'   => [
+        'api'      => [
+            ForceJsonResponse::class,
+            EnsureFrontendRequestsAreStateful::class,
+            SubstituteBindings::class,
+        ],
+        'webhooks' => [
+            ForceJsonResponse::class,
+            EnsureFrontendRequestsAreStateful::class,
+            SubstituteBindings::class,
+        ],
+
+        'public' => [
             EncryptCookies::class,
             AddQueuedCookiesToResponse::class,
             StartSession::class,
@@ -64,7 +76,7 @@ class Kernel extends HttpKernel
             HandlePublicInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
         ],
-        'grp'   => [
+        'grp'    => [
             EncryptCookies::class,
             AddQueuedCookiesToResponse::class,
             StartSession::class,
@@ -81,12 +93,12 @@ class Kernel extends HttpKernel
             EnsureFrontendRequestsAreStateful::class,
             SubstituteBindings::class,
         ],
-        'central-api' => [
+        'central-api'  => [
             ForceJsonResponse::class,
             EnsureFrontendRequestsAreStateful::class,
             'throttle:api',
             SubstituteBindings::class,
-           'auth:api-admin-user'
+            'auth:api-admin-user'
         ],
 
         'central-web' => [
@@ -99,38 +111,38 @@ class Kernel extends HttpKernel
             HandlePublicInertiaRequests::class,
             SetLocale::class,
         ],
-        'app'     => [
+        'app'         => [
             EncryptCookies::class,
             AddQueuedCookiesToResponse::class,
             StartSession::class,
             ShareErrorsFromSession::class,
             VerifyCsrfToken::class,
             SubstituteBindings::class,
-           // HandleInertiaRequests::class,
+            // HandleInertiaRequests::class,
             SetLocale::class,
             LogUserRequestMiddleware::class,
             LogUserFirebaseMiddleware::class
         ],
         // for use in cypress
-        'web'     => [
+        'web'         => [
             EncryptCookies::class,
             AddQueuedCookiesToResponse::class,
             StartSession::class,
             ShareErrorsFromSession::class,
             VerifyCsrfToken::class,
             SubstituteBindings::class,
-           // HandleInertiaRequests::class,
+            // HandleInertiaRequests::class,
             SetLocale::class,
             LogUserRequestMiddleware::class,
             LogUserFirebaseMiddleware::class
         ],
 
-        'api-tenant'            => [
+
+        'api-tenant' => [
             'throttle:api',
             SubstituteBindings::class,
             'auth:api-tenant-user'
         ],
-
 
 
     ];
@@ -154,6 +166,7 @@ class Kernel extends HttpKernel
         'throttle'         => ThrottleRequests::class,
         'verified'         => EnsureEmailIsVerified::class,
         'inertia'          => HandleInertiaGrpRequests::class,
+        'bind_group'       => ApiBindGroupInstance::class,
 
     ];
 }

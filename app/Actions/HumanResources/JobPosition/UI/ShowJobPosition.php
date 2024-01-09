@@ -137,7 +137,7 @@ class ShowJobPosition extends InertiaOrganisationAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => [
-                                'name' => 'grp.org.hr.job-positions.index',
+                                'name'       => 'grp.org.hr.job-positions.index',
                                 'parameters' => ['organisation' => $this->organisation->slug]
                             ],
                             'label' => __('positions')
@@ -187,7 +187,7 @@ class ShowJobPosition extends InertiaOrganisationAction
                     'name'       => $routeName,
                     'parameters' => [
                         'organisation' => $this->organisation->slug,
-                        'jobPosition' => $jobPosition->slug
+                        'jobPosition'  => $jobPosition->slug
                     ]
                 ]
             ]

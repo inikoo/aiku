@@ -7,6 +7,7 @@
 
 namespace App\Stubs\Migrations;
 
+use App\Enums\HumanResources\ClockingMachine\ClockingMachineTypeEnum;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
 use App\Enums\HumanResources\Employee\EmployeeTypeEnum;
 use App\Enums\HumanResources\Workplace\WorkplaceTypeEnum;
@@ -51,6 +52,8 @@ trait HasHumanResourcesStats
 
 
         $table->unsignedSmallInteger('number_clocking_machines')->default(0);
+        $table->unsignedSmallInteger('number_clocking_machines_type_'.ClockingMachineTypeEnum::STATIC_NFC->snake())->default(0);
+        $table->unsignedSmallInteger('number_clocking_machines_type_'.ClockingMachineTypeEnum::MOBILE_APP->snake())->default(0);
         $table->unsignedSmallInteger('number_clockings')->default(0);
 
 

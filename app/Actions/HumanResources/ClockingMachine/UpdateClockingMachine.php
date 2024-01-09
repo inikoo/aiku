@@ -13,16 +13,19 @@ use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\HumanResources\ClockingMachineResource;
 use App\Models\HumanResources\ClockingMachine;
 use App\Models\SysAdmin\Organisation;
-use App\Rules\CaseSensitive;
+use App\Rules\IUnique;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateClockingMachine extends InertiaOrganisationAction
 {
     use WithActionUpdate;
 
+
+    private ClockingMachine $clockingMachine;
+
     public function handle(ClockingMachine $clockingMachine, array $modelData): ClockingMachine
     {
-        $clockingMachine =  $this->update($clockingMachine, $modelData, ['data']);
+        $clockingMachine = $this->update($clockingMachine, $modelData, ['data']);
 
 
         ClockingMachineHydrateUniversalSearch::dispatch($clockingMachine);
@@ -39,15 +42,36 @@ class UpdateClockingMachine extends InertiaOrganisationAction
     public function rules(): array
     {
         return [
-            'code'  => ['sometimes','required', new CaseSensitive('clocking_machines')],
+            'code' => [
+                'sometimes',
+                'required',
+                'max:255',
+                new IUnique(
+                    table: 'clocking_machines',
+                    extraConditions: [
+                        [
+                            'column' => 'group_id',
+                            'value'  => $this->organisation->group_id,
+
+                        ],
+                        [
+                            'column'   => 'id',
+                            'operator' => '!=',
+                            'value'    => $this->clockingMachine->id
+                        ],
+                    ]
+                ),
+
+            ],
         ];
     }
 
     public function asController(Organisation $organisation, ClockingMachine $clockingMachine, ActionRequest $request): ClockingMachine
     {
-        $request->validate();
+        $this->clockingMachine = $clockingMachine;
+        $this->initialisation($organisation, $request);
 
-        return $this->handle($clockingMachine, $request->all());
+        return $this->handle($clockingMachine, $this->validatedData);
     }
 
     public function jsonResponse(ClockingMachine $clockingMachine): ClockingMachineResource
