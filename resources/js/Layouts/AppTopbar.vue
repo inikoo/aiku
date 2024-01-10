@@ -77,7 +77,7 @@ const logoutAuth = () => {
                             class="hidden md:flex flex-nowrap items-center h-full overflow-hidden gap-x-1.5 transition-all duration-200 ease-in-out"
                             :class="[layout.leftSidebar.show ? 'py-1 pl-4' : 'pl-2.5 w-full']"
                         >
-                            <Image :src="layout.organisations.data.find((item) => item.slug == route().v().params?.organisation)?.logo ?? layout.app?.logo" class="aspect-square h-5"/>
+                            <Image :src="layout.organisations.data.find((item) => item.slug == route().v().params?.organisation)?.logo ?? layout.group.logo" class="aspect-square h-5"/>
                             <!-- <img v-else src="@/../art/logo/logo-white-square.png" class="aspect-square h-5 opacity-60" alt=""> -->
 
                             <Transition>

@@ -40,14 +40,14 @@ export const useLayoutStore = defineStore("layout", {
                 name: trans("All websites"),
                 code: trans("All")
             },
-            currentWarehouseSlug: null,
+            // currentWarehouseSlug: null,
             currentWarehouseData: {
                 slug: null,
                 name: trans("All warehouses"),
                 code: trans("All")
             },
-            group               : {
-                logo: null,
+            group: {
+                logo: {} as Image,
                 code: "",
                 name: ""
             },
