@@ -20,16 +20,12 @@ class GetShopNavigation
         $navigation = [];
 
 
-        if ($user->hasPermissionTo("shops.$shop->slug.view")) {
-            $navigation['shops'] = [
+        if ($user->hasPermissionTo("products.$shop->slug.view")) {
+            $navigation['shop'] = [
                 'scope' => 'shops',
                 'icon'  => ['fal', 'fa-store-alt'],
 
-                'label' => [
-                    'all'      => __('Shops'),
-                    'selected' => __('Shop')
-
-                ],
+                'label' => __('Products'),
                 'route' => [
                     'name'       => 'grp.org.shops.index',
                     'parameters' => [$shop->organisation->slug, $shop->slug]
@@ -91,18 +87,14 @@ class GetShopNavigation
             ];
         }
 
-        if ($user->hasPermissionTo("website.$shop->slug.view")) {
+        if ($user->hasPermissionTo("web.$shop->slug.view")) {
             $navigation['web'] = [
                 'scope' => 'websites',
                 'icon'  => ['fal', 'fa-globe'],
-                'label' => [
-                    'all'      => __('Websites'),
-                    'selected' => __('Website')
-
-                ],
+                'label' => __('Website'),
                 'route' => [
-                    'all'      => 'grp.web.dashboard',
-                    'selected' => 'grp.web.websites.dashboard'
+                    'name'       => 'grp.org.shops.index',
+                    'parameters' => [$shop->organisation->slug, $shop->slug]
                 ],
 
 
