@@ -22,6 +22,10 @@ const props = withDefaults(defineProps<{
     }
 })
 
+const emits = defineEmits<{
+    (e: 'onLoadImage'): void
+}>()
+
 const { src } = toRefs(props)
 
 
@@ -62,6 +66,6 @@ onBeforeMount(setImage)
     <picture :class="[props.class ?? 'w-full h-full flex justify-center items-center']">
         <!-- <source v-if="get(src, 'avif')" type="image/avif" :srcset="avif">
         <source v-if="get(src, 'webp')" type="image/webp" :srcset="webp"> -->
-        <img :class="[imageCover ? 'w-full h-full object-cover' : '']" :srcset="original" :src="get(src, 'original')" :alt="alt" style="height: inherit;">
+        <img :class="[imageCover ? 'w-full h-full object-cover' : '']" @load="() => emits('onLoadImage')" :srcset="original" :src="get(src, 'original')" :alt="alt" style="height: inherit;">
     </picture>
 </template>

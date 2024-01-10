@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {Link, router} from "@inertiajs/vue3"
 import { useLayoutStore } from "@/Stores/layout"
-import { ref} from 'vue'
+import { ref, reactive } from 'vue'
 import { get } from 'lodash'
 import { liveUsers } from '@/Stores/active-users'
 import {capitalize} from "@/Composables/capitalize"
@@ -28,6 +28,11 @@ const props = defineProps<{
 defineEmits<{
     (e: 'sidebarOpen', value: boolean): void
 }>()
+
+// To handle skeleton image in dropdown
+const imageSkeleton: {[key:string]: boolean} = reactive({
+
+})
 
 const layout = useLayoutStore()
 const showSearchDialog = ref(false)
@@ -72,7 +77,7 @@ const logoutAuth = () => {
                             class="hidden md:flex flex-nowrap items-center h-full overflow-hidden gap-x-1.5 transition-all duration-200 ease-in-out"
                             :class="[layout.leftSidebar.show ? 'py-1 pl-4' : 'pl-2.5 w-full']"
                         >
-                            <Image :src="layout.app?.logo" class="aspect-square h-5"/>
+                            <Image :src="layout.organisations.data.find((item) => item.slug == route().v().params?.organisation)?.logo ?? layout.app?.logo" class="aspect-square h-5"/>
                             <!-- <img v-else src="@/../art/logo/logo-white-square.png" class="aspect-square h-5 opacity-60" alt=""> -->
 
                             <Transition>
@@ -126,7 +131,7 @@ const logoutAuth = () => {
                                                 <!-- Dropdown: Organisation -->
                                                 <div class="flex items-center gap-x-1.5 px-1 mb-1">
                                                     <FontAwesomeIcon icon='fal fa-building' class='text-gray-400 text-xxs' aria-hidden='true' />
-                                                    <span class="text-[9px] leading-none text-gray-400">{{trans('Organisations')}}</span>
+                                                    <span class="text-[9px] leading-none text-gray-400">{{ trans('Organisations') }}</span>
                                                     <hr class="w-full rounded-full border-slate-300">
                                                 </div>
                                                 <MenuItem v-for="(item) in layout.organisations.data" v-slot="{ active }">
@@ -135,7 +140,8 @@ const logoutAuth = () => {
                                                         'group flex gap-x-2 w-full justify-start items-center rounded px-2 py-2 text-sm cursor-pointer',
                                                     ]">
                                                         <div class="h-5 rounded-full overflow-hidden ring-1 ring-slate-200 bg-slate-50">
-                                                            <Image :src="item.logo" />
+                                                            <Image v-show="imageSkeleton[item.slug]" :src="item.logo" @onLoadImage="() => imageSkeleton[item.slug] = true"/>
+                                                            <div v-show="!imageSkeleton[item.slug]" class="skeleton w-5 h-5"/>
                                                         </div>
                                                         <div class="font-semibold">{{ item.name }}</div>
                                                     </div>

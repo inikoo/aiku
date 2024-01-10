@@ -35,3 +35,16 @@
     /* For debug element */
     @apply ring-2 ring-offset-2 ring-red-500
 }
+
+
+* {
+    @apply focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-500
+}
+
+.skeleton {
+    @apply relative before:absolute before:inset-0 before:-translate-x-full before:animate-skeleton before:bg-gradient-to-r before:from-transparent before:via-gray-200/60 before:to-transparent isolate overflow-hidden shadow-xl shadow-black/5 before:border-y before:border-white/30 bg-gray-300
+}
+
+.shimmer {
+    @apply relative before:absolute before:inset-0 before:-translate-x-full before:animate-shimmer before:bg-gradient-to-r before:from-transparent before:via-white/60 before:to-transparent isolate overflow-hidden shadow-xl shadow-black/5 before:border-y before:border-white/30
+}
