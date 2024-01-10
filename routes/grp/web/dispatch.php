@@ -1,8 +1,8 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Mon, 06 Mar 2023 18:44:11 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Thu, 11 Jan 2024 03:24:21 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
 use App\Actions\Dispatch\Picking\ExportPicking;
@@ -13,4 +13,4 @@ if (empty($parent)) {
 }
 
 Route::get('/pickings/export', ExportPicking::class)->name('picking.export');
-Route::get('/', [ShowDispatchHub::class, $parent == 'tenant' ? 'inTenant' : 'inShop'])->name('hub');
+Route::get('/', [ShowDispatchHub::class, $parent == 'tenant' ? 'inOrganisation' : 'inShop'])->name('hub');

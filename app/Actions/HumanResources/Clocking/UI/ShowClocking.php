@@ -41,7 +41,7 @@ class ShowClocking extends InertiaOrganisationAction
     }
 
 
-    public function inTenant(Organisation $organisation, Clocking $clocking, ActionRequest $request): Clocking
+    public function inOrganisation(Organisation $organisation, Clocking $clocking, ActionRequest $request): Clocking
     {
         $this->initialisation($organisation, $request)->withTab(ClockingTabsEnum::values());
         return $this->handle($clocking);

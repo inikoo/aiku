@@ -37,7 +37,7 @@ class ShowOutbox extends InertiaAction
         return $request->user()->hasPermissionTo('marketing.view');
     }
 
-    public function inTenant(Outbox $outbox, ActionRequest $request): Outbox
+    public function inOrganisation(Outbox $outbox, ActionRequest $request): Outbox
     {
         $this->routeName = $request->route()->getName();
         //$this->validateAttributes();

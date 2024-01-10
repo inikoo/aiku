@@ -105,7 +105,7 @@ Route::scopeBindings()->group(function () {
     Route::get('/workplaces/{workplace}/clockings/{clocking}/delete', [RemoveClocking::class, 'inWorkplace'])->name('workplaces.show.clockings.remove');
 });
 
-Route::get('/clocking-machines', [IndexClockingMachines::class, 'inTenant'])->name('clocking-machines.index');
+Route::get('/clocking-machines', [IndexClockingMachines::class, 'inOrganisation'])->name('clocking-machines.index');
 Route::get('/clocking-machines/create', CreateClockingMachine::class)->name('clocking-machines.create');
 Route::get('/clocking-machines/{clockingMachine}', ShowClockingMachine::class)->name('clocking-machines.show');
 Route::get('/clocking-machines/{clockingMachine}/edit', EditClockingMachine::class)->name('clocking-machines.edit');

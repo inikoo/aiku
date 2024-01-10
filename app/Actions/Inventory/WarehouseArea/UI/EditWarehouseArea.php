@@ -41,7 +41,7 @@ class EditWarehouseArea extends InertiaAction
         return $this->handle($warehouseArea);
     }
 
-    public function inTenant(WarehouseArea $warehouseArea, ActionRequest $request): WarehouseArea
+    public function inOrganisation(WarehouseArea $warehouseArea, ActionRequest $request): WarehouseArea
     {
         $this->initialisation($request);
 

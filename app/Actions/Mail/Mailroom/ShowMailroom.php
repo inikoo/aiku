@@ -30,7 +30,7 @@ class ShowMailroom extends InertiaAction
         return $request->user()->hasPermissionTo('marketing.view');
     }
 
-    public function inTenant(Mailroom $mailroom): void
+    public function inOrganisation(Mailroom $mailroom): void
     {
         $this->mailroom    = $mailroom;
     }

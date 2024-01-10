@@ -34,7 +34,7 @@ class ShowWebUser extends InertiaAction
         return $request->user()->hasPermissionTo("crm.customers.view");
     }
 
-    public function inTenant(WebUser $webUser, ActionRequest $request): WebUser
+    public function inOrganisation(WebUser $webUser, ActionRequest $request): WebUser
     {
         $this->initialisation($request);
 

@@ -33,7 +33,7 @@ class ShowDispatchHub
         return $request->user()->hasPermissionTo("oms.view");
     }
 
-    public function inTenant(): Organisation
+    public function inOrganisation(): Organisation
     {
         return $this->handle(app('currentTenant'));
     }

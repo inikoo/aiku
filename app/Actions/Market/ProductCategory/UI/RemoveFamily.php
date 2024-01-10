@@ -26,7 +26,7 @@ class RemoveFamily extends InertiaAction
         return $request->user()->hasPermissionTo("shops.edit");
     }
 
-    public function inTenant(ProductCategory $family, ActionRequest $request): ProductCategory
+    public function inOrganisation(ProductCategory $family, ActionRequest $request): ProductCategory
     {
         $this->initialisation($request);
 

@@ -27,7 +27,7 @@ class EditStock extends InertiaAction
         return $request->user()->hasPermissionTo("inventory.stocks.view");
     }
 
-    public function inTenant(Stock $stock, ActionRequest $request): Stock
+    public function inOrganisation(Stock $stock, ActionRequest $request): Stock
     {
         $this->initialisation($request);
 

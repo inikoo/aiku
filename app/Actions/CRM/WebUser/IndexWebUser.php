@@ -149,7 +149,7 @@ class IndexWebUser extends InertiaAction
     }
 
 
-    public function inTenant(Request $request): LengthAwarePaginator
+    public function inOrganisation(Request $request): LengthAwarePaginator
     {
         $this->fillFromRequest($request);
         $this->parent    = app('currentTenant');

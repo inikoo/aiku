@@ -30,7 +30,7 @@ class CreateWebsite extends InertiaAction
     /**
      * @throws \Exception
      */
-    public function inTenant(ActionRequest $request): Response|RedirectResponse
+    public function inOrganisation(ActionRequest $request): Response|RedirectResponse
     {
         $this->initialisation($request);
 

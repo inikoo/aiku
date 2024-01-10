@@ -38,7 +38,7 @@ class ShowCustomer extends InertiaAction
         return $request->user()->hasPermissionTo("shops.customers.view");
     }
 
-    public function inTenant(Customer $customer, ActionRequest $request): Customer
+    public function inOrganisation(Customer $customer, ActionRequest $request): Customer
     {
         $this->initialisation($request)->withTab(CustomerTabsEnum::values());
 

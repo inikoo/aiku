@@ -1,8 +1,8 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Thu, 13 Oct 2022 15:46:44 Central European Summer Time, Plane Malaga - East Midlands UK
- *  Copyright (c) 2022, Raul A Perusquia Flores
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Thu, 11 Jan 2024 03:24:21 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
 
@@ -22,7 +22,7 @@ Route::get('/dashboard', WebsitesDashboard::class)->name('dashboard');
 Route::get('/websites/dashboard', WebsitesDashboard::class)->name('websites.dashboard');
 Route::get('/websites', IndexWebsites::class)->name('websites.index');
 Route::get('/websites/create', CreateWebsite::class)->name('websites.create');
-Route::get('/webpages', [IndexWebpages::class, 'inTenant'])->name('webpages.index');
+Route::get('/webpages', [IndexWebpages::class, 'inOrganisation'])->name('webpages.index');
 
 
 Route::get('/{website}', ShowWebsite::class)->name('websites.show');
