@@ -263,7 +263,10 @@ class GetOrganisationNavigation
             $navigation['hr'] = [
                 'label'   => __('human resources'),
                 'icon'    => ['fal', 'fa-user-hard-hat'],
-                'route'   => 'grp.org.hr.dashboard',
+                'route'   => [
+                    'name'      => 'grp.org.hr.dashboard',
+                    'parameters'=> [$organisation->slug],
+                    ],
                 'topMenu' => [
                     'subSections' => [
                         [

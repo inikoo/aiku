@@ -17,8 +17,6 @@ class GetShopNavigation
 
     public function handle(Shop $shop, User $user): array
     {
-
-
         $navigation = [];
 
 
@@ -33,8 +31,8 @@ class GetShopNavigation
 
                 ],
                 'route' => [
-                    'all'      => 'grp.org.shops.index',
-                    'selected' => 'shops.show'
+                    'name'       => 'grp.org.shops.index',
+                    'parameters' => [$shop->organisation->slug, $shop->slug]
                 ],
 
 
@@ -108,7 +106,6 @@ class GetShopNavigation
                 ],
 
 
-
                 'topMenu' => [
                     'subSections' => [
                         [
@@ -118,7 +115,7 @@ class GetShopNavigation
                             ]
                         ],
                     ],
-                    'dropdown' => [
+                    'dropdown'    => [
 
                         'links' => [
 
@@ -177,10 +174,11 @@ class GetShopNavigation
                 'label' => __('Customers'),
                 'icon'  => ['fal', 'fa-user'],
 
-                'route'   => [
-                    'all'      => 'grp.crm.dashboard',
-                    'selected' => 'grp.crm.shops.show.dashboard',
+                'route' => [
+                    'name'       => 'grp.org.shops.crm.dashboard',
+                    'parameters' => [$shop->organisation->slug, $shop->slug]
                 ],
+
                 'topMenu' => [
                     'dropdown' => [
                         'links' => [
