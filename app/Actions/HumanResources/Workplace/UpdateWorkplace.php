@@ -12,15 +12,19 @@ use App\Actions\HumanResources\Workplace\Hydrators\WorkplaceHydrateUniversalSear
 use App\Actions\InertiaOrganisationAction;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWorkplaces;
 use App\Actions\Traits\WithActionUpdate;
-use App\Http\Resources\HumanResources\WorkPlaceResource;
+use App\Http\Resources\HumanResources\WorkplaceResource;
 use App\Models\HumanResources\Workplace;
 use App\Models\SysAdmin\Organisation;
+use App\Rules\IUnique;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateWorkplace extends InertiaOrganisationAction
 {
     use WithActionUpdate;
+
+
+    private Workplace $workplace;
 
     public function handle(Workplace $workplace, array $modelData): Workplace
     {
@@ -53,7 +57,26 @@ class UpdateWorkplace extends InertiaOrganisationAction
     public function rules(): array
     {
         return [
-            'name'    => ['sometimes', 'required', 'max:255'],
+            'name'    => [
+                'sometimes',
+                'required',
+                'max:255',
+                new IUnique(
+                    table: 'workplaces',
+                    extraConditions: [
+                        [
+                            'column' => 'group_id',
+                            'value'  => $this->organisation->group_id,
+
+                        ],
+                        [
+                            'column'   => 'id',
+                            'operator' => '!=',
+                            'value'    => $this->workplace->id
+                        ],
+                    ]
+                ),
+            ],
             'type'    => ['sometimes', 'required'],
             'address' => ['sometimes', 'required']
         ];
@@ -61,20 +84,15 @@ class UpdateWorkplace extends InertiaOrganisationAction
 
     public function asController(Organisation $organisation, Workplace $workplace, ActionRequest $request): Workplace
     {
-        $request->validate();
-        $validated = $request->validated();
-        if (array_key_exists('address', $validated)) {
-            return $this->handle(
-                $workplace,
-                $validated
-            );
-        } else {
-            return $this->handle($workplace, modelData: $validated);
-        }
+        $this->initialisation($organisation, $request);
+        $this->workplace = $workplace;
+
+
+        return $this->handle(workplace: $workplace, modelData: $this->validatedData);
     }
 
-    public function jsonResponse(Workplace $workplace): WorkPlaceResource
+    public function jsonResponse(Workplace $workplace): WorkplaceResource
     {
-        return new WorkPlaceResource($workplace);
+        return new WorkplaceResource($workplace);
     }
 }

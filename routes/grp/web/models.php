@@ -74,11 +74,17 @@ use App\Actions\SysAdmin\Guest\StoreGuest;
 use App\Actions\SysAdmin\Guest\UpdateGuest;
 use App\Actions\SysAdmin\Organisation\UpdateOrganisation;
 use App\Actions\SysAdmin\User\UpdateUser;
+use App\Actions\UI\Profile\GetProfileAppLoginQRCode;
 use App\Actions\UI\Profile\UpdateProfile;
 use App\Actions\Web\Website\DeleteWebsite;
 use App\Actions\Web\Website\StoreWebsite;
 use App\Actions\Web\Website\UpdateWebsite;
 use Illuminate\Support\Facades\Route;
+
+Route::patch('/profile', UpdateProfile::class)->name('profile.update');
+Route::get('/profile/app-login-qrcode', GetProfileAppLoginQRCode::class)->name('profile.app-login-qrcode');
+
+/*
 
 Route::post('/shop/', StoreShop::class)->name('shop.store');
 
@@ -193,7 +199,7 @@ Route::patch('/payment-account/{paymentAccount}', UpdatePaymentAccount::class)->
 Route::post('/payment-account', StorePaymentAccount::class)->name('payment-account.store');
 
 Route::patch('/user/{user}', UpdateUser::class)->name('user.update');
-Route::patch('/profile', UpdateProfile::class)->name('profile.update');
+
 
 
 Route::patch('/guest/{guest}', UpdateGuest::class)->name('guest.update');
@@ -213,3 +219,4 @@ Route::delete('/marketplace-agent/{marketplaceAgent}', DeleteMarketplaceAgent::c
 Route::patch('/marketplace-supplier/{marketplaceSupplier}', UpdateMarketplaceSupplier::class)->name('marketplace-supplier.update');
 
 Route::patch('/system-settings', UpdateOrganisation::class)->name('system-settings.update');
+*/

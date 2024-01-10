@@ -7,15 +7,16 @@
 
 namespace App\Actions\HumanResources\JobPosition\UI;
 
-use App\Actions\InertiaAction;
+use App\Actions\InertiaOrganisationAction;
 use App\Models\Market\ProductCategory;
+use App\Models\SysAdmin\Organisation;
 use Exception;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\LaravelOptions\Options;
 
-class CreateJobPosition extends InertiaAction
+class CreateJobPosition extends InertiaOrganisationAction
 {
     /**
      * @throws Exception
@@ -37,7 +38,7 @@ class CreateJobPosition extends InertiaAction
                             'label' => __('cancel'),
                             'route' => [
                                 'name'       => 'grp.org.hr.job-positions.index',
-                                'parameters' => array_values($this->originalParameters)
+                                'parameters' => ['organisation' => $this->organisation->slug]
                             ],
                         ]
                     ]
@@ -71,6 +72,7 @@ class CreateJobPosition extends InertiaAction
                     ],
                     'route'      => [
                             'name'       => 'grp.models.job-position.store',
+                        'parameters'     => ['organisation' => $this->organisation->slug]
 
                     ]
 
@@ -84,16 +86,16 @@ class CreateJobPosition extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo('hr.edit');
+        return $request->user()->hasPermissionTo("human-resources.{$this->organisation->slug}.edit");
     }
 
 
     /**
      * @throws Exception
      */
-    public function asController(ActionRequest $request): Response
+    public function asController(Organisation $organisation, ActionRequest $request): Response
     {
-        $this->initialisation($request);
+        $this->initialisation($organisation, $request);
 
         return $this->handle();
     }

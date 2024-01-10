@@ -1,8 +1,8 @@
 <?php
 /*
  *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Sat, 22 Jan 2022 03:06:40 Malaysia Time, Kuala Lumpur, Malaysia
- *  Copyright (c) 2022, Inikoo
+ *  Created: Thu, 21 Oct 2021 12:37:51 Malaysia Time, Kuala Lumpur, Malaysia
+ *  Copyright (c) 2021, Inikoo
  *  Version 4.0
  */
 
@@ -13,7 +13,7 @@ use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Http\Resources\Json\JsonResource;
 use JsonSerializable;
 
-class WorkPlaceInertiaResource extends JsonResource
+class WorkplaceResource extends JsonResource
 {
     public function toArray($request): array|Arrayable|JsonSerializable
     {
@@ -22,10 +22,13 @@ class WorkPlaceInertiaResource extends JsonResource
 
 
         return [
-            'id'            => $workplace->id,
-            'slug'          => $workplace->slug,
-            'name'          => $workplace->name,
-            'type'          => $workplace->type
+            'id'         => $workplace->id,
+            'slug'       => $workplace->slug,
+            'name'       => $workplace->name,
+            'type'       => $workplace->type,
+
+            'created_at' => $workplace->created_at,
+            'updated_at' => $workplace->updated_at,
         ];
     }
 }

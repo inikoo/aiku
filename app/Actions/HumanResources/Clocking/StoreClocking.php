@@ -7,17 +7,19 @@
 
 namespace App\Actions\HumanResources\Clocking;
 
+use App\Actions\InertiaOrganisationAction;
 use App\Enums\HumanResources\Clocking\ClockingTypeEnum;
 use App\Models\HumanResources\Clocking;
 use App\Models\HumanResources\ClockingMachine;
 use App\Models\HumanResources\Workplace;
+use App\Models\SysAdmin\Organisation;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class StoreClocking
+class StoreClocking extends InertiaOrganisationAction
 {
     use AsAction;
     use WithAttributes;
@@ -46,8 +48,9 @@ class StoreClocking
         if($this->asAction) {
             return true;
         }
-        return $request->user()->hasPermissionTo("hr.workplaces.edit");
+        return $request->user()->hasPermissionTo("human-resources.workplaces.{$this->organisation->slug}.edit");
     }
+
     public function rules(): array
     {
         return [
@@ -55,15 +58,14 @@ class StoreClocking
         ];
     }
 
-    public function asController(ClockingMachine|Workplace $parent, ActionRequest $request): Clocking
+    public function asController(Organisation $organisation, ClockingMachine|Workplace $parent, ActionRequest $request): Clocking
     {
         $request->validate();
 
         return $this->handle($parent, $request->validated());
     }
 
-
-    public function inClockingMachine(ClockingMachine $clockingMachine, ActionRequest $request): Clocking
+    public function inClockingMachine(Organisation $organisation, ClockingMachine $clockingMachine, ActionRequest $request): Clocking
     {
         $request->validate();
 

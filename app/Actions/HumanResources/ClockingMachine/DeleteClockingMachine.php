@@ -7,15 +7,17 @@
 
 namespace App\Actions\HumanResources\ClockingMachine;
 
+use App\Actions\InertiaOrganisationAction;
 use App\Models\HumanResources\ClockingMachine;
 use App\Models\HumanResources\Workplace;
+use App\Models\SysAdmin\Organisation;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsController;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class DeleteClockingMachine
+class DeleteClockingMachine extends InertiaOrganisationAction
 {
     use AsController;
     use WithAttributes;
@@ -33,7 +35,7 @@ class DeleteClockingMachine
         return $request->user()->hasPermissionTo("human-resources.{$this->organisation->slug}.edit");
     }
 
-    public function asController(ClockingMachine $clockingMachine, ActionRequest $request): ClockingMachine
+    public function asController(Organisation $organisation, ClockingMachine $clockingMachine, ActionRequest $request): ClockingMachine
     {
         $request->validate();
 
@@ -41,7 +43,7 @@ class DeleteClockingMachine
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inWorkplace(Workplace $workplace, ClockingMachine $clockingMachine, ActionRequest $request): ClockingMachine
+    public function inWorkplace(Organisation $organisation, Workplace $workplace, ClockingMachine $clockingMachine, ActionRequest $request): ClockingMachine
     {
         $request->validate();
 

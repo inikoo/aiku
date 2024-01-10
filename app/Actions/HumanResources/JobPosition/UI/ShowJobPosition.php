@@ -9,18 +9,19 @@ namespace App\Actions\HumanResources\JobPosition\UI;
 
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\HumanResources\Employee\UI\IndexEmployees;
-use App\Actions\InertiaAction;
+use App\Actions\InertiaOrganisationAction;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
 use App\Enums\UI\JobPositionTabsEnum;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\HumanResources\EmployeeResource;
 use App\Http\Resources\HumanResources\JobPositionResource;
 use App\Models\HumanResources\JobPosition;
+use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class ShowJobPosition extends InertiaAction
+class ShowJobPosition extends InertiaOrganisationAction
 {
     public function handle(JobPosition $jobPosition): JobPosition
     {
@@ -30,14 +31,14 @@ class ShowJobPosition extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit   = $request->user()->hasPermissionTo('hr.edit');
-        $this->canDelete = $request->user()->hasPermissionTo('hr.edit');
-        return $request->user()->hasPermissionTo("hr.view");
+        $this->canEdit   = $request->user()->hasPermissionTo("human-resources.{$this->organisation->slug}.edit");
+        $this->canDelete = $request->user()->hasPermissionTo("human-resources.{$this->organisation->slug}.edit");
+        return $request->user()->hasPermissionTo("human-resources.{$this->organisation->slug}.edit");
     }
 
-    public function asController(JobPosition $jobPosition, ActionRequest $request): JobPosition
+    public function asController(Organisation $organisation, JobPosition $jobPosition, ActionRequest $request): JobPosition
     {
-        $this->initialisation($request)->withTab(JobPositionTabsEnum::values());
+        $this->initialisation($organisation, $request)->withTab(JobPositionTabsEnum::values());
 
         return $this->handle($jobPosition);
     }
@@ -136,14 +137,18 @@ class ShowJobPosition extends InertiaAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => [
-                                'name' => 'grp.org.hr.job-positions.index',
+                                'name'       => 'grp.org.hr.job-positions.index',
+                                'parameters' => ['organisation' => $this->organisation->slug]
                             ],
                             'label' => __('positions')
                         ],
                         'model' => [
                             'route' => [
                                 'name'       => 'grp.org.hr.job-positions.show',
-                                'parameters' => [$jobPosition->slug]
+                                'parameters' => [
+                                    'organisation' => $this->organisation->slug,
+                                    'jobPosition'  => $jobPosition->slug
+                                ]
                             ],
                             'label' => $jobPosition->name,
                         ],
@@ -181,9 +186,9 @@ class ShowJobPosition extends InertiaAction
                 'route' => [
                     'name'       => $routeName,
                     'parameters' => [
-                        'jobPosition' => $jobPosition->slug
+                        'organisation' => $this->organisation->slug,
+                        'jobPosition'  => $jobPosition->slug
                     ]
-
                 ]
             ]
         };

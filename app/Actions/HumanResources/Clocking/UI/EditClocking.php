@@ -7,7 +7,6 @@
 
 namespace App\Actions\HumanResources\Clocking\UI;
 
-use App\Actions\InertiaAction;
 use App\Actions\InertiaOrganisationAction;
 use App\Enums\UI\LocationTabsEnum;
 use App\Models\HumanResources\Clocking;
@@ -39,7 +38,7 @@ class EditClocking extends InertiaOrganisationAction
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inWorkplace(Organisation $organisation,  Workplace $workplace, Clocking $clocking, ActionRequest $request): Clocking
+    public function inWorkplace(Organisation $organisation, Workplace $workplace, Clocking $clocking, ActionRequest $request): Clocking
     {
         $this->initialisation($organisation, $request);
         return $this->handle($clocking);
@@ -100,9 +99,11 @@ class EditClocking extends InertiaOrganisationAction
                     ],
                     'args' => [
                         'updateRoute' => [
-                            'name'       => 'grp.models.clocking.update',
-                            'parameters' => $clocking->slug
-
+                            'name'       => 'grp.org.models.clocking.update',
+                            'parameters' => [
+                                'organisation' => $request->route()->parameters['organisation']->slug,
+                                'clocking'     => $clocking->slug
+                            ]
                         ],
                     ]
                 ]

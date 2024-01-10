@@ -7,13 +7,14 @@
 
 namespace App\Actions\HumanResources\Employee\UI;
 
-use App\Actions\InertiaAction;
+use App\Actions\InertiaOrganisationAction;
 use App\Models\HumanResources\Employee;
+use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class RemoveEmployee extends InertiaAction
+class RemoveEmployee extends InertiaOrganisationAction
 {
     public function handle(Employee $employee): Employee
     {
@@ -22,12 +23,12 @@ class RemoveEmployee extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("inventory.edit");
+        return $request->user()->hasPermissionTo("human-resources.{$this->organisation->slug}.view");
     }
 
-    public function asController(Employee $employee, ActionRequest $request): Employee
+    public function asController(Organisation $organisation, Employee $employee, ActionRequest $request): Employee
     {
-        $this->initialisation($request);
+        $this->initialisation($organisation, $request);
 
         return $this->handle($employee);
     }
@@ -65,7 +66,7 @@ class RemoveEmployee extends InertiaAction
                             'style' => 'cancel',
                             'route' => [
                                 'name'       => preg_replace('/remove$/', 'show', $request->route()->getName()),
-                                'parameters' => array_values($this->originalParameters)
+                                'parameters' => $request->route()->originalParameters()
                             ]
                         ]
                     ]
@@ -73,7 +74,7 @@ class RemoveEmployee extends InertiaAction
                 'data'      => $this->getAction(
                     route:[
                         'name'       => 'grp.models.employee.delete',
-                        'parameters' => array_values($this->originalParameters)
+                        'parameters' => $request->route()->originalParameters()
                     ]
                 )
             ]

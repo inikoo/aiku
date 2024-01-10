@@ -7,16 +7,17 @@
 
 namespace App\Actions\HumanResources\JobPosition\UI;
 
-use App\Actions\InertiaAction;
+use App\Actions\InertiaOrganisationAction;
 use App\Models\HumanResources\JobPosition;
 use App\Models\Market\ProductCategory;
+use App\Models\SysAdmin\Organisation;
 use Exception;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\LaravelOptions\Options;
 
-class EditJobPosition extends InertiaAction
+class EditJobPosition extends InertiaOrganisationAction
 {
     public function handle(JobPosition $jobPosition): JobPosition
     {
@@ -28,9 +29,9 @@ class EditJobPosition extends InertiaAction
         return $request->user()->hasPermissionTo("human-resources.{$this->organisation->slug}.edit");
     }
 
-    public function asController(JobPosition $jobPosition, ActionRequest $request): JobPosition
+    public function asController(Organisation $organisation, JobPosition $jobPosition, ActionRequest $request): JobPosition
     {
-        $this->initialisation($request);
+        $this->initialisation($organisation, $request);
 
         return $this->handle($jobPosition);
     }
@@ -54,7 +55,7 @@ class EditJobPosition extends InertiaAction
                             'style' => 'exitEdit',
                             'route' => [
                                 'name'       => preg_replace('/edit$/', 'show', $request->route()->getName()),
-                                'parameters' => array_values($this->originalParameters)
+                                'parameters' => $request->route()->originalParameters()
                             ]
                         ]
                     ]
@@ -105,6 +106,9 @@ class EditJobPosition extends InertiaAction
 
     public function getBreadcrumbs(JobPosition $jobPosition): array
     {
-        return ShowJobPosition::make()->getBreadcrumbs(jobPosition:$jobPosition, suffix: '('.__('editing').')');
+        return ShowJobPosition::make()->getBreadcrumbs([
+            'organisation' => $this->organisation->slug,
+            'job_position' => $jobPosition->slug
+        ], suffix: '('.__('editing').')');
     }
 }

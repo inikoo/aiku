@@ -26,12 +26,10 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexClockingMachines extends InertiaOrganisationAction
 {
-    public function handle(Workplace|Organisation $parent, $prefix=null): LengthAwarePaginator
+    public function handle(Workplace|Organisation $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
-            $query->where(function ($query) use ($value) {
-                $query->where('clocking_machines.slug', 'ILIKE', "%$value%");
-            });
+            $query->whereStartWith('clocking_machines.name', $value);
         });
 
         if ($prefix) {
@@ -40,10 +38,10 @@ class IndexClockingMachines extends InertiaOrganisationAction
 
         /**  @noinspection PhpUndefinedMethodInspection */
         return QueryBuilder::for(ClockingMachine::class)
-            ->defaultSort('clocking_machines.code')
+            ->defaultSort('clocking_machines.name')
             ->select(
                 [
-                    'clocking_machines.code as code',
+                    'clocking_machines.name as name',
                     'clocking_machines.id',
                     'workplaces.slug as workplace_slug',
                     'clocking_machines.slug'
@@ -55,7 +53,7 @@ class IndexClockingMachines extends InertiaOrganisationAction
                     $query->where('clocking_machines.workplace_id', $parent->id);
                 }
             })
-            ->allowedSorts(['slug','code'])
+            ->allowedSorts(['slug', 'name'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -64,7 +62,7 @@ class IndexClockingMachines extends InertiaOrganisationAction
     public function tableStructure(Organisation|Workplace $parent, ?array $modelOperations = null, $prefix = null): Closure
     {
         return function (InertiaTable $table) use ($modelOperations, $prefix, $parent) {
-            if($prefix) {
+            if ($prefix) {
                 $table
                     ->name($prefix)
                     ->pageName($prefix.'Page');
@@ -76,7 +74,7 @@ class IndexClockingMachines extends InertiaOrganisationAction
                     [
                         'title'       => __('no clocking machines'),
                         'description' => $this->canEdit ? __('Get started by creating a new clocking machine.') : null,
-                        'count'       => class_basename($parent=='Organisation') ? $parent->humanResourcesStats->number_clocking_machines : $parent->stats->number_clocking_machines
+                        'count'       => class_basename($parent == 'Organisation') ? $parent->humanResourcesStats->number_clocking_machines : $parent->stats->number_clocking_machines
                         /*
                         'action'      => $this->canEdit ? [
                             'type'    => 'button',
@@ -91,22 +89,17 @@ class IndexClockingMachines extends InertiaOrganisationAction
                         */
                     ]
                 )
-                ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
-                ->defaultSort('code');
+                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
+                ->defaultSort('name');
         };
     }
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo('hr.workplaces.edit');
+        $this->canEdit = $request->user()->hasPermissionTo("human-resources.workplaces.{$this->organisation->slug}.edit");
 
-        return
-            (
-                $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo('hr.view')
-            );
+        return $request->user()->hasPermissionTo("human-resources.{$this->organisation->slug}.view");
     }
-
 
     public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
@@ -140,8 +133,8 @@ class IndexClockingMachines extends InertiaOrganisationAction
                 ),
                 'title'       => __('clocking machines'),
                 'pageHead'    => [
-                    'title'  => __('clocking machines'),
-                    'actions'=> [
+                    'title'   => __('clocking machines'),
+                    'actions' => [
                         $this->canEdit && $request->route()->getName() == 'grp.org.hr.workplaces.show.clocking-machines.index' ? [
                             'type'  => 'button',
                             'style' => 'create',
@@ -156,7 +149,7 @@ class IndexClockingMachines extends InertiaOrganisationAction
                 'data'        => ClockingMachineResource::collection($clockingMachines)
 
             ]
-        )->table($this->tableStructure());
+        )->table($this->tableStructure($this->organisation));
     }
 
 
@@ -181,8 +174,10 @@ class IndexClockingMachines extends InertiaOrganisationAction
                 (new ShowHumanResourcesDashboard())->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     [
-                        'name' => 'grp.org.hr.clocking-machines.index',
-                        null
+                        'name'       => 'grp.org.hr.clocking-machines.index',
+                        'parameters' => [
+                            $routeParameters['organisation']->slug
+                        ]
                     ]
                 )
             ),
@@ -196,6 +191,7 @@ class IndexClockingMachines extends InertiaOrganisationAction
                     'name'       => 'grp.org.hr.workplaces.show.clocking-machines.index',
                     'parameters' =>
                         [
+                            $routeParameters['organisation']->slug,
                             $routeParameters['workplace']->slug
                         ]
                 ])

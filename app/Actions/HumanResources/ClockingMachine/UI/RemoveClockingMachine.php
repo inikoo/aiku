@@ -7,14 +7,15 @@
 
 namespace App\Actions\HumanResources\ClockingMachine\UI;
 
-use App\Actions\InertiaAction;
+use App\Actions\InertiaOrganisationAction;
 use App\Models\HumanResources\ClockingMachine;
 use App\Models\HumanResources\Workplace;
+use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class RemoveClockingMachine extends InertiaAction
+class RemoveClockingMachine extends InertiaOrganisationAction
 {
     public function handle(ClockingMachine $clockingMachine): ClockingMachine
     {
@@ -26,17 +27,17 @@ class RemoveClockingMachine extends InertiaAction
         return $request->user()->hasPermissionTo("human-resources.{$this->organisation->slug}.edit");
     }
 
-    public function asController(ClockingMachine $clockingMachine, ActionRequest $request): ClockingMachine
+    public function asController(Organisation $organisation, ClockingMachine $clockingMachine, ActionRequest $request): ClockingMachine
     {
-        $this->initialisation($request);
+        $this->initialisation($organisation, $request);
 
         return $this->handle($clockingMachine);
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inWorkplace(Workplace $workplace, ClockingMachine $clockingMachine, ActionRequest $request): ClockingMachine
+    public function inWorkplace(Organisation $organisation, Workplace $workplace, ClockingMachine $clockingMachine, ActionRequest $request): ClockingMachine
     {
-        $this->initialisation($request);
+        $this->initialisation($organisation, $request);
 
         return $this->handle($clockingMachine);
     }
@@ -76,7 +77,7 @@ class RemoveClockingMachine extends InertiaAction
                             'label' => __('cancel'),
                             'route' => [
                                 'name'       => preg_replace('/remove$/', 'show', $request->route()->getName()),
-                                'parameters' => array_values($this->originalParameters)
+                                'parameters' => $request->route()->originalParameters()
                             ]
                         ]
                     ]

@@ -17,7 +17,7 @@ use App\Enums\UI\WorkplaceTabsEnum;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\HumanResources\ClockingMachineResource;
 use App\Http\Resources\HumanResources\ClockingResource;
-use App\Http\Resources\HumanResources\WorkPlaceResource;
+use App\Http\Resources\HumanResources\WorkplaceResource;
 use App\Models\HumanResources\Workplace;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
@@ -38,13 +38,15 @@ class ShowWorkplace extends InertiaOrganisationAction
         $this->canEdit   = $request->user()->hasPermissionTo("human-resources.{$this->organisation->slug}.edit");
         $this->canDelete = $request->user()->hasPermissionTo("human-resources.{$this->organisation->slug}.edit");
 
-        return $request->user()->hasPermissionTo("human-resources.{$this->organisation->slug}.edit");
+        return $request->user()->hasPermissionTo("human-resources.{$this->organisation->slug}.view");
     }
+
+
+
 
     public function asController(Organisation $organisation, Workplace $workplace, ActionRequest $request): Workplace
     {
         $this->initialisation($organisation, $request)->withTab(WorkplaceTabsEnum::values());
-
         return $this->handle($workplace);
     }
 
@@ -176,9 +178,9 @@ class ShowWorkplace extends InertiaOrganisationAction
     }
 
 
-    public function jsonResponse(Workplace $workplace): WorkPlaceResource
+    public function jsonResponse(Workplace $workplace): WorkplaceResource
     {
-        return new WorkPlaceResource($workplace);
+        return new WorkplaceResource($workplace);
     }
 
     public function getBreadcrumbs($routeParameters, $suffix = null): array

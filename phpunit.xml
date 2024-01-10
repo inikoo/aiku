@@ -6,15 +6,15 @@
 >
     <testsuites>
         <testsuite name="Unit">
-            <directory suffix="Test.php">./tests/Unit</directory>
+            <directory>./tests/Unit</directory>
         </testsuite>
         <testsuite name="Feature">
-            <directory suffix="Test.php">./tests/Feature</directory>
+            <directory>./tests/Feature</directory>
         </testsuite>
     </testsuites>
     <source>
         <include>
-            <directory suffix=".php">./app</directory>
+            <directory>./app</directory>
         </include>
     </source>
     <php>
@@ -26,5 +26,7 @@
         <env name="SESSION_DRIVER" value="array"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
         <env name="SCOUT_DRIVER" value="null"/>
+        <env name="XDEBUG_MODE" value="coverage"/>
+        <env name="LARAVEL_CLOUDFLARE_ENABLED" value="false"/>
     </php>
 </phpunit>

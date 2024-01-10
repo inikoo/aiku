@@ -11,15 +11,15 @@ use Cache;
 use Closure;
 use Illuminate\Http\Request;
 
-class BindGroupInstance
+class ApiBindGroupInstance
 {
     public function handle(Request $request, Closure $next)
     {
+
         if ($request->user()) {
             $group = Cache::remember('bound-group-'.$request->user()->id, 3600, function () use ($request) {
                 return $request->user()->group;
             });
-
             app()->instance('group', $group);
             setPermissionsTeamId($group->id);
         }

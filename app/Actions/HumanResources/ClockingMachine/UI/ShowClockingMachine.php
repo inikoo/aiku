@@ -10,7 +10,7 @@ namespace App\Actions\HumanResources\ClockingMachine\UI;
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\HumanResources\Clocking\UI\IndexClockings;
 use App\Actions\HumanResources\Workplace\UI\ShowWorkplace;
-use App\Actions\InertiaAction;
+use App\Actions\InertiaOrganisationAction;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
 use App\Enums\UI\ClockingMachineTabsEnum;
 use App\Http\Resources\History\HistoryResource;
@@ -18,30 +18,31 @@ use App\Http\Resources\HumanResources\ClockingMachineResource;
 use App\Http\Resources\HumanResources\ClockingResource;
 use App\Models\HumanResources\ClockingMachine;
 use App\Models\HumanResources\Workplace;
+use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class ShowClockingMachine extends InertiaAction
+class ShowClockingMachine extends InertiaOrganisationAction
 {
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit   = $request->user()->hasPermissionTo('hr.edit');
-        $this->canDelete = $request->user()->hasPermissionTo('hr.edit');
-        return $request->user()->hasPermissionTo("hr.view");
+        $this->canEdit   = $request->user()->hasPermissionTo("human-resources.{$this->organisation->slug}.edit");
+        $this->canDelete = $request->user()->hasPermissionTo("human-resources.{$this->organisation->slug}.edit");
+        return $request->user()->hasPermissionTo("human-resources.{$this->organisation->slug}.view");
     }
 
-    public function inTenant(ClockingMachine $clockingMachine, ActionRequest $request): ClockingMachine
+    public function inTenant(Organisation $organisation, ClockingMachine $clockingMachine, ActionRequest $request): ClockingMachine
     {
-        $this->initialisation($request)->withTab(ClockingMachineTabsEnum::values());
+        $this->initialisation($organisation, $request)->withTab(ClockingMachineTabsEnum::values());
 
         return $clockingMachine;
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inWorkplace(Workplace $workplace, ClockingMachine $clockingMachine, ActionRequest $request): ClockingMachine
+    public function inWorkplace(Organisation $organisation, Workplace $workplace, ClockingMachine $clockingMachine, ActionRequest $request): ClockingMachine
     {
-        $this->initialisation($request)->withTab(ClockingMachineTabsEnum::values());
+        $this->initialisation($organisation, $request)->withTab(ClockingMachineTabsEnum::values());
 
         return $clockingMachine;
     }
@@ -94,11 +95,14 @@ class ShowClockingMachine extends InertiaAction
                                 match ($request->route()->getName()) {
                                     'grp.org.hr.workplaces.show.clocking-machines.show' => [
                                         'grp.org.hr.workplaces.show.clocking-machines.show.clockings.index',
-                                        [$clockingMachine->workplace->slug, $clockingMachine->slug]
+                                        [$this->organisation->slug, $clockingMachine->workplace->slug, $clockingMachine->slug]
                                     ],
                                     default => [
                                         'grp.org.hr.clocking-machines.show.clockings.index',
-                                        $clockingMachine->slug
+                                        [
+                                            $this->organisation->slug,
+                                            $clockingMachine->slug,
+                                        ]
                                     ]
                                 }
 
@@ -129,7 +133,7 @@ class ShowClockingMachine extends InertiaAction
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($clockingMachine)))
 
             ]
-        )->table(IndexClockings::make()->tableStructure())
+        )->table(IndexClockings::make()->tableStructure($clockingMachine))
             ->table(IndexHistory::make()->tableStructure());
     }
 
@@ -169,13 +173,11 @@ class ShowClockingMachine extends InertiaAction
                     [
                         'index' => [
                             'name'       => 'grp.org.hr.clocking-machines.index',
-                            'parameters' => []
+                            'parameters' => $routeParameters
                         ],
                         'model' => [
                             'name'       => 'grp.org.hr.clocking-machines.show',
-                            'parameters' => [
-                                $routeParameters['clockingMachine']->slug
-                            ]
+                            'parameters' => $routeParameters
                         ]
                     ],
                     $suffix
@@ -232,9 +234,9 @@ class ShowClockingMachine extends InertiaAction
                 'route' => [
                     'name'       => $routeName,
                     'parameters' => [
+                        'organisation'    => $this->organisation->slug,
                         'clockingMachine' => $clockingMachine->slug
                     ]
-
                 ]
             ],
             'grp.org.hr.workplaces.show.clocking-machines.show' => [
@@ -242,13 +244,12 @@ class ShowClockingMachine extends InertiaAction
                 'route' => [
                     'name'       => $routeName,
                     'parameters' => [
+                        'organisation'      => $this->organisation->slug,
                         'workplace'         => $clockingMachine->workplace->slug,
                         'clockingMachine'   => $clockingMachine->slug
                     ]
-
                 ]
             ]
         };
     }
-
 }

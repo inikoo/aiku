@@ -9,8 +9,8 @@ namespace App\Actions\HumanResources\Workplace\UI;
 
 use App\Actions\InertiaOrganisationAction;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
-use App\Http\Resources\HumanResources\WorkPlaceInertiaResource;
-use App\Http\Resources\HumanResources\WorkPlaceResource;
+use App\Http\Resources\HumanResources\WorkplaceInertiaResource;
+use App\Http\Resources\HumanResources\WorkplaceResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\HumanResources\Workplace;
 use App\Models\SysAdmin\Organisation;
@@ -27,6 +27,7 @@ class IndexWorkplaces extends InertiaOrganisationAction
 {
     private array $originalParameters;
 
+    /** @noinspection PhpUndefinedMethodInspection */
     public function handle($prefix=null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -94,13 +95,14 @@ class IndexWorkplaces extends InertiaOrganisationAction
     {
         $this->canEdit = $request->user()->hasPermissionTo("human-resources.{$this->organisation->slug}.edit");
 
+        //dd("human-resources.{$this->organisation->slug}.view");
         return $request->user()->hasPermissionTo("human-resources.{$this->organisation->slug}.view");
     }
 
 
     public function jsonResponse(LengthAwarePaginator $workplace): AnonymousResourceCollection
     {
-        return WorkPlaceResource::collection($workplace);
+        return WorkplaceResource::collection($workplace);
     }
 
 
@@ -127,7 +129,7 @@ class IndexWorkplaces extends InertiaOrganisationAction
                     ]
                 ],
 
-                'data'        => WorkPlaceInertiaResource::collection($workplace),
+                'data'        => WorkplaceInertiaResource::collection($workplace),
             ]
         )->table($this->tableStructure());
     }

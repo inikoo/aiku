@@ -7,16 +7,18 @@
 
 namespace App\Actions\HumanResources\Clocking;
 
+use App\Actions\InertiaOrganisationAction;
 use App\Models\HumanResources\Clocking;
 use App\Models\HumanResources\ClockingMachine;
 use App\Models\HumanResources\Workplace;
+use App\Models\SysAdmin\Organisation;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsController;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class DeleteClocking
+class DeleteClocking extends InertiaOrganisationAction
 {
     use AsController;
     use WithAttributes;
@@ -33,7 +35,7 @@ class DeleteClocking
         return $request->user()->hasPermissionTo("human-resources.{$this->organisation->slug}.edit");
     }
 
-    public function asController(Clocking $clocking, ActionRequest $request): Clocking
+    public function asController(Organisation $organisation, Clocking $clocking, ActionRequest $request): Clocking
     {
         $request->validate();
 
@@ -42,7 +44,7 @@ class DeleteClocking
 
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inWorkplace(Workplace $workplace, Clocking $clocking, ActionRequest $request): Clocking
+    public function inWorkplace(Organisation $organisation, Workplace $workplace, Clocking $clocking, ActionRequest $request): Clocking
     {
         $request->validate();
 
@@ -50,7 +52,7 @@ class DeleteClocking
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inClockingMachine(ClockingMachine $clockingMachine, Clocking $clocking, ActionRequest $request): Clocking
+    public function inClockingMachine(Organisation $organisation, ClockingMachine $clockingMachine, Clocking $clocking, ActionRequest $request): Clocking
     {
         $request->validate();
 
@@ -58,7 +60,7 @@ class DeleteClocking
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inWorkplaceInClockingMachine(Workplace $workplace, ClockingMachine $clockingMachine, Clocking $clocking, ActionRequest $request): Clocking
+    public function inWorkplaceInClockingMachine(Organisation $organisation, Workplace $workplace, ClockingMachine $clockingMachine, Clocking $clocking, ActionRequest $request): Clocking
     {
         $request->validate();
 
@@ -72,6 +74,7 @@ class DeleteClocking
             return Redirect::route(
                 route: 'grp.org.hr.working-place.show.clocking-machines.show.clockings.index',
                 parameters: [
+                    'organisation'      => $parent->organisation->slug,
                     'workplace'         => $parent->workplace->slug,
                     'clockingMachine'   => $parent->slug
                 ]
@@ -80,7 +83,8 @@ class DeleteClocking
             return Redirect::route(
                 route: 'grp.org.hr.clocking-machines.show.clockings.index',
                 parameters: [
-                    'workplace' => $parent->slug
+                    'organisation'      => $parent->organisation->slug,
+                    'workplace'         => $parent->slug
                 ]
             );
         } else {

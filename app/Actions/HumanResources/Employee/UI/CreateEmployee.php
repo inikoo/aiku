@@ -160,9 +160,7 @@ class CreateEmployee extends InertiaOrganisationAction
                         'parameters' => [
                             'organisation' => $this->organisation->slug
                         ]
-
                     ]
-
                 ],
             ]
         );

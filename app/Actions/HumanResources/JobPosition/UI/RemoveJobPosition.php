@@ -7,13 +7,14 @@
 
 namespace App\Actions\HumanResources\JobPosition\UI;
 
-use App\Actions\InertiaAction;
+use App\Actions\InertiaOrganisationAction;
 use App\Models\HumanResources\JobPosition;
+use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class RemoveJobPosition extends InertiaAction
+class RemoveJobPosition extends InertiaOrganisationAction
 {
     public function handle(JobPosition $jobPosition): JobPosition
     {
@@ -22,12 +23,12 @@ class RemoveJobPosition extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("inventory.edit");
+        return $request->user()->hasPermissionTo("human-resources.{$this->organisation->slug}.edit");
     }
 
-    public function asController(JobPosition $jobPosition, ActionRequest $request): JobPosition
+    public function asController(Organisation $organisation, JobPosition $jobPosition, ActionRequest $request): JobPosition
     {
-        $this->initialisation($request);
+        $this->initialisation($organisation, $request);
 
         return $this->handle($jobPosition);
     }
@@ -65,7 +66,7 @@ class RemoveJobPosition extends InertiaAction
                             'style' => 'cancel',
                             'route' => [
                                 'name'       => preg_replace('/remove$/', 'show', $request->route()->getName()),
-                                'parameters' => array_values($this->originalParameters)
+                                'parameters' => $request->route()->originalParameters()
                             ]
                         ]
                     ]
@@ -73,7 +74,7 @@ class RemoveJobPosition extends InertiaAction
                 'data'      => $this->getAction(
                     route:[
                         'name'       => 'grp.models.job-position.delete',
-                        'parameters' => array_values($this->originalParameters)
+                        'parameters' => $request->route()->originalParameters()
                     ]
                 )
             ]

@@ -7,6 +7,7 @@
 
 namespace App\Actions\HumanResources\Employee;
 
+use App\Actions\InertiaOrganisationAction;
 use App\Models\HumanResources\Employee;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
@@ -14,7 +15,7 @@ use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsController;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class DeleteEmployee
+class DeleteEmployee extends InertiaOrganisationAction
 {
     use AsController;
     use WithAttributes;
@@ -40,7 +41,9 @@ class DeleteEmployee
 
     public function htmlResponse(): RedirectResponse
     {
-        return Redirect::route('grp.org.hr.employees.index');
+        return Redirect::route('grp.org.hr.employees.index', [
+            'organisation' => $this->organisation->slug
+        ]);
     }
 
 }
