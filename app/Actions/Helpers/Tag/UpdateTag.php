@@ -7,7 +7,7 @@
 
 namespace App\Actions\Helpers\Tag;
 
-use App\Actions\Leads\Prospect\Tags\Hydrators\TagHydrateUniversalSearch;
+use App\Actions\CRM\Prospect\Tags\Hydrators\TagHydrateUniversalSearch;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Helpers\Tag;
 use App\Models\Market\Shop;

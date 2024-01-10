@@ -22,7 +22,6 @@ use Lorisleiva\Actions\ActionRequest;
 class StoreWebsite extends InertiaOrganisationAction
 {
     private bool $asAction = false;
-    private mixed $shop;
 
 
     public function handle(Shop $shop, array $modelData): Website

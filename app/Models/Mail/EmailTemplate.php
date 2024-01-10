@@ -39,9 +39,13 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Mail\EmailTemplateCategory> $categories
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Deployment> $deployments
+ * @property-read Snapshot|null $liveSnapshot
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, Media> $media
  * @property-read Model|\Eloquent $parent
  * @property-read Media|null $screenshot
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Snapshot> $snapshots
+ * @property-read Snapshot|null $unpublishedSnapshot
  * @method static \Illuminate\Database\Eloquent\Builder|EmailTemplate newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|EmailTemplate newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|EmailTemplate query()

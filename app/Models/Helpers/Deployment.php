@@ -31,16 +31,6 @@ use Spatie\Sluggable\SlugOptions;
  * @method static \Illuminate\Database\Eloquent\Builder|Deployment newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Deployment newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Deployment query()
- * @method static \Illuminate\Database\Eloquent\Builder|Deployment whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Deployment whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Deployment whereModelId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Deployment whereModelType($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Deployment wherePublisherId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Deployment wherePublisherType($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Deployment whereScope($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Deployment whereSlug($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Deployment whereSnapshotId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Deployment whereUpdatedAt($value)
  * @mixin \Eloquent
  */
 class Deployment extends Model

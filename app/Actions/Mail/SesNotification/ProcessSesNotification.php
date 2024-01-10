@@ -7,15 +7,15 @@
 
 namespace App\Actions\Mail\SesNotification;
 
-use App\Actions\Leads\Prospect\UpdateProspectEmailClicked;
-use App\Actions\Leads\Prospect\UpdateProspectEmailHardBounced;
-use App\Actions\Leads\Prospect\UpdateProspectEmailOpened;
-use App\Actions\Leads\Prospect\UpdateProspectEmailSoftBounced;
-use App\Actions\Leads\Prospect\UpdateProspectEmailUnsubscribed;
+use App\Actions\CRM\Prospect\UpdateProspectEmailClicked;
+use App\Actions\CRM\Prospect\UpdateProspectEmailHardBounced;
+use App\Actions\CRM\Prospect\UpdateProspectEmailOpened;
+use App\Actions\CRM\Prospect\UpdateProspectEmailSoftBounced;
+use App\Actions\CRM\Prospect\UpdateProspectEmailUnsubscribed;
 use App\Actions\Mail\DispatchedEmail\UpdateDispatchedEmail;
 use App\Actions\Utils\IsGoogleIp;
-use App\Enums\Mail\DispatchedEmailEventTypeEnum;
-use App\Enums\Mail\DispatchedEmailStateEnum;
+use App\Enums\Mail\DispatchedEmail\DispatchedEmailStateEnum;
+use App\Enums\Mail\DispatchedEmailEvent\DispatchedEmailEventTypeEnum;
 use App\Models\Mail\DispatchedEmail;
 use App\Models\Mail\SesNotification;
 use Exception;

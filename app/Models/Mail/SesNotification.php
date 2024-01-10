@@ -13,6 +13,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 /**
  * App\Models\Mail\SesNotification
  *
+ * @property int $id
+ * @property string $message_id
+ * @property array $data
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
  * @method static \Illuminate\Database\Eloquent\Builder|SesNotification newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|SesNotification newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|SesNotification onlyTrashed()

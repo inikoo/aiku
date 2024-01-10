@@ -7,6 +7,7 @@
 
 namespace App\Actions;
 
+use App\Models\Market\Shop;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;
@@ -21,10 +22,12 @@ class InertiaOrganisationAction
 
 
     protected Organisation $organisation;
+    protected Shop $shop;
     protected ?string $tab                = null;
     protected bool $canEdit               = false;
     protected bool $canDelete             = false;
     protected array $validatedData;
+
 
     public function initialisation(Organisation $organisation, ActionRequest|array $request): static
     {
@@ -39,6 +42,22 @@ class InertiaOrganisationAction
 
         return $this;
     }
+
+    public function initialisationFromShop(Shop $shop, ActionRequest|array $request): static
+    {
+        $this->shop          = $shop;
+        $this->organisation  = $shop->organisation;
+        if(is_array($request)) {
+            $this->setRawAttributes($request);
+        } else {
+            $this->fillFromRequest($request);
+
+        }
+        $this->validatedData=$this->validateAttributes();
+
+        return $this;
+    }
+
 
     public function withTab(array $tabs): static
     {

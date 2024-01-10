@@ -7,8 +7,8 @@
 
 namespace App\Models\Helpers;
 
+use App\Models\SysAdmin\User;
 use App\Models\Traits\HasHistory;
-use App\Models\Auth\OrganisationUser;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -19,7 +19,7 @@ use OwenIt\Auditing\Contracts\Auditable;
  * App\Models\ExcelUpload
  *
  * @property int $id
- * @property int|null $organisation_user_id
+ * @property int|null $user_id
  * @property string $type
  * @property string $original_filename
  * @property string $filename
@@ -31,25 +31,11 @@ use OwenIt\Auditing\Contracts\Auditable;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
- * @property-read int|null $audits_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\UploadRecord> $records
- * @property-read int|null $records_count
- * @property-read OrganisationUser $user
+ * @property-read User|null $user
  * @method static \Illuminate\Database\Eloquent\Builder|Upload newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Upload newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Upload query()
- * @method static \Illuminate\Database\Eloquent\Builder|Upload whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Upload whereFilename($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Upload whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Upload whereNumberFails($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Upload whereNumberRows($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Upload whereNumberSuccess($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Upload whereOrganisationUserId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Upload whereOriginalFilename($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Upload wherePath($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Upload whereType($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Upload whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Upload whereUploadedAt($value)
  * @mixin \Eloquent
  */
 class Upload extends Model implements Auditable
@@ -82,6 +68,6 @@ class Upload extends Model implements Auditable
 
     public function user(): BelongsTo
     {
-        return $this->belongsTo(OrganisationUser::class);
+        return $this->belongsTo(User::class);
     }
 }

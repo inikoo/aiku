@@ -22,8 +22,6 @@ class UpdateShop extends InertiaOrganisationAction
 {
     use WithActionUpdate;
 
-    private Shop $shop;
-
     private bool $asAction = false;
 
     public function handle(Shop $shop, array $modelData): Shop

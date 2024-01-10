@@ -5,7 +5,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Leads\Prospect\Tags;
+namespace App\Actions\CRM\Prospect\Tags;
 
 use App\Models\Helpers\Tag;
 use App\Models\Market\Shop;

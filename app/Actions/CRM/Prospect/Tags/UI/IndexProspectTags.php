@@ -5,17 +5,17 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Leads\Prospect\Tags\UI;
+namespace App\Actions\CRM\Prospect\Tags\UI;
 
 use App\Actions\Helpers\History\IndexHistory;
-use App\Actions\InertiaAction;
-use App\Actions\Leads\Prospect\UI\IndexProspects;
+use App\Actions\CRM\Prospect\IndexProspects;
+use App\Actions\InertiaOrganisationAction;
 use App\Actions\Traits\WithProspectsSubNavigation;
-use App\Enums\UI\Organisation\TagsTabsEnum;
+use App\Enums\UI\TagsTabsEnum;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\Tag\CrmTagResource;
 use App\InertiaTable\InertiaTable;
-use App\Models\Leads\Prospect;
+use App\Models\CRM\Prospect;
 use App\Models\Market\Shop;
 use App\Models\SysAdmin\Organisation;
 use Closure;
@@ -27,7 +27,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 use Spatie\Tags\Tag;
 
-class IndexProspectTags extends InertiaAction
+class IndexProspectTags extends InertiaOrganisationAction
 {
     use WithProspectsSubNavigation;
 
@@ -44,17 +44,18 @@ class IndexProspectTags extends InertiaAction
             );
     }
 
-    public function asController(ActionRequest $request): LengthAwarePaginator
+    public function asController(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisation($request)->withTab(TagsTabsEnum::values());
-        $this->parent = organisation();
+        $this->initialisation($organisation, $request)->withTab(TagsTabsEnum::values());
+        $this->parent = $organisation;
 
         return $this->handle(prefix: TagsTabsEnum::TAGS->value);
     }
 
-    public function inShop(Shop $shop, ActionRequest $request): LengthAwarePaginator
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inShop(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisation($request)->withTab(TagsTabsEnum::values());
+        $this->initialisationFromShop($shop, $request)->withTab(TagsTabsEnum::values());
         $this->parent = $shop;
 
         return $this->handle(prefix: TagsTabsEnum::TAGS->value);
@@ -123,16 +124,16 @@ class IndexProspectTags extends InertiaAction
                 ),
                 'title'       => __('prospect tags'),
                 'pageHead'    => [
-                    'title'              => __('tags'),
-                    'subNavigation'      => $subNavigation,
-                    'actions'            => [
+                    'title'         => __('tags'),
+                    'subNavigation' => $subNavigation,
+                    'actions'       => [
                         [
                             'type'  => 'button',
                             'style' => 'create',
                             'label' => __('tags'),
                             'route' => [
                                 'name'       => 'org.crm.shop.prospects.tags.create',
-                                'parameters' => array_values($this->originalParameters)
+                                'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ]
                     ],
@@ -143,12 +144,12 @@ class IndexProspectTags extends InertiaAction
                     'navigation' => TagsTabsEnum::navigation(),
                 ],
 
-                    'create_mailshot' => [
-                        'route' => [
-                            'name'       => 'org.crm.shop.prospects.mailshots.create',
-                            'parameters' => array_values($this->originalParameters)
-                        ]
-                    ],
+                'create_mailshot' => [
+                    'route' => [
+                        'name'       => 'org.crm.shop.prospects.mailshots.create',
+                        'parameters' => array_values($request->route()->originalParameters())
+                    ]
+                ],
 
                 TagsTabsEnum::TAGS->value => $this->tab == TagsTabsEnum::TAGS->value ?
                     fn () => CrmTagResource::collection($tags)

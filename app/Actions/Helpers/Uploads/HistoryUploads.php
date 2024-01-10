@@ -9,7 +9,7 @@ namespace App\Actions\Helpers\Uploads;
 
 use App\Http\Resources\Helpers\UploadsResource;
 use App\Models\Helpers\Upload;
-use App\Models\Leads\Prospect;
+use App\Models\CRM\Prospect;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Lorisleiva\Actions\Concerns\AsAction;

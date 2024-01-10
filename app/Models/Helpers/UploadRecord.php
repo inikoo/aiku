@@ -26,15 +26,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static \Illuminate\Database\Eloquent\Builder|UploadRecord newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|UploadRecord newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|UploadRecord query()
- * @method static \Illuminate\Database\Eloquent\Builder|UploadRecord whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|UploadRecord whereErrors($value)
- * @method static \Illuminate\Database\Eloquent\Builder|UploadRecord whereFailColumn($value)
- * @method static \Illuminate\Database\Eloquent\Builder|UploadRecord whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|UploadRecord whereRowNumber($value)
- * @method static \Illuminate\Database\Eloquent\Builder|UploadRecord whereStatus($value)
- * @method static \Illuminate\Database\Eloquent\Builder|UploadRecord whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|UploadRecord whereUploadId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|UploadRecord whereValues($value)
  * @mixin \Eloquent
  */
 

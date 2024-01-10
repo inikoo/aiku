@@ -47,8 +47,6 @@ use Illuminate\Support\Carbon;
  * @property int $number_outbox_state_suspended
  * @property int $number_mailshots
  * @property int $number_mailroom_state_in_process
- * @property int $number_mailroom_state_set_recipients
- * @property int $number_mailroom_state_composing_email
  * @property int $number_mailroom_state_ready
  * @property int $number_mailroom_state_scheduled
  * @property int $number_mailroom_state_sending
@@ -57,16 +55,16 @@ use Illuminate\Support\Carbon;
  * @property int $number_mailroom_state_stopped
  * @property int $number_dispatched_emails
  * @property int $number_dispatched_emails_state_ready
- * @property int $number_dispatched_emails_state_sent_to_provider
- * @property int $number_dispatched_emails_state_rejected_by_provider
+ * @property int $number_dispatched_emails_state_error
+ * @property int $number_dispatched_emails_state_rejected
  * @property int $number_dispatched_emails_state_sent
+ * @property int $number_dispatched_emails_state_delivered
+ * @property int $number_dispatched_emails_state_hard_bounce
+ * @property int $number_dispatched_emails_state_soft_bounce
  * @property int $number_dispatched_emails_state_opened
  * @property int $number_dispatched_emails_state_clicked
- * @property int $number_dispatched_emails_state_soft_bounce
- * @property int $number_dispatched_emails_state_hard_bounce
- * @property int $number_dispatched_emails_state_delivered
- * @property int $number_dispatched_emails_state_marked_as_spam
- * @property int $number_dispatched_emails_state_error
+ * @property int $number_dispatched_emails_state_spam
+ * @property int $number_dispatched_emails_state_unsubscribed
  * @property int $number_provoked_unsubscribe
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
