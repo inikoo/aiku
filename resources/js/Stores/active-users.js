@@ -30,7 +30,7 @@ export const liveUsers = defineStore('liveUsers', {
             .here((rawUsers) => {
                 // console.log('Who is here: ', rawUsers);
 
-                axios.get(route('grp.models.live-organisation-users-current-page.index'))
+                axios.get(route('grp.models.live-group-users-current-page.index'))
                     .then((response) => {
                         // console.log('lll', response.data)
                         this.liveUsers = response.data

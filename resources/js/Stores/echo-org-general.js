@@ -7,8 +7,8 @@
 import {defineStore} from 'pinia';
 import {notify} from '@kyvg/vue3-notification';
 
-export const useEchoOrgGeneral = defineStore(
-    'echo-org-general',
+export const useEchoGrpGeneral = defineStore(
+    'echo-grp-general',
     {
 
         state  : () => ({
@@ -18,7 +18,7 @@ export const useEchoOrgGeneral = defineStore(
 
             subscribe() {
                 console.log('subscribe');
-                window.Echo.private('org.general').
+                window.Echo.private('grp.general').
                     listen('.notification', (e) => {
                         notify({
                                    title: e.data.title,

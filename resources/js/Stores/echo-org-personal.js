@@ -23,7 +23,7 @@ import { defineStore } from "pinia";
 //     }
 // }
 
-export const useEchoOrgPersonal = defineStore("echo-org-personal", {
+export const useEchoGrpPersonal = defineStore("echo-grp-personal", {
     state: () => ({
         progressBars: {
             // Upload: {
@@ -47,7 +47,7 @@ export const useEchoOrgPersonal = defineStore("echo-org-personal", {
             window.Echo.private("grp.personal." + userID).listen(
                 ".action-progress",
                 (eventData) => {
-                    console.log('From echo-org-personal')
+                    console.log('From echo-grp-personal')
                     console.log(eventData)
                 }
             );
