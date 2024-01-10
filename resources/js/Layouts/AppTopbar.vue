@@ -102,7 +102,11 @@ const logoutAuth = () => {
                                     class="inline-flex min-w-fit w-32 max-w-full whitespace-nowrap justify-between items-center gap-x-2 rounded px-2.5 py-1 text-xs font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-white/75"
                                     :class="[ layout.organisations.currentOrganisations ? 'bg-indigo-500 text-white hover:bg-indigo-600' : 'bg-slate-100 hover:bg-slate-200 text-slate-600 ring-1 ring-slate-300']"
                                 >
-                                    {{ layout.organisations.data.find((item) => item.slug == route().v().params?.organisation)?.name ?? 'Select organisation' }}
+                                    <div class="flex items-center gap-x-1">
+                                        <FontAwesomeIcon v-if="route().v().params?.organisation" icon='fal fa-building' class='text-gray-400 text-xs' fixed-width aria-hidden='true' />
+                                        <FontAwesomeIcon v-else icon='fal fa-city' class='text-gray-400 text-xs' fixed-width aria-hidden='true' />
+                                        {{ layout.organisations.data.find((item) => item.slug == route().v().params?.organisation)?.name ?? 'Select organisation' }}
+                                    </div>
                                     <!-- {{ layout.organisations.currentOrganisations ? layout.organisations.currentOrganisations : 'Select group or organisations' }} -->
                                     <FontAwesomeIcon icon='far fa-chevron-down' class='text-xs' aria-hidden='true' />
                                 </MenuButton>
