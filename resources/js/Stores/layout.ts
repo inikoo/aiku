@@ -8,6 +8,7 @@ import { grpNavigation, orgNavigation } from "@/types/Navigation"
 
 import { defineStore } from "pinia";
 import { trans } from "laravel-vue-i18n";
+import { Image } from "@/types/Image"
 
 export const useLayoutStore = defineStore("layout", {
     state: () => (
@@ -55,11 +56,11 @@ export const useLayoutStore = defineStore("layout", {
             },
             navigation: {
                 grp: {} as grpNavigation,
-                org: {} as orgNavigation
+                org: {} as {[key: string]: orgNavigation}
             },
             organisations       : {
                 currentOrganisations: '',
-                data: {}
+                data: {} as { slug: string, logo: Image, name: string}[]
             },
             currentRoute          : "",
             currentRouteParameters: {},

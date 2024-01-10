@@ -154,7 +154,7 @@ const generateLabel = (item) => {
 
         <!-- LeftSidebar: Grp -->
         <Link v-else v-for="(item, itemKey, index) in layout.navigation.grp"
-            :key="itemKey + index"
+            :key="`${itemKey}${index}`"
             :href="generateRoute(item)"
             class="group flex items-center text-sm py-2"
             :class="[

@@ -1,36 +1,40 @@
 import { routeType } from "@/types/route"
 
-export interface navigation {
+export interface DropdownLink {
+    label?: string
+    tooltip: string
+    icon: string[]
+    route: {
+        all: string[]
+        selected: string[]
+    }
+}
+
+export interface SubSection {
+    label: string
+    icon: string[]
+    route: routeType
+}
+
+export interface Navigation {
     label: string
     scope?: string
     icon: string[]
-    route: routeType
+    route?: routeType
     topMenu: {
-        subSections?: {
-            label: string
-            icon: string[]
-            route: routeType
-        }[]
+        subSections?: SubSection[]
         dropdown?: {
-            links: {
-                label?: string
-                tooltip: string
-                icon: string[]
-                route: {
-                    all: string[]
-                    selected: string[]
-                }
-            }[]
+            links: DropdownLink[]
         }
     }
 }
 
 export interface grpNavigation {
-    [key: string]: navigation
+    [key: string]: Navigation
 }
 
 export interface orgNavigation {
-    [key: string]: {
-        [key: string]: navigation | { [key: string]: { [key: string]: navigation } }
-    }
+    [orgKey: string]: {
+        [shopKey: string]: { [navShopKey: string]: Navigation };
+    };
 }
