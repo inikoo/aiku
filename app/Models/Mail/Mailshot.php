@@ -34,6 +34,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  * @property string|null $source_id
+ * @property int|null $email_template_id
  * @property-read Collection<int, \App\Models\Mail\DispatchedEmail> $dispatchedEmails
  * @property-read \App\Models\Mail\Outbox|null $outbox
  * @property-read Shop|null $shop

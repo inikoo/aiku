@@ -95,7 +95,6 @@ class IndexWorkplaces extends InertiaOrganisationAction
     {
         $this->canEdit = $request->user()->hasPermissionTo("human-resources.{$this->organisation->slug}.edit");
 
-        //dd("human-resources.{$this->organisation->slug}.view");
         return $request->user()->hasPermissionTo("human-resources.{$this->organisation->slug}.view");
     }
 
