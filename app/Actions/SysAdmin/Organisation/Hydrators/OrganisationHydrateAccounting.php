@@ -28,10 +28,10 @@ class OrganisationHydrateAccounting implements ShouldBeUnique
 
         $amountTenantCurrencySuccessfullyPaid = Payment::where('type', 'payment')
             ->where('status', 'success')
-            ->sum('tc_amount');
+            ->sum('oc_amount');
         $amountTenantCurrencyRefunded         = Payment::where('type', 'refund')
             ->where('status', 'success')
-            ->sum('tc_amount');
+            ->sum('oc_amount');
 
         $stats = [
             'number_payment_service_providers' => PaymentServiceProvider::count(),
@@ -39,9 +39,9 @@ class OrganisationHydrateAccounting implements ShouldBeUnique
             'number_payment_records'           => $paymentRecords,
             'number_payments'                  => $paymentRecords - $refunds,
             'number_refunds'                   => $refunds,
-            'tc_amount'                        => $amountTenantCurrencySuccessfullyPaid + $amountTenantCurrencyRefunded,
-            'tc_amount_successfully_paid'      => $amountTenantCurrencySuccessfullyPaid,
-            'tc_amount_refunded'               => $amountTenantCurrencyRefunded,
+            'oc_amount'                        => $amountTenantCurrencySuccessfullyPaid + $amountTenantCurrencyRefunded,
+            'oc_amount_successfully_paid'      => $amountTenantCurrencySuccessfullyPaid,
+            'oc_amount_refunded'               => $amountTenantCurrencyRefunded,
         ];
 
         $stateCounts = Payment::selectRaw('state, count(*) as total')

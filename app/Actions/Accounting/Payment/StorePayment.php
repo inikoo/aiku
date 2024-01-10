@@ -36,7 +36,7 @@ class StorePayment
         $modelData['shop_id']     = $customer->shop_id;
 
         data_fill($modelData, 'currency_id', $customer->shop->currency_id);
-        data_fill($modelData, 'tc_amount', GetCurrencyExchange::run($customer->shop->currency, $paymentAccount->organisation->currency));
+        data_fill($modelData, 'oc_amount', GetCurrencyExchange::run($customer->shop->currency, $paymentAccount->organisation->currency));
         data_fill($modelData, 'gc_amount', GetCurrencyExchange::run($customer->shop->currency, $paymentAccount->organisation->group->currency));
         data_fill($modelData, 'date', gmdate('Y-m-d H:i:s'));
 
