@@ -23,14 +23,14 @@ export const liveUsers = defineStore('liveUsers', {
     },
     actions: {
         unsubscribe() {
-            window.Echo.leave(`org.live.users`);
+            window.Echo.leave(`grp.live.users`);
         },
         subscribe() {
-            window.Echo.join(`org.live.users`)
+            window.Echo.join(`grp.live.users`)
             .here((rawUsers) => {
                 // console.log('Who is here: ', rawUsers);
 
-                axios.get(route('org.models.live-organisation-users-current-page.index'))
+                axios.get(route('grp.models.live-organisation-users-current-page.index'))
                     .then((response) => {
                         // console.log('lll', response.data)
                         this.liveUsers = response.data
