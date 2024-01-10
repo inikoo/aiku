@@ -92,48 +92,60 @@ class ShowProfile
                             ],
                         ],
                     ],
-                    [
-                        "label"  => __("appearance"),
-                        "icon"   => "fa-light fa-paint-brush",
-                        "fields" => [
-                            "colorMode" => [
-                                "type"  => "colorMode",
-                                "label" => __("turn dark mode"),
-                                "value" => "",
-                            ],
-                            "theme"     => [
-                                "type"  => "theme",
-                                "label" => __("choose your theme"),
-                                "value" => "",
-                            ],
-                        ],
-                    ],
-                    [
-                        "label"  => __("notifications"),
-                        "icon"   => "fa-light fa-bell",
-                        "fields" => [
-                            "notifications" => [
-                                "type"  => "myNotifications",
-                                "label" => __("notifications"),
-                                "value" => [],
-                                "data"  => [
-                                    [
-                                        'type' => 'new-order',
-                                        'label'=> __('new order'),
-                                    ],
-                                    [
-                                        'type' => 'new re',
-                                        'label'=> __('new order'),
-                                    ],
-                                    [
-                                        'type' => 'new user',
-                                        'label'=> __('new order'),
-                                    ],
-                                ]
-                            ],
+                    // [
+                    //     "label"  => __("appearance"),
+                    //     "icon"   => "fa-light fa-paint-brush",
+                    //     "fields" => [
+                    //         "colorMode" => [
+                    //             "type"  => "colorMode",
+                    //             "label" => __("turn dark mode"),
+                    //             "value" => "",
+                    //         ],
+                    //         "theme"     => [
+                    //             "type"  => "theme",
+                    //             "label" => __("choose your theme"),
+                    //             "value" => "",
+                    //         ],
+                    //     ],
+                    // ],
+                    // [
+                    //     "label"  => __("notifications"),
+                    //     "icon"   => "fa-light fa-bell",
+                    //     "fields" => [
+                    //         "notifications" => [
+                    //             "type"  => "myNotifications",
+                    //             "label" => __("notifications"),
+                    //             "value" => [],
+                    //             "data"  => [
+                    //                 [
+                    //                     'type' => 'new-order',
+                    //                     'label'=> __('new order'),
+                    //                 ],
+                    //                 [
+                    //                     'type' => 'new re',
+                    //                     'label'=> __('new order'),
+                    //                 ],
+                    //                 [
+                    //                     'type' => 'new user',
+                    //                     'label'=> __('new order'),
+                    //                 ],
+                    //             ]
+                    //         ],
 
-                        ],
-                    ],
+                    //     ],
+                    // ],
+                    [
+                        'label'  => __('App'),
+                        'icon'   => 'fal fa-mobile-android-alt',
+                        'fields' => [
+                            "app_login" => [
+                                "type"          => "app_login",
+                                "label"         => __("App login"),
+                                "noSaveButton"  => true,
+                                "noTitle"       => true,
+                            ],
+                        ]
+                    ]
                 ],
                 "args"      => [
                     "updateRoute" => [

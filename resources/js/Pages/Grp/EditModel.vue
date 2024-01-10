@@ -14,10 +14,12 @@ import { useLayoutStore } from '@/Stores/layout'
 import {library} from "@fortawesome/fontawesome-svg-core"
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome"
 import {faGoogle} from "@fortawesome/free-brands-svg-icons"
+import { Action as TSAction } from '@/types/Action'
+import { routeType } from '@/types/route'
 
-import { faUserLock, faBell, faCopyright, faUserCircle, faKey, faClone, faPaintBrush, faMoonStars, faLightbulbOn, faCheck, faPhone, faIdCard, faFingerprint, faLanguage, faAddressBook, faTrashAlt } from '@fal'
+import { faUserLock, faBell, faCopyright, faUserCircle, faMobileAndroidAlt, faKey, faClone, faPaintBrush, faMoonStars, faLightbulbOn, faCheck, faPhone, faIdCard, faFingerprint, faLanguage, faAddressBook, faTrashAlt } from '@fal'
 
-library.add(faUserLock,faBell,faCopyright,faUserCircle, faKey, faClone, faPaintBrush, faMoonStars, faLightbulbOn, faCheck, faPhone, faIdCard, faFingerprint,faLanguage,faAddressBook,faTrashAlt, faGoogle)
+library.add(faUserLock,faBell,faCopyright,faUserCircle, faMobileAndroidAlt, faKey, faClone, faPaintBrush, faMoonStars, faLightbulbOn, faCheck, faPhone, faIdCard, faFingerprint,faLanguage,faAddressBook,faTrashAlt, faGoogle)
 
 
 const props = defineProps<{
@@ -25,34 +27,33 @@ const props = defineProps<{
     formData: {
         current?:string,
         blueprint: {
-            // sectionData
-            label: string,
-            title: string,
-            subtitle?: string,
-            icon: string
-            fields: {
-                // FieldData
-                name: string,
-                type: string,
+            [key: string]: {
+                // sectionData
                 label: string,
-                value: string | object
-                icon?: string
-                action?: {
-                    data?: any
-                    method?: string
+                title: string,
+                subtitle?: string,
+                icon: string
+                fields: {
+                    // FieldData
+                    name: string,
+                    type: string,
+                    label: string,
+                    value: string | object
+                    icon?: string
+                    action?: {
+                        data?: any
+                        method?: string
+                    }
                 }
-            }[]
-            button: {
-                title: string
-                route: string
-                disable: boolean
+                button: {
+                    title: string
+                    route: string
+                    disable: boolean
+                }
             }
-        }[]
+        }
         args: {
-            updateRoute: {
-                name: string,
-                parameters: string | string[]
-            }
+            updateRoute: routeType
         }
         title?: string
     }
@@ -75,7 +76,6 @@ const handleIntersection = (element: Element, index: number) => (entries) => {
 }
 
 onMounted(() => {
-    console.log('wwwwwwww', layout.systemName)
     updateViewportWidth()
     window.addEventListener('resize', updateViewportWidth)
 
