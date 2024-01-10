@@ -20,9 +20,9 @@ class HydrateSupplierDeliveries extends HydrateModel
         SupplierDeliveriesHydrateItems::run($supplierDelivery);
     }
 
-    protected function getModel(int $id): SupplierDelivery
+    protected function getModel(string $slug): SupplierDelivery
     {
-        return SupplierDelivery::findOrFail($id);
+        return SupplierDelivery::where('slug', $slug)->first();
     }
 
     protected function getAllModels(): Collection

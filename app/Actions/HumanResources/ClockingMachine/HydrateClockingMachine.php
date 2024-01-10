@@ -7,31 +7,29 @@
 
 namespace App\Actions\HumanResources\ClockingMachine;
 
-use App\Actions\HumanResources\Employee\Hydrators\EmployeeHydrateJobPositionsShare;
-use App\Actions\HumanResources\Employee\Hydrators\EmployeeHydrateWeekWorkingHours;
 use App\Actions\HydrateModel;
+use App\Models\HumanResources\ClockingMachine;
 use App\Models\HumanResources\Employee;
 use Illuminate\Support\Collection;
 
 class HydrateClockingMachine extends HydrateModel
 {
-    public string $commandSignature = 'hydrate:employee {organisations?*} {--i|id=}';
+    public string $commandSignature = 'hydrate:clocking-machine {organisations?*} {--i|id=}';
 
 
     public function handle(Employee $employee): void
     {
-        EmployeeHydrateJobPositionsShare::run($employee);
-        EmployeeHydrateWeekWorkingHours::run($employee);
+
     }
 
 
-    protected function getModel(int $id): Employee
+    protected function getModel(string $slug): ClockingMachine
     {
-        return Employee::findOrFail($id);
+        return ClockingMachine::where('slug', $slug)->first();
     }
 
     protected function getAllModels(): Collection
     {
-        return Employee::get();
+        return ClockingMachine::get();
     }
 }

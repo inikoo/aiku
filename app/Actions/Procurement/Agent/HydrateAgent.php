@@ -24,9 +24,9 @@ class HydrateAgent extends HydrateModel
     }
 
 
-    protected function getModel(int $id): Agent
+    protected function getModel(string $slug): Agent
     {
-        return Agent::find($id);
+        return Agent::where('slug', $slug)->first();
     }
 
     protected function getAllModels(): Collection

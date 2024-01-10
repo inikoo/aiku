@@ -25,9 +25,9 @@ class HydrateWebsite extends HydrateModel
     }
 
 
-    protected function getModel(int $id): Website
+    protected function getModel(string $slug): Website
     {
-        return Website::find($id);
+        return Website::where('slug', $slug)->first();
     }
 
     protected function getAllModels(): Collection

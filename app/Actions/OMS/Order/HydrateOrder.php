@@ -37,9 +37,9 @@ class HydrateOrder extends HydrateModel
     }
 
 
-    protected function getModel(int $id): Order
+    protected function getModel(string $slug): Order
     {
-        return Order::find($id);
+        return Order::where('slug', $slug)->first();
     }
 
     protected function getAllModels(): Collection

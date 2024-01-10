@@ -22,9 +22,9 @@ class HydrateAddress extends HydrateModel
         AddressHydrateUsage::run($address);
     }
 
-    protected function getModel(int $id): Address
+    protected function getModel(string $slug): Address
     {
-        return Address::find($id);
+        return Address::where('slug', $slug)->first();
     }
 
     protected function getAllModels(): Collection

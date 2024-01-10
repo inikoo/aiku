@@ -23,9 +23,9 @@ class HydrateProduct extends HydrateModel
     }
 
 
-    protected function getModel(int $id): Product
+    protected function getModel(string $slug): Product
     {
-        return Product::find($id);
+        return Product::where('slug', $slug)->first();
     }
 
     protected function getAllModels(): Collection

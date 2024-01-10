@@ -10,7 +10,6 @@ namespace App\Actions;
 use App\Actions\Traits\WithOrganisationsArgument;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Console\Command;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -21,8 +20,7 @@ class HydrateModel
 
     protected Organisation $organisation;
 
-
-    protected function getModel(int $id): ?Model
+    protected function getModel(string $slug)
     {
         return null;
     }
@@ -35,30 +33,26 @@ class HydrateModel
 
     public function asCommand(Command $command): int
     {
-        $organisations  = $this->getTenants($command);
-
         $exitCode = 0;
+        if(!$command->argument('slugs')) {
 
-        foreach ($organisations as $organisation) {
-            $result = (int)$organisation->execute(function () use ($command) {
-                if ($command->option('id')) {
-                    if ($model = $this->getModel($command->option('id'))) {
-                        $this->handle($model);
-                        $command->info('Done!');
-                    }
-                } else {
-                    $this->loopAll($command);
-                }
-            });
+            if($command->argument('organisations')) {
+                $this->organisation = $this->getOrganisations($command)->first();
+            }
 
-            if ($result !== 0) {
-                $exitCode = $result;
+            $this->loopAll($command);
+        } else {
+
+            foreach($command->argument('slugs') as $slug) {
+                $model=$this->getModel($slug);
+                $this->handle($model);
+                $command->line(class_basename($model)." $model->name hydrated 💦");
             }
         }
 
         return $exitCode;
-    }
 
+    }
 
     protected function loopAll(Command $command): void
     {
