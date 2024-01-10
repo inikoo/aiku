@@ -100,31 +100,60 @@ const generateLabel = (item) => {
                     <!-- Looping: Shops -->
                     <transition>
                         <DisclosurePanel>
-                            <div v-for="(shopNavigations, shopIndex) in items" :key="shopIndex" class="group flex flex-col justify-center text-sm py-0.5"
-                                :class="[ shopIndex === layout.currentModule ? '' : '', layout.leftSidebar.show ? 'pl-3' : '', ]"
-                                :aria-current="shopIndex === layout.currentModule ? 'page' : undefined"
-                            >
-                                <p class="capitalize text-white">{{ shopIndex }}</p>
-                                <!-- Looping: Navigation in Shop -->
-                                <Link v-for="(shopNavigation, navigationIndex) in shopNavigations"
-                                    :href="shopNavigation.route?.name ? route(shopNavigation.route.name, shopNavigation.route.parameters) : '#'"
-                                    class="group flex items-center text-sm py-2"
-                                    :class="[
-                                        navigationIndex === layout.currentModule
-                                            ? 'navigationActive px-0.5'
-                                            : 'navigation px-1',
-                                        layout.leftSidebar.show ? 'px-3' : '',
-                                    ]"
-                                    :aria-current="navigationIndex === layout.currentModule ? 'page' : undefined"
+                            <template v-if="!route().v().params?.shop">
+                                <div v-for="(shopNavigations, shopIndex) in items" :key="shopIndex" class="group flex flex-col justify-center text-sm py-0.5"
+                                    :class="[ shopIndex === layout.currentModule ? '' : '', layout.leftSidebar.show ? 'pl-3' : '', ]"
+                                    :aria-current="shopIndex === layout.currentModule ? 'page' : undefined"
                                 >
-                                    <div class="flex items-center px-2">
-                                        <FontAwesomeIcon aria-hidden="true" class="flex-shrink-0 h-4 w-4" :icon="shopNavigation.icon"/>
-                                    </div>
-                                    <span class="capitalize leading-none whitespace-nowrap" :class="[layout.leftSidebar.show ? 'block md:block' : 'block md:hidden']">
-                                        {{ shopNavigation.label }}
-                                    </span>
-                                </Link>
-                            </div>
+                                    <p class="capitalize text-white">{{ shopIndex }}</p>
+                                    <!-- Looping: Navigation in Shop -->
+                                    <Link v-for="(shopNavigation, navigationIndex) in shopNavigations"
+                                        :href="shopNavigation.route?.name ? route(shopNavigation.route.name, shopNavigation.route.parameters) : '#'"
+                                        class="group flex items-center text-sm py-2"
+                                        :class="[
+                                            navigationIndex === layout.currentModule
+                                                ? 'navigationActive px-0.5'
+                                                : 'navigation px-1',
+                                            layout.leftSidebar.show ? 'px-3' : '',
+                                        ]"
+                                        :aria-current="navigationIndex === layout.currentModule ? 'page' : undefined"
+                                    >
+                                        <div class="flex items-center px-2">
+                                            <FontAwesomeIcon aria-hidden="true" class="flex-shrink-0 h-4 w-4" :icon="shopNavigation.icon"/>
+                                        </div>
+                                        <span class="capitalize leading-none whitespace-nowrap" :class="[layout.leftSidebar.show ? 'block md:block' : 'block md:hidden']">
+                                            {{ shopNavigation.label }}
+                                        </span>
+                                    </Link>
+                                </div>
+                            </template>
+                            <template v-else>
+                                <div class="group flex flex-col justify-center text-sm py-0.5"
+                                    :class="[ route().v().params?.shop === layout.currentModule ? '' : '', layout.leftSidebar.show ? 'pl-3' : '', ]"
+                                    :aria-current="route().v().params?.shop === layout.currentModule ? 'page' : undefined"
+                                >
+                                    <p class="capitalize text-white">{{ route().v().params?.shop }}</p>
+                                    <!-- Looping: Navigation in Shop -->
+                                    <Link v-for="(shopNavigation, navigationIndex) in items[route().v().params?.shop]"
+                                        :href="shopNavigation.route?.name ? route(shopNavigation.route.name, shopNavigation.route.parameters) : '#'"
+                                        class="group flex items-center text-sm py-2"
+                                        :class="[
+                                            navigationIndex === layout.currentModule
+                                                ? 'navigationActive px-0.5'
+                                                : 'navigation px-1',
+                                            layout.leftSidebar.show ? 'px-3' : '',
+                                        ]"
+                                        :aria-current="navigationIndex === layout.currentModule ? 'page' : undefined"
+                                    >
+                                        <div class="flex items-center px-2">
+                                            <FontAwesomeIcon aria-hidden="true" class="flex-shrink-0 h-4 w-4" :icon="shopNavigation.icon"/>
+                                        </div>
+                                        <span class="capitalize leading-none whitespace-nowrap" :class="[layout.leftSidebar.show ? 'block md:block' : 'block md:hidden']">
+                                            {{ shopNavigation.label }}
+                                        </span>
+                                    </Link>
+                                </div>
+                            </template>
                         </DisclosurePanel>
                     </transition>
                 </Disclosure>

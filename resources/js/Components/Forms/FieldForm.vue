@@ -9,7 +9,7 @@
 import { useForm } from '@inertiajs/vue3'
 import { useLayoutStore } from '@/Stores/layout'
 import { routeType } from '@/types/route'
-import { ref, computed } from 'vue'
+import { ref, computed, Component } from 'vue'
 import axios from 'axios'
 
 import Input from '@/Components/Forms/Fields/Input.vue'
@@ -53,6 +53,8 @@ const props = defineProps<{
         required?: boolean
         options?: {}[]
         full: boolean
+        noTitle?: boolean
+        noSaveButton?: boolean  // Button: save
     }
     args: {
         updateRoute: routeType
@@ -60,9 +62,9 @@ const props = defineProps<{
 }>()
 
 const layout = useLayoutStore()
-const updateRoute = props['fieldData']['updateRoute'] ?? props.args['updateRoute'];
+const updateRoute = props.fieldData.updateRoute ?? props.args['updateRoute'];
 
-const components = {
+const components: {[key: string]: Component} = {
     'select': Select,
     'input': Input,
     'inputWithAddOn': InputWithAddOn,
@@ -82,9 +84,9 @@ const components = {
     'permissions': Permissions,
     'checkbox': Checkbox,
     'employeePosition': EmployeePosition
-};
+}
 
-const getComponent = (componentName) => {
+const getComponent = (componentName: string) => {
     return components[componentName] ?? null;
 };
 
@@ -158,7 +160,8 @@ const checkVerification = async () => {
                     </div>
 
                     <!-- Button: Save -->
-                    <span class="ml-2 flex-shrink-0">
+                    <template v-if="fieldData.noSaveButton" />
+                    <span v-else class="ml-2 flex-shrink-0">
                         <button v-if="!fieldData.verification" class="align-bottom" :disabled="form.processing || !form.isDirty" type="submit">
                           <FontAwesomeIcon v-if="form.isDirty" icon="fad fa-save" class="h-8 text-org-600"
                                            :style="{

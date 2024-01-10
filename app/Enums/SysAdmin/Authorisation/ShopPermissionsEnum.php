@@ -11,11 +11,11 @@ use App\Models\Market\Shop;
 
 enum ShopPermissionsEnum: string
 {
-    case SHOP = 'shop';
+    case PRODUCTS = 'products';
 
-    case SHOP_EDIT = 'shop.edit';
+    case PRODUCTS_EDIT = 'products.edit';
 
-    case SHOP_VIEW = 'shop.view';
+    case PRODUCTS_VIEW = 'products.view';
 
     case CRM      = 'crm';
     case CRM_EDIT = 'crm.edit';
@@ -27,9 +27,9 @@ enum ShopPermissionsEnum: string
     case CRM_PROSPECTS_VIEW = 'crm.prospects.view';
 
 
-    case WEBSITE      = 'website';
-    case WEBSITE_EDIT = 'website.edit';
-    case WEBSITE_VIEW = 'website.view';
+    case WEB      = 'web';
+    case WEB_EDIT = 'web.edit';
+    case WEB_VIEW = 'web.view';
 
     case ORDERS      = 'orders';
     case ORDERS_EDIT = 'orders.edit';
@@ -41,9 +41,9 @@ enum ShopPermissionsEnum: string
 
 
 
-    case SUPERVISOR_SHOPS       = 'supervisor-shops';
-    case SUPERVISOR_CRM         = 'supervisor-crm';
-    case SUPERVISOR_WEBSITE     = 'supervisor-website';
+    case SUPERVISOR_PRODUCTS       = 'supervisor-products';
+    case SUPERVISOR_CRM            = 'supervisor-crm';
+    case SUPERVISOR_WEB            = 'supervisor-web';
 
     case SUPERVISOR_ORDERS = 'supervisor-orders';
 

@@ -17,24 +17,18 @@ class GetShopNavigation
 
     public function handle(Shop $shop, User $user): array
     {
-
-
         $navigation = [];
 
 
-        if ($user->hasPermissionTo("shops.$shop->slug.view")) {
-            $navigation['shops'] = [
+        if ($user->hasPermissionTo("products.$shop->slug.view")) {
+            $navigation['shop'] = [
                 'scope' => 'shops',
                 'icon'  => ['fal', 'fa-store-alt'],
 
-                'label' => [
-                    'all'      => __('Shops'),
-                    'selected' => __('Shop')
-
-                ],
+                'label' => __('Products'),
                 'route' => [
-                    'all'      => 'grp.org.shops.index',
-                    'selected' => 'shops.show'
+                    'name'       => 'grp.org.shops.index',
+                    'parameters' => [$shop->organisation->slug, $shop->slug]
                 ],
 
 
@@ -93,20 +87,15 @@ class GetShopNavigation
             ];
         }
 
-        if ($user->hasPermissionTo("website.$shop->slug.view")) {
+        if ($user->hasPermissionTo("web.$shop->slug.view")) {
             $navigation['web'] = [
                 'scope' => 'websites',
                 'icon'  => ['fal', 'fa-globe'],
-                'label' => [
-                    'all'      => __('Websites'),
-                    'selected' => __('Website')
-
-                ],
+                'label' => __('Website'),
                 'route' => [
-                    'all'      => 'grp.web.dashboard',
-                    'selected' => 'grp.web.websites.dashboard'
+                    'name'       => 'grp.org.shops.index',
+                    'parameters' => [$shop->organisation->slug, $shop->slug]
                 ],
-
 
 
                 'topMenu' => [
@@ -118,7 +107,7 @@ class GetShopNavigation
                             ]
                         ],
                     ],
-                    'dropdown' => [
+                    'dropdown'    => [
 
                         'links' => [
 
@@ -177,10 +166,11 @@ class GetShopNavigation
                 'label' => __('Customers'),
                 'icon'  => ['fal', 'fa-user'],
 
-                'route'   => [
-                    'all'      => 'grp.crm.dashboard',
-                    'selected' => 'grp.crm.shops.show.dashboard',
+                'route' => [
+                    'name'       => 'grp.org.shops.crm.dashboard',
+                    'parameters' => [$shop->organisation->slug, $shop->slug]
                 ],
+
                 'topMenu' => [
                     'dropdown' => [
                         'links' => [
