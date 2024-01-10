@@ -48,7 +48,7 @@ export const useLayoutStore = defineStore("layout", {
             },
             group: {
                 logo: {} as Image,
-                code: "",
+                slug: "",
                 name: ""
             },
             leftSidebar: {

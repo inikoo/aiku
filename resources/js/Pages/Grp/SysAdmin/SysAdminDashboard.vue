@@ -23,7 +23,7 @@ defineProps(['title', 'pageHead', 'stats']);
     <!-- <br>Usepage:
     <pre>{{ usePage().props.layout.organisations }}</pre>
 <div class="mt-10"></div> -->
-    <br>UseLayoutStore:<pre>{{ useLayoutStore().navigation.org }}</pre>
+    <br>UseLayoutStore:<pre>{{ useLayoutStore().group }}</pre>
 
 </template>
 

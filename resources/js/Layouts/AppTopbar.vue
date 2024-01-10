@@ -15,9 +15,9 @@ import { trans } from "laravel-vue-i18n"
 import Image from "@/Components/Image.vue"
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faChevronDown } from '@far'
-import { faTerminal, faUserAlien, faCog, faCity, faBuilding } from '@fal'
+import { faTerminal, faUserAlien, faCog, faCity, faBuilding, faNetworkWired, faUserHardHat, faCalendar, faStopwatch } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
-library.add(faChevronDown, faTerminal, faUserAlien, faCog, faCity, faBuilding)
+library.add(faChevronDown, faTerminal, faUserAlien, faCog, faCity, faBuilding, faNetworkWired, faUserHardHat, faCalendar, faStopwatch)
 
 const props = defineProps<{
     sidebarOpen: boolean
@@ -159,18 +159,18 @@ const logoutAuth = () => {
 
                         <!-- Section: Subsections -->
                         <div class="flex h-full">
-                            <Link
-                                v-for="menu in layout.navigation?.grp?.[layout.currentModule]?.topMenu.subSections"
-                                :href="route(menu.route.name,menu.route.parameters)"
+                        <!-- {{ layout.navigation.org[route().v().params?.organisation][layout.currentModule]?.topMenu.subSections }} -->
+                            <Link v-for="menu in layout.navigation.org[route().v().params?.organisation][layout.currentModule]?.topMenu.subSections"
+                                :href="'#'"
                                 :id="get(menu,'label',menu.route.name)"
                                 class="group relative text-gray-700 group text-sm flex justify-end items-center cursor-pointer py-3 gap-x-2 px-4 md:px-4 lg:px-4"
                                 :title="capitalize(menu.tooltip??menu.label??'')">
 
-                                <div :class="[
+                                <!-- <div :class="[
                                     route(layout.currentRoute, route().v().params).includes(route(menu.route.name,menu.route.parameters))
                                     ? 'bottomNavigationActive'
                                     : 'bottomNavigation'
-                                ]"/>
+                                ]"/> -->
 
                                 <FontAwesomeIcon :icon="menu.icon"
                                     class="h-5 lg:h-3.5 w-auto group-hover:opacity-100 opacity-70 transition duration-100 ease-in-out"

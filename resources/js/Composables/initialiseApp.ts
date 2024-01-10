@@ -40,7 +40,9 @@ export const initialiseApp = () => {
 
     layout.currentRouteParameters = route().params;
     layout.currentRoute = route().current();
-    layout.currentModule = layout.currentRoute.substring(0, layout.currentRoute.indexOf("."));
+    // console.log('current', layout.currentRoute)
+    layout.currentModule = layout.currentRoute.split('.')[2]
+    console.log('current', layout.currentModule)
 
 
     if (usePage().props.layoutShopsList) {
@@ -143,8 +145,8 @@ export const initialiseApp = () => {
     layout.currentRouteParameters = route().params;
     layout.currentRoute = route().current();
 
-    let moduleName = layout.currentRoute.split(".");
-    layout.currentModule = moduleName[1];
+    // let moduleName = layout.currentRoute.split(".");
+    // layout.currentModule = moduleName[1];
 
     layout.booted = true;
   });
