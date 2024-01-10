@@ -15,7 +15,11 @@ import { useLayoutStore } from "@/Stores/layout.js"
 import { computed } from "vue"
 import Image from "@/Components/Image.vue"
 import { trans } from 'laravel-vue-i18n';
-
+import {
+    Disclosure,
+    DisclosureButton,
+    DisclosurePanel,
+  } from '@headlessui/vue'
 library.add(faBoxUsd, faUsersCog, faLightbulb, faUserHardHat, faUser, faInventory)
 
 const layout = useLayoutStore()
@@ -81,62 +85,52 @@ const generateLabel = (item) => {
     <nav class="isolate relative flex flex-grow flex-col pb-4 h-full overflow-y-auto custom-hide-scrollbar flex-1 space-y-1" aria-label="Sidebar">
         <!-- LeftSidebar: Org -->
         <template v-if="route().v().params?.organisation">
-            <template v-for="(item, itemKey) in useLayoutStore().navigation.org[route().v().params?.organisation]"
-                    :key="itemKey"
+            <template v-for="(items, itemKey) in useLayoutStore().navigation.org[route().v().params?.organisation]"
+                :key="itemKey"
             >
-                <!-- If multi item -->
+                <!-- If multi item (Shops or Warehouses) -->
                 <div v-if="itemKey == 'shops_navigation' || itemKey == 'warehouses_navigation'"
-                    :class="[
-                        itemKey === layout.currentModule
-                            ? 'navigationActive px-0.5'
-                            : 'navigation px-1',
-                        layout.leftSidebar.show ? 'px-3' : '',
-                ]">
-                    <div class="capitalize">{{ itemKey.split('_')[0] }}</div>
-                    <div v-for="(asdzxc, xxx) in item"
-                        :href="asdzxc.route?.name ? route(asdzxc.route.name, asdzxc.route.parameters) : '#'"
-                        class="group flex items-center text-sm py-2"
-                        :class="[
-                            xxx === layout.currentModule
-                                ? 'navigationActive px-0.5'
-                                : 'navigation px-1',
-                            layout.leftSidebar.show ? 'px-3' : '',
-                        ]"
-                        :aria-current="xxx === layout.currentModule ? 'page' : undefined"
-                    >
-                        <!-- <div class="flex items-center px-2">
-                            <FontAwesomeIcon aria-hidden="true" class="flex-shrink-0 h-4 w-4" :icon="asdzxc.icon"/>
-                        </div> -->
-                        <Transition>
-                            <div class="capitalize leading-none whitespace-nowrap" :class="[layout.leftSidebar.show ? 'block md:block' : 'block md:hidden']">
-                                {{ xxx }}
-                                <Link v-for="(qqqqqqq, xxx) in asdzxc"
-                                    :href="qqqqqqq.route?.name ? route(qqqqqqq.route.name, qqqqqqq.route.parameters) : '#'"
-                                    class="group flex items-center text-sm py-2"
-                                    :class="[
-                                        xxx === layout.currentModule
-                                            ? 'navigationActive px-0.5'
-                                            : 'navigation px-1',
-                                        layout.leftSidebar.show ? 'px-3' : '',
-                                    ]"
-                                    :aria-current="xxx === layout.currentModule ? 'page' : undefined"
-                                >
-                                    <div class="flex items-center px-2">
-                                        <FontAwesomeIcon aria-hidden="true" class="flex-shrink-0 h-4 w-4" :icon="qqqqqqq.icon"/>
-                                    </div>
-                                    <Transition>
-                                        <span class="capitalize leading-none whitespace-nowrap" :class="[layout.leftSidebar.show ? 'block md:block' : 'block md:hidden']">
-                                            {{ qqqqqqq.label }}
-                                        </span>
-                                    </Transition>
-                                </Link>
-                            </div>
-                        </Transition>
+                    class="pl-4 pb-2"
+                    :class="[ itemKey === layout.currentModule ? 'px-0.5' : '', layout.leftSidebar.show ? '' : '', ]"
+                >
+                    <div class="flex items-center gap-x-1.5 mb-1">
+                        <div class="leading-none capitalize text-white font-bold pb-1">{{ itemKey.split('_')[0] }}</div>
+                        <hr class="w-full border border-gray-200">
                     </div>
+                    
+                    <!-- Looping: Shops -->
+                    <template v-for="(shopNavigations, shopIndex) in items" :key="shopIndex">
+                        <div class="group flex flex-col justify-center text-sm py-0.5"
+                            :class="[ shopIndex === layout.currentModule ? '' : '', layout.leftSidebar.show ? 'pl-3' : '', ]"
+                            :aria-current="shopIndex === layout.currentModule ? 'page' : undefined"
+                        >
+                            <p class="capitalize text-white">{{ shopIndex }}</p>
+
+                            <!-- Looping: Navigation in Shop -->
+                            <Link v-for="(shopNavigation, navigationIndex) in shopNavigations"
+                                :href="shopNavigation.route?.name ? route(shopNavigation.route.name, shopNavigation.route.parameters) : '#'"
+                                class="group flex items-center text-sm py-2"
+                                :class="[
+                                    navigationIndex === layout.currentModule
+                                        ? 'navigationActive px-0.5'
+                                        : 'navigation px-1',
+                                    layout.leftSidebar.show ? 'px-3' : '',
+                                ]"
+                                :aria-current="navigationIndex === layout.currentModule ? 'page' : undefined"
+                            >
+                                <div class="flex items-center px-2">
+                                    <FontAwesomeIcon aria-hidden="true" class="flex-shrink-0 h-4 w-4" :icon="shopNavigation.icon"/>
+                                </div>
+                                <span class="capitalize leading-none whitespace-nowrap" :class="[layout.leftSidebar.show ? 'block md:block' : 'block md:hidden']">
+                                    {{ shopNavigation.label }}
+                                </span>
+                            </Link>
+                        </div>
+                    </template>
                 </div>
 
                 <Link v-else
-                    :href="item.route?.name ? route(item.route.name, item.route.parameters) : '#'"
+                    :href="items.route?.name ? route(items.route.name, items.route.parameters) : '#'"
                     class="group flex items-center text-sm py-2"
                     :class="[
                         itemKey === layout.currentModule
@@ -147,11 +141,11 @@ const generateLabel = (item) => {
                     :aria-current="itemKey === layout.currentModule ? 'page' : undefined"
                 >
                     <div class="flex items-center px-2">
-                        <FontAwesomeIcon aria-hidden="true" class="flex-shrink-0 h-4 w-4" :icon="item.icon"/>
+                        <FontAwesomeIcon aria-hidden="true" class="flex-shrink-0 h-4 w-4" :icon="items.icon"/>
                     </div>
                     <Transition>
                         <span class="capitalize leading-none whitespace-nowrap" :class="[layout.leftSidebar.show ? 'block md:block' : 'block md:hidden']">
-                            {{ item.label }}
+                            {{ items.label }}
                         </span>
                     </Transition>
                 </Link>
@@ -180,5 +174,9 @@ const generateLabel = (item) => {
                 </span>
             </Transition>
         </Link>
+
+
+
+
     </nav>
 </template>

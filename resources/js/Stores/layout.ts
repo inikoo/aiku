@@ -3,6 +3,8 @@
  *  Created: Thu, 25 Aug 2022 00:33:39 Malaysia Time, Kuala Lumpur, Malaysia
  *  Copyright (c) 2022, Raul A Perusquia F
  */
+import { grpNavigation, orgNavigation } from "@/types/Navigation"
+
 
 import { defineStore } from "pinia";
 import { trans } from "laravel-vue-i18n";
@@ -52,8 +54,8 @@ export const useLayoutStore = defineStore("layout", {
                 show: true,
             },
             navigation: {
-                grp: [],
-                org: []
+                grp: {} as grpNavigation,
+                org: {} as orgNavigation
             },
             organisations       : {
                 currentOrganisations: '',
