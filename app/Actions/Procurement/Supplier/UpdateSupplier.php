@@ -7,6 +7,7 @@
 
 namespace App\Actions\Procurement\Supplier;
 
+use App\Actions\Helpers\Address\UpdateAddress;
 use App\Actions\InertiaGroupAction;
 use App\Actions\Procurement\Supplier\Hydrators\SupplierHydrateUniversalSearch;
 use App\Actions\Traits\WithActionUpdate;
@@ -14,6 +15,7 @@ use App\Http\Resources\Procurement\SupplierResource;
 use App\Models\Procurement\Supplier;
 use App\Rules\IUnique;
 use App\Rules\ValidAddress;
+use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateSupplier extends InertiaGroupAction
@@ -25,7 +27,16 @@ class UpdateSupplier extends InertiaGroupAction
 
     public function handle(Supplier $supplier, array $modelData): Supplier
     {
+        $addressData = Arr::get($modelData, 'address');
+        Arr::forget($modelData, 'address');
         $supplier = $this->update($supplier, $modelData, ['data', 'settings']);
+
+        if ($addressData) {
+            UpdateAddress::run($supplier->getAddress('contact'), $addressData);
+            $supplier->location = $supplier->getLocation();
+            $supplier->save();
+        }
+
         SupplierHydrateUniversalSearch::dispatch($supplier);
 
         return $supplier;

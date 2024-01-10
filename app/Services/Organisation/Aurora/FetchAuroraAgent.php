@@ -31,7 +31,7 @@ class FetchAuroraAgent extends FetchAurora
                 'phone'        => $phone,
                 'currency_id'  => $this->parseCurrencyID($this->auroraModelData->{'Agent Default Currency Code'}),
                 'source_id'    => $this->organisation->id.':'.$this->auroraModelData->{'Agent Key'},
-                'source_slug'  => Str::kebab($this->auroraModelData->{'Agent Code'}),
+                'source_slug'  => Str::kebab(strtolower($this->auroraModelData->{'Agent Code'})),
                 'created_at'   => $this->auroraModelData->{'Agent Valid From'},
                 'address'      => $this->parseAddress(prefix: 'Agent Contact', auAddressData: $this->auroraModelData)
 

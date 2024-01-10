@@ -8,6 +8,7 @@
 namespace App\Services\Organisation\Aurora;
 
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class FetchAuroraSupplier extends FetchAurora
 {
@@ -15,27 +16,28 @@ class FetchAuroraSupplier extends FetchAurora
 
     protected function parseModel(): void
     {
-
         $agentData = Db::connection('aurora')->table('Agent Supplier Bridge')
-            ->select('Agent Supplier Agent Key')
+            ->leftJoin('Agent Dimension', 'Agent Supplier Agent Key', '=', 'Agent Key')
+            ->select('Agent Code')
             ->where('Agent Supplier Supplier Key', $this->auroraModelData->{'Supplier Key'})->first();
 
 
-
-        $agentId                   = null;
-        $this->parsedData['owner'] = app('currentTenant');
+        $agent = null;
 
         if ($agentData) {
-            $agent = $this->parseAgent($agentData->{'Agent Supplier Agent Key'});
+            $agent = $this->parseAgent(Str::kebab(strtolower($agentData->{'Agent Code'})));
             if (!$agent) {
                 print "agent not found ".$agentData->{'Agent Supplier Agent Key'}." \n";
+
                 return;
             }
-            $this->parsedData['agent']=$agent;
-            $agentId                  = $agent->id;
-
         }
 
+        if ($agent) {
+            $this->parsedData['parent'] = $agent;
+        } else {
+            $this->parsedData['parent'] = $this->organisation->group;
+        }
 
         $deleted_at = $this->parseDate($this->auroraModelData->{'Supplier Valid To'});
         if ($this->auroraModelData->{'Supplier Type'} != 'Archived') {
@@ -52,10 +54,14 @@ class FetchAuroraSupplier extends FetchAurora
             $name = $this->auroraModelData->{'Supplier Name'};
         }
 
+        $sourceSlug = Str::kebab(strtolower($this->auroraModelData->{'Supplier Code'}));
+        if ($deleted_at) {
+            $sourceSlug .= '-deleted';
+        }
+
         $this->parsedData['supplier'] =
             [
                 'name'         => $name,
-                'agent_id'     => $agentId,
                 'code'         => preg_replace('/\s/', '-', $this->auroraModelData->{'Supplier Code'}),
                 'company_name' => $this->auroraModelData->{'Supplier Company Name'},
                 'contact_name' => $this->auroraModelData->{'Supplier Main Contact Name'},
@@ -63,11 +69,12 @@ class FetchAuroraSupplier extends FetchAurora
                 'phone'        => $phone,
                 'currency_id'  => $this->parseCurrencyID($this->auroraModelData->{'Supplier Default Currency Code'}),
                 'source_id'    => $this->organisation->id.':'.$this->auroraModelData->{'Supplier Key'},
+                'source_slug'  => $sourceSlug,
                 'created_at'   => $this->parseDate($this->auroraModelData->{'Supplier Valid From'}),
                 'deleted_at'   => $deleted_at,
+                'address'      => $this->parseAddress(prefix: 'Supplier Contact', auAddressData: $this->auroraModelData)
 
             ];
-        $this->parsedData['address']  = $this->parseAddress(prefix: 'Supplier Contact', auAddressData: $this->auroraModelData);
 
         $this->parsePhoto();
     }

@@ -61,9 +61,7 @@ use App\Models\Market\Shop;
 use App\Models\OMS\Order;
 use App\Models\OMS\Transaction;
 use App\Models\Procurement\Agent;
-use App\Models\Procurement\AgentOrganisation;
 use App\Models\Procurement\Supplier;
-use App\Models\Procurement\SupplierOrganisation;
 use App\Models\SysAdmin\Guest;
 use Carbon\Carbon;
 use Exception;
@@ -325,19 +323,16 @@ trait WithAuroraParsers
         return $customer;
     }
 
-    public function parseSupplier($sourceId): ?Supplier
+    public function parseSupplier($sourceSlug): ?Supplier
     {
-        $supplierTenant = SupplierOrganisation::where('source_id', $sourceId)->where('tenant_id', app('currentTenant')->id)->first();
-
-        return Supplier::withTrashed()->find($supplierTenant?->supplier_id);
+        return Supplier::withTrashed()->where('source_slug', $sourceSlug)->first();
 
     }
 
-    public function parseAgent($sourceId): ?Agent
+    public function parseAgent($sourceSlug): ?Agent
     {
-        $agentTenant = AgentOrganisation::where('source_id', $sourceId)->where('tenant_id', app('currentTenant')->id)->first();
+        return  Agent::withTrashed()->where('source_slug', $sourceSlug)->first();
 
-        return Agent::withTrashed()->find($agentTenant?->agent_id);
     }
 
     public function parseStock($sourceId): ?Stock

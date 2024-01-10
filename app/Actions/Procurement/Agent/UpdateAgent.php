@@ -7,7 +7,7 @@
 
 namespace App\Actions\Procurement\Agent;
 
-use App\Actions\Helpers\Address\StoreAddressAttachToModel;
+use App\Actions\Helpers\Address\UpdateAddress;
 use App\Actions\InertiaGroupAction;
 use App\Actions\Procurement\Agent\Hydrators\AgentHydrateUniversalSearch;
 use App\Actions\Traits\WithActionUpdate;
@@ -32,7 +32,7 @@ class UpdateAgent extends InertiaGroupAction
         Arr::forget($modelData, 'address');
         $agent = $this->update($agent, $modelData, ['data', 'settings']);
         if ($addressData) {
-            StoreAddressAttachToModel::run($agent, $addressData, ['scope' => 'contact']);
+            UpdateAddress::run($agent->getAddress('contact'), $addressData);
             $agent->location = $agent->getLocation();
             $agent->save();
         }

@@ -36,8 +36,11 @@ class StoreAgent extends InertiaGroupAction
         return $request->user()->hasPermissionTo("procurement.".$this->group->id.".edit");
     }
 
-    public function handle(Group $group, array $modelData, array $addressData = []): Agent
+    public function handle(Group $group, array $modelData): Agent
     {
+        $addressData = Arr::get($modelData, 'address');
+        Arr::forget($modelData, 'address');
+
         /** @var Agent $agent */
         $agent = $group->agents()->create($modelData);
         $agent->stats()->create();
@@ -95,8 +98,7 @@ class StoreAgent extends InertiaGroupAction
 
         return $this->handle(
             group: $group,
-            modelData: Arr::except($this->validatedData, 'address'),
-            addressData: Arr::get($this->validatedData, 'address')
+            modelData: $this->validatedData
         );
     }
 
@@ -109,8 +111,7 @@ class StoreAgent extends InertiaGroupAction
 
         return $this->handle(
             group: group(),
-            modelData: Arr::except($validatedData, 'address'),
-            addressData: Arr::get($validatedData, 'address')
+            modelData: $this->validatedData
         );
     }
 

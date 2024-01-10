@@ -42,8 +42,10 @@ class StoreSupplier extends InertiaGroupAction
         return $request->user()->hasPermissionTo("procurement.".$this->group->id.".edit");
     }
 
-    public function handle(Group|Agent $parent, array $modelData, array $addressData = []): Supplier
+    public function handle(Group|Agent $parent, array $modelData): Supplier
     {
+        $addressData = Arr::get($modelData, 'address');
+        Arr::forget($modelData, 'address');
 
         if (class_basename($parent) == 'Agent') {
             data_set($modelData, 'group_id', $parent->group_id);
@@ -57,9 +59,7 @@ class StoreSupplier extends InertiaGroupAction
         $supplier->stats()->create();
         SetCurrencyHistoricFields::run($supplier->currency, $supplier->created_at);
 
-
         StoreAddressAttachToModel::run($supplier, $addressData, ['scope' => 'contact']);
-
         $supplier->location = $supplier->getLocation();
         $supplier->save();
 
@@ -117,8 +117,7 @@ class StoreSupplier extends InertiaGroupAction
 
         return $this->handle(
             parent: $parent,
-            modelData: Arr::except($this->validatedData, 'address'),
-            addressData: Arr::get($this->validatedData, 'address')
+            modelData: $this->validatedData
         );
     }
 
@@ -128,8 +127,7 @@ class StoreSupplier extends InertiaGroupAction
 
         return $this->handle(
             parent: group(),
-            modelData: Arr::except($this->validatedData, 'address'),
-            addressData: Arr::get($this->validatedData, 'address')
+            modelData: $this->validatedData
         );
     }
 
@@ -138,8 +136,7 @@ class StoreSupplier extends InertiaGroupAction
         $this->initialisation(app('group'), $request);
         return $this->handle(
             parent: $agent,
-            modelData: Arr::except($this->validatedData, 'address'),
-            addressData: Arr::get($this->validatedData, 'address')
+            modelData: $this->validatedData
         );
     }
 

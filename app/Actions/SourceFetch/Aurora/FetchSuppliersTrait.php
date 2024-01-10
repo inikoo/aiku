@@ -7,124 +7,45 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-use App\Actions\Helpers\Address\StoreAddressAttachToModel;
-use App\Actions\Helpers\Address\UpdateAddress;
 use App\Actions\Procurement\Supplier\StoreSupplier;
 use App\Actions\Procurement\Supplier\UpdateSupplier;
-use App\Enums\Procurement\SupplierOrganisation\SupplierOrganisationStatusEnum;
 use App\Models\Procurement\Supplier;
-use App\Models\Procurement\SupplierOrganisation;
 use App\Services\Organisation\SourceOrganisationService;
 
 trait FetchSuppliersTrait
 {
+    /**
+     * @throws \Spatie\MediaLibrary\MediaCollections\Exceptions\FileDoesNotExist
+     * @throws \Spatie\MediaLibrary\MediaCollections\Exceptions\FileIsTooBig
+     */
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Supplier
     {
-        $supplier     = null;
+
         $supplierData = $this->fetch($organisationSource, $organisationSourceId);
         if (!$supplierData) {
             return null;
         }
 
-        if ($supplierData['supplier']['agent_id']) {
-            if ($supplierData['owner']->id == app('currentTenant')->id) {
-                $supplier = $this->processAgentSupplier($supplierData);
+
+        if (Supplier::withTrashed()->where('source_slug', $supplierData['supplier']['source_slug'])->exists()) {
+            if ($supplier = Supplier::withTrashed()->where('source_id', $supplierData['supplier']['source_id'])->first()) {
+                $supplier = UpdateSupplier::make()->run($supplier, $supplierData['supplier']);
             }
         } else {
-            $supplier = $this->processIndependentSupplier($supplierData);
+            $supplier = StoreSupplier::run(
+                parent: $supplierData['parent'],
+                modelData: $supplierData['supplier'],
+            );
         }
 
+
         if ($supplier) {
-            if(array_key_exists('photo', $supplierData)) {
+            if (array_key_exists('photo', $supplierData)) {
                 foreach ($supplierData['photo'] as $photoData) {
                     $this->saveImage($supplier, $photoData);
                 }
             }
         }
-
-        return $supplier;
-    }
-    public function processIndependentSupplier($supplierData): Supplier
-    {
-        $organisation = app('currentTenant');
-
-
-        $supplier = Supplier::withTrashed()->where('code', $supplierData['supplier']['code'])->whereNull('agent_id')->first();
-        if ($supplier) {
-            if ($supplier->owner_id == $organisation->id) {
-                $supplier = UpdateSupplier::run($supplier, $supplierData['supplier']);
-                UpdateAddress::run($supplier->getAddress('contact'), $supplierData['address']);
-                $supplier->location = $supplier->getLocation();
-                $supplier->save();
-            } elseif (SupplierOrganisation::where('source_id', $supplierData['supplier']['source_id'])
-                    ->where('tenant_id', $organisation->id)
-                    ->count() == 0) {
-                AttachSupplier::run(
-                    $organisation,
-                    $supplier,
-                    [
-                        'source_id' => $supplierData['supplier']['source_id'],
-                        'status'    => SupplierOrganisationStatusEnum::ADOPTED
-                    ]
-                );
-            }
-        } else {
-            $supplierData['supplier']['source_type'] = $organisation->slug;
-            $supplier                                = StoreSupplier::run(
-                owner: $organisation,
-                agent: null,
-                modelData: $supplierData['supplier'],
-                addressData: $supplierData['address']
-            );
-
-            $organisation->suppliers()->updateExistingPivot($supplier, ['source_id' => $supplierData['supplier']['source_id']]);
-        }
-
-
-        return $supplier;
-    }
-
-    public function processAgentSupplier($supplierData): Supplier
-    {
-        $organisation = app('currentTenant');
-        $agent        = $supplierData['agent'];
-
-        $supplier = Supplier::withTrashed()->where('code', $supplierData['supplier']['code'])->where('agent_id', $agent->id)->first();
-
-        if ($supplier) {
-            if ($supplier->owner_id == $organisation->id) {
-
-                $supplier = UpdateSupplier::run($supplier, $supplierData['supplier']);
-                if ($supplier->getAddress('contact')) {
-                    UpdateAddress::run($supplier->getAddress('contact'), $supplierData['address']);
-                } else {
-                    StoreAddressAttachToModel::run($supplier, $supplierData['address'], ['scope' => 'contact']);
-                }
-                $supplier->location = $supplier->getLocation();
-                $supplier->save();
-            } elseif (SupplierOrganisation::where('source_id', $supplierData['supplier']['source_id'])
-                    ->where('tenant_id', $organisation->id)
-                    ->count() == 0) {
-                AttachSupplier::run(
-                    $organisation,
-                    $supplier,
-                    [
-                        'agent_id'  => $agent->id,
-                        'source_id' => $supplierData['supplier']['source_id'],
-                    ]
-                );
-            }
-        } else {
-            $supplier = StoreSupplier::run(
-                owner: $agent->owner,
-                agent: $agent,
-                modelData: $supplierData['supplier'],
-                addressData: $supplierData['address']
-            );
-            $organisation->suppliers()->updateExistingPivot($supplier, ['source_id' => $supplierData['supplier']['source_id']]);
-        }
-
-
 
         return $supplier;
     }

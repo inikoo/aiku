@@ -79,3 +79,6 @@ pg_dump -Fc -f "devops/devel/snapshots/locations.dump" ${DB}
 
 php artisan fetch:agents -d "${DB_SUFFIX}"
 pg_dump -Fc -f "devops/devel/snapshots/agents.dump" ${DB}
+php artisan fetch:suppliers -d "${DB_SUFFIX}"
+php artisan fetch:deleted-suppliers -d "${DB_SUFFIX}"
+pg_dump -Fc -f "devops/devel/snapshots/suppliers.dump" ${DB}

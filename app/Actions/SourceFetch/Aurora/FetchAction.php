@@ -12,6 +12,7 @@ use App\Actions\Traits\WithOrganisationsArgument;
 use App\Actions\Traits\WithOrganisationSource;
 use App\Models\Media\Media;
 use App\Models\Procurement\Agent;
+use App\Models\Procurement\Supplier;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Market\Shop;
 use App\Services\Organisation\SourceOrganisationService;
@@ -225,7 +226,7 @@ class FetchAction
      * @throws \Spatie\MediaLibrary\MediaCollections\Exceptions\FileDoesNotExist
      * @throws \Spatie\MediaLibrary\MediaCollections\Exceptions\FileIsTooBig
      */
-    public function saveImage(Agent $model, $imageData, $imageField = 'image_id', $mediaCollection = 'photo'): void
+    public function saveImage(Agent|Supplier $model, $imageData, $imageField = 'image_id', $mediaCollection = 'photo'): void
     {
         if (array_key_exists('image_path', $imageData) and file_exists($imageData['image_path'])) {
             $image_path = $imageData['image_path'];
