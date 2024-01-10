@@ -105,8 +105,11 @@ enum RolesEnum: string
                 OrganisationPermissionsEnum::SUPERVISOR_PROCUREMENT
             ],
             RolesEnum::SHOP_ADMIN => [
+                ShopPermissionsEnum::PRODUCTS,
+                ShopPermissionsEnum::WEB,
                 ShopPermissionsEnum::CRM,
-                ShopPermissionsEnum::SUPERVISOR_CRM
+                ShopPermissionsEnum::SUPERVISOR_CRM,
+                ShopPermissionsEnum::SUPERVISOR_PRODUCTS
             ],
             RolesEnum::CUSTOMER_SERVICE_CLERK => [
                 ShopPermissionsEnum::CRM,
