@@ -26,6 +26,7 @@ use Illuminate\Support\Carbon;
 
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
+use Spatie\Tags\HasTags;
 
 /**
  * App\Models\CRM\Prospect
@@ -69,6 +70,7 @@ class Prospect extends Model
     use HasSlug;
     use HasUniversalSearch;
     use HasFactory;
+    use HasTags;
 
     protected $casts = [
         'data'     => 'array',

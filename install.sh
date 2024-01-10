@@ -5,7 +5,7 @@
 #
 
 DB=aiku
-BACKUP_DB=aiku_backup
+BACKUP_DB=aiku_elasticserch_backup
 
 echo -e "🧼 Cleaning storage"
 rm -rf storage/app/media
@@ -25,7 +25,7 @@ php artisan horizon:clear
 php artisan horizon:terminate
 echo "Clear cache 🧼"
 php artisan cache:clear
-redis-cli KEYS "wowsbar_database_*" | xargs redis-cli DEL
+redis-cli KEYS "aiku_database_*" | xargs redis-cli DEL
 echo "🌱 Migrating and seeding database"
 php artisan migrate --database=backup --path=database/migrations/backup
 php artisan migrate

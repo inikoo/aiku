@@ -1,15 +1,19 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Wed, 21 Jun 2023 08:45:00 Malaysia Time, Pantai Lembeng, Bali, Id
+ * Created: Thu, 21 Sep 2023 08:23:57 Malaysia Time, Pantai Lembeng, Bali, Indonesia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
 namespace App\Actions\CRM\Prospect;
 
-use App\Actions\InertiaAction;
-use App\Actions\UI\CRM\ShowShopCRMDashboard;
-use App\Http\Resources\Lead\ProspectResource;
+use App\Actions\Helpers\History\IndexHistory;
+use App\Actions\InertiaShopAction;
+use App\Actions\Traits\WithProspectsSubNavigation;
+use App\Enums\CRM\Prospect\ProspectStateEnum;
+use App\Enums\UI\ProspectsTabsEnum;
+use App\Http\Resources\CRM\ProspectsResource;
+use App\Http\Resources\History\HistoryResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\CRM\Prospect;
 use App\Models\Market\Shop;
@@ -17,55 +21,70 @@ use App\Models\SysAdmin\Organisation;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
+use Spatie\Tags\Tag;
 
-class IndexProspects extends InertiaAction
+class IndexProspects extends InertiaShopAction
 {
-    private Shop|Organisation $parent;
-    private bool $canCreateShop = false;
+    use WithProspectsSubNavigation;
 
+    private Shop|Organisation $parent;
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit       = $request->user()->hasPermissionTo('crm.customers.edit');
-        $this->canCreateShop = $request->user()->hasPermissionTo('shops.edit');
+        $this->canEdit = $request->user()->hasPermissionTo("crm.{$this->shop->slug}.prospects.edit");
 
-        return
-            (
-                $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo('crm.customers.view')
-            );
+        return  $request->user()->hasPermissionTo('crm.prospects.view');
+
     }
 
-    public function inTenant(ActionRequest $request): LengthAwarePaginator
+    /*
+    public function asController(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisation($request);
-        $this->parent = app('currentTenant');
+        $this->initialisation($organisation, $request)->withTab(ProspectsTabsEnum::values());
+        $this->parent = $organisation;
 
-        return $this->handle(app('currentTenant'));
+        return $this->handle($this->parent, 'prospects');
     }
+    */
 
-    public function inShop(Shop $shop, ActionRequest $request): LengthAwarePaginator
+    public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisation($request);
+        $this->initialisation($shop, $request)->withTab(ProspectsTabsEnum::values());
         $this->parent = $shop;
 
-        return $this->handle($shop);
+        return $this->handle($shop, 'prospects');
     }
 
-    public function handle(Shop|Organisation $parent, $prefix = null): LengthAwarePaginator
+    protected function getElementGroups($parent): array
+    {
+        return
+            [
+                'state' => [
+                    'label'    => __('State'),
+                    'elements' => array_merge_recursive(
+                        ProspectStateEnum::labels(),
+                        ProspectStateEnum::count($parent)
+                    ),
+                    'engine'   => function ($query, $elements) {
+                        $query->whereIn('prospects.state', $elements);
+                    }
+                ]
+            ];
+    }
+
+    public function handle(Organisation|Shop $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->where('prospects.name', '~*', "\y$value\y")
-                    ->orWhere('prospects.email', '=', $value)
-                    ->orWhere('prospects.phone', '=', $value)
-                    ->orWhere('prospects.website', '=', $value);
+                $query->whereAnyWordStartWith('prospects.name', $value)
+                    ->orWhereWith('prospects.email', $value)
+                    ->orWhereWith('prospects.phone', $value)
+                    ->orWhereWith('prospects.contact_website', $value);
             });
         });
 
@@ -73,127 +92,200 @@ class IndexProspects extends InertiaAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
+        $query = QueryBuilder::for(Prospect::class);
+
+        foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
+            /** @noinspection PhpUndefinedMethodInspection */
+            $query->whereElementGroup(
+                prefix: $prefix,
+                key: $key,
+                allowedElements: array_keys($elementGroup['elements']),
+                engine: $elementGroup['engine']
+            );
+        }
+
+        if (class_basename($parent) == 'Shop') {
+            $query->where('shop_id', $parent->id);
+        }
+
         /** @noinspection PhpUndefinedMethodInspection */
-        return QueryBuilder::for(Prospect::class)
+        return $query
             ->defaultSort('prospects.name')
-            ->select([
-                'prospects.name',
-                'prospects.slug',
-                'prospects.email',
-                'prospects.phone',
-                'prospects.website',
-                'prospects.id as shop_id',
-                'shops.code as shop_code',
-                'shops.slug as shop_slug',
-            ])
-            ->leftJoin('shops', 'shops.id', 'shop_id')
-            ->when($parent, function ($query) use ($parent) {
-                if (class_basename($parent) == 'Shop') {
-                    $query->where('prospects.shop_id', $parent->id);
-                }
-            })
-            ->allowedSorts(['name', 'email', 'phone', 'website'])
+            ->with('shop')
+            ->allowedSorts(['name', 'email', 'phone', 'contact_website'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
     }
 
-    public function tableStructure($parent, ?array $modelOperations = null, $prefix = null): Closure
+    public function tableStructure(Organisation|Shop|Tag $parent, ?array $modelOperations = null, $prefix = null): Closure
     {
-        return function (InertiaTable $table) use ($parent, $modelOperations, $prefix) {
+        return function (InertiaTable $table) use ($modelOperations, $prefix, $parent) {
             if ($prefix) {
                 $table
                     ->name($prefix)
                     ->pageName($prefix.'Page');
             }
+            if (class_basename($parent) != 'Tag') {
+                foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
+                    $table->elementGroup(
+                        key: $key,
+                        label: $elementGroup['label'],
+                        elements: $elementGroup['elements']
+                    );
+                }
+            }
+
+
             $table
                 ->withModelOperations($modelOperations)
                 ->withGlobalSearch()
                 ->withEmptyState(
-                    match (class_basename($parent)) {
-                        'Organisation' => [
-                            'title'       => __("No prospects found"),
-                            'description' => $this->canCreateShop && $parent->marketStats->number_shops == 0 ? __('Get started by creating a shop. ✨')
-                                : __("In fact, is no even a shop yet 🤷🏽‍♂️"),
-                            'count'       => $parent->crmStats->number_prospects,
-                            'action'      => $this->canCreateShop && $parent->marketStats->number_shops == 0 ? [
-                                'type'    => 'button',
-                                'style'   => 'create',
-                                'tooltip' => __('new shop'),
-                                'label'   => __('shop'),
-                                'route'   => [
-                                    'name' => 'shops.create',
-                                ]
-                            ] : null
-                        ],
-                    }
-                    /*
                     [
-                        'title'       => __('no customers'),
-                        'description' => $this->canEdit ? __('Get started by creating a new customer.') : null,
-                        'count'       => app('currentTenant')->stats->number_employees,
-                        'action'      => $this->canEdit ? [
-                            'type'    => 'button',
-                            'style'   => 'create',
-                            'tooltip' => __('new customer'),
-                            'label'   => __('customer'),
-                            'route'   => [
-                                'name'       => 'grp.crm.customers.create',
-                                'parameters' => array_values($this->originalParameters)
-                            ]
-                        ] : null
+                        'title'       => __('No Prospects'),
+                        'description' => null,
+                        'count'       => $parent->crmStats->number_prospects
                     ]
-                    */
                 )
+                ->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon')
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'email', label: __('email'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'phone', label: __('phone'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'website', label: __('website'), canBeHidden: false, sortable: true, searchable: true);
+
+            if (class_basename($parent) != 'Tag') {
+                $table->column(key: 'tags', label: __('tags'), canBeHidden: false, sortable: true, searchable: true);
+            }
         };
     }
 
     public function jsonResponse(LengthAwarePaginator $prospects): AnonymousResourceCollection
     {
-        return ProspectResource::collection($prospects);
+        return ProspectsResource::collection($prospects);
     }
+
 
     public function htmlResponse(LengthAwarePaginator $prospects, ActionRequest $request): Response
     {
-        $scope     = $this->parent;
-        $container = null;
-        if (class_basename($scope) == 'Shop') {
-            $container = [
-                'icon'    => ['fal', 'fa-store-alt'],
-                'tooltip' => __('Shop'),
-                'label'   => Str::possessive($scope->name)
-            ];
-        }
+        $subNavigation = $this->getSubNavigation($request);
 
         return Inertia::render(
             'CRM/Prospects',
             [
-                'breadcrumbs' => $this->getBreadcrumbs(
+                'breadcrumbs'  => $this->getBreadcrumbs(
                     $request->route()->getName(),
-                    $request->route()->parameters(),
+                    $request->route()->originalParameters(),
                 ),
-                'title'       => __('prospects'),
-                'pageHead'    => [
-                    'title'     => __('prospects'),
-                    'container' => $container,
-                    'iconRight' => [
-                        'icon'  => ['fal', 'fa-user-plus'],
-                        'title' => __('prospect')
-                    ]
+                'title'        => __('prospects'),
+                'pageHead'     => [
+                    'title'   => __('prospects'),
+                    'actions' => [
+                        $this->canEdit ? [
+                            'type'    => 'buttonGroup',
+                            'buttons' =>
+                                match (class_basename($this->parent)) {
+                                    'Shop' => [
+                                        [
+                                            'style' => 'primary',
+                                            'icon'  => ['fal', 'fa-upload'],
+                                            'label' => 'upload',
+                                            'route' => [
+                                                'name'       => 'org.models.shop.prospects.upload',
+                                                'parameters' => $this->parent->id
+
+                                            ],
+                                        ],
+                                        [
+                                            'type'  => 'button',
+                                            'style' => 'create',
+                                            'label' => __('prospect'),
+                                            'route' => [
+                                                'name'       => 'org.crm.shop.prospects.create',
+                                                'parameters' => $request->route()->originalParameters()
+                                            ]
+                                        ]
+                                    ],
+                                    default => []
+                                }
+
+
+                        ] : false
+                    ],
+                    'subNavigation'    => $subNavigation,
                 ],
-                'data'        => ProspectResource::collection($prospects),
+                'uploads'      => [
+                    'templates' => [
+                        'routes' => [
+                            'name' => 'org.downloads.templates.prospects'
+                        ]
+                    ],
+                    'event'     => class_basename(Prospect::class),
+                    'channel'   => 'uploads.org.'.request()->user()->id
+                ],
+                'uploadRoutes' => [
+                    'upload' => [
+                        'name'       => 'org.models.shop.prospects.upload',
+                        'parameters' => $this->parent->id
+                    ],
+                    'history' => [
+                        'name'       => 'org.crm.prospects.uploads.history',
+                        'parameters' => []
+                    ],
+                ],
+
+                'tabs' => [
+                    'current'    => $this->tab,
+                    'navigation' => ProspectsTabsEnum::navigation(),
+                ],
+
+                'tags' => TagResource::collection(Tag::all()),
+
+                ProspectsTabsEnum::DASHBOARD->value => $this->tab == ProspectsTabsEnum::DASHBOARD->value ?
+                    fn () => GetProspectsDashboard::run($this->parent, $request)
+                    : Inertia::lazy(fn () => GetProspectsDashboard::run($this->parent, $request)),
+                ProspectsTabsEnum::PROSPECTS->value => $this->tab == ProspectsTabsEnum::PROSPECTS->value ?
+                    fn () => ProspectsResource::collection($prospects)
+                    : Inertia::lazy(fn () => ProspectsResource::collection($prospects)),
+
+                ProspectsTabsEnum::LISTS->value => $this->tab == ProspectsTabsEnum::LISTS->value ?
+                    fn () => ProspectQueriesResource::collection(IndexProspectQueries::run(prefix: ProspectsTabsEnum::LISTS->value))
+                    : Inertia::lazy(fn () => ProspectQueriesResource::collection(IndexProspectQueries::run(prefix: ProspectsTabsEnum::LISTS->value))),
+
+                ProspectsTabsEnum::MAILSHOTS->value => $this->tab == ProspectsTabsEnum::MAILSHOTS->value ?
+                    fn () => MailshotsResource::collection(IndexProspectMailshots::run(shop: $this->parent, prefix: ProspectsTabsEnum::MAILSHOTS->value))
+                    : Inertia::lazy(fn () => MailshotsResource::collection(IndexProspectMailshots::run(shop: $this->parent, prefix: ProspectsTabsEnum::MAILSHOTS->value))),
+                ProspectsTabsEnum::HISTORY->value   => $this->tab == ProspectsTabsEnum::HISTORY->value ?
+                    fn () => HistoryResource::collection(IndexHistory::run(model: Prospect::class, prefix: ProspectsTabsEnum::HISTORY->value))
+                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run(model: Prospect::class, prefix: ProspectsTabsEnum::HISTORY->value))),
 
 
             ]
-        )->table($this->tableStructure($this->parent));
+        )->table($this->tableStructure(parent: $this->parent, prefix: ProspectsTabsEnum::PROSPECTS->value))
+            ->table(
+                IndexProspectQueries::make()->tableStructure(
+                    modelOperations: [
+                        'createLink' => [
+                            [
+                                'route' => [
+                                    'name'       => 'org.crm.shop.prospects.lists.create',
+                                    'parameters' => array_values($request->route()->originalParameters())
+                                ],
+                                'label' => __('New list'),
+                                'style' => 'primary'
+                            ],
+                        ]
+                    ],
+                    prefix: ProspectsTabsEnum::LISTS->value
+                )
+            )
+            ->table(IndexProspectMailshots::make()->tableStructure(prefix: ProspectsTabsEnum::MAILSHOTS->value))
+            ->table(IndexHistory::make()->tableStructure(prefix: ProspectsTabsEnum::HISTORY->value));
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
+        return [];
+
         $headCrumb = function (array $routeParameters = []) {
             return [
                 [
@@ -201,34 +293,35 @@ class IndexProspects extends InertiaAction
                     'simple' => [
                         'route' => $routeParameters,
                         'label' => __('prospects'),
-                        'icon'  => 'fal fa-bars'
+                        'icon'  => 'fal fa-transporter'
                     ],
                 ],
             ];
         };
 
         return match ($routeName) {
-            'grp.crm.prospects.index' =>
+            'org.crm.prospects.index' =>
             array_merge(
-                (new ShowShopCRMDashboard())->getBreadcrumbs(
-                    'grp.crm.dashboard',
+                (new ShowCRMDashboard())->getBreadcrumbs(
+                    'crm.dashboard',
                     $routeParameters
                 ),
                 $headCrumb(
                     [
-                        'name' => 'grp.crm.prospects.index',
+                        'name' => 'org.crm.prospects.index',
                     ]
                 ),
             ),
-            'grp.crm.shops.show.prospects.index' =>
+            'org.crm.shop.prospects.index',
+            'org.crm.shop.prospects.uploads.index' =>
             array_merge(
-                (new ShowShopCRMDashboard())->getBreadcrumbs(
-                    'grp.crm.shops.show.dashboard',
+                (new ShowCRMDashboard())->getBreadcrumbs(
+                    'org.crm.shop.dashboard',
                     $routeParameters
                 ),
                 $headCrumb(
                     [
-                        'name'       => 'grp.crm.shops.show.prospects.index',
+                        'name'       => 'org.crm.shop.prospects.index',
                         'parameters' => $routeParameters
                     ]
                 )
