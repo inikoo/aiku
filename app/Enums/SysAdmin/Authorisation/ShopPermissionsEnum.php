@@ -22,7 +22,9 @@ enum ShopPermissionsEnum: string
     case CRM_VIEW = 'crm.view';
 
 
-
+    case CRM_PROSPECTS      = 'crm.prospects';
+    case CRM_PROSPECTS_EDIT = 'crm.prospects.edit';
+    case CRM_PROSPECTS_VIEW = 'crm.prospects.view';
 
 
     case WEBSITE      = 'website';

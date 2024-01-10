@@ -73,6 +73,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  * @property string|null $source_id
+ * @property int|null $prospects_sender_email_id
  * @property-read Collection<int, Address> $addresses
  * @property-read Collection<int, CustomerClient> $clients
  * @property-read Collection<int, FulfilmentOrder> $fulfilmentOrders
