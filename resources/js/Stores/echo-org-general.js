@@ -20,6 +20,7 @@ export const useEchoGrpGeneral = defineStore(
                 console.log('subscribe');
                 window.Echo.private('grp.general').
                     listen('.notification', (e) => {
+                        console.log('From echo-org-general', e)
                         notify({
                                    title: e.data.title,
                                    text : e.data.text,
