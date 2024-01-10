@@ -45,8 +45,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $domain
  * @property array $settings
  * @property array $data
- * @property mixed $layout
- * @property mixed $compiled_layout
+ * @property array $structure
+ * @property array $layout
+ * @property array $compiled_layout
  * @property int|null $unpublished_header_snapshot_id
  * @property int|null $live_header_snapshot_id
  * @property string|null $published_header_checksum
@@ -87,18 +88,22 @@ class Website extends Model implements Auditable
     use HasUniversalSearch;
 
     protected $casts = [
-        'data'             => 'array',
-        'settings'         => 'array',
-        'structure'        => 'array',
-        'state'            => WebsiteStateEnum::class,
-        'engine'           => WebsiteEngineEnum::class,
-        'cloudflare_status'=> WebsiteCloudflareStatusEnum::class
+        'data'               => 'array',
+        'settings'           => 'array',
+        'structure'          => 'array',
+        'layout'             => 'array',
+        'compiled_layout'    => 'array',
+        'state'              => WebsiteStateEnum::class,
+        'engine'             => WebsiteEngineEnum::class,
+        'cloudflare_status'  => WebsiteCloudflareStatusEnum::class
     ];
 
     protected $attributes = [
-        'data'      => '{}',
-        'settings'  => '{}',
-        'structure' => '{}',
+        'data'            => '{}',
+        'settings'        => '{}',
+        'structure'       => '{}',
+        'layout'          => '{}',
+        'compiled_layout' => '{}',
     ];
 
     protected $guarded = [];

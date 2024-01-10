@@ -10,6 +10,8 @@ namespace App\Actions\SourceFetch\Aurora;
 use App\Actions\SysAdmin\User\UpdateUser;
 use App\Actions\Traits\WithOrganisationsArgument;
 use App\Actions\Traits\WithOrganisationSource;
+use App\Models\Media\Media;
+use App\Models\Procurement\Agent;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Market\Shop;
 use App\Services\Organisation\SourceOrganisationService;
@@ -166,7 +168,6 @@ class FetchAction
         }
 
         return 0;
-
     }
 
 
@@ -220,7 +221,11 @@ class FetchAction
         }
     }
 
-    public function saveImage($model, $imageData, $imageField = 'image_id', $mediaCollection = 'photo'): void
+    /**
+     * @throws \Spatie\MediaLibrary\MediaCollections\Exceptions\FileDoesNotExist
+     * @throws \Spatie\MediaLibrary\MediaCollections\Exceptions\FileIsTooBig
+     */
+    public function saveImage(Agent $model, $imageData, $imageField = 'image_id', $mediaCollection = 'photo'): void
     {
         if (array_key_exists('image_path', $imageData) and file_exists($imageData['image_path'])) {
             $image_path = $imageData['image_path'];
@@ -228,16 +233,21 @@ class FetchAction
             $checksum   = md5_file($image_path);
 
             if ($model->getMedia($mediaCollection, ['checksum' => $checksum])->count() == 0) {
-                /** @var \App\Models\Media\Media $media */
+                /** @var Media $media */
                 $model->update([$imageField => null]);
 
                 $media = $model->addMedia($image_path)
                     ->preservingOriginal()
-                    ->withCustomProperties(['checksum' => $checksum])
+                    ->withProperties(
+                        [
+                            'checksum' => $checksum,
+                            'group_id' => $model->group_id
+                        ]
+                    )
                     ->usingName($filename)
                     ->usingFileName($checksum.".".pathinfo($image_path, PATHINFO_EXTENSION))
-                    ->toMediaCollection($mediaCollection, 'group');
-                if (class_basename($model) == 'GroupUser') {
+                    ->toMediaCollection($mediaCollection);
+                if (class_basename($model) == 'User') {
                     UpdateUser::run(
                         $model,
                         [

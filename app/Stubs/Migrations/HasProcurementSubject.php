@@ -37,7 +37,7 @@ trait HasProcurementSubject
         $table->jsonb('data');
         $table->timestampsTz();
         $table->softDeletesTz();
-        $table->string('source_type')->index()->nullable();
+        $table->string('source_slug')->index()->nullable();
         $table->string('source_id')->index()->nullable();
         return $table;
     }

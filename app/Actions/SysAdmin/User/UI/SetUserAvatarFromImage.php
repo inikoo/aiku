@@ -39,7 +39,7 @@ class SetUserAvatarFromImage
                 ->withCustomProperties(['checksum' => $checksum])
                 ->usingName($originalFilename)
                 ->usingFileName($filename)
-                ->toMediaCollection('profile', 'group');
+                ->toMediaCollection('profile');
 
 
             $avatarID = $media->id;

@@ -7,7 +7,6 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-use App\Actions\Helpers\Address\UpdateAddress;
 use App\Actions\Procurement\Agent\StoreAgent;
 use App\Actions\Procurement\Agent\UpdateAgent;
 use App\Models\Procurement\Agent;
@@ -20,49 +19,47 @@ class FetchAgents extends FetchAction
     public string $commandSignature = 'fetch:agents {organisations?*} {--s|source_id=} {--d|db_suffix=}';
 
 
+    /**
+     * @throws \Spatie\MediaLibrary\MediaCollections\Exceptions\FileDoesNotExist
+     * @throws \Spatie\MediaLibrary\MediaCollections\Exceptions\FileIsTooBig
+     */
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Agent
     {
         if ($agentData = $organisationSource->fetchAgent($organisationSourceId)) {
-            $organisation = app('currentTenant');
+            $organisation = $organisationSource->getOrganisation();
 
-            if ($agent = Agent::withTrashed()->where('source_id', $agentData['agent']['source_id'])->where('source_type', $organisation->slug)->first()) {
-                $agent = UpdateAgent::run($agent, $agentData['agent']);
-                UpdateAddress::run($agent->getAddress('contact'), $agentData['address']);
-                $agent->location = $agent->getLocation();
-                $agent->save();
-            } else {
-                $agent = Agent::withTrashed()->where('code', $agentData['agent']['code'])->first();
-                if ($agent) {
-                    AttachAgent::run(
-                        $organisation,
-                        $agent,
-                        [
-                            'source_id' => $agentData['agent']['source_id'],
 
-                        ]
-                    );
-                } else {
-                    $agentData['agent']['source_type'] = $organisation->slug;
-                    $agent                             = StoreAgent::run(
-                        owner: $organisation,
-                        modelData: $agentData['agent'],
-                        addressData: $agentData['address']
-                    );
+            if (Agent::withTrashed()->where('source_slug', $agentData['agent']['source_slug'])->exists()) {
+                if ($agent = Agent::withTrashed()->where('source_id', $agentData['agent']['source_id'])->first()) {
+                    $agent = UpdateAgent::make()->run($agent, $agentData['agent']);
 
-                    $organisation->agents()->updateExistingPivot($agent, ['source_id' => $agentData['agent']['source_id']]);
-
+                    // UpdateAddress::run($agent->getAddress('contact'), $agentData['address']);
+                    // $agent->location = $agent->getLocation();
+                    // $agent->save();
                 }
+            } else {
+                $agentData['agent']['source_type'] = $organisation->slug;
+
+
+                $agent = StoreAgent::make()->action(
+                    group: $organisation->group,
+                    modelData: $agentData['agent'],
+                );
             }
 
-            foreach ($agentData['photo'] as $photoData) {
-                $this->saveImage($agent, $photoData);
+            if ($agent) {
+                foreach ($agentData['photo'] as $photoData) {
+                    $this->saveImage($agent, $photoData);
+                }
+
+
+                $sourceData = explode(':', $agentData['agent']['source_id']);
+
+                DB::connection('aurora')->table('Agent Dimension')
+                    ->where('Agent Key', $sourceData[1])
+                    ->update(['aiku_id' => $agent->id]);
             }
 
-
-
-            DB::connection('aurora')->table('Agent Dimension')
-                ->where('Agent Key', $agentData['agent']['source_id'])
-                ->update(['aiku_id' => $agent->id]);
 
             return $agent;
         }

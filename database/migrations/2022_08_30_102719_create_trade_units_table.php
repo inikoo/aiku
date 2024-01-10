@@ -28,7 +28,7 @@ return new class () extends Migration {
             $table->jsonb('data');
             $table->timestampsTz();
             $table->softDeletesTz();
-            $table->string('source_type')->index()->nullable();
+            $table->string('source_slug')->index()->nullable();
             $table->string('source_id')->nullable();
         });
     }

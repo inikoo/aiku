@@ -7,7 +7,7 @@
 
 namespace App\Actions\UI\CRM;
 
-use App\Actions\InertiaShopAction;
+use App\Actions\InertiaOrganisationAction;
 use App\Actions\UI\Dashboard\ShowDashboard;
 use App\Models\Market\Shop;
 use App\Models\SysAdmin\Organisation;
@@ -16,7 +16,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class ShowShopCRMDashboard extends InertiaShopAction
+class ShowShopCRMDashboard extends InertiaOrganisationAction
 {
     public function handle(Shop $shop): Shop
     {
@@ -33,7 +33,7 @@ class ShowShopCRMDashboard extends InertiaShopAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inShop(Organisation $organisation, Shop $shop, ActionRequest $request): Shop
     {
-        $this->initialisation($shop, $request);
+        $this->initialisationFromShop($shop, $request);
 
         return $this->handle($shop);
     }

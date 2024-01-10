@@ -7,9 +7,9 @@
 
 namespace App\Actions;
 
+use App\Actions\Traits\WithTab;
 use App\Models\Market\Shop;
 use App\Models\SysAdmin\Organisation;
-use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
@@ -18,12 +18,12 @@ class InertiaOrganisationAction
 {
     use AsAction;
     use WithAttributes;
+    use WithTab;
 
 
 
     protected Organisation $organisation;
     protected Shop $shop;
-    protected ?string $tab                = null;
     protected bool $canEdit               = false;
     protected bool $canDelete             = false;
     protected array $validatedData;
@@ -59,17 +59,6 @@ class InertiaOrganisationAction
     }
 
 
-    public function withTab(array $tabs): static
-    {
-        $tab =  $this->get('tab', Arr::first($tabs));
-
-        if (!in_array($tab, $tabs)) {
-            abort(404);
-        }
-        $this->tab = $tab;
-
-        return $this;
-    }
 
 
 }

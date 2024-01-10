@@ -29,9 +29,10 @@ return new class () extends Migration {
             $table->string('name')->collation('und_ns')->index();
             $table->string('state')->default(WebsiteStateEnum::IN_PROCESS->value)->index();
             $table->boolean('status')->default(false);
-            $table->string('domain')->unique()->collation('und_ns');
+            $table->string('domain')->collation('und_ns');
             $table->jsonb('settings');
             $table->jsonb('data');
+            $table->jsonb('structure');
             $table->jsonb('layout');
             $table->jsonb('compiled_layout');
             $table->unsignedSmallInteger('unpublished_header_snapshot_id')->nullable()->index();
@@ -53,6 +54,7 @@ return new class () extends Migration {
             $table->string('source_id')->nullable()->unique();
             $table->unique(['group_id','code']);
             $table->unique(['organisation_id','name']);
+            $table->unique(['organisation_id','domain']);
         });
         DB::statement("CREATE INDEX ON websites (lower('code')) ");
         DB::statement("CREATE INDEX ON websites (lower('domain')) ");

@@ -54,7 +54,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
- * @property string|null $source_type
+ * @property string|null $source_slug
  * @property string|null $source_id
  * @property SupplierProductQuantityStatusEnum $quantity_status
  * @property-read \App\Models\Procurement\Agent|null $agent
