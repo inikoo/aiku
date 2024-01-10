@@ -122,7 +122,7 @@ const generateLabel = (item) => {
                                             <FontAwesomeIcon aria-hidden="true" class="flex-shrink-0 h-4 w-4" :icon="shopNavigation.icon"/>
                                         </div>
                                         <span class="capitalize leading-none whitespace-nowrap" :class="[layout.leftSidebar.show ? 'block md:block' : 'block md:hidden']">
-                                            {{ shopNavigation.route }}
+                                            {{ shopNavigation.label }}
                                         </span>
                                     </Link>
                                 </div>
@@ -149,7 +149,7 @@ const generateLabel = (item) => {
                                             <FontAwesomeIcon aria-hidden="true" class="flex-shrink-0 h-4 w-4" :icon="shopNavigation.icon"/>
                                         </div>
                                         <span class="capitalize leading-none whitespace-nowrap" :class="[layout.leftSidebar.show ? 'block md:block' : 'block md:hidden']">
-                                            {{ shopNavigation.route }}
+                                            {{ shopNavigation.label }}
                                         </span>
                                     </Link>
                                 </div>
@@ -174,7 +174,7 @@ const generateLabel = (item) => {
                     </div>
                     <Transition>
                         <span class="capitalize leading-none whitespace-nowrap" :class="[layout.leftSidebar.show ? 'block md:block' : 'block md:hidden']">
-                            {{ items.route }}
+                            {{ items.label }}
                         </span>
                     </Transition>
                 </Link>
