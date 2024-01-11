@@ -85,7 +85,7 @@ class StoreWarehouseArea extends InertiaOrganisationAction
 
     public function htmlResponse(WarehouseArea $warehouseArea): RedirectResponse
     {
-        return Redirect::route('grp.inventory.warehouses.show.warehouse-areas.index', $warehouseArea->warehouse->slug);
+        return Redirect::route('grp.org.inventory.warehouses.show.warehouse-areas.index', $warehouseArea->warehouse->slug);
     }
 
 }

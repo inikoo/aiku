@@ -43,7 +43,7 @@ class DeleteStockFamily
 
     public function htmlResponse(): RedirectResponse
     {
-        return Redirect::route('grp.inventory.stock-families.index');
+        return Redirect::route('grp.org.inventory.stock-families.index');
     }
 
 }

@@ -42,7 +42,7 @@ function stockFamilyRoute(stockFamily: StockFamily) {
                 {{ stockFamily['name'] }}
         </template>
         <template #cell(number_stocks)="{ item: stockFamily }">
-            <Link :href="route('grp.inventory.stock-families.show.stocks.index',stockFamily['slug'])">
+            <Link :href="route('grp.org.inventory.stock-families.show.stocks.index',stockFamily['slug'])">
                 {{ stockFamily['number_stocks'] }}
             </Link>
         </template>

@@ -96,28 +96,28 @@ class ShowLocation extends InertiaAction
                         ] : false,
                         $this->canDelete ?
                             match ($request->route()->getName()) {
-                                'grp.inventory.locations.show' => [
+                                'grp.org.inventory.locations.show' => [
                                     'type'  => 'button',
                                     'style' => 'delete',
                                     'route' => [
-                                        'name'       => 'grp.inventory.locations.remove',
+                                        'name'       => 'grp.org.inventory.locations.remove',
                                         'parameters' => $request->route()->originalParameters()
                                     ],
 
                                 ],
-                                'grp.inventory.warehouses.show.locations.show' => [
+                                'grp.org.inventory.warehouses.show.locations.show' => [
                                     'type'  => 'button',
                                     'style' => 'delete',
                                     'route' => [
-                                        'name'       => 'grp.inventory.warehouses.show.locations.remove',
+                                        'name'       => 'grp.org.inventory.warehouses.show.locations.remove',
                                         'parameters' => $request->route()->originalParameters()
                                     ],
                                 ],
-                                'grp.inventory.warehouses.show.warehouse-areas.show.locations.show' => [
+                                'grp.org.inventory.warehouses.show.warehouse-areas.show.locations.show' => [
                                     'type'  => 'button',
                                     'style' => 'delete',
                                     'route' => [
-                                        'name'       => 'grp.inventory.warehouses.show.warehouse-areas.show.locations.remove',
+                                        'name'       => 'grp.org.inventory.warehouses.show.warehouse-areas.show.locations.remove',
                                         'parameters' => $request->route()->originalParameters()
                                     ]
                                 ]
@@ -170,37 +170,37 @@ class ShowLocation extends InertiaAction
         };
 
         return match ($routeName) {
-            'grp.inventory.locations.show' =>
+            'grp.org.inventory.locations.show' =>
             array_merge(
                 InventoryDashboard::make()->getBreadcrumbs(),
                 $headCrumb(
                     $routeParameters['location'],
                     [
                         'index' => [
-                            'name'       => 'grp.inventory.locations.index',
+                            'name'       => 'grp.org.inventory.locations.index',
                             'parameters' => []
                         ],
                         'model' => [
-                            'name'       => 'grp.inventory.locations.show',
+                            'name'       => 'grp.org.inventory.locations.show',
                             'parameters' => [$routeParameters['location']->slug]
                         ]
                     ],
                     $suffix
                 ),
             ),
-            'grp.inventory.warehouses.show.locations.show' => array_merge(
+            'grp.org.inventory.warehouses.show.locations.show' => array_merge(
                 (new ShowWarehouse())->getBreadcrumbs($routeParameters['warehouse']),
                 $headCrumb(
                     $routeParameters['location'],
                     [
                         'index' => [
-                            'name'       => 'grp.inventory.warehouses.show.locations.index',
+                            'name'       => 'grp.org.inventory.warehouses.show.locations.index',
                             'parameters' => [
                                 $routeParameters['warehouse']->slug,
                             ]
                         ],
                         'model' => [
-                            'name'       => 'grp.inventory.warehouses.show.locations.show',
+                            'name'       => 'grp.org.inventory.warehouses.show.locations.show',
                             'parameters' => [
                                 $routeParameters['warehouse']->slug,
                                 $routeParameters['location']->slug
@@ -210,9 +210,9 @@ class ShowLocation extends InertiaAction
                     $suffix
                 )
             ),
-            'grp.inventory.warehouse-areas.show.locations.show' => array_merge(
+            'grp.org.inventory.warehouse-areas.show.locations.show' => array_merge(
                 (new ShowWarehouseArea())->getBreadcrumbs(
-                    'grp.inventory.warehouse-areas.show',
+                    'grp.org.inventory.warehouse-areas.show',
                     [
                         'warehouseArea' => $routeParameters['warehouseArea']
                     ]
@@ -221,13 +221,13 @@ class ShowLocation extends InertiaAction
                     $routeParameters['location'],
                     [
                         'index' => [
-                            'name'       => 'grp.inventory.warehouse-areas.show.locations.index',
+                            'name'       => 'grp.org.inventory.warehouse-areas.show.locations.index',
                             'parameters' => [
                                 $routeParameters['warehouseArea']->slug,
                             ]
                         ],
                         'model' => [
-                            'name'       => 'grp.inventory.warehouse-areas.show.locations.show',
+                            'name'       => 'grp.org.inventory.warehouse-areas.show.locations.show',
                             'parameters' => [
                                 $routeParameters['warehouseArea']->slug,
                                 $routeParameters['location']->slug
@@ -237,9 +237,9 @@ class ShowLocation extends InertiaAction
                     $suffix
                 ),
             ),
-            'grp.inventory.warehouses.show.warehouse-areas.show.locations.show' => array_merge(
+            'grp.org.inventory.warehouses.show.warehouse-areas.show.locations.show' => array_merge(
                 (new ShowWarehouseArea())->getBreadcrumbs(
-                    'grp.inventory.warehouses.show.warehouse-areas.show',
+                    'grp.org.inventory.warehouses.show.warehouse-areas.show',
                     [
                         'warehouse'     => $routeParameters['warehouse'],
                         'warehouseArea' => $routeParameters['warehouseArea'],
@@ -249,14 +249,14 @@ class ShowLocation extends InertiaAction
                     $routeParameters['location'],
                     [
                         'index' => [
-                            'name'       => 'grp.inventory.warehouses.show.warehouse-areas.show.locations.index',
+                            'name'       => 'grp.org.inventory.warehouses.show.warehouse-areas.show.locations.index',
                             'parameters' => [
                                 $routeParameters['warehouse']->slug,
                                 $routeParameters['warehouseArea']->slug,
                             ]
                         ],
                         'model' => [
-                            'name'       => 'grp.inventory.warehouses.show.warehouse-areas.show.locations.show',
+                            'name'       => 'grp.org.inventory.warehouses.show.warehouse-areas.show.locations.show',
                             'parameters' => [
                                 $routeParameters['warehouse']->slug,
                                 $routeParameters['warehouseArea']->slug,
@@ -276,11 +276,11 @@ class ShowLocation extends InertiaAction
     {
         $previous=Location::where('slug', '<', $location->slug)->when(true, function ($query) use ($location, $request) {
             switch ($request->route()->getName()) {
-                case 'grp.inventory.warehouses.show.locations.show':
+                case 'grp.org.inventory.warehouses.show.locations.show':
                     $query->where('locations.warehouse_id', $location->warehouse_id);
                     break;
-                case 'grp.inventory.warehouses.show.warehouse-areas.show.locations.show':
-                case 'grp.inventory.warehouse-areas.show.locations.show':
+                case 'grp.org.inventory.warehouses.show.warehouse-areas.show.locations.show':
+                case 'grp.org.inventory.warehouse-areas.show.locations.show':
                     $query->where('locations.warehouse_area_id', $location->warehouse_area_id);
                     break;
 
@@ -295,11 +295,11 @@ class ShowLocation extends InertiaAction
     {
         $next = Location::where('slug', '>', $location->slug)->when(true, function ($query) use ($location, $request) {
             switch ($request->route()->getName()) {
-                case 'grp.inventory.warehouses.show.locations.show':
+                case 'grp.org.inventory.warehouses.show.locations.show':
                     $query->where('locations.warehouse_id', $location->warehouse_id);
                     break;
-                case 'grp.inventory.warehouses.show.warehouse-areas.show.locations.show':
-                case 'grp.inventory.warehouse-areas.show.locations.show':
+                case 'grp.org.inventory.warehouses.show.warehouse-areas.show.locations.show':
+                case 'grp.org.inventory.warehouse-areas.show.locations.show':
                     $query->where('locations.warehouse_area_id', $location->warehouse_area_id);
                     break;
 
@@ -315,7 +315,7 @@ class ShowLocation extends InertiaAction
             return null;
         }
         return match ($routeName) {
-            'grp.inventory.locations.show'=> [
+            'grp.org.inventory.locations.show'=> [
                 'label'=> $location->slug,
                 'route'=> [
                     'name'      => $routeName,
@@ -325,7 +325,7 @@ class ShowLocation extends InertiaAction
 
                 ]
             ],
-            'grp.inventory.warehouse-areas.show.locations.show' => [
+            'grp.org.inventory.warehouse-areas.show.locations.show' => [
                 'label'=> $location->slug,
                 'route'=> [
                     'name'      => $routeName,
@@ -336,7 +336,7 @@ class ShowLocation extends InertiaAction
 
                 ]
             ],
-            'grp.inventory.warehouses.show.locations.show'=> [
+            'grp.org.inventory.warehouses.show.locations.show'=> [
                 'label'=> $location->slug,
                 'route'=> [
                     'name'      => $routeName,

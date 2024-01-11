@@ -252,12 +252,12 @@ class IndexWarehouseAreas extends InertiaAction
                     ]
                 )
             ),
-            'grp.inventory.warehouses.show.warehouse-areas.index',
+            'grp.org.inventory.warehouses.show.warehouse-areas.index',
             =>
             array_merge(
                 ShowWarehouse::make()->getBreadcrumbs($routeParameters['warehouse']),
                 $headCrumb([
-                    'name'       => 'grp.inventory.warehouses.show.warehouse-areas.index',
+                    'name'       => 'grp.org.inventory.warehouses.show.warehouse-areas.index',
                     'parameters' =>
                         [
                             $routeParameters['warehouse']->slug

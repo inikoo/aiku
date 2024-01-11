@@ -38,7 +38,7 @@ class EditWarehouse extends InertiaAction
             'EditModel',
             [
                 'title'                            => __('edit warehouse'),
-                'breadcrumbs'                      => $this->getBreadcrumbs($warehouse),
+                'breadcrumbs'                      => $this->getBreadcrumbs($request->route()->originalParameters()),
                 'navigation'                       => [
                     'previous' => $this->getPrevious($warehouse, $request),
                     'next'     => $this->getNext($warehouse, $request),
@@ -88,9 +88,9 @@ class EditWarehouse extends InertiaAction
         );
     }
 
-    public function getBreadcrumbs(Warehouse $warehouse): array
+    public function getBreadcrumbs(array $routeParameters): array
     {
-        return ShowWarehouse::make()->getBreadcrumbs(warehouse:$warehouse, suffix: '('.__('editing').')');
+        return ShowWarehouse::make()->getBreadcrumbs(routeParameters:$routeParameters, suffix: '('.__('editing').')');
     }
 
     public function getPrevious(Warehouse $warehouse, ActionRequest $request): ?array
@@ -114,7 +114,7 @@ class EditWarehouse extends InertiaAction
         }
 
         return match ($routeName) {
-            'grp.inventory.warehouses.edit' => [
+            'grp.org.inventory.warehouses.edit' => [
                 'label' => $warehouse->name,
                 'route' => [
                     'name'       => $routeName,

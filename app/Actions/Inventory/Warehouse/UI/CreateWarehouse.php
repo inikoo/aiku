@@ -33,7 +33,7 @@ class CreateWarehouse extends InertiaAction
                             'style' => 'cancel',
                             'label' => __('cancel'),
                             'route' => [
-                                'name'       => 'grp.inventory.warehouses.index',
+                                'name'       => 'grp.org.inventory.warehouses.index',
                                 'parameters' => array_values($request->route()->originalParameters())
                             ],
                         ]
