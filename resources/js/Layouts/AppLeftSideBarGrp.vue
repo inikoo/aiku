@@ -87,7 +87,7 @@ const generateLabel = (item) => {
                 :key="itemKey"
             >
                 <!-- If multi item (Shops or Warehouses) -->
-                <Disclosure v-slot="{ open }" as="div" v-if="itemKey == 'shops_navigation' || itemKey == 'warehouses_navigation'"
+                <Disclosure v-if="itemKey == 'shops_navigation' || itemKey == 'warehouses_navigation'" v-slot="{ open }" as="div"
                     class="pl-4 pr-2 pb-2"
                     :class="[ itemKey === layout.currentModule ? 'px-0.5' : '', layout.leftSidebar.show ? '' : '', ]"
                 >
@@ -101,24 +101,28 @@ const generateLabel = (item) => {
                     <transition>
                         <DisclosurePanel>
                             <template v-if="!layout.currentParams.shop">
-                                <div v-for="(shopNavigations, shopIndex) in items" :key="shopIndex" class="group flex flex-col justify-center text-sm py-0.5"
-                                    :class="[ shopIndex === layout.currentModule ? '' : '', layout.leftSidebar.show ? 'pl-3' : '', ]"
-                                    :aria-current="shopIndex === layout.currentModule ? 'page' : undefined"
+                                <div v-for="(navigationShopWarehouse, indexShopWarehouse) in items" :key="indexShopWarehouse"
+                                    class="group flex flex-col justify-center text-sm py-0.5"
+                                    :class="[
+                                        indexShopWarehouse === layout.currentModule ? '' : '',
+                                        layout.leftSidebar.show ? 'pl-3' : ''
+                                    ]"
+                                    :aria-current="indexShopWarehouse === layout.currentModule ? 'page' : undefined"
                                 >
-                                    <p class="capitalize text-white">{{ shopIndex }}</p>
+                                    <p v-if="Object.keys(items).length > 1" class="capitalize text-white">{{ indexShopWarehouse }}</p>
                                     <!-- Looping: Navigation in Shop -->
-                                    <Link v-for="(shopNavigation, navigationIndex) in shopNavigations"
+                                    <Link v-for="(shopNavigation, navigationIndex) in navigationShopWarehouse"
                                         :href="shopNavigation.route?.name ? route(shopNavigation.route.name, shopNavigation.route.parameters) : '#'"
                                         class="group flex items-center text-sm py-2"
                                         :class="[
                                             navigationIndex === layout.currentModule
                                                 ? 'navigationActive px-0.5'
                                                 : 'navigation px-1',
-                                            layout.leftSidebar.show ? 'px-3' : '',
+                                            layout.leftSidebar.show ? Object.keys(items).length > 1 ? 'px-3' : 'pr-3' : '',
                                         ]"
                                         :aria-current="navigationIndex === layout.currentModule ? 'page' : undefined"
                                     >
-                                        <div class="flex items-center px-2">
+                                        <div class="flex items-center pr-2">
                                             <FontAwesomeIcon aria-hidden="true" class="flex-shrink-0 h-4 w-4" :icon="shopNavigation.icon"/>
                                         </div>
                                         <span class="capitalize leading-none whitespace-nowrap" :class="[layout.leftSidebar.show ? 'block md:block' : 'block md:hidden']">
