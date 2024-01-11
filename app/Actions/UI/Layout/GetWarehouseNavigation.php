@@ -21,33 +21,33 @@ class GetWarehouseNavigation
 
         $navigation = [];
 
-
-        if ($user->hasPermissionTo("dispatch.$warehouse->slug.view")) {
-            $navigation['dispatch'] = [
-                'label'   => __('Dispatch'),
-                'icon'    => ['fal', 'fa-conveyor-belt-alt'],
-                'route'   => 'grp.dispatch.hub',
-                'topMenu' => [
-                    'subSections' => []
-                ]
-            ];
-        }
-
+        /*
+                if ($user->hasPermissionTo("dispatching.$warehouse->slug.view")) {
+                    $navigation['dispatch'] = [
+                        'label'   => __('Dispatch'),
+                        'icon'    => ['fal', 'fa-conveyor-belt-alt'],
+                        'route'   => 'grp.dispatch.hub',
+                        'topMenu' => [
+                            'subSections' => []
+                        ]
+                    ];
+                }
+        */
         if ($user->hasPermissionTo("inventory.$warehouse->slug.view")) {
-            $navigation['inventory'] = [
+            $navigation['warehouse'] = [
                 'scope'   => 'warehouses',
                 'label'   => __('inventory'),
                 'icon'    => ['fal', 'fa-inventory'],
                 'route'   => [
-                    'all'      => 'grp.inventory.dashboard',
-                    'selected' => 'grp.inventory.warehouses.show',
+                    'name'       => 'grp.org.inventory.warehouses.show',
+                    'parameters' => [$warehouse->organisation->slug, $warehouse->slug]
                 ],
                 'topMenu' => [
                     'subSections' => [
                         [
                             'icon'  => ['fal', 'fa-chart-network'],
                             'route' => [
-                                'name' => 'grp.inventory.dashboard',
+                                'name' => 'grp.org.inventory.dashboard',
                             ]
                         ],
 
@@ -55,7 +55,7 @@ class GetWarehouseNavigation
                             'label' => __('SKUs'),
                             'icon'  => ['fal', 'fa-box'],
                             'route' => [
-                                'name' => 'inventory.stocks.index',
+                                'name' => 'grp.org.inventory.stocks.index',
                             ]
                         ],
                         [
