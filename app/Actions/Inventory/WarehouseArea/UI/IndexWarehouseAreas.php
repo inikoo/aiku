@@ -130,7 +130,7 @@ class IndexWarehouseAreas extends InertiaAction
                                 'label'   => __('warehouse'),
                                 'route'   => [
                                     'name'       => 'grp.oms.warehouses.create',
-                                    'parameters' => array_values($this->originalParameters)
+                                    'parameters' => array_values($request->route()->originalParameters())
                                 ]
                             ] : null
                         ],
@@ -146,7 +146,7 @@ class IndexWarehouseAreas extends InertiaAction
                                 'label'   => __('warehouse area'),
                                 'route'   => [
                                     'name'       => 'grp.oms.warehouses.show.warehouse-areas.create',
-                                    'parameters' => array_values($this->originalParameters)
+                                    'parameters' => array_values($request->route()->originalParameters())
                                 ]
                             ] : null
                         ],
@@ -196,7 +196,7 @@ class IndexWarehouseAreas extends InertiaAction
                         'title' => __('warehouse areas')
                     ],
                     'actions' => [
-                        $this->canEdit && $this->routeName == 'grp.oms.warehouses.show.warehouse-areas.index' ? [
+                        $this->canEdit && $request->route()->getName() == 'grp.oms.warehouses.show.warehouse-areas.index' ? [
                             'type'    => 'buttonGroup',
                             'buttons' => [
                                 [

@@ -128,7 +128,7 @@ class IndexStocks extends InertiaAction
                                 'label'   => __('SKUs family'),
                                 'route'   => [
                                     'name'       => 'inventory.families.create',
-                                    'parameters' => array_values($this->originalParameters)
+                                    'parameters' => array_values($request->route()->originalParameters())
                                 ]
                             ] : null
                         ],
@@ -144,7 +144,7 @@ class IndexStocks extends InertiaAction
                                 'label'   => __('SKU'),
                                 'route'   => [
                                     'name'       => 'inventory.stock-families.show.stocks.create',
-                                    'parameters' => array_values($this->originalParameters)
+                                    'parameters' => array_values($request->route()->originalParameters())
                                 ]
                             ] : null
                         ],
@@ -200,14 +200,14 @@ class IndexStocks extends InertiaAction
                             'style'   => 'create',
                             'tooltip' => __('new SKU'),
                             'label'   => __('SKU'),
-                            'route'   => match ($this->routeName) {
+                            'route'   => match ($request->route()->getName()) {
                                 'inventory.stock-families.show.stocks.index' => [
                                     'name'       => 'inventory.stock-families.show.stocks.create',
-                                    'parameters' => array_values($this->originalParameters)
+                                    'parameters' => array_values($request->route()->originalParameters())
                                 ],
                                 default => [
                                     'name'       => 'inventory.stocks.create',
-                                    'parameters' => array_values($this->originalParameters)
+                                    'parameters' => array_values($request->route()->originalParameters())
                                 ]
                             }
                         ] : false,

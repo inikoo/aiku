@@ -137,7 +137,7 @@ class IndexWebUser extends InertiaAction
                             'label'   => __('web user'),
                             'route'   => [
                                 'name'       => 'grp.web.websites.show.web-users.create',
-                                'parameters' => array_values($this->originalParameters)
+                                'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ] : null
                     ]
@@ -195,19 +195,19 @@ class IndexWebUser extends InertiaAction
         };
         return match ($routeName) {
             'customers.show.web-users.index' => array_merge(
-                (new ShowCustomer())->getBreadcrumbs('customers.show', $this->originalParameters),
+                (new ShowCustomer())->getBreadcrumbs('customers.show', $request->route()->originalParameters()),
                 $headCrumb([$parent->slug])
             ),
             'shops.show.customers.show.web-users.index' =>
             array_merge(
-                (new ShowCustomer())->getBreadcrumbs('shops.show.customers.show', $this->originalParameters),
+                (new ShowCustomer())->getBreadcrumbs('shops.show.customers.show', $request->route()->originalParameters()),
                 $headCrumb([$parent->shop->slug,$parent->slug])
             ),
             'grp.web.websites.show.web-users.index' =>
             array_merge(
                 (new ShowWebsite())->getBreadcrumbs(
                     routeName: $routeName,
-                    routeParameters: $this->originalParameters
+                    routeParameters: $request->route()->originalParameters()
                 ),
                 $headCrumb(
                     [$parent->slug]

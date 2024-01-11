@@ -98,7 +98,7 @@ class IndexMarketplaceSuppliers extends InertiaAction
                             'label'   => __('supplier'),
                             'route'   => [
                                 'name'       => 'grp.procurement.marketplace.suppliers.create',
-                                'parameters' => array_values($this->originalParameters)
+                                'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ] : null
                     ]
@@ -129,7 +129,7 @@ class IndexMarketplaceSuppliers extends InertiaAction
 
     public function asController(ActionRequest $request): LengthAwarePaginator
     {
-        $this->routeName = $request->route()->getName();
+
         $this->initialisation($request);
 
         return $this->handle(app('currentTenant'));
@@ -181,11 +181,11 @@ class IndexMarketplaceSuppliers extends InertiaAction
                                 match (class_basename($parent)) {
                                     'Agent' => [
                                         'name'       => 'grp.procurement.marketplace.agents.show.suppliers.create',
-                                        'parameters' => array_values($this->originalParameters)
+                                        'parameters' => array_values($request->route()->originalParameters())
                                     ],
                                     default => [
                                         'name'       => 'grp.procurement.marketplace.suppliers.create',
-                                        'parameters' => array_values($this->originalParameters)
+                                        'parameters' => array_values($request->route()->originalParameters())
                                     ],
                                 },
                         ] : false,

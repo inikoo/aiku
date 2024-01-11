@@ -105,7 +105,7 @@ class IndexStockFamilies extends InertiaAction
                             'label'   => __('stock family'),
                             'route'   => [
                                 'name'       => 'grp.oms.stock-families.create',
-                                'parameters' => array_values($this->originalParameters)
+                                'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ] : null
                     ]
@@ -145,7 +145,7 @@ class IndexStockFamilies extends InertiaAction
                             'label'   => __('SKU family'),
                             'route'   => [
                                 'name'       => 'grp.oms.stock-families.create',
-                                'parameters' => array_values($this->originalParameters)
+                                'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ] : false,
                     ]

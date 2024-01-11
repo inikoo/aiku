@@ -64,7 +64,7 @@ class ShowStoredItem extends InertiaAction
                             'label'   => __($this->storedItem->status == StoredItemStatusEnum::RETURNED ? 'returned' : 'return to customer'),
                             'route'   => [
                                 'name'       => 'grp.fulfilment.stored-items.setReturn',
-                                'parameters' => array_values($this->originalParameters)
+                                'parameters' => array_values($request->route()->originalParameters())
                             ],
                             'disabled' => $this->storedItem->status == StoredItemStatusEnum::RETURNED
                         ],
@@ -75,7 +75,7 @@ class ShowStoredItem extends InertiaAction
                             'label'   => __('stored items'),
                             'route'   => [
                                 'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
-                                'parameters' => array_values($this->originalParameters)
+                                'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ],
                         [
@@ -85,7 +85,7 @@ class ShowStoredItem extends InertiaAction
                             'label'   => __($this->storedItem->status == StoredItemStatusEnum::DAMAGED ? 'damaged' : 'set as damaged'),
                             'route'   => [
                                 'name'       => 'grp.fulfilment.stored-items.setDamaged',
-                                'parameters' => array_values($this->originalParameters)
+                                'parameters' => array_values($request->route()->originalParameters())
                             ],
                             'disabled' => $this->storedItem->status == StoredItemStatusEnum::DAMAGED
                         ],
@@ -127,7 +127,7 @@ class ShowStoredItem extends InertiaAction
                         'model' => [
                             'route' => [
                                 'name'       => 'grp.fulfilment.stored-items.show',
-                                'parameters' => array_values($this->originalParameters)
+                                'parameters' => array_values($request->route()->originalParameters())
                             ],
                             'label' => $storedItem->slug,
                         ],

@@ -65,8 +65,8 @@ class RemoveMarketplaceAgent extends InertiaAction
                             'style' => 'cancel',
                             'label' => __('cancel'),
                             'route' => [
-                                'name'       => preg_replace('/remove$/', 'show', $this->routeName),
-                                'parameters' => array_values($this->originalParameters)
+                                'name'       => preg_replace('/remove$/', 'show', $request->route()->getName()),
+                                'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ]
                     ]
@@ -74,7 +74,7 @@ class RemoveMarketplaceAgent extends InertiaAction
                 'data'     => $this->getAction(
                     route:[
                         'name'       => 'grp.models.marketplace-agent.delete',
-                        'parameters' => array_values($this->originalParameters)
+                        'parameters' => array_values($request->route()->originalParameters())
                     ]
                 )
 

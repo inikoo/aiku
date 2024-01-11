@@ -112,10 +112,10 @@ class IndexMailrooms extends InertiaAction
                 'title'       => __('mailroom'),
                 'pageHead'    => [
                     'title'   => __('mailroom'),
-                    'create'  => $this->canEdit && $this->routeName=='mail.mailrooms.index' ? [
+                    'create'  => $this->canEdit && $request->route()->getName()=='mail.mailrooms.index' ? [
                         'route' => [
                             'name'       => 'shops.create',
-                            'parameters' => array_values($this->originalParameters)
+                            'parameters' => array_values($request->route()->originalParameters())
                         ],
                         'label'    => __('mailroom'),
                     ] : false,

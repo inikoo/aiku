@@ -29,7 +29,6 @@ class StoreLocation extends InertiaOrganisationAction
 
     private bool $asAction = false;
 
-    private Warehouse $warehouse;
 
     public function handle(WarehouseArea|Warehouse $parent, array $modelData): Location
     {

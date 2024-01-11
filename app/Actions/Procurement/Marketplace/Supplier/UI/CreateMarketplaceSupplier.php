@@ -55,11 +55,11 @@ class CreateMarketplaceSupplier extends InertiaAction
                                 'grp.procurement.marketplace.agents.show.suppliers.create' =>
                                 [
                                     'name'       => 'grp.procurement.marketplace.agents.show',
-                                    'parameters' => array_values($this->originalParameters)
+                                    'parameters' => array_values($request->route()->originalParameters())
                                 ],
                                 default => [
                                     'name'       => 'grp.procurement.marketplace.suppliers.index',
-                                    'parameters' => array_values($this->originalParameters)
+                                    'parameters' => array_values($request->route()->originalParameters())
                                 ],
                             }
                         ]

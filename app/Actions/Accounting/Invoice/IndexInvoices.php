@@ -130,7 +130,7 @@ class IndexInvoices extends InertiaAction
 
     public function inOrganisation(ActionRequest $request): LengthAwarePaginator
     {
-        $this->routeName = $request->route()->getName();
+
         $this->initialisation($request);
         return $this->handle(app('currentTenant'));
     }

@@ -28,7 +28,7 @@ class CreateSupplierPurchaseOrder extends InertiaAction
                     'cancelCreate' => [
                         'route' => [
                             'name'       => 'grp.procurement.supplier-purchase-orders.index',
-                            'parameters' => array_values($this->originalParameters)
+                            'parameters' => array_values($request->route()->originalParameters())
                         ],
                     ]
 

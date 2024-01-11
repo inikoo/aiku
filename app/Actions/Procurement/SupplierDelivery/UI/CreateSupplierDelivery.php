@@ -28,7 +28,7 @@ class CreateSupplierDelivery extends InertiaAction
                     'cancelCreate' => [
                         'route' => [
                             'name'       => 'grp.procurement.supplier-deliveries.index',
-                            'parameters' => array_values($this->originalParameters)
+                            'parameters' => array_values($request->route()->originalParameters())
                         ],
                     ]
 

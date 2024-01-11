@@ -75,7 +75,7 @@ class ShowAgent extends InertiaAction
                     'create_direct' => $this->canEdit ? [
                         'route' => [
                             'name'       => 'grp.models.agent.purchase-order.store',
-                            'parameters' => array_values($this->originalParameters)
+                            'parameters' => array_values($request->route()->originalParameters())
                         ],
                         'label' => __('purchase order')
                     ] : false,
@@ -84,8 +84,8 @@ class ShowAgent extends InertiaAction
                             'type'  => 'button',
                             'style' => 'edit',
                             'route' => [
-                                'name'       => preg_replace('/show$/', 'edit', $this->routeName),
-                                'parameters' => array_values($this->originalParameters)
+                                'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
+                                'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ] : false,
                         $this->canDelete ? [
@@ -93,7 +93,7 @@ class ShowAgent extends InertiaAction
                             'style' => 'delete',
                             'route' => [
                                 'name'       => 'grp.procurement.agents.remove',
-                                'parameters' => array_values($this->originalParameters)
+                                'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ] : false,
                     ],

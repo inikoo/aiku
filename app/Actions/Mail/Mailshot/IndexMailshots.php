@@ -123,10 +123,10 @@ class IndexMailshots extends InertiaAction
                 'title'       => __('mailshots '),
                 'pageHead'    => [
                     'title'   => __('mailshots'),
-                    'create'  => $this->canEdit && $this->routeName=='mail.mailshots.index' ? [
+                    'create'  => $this->canEdit && $request->route()->getName()=='mail.mailshots.index' ? [
                         'route' => [
                             'name'       => 'mail.mailshots.create',
-                            'parameters' => array_values($this->originalParameters)
+                            'parameters' => array_values($request->route()->originalParameters())
                         ],
                         'label'=> __('mailshot')
                     ] : false,
@@ -141,7 +141,7 @@ class IndexMailshots extends InertiaAction
 
     public function inOrganisation(ActionRequest $request): LengthAwarePaginator
     {
-        $this->routeName = $request->route()->getName();
+
         $this->initialisation($request);
         return $this->handle(app('currentTenant'));
     }

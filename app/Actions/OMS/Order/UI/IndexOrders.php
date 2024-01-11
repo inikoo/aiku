@@ -119,10 +119,10 @@ class IndexOrders extends InertiaAction
                 'title'       => __('orders'),
                 'pageHead'    => [
                     'title'   => __('orders'),
-                    'create'  => $this->canEdit && $this->routeName=='shops.show.orders.index' ? [
+                    'create'  => $this->canEdit && $request->route()->getName()=='shops.show.orders.index' ? [
                         'route' => [
                             'name'       => 'shops.show.orders.create',
-                            'parameters' => array_values($this->originalParameters)
+                            'parameters' => array_values($request->route()->originalParameters())
                         ],
                         'label'=> __('order')
                     ] : false,
@@ -137,7 +137,7 @@ class IndexOrders extends InertiaAction
 
     public function inOrganisation(ActionRequest $request): LengthAwarePaginator
     {
-        $this->routeName = $request->route()->getName();
+
         $this->initialisation($request);
 
         return $this->handle(parent: app('currentTenant'));

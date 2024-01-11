@@ -68,7 +68,7 @@ class ShowPaymentServiceProvider extends InertiaAction
                             'style' => 'edit',
                             'route' => [
                                 'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
-                                'parameters' => array_values($this->originalParameters)
+                                'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ] : false,
                         $this->canDelete ? [
@@ -76,7 +76,7 @@ class ShowPaymentServiceProvider extends InertiaAction
                             'style' => 'delete',
                             'route' => [
                                 'name'       => 'grp.accounting.payment-service-providers.remove',
-                                'parameters' => array_values($this->originalParameters)
+                                'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ] : false
                     ], */
@@ -155,7 +155,7 @@ class ShowPaymentServiceProvider extends InertiaAction
                      'createLink' => $this->canEdit ? [
                          'route' => [
                             'name'       => 'grp.accounting.payment-service-providers.show.payments.create',
-                            'parameters' => array_values($this->originalParameters)
+                            'parameters' => array_values($request->route()->originalParameters())
                          ],
                          'label' => __('payment')
                      ] : false,
@@ -168,7 +168,7 @@ class ShowPaymentServiceProvider extends InertiaAction
             //                'createLink' => $this->canEdit ? [
             //                    'route' => [
             //                        'name'       => 'grp.accounting.payment-service-providers.show.payment-accounts.create',
-            //                        'parameters' => array_values($this->originalParameters)
+            //                        'parameters' => array_values($request->route()->originalParameters())
             //                    ],
             //                    'label' => __('payment account')
             //                ] : false,

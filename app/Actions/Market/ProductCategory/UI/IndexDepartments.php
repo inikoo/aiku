@@ -134,7 +134,7 @@ class IndexDepartments extends InertiaAction
                                 'label'   => __('shop'),
                                 'route'   => [
                                     'name'       => 'shops.create',
-                                    'parameters' => array_values($this->originalParameters)
+                                    'parameters' => array_values($request->route()->originalParameters())
                                 ]
                             ] : null
                         ],
@@ -150,7 +150,7 @@ class IndexDepartments extends InertiaAction
                                 'label'   => __('department'),
                                 'route'   => [
                                     'name'       => 'shops.show.departments.create',
-                                    'parameters' => array_values($this->originalParameters)
+                                    'parameters' => array_values($request->route()->originalParameters())
                                 ]
                             ] : null
                         ],
@@ -168,7 +168,7 @@ class IndexDepartments extends InertiaAction
                             'label'   => __('department'),
                             'route'   => [
                                 'name'       => 'shops.departments.create',
-                                'parameters' => array_values($this->originalParameters)
+                                'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ] : null
                     ]
@@ -211,7 +211,7 @@ class IndexDepartments extends InertiaAction
                         'title' => __('department')
                     ],
                     'actions' => [
-                        $this->canEdit && $this->routeName == 'shops.show.departments.index' ? [
+                        $this->canEdit && $request->route()->getName() == 'shops.show.departments.index' ? [
                             'type'    => 'button',
                             'style'   => 'create',
                             'tooltip' => __('new department'),

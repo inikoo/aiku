@@ -77,7 +77,7 @@ class ShowStock extends InertiaAction
                              'style' => 'edit',
                              'route' => [
                                  'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
-                                 'parameters' => array_values($this->originalParameters)
+                                 'parameters' => array_values($request->route()->originalParameters())
                              ]
                          ] : false,
                          $this->canDelete ? [
@@ -85,7 +85,7 @@ class ShowStock extends InertiaAction
                              'style' => 'delete',
                              'route' => [
                                  'name'       => 'grp.inventory.stock-families.show.stocks.remove',
-                                 'parameters' => array_values($this->originalParameters)
+                                 'parameters' => array_values($request->route()->originalParameters())
                              ]
 
                          ] : false

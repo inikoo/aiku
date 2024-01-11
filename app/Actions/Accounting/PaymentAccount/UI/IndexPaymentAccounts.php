@@ -102,7 +102,7 @@ class IndexPaymentAccounts extends InertiaAction
                             'label'   => __('payment account'),
                             'route'   => [
                                 'name'       => 'grp.accounting.payment-accounts.create',
-                                'parameters' => array_values($this->originalParameters)
+                                'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ] : null
                     ]
@@ -174,7 +174,7 @@ class IndexPaymentAccounts extends InertiaAction
                             'label' => __('payment account'),
                             'route' => [
                                 'name'       => 'grp.accounting.payment-accounts.create',
-                                'parameters' => array_values($this->originalParameters)
+                                'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ] : false
                     ],

@@ -83,7 +83,7 @@ class IndexClockingMachines extends InertiaOrganisationAction
                             'label'   => __('clocking machine'),
                             'route'   => [
                                 'name'       => 'grp.org.hr.clocking-machines.create',
-                                'parameters' => array_values($this->originalParameters)
+                                'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ] : null
                         */

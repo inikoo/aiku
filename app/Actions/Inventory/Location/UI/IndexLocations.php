@@ -156,7 +156,7 @@ class IndexLocations extends InertiaAction
                                 'label'   => __('location'),
                                 'route'   => [
                                     'name'       => 'grp.inventory.warehouses.create',
-                                    'parameters' => array_values($this->originalParameters)
+                                    'parameters' => array_values($request->route()->originalParameters())
                                 ]
                             ] : null
                         ],
@@ -172,7 +172,7 @@ class IndexLocations extends InertiaAction
                                 'label'   => __('location'),
                                 'route'   => [
                                     'name'       => 'grp.inventory.warehouses.show.locations.create',
-                                    'parameters' => array_values($this->originalParameters)
+                                    'parameters' => array_values($request->route()->originalParameters())
                                 ]
                             ] : null
                         ],
@@ -188,7 +188,7 @@ class IndexLocations extends InertiaAction
                                 'label'   => __('location'),
                                 'route'   => [
                                     'name'       => 'grp.inventory.warehouses.show.warehouse-areas.show.locations.create',
-                                    'parameters' => array_values($this->originalParameters)
+                                    'parameters' => array_values($request->route()->originalParameters())
                                 ]
                             ] : null
                         ],
@@ -244,21 +244,21 @@ class IndexLocations extends InertiaAction
                     'actions'=> [
                         $this->canEdit
                         && (
-                            $this->routeName == 'grp.inventory.warehouses.show.locations.index' or
-                            $this->routeName == 'grp.inventory.warehouses.show.warehouse-areas.show.locations.index'
+                            $request->route()->getName() == 'grp.inventory.warehouses.show.locations.index' or
+                            $request->route()->getName() == 'grp.inventory.warehouses.show.warehouse-areas.show.locations.index'
                         )
                             ? [
                             'type'  => 'button',
                             'style' => 'create',
                             'label' => __('locations'),
-                            'route' => match ($this->routeName) {
+                            'route' => match ($request->route()->getName()) {
                                 'grp.inventory.warehouses.show.locations.index' => [
                                     'name'       => 'grp.inventory.warehouses.show.locations.create',
-                                    'parameters' => array_values($this->originalParameters)
+                                    'parameters' => array_values($request->route()->originalParameters())
                                 ],
                                 default => [
                                     'name'       => 'grp.inventory.warehouses.show.warehouse-areas.show.locations.create',
-                                    'parameters' => array_values($this->originalParameters)
+                                    'parameters' => array_values($request->route()->originalParameters())
                                 ]
                             }
                         ] : false

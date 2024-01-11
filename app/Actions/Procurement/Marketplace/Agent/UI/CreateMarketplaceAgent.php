@@ -36,7 +36,7 @@ class CreateMarketplaceAgent extends InertiaAction
                             'label' => __('cancel'),
                             'route' => [
                                 'name'       => 'grp.procurement.marketplace.agents.index',
-                                'parameters' => array_values($this->originalParameters)
+                                'parameters' => array_values($request->route()->originalParameters())
                             ],
                         ]
                     ]

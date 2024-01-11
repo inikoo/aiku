@@ -35,7 +35,7 @@ class ShowMailshot extends InertiaAction
 
     public function inOrganisation(Mailshot $mailshot, ActionRequest $request): Mailshot
     {
-        //$this->routeName = $request->route()->getName();
+        //
         //$this->validateAttributes();
         $this->initialisation($request);
         return $this->handle($mailshot);
@@ -44,7 +44,7 @@ class ShowMailshot extends InertiaAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inOutbox(Outbox $outbox, Mailshot $mailshot, ActionRequest $request): Mailshot
     {
-        $this->routeName = $request->route()->getName();
+
         //$this->validateAttributes();
         $this->initialisation($request);
         return $this->handle($mailshot);
@@ -53,7 +53,7 @@ class ShowMailshot extends InertiaAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inMailroomInOutboxInShop(Mailroom $mailroom, Outbox $outbox, Mailshot $mailshot, ActionRequest $request): Mailshot
     {
-        $this->routeName = $request->route()->getName();
+
         //$this->validateAttributes();
         $this->initialisation($request);
         return $this->handle($mailshot);
@@ -62,7 +62,7 @@ class ShowMailshot extends InertiaAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inMailroom(Mailroom $mailroom, Mailshot $mailshot, ActionRequest $request): Mailshot
     {
-        $this->routeName = $request->route()->getName();
+
         //$this->validateAttributes();
         $this->initialisation($request);
         return $this->handle($mailshot);
@@ -77,14 +77,14 @@ class ShowMailshot extends InertiaAction
             'Mail/Mailshot',
             [
                 'title'       => __($mailshot->id),
-                'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $mailshot),
+                'breadcrumbs' => $this->getBreadcrumbs($request->route()->getName(), $mailshot),
                 'pageHead'    => [
                     'icon'  => 'fal fa-coins',
                     'title' => $mailshot->id,
                     'edit'  => $this->canEdit ? [
                         'route' => [
-                            'name'       => preg_replace('/show$/', 'edit', $this->routeName),
-                            'parameters' => array_values($this->originalParameters)
+                            'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
+                            'parameters' => array_values($request->route()->originalParameters())
                         ]
                     ] : false,
 

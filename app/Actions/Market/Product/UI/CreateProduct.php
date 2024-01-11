@@ -41,12 +41,12 @@ class CreateProduct extends InertiaAction
                             'style' => 'cancel',
                             'label' => __('cancel'),
                             'route' => [
-                                'name' => match ($this->routeName) {
+                                'name' => match ($request->route()->getName()) {
                                     'shops.show.products.create'    => 'shops.show.products.index',
                                     'shops.products.create'         => 'shops',
-                                    default                         => preg_replace('/create$/', 'index', $this->routeName)
+                                    default                         => preg_replace('/create$/', 'index', $request->route()->getName())
                                 },
-                                'parameters' => array_values($this->originalParameters)
+                                'parameters' => array_values($request->route()->originalParameters())
                             ],
                         ]
                     ]
@@ -94,7 +94,7 @@ class CreateProduct extends InertiaAction
                                 ]
                             ]
                         ],
-                    'route' => match ($this->routeName) {
+                    'route' => match ($request->route()->getName()) {
                         'shops.show.products.create' => [
                             'name'      => 'grp.models.show.product.store',
                             'arguments' => [$shop->slug]

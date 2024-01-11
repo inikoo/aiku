@@ -23,7 +23,6 @@ class StoreWarehouseArea extends InertiaOrganisationAction
 {
     private bool $asAction = false;
 
-    private Warehouse $warehouse;
 
     public function handle(Warehouse $warehouse, array $modelData): WarehouseArea
     {

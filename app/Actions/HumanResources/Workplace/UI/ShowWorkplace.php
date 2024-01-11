@@ -153,7 +153,7 @@ class ShowWorkplace extends InertiaOrganisationAction
                         'createLink' => $this->canEdit ? [
                             'route' => [
                                 'name'       => 'grp.org.hr.workplaces.show.clockings.create',
-                                'parameters' => array_values($this->originalParameters)
+                                'parameters' => array_values($request->route()->originalParameters())
                             ],
                             'label' => __('clocking')
                         ] : false,
@@ -167,7 +167,7 @@ class ShowWorkplace extends InertiaOrganisationAction
                         'createLink' => $this->canEdit ? [
                             'route' => [
                                 'name'       => 'grp.org.hr.workplaces.show.clocking-machines.create',
-                                'parameters' => array_values($this->originalParameters)
+                                'parameters' => array_values($request->route()->originalParameters())
                             ],
                             'label' => __('clocking machine')
                         ] : false,

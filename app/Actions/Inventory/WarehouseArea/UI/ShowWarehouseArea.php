@@ -73,7 +73,7 @@ class ShowWarehouseArea extends InertiaAction
                             'style' => 'edit',
                             'route' => [
                                 'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
-                                'parameters' => array_values($this->originalParameters)
+                                'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ] : false,
                         $this->canDelete ? [
@@ -81,7 +81,7 @@ class ShowWarehouseArea extends InertiaAction
                             'style' => 'delete',
                             'route' => [
                                 'name'       => 'grp.oms.warehouses.show.warehouse-areas.remove',
-                                'parameters' => array_values($this->originalParameters)
+                                'parameters' => array_values($request->route()->originalParameters())
                             ]
 
                         ] : false
@@ -91,7 +91,7 @@ class ShowWarehouseArea extends InertiaAction
                             'name'   => trans_choice('location|locations', $warehouseArea->stats->number_locations),
                             'number' => $warehouseArea->stats->number_locations,
                             'href'   =>
-                                match ($this->routeName) {
+                                match ($request->route()->getName()) {
                                     'grp.oms.warehouses.show.warehouse-areas.show' => [
                                         'grp.oms.warehouses.show.warehouse-areas.show.locations.index',
                                         [$warehouseArea->warehouse->slug, $warehouseArea->slug]

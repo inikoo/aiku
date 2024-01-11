@@ -54,7 +54,7 @@ class CreateStock extends InertiaAction
                             'label' => __('cancel'),
                             'route' => [
                                 'name'       => 'grp.inventory.stock-families.show.stocks.index',
-                                'parameters' => array_values($this->originalParameters)
+                                'parameters' => array_values($request->route()->originalParameters())
                             ],
                         ]
                     ]

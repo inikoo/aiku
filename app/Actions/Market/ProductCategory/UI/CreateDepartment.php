@@ -56,7 +56,7 @@ class CreateDepartment extends InertiaAction
                             'label' => __('cancel'),
                             'route' => [
                                 'name'       => 'shops.show.departments.index',
-                                'parameters' => array_values($this->originalParameters)
+                                'parameters' => array_values($request->route()->originalParameters())
                             ],
                         ]
                     ]
@@ -80,7 +80,7 @@ class CreateDepartment extends InertiaAction
                                 ]
                             ]
                         ],
-                    'route' => match ($this->routeName) {
+                    'route' => match ($request->route()->getName()) {
                         'shops.show.departments.create' => [
                             'name'      => 'grp.models.shop.department.store',
                             'arguments' => [$request->route()->parameters['shop']->slug]

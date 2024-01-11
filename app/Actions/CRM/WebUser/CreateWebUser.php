@@ -40,7 +40,7 @@ class CreateWebUser extends InertiaAction
         return Inertia::render(
             'Web/StoreWebUser',
             [
-                'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $this->shop),
+                'breadcrumbs' => $this->getBreadcrumbs($request->route()->getName(), $this->shop),
                 'title'       => '+ '.__('web user'),
                 'pageHead'    => [
                     'title' => __('web user'),
