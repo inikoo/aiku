@@ -29,6 +29,18 @@ class FetchAuroraCustomer extends FetchAurora
             $state = CustomerStateEnum::LOST;
         }
 
+        $billingAddress  = $this->parseAddress(prefix: 'Customer Invoice', auAddressData: $this->auroraModelData);
+        $deliveryAddress = $this->parseAddress(prefix: 'Customer Delivery', auAddressData: $this->auroraModelData);
+
+        //  $this->parsedData['contact_address'] = $billingAddress;
+
+
+        $taxNumber = $this->parseTaxNumber(
+            number: $this->auroraModelData->{'Customer Tax Number'},
+            countryID: $billingAddress['country_id'],
+            rawData: (array)$this->auroraModelData
+        );
+
 
         $this->parsedData['customer'] =
             [
@@ -42,28 +54,17 @@ class FetchAuroraCustomer extends FetchAurora
                 'identity_document_number' => Str::limit($this->auroraModelData->{'Customer Registration Number'}),
                 'contact_website'          => $this->auroraModelData->{'Customer Website'},
                 'source_id'                => $this->organisation->id.':'.$this->auroraModelData->{'Customer Key'},
-                'created_at'               => $this->auroraModelData->{'Customer First Contacted Date'}
+                'created_at'               => $this->auroraModelData->{'Customer First Contacted Date'},
+                'contact_address'          => $billingAddress,
+                'tax_number'               => $taxNumber
             ];
 
-        $this->parsedData['shop'] = $this->parseShop($this->auroraModelData->{'Customer Store Key'});
-
-
-        $billingAddress  = $this->parseAddress(prefix: 'Customer Invoice', auAddressData: $this->auroraModelData);
-        $deliveryAddress = $this->parseAddress(prefix: 'Customer Delivery', auAddressData: $this->auroraModelData);
-
-        $this->parsedData['contact_address'] = $billingAddress;
-
-
-        $this->parsedData['tax_number'] = $this->parseTaxNumber(
-            number: $this->auroraModelData->{'Customer Tax Number'},
-            countryID: $billingAddress['country_id'],
-            rawData: (array)$this->auroraModelData
-        );
-
-
         if ($billingAddress != $deliveryAddress) {
-            $this->parsedData['delivery_address'] = $deliveryAddress;
+            $this->parsedData['customer']['delivery_address'] = $deliveryAddress;
         }
+
+
+        $this->parsedData['shop'] = $this->parseShop($this->auroraModelData->{'Customer Store Key'});
     }
 
 

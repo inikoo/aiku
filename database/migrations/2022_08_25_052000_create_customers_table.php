@@ -8,17 +8,19 @@
 use App\Enums\CRM\Customer\CustomerStateEnum;
 use App\Enums\CRM\Customer\CustomerTradeStateEnum;
 use App\Stubs\Migrations\HasContact;
+use App\Stubs\Migrations\HasGroupOrganisationRelationship;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
     use HasContact;
-
+    use HasGroupOrganisationRelationship;
     public function up(): void
     {
         Schema::create('customers', function (Blueprint $table) {
             $table->increments('id');
+            $table=$this->groupOrgRelationship($table);
             $table->unsignedSmallInteger('shop_id')->index()->nullable();
             $table->foreign('shop_id')->references('id')->on('shops');
             $table->unsignedInteger('image_id')->nullable();
