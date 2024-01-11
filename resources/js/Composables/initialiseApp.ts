@@ -92,8 +92,6 @@ export const initialiseApp = () => {
                 layout.warehousesInDropDown = usePage().props.layout.warehousesInDropDown.data ??
                     {}
             }
-
-            console.log('qqqq', usePage().props.layout)
         }
 
         if (usePage().props.tenant) {
@@ -102,22 +100,26 @@ export const initialiseApp = () => {
 
         layout.currentRouteParameters = route().params
         layout.currentRoute = route().current()
-        layout.currentModule = layout.currentRoute.split('.')[2]
+        layout.currentModule = layout.currentRoute.split('.')[2]  // grp.org.xxx
 
 
+        // Set Shops list
         if (usePage().props.layoutShopsList) {
             layout.shops = usePage().props.layoutShopsList
         }
 
+        // Set Websites list
         if (usePage().props.layoutWebsitesList) {
             layout.websites = usePage().props.layoutWebsitesList
         }
 
+        // Set Warehouse list
         if (usePage().props.layoutWarehousesList) {
             layout.warehouses = usePage().props.layoutWarehousesList
         }
 
         if (!layout.booted) {
+            // Set current Shops
             if (Object.keys(layout.shops).length === 1) {
                 layout.currentShopData = {
                     slug: layout.shops[Object.keys(layout.shops)[0]].slug,
@@ -126,6 +128,7 @@ export const initialiseApp = () => {
                 }
             }
 
+            // Set current Websites
             if (Object.keys(layout.websites).length === 1) {
                 layout.currentWebsiteData = {
                     slug: layout.websites[Object.keys(layout.websites)[0]].slug,
@@ -134,6 +137,7 @@ export const initialiseApp = () => {
                 }
             }
             
+            // Set current Warehouse
             if (Object.keys(layout.warehouses).length === 1) {
                 layout.currentWarehouseData = {
                     slug: layout.warehouses[Object.keys(layout.warehouses)[0]].slug,
@@ -160,11 +164,6 @@ export const initialiseApp = () => {
         // Set data of User
         if (usePage().props.auth.user) {
             layout.user = usePage().props.auth.user
-        }
-
-        // Set logo app
-        if (usePage().props.app) {
-            layout.app = usePage().props.app
         }
 
         // // Organisations

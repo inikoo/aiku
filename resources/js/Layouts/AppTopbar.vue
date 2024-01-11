@@ -30,27 +30,15 @@ defineEmits<{
 }>()
 
 // To handle skeleton image in dropdown
-const imageSkeleton: {[key:string]: boolean} = reactive({
-
-})
+const imageSkeleton: {[key:string]: boolean} = reactive({})
 
 const layout = useLayoutStore()
 const showSearchDialog = ref(false)
-const valOrganisation = ref('Aiku')
 
 const logoutAuth = () => {
     router.post(route(props.urlPrefix + 'logout'))
     useLiveUsers().unsubscribe()  // Unsubscribe from Laravel Echo
 }
-
-// const organisationName = ref('')
-
-// watchEffect(() => {
-//     console.log('xxx')
-//     organisationName.value = route().v().params?.organisation ?? false
-// })
-console.log(route().v().params?.organisation)
-console.log(layout.navigation.org)
 </script>
 
 <template>
@@ -188,15 +176,15 @@ console.log(layout.navigation.org)
                             <button @click="showSearchDialog = !showSearchDialog" id="search"
                                     class="h-8 w-8 grid items-center justify-center rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500">
                                 <span class="sr-only">{{ trans("Search") }}</span>
-                                <font-awesome-icon aria-hidden="true" icon="fa-regular fa-search" size="lg" />
+                                <FontAwesomeIcon aria-hidden="true" icon="fa-regular fa-search" size="lg" />
                                 <SearchBar v-if="showSearchDialog" v-on:close="showSearchDialog = false" />
                             </button>
                             <!-- Button: Notifications -->
-                            <button type="button"
+                            <!-- <button type="button"
                                     class="h-8 w-8 grid items-center justify-center rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500">
                                 <span class="sr-only">{{ trans("View notifications") }}</span>
-                                <font-awesome-icon aria-hidden="true" icon="fa-regular fa-bell" size="lg" />
-                            </button>
+                                <FontAwesomeIcon aria-hidden="true" icon="fa-regular fa-bell" size="lg" />
+                            </button> -->
                         </div>
 
                         <!-- Avatar Button -->

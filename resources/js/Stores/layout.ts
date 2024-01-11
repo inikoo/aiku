@@ -6,8 +6,8 @@
 import { grpNavigation, orgNavigation } from "@/types/Navigation"
 
 
-import { defineStore } from "pinia";
-import { trans } from "laravel-vue-i18n";
+import { defineStore } from "pinia"
+import { trans } from "laravel-vue-i18n"
 import { Image } from "@/types/Image"
 
 interface OrganisationsData {
@@ -36,27 +36,23 @@ interface Group {
 export const useLayoutStore = defineStore("layout", {
     state: () => (
         {
-            booted              : false,
-            shopsInDropDown     : {},
-            shops               : {},
-            currentShopSlug     : null,
-            currentShopData     : {
+            booted: false,
+            currentModule: "",
+            currentRoute: "",
+            currentRouteParameters: {},
+            currentShopData: {
                 slug: null,
                 name: trans("All shops"),
                 code: trans("All")
             },
-            websitesInDropDown  : {},
-            websites            : {},
-            currentWebsiteSlug  : null,
-            currentWebsiteData  : {
-                slug: null,
-                name: trans("All websites"),
-                code: trans("All")
-            },
-            // currentWarehouseSlug: null,
             currentWarehouseData: {
                 slug: null,
                 name: trans("All warehouses"),
+                code: trans("All")
+            },
+            currentWebsiteData: {
+                slug: null,
+                name: trans("All websites"),
                 code: trans("All")
             },
             group: {} as Group,
@@ -65,29 +61,30 @@ export const useLayoutStore = defineStore("layout", {
             },
             navigation: {
                 grp: {} as grpNavigation,
-                org: {} as {[key: string]: orgNavigation}
+                org: {} as { [key: string]: orgNavigation }
             },
             organisations: {
                 // currentOrganisations: '',
                 data: {} as OrganisationsData[]
             },
-            currentRoute          : "",
-            currentRouteParameters: {},
-            currentModule         : "",
-            rightSidebar          : {
+            rightSidebar: {
                 activeUsers: {
                     users: [],
                     count: 0,
-                    show : false
+                    show: false
                 },
-                language   : {
+                language: {
                     show: false
                 }
             },
+            shopsInDropDown: {},
+            shops: {},
             systemName: "",  // For styling navigation depend on which App
+            websitesInDropDown: {},
+            websites: {},
             user: {} as { avatar_thumbnail: Image, email: string, username: string },
             warehousesInDropDown: {},
-            warehouses          : {},
+            warehouses: {},
         }
     )
 
