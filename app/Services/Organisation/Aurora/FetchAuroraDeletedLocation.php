@@ -32,7 +32,7 @@ class FetchAuroraDeletedLocation extends FetchAurora
         $this->parsedData['parent']   = $parent;
         $this->parsedData['location'] = [
             'code'       => $this->auroraModelData->{'Location Deleted Code'},
-            'source_id'  => $this->auroraModelData->{'Location Deleted Key'},
+            'source_id'  => $this->organisation->id.':'.$this->auroraModelData->{'Location Deleted Key'},
             'deleted_at' => $deleted_at
         ];
     }

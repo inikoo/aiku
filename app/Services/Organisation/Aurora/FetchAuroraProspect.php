@@ -29,7 +29,7 @@ class FetchAuroraProspect extends FetchAurora
                 'email'           => $this->auroraModelData->{'Prospect Main Plain Email'},
                 'phone'           => $this->auroraModelData->{'Prospect Main Plain Mobile'},
                 'contact_website' => $this->auroraModelData->{'Prospect Website'},
-                'source_id'       => $this->auroraModelData->{'Prospect Key'},
+                'source_id'       => $this->organisation->id.':'.$this->auroraModelData->{'Prospect Key'},
                 'created_at'      => $this->auroraModelData->{'Prospect First Contacted Date'},
                 'customer_id'     => $customer_id
             ];

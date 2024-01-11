@@ -61,7 +61,7 @@ class FetchAuroraDeletedCustomer extends FetchAurora
                 'contact_website'                  => $auroraDeletedData->{'Customer Website'}                      ?? null,
                 'created_at'                       => $auroraDeletedData->{'Customer First Contacted Date'}         ?? $this->auroraModelData->{'Customer Deleted Date'},
                 'deleted_at'                       => $this->auroraModelData->{'Customer Deleted Date'},
-                'source_id'                        => $this->auroraModelData->{'Customer Key'},
+                'source_id'                        => $this->organisation->id.':'.$this->auroraModelData->{'Customer Key'},
                 'data'                             => $data
 
             ];

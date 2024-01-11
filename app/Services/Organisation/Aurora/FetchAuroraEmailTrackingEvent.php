@@ -57,7 +57,7 @@ class FetchAuroraEmailTrackingEvent extends FetchAurora
         $this->parsedData['emailTrackingEvent'] = [
             'type'            => $type,
             'notification_id' => $this->auroraModelData->{'Email Tracking Event Message ID'},
-            'source_id'       => $this->auroraModelData->{'Email Tracking Event Key'},
+            'source_id'       => $this->organisation->id.':'.$this->auroraModelData->{'Email Tracking Event Key'},
             'created_at'      => $this->parseDate($this->auroraModelData->{'Email Tracking Event Date'}),
             'data'            => $data,
         ];

@@ -21,7 +21,7 @@ class FetchAuroraStock extends FetchAurora
             'description'     => $this->auroraModelData->{'Part Recommended Product Unit Name'},
             'stock_family_id' => $this->getStockFamilyId($this->auroraModelData->{'Part SKU'}),
             'code'            => $this->auroraModelData->{'Part Reference'},
-            'source_id'       => $this->auroraModelData->{'Part SKU'},
+            'source_id'       => $this->organisation->id.':'.$this->auroraModelData->{'Part SKU'},
             'created_at'      => $this->parseDate($this->auroraModelData->{'Part Valid From'}),
             'activated_at'    => $this->parseDate($this->auroraModelData->{'Part Active From'}),
             'units_per_pack'  => $this->auroraModelData->{'Part Units Per Package'},

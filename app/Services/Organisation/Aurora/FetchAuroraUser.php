@@ -39,7 +39,7 @@ class FetchAuroraUser extends FetchAurora
 
         $this->parsedData['user'] = [
             'contact_name'    => $this->auroraModelData->{'Staff Name'} ?: null,
-            'source_id'       => $this->auroraModelData->{'User Key'},
+            'source_id'       => $this->organisation->id.':'.$this->auroraModelData->{'User Key'},
             'username'        => Str::lower($this->auroraModelData->{'User Handle'}),
             'status'          => $this->auroraModelData->{'User Active'} == 'Yes',
             'created_at'      => $this->auroraModelData->{'User Created'},

@@ -41,7 +41,7 @@ class FetchAuroraCustomer extends FetchAurora
                 'phone'                    => $this->auroraModelData->{'Customer Main Plain Mobile'},
                 'identity_document_number' => Str::limit($this->auroraModelData->{'Customer Registration Number'}),
                 'contact_website'          => $this->auroraModelData->{'Customer Website'},
-                'source_id'                => $this->auroraModelData->{'Customer Key'},
+                'source_id'                => $this->organisation->id.':'.$this->auroraModelData->{'Customer Key'},
                 'created_at'               => $this->auroraModelData->{'Customer First Contacted Date'}
             ];
 
