@@ -7,7 +7,7 @@
 
 namespace App\Actions\Inventory\Warehouse;
 
-use App\Actions\InertiaOrganisationAction;
+use App\Actions\OrgAction;
 use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydrateUniversalSearch;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWarehouse;
 use App\Actions\SysAdmin\User\UserAddRoles;
@@ -22,7 +22,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
 
-class StoreWarehouse extends InertiaOrganisationAction
+class StoreWarehouse extends OrgAction
 {
     private bool $asAction = false;
 

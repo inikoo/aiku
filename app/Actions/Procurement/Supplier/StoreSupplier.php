@@ -9,7 +9,7 @@ namespace App\Actions\Procurement\Supplier;
 
 use App\Actions\Assets\Currency\SetCurrencyHistoricFields;
 use App\Actions\Helpers\Address\StoreAddressAttachToModel;
-use App\Actions\InertiaGroupAction;
+use App\Actions\GrpAction;
 use App\Actions\Procurement\Agent\Hydrators\AgentHydrateSuppliers;
 use App\Actions\Procurement\Supplier\Hydrators\SupplierHydrateUniversalSearch;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateProcurement;
@@ -26,7 +26,7 @@ use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class StoreSupplier extends InertiaGroupAction
+class StoreSupplier extends GrpAction
 {
     use AsAction;
     use WithAttributes;

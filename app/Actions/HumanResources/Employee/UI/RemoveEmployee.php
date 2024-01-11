@@ -7,14 +7,14 @@
 
 namespace App\Actions\HumanResources\Employee\UI;
 
-use App\Actions\InertiaOrganisationAction;
+use App\Actions\OrgAction;
 use App\Models\HumanResources\Employee;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class RemoveEmployee extends InertiaOrganisationAction
+class RemoveEmployee extends OrgAction
 {
     public function handle(Employee $employee): Employee
     {

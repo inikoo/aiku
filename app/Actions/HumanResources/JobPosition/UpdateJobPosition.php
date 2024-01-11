@@ -7,14 +7,14 @@
 
 namespace App\Actions\HumanResources\JobPosition;
 
-use App\Actions\InertiaOrganisationAction;
+use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\HumanResources\JobPositionResource;
 use App\Models\HumanResources\JobPosition;
 use App\Models\SysAdmin\Organisation;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdateJobPosition extends InertiaOrganisationAction
+class UpdateJobPosition extends OrgAction
 {
     use WithActionUpdate;
 

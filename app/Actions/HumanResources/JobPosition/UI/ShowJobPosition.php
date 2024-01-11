@@ -9,7 +9,7 @@ namespace App\Actions\HumanResources\JobPosition\UI;
 
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\HumanResources\Employee\UI\IndexEmployees;
-use App\Actions\InertiaOrganisationAction;
+use App\Actions\OrgAction;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
 use App\Enums\UI\JobPositionTabsEnum;
 use App\Http\Resources\History\HistoryResource;
@@ -21,7 +21,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class ShowJobPosition extends InertiaOrganisationAction
+class ShowJobPosition extends OrgAction
 {
     public function handle(JobPosition $jobPosition): JobPosition
     {

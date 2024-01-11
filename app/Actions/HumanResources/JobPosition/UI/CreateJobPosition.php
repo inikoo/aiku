@@ -7,7 +7,7 @@
 
 namespace App\Actions\HumanResources\JobPosition\UI;
 
-use App\Actions\InertiaOrganisationAction;
+use App\Actions\OrgAction;
 use App\Models\Market\ProductCategory;
 use App\Models\SysAdmin\Organisation;
 use Exception;
@@ -16,7 +16,7 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\LaravelOptions\Options;
 
-class CreateJobPosition extends InertiaOrganisationAction
+class CreateJobPosition extends OrgAction
 {
     /**
      * @throws Exception

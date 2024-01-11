@@ -10,7 +10,7 @@ namespace App\Actions\HumanResources\Workplace\UI;
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\HumanResources\Clocking\UI\IndexClockings;
 use App\Actions\HumanResources\ClockingMachine\UI\IndexClockingMachines;
-use App\Actions\InertiaOrganisationAction;
+use App\Actions\OrgAction;
 use App\Actions\Traits\Actions\WithActionButtons;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
 use App\Enums\UI\WorkplaceTabsEnum;
@@ -24,7 +24,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class ShowWorkplace extends InertiaOrganisationAction
+class ShowWorkplace extends OrgAction
 {
     use WithActionButtons;
 

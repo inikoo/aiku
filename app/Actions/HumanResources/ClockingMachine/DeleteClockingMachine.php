@@ -7,7 +7,7 @@
 
 namespace App\Actions\HumanResources\ClockingMachine;
 
-use App\Actions\InertiaOrganisationAction;
+use App\Actions\OrgAction;
 use App\Models\HumanResources\ClockingMachine;
 use App\Models\HumanResources\Workplace;
 use App\Models\SysAdmin\Organisation;
@@ -17,7 +17,7 @@ use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsController;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class DeleteClockingMachine extends InertiaOrganisationAction
+class DeleteClockingMachine extends OrgAction
 {
     use AsController;
     use WithAttributes;

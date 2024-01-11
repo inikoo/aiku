@@ -7,7 +7,7 @@
 
 namespace App\Actions\HumanResources\Clocking\UI;
 
-use App\Actions\InertiaOrganisationAction;
+use App\Actions\OrgAction;
 use App\Enums\UI\LocationTabsEnum;
 use App\Models\HumanResources\Clocking;
 use App\Models\HumanResources\ClockingMachine;
@@ -17,7 +17,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class EditClocking extends InertiaOrganisationAction
+class EditClocking extends OrgAction
 {
     public function handle(Clocking $clocking): Clocking
     {

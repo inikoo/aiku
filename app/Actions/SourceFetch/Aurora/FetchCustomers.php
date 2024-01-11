@@ -32,18 +32,21 @@ class FetchCustomers extends FetchAction
         if ($customerData = $organisationSource->fetchCustomer($organisationSourceId)) {
             if ($customer = Customer::withTrashed()->where('source_id', $customerData['customer']['source_id'])
                 ->first()) {
-                $customer = UpdateCustomer::run($customer, $customerData['customer']);
-
-
+                // print_r($customerData['customer']);
+                $customer = UpdateCustomer::make()->asFetch(
+                    $customer,
+                    $customerData['customer']
+                );
 
             } else {
+
+                print_r($customerData['customer']);
+
                 $customer = StoreCustomer::make()->asFetch(
                     shop: $customerData['shop'],
                     modelData: $customerData['customer'],
                     hydratorsDelay: $this->hydrateDelay
                 );
-
-
 
             }
 

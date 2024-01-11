@@ -7,7 +7,7 @@
 
 namespace App\Actions\HumanResources\Clocking\UI;
 
-use App\Actions\InertiaOrganisationAction;
+use App\Actions\OrgAction;
 use App\Models\HumanResources\ClockingMachine;
 use App\Models\HumanResources\Employee;
 use App\Models\HumanResources\Workplace;
@@ -17,7 +17,7 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\LaravelOptions\Options;
 
-class CreateClocking extends InertiaOrganisationAction
+class CreateClocking extends OrgAction
 {
     public function handle(ActionRequest $request): Response
     {

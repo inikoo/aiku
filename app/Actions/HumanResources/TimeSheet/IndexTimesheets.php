@@ -7,7 +7,7 @@
 
 namespace App\Actions\HumanResources\TimeSheet;
 
-use App\Actions\InertiaOrganisationAction;
+use App\Actions\OrgAction;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
 use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\HumanResources\EmployeeInertiaResource;
@@ -24,7 +24,7 @@ use App\InertiaTable\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
-class IndexTimesheets extends InertiaOrganisationAction
+class IndexTimesheets extends OrgAction
 {
     public function handle(): LengthAwarePaginator
     {

@@ -7,7 +7,7 @@
 
 namespace App\Actions\UI\Inventory;
 
-use App\Actions\InertiaOrganisationAction;
+use App\Actions\OrgAction;
 use App\Actions\UI\Dashboard\ShowDashboard;
 use App\Actions\UI\WithInertia;
 use App\Models\SysAdmin\Organisation;
@@ -17,7 +17,7 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class InventoryDashboard extends InertiaOrganisationAction
+class InventoryDashboard extends OrgAction
 {
     use AsAction;
     use WithInertia;

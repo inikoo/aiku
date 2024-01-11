@@ -9,7 +9,7 @@ namespace App\Actions\CRM\Prospect\Tags\UI;
 
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\CRM\Prospect\IndexProspects;
-use App\Actions\InertiaOrganisationAction;
+use App\Actions\OrgAction;
 use App\Actions\Traits\WithProspectsSubNavigation;
 use App\Enums\UI\TagsTabsEnum;
 use App\Http\Resources\History\HistoryResource;
@@ -27,7 +27,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 use Spatie\Tags\Tag;
 
-class IndexProspectTags extends InertiaOrganisationAction
+class IndexProspectTags extends OrgAction
 {
     use WithProspectsSubNavigation;
 

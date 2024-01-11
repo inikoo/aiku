@@ -7,14 +7,14 @@
 
 namespace App\Actions\HumanResources\JobPosition\UI;
 
-use App\Actions\InertiaOrganisationAction;
+use App\Actions\OrgAction;
 use App\Models\HumanResources\JobPosition;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class RemoveJobPosition extends InertiaOrganisationAction
+class RemoveJobPosition extends OrgAction
 {
     public function handle(JobPosition $jobPosition): JobPosition
     {

@@ -8,7 +8,7 @@
 namespace App\Actions\HumanResources\Employee\UI;
 
 use App\Actions\Helpers\History\IndexHistory;
-use App\Actions\InertiaOrganisationAction;
+use App\Actions\OrgAction;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
 use App\Enums\UI\EmployeeTabsEnum;
 use App\Http\Resources\History\HistoryResource;
@@ -20,7 +20,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class ShowEmployee extends InertiaOrganisationAction
+class ShowEmployee extends OrgAction
 {
     public function handle(Employee $employee): Employee
     {

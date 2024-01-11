@@ -8,7 +8,7 @@
 
 namespace App\Actions\Inventory\WarehouseArea;
 
-use App\Actions\InertiaOrganisationAction;
+use App\Actions\OrgAction;
 use App\Actions\Inventory\WarehouseArea\Hydrators\WarehouseAreaHydrateUniversalSearch;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Inventory\WarehouseAreaResource;
@@ -16,7 +16,7 @@ use App\Models\Inventory\WarehouseArea;
 use App\Rules\IUnique;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdateWarehouseArea extends InertiaOrganisationAction
+class UpdateWarehouseArea extends OrgAction
 {
     use WithActionUpdate;
 

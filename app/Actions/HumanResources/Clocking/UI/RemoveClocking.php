@@ -7,7 +7,7 @@
 
 namespace App\Actions\HumanResources\Clocking\UI;
 
-use App\Actions\InertiaOrganisationAction;
+use App\Actions\OrgAction;
 use App\Models\HumanResources\Clocking;
 use App\Models\HumanResources\ClockingMachine;
 use App\Models\HumanResources\Workplace;
@@ -16,7 +16,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class RemoveClocking extends InertiaOrganisationAction
+class RemoveClocking extends OrgAction
 {
     public function handle(Clocking $clocking): Clocking
     {

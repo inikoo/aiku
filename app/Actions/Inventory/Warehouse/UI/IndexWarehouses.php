@@ -7,7 +7,7 @@
 
 namespace App\Actions\Inventory\Warehouse\UI;
 
-use App\Actions\InertiaOrganisationAction;
+use App\Actions\OrgAction;
 use App\Actions\UI\Inventory\InventoryDashboard;
 use App\Http\Resources\Inventory\WarehouseResource;
 use App\Models\Inventory\Warehouse;
@@ -23,7 +23,7 @@ use App\InertiaTable\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
-class IndexWarehouses extends InertiaOrganisationAction
+class IndexWarehouses extends OrgAction
 {
     private Organisation $parent;
 

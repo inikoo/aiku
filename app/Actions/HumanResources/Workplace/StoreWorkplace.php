@@ -9,7 +9,7 @@ namespace App\Actions\HumanResources\Workplace;
 
 use App\Actions\Helpers\Address\StoreAddressAttachToModel;
 use App\Actions\HumanResources\Workplace\Hydrators\WorkplaceHydrateUniversalSearch;
-use App\Actions\InertiaOrganisationAction;
+use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWorkplaces;
 use App\Enums\HumanResources\Workplace\WorkplaceTypeEnum;
 use App\Models\HumanResources\Workplace;
@@ -24,7 +24,7 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rules\Enum;
 use Lorisleiva\Actions\ActionRequest;
 
-class StoreWorkplace extends InertiaOrganisationAction
+class StoreWorkplace extends OrgAction
 {
     private bool $asAction = false;
 

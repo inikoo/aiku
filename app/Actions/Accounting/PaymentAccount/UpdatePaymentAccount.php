@@ -7,14 +7,14 @@
 
 namespace App\Actions\Accounting\PaymentAccount;
 
-use App\Actions\InertiaOrganisationAction;
+use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Accounting\PaymentAccountResource;
 use App\Models\Accounting\PaymentAccount;
 use App\Rules\IUnique;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdatePaymentAccount extends InertiaOrganisationAction
+class UpdatePaymentAccount extends OrgAction
 {
     use WithActionUpdate;
 

@@ -8,7 +8,7 @@
 namespace App\Actions\Inventory\Warehouse\UI;
 
 use App\Actions\Helpers\History\IndexHistory;
-use App\Actions\InertiaOrganisationAction;
+use App\Actions\OrgAction;
 use App\Actions\Inventory\Location\UI\IndexLocations;
 use App\Actions\Inventory\WarehouseArea\UI\IndexWarehouseAreas;
 use App\Actions\UI\Inventory\InventoryDashboard;
@@ -26,7 +26,7 @@ use Lorisleiva\Actions\ActionRequest;
 /**
  * @property Warehouse $warehouse
  */
-class ShowWarehouse extends InertiaOrganisationAction
+class ShowWarehouse extends OrgAction
 {
     public function handle(Warehouse $warehouse): Warehouse
     {

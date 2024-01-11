@@ -10,7 +10,7 @@ namespace App\Actions\HumanResources\ClockingMachine\UI;
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\HumanResources\Clocking\UI\IndexClockings;
 use App\Actions\HumanResources\Workplace\UI\ShowWorkplace;
-use App\Actions\InertiaOrganisationAction;
+use App\Actions\OrgAction;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
 use App\Enums\UI\ClockingMachineTabsEnum;
 use App\Http\Resources\History\HistoryResource;
@@ -23,7 +23,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class ShowClockingMachine extends InertiaOrganisationAction
+class ShowClockingMachine extends OrgAction
 {
     public function authorize(ActionRequest $request): bool
     {

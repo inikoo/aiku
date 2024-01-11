@@ -7,14 +7,14 @@
 
 namespace App\Actions\HumanResources\Clocking;
 
-use App\Actions\InertiaOrganisationAction;
+use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Inventory\LocationResource;
 use App\Models\HumanResources\Clocking;
 use App\Models\SysAdmin\Organisation;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdateClocking extends InertiaOrganisationAction
+class UpdateClocking extends OrgAction
 {
     use WithActionUpdate;
 

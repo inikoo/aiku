@@ -13,7 +13,7 @@ use App\Actions\Helpers\Address\UpdateAddress;
 use App\Actions\Helpers\TaxNumber\DeleteTaxNumber;
 use App\Actions\Helpers\TaxNumber\StoreTaxNumber;
 use App\Actions\Helpers\TaxNumber\UpdateTaxNumber;
-use App\Actions\InertiaOrganisationAction;
+use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Sales\CustomerResource;
 use App\Models\CRM\Customer;
@@ -24,7 +24,7 @@ use App\Rules\ValidAddress;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdateCustomer extends InertiaOrganisationAction
+class UpdateCustomer extends OrgAction
 {
     use WithActionUpdate;
 
@@ -114,8 +114,8 @@ class UpdateCustomer extends InertiaOrganisationAction
     public function rules(): array
     {
         $rules = [
-            'contact_name'             => ['sometimes', 'string', 'max:255'],
-            'company_name'             => ['sometimes', 'string', 'max:255'],
+            'contact_name'             => ['sometimes','nullable', 'string', 'max:255'],
+            'company_name'             => ['sometimes', 'nullable','string', 'max:255'],
             'email'                    => [
                 'sometimes',
                 'nullable',

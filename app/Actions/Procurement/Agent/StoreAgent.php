@@ -9,7 +9,7 @@ namespace App\Actions\Procurement\Agent;
 
 use App\Actions\Assets\Currency\SetCurrencyHistoricFields;
 use App\Actions\Helpers\Address\StoreAddressAttachToModel;
-use App\Actions\InertiaGroupAction;
+use App\Actions\GrpAction;
 use App\Actions\Procurement\Agent\Hydrators\AgentHydrateUniversalSearch;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateProcurement;
 use App\Models\SysAdmin\Group;
@@ -22,7 +22,7 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\ActionRequest;
 
-class StoreAgent extends InertiaGroupAction
+class StoreAgent extends GrpAction
 {
     private bool $asAction = false;
 

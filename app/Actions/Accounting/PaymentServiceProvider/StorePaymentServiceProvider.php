@@ -7,7 +7,7 @@
 
 namespace App\Actions\Accounting\PaymentServiceProvider;
 
-use App\Actions\InertiaOrganisationAction;
+use App\Actions\OrgAction;
 use App\Enums\Accounting\PaymentServiceProvider\PaymentServiceProviderTypeEnum;
 use App\Models\Accounting\PaymentServiceProvider;
 use App\Models\SysAdmin\Organisation;
@@ -19,7 +19,7 @@ use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class StorePaymentServiceProvider extends InertiaOrganisationAction
+class StorePaymentServiceProvider extends OrgAction
 {
     use AsAction;
     use WithAttributes;

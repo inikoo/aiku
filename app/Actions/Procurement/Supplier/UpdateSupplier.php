@@ -8,7 +8,7 @@
 namespace App\Actions\Procurement\Supplier;
 
 use App\Actions\Helpers\Address\UpdateAddress;
-use App\Actions\InertiaGroupAction;
+use App\Actions\GrpAction;
 use App\Actions\Procurement\Supplier\Hydrators\SupplierHydrateUniversalSearch;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Procurement\SupplierResource;
@@ -18,7 +18,7 @@ use App\Rules\ValidAddress;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdateSupplier extends InertiaGroupAction
+class UpdateSupplier extends GrpAction
 {
     use WithActionUpdate;
 

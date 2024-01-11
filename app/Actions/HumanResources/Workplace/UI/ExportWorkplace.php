@@ -7,7 +7,7 @@
 
 namespace App\Actions\HumanResources\Workplace\UI;
 
-use App\Actions\InertiaOrganisationAction;
+use App\Actions\OrgAction;
 use App\Actions\Traits\WithExportData;
 use App\Exports\HumanResources\WorkplacesExport;
 use App\Models\SysAdmin\Organisation;
@@ -16,7 +16,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
-class ExportWorkplace extends InertiaOrganisationAction
+class ExportWorkplace extends OrgAction
 {
     use AsAction;
     use WithAttributes;

@@ -13,7 +13,7 @@ use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class InertiaGroupAction
+class GrpAction
 {
     use AsAction;
     use WithAttributes;
