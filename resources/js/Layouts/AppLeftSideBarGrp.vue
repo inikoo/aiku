@@ -203,7 +203,7 @@ const generateLabel = (item) => {
             </div>
             <Transition>
                 <span class="capitalize leading-none whitespace-nowrap" :class="[layout.leftSidebar.show ? 'block md:block' : 'block md:hidden']">
-                    {{ generateLabel(item) }}
+                    {{ item.label }}
                 </span>
             </Transition>
         </Link>
