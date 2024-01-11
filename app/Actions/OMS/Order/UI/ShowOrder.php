@@ -44,7 +44,7 @@ class ShowOrder extends InertiaAction
         return $request->user()->hasPermissionTo("shops.orders.view");
     }
 
-    public function inTenant(Order $order, ActionRequest $request): Order
+    public function inOrganisation(Order $order, ActionRequest $request): Order
     {
         $this->initialisation($request)->withTab(OrderTabsEnum::values());
         return $this->handle($order);

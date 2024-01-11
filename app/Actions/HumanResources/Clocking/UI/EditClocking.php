@@ -30,9 +30,9 @@ class EditClocking extends InertiaOrganisationAction
         return $request->user()->hasPermissionTo("human-resources.{$this->organisation->slug}");
     }
 
-    public function inTenant(Clocking $clocking, ActionRequest $request): Clocking
+    public function inOrganisation(Organisation $organisation, Clocking $clocking, ActionRequest $request): Clocking
     {
-        $this->initialisation($request);
+        $this->initialisation($organisation, $request);
 
         return $this->handle($clocking);
     }

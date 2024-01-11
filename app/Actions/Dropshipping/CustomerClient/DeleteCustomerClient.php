@@ -11,6 +11,7 @@ use App\Actions\CRM\Customer\Hydrators\CustomerHydrateClients;
 use App\Actions\Traits\WithActionUpdate;
 use App\Actions\Traits\WithOrganisationArgument;
 use App\Models\Dropshipping\CustomerClient;
+use Exception;
 use Illuminate\Console\Command;
 
 class DeleteCustomerClient
@@ -18,7 +19,7 @@ class DeleteCustomerClient
     use WithActionUpdate;
     use WithOrganisationArgument;
 
-    public string $commandSignature = 'delete:customer-client {tenant} {id}';
+    public string $commandSignature = 'delete:customer-client {slug}';
 
     public function handle(CustomerClient $customerClient, array $deletedData=[], bool $skipHydrate = false): CustomerClient
     {
@@ -33,9 +34,14 @@ class DeleteCustomerClient
 
     public function asCommand(Command $command): int
     {
-        $this->getTenant($command)->execute(
-            fn () => $this->handle(CustomerClient::findOrFail($command->argument('id')))
-        );
+        try {
+            $customerClient = CustomerClient::where('slug'.$command->argument('slug'))->firstOrFail();
+        } catch (Exception) {
+            $command->error('Customer Client not found');
+            return 1;
+        }
+
+        $this->handle($customerClient);
 
         return 0;
     }

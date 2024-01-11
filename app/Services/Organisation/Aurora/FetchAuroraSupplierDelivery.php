@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 09 May 2023 14:50:49 Malaysia Time, Pantai Lembeng, Bali, Id
+ * Created: Tue, 09 May 2023 14:50:49 Malaysia Time, Pantai Lembeng, Bali, Indonesia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
@@ -59,11 +59,11 @@ class FetchAuroraSupplierDelivery extends FetchAurora
         $this->parsedData["purchase_order"] = [
             'date'            => $this->auroraModelData->{'Supplier Delivery Date'},
 
-            'dispatched_at'     => $this->parseDate($this->auroraModelData->{'Supplier Delivery Submitted Date'}),
-            'received_at'       => $this->parseDate($this->auroraModelData->{'Supplier Delivery Confirmed Date'}),
-            'placed_at'         => $this->parseDate($this->auroraModelData->{'Supplier Delivery Manufactured Date'}),
-            'received_at'       => $this->parseDate($this->auroraModelData->{'Supplier Delivery Received Date'}),
-            'cancelled_at'      => $this->parseDate($this->auroraModelData->{'Supplier Delivery Checked Date'}),
+            'dispatched_at'      => $this->parseDate($this->auroraModelData->{'Supplier Delivery Submitted Date'}),
+            'confirmed_at'       => $this->parseDate($this->auroraModelData->{'Supplier Delivery Confirmed Date'}),
+            'placed_at'          => $this->parseDate($this->auroraModelData->{'Supplier Delivery Manufactured Date'}),
+            'received_at'        => $this->parseDate($this->auroraModelData->{'Supplier Delivery Received Date'}),
+            'cancelled_at'       => $this->parseDate($this->auroraModelData->{'Supplier Delivery Checked Date'}),
 
 
             "number" => $this->auroraModelData->{'Supplier Delivery Public ID'} ?? $this->auroraModelData->{'Supplier Delivery Key'},

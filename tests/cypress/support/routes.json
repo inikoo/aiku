@@ -864,7 +864,7 @@
   "inventory.warehouse-areas.index": {
     "name": "inventory.warehouse-areas.index",
     "domain": null,
-    "action": "App\\Actions\\Inventory\\WarehouseArea\\UI\\IndexWarehouseAreas@inTenant",
+    "action": "App\\Actions\\Inventory\\WarehouseArea\\UI\\IndexWarehouseAreas@inOrganisation",
     "uri": "inventory/areas",
     "method": [
       "GET",
@@ -884,7 +884,7 @@
   "inventory.warehouse-areas.show": {
     "name": "inventory.warehouse-areas.show",
     "domain": null,
-    "action": "App\\Actions\\Inventory\\WarehouseArea\\UI\\ShowWarehouseArea@inTenant",
+    "action": "App\\Actions\\Inventory\\WarehouseArea\\UI\\ShowWarehouseArea@inOrganisation",
     "uri": "inventory/areas/{warehouseArea}",
     "method": [
       "GET",
@@ -894,7 +894,7 @@
   "inventory.warehouse-areas.edit": {
     "name": "inventory.warehouse-areas.edit",
     "domain": null,
-    "action": "App\\Actions\\Inventory\\WarehouseArea\\UI\\EditWarehouseArea@inTenant",
+    "action": "App\\Actions\\Inventory\\WarehouseArea\\UI\\EditWarehouseArea@inOrganisation",
     "uri": "inventory/areas/{warehouseArea}/edit",
     "method": [
       "GET",
@@ -904,7 +904,7 @@
   "inventory.locations.index": {
     "name": "inventory.locations.index",
     "domain": null,
-    "action": "App\\Actions\\Inventory\\Location\\UI\\IndexLocations@inTenant",
+    "action": "App\\Actions\\Inventory\\Location\\UI\\IndexLocations@inOrganisation",
     "uri": "inventory/locations",
     "method": [
       "GET",
@@ -924,7 +924,7 @@
   "inventory.locations.show": {
     "name": "inventory.locations.show",
     "domain": null,
-    "action": "App\\Actions\\Inventory\\Location\\UI\\ShowLocation@inTenant",
+    "action": "App\\Actions\\Inventory\\Location\\UI\\ShowLocation@inOrganisation",
     "uri": "inventory/locations/{location}",
     "method": [
       "GET",
@@ -934,7 +934,7 @@
   "inventory.locations.edit": {
     "name": "inventory.locations.edit",
     "domain": null,
-    "action": "App\\Actions\\Inventory\\Location\\UI\\EditLocation@inTenant",
+    "action": "App\\Actions\\Inventory\\Location\\UI\\EditLocation@inOrganisation",
     "uri": "inventory/locations/{location}/edit",
     "method": [
       "GET",
@@ -2493,7 +2493,7 @@
   "accounting.payment-accounts.index": {
     "name": "accounting.payment-accounts.index",
     "domain": null,
-    "action": "App\\Actions\\Accounting\\PaymentAccount\\UI\\IndexPaymentAccounts@inTenant",
+    "action": "App\\Actions\\Accounting\\PaymentAccount\\UI\\IndexPaymentAccounts@inOrganisation",
     "uri": "accounting/accounts",
     "method": [
       "GET",
@@ -2503,7 +2503,7 @@
   "accounting.payment-accounts.show": {
     "name": "accounting.payment-accounts.show",
     "domain": null,
-    "action": "App\\Actions\\Accounting\\PaymentAccount\\UI\\ShowPaymentAccount@inTenant",
+    "action": "App\\Actions\\Accounting\\PaymentAccount\\UI\\ShowPaymentAccount@inOrganisation",
     "uri": "accounting/accounts/{paymentAccount}",
     "method": [
       "GET",
@@ -2543,7 +2543,7 @@
   "accounting.payments.index": {
     "name": "accounting.payments.index",
     "domain": null,
-    "action": "App\\Actions\\Accounting\\Payment\\UI\\IndexPayments@inTenant",
+    "action": "App\\Actions\\Accounting\\Payment\\UI\\IndexPayments@inOrganisation",
     "uri": "accounting/payments",
     "method": [
       "GET",
@@ -2553,7 +2553,7 @@
   "accounting.payments.show": {
     "name": "accounting.payments.show",
     "domain": null,
-    "action": "App\\Actions\\Accounting\\Payment\\UI\\ShowPayment@inTenant",
+    "action": "App\\Actions\\Accounting\\Payment\\UI\\ShowPayment@inOrganisation",
     "uri": "accounting/payments/{payment}",
     "method": [
       "GET",
@@ -2563,7 +2563,7 @@
   "accounting.payments.edit": {
     "name": "accounting.payments.edit",
     "domain": null,
-    "action": "App\\Actions\\Accounting\\Payment\\UI\\EditPayment@inTenant",
+    "action": "App\\Actions\\Accounting\\Payment\\UI\\EditPayment@inOrganisation",
     "uri": "accounting/payments/{payment}/edit",
     "method": [
       "GET",
@@ -2573,7 +2573,7 @@
   "accounting.invoices.index": {
     "name": "accounting.invoices.index",
     "domain": null,
-    "action": "App\\Actions\\Accounting\\Invoice\\IndexInvoices@inTenant",
+    "action": "App\\Actions\\Accounting\\Invoice\\IndexInvoices@inOrganisation",
     "uri": "accounting/invoices",
     "method": [
       "GET",
@@ -2583,7 +2583,7 @@
   "accounting.invoices.show": {
     "name": "accounting.invoices.show",
     "domain": null,
-    "action": "App\\Actions\\Accounting\\Invoice\\ShowInvoice@inTenant",
+    "action": "App\\Actions\\Accounting\\Invoice\\ShowInvoice@inOrganisation",
     "uri": "accounting/invoices/{invoice}",
     "method": [
       "GET",
@@ -2603,7 +2603,7 @@
   "mail.hub": {
     "name": "mail.hub",
     "domain": null,
-    "action": "App\\Actions\\UI\\Mail\\MailHub@inTenant",
+    "action": "App\\Actions\\UI\\Mail\\MailHub@inOrganisation",
     "uri": "mail",
     "method": [
       "GET",
@@ -2613,7 +2613,7 @@
   "mail.mailrooms.index": {
     "name": "mail.mailrooms.index",
     "domain": null,
-    "action": "App\\Actions\\Mail\\Mailroom\\IndexMailrooms@inTenant",
+    "action": "App\\Actions\\Mail\\Mailroom\\IndexMailrooms@inOrganisation",
     "uri": "mail/mailrooms",
     "method": [
       "GET",
@@ -2623,7 +2623,7 @@
   "mail.mailrooms.show": {
     "name": "mail.mailrooms.show",
     "domain": null,
-    "action": "App\\Actions\\Mail\\Mailroom\\ShowMailroom@inTenant",
+    "action": "App\\Actions\\Mail\\Mailroom\\ShowMailroom@inOrganisation",
     "uri": "mail/mailrooms/{mailroom}",
     "method": [
       "GET",
@@ -2633,7 +2633,7 @@
   "mail.mailrooms.show.outboxes.index": {
     "name": "mail.mailrooms.show.outboxes.index",
     "domain": null,
-    "action": "App\\Actions\\Mail\\Outbox\\IndexOutboxes@inTenant",
+    "action": "App\\Actions\\Mail\\Outbox\\IndexOutboxes@inOrganisation",
     "uri": "mail/mailrooms/{mailroom}/outboxes",
     "method": [
       "GET",
@@ -2693,7 +2693,7 @@
   "mail.mailrooms.show.mailshots.index": {
     "name": "mail.mailrooms.show.mailshots.index",
     "domain": null,
-    "action": "App\\Actions\\Mail\\Mailshot\\IndexMailshots@inTenant",
+    "action": "App\\Actions\\Mail\\Mailshot\\IndexMailshots@inOrganisation",
     "uri": "mail/mailrooms/{mailroom}/mailshots",
     "method": [
       "GET",
@@ -2703,7 +2703,7 @@
   "mail.mailrooms.show.mailshots.show": {
     "name": "mail.mailrooms.show.mailshots.show",
     "domain": null,
-    "action": "App\\Actions\\Mail\\Mailroom\\ShowMailroom@inTenant",
+    "action": "App\\Actions\\Mail\\Mailroom\\ShowMailroom@inOrganisation",
     "uri": "mail/mailrooms/{mailroom}/mailshots/{mailshot}",
     "method": [
       "GET",
@@ -2713,7 +2713,7 @@
   "mail.mailrooms.show.mailshots.show.dispatched-emails.index": {
     "name": "mail.mailrooms.show.mailshots.show.dispatched-emails.index",
     "domain": null,
-    "action": "App\\Actions\\Mail\\DispatchedEmail\\IndexDispatchedEmails@inTenant",
+    "action": "App\\Actions\\Mail\\DispatchedEmail\\IndexDispatchedEmails@inOrganisation",
     "uri": "mail/mailrooms/{mailroom}/mailshots/{mailshot}/dispatched-emails",
     "method": [
       "GET",
@@ -2723,7 +2723,7 @@
   "mail.mailrooms.show.mailshots.show.dispatched-emails.show": {
     "name": "mail.mailrooms.show.mailshots.show.dispatched-emails.show",
     "domain": null,
-    "action": "App\\Actions\\Mail\\DispatchedEmail\\ShowDispatchedEmail@inTenant",
+    "action": "App\\Actions\\Mail\\DispatchedEmail\\ShowDispatchedEmail@inOrganisation",
     "uri": "mail/mailrooms/{mailroom}/mailshots/{mailshot}/dispatched-emails/{dispatchedEmail}",
     "method": [
       "GET",
@@ -2733,7 +2733,7 @@
   "mail.mailrooms.show.dispatched-emails.index": {
     "name": "mail.mailrooms.show.dispatched-emails.index",
     "domain": null,
-    "action": "App\\Actions\\Mail\\DispatchedEmail\\IndexDispatchedEmails@inTenant",
+    "action": "App\\Actions\\Mail\\DispatchedEmail\\IndexDispatchedEmails@inOrganisation",
     "uri": "mail/mailrooms/{mailroom}/dispatched-emails",
     "method": [
       "GET",
@@ -2743,7 +2743,7 @@
   "mail.mailrooms.show.dispatched-emails.show": {
     "name": "mail.mailrooms.show.dispatched-emails.show",
     "domain": null,
-    "action": "App\\Actions\\Mail\\DispatchedEmail\\ShowDispatchedEmail@inTenant",
+    "action": "App\\Actions\\Mail\\DispatchedEmail\\ShowDispatchedEmail@inOrganisation",
     "uri": "mail/mailrooms/{mailroom}/dispatched-emails/{dispatchedEmail}",
     "method": [
       "GET",
@@ -2753,7 +2753,7 @@
   "mail.outboxes.index": {
     "name": "mail.outboxes.index",
     "domain": null,
-    "action": "App\\Actions\\Mail\\Outbox\\IndexOutboxes@inTenant",
+    "action": "App\\Actions\\Mail\\Outbox\\IndexOutboxes@inOrganisation",
     "uri": "mail/outboxes",
     "method": [
       "GET",
@@ -2763,7 +2763,7 @@
   "mail.outboxes.show": {
     "name": "mail.outboxes.show",
     "domain": null,
-    "action": "App\\Actions\\Mail\\Outbox\\ShowOutbox@inTenant",
+    "action": "App\\Actions\\Mail\\Outbox\\ShowOutbox@inOrganisation",
     "uri": "mail/outboxes/{outbox}",
     "method": [
       "GET",
@@ -2773,7 +2773,7 @@
   "mail.outboxes.edit": {
     "name": "mail.outboxes.edit",
     "domain": null,
-    "action": "App\\Actions\\Mail\\Outbox\\UI\\EditOutbox@inTenant",
+    "action": "App\\Actions\\Mail\\Outbox\\UI\\EditOutbox@inOrganisation",
     "uri": "mail/outboxes/{outbox}/edit",
     "method": [
       "GET",
@@ -2783,7 +2783,7 @@
   "mail.outboxes.show.mailshots.index": {
     "name": "mail.outboxes.show.mailshots.index",
     "domain": null,
-    "action": "App\\Actions\\Mail\\Mailshot\\IndexMailshots@inTenant",
+    "action": "App\\Actions\\Mail\\Mailshot\\IndexMailshots@inOrganisation",
     "uri": "mail/outboxes/{outbox}/mailshots",
     "method": [
       "GET",
@@ -2793,7 +2793,7 @@
   "mail.outboxes.show.mailshots.show": {
     "name": "mail.outboxes.show.mailshots.show",
     "domain": null,
-    "action": "App\\Actions\\Mail\\Mailshot\\ShowMailshot@inTenant",
+    "action": "App\\Actions\\Mail\\Mailshot\\ShowMailshot@inOrganisation",
     "uri": "mail/outboxes/{outbox}/mailshots/{mailshot}",
     "method": [
       "GET",
@@ -2803,7 +2803,7 @@
   "mail.outboxes.show.mailshots.show.dispatched-emails.index": {
     "name": "mail.outboxes.show.mailshots.show.dispatched-emails.index",
     "domain": null,
-    "action": "App\\Actions\\Mail\\DispatchedEmail\\IndexDispatchedEmails@inTenant",
+    "action": "App\\Actions\\Mail\\DispatchedEmail\\IndexDispatchedEmails@inOrganisation",
     "uri": "mail/outboxes/{outbox}/mailshots/{mailshot}/dispatched-emails",
     "method": [
       "GET",
@@ -2813,7 +2813,7 @@
   "mail.outboxes.show.mailshots.show.dispatched-emails.show": {
     "name": "mail.outboxes.show.mailshots.show.dispatched-emails.show",
     "domain": null,
-    "action": "App\\Actions\\Mail\\DispatchedEmail\\ShowDispatchedEmail@inTenant",
+    "action": "App\\Actions\\Mail\\DispatchedEmail\\ShowDispatchedEmail@inOrganisation",
     "uri": "mail/outboxes/{outbox}/mailshots/{mailshot}/dispatched-emails/{dispatchedEmail}",
     "method": [
       "GET",
@@ -2823,7 +2823,7 @@
   "mail.outboxes.show.dispatched-emails.index": {
     "name": "mail.outboxes.show.dispatched-emails.index",
     "domain": null,
-    "action": "App\\Actions\\Mail\\DispatchedEmail\\IndexDispatchedEmails@inTenant",
+    "action": "App\\Actions\\Mail\\DispatchedEmail\\IndexDispatchedEmails@inOrganisation",
     "uri": "mail/outboxes/{outbox}/dispatched-emails",
     "method": [
       "GET",
@@ -2833,7 +2833,7 @@
   "mail.outboxes.show.dispatched-emails.show": {
     "name": "mail.outboxes.show.dispatched-emails.show",
     "domain": null,
-    "action": "App\\Actions\\Mail\\DispatchedEmail\\ShowDispatchedEmail@inTenant",
+    "action": "App\\Actions\\Mail\\DispatchedEmail\\ShowDispatchedEmail@inOrganisation",
     "uri": "mail/outboxes/{outbox}/dispatched-emails/{dispatchedEmail}",
     "method": [
       "GET",
@@ -2843,7 +2843,7 @@
   "mail.mailshots.index": {
     "name": "mail.mailshots.index",
     "domain": null,
-    "action": "App\\Actions\\Mail\\Mailshot\\IndexMailshots@inTenant",
+    "action": "App\\Actions\\Mail\\Mailshot\\IndexMailshots@inOrganisation",
     "uri": "mail/mailshots",
     "method": [
       "GET",
@@ -2853,7 +2853,7 @@
   "mail.mailshots.show": {
     "name": "mail.mailshots.show",
     "domain": null,
-    "action": "App\\Actions\\Mail\\Mailshot\\ShowMailshot@inTenant",
+    "action": "App\\Actions\\Mail\\Mailshot\\ShowMailshot@inOrganisation",
     "uri": "mail/mailshots/{mailshot}",
     "method": [
       "GET",
@@ -2863,7 +2863,7 @@
   "mail.mailshots.show.dispatched-emails.index": {
     "name": "mail.mailshots.show.dispatched-emails.index",
     "domain": null,
-    "action": "App\\Actions\\Mail\\DispatchedEmail\\IndexDispatchedEmails@inTenant",
+    "action": "App\\Actions\\Mail\\DispatchedEmail\\IndexDispatchedEmails@inOrganisation",
     "uri": "mail/mailshots/{mailshot}/dispatched-emails",
     "method": [
       "GET",
@@ -2873,7 +2873,7 @@
   "mail.mailshots.show.dispatched-emails.show": {
     "name": "mail.mailshots.show.dispatched-emails.show",
     "domain": null,
-    "action": "App\\Actions\\Mail\\DispatchedEmail\\ShowDispatchedEmail@inTenant",
+    "action": "App\\Actions\\Mail\\DispatchedEmail\\ShowDispatchedEmail@inOrganisation",
     "uri": "mail/mailshots/{mailshot}/dispatched-emails/{dispatchedEmail}",
     "method": [
       "GET",
@@ -2883,7 +2883,7 @@
   "mail.dispatched-emails.index": {
     "name": "mail.dispatched-emails.index",
     "domain": null,
-    "action": "App\\Actions\\Mail\\DispatchedEmail\\IndexDispatchedEmails@inTenant",
+    "action": "App\\Actions\\Mail\\DispatchedEmail\\IndexDispatchedEmails@inOrganisation",
     "uri": "mail/dispatched-emails",
     "method": [
       "GET",
@@ -2893,7 +2893,7 @@
   "mail.dispatched-emails.show": {
     "name": "mail.dispatched-emails.show",
     "domain": null,
-    "action": "App\\Actions\\Mail\\DispatchedEmail\\ShowDispatchedEmail@inTenant",
+    "action": "App\\Actions\\Mail\\DispatchedEmail\\ShowDispatchedEmail@inOrganisation",
     "uri": "mail/dispatched-emails/{dispatchedEmail}",
     "method": [
       "GET",
@@ -3096,7 +3096,7 @@
   "shops": {
     "name": "shops",
     "domain": null,
-    "action": "App\\Actions\\UI\\Catalogue\\CatalogueHub@inTenant",
+    "action": "App\\Actions\\UI\\Catalogue\\CatalogueHub@inOrganisation",
     "uri": "catalogue",
     "method": [
       "GET",
@@ -3106,7 +3106,7 @@
   "shops.products.index": {
     "name": "shops.products.index",
     "domain": null,
-    "action": "App\\Actions\\Marketing\\Product\\UI\\IndexProducts@inTenant",
+    "action": "App\\Actions\\Marketing\\Product\\UI\\IndexProducts@inOrganisation",
     "uri": "catalogue/products",
     "method": [
       "GET",
@@ -3116,7 +3116,7 @@
   "shops.products.show": {
     "name": "shops.products.show",
     "domain": null,
-    "action": "App\\Actions\\Marketing\\Product\\UI\\ShowProduct@inTenant",
+    "action": "App\\Actions\\Marketing\\Product\\UI\\ShowProduct@inOrganisation",
     "uri": "catalogue/products/{product}",
     "method": [
       "GET",
@@ -3126,7 +3126,7 @@
   "shops.products.edit": {
     "name": "shops.products.edit",
     "domain": null,
-    "action": "App\\Actions\\Marketing\\Product\\UI\\EditProduct@inTenant",
+    "action": "App\\Actions\\Marketing\\Product\\UI\\EditProduct@inOrganisation",
     "uri": "catalogue/products/{product}/edit",
     "method": [
       "GET",
@@ -3136,7 +3136,7 @@
   "shops.departments.index": {
     "name": "shops.departments.index",
     "domain": null,
-    "action": "App\\Actions\\Marketing\\ProductCategory\\UI\\IndexDepartments@inTenant",
+    "action": "App\\Actions\\Marketing\\ProductCategory\\UI\\IndexDepartments@inOrganisation",
     "uri": "catalogue/departments",
     "method": [
       "GET",
@@ -3146,7 +3146,7 @@
   "shops.departments.show": {
     "name": "shops.departments.show",
     "domain": null,
-    "action": "App\\Actions\\Marketing\\ProductCategory\\UI\\ShowDepartment@inTenant",
+    "action": "App\\Actions\\Marketing\\ProductCategory\\UI\\ShowDepartment@inOrganisation",
     "uri": "catalogue/departments/{department}",
     "method": [
       "GET",
@@ -3156,7 +3156,7 @@
   "shops.departments.edit": {
     "name": "shops.departments.edit",
     "domain": null,
-    "action": "App\\Actions\\Marketing\\ProductCategory\\UI\\EditDepartment@inTenant",
+    "action": "App\\Actions\\Marketing\\ProductCategory\\UI\\EditDepartment@inOrganisation",
     "uri": "catalogue/departments/{department}/edit",
     "method": [
       "GET",
@@ -3196,7 +3196,7 @@
   "customers.index": {
     "name": "customers.index",
     "domain": null,
-    "action": "App\\Actions\\Sales\\Customer\\UI\\IndexCustomers@inTenant",
+    "action": "App\\Actions\\Sales\\Customer\\UI\\IndexCustomers@inOrganisation",
     "uri": "customers",
     "method": [
       "GET",
@@ -3206,7 +3206,7 @@
   "customers.show": {
     "name": "customers.show",
     "domain": null,
-    "action": "App\\Actions\\Sales\\Customer\\UI\\ShowCustomer@inTenant",
+    "action": "App\\Actions\\Sales\\Customer\\UI\\ShowCustomer@inOrganisation",
     "uri": "customers/{customer}",
     "method": [
       "GET",
@@ -3216,7 +3216,7 @@
   "customers.edit": {
     "name": "customers.edit",
     "domain": null,
-    "action": "App\\Actions\\Sales\\Customer\\UI\\EditCustomer@inTenant",
+    "action": "App\\Actions\\Sales\\Customer\\UI\\EditCustomer@inOrganisation",
     "uri": "customers/{customer}/edit",
     "method": [
       "GET",
@@ -3266,7 +3266,7 @@
   "orders.index": {
     "name": "orders.index",
     "domain": null,
-    "action": "App\\Actions\\Sales\\Order\\IndexOrders@inTenant",
+    "action": "App\\Actions\\Sales\\Order\\IndexOrders@inOrganisation",
     "uri": "orders",
     "method": [
       "GET",
@@ -3276,7 +3276,7 @@
   "orders.show": {
     "name": "orders.show",
     "domain": null,
-    "action": "App\\Actions\\Sales\\Order\\ShowOrder@inTenant",
+    "action": "App\\Actions\\Sales\\Order\\ShowOrder@inOrganisation",
     "uri": "orders/{order}",
     "method": [
       "GET",
@@ -3286,7 +3286,7 @@
   "orders.show.delivery-notes.show": {
     "name": "orders.show.delivery-notes.show",
     "domain": null,
-    "action": "App\\Actions\\Dispatch\\DeliveryNote\\ShowDeliveryNote@inTenant",
+    "action": "App\\Actions\\Dispatch\\DeliveryNote\\ShowDeliveryNote@inOrganisation",
     "uri": "orders/{order}/delivery-notes/{deliveryNote}",
     "method": [
       "GET",
@@ -3296,7 +3296,7 @@
   "orders.show.orders.show.payments.show": {
     "name": "orders.show.orders.show.payments.show",
     "domain": null,
-    "action": "App\\Actions\\Accounting\\Payment\\UI\\ShowPayment@inTenant",
+    "action": "App\\Actions\\Accounting\\Payment\\UI\\ShowPayment@inOrganisation",
     "uri": "orders/{order}/payments/{payment}",
     "method": [
       "GET",
@@ -3306,7 +3306,7 @@
   "orders.show.orders.show.payments.edit": {
     "name": "orders.show.orders.show.payments.edit",
     "domain": null,
-    "action": "App\\Actions\\Accounting\\Payment\\UI\\EditPayment@inTenant",
+    "action": "App\\Actions\\Accounting\\Payment\\UI\\EditPayment@inOrganisation",
     "uri": "orders/{order}/payments/{payment}/edit",
     "method": [
       "GET",

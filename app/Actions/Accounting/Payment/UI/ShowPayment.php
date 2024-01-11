@@ -37,7 +37,7 @@ class ShowPayment extends InertiaAction
         return $request->user()->hasPermissionTo("accounting.view");
     }
 
-    public function inTenant(Payment $payment, ActionRequest $request): Payment
+    public function inOrganisation(Payment $payment, ActionRequest $request): Payment
     {
         $this->initialisation($request)->withTab(PaymentTabsEnum::values());
         return $this->handle($payment);

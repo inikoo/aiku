@@ -13,13 +13,12 @@ use App\Models\Inventory\Location;
 use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
-use JetBrains\PhpStorm\NoReturn;
 
 class FetchLocations extends FetchAction
 {
     public string $commandSignature = 'fetch:locations {organisations?*} {--s|source_id=} {--d|db_suffix=}';
 
-    #[NoReturn] public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Location
+    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Location
     {
         if ($locationData = $organisationSource->fetchLocation($organisationSourceId)) {
             if ($location = Location::withTrashed()->where('source_id', $locationData['location']['source_id'])

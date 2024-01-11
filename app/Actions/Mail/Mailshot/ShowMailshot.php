@@ -33,7 +33,7 @@ class ShowMailshot extends InertiaAction
         return $request->user()->hasPermissionTo('marketing.view');
     }
 
-    public function inTenant(Mailshot $mailshot, ActionRequest $request): Mailshot
+    public function inOrganisation(Mailshot $mailshot, ActionRequest $request): Mailshot
     {
         //$this->routeName = $request->route()->getName();
         //$this->validateAttributes();

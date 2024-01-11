@@ -19,10 +19,10 @@ use App\Actions\OMS\Order\UI\ShowOrder;
 use App\Actions\UI\CRM\ShowShopCRMDashboard;
 
 /*
-Route::get('/', [ShowShopCRMDashboard::class,'inTenant'])->name('dashboard');
-Route::get('/customers', [IndexCustomers::class, 'inTenant'])->name('customers.index');
-Route::get('/customers/{customer}', [ShowCustomer::class, 'inTenant'])->name('customers.show');
-Route::get('/customers/{customer}/edit', [EditCustomer::class, 'inTenant'])->name('customers.edit');
+Route::get('/', [ShowShopCRMDashboard::class,'inOrganisation'])->name('dashboard');
+Route::get('/customers', [IndexCustomers::class, 'inOrganisation'])->name('customers.index');
+Route::get('/customers/{customer}', [ShowCustomer::class, 'inOrganisation'])->name('customers.show');
+Route::get('/customers/{customer}/edit', [EditCustomer::class, 'inOrganisation'])->name('customers.edit');
 Route::get('/customers/{customer}/delete', RemoveCustomer::class)->name('customers.remove');
 Route::get('/customers/{customer}/orders/{order}', [ShowOrder::class,'inCustomerInTenant'])->name('customers.show.orders.show');
 Route::get('/customers/{customer}/web-users', [IndexWebUser::class, 'inCustomerInTenant'])->name('customers.show.web-users.index');
@@ -30,7 +30,7 @@ Route::get('/customers/{customer}/web-users/{webUser}', [ShowWebUser::class, 'in
 Route::get('/customers/{customer}/web-users/{webUser}/edit', [EditWebUser::class, 'inCustomerInTenant'])->name('customers.show.web-users.edit');
 
 
-Route::get('/prospects', [IndexProspects::class, 'inTenant'])->name('prospects.index');
+Route::get('/prospects', [IndexProspects::class, 'inOrganisation'])->name('prospects.index');
 */
 
 Route::get('', [ShowShopCRMDashboard::class, 'inShop'])->name('dashboard');

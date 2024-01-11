@@ -31,7 +31,7 @@ class ShowWarehouseArea extends InertiaAction
         return $request->user()->hasPermissionTo("inventory.view");
     }
 
-    public function inTenant(WarehouseArea $warehouseArea, ActionRequest $request): WarehouseArea
+    public function inOrganisation(WarehouseArea $warehouseArea, ActionRequest $request): WarehouseArea
     {
         $this->initialisation($request)->withTab(WarehouseAreaTabsEnum::values());
 

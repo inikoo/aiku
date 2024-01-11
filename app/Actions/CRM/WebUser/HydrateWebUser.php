@@ -31,9 +31,9 @@ class HydrateWebUser extends HydrateModel
     }
 
 
-    protected function getModel(int $id): WebUser
+    protected function getModel(string $slug): WebUser
     {
-        return WebUser::find($id);
+        return WebUser::where('slug', $slug)->first();
     }
 
     protected function getAllModels(): Collection

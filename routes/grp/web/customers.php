@@ -1,8 +1,8 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Mon, 17 Oct 2022 16:07:09 British Summer Time, Sheffield, UK
- *  Copyright (c) 2022, Raul A Perusquia Flores
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Thu, 11 Jan 2024 03:24:21 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
 
@@ -26,9 +26,9 @@ Route::get('/create', CreateCustomer::class)->name('create');
 Route::get('/{customer}/web-users/create', [CreateWebUser::class, 'inCustomer'])->name('show.web-users.create');
 
 
-Route::get('/', [IndexCustomers::class , $parent == 'tenant' ? 'inTenant' : 'inShop'])->name('index');
-Route::get('/{customer}', [ShowCustomer::class , $parent == 'tenant' ? 'inTenant' : 'inShop'])->name('show');
-Route::get('/{customer}/edit', [EditCustomer::class, $parent == 'tenant' ? 'inTenant' : 'inShop'])->name('edit');
+Route::get('/', [IndexCustomers::class , $parent == 'tenant' ? 'inOrganisation' : 'inShop'])->name('index');
+Route::get('/{customer}', [ShowCustomer::class , $parent == 'tenant' ? 'inOrganisation' : 'inShop'])->name('show');
+Route::get('/{customer}/edit', [EditCustomer::class, $parent == 'tenant' ? 'inOrganisation' : 'inShop'])->name('edit');
 Route::get('/{customer}/orders/{order}', [ShowOrder::class,$parent == 'tenant' ? 'inCustomerInTenant' : 'inCustomerInShop'])->name('show.orders.show');
 Route::get('/{customer}/web-users', [IndexWebUser::class, $parent == 'tenant' ? 'inCustomerInTenant' : 'inCustomerInShop'])->name('show.web-users.index');
 Route::get('/{customer}/web-users/{webUser}', [ShowWebUser::class, $parent == 'tenant' ? 'inCustomerInTenant' : 'inCustomerInShop'])->name('show.web-users.show');

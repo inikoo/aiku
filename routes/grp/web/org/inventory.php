@@ -53,19 +53,19 @@ Route::get('/warehouses/{warehouse}/delete', RemoveWarehouse::class)->name('ware
 
 Route::get('/areas/export', ExportWarehouseAreas::class)->name('warehouse-areas.export');
 
-Route::get('/areas', [IndexWarehouseAreas::class, 'inTenant'])->name('warehouse-areas.index');
+Route::get('/areas', [IndexWarehouseAreas::class, 'inOrganisation'])->name('warehouse-areas.index');
 Route::get('/areas/create', CreateWarehouseArea::class)->name('warehouse-areas.create');
-Route::get('/areas/{warehouseArea}', [ShowWarehouseArea::class, 'inTenant'])->name('warehouse-areas.show');
-Route::get('/areas/{warehouseArea}/edit', [EditWarehouseArea::class, 'inTenant'])->name('warehouse-areas.edit');
-Route::get('/areas/{warehouseArea}/delete', [RemoveWarehouseArea::class, 'inTenant'])->name('warehouse-areas.remove');
+Route::get('/areas/{warehouseArea}', [ShowWarehouseArea::class, 'inOrganisation'])->name('warehouse-areas.show');
+Route::get('/areas/{warehouseArea}/edit', [EditWarehouseArea::class, 'inOrganisation'])->name('warehouse-areas.edit');
+Route::get('/areas/{warehouseArea}/delete', [RemoveWarehouseArea::class, 'inOrganisation'])->name('warehouse-areas.remove');
 Route::get('/warehouses/{warehouse}/areas/create-multi', CreateWarehouseAreas::class)->name('warehouses.show.warehouse-areas.create-multi');
 Route::get('/warehouses/{warehouse}/areas/create-multi/clear', CreateWarehouseAreas::class)->name('warehouses.show.warehouse-areas.create-multi-clear');
 
 Route::get('/locations/export', ExportLocations::class)->name('locations.export');
 
-Route::get('/locations', [IndexLocations::class, 'inTenant'])->name('locations.index');
-Route::get('/locations/{location}', [ShowLocation::class, 'inTenant'])->name('locations.show');
-Route::get('/locations/{location}/edit', [EditLocation::class, 'inTenant'])->name('locations.edit');
+Route::get('/locations', [IndexLocations::class, 'inOrganisation'])->name('locations.index');
+Route::get('/locations/{location}', [ShowLocation::class, 'inOrganisation'])->name('locations.show');
+Route::get('/locations/{location}/edit', [EditLocation::class, 'inOrganisation'])->name('locations.edit');
 Route::get('/locations/{location}/delete', RemoveLocation::class)->name('locations.remove');
 
 

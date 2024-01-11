@@ -1,8 +1,8 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Mon, 06 Mar 2023 18:42:58 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Thu, 11 Jan 2024 03:24:21 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
 use App\Actions\Accounting\Invoice\ExportInvoice;
@@ -27,7 +27,7 @@ use App\Actions\Accounting\PaymentServiceProvider\UI\ShowPaymentServiceProvider;
 use App\Actions\UI\Accounting\AccountingDashboard;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', [AccountingDashboard::class, 'inTenant'])->name('dashboard');
+Route::get('/', [AccountingDashboard::class, 'inOrganisation'])->name('dashboard');
 
 Route::get('/providers/{paymentServiceProvider}/accounts/{paymentAccount}/payments/create', [IndexPayments::class, 'inPaymentAccountInPaymentServiceProvider'])->name('payment-service-providers.show.payment-accounts.show.payments.create');
 Route::get('/providers/{paymentServiceProvider}/payments/create', [IndexPayments::class, 'inPaymentServiceProvider'])->name('payment-service-providers.show.payments.create');
@@ -52,19 +52,19 @@ Route::get('/accounts/create', CreatePaymentAccount::class)->name('payment-accou
 Route::get('/accounts/export', ExportPaymentAccounts::class)->name('payment-accounts.export');
 Route::get('/accounts/{paymentAccount}/payments/create', [CreatePayment::class, 'inPaymentAccount'])->name('payment-accounts.show.payments.create');
 //Route::get('/payments/create', CreatePayment::class)->name('payments.create');
-Route::get('/accounts', [IndexPaymentAccounts::class, 'inTenant'])->name('payment-accounts.index');
-Route::get('/accounts/{paymentAccount}', [ShowPaymentAccount::class, 'inTenant'])->name('payment-accounts.show');
+Route::get('/accounts', [IndexPaymentAccounts::class, 'inOrganisation'])->name('payment-accounts.index');
+Route::get('/accounts/{paymentAccount}', [ShowPaymentAccount::class, 'inOrganisation'])->name('payment-accounts.show');
 Route::get('/accounts/{paymentAccount}/payments', [IndexPayments::class, 'inPaymentAccount'])->name('payment-accounts.show.payments.index');
 Route::get('/accounts/{paymentAccount}/payments/{payment}', [ShowPayment::class, 'inPaymentAccount'])->name('payment-accounts.show.payments.show');
 Route::get('/accounts/{paymentAccount}/payments/{payment}/edit', [EditPayment::class, 'inPaymentAccount'])->name('payment-accounts.show.payments.edit');
 Route::get('/payments/export', ExportPayments::class)->name('payments.export');
-Route::get('/payments', [IndexPayments::class, 'inTenant'])->name('payments.index');
-Route::get('/payments/{payment}', [ShowPayment::class, 'inTenant'])->name('payments.show');
-Route::get('/payments/{payment}/edit', [EditPayment::class, 'inTenant'])->name('payments.edit');
+Route::get('/payments', [IndexPayments::class, 'inOrganisation'])->name('payments.index');
+Route::get('/payments/{payment}', [ShowPayment::class, 'inOrganisation'])->name('payments.show');
+Route::get('/payments/{payment}/edit', [EditPayment::class, 'inOrganisation'])->name('payments.edit');
 Route::get('/invoices/{invoice}/export', ExportInvoice::class)->name('invoices.download');
 Route::get('/invoices/export', ExportInvoices::class)->name('invoices.export');
-Route::get('/invoices', [IndexInvoices::class, 'inTenant'])->name('invoices.index');
-Route::get('/invoices/{invoice}', [ShowInvoice::class, 'inTenant'])->name('invoices.show');
+Route::get('/invoices', [IndexInvoices::class, 'inOrganisation'])->name('invoices.index');
+Route::get('/invoices/{invoice}', [ShowInvoice::class, 'inOrganisation'])->name('invoices.show');
 
 Route::get('/shops/{shop}', [AccountingDashboard::class, 'inShop'])->name('shops.show.dashboard');
 Route::get('/shops/{shop}/accounts/export', [ExportPaymentAccounts::class,'inShop'])->name('shops.show.payment-accounts.export');

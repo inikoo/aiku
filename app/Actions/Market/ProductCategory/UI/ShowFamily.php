@@ -39,7 +39,7 @@ class ShowFamily extends InertiaAction
         return $request->user()->hasPermissionTo("shops.families.view");
     }
 
-    public function inTenant(ProductCategory $family, ActionRequest $request): ProductCategory
+    public function inOrganisation(ProductCategory $family, ActionRequest $request): ProductCategory
     {
         $this->initialisation($request)->withTab(DepartmentTabsEnum::values());
 

@@ -14,8 +14,8 @@ return new class () extends Migration {
     {
         Schema::create('uploads', function (Blueprint $table) {
             $table->increments('id');
-            $table->unsignedSmallInteger('organisation_user_id')->nullable();
-            $table->foreign('organisation_user_id')->references('id')->on('organisation_users');
+            $table->unsignedSmallInteger('user_id')->nullable();
+            $table->foreign('user_id')->references('id')->on('users');
             $table->string('type');
             $table->string('original_filename');
             $table->string('filename');

@@ -9,12 +9,14 @@ namespace App\Actions\Procurement\Supplier;
 
 use App\Actions\Assets\Currency\SetCurrencyHistoricFields;
 use App\Actions\Helpers\Address\StoreAddressAttachToModel;
+use App\Actions\InertiaGroupAction;
 use App\Actions\Procurement\Agent\Hydrators\AgentHydrateSuppliers;
 use App\Actions\Procurement\Supplier\Hydrators\SupplierHydrateUniversalSearch;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateProcurement;
 use App\Models\SysAdmin\Group;
 use App\Models\Procurement\Agent;
 use App\Models\Procurement\Supplier;
+use App\Rules\IUnique;
 use App\Rules\ValidAddress;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
@@ -24,7 +26,7 @@ use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class StoreSupplier
+class StoreSupplier extends InertiaGroupAction
 {
     use AsAction;
     use WithAttributes;
@@ -37,11 +39,13 @@ class StoreSupplier
             return true;
         }
 
-        return $request->user()->hasPermissionTo("procurement.edit");
+        return $request->user()->hasPermissionTo("procurement.".$this->group->id.".edit");
     }
 
-    public function handle(Group|Agent $parent, array $modelData, array $addressData = []): Supplier
+    public function handle(Group|Agent $parent, array $modelData): Supplier
     {
+        $addressData = Arr::get($modelData, 'address');
+        Arr::forget($modelData, 'address');
 
         if (class_basename($parent) == 'Agent') {
             data_set($modelData, 'group_id', $parent->group_id);
@@ -55,9 +59,7 @@ class StoreSupplier
         $supplier->stats()->create();
         SetCurrencyHistoricFields::run($supplier->currency, $supplier->created_at);
 
-
         StoreAddressAttachToModel::run($supplier, $addressData, ['scope' => 'contact']);
-
         $supplier->location = $supplier->getLocation();
         $supplier->save();
 
@@ -75,13 +77,22 @@ class StoreSupplier
     public function rules(): array
     {
         return [
-            'code'         => ['required', 'unique:suppliers', 'between:2,9', 'alpha'],
-            'contact_name' => ['nullable', 'string', 'max:255'],
-            'company_name' => ['nullable', 'string', 'max:255'],
-            'email'        => ['nullable', 'email'],
-            'phone'        => ['nullable', 'phone:AUTO'],
-            'address'      => ['required', new ValidAddress()],
-            'currency_id'  => ['required', 'exists:currencies,id'],
+            'code'         => ['required', 'max:9', 'alpha_dash',
+                               new IUnique(
+                                   table: 'suppliers',
+                                   extraConditions: [
+                                       ['column' => 'group_id', 'value' => $this->group->id],
+                                   ]
+                               ),
+            ],
+            'contact_name'   => ['nullable', 'string', 'max:255'],
+            'company_name'   => ['nullable', 'string', 'max:255'],
+            'email'          => ['nullable', 'email'],
+            'phone'          => ['nullable', 'phone:AUTO'],
+            'address'        => ['required', new ValidAddress()],
+            'currency_id'    => ['required', 'exists:currencies,id'],
+            'source_id'      => ['sometimes', 'nullable', 'string'],
+            'source_slug'    => ['sometimes', 'nullable', 'string'],
         ];
     }
 
@@ -95,39 +106,37 @@ class StoreSupplier
     public function action(Group|Agent $parent, $modelData): Supplier
     {
         $this->asAction = true;
-        $this->setRawAttributes($modelData);
-        $validatedData = $this->validateAttributes();
+
+        if(class_basename($parent)=='Agent') {
+            $group=$parent->group;
+        } else {
+            $group=$parent;
+        }
+
+        $this->initialisation($group, $modelData);
 
         return $this->handle(
             parent: $parent,
-            modelData: Arr::except($validatedData, 'address'),
-            addressData: Arr::get($validatedData, 'address')
+            modelData: $this->validatedData
         );
     }
 
     public function asController(ActionRequest $request): Supplier
     {
-        $this->fillFromRequest($request);
-        $request->validate();
-        $validatedData = $request->validated();
+        $this->initialisation(app('group'), $request);
 
         return $this->handle(
             parent: group(),
-            modelData: Arr::except($validatedData, 'address'),
-            addressData: Arr::get($validatedData, 'address')
+            modelData: $this->validatedData
         );
     }
 
     public function inAgent(Agent $agent, ActionRequest $request): Supplier
     {
-        $this->fillFromRequest($request);
-        $request->validate();
-        $validatedData = $request->validated();
-
+        $this->initialisation(app('group'), $request);
         return $this->handle(
             parent: $agent,
-            modelData: Arr::except($validatedData, 'address'),
-            addressData: Arr::get($validatedData, 'address')
+            modelData: $this->validatedData
         );
     }
 
@@ -137,9 +146,9 @@ class StoreSupplier
             /** @var Agent $agent */
             $agent = $supplier->owner;
 
-            return Redirect::route('grp.procurement.marketplace.agents.show.suppliers.index', $agent->slug);
+            return Redirect::route('grp.procurement.agents.show.suppliers.index', $agent->slug);
         }
 
-        return Redirect::route('grp.procurement.marketplace.suppliers.show', $supplier->slug);
+        return Redirect::route('grp.procurement.suppliers.show', $supplier->slug);
     }
 }

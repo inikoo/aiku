@@ -22,12 +22,12 @@ class StoreSupplierProduct
     use AsAction;
     use WithAttributes;
 
-    public int $hydratorsDelay=0;
-    public bool $skipHistoric =false;
+    public int $hydratorsDelay = 0;
+    public bool $skipHistoric  = false;
 
     public function handle(Supplier $supplier, array $modelData): SupplierProduct
     {
-        if($supplier->agent_id) {
+        if ($supplier->agent_id) {
             $modelData['agent_id'] = $supplier->agent_id;
         }
 
@@ -51,18 +51,19 @@ class StoreSupplierProduct
         SupplierProductHydrateUniversalSearch::dispatch($supplierProduct);
 
 
-
-
         GroupHydrateProcurement::dispatch($supplier->group)->delay($this->hydratorsDelay);
+
         return $supplierProduct;
     }
 
     public function rules(): array
     {
         return [
-            'code' => ['required', 'unique:supplier_products', 'between:2,9', 'alpha'],
-            'name' => ['required', 'max:250', 'string'],
-            'cost' => ['required'],
+            'code'        => ['required', 'unique:supplier_products', 'between:2,9', 'alpha'],
+            'name'        => ['required', 'max:250', 'string'],
+            'cost'        => ['required'],
+            'source_id'   => ['sometimes', 'nullable', 'string'],
+            'source_slug' => ['sometimes', 'nullable', 'string'],
         ];
     }
 
@@ -78,10 +79,10 @@ class StoreSupplierProduct
         Supplier $supplier,
         array $modelData,
         int $hydratorsDelay = 60,
-        bool $skipHistoric=false,
+        bool $skipHistoric = false,
     ): SupplierProduct {
         $this->hydratorsDelay = $hydratorsDelay;
-        $this->skipHistoric   =$skipHistoric;
+        $this->skipHistoric   = $skipHistoric;
 
         return $this->handle($supplier, $modelData);
     }

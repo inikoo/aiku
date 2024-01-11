@@ -3,7 +3,6 @@
 /public/build
 /public/hot
 /public/storage
-/public/tenants/
 /public/images
 /public/public.hot
 /public/grp.hot
@@ -29,12 +28,8 @@ yarn-error.log
 /.vscode
 /resources/private/
 lang/php_*.json
-/storage/tenants
-tt
 prod-diff.sh
-
 /hash
-/create_aurora_tenants.sh
 load_aurora_db.sh
 /initialise_aurora_migration.sh
 /load_migration.sh

@@ -29,7 +29,7 @@ class EditLocation extends InertiaAction
         return $request->user()->hasPermissionTo("inventory.warehouses.view");
     }
 
-    public function inTenant(Location $location, ActionRequest $request): Location
+    public function inOrganisation(Location $location, ActionRequest $request): Location
     {
         $this->initialisation($request);
 

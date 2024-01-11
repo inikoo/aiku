@@ -34,18 +34,8 @@ use Spatie\Tags\Tag as BaseTag;
  * @method static \Illuminate\Database\Eloquent\Builder|Tag newQuery()
  * @method static Builder|Tag ordered(string $direction = 'asc')
  * @method static \Illuminate\Database\Eloquent\Builder|Tag query()
- * @method static \Illuminate\Database\Eloquent\Builder|Tag whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Tag whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Tag whereLabel($value)
  * @method static Builder|Tag whereLocale(string $column, string $locale)
  * @method static Builder|Tag whereLocales(string $column, array $locales)
- * @method static \Illuminate\Database\Eloquent\Builder|Tag whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Tag whereNumberSubjects($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Tag whereOrderColumn($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Tag whereSlug($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Tag whereTagSlug($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Tag whereType($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Tag whereUpdatedAt($value)
  * @method static Builder|Tag withType(?string $type = null)
  * @mixin \Eloquent
  */

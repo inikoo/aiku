@@ -5,10 +5,10 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Leads\Prospect\Tags\UI;
+namespace App\Actions\CRM\Prospect\Tags\UI;
 
 use App\Actions\InertiaAction;
-use App\Actions\Leads\Prospect\UI\IndexProspects;
+use App\Actions\CRM\Prospect\IndexProspects;
 use App\Models\Helpers\Tag;
 use App\Models\Market\Shop;
 use Illuminate\Support\Arr;

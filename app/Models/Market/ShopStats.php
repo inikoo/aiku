@@ -46,10 +46,8 @@ use Illuminate\Support\Carbon;
  * @property int $number_prospects
  * @property int $number_prospects_state_no_contacted
  * @property int $number_prospects_state_contacted
- * @property int $number_prospects_state_not_interested
- * @property int $number_prospects_state_registered
- * @property int $number_prospects_state_invoiced
- * @property int $number_prospects_state_bounced
+ * @property int $number_prospects_state_fail
+ * @property int $number_prospects_state_success
  * @property int $number_orders
  * @property int $number_orders_state_creating
  * @property int $number_orders_state_submitted

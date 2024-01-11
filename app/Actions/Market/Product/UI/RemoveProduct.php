@@ -26,7 +26,7 @@ class RemoveProduct extends InertiaAction
         return $request->user()->hasPermissionTo("shops.edit");
     }
 
-    public function inTenant(Product $product, ActionRequest $request): Product
+    public function inOrganisation(Product $product, ActionRequest $request): Product
     {
         $this->initialisation($request);
 

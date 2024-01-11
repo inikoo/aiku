@@ -40,9 +40,9 @@ class HydrateShop extends HydrateModel
     }
 
 
-    protected function getModel(int $id): Shop
+    protected function getModel(string $slug): Shop
     {
-        return Shop::find($id);
+        return Shop::where('slug', $slug)->first();
     }
 
     protected function getAllModels(): Collection

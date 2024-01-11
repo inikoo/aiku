@@ -37,16 +37,27 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $organisation_id
  * @property int $shop_id
  * @property string $type
- * @property WebsiteStateEnum $state
  * @property WebsiteEngineEnum $engine
  * @property string $code
- * @property string $domain
  * @property string $name
+ * @property WebsiteStateEnum $state
+ * @property bool $status
+ * @property string $domain
  * @property array $settings
  * @property array $data
  * @property array $structure
- * @property bool $in_maintenance
+ * @property array $layout
+ * @property array $compiled_layout
+ * @property int|null $unpublished_header_snapshot_id
+ * @property int|null $live_header_snapshot_id
+ * @property string|null $published_header_checksum
+ * @property bool $header_is_dirty
+ * @property int|null $unpublished_footer_snapshot_id
+ * @property int|null $live_footer_snapshot_id
+ * @property string|null $published_footer_checksum
+ * @property bool $footer_is_dirty
  * @property int|null $current_layout_id
+ * @property int|null $logo_id
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property string|null $launched_at
@@ -77,18 +88,22 @@ class Website extends Model implements Auditable
     use HasUniversalSearch;
 
     protected $casts = [
-        'data'             => 'array',
-        'settings'         => 'array',
-        'structure'        => 'array',
-        'state'            => WebsiteStateEnum::class,
-        'engine'           => WebsiteEngineEnum::class,
-        'cloudflare_status'=> WebsiteCloudflareStatusEnum::class
+        'data'               => 'array',
+        'settings'           => 'array',
+        'structure'          => 'array',
+        'layout'             => 'array',
+        'compiled_layout'    => 'array',
+        'state'              => WebsiteStateEnum::class,
+        'engine'             => WebsiteEngineEnum::class,
+        'cloudflare_status'  => WebsiteCloudflareStatusEnum::class
     ];
 
     protected $attributes = [
-        'data'      => '{}',
-        'settings'  => '{}',
-        'structure' => '{}',
+        'data'            => '{}',
+        'settings'        => '{}',
+        'structure'       => '{}',
+        'layout'          => '{}',
+        'compiled_layout' => '{}',
     ];
 
     protected $guarded = [];

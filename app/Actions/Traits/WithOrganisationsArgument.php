@@ -17,7 +17,7 @@ trait WithOrganisationsArgument
     {
         return Organisation::query()
             ->when($command->argument('organisations'), function ($query) use ($command) {
-                $query->whereIn('code', $command->argument('organisations'));
+                $query->whereIn('slug', $command->argument('organisations'));
             })
             ->cursor();
     }

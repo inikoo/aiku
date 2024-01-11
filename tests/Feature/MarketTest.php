@@ -36,13 +36,13 @@ test('create shop', function () {
         ->and($organisation->marketStats->number_shops)->toBe(1)
         ->and($organisation->marketStats->number_shops_type_b2b)->toBe(1)
         ->and($shopRoles->count())->toBe(3)
-        ->and($shopPermissions->count())->toBe(20);
+        ->and($shopPermissions->count())->toBe(23);
 
 
     $user= $this->guest->user;
     $user->refresh();
 
-    expect($user->getAllPermissions()->count())->toBe(11)
+    expect($user->getAllPermissions()->count())->toBe(14)
         ->and($user->hasAllRoles(["shop-admin-$shop->slug"]))->toBe(true);
 
 

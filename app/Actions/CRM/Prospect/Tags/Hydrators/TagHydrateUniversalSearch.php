@@ -5,7 +5,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Leads\Prospect\Tags\Hydrators;
+namespace App\Actions\CRM\Prospect\Tags\Hydrators;
 
 use App\Models\Helpers\Tag;
 use Lorisleiva\Actions\Concerns\AsAction;

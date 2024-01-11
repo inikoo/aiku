@@ -8,6 +8,7 @@
 namespace App\Services\Organisation\Aurora;
 
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class FetchAuroraAgent extends FetchAurora
 {
@@ -30,12 +31,14 @@ class FetchAuroraAgent extends FetchAurora
                 'phone'        => $phone,
                 'currency_id'  => $this->parseCurrencyID($this->auroraModelData->{'Agent Default Currency Code'}),
                 'source_id'    => $this->organisation->id.':'.$this->auroraModelData->{'Agent Key'},
-                'created_at'   => $this->auroraModelData->{'Agent Valid From'}
+                'source_slug'  => Str::kebab(strtolower($this->auroraModelData->{'Agent Code'})),
+                'created_at'   => $this->auroraModelData->{'Agent Valid From'},
+                'address'      => $this->parseAddress(prefix: 'Agent Contact', auAddressData: $this->auroraModelData)
+
 
             ];
 
         $this->parsePhoto();
-        $this->parsedData['address'] = $this->parseAddress(prefix: 'Agent Contact', auAddressData: $this->auroraModelData);
     }
 
     private function parsePhoto(): void

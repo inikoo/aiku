@@ -35,7 +35,7 @@ php artisan horizon:clear
 php artisan horizon:terminate
 echo "Clear cache 🧼"
 php artisan cache:clear
-redis-cli KEYS "wowsbar_database_*" | xargs redis-cli DEL
+redis-cli KEYS "aiku_database_*" | xargs redis-cli DEL
 echo "🌱 Migrating and seeding database"
 php artisan migrate --database=backup --path=database/migrations/backup
 php artisan migrate
@@ -77,29 +77,8 @@ php artisan fetch:locations -d "${DB_SUFFIX}"
 php artisan fetch:deleted-locations -d "${DB_SUFFIX}"
 pg_dump -Fc -f "devops/devel/snapshots/locations.dump" ${DB}
 
-for tenant in "${tenants[@]}"
-do
-  php artisan fetch:agents "$organisation" -d "${DB_SUFFIX}"
-  php artisan fetch:suppliers "$organisation" -d "${DB_SUFFIX}"
-  php artisan fetch:deleted-suppliers "$organisation" -d "${DB_SUFFIX}"
-
-done
-pg_dump -Fc -f "devops/devel/snapshots/au_suppliers.dump" ${DB}
-for tenant in "${tenants[@]}"
-do
-  php artisan fetch:supplier-products "$organisation" -d "${DB_SUFFIX}"
-  php artisan fetch:deleted-supplier-products "$organisation" -d "${DB_SUFFIX}"
-done
-pg_dump -Fc -f "devops/devel/snapshots/au_procurement.dump" ${DB}
-php artisan fetch:purchase-orders -r -d "${DB_SUFFIX}"
-pg_dump -Fc -f "devops/devel/snapshots/au_procurement_with_po.dump" ${DB}
-php artisan fetch:stock-families -d "${DB_SUFFIX}"
-php artisan fetch:trade-units -d "${DB_SUFFIX}"
-php artisan fetch:stocks -r -d "${DB_SUFFIX}"
-php artisan fetch:deleted-stocks -d "${DB_SUFFIX}"
-pg_dump -Fc -f "devops/devel/snapshots/au_stocks.dump" ${DB}
-php artisan fetch:departments -d "${DB_SUFFIX}"
-php artisan fetch:families -d "${DB_SUFFIX}"
-pg_dump -Fc -f "devops/devel/snapshots/au_products_cats.dump" ${DB}
-
-
+php artisan fetch:agents -d "${DB_SUFFIX}"
+pg_dump -Fc -f "devops/devel/snapshots/agents.dump" ${DB}
+php artisan fetch:suppliers -d "${DB_SUFFIX}"
+php artisan fetch:deleted-suppliers -d "${DB_SUFFIX}"
+pg_dump -Fc -f "devops/devel/snapshots/suppliers.dump" ${DB}

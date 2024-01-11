@@ -24,9 +24,9 @@ class HydratePaymentServiceProvider extends HydrateModel
     }
 
 
-    protected function getModel(int $id): PaymentServiceProvider
+    protected function getModel(string $slug): PaymentServiceProvider
     {
-        return PaymentServiceProvider::find($id);
+        return PaymentServiceProvider::where('slug', $slug)->first();
     }
 
     protected function getAllModels(): Collection

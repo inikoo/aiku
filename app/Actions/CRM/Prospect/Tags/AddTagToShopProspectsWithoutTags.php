@@ -5,14 +5,14 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Leads\Prospect\Tags;
+namespace App\Actions\CRM\Prospect\Tags;
 
 use App\Actions\Helpers\Tag\Hydrators\TagHydrateProspects;
 use App\Actions\Helpers\Tag\Hydrators\TagHydrateSubjects;
 use App\Actions\Helpers\Tag\StoreTag;
-use App\Actions\Leads\Prospect\Tags\Hydrators\TagHydrateUniversalSearch;
+use App\Actions\CRM\Prospect\Tags\Hydrators\TagHydrateUniversalSearch;
 use App\Actions\Traits\WithImportModel;
-use App\Models\Leads\Prospect;
+use App\Models\CRM\Prospect;
 use App\Models\Market\Shop;
 use Exception;
 

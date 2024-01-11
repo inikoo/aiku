@@ -24,9 +24,9 @@ class HydrateWarehouseArea extends HydrateModel
     }
 
 
-    protected function getModel(int $id): WarehouseArea
+    protected function getModel(string $slug): WarehouseArea
     {
-        return WarehouseArea::find($id);
+        return WarehouseArea::where('slug', $slug)->first();
     }
 
     protected function getAllModels(): Collection

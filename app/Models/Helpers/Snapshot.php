@@ -41,30 +41,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read Model|\Eloquent $parent
  * @property-read Model|\Eloquent $publisher
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Slide> $slides
- * @property-read int|null $slides_count
  * @method static Builder|Snapshot newModelQuery()
  * @method static Builder|Snapshot newQuery()
  * @method static Builder|Snapshot query()
- * @method static Builder|Snapshot whereChecksum($value)
- * @method static Builder|Snapshot whereComment($value)
- * @method static Builder|Snapshot whereCreatedAt($value)
- * @method static Builder|Snapshot whereCustomerId($value)
- * @method static Builder|Snapshot whereFirstCommit($value)
- * @method static Builder|Snapshot whereId($value)
- * @method static Builder|Snapshot whereLayout($value)
- * @method static Builder|Snapshot whereParentId($value)
- * @method static Builder|Snapshot whereParentType($value)
- * @method static Builder|Snapshot wherePublishedAt($value)
- * @method static Builder|Snapshot wherePublishedUntil($value)
- * @method static Builder|Snapshot wherePublisherId($value)
- * @method static Builder|Snapshot wherePublisherType($value)
- * @method static Builder|Snapshot whereRecyclable($value)
- * @method static Builder|Snapshot whereRecyclableTag($value)
- * @method static Builder|Snapshot whereScope($value)
- * @method static Builder|Snapshot whereSlug($value)
- * @method static Builder|Snapshot whereState($value)
- * @method static Builder|Snapshot whereUpdatedAt($value)
  * @mixin \Eloquent
  */
 class Snapshot extends Model

@@ -35,7 +35,6 @@ class UpdateWorkplace extends InertiaOrganisationAction
 
         if ($addressData) {
             StoreAddressAttachToModel::run($workplace, $addressData, ['scope' => 'contact']);
-
             $workplace->location = $workplace->getLocation();
             $workplace->save();
         }

@@ -25,9 +25,9 @@ class HydrateEmployee extends HydrateModel
     }
 
 
-    protected function getModel(int $id): Employee
+    protected function getModel(string $slug): Employee
     {
-        return Employee::findOrFail($id);
+        return Employee::where('slug', $slug)->first();
     }
 
     protected function getAllModels(): Collection

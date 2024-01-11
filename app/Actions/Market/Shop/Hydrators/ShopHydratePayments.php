@@ -27,11 +27,11 @@ class ShopHydratePayments implements ShouldBeUnique
         $amountTenantCurrencySuccessfullyPaid = $shop->payments()
             ->where('type', 'payment')
             ->where('status', 'success')
-            ->sum('tc_amount');
+            ->sum('oc_amount');
         $amountTenantCurrencyRefunded         = $shop->payments()
             ->where('type', 'refund')
             ->where('status', 'success')
-            ->sum('tc_amount');
+            ->sum('oc_amount');
 
         $amountSuccessfullyPaid = $shop->payments()
             ->where('type', 'payment')
@@ -50,9 +50,9 @@ class ShopHydratePayments implements ShouldBeUnique
             'amount'                      => $amountSuccessfullyPaid + $amountTenantCurrencyRefunded,
             'amount_successfully_paid'    => $amountSuccessfullyPaid,
             'amount_refunded'             => $amountRefunded,
-            'tc_amount'                   => $amountTenantCurrencySuccessfullyPaid + $amountTenantCurrencyRefunded,
-            'tc_amount_successfully_paid' => $amountTenantCurrencySuccessfullyPaid,
-            'tc_amount_refunded'          => $amountTenantCurrencyRefunded
+            'oc_amount'                   => $amountTenantCurrencySuccessfullyPaid + $amountTenantCurrencyRefunded,
+            'oc_amount_successfully_paid' => $amountTenantCurrencySuccessfullyPaid,
+            'oc_amount_refunded'          => $amountTenantCurrencyRefunded
 
 
         ];

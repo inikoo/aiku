@@ -8,12 +8,13 @@
 namespace App\Actions\CRM\Prospect;
 
 use App\Actions\Helpers\History\IndexHistory;
-use App\Actions\InertiaShopAction;
+use App\Actions\InertiaOrganisationAction;
 use App\Actions\Traits\WithProspectsSubNavigation;
 use App\Enums\CRM\Prospect\ProspectStateEnum;
 use App\Enums\UI\ProspectsTabsEnum;
 use App\Http\Resources\CRM\ProspectsResource;
 use App\Http\Resources\History\HistoryResource;
+use App\Http\Resources\Tag\TagResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\CRM\Prospect;
 use App\Models\Market\Shop;
@@ -28,7 +29,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 use Spatie\Tags\Tag;
 
-class IndexProspects extends InertiaShopAction
+class IndexProspects extends InertiaOrganisationAction
 {
     use WithProspectsSubNavigation;
 
@@ -42,7 +43,7 @@ class IndexProspects extends InertiaShopAction
 
     }
 
-    /*
+
     public function asController(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($organisation, $request)->withTab(ProspectsTabsEnum::values());
@@ -50,11 +51,11 @@ class IndexProspects extends InertiaShopAction
 
         return $this->handle($this->parent, 'prospects');
     }
-    */
 
-    public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
+
+    public function inShop(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisation($shop, $request)->withTab(ProspectsTabsEnum::values());
+        $this->initialisationFromShop($shop, $request)->withTab(ProspectsTabsEnum::values());
         $this->parent = $shop;
 
         return $this->handle($shop, 'prospects');

@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 20 Jun 2023 20:32:25 Malaysia Time, Pantai Lembeng, Bali, Id
+ * Created: Tue, 20 Jun 2023 20:32:25 Malaysia Time, Pantai Lembeng, Bali, Indonesia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
@@ -17,6 +17,7 @@ use App\Actions\OMS\Order\DeleteOrder;
 use App\Actions\Traits\WithActionUpdate;
 use App\Actions\Traits\WithOrganisationArgument;
 use App\Models\CRM\Customer;
+use Exception;
 use Illuminate\Console\Command;
 
 class DeleteCustomer
@@ -24,7 +25,7 @@ class DeleteCustomer
     use WithActionUpdate;
     use WithOrganisationArgument;
 
-    public string $commandSignature = 'delete:customer {tenant} {id}';
+    public string $commandSignature = 'delete:customer {slug}';
 
     protected array $deletedDependants;
 
@@ -116,15 +117,17 @@ class DeleteCustomer
 
     public function asCommand(Command $command): int
     {
-        $customer = Customer::findOrFail($command->argument('id'));
+        try {
+            $customer = Customer::where('slug', $command->argument('slug'))->firstOrFail();
+        } catch (Exception) {
+            $command->error('Customer not found');
+
+            return 1;
+        }
+
         $customer = $this->handle($customer);
 
-        //print_r($this->deletedDependants);
-
-        // $this->table(
-        //     ['Name', 'Email'],
-        //     User::all(['name', 'email'])->toArray()
-        // );
+        $command->info('Customer '.$customer->name.' deleted');
 
 
         return 0;

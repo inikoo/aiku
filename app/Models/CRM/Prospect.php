@@ -52,6 +52,7 @@ use Spatie\Tags\HasTags;
  * @property string|null $source_id
  * @property-read Collection<int, Address> $addresses
  * @property-read \App\Models\CRM\Customer|null $customer
+ * @property Collection<int, \Spatie\Tags\Tag> $tags
  * @property-read Shop $shop
  * @property-read UniversalSearch|null $universalSearch
  * @method static \Database\Factories\CRM\ProspectFactory factory($count = null, $state = [])
@@ -59,7 +60,12 @@ use Spatie\Tags\HasTags;
  * @method static Builder|Prospect newQuery()
  * @method static Builder|Prospect onlyTrashed()
  * @method static Builder|Prospect query()
+ * @method static Builder|Prospect withAllTags(\ArrayAccess|\Spatie\Tags\Tag|array|string $tags, ?string $type = null)
+ * @method static Builder|Prospect withAllTagsOfAnyType($tags)
+ * @method static Builder|Prospect withAnyTags(\ArrayAccess|\Spatie\Tags\Tag|array|string $tags, ?string $type = null)
+ * @method static Builder|Prospect withAnyTagsOfAnyType($tags)
  * @method static Builder|Prospect withTrashed()
+ * @method static Builder|Prospect withoutTags(\ArrayAccess|\Spatie\Tags\Tag|array|string $tags, ?string $type = null)
  * @method static Builder|Prospect withoutTrashed()
  * @mixin Eloquent
  */

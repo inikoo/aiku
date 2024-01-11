@@ -34,7 +34,7 @@ class ShowDispatchedEmail extends InertiaAction
         return $request->user()->hasPermissionTo('marketing.view');
     }
 
-    public function inTenant(DispatchedEmail $dispatchedEmail, ActionRequest $request): DispatchedEmail
+    public function inOrganisation(DispatchedEmail $dispatchedEmail, ActionRequest $request): DispatchedEmail
     {
         $this->initialisation($request);
         return $this->handle($dispatchedEmail);

@@ -27,7 +27,7 @@ class MarketingHub extends InertiaAction
     }
 
 
-    public function inTenant(ActionRequest $request): ActionRequest
+    public function inOrganisation(ActionRequest $request): ActionRequest
     {
         $this->initialisation($request);
 

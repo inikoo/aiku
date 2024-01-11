@@ -38,7 +38,7 @@ class ShowWebpageVariant extends InertiaAction
         return $request->user()->hasPermissionTo("websites.view");
     }
 
-    public function inTenant(WebpageVariant $webpageVariant, ActionRequest $request): WebpageVariant
+    public function inOrganisation(WebpageVariant $webpageVariant, ActionRequest $request): WebpageVariant
     {
         $this->initialisation($request)->withTab(WebpageTabsEnum::values());
         return $this->handle($webpageVariant);

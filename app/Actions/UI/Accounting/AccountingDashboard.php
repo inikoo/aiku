@@ -35,7 +35,7 @@ class AccountingDashboard
     }
 
 
-    public function inTenant(): Organisation
+    public function inOrganisation(): Organisation
     {
         return $this->handle(app('currentTenant'));
     }

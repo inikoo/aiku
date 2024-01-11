@@ -30,7 +30,7 @@ class PaymentsExport implements FromQuery, WithMapping, ShouldAutoSize, WithHead
             $row->customer->name,
             $row->currency->code,
             $row->amount,
-            $row->tc_amount,
+            $row->oc_amount,
             $row->gc_amount,
             $row->with_refund,
             $row->status,

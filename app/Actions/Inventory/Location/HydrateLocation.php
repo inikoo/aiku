@@ -27,9 +27,9 @@ class HydrateLocation extends HydrateModel
 
 
 
-    protected function getModel(int $id): Location
+    protected function getModel(string $slug): Location
     {
-        return Location::find($id);
+        return Location::where('slug', $slug)->first();
     }
 
     protected function getAllModels(): Collection

@@ -36,7 +36,7 @@ class EditClockingMachine extends InertiaOrganisationAction
         return $this->handle($clockingMachine);
     }
 
-    public function inTenant(Organisation $organisation, ClockingMachine $clockingMachine, ActionRequest $request): ClockingMachine
+    public function inOrganisation(Organisation $organisation, ClockingMachine $clockingMachine, ActionRequest $request): ClockingMachine
     {
         $this->initialisation($organisation, $request);
 

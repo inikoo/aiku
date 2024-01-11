@@ -23,9 +23,9 @@ class HydrateProductCategory extends HydrateModel
         ProductCategoryHydrateProducts::run($productCategory);
     }
 
-    protected function getModel(int $id): ProductCategory
+    protected function getModel(string $slug): ProductCategory
     {
-        return ProductCategory::find($id);
+        return ProductCategory::where('slug', $slug)->first();
     }
 
     protected function getAllModels(): Collection

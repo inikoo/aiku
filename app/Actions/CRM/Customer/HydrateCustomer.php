@@ -28,9 +28,9 @@ class HydrateCustomer extends HydrateModel
         CustomerHydrateUniversalSearch::run($customer);
     }
 
-    protected function getModel(int $id): Customer
+    protected function getModel(string $slug): Customer
     {
-        return Customer::find($id);
+        return Customer::where('slug', $slug)->first();
     }
 
     protected function getAllModels(): Collection

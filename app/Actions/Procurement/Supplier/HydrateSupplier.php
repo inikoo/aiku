@@ -22,9 +22,9 @@ class HydrateSupplier extends HydrateModel
     }
 
 
-    protected function getModel(int $id): Supplier
+    protected function getModel(string $slug): Supplier
     {
-        return Supplier::find($id);
+        return Supplier::where('slug', $slug)->first();
     }
 
     protected function getAllModels(): Collection

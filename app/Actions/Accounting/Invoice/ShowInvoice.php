@@ -42,7 +42,7 @@ class ShowInvoice extends InertiaAction
         return $request->user()->hasPermissionTo("shops.products.view");
     }
 
-    public function inTenant(Invoice $invoice, ActionRequest $request): Invoice
+    public function inOrganisation(Invoice $invoice, ActionRequest $request): Invoice
     {
         $this->initialisation($request)->withTab(CustomerTabsEnum::values());
 

@@ -26,9 +26,9 @@ class HydrateStockFamily extends HydrateModel
     }
 
 
-    protected function getModel(int $id): StockFamily
+    protected function getModel(string $slug): StockFamily
     {
-        return StockFamily::find($id);
+        return StockFamily::where('slug', $slug)->first();
     }
 
     protected function getAllModels(): Collection

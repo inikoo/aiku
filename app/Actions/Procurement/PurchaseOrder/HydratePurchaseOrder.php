@@ -21,9 +21,9 @@ class HydratePurchaseOrder extends HydrateModel
         PurchaseOrderHydrateItems::run($purchaseOrder);
     }
 
-    protected function getModel(int $id): PurchaseOrder
+    protected function getModel(string $slug): PurchaseOrder
     {
-        return PurchaseOrder::findOrFail($id);
+        return PurchaseOrder::where('slug', $slug)->first();
     }
 
     protected function getAllModels(): Collection

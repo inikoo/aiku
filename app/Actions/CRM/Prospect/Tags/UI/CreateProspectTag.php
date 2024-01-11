@@ -5,7 +5,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Leads\Prospect\Tags\UI;
+namespace App\Actions\CRM\Prospect\Tags\UI;
 
 use App\Actions\InertiaAction;
 use App\Models\Market\Shop;

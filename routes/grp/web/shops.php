@@ -1,8 +1,8 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Wed, 12 Oct 2022 16:27:58 Central European Summer, Kuala Lumpur, Malaysia
- *  Copyright (c) 2022, Raul A Perusquia Flores
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Thu, 11 Jan 2024 03:24:21 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
 
@@ -28,20 +28,20 @@ use App\Actions\Market\Shop\UI\IndexShops;
 use App\Actions\Market\Shop\UI\CreateShops;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/departments', [IndexDepartments::class, 'inTenant'])->name('departments.index');
+Route::get('/departments', [IndexDepartments::class, 'inOrganisation'])->name('departments.index');
 Route::get('/departments/export', ExportProductCategory::class)->name('departments.export');
 
 Route::get('/departments/create', ExportProductCategory::class)->name('departments.create');
-Route::get('/departments/{department}', [ShowDepartment::class, 'inTenant'])->name('departments.show');
-Route::get('/departments/{department}/edit', [EditDepartment::class, 'inTenant'])->name('departments.edit');
-Route::get('/departments/{department}/delete', [RemoveDepartment::class,'inTenant'])->name('departments.remove');
-Route::get('/families', [IndexFamilies::class, 'inTenant'])->name('families.index');
-Route::get('/families/{family}', [ShowFamily::class, 'inTenant'])->name('families.show');
-Route::get('/families/{family}/edit', [EditFamily::class, 'inTenant'])->name('families.edit');
+Route::get('/departments/{department}', [ShowDepartment::class, 'inOrganisation'])->name('departments.show');
+Route::get('/departments/{department}/edit', [EditDepartment::class, 'inOrganisation'])->name('departments.edit');
+Route::get('/departments/{department}/delete', [RemoveDepartment::class,'inOrganisation'])->name('departments.remove');
+Route::get('/families', [IndexFamilies::class, 'inOrganisation'])->name('families.index');
+Route::get('/families/{family}', [ShowFamily::class, 'inOrganisation'])->name('families.show');
+Route::get('/families/{family}/edit', [EditFamily::class, 'inOrganisation'])->name('families.edit');
 
-Route::get('/products', [IndexProducts::class,'inTenant'])->name('products.index');
-Route::get('/products/{product}', [ShowProduct::class, 'inTenant'])->name('products.show');
-Route::get('/products/{product}/edit', [EditProduct::class, 'inTenant'])->name('products.edit');
+Route::get('/products', [IndexProducts::class,'inOrganisation'])->name('products.index');
+Route::get('/products/{product}', [ShowProduct::class, 'inOrganisation'])->name('products.show');
+Route::get('/products/{product}/edit', [EditProduct::class, 'inOrganisation'])->name('products.edit');
 
 Route::get('/export', ExportShops::class)->name('export');
 
