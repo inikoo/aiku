@@ -69,83 +69,9 @@ export const initialiseApp = () => {
             layout.navigation = usePage().props.layout.navigation ?? null;
         }
 
-        if (usePage().props.layout) {
-            // layout.groupNavigation = usePage().props.layout.groupNavigation ?? null
-            // layout.orgNavigation = usePage().props.layout.orgNavigation ?? null
-
-            // console.log("======================")
-            // console.log(layout.groupNavigation)
-            // console.log(layout.orgNavigation)
-
-            // layout.secondaryNavigation = usePage().props.layout.secondaryNavigation ?? null
-            
-
-            if (usePage().props.layout.shopsInDropDown) {
-                layout.shopsInDropDown = usePage().props.layout.shopsInDropDown.data ??
-                    {}
-            }
-            if (usePage().props.layout.websitesInDropDown) {
-                layout.websitesInDropDown = usePage().props.layout.websitesInDropDown.data ??
-                    {}
-            }
-            if (usePage().props.layout.warehousesInDropDown) {
-                layout.warehousesInDropDown = usePage().props.layout.warehousesInDropDown.data ??
-                    {}
-            }
-        }
-
-        if (usePage().props.tenant) {
-            layout.tenant = usePage().props.tenant ?? null
-        }
-
         layout.currentRouteParameters = route().params
         layout.currentRoute = route().current()
         layout.currentModule = layout.currentRoute.split('.')[2]  // grp.org.xxx
-
-
-        // Set Shops list
-        if (usePage().props.layoutShopsList) {
-            layout.shops = usePage().props.layoutShopsList
-        }
-
-        // Set Websites list
-        if (usePage().props.layoutWebsitesList) {
-            layout.websites = usePage().props.layoutWebsitesList
-        }
-
-        // Set Warehouse list
-        if (usePage().props.layoutWarehousesList) {
-            layout.warehouses = usePage().props.layoutWarehousesList
-        }
-
-        if (!layout.booted) {
-            // Set current Shops
-            if (Object.keys(layout.shops).length === 1) {
-                layout.currentShopData = {
-                    slug: layout.shops[Object.keys(layout.shops)[0]].slug,
-                    name: layout.shops[Object.keys(layout.shops)[0]].name,
-                    code: layout.shops[Object.keys(layout.shops)[0]].code
-                }
-            }
-
-            // Set current Websites
-            if (Object.keys(layout.websites).length === 1) {
-                layout.currentWebsiteData = {
-                    slug: layout.websites[Object.keys(layout.websites)[0]].slug,
-                    name: layout.websites[Object.keys(layout.websites)[0]].name,
-                    code: layout.websites[Object.keys(layout.websites)[0]].code
-                }
-            }
-            
-            // Set current Warehouse
-            if (Object.keys(layout.warehouses).length === 1) {
-                layout.currentWarehouseData = {
-                    slug: layout.warehouses[Object.keys(layout.warehouses)[0]].slug,
-                    name: layout.warehouses[Object.keys(layout.warehouses)[0]].name,
-                    code: layout.warehouses[Object.keys(layout.warehouses)[0]].code
-                }
-            }
-        }
 
         // ===============================================
 

@@ -40,21 +40,6 @@ export const useLayoutStore = defineStore("layout", {
             currentModule: "",
             currentRoute: "",
             currentRouteParameters: {},
-            currentShopData: {
-                slug: null,
-                name: trans("All shops"),
-                code: trans("All")
-            },
-            currentWarehouseData: {
-                slug: null,
-                name: trans("All warehouses"),
-                code: trans("All")
-            },
-            currentWebsiteData: {
-                slug: null,
-                name: trans("All websites"),
-                code: trans("All")
-            },
             group: {} as Group,
             leftSidebar: {
                 show: true,
@@ -77,16 +62,9 @@ export const useLayoutStore = defineStore("layout", {
                     show: false
                 }
             },
-            shopsInDropDown: {},
-            shops: {},
             systemName: "",  // For styling navigation depend on which App
-            websitesInDropDown: {},
-            websites: {},
             user: {} as { avatar_thumbnail: Image, email: string, username: string },
-            warehousesInDropDown: {},
-            warehouses: {},
         }
     )
-
 });
 
