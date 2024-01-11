@@ -141,7 +141,7 @@ class StoreCustomer extends OrgAction
             'company_name'             => ['nullable', 'string', 'max:255'],
             'email'                    => [
                 'nullable',
-                'email',
+                'string','max:255',
                 new IUnique(
                     table: 'customers',
                     extraConditions: [
@@ -171,8 +171,18 @@ class StoreCustomer extends OrgAction
 
         if ($this->strict) {
             $strictRules = [
-                'phone'           => ['nullable', 'phone:AUTO'],
-                'contact_website' => ['nullable', 'active_url'],
+                'phone'                    => ['nullable', 'phone:AUTO'],
+                'contact_website'          => ['nullable', 'active_url'],
+                'email'                    => [
+                    'nullable',
+                    'email',
+                    new IUnique(
+                        table: 'customers',
+                        extraConditions: [
+                            ['column' => 'shop_id', 'value' => $this->shop->id],
+                        ]
+                    ),
+                ],
             ];
             $rules       = array_merge($rules, $strictRules);
         }

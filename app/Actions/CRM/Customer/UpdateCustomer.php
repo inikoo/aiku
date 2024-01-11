@@ -114,12 +114,13 @@ class UpdateCustomer extends OrgAction
     public function rules(): array
     {
         $rules = [
-            'contact_name'             => ['sometimes','nullable', 'string', 'max:255'],
-            'company_name'             => ['sometimes', 'nullable','string', 'max:255'],
+            'contact_name'             => ['sometimes', 'nullable', 'string', 'max:255'],
+            'company_name'             => ['sometimes', 'nullable', 'string', 'max:255'],
             'email'                    => [
                 'sometimes',
                 'nullable',
-                'email',
+                'string',
+                'max:255',
 
                 new IUnique(
                     table: 'customers',
@@ -142,6 +143,18 @@ class UpdateCustomer extends OrgAction
             $strictRules = [
                 'phone'           => ['sometimes', 'nullable', 'phone:AUTO'],
                 'contact_website' => ['sometimes', 'nullable', 'active_url'],
+                'email'           => [
+                    'sometimes',
+                    'nullable',
+                    'email',
+                    new IUnique(
+                        table: 'customers',
+                        extraConditions: [
+                            ['column' => 'shop_id', 'value' => $this->shop->id],
+                            ['column' => 'id', 'value' => $this->customer->id, 'operator' => '!=']
+                        ]
+                    ),
+                ],
             ];
             $rules       = array_merge($rules, $strictRules);
         }
