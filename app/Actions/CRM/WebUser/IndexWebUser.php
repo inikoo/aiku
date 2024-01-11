@@ -84,7 +84,7 @@ class IndexWebUser extends InertiaAction
             (
                 $request->user()->tokenCan('root')                 or
                 $request->user()->hasPermissionTo('websites.view') or
-                $request->user()->hasPermissionTo('crm.customers.view')
+                $request->user()->hasPermissionTo("crm.{$this->shop->slug}.view")
             );
     }
 

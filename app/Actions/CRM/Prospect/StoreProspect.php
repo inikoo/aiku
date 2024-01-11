@@ -39,7 +39,7 @@ class StoreProspect
             return true;
         }
 
-        return $request->user()->hasPermissionTo("shops.customers.edit");
+        return $request->user()->hasPermissionTo("crm.{$this->shop->slug}.edit");
     }
 
     public function rules(): array

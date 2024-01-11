@@ -32,13 +32,13 @@ class IndexCustomers extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit       = $request->user()->hasPermissionTo('crm.customers.edit');
+        $this->canEdit       = $request->user()->hasPermissionTo("crm.{$this->shop->slug}.edit");
         $this->canCreateShop = $request->user()->hasPermissionTo('shops.edit');
 
         return
             (
                 $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo('crm.customers.view')
+                $request->user()->hasPermissionTo("crm.{$this->shop->slug}.view")
             );
     }
 

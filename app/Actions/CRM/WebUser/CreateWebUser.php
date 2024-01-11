@@ -30,7 +30,7 @@ class CreateWebUser extends InertiaAction
         return
             (
                 $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo('crm.customers.view')
+                $request->user()->hasPermissionTo("crm.{$this->shop->slug}.view")
             );
     }
 
