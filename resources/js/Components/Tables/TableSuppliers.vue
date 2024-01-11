@@ -9,7 +9,7 @@ import {Link} from '@inertiajs/vue3';
 import Table from '@/Components/Table/Table.vue';
 import {Supplier} from "@/types/supplier";
 import AddressLocation from "@/Components/Elements/Info/AddressLocation.vue";
-import {useLocaleStore} from '@/Stores/locale.js';
+import {useLocaleStore} from '@/Stores/locale';
 
 const props = defineProps<{
     data: object,

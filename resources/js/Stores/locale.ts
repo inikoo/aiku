@@ -6,20 +6,24 @@
 
 import { defineStore } from 'pinia'
 
+interface Language {
+    id: number
+    code: string
+    name: string
+}
+
 export const useLocaleStore = defineStore('locale', {
     state: () => ({
         language: {
-            code: 'en',
             id: 68,
-            label: 'English',
-        },
-        languageOptions:{
-
-        }
+            code: 'en',
+            name: 'English',
+        } as Language,
+        languageOptions: {} as Language 
     }),
 
     actions: {
-        number(number) {
+        number(number: number) {
             return new Intl.NumberFormat(this.language.code).format(number)
         }
     }

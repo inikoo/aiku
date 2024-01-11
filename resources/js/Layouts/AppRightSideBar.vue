@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useLocaleStore } from "@/Stores/locale"
 import { useLayoutStore } from "@/Stores/layout"
-import { liveUsers } from '@/Stores/active-users'
+import { useLiveUsers } from '@/Stores/active-users'
 import { onMounted } from 'vue'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
@@ -50,7 +50,7 @@ const onClickRemoveBar = (tabName: 'activeUsers') => {
                 </div>
 
                 <!-- Looping: user list -->
-                <div v-for="(user, index) in liveUsers().liveUsers" class="pl-2.5 pr-1.5 flex justify-start items-center py-1 gap-x-2.5 cursor-default">
+                <div v-for="(user, index) in useLiveUsers().liveUsers" class="pl-2.5 pr-1.5 flex justify-start items-center py-1 gap-x-2.5 cursor-default">
                     <p class="text-gray-600 flex items-center gap-y-0.5 gap-x-1">
                         <span class="text-gray-700 leading-none capitalize font-semibold">{{ user?.name }}</span>
                         <span class="leading-none">-</span>

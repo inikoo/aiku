@@ -13,7 +13,7 @@ import { faPencil, faArrowLeft, faBorderAll, faTrashAlt } from '@far';
 import { faPlus } from '@fas';
 import Button from "@/Components/Elements/Buttons/Button.vue";
 import { capitalize } from "@/Composables/capitalize";
-import { useLocaleStore } from "@/Stores/locale.js";
+import { useLocaleStore } from "@/Stores/locale";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { trans } from "laravel-vue-i18n";
 

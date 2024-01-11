@@ -56,12 +56,6 @@ router.on("navigate", () => {
 
 const layout = useLayoutStore()
 const sidebarOpen = ref(false)
-const showSearchDialog = ref(false)
-const user = ref(usePage().props.auth.user)
-
-if (usePage().props.auth?.user?.avatar_thumbnail) {
-    layout.avatar_thumbnail = usePage().props.auth.user.avatar_thumbnail
-}
 
 </script>
 

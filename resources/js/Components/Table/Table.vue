@@ -28,7 +28,7 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 // import { library } from "@fortawesome/fontawesome-svg-core";
 
 
-import {useLocaleStore} from '@/Stores/locale.js';
+import {useLocaleStore} from '@/Stores/locale';
 import CountUp from 'vue-countup-v3';
 const locale = useLocaleStore();
 

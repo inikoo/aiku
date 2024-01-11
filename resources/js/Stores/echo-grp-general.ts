@@ -4,32 +4,27 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-import {defineStore} from 'pinia';
-import {notify} from '@kyvg/vue3-notification';
+import { defineStore } from 'pinia'
+import { notify } from '@kyvg/vue3-notification'
 
 export const useEchoGrpGeneral = defineStore(
-    'echo-grp-general',
-    {
-
-        state  : () => ({
+    'echo-grp-general', {
+        state: () => ({
             prospectsDashboard: {},
         }),
         actions: {
-
             subscribe() {
-                console.log('subscribe');
+                console.log('subscribe')
                 window.Echo.private('grp.general').
-                    listen('.notification', (e) => {
+                    listen('.notification', (e: {}) => {
                         console.log('From echo-org-general', e)
                         notify({
-                                   title: e.data.title,
-                                   text : e.data.text,
-                                   type : 'info',
-                               });
-
-                    });
-
+                            title: e.data.title,
+                            text: e.data.text,
+                            type: 'info',
+                        })
+                    })
             },
         },
-
-    });
+    }
+)

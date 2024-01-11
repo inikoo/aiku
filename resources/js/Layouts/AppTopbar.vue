@@ -3,7 +3,7 @@ import {Link, router} from "@inertiajs/vue3"
 import { useLayoutStore } from "@/Stores/layout"
 import { ref, reactive } from 'vue'
 import { get } from 'lodash'
-import { liveUsers } from '@/Stores/active-users'
+import { useLiveUsers } from '@/Stores/active-users'
 import {capitalize} from "@/Composables/capitalize"
 
 
@@ -40,7 +40,7 @@ const valOrganisation = ref('Aiku')
 
 const logoutAuth = () => {
     router.post(route(props.urlPrefix + 'logout'))
-    liveUsers().unsubscribe()  // Unsubscribe from Laravel Echo
+    useLiveUsers().unsubscribe()  // Unsubscribe from Laravel Echo
 }
 
 // const organisationName = ref('')
@@ -49,7 +49,8 @@ const logoutAuth = () => {
 //     console.log('xxx')
 //     organisationName.value = route().v().params?.organisation ?? false
 // })
-
+console.log(route().v().params?.organisation)
+console.log(layout.navigation.org)
 </script>
 
 <template>
@@ -160,23 +161,23 @@ const logoutAuth = () => {
                         <!-- Section: Subsections -->
                         <div class="flex h-full">
                         <!-- {{ layout.navigation.org[route().v().params?.organisation][layout.currentModule]?.topMenu.subSections }} -->
-                            <Link v-for="menu in layout.navigation.org[route().v().params?.organisation][layout.currentModule]?.topMenu.subSections"
-                                :href="'#'"
-                                :id="get(menu,'label',menu.route.name)"
-                                class="group relative text-gray-700 group text-sm flex justify-end items-center cursor-pointer py-3 gap-x-2 px-4 md:px-4 lg:px-4"
-                                :title="capitalize(menu.tooltip??menu.label??'')">
-
-                                <!-- <div :class="[
-                                    route(layout.currentRoute, route().v().params).includes(route(menu.route.name,menu.route.parameters))
-                                    ? 'bottomNavigationActive'
-                                    : 'bottomNavigation'
-                                ]"/> -->
-
-                                <FontAwesomeIcon :icon="menu.icon"
-                                    class="h-5 lg:h-3.5 w-auto group-hover:opacity-100 opacity-70 transition duration-100 ease-in-out"
-                                    aria-hidden="true"/>
-                                <span v-if="menu.label" class="hidden lg:inline capitalize whitespace-nowrap">{{ menu.label }}</span>
-                            </Link>
+                            <template v-if="route().v().params?.organisation">
+                                <Link v-for="menu in layout.navigation.org[route().v().params?.organisation][layout.currentModule]?.topMenu.subSections"
+                                    :href="'#'"
+                                    :id="get(menu,'label',menu.route.name)"
+                                    class="group relative text-gray-700 group text-sm flex justify-end items-center cursor-pointer py-3 gap-x-2 px-4 md:px-4 lg:px-4"
+                                    :title="capitalize(menu.tooltip ?? menu.label ?? '')">
+                                    <!-- <div :class="[
+                                        route(layout.currentRoute, route().v().params).includes(route(menu.route.name,menu.route.parameters))
+                                        ? 'bottomNavigationActive'
+                                        : 'bottomNavigation'
+                                    ]"/> -->
+                                    <FontAwesomeIcon :icon="menu.icon"
+                                        class="h-5 lg:h-3.5 w-auto group-hover:opacity-100 opacity-70 transition duration-100 ease-in-out"
+                                        aria-hidden="true"/>
+                                    <span v-if="menu.label" class="hidden lg:inline capitalize whitespace-nowrap">{{ menu.label }}</span>
+                                </Link>
+                            </template>
                         </div>
                     </div>
 
@@ -204,7 +205,7 @@ const logoutAuth = () => {
                                 class="flex max-w-xs overflow-hidden items-center rounded-full bg-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-gray-500">
                                 <span class="sr-only">{{ trans("Open user menu") }}</span>
                                 <Image  class="h-8 w-8 rounded-full"
-                                    :src="layout.avatar_thumbnail"
+                                    :src="layout.user.avatar_thumbnail"
                                     alt="" />
                             </MenuButton>
                             <transition enter-active-class="transition ease-out duration-100" enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100"

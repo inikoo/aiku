@@ -10,7 +10,7 @@ import { useLayoutStore } from "@/Stores/layout"
 import FooterTab from '@/Components/Footer/FooterTab.vue'
 import { faBriefcase} from '@fal'
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { liveUsers } from '@/Stores/active-users'
+import { useLiveUsers } from '@/Stores/active-users'
 
 library.add(faBriefcase);
 
@@ -39,15 +39,15 @@ const layout = useLayoutStore()
     >
         <!-- Tab -->
         <div class="relative text-xs flex items-center gap-x-1">
-            <div class="ring-1 h-2 aspect-square rounded-full" :class="[liveUsers().count> 0 ? 'animate-pulse bg-green-400 ring-green-600' : 'bg-gray-400 ring-gray-600']" />
-            <span class="">{{ trans('Active users') }} ({{ liveUsers().count ?? 0 }})</span>
+            <div class="ring-1 h-2 aspect-square rounded-full" :class="[useLiveUsers().count> 0 ? 'animate-pulse bg-green-400 ring-green-600' : 'bg-gray-400 ring-gray-600']" />
+            <span class="">{{ trans('Active users') }} ({{ useLiveUsers().count ?? 0 }})</span>
         </div>
 
         <!-- Content -->
         <Transition name="slide-to-up">
             <FooterTab @pinTab="() => $emit('isTabActive', false)" v-if="isTabActive == 'activeUsers'" :tabName="`activeUsers`">
                 <template #default>
-                    <div v-for="(dataUser, index) in liveUsers().liveUsers" class="flex justify-start py-1 px-2 gap-x-1.5 cursor-default">
+                    <div v-for="(dataUser, index) in useLiveUsers().liveUsers" class="flex justify-start py-1 px-2 gap-x-1.5 cursor-default">
                         <!-- <img :src="`/media/${user.user.avatar_thumbnail}`" :alt="user.user.contact_name" srcset="" class="h-4 rounded-full shadow"> -->
                         <span class="capitalize font-semibold">{{ dataUser?.name }}</span>
                         <span v-if="dataUser.current_page?.label" class="capitalize">- {{ dataUser?.current_page?.label }}</span>

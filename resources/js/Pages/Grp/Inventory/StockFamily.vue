@@ -9,7 +9,7 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
-import {useLocaleStore} from '@/Stores/locale.js';
+import {useLocaleStore} from '@/Stores/locale';
 
 
 import {library} from '@fortawesome/fontawesome-svg-core';
