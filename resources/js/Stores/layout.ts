@@ -39,7 +39,7 @@ export const useLayoutStore = defineStore("layout", {
             booted: false,
             currentModule: "",
             currentRoute: "",
-            currentRouteParameters: {},
+            currentParams: {} as {[key: string]: string},
             group: {} as Group,
             leftSidebar: {
                 show: true,

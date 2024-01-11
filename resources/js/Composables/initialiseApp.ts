@@ -29,6 +29,10 @@ export const initialiseApp = () => {
         echoPersonal.subscribe(usePage().props.auth.user.username)
 
         router.on('navigate', (event) => {
+            layout.currentParams = route().params  // store the current params
+            layout.currentRoute = route().current()  // store the current route
+            layout.currentModule = layout.currentRoute.split('.')[2]  // grp.org.xxx
+
             if (usePage().props.auth.user?.id) {
                 // console.log("===== ada auth id =====")
                 // axios.post(
@@ -60,20 +64,15 @@ export const initialiseApp = () => {
             layout.group = usePage().props.layout.group
         }
 
-        // Set organisations
+        // Set Organisations (for Multiselect in Topbar)
         if (usePage().props.layout?.organisations) {
             layout.organisations = usePage().props.layout.organisations
         }
 
+        // Set Navigation (for LeftSidebar)
         if (usePage().props.layout?.navigation) {
             layout.navigation = usePage().props.layout.navigation ?? null;
         }
-
-        layout.currentRouteParameters = route().params
-        layout.currentRoute = route().current()
-        layout.currentModule = layout.currentRoute.split('.')[2]  // grp.org.xxx
-
-        // ===============================================
 
         // Set data of Locale (Language)
         if (usePage().props.localeData) {
@@ -81,25 +80,10 @@ export const initialiseApp = () => {
             locale.languageOptions = usePage().props.localeData.languageOptions
         }
 
-        // console.log('usepage organisation', usePage().props.organisation)
-        // if (usePage().props.organisation) {
-        //     layout.organisation = usePage().props.organisation ?? null
-        //     console.log('layout organisation', layout.organisation)
-        // }
-
         // Set data of User
         if (usePage().props.auth.user) {
             layout.user = usePage().props.auth.user
         }
-
-        // // Organisations
-        // if (usePage().props.layout?.organisations?.data) {
-        //   layout.organisations.currentOrganisations = ''
-        //   usePage().props.layout.organisations.data.forEach(item => {
-        //     layout.organisations.data[item.slug] = item
-        //   })
-        // }
-
 
         layout.systemName = "Aiku"
         layout.booted = true

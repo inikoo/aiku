@@ -10,7 +10,7 @@ import { Link } from "@inertiajs/vue3"
 import { ref, onMounted, onUnmounted } from "vue"
 import { router } from "@inertiajs/vue3"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faBoxUsd, faUsersCog, faLightbulb, faUserHardHat, faUser, faInventory, faChevronDown } from "@fal"
+import { faBoxUsd, faUsersCog, faLightbulb, faUserHardHat, faUser, faInventory, faChevronDown, faStoreAlt } from "@fal"
 import { useLayoutStore } from "@/Stores/layout.js"
 import { computed } from "vue"
 import Image from "@/Components/Image.vue"
@@ -20,7 +20,7 @@ import {
     DisclosureButton,
     DisclosurePanel,
   } from '@headlessui/vue'
-library.add(faBoxUsd, faUsersCog, faLightbulb, faUserHardHat, faUser, faInventory, faChevronDown)
+library.add(faBoxUsd, faUsersCog, faLightbulb, faUserHardHat, faUser, faInventory, faChevronDown, faStoreAlt)
 
 const layout = useLayoutStore()
 
@@ -82,8 +82,8 @@ const generateLabel = (item) => {
 <template>
     <nav class="isolate relative flex flex-grow flex-col pb-4 h-full overflow-y-auto custom-hide-scrollbar flex-1 space-y-1" aria-label="Sidebar">
         <!-- LeftSidebar: Org -->
-        <template v-if="route().v().params?.organisation">
-            <template v-for="(items, itemKey) in useLayoutStore().navigation.org[route().v().params?.organisation]"
+        <template v-if="layout.currentParams.organisation">
+            <template v-for="(items, itemKey) in useLayoutStore().navigation.org[layout.currentParams.organisation]"
                 :key="itemKey"
             >
                 <!-- If multi item (Shops or Warehouses) -->
@@ -100,7 +100,7 @@ const generateLabel = (item) => {
                     <!-- Looping: Shops -->
                     <transition>
                         <DisclosurePanel>
-                            <template v-if="!route().v().params?.shop">
+                            <template v-if="!layout.currentParams.shop">
                                 <div v-for="(shopNavigations, shopIndex) in items" :key="shopIndex" class="group flex flex-col justify-center text-sm py-0.5"
                                     :class="[ shopIndex === layout.currentModule ? '' : '', layout.leftSidebar.show ? 'pl-3' : '', ]"
                                     :aria-current="shopIndex === layout.currentModule ? 'page' : undefined"
@@ -129,12 +129,12 @@ const generateLabel = (item) => {
                             </template>
                             <template v-else>
                                 <div class="group flex flex-col justify-center text-sm py-0.5"
-                                    :class="[ route().v().params?.shop === layout.currentModule ? '' : '', layout.leftSidebar.show ? 'pl-3' : '', ]"
-                                    :aria-current="route().v().params?.shop === layout.currentModule ? 'page' : undefined"
+                                    :class="[ layout.currentParams.shop === layout.currentModule ? '' : '', layout.leftSidebar.show ? 'pl-3' : '', ]"
+                                    :aria-current="layout.currentParams.shop === layout.currentModule ? 'page' : undefined"
                                 >
-                                    <p class="capitalize text-white">{{ route().v().params?.shop }}</p>
+                                    <p class="capitalize text-white">{{ layout.currentParams.shop }}</p>
                                     <!-- Looping: Navigation in Shop -->
-                                    <Link v-for="(shopNavigation, navigationIndex) in items[route().v().params?.shop]"
+                                    <Link v-for="(shopNavigation, navigationIndex) in items[layout.currentParams.shop]"
                                         :href="shopNavigation.route?.name ? route(shopNavigation.route.name, shopNavigation.route.parameters) : '#'"
                                         class="group flex items-center text-sm py-2"
                                         :class="[
