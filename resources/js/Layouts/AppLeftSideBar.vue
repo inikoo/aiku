@@ -27,7 +27,7 @@ const handleToggleLeftbar = () => {
 </script>
 
 <template>
-    <div class="mt-11 fixed md:flex md:flex-col md:inset-y-0 lg:mt-10 bg-gradient-to-t from-indigo-600 to-indigo-400 h-full text-gray-400 transition-all duration-200 ease-in-out"
+    <div class="mt-11 pb-10 fixed md:flex md:flex-col md:inset-y-0 lg:mt-10 bg-gradient-to-t from-indigo-600 to-indigo-400 h-full text-gray-400 transition-all duration-200 ease-in-out"
         :class="[layout.leftSidebar.show ? 'w-8/12 md:w-48' : 'w-8/12 md:w-10']"
     >
         <!-- Toggle: collapse-expand LeftSideBar -->
