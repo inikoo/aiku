@@ -26,7 +26,7 @@ export const initialiseApp = () => {
     echoGeneral.subscribe()  // Websockets: notification
 
     if (usePage().props?.auth?.user) {
-        echoPersonal.subscribe(usePage().props.auth.user.id)
+        echoPersonal.subscribe(usePage().props.auth.user.username)
 
         router.on('navigate', (event) => {
             if (usePage().props.auth.user?.id) {
