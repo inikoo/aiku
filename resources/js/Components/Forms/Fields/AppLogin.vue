@@ -38,7 +38,7 @@ const qrValue = ref('')
 const fetchQrCode = async () => {
     try {
         const response = await axios.get(route(props.fieldData.route.name, props.fieldData.route.parameters),)
-        console.log(response.data)
+        // console.log(response.data)
         qrValue.value = response.data.code.toString()
         setCountdown(120)
     } catch (error: any) {

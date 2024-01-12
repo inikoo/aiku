@@ -142,7 +142,7 @@ class ShowProfile
                                 "type"          => "app_login",
                                 "label"         => __("App login"),
                                 "route"         => [
-                                    "name"  => "org.models.profile.app-login-qrcode",
+                                    "name"  => "grp.models.profile.app-login-qrcode",
                                 ],
                                 "noSaveButton"  => true,
                                 "noTitle"       => true,
