@@ -32,23 +32,32 @@ class FetchAuroraCustomer extends FetchAurora
         $billingAddress  = $this->parseAddress(prefix: 'Customer Invoice', auAddressData: $this->auroraModelData);
         $deliveryAddress = $this->parseAddress(prefix: 'Customer Delivery', auAddressData: $this->auroraModelData);
 
-        //  $this->parsedData['contact_address'] = $billingAddress;
-
-
         $taxNumber = $this->parseTaxNumber(
             number: $this->auroraModelData->{'Customer Tax Number'},
             countryID: $billingAddress['country_id'],
             rawData: (array)$this->auroraModelData
         );
 
+        $contactName = $this->auroraModelData->{'Customer Main Contact Name'};
+        $company     = $this->auroraModelData->{'Customer Company Name'};
+
+        if (!$company and !$contactName) {
+            $contactName = $this->auroraModelData->{'Customer Name'};
+            if (!$contactName) {
+                $contactName = $this->auroraModelData->{'Customer Main Plain Email'};
+            }
+            if (!$contactName) {
+                $contactName = 'Unknown';
+            }
+        }
 
         $this->parsedData['customer'] =
             [
                 'reference'                => sprintf('%05d', $this->auroraModelData->{'Customer Key'}),
                 'state'                    => $state,
                 'status'                   => $status,
-                'contact_name'             => $this->auroraModelData->{'Customer Main Contact Name'},
-                'company_name'             => $this->auroraModelData->{'Customer Company Name'},
+                'contact_name'             => $contactName,
+                'company_name'             => $company,
                 'email'                    => $this->auroraModelData->{'Customer Main Plain Email'},
                 'phone'                    => $this->auroraModelData->{'Customer Main Plain Mobile'},
                 'identity_document_number' => Str::limit($this->auroraModelData->{'Customer Registration Number'}),
@@ -64,7 +73,7 @@ class FetchAuroraCustomer extends FetchAurora
         }
 
 
-        $this->parsedData['shop'] = $this->parseShop($this->auroraModelData->{'Customer Store Key'});
+        $this->parsedData['shop'] = $this->parseShop($this->organisation->id.':'.$this->auroraModelData->{'Customer Store Key'});
     }
 
 

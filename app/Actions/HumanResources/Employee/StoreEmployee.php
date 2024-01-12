@@ -35,11 +35,9 @@ class StoreEmployee extends OrgAction
 
     public function handle(Organisation|Workplace $parent, array $modelData): Employee
     {
-
-        if(class_basename($parent) === 'Workplace') {
+        if (class_basename($parent) === 'Workplace') {
             $organisation = $parent->organisation;
             data_set($modelData, 'organisation_id', $organisation->id);
-
         } else {
             $organisation = $parent;
         }
@@ -104,8 +102,6 @@ class StoreEmployee extends OrgAction
     }
 
 
-
-
     public function prepareForValidation(ActionRequest $request): void
     {
         if ($request->get('username')) {
@@ -116,25 +112,31 @@ class StoreEmployee extends OrgAction
     public function rules(): array
     {
         return [
-            'worker_number'       => ['required', 'max:64',  'alpha_dash',
-                                      new IUnique(
-                                          table: 'employees',
-                                          extraConditions: [
-                                              ['column' => 'organisation_id', 'value' => $this->organisation->id],
-                                          ]
-                                      ),
+            'worker_number'       => [
+                'required',
+                'max:64',
+                'alpha_dash',
+                new IUnique(
+                    table: 'employees',
+                    extraConditions: [
+                        ['column' => 'organisation_id', 'value' => $this->organisation->id],
+                    ]
+                ),
 
-                ],
+            ],
             'employment_start_at' => ['sometimes', 'nullable', 'date'],
             'work_email'          => ['sometimes', 'nullable', 'email', 'iunique:employees'],
-            'alias'               => ['required',  'string', 'max:16',
-                                      new IUnique(
-                                          table: 'employees',
-                                          extraConditions: [
-                                              ['column' => 'organisation_id', 'value' => $this->organisation->id],
-                                          ]
-                                      ),
-                ],
+            'alias'               => [
+                'required',
+                'string',
+                'max:16',
+                new IUnique(
+                    table: 'employees',
+                    extraConditions: [
+                        ['column' => 'organisation_id', 'value' => $this->organisation->id],
+                    ]
+                ),
+            ],
             'contact_name'        => ['required', 'string', 'max:256'],
             'date_of_birth'       => ['sometimes', 'nullable', 'date', 'before_or_equal:today'],
             'job_title'           => ['sometimes', 'nullable', 'string', 'max:256'],
@@ -146,6 +148,7 @@ class StoreEmployee extends OrgAction
             'password'            => ['exclude_if:username,null', 'required', 'max:255', app()->isLocal() || app()->environment('testing') ? null : Password::min(8)->uncompromised()],
             'reset_password'      => ['sometimes', 'boolean'],
             'source_id'           => ['sometimes', 'string', 'max:64'],
+            'deleted_at'          => ['sometimes', 'nullable', 'date'],
         ];
     }
 
@@ -153,7 +156,7 @@ class StoreEmployee extends OrgAction
     {
         $this->asAction = true;
 
-        if(class_basename($parent) === 'Workplace') {
+        if (class_basename($parent) === 'Workplace') {
             $organisation = $parent->organisation;
         } else {
             $organisation = $parent;
@@ -166,7 +169,7 @@ class StoreEmployee extends OrgAction
 
     public function asController(Organisation|Workplace $parent, ActionRequest $request): Employee
     {
-        if(class_basename($parent) === 'Workplace') {
+        if (class_basename($parent) === 'Workplace') {
             $organisation = $parent->organisation;
         } else {
             $organisation = $parent;

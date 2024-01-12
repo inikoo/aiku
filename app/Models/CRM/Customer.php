@@ -50,6 +50,8 @@ use Spatie\Sluggable\SlugOptions;
  * App\Models\CRM\Customer
  *
  * @property int $id
+ * @property int $group_id
+ * @property int $organisation_id
  * @property int|null $shop_id
  * @property int|null $image_id
  * @property string $slug

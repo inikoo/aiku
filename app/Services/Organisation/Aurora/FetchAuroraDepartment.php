@@ -13,7 +13,7 @@ class FetchAuroraDepartment extends FetchAurora
 {
     protected function parseModel(): void
     {
-        $this->parsedData['shop'] = $this->parseShop($this->auroraModelData->{'Product Category Store Key'});
+        $this->parsedData['shop'] = $this->parseShop($this->organisation->id.':'.$this->auroraModelData->{'Product Category Store Key'});
 
         $this->parsedData['department'] = [
             'code'       => $this->auroraModelData->{'Category Code'},

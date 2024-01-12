@@ -38,7 +38,7 @@ class FetchAuroraWebsite extends FetchAurora
 
     protected function parseModel(): void
     {
-        $this->parsedData['shop'] = $this->parseShop($this->auroraModelData->{'Website Store Key'});
+        $this->parsedData['shop'] = $this->parseShop($this->organisation->id.':'.$this->auroraModelData->{'Website Store Key'});
 
         $status = match ($this->auroraModelData->{'Website Status'}) {
             'Active' => WebsiteStateEnum::LIVE,

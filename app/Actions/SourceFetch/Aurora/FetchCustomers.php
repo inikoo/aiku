@@ -40,8 +40,8 @@ class FetchCustomers extends FetchAction
 
             } else {
 
-                //print_r($customerData['customer']);
 
+                //print_r($customerData['customer']);
                 $customer = StoreCustomer::make()->asFetch(
                     shop: $customerData['shop'],
                     modelData: $customerData['customer'],
