@@ -16,8 +16,8 @@ class UploadProgressResource extends JsonResource
 {
     use HasSelfCall;
 
-    public Organisation $organisation;
-    public function __construct($resource, Organisation $organisation)
+    public ?Organisation $organisation;
+    public function __construct($resource, ?Organisation $organisation)
     {
         parent::__construct($resource);
         $this->organisation = $organisation;
@@ -39,7 +39,7 @@ class UploadProgressResource extends JsonResource
             'view_route'   => [
                 'name'       => 'org.crm.shop.prospects.uploads.show',
                 'parameters' => [
-                    'shop'      => $this->organisation->shops()->first()->slug,
+                    'shop'      => $this->organisation?->shops()->first()->slug,
                     'upload'    => $upload->id,
                 ],
             ],

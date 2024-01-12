@@ -91,6 +91,21 @@ return [
             'root'   => storage_path('backups'),
             'throw'  => false,
         ],
+        'excel-uploads' => match (env('APP_ENV')) {
+            'production' => [
+                'driver'   => 's3',
+                'key'      => env('CLOUDFLARE_R2_ACCESS_KEY'),
+                'secret'   => env('CLOUDFLARE_R2_SECRET_KEY'),
+                'region'   => env('CLOUDFLARE_R2_REGION', 'auto'),
+                'endpoint' => env('CLOUDFLARE_R2_ENDPOINT'),
+                'bucket'   => env('CLOUDFLARE_R2_BUCKET_NAME'),
+            ],
+            default => [
+                'driver' => 'local',
+                'root'   => storage_path('app'),
+                'throw'  => false,
+            ],
+        },
     ],
 
     /*
