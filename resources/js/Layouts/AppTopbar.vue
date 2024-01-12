@@ -149,7 +149,8 @@ const logoutAuth = () => {
                             </Menu>
 
                             <!-- Dropdown: Shops -->
-                            <Menu v-if="useLayoutStore().navigation.org[layout.currentParams.organisation]?.shops_navigation" as="div" class="relative inline-block text-left">
+                            <Menu v-if="useLayoutStore().navigation.org[layout.currentParams.organisation]?.shops_navigation && (route(useLayoutStore().currentRoute, useLayoutStore().currentParams)).includes('shops')"
+                                as="div" class="relative inline-block text-left">
                                 <MenuButton
                                     class="inline-flex min-w-fit w-32 max-w-full whitespace-nowrap justify-between items-center gap-x-2 rounded px-2.5 py-2 text-xs font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-white/75"
                                     :class="[ layout.currentParams.shop ? 'bg-indigo-500 text-white hover:bg-indigo-600' : 'bg-slate-100 hover:bg-slate-200 text-slate-600 ring-1 ring-slate-300']"
