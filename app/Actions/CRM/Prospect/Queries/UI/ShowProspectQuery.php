@@ -5,11 +5,11 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Leads\Prospect\Queries\UI;
+namespace App\Actions\CRM\Prospect\Queries\UI;
 
 use App\Actions\Helpers\Query\GetQueryEloquentQueryBuilder;
 use App\Actions\InertiaAction;
-use App\Actions\Leads\Prospect\UI\IndexProspects;
+use App\Actions\CRM\Prospect\UI\IndexProspects;
 use App\Actions\Traits\Actions\WithActionButtons;
 use App\Actions\Traits\WithProspectsSubNavigation;
 use App\Enums\UI\Organisation\ShowProspectTabsEnum;

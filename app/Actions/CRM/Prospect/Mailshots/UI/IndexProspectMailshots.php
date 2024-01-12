@@ -8,7 +8,7 @@
 namespace App\Actions\CRM\Prospect\Mailshots\UI;
 
 use App\Actions\InertiaAction;
-use App\Actions\Leads\Prospect\UI\IndexProspects;
+use App\Actions\CRM\Prospect\UI\IndexProspects;
 use App\Actions\Mail\Mailshot\UI\ProspectMailshotSettings;
 use App\Actions\Traits\WithProspectsSubNavigation;
 use App\Enums\Mail\MailshotTypeEnum;
