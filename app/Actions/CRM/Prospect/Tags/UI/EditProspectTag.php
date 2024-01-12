@@ -7,8 +7,8 @@
 
 namespace App\Actions\CRM\Prospect\Tags\UI;
 
+use App\Actions\CRM\Prospect\UI\IndexProspects;
 use App\Actions\InertiaAction;
-use App\Actions\CRM\Prospect\IndexProspects;
 use App\Models\Helpers\Tag;
 use App\Models\Market\Shop;
 use Illuminate\Support\Arr;

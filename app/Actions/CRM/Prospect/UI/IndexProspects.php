@@ -1,19 +1,23 @@
 <?php
 /*
- * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Thu, 21 Sep 2023 08:23:57 Malaysia Time, Pantai Lembeng, Bali, Indonesia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Author: Artha <artha@aw-advantage.com>
+ * Created: Thu, 11 Jan 2024 14:58:03 Central Indonesia Time, Sanur, Bali, Indonesia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\CRM\Prospect;
+namespace App\Actions\CRM\Prospect\UI;
 
+use App\Actions\CRM\Prospect\Mailshots\UI\IndexProspectMailshots;
+use App\Actions\CRM\Prospect\Queries\UI\IndexProspectQueries;
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithProspectsSubNavigation;
 use App\Enums\CRM\Prospect\ProspectStateEnum;
 use App\Enums\UI\ProspectsTabsEnum;
+use App\Http\Resources\CRM\ProspectQueriesResource;
 use App\Http\Resources\CRM\ProspectsResource;
 use App\Http\Resources\History\HistoryResource;
+use App\Http\Resources\Mail\MailshotsResource;
 use App\Http\Resources\Tag\TagResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\CRM\Prospect;
@@ -39,7 +43,7 @@ class IndexProspects extends OrgAction
     {
         $this->canEdit = $request->user()->hasPermissionTo("crm.{$this->shop->slug}.prospects.edit");
 
-        return  $request->user()->hasPermissionTo('crm.prospects.view');
+        return  $request->user()->hasPermissionTo("crm.{$this->shop->slug}.prospects.view");
 
     }
 
@@ -171,7 +175,7 @@ class IndexProspects extends OrgAction
         $subNavigation = $this->getSubNavigation($request);
 
         return Inertia::render(
-            'CRM/Prospects',
+            'Org/Shop/CRM/Prospects',
             [
                 'breadcrumbs'  => $this->getBreadcrumbs(
                     $request->route()->getName(),
@@ -191,8 +195,8 @@ class IndexProspects extends OrgAction
                                             'icon'  => ['fal', 'fa-upload'],
                                             'label' => 'upload',
                                             'route' => [
-                                                'name'       => 'org.models.shop.prospects.upload',
-                                                'parameters' => $this->parent->id
+                                                'name'       => 'grp.org.models.shop.prospects.upload',
+                                                'parameters' => $request->route()->originalParameters()
 
                                             ],
                                         ],
@@ -201,7 +205,7 @@ class IndexProspects extends OrgAction
                                             'style' => 'create',
                                             'label' => __('prospect'),
                                             'route' => [
-                                                'name'       => 'org.crm.shop.prospects.create',
+                                                'name'       => 'grp.org.shops.crm.prospects.create',
                                                 'parameters' => $request->route()->originalParameters()
                                             ]
                                         ]

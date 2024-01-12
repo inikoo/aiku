@@ -7,6 +7,7 @@
 
 namespace App\Actions\SysAdmin\Organisation\Hydrators;
 
+use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -15,14 +16,14 @@ class OrganisationHydrateCrmTags
     use AsAction;
 
 
-    public function handle(): void
+    public function handle(Organisation $organisation): void
     {
         $stats = [
             'number_tags' => DB::table('tags')->where('type', 'crm')->count()
         ];
 
 
-        organisation()->crmStats()->update($stats);
+        $organisation->crmStats()->update($stats);
     }
 
 
