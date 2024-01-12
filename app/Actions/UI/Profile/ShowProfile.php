@@ -141,8 +141,12 @@ class ShowProfile
                             "app_login" => [
                                 "type"          => "app_login",
                                 "label"         => __("App login"),
+                                "route"         => [
+                                    "name"  => "grp.models.profile.app-login-qrcode",
+                                ],
                                 "noSaveButton"  => true,
                                 "noTitle"       => true,
+                                "full"          => true
                             ],
                         ]
                     ]

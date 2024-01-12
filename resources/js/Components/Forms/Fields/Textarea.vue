@@ -21,17 +21,17 @@ if(props.options!==undefined && props.options.type ){
 
 
 <template>
-    <div class="mt-1 relative">
+    <div class="relative">
         <div>
             <label :for="fieldName" class="block text-sm font-medium text-gray-700"></label>
-            <div class="mt-1 rounded-md shadow-sm">
+            <div class="rounded-md shadow-sm">
                 <textarea
                     v-model.trim="form[fieldName]"
                     :id="fieldName"
                     :name="fieldName"
                     :placeholder="fieldData?.placeholder"
                     rows="3"
-                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
+                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
             </div>
             <div v-if="fieldData.counter" class="grid grid-flow-col text-xs italic text-gray-500 mt-2 space-x-12 justify-start">
                 <p class="">
