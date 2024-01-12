@@ -183,7 +183,7 @@ const logoutAuth = () => {
                                                             <Image v-show="imageSkeleton[shopIdx]" :src="item.logo" @onLoadImage="() => imageSkeleton[shopIdx] = true"/>
                                                             <div v-show="!imageSkeleton[shopIdx]" class="skeleton w-5 h-5"/>
                                                         </div> -->
-                                                        <div class="font-semibold">{{ shopIdx }}</div>
+                                                        <div class="font-semibold">{{ shop.shop.route?.name }}</div>
                                                     </div>
                                                 </MenuItem>
                                             </div>

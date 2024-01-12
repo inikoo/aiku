@@ -6,9 +6,8 @@ import { faStoreAlt, faWarehouseAlt } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { Link } from '@inertiajs/vue3'
 import {
-    Disclosure,
-    DisclosureButton,
-    DisclosurePanel,
+    Disclosure, DisclosureButton, DisclosurePanel,
+    Popover, PopoverButton, PopoverPanel
 } from '@headlessui/vue'
 
 library.add(faStoreAlt, faWarehouseAlt)
@@ -25,83 +24,91 @@ const navigationName = props.navKey.split('_')[0].slice(0, -1)  // shops_navigat
 </script>
 
 <template>
-    <Disclosure v-slot="{ open }" as="div"
-        class="pl-4 pr-2 pb-2"
-        :class="[navKey === layout.currentModule ? 'px-0.5' : '', layout.leftSidebar.show ? '' : '',]">
+    <component :is="layout.leftSidebar.show ? Disclosure : Popover" v-slot="{ open }" as="div"
+        class="relative "
+        :class="[navKey === layout.currentModule ? 'px-0.5' : '', layout.leftSidebar.show ? 'pl-4 pr-2 py-1' : '',]">
         <!-- Label Navigation: Shops/Warehouses -->
-        <DisclosureButton as="div" class="flex items-center justify-between mb-1 cursor-pointer">
+        <component :is="layout.leftSidebar.show ? DisclosureButton : PopoverButton" as="div"
+            class="flex items-center justify-between mb-1 cursor-pointer"
+            :class="layout.leftSidebar.show ? '' : open ? 'pl-3 pr-2 py-2 bg-indigo-600' : 'pl-3 pr-2 py-2 hover:bg-indigo-500'"
+        >
             <div class="leading-none capitalize text-white font-bold pb-1 select-none flex items-center gap-x-1">
                 <FontAwesomeIcon v-if="navKey == 'shops_navigation'" icon='fal fa-store-alt' class='text-sm opacity-75'
                     aria-hidden='true' />
                 <FontAwesomeIcon v-if="navKey == 'warehouses_navigation'" icon='fal fa-warehouse-alt'
                     class='text-sm opacity-75' aria-hidden='true' />
-                {{ navKey.split('_')[0] }}
+                <span v-if="layout.leftSidebar.show">{{ navKey.split('_')[0] }}</span>
             </div>
-            <FontAwesomeIcon icon='fal fa-chevron-down' class='text-white text-xs transition-all duration-100 ease-in-out'
+            <FontAwesomeIcon v-if="layout.leftSidebar.show" icon='fal fa-chevron-down' class='text-white text-xs transition-all duration-100 ease-in-out'
                 :class="[open ? 'rotate-180' : '']" aria-hidden='true' />
-        </DisclosureButton>
+        </component>
 
         <!-- Looping: Subnav -->
         <transition>
-            <DisclosurePanel>
-
-                <!-- If shop not selected, then show all shops -->
-                <template v-if="!layout.currentParams[navigationName]">
-                    <div v-for="(navigationShopWarehouse, indexShopWarehouse) in subNav" :key="indexShopWarehouse"
-                        class="qwezxc group flex flex-col justify-center text-sm py-0.5" :class="[
-                            indexShopWarehouse === layout.currentModule ? '' : '',
-                            layout.leftSidebar.show ? 'pl-3' : ''
-                        ]"
-                        :aria-current="indexShopWarehouse === layout.currentModule ? 'page' : undefined">
-                        <p v-if="Object.keys(subNav).length > 1" class="capitalize text-white">{{ indexShopWarehouse }}</p>
-                        <!-- Looping: Navigation in Shop -->
-                        <Link v-for="(shopNavigation, navigationIndex) in navigationShopWarehouse"
-                            :href="shopNavigation.route?.name ? route(shopNavigation.route.name, shopNavigation.route.parameters) : '#'"
-                            class="group flex items-center text-sm py-2 rounded-md pl-2" :class="[
-                                navigationIndex === layout.currentModule
-                                    ? 'navigationActive px-0.5'
-                                    : 'navigation px-1',
-                                layout.leftSidebar.show ? Object.keys(subNav).length > 1 ? 'px-3' : 'pr-3' : '',
+            <teleport to="#leftSidebar" :disabled="layout.leftSidebar.show ? true : false">
+                <component :is="layout.leftSidebar.show ? DisclosurePanel : PopoverPanel"
+                    :class="layout.leftSidebar.show ? '' : 'absolute top-0 left-12 max-h-96 min-h-fit overflow-y-auto bg-indigo-100 rounded-lg overflow-hidden z-10 mt-3 w-64 px-3 py-2'"
+                >
+                    <!-- If shop/warehouse not selected, then show all -->
+                    <template v-if="!layout.currentParams[navigationName]">
+                        <div v-for="(navigationShopWarehouse, indexShopWarehouse) in subNav" :key="indexShopWarehouse"
+                            class="group flex flex-col justify-center text-sm py-0.5 gap-y-1" :class="[
+                                indexShopWarehouse === layout.currentModule ? '' : '',
+                                layout.leftSidebar.show ? '' : ''
                             ]"
-                            :aria-current="navigationIndex === layout.currentModule ? 'page' : undefined">
-                        <div class="flex items-center pr-2">
-                            <FontAwesomeIcon aria-hidden="true" class="flex-shrink-0 h-4 w-4" :icon="shopNavigation.icon" />
+                            :aria-current="indexShopWarehouse === layout.currentModule ? 'page' : undefined">
+                            <p v-if="Object.keys(subNav).length > 1" class="bg-indigo-300 py-0.5 pl-1 capitalize text-slate-700 font-bold mb-0.5">{{ indexShopWarehouse }}</p>
+                            
+                            <!-- Looping: Navigation in Shop -->
+                            <Link v-for="(shopNavigation, navigationIndex) in navigationShopWarehouse"
+                                :href="shopNavigation.route?.name ? route(shopNavigation.route.name, shopNavigation.route.parameters) : '#'"
+                                class="group flex items-center text-sm py-2 rounded-md pl-2" :class="[
+                                    navigationIndex === layout.currentModule
+                                        ? 'subNavActive px-0.5'
+                                        : 'subNav px-1',
+                                    layout.leftSidebar.show ? Object.keys(subNav).length > 1 ? 'px-3 text-white' : 'pr-3' : '',
+                                ]"
+                                :aria-current="navigationIndex === layout.currentModule ? 'page' : undefined">
+                                <div class="flex items-center gap-x-2">
+                                    <FontAwesomeIcon aria-hidden="true" class="flex-shrink-0 h-4 w-4 opacity-60" :icon="shopNavigation.icon" />
+                                    <span class="capitalize leading-none whitespace-nowrap">
+                                        {{ shopNavigation.label }}
+                                    </span>
+                                </div>
+                            </Link>
                         </div>
-                        <span class="capitalize leading-none whitespace-nowrap"
-                            :class="[layout.leftSidebar.show ? 'block md:block' : 'block md:hidden']">
-                            {{ shopNavigation.label }}
-                        </span>
-                        </Link>
-                    </div>
-                </template>
-
-                <!-- If shop selected, show only selected shop -->
-                <template v-else>
-                    <div class="zxcqwe group flex flex-col justify-center text-sm py-0.5"
-                        :class="[layout.currentParams[navigationName] === layout.currentModule ? '' : '', layout.leftSidebar.show ? 'pl-3' : '',]"
-                        :aria-current="layout.currentParams[navigationName] === layout.currentModule ? 'page' : undefined">
-                        <p class="capitalize text-white">{{ layout.currentParams[navigationName] }}</p>
-                        <!-- Looping: Navigation in Shop -->
-                        <Link v-for="(shopNavigation, navigationIndex) in subNav[layout.currentParams[navigationName]]"
-                            :href="shopNavigation.route?.name ? route(shopNavigation.route.name, shopNavigation.route.parameters) : '#'"
-                            class="group flex items-center text-sm py-2" :class="[
-                                navigationIndex === layout.currentModule
-                                    ? 'navigationActive px-0.5'
-                                    : 'navigation px-1',
-                                layout.leftSidebar.show ? 'px-3' : '',
+                    </template>
+                    
+                    <!-- If shop selected, show only selected shop -->
+                    <template v-else>
+                        <div class="group flex flex-col justify-center text-sm py-0.5 gap-y-1"
+                            :class="[
+                                layout.currentParams[navigationName] === layout.currentModule ? '' : '',
                             ]"
-                            :aria-current="navigationIndex === layout.currentModule ? 'page' : undefined">
-                        <div class="flex items-center px-2">
-                            <FontAwesomeIcon aria-hidden="true" class="flex-shrink-0 h-4 w-4" :icon="shopNavigation.icon" />
+                            :aria-current="layout.currentParams[navigationName] === layout.currentModule ? 'page' : undefined">
+                            <p class="bg-indigo-300 py-0.5 pl-1 capitalize text-slate-700 font-bold">{{ layout.currentParams[navigationName] }}</p>
+                            
+                            <!-- Looping: Navigation in Shop -->
+                            <Link v-for="(shopNavigation, navigationIndex) in subNav[layout.currentParams[navigationName]]"
+                                :href="shopNavigation.route?.name ? route(shopNavigation.route.name, shopNavigation.route.parameters) : '#'"
+                                class="group flex items-center text-sm rounded-md py-2 pl-2" :class="[
+                                    navigationIndex === layout.currentModule
+                                        ? 'subNavActive px-0.5'
+                                        : 'subNav px-1',
+                                    layout.leftSidebar.show ? 'px-3' : 'text-indigo-500',
+                                ]"
+                                :aria-current="navigationIndex === layout.currentModule ? 'page' : undefined">
+                                <div class="flex items-center gap-x-2">
+                                    <FontAwesomeIcon aria-hidden="true" class="flex-shrink-0 h-4 w-4" :icon="shopNavigation.icon" />
+                                    <span class="capitalize leading-none whitespace-nowrap">
+                                        {{ shopNavigation.label }}
+                                    </span>
+                                </div>
+                            </Link>
                         </div>
-                        <span class="capitalize leading-none whitespace-nowrap"
-                            :class="[layout.leftSidebar.show ? 'block md:block' : 'block md:hidden']">
-                            {{ shopNavigation.label }}
-                        </span>
-                        </Link>
-                    </div>
-                </template>
-            </DisclosurePanel>
+                    </template>
+                </component>
+            </teleport>
         </transition>
-    </Disclosure>
+    </component>
 </template>
