@@ -111,6 +111,7 @@ class FetchAction
             'fetch:orders',
             'fetch:invoices',
             'fetch:customers',
+            'fetch:customer-clients',
             'fetch:delivery-notes',
             'fetch:purchase-orders',
             'fetch:suppliers'
@@ -118,6 +119,7 @@ class FetchAction
         ])) {
             $this->onlyNew = (bool)$command->option('only_new');
         }
+
 
         if (in_array($command->getName(), ['fetch:customers', 'fetch:orders', 'fetch:invoices', 'fetch:delivery-notes'])) {
             $this->with = $command->option('with');

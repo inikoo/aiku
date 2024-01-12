@@ -5,6 +5,7 @@
  *  Copyright (c) 2022, Raul A Perusquia F
  */
 
+use App\Enums\Inventory\Warehouse\WarehouseStateEnum;
 use App\Stubs\Migrations\HasGroupOrganisationRelationship;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -20,6 +21,7 @@ return new class () extends Migration {
             $table->string('slug')->unique()->collation('und_ns');
             $table->string('code')->index()->collation('und_ns');
             $table->string('name');
+            $table->string('type')->index()->default(WarehouseStateEnum::IN_PROCESS->value);
             $table->jsonb('settings');
             $table->jsonb('data');
             $table->timestampsTz();

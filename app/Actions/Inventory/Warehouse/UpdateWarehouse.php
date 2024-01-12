@@ -11,9 +11,11 @@ namespace App\Actions\Inventory\Warehouse;
 use App\Actions\OrgAction;
 use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydrateUniversalSearch;
 use App\Actions\Traits\WithActionUpdate;
+use App\Enums\Inventory\Warehouse\WarehouseStateEnum;
 use App\Http\Resources\Inventory\WarehouseResource;
 use App\Models\Inventory\Warehouse;
 use App\Rules\IUnique;
+use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateWarehouse extends OrgAction
@@ -51,7 +53,9 @@ class UpdateWarehouse extends OrgAction
                                ['column' => 'id', 'value' => $this->warehouse->id, 'operation' => '!=']
                            ]
                        ),],
-            'name' => ['sometimes', 'required', 'max:250', 'string'],
+            'name'      => ['sometimes', 'required', 'max:250', 'string'],
+            'state'     => ['sometimes', Rule::enum(WarehouseStateEnum::class)],
+
         ];
     }
 

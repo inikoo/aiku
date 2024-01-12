@@ -16,6 +16,7 @@ use App\Actions\SysAdmin\User\UserAddRoles;
 use App\Enums\Accounting\PaymentAccount\PaymentAccountTypeEnum;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Enums\Mail\Outbox\OutboxTypeEnum;
+use App\Enums\Market\Shop\ShopStateEnum;
 use App\Enums\Market\Shop\ShopTypeEnum;
 use App\Enums\SysAdmin\Authorisation\RolesEnum;
 use App\Models\Assets\Country;
@@ -126,10 +127,9 @@ class StoreShop extends OrgAction
     public function rules(): array
     {
         return [
-            'name'                     => ['required', 'string', 'max:255'],
-            'code'                     => [
+            'code' => [
                 'required',
-                'between:2,4',
+                'max:4',
                 'alpha_dash',
                 new IUnique(
                     table: 'shops',
@@ -140,17 +140,23 @@ class StoreShop extends OrgAction
 
 
             ],
+            'name' => ['required', 'string', 'max:255'],
+
             'contact_name'             => ['nullable', 'string', 'max:255'],
             'company_name'             => ['nullable', 'string', 'max:255'],
             'email'                    => ['nullable', 'email'],
             'phone'                    => 'nullable',
             'identity_document_number' => ['nullable', 'string'],
             'identity_document_type'   => ['nullable', 'string'],
+            'state'                    => ['required', Rule::in(ShopStateEnum::values())],
             'type'                     => ['required', Rule::in(ShopTypeEnum::values())],
             'country_id'               => ['required', 'exists:countries,id'],
             'currency_id'              => ['required', 'exists:currencies,id'],
             'language_id'              => ['required', 'exists:languages,id'],
             'timezone_id'              => ['required', 'exists:timezones,id'],
+            'closed_at'                => ['sometimes', 'nullable', 'date'],
+            'settings'                 => ['sometimes', 'array'],
+            'created_at'               => ['sometimes', 'date'],
             'source_id'                => ['sometimes', 'string']
         ];
     }

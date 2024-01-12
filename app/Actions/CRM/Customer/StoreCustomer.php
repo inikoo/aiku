@@ -15,6 +15,7 @@ use App\Actions\OrgAction;
 use App\Actions\Market\Shop\Hydrators\ShopHydrateCustomerInvoices;
 use App\Actions\Market\Shop\Hydrators\ShopHydrateCustomers;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateCustomers;
+use App\Enums\CRM\Customer\CustomerStateEnum;
 use App\Enums\CRM\Customer\CustomerStatusEnum;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Enums\Market\Shop\ShopTypeEnum;
@@ -26,6 +27,7 @@ use App\Rules\ValidAddress;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\ActionRequest;
@@ -36,7 +38,6 @@ class StoreCustomer extends OrgAction
     private bool $asAction     = false;
     public int $hydratorsDelay = 0;
     private bool $strict       = true;
-
 
 
     public function handle(Shop $shop, array $modelData): Customer
@@ -130,6 +131,9 @@ class StoreCustomer extends OrgAction
     public function rules(): array
     {
         $rules = [
+            'reference'                => ['sometimes', 'string', 'max:16'],
+            'state'                    => ['sometimes', Rule::enum(CustomerStateEnum::class)],
+            'status'                   => ['sometimes', Rule::enum(CustomerStatusEnum::class)],
             'contact_name'             => ['nullable', 'string', 'max:255'],
             'company_name'             => ['nullable', 'string', 'max:255'],
             'email'                    => [
@@ -155,9 +159,9 @@ class StoreCustomer extends OrgAction
             'language_id' => ['nullable', 'exists:languages,id'],
             'data'        => ['sometimes', 'array'],
             'source_id'   => ['sometimes', 'nullable', 'string'],
-            'reference'   => ['sometimes', 'string', 'max:16'],
-            'deleted_at'  => ['sometimes', 'nullable', 'date'],
-            'password'    =>
+
+            'deleted_at' => ['sometimes', 'nullable', 'date'],
+            'password'   =>
                 [
                     'sometimes',
                     'required',

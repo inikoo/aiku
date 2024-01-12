@@ -39,7 +39,13 @@ class UpdateCustomer extends OrgAction
             $contactAddressData = Arr::get($modelData, 'contact_address');
             Arr::forget($modelData, 'contact_address');
 
-            UpdateAddress::run($customer->getAddress('contact'), $contactAddressData);
+            $contactAddress=$customer->getAddress('contact');
+            if($contactAddress) {
+                UpdateAddress::run($contactAddress, $contactAddressData);
+            } else {
+                StoreAddressAttachToModel::run($customer, $contactAddressData, ['scope' => 'contact']);
+            }
+
             $customer->location = $customer->getLocation();
             $customer->save();
         }

@@ -8,6 +8,7 @@
 namespace App\Services\Organisation\Aurora;
 
 use App\Actions\Utils\Abbreviate;
+use App\Enums\Inventory\Warehouse\WarehouseStateEnum;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraWarehouse extends FetchAurora
@@ -15,8 +16,12 @@ class FetchAuroraWarehouse extends FetchAurora
     protected function parseModel(): void
     {
         $this->parsedData["warehouse"] = [
-            "name"       => $this->auroraModelData->{'Warehouse Name'},
             "code"       => Abbreviate::run($this->auroraModelData->{'Warehouse Name'}),
+            "name"       => $this->auroraModelData->{'Warehouse Name'},
+            'state'      => match ($this->auroraModelData->{'Warehouse Status'}) {
+                'Active' => WarehouseStateEnum::OPEN->value,
+                default  => WarehouseStateEnum::CLOSED->value
+            },
             "source_id"  => $this->organisation->id.':'.$this->auroraModelData->{'Warehouse Key'},
             "created_at" =>
                 $this->auroraModelData->{'Warehouse Valid From'} ?? null,

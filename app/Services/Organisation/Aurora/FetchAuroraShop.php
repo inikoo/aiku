@@ -18,13 +18,14 @@ class FetchAuroraShop extends FetchAurora
     {
         $this->auroraModelData = $this->fetchData($id);
 
-        $code    = strtolower($this->auroraModelData->{'Store Code'});
-        $sourceId=$this->organisation->id.':'.$this->auroraModelData->{'Store Key'};
-        if(Shop::where('code', $code)->whereNot('source_id', $sourceId)->exists()) {
-            $code=$code.strtolower(Abbreviate::run(string:$this->organisation->slug, maximumLength:2));
+        $code     = strtolower($this->auroraModelData->{'Store Code'});
+        $sourceId = $this->organisation->id.':'.$this->auroraModelData->{'Store Key'};
+        if (Shop::where('code', $code)->whereNot('source_id', $sourceId)->exists()) {
+            $code = $code.strtolower(Abbreviate::run(string: $this->organisation->slug, maximumLength: 2));
         }
-        $this->auroraModelData->code=$code;
+        $this->auroraModelData->code = $code;
         $this->parseModel();
+
         return $this->parsedData;
     }
 
@@ -47,23 +48,24 @@ class FetchAuroraShop extends FetchAurora
         );
 
         $this->parsedData['shop'] = [
-
-
-            'type'         => strtolower($this->auroraModelData->{'Store Type'}),
             'code'         => $this->auroraModelData->code,
             'name'         => $this->auroraModelData->{'Store Name'},
             'company_name' => $this->auroraModelData->{'Store Company Name'},
             'contact_name' => $this->auroraModelData->{'Store Contact Name'},
-            'email'        => $this->auroraModelData->{'Store Email'},
-            'phone'        => $this->auroraModelData->{'Store Telephone'},
+
+
+            'email' => $this->auroraModelData->{'Store Email'},
+            'phone' => $this->auroraModelData->{'Store Telephone'},
 
             'identity_document_number' => $this->auroraModelData->{'Store Company Number'},
+            'state'                    => Str::snake($this->auroraModelData->{'Store Status'} == 'Normal' ? 'Open' : $this->auroraModelData->{'Store Status'}, '-'),
+
+            'type'  => strtolower($this->auroraModelData->{'Store Type'}),
 
             'country_id'  => $this->parseCountryID($this->auroraModelData->{'Store Home Country Code 2 Alpha'}),
             'language_id' => $this->parseLanguageID($this->auroraModelData->{'Store Locale'}),
             'currency_id' => $this->parseCurrencyID($this->auroraModelData->{'Store Currency Code'}),
             'timezone_id' => $this->parseTimezoneID($this->auroraModelData->{'Store Timezone'}),
-            'state'       => Str::snake($this->auroraModelData->{'Store Status'} == 'Normal' ? 'Open' : $this->auroraModelData->{'Store Status'}, '-'),
             'open_at'     => $this->parseDate($this->auroraModelData->{'Store Valid From'}),
             'closed_at'   => $this->parseDate($this->auroraModelData->{'Store Valid To'}),
             'created_at'  => $this->parseDate($this->auroraModelData->{'Store Valid From'}),

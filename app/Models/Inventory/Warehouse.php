@@ -7,6 +7,7 @@
 
 namespace App\Models\Inventory;
 
+use App\Enums\Inventory\Warehouse\WarehouseStateEnum;
 use App\Models\Helpers\Issue;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Search\UniversalSearch;
@@ -72,6 +73,7 @@ class Warehouse extends Model implements Auditable
     use HasHistory;
 
     protected $casts = [
+        'state'    => WarehouseStateEnum::class,
         'data'     => 'array',
         'settings' => 'array'
     ];
@@ -96,6 +98,7 @@ class Warehouse extends Model implements Auditable
     {
         return $this->belongsTo(Organisation::class);
     }
+
     public function warehouseAreas(): HasMany
     {
         return $this->hasMany(WarehouseArea::class);

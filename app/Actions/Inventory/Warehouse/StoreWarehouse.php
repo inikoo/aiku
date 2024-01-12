@@ -11,6 +11,7 @@ use App\Actions\OrgAction;
 use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydrateUniversalSearch;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWarehouse;
 use App\Actions\SysAdmin\User\UserAddRoles;
+use App\Enums\Inventory\Warehouse\WarehouseStateEnum;
 use App\Enums\SysAdmin\Authorisation\RolesEnum;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Inventory\Warehouse;
@@ -20,6 +21,7 @@ use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
 class StoreWarehouse extends OrgAction
@@ -64,16 +66,21 @@ class StoreWarehouse extends OrgAction
     public function rules(): array
     {
         return [
-            'code' => ['required','between:2,4', 'alpha_dash',
-                       new IUnique(
-                           table: 'warehouses',
-                           extraConditions: [
-                               ['column' => 'group_id', 'value' => $this->organisation->group_id],
-                           ]
-                       ),
-                ],
-            'name'     => ['required', 'max:250', 'string'],
-            'source_id'=> ['sometimes','string'],
+            'code'       => [
+                'required',
+                'between:2,4',
+                'alpha_dash',
+                new IUnique(
+                    table: 'warehouses',
+                    extraConditions: [
+                        ['column' => 'group_id', 'value' => $this->organisation->group_id],
+                    ]
+                ),
+            ],
+            'name'       => ['required', 'max:250', 'string'],
+            'state'      => ['sometimes', Rule::enum(WarehouseStateEnum::class)],
+            'source_id'  => ['sometimes', 'string'],
+            'created_at' => ['sometimes', 'date'],
         ];
     }
 
@@ -116,14 +123,15 @@ class StoreWarehouse extends OrgAction
         setPermissionsTeamId($organisation->group->id);
 
         $this->setRawAttributes([
-            'code'        => $command->argument('code'),
-            'name'        => $command->argument('name'),
+            'code' => $command->argument('code'),
+            'name' => $command->argument('name'),
         ]);
 
         try {
             $validatedData = $this->validateAttributes();
         } catch (Exception $e) {
             $command->error($e->getMessage());
+
             return 1;
         }
 

@@ -35,6 +35,10 @@ class FetchCustomerClients extends FetchAction
                     modelData:     $customerClientData['customer_client'],
                 );
             }
+            $sourceData = explode(':', $customerClient->source_id);
+            DB::connection('aurora')->table('Customer Client Dimension')
+                ->where('Customer Client Key', $sourceData[1])
+                ->update(['aiku_id' => $customerClient->id]);
 
             return $customerClient;
         }
