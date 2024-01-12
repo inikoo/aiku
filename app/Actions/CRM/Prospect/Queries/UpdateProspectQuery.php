@@ -12,7 +12,7 @@ use App\Actions\Helpers\Query\UpdateQuery;
 use App\Actions\Traits\WithProspectPrepareForValidation;
 use App\Enums\CRM\Prospect\ProspectStateEnum;
 use App\Models\Helpers\Query;
-use App\Models\Leads\Prospect;
+use App\Models\CRM\Prospect;
 use App\Models\Market\Shop;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
