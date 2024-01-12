@@ -20,8 +20,8 @@ return new class () extends Migration {
             $table->foreign('web_block_id')->references('id')->on('web_blocks')->onUpdate('cascade')->onDelete('cascade');
             $table->string('slug')->unique()->collation('und_ns');
             ;
-            $table->string('code')->collation('und_ns_ci');
-            $table->string('name')->collation('und_ns_ci');
+            $table->string('code')->collation('und_ci');
+            $table->string('name')->collation('und_ci');
             $table->jsonb('layout');
             $table->jsonb('data');
             $table->timestampsTz();
