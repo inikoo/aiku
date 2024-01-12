@@ -7,21 +7,14 @@
 <script setup lang="ts">
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { Link } from "@inertiajs/vue3"
-import { ref, onMounted, onUnmounted } from "vue"
-import { router } from "@inertiajs/vue3"
+import { ref, onMounted } from "vue"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faBoxUsd, faUsersCog, faLightbulb, faUserHardHat, faUser, faInventory, faChevronDown, faStoreAlt } from "@fal"
+import { faBoxUsd, faUsersCog, faLightbulb, faUserHardHat, faUser, faInventory, faChevronDown } from "@fal"
 import { useLayoutStore } from "@/Stores/layout.js"
-import { computed } from "vue"
-import Image from "@/Components/Image.vue"
-import { trans } from 'laravel-vue-i18n';
-import {
-    Disclosure,
-    DisclosureButton,
-    DisclosurePanel,
-  } from '@headlessui/vue'
+import NavigationExpandable from '@//Layouts/NavigationExpandable.vue';
+
 import { get } from "lodash"
-library.add(faBoxUsd, faUsersCog, faLightbulb, faUserHardHat, faUser, faInventory, faChevronDown, faStoreAlt)
+library.add(faBoxUsd, faUsersCog, faLightbulb, faUserHardHat, faUser, faInventory, faChevronDown)
 
 const layout = useLayoutStore()
 
@@ -76,89 +69,21 @@ const generateRoute = (item) => {
 </script>
 
 <template>
-    <nav class="isolate relative flex flex-grow flex-col pb-4 h-full overflow-y-auto custom-hide-scrollbar flex-1 space-y-1" aria-label="Sidebar">
+    <nav class="isolate relative flex flex-grow flex-col pt-3 pb-4 h-full overflow-y-auto custom-hide-scrollbar flex-1 space-y-1" aria-label="Sidebar">
         <!-- LeftSidebar: Org -->
 
-        <template v-if="get('layout', ['navigation', 'org', layout.currentParams.organisation], false)">
+        <template v-if="get(useLayoutStore(), ['navigation', 'org', layout.currentParams.organisation], false)">
             <template v-for="(items, itemKey) in useLayoutStore().navigation.org[layout.currentParams.organisation]"
                 :key="itemKey"
             >
                 <!-- If multi item (Shops or Warehouses) -->
-                <Disclosure v-if="itemKey == 'shops_navigation' || itemKey == 'warehouses_navigation'" v-slot="{ open }" as="div"
-                    class="pl-4 pr-2 pb-2"
-                    :class="[ itemKey === layout.currentModule ? 'px-0.5' : '', layout.leftSidebar.show ? '' : '', ]"
-                >
-                    <DisclosureButton as="div" class="flex items-center justify-between mb-1 cursor-pointer">
-                        <div class="leading-none capitalize text-white font-bold pb-1 select-none">{{ itemKey.split('_')[0] }}</div>
-                        <!-- <hr class="w-full border border-gray-200"> -->
-                        <FontAwesomeIcon icon='fal fa-chevron-down' class='text-white text-xs transition-all duration-100 ease-in-out' :class="[ open ? 'rotate-180' : '']" aria-hidden='true' />
-                    </DisclosureButton>
-                    
-                    <!-- Looping: Shops -->
-                    <transition>
-                        <DisclosurePanel>
-                            <template v-if="!layout.currentParams.shop">
-                                <div v-for="(navigationShopWarehouse, indexShopWarehouse) in items" :key="indexShopWarehouse"
-                                    class="group flex flex-col justify-center text-sm py-0.5"
-                                    :class="[
-                                        indexShopWarehouse === layout.currentModule ? '' : '',
-                                        layout.leftSidebar.show ? 'pl-3' : ''
-                                    ]"
-                                    :aria-current="indexShopWarehouse === layout.currentModule ? 'page' : undefined"
-                                >
-                                    <p v-if="Object.keys(items).length > 1" class="capitalize text-white">{{ indexShopWarehouse }}</p>
-                                    <!-- Looping: Navigation in Shop -->
-                                    <Link v-for="(shopNavigation, navigationIndex) in navigationShopWarehouse"
-                                        :href="shopNavigation.route?.name ? route(shopNavigation.route.name, shopNavigation.route.parameters) : '#'"
-                                        class="group flex items-center text-sm py-2"
-                                        :class="[
-                                            navigationIndex === layout.currentModule
-                                                ? 'navigationActive px-0.5'
-                                                : 'navigation px-1',
-                                            layout.leftSidebar.show ? Object.keys(items).length > 1 ? 'px-3' : 'pr-3' : '',
-                                        ]"
-                                        :aria-current="navigationIndex === layout.currentModule ? 'page' : undefined"
-                                    >
-                                        <div class="flex items-center pr-2">
-                                            <FontAwesomeIcon aria-hidden="true" class="flex-shrink-0 h-4 w-4" :icon="shopNavigation.icon"/>
-                                        </div>
-                                        <span class="capitalize leading-none whitespace-nowrap" :class="[layout.leftSidebar.show ? 'block md:block' : 'block md:hidden']">
-                                            {{ shopNavigation.label }}
-                                        </span>
-                                    </Link>
-                                </div>
-                            </template>
-                            <template v-else>
-                                <div class="group flex flex-col justify-center text-sm py-0.5"
-                                    :class="[ layout.currentParams.shop === layout.currentModule ? '' : '', layout.leftSidebar.show ? 'pl-3' : '', ]"
-                                    :aria-current="layout.currentParams.shop === layout.currentModule ? 'page' : undefined"
-                                >
-                                    <p class="capitalize text-white">{{ layout.currentParams.shop }}</p>
-                                    <!-- Looping: Navigation in Shop -->
-                                    <Link v-for="(shopNavigation, navigationIndex) in items[layout.currentParams.shop]"
-                                        :href="shopNavigation.route?.name ? route(shopNavigation.route.name, shopNavigation.route.parameters) : '#'"
-                                        class="group flex items-center text-sm py-2"
-                                        :class="[
-                                            navigationIndex === layout.currentModule
-                                                ? 'navigationActive px-0.5'
-                                                : 'navigation px-1',
-                                            layout.leftSidebar.show ? 'px-3' : '',
-                                        ]"
-                                        :aria-current="navigationIndex === layout.currentModule ? 'page' : undefined"
-                                    >
-                                        <div class="flex items-center px-2">
-                                            <FontAwesomeIcon aria-hidden="true" class="flex-shrink-0 h-4 w-4" :icon="shopNavigation.icon"/>
-                                        </div>
-                                        <span class="capitalize leading-none whitespace-nowrap" :class="[layout.leftSidebar.show ? 'block md:block' : 'block md:hidden']">
-                                            {{ shopNavigation.label }}
-                                        </span>
-                                    </Link>
-                                </div>
-                            </template>
-                        </DisclosurePanel>
-                    </transition>
-                </Disclosure>
+                <NavigationExpandable
+                    v-if="itemKey == 'shops_navigation' || itemKey == 'warehouses_navigation'"
+                    :subNav="items"
+                    :navKey="itemKey"
+                />
 
+                <!-- If simple navigation -->
                 <Link v-else
                     :href="items.route?.name ? route(items.route.name, items.route.parameters) : '#'"
                     class="group flex items-center text-sm py-2"
