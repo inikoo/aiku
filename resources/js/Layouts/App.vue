@@ -32,6 +32,7 @@ import AppTopBar from "@/Layouts/TopBar/AppTopBar.vue"
 import Breadcrumbs from "@/Components/Navigation/Breadcrumbs.vue"
 import { trans } from "laravel-vue-i18n"
 import Image from "@/Components/Image.vue"
+import Notification from '@/Components/Utils/Notification.vue'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faTachometerAltFast, faGlobe } from '@fal'
@@ -95,6 +96,19 @@ const sidebarOpen = ref(false)
 
 
     <Footer />
+
+    <!-- Global declaration: Notification -->
+    <notifications
+        dangerously-set-inner-html
+        :max="3"
+        width="500"
+        classes="custom-style-notification"
+        :pauseOnHover="true"    
+    >
+        <template #body="props">
+            <Notification :notification="props" />  
+        </template>
+    </notifications>
 </template>
 
 

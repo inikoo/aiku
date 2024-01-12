@@ -25,7 +25,6 @@ use App\Rules\IUnique;
 use App\Rules\ValidAddress;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\Validator;
@@ -39,9 +38,7 @@ class StoreCustomer extends OrgAction
     private bool $strict       = true;
 
 
-    /**
-     * @throws Throwable
-     */
+
     public function handle(Shop $shop, array $modelData): Customer
     {
         $contactAddressData = Arr::get($modelData, 'contact_address');
@@ -61,6 +58,11 @@ class StoreCustomer extends OrgAction
         }
 
 
+        if (!Arr::get($modelData, 'reference')) {
+            data_set($modelData, 'reference', GetSerialReference::run(container: $shop, modelType: SerialReferenceModelEnum::CUSTOMER));
+        }
+
+
         data_fill(
             $modelData,
             'status',
@@ -71,24 +73,15 @@ class StoreCustomer extends OrgAction
                 CustomerStatusEnum::APPROVED
         );
 
-        $customer = DB::transaction(function () use ($shop, $modelData) {
-            /** @var Customer $customer */
-            $customer = $shop->customers()->create($modelData);
-            if ($customer->reference == null) {
-                $reference = GetSerialReference::run(container: $shop, modelType: SerialReferenceModelEnum::CUSTOMER);
-                $customer->update(
-                    [
-                        'reference' => $reference
-                    ]
-                );
-            }
-            $customer->stats()->create();
-            if ($customer->is_fulfilment) {
-                $customer->fulfilmentStats()->create();
-            }
 
-            return $customer;
-        });
+        /** @var Customer $customer */
+        $customer = $shop->customers()->create($modelData);
+
+
+        $customer->stats()->create();
+        if ($customer->is_fulfilment) {
+            $customer->fulfilmentStats()->create();
+        }
 
 
         StoreAddressAttachToModel::run($customer, $contactAddressData, ['scope' => 'contact']);
@@ -141,11 +134,13 @@ class StoreCustomer extends OrgAction
             'company_name'             => ['nullable', 'string', 'max:255'],
             'email'                    => [
                 'nullable',
-                'string','max:255',
+                'string',
+                'max:255',
                 new IUnique(
                     table: 'customers',
                     extraConditions: [
                         ['column' => 'shop_id', 'value' => $this->shop->id],
+                        ['column' => 'deleted_at', 'value' => null],
                     ]
                 ),
             ],
@@ -160,6 +155,8 @@ class StoreCustomer extends OrgAction
             'language_id' => ['nullable', 'exists:languages,id'],
             'data'        => ['sometimes', 'array'],
             'source_id'   => ['sometimes', 'nullable', 'string'],
+            'reference'   => ['sometimes', 'string', 'max:16'],
+            'deleted_at'  => ['sometimes', 'nullable', 'date'],
             'password'    =>
                 [
                     'sometimes',
@@ -171,15 +168,16 @@ class StoreCustomer extends OrgAction
 
         if ($this->strict) {
             $strictRules = [
-                'phone'                    => ['nullable', 'phone:AUTO'],
-                'contact_website'          => ['nullable', 'active_url'],
-                'email'                    => [
+                'phone'           => ['nullable', 'phone:AUTO'],
+                'contact_website' => ['nullable', 'active_url'],
+                'email'           => [
                     'nullable',
                     'email',
                     new IUnique(
                         table: 'customers',
                         extraConditions: [
                             ['column' => 'shop_id', 'value' => $this->shop->id],
+                            ['column' => 'deleted_at', 'value' => null],
                         ]
                     ),
                 ],
@@ -207,25 +205,23 @@ class StoreCustomer extends OrgAction
         return $this->handle($shop, $this->validatedData);
     }
 
-    /**
-     * @throws Throwable
-     */
+
     public function action(Shop $shop, array $modelData): Customer
     {
         $this->asAction = true;
         $this->initialisationFromShop($shop, $modelData);
+
         return $this->handle($shop, $this->validatedData);
     }
 
-    /**
-     * @throws Throwable
-     */
+
     public function asFetch(Shop $shop, array $modelData, int $hydratorsDelay = 60): Customer
     {
         $this->asAction       = true;
         $this->hydratorsDelay = $hydratorsDelay;
         $this->strict         = false;
         $this->initialisationFromShop($shop, $modelData);
+
         return $this->handle($shop, $this->validatedData);
     }
 

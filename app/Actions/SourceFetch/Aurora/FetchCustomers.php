@@ -40,8 +40,8 @@ class FetchCustomers extends FetchAction
 
             } else {
 
-                //print_r($customerData['customer']);
 
+                //print_r($customerData['customer']);
                 $customer = StoreCustomer::make()->asFetch(
                     shop: $customerData['shop'],
                     modelData: $customerData['customer'],
@@ -50,11 +50,13 @@ class FetchCustomers extends FetchAction
 
             }
 
+            $sourceData = explode(':', $customer->source_id);
+
             if (in_array('products', $with)) {
                 foreach (
                     DB::connection('aurora')
                         ->table('Product Dimension')
-                        ->where('Product Customer Key', $customer->source_id)
+                        ->where('Product Customer Key', $sourceData[1])
                         ->select('Product ID as source_id')
                         ->orderBy('source_id')->get() as $order
                 ) {
@@ -66,7 +68,7 @@ class FetchCustomers extends FetchAction
                 foreach (
                     DB::connection('aurora')
                         ->table('Customer Client Dimension')
-                        ->where('Customer Client Customer Key', $customer->source_id)
+                        ->where('Customer Client Customer Key', $sourceData[1])
                         ->select('Customer Client Key as source_id')
                         ->orderBy('source_id')->get() as $customerClient
                 ) {
@@ -78,7 +80,7 @@ class FetchCustomers extends FetchAction
                 foreach (
                     DB::connection('aurora')
                         ->table('Order Dimension')
-                        ->where('Order Customer Key', $customer->source_id)
+                        ->where('Order Customer Key', $sourceData[1])
                         ->select('Order Key as source_id')
                         ->orderBy('source_id')->get() as $order
                 ) {
@@ -91,7 +93,7 @@ class FetchCustomers extends FetchAction
                 foreach (
                     DB::connection('aurora')
                         ->table('Website User Dimension')
-                        ->where('Website User Customer Key', $customer->source_id)
+                        ->where('Website User Customer Key', $sourceData[1])
                         ->select('Website User Key as source_id')
                         ->orderBy('source_id')->get() as $order
                 ) {
@@ -99,7 +101,7 @@ class FetchCustomers extends FetchAction
                 }
             }
 
-            $sourceData=explode(':', $customer->source_id);
+
 
             DB::connection('aurora')->table('Customer Dimension')
                 ->where('Customer Key', $sourceData[1])
@@ -123,7 +125,8 @@ class FetchCustomers extends FetchAction
         }
 
         if ($this->shop) {
-            $query->where('Customer Store Key', $this->shop->source_id);
+            $sourceData=explode(':', $this->shop->source_id);
+            $query->where('Customer Store Key', $sourceData[1]);
         }
 
         return $query;
@@ -137,7 +140,8 @@ class FetchCustomers extends FetchAction
             $query->whereNull('aiku_id');
         }
         if ($this->shop) {
-            $query->where('Customer Store Key', $this->shop->source_id);
+            $sourceData=explode(':', $this->shop->source_id);
+            $query->where('Customer Store Key', $sourceData[1]);
         }
 
         return $query->count();

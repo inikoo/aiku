@@ -80,10 +80,10 @@ onMounted(() => {
 <template>
     <!-- If props.element not empty -->
     <div v-if="!!selectedGroup" class="flex items-center text-xs justify-between w-fit">
-        <div v-if="title.leftIcon || title.title" class="text-2xl flex items-center gap-x-2">
+        <!-- <div v-if="title.leftIcon || title.title" class="text-2xl flex items-center gap-x-2">
             <FontAwesomeIcon v-if="title.leftIcon" :icon="title.leftIcon" aria-hidden="true" />
             <p class="inline font-semibold leading-none capitalize">{{ title.title ? (title.title) : '' }}</p>
-        </div>
+        </div> -->
 
         <div class="w-fit flex gap-x-1 lg:gap-x-0 items-center justify-end border border-gray-200 divide-x divide-gray-200 rounded">
             <!-- List of element (checkbox) -->

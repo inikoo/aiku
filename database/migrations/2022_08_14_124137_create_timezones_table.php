@@ -15,7 +15,7 @@ return new class () extends Migration {
     {
         Schema::create('timezones', function (Blueprint $table) {
             $table->smallIncrements('id');
-            $table->string('name')->unique()->collation('und_ns_ci');
+            $table->string('name')->unique()->collation('und_ci');
             $table->integer('offset')->nullable()->comment('in hours');
             $table->unsignedSmallInteger('country_id')->nullable();
             $table->foreign('country_id')->references('id')->on('countries');

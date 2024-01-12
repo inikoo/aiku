@@ -24,7 +24,7 @@ trait HasProcurementSubject
         $table->boolean('status')->default(true)->index();
         $table->string('slug')->unique()->collation('und_ns');
         $table->string('code')->index()->collation('und_ns');
-        $table->string('name')->nullable()->collation('und_ns');
+        $table->string('name')->nullable();
         $table->unsignedInteger('image_id')->nullable();
         $table->foreign('image_id')->references('id')->on('media');
         $table = $this->contactFields(table: $table, withWebsite: true);

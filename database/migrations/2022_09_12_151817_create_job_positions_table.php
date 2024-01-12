@@ -18,7 +18,7 @@ return new class () extends Migration {
             $table->foreign('group_id')->references('id')->on('groups')->onUpdate('cascade')->onDelete('cascade');
             $table->string('slug')->unique()->collation('und_ns');
             $table->string('code')->index()->collation('und_ns');
-            $table->string('name')->index()->collation('und_ns_ci');
+            $table->string('name')->index()->collation('und_ci');
             $table->string('department')->nullable();
             $table->string('team')->nullable();
             $table->jsonb('data');

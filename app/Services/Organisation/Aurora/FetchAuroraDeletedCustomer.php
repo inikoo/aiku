@@ -32,47 +32,40 @@ class FetchAuroraDeletedCustomer extends FetchAurora
             $registrationNumber = Str::limit($registrationNumber);
         }
 
-        $this->parsedData['shop'] = $this->parseShop($this->auroraModelData->{'Customer Store Key'});
+        $this->parsedData['shop'] = $this->parseShop($this->organisation->id.':'.$this->auroraModelData->{'Customer Store Key'});
 
         $data = [
             'deleted' => ['source' => 'aurora']
         ];
 
         $contactName = $this->auroraModelData->{'Customer Deleted Contact Name'} ?? null;
-        $name        = $this->auroraModelData->{'Customer Deleted Name'}         ?? null;
+        $company     = $this->auroraModelData->{'Customer Deleted Name'}         ?? null;
 
-        if ($contactName == $name) {
-            $name = null;
+        if ($contactName == $company) {
+            $company = null;
         }
 
+        if (!$company and !$contactName) {
+            $contactName = $auroraDeletedData->{'Customer Name'} ?? null;
+            if (!$contactName) {
+                $contactName = $this->auroraModelData->{'Customer Deleted Email'} ?? null;
+            }
+            if (!$contactName) {
+                $contactName = 'Unknown';
+            }
+        }
 
-        $this->parsedData['customer'] =
-            [
-
-                'name'                             => $auroraDeletedData->{'Customer Name'} ?? null,
-                'reference'                        => sprintf('%05d', $this->auroraModelData->{'Customer Key'}),
-                'state'                            => $state,
-                'status'                           => $status,
-                'contact_name'                     => $contactName,
-                'company_name'                     => $name,
-                'email'                            => $this->auroraModelData->{'Customer Deleted Email'} ?? null,
-                'phone'                            => $auroraDeletedData->{'Customer Main Plain Mobile'} ?? null,
-                'identity_document_number'         => $registrationNumber,
-                'contact_website'                  => $auroraDeletedData->{'Customer Website'}                      ?? null,
-                'created_at'                       => $auroraDeletedData->{'Customer First Contacted Date'}         ?? $this->auroraModelData->{'Customer Deleted Date'},
-                'deleted_at'                       => $this->auroraModelData->{'Customer Deleted Date'},
-                'source_id'                        => $this->organisation->id.':'.$this->auroraModelData->{'Customer Key'},
-                'data'                             => $data
-
-            ];
 
         $billingAddress  = $this->parseAddress(prefix: 'Customer Invoice', auAddressData: $auroraDeletedData);
         $deliveryAddress = $this->parseAddress(prefix: 'Customer Delivery', auAddressData: $auroraDeletedData);
 
-        $this->parsedData['contact_address'] = $billingAddress;
+        if($billingAddress['country_id'] == '') {
+            $billingAddress['country_id'] = $this->parsedData['shop']->country_id;
+        }
 
-        $this->parsedData['tax_number'] = $this->parseTaxNumber(
-            number: $auroraDeletedData->{'Customer Tax Number'}??null,
+
+        $taxNumber = $this->parseTaxNumber(
+            number: $auroraDeletedData->{'Customer Tax Number'} ?? null,
             countryID: $billingAddress['country_id'],
             rawData: (array)$auroraDeletedData
         );
@@ -80,6 +73,35 @@ class FetchAuroraDeletedCustomer extends FetchAurora
 
         if ($billingAddress != $deliveryAddress) {
             $this->parsedData['delivery_address'] = $deliveryAddress;
+        }
+
+
+        $this->parsedData['customer'] =
+            [
+
+                'name'                     => $auroraDeletedData->{'Customer Name'} ?? null,
+                'reference'                => sprintf('%05d', $this->auroraModelData->{'Customer Key'}),
+                'state'                    => $state,
+                'status'                   => $status,
+                'contact_name'             => $contactName,
+                'company_name'             => $company,
+                'email'                    => $this->auroraModelData->{'Customer Deleted Email'} ?? null,
+                'phone'                    => $auroraDeletedData->{'Customer Main Plain Mobile'} ?? null,
+                'identity_document_number' => $registrationNumber,
+                'contact_website'          => $auroraDeletedData->{'Customer Website'}              ?? null,
+                'created_at'               => $auroraDeletedData->{'Customer First Contacted Date'} ?? $this->auroraModelData->{'Customer Deleted Date'},
+                'deleted_at'               => $this->auroraModelData->{'Customer Deleted Date'},
+                'source_id'                => $this->organisation->id.':'.$this->auroraModelData->{'Customer Key'},
+                'data'                     => $data,
+                'contact_address'          => $billingAddress,
+                'tax_number'               => $taxNumber
+            ];
+
+        if ($billingAddress != $deliveryAddress) {
+            if($deliveryAddress['country_id'] == '') {
+                $deliveryAddress['country_id'] = $this->parsedData['shop']->country_id;
+            }
+            $this->parsedData['customer']['delivery_address'] = $deliveryAddress;
         }
     }
 

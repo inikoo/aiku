@@ -34,7 +34,7 @@ class FetchAuroraProspect extends FetchAurora
                 'customer_id'     => $customer_id
             ];
 
-        $this->parsedData['shop'] = $this->parseShop($this->auroraModelData->{'Prospect Store Key'});
+        $this->parsedData['shop'] = $this->parseShop($this->organisation->id.':'.$this->auroraModelData->{'Prospect Store Key'});
 
 
         $this->parsedData['contact_address'] = $this->parseAddress(prefix: 'Prospect Contact', auAddressData: $this->auroraModelData);

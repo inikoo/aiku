@@ -9,39 +9,30 @@ namespace App\Actions\SourceFetch\Aurora;
 
 use App\Actions\Dropshipping\CustomerClient\StoreCustomerClient;
 use App\Actions\Dropshipping\CustomerClient\UpdateCustomerClient;
-use App\Actions\Helpers\Address\StoreAddressAttachToModel;
-use App\Actions\Helpers\Address\UpdateAddress;
 use App\Models\Dropshipping\CustomerClient;
 use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
-use JetBrains\PhpStorm\NoReturn;
 
 class FetchCustomerClients extends FetchAction
 {
-    public string $commandSignature = 'fetch:customer-clients {organisations?*} {--s|source_id=} {--d|db_suffix=}';
+    public string $commandSignature = 'fetch:customer-clients {organisations?*} {--s|source_id=} {--N|only_new : Fetch only new}  {--d|db_suffix=} {--r|reset}';
 
 
-    #[NoReturn] public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?CustomerClient
+    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?CustomerClient
     {
         if ($customerClientData = $organisationSource->fetchCustomerClient($organisationSourceId)) {
             if ($customerClient = CustomerClient::withTrashed()->where('source_id', $customerClientData['customer_client']['source_id'])
                 ->first()) {
-                $customerClient = UpdateCustomerClient::run(
+                $customerClient = UpdateCustomerClient::make()->asFetch(
                     customerClient: $customerClient,
                     modelData:      $customerClientData['customer_client']
                 );
 
-                if ($deliveryAddress = $customerClient->getAddress('delivery')) {
-                    UpdateAddress::run($deliveryAddress, $customerClientData['delivery_address']);
-                } else {
-                    StoreAddressAttachToModel::run($customerClient, $customerClientData['delivery_address'], ['scope' => 'delivery']);
-                }
             } else {
-                $customerClient = StoreCustomerClient::run(
+                $customerClient = StoreCustomerClient::make()->asFetch(
                     customer:      $customerClientData['customer'],
                     modelData:     $customerClientData['customer_client'],
-                    addressesData: $customerClientData['delivery_address']
                 );
             }
 
@@ -63,7 +54,8 @@ class FetchCustomerClients extends FetchAction
         }
 
         if ($this->shop) {
-            $query->where('Customer Client Store Key', $this->shop->source_id);
+            $sourceData=explode(':', $this->shop->source_id);
+            $query->where('Customer Client Store Key', $sourceData[1]);
         }
 
         return $query;
@@ -77,9 +69,16 @@ class FetchCustomerClients extends FetchAction
             $query->whereNull('aiku_id');
         }
         if ($this->shop) {
-            $query->where('Customer Client Store Key', $this->shop->source_id);
+            $sourceData=explode(':', $this->shop->source_id);
+            $query->where('Customer Client Store Key', $sourceData[1]);
         }
 
         return $query->count();
     }
+
+    public function reset(): void
+    {
+        DB::connection('aurora')->table('Customer Client Dimension')->update(['aiku_id' => null]);
+    }
+
 }

@@ -80,9 +80,10 @@ class StoreLocation extends OrgAction
                     ]
                 ),
             ],
-            'max_weight' => ['nullable', 'numeric', 'min:0.1', 'max:1000000'],
-            'max_volume' => ['nullable', 'numeric', 'min:0.1', 'max:1000000'],
-            'source_id'  => ['sometimes', 'string'],
+            'max_weight'   => ['nullable', 'numeric', 'min:0.1', 'max:1000000'],
+            'max_volume'   => ['nullable', 'numeric', 'min:0.1', 'max:1000000'],
+            'source_id'    => ['sometimes', 'string'],
+            'deleted_at'   => ['sometimes', 'nullable', 'date'],
         ];
     }
 

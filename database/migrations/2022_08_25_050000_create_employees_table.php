@@ -25,12 +25,12 @@ return new class () extends Migration {
             $table->smallIncrements('id');
             $table = $this->groupOrgRelationship($table);
             $table->string('slug')->unique()->collation('und_ns');
-            $table->string('alias')->collation('und_ns');
-            $table->string('work_email')->nullable()->collation('und_ns');
+            $table->string('alias');
+            $table->string('work_email')->nullable();
             $table = $this->contactFields(table: $table, withCompany: false, withPersonalDetails: true);
             $table->string('worker_number')->nullable()->collation('und_ns');
-            $table->string('job_title')->nullable()->collation('und_ns');
-            $table->string('job_position')->nullable()->collation('und_ns');
+            $table->string('job_title')->nullable();
+            $table->string('job_position')->nullable();
             $table->string('type')->default(EmployeeTypeEnum::EMPLOYEE->value);
             $table->string('state')->default(EmployeeStateEnum::WORKING->value);
             $table->date('employment_start_at')->nullable();

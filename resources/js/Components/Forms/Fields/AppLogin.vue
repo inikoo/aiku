@@ -15,13 +15,16 @@ import { useTimeCountdown } from '@/Composables/useFormatTime'
 import axios from 'axios'
 import { notify } from '@kyvg/vue3-notification'
 import { trans } from "laravel-vue-i18n"
+import { routeType } from '@/types/route'
 library.add(faSync)
 
 const props = defineProps<{
     form: any
     fieldName: string
     options?: any
-    fieldData?: {}
+    fieldData: {
+        route: routeType
+    }
 }>()
 
 const isQrCode = ref(false)
@@ -34,8 +37,8 @@ const qrValue = ref('')
 // Method: Fetch value for QR
 const fetchQrCode = async () => {
     try {
-        const response = await axios.get(route('org.models.profile.app-login-qrcode'),)
-        console.log(response.data)
+        const response = await axios.get(route(props.fieldData.route.name, props.fieldData.route.parameters),)
+        // console.log(response.data)
         qrValue.value = response.data.code.toString()
         setCountdown(120)
     } catch (error: any) {
@@ -82,18 +85,6 @@ const setCountdown = (duration: number) => {
         }
     }, 1000)
 }
-
-// onMounted(() => {
-//     window.Echo.private('org.general')
-//         .listen(`.mailshot.${props.data.id}`, (e: any) => {
-//             // Method here
-//         })
-// })
-
-// onUnmounted(() => {
-//     window.Echo.private(`org.general`)
-//     .stopListening(`.mailshot.${props.data.id}`)
-// })
 
 </script>
 

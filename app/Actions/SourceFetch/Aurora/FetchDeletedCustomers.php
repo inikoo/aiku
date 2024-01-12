@@ -1,10 +1,14 @@
 <?php
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Fri, 12 Jan 2024 03:34:10 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
 
 namespace App\Actions\SourceFetch\Aurora;
 
 use App\Actions\CRM\Customer\StoreCustomer;
 use App\Actions\CRM\Customer\UpdateCustomer;
-use App\Actions\Helpers\Address\StoreAddressAttachToModel;
 use App\Models\CRM\Customer;
 use App\Services\Organisation\SourceOrganisationService;
 use Arr;
@@ -29,21 +33,18 @@ class FetchDeletedCustomers extends FetchAction
                         $customer = UpdateCustomer::run($customer, $customerData['customer']);
                     }
                 } else {
+
                     $customer = StoreCustomer::make()->asFetch(
                         shop: $customerData['shop'],
-                        customerData: $customerData['customer'],
-                        customerAddressesData: $customerData['contact_address'],
+                        modelData: $customerData['customer'],
                         hydratorsDelay: $this->hydrateDelay
                     );
 
-
-                    if (!empty($customerData['delivery_address'])) {
-                        StoreAddressAttachToModel::run($customer, $customerData['delivery_address'], ['scope' => 'delivery']);
-                    }
                 }
 
+                $sourceData=explode(':', $customer->source_id);
                 DB::connection('aurora')->table('Customer Deleted Dimension')
-                    ->where('Customer Key', $customer->source_id)
+                    ->where('Customer Key', $sourceData[1])
                     ->update(['aiku_id' => $customer->id]);
 
                 return $customer;
