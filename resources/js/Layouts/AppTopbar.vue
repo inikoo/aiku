@@ -90,7 +90,7 @@ const logoutAuth = () => {
                             <Menu as="div" class="relative inline-block text-left">
                                 <MenuButton
                                     class="inline-flex min-w-fit w-32 max-w-full whitespace-nowrap justify-between items-center gap-x-2 rounded px-2.5 py-2 text-xs font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-white/75"
-                                    :class="[ layout.currentParams.organisation ? 'bg-indigo-500 text-white hover:bg-indigo-600' : 'bg-slate-100 hover:bg-slate-200 text-slate-600 ring-1 ring-slate-300']"
+                                    :class="[ layout.organisations.data.find((item) => item.slug == layout.currentParams.organisation) ? 'bg-indigo-500 text-white hover:bg-indigo-600' : 'bg-slate-100 hover:bg-slate-200 text-slate-600 ring-1 ring-slate-300']"
                                 >
                                     <div class="flex items-center gap-x-1">
                                         <FontAwesomeIcon v-if="layout.currentParams.organisation" icon='fal fa-building' class='opacity-60 text-xs' fixed-width aria-hidden='true' />
@@ -239,8 +239,8 @@ const logoutAuth = () => {
 
                         <!-- Section: Subsections -->
                         <div class="flex h-full">
-                        <!-- {{ layout.currentParams.organisation }} -->
-                            <template v-if="layout.currentParams.organisation">
+                            <!-- {{ layout.currentParams.organisation }} -->
+                            <template v-if="get('layout', ['currentParams', 'organisation', layout.currentModule, 'topMenu', 'subSections'], false)">
                                 <Link v-for="menu in layout.navigation.org[layout.currentParams.organisation][layout.currentModule]?.topMenu.subSections"
                                     :href="'#'"
                                     :id="get(menu, 'label', menu?.route.name)"
