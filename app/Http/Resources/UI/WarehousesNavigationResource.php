@@ -7,22 +7,28 @@
 
 namespace App\Http\Resources\UI;
 
+use App\Models\Inventory\Warehouse;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-/**
- * @property string $slug
- * @property string $code
- * @property string $name
- *
- */
 class WarehousesNavigationResource extends JsonResource
 {
     public function toArray($request): array
     {
+        /** @var Warehouse $warehouse */
+        $warehouse = $this;
+
         return [
-            'slug' => $this->slug,
-            'code' => $this->code,
-            'name' => $this->name,
+            'id'    => $warehouse->id,
+            'slug'  => $warehouse->slug,
+            'code'  => $warehouse->code,
+            'name'  => $warehouse->name,
+            'route' => [
+                'name'       => 'grp.org.inventory.warehouses.show',
+                'parameters' => [
+                    $warehouse->organisation->slug,
+                    $warehouse->slug
+                ]
+            ],
         ];
     }
 }

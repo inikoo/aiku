@@ -29,10 +29,17 @@ class UserOrganisationResource extends JsonResource
         $user = self::$user;
 
         return [
+            'id'                    => $organisation->id,
             'slug'                  => $organisation->slug,
             'code'                  => $organisation->code,
             'name'                  => $organisation->name,
             'logo'                  => $organisation->logoImageSources(48, 48),
+            'route'                 => [
+                'name'       => 'grp.org.dashboard.show',
+                'parameters' => [
+                    $organisation->slug
+                ]
+            ],
             'authorised_shops'      => ShopsNavigationResource::collection($user->authorisedShops()->where('organisation_id', $organisation->id)->get()),
             'authorised_warehouses' => WarehousesNavigationResource::collection($user->authorisedWarehouses()->where('organisation_id', $organisation->id)->get()),
         ];
