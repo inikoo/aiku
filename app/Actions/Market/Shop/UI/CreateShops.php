@@ -51,13 +51,13 @@ class CreateShops extends InertiaAction
                         'label' => __('Back'),
                         'route' => [
                             'name'       => 'grp.org.shops.index',
-                            'parameters' => array_values($this->originalParameters)
+                            'parameters' => array_values($request->route()->originalParameters())
                         ],
                     ],
                     'clearMulti' => [
                         'route' => [
                             'name'       => 'shops.create-multi-clear',
-                            'parameters' => array_values($this->originalParameters)
+                            'parameters' => array_values($request->route()->originalParameters())
                         ],
                     ]
                 ],

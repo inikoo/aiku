@@ -77,19 +77,19 @@ class RemoveStock extends InertiaAction
                             'label' => __('cancel'),
                             'route' => [
                                 'name'       => preg_replace('/remove$/', 'show', $request->route()->getName()),
-                                'parameters' => array_values($this->originalParameters)
+                                'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ]
                     ]
                 ],
                 'data'     => $this->getAction(
                     route:
-                    match ($this->routeName) {
-                        'grp.inventory.stocks.remove' => [
+                    match ($request->route()->getName()) {
+                        'grp.org.inventory.stocks.remove' => [
                             'name'       => 'grp.models.location.delete',
                             'parameters' => $request->route()->originalParameters()
                         ],
-                        'grp.inventory.stock-families.show.stocks.remove' => [
+                        'grp.org.inventory.stock-families.show.stocks.remove' => [
                             'name'       => 'grp.models.stock-family.stock.delete',
                             'parameters' => $request->route()->originalParameters()
                         ]

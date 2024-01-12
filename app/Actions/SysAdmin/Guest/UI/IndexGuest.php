@@ -109,7 +109,7 @@ class IndexGuest extends InertiaAction
                             'label'   => __('guest'),
                             'route'   => [
                                 'name'       => 'grp.sysadmin.guests.create',
-                                'parameters' => array_values($this->originalParameters)
+                                'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ] : null
                     ]
@@ -149,14 +149,14 @@ class IndexGuest extends InertiaAction
                 'pageHead'    => [
                     'title'   => __('guests'),
                     'actions' => [
-                        $this->canEdit && $this->routeName == 'grp.sysadmin.guests.index' ? [
+                        $this->canEdit && $request->route()->getName() == 'grp.sysadmin.guests.index' ? [
                             'type'  => 'button',
                             'style' => 'create',
                             'label' => __('guest'),
                             'route' => [
 
                                 'name'       => 'grp.sysadmin.guests.create',
-                                'parameters' => array_values($this->originalParameters)
+                                'parameters' => array_values($request->route()->originalParameters())
                             ]
 
                         ] : false

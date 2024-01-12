@@ -88,7 +88,7 @@ class ShowPaymentAccount extends InertiaAction
                     ) ? [
                         'route' => [
                             'name'       => preg_replace('/show$/', 'show.payments.create', $request->route()->getName()),
-                            'parameters' => array_values($this->originalParameters)
+                            'parameters' => array_values($request->route()->originalParameters())
                         ],
                         'label' => __('payment')
                     ] : false,

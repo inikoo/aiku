@@ -36,11 +36,11 @@ class CreateOrder extends InertiaAction
                     'title'        => __('new order'),
                     'cancelCreate' => [
                         'route' => [
-                            'name'       => match ($this->routeName) {
+                            'name'       => match ($request->route()->getName()) {
                                 'shops.show.orders.create'    => 'shops.show.orders.index',
-                                default                       => preg_replace('/create$/', 'index', $this->routeName)
+                                default                       => preg_replace('/create$/', 'index', $request->route()->getName())
                             },
-                            'parameters' => array_values($this->originalParameters)
+                            'parameters' => array_values($request->route()->originalParameters())
                         ],
                     ]
 

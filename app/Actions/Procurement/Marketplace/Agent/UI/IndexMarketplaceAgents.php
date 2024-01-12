@@ -88,7 +88,7 @@ class IndexMarketplaceAgents extends InertiaAction
                             'label'   => __('agent'),
                             'route'   => [
                                 'name'       => 'grp.procurement.marketplace.agents.create',
-                                'parameters' => array_values($this->originalParameters)
+                                'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ] : null
                     ]
@@ -120,7 +120,7 @@ class IndexMarketplaceAgents extends InertiaAction
 
     public function asController(ActionRequest $request): LengthAwarePaginator
     {
-        $this->routeName = $request->route()->getName();
+
         $this->initialisation($request);
 
         return $this->handle();
@@ -146,14 +146,14 @@ class IndexMarketplaceAgents extends InertiaAction
                     'title'  => __("agent's marketplace"),
 
                     'actions'=> [
-                        $this->canEdit && $this->routeName == 'grp.procurement.marketplace.agents.index' ? [
+                        $this->canEdit && $request->route()->getName() == 'grp.procurement.marketplace.agents.index' ? [
                             'type'    => 'button',
                             'style'   => 'create',
                             'tooltip' => __('new agent'),
                             'label'   => __('agent'),
                             'route'   => [
                                 'name'       => 'grp.procurement.marketplace.agents.create',
-                                'parameters' => array_values($this->originalParameters)
+                                'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ] : false,
                     ]

@@ -7,14 +7,14 @@
 
 namespace App\Actions\Dispatch\Shipper;
 
-use App\Actions\InertiaOrganisationAction;
+use App\Actions\OrgAction;
 use App\Models\Dispatch\Shipper;
 use App\Models\SysAdmin\Organisation;
 use App\Rules\IUnique;
 use Illuminate\Support\Str;
 use Lorisleiva\Actions\ActionRequest;
 
-class StoreShipper extends InertiaOrganisationAction
+class StoreShipper extends OrgAction
 {
     private bool $asAction = false;
 

@@ -7,7 +7,7 @@
 
 namespace App\Actions\HumanResources\ClockingMachine\UI;
 
-use App\Actions\InertiaOrganisationAction;
+use App\Actions\OrgAction;
 use App\Models\HumanResources\ClockingMachine;
 use App\Models\HumanResources\Workplace;
 use App\Models\SysAdmin\Organisation;
@@ -15,7 +15,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class EditClockingMachine extends InertiaOrganisationAction
+class EditClockingMachine extends OrgAction
 {
     public function handle(ClockingMachine $clockingMachine): ClockingMachine
     {

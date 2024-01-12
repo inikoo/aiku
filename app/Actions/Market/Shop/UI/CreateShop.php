@@ -11,7 +11,7 @@ use App\Actions\Assets\Country\UI\GetCountriesOptions;
 use App\Actions\Assets\Currency\UI\GetCurrenciesOptions;
 use App\Actions\Assets\Language\UI\GetLanguagesOptions;
 use App\Actions\Assets\TimeZone\UI\GetTimeZonesOptions;
-use App\Actions\InertiaOrganisationAction;
+use App\Actions\OrgAction;
 use App\Enums\Market\Shop\ShopTypeEnum;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
@@ -19,7 +19,7 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\LaravelOptions\Options;
 
-class CreateShop extends InertiaOrganisationAction
+class CreateShop extends OrgAction
 {
     public function handle()
     {

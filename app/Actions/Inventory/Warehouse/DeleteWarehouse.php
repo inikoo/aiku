@@ -42,7 +42,7 @@ class DeleteWarehouse
 
     public function htmlResponse(): RedirectResponse
     {
-        return Redirect::route('grp.inventory.warehouses.index');
+        return Redirect::route('grp.org.inventory.warehouses.index');
     }
 
 }

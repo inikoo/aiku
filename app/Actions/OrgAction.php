@@ -8,13 +8,14 @@
 namespace App\Actions;
 
 use App\Actions\Traits\WithTab;
+use App\Models\Inventory\Warehouse;
 use App\Models\Market\Shop;
 use App\Models\SysAdmin\Organisation;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class InertiaOrganisationAction
+class OrgAction
 {
     use AsAction;
     use WithAttributes;
@@ -24,6 +25,8 @@ class InertiaOrganisationAction
 
     protected Organisation $organisation;
     protected Shop $shop;
+    protected Warehouse $warehouse;
+
     protected bool $canEdit               = false;
     protected bool $canDelete             = false;
     protected array $validatedData;
@@ -57,6 +60,22 @@ class InertiaOrganisationAction
 
         return $this;
     }
+
+    public function initialisationFromWarehouse(Warehouse $warehouse, ActionRequest|array $request): static
+    {
+        $this->warehouse          = $warehouse;
+        $this->organisation       = $warehouse->organisation;
+        if(is_array($request)) {
+            $this->setRawAttributes($request);
+        } else {
+            $this->fillFromRequest($request);
+
+        }
+        $this->validatedData=$this->validateAttributes();
+
+        return $this;
+    }
+
 
 
 

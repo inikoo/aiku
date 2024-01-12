@@ -7,7 +7,7 @@
 
 namespace App\Actions\HumanResources\Workplace\UI;
 
-use App\Actions\InertiaOrganisationAction;
+use App\Actions\OrgAction;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
 use App\Http\Resources\HumanResources\WorkplaceInertiaResource;
 use App\Http\Resources\HumanResources\WorkplaceResource;
@@ -23,7 +23,7 @@ use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
-class IndexWorkplaces extends InertiaOrganisationAction
+class IndexWorkplaces extends OrgAction
 {
     private array $originalParameters;
 

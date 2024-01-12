@@ -77,7 +77,7 @@ trait DeletedMarketplaceAgentTrait
                     'createLink' => $this->canEdit ? [
                         'route' => [
                             'name'       => 'grp.procurement.marketplace.agents.show.suppliers.create',
-                            'parameters' => array_values($this->originalParameters)
+                            'parameters' => array_values($request->route()->originalParameters())
                         ],
                         'label' => __('suppliers')
                     ] : false,
@@ -90,7 +90,7 @@ trait DeletedMarketplaceAgentTrait
                     'createLink' => $this->canEdit ? [
                         'route' => [
                             'name'       => 'grp.procurement.marketplace.agents.show.supplier-products.create',
-                            'parameters' => array_values($this->originalParameters)
+                            'parameters' => array_values($request->route()->originalParameters())
                         ],
                         'label' => __('product')
                     ] : false,

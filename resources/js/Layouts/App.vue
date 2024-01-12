@@ -42,17 +42,17 @@ library.add(faSearch, faBell, faTachometerAltFast, faGlobe)
 
 initialiseApp()
 
-router.on("navigate", () => {
-    if (route().params.hasOwnProperty("shop")) {
-        layout.currentShopData = layout.shops[route().params["shop"]]
-    }
-    if (route().params.hasOwnProperty("website")) {
-        layout.currentWebsiteData = layout.websites[route().params["website"]]
-    }
-    if (route().params.hasOwnProperty("warehouse")) {
-        layout.currentWarehouseData = layout.warehouses[route().params["warehouse"]]
-    }
-})
+// router.on("navigate", () => {
+//     if (route().params.hasOwnProperty("shop")) {
+//         layout.currentShopData = layout.shops[route().params["shop"]]
+//     }
+//     if (route().params.hasOwnProperty("website")) {
+//         layout.currentWebsiteData = layout.websites[route().params["website"]]
+//     }
+//     if (route().params.hasOwnProperty("warehouse")) {
+//         layout.currentWarehouseData = layout.warehouses[route().params["warehouse"]]
+//     }
+// })
 
 const layout = useLayoutStore()
 const sidebarOpen = ref(false)

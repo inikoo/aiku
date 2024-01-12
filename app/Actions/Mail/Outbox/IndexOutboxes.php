@@ -121,7 +121,7 @@ class IndexOutboxes extends InertiaAction
 
     public function inShop(ActionRequest $request): LengthAwarePaginator
     {
-        $this->routeName = $request->route()->getName();
+
         $this->initialisation($request);
         return $this->handle(app('currentTenant'));
     }
@@ -152,7 +152,7 @@ class IndexOutboxes extends InertiaAction
             array_merge(
                 (new MarketingHub())->getBreadcrumbs(
                     $routeName,
-                    $this->originalParameters
+                    $request->route()->originalParameters()
                 ),
                 $headCrumb()
             ),

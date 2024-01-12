@@ -7,7 +7,7 @@
 
 namespace App\Actions\UI\CRM;
 
-use App\Actions\InertiaOrganisationAction;
+use App\Actions\OrgAction;
 use App\Actions\UI\Dashboard\ShowDashboard;
 use App\Models\Market\Shop;
 use App\Models\SysAdmin\Organisation;
@@ -16,7 +16,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class ShowOrganisationCRMDashboard extends InertiaOrganisationAction
+class ShowOrganisationCRMDashboard extends OrgAction
 {
     public function handle($scope)
     {

@@ -8,7 +8,7 @@
 namespace App\Actions\HumanResources\ClockingMachine\UI;
 
 use App\Actions\HumanResources\Workplace\UI\ShowWorkplace;
-use App\Actions\InertiaOrganisationAction;
+use App\Actions\OrgAction;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
 use App\Http\Resources\HumanResources\ClockingMachineResource;
 use App\Models\HumanResources\ClockingMachine;
@@ -24,7 +24,7 @@ use App\InertiaTable\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
-class IndexClockingMachines extends InertiaOrganisationAction
+class IndexClockingMachines extends OrgAction
 {
     public function handle(Workplace|Organisation $parent, $prefix = null): LengthAwarePaginator
     {
@@ -83,7 +83,7 @@ class IndexClockingMachines extends InertiaOrganisationAction
                             'label'   => __('clocking machine'),
                             'route'   => [
                                 'name'       => 'grp.org.hr.clocking-machines.create',
-                                'parameters' => array_values($this->originalParameters)
+                                'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ] : null
                         */

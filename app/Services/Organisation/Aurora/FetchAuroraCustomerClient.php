@@ -39,7 +39,7 @@ class FetchAuroraCustomerClient extends FetchAurora
                 'company_name'   => $this->auroraModelData->{'Customer Client Company Name'},
                 'email'          => $this->auroraModelData->{'Customer Client Main Plain Email'},
                 'phone'          => $this->auroraModelData->{'Customer Client Main Plain Mobile'},
-                'source_id'      => $this->auroraModelData->{'Customer Client Key'},
+                'source_id'      => $this->organisation->id.':'.$this->auroraModelData->{'Customer Client Key'},
                 'created_at'     => $this->auroraModelData->{'Customer Client Creation Date'},
                 'deactivated_at' => $deactivated_at,
             ];

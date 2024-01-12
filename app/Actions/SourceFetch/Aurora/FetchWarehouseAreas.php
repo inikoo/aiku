@@ -20,6 +20,7 @@ class FetchWarehouseAreas extends FetchAction
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?WarehouseArea
     {
+        setPermissionsTeamId($organisationSource->getOrganisation()->group_id);
         if ($warehouseAreaData = $organisationSource->fetchWarehouseArea($organisationSourceId)) {
             if ($warehouseArea = WarehouseArea::withTrashed()->where('source_id', $warehouseAreaData['warehouse_area']['source_id'])
                 ->first()) {

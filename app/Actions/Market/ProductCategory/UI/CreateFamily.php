@@ -56,7 +56,7 @@ class CreateFamily extends InertiaAction
                             'label' => __('cancel'),
                             'route' => [
                                 'name'       => 'shops.show.families.index',
-                                'parameters' => array_values($this->originalParameters)
+                                'parameters' => array_values($request->route()->originalParameters())
                             ],
                         ]
                     ]
@@ -80,7 +80,7 @@ class CreateFamily extends InertiaAction
                                 ]
                             ]
                         ],
-                    'route' => match ($this->routeName) {
+                    'route' => match ($request->route()->getName()) {
                         'shops.show.families.create' => [
                             'name'      => 'grp.models.shop.family.store',
                             'arguments' => [$request->route()->parameters['shop']->slug]

@@ -38,7 +38,7 @@ class UpdateWebUser
             return true;
         }
 
-        return $request->user()->hasPermissionTo('crm.customers.edit');
+        return $request->user()->hasPermissionTo("crm.{$this->shop->slug}.edit");
     }
 
     public function rules(): array

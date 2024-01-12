@@ -7,7 +7,7 @@
 
 namespace App\Actions\HumanResources\Workplace;
 
-use App\Actions\InertiaOrganisationAction;
+use App\Actions\OrgAction;
 use App\Models\HumanResources\Workplace;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
@@ -15,7 +15,7 @@ use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsController;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class DeleteWorkplace extends InertiaOrganisationAction
+class DeleteWorkplace extends OrgAction
 {
     use AsController;
     use WithAttributes;

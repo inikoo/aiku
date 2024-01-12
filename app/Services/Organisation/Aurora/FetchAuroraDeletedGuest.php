@@ -28,7 +28,7 @@ class FetchAuroraDeletedGuest extends FetchAurora
                 'identity_document_number' => $auDeletedModel->data->{'Staff Official ID'},
                 'date_of_birth'            => $this->parseDate($auDeletedModel->data->{'Staff Birthday'}),
                 'created_at'               => $this->parseDate($auDeletedModel->data->{'Staff Valid From'}),
-                'source_id'                => $auDeletedModel->data->{'Staff Key'},
+                'source_id'                => $this->organisation->id.':'.$auDeletedModel->data->{'Staff Key'},
                 'data'                     => [
                     'address' => $auDeletedModel->data->{'Staff Address'},
                 ],

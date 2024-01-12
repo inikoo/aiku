@@ -76,15 +76,15 @@ class RemoveWarehouseArea extends InertiaAction
                             'style' => 'cancel',
                             'label' => __('cancel'),
                             'route' => [
-                                'name'       => preg_replace('/remove$/', 'show', $this->routeName),
-                                'parameters' => array_values($this->originalParameters)
+                                'name'       => preg_replace('/remove$/', 'show', $request->route()->getName()),
+                                'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ]
                     ]
                 ],
                 'data'     => $this->getAction(
                     route:
-                    match ($this->routeName) {
+                    match ($request->route()->getName()) {
                         'grp.oms.warehouse-areas.remove' => [
                             'name'       => 'grp.models.warehouse-area.delete',
                             'parameters' => $request->route()->originalParameters()

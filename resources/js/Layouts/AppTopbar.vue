@@ -15,9 +15,9 @@ import { trans } from "laravel-vue-i18n"
 import Image from "@/Components/Image.vue"
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faChevronDown } from '@far'
-import { faTerminal, faUserAlien, faCog, faCity, faBuilding, faNetworkWired, faUserHardHat, faCalendar, faStopwatch } from '@fal'
+import { faTerminal, faUserAlien, faCog, faCity, faBuilding, faNetworkWired, faUserHardHat, faCalendar, faStopwatch, faStoreAlt, faWarehouseAlt } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
-library.add(faChevronDown, faTerminal, faUserAlien, faCog, faCity, faBuilding, faNetworkWired, faUserHardHat, faCalendar, faStopwatch)
+library.add(faChevronDown, faTerminal, faUserAlien, faCog, faCity, faBuilding, faNetworkWired, faUserHardHat, faCalendar, faStopwatch, faStoreAlt, faWarehouseAlt)
 
 const props = defineProps<{
     sidebarOpen: boolean
@@ -66,7 +66,7 @@ const logoutAuth = () => {
                             class="hidden md:flex flex-nowrap items-center h-full overflow-hidden gap-x-1.5 transition-all duration-200 ease-in-out"
                             :class="[layout.leftSidebar.show ? 'py-1 pl-4' : 'pl-2.5 w-full']"
                         >
-                            <Image :src="layout.organisations.data.find((item) => item.slug == route().v().params?.organisation)?.logo ?? layout.group.logo" class="aspect-square h-5"/>
+                            <Image :src="layout.organisations.data.find((item) => item.slug == layout.currentParams.organisation)?.logo ?? layout.group.logo" class="aspect-square h-5"/>
                             <!-- <img v-else src="@/../art/logo/logo-white-square.png" class="aspect-square h-5 opacity-60" alt=""> -->
 
                             <Transition>
@@ -85,16 +85,17 @@ const logoutAuth = () => {
                     <!-- Section: Dropdown organisation -->
                     <div class="flex items-center gap-x-2">
                         <!-- Section: Dropdown -->
-                        <div class="pl-2 py-1">
+                        <div class="pl-2 py-1 space-x-2">
+                            <!-- Dropdown: Organisations -->
                             <Menu as="div" class="relative inline-block text-left">
                                 <MenuButton
-                                    class="inline-flex min-w-fit w-32 max-w-full whitespace-nowrap justify-between items-center gap-x-2 rounded px-2.5 py-1 text-xs font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-white/75"
-                                    :class="[ layout.organisations.currentOrganisations ? 'bg-indigo-500 text-white hover:bg-indigo-600' : 'bg-slate-100 hover:bg-slate-200 text-slate-600 ring-1 ring-slate-300']"
+                                    class="inline-flex min-w-fit w-32 max-w-full whitespace-nowrap justify-between items-center gap-x-2 rounded px-2.5 py-2 text-xs font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-white/75"
+                                    :class="[ layout.currentParams.organisation ? 'bg-indigo-500 text-white hover:bg-indigo-600' : 'bg-slate-100 hover:bg-slate-200 text-slate-600 ring-1 ring-slate-300']"
                                 >
                                     <div class="flex items-center gap-x-1">
-                                        <FontAwesomeIcon v-if="route().v().params?.organisation" icon='fal fa-building' class='text-gray-400 text-xs' fixed-width aria-hidden='true' />
-                                        <FontAwesomeIcon v-else icon='fal fa-city' class='text-gray-400 text-xs' fixed-width aria-hidden='true' />
-                                        {{ layout.organisations.data.find((item) => item.slug == route().v().params?.organisation)?.name ?? 'Select organisation' }}
+                                        <FontAwesomeIcon v-if="layout.currentParams.organisation" icon='fal fa-building' class='opacity-60 text-xs' fixed-width aria-hidden='true' />
+                                        <FontAwesomeIcon v-else icon='fal fa-city' class='opacity-60 text-xs' fixed-width aria-hidden='true' />
+                                        {{ layout.organisations.data.find((item) => item.slug == layout.currentParams.organisation)?.name ?? 'Select organisation' }}
                                     </div>
                                     <!-- {{ layout.organisations.currentOrganisations ? layout.organisations.currentOrganisations : 'Select group or organisations' }} -->
                                     <FontAwesomeIcon icon='far fa-chevron-down' class='text-xs' aria-hidden='true' />
@@ -111,7 +112,7 @@ const logoutAuth = () => {
                                                 </div> -->
                                                 <MenuItem v-slot="{ active }">
                                                     <div @click="() => router.visit(route('grp.dashboard.show'))" :class="[
-                                                        !route().v().params?.organisation ? 'bg-indigo-500 text-white' : active ? 'bg-slate-200/75 text-indigo-600' : 'text-slate-600']"
+                                                        !layout.currentParams.organisation ? 'bg-indigo-500 text-white' : active ? 'bg-slate-200/75 text-indigo-600' : 'text-slate-600']"
                                                         class="group flex w-full gap-x-2 items-center rounded pl-3 pr-2 py-2 text-sm cursor-pointer"
                                                     >
                                                         <FontAwesomeIcon icon='fal fa-city' class='' ariaa-hidden='true' />
@@ -127,16 +128,106 @@ const logoutAuth = () => {
                                                     <span class="text-[9px] leading-none text-gray-400">{{ trans('Organisations') }}</span>
                                                     <hr class="w-full rounded-full border-slate-300">
                                                 </div>
-                                                <MenuItem v-for="(item) in layout.organisations.data" v-slot="{ active }">
-                                                    <div @click="() => router.visit(route('grp.org.dashboard.show', { organisation: item.slug }))" :class="[
-                                                        item.slug == route().v().params?.organisation ? 'bg-indigo-500 text-white' : 'text-slate-600 hover:bg-slate-200/75 hover:text-indigo-600',
+                                                <div class="max-h-52 overflow-y-auto space-y-1.5">
+                                                    <MenuItem v-for="(item) in layout.organisations.data" v-slot="{ active }">
+                                                        <div @click="() => router.visit(route('grp.org.dashboard.show', { organisation: item.slug }))" :class="[
+                                                            item.slug == layout.currentParams.organisation ? 'bg-indigo-500 text-white' : 'text-slate-600 hover:bg-slate-200/75 hover:text-indigo-600',
+                                                            'group flex gap-x-2 w-full justify-start items-center rounded px-2 py-2 text-sm cursor-pointer',
+                                                        ]">
+                                                            <div class="h-5 rounded-full overflow-hidden ring-1 ring-slate-200 bg-slate-50">
+                                                                <Image v-show="imageSkeleton[item.slug]" :src="item.logo" @onLoadImage="() => imageSkeleton[item.slug] = true"/>
+                                                                <div v-show="!imageSkeleton[item.slug]" class="skeleton w-5 h-5"/>
+                                                            </div>
+                                                            <div class="font-semibold">{{ item.name }}</div>
+                                                        </div>
+                                                    </MenuItem>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </MenuItems>
+                                </transition>
+                            </Menu>
+
+                            <!-- Dropdown: Shops -->
+                            <Menu v-if="useLayoutStore().navigation.org[layout.currentParams.organisation]?.shops_navigation && (route(useLayoutStore().currentRoute, useLayoutStore().currentParams)).includes('shops')"
+                                as="div" class="relative inline-block text-left">
+                                <MenuButton
+                                    class="inline-flex min-w-fit w-32 max-w-full whitespace-nowrap justify-between items-center gap-x-2 rounded px-2.5 py-2 text-xs font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-white/75"
+                                    :class="[ layout.currentParams.shop ? 'bg-indigo-500 text-white hover:bg-indigo-600' : 'bg-slate-100 hover:bg-slate-200 text-slate-600 ring-1 ring-slate-300']"
+                                >
+                                    <div class="flex items-center gap-x-1">
+                                        <FontAwesomeIcon icon='fal fa-store-alt' class='opacity-60 text-xs' fixed-width aria-hidden='true' />
+                                        <!-- <FontAwesomeIcon v-else icon='fal fa-city' class='opacity-60 text-xs' fixed-width aria-hidden='true' /> -->
+                                        {{ useLayoutStore().currentParams.shop ?? 'Select shop' }}
+                                    </div>
+                                    <!-- {{ layout.organisations.currentOrganisations ? layout.organisations.currentOrganisations : 'Select group or organisations' }} -->
+                                    <FontAwesomeIcon icon='far fa-chevron-down' class='text-xs' aria-hidden='true' />
+                                </MenuButton>
+                                <transition>
+                                    <MenuItems
+                                        class="absolute left-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
+                                        <div class="px-1 py-1 ">
+                                            <!-- Dropdown: Organisation -->
+                                            <div class="flex items-center gap-x-1.5 px-1 mb-1">
+                                                <FontAwesomeIcon icon='fal fa-store-alt' class='text-gray-400 text-xxs' aria-hidden='true' />
+                                                <span class="text-[9px] leading-none text-gray-400">{{ trans('Shops') }}</span>
+                                                <hr class="w-full rounded-full border-slate-300">
+                                            </div>
+                                            <div class="max-h-52 overflow-y-auto space-y-1.5">
+                                                <MenuItem v-for="(shop, shopIdx) in useLayoutStore().navigation.org[layout.currentParams.organisation].shops_navigation" v-slot="{ active }">
+                                                    <div @click="() => router.visit(route(shop.shop.route?.name, shop.shop.route?.parameters))" :class="[
+                                                        shopIdx == layout.currentParams.shop ? 'bg-indigo-500 text-white' : 'text-slate-600 hover:bg-slate-200/75 hover:text-indigo-600',
                                                         'group flex gap-x-2 w-full justify-start items-center rounded px-2 py-2 text-sm cursor-pointer',
                                                     ]">
-                                                        <div class="h-5 rounded-full overflow-hidden ring-1 ring-slate-200 bg-slate-50">
-                                                            <Image v-show="imageSkeleton[item.slug]" :src="item.logo" @onLoadImage="() => imageSkeleton[item.slug] = true"/>
-                                                            <div v-show="!imageSkeleton[item.slug]" class="skeleton w-5 h-5"/>
-                                                        </div>
-                                                        <div class="font-semibold">{{ item.name }}</div>
+                                                        <!-- <div class="h-5 rounded-full overflow-hidden ring-1 ring-slate-200 bg-slate-50">
+                                                            <Image v-show="imageSkeleton[shopIdx]" :src="item.logo" @onLoadImage="() => imageSkeleton[shopIdx] = true"/>
+                                                            <div v-show="!imageSkeleton[shopIdx]" class="skeleton w-5 h-5"/>
+                                                        </div> -->
+                                                        <div class="font-semibold">{{ shopIdx }}</div>
+                                                    </div>
+                                                </MenuItem>
+                                            </div>
+                                        </div>
+                                    </MenuItems>
+                                </transition>
+                            </Menu>
+
+                            <!-- Dropdown: Warehouse -->
+                            <Menu v-if="useLayoutStore().navigation.org[layout.currentParams.organisation]?.warehouses_navigation && (route(useLayoutStore().currentRoute, useLayoutStore().currentParams)).includes('warehouse')"
+                                as="div" class="relative inline-block text-left">
+                                <MenuButton
+                                    class="inline-flex min-w-fit w-32 max-w-full whitespace-nowrap justify-between items-center gap-x-2 rounded px-2.5 py-2 text-xs font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-white/75"
+                                    :class="[ layout.currentParams.warehouse ? 'bg-indigo-500 text-white hover:bg-indigo-600' : 'bg-slate-100 hover:bg-slate-200 text-slate-600 ring-1 ring-slate-300']"
+                                >
+                                    <div class="flex items-center gap-x-1">
+                                        <FontAwesomeIcon icon='fal fa-warehouse-alt' class='opacity-60 text-xs' fixed-width aria-hidden='true' />
+                                        <!-- <FontAwesomeIcon v-else icon='fal fa-city' class='opacity-60 text-xs' fixed-width aria-hidden='true' /> -->
+                                        {{ useLayoutStore().currentParams.warehouse ?? 'Select warehouse' }}
+                                    </div>
+                                    <!-- {{ layout.organisations.currentOrganisations ? layout.organisations.currentOrganisations : 'Select group or organisations' }} -->
+                                    <FontAwesomeIcon icon='far fa-chevron-down' class='text-xs' aria-hidden='true' />
+                                </MenuButton>
+                                <transition>
+                                    <MenuItems
+                                        class="absolute left-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
+                                        <div class="px-1 py-1 ">
+                                            <!-- Dropdown: Organisation -->
+                                            <div class="flex items-center gap-x-1.5 px-1 mb-1">
+                                                <FontAwesomeIcon icon='fal fa-warehouse-alt' class='text-gray-400 text-xxs' aria-hidden='true' />
+                                                <span class="text-[9px] leading-none text-gray-400">{{ trans('Warehouses') }}</span>
+                                                <hr class="w-full rounded-full border-slate-300">
+                                            </div>
+                                            <div class="max-h-52 overflow-y-auto space-y-1.5">
+                                                <MenuItem v-for="(warehouse, warehouseIdx) in useLayoutStore().navigation.org[layout.currentParams.organisation].warehouses_navigation" v-slot="{ active }">
+                                                    <div @click="() => router.visit(route(warehouse.warehouse.route?.name, warehouse.warehouse.route?.parameters))" :class="[
+                                                        warehouseIdx == layout.currentParams.warehouse ? 'bg-indigo-500 text-white' : 'text-slate-600 hover:bg-slate-200/75 hover:text-indigo-600',
+                                                        'group flex gap-x-2 w-full justify-start items-center rounded px-2 py-2 text-sm cursor-pointer',
+                                                    ]">
+                                                        <!-- <div class="h-5 rounded-full overflow-hidden ring-1 ring-slate-200 bg-slate-50">
+                                                            <Image v-show="imageSkeleton[warehouseIdx]" :src="item.logo" @onLoadImage="() => imageSkeleton[warehouseIdx] = true"/>
+                                                            <div v-show="!imageSkeleton[warehouseIdx]" class="skeleton w-5 h-5"/>
+                                                        </div> -->
+                                                        <div class="font-semibold">{{ warehouseIdx }}</div>
                                                     </div>
                                                 </MenuItem>
                                             </div>
@@ -148,11 +239,11 @@ const logoutAuth = () => {
 
                         <!-- Section: Subsections -->
                         <div class="flex h-full">
-                        <!-- {{ layout.navigation.org[route().v().params?.organisation][layout.currentModule]?.topMenu.subSections }} -->
-                            <template v-if="route().v().params?.organisation">
-                                <Link v-for="menu in layout.navigation.org[route().v().params?.organisation][layout.currentModule]?.topMenu.subSections"
+                        <!-- {{ layout.currentParams.organisation }} -->
+                            <template v-if="layout.currentParams.organisation">
+                                <Link v-for="menu in layout.navigation.org[layout.currentParams.organisation][layout.currentModule]?.topMenu.subSections"
                                     :href="'#'"
-                                    :id="get(menu,'label',menu.route.name)"
+                                    :id="get(menu, 'label', menu?.route.name)"
                                     class="group relative text-gray-700 group text-sm flex justify-end items-center cursor-pointer py-3 gap-x-2 px-4 md:px-4 lg:px-4"
                                     :title="capitalize(menu.tooltip ?? menu.label ?? '')">
                                     <!-- <div :class="[

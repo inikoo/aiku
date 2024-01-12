@@ -27,6 +27,9 @@ class FetchShops extends FetchAction
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Shop
     {
         if ($shopData = $organisationSource->fetchShop($organisationSourceId)) {
+
+            setPermissionsTeamId($organisationSource->getOrganisation()->group_id);
+
             if ($shop = Shop::where('source_id', $shopData['shop']['source_id'])
                 ->first()) {
                 $shop = UpdateShop::make()->action(

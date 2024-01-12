@@ -81,7 +81,7 @@ class CreateWebsite extends InertiaAction
                     'cancelCreate' => [
                         'route' => [
                             'name'       => 'shops.show',
-                            'parameters' => array_values($this->originalParameters)
+                            'parameters' => array_values($request->route()->originalParameters())
                         ],
                     ]
 

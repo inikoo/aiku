@@ -7,7 +7,7 @@
 
 namespace App\Actions\HumanResources\Employee\UI;
 
-use App\Actions\InertiaOrganisationAction;
+use App\Actions\OrgAction;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
 use App\Http\Resources\HumanResources\JobPositionResource;
 use App\Http\Resources\Inventory\WarehouseResource;
@@ -20,7 +20,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class EditEmployee extends InertiaOrganisationAction
+class EditEmployee extends OrgAction
 {
     public function handle(Employee $employee): Employee
     {

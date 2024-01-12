@@ -10,7 +10,7 @@ namespace App\Actions\HumanResources\ClockingMachine;
 use App\Actions\HumanResources\ClockingMachine\Hydrators\ClockingMachineHydrateUniversalSearch;
 
 use App\Actions\HumanResources\Workplace\Hydrators\WorkplaceHydrateClockingMachines;
-use App\Actions\InertiaOrganisationAction;
+use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Organisation\OrganisationHydrateClockingMachines;
 use App\Enums\HumanResources\ClockingMachine\ClockingMachineTypeEnum;
 use App\Http\Resources\HumanResources\ClockingMachineResource;
@@ -25,7 +25,7 @@ use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\ActionRequest;
 
-class StoreClockingMachine extends InertiaOrganisationAction
+class StoreClockingMachine extends OrgAction
 {
     private bool $asAction = false;
 

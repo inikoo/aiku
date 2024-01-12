@@ -7,7 +7,7 @@
 
 namespace App\Actions\HumanResources\JobPosition\UI;
 
-use App\Actions\InertiaOrganisationAction;
+use App\Actions\OrgAction;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
 use App\Http\Resources\HumanResources\JobPositionResource;
 use App\InertiaTable\InertiaTable;
@@ -22,7 +22,7 @@ use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
-class IndexJobPositions extends InertiaOrganisationAction
+class IndexJobPositions extends OrgAction
 {
     /** @noinspection PhpUndefinedMethodInspection */
     public function handle(string $prefix = null): LengthAwarePaginator

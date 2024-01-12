@@ -130,7 +130,7 @@ class IndexProducts extends InertiaAction
                                 'label'   => __('shop'),
                                 'route'   => [
                                     'name'       => 'shops.create',
-                                    'parameters' => array_values($this->originalParameters)
+                                    'parameters' => array_values($request->route()->originalParameters())
                                 ]
                             ] : null
                         ],
@@ -153,7 +153,7 @@ class IndexProducts extends InertiaAction
                             'label'   => __('product'),
                             'route'   => [
                                 'name'       => 'shops.products.create',
-                                'parameters' => array_values($this->originalParameters)
+                                'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ] : null
                     ]*/

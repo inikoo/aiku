@@ -38,8 +38,8 @@ export const useLayoutStore = defineStore("layout", {
         {
             booted: false,
             currentModule: "",
-            currentRoute: "",
-            currentRouteParameters: {},
+            currentRoute: "grp.dashboard.show", // Define value to avoid route null at first load
+            currentParams: {} as {[key: string]: string},
             group: {} as Group,
             leftSidebar: {
                 show: true,

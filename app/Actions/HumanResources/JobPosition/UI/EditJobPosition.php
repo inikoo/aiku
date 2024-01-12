@@ -7,7 +7,7 @@
 
 namespace App\Actions\HumanResources\JobPosition\UI;
 
-use App\Actions\InertiaOrganisationAction;
+use App\Actions\OrgAction;
 use App\Models\HumanResources\JobPosition;
 use App\Models\Market\ProductCategory;
 use App\Models\SysAdmin\Organisation;
@@ -17,7 +17,7 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\LaravelOptions\Options;
 
-class EditJobPosition extends InertiaOrganisationAction
+class EditJobPosition extends OrgAction
 {
     public function handle(JobPosition $jobPosition): JobPosition
     {

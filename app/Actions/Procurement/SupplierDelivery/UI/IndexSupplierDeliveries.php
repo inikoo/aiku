@@ -73,7 +73,7 @@ class IndexSupplierDeliveries extends InertiaAction
 
     public function asController(ActionRequest $request): LengthAwarePaginator
     {
-        $this->routeName = $request->route()->getName();
+
         $this->initialisation($request);
 
         return $this->handle(app('currentTenant'));
@@ -95,10 +95,10 @@ class IndexSupplierDeliveries extends InertiaAction
                 'title'       => __('supplier deliveries'),
                 'pageHead'    => [
                     'title'  => __('supplier deliveries'),
-                    'create' => $this->canEdit && $this->routeName == 'grp.procurement.supplier-deliveries.index' ? [
+                    'create' => $this->canEdit && $request->route()->getName() == 'grp.procurement.supplier-deliveries.index' ? [
                         'route' => [
                             'name'       => 'grp.procurement.supplier-deliveries.create',
-                            'parameters' => array_values($this->originalParameters)
+                            'parameters' => array_values($request->route()->originalParameters())
                         ],
                         'label' => __('supplier deliveries')
                     ] : false,

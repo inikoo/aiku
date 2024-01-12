@@ -29,8 +29,8 @@ class ShowWebUser extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit   = $request->user()->hasPermissionTo('crm.customers.edit');
-        $this->canDelete = $request->user()->hasPermissionTo('crm.customers.edit');
+        $this->canEdit   = $request->user()->hasPermissionTo("crm.{$this->shop->slug}.edit");
+        $this->canDelete = $request->user()->hasPermissionTo("crm.{$this->shop->slug}.edit");
         return $request->user()->hasPermissionTo("crm.customers.view");
     }
 
@@ -96,8 +96,8 @@ class ShowWebUser extends InertiaAction
                             'type'  => 'button',
                             'style' => 'edit',
                             'route' => [
-                                'name'       => preg_replace('/show$/', 'edit', $this->routeName),
-                                'parameters' => array_values($this->originalParameters)
+                                'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
+                                'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ] : false,
 

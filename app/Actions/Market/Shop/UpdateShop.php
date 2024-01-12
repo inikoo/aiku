@@ -7,7 +7,7 @@
 
 namespace App\Actions\Market\Shop;
 
-use App\Actions\InertiaOrganisationAction;
+use App\Actions\OrgAction;
 use App\Actions\Market\Shop\Hydrators\ShopHydrateUniversalSearch;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateMarket;
 use App\Actions\Traits\WithActionUpdate;
@@ -18,7 +18,7 @@ use App\Rules\IUnique;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdateShop extends InertiaOrganisationAction
+class UpdateShop extends OrgAction
 {
     use WithActionUpdate;
 

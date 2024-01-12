@@ -47,7 +47,7 @@ class FetchAuroraDispatchedEmail extends FetchAurora
 
         $this->parsedData['dispatchedEmail'] = [
             'state'      => $state,
-            'source_id'  => $this->auroraModelData->{'Email Tracking Key'},
+            'source_id'  => $this->organisation->id.':'.$this->auroraModelData->{'Email Tracking Key'},
             'created_at' => $this->parseDate($this->auroraModelData->{'Email Tracking Created Date'})
         ];
     }

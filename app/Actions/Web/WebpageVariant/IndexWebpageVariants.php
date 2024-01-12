@@ -116,7 +116,7 @@ class IndexWebpageVariants extends InertiaAction
 
     public function asController(ActionRequest $request): LengthAwarePaginator
     {
-        $this->routeName = $request->route()->getName();
+
 
         return $this->handle();
     }

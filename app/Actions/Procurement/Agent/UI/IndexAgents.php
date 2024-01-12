@@ -81,7 +81,7 @@ class IndexAgents extends InertiaAction
                             'label'   => __('agent'),
                             'route'   => [
                                 'name'       => 'grp.procurement.agents.create',
-                                'parameters' => array_values($this->originalParameters)
+                                'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ] : null
                     ]
@@ -135,14 +135,14 @@ class IndexAgents extends InertiaAction
                         'icon'  => 'fal fa-people-arrows'
                     ],
                     'actions'=> [
-                        $this->canEdit && $this->routeName == 'grp.procurement.agents.index' ? [
+                        $this->canEdit && $request->route()->getName() == 'grp.procurement.agents.index' ? [
                             'type'    => 'button',
                             'style'   => 'create',
                             'tooltip' => __('new agent'),
                             'label'   => __('agent'),
                             'route'   => [
                                 'name'       => 'grp.procurement.agents.create',
-                                'parameters' => array_values($this->originalParameters)
+                                'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ] : false,
                     ]

@@ -10,13 +10,14 @@ namespace App\Actions\Dropshipping\CustomerClient;
 use App\Actions\CRM\Customer\Hydrators\CustomerHydrateClients;
 use App\Actions\Dropshipping\CustomerClient\Hydrators\CustomerClientHydrateUniversalSearch;
 use App\Actions\Helpers\Address\StoreAddressAttachToModel;
+use App\Actions\OrgAction;
 use App\Models\CRM\Customer;
 use App\Models\Dropshipping\CustomerClient;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class StoreCustomerClient
+class StoreCustomerClient extends OrgAction
 {
     use AsAction;
     use WithAttributes;
@@ -44,7 +45,7 @@ class StoreCustomerClient
             return true;
         }
 
-        return $request->user()->hasPermissionTo("shops.customers.edit");
+        return $request->user()->hasPermissionTo("crm.{$this->shop->slug}.edit");
     }
 
     public function rules(): array

@@ -7,14 +7,14 @@
 
 namespace App\Actions\HumanResources\Workplace\UI;
 
-use App\Actions\InertiaOrganisationAction;
+use App\Actions\OrgAction;
 use App\Models\HumanResources\Workplace;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class RemoveWorkplace extends InertiaOrganisationAction
+class RemoveWorkplace extends OrgAction
 {
     public function handle(Workplace $workplace): Workplace
     {

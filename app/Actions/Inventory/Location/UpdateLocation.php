@@ -7,7 +7,7 @@
 
 namespace App\Actions\Inventory\Location;
 
-use App\Actions\InertiaOrganisationAction;
+use App\Actions\OrgAction;
 use App\Actions\Inventory\Location\Hydrators\LocationHydrateUniversalSearch;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Inventory\LocationResource;
@@ -15,7 +15,7 @@ use App\Models\Inventory\Location;
 use App\Rules\IUnique;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdateLocation extends InertiaOrganisationAction
+class UpdateLocation extends OrgAction
 {
     use WithActionUpdate;
 

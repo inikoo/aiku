@@ -21,7 +21,7 @@ class FetchAuroraMailshot extends FetchAurora
         $this->parsedData['outbox']   = $this->parseOutbox($this->auroraModelData->{'Email Campaign Email Template Type Key'});
         $this->parsedData['mailshot'] = [
             'state'      => $state,
-            'source_id'  => $this->auroraModelData->{'Email Campaign Key'},
+            'source_id'  => $this->organisation->id.':'.$this->auroraModelData->{'Email Campaign Key'},
             'created_at' => $this->parseDate($this->auroraModelData->{'Email Campaign Creation Date'})
         ];
     }

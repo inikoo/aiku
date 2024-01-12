@@ -57,7 +57,7 @@ class ShowDispatchedEmail extends InertiaAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inMailroomInShop(Outbox $outbox, DispatchedEmail $dispatchedEmail, ActionRequest $request): DispatchedEmail
     {
-        $this->routeName = $request->route()->getName();
+
         $this->initialisation($request);
         return $this->handle($dispatchedEmail);
     }
@@ -65,7 +65,7 @@ class ShowDispatchedEmail extends InertiaAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inMailroomInOutboxInMailshotInShop(Mailroom $mailroom, Outbox $outbox, DispatchedEmail $dispatchedEmail, ActionRequest $request): DispatchedEmail
     {
-        $this->routeName = $request->route()->getName();
+
         $this->initialisation($request);
         return $this->handle($dispatchedEmail);
     }
@@ -73,7 +73,7 @@ class ShowDispatchedEmail extends InertiaAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inMailroomInMailshotInShop(Mailroom $mailroom, DispatchedEmail $dispatchedEmail, ActionRequest $request): DispatchedEmail
     {
-        $this->routeName = $request->route()->getName();
+
         $this->initialisation($request);
         return $this->handle($dispatchedEmail);
     }
@@ -87,7 +87,7 @@ class ShowDispatchedEmail extends InertiaAction
             'Mail/DispatchedEmail',
             [
                 'title'       => __($dispatchedEmail->id),
-                'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $dispatchedEmail),
+                'breadcrumbs' => $this->getBreadcrumbs($request->route()->getName(), $dispatchedEmail),
                 'pageHead'    => [
                     'icon'  => 'fal fa-coins',
                     'title' => $dispatchedEmail->id,

@@ -21,7 +21,7 @@ class CreatePayment extends InertiaAction
         return Inertia::render(
             'CreateModel',
             [
-                'breadcrumbs' => $this->getBreadcrumbs($request->route()->getName(), array_values($this->originalParameters)),
+                'breadcrumbs' => $this->getBreadcrumbs($request->route()->getName(), array_values($request->route()->originalParameters())),
                 'title'       => __('new payment'),
                 'pageHead'    => [
                     'title'        => __('new payment'),
@@ -31,7 +31,7 @@ class CreatePayment extends InertiaAction
                                 'grp.accounting.payment-accounts.show.payments.create' => 'grp.accounting.payment-accounts.show',
                                 default                                                => preg_replace('/create$/', 'index', $request->route()->getName())
                             },
-                            'parameters' => array_values($this->originalParameters)
+                            'parameters' => array_values($request->route()->originalParameters())
                         ]
                     ]
                 ],

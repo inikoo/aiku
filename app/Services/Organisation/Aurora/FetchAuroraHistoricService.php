@@ -32,7 +32,7 @@ class FetchAuroraHistoricService extends FetchAurora
             'status'     => $status,
             'created_at' => $this->parseDate($this->auroraModelData->{'Product History Valid From'}),
             'deleted_at' => $deleted_at,
-            'source_id'  => $this->auroraModelData->{'Product Key'}
+            'source_id'  => $this->organisation->id.':'.$this->auroraModelData->{'Product Key'}
         ];
     }
 

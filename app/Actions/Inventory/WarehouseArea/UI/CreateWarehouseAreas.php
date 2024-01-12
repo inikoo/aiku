@@ -41,11 +41,11 @@ class CreateWarehouseAreas extends InertiaAction
                             'route' => match ($request->route()->getName()) {
                                 'grp.oms.warehouse-areas.index' => [
                                     'name'       => 'grp.oms.warehouse-areas.create-multi-clear',
-                                    'parameters' => array_values($this->originalParameters)
+                                    'parameters' => array_values($request->route()->originalParameters())
                                 ],
                                 default => [
                                     'name'       => 'grp.oms.warehouses.show.warehouse-areas.create-multi-clear',
-                                    'parameters' => array_values($this->originalParameters)
+                                    'parameters' => array_values($request->route()->originalParameters())
                                 ]
                             }
                         ]

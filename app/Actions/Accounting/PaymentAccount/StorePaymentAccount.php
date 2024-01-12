@@ -8,7 +8,7 @@
 namespace App\Actions\Accounting\PaymentAccount;
 
 use App\Actions\Accounting\PaymentServiceProvider\Hydrators\PaymentServiceProviderHydrateAccounts;
-use App\Actions\InertiaOrganisationAction;
+use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateAccounting;
 use App\Enums\Accounting\PaymentAccount\PaymentAccountTypeEnum;
 use App\Models\Accounting\PaymentAccount;
@@ -17,7 +17,7 @@ use App\Rules\IUnique;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
-class StorePaymentAccount extends InertiaOrganisationAction
+class StorePaymentAccount extends OrgAction
 {
     private bool $asAction = false;
 

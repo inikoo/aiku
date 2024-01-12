@@ -82,8 +82,8 @@ class ShowMarketplaceAgent extends InertiaAction
                             'type'  => 'button',
                             'style' => 'edit',
                             'route' => [
-                                'name'       => preg_replace('/show$/', 'edit', $this->routeName),
-                                'parameters' => array_values($this->originalParameters)
+                                'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
+                                'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ] : false,
                         $this->canDelete ? [
@@ -91,7 +91,7 @@ class ShowMarketplaceAgent extends InertiaAction
                             'style' => 'delete',
                             'route' => [
                                 'name'       => 'grp.procurement.marketplace.agents.remove',
-                                'parameters' => array_values($this->originalParameters)
+                                'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ] : false,
                         $this->canEdit ? [
@@ -99,7 +99,7 @@ class ShowMarketplaceAgent extends InertiaAction
                             'style' => 'create',
                             'route' => [
                                 'name'       => 'grp.procurement.marketplace.agents.show.suppliers.create',
-                                'parameters' => array_values($this->originalParameters)
+                                'parameters' => array_values($request->route()->originalParameters())
                             ],
                             'label' => __('supplier')
                         ] : false,
@@ -162,7 +162,7 @@ class ShowMarketplaceAgent extends InertiaAction
                     'createLink' => $this->canEdit ? [
                         'route' => [
                             'name'       => 'grp.procurement.marketplace.agents.show.suppliers.create',
-                            'parameters' => array_values($this->originalParameters)
+                            'parameters' => array_values($request->route()->originalParameters())
                         ],
                         'label' => __('suppliers')
                     ] : false,
@@ -176,7 +176,7 @@ class ShowMarketplaceAgent extends InertiaAction
                         'createLink' => $this->canEdit ? [
                             'route' => [
                                 'name'       => 'grp.procurement.marketplace.agents.show.supplier-products.create',
-                                'parameters' => array_values($this->originalParameters)
+                                'parameters' => array_values($request->route()->originalParameters())
                             ],
                             'label' => __('product')
                         ] : false,

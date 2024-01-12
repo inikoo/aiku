@@ -32,10 +32,10 @@ class ShowCustomer extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit   = $request->user()->hasPermissionTo('crm.customers.edit');
-        $this->canDelete = $request->user()->hasPermissionTo('crm.customers.edit');
+        $this->canEdit   = $request->user()->hasPermissionTo("crm.{$this->shop->slug}.edit");
+        $this->canDelete = $request->user()->hasPermissionTo("crm.{$this->shop->slug}.edit");
 
-        return $request->user()->hasPermissionTo("shops.customers.view");
+        return $request->user()->hasPermissionTo("crm.{$this->shop->slug}.view");
     }
 
     public function inOrganisation(Customer $customer, ActionRequest $request): Customer

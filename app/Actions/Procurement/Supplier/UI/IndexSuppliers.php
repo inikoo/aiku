@@ -127,7 +127,7 @@ class IndexSuppliers extends InertiaAction
                             'label'   => __('supplier'),
                             'route'   => [
                                 'name'       => 'grp.procurement.suppliers.create',
-                                'parameters' => array_values($this->originalParameters)
+                                'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ] : null
                     ]

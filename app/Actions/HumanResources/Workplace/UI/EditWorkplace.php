@@ -8,7 +8,7 @@
 namespace App\Actions\HumanResources\Workplace\UI;
 
 use App\Actions\Assets\Country\UI\GetAddressData;
-use App\Actions\InertiaOrganisationAction;
+use App\Actions\OrgAction;
 use App\Enums\HumanResources\Workplace\WorkplaceTypeEnum;
 use App\Http\Resources\Helpers\AddressFormFieldsResource;
 use App\Models\Helpers\Address;
@@ -21,7 +21,7 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\LaravelOptions\Options;
 
-class EditWorkplace extends InertiaOrganisationAction
+class EditWorkplace extends OrgAction
 {
     public function handle(Workplace $workplace): Workplace
     {

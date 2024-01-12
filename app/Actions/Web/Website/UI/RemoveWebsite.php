@@ -62,7 +62,7 @@ class RemoveWebsite extends InertiaAction
                             'type'  => 'button',
                             'style' => 'cancel',
                             'route' => [
-                                'name'       => preg_replace('/remove$/', 'show', $this->routeName),
+                                'name'       => preg_replace('/remove$/', 'show', $request->route()->getName()),
                                 'parameters' => $website->slug
                             ]
                         ]
@@ -81,6 +81,6 @@ class RemoveWebsite extends InertiaAction
 
     public function getBreadcrumbs(): array
     {
-        return ShowWebsite::make()->getBreadcrumbs($this->routeName, $this->originalParameters, suffix: '('.__('deleting').')');
+        return ShowWebsite::make()->getBreadcrumbs($request->route()->getName(), $request->route()->originalParameters(), suffix: '('.__('deleting').')');
     }
 }

@@ -139,7 +139,7 @@ class IndexDispatchedEmails extends InertiaAction
 
     public function inOrganisation(ActionRequest $request): LengthAwarePaginator
     {
-        $this->routeName = $request->route()->getName();
+
         $this->initialisation($request);
         return $this->handle(app('currentTenant'));
     }
@@ -184,7 +184,7 @@ class IndexDispatchedEmails extends InertiaAction
             array_merge(
                 (new MarketingHub())->getBreadcrumbs(
                     $routeName,
-                    $this->originalParameters
+                    $request->route()->originalParameters()
                 ),
                 $headCrumb()
             ),

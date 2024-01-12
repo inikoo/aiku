@@ -25,14 +25,14 @@ class CreateMailshot extends InertiaAction
         return Inertia::render(
             'CreateModel',
             [
-                'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $this->parent),
+                'breadcrumbs' => $this->getBreadcrumbs($request->route()->getName(), $this->parent),
                 'title'       => __('new mailshot'),
                 'pageHead'    => [
                     'title'        => __('new mailshot'),
                     'cancelCreate' => [
                         'route' => [
                             'name'       => 'mail.mailshots.index',
-                            'parameters' => array_values($this->originalParameters)
+                            'parameters' => array_values($request->route()->originalParameters())
                         ],
                     ]
 

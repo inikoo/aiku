@@ -7,7 +7,7 @@
 
 namespace App\Actions\Web\Website;
 
-use App\Actions\InertiaOrganisationAction;
+use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Actions\Web\Website\Hydrators\WebsiteHydrateUniversalSearch;
 use App\Http\Resources\Web\WebsiteResource;
@@ -16,7 +16,7 @@ use App\Models\Web\Website;
 use App\Rules\IUnique;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdateWebsite extends InertiaOrganisationAction
+class UpdateWebsite extends OrgAction
 {
     use WithActionUpdate;
 

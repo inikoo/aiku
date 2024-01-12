@@ -131,7 +131,7 @@ class IndexFamilies extends InertiaAction
                                 'label'   => __('shop'),
                                 'route'   => [
                                     'name'       => 'shops.create',
-                                    'parameters' => array_values($this->originalParameters)
+                                    'parameters' => array_values($request->route()->originalParameters())
                                 ]
                             ] : null
                         ],

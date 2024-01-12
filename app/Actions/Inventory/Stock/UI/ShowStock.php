@@ -77,15 +77,15 @@ class ShowStock extends InertiaAction
                              'style' => 'edit',
                              'route' => [
                                  'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
-                                 'parameters' => array_values($this->originalParameters)
+                                 'parameters' => array_values($request->route()->originalParameters())
                              ]
                          ] : false,
                          $this->canDelete ? [
                              'type'  => 'button',
                              'style' => 'delete',
                              'route' => [
-                                 'name'       => 'grp.inventory.stock-families.show.stocks.remove',
-                                 'parameters' => array_values($this->originalParameters)
+                                 'name'       => 'grp.org.inventory.stock-families.show.stocks.remove',
+                                 'parameters' => array_values($request->route()->originalParameters())
                              ]
 
                          ] : false
@@ -137,18 +137,18 @@ class ShowStock extends InertiaAction
             ];
         };
         return match ($routeName) {
-            'grp.inventory.stocks.show' =>
+            'grp.org.inventory.stocks.show' =>
             array_merge(
                 (new InventoryDashboard())->getBreadcrumbs(),
                 $headCrumb(
                     $routeParameters['stock'],
                     [
                         'index' => [
-                            'name'       => 'grp.inventory.stocks.index',
+                            'name'       => 'grp.org.inventory.stocks.index',
                             'parameters' => []
                         ],
                         'model' => [
-                            'name'       => 'grp.inventory.stocks.show',
+                            'name'       => 'grp.org.inventory.stocks.show',
                             'parameters' => [
                                 $routeParameters['stock']->slug
                             ]
@@ -157,20 +157,20 @@ class ShowStock extends InertiaAction
                     $suffix
                 )
             ),
-            'grp.inventory.stock-families.show.stocks.show' =>
+            'grp.org.inventory.stock-families.show.stocks.show' =>
             array_merge(
                 (new ShowStockFamily())->getBreadcrumbs($routeParameters['stockFamily']),
                 $headCrumb(
                     $routeParameters['stock'],
                     [
                         'index' => [
-                            'name'       => 'grp.inventory.stock-families.show.stocks.index',
+                            'name'       => 'grp.org.inventory.stock-families.show.stocks.index',
                             'parameters' => [
                                 $routeParameters['stockFamily']->slug
                             ]
                         ],
                         'model' => [
-                            'name'       => 'grp.inventory.stock-families.show.stocks.show',
+                            'name'       => 'grp.org.inventory.stock-families.show.stocks.show',
                             'parameters' => [
                                 $routeParameters['stockFamily']->slug,
                                 $routeParameters['stock']->slug
@@ -187,7 +187,7 @@ class ShowStock extends InertiaAction
     public function getPrevious(Stock $stock, ActionRequest $request): ?array
     {
         $previous = Stock::where('code', '<', $stock->code)->when(true, function ($query) use ($stock, $request) {
-            if ($request->route()->getName() == 'grp.inventory.stock-families.show.stocks.show') {
+            if ($request->route()->getName() == 'grp.org.inventory.stock-families.show.stocks.show') {
                 $query->where('stock_family_id', $stock->stockFamily->id);
             }
         })->orderBy('code', 'desc')->first();
@@ -197,7 +197,7 @@ class ShowStock extends InertiaAction
     public function getNext(Stock $stock, ActionRequest $request): ?array
     {
         $next = Stock::where('code', '>', $stock->code)->when(true, function ($query) use ($stock, $request) {
-            if ($request->route()->getName() == 'grp.inventory.stock-families.show.stocks.show') {
+            if ($request->route()->getName() == 'grp.org.inventory.stock-families.show.stocks.show') {
                 $query->where('stock_family_id', $stock->stockFamily->id);
             }
         })->orderBy('code')->first();
@@ -212,7 +212,7 @@ class ShowStock extends InertiaAction
         }
 
         return match ($routeName) {
-            'grp.inventory.stocks.show' => [
+            'grp.org.inventory.stocks.show' => [
                 'label' => $stock->name,
                 'route' => [
                     'name'       => $routeName,
@@ -221,7 +221,7 @@ class ShowStock extends InertiaAction
                     ]
                 ]
             ],
-            'grp.inventory.stock-families.show.stocks.show' => [
+            'grp.org.inventory.stock-families.show.stocks.show' => [
                 'label' => $stock->name,
                 'route' => [
                     'name'       => $routeName,

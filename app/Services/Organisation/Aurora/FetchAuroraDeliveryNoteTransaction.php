@@ -71,7 +71,7 @@ class FetchAuroraDeliveryNoteTransaction extends FetchAurora
                     'quantity_packed'     => $this->auroraModelData->{'Packed'},
                     'quantity_dispatched' => $quantity_dispatched,
                     'stock_id'            => $stock->id,
-                    'source_id'           => $this->auroraModelData->{'Inventory Transaction Key'},
+                    'source_id'           => $this->organisation->id.':'.$this->auroraModelData->{'Inventory Transaction Key'},
                     'created_at'          => $this->auroraModelData->{'Date Created'},
 
                 ];

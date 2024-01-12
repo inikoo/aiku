@@ -75,8 +75,8 @@ class ShowSupplierProduct extends InertiaAction
                     /*
                     'edit'  => $this->canEdit ? [
                         'route' => [
-                            'name'       => preg_replace('/show$/', 'edit', $this->routeName),
-                            'parameters' => array_values($this->originalParameters)
+                            'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
+                            'parameters' => array_values($request->route()->originalParameters())
                         ]
                     ] : false,
                     */

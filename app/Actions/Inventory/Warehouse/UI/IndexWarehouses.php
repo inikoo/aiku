@@ -7,7 +7,7 @@
 
 namespace App\Actions\Inventory\Warehouse\UI;
 
-use App\Actions\InertiaOrganisationAction;
+use App\Actions\OrgAction;
 use App\Actions\UI\Inventory\InventoryDashboard;
 use App\Http\Resources\Inventory\WarehouseResource;
 use App\Models\Inventory\Warehouse;
@@ -23,7 +23,7 @@ use App\InertiaTable\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
-class IndexWarehouses extends InertiaOrganisationAction
+class IndexWarehouses extends OrgAction
 {
     private Organisation $parent;
 
@@ -101,7 +101,7 @@ class IndexWarehouses extends InertiaOrganisationAction
                             'tooltip' => __('new warehouse'),
                             'label'   => __('warehouse'),
                             'route'   => [
-                                'name'       => 'grp.inventory.warehouses.create',
+                                'name'       => 'grp.org.inventory.warehouses.create',
                                 'parameters' => $parent->slug
                             ]
                         ] : null
@@ -138,13 +138,13 @@ class IndexWarehouses extends InertiaOrganisationAction
                         'icon'  => 'fal fa-warehouse'
                     ],
                     'actions'=> [
-                        $this->canEdit && $request->route()->routeName == 'grp.inventory.warehouses.index' ? [
+                        $this->canEdit && $request->route()->routeName == 'grp.org.inventory.warehouses.index' ? [
                             'type'    => 'button',
                             'style'   => 'create',
                             'tooltip' => __('new warehouse'),
                             'label'   => __('warehouse'),
                             'route'   => [
-                                'name'       => 'grp.inventory.warehouses.create',
+                                'name'       => 'grp.org.inventory.warehouses.create',
                                 'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ] : false,

@@ -53,7 +53,7 @@ class DeleteWarehouseArea
 
     public function htmlResponse(WarehouseArea $warehouseArea): RedirectResponse
     {
-        return Redirect::route('grp.inventory.warehouses.show', $warehouseArea->warehouse->slug);
+        return Redirect::route('grp.org.inventory.warehouses.show', $warehouseArea->warehouse->slug);
     }
 
 }

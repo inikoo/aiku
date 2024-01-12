@@ -82,8 +82,8 @@ class ShowWebsite extends InertiaAction
                             'label' => __('settings'),
                             'icon'  => ["fal", "fa-sliders-h"],
                             'route' => [
-                                'name'       => preg_replace('/show$/', 'edit', $this->routeName),
-                                'parameters' => array_values($this->originalParameters)
+                                'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
+                                'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ] : false,
                         $this->canEdit ? [
@@ -92,8 +92,8 @@ class ShowWebsite extends InertiaAction
                             'label' => __('workshop'),
                             'icon'  => ["fal", "fa-drafting-compass"],
                             'route' => [
-                                'name'       => preg_replace('/show$/', 'workshop', $this->routeName),
-                                'parameters' => array_values($this->originalParameters)
+                                'name'       => preg_replace('/show$/', 'workshop', $request->route()->getName()),
+                                'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ] : false,
                         /*$this->canDelete ? [
@@ -101,7 +101,7 @@ class ShowWebsite extends InertiaAction
                             'style' => 'delete',
                             'route' => [
                                 'name'       => 'websites.remove',
-                                'parameters' => array_values($this->originalParameters)
+                                'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ] : false */
                     ],
@@ -148,7 +148,7 @@ class ShowWebsite extends InertiaAction
                     'createLink' => $this->canEdit ? [
                         'route' => [
                             'name'       => 'website.show.web-users.create',
-                            'parameters' => array_values($this->originalParameters)
+                            'parameters' => array_values($request->route()->originalParameters())
                         ],
                         'label' => __('users')
                     ] : false,

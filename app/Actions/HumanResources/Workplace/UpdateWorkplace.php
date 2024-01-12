@@ -9,7 +9,7 @@ namespace App\Actions\HumanResources\Workplace;
 
 use App\Actions\Helpers\Address\StoreAddressAttachToModel;
 use App\Actions\HumanResources\Workplace\Hydrators\WorkplaceHydrateUniversalSearch;
-use App\Actions\InertiaOrganisationAction;
+use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWorkplaces;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\HumanResources\WorkplaceResource;
@@ -19,7 +19,7 @@ use App\Rules\IUnique;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdateWorkplace extends InertiaOrganisationAction
+class UpdateWorkplace extends OrgAction
 {
     use WithActionUpdate;
 

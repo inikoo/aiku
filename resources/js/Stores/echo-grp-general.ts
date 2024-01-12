@@ -14,16 +14,17 @@ export const useEchoGrpGeneral = defineStore(
         }),
         actions: {
             subscribe() {
-                console.log('subscribe')
-                window.Echo.private('grp.general').
+                // console.log('subscribe general')
+                let abcdef = window.Echo.private('grp.1.general').
                     listen('.notification', (e: {}) => {
                         console.log('From echo-org-general', e)
                         notify({
-                            title: e.data.title,
-                            text: e.data.text,
-                            type: 'info',
+                            title: 'General',
+                            text: 'From echo-org-general',
+                            type: 'success',
                         })
                     })
+                console.log('Subscribed to General: :', abcdef.subscription.subscribed)
             },
         },
     }

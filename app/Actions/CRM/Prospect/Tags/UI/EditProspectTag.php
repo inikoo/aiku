@@ -169,7 +169,7 @@ class EditProspectTag extends InertiaAction
                 'label' => $tag->name,
                 'route' => [
                     'name'       => $routeName,
-                    'parameters' => $this->originalParameters
+                    'parameters' => $request->route()->originalParameters()
                 ]
             ]
         };

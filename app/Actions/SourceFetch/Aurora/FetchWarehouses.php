@@ -13,14 +13,14 @@ use App\Models\Inventory\Warehouse;
 use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
-use JetBrains\PhpStorm\NoReturn;
 
 class FetchWarehouses extends FetchAction
 {
     public string $commandSignature = 'fetch:warehouses {organisations?*} {--s|source_id=} {--d|db_suffix=}';
 
-    #[NoReturn] public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Warehouse
+    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Warehouse
     {
+        setPermissionsTeamId($organisationSource->getOrganisation()->group_id);
         if ($warehouseData = $organisationSource->fetchWarehouse($organisationSourceId)) {
             if ($warehouse = Warehouse::where('source_id', $warehouseData['warehouse']['source_id'])
                 ->first()) {

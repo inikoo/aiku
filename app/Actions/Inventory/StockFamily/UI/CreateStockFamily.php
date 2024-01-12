@@ -48,7 +48,7 @@ class CreateStockFamily extends InertiaAction
                             'label' => __('cancel'),
                             'route' => [
                                 'name'       => 'grp.oms.stock-families.index',
-                                'parameters' => array_values($this->originalParameters)
+                                'parameters' => array_values($request->route()->originalParameters())
                             ],
                         ]
                     ]

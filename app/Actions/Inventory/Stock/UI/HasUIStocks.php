@@ -16,8 +16,8 @@ trait HasUIStocks
         return array_merge(
             (new InventoryDashboard())->getBreadcrumbs(),
             [
-                'grp.inventory.stocks.index' => [
-                    'route'      => 'grp.inventory.stocks.index',
+                'grp.org.inventory.stocks.index' => [
+                    'route'      => 'grp.org.inventory.stocks.index',
                     'modelLabel' => [
                         'label' => __('stocks')
                     ],

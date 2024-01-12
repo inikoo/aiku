@@ -155,8 +155,8 @@ class IndexLocations extends InertiaAction
                                 'tooltip' => __('new location'),
                                 'label'   => __('location'),
                                 'route'   => [
-                                    'name'       => 'grp.inventory.warehouses.create',
-                                    'parameters' => array_values($this->originalParameters)
+                                    'name'       => 'grp.org.inventory.warehouses.create',
+                                    'parameters' => array_values($request->route()->originalParameters())
                                 ]
                             ] : null
                         ],
@@ -171,8 +171,8 @@ class IndexLocations extends InertiaAction
                                 'tooltip' => __('new location'),
                                 'label'   => __('location'),
                                 'route'   => [
-                                    'name'       => 'grp.inventory.warehouses.show.locations.create',
-                                    'parameters' => array_values($this->originalParameters)
+                                    'name'       => 'grp.org.inventory.warehouses.show.locations.create',
+                                    'parameters' => array_values($request->route()->originalParameters())
                                 ]
                             ] : null
                         ],
@@ -187,8 +187,8 @@ class IndexLocations extends InertiaAction
                                 'tooltip' => __('new location'),
                                 'label'   => __('location'),
                                 'route'   => [
-                                    'name'       => 'grp.inventory.warehouses.show.warehouse-areas.show.locations.create',
-                                    'parameters' => array_values($this->originalParameters)
+                                    'name'       => 'grp.org.inventory.warehouses.show.warehouse-areas.show.locations.create',
+                                    'parameters' => array_values($request->route()->originalParameters())
                                 ]
                             ] : null
                         ],
@@ -244,21 +244,21 @@ class IndexLocations extends InertiaAction
                     'actions'=> [
                         $this->canEdit
                         && (
-                            $this->routeName == 'grp.inventory.warehouses.show.locations.index' or
-                            $this->routeName == 'grp.inventory.warehouses.show.warehouse-areas.show.locations.index'
+                            $request->route()->getName() == 'grp.org.inventory.warehouses.show.locations.index' or
+                            $request->route()->getName() == 'grp.org.inventory.warehouses.show.warehouse-areas.show.locations.index'
                         )
                             ? [
                             'type'  => 'button',
                             'style' => 'create',
                             'label' => __('locations'),
-                            'route' => match ($this->routeName) {
-                                'grp.inventory.warehouses.show.locations.index' => [
-                                    'name'       => 'grp.inventory.warehouses.show.locations.create',
-                                    'parameters' => array_values($this->originalParameters)
+                            'route' => match ($request->route()->getName()) {
+                                'grp.org.inventory.warehouses.show.locations.index' => [
+                                    'name'       => 'grp.org.inventory.warehouses.show.locations.create',
+                                    'parameters' => array_values($request->route()->originalParameters())
                                 ],
                                 default => [
-                                    'name'       => 'grp.inventory.warehouses.show.warehouse-areas.show.locations.create',
-                                    'parameters' => array_values($this->originalParameters)
+                                    'name'       => 'grp.org.inventory.warehouses.show.warehouse-areas.show.locations.create',
+                                    'parameters' => array_values($request->route()->originalParameters())
                                 ]
                             }
                         ] : false
@@ -286,54 +286,54 @@ class IndexLocations extends InertiaAction
         };
 
         return match ($routeName) {
-            'grp.inventory.locations.index' =>
+            'grp.org.inventory.locations.index' =>
             array_merge(
                 (new InventoryDashboard())->getBreadcrumbs(),
                 $headCrumb(
                     [
-                        'name' => 'grp.inventory.locations.index',
+                        'name' => 'grp.org.inventory.locations.index',
                         null
                     ]
                 )
             ),
-            'grp.inventory.warehouses.show.locations.index' =>
+            'grp.org.inventory.warehouses.show.locations.index' =>
             array_merge(
                 (new ShowWarehouse())->getBreadcrumbs($routeParameters['warehouse']),
                 $headCrumb([
-                    'name'       => 'grp.inventory.warehouses.show.locations.index',
+                    'name'       => 'grp.org.inventory.warehouses.show.locations.index',
                     'parameters' =>
                         [
                             $routeParameters['warehouse']->slug
                         ]
                 ])
             ),
-            'grp.inventory.warehouse-areas.show.locations.index' =>
+            'grp.org.inventory.warehouse-areas.show.locations.index' =>
             array_merge(
                 (new ShowWarehouseArea())->getBreadcrumbs(
-                    'grp.inventory.warehouse-areas.show',
+                    'grp.org.inventory.warehouse-areas.show',
                     [
                         'warehouseArea' => $routeParameters['warehouseArea']
                     ]
                 ),
                 $headCrumb([
-                    'name'       => 'grp.inventory.warehouse-areas.show.locations.index',
+                    'name'       => 'grp.org.inventory.warehouse-areas.show.locations.index',
                     'parameters' =>
                         [
                             $routeParameters['warehouseArea']->slug
                         ]
                 ])
             ),
-            'grp.inventory.warehouses.show.warehouse-areas.show.locations.index' =>
+            'grp.org.inventory.warehouses.show.warehouse-areas.show.locations.index' =>
             array_merge(
                 (new ShowWarehouseArea())->getBreadcrumbs(
-                    'grp.inventory.warehouses.show.warehouse-areas.show',
+                    'grp.org.inventory.warehouses.show.warehouse-areas.show',
                     [
                         'warehouse'     => $routeParameters['warehouse'],
                         'warehouseArea' => $routeParameters['warehouseArea']
                     ]
                 ),
                 $headCrumb([
-                    'name'       => 'grp.inventory.warehouses.show.warehouse-areas.show.locations.index',
+                    'name'       => 'grp.org.inventory.warehouses.show.warehouse-areas.show.locations.index',
                     'parameters' =>
                         [
                             $routeParameters['warehouse']->slug,

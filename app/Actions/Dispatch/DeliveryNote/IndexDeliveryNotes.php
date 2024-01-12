@@ -118,7 +118,7 @@ class IndexDeliveryNotes extends InertiaAction
 
     public function asController(ActionRequest $request): LengthAwarePaginator
     {
-        $this->routeName = $request->route()->getName();
+
         $this->initialisation($request);
         return $this->handle(app('currentTenant'));
     }

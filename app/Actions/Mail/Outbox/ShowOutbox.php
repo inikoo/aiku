@@ -39,7 +39,7 @@ class ShowOutbox extends InertiaAction
 
     public function inOrganisation(Outbox $outbox, ActionRequest $request): Outbox
     {
-        $this->routeName = $request->route()->getName();
+
         //$this->validateAttributes();
         $this->initialisation($request);
         return $this->handle($outbox);
@@ -48,7 +48,7 @@ class ShowOutbox extends InertiaAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inMailroom(Mailroom $mailroom, Outbox $outbox, ActionRequest $request): Outbox
     {
-        $this->routeName = $request->route()->getName();
+
         $this->initialisation($request);
         return $this->handle($outbox);
     }
@@ -56,7 +56,7 @@ class ShowOutbox extends InertiaAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inShop(Shop $shop, ActionRequest $request): Outbox
     {
-        $this->routeName = $request->route()->getName();
+
         $this->initialisation($request);
         return $this->handle($shop);
     }
@@ -64,7 +64,7 @@ class ShowOutbox extends InertiaAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inMailroomInShop(Mailroom $mailroom, Outbox $outbox, ActionRequest $request): Outbox
     {
-        $this->routeName = $request->route()->getName();
+
         $this->initialisation($request);
         return $this->handle($outbox);
     }
@@ -75,14 +75,14 @@ class ShowOutbox extends InertiaAction
             'Mail/Outbox',
             [
                 'title'       => $outbox->name,
-                'breadcrumbs' => $this->getBreadcrumbs($this->routeName, $outbox),
+                'breadcrumbs' => $this->getBreadcrumbs($request->route()->getName(), $outbox),
                 'pageHead'    => [
                     'icon'    => 'fal fa-agent',
                     'title'   => $outbox->slug,
                     'edit'    => $this->canEdit ? [
                         'route' => [
-                            'name'       => preg_replace('/show$/', 'edit', $this->routeName),
-                            'parameters' => array_values($this->originalParameters)
+                            'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
+                            'parameters' => array_values($request->route()->originalParameters())
                         ]
                     ] : false,
                 ],

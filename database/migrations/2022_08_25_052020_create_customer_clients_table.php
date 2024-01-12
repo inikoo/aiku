@@ -5,15 +5,18 @@
  *  Copyright (c) 2022, Raul A Perusquia F
  */
 
+use App\Stubs\Migrations\HasGroupOrganisationRelationship;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
-    public function up()
+    use HasGroupOrganisationRelationship;
+    public function up(): void
     {
         Schema::create('customer_clients', function (Blueprint $table) {
             $table->increments('id');
+            $table=$this->groupOrgRelationship($table);
             $table->string('slug')->unique()->collation('und_ns');
             $table->string('reference')->nullable()->index();
             $table->boolean('status')->default(true)->index();
@@ -36,7 +39,7 @@ return new class () extends Migration {
     }
 
 
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('customer_clients');
     }

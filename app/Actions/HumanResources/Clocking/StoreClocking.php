@@ -7,7 +7,7 @@
 
 namespace App\Actions\HumanResources\Clocking;
 
-use App\Actions\InertiaOrganisationAction;
+use App\Actions\OrgAction;
 use App\Enums\HumanResources\Clocking\ClockingTypeEnum;
 use App\Models\HumanResources\Clocking;
 use App\Models\HumanResources\ClockingMachine;
@@ -19,7 +19,7 @@ use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class StoreClocking extends InertiaOrganisationAction
+class StoreClocking extends OrgAction
 {
     use AsAction;
     use WithAttributes;

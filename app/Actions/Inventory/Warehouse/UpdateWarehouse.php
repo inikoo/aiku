@@ -8,7 +8,7 @@
 
 namespace App\Actions\Inventory\Warehouse;
 
-use App\Actions\InertiaOrganisationAction;
+use App\Actions\OrgAction;
 use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydrateUniversalSearch;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Inventory\WarehouseResource;
@@ -16,13 +16,12 @@ use App\Models\Inventory\Warehouse;
 use App\Rules\IUnique;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdateWarehouse extends InertiaOrganisationAction
+class UpdateWarehouse extends OrgAction
 {
     use WithActionUpdate;
 
     private bool $asAction = false;
 
-    private Warehouse $warehouse;
 
     public function handle(Warehouse $warehouse, array $modelData): Warehouse
     {

@@ -7,14 +7,14 @@
 
 namespace App\Actions\Dispatch\Shipper;
 
-use App\Actions\InertiaOrganisationAction;
+use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Dispatch\Shipper;
 use App\Rules\IUnique;
 use Illuminate\Support\Str;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdateShipper extends InertiaOrganisationAction
+class UpdateShipper extends OrgAction
 {
     use WithActionUpdate;
 

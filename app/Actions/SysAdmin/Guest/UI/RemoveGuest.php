@@ -66,7 +66,7 @@ class RemoveGuest extends InertiaAction
                             'type'  => 'button',
                             'style' => 'cancel',
                             'route' => [
-                                'name'       => preg_replace('/remove$/', 'show', $this->routeName),
+                                'name'       => preg_replace('/remove$/', 'show', $request->route()->getName()),
                                 'parameters' => $guest->slug
                             ]
                         ]
@@ -75,7 +75,7 @@ class RemoveGuest extends InertiaAction
                 'data'      => $this->getAction(
                     route:[
                         'name'       => 'grp.models.guest.delete',
-                        'parameters' => array_values($this->originalParameters)
+                        'parameters' => array_values($request->route()->originalParameters())
                     ]
                 )
             ]

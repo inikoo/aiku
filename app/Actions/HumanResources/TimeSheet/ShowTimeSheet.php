@@ -7,7 +7,7 @@
 
 namespace App\Actions\HumanResources\TimeSheet;
 
-use App\Actions\InertiaOrganisationAction;
+use App\Actions\OrgAction;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
 use App\Enums\UI\EmployeeTabsEnum;
 use App\Http\Resources\HumanResources\EmployeeResource;
@@ -17,7 +17,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class ShowTimeSheet extends InertiaOrganisationAction
+class ShowTimeSheet extends OrgAction
 {
     public function handle(Employee $employee): Employee
     {

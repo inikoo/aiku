@@ -7,7 +7,7 @@
 
 namespace App\Actions\Market\Shop\UI;
 
-use App\Actions\InertiaOrganisationAction;
+use App\Actions\OrgAction;
 use App\Actions\Market\Product\UI\IndexProducts;
 use App\Actions\Market\ProductCategory\UI\IndexDepartments;
 use App\Actions\Market\ProductCategory\UI\IndexFamilies;
@@ -26,7 +26,7 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class ShowShop extends InertiaOrganisationAction
+class ShowShop extends OrgAction
 {
     use AsAction;
     use WithInertia;

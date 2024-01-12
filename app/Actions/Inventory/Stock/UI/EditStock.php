@@ -72,7 +72,7 @@ class EditStock extends InertiaAction
                             'style' => 'exitEdit',
                             'route' => [
                                 'name'       => preg_replace('/edit$/', 'show', $request->route()->getName()),
-                                'parameters' => array_values($this->originalParameters)
+                                'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ]
                     ]
@@ -121,7 +121,7 @@ class EditStock extends InertiaAction
     public function getPrevious(Stock $stock, ActionRequest $request): ?array
     {
         $previous = Stock::where('code', '<', $stock->code)->when(true, function ($query) use ($stock, $request) {
-            if ($request->route()->getName() == 'grp.inventory.stock-families.show.stocks.edit') {
+            if ($request->route()->getName() == 'grp.org.inventory.stock-families.show.stocks.edit') {
                 $query->where('stock_family_id', $stock->stockFamily->id);
             }
         })->orderBy('code', 'desc')->first();
@@ -131,7 +131,7 @@ class EditStock extends InertiaAction
     public function getNext(Stock $stock, ActionRequest $request): ?array
     {
         $next = Stock::where('code', '>', $stock->code)->when(true, function ($query) use ($stock, $request) {
-            if ($request->route()->getName() == 'grp.inventory.stock-families.show.stocks.edit') {
+            if ($request->route()->getName() == 'grp.org.inventory.stock-families.show.stocks.edit') {
                 $query->where('stock_family_id', $stock->stockFamily->id);
             }
         })->orderBy('code')->first();
@@ -146,7 +146,7 @@ class EditStock extends InertiaAction
         }
 
         return match ($routeName) {
-            'grp.inventory.stocks.edit' => [
+            'grp.org.inventory.stocks.edit' => [
                 'label' => $stock->name,
                 'route' => [
                     'name'       => $routeName,
@@ -155,7 +155,7 @@ class EditStock extends InertiaAction
                     ]
                 ]
             ],
-            'grp.inventory.stock-families.show.stocks.edit' => [
+            'grp.org.inventory.stock-families.show.stocks.edit' => [
                 'label' => $stock->name,
                 'route' => [
                     'name'       => $routeName,

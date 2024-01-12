@@ -7,7 +7,7 @@
 
 namespace App\Actions\Inventory\Location;
 
-use App\Actions\InertiaOrganisationAction;
+use App\Actions\OrgAction;
 use App\Actions\Inventory\Location\Hydrators\LocationHydrateUniversalSearch;
 use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydrateLocations;
 use App\Actions\Inventory\WarehouseArea\Hydrators\WarehouseAreaHydrateLocations;
@@ -22,14 +22,13 @@ use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class StoreLocation extends InertiaOrganisationAction
+class StoreLocation extends OrgAction
 {
     use AsAction;
     use WithAttributes;
 
     private bool $asAction = false;
 
-    private Warehouse $warehouse;
 
     public function handle(WarehouseArea|Warehouse $parent, array $modelData): Location
     {
@@ -122,12 +121,12 @@ class StoreLocation extends InertiaOrganisationAction
     public function htmlResponse(Location $location): RedirectResponse
     {
         if (!$location->warehouse_area_id) {
-            return Redirect::route('grp.inventory.warehouses.show.locations.show', [
+            return Redirect::route('grp.org.inventory.warehouses.show.locations.show', [
                 $location->warehouse->slug,
                 $location->slug
             ]);
         } else {
-            return Redirect::route('grp.inventory.warehouses.show.warehouse-areas.show.locations.show', [
+            return Redirect::route('grp.org.inventory.warehouses.show.warehouse-areas.show.locations.show', [
                 $location->warehouse->slug,
                 $location->warehouseArea->slug,
                 $location->slug

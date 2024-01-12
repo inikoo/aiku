@@ -148,10 +148,10 @@ class IndexMarketplaceSupplierProducts extends InertiaAction
                 'title'       => __("supplier product's marketplaces "),
                 'pageHead'    => [
                     'title'  => __("supplier product's marketplaces "),
-                    'create' => $this->canEdit && $this->routeName == 'grp.procurement.marketplace.supplier-products.index' ? [
+                    'create' => $this->canEdit && $request->route()->getName() == 'grp.procurement.marketplace.supplier-products.index' ? [
                         'route' => [
                             'name'       => 'grp.procurement.marketplace.supplier-products.create',
-                            'parameters' => array_values($this->originalParameters)
+                            'parameters' => array_values($request->route()->originalParameters())
                         ],
                         'label' => __('agent')
                     ] : false,

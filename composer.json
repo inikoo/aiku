@@ -37,6 +37,7 @@
         "laravel-notification-channels/fcm": "^3.2",
         "laravel/framework": "^10",
         "laravel/horizon": "^5",
+        "laravel/pulse": "^1.0@beta",
         "laravel/sanctum": "^3",
         "laravel/scout": "^10.0",
         "laravel/socialite": "^5",
@@ -48,7 +49,6 @@
         "meilisearch/meilisearch-php": "^1.0",
         "monicahq/laravel-cloudflare": "^3.3",
         "mpdf/qrcode": "^1.2",
-        "opcodesio/log-viewer": "^1.2",
         "owen-it/laravel-auditing": "13.5.1",
         "phlak/semver": "^4.0",
         "predis/predis": "^2.1",
@@ -136,6 +136,6 @@
             "php-http/discovery": true
         }
     },
-    "minimum-stability": "dev",
+    "minimum-stability": "beta",
     "prefer-stable": true
 }

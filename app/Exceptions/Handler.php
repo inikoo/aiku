@@ -61,8 +61,10 @@ class Handler extends ExceptionHandler
     {
         $response = parent::render($request, $e);
 
-
-        if (!app()->environment(['local', 'testing']) && in_array($response->status(), [500, 503, 404, 403, 422])) {
+        if (!app()->environment(['local', 'testing'])
+            && in_array($response->status(), [500, 503, 404, 403, 422])
+            && !(!$request->inertia() && $request->expectsJson())
+        ) {
 
             $errorData=match ($response->status()) {
                 403 => [
