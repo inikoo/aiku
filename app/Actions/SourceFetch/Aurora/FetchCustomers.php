@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\DB;
 
 class FetchCustomers extends FetchAction
 {
-    public string $commandSignature = 'fetch:customers {organisations?*} {--s|source_id=} {--S|shop= : Shop slug} {--w|with=* : Accepted values: clients orders web-users} {--N|only_new : Fetch only new}  {--d|db_suffix=} {--r|reset}';
+    public string $commandSignature = 'fetch:customers {organisations?*} {--s|source_id=} {--S|shop= : Shop slug} {--w|with=* : Accepted values: clients orders web-users} {--N|only_new : Fetch only new} {--d|db_suffix=} {--r|reset}';
 
 
     /**
@@ -33,19 +33,22 @@ class FetchCustomers extends FetchAction
             if ($customer = Customer::withTrashed()->where('source_id', $customerData['customer']['source_id'])
                 ->first()) {
                 // print_r($customerData['customer']);
-                $customer = UpdateCustomer::make()->asFetch(
-                    $customer,
-                    $customerData['customer']
+                $customer = UpdateCustomer::make()->action(
+                    customer:$customer,
+                    modelData: $customerData['customer'],
+                    hydratorsDelay: 60,
+                    strict: false
                 );
 
             } else {
 
 
-                print_r($customerData['customer']);
-                $customer = StoreCustomer::make()->asFetch(
+                //print_r($customerData['customer']);
+                $customer = StoreCustomer::make()->action(
                     shop: $customerData['shop'],
                     modelData: $customerData['customer'],
-                    hydratorsDelay: $this->hydrateDelay
+                    hydratorsDelay: $this->hydrateDelay,
+                    strict: false
                 );
 
             }

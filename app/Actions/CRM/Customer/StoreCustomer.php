@@ -31,7 +31,6 @@ use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\ActionRequest;
-use Throwable;
 
 class StoreCustomer extends OrgAction
 {
@@ -199,33 +198,18 @@ class StoreCustomer extends OrgAction
         }
     }
 
-    /**
-     * @throws Throwable
-     */
     public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): Customer
     {
         $this->initialisationFromShop($shop, $request);
-
         return $this->handle($shop, $this->validatedData);
     }
 
-
-    public function action(Shop $shop, array $modelData): Customer
-    {
-        $this->asAction = true;
-        $this->initialisationFromShop($shop, $modelData);
-
-        return $this->handle($shop, $this->validatedData);
-    }
-
-
-    public function asFetch(Shop $shop, array $modelData, int $hydratorsDelay = 60): Customer
+    public function action(Shop $shop, array $modelData, int $hydratorsDelay = 0, bool $strict=true): Customer
     {
         $this->asAction       = true;
         $this->hydratorsDelay = $hydratorsDelay;
-        $this->strict         = false;
+        $this->strict         = $strict;
         $this->initialisationFromShop($shop, $modelData);
-
         return $this->handle($shop, $this->validatedData);
     }
 

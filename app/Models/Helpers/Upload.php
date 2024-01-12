@@ -7,7 +7,6 @@
 
 namespace App\Models\Helpers;
 
-use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\User;
 use App\Models\Traits\HasHistory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;

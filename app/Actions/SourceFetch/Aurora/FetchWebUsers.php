@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\DB;
 
 class FetchWebUsers extends FetchAction
 {
-    public string $commandSignature = 'fetch:web-users {organisations?*} {--s|source_id=} {--S|shop= : Shop slug} {--d|db_suffix=} {--r|reset}';
+    public string $commandSignature = 'fetch:web-users {organisations?*} {--s|source_id=} {--S|shop= : Shop slug} {--N|only_new : Fetch only new} {--d|db_suffix=} {--r|reset}';
 
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?WebUser
@@ -25,13 +25,16 @@ class FetchWebUsers extends FetchAction
             if ($webUserData['customer']) {
                 if ($webUser = WebUser::withTrashed()->where('source_id', $webUserData['webUser']['source_id'])
                     ->first()) {
-                    $webUser = UpdateWebUser::run($webUser, $webUserData['webUser']);
+                    // print_r( $webUserData['webUser']);
+                    $webUser = UpdateWebUser::make()->action($webUser, $webUserData['webUser'], 60, false);
                 } else {
-                    $webUser = StoreWebUser::run($webUserData['customer'], $webUserData['webUser']);
+                    //print_r( $webUserData['webUser']);
+                    $webUser = StoreWebUser::make()->action($webUserData['customer'], $webUserData['webUser'], 60, false);
                 }
 
+                $sourceData= explode(':', $webUser->source_id);
                 DB::connection('aurora')->table('Website User Dimension')
-                    ->where('Website User Key', $webUser->source_id)
+                    ->where('Website User Key', $sourceData[1])
                     ->update(['aiku_id' => $webUser->id]);
 
                 return $webUser;
@@ -49,8 +52,14 @@ class FetchWebUsers extends FetchAction
             ->table('Website User Dimension')
             ->select('Website User Key as source_id')
             ->orderBy('source_id');
+
+        if ($this->onlyNew) {
+            $query->whereNull('aiku_id');
+        }
+
         if ($this->shop) {
-            $query->where('Website User Website Key', $this->shop->website->source_id);
+            $sourceData= explode(':', $this->shop->website->source_id);
+            $query->where('Website User Website Key', $sourceData[1]);
         }
 
         return $query;
@@ -59,8 +68,13 @@ class FetchWebUsers extends FetchAction
     public function count(): ?int
     {
         $query = DB::connection('aurora')->table('Website User Dimension');
+
+        if ($this->onlyNew) {
+            $query->whereNull('aiku_id');
+        }
         if ($this->shop) {
-            $query->where('Website User Website Key', $this->shop->website->source_id);
+            $sourceData= explode(':', $this->shop->website->source_id);
+            $query->where('Website User Website Key', $sourceData[1]);
         }
 
         return $query->count();

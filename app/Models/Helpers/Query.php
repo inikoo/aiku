@@ -35,22 +35,6 @@ use Spatie\Sluggable\SlugOptions;
  * @method static \Illuminate\Database\Eloquent\Builder|Query newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Query newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Query query()
- * @method static \Illuminate\Database\Eloquent\Builder|Query whereCompiledConstrains($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Query whereConstrains($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Query whereCountedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Query whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Query whereDeleteComment($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Query whereDeletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Query whereHasArguments($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Query whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Query whereIsSeeded($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Query whereModelType($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Query whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Query whereNumberItems($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Query whereParentId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Query whereParentType($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Query whereSlug($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Query whereUpdatedAt($value)
  * @mixin \Eloquent
  */
 class Query extends Model

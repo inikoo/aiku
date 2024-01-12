@@ -7,7 +7,6 @@
 
 namespace App\Actions\Helpers\Uploads;
 
-use App\Models\Auth\OrganisationUser;
 use App\Models\Helpers\Upload;
 use App\Models\SysAdmin\User;
 use Illuminate\Support\Facades\Storage;
@@ -25,7 +24,7 @@ class StoreUploads
     public function handle($file, $class): Upload
     {
         /** @var User $user */
-        $user  = request()->user();
+        $user     = request()->user();
         $filename = $file->hashName();
         $type     = class_basename($class);
         $path     = 'excel-uploads/org/' . Str::lower($type);

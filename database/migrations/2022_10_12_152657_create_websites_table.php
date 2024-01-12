@@ -59,8 +59,8 @@ return new class () extends Migration {
         DB::statement("CREATE INDEX ON websites (lower('code')) ");
         DB::statement("CREATE INDEX ON websites (lower('domain')) ");
 
-    }
 
+    }
 
     public function down(): void
     {

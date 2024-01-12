@@ -114,7 +114,8 @@ class FetchAction
             'fetch:customer-clients',
             'fetch:delivery-notes',
             'fetch:purchase-orders',
-            'fetch:suppliers'
+            'fetch:suppliers',
+            'fetch:web-users'
 
         ])) {
             $this->onlyNew = (bool)$command->option('only_new');
@@ -144,7 +145,8 @@ class FetchAction
                 'fetch:customers-clients',
                 'fetch:web-users',
                 'fetch:delivery-notes',
-                'fetch:purchase-orders'
+                'fetch:purchase-orders',
+                 'fetch:web-users'
             ]) and $command->option('reset')) {
             $this->reset();
         }

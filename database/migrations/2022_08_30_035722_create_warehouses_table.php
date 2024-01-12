@@ -21,7 +21,7 @@ return new class () extends Migration {
             $table->string('slug')->unique()->collation('und_ns');
             $table->string('code')->index()->collation('und_ns');
             $table->string('name');
-            $table->string('type')->index()->default(WarehouseStateEnum::IN_PROCESS->value);
+            $table->string('state')->index()->default(WarehouseStateEnum::IN_PROCESS->value);
             $table->jsonb('settings');
             $table->jsonb('data');
             $table->timestampsTz();

@@ -41,7 +41,7 @@ class GuestImport implements ToCollection, WithHeadingRow, SkipsOnFailure, WithV
 
         try {
             $modelData = $row->only($fields)->all();
-            $group = $this->upload->user->group ?? Group::first();
+            $group     = $this->upload->user->group ?? Group::first();
 
             data_set($modelData, 'data.bulk_import', [
                 'id'   => $this->upload->id,

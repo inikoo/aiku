@@ -18,7 +18,7 @@ class FetchAuroraWarehouse extends FetchAurora
         $this->parsedData["warehouse"] = [
             "code"       => Abbreviate::run($this->auroraModelData->{'Warehouse Name'}),
             "name"       => $this->auroraModelData->{'Warehouse Name'},
-            'state'      => match ($this->auroraModelData->{'Warehouse Status'}) {
+            'state'      => match ($this->auroraModelData->{'Warehouse State'}) {
                 'Active' => WarehouseStateEnum::OPEN->value,
                 default  => WarehouseStateEnum::CLOSED->value
             },

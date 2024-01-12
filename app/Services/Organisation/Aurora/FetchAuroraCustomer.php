@@ -9,6 +9,7 @@ namespace App\Services\Organisation\Aurora;
 
 use App\Enums\CRM\Customer\CustomerStateEnum;
 use App\Enums\CRM\Customer\CustomerStatusEnum;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -16,21 +17,31 @@ class FetchAuroraCustomer extends FetchAurora
 {
     protected function parseModel(): void
     {
-        $status = CustomerStatusEnum::APPROVED;
-        $state  = CustomerStateEnum::ACTIVE;
+
+        $this->parsedData['shop'] = $this->parseShop($this->organisation->id.':'.$this->auroraModelData->{'Customer Store Key'});
+
+        $status = CustomerStatusEnum::APPROVED->value;
+        $state  = CustomerStateEnum::ACTIVE->value;
         if ($this->auroraModelData->{'Customer Type by Activity'} == 'Rejected') {
-            $status = CustomerStatusEnum::REJECTED;
+            $status = CustomerStatusEnum::REJECTED->value;
         } elseif ($this->auroraModelData->{'Customer Type by Activity'} == 'ToApprove') {
-            $state  = CustomerStateEnum::REGISTERED;
-            $status = CustomerStatusEnum::PENDING_APPROVAL;
+            $state  = CustomerStateEnum::REGISTERED->value;
+            $status = CustomerStatusEnum::PENDING_APPROVAL->value;
         } elseif ($this->auroraModelData->{'Customer Type by Activity'} == 'Losing') {
-            $state = CustomerStateEnum::LOSING;
+            $state = CustomerStateEnum::LOSING->value;
         } elseif ($this->auroraModelData->{'Customer Type by Activity'} == 'Lost') {
-            $state = CustomerStateEnum::LOST;
+            $state = CustomerStateEnum::LOST->value;
         }
 
         $billingAddress  = $this->parseAddress(prefix: 'Customer Invoice', auAddressData: $this->auroraModelData);
         $deliveryAddress = $this->parseAddress(prefix: 'Customer Delivery', auAddressData: $this->auroraModelData);
+
+        if(Arr::get($billingAddress, 'country_id') == null) {
+            $billingAddress['country_id'] = $this->parsedData['shop']->country_id;
+        }
+        if(Arr::get($deliveryAddress, 'country_id') == null) {
+            $deliveryAddress['country_id'] = $this->parsedData['shop']->country_id;
+        }
 
         $taxNumber = $this->parseTaxNumber(
             number: $this->auroraModelData->{'Customer Tax Number'},
@@ -73,7 +84,6 @@ class FetchAuroraCustomer extends FetchAurora
         }
 
 
-        $this->parsedData['shop'] = $this->parseShop($this->organisation->id.':'.$this->auroraModelData->{'Customer Store Key'});
     }
 
 

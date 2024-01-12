@@ -7,13 +7,14 @@
 
 namespace App\Models\SysAdmin;
 
-use App\Actions\CRM\Customer\Hydrators\CustomerHydrateWebUsers;
 use App\Enums\CRM\WebUser\WebUserAuthTypeEnum;
 use App\Enums\CRM\WebUser\WebUserTypeEnum;
 use App\Models\CRM\Customer;
+use App\Models\Market\Shop;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Support\Carbon;
 
@@ -21,10 +22,13 @@ use Illuminate\Support\Carbon;
  * App\Models\SysAdmin\WebUser
  *
  * @property int $id
- * @property string $slug
- * @property string $type
+ * @property int $group_id
+ * @property int $organisation_id
+ * @property int|null $shop_id
  * @property int $website_id
  * @property int $customer_id
+ * @property string $slug
+ * @property string $type
  * @property bool $status
  * @property string $username
  * @property string|null $email
@@ -41,6 +45,7 @@ use Illuminate\Support\Carbon;
  * @property string|null $source_id
  * @property WebUserTypeEnum $state
  * @property-read Customer $customer
+ * @property-read Shop|null $shop
  * @property-read Collection<int, \Laravel\Sanctum\PersonalAccessToken> $tokens
  * @method static Builder|WebUser newModelQuery()
  * @method static Builder|WebUser newQuery()
@@ -76,13 +81,9 @@ class WebUser extends Authenticatable
         'settings' => '{}',
     ];
 
-    protected static function booted(): void
+    public function shop(): BelongsTo
     {
-        static::updated(function (WebUser $webUser) {
-            if ($webUser->wasChanged('status')) {
-                CustomerHydrateWebUsers::dispatch($webUser->customer);
-            }
-        });
+        return $this->belongsTo(Shop::class);
     }
 
 

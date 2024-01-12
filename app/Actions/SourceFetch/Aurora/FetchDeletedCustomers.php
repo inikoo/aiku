@@ -30,14 +30,15 @@ class FetchDeletedCustomers extends FetchAction
                 if ($customer = Customer::withTrashed()->where('source_id', $customerData['customer']['source_id'])
                     ->first()) {
                     if (Arr::get($customer->data, 'deleted.source') == 'aurora') {
-                        $customer = UpdateCustomer::run($customer, $customerData['customer']);
+                        $customer = UpdateCustomer::make()->action($customer, $customerData['customer'], 60, false);
                     }
                 } else {
 
-                    $customer = StoreCustomer::make()->asFetch(
+                    $customer = StoreCustomer::make()->action(
                         shop: $customerData['shop'],
                         modelData: $customerData['customer'],
-                        hydratorsDelay: $this->hydrateDelay
+                        hydratorsDelay: $this->hydrateDelay,
+                        strict: false
                     );
 
                 }

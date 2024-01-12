@@ -21,7 +21,7 @@ class FetchAuroraWebUser extends FetchAurora
         $hasPassword = $this->isSha256($this->auroraModelData->{'Website User Password'});
 
         if ($hasPassword) {
-            $authType = WebUserAuthTypeEnum::AURORA;
+            $authType = WebUserAuthTypeEnum::AURORA->value;
 
             $legacyPassword = $this->auroraModelData->{'Website User Password'};
             if (app()->isLocal() || app()->environment('testing')) {
@@ -31,18 +31,18 @@ class FetchAuroraWebUser extends FetchAurora
             $data['legacy_password'] = $legacyPassword;
             $password                = null;
         } else {
-            $authType = WebUserAuthTypeEnum::DEFAULT;
+            $authType = WebUserAuthTypeEnum::DEFAULT->value;
             $password = (app()->isLocal() || app()->environment('testing') ? 'hello' : wordwrap(\Illuminate\Support\Str::random(), 4, '-', true));
         }
 
 
-        $this->parsedData['customer'] = $this->parseCustomer($this->auroraModelData->{'Website User Customer Key'});
+        $this->parsedData['customer'] = $this->parseCustomer($this->organisation->id.':'.$this->auroraModelData->{'Website User Customer Key'});
         $this->parsedData['webUser']  =
             [
                 'status'     => $this->auroraModelData->{'Website User Active'} == 'Yes',
-                'type'       => WebUserTypeEnum::WEB,
+                'type'       => WebUserTypeEnum::WEB->value,
                 'auth_type'  => $authType,
-                'source_id'  => $this->auroraModelData->{'Website User Key'},
+                'source_id'  => $this->organisation->id.':'.$this->auroraModelData->{'Website User Key'},
                 'data'       => $data,
                 'username'   => $this->auroraModelData->{'Website User Handle'},
                 'email'      => $this->auroraModelData->{'Website User Handle'},

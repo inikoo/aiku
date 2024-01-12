@@ -54,7 +54,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $organisation_id
  * @property int|null $shop_id
  * @property int|null $image_id
- * @property string $slug
+ * @property string|null $slug
  * @property string|null $reference customer public id
  * @property string|null $name
  * @property string|null $contact_name

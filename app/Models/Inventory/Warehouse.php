@@ -40,6 +40,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $slug
  * @property string $code
  * @property string $name
+ * @property WarehouseStateEnum $state
  * @property array $settings
  * @property array $data
  * @property Carbon|null $created_at

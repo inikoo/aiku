@@ -179,21 +179,12 @@ class UpdateCustomer extends OrgAction
         return $this->handle($customer, $this->validatedData);
     }
 
-    public function action(Customer $customer, array $modelData): Customer
-    {
-        $this->asAction = true;
-        $this->customer = $customer;
-        $this->initialisationFromShop($customer->shop, $modelData);
-
-        return $this->handle($customer, $this->validatedData);
-    }
-
-    public function asFetch(Customer $customer, array $modelData, int $hydratorsDelay = 60): Customer
+    public function action(Customer $customer, array $modelData, int $hydratorsDelay = 0, bool $strict=true): Customer
     {
         $this->asAction       = true;
-        $this->hydratorsDelay = $hydratorsDelay;
-        $this->strict         = false;
         $this->customer       = $customer;
+        $this->hydratorsDelay = $hydratorsDelay;
+        $this->strict         = $strict;
         $this->initialisationFromShop($customer->shop, $modelData);
 
         return $this->handle($customer, $this->validatedData);

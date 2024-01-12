@@ -6,21 +6,26 @@
  */
 
 use App\Enums\CRM\WebUser\WebUserAuthTypeEnum;
+use App\Stubs\Migrations\HasGroupOrganisationRelationship;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
+    use HasGroupOrganisationRelationship;
     public function up(): void
     {
         Schema::create('web_users', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('slug')->unique()->collation('und_ns');
-            $table->string('type')->index();
+            $table=$this->groupOrgRelationship($table);
+            $table->unsignedSmallInteger('shop_id')->index()->nullable();
+            $table->foreign('shop_id')->references('id')->on('shops');
             $table->unsignedSmallInteger('website_id')->index();
             $table->foreign('website_id')->references('id')->on('websites');
             $table->unsignedInteger('customer_id')->index();
             $table->foreign('customer_id')->references('id')->on('customers');
+            $table->string('slug')->unique()->collation('und_ns');
+            $table->string('type')->index();
             $table->boolean('status')->default(true)->index();
             $table->string('username')->index();
             $table->string('email')->nullable();
