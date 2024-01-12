@@ -8,6 +8,7 @@
 /public/grp.hot
 /public/grp/assets/
 /public/public/assets/
+/public/tenants
 /public/grp/manifest.json
 /public/public/manifest.json
 /storage/*.key
