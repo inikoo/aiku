@@ -65,54 +65,6 @@ interface optionsJob {
     }
 }
 
-const dummyShops = [
-    {
-        "id": 4,
-        "slug": "au",
-        "code": "au",
-        "name": "Au b2b shop",
-        "type": "b2b"
-    },
-    {
-        "id": 5,
-        "slug": "af",
-        "code": "af",
-        "name": "AFF Dom Shop",
-        "type": "b2b"
-    },
-    {
-        "id": 6,
-        "slug": "po",
-        "code": "po",
-        "name": "PRO Only 55 AP SHOP",
-        "type": "b2b"
-    }
-]
-
-const dummyWarehouses = [
-    {
-        "id": 4,
-        "slug": "wl",
-        "code": "wl",
-        "name": "Warehouse Lembeng Bali",
-        "type": "b2b"
-    },
-    {
-        "id": 5,
-        "slug": "wd",
-        "code": "wd",
-        "name": "Warehouse Dom Shop",
-        "type": "b2b"
-    },
-    {
-        "id": 6,
-        "slug": "wu",
-        "code": "wu",
-        "name": "WH UK Semantic",
-        "type": "b2b"
-    }
-]
-
 const optionsJob = reactive<optionsJob>({
     admin: {
         department: "admin",

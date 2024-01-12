@@ -9,7 +9,6 @@
 import { ref } from "vue"
 
 import AppLeftSideBarGrp from "@/Layouts/AppLeftSideBarGrp.vue"
-import AppLeftSideBarOrg from "@/Layouts/AppLeftSideBarOrg.vue"
 import { useLayoutStore } from "@/Stores/layout"
 
 import { library } from "@fortawesome/fontawesome-svg-core"
@@ -44,7 +43,6 @@ const handleToggleLeftbar = () => {
 
         <div class="flex flex-grow flex-col h-full overflow-y-auto custom-hide-scrollbar border-r border-gray-200 pb-4">
             <AppLeftSideBarGrp />
-            <!-- <AppLeftSideBarOrg v-for="x in manyFoods" /> -->
         </div>
     </div>
 </template>

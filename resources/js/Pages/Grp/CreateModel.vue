@@ -44,7 +44,6 @@ const props = defineProps<{
             parameters?: Array<string>
         };
     }
-    appName: string
 }>()
 
 const getComponent = (componentName: string) => {
