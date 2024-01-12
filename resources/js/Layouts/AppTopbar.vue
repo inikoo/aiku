@@ -15,9 +15,9 @@ import { trans } from "laravel-vue-i18n"
 import Image from "@/Components/Image.vue"
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faChevronDown } from '@far'
-import { faTerminal, faUserAlien, faCog, faCity, faBuilding, faNetworkWired, faUserHardHat, faCalendar, faStopwatch, faStoreAlt } from '@fal'
+import { faTerminal, faUserAlien, faCog, faCity, faBuilding, faNetworkWired, faUserHardHat, faCalendar, faStopwatch, faStoreAlt, faWarehouseAlt } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
-library.add(faChevronDown, faTerminal, faUserAlien, faCog, faCity, faBuilding, faNetworkWired, faUserHardHat, faCalendar, faStopwatch, faStoreAlt)
+library.add(faChevronDown, faTerminal, faUserAlien, faCog, faCity, faBuilding, faNetworkWired, faUserHardHat, faCalendar, faStopwatch, faStoreAlt, faWarehouseAlt)
 
 const props = defineProps<{
     sidebarOpen: boolean
@@ -169,7 +169,7 @@ const logoutAuth = () => {
                                         <div class="px-1 py-1 ">
                                             <!-- Dropdown: Organisation -->
                                             <div class="flex items-center gap-x-1.5 px-1 mb-1">
-                                                <FontAwesomeIcon icon='fal fa-building' class='text-gray-400 text-xxs' aria-hidden='true' />
+                                                <FontAwesomeIcon icon='fal fa-store-alt' class='text-gray-400 text-xxs' aria-hidden='true' />
                                                 <span class="text-[9px] leading-none text-gray-400">{{ trans('Shops') }}</span>
                                                 <hr class="w-full rounded-full border-slate-300">
                                             </div>
@@ -184,6 +184,50 @@ const logoutAuth = () => {
                                                             <div v-show="!imageSkeleton[shopIdx]" class="skeleton w-5 h-5"/>
                                                         </div> -->
                                                         <div class="font-semibold">{{ shopIdx }}</div>
+                                                    </div>
+                                                </MenuItem>
+                                            </div>
+                                        </div>
+                                    </MenuItems>
+                                </transition>
+                            </Menu>
+
+                            <!-- Dropdown: Warehouse -->
+                            <Menu v-if="useLayoutStore().navigation.org[layout.currentParams.organisation]?.warehouses_navigation && (route(useLayoutStore().currentRoute, useLayoutStore().currentParams)).includes('warehouse')"
+                                as="div" class="relative inline-block text-left">
+                                <MenuButton
+                                    class="inline-flex min-w-fit w-32 max-w-full whitespace-nowrap justify-between items-center gap-x-2 rounded px-2.5 py-2 text-xs font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-white/75"
+                                    :class="[ layout.currentParams.warehouse ? 'bg-indigo-500 text-white hover:bg-indigo-600' : 'bg-slate-100 hover:bg-slate-200 text-slate-600 ring-1 ring-slate-300']"
+                                >
+                                    <div class="flex items-center gap-x-1">
+                                        <FontAwesomeIcon icon='fal fa-warehouse-alt' class='opacity-60 text-xs' fixed-width aria-hidden='true' />
+                                        <!-- <FontAwesomeIcon v-else icon='fal fa-city' class='opacity-60 text-xs' fixed-width aria-hidden='true' /> -->
+                                        {{ useLayoutStore().currentParams.warehouse ?? 'Select warehouse' }}
+                                    </div>
+                                    <!-- {{ layout.organisations.currentOrganisations ? layout.organisations.currentOrganisations : 'Select group or organisations' }} -->
+                                    <FontAwesomeIcon icon='far fa-chevron-down' class='text-xs' aria-hidden='true' />
+                                </MenuButton>
+                                <transition>
+                                    <MenuItems
+                                        class="absolute left-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
+                                        <div class="px-1 py-1 ">
+                                            <!-- Dropdown: Organisation -->
+                                            <div class="flex items-center gap-x-1.5 px-1 mb-1">
+                                                <FontAwesomeIcon icon='fal fa-warehouse-alt' class='text-gray-400 text-xxs' aria-hidden='true' />
+                                                <span class="text-[9px] leading-none text-gray-400">{{ trans('Warehouses') }}</span>
+                                                <hr class="w-full rounded-full border-slate-300">
+                                            </div>
+                                            <div class="max-h-52 overflow-y-auto space-y-1.5">
+                                                <MenuItem v-for="(warehouse, warehouseIdx) in useLayoutStore().navigation.org[layout.currentParams.organisation].warehouses_navigation" v-slot="{ active }">
+                                                    <div @click="() => router.visit(route(warehouse.warehouse.route?.name, warehouse.warehouse.route?.parameters))" :class="[
+                                                        warehouseIdx == layout.currentParams.warehouse ? 'bg-indigo-500 text-white' : 'text-slate-600 hover:bg-slate-200/75 hover:text-indigo-600',
+                                                        'group flex gap-x-2 w-full justify-start items-center rounded px-2 py-2 text-sm cursor-pointer',
+                                                    ]">
+                                                        <!-- <div class="h-5 rounded-full overflow-hidden ring-1 ring-slate-200 bg-slate-50">
+                                                            <Image v-show="imageSkeleton[warehouseIdx]" :src="item.logo" @onLoadImage="() => imageSkeleton[warehouseIdx] = true"/>
+                                                            <div v-show="!imageSkeleton[warehouseIdx]" class="skeleton w-5 h-5"/>
+                                                        </div> -->
+                                                        <div class="font-semibold">{{ warehouseIdx }}</div>
                                                     </div>
                                                 </MenuItem>
                                             </div>
