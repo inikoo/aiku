@@ -9,9 +9,9 @@
 use App\Actions\CRM\Customer\UI\CreateCustomer;
 use App\Actions\CRM\Customer\UI\EditCustomer;
 use App\Actions\CRM\Customer\UI\IndexCustomers;
-use App\Actions\CRM\Customer\UI\RemoveCustomer;
 use App\Actions\CRM\Customer\UI\ShowCustomer;
-use App\Actions\CRM\Prospect\IndexProspects;
+use App\Actions\CRM\Prospect\UI\CreateProspect;
+use App\Actions\CRM\Prospect\UI\IndexProspects;
 use App\Actions\CRM\WebUser\EditWebUser;
 use App\Actions\CRM\WebUser\IndexWebUser;
 use App\Actions\CRM\WebUser\ShowWebUser;
@@ -39,10 +39,14 @@ Route::get('/customers/create', CreateCustomer::class)->name('customers.create')
 Route::get('/customers', [IndexCustomers::class, 'inShop'])->name('customers.index');
 Route::get('/customers/{customer}', [ShowCustomer::class, 'inShop'])->name('customers.show');
 Route::get('/customers/{customer}/edit', [EditCustomer::class, 'inShop'])->name('customers.edit');
-Route::get('/customers/{customer}/orders/{order}', [ShowOrder::class,'inCustomerInShop'])->name('customers.show.orders.show');
+Route::get('/customers/{customer}/orders/{order}', [ShowOrder::class, 'inCustomerInShop'])->name('customers.show.orders.show');
 Route::get('/customers/{customer}/web-users', [IndexWebUser::class, 'inCustomerInShop'])->name('customers.show.web-users.index');
 Route::get('/customers/{customer}/web-users/{webUser}', [ShowWebUser::class, 'inCustomerInShop'])->name('customers.show.web-users.show');
 Route::get('/customers/{customer}/web-users/{webUser}/edit', [EditWebUser::class, 'inCustomerInShop'])->name('customers.show.web-users.edit');
 
 
-Route::get('/prospects', [IndexProspects::class, 'inShop'])->name('prospects.index');
+Route::prefix('prospects')->as('prospects.')->group(function () {
+    Route::get('/', [IndexProspects::class, 'inShop'])->name('index');
+    Route::get('/', ['icon' => 'fa-envelope', 'label' => 'prospects'])->uses([IndexProspects::class, 'inShop'])->name('index');
+    Route::get('/create', ['icon' => 'fa-envelope', 'label' => 'create prospect'])->uses([CreateProspect::class, 'inShop'])->name('create');
+});

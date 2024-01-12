@@ -6,6 +6,7 @@
  */
 
 
+use App\Actions\CRM\Prospect\ImportShopProspects;
 use App\Actions\HumanResources\Employee\DeleteEmployee;
 use App\Actions\HumanResources\Employee\StoreEmployee;
 use App\Actions\HumanResources\Employee\UpdateEmployee;
@@ -21,3 +22,9 @@ Route::delete('/employee/{employee}', DeleteEmployee::class)->name('employee.del
 Route::patch('/working-place/{workplace}', UpdateWorkplace::class)->name('working-place.update');
 Route::post('/working-place/', StoreWorkplace::class)->name('working-place.store');
 Route::delete('/working-place/{workplace}', DeleteWorkplace::class)->name('working-place.delete');
+
+Route::prefix('shop')->as('shop.')->group(function () {
+    Route::prefix('{shop:id}')->group(function () {
+        Route::post('prospect/upload', [ImportShopProspects::class, 'inShop'])->name('prospects.upload');
+    });
+});

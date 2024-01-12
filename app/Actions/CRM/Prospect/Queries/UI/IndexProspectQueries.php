@@ -5,15 +5,16 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\CRM\Prospect\Tags\UI;
+namespace App\Actions\CRM\Prospect\Queries\UI;
 
 use App\Actions\CRM\Prospect\UI\IndexProspects;
 use App\Actions\Helpers\History\IndexHistory;
-use App\Actions\InertiaOrganisationAction;
+use App\Actions\InertiaAction;
 use App\Actions\Traits\WithProspectsSubNavigation;
-use App\Enums\UI\TagsTabsEnum;
+use App\Enums\UI\ProspectsQueriesTabsEnum;
+use App\Http\Resources\CRM\ProspectQueriesResource;
 use App\Http\Resources\History\HistoryResource;
-use App\Http\Resources\Tag\CrmTagResource;
+use App\Http\Resources\Tag\TagResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\CRM\Prospect;
 use App\Models\Market\Shop;
@@ -27,7 +28,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 use Spatie\Tags\Tag;
 
-class IndexProspectTags extends InertiaOrganisationAction
+class IndexProspectQueries extends InertiaAction
 {
     use WithProspectsSubNavigation;
 
@@ -46,26 +47,25 @@ class IndexProspectTags extends InertiaOrganisationAction
 
     public function asController(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisation($organisation, $request)->withTab(TagsTabsEnum::values());
+        $this->initialisation($request)->withTab(ProspectsQueriesTabsEnum::values());
         $this->parent = $organisation;
 
-        return $this->handle(prefix: TagsTabsEnum::TAGS->value);
+        return $this->handle();
     }
 
-    /** @noinspection PhpUnusedParameterInspection */
-    public function inShop(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
+    public function inShop(Shop $shop, ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisationFromShop($shop, $request)->withTab(TagsTabsEnum::values());
+        $this->initialisation($request)->withTab(ProspectsQueriesTabsEnum::values());
         $this->parent = $shop;
 
-        return $this->handle(prefix: TagsTabsEnum::TAGS->value);
+        return $this->handle($shop);
     }
 
     public function handle($prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->whereWith('tags.label', $value);
+                $query->where('queries.name', '~*', "\y$value\y");
             });
         });
 
@@ -73,13 +73,14 @@ class IndexProspectTags extends InertiaOrganisationAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        $query = QueryBuilder::for(Tag::class);
-        $query->where('type', 'crm');
-        $query->leftJoin('tag_crm_stats', 'tag_crm_stats.tag_id', 'tags.id');
+        $query = QueryBuilder::for(Query::class)
+            ->where('model_type', 'Prospect');
+
 
         /** @noinspection PhpUndefinedMethodInspection */
         return $query
-            ->allowedSorts(['label', 'number_prospects'])
+            ->defaultSort('queries.name')
+            ->allowedSorts(['name'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -99,77 +100,74 @@ class IndexProspectTags extends InertiaOrganisationAction
                 ->withGlobalSearch()
                 ->withEmptyState(
                     [
-                        'title'       => __('You dont have any tags'),
+                        'title'       => 'no lists found',
                         'description' => null,
                         'count'       => 0
                     ]
                 )
-                ->column(key: 'label', label: __('label'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'number_prospects', label: __('prospects'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'actions', label: __('actions'), canBeHidden: false);
+                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'description', label: __('description'), sortable: true)
+                ->column(key: 'number_items', label: __('prospects'))
+                ->column(key: 'actions', label: __('actions'));
         };
     }
 
 
-    public function htmlResponse(LengthAwarePaginator $tags, ActionRequest $request): Response
+    public function htmlResponse(LengthAwarePaginator $prospects, ActionRequest $request): Response
     {
         $subNavigation = $this->getSubNavigation($request);
 
         return Inertia::render(
-            'CRM/Prospects/Tags',
+            'CRM/Prospects/Queries',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
                     $request->route()->originalParameters(),
                 ),
-                'title'       => __('prospect tags'),
+                'title'       => __('prospect lists'),
                 'pageHead'    => [
-                    'title'         => __('tags'),
-                    'subNavigation' => $subNavigation,
-                    'actions'       => [
-                        [
+                    'title'            => __('prospect lists'),
+                    'subNavigation'    => $subNavigation,
+                    'actions'          => [
+                        $this->canEdit ? [
                             'type'  => 'button',
                             'style' => 'create',
-                            'label' => __('tags'),
+                            'label' => __('prospect list'),
                             'route' => [
-                                'name'       => 'org.crm.shop.prospects.tags.create',
-                                'parameters' => array_values($request->route()->originalParameters())
+                                'name'       => 'org.crm.shop.prospects.lists.create',
+                                'parameters' => array_values($this->originalParameters)
                             ]
-                        ]
-                    ],
+                        ] : []
+                    ]
                 ],
 
                 'tabs' => [
                     'current'    => $this->tab,
-                    'navigation' => TagsTabsEnum::navigation(),
+                    'navigation' => ProspectsQueriesTabsEnum::navigation(),
                 ],
 
-                'create_mailshot' => [
-                    'route' => [
-                        'name'       => 'org.crm.shop.prospects.mailshots.create',
-                        'parameters' => array_values($request->route()->originalParameters())
-                    ]
-                ],
+                'tags' => TagResource::collection(Tag::all()),
 
-                TagsTabsEnum::TAGS->value => $this->tab == TagsTabsEnum::TAGS->value ?
-                    fn () => CrmTagResource::collection($tags)
-                    : Inertia::lazy(fn () => CrmTagResource::collection($tags)),
 
-                TagsTabsEnum::HISTORY->value => $this->tab == TagsTabsEnum::HISTORY->value ?
-                    fn () => HistoryResource::collection(IndexHistory::run(model: Prospect::class, prefix: TagsTabsEnum::HISTORY->value))
-                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run(model: Prospect::class, prefix: TagsTabsEnum::HISTORY->value))),
+                ProspectsQueriesTabsEnum::LISTS->value => $this->tab == ProspectsQueriesTabsEnum::LISTS->value ?
+                    fn () => ProspectQueriesResource::collection(IndexProspectQueries::run(prefix: ProspectsQueriesTabsEnum::LISTS->value))
+                    : Inertia::lazy(fn () => ProspectQueriesResource::collection(IndexProspectQueries::run(prefix: ProspectsQueriesTabsEnum::LISTS->value))),
+
+                ProspectsQueriesTabsEnum::HISTORY->value => $this->tab == ProspectsQueriesTabsEnum::HISTORY->value ?
+                    fn () => HistoryResource::collection(IndexHistory::run(model: Prospect::class, prefix: ProspectsQueriesTabsEnum::HISTORY->value))
+                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run(model: Prospect::class, prefix: ProspectsQueriesTabsEnum::HISTORY->value))),
 
 
             ]
-        )->table($this->tableStructure(prefix: TagsTabsEnum::TAGS->value))
-            ->table(IndexHistory::make()->tableStructure(prefix: TagsTabsEnum::HISTORY->value));
+        )->table($this->tableStructure(prefix: ProspectsQueriesTabsEnum::LISTS->value))
+            ->table(IndexHistory::make()->tableStructure(prefix: ProspectsQueriesTabsEnum::HISTORY->value));
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters, $suffix = null): array
     {
         return match ($routeName) {
-            'org.crm.shop.prospects.tags.index',
-            'org.crm.shop.customers.tags.index' =>
+            'org.crm.shop.prospects.lists.index',
+            'org.crm.shop.prospects.lists.show' =>
             array_merge(
                 (new IndexProspects())->getBreadcrumbs(
                     'org.crm.shop.prospects.index',
@@ -180,10 +178,10 @@ class IndexProspectTags extends InertiaOrganisationAction
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name'       => 'org.crm.shop.prospects.tags.index',
+                                'name'       => 'org.crm.shop.prospects.lists.index',
                                 'parameters' => $routeParameters
                             ],
-                            'label' => __('tags'),
+                            'label' => __('lists'),
                             'icon'  => 'fal fa-bars',
                         ],
                         'suffix' => $suffix
