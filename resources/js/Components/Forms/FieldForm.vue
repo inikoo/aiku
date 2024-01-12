@@ -9,8 +9,9 @@
 import { useForm } from '@inertiajs/vue3'
 import { useLayoutStore } from '@/Stores/layout'
 import { routeType } from '@/types/route'
-import { ref, computed, Component } from 'vue'
+import { ref, computed } from 'vue'
 import axios from 'axios'
+import type { Component } from 'vue'
 
 import Input from '@/Components/Forms/Fields/Input.vue'
 import Phone from '@/Components/Forms/Fields/Phone.vue'
@@ -31,6 +32,7 @@ import Permissions from "@/Components/Forms/Fields/Permissions.vue"
 import InputWithAddOn from '@/Components/Forms/Fields/InputWithAddOn.vue'
 import Checkbox from '@/Components/Forms/Fields/Checkbox.vue'
 import EmployeePosition from '@/Components/Forms/Fields/EmployeePosition.vue'
+import AppLogin from '@/Components/Forms/Fields/AppLogin.vue'
 
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
@@ -83,7 +85,8 @@ const components: {[key: string]: Component} = {
     'language': Language,
     'permissions': Permissions,
     'checkbox': Checkbox,
-    'employeePosition': EmployeePosition
+    'employeePosition': EmployeePosition,
+    'app_login': AppLogin,
 }
 
 const getComponent = (componentName: string) => {
