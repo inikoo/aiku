@@ -19,7 +19,7 @@ return new class () extends Migration {
             $table=$this->groupOrgRelationship($table);
             $table->string('slug')->unique()->collation('und_ns');
             $table->string('code')->index()->collation('und_ns');
-            $table->string('name')->collation('und_ns');
+            $table->string('name');
             $table->jsonb('settings');
             $table->jsonb('data');
             $table->timestampsTz();

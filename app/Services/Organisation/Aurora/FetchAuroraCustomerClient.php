@@ -18,7 +18,7 @@ class FetchAuroraCustomerClient extends FetchAurora
         }
 
         $this->parsedData['customer'] = $this->parseCustomer(
-            $this->auroraModelData->{'Customer Client Customer Key'}
+            $this->organisation->id.':'.$this->auroraModelData->{'Customer Client Customer Key'}
         );
 
         if ($this->auroraModelData->{'Customer Client Status'} == 'Active') {
@@ -33,18 +33,17 @@ class FetchAuroraCustomerClient extends FetchAurora
 
         $this->parsedData['customer_client'] =
             [
-                'reference'      => $this->auroraModelData->{'Customer Client Code'},
-                'status'         => $status,
-                'contact_name'   => $this->auroraModelData->{'Customer Client Main Contact Name'},
-                'company_name'   => $this->auroraModelData->{'Customer Client Company Name'},
-                'email'          => $this->auroraModelData->{'Customer Client Main Plain Email'},
-                'phone'          => $this->auroraModelData->{'Customer Client Main Plain Mobile'},
-                'source_id'      => $this->organisation->id.':'.$this->auroraModelData->{'Customer Client Key'},
-                'created_at'     => $this->auroraModelData->{'Customer Client Creation Date'},
-                'deactivated_at' => $deactivated_at,
+                'reference'        => $this->auroraModelData->{'Customer Client Code'},
+                'status'           => $status,
+                'contact_name'     => $this->auroraModelData->{'Customer Client Main Contact Name'},
+                'company_name'     => $this->auroraModelData->{'Customer Client Company Name'},
+                'email'            => $this->auroraModelData->{'Customer Client Main Plain Email'},
+                'phone'            => $this->auroraModelData->{'Customer Client Main Plain Mobile'},
+                'source_id'        => $this->organisation->id.':'.$this->auroraModelData->{'Customer Client Key'},
+                'created_at'       => $this->auroraModelData->{'Customer Client Creation Date'},
+                'deactivated_at'   => $deactivated_at,
+                'delivery_address' => $this->parseAddress(prefix: 'Customer Client Contact', auAddressData: $this->auroraModelData)
             ];
-
-        $this->parsedData['delivery_address'] = $this->parseAddress(prefix: 'Customer Client Contact', auAddressData: $this->auroraModelData);
     }
 
 

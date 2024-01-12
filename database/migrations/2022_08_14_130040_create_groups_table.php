@@ -18,7 +18,7 @@ return new class () extends Migration {
             $table->smallIncrements('id');
             $table->ulid()->index();
             $table->string('slug')->unique()->collation('und_ns');
-            $table->string('subdomain')->nullable()->unique()->collation('und_ns');
+            $table->string('subdomain')->nullable()->unique();
             $table->string('code');
             $table->string('name');
             $table = $this->assets($table);

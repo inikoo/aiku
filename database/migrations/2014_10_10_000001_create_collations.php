@@ -19,8 +19,9 @@ return new class () extends Migration {
 
         DB::statement('CREATE EXTENSION IF NOT EXISTS unaccent schema extensions;');
         DB::statement('CREATE EXTENSION IF NOT EXISTS pg_trgm schema extensions;');
-        DB::statement('CREATE COLLATION und_ns_ci_ai (PROVIDER = icu,DETERMINISTIC = FALSE,LOCALE = "und-u-kn-true-ks-level1");');
+        DB::statement('CREATE COLLATION und_ci_ai (PROVIDER = icu,DETERMINISTIC = FALSE,LOCALE = "und-u-kn-true-ks-level1");');
         DB::statement('CREATE COLLATION und_ns_ci (PROVIDER = icu,DETERMINISTIC = FALSE,LOCALE = "und-u-kn-true-ks-level2");');
+        DB::statement('CREATE COLLATION und_ci (PROVIDER = icu,DETERMINISTIC = FALSE,LOCALE = "und-u-ks-level2");');
         DB::statement('CREATE COLLATION und_ns (PROVIDER = icu,LOCALE = "und-u-kn-true");');
 
 

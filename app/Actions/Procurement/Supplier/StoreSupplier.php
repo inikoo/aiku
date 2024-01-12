@@ -49,9 +49,9 @@ class StoreSupplier extends GrpAction
 
         if (class_basename($parent) == 'Agent') {
             data_set($modelData, 'group_id', $parent->group_id);
-            $group=$parent->group;
+            $group = $parent->group;
         } else {
-            $group=$parent;
+            $group = $parent;
         }
 
         /** @var Supplier $supplier */
@@ -77,22 +77,26 @@ class StoreSupplier extends GrpAction
     public function rules(): array
     {
         return [
-            'code'         => ['required', 'max:9', 'alpha_dash',
-                               new IUnique(
-                                   table: 'suppliers',
-                                   extraConditions: [
-                                       ['column' => 'group_id', 'value' => $this->group->id],
-                                   ]
-                               ),
+            'code'         => [
+                'required',
+                'max:9',
+                'alpha_dash',
+                new IUnique(
+                    table: 'suppliers',
+                    extraConditions: [
+                        ['column' => 'group_id', 'value' => $this->group->id],
+                    ]
+                ),
             ],
-            'contact_name'   => ['nullable', 'string', 'max:255'],
-            'company_name'   => ['nullable', 'string', 'max:255'],
-            'email'          => ['nullable', 'email'],
-            'phone'          => ['nullable', 'phone:AUTO'],
-            'address'        => ['required', new ValidAddress()],
-            'currency_id'    => ['required', 'exists:currencies,id'],
-            'source_id'      => ['sometimes', 'nullable', 'string'],
-            'source_slug'    => ['sometimes', 'nullable', 'string'],
+            'contact_name' => ['nullable', 'string', 'max:255'],
+            'company_name' => ['nullable', 'string', 'max:255'],
+            'email'        => ['nullable', 'email'],
+            'phone'        => ['nullable', 'phone:AUTO'],
+            'address'      => ['required', new ValidAddress()],
+            'currency_id'  => ['required', 'exists:currencies,id'],
+            'source_id'    => ['sometimes', 'nullable', 'string'],
+            'source_slug'  => ['sometimes', 'nullable', 'string'],
+            'deleted_at'   => ['sometimes', 'nullable', 'date'],
         ];
     }
 
@@ -107,10 +111,10 @@ class StoreSupplier extends GrpAction
     {
         $this->asAction = true;
 
-        if(class_basename($parent)=='Agent') {
-            $group=$parent->group;
+        if (class_basename($parent) == 'Agent') {
+            $group = $parent->group;
         } else {
-            $group=$parent;
+            $group = $parent;
         }
 
         $this->initialisation($group, $modelData);
@@ -134,6 +138,7 @@ class StoreSupplier extends GrpAction
     public function inAgent(Agent $agent, ActionRequest $request): Supplier
     {
         $this->initialisation(app('group'), $request);
+
         return $this->handle(
             parent: $agent,
             modelData: $this->validatedData

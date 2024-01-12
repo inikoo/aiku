@@ -15,7 +15,7 @@ return new class () extends Migration {
         Schema::table('tags', function (Blueprint $table) {
             $table->unsignedSmallInteger('number_subjects')->default(0);
             $table->string('tag_slug')->nullable()->unique()->collation('und_ns');
-            $table->string('label')->nullable()->index()->collation('und_ns_ci');
+            $table->string('label')->nullable()->index()->collation('und_ci');
         });
     }
 

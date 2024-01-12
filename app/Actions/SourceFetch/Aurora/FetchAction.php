@@ -139,6 +139,7 @@ class FetchAction
                 'fetch:orders',
                 'fetch:invoices',
                 'fetch:customers',
+                'fetch:customers-clients',
                 'fetch:web-users',
                 'fetch:delivery-notes',
                 'fetch:purchase-orders'

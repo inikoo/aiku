@@ -14,8 +14,8 @@ return new class () extends Migration {
     {
         Schema::create('currencies', function (Blueprint $table) {
             $table->smallIncrements('id');
-            $table->string('code')->unique()->collation('und_ns_ci');
-            $table->string('name')->index()->collation('und_ns_ci');
+            $table->string('code')->unique()->collation('und_ci');
+            $table->string('name')->index()->collation('und_ci');
             $table->string('symbol');
             $table->smallInteger('fraction_digits');
             $table->boolean('status')->default(true)->index();

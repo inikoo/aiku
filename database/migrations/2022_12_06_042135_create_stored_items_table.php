@@ -17,7 +17,7 @@ return new class () extends Migration {
         Schema::create('stored_items', function (Blueprint $table) {
             $table->increments('id');
             $table->string('slug')->unique()->collation('und_ns');
-            $table->string('reference')->index()->collation('und_ns_ci');
+            $table->string('reference')->index()->collation('und_ci');
             $table->string('status')->default(StoredItemStatusEnum::IN_PROCESS->value);
             $table->string('state')->index()->default(StoredItemStateEnum::IN_PROCESS->value);
             $table->string('type')->index();

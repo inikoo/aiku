@@ -226,7 +226,8 @@ trait WithAuroraParsers
     {
         $shop = Shop::where('source_id', $sourceId)->first();
         if (!$shop) {
-            $shop = FetchShops::run($this->organisationSource, $sourceId);
+            $sourceData=explode(':', $sourceId);
+            $shop      = FetchShops::run($this->organisationSource, $sourceData[1]);
         }
 
         return $shop;
@@ -314,9 +315,10 @@ trait WithAuroraParsers
         }
         $customer = Customer::withTrashed()->where('source_id', $sourceId)->first();
         if (!$customer) {
-            $customer = FetchCustomers::run($this->organisationSource, $sourceId);
+            $sourceData=explode(':', $sourceId);
+            $customer  = FetchCustomers::run($this->organisationSource, $sourceData[1]);
             if (!$customer) {
-                $customer = FetchDeletedCustomers::run($this->organisationSource, $sourceId);
+                $customer = FetchDeletedCustomers::run($this->organisationSource, $sourceData[1]);
             }
         }
 
