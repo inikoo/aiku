@@ -20,14 +20,10 @@ import {
     DisclosureButton,
     DisclosurePanel,
   } from '@headlessui/vue'
+import { get } from "lodash"
 library.add(faBoxUsd, faUsersCog, faLightbulb, faUserHardHat, faUser, faInventory, faChevronDown, faStoreAlt)
 
 const layout = useLayoutStore()
-
-const currentIndexModule = computed(() => {
-    return Object.keys(layout.groupNavigation).indexOf(layout.currentModule)
-})
-
 
 onMounted(() => {
     if (localStorage.getItem('leftSideBar')) {
@@ -61,20 +57,20 @@ const generateRoute = (item) => {
     return route(item.route, item.routeParameters)
 }
 
-const generateLabel = (item) => {
-    const scope = item.scope
-    if (typeof item.label === "object" && item.label !== null) {
-        if (
-            (scope == "shops" && layout.currentShopData.slug) ||
-            (scope == "websites" && layout.currentWebsiteData.slug) ||
-            (scope == "warehouses" && layout.currentWarehouseData.slug)
-        ) {
-            return item.label.selected
-        }
-        return item.label.all
-    }
-    return item.label
-}
+// const generateLabel = (item) => {
+//     const scope = item.scope
+//     if (typeof item.label === "object" && item.label !== null) {
+//         if (
+//             (scope == "shops" && layout.currentShopData.slug) ||
+//             (scope == "websites" && layout.currentWebsiteData.slug) ||
+//             (scope == "warehouses" && layout.currentWarehouseData.slug)
+//         ) {
+//             return item.label.selected
+//         }
+//         return item.label.all
+//     }
+//     return item.label
+// }
 
 
 </script>
@@ -82,7 +78,8 @@ const generateLabel = (item) => {
 <template>
     <nav class="isolate relative flex flex-grow flex-col pb-4 h-full overflow-y-auto custom-hide-scrollbar flex-1 space-y-1" aria-label="Sidebar">
         <!-- LeftSidebar: Org -->
-        <template v-if="layout.currentParams.organisation">
+
+        <template v-if="get('layout', ['navigation', 'org', layout.currentParams.organisation], false)">
             <template v-for="(items, itemKey) in useLayoutStore().navigation.org[layout.currentParams.organisation]"
                 :key="itemKey"
             >
