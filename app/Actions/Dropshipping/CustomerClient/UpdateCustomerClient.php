@@ -8,19 +8,43 @@
 namespace App\Actions\Dropshipping\CustomerClient;
 
 use App\Actions\Dropshipping\CustomerClient\Hydrators\CustomerClientHydrateUniversalSearch;
+use App\Actions\Helpers\Address\StoreAddressAttachToModel;
+use App\Actions\Helpers\Address\UpdateAddress;
+use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Dropshipping\CustomerClientResource;
 use App\Models\Dropshipping\CustomerClient;
+use App\Models\Market\Shop;
+use App\Models\SysAdmin\Organisation;
+use App\Rules\ValidAddress;
+use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdateCustomerClient
+class UpdateCustomerClient extends OrgAction
 {
     use WithActionUpdate;
 
-    private bool $asAction = false;
+    private bool $asAction     = false;
+    public int $hydratorsDelay = 0;
+    private bool $strict       = true;
 
     public function handle(CustomerClient $customerClient, array $modelData): CustomerClient
     {
+        if (Arr::has($modelData, 'delivery_address')) {
+            $deliveryAddressData = Arr::get($modelData, 'delivery_address');
+            Arr::forget($modelData, 'delivery_address');
+
+            $deliveryAddress = $customerClient->getAddress('delivery');
+            if($deliveryAddress) {
+                UpdateAddress::run($deliveryAddress, $deliveryAddressData);
+            } else {
+                StoreAddressAttachToModel::run($customerClient, $deliveryAddressData, ['scope' => 'delivery']);
+            }
+
+            $customerClient->location = $customerClient->getLocation();
+            $customerClient->save();
+        }
+
         $customerClient = $this->update($customerClient, $modelData, ['data']);
         CustomerClientHydrateUniversalSearch::dispatch($customerClient);
 
@@ -38,29 +62,56 @@ class UpdateCustomerClient
 
     public function rules(): array
     {
-        return [
-            'reference'    => ['sometimes', 'string'],
-            'contact_name' => ['sometimes', 'string'],
-            'company_name' => ['sometimes', 'string'],
-            'phone'        => ['sometimes', 'nullable', 'phone:AUTO'],
-            'email'        => ['sometimes', 'nullable', 'email'],
+        $rules = [
+            'reference'        => ['sometimes', 'nullable', 'string', 'max:255'],
+            'contact_name'     => ['sometimes', 'nullable', 'string', 'max:255'],
+            'company_name'     => ['sometimes', 'nullable', 'string', 'max:255'],
+            'phone'            => ['sometimes', 'nullable', 'string', 'max:255'],
+            'email'            => ['sometimes', 'nullable', 'string', 'max:255'],
+            'delivery_address' => ['sometimes', new ValidAddress()],
+            'source_id'        => 'sometimes|nullable|string|max:255',
+            'status'           => ['sometimes', 'boolean'],
         ];
+
+        if ($this->strict) {
+            $strictRules = [
+                'phone' => ['sometimes', 'nullable', 'phone:AUTO'],
+                'email' => [
+                    'nullable',
+                    'email',
+                ],
+            ];
+            $rules       = array_merge($rules, $strictRules);
+        }
+
+        return $rules;
     }
 
-    public function asController(CustomerClient $customerClient, ActionRequest $request): CustomerClient
+    public function asController(Organisation $organisation, Shop $shop, CustomerClient $customerClient, ActionRequest $request): CustomerClient
     {
-        $request->validate();
+        $this->initialisationFromShop($shop, $request);
 
-        return $this->handle($customerClient, $request->all());
+        return $this->handle($customerClient, $this->validatedData);
     }
 
     public function action(CustomerClient $customerClient, $modelData): CustomerClient
     {
         $this->asAction = true;
         $this->setRawAttributes($modelData);
-        $validatedData = $this->validateAttributes();
+        $this->initialisationFromShop($customerClient->shop, $modelData);
 
-        return $this->handle($customerClient, $validatedData);
+        return $this->handle($customerClient, $this->validatedData);
+    }
+
+    public function asFetch(CustomerClient $customerClient, $modelData): CustomerClient
+    {
+        $this->asAction       = true;
+        $this->strict         = false;
+        $this->hydratorsDelay = 60;
+        $this->setRawAttributes($modelData);
+        $this->initialisationFromShop($customerClient->shop, $modelData);
+
+        return $this->handle($customerClient, $this->validatedData);
     }
 
     public function jsonResponse(CustomerClient $customerClient): CustomerClientResource

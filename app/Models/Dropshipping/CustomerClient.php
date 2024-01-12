@@ -30,6 +30,8 @@ use Spatie\Sluggable\SlugOptions;
  * App\Models\Dropshipping\CustomerClient
  *
  * @property int $id
+ * @property int $group_id
+ * @property int $organisation_id
  * @property string $slug
  * @property string|null $reference
  * @property bool $status
@@ -70,7 +72,8 @@ class CustomerClient extends Model
 
     protected $casts = [
         'location'       => 'array',
-        'deactivated_at' => 'datetime'
+        'deactivated_at' => 'datetime',
+        'status'         => 'boolean'
     ];
 
     protected $attributes = [
