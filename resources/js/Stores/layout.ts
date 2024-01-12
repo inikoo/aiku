@@ -9,22 +9,31 @@ import { grpNavigation, orgNavigation } from "@/types/Navigation"
 import { defineStore } from "pinia"
 import { trans } from "laravel-vue-i18n"
 import { Image } from "@/types/Image"
+import { routeType } from "@/types/route"
 
 interface OrganisationsData {
-    authorised_shops: {
-        slug: string
-        code: string
-        name: string
-    }[]
-    authorised_warehouses: {
-        slug: string
-        code: string
-        name: string
-    }
+    id: number
+    slug: string
     code: string
     name: string
-    slug: string
     logo: Image
+    route: routeType
+    authorised_shops: {
+        id: number
+        slug: string
+        code: string
+        name: string
+        state: string
+        type: string
+        route: routeType
+    }[]
+    authorised_warehouses: {
+        id: number
+        slug: string
+        code: string
+        name: string
+        route: routeType
+    }
 }
 
 interface Group {

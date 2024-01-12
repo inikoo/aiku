@@ -149,7 +149,7 @@ const logoutAuth = () => {
                             </Menu>
 
                             <!-- Dropdown: Shops -->
-                            <Menu v-if="useLayoutStore().navigation.org[layout.currentParams.organisation]?.shops_navigation && (route(useLayoutStore().currentRoute, useLayoutStore().currentParams)).includes('shops')"
+                            <Menu v-if="useLayoutStore().organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation) && (route(useLayoutStore().currentRoute, useLayoutStore().currentParams)).includes('shops')"
                                 as="div" class="relative inline-block text-left">
                                 <MenuButton
                                     class="inline-flex min-w-fit w-32 max-w-full whitespace-nowrap justify-between items-center gap-x-2 rounded px-2.5 py-2 text-xs font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-white/75"
@@ -158,7 +158,7 @@ const logoutAuth = () => {
                                     <div class="flex items-center gap-x-1">
                                         <FontAwesomeIcon icon='fal fa-store-alt' class='opacity-60 text-xs' fixed-width aria-hidden='true' />
                                         <!-- <FontAwesomeIcon v-else icon='fal fa-city' class='opacity-60 text-xs' fixed-width aria-hidden='true' /> -->
-                                        {{ useLayoutStore().currentParams.shop ?? 'Select shop' }}
+                                        {{ useLayoutStore().organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_shops.find(shop => shop.slug == layout.currentParams.shop)?.name ?? 'Select shop' }}
                                     </div>
                                     <!-- {{ layout.organisations.currentOrganisations ? layout.organisations.currentOrganisations : 'Select group or organisations' }} -->
                                     <FontAwesomeIcon icon='far fa-chevron-down' class='text-xs' aria-hidden='true' />
@@ -174,16 +174,16 @@ const logoutAuth = () => {
                                                 <hr class="w-full rounded-full border-slate-300">
                                             </div>
                                             <div class="max-h-52 overflow-y-auto space-y-1.5">
-                                                <MenuItem v-for="(shop, shopIdx) in useLayoutStore().navigation.org[layout.currentParams.organisation].shops_navigation" v-slot="{ active }">
-                                                    <div @click="() => router.visit(route(shop.shop.route?.name, shop.shop.route?.parameters))" :class="[
-                                                        shopIdx == layout.currentParams.shop ? 'bg-indigo-500 text-white' : 'text-slate-600 hover:bg-slate-200/75 hover:text-indigo-600',
+                                                <MenuItem v-for="(shop, shopIdx) in useLayoutStore().organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_shops" v-slot="{ active }">
+                                                    <div @click="() => router.visit(route(shop.route?.name, shop.route?.parameters))" :class="[
+                                                        shop.slug == layout.currentParams.shop ? 'bg-indigo-500 text-white' : 'text-slate-600 hover:bg-slate-200/75 hover:text-indigo-600',
                                                         'group flex gap-x-2 w-full justify-start items-center rounded px-2 py-2 text-sm cursor-pointer',
                                                     ]">
                                                         <!-- <div class="h-5 rounded-full overflow-hidden ring-1 ring-slate-200 bg-slate-50">
                                                             <Image v-show="imageSkeleton[shopIdx]" :src="item.logo" @onLoadImage="() => imageSkeleton[shopIdx] = true"/>
                                                             <div v-show="!imageSkeleton[shopIdx]" class="skeleton w-5 h-5"/>
                                                         </div> -->
-                                                        <div class="font-semibold">{{ shop.shop.route?.name }}</div>
+                                                        <div class="font-semibold">{{ shop.name }}</div>
                                                     </div>
                                                 </MenuItem>
                                             </div>
