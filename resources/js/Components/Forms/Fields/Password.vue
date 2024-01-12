@@ -30,7 +30,7 @@ const showPassword = ref(true);
 </script>
 
 <template>
-    <div class="mt-1 relative rounded-md shadow-sm">
+    <div class="relative rounded-md shadow-sm">
         <div class="flex">
             <input @input="handleChange(form)" v-model="form[fieldName]" :type="showPassword ? 'password' : 'text'"  autocomplete="off"
                 class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 w-full border-gray-300 rounded-l-md" />

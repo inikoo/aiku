@@ -146,6 +146,7 @@ class ShowProfile
                                 ],
                                 "noSaveButton"  => true,
                                 "noTitle"       => true,
+                                "full"          => true
                             ],
                         ]
                     ]

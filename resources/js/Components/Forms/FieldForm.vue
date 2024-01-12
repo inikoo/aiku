@@ -145,45 +145,45 @@ const checkVerification = async () => {
 <template>
     <form @submit.prevent="submit" class="divide-y divide-gray-200 w-full" :class="props.fieldData.full ? '' : 'max-w-2xl'">
         <dl class="pb-4 sm:pb-5 sm:grid sm:grid-cols-3 sm:gap-4 ">
-            <dt class="text-sm font-medium text-gray-400 capitalize">
+            <!-- Title -->
+            <dt v-if="!fieldData.noTitle" class="text-sm font-medium text-gray-400 capitalize">
                 <div class="inline-flex items-start leading-none"><FontAwesomeIcon v-if="fieldData.required" :icon="['fas', 'asterisk']" class="font-light text-[12px] text-red-400 mr-1"/>{{ fieldData.label }}</div>
             </dt>
-            <dd :class="props.fieldData.full ? 'sm:col-span-3' : 'sm:col-span-2'">
-                <div class="mt-1 flex items-start text-sm text-gray-900 sm:mt-0">
-                    <div class="relative  flex-grow">
-                        <component :is="getComponent(fieldData['type'])" :form=form :fieldName=field
-                            :options="fieldData['options']" :fieldData="fieldData">
-                        </component>
 
-                        <!-- Verification: Label -->
-                        <div v-if="labelVerification" class="mt-1" :class="classVerification">
-                            <FontAwesomeIcon icon='fal fa-info-circle' class='opacity-80' aria-hidden='true' />
-                            <span class="ml-1 font-medium">{{ labelVerification }}</span>
-                        </div>
+            <dd :class="props.fieldData.full ? 'sm:col-span-3' : fieldData.noTitle ? 'sm:col-span-3' : 'sm:col-span-2'" class="flex items-start text-sm text-gray-700 sm:mt-0">
+                <div class="relative flex-grow">
+                    <component :is="getComponent(fieldData.type)" :form="form" :fieldName="field"
+                        :options="fieldData.options" :fieldData="fieldData">
+                    </component>
+
+                    <!-- Verification: Label -->
+                    <div v-if="labelVerification" class="mt-1" :class="classVerification">
+                        <FontAwesomeIcon icon='fal fa-info-circle' class='opacity-80' aria-hidden='true' />
+                        <span class="ml-1 font-medium">{{ labelVerification }}</span>
                     </div>
-
-                    <!-- Button: Save -->
-                    <template v-if="fieldData.noSaveButton" />
-                    <span v-else class="ml-2 flex-shrink-0">
-                        <button v-if="!fieldData.verification" class="align-bottom" :disabled="form.processing || !form.isDirty" type="submit">
-                          <FontAwesomeIcon v-if="form.isDirty" icon="fad fa-save" class="h-8 text-org-600"
-                                           :style="{
-                                    '--fa-secondary-color': [layout.systemName === 'org' ? 'rgb(69, 38, 80)' : 'rgb(0, 255, 4)']
-                                }" aria-hidden="true" />
-                            <FontAwesomeIcon v-else icon="fal fa-save" class="h-8 text-gray-300" aria-hidden="true" />
-                        </button>
-
-                        <!-- Verification: Button -->
-                        <div v-else>
-                            <FontAwesomeIcon v-if="isVerificationLoading" icon='fad fa-spinner-third' class='animate-spin h-8 text-gray-500 hover:text-gray-600 cursor-pointer' aria-hidden='true' />
-                            <FontAwesomeIcon v-else @click="isVerificationDirty ? checkVerification() : ''"
-                                icon='fas fa-question'
-                                class='h-8'
-                                :class="isVerificationDirty ? 'text-gray-500 hover:text-gray-600 cursor-pointer' : 'text-gray-300'"
-                                aria-hidden='true' />
-                        </div>
-                    </span>
                 </div>
+
+                <!-- Button: Save -->
+                <template v-if="fieldData.noSaveButton" />
+                <span v-else class="ml-2 flex-shrink-0">
+                    <button v-if="!fieldData.verification" class="align-bottom" :disabled="form.processing || !form.isDirty" type="submit">
+                        <FontAwesomeIcon v-if="form.isDirty" icon="fad fa-save" class="h-8 text-org-600"
+                            :style="{
+                                '--fa-secondary-color': [layout.systemName === 'org' ? 'rgb(69, 38, 80)' : 'rgb(0, 255, 4)']
+                            }" aria-hidden="true" />
+                        <FontAwesomeIcon v-else icon="fal fa-save" class="h-8 text-gray-300" aria-hidden="true" />
+                    </button>
+
+                    <!-- Verification: Button -->
+                    <span v-else>
+                        <FontAwesomeIcon v-if="isVerificationLoading" icon='fad fa-spinner-third' class='animate-spin h-8 text-gray-500 hover:text-gray-600 cursor-pointer' aria-hidden='true' />
+                        <FontAwesomeIcon v-else @click="isVerificationDirty ? checkVerification() : ''"
+                            icon='fas fa-question'
+                            class='h-8'
+                            :class="isVerificationDirty ? 'text-gray-500 hover:text-gray-600 cursor-pointer' : 'text-gray-300'"
+                            aria-hidden='true' />
+                    </span>
+                </span>
             </dd>
         </dl>
     </form>
