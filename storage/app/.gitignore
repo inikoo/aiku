@@ -2,3 +2,6 @@ public/flags/*.gif
 group/
 tenants/
 ../../resources/private/firebase/aiku-firebase.json
+excel-uploads
+mpdf
+tmp

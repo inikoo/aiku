@@ -7,30 +7,31 @@
 
 namespace App\Http\Resources\UI;
 
-use App\Models\Web\Website;
+use App\Models\Market\Shop;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-/**
- * @property string $slug
- * @property string $code
- * @property string $name
- * @property ?Website $website
- *
- */
 class ShopsNavigationResource extends JsonResource
 {
     public function toArray($request): array
     {
+        /** @var Shop $shop */
+        $shop = $this;
+
         return [
-            'slug'    => $this->slug,
-            'code'    => $this->code,
-            'name'    => $this->name,
-            'website' => $this->whenLoaded(
-                'website',
-                function () {
-                    return $this->website->slug;
-                }
-            )
+            'id'    => $shop->id,
+            'slug'  => $shop->slug,
+            'code'  => $shop->code,
+            'name'  => $shop->name,
+            'state' => $shop->state,
+            'type'  => $shop->type,
+            'route' => [
+                'name'       => 'grp.org.shops.show',
+                'parameters' => [
+                    $shop->organisation->slug,
+                    $shop->slug
+                ]
+            ],
+
         ];
     }
 }

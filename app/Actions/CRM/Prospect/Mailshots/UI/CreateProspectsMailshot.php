@@ -5,10 +5,10 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Leads\Prospect\Mailshots\UI;
+namespace App\Actions\CRM\Prospect\Mailshots\UI;
 
 use App\Actions\InertiaAction;
-use App\Actions\Leads\Prospect\Queries\UI\IndexProspectQueries;
+use App\Actions\CRM\Prospect\Queries\UI\IndexProspectQueries;
 use App\Models\Market\Shop;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Http\RedirectResponse;

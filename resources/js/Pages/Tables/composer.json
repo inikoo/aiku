@@ -1,0 +1,14 @@
+{
+    "name": "vendor_name/Tables",
+    "description": "description",
+    "minimum-stability": "stable",
+    "license": "proprietary",
+    "authors": [
+        {
+            "name": "62852",
+            "email": "email@example.com"
+        }
+    ],
+    "require": {
+    }
+}

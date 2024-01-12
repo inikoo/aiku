@@ -3,8 +3,9 @@
 namespace App\Imports\Auth;
 
 use App\Actions\SysAdmin\Guest\StoreGuest;
-use App\Enums\Organisation\Guest\GuestTypeEnum;
+use App\Enums\SysAdmin\Guest\GuestTypeEnum;
 use App\Imports\WithImport;
+use App\Models\SysAdmin\Group;
 use Exception;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
@@ -40,13 +41,14 @@ class GuestImport implements ToCollection, WithHeadingRow, SkipsOnFailure, WithV
 
         try {
             $modelData = $row->only($fields)->all();
+            $group = $this->upload->user->group ?? Group::first();
 
             data_set($modelData, 'data.bulk_import', [
                 'id'   => $this->upload->id,
                 'type' => 'Upload',
             ]);
 
-            StoreGuest::make()->action($modelData);
+            StoreGuest::make()->action($group, $modelData);
             $this->setRecordAsCompleted($uploadRecord);
         } catch (Exception $e) {
             $this->setRecordAsFailed($uploadRecord, [$e->getMessage()]);
@@ -71,7 +73,7 @@ class GuestImport implements ToCollection, WithHeadingRow, SkipsOnFailure, WithV
     {
         return [
             'type'            => ['required', Rule::in(GuestTypeEnum::values())],
-            'username'        => ['required', 'iunique:organisation_users', 'alpha_dash:ascii'],
+            'username'        => ['required', 'iunique:users', 'alpha_dash:ascii'],
             'password'        => ['sometimes', 'string', 'min:8', 'max:64'],
             'reset_password'  => ['sometimes', 'boolean'],
             'company_name'    => ['nullable', 'string', 'max:255'],

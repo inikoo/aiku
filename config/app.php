@@ -6,6 +6,7 @@
  */
 
 use App\Providers\ElasticSearchServiceProvider;
+use App\Providers\GDriveServiceProvider;
 use Illuminate\Support\Facades\Facade;
 use Illuminate\Support\ServiceProvider;
 
@@ -170,6 +171,8 @@ return [
         App\Providers\MacroServiceProvider::class,
         ElasticSearchServiceProvider::class,
         Kreait\Laravel\Firebase\ServiceProvider::class,
+        GDriveServiceProvider::class
+
     ])->toArray(),
 
     /*

@@ -5,7 +5,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Leads\Prospect\Mailshots;
+namespace App\Actions\CRM\Prospect\Mailshots;
 
 use App\Actions\InertiaAction;
 use App\Actions\Mail\Mailshot\GetMailshotRecipientsQueryBuilder;
