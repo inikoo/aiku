@@ -17,6 +17,7 @@ use App\Models\Traits\HasUniversalSearch;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -72,6 +73,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
  * @property-read \App\Models\Web\WebsiteStats|null $webStats
  * @property-read Collection<int, \App\Models\Web\Webpage> $webpages
+ * @method static \Database\Factories\Web\WebsiteFactory factory($count = null, $state = [])
  * @method static Builder|Website newModelQuery()
  * @method static Builder|Website newQuery()
  * @method static Builder|Website onlyTrashed()
@@ -86,6 +88,7 @@ class Website extends Model implements Auditable
     use SoftDeletes;
     use HasHistory;
     use HasUniversalSearch;
+    use HasFactory;
 
     protected $casts = [
         'data'               => 'array',

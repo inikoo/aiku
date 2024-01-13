@@ -9,18 +9,18 @@ namespace App\Actions\SourceFetch\Aurora;
 
 use App\Actions\CRM\Prospect\StoreProspect;
 use App\Actions\CRM\Prospect\UpdateProspect;
+use App\Actions\Helpers\Fetch\UpdateFetch;
 use App\Models\CRM\Prospect;
 use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
-use JetBrains\PhpStorm\NoReturn;
 
 class FetchProspects extends FetchAction
 {
     public string $commandSignature = 'fetch:prospects {organisations?*} {--s|source_id=} {--S|shop= : Shop slug} {--w|with=* : Accepted values: clients orders web-users} {--N|only_new : Fetch only new} {--d|db_suffix=}';
 
 
-    #[NoReturn] public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Prospect
+    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Prospect
     {
         if ($prospectData = $organisationSource->fetchProspect($organisationSourceId)) {
             if ($prospect = Prospect::withTrashed()->where('source_id', $prospectData['prospect']['source_id'])
@@ -32,14 +32,26 @@ class FetchProspects extends FetchAction
                     false
                 );
 
+
+                if ($prospect->wasChanged()) {
+                    $this->number_updates++;
+                    UpdateFetch::run($this->fetch, ['number_updates' => $this->number_updates]);
+                } else {
+                    $this->number_no_changes++;
+                    UpdateFetch::run($this->fetch, ['number_no_changes' => $this->number_no_changes]);
+                }
             } else {
+                //print_r($prospectData['prospect']);
                 $prospect = StoreProspect::make()->action(
                     $prospectData['shop'],
                     $prospectData['prospect'],
                     60,
                     false
                 );
+                $this->number_stores++;
+                UpdateFetch::run($this->fetch, ['number_stores' => $this->number_stores]);
             }
+
 
             $sourceData = explode(':', $prospect->source_id);
             DB::connection('aurora')->table('Prospect Dimension')

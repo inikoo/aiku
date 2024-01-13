@@ -7,9 +7,13 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
+use App\Actions\Helpers\Fetch\StoreFetch;
+use App\Actions\Helpers\Fetch\UpdateFetch;
 use App\Actions\SysAdmin\User\UpdateUser;
 use App\Actions\Traits\WithOrganisationsArgument;
 use App\Actions\Traits\WithOrganisationSource;
+use App\Enums\Helpers\Fetch\FetchTypeEnum;
+use App\Models\Helpers\Fetch;
 use App\Models\Media\Media;
 use App\Models\Procurement\Agent;
 use App\Models\Procurement\Supplier;
@@ -37,6 +41,13 @@ class FetchAction
     protected ?Shop $shop;
     protected array $with;
     protected bool $onlyNew = false;
+
+    protected int $number_stores    =0;
+    protected int $number_updates   =0;
+    protected int $number_no_changes=0;
+    protected int $number_errors    =0;
+
+    protected Fetch $fetch;
 
     protected int $hydrateDelay = 0;
 
@@ -87,8 +98,8 @@ class FetchAction
         $organisations = $this->getOrganisations($command);
         $exitCode      = 0;
 
-
         foreach ($organisations as $organisation) {
+
             $result = $this->processOrganisation($command, $organisation);
 
             if ($result !== 0) {
@@ -130,11 +141,21 @@ class FetchAction
             $organisationSource = $this->getOrganisationSource($organisation);
         } catch (Exception $exception) {
             $command->error($exception->getMessage());
-
             return 1;
         }
-
         $organisationSource->initialisation($organisation, $command->option('db_suffix') ?? '');
+
+        $this->fetch = StoreFetch::run(
+            [
+                'type' => $this->getFetchType($command),
+                'data' => [
+                    'command'   => $command->getName(),
+                    'arguments' => $command->arguments(),
+                    'options'   => $command->options(),
+                ]
+            ]
+        );
+
 
         if (in_array($command->getName(), [
                 'fetch:stocks',
@@ -155,7 +176,10 @@ class FetchAction
 
         if ($command->option('source_id')) {
             $this->handle($organisationSource, $command->option('source_id'));
+            UpdateFetch::run($this->fetch, ['number_items' => 1]);
         } else {
+            $numberItems = $this->count() ?? 0;
+            UpdateFetch::run($this->fetch, ['number_items' => $numberItems]);
             if (!$command->option('quiet') and !$command->getOutput()->isDebug()) {
                 $info = '✊ '.$command->getName().' '.$organisation->slug;
                 if ($this->shop) {
@@ -172,6 +196,7 @@ class FetchAction
             $this->fetchAll($organisationSource, $command);
             $this->progressBar?->finish();
         }
+        UpdateFetch::run($this->fetch, ['finished_at' => now()]);
 
         return 0;
     }
@@ -265,6 +290,14 @@ class FetchAction
                 }
             }
         }
+    }
+
+    private function getFetchType(Command $command): ?FetchTypeEnum
+    {
+        return match ($command->getName()) {
+            'fetch:prospects' => FetchTypeEnum::PROSPECTS,
+            default           => FetchTypeEnum::BASE,
+        };
     }
 
 }

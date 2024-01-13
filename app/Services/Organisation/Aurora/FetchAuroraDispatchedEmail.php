@@ -35,8 +35,8 @@ class FetchAuroraDispatchedEmail extends FetchAurora
         }
 
         $recipient = match ($this->auroraModelData->{'Email Tracking Recipient'}) {
-            'Customer' => $this->parseCustomer($this->auroraModelData->{'Email Tracking Key'}),
-            'Prospect' => $this->parseProspect($this->auroraModelData->{'Email Tracking Key'}),
+            'Customer' => $this->parseCustomer($this->organisation->id.':'.$this->auroraModelData->{'Email Tracking Key'}),
+            'Prospect' => $this->parseProspect($this->organisation->id.':'.$this->auroraModelData->{'Email Tracking Key'}),
             default    => null
         };
 

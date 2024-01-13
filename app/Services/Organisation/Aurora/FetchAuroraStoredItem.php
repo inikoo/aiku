@@ -16,7 +16,7 @@ class FetchAuroraStoredItem extends FetchAurora
 {
     protected function parseModel(): void
     {
-        $customer                     = $this->parseCustomer($this->auroraModelData->{'Fulfilment Asset Customer Key'});
+        $customer                     = $this->parseCustomer($this->organisation->id.':'.$this->auroraModelData->{'Fulfilment Asset Customer Key'});
         $this->parsedData['customer'] = $customer;
 
         $state  = match ($this->auroraModelData->{'Fulfilment Asset State'}) {

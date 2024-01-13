@@ -41,7 +41,7 @@ class FetchAuroraOrder extends FetchAurora
             );
         } else {
             $parent = $this->parseCustomer(
-                $this->auroraModelData->{'Order Customer Key'}
+                $this->organisation->id.':'.$this->auroraModelData->{'Order Customer Key'}
             );
         }
 

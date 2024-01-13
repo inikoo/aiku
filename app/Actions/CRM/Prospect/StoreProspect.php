@@ -48,8 +48,8 @@ class StoreProspect extends OrgAction
         $tags = Arr::get($modelData, 'tags', []);
         Arr::forget($modelData, 'tags');
 
-        $contactAddressData = Arr::get($modelData, 'contact_address');
-        Arr::forget($modelData, 'contact_address');
+        $contactAddressData = Arr::get($modelData, 'address');
+        Arr::forget($modelData, 'address');
 
         data_set($modelData, 'group_id', $shop->group_id);
         data_set($modelData, 'organisation_id', $shop->organisation_id);
@@ -82,9 +82,11 @@ class StoreProspect extends OrgAction
 
         $prospect->save();
 
-        StoreAddressAttachToModel::run($prospect, $contactAddressData, ['scope' => 'contact']);
-        $prospect->location = $prospect->getLocation();
-        $prospect->save();
+        if ($contactAddressData) {
+            StoreAddressAttachToModel::run($prospect, $contactAddressData, ['scope' => 'contact']);
+            $prospect->location = $prospect->getLocation();
+            $prospect->save();
+        }
 
         ProspectHydrateUniversalSearch::dispatch($prospect);
         OrganisationHydrateProspects::dispatch($shop->organisation)->delay(now()->addSeconds(2));
@@ -110,7 +112,7 @@ class StoreProspect extends OrgAction
 
     public function rules(): array
     {
-        return [
+        $rules = [
             'contacted_state'   => ['sometimes', Rule::enum(ProspectContactedStateEnum::class)],
             'fail_status'       => ['sometimes', 'nullable', Rule::enum(ProspectFailStatusEnum::class)],
             'success_status'    => ['sometimes', 'nullable', Rule::enum(ProspectSuccessStatusEnum::class)],
@@ -124,9 +126,9 @@ class StoreProspect extends OrgAction
             'company_name'      => ['nullable', 'string', 'max:255'],
             'tags'              => ['sometimes', 'nullable', 'array'],
             'tags.*'            => ['string'],
+            'source_id'         => ['sometimes', 'string', 'max:255'],
             'email'             => [
-                'required_without:phone',
-                'email',
+                'string',
                 'max:500',
                 new IUnique(
                     table: 'prospects',
@@ -138,22 +140,54 @@ class StoreProspect extends OrgAction
 
             ],
             'phone'             => [
-                'required_without:email',
                 'nullable',
-                new Phone(),
-                new IUnique(
-                    table: 'prospects',
-                    extraConditions:[
-                        ['column' => 'shop_id', 'value' => $this->shop->id],
-                    ]
-                ),
+                'string',
+                'min:5',
+                'max:16'
+
             ],
             'contact_website'   => [
                 'nullable',
-                'url:http,https'
+                'string'
             ],
 
         ];
+
+        if ($this->strict) {
+            $strictRules = [
+                'email'           => [
+                    'required_without:phone',
+                    'email',
+                    'max:500',
+                    new IUnique(
+                        table: 'prospects',
+                        extraConditions: [
+                            ['column' => 'shop_id', 'value' => $this->shop->id],
+
+                        ]
+                    ),
+
+                ],
+                'phone'           => [
+                    'required_without:email',
+                    'nullable',
+                    new Phone(),
+                    new IUnique(
+                        table: 'prospects',
+                        extraConditions: [
+                            ['column' => 'shop_id', 'value' => $this->shop->id],
+                        ]
+                    ),
+                ],
+                'contact_website' => [
+                    'nullable',
+                    'url:http,https'
+                ],
+            ];
+            $rules       = array_merge($rules, $strictRules);
+        }
+
+        return $rules;
     }
 
     public function action(Shop $shop, array $modelData, int $hydratorsDelay = 0, bool $strict = true): Prospect

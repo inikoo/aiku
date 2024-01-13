@@ -30,8 +30,8 @@ class OrganisationHydrateProspects
     public function handle(Organisation $organisation): void
     {
         $stats = [
-            'number_prospects'                 => $organisation->prospects()->where('parent_type', 'Shop')->count(),
-            'number_prospects_dont_contact_me' => $organisation->prospects()->where('parent_type', 'Shop')->where('dont_contact_me', true)->count(),
+            'number_prospects'                 => $organisation->prospects()->count(),
+            'number_prospects_dont_contact_me' => $organisation->prospects()->where('dont_contact_me', true)->count(),
 
         ];
 

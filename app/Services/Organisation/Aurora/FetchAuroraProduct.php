@@ -30,7 +30,7 @@ class FetchAuroraProduct extends FetchAurora
         }
 
         if ($this->auroraModelData->{'Product Customer Key'}) {
-            $customer = $this->parseCustomer($this->auroraModelData->{'Product Customer Key'});
+            $customer = $this->parseCustomer($this->organisation->id.':'.$this->auroraModelData->{'Product Customer Key'});
 
             $owner_type = 'Customer';
             $owner_id   = $customer->id;

@@ -24,8 +24,8 @@ class FetchAuroraPayment extends FetchAurora
         }
 
 
-        $this->parsedData['paymentAccount'] = $this->parsePaymentAccount($this->auroraModelData->{'Payment Account Key'});
-        $this->parsedData['customer']       = $this->parseCustomer($this->auroraModelData->{'Payment Customer Key'});
+        $this->parsedData['paymentAccount'] = $this->parsePaymentAccount($this->organisation->id.':'.$this->auroraModelData->{'Payment Account Key'});
+        $this->parsedData['customer']       = $this->parseCustomer($this->organisation->id.':'.$this->auroraModelData->{'Payment Customer Key'});
 
 
 

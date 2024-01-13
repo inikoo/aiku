@@ -42,6 +42,8 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $number_prospects_success_status_registered
  * @property int $number_prospects_success_status_invoiced
  * @property int $number_prospects_dont_contact_me
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
  * @method static \Illuminate\Database\Eloquent\Builder|TagCrmStats newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|TagCrmStats newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|TagCrmStats query()

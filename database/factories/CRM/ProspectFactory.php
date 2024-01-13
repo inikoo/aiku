@@ -7,6 +7,7 @@
 
 namespace Database\Factories\CRM;
 
+use App\Models\Helpers\Address;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class ProspectFactory extends Factory
@@ -17,7 +18,8 @@ class ProspectFactory extends Factory
             'contact_name'    => fake()->name,
             'company_name'    => fake()->company,
             'email'           => fake()->email,
-            'contact_website' => fake()->url,
+            'contact_website' => fake()->domainName,
+            'address'         => Address::factory()->definition()
         ];
     }
 }

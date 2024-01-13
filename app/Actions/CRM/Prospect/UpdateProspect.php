@@ -1,26 +1,49 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Wed, 21 Jun 2023 08:45:00 Malaysia Time, Pantai Lembeng, Bali, Id
+ * Created: Wed, 21 Jun 2023 08:45:00 Malaysia Time, Pantai Lembeng, Bali, Indonesia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
 namespace App\Actions\CRM\Prospect;
 
 use App\Actions\CRM\Prospect\Hydrators\ProspectHydrateUniversalSearch;
+use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
+use App\Actions\Traits\WithProspectPrepareForValidation;
+use App\Enums\CRM\Prospect\ProspectContactedStateEnum;
+use App\Enums\CRM\Prospect\ProspectFailStatusEnum;
+use App\Enums\CRM\Prospect\ProspectSuccessStatusEnum;
 use App\Http\Resources\Lead\ProspectResource;
 use App\Models\CRM\Prospect;
+use App\Models\Market\Shop;
+use App\Models\SysAdmin\Organisation;
+use App\Rules\IUnique;
+use Illuminate\Support\Arr;
+use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdateProspect
+class UpdateProspect extends OrgAction
 {
     use WithActionUpdate;
+    use WithProspectPrepareForValidation;
+    private bool $asAction     = false;
+    public int $hydratorsDelay = 0;
+    private bool $strict       = true;
 
-    private bool $asAction = false;
+    private Prospect $prospect;
 
     public function handle(Prospect $prospect, array $modelData): Prospect
     {
+
+        if(Arr::has($modelData, 'email')) {
+            $isValidEmail = true;
+            if (Arr::get($modelData, 'email', '') != '' && !filter_var(Arr::get($modelData, 'email'), FILTER_VALIDATE_EMAIL)) {
+                $isValidEmail = false;
+            }
+            data_set($modelData, 'is_valid_email', $isValidEmail);
+        }
+
         $prospect = $this->update($prospect, $modelData, ['data']);
         ProspectHydrateUniversalSearch::dispatch($prospect);
 
@@ -38,29 +61,115 @@ class UpdateProspect
 
     public function rules(): array
     {
-        return [
-            'contact_name'    => ['sometimes'],
-            'company_name'    => ['sometimes'],
-            'phone'           => ['sometimes', 'nullable', 'phone:AUTO'],
-            'contact_website' => ['sometimes', 'nullable', 'active_url'],
-            'email'           => ['sometimes', 'nullable', 'email'],
+        $rules = [
+            'contacted_state'   => ['sometimes', Rule::enum(ProspectContactedStateEnum::class)],
+            'fail_status'       => ['sometimes', 'nullable', Rule::enum(ProspectFailStatusEnum::class)],
+            'success_status'    => ['sometimes', 'nullable', Rule::enum(ProspectSuccessStatusEnum::class)],
+            'dont_contact_me'   => ['sometimes', 'boolean'],
+            'last_contacted_at' => 'sometimes|nullable|date',
+            'contact_name'      => ['sometimes', 'nullable', 'string', 'max:255'],
+            'company_name'      => ['sometimes', 'nullable', 'string', 'max:255'],
+            'email'             => [
+                'sometimes',
+                'string:500',
+                new IUnique(
+                    table: 'prospects',
+                    extraConditions: [
+                        ['column' => 'shop_id', 'value' => $this->shop->id],
+                        ['column' => 'id', 'operator' => '!=', 'value' => $this->prospect->id]
+
+                    ]
+                ),
+
+            ],
+            'phone'             => [
+                'sometimes',
+                'nullable',
+                'string',
+                'max:255',
+            ],
+            'contact_website'   => [
+                'sometimes',
+                'nullable',
+                'string',
+                'max:500',
+                new IUnique(
+                    table: 'prospects',
+                    extraConditions: [
+                        ['column' => 'shop_id', 'value' => $this->shop->id],
+                        ['column' => 'id', 'operator' => '!=', 'value' => $this->prospect->id]
+
+                    ]
+                ),
+            ],
         ];
+
+        if ($this->strict) {
+            $strictRules = [
+                'email'           => [
+                    'sometimes',
+                    'email',
+                    'max:500',
+                    new IUnique(
+                        table: 'prospects',
+                        extraConditions: [
+                            ['column' => 'shop_id', 'value' => $this->shop->id],
+                            ['column' => 'id', 'operator' => '!=', 'value' => $this->prospect->id]
+
+                        ]
+                    ),
+
+                ],
+                'phone'           => [
+                    'sometimes',
+                    'nullable',
+                    // 'phone:AUTO',
+                    new IUnique(
+                        table: 'prospects',
+                        extraConditions: [
+                            ['column' => 'shop_id', 'value' => $this->shop->id],
+                            ['column' => 'id', 'operator' => '!=', 'value' => $this->prospect->id]
+
+                        ]
+                    ),
+                ],
+                'contact_website' => [
+                    'sometimes',
+                    'nullable',
+                    'url:http,https',
+                    new IUnique(
+                        table: 'prospects',
+                        extraConditions: [
+                            ['column' => 'shop_id', 'value' => $this->shop->id],
+                            ['column' => 'id', 'operator' => '!=', 'value' => $this->prospect->id]
+
+                        ]
+                    ),
+                ],
+            ];
+            $rules       = array_merge($rules, $strictRules);
+        }
+
+        return $rules;
     }
 
-    public function asController(Prospect $prospect, ActionRequest $request): Prospect
+    public function asController(Organisation $organisation, Shop $shop, Prospect $prospect, ActionRequest $request): Prospect
     {
-        $request->validate();
+        $this->initialisationFromShop($prospect->shop, $request);
+        $this->prospect = $prospect;
 
-        return $this->handle($prospect, $request->all());
+        return $this->handle($prospect, $this->validatedData);
     }
 
-    public function action(Prospect $prospect, $modelData): Prospect
+    public function action(Prospect $prospect, $modelData, int $hydratorsDelay = 0, bool $strict = true): Prospect
     {
-        $this->asAction = true;
-        $this->setRawAttributes($modelData);
-        $validatedData = $this->validateAttributes();
+        $this->asAction       = true;
+        $this->hydratorsDelay = $hydratorsDelay;
+        $this->strict         = $strict;
+        $this->prospect       = $prospect;
+        $this->initialisationFromShop($prospect->shop, $modelData);
 
-        return $this->handle($prospect, $validatedData);
+        return $this->handle($prospect, $this->validatedData);
     }
 
     public function jsonResponse(Prospect $prospect): ProspectResource

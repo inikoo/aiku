@@ -11,6 +11,11 @@ trait WithProspectPrepareForValidation
 {
     public function prepareForValidation(): void
     {
+        if ($this->has('address') and !array_filter($this->get('address'))) {
+            $this->set('address', null);
+        }
+
+
         if ($this->has('contact_name') and $this->get('contact_name', '') == '') {
             $this->fill(['contact_name' => null]);
         }
@@ -29,17 +34,20 @@ trait WithProspectPrepareForValidation
         }
 
         if ($this->has('contact_website')) {
-            if ($this->get('contact_website', '') == '') {
-                $this->fill(['contact_website' => null]);
-            }
+            $contactWebsite = $this->get('contact_website', '');
 
-            if ($this->get('contact_website')) {
-                $this->fill(
-                    [
-                        'contact_website' => 'https://'.$this->get('contact_website'),
-                    ]
-                );
+            if ($contactWebsite == '') {
+                $contactWebsite = null;
+            } else {
+                if (preg_match('/^https?:\/\//', $contactWebsite) === 0) {
+                    $contactWebsite = 'https://'.$contactWebsite;
+                }
             }
+            $this->fill(
+                [
+                    'contact_website' => $contactWebsite
+                ]
+            );
         }
     }
 
