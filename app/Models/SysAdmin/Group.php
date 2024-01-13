@@ -121,6 +121,11 @@ class Group extends Model implements HasMedia
     {
         return $this->hasOne(GroupHumanResourcesStats::class);
     }
+
+    public function crmStats(): HasOne
+    {
+        return $this->hasOne(GroupCRMStats::class);
+    }
     public function procurementStats(): HasOne
     {
         return $this->hasOne(GroupProcurementStats::class);

@@ -7,14 +7,12 @@
 
 use App\Enums\Dispatch\DeliveryNote\DeliveryNoteStateEnum;
 use App\Stubs\Migrations\HasCatalogueStats;
-use App\Stubs\Migrations\HasCRMStats;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
     use HasCatalogueStats;
-    use HasCRMStats;
 
     public function up(): void
     {
@@ -24,7 +22,7 @@ return new class () extends Migration {
             $table->foreign('shop_id')->references('id')->on('shops');
 
             $table = $this->catalogueStats($table);
-            $table =$this->crmStats($table);
+
             $table->unsignedInteger('number_deliveries')->default(0);
             $table->unsignedInteger('number_deliveries_type_order')->default(0);
             $table->unsignedInteger('number_deliveries_type_replacement')->default(0);

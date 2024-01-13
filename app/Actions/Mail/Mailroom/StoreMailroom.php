@@ -7,11 +7,10 @@
 
 namespace App\Actions\Mail\Mailroom;
 
-use App\Enums\Mail\Mailroom\MailroomTypeEnum;
+use App\Enums\Mail\Mailroom\MailroomCodeEnum;
 use App\Models\Mail\Mailroom;
 use App\Models\SysAdmin\Group;
 use Illuminate\Validation\Rule;
-use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
@@ -31,19 +30,11 @@ class StoreMailroom
         return $mailroom;
     }
 
-    public function authorize(ActionRequest $request): bool
-    {
-        if ($this->asAction) {
-            return true;
-        }
-
-        return $request->user()->hasPermissionTo("inventory.warehouses.edit");
-    }
 
     public function rules(): array
     {
         return [
-            'type' => [Rule::enum(MailroomTypeEnum::class)],
+            'code' => [Rule::enum(MailroomCodeEnum::class)],
             'name' => ['required', 'string'],
         ];
     }

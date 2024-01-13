@@ -9,6 +9,8 @@ namespace App\Actions\Market\Shop;
 
 use App\Actions\Accounting\PaymentAccount\StorePaymentAccount;
 use App\Actions\Assets\Currency\SetCurrencyHistoricFields;
+use App\Actions\Helpers\Query\Seeders\ProspectQuerySeeder;
+use App\Actions\Mail\Outbox\SeedShopOutboxes;
 use App\Actions\OrgAction;
 use App\Actions\Mail\Outbox\StoreOutbox;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateMarket;
@@ -95,7 +97,7 @@ class StoreShop extends OrgAction
 
         foreach (OutboxTypeEnum::cases() as $case) {
             if ($case->scope() == 'shop') {
-                $mailroom = $organisation->group->mailrooms()->where('type', $case->mailroomType()->value)->first();
+                $mailroom = $organisation->group->mailrooms()->where('code', $case->mailroomCode()->value)->first();
 
                 StoreOutbox::run(
                     $mailroom,
@@ -110,6 +112,8 @@ class StoreShop extends OrgAction
         }
 
         OrganisationHydrateMarket::dispatch($organisation);
+        ProspectQuerySeeder::run($shop);
+        SeedShopOutboxes::run($shop);
 
         return $shop;
     }
@@ -148,7 +152,7 @@ class StoreShop extends OrgAction
             'phone'                    => 'nullable',
             'identity_document_number' => ['nullable', 'string'],
             'identity_document_type'   => ['nullable', 'string'],
-            'state'                    => ['required', Rule::in(ShopStateEnum::values())],
+            'state'                    => ['sometimes', 'required', Rule::in(ShopStateEnum::values())],
             'type'                     => ['required', Rule::in(ShopTypeEnum::values())],
             'country_id'               => ['required', 'exists:countries,id'],
             'currency_id'              => ['required', 'exists:currencies,id'],

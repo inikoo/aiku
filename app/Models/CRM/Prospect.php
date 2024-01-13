@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Wed, 21 Jun 2023 08:43:57 Malaysia Time, Pantai Lembeng, Bali, Id
+ * Created: Wed, 21 Jun 2023 08:43:57 Malaysia Time, Pantai Lembeng, Bali, Indonesia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
@@ -9,7 +9,10 @@ namespace App\Models\CRM;
 
 use App\Actions\Utils\Abbreviate;
 use App\Actions\Utils\ReadableRandomStringGenerator;
+use App\Enums\CRM\Prospect\ProspectContactedStateEnum;
+use App\Enums\CRM\Prospect\ProspectFailStatusEnum;
 use App\Enums\CRM\Prospect\ProspectStateEnum;
+use App\Enums\CRM\Prospect\ProspectSuccessStatusEnum;
 use App\Models\Helpers\Address;
 use App\Models\Market\Shop;
 use App\Models\Search\UniversalSearch;
@@ -32,9 +35,11 @@ use Spatie\Tags\HasTags;
  * App\Models\CRM\Prospect
  *
  * @property int $id
+ * @property string $slug
+ * @property int $group_id
+ * @property int $organisation_id
  * @property int $shop_id
  * @property int|null $customer_id
- * @property string $slug
  * @property string|null $name
  * @property string|null $contact_name
  * @property string|null $company_name
@@ -44,11 +49,29 @@ use Spatie\Tags\HasTags;
  * @property string|null $identity_document_number
  * @property string|null $contact_website
  * @property array $location
+ * @property bool $is_valid_email
  * @property ProspectStateEnum $state
+ * @property ProspectContactedStateEnum $contacted_state
+ * @property ProspectFailStatusEnum $fail_status
+ * @property ProspectSuccessStatusEnum $success_status
+ * @property bool $dont_contact_me
+ * @property bool $can_contact_by_email
+ * @property bool $can_contact_by_phone
+ * @property bool $can_contact_by_address
  * @property array $data
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
+ * @property string|null $contacted_at
+ * @property Carbon|null $last_contacted_at
+ * @property Carbon|null $last_opened_at
+ * @property Carbon|null $last_clicked_at
+ * @property Carbon|null $dont_contact_me_at
+ * @property Carbon|null $failed_at
+ * @property Carbon|null $registered_at
+ * @property Carbon|null $invoiced_at
+ * @property Carbon|null $last_soft_bounced_at
  * @property Carbon|null $deleted_at
+ * @property string|null $delete_comment
  * @property string|null $source_id
  * @property-read Collection<int, Address> $addresses
  * @property-read \App\Models\CRM\Customer|null $customer
@@ -79,15 +102,27 @@ class Prospect extends Model
     use HasTags;
 
     protected $casts = [
-        'data'     => 'array',
-        'location' => 'array',
-        'state'    => ProspectStateEnum::class
+        'data'                 => 'array',
+        'location'             => 'array',
+        'state'                => ProspectStateEnum::class,
+        'contacted_state'      => ProspectContactedStateEnum::class,
+        'fail_status'          => ProspectFailStatusEnum::class,
+        'success_status'       => ProspectSuccessStatusEnum::class,
+        'dont_contact_me'      => 'boolean',
+        'last_contacted_at'    => 'datetime',
+        'last_opened_at'       => 'datetime',
+        'last_clicked_at'      => 'datetime',
+        'dont_contact_me_at'   => 'datetime',
+        'failed_at'            => 'datetime',
+        'registered_at'        => 'datetime',
+        'invoiced_at'          => 'datetime',
+        'last_soft_bounced_at' => 'datetime',
+
     ];
 
     protected $attributes = [
         'data'     => '{}',
         'location' => '{}',
-        'state'    => 'registered'
     ];
 
 
@@ -102,7 +137,7 @@ class Prospect extends Model
             if ($prospect->wasChanged(['company_name', 'contact_name'])) {
                 $prospect->updateQuietly(
                     [
-                        'name'=> $prospect->company_name == '' ? $prospect->contact_name : $prospect->company_name
+                        'name' => $prospect->company_name == '' ? $prospect->contact_name : $prospect->company_name
                     ]
                 );
             }
@@ -110,6 +145,11 @@ class Prospect extends Model
     }
 
     protected $guarded = [];
+
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
 
     public function getSlugOptions(): SlugOptions
     {

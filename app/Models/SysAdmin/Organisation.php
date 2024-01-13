@@ -13,6 +13,8 @@ use App\Models\Assets\Country;
 use App\Models\Assets\Currency;
 use App\Models\Assets\Language;
 use App\Models\Assets\Timezone;
+use App\Models\CRM\Customer;
+use App\Models\CRM\Prospect;
 use App\Models\Dispatch\Shipper;
 use App\Models\HumanResources\ClockingMachine;
 use App\Models\HumanResources\Employee;
@@ -62,6 +64,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Country $country
  * @property-read \App\Models\SysAdmin\OrganisationCRMStats|null $crmStats
  * @property-read Currency $currency
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Customer> $customers
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Employee> $employees
  * @property-read \App\Models\SysAdmin\OrganisationFulfilmentStats|null $fulfilmentStats
  * @property-read \App\Models\SysAdmin\Group $group
@@ -75,6 +78,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, PaymentServiceProvider> $paymentServiceProviders
  * @property-read \App\Models\SysAdmin\OrganisationProcurementStats|null $procurementStats
  * @property-read \App\Models\SysAdmin\OrganisationProductionStats|null $productionStats
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Prospect> $prospects
  * @property-read \Illuminate\Database\Eloquent\Collection<int, PurchaseOrder> $purchaseOrders
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\Role> $roles
  * @property-read \App\Models\SysAdmin\OrganisationSalesStats|null $salesStats
@@ -280,6 +284,16 @@ class Organisation extends Model implements HasMedia
     public function authorisedModels(): HasMany
     {
         return $this->hasMany(OrganisationAuthorisedModels::class, 'org_id');
+    }
+
+    public function customers(): HasMany
+    {
+        return $this->hasMany(Customer::class);
+    }
+
+    public function prospects(): HasMany
+    {
+        return $this->hasMany(Prospect::class);
     }
 
 

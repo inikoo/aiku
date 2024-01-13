@@ -9,6 +9,7 @@ namespace App\Actions\SysAdmin\Organisation;
 
 use App\Actions\Accounting\PaymentServiceProvider\StorePaymentServiceProvider;
 use App\Actions\Assets\Currency\SetCurrencyHistoricFields;
+use App\Actions\Mail\Outbox\SeedOrganisationOutboxes;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateOrganisations;
 use App\Actions\SysAdmin\User\UserAddRoles;
 use App\Enums\Accounting\PaymentServiceProvider\PaymentServiceProviderTypeEnum;
@@ -35,11 +36,7 @@ class StoreOrganisation
     public function handle(Group $group, array $modelData): Organisation
     {
 
-
-
         data_set($modelData, 'ulid', Str::ulid());
-
-
         data_set($modelData, 'settings.ui.name', Arr::get($modelData, 'name'));
 
         /** @var Organisation $organisation */
@@ -61,8 +58,6 @@ class StoreOrganisation
         $organisation->refresh();
 
         SetCurrencyHistoricFields::run($organisation->currency, $organisation->created_at);
-
-
 
         $organisation->stats()->create();
         $organisation->humanResourcesStats()->create();
@@ -89,6 +84,7 @@ class StoreOrganisation
 
         GroupHydrateOrganisations::dispatch($group);
         SetOrganisationLogo::dispatch($organisation);
+        SeedOrganisationOutboxes::run();
 
         return $organisation;
     }

@@ -83,8 +83,11 @@ class Outbox extends Model
                 } else {
                     $abbreviation= Abbreviate::run($this->type);
                 }
+                if($this->shop_id) {
+                    $abbreviation.=' '.$this->shop->slug;
+                }
 
-                return $abbreviation.' '.$this->shop->slug;
+                return $abbreviation;
             })
             ->doNotGenerateSlugsOnUpdate()
             ->saveSlugsTo('slug')

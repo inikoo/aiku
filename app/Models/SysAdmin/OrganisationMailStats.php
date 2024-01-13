@@ -31,9 +31,7 @@ use Illuminate\Support\Carbon;
  * @property int $number_outbox_type_abandoned_cart
  * @property int $number_outbox_type_delivery_confirmation
  * @property int $number_outbox_type_reorder_reminder
- * @property int $number_outbox_type_invite
- * @property int $number_outbox_type_invite_mailshot
- * @property int $number_outbox_type_invite_full_mailshot
+ * @property int $number_outbox_type_shop_prospect
  * @property int $number_outbox_type_marketing
  * @property int $number_outbox_type_newsletter
  * @property int $number_outbox_type_oos_notification
@@ -42,6 +40,7 @@ use Illuminate\Support\Carbon;
  * @property int $number_outbox_type_registration
  * @property int $number_outbox_type_registration_approved
  * @property int $number_outbox_type_registration_rejected
+ * @property int $number_outbox_type_test
  * @property int $number_outbox_state_in_process
  * @property int $number_outbox_state_active
  * @property int $number_outbox_state_suspended

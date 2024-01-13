@@ -8,7 +8,7 @@
 namespace App\Enums\Mail\Outbox;
 
 use App\Enums\EnumHelperTrait;
-use App\Enums\Mail\Mailroom\MailroomTypeEnum;
+use App\Enums\Mail\Mailroom\MailroomCodeEnum;
 
 enum OutboxTypeEnum: string
 {
@@ -26,9 +26,7 @@ enum OutboxTypeEnum: string
     case ABANDONED_CART             = 'abandoned_cart';
     case DELIVERY_CONFIRMATION      = 'delivery_confirmation';
     case REORDER_REMINDER           = 'reorder_reminder';
-    case INVITE                     = 'invite';
-    case INVITE_MAILSHOT            = 'invite_mailshot';
-    case INVITE_FULL_MAILSHOT       = 'invite_full_mailshot';
+    case SHOP_PROSPECT              = 'shop-prospect';
     case MARKETING                  = 'marketing';
     case NEWSLETTER                 = 'newsletter';
     case OOS_NOTIFICATION           = 'oos_notification';
@@ -38,6 +36,7 @@ enum OutboxTypeEnum: string
     case REGISTRATION_APPROVED      = 'registration_approved';
     case REGISTRATION_REJECTED      = 'registration_rejected';
 
+    case TEST = 'test';
 
     public function label(): string
     {
@@ -54,9 +53,7 @@ enum OutboxTypeEnum: string
             OutboxTypeEnum::ABANDONED_CART             => 'Abandoned cart',
             OutboxTypeEnum::DELIVERY_CONFIRMATION      => 'Delivery conformation',
             OutboxTypeEnum::REORDER_REMINDER           => 'Reorder reminder',
-            OutboxTypeEnum::INVITE                     => 'Invite',
-            OutboxTypeEnum::INVITE_MAILSHOT            => 'Invite mailshot',
-            OutboxTypeEnum::INVITE_FULL_MAILSHOT       => 'Invite full mailshot',
+            OutboxTypeEnum::SHOP_PROSPECT              => __('prospect'),
             OutboxTypeEnum::MARKETING                  => 'Marketing',
             OutboxTypeEnum::NEWSLETTER                 => 'Newsletter',
             OutboxTypeEnum::OOS_NOTIFICATION           => 'Out of stock notification',
@@ -65,6 +62,7 @@ enum OutboxTypeEnum: string
             OutboxTypeEnum::REGISTRATION               => 'Registration',
             OutboxTypeEnum::REGISTRATION_APPROVED      => 'Registration approved',
             OutboxTypeEnum::REGISTRATION_REJECTED      => 'Registration rejected',
+            OutboxTypeEnum::TEST                       => __('Test'),
         };
     }
 
@@ -72,12 +70,27 @@ enum OutboxTypeEnum: string
     public function scope(): string
     {
         return match ($this) {
-            default=> 'shop'
+            OutboxTypeEnum::TEST => 'organisation',
+            default              => 'shop'
+        };
+    }
+
+    public function defaultState(): OutboxStateEnum
+    {
+        return match ($this) {
+            OutboxTypeEnum::MARKETING,
+            OutboxTypeEnum::NEWSLETTER,
+            OutboxTypeEnum::SHOP_PROSPECT,
+            OutboxTypeEnum::TEST,
+            => OutboxStateEnum::ACTIVE,
+            default => OutboxStateEnum::IN_PROCESS
         };
     }
 
 
-    public function mailroomType(): MailroomTypeEnum
+
+
+    public function mailroomCode(): MailroomCodeEnum
     {
         return match ($this) {
             OutboxTypeEnum::BASKET_LOW_STOCK,
@@ -91,23 +104,26 @@ enum OutboxTypeEnum: string
             OutboxTypeEnum::DELIVERY_CONFIRMATION,
             OutboxTypeEnum::OOS_NOTIFICATION,
             OutboxTypeEnum::ORDER_CONFIRMATION
-            => MailroomTypeEnum::CUSTOMER_NOTIFICATION,
+            => MailroomCodeEnum::CUSTOMER_NOTIFICATION,
 
             OutboxTypeEnum::DELIVERY_NOTE_DISPATCHED,
             OutboxTypeEnum::DELIVERY_NOTE_UNDISPATCHED,
             OutboxTypeEnum::INVOICE_DELETED,
             OutboxTypeEnum::NEW_ORDER,
             OutboxTypeEnum::NEW_CUSTOMER
-            => MailroomTypeEnum::USER_NOTIFICATION,
+            => MailroomCodeEnum::USER_NOTIFICATION,
 
-            OutboxTypeEnum::INVITE,
-            OutboxTypeEnum::INVITE_MAILSHOT,
-            OutboxTypeEnum::INVITE_FULL_MAILSHOT,
+            OutboxTypeEnum::SHOP_PROSPECT
+            => MailroomCodeEnum::LEADS,
+
             OutboxTypeEnum::MARKETING,
             OutboxTypeEnum::NEWSLETTER,
             OutboxTypeEnum::ABANDONED_CART,
             OutboxTypeEnum::REORDER_REMINDER
-            => MailroomTypeEnum::MARKETING,
+            => MailroomCodeEnum::MARKETING,
+
+            OutboxTypeEnum::TEST,
+            => MailroomCodeEnum::TESTS,
         };
     }
 }

@@ -46,3 +46,4 @@ _ide_helper.php
 
 /storage/app/media
 
+/storage/media-library/*

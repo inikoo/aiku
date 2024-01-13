@@ -9,7 +9,7 @@ namespace App\Actions\SysAdmin\Group;
 
 use App\Actions\Mail\Mailroom\StoreMailroom;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateJobPositions;
-use App\Enums\Mail\Mailroom\MailroomTypeEnum;
+use App\Enums\Mail\Mailroom\MailroomCodeEnum;
 use App\Models\Assets\Country;
 use App\Models\Assets\Currency;
 use App\Models\Assets\Language;
@@ -40,16 +40,17 @@ class StoreGroup
         $group->sysadminStats()->create();
         $group->humanResourcesStats()->create();
         $group->inventoryStats()->create();
+        $group->crmStats()->create();
 
         SetGroupLogo::dispatch($group);
 
 
-        foreach (MailroomTypeEnum::cases() as $case) {
+        foreach (MailroomCodeEnum::cases() as $case) {
             StoreMailroom::run(
                 $group,
                 [
                     'name' => $case->label(),
-                    'type' => $case
+                    'code' => $case
                 ]
             );
         }

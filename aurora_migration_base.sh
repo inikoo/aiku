@@ -46,7 +46,7 @@ echo "🏢 create group"
 ./create_aurora_organisations.sh
 php artisan fetch:organisations -d "${DB_SUFFIX}"
 
-
+php artisan fetch:reset -b -c
 php artisan guest:create awg 'Mr Aiku' aiku -e aiku@inikoo.com --roles=super-admin
 pg_dump -Fc -f "devops/devel/snapshots/au_init.dump" ${DB}
 
@@ -84,5 +84,9 @@ pg_dump -Fc -f "devops/devel/snapshots/suppliers.dump" ${DB}
 php artisan fetch:locations -d "${DB_SUFFIX}"
 php artisan fetch:deleted-locations -d "${DB_SUFFIX}"
 pg_dump -Fc -f "devops/devel/snapshots/locations.dump" ${DB}
+
+php artisan fetch:customers -w clients -w web-users  -d "${DB_SUFFIX}"
+php artisan fetch:deleted-customers -d "${DB_SUFFIX}"
+pg_dump -Fc -f "devops/devel/snapshots/customers.dump" ${DB}
 
 pg_dump -Fc -f "devops/devel/snapshots/aiku.dump" ${DB}

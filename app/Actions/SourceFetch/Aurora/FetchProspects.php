@@ -9,7 +9,6 @@ namespace App\Actions\SourceFetch\Aurora;
 
 use App\Actions\CRM\Prospect\StoreProspect;
 use App\Actions\CRM\Prospect\UpdateProspect;
-use App\Actions\Helpers\Address\UpdateAddress;
 use App\Models\CRM\Prospect;
 use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
@@ -26,18 +25,25 @@ class FetchProspects extends FetchAction
         if ($prospectData = $organisationSource->fetchProspect($organisationSourceId)) {
             if ($prospect = Prospect::withTrashed()->where('source_id', $prospectData['prospect']['source_id'])
                 ->first()) {
-                $prospect = UpdateProspect::run($prospect, $prospectData['prospect']);
+                $prospect = UpdateProspect::make()->action(
+                    $prospect,
+                    $prospectData['prospect'],
+                    60,
+                    false
+                );
 
-                UpdateAddress::run($prospect->getAddress('contact'), $prospectData['contact_address']);
-                $prospect->location = $prospect->getLocation();
-                $prospect->save();
             } else {
-                $prospect = StoreProspect::run($prospectData['shop'], $prospectData['prospect'], $prospectData['contact_address']);
+                $prospect = StoreProspect::make()->action(
+                    $prospectData['shop'],
+                    $prospectData['prospect'],
+                    60,
+                    false
+                );
             }
 
-
+            $sourceData = explode(':', $prospect->source_id);
             DB::connection('aurora')->table('Prospect Dimension')
-                ->where('Prospect Key', $prospect->source_id)
+                ->where('Prospect Key', $sourceData[1])
                 ->update(['aiku_id' => $prospect->id]);
 
             return $prospect;

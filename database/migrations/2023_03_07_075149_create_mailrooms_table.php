@@ -16,8 +16,8 @@ return new class () extends Migration {
             $table->smallIncrements('id');
             $table->unsignedSmallInteger('group_id')->index();
             $table->foreign('group_id')->references('id')->on('groups')->onUpdate('cascade')->onDelete('cascade');
-            $table->string('slug')->unique();
-            $table->string('type');
+            $table->string('slug')->unique()->collation('und_ns');
+            $table->string('code')->index();
             $table->string('name');
             $table->jsonb('data');
             $table->timestampsTz();

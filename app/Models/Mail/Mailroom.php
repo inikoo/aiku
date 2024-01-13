@@ -7,7 +7,7 @@
 
 namespace App\Models\Mail;
 
-use App\Enums\Mail\Mailroom\MailroomTypeEnum;
+use App\Enums\Mail\Mailroom\MailroomCodeEnum;
 use App\Models\SysAdmin\Group;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
@@ -26,7 +26,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $id
  * @property int $group_id
  * @property string $slug
- * @property MailroomTypeEnum $type
+ * @property MailroomCodeEnum $code
  * @property string $name
  * @property array $data
  * @property Carbon|null $created_at
@@ -44,7 +44,7 @@ class Mailroom extends Model
     use HasSlug;
 
     protected $casts = [
-        'type' => MailroomTypeEnum::class,
+        'code' => MailroomCodeEnum::class,
         'data' => 'array',
     ];
 
@@ -58,7 +58,7 @@ class Mailroom extends Model
     {
         return SlugOptions::create()
             ->generateSlugsFrom(function () {
-                return $this->type->value.'-'.$this->group->slug;
+                return $this->code->value.'-'.$this->group->slug;
             })
             ->saveSlugsTo('slug')
             ->doNotGenerateSlugsOnUpdate();

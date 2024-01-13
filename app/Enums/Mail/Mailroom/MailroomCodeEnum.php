@@ -9,20 +9,24 @@ namespace App\Enums\Mail\Mailroom;
 
 use App\Enums\EnumHelperTrait;
 
-enum MailroomTypeEnum: string
+enum MailroomCodeEnum: string
 {
     use EnumHelperTrait;
 
     case MARKETING             = 'marketing';
+    case LEADS                 = 'leads';
     case CUSTOMER_NOTIFICATION = 'customer-notification';
     case USER_NOTIFICATION     = 'user-notification';
+    case TESTS                 = 'tests';
 
     public function label(): string
     {
         return match ($this) {
-            MailroomTypeEnum::MARKETING             => 'Marketing',
-            MailroomTypeEnum::CUSTOMER_NOTIFICATION => 'Customer notifications',
-            MailroomTypeEnum::USER_NOTIFICATION     => 'User notifications',
+            MailroomCodeEnum::MARKETING             => 'Marketing',
+            MailroomCodeEnum::LEADS                 => 'Leads',
+            MailroomCodeEnum::CUSTOMER_NOTIFICATION => 'Customer notifications',
+            MailroomCodeEnum::USER_NOTIFICATION     => 'User notifications',
+            MailroomCodeEnum::TESTS                 => 'tests',
         };
     }
 }
