@@ -13,7 +13,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Support\Carbon;
 
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -21,13 +20,6 @@ use Spatie\Sluggable\SlugOptions;
 /**
  * App\Models\Web\WebpageVariant
  *
- * @property int $id
- * @property string $slug
- * @property string $code
- * @property int $webpage_id
- * @property array $components
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Web\ContentBlock> $contentBlocks
  * @property-read \App\Models\Web\WebpageStats|null $stats
  * @property-read \App\Models\Web\Webpage $webpage

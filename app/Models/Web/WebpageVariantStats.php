@@ -11,16 +11,11 @@ use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Carbon;
 
 /**
  * App\Models\Web\WebpageVariantStats
  *
- * @property int $id
- * @property int $webpage_variant_id
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
- * @property-read \App\Models\Web\WebpageVariant $webpageVariant
+ * @property-read \App\Models\Web\WebpageVariant|null $webpageVariant
  * @method static Builder|WebpageVariantStats newModelQuery()
  * @method static Builder|WebpageVariantStats newQuery()
  * @method static Builder|WebpageVariantStats query()

@@ -13,7 +13,7 @@ use App\Actions\SysAdmin\User\UpdateUser;
 use App\Actions\Traits\WithOrganisationsArgument;
 use App\Actions\Traits\WithOrganisationSource;
 use App\Enums\Helpers\Fetch\FetchTypeEnum;
-use App\Models\Helpers\Fetch;
+use App\Enums\Helpers\FetchRecord\FetchRecordTypeEnum;
 use App\Models\Media\Media;
 use App\Models\Procurement\Agent;
 use App\Models\Procurement\Supplier;
@@ -42,12 +42,12 @@ class FetchAction
     protected array $with;
     protected bool $onlyNew = false;
 
-    protected int $number_stores    =0;
-    protected int $number_updates   =0;
-    protected int $number_no_changes=0;
-    protected int $number_errors    =0;
+    protected int $number_stores     = 0;
+    protected int $number_updates    = 0;
+    protected int $number_no_changes = 0;
+    protected int $number_errors     = 0;
 
-    protected Fetch $fetch;
+    protected $organisationSource = null;
 
     protected int $hydrateDelay = 0;
 
@@ -99,7 +99,6 @@ class FetchAction
         $exitCode      = 0;
 
         foreach ($organisations as $organisation) {
-
             $result = $this->processOrganisation($command, $organisation);
 
             if ($result !== 0) {
@@ -126,7 +125,9 @@ class FetchAction
             'fetch:delivery-notes',
             'fetch:purchase-orders',
             'fetch:suppliers',
-            'fetch:web-users'
+            'fetch:web-users',
+            'fetch:prospects',
+            'fetch:deleted-customers',
 
         ])) {
             $this->onlyNew = (bool)$command->option('only_new');
@@ -138,14 +139,15 @@ class FetchAction
         }
 
         try {
-            $organisationSource = $this->getOrganisationSource($organisation);
+            $this->organisationSource = $this->getOrganisationSource($organisation);
         } catch (Exception $exception) {
             $command->error($exception->getMessage());
+
             return 1;
         }
-        $organisationSource->initialisation($organisation, $command->option('db_suffix') ?? '');
+        $this->organisationSource->initialisation($organisation, $command->option('db_suffix') ?? '');
 
-        $this->fetch = StoreFetch::run(
+        $this->organisationSource->fetch = StoreFetch::run(
             [
                 'type' => $this->getFetchType($command),
                 'data' => [
@@ -167,7 +169,9 @@ class FetchAction
                 'fetch:web-users',
                 'fetch:delivery-notes',
                 'fetch:purchase-orders',
-                 'fetch:web-users'
+                'fetch:web-users',
+                'fetch:prospects',
+                'fetch:deleted-customers',
             ]) and $command->option('reset')) {
             $this->reset();
         }
@@ -175,11 +179,11 @@ class FetchAction
         $command->info('');
 
         if ($command->option('source_id')) {
-            $this->handle($organisationSource, $command->option('source_id'));
-            UpdateFetch::run($this->fetch, ['number_items' => 1]);
+            $this->handle($this->organisationSource, $command->option('source_id'));
+            UpdateFetch::run($this->organisationSource->fetch, ['number_items' => 1]);
         } else {
             $numberItems = $this->count() ?? 0;
-            UpdateFetch::run($this->fetch, ['number_items' => $numberItems]);
+            UpdateFetch::run($this->organisationSource->fetch, ['number_items' => $numberItems]);
             if (!$command->option('quiet') and !$command->getOutput()->isDebug()) {
                 $info = '✊ '.$command->getName().' '.$organisation->slug;
                 if ($this->shop) {
@@ -193,10 +197,10 @@ class FetchAction
                 $command->line('Steps '.number_format($this->count()));
             }
 
-            $this->fetchAll($organisationSource, $command);
+            $this->fetchAll($this->organisationSource, $command);
             $this->progressBar?->finish();
         }
-        UpdateFetch::run($this->fetch, ['finished_at' => now()]);
+        UpdateFetch::run($this->organisationSource->fetch, ['finished_at' => now()]);
 
         return 0;
     }
@@ -231,10 +235,10 @@ class FetchAction
         $validatedData = $request->validated();
 
 
-        $organisationSource = $this->getOrganisationSource($organisation);
-        $organisationSource->initialisation($organisation);
+        $this->organisationSource = $this->getOrganisationSource($organisation);
+        $this->organisationSource->initialisation($organisation);
 
-        return $this->handle($organisationSource, Arr::get($validatedData, 'id'));
+        return $this->handle($this->organisationSource, Arr::get($validatedData, 'id'));
     }
 
     public function jsonResponse($model): array
@@ -298,6 +302,39 @@ class FetchAction
             'fetch:prospects' => FetchTypeEnum::PROSPECTS,
             default           => FetchTypeEnum::BASE,
         };
+    }
+
+    public function recordError($organisationSource, $e, $modelData, $modelType = null, $errorOn = null): void
+    {
+        $this->number_errors++;
+        UpdateFetch::run($organisationSource->fetch, ['number_errors' => $this->number_errors]);
+        $organisationSource->fetch->records()->create([
+            'model_data' => $modelData,
+            'data'       => $e->getMessage(),
+            'type'       => FetchRecordTypeEnum::ERROR,
+            'source_id'  => $modelData['source_id'],
+            'model_type' => $modelType,
+            'error_on'   => $errorOn
+        ]);
+        print_r($modelData);
+        print_r($e->getMessage());
+    }
+
+    public function recordChange($organisationSource, $wasChanged): void
+    {
+        if ($wasChanged) {
+            $this->number_updates++;
+            UpdateFetch::run($organisationSource->fetch, ['number_updates' => $this->number_updates]);
+        } else {
+            $this->number_no_changes++;
+            UpdateFetch::run($organisationSource->fetch, ['number_no_changes' => $this->number_no_changes]);
+        }
+    }
+
+    public function recordNew($organisationSource): void
+    {
+        $this->number_stores++;
+        UpdateFetch::run($organisationSource->fetch, ['number_stores' => $this->number_stores]);
     }
 
 }

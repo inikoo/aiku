@@ -10,6 +10,7 @@ namespace App\Models\Helpers;
 use App\Enums\Helpers\Fetch\FetchTypeEnum;
 use App\Models\Traits\HasHistory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -30,6 +31,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\FetchRecord> $records
  * @method static \Illuminate\Database\Eloquent\Builder|Fetch newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Fetch newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Fetch query()
@@ -69,6 +71,11 @@ class Fetch extends Model implements Auditable
             ->saveSlugsTo('slug')
             ->doNotGenerateSlugsOnUpdate()
             ->slugsShouldBeNoLongerThan(24);
+    }
+
+    public function records(): HasMany
+    {
+        return $this->hasMany(FetchRecord::class);
     }
 
 }

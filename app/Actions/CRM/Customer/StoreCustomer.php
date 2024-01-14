@@ -139,6 +139,7 @@ class StoreCustomer extends OrgAction
                 'nullable',
                 'string',
                 'max:255',
+                'exclude_unless:deleted_at,null',
                 new IUnique(
                     table: 'customers',
                     extraConditions: [
