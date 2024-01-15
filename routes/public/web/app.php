@@ -36,3 +36,7 @@ Route::get('/pick_pack', function () {
 Route::get('/rework', function () {
     return Inertia::render('Rework');
 })->name('.rework');
+
+Route::get('/pricing', function () {
+    return Inertia::render('Pricing');
+})->name('.pricing');

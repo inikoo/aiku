@@ -110,8 +110,8 @@ const navigations: Navigation = {
                         aria-hidden='true' />
                 </PopoverButton>
                 <transition name="headlessui">
-                    <PopoverPanel class="absolute left-0 bg-white ring-2 ring-indigo-500 text-gray-600 font-semibold flex flex-col gap-y-0.5 rounded-md overflow-hidden z-10 mt-2 transform p-1.5 min-w-64">
-                        <Link v-for="subNav in navigation.subNav" :href="subNav.href" class="hover:bg-indigo-500 hover:text-white px-2 py-1 rounded">
+                    <PopoverPanel v-slot="{ close }" class="absolute left-0 bg-white ring-2 ring-indigo-500 text-gray-600 font-semibold flex flex-col gap-y-0.5 rounded-md overflow-hidden z-10 mt-2 transform p-1.5 min-w-64">
+                        <Link v-for="subNav in navigation.subNav" :href="subNav.href" @click="() => close()" class="hover:bg-indigo-500 hover:text-white px-2 py-1 rounded">
                             <FontAwesomeIcon v-if="subNav.icon" :icon='subNav.icon' class='text-sm' fixed-width aria-hidden='true' />
                             {{ subNav.label }}
                         </Link>
