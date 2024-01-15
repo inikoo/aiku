@@ -6,9 +6,6 @@
 
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3'
-import Header from '@/Components/Public/Header.vue'
-import NavigationTab from '@/Components/Public/NavigationTab.vue'
-import Footer from '@/Components/Public/Footer.vue'
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from '@fortawesome/fontawesome-svg-core'
@@ -52,14 +49,9 @@ const textRandom = `<div id="blackboard_1" style="position: relative; height: 46
 
 </script>
 
-<template>
+<template layout="Public">
     <Head :title="$t('Welcome to aiku')" />
     <div class="bg-white shadow-lg mx-auto max-w-7xl w-full">
-        <!-- Section: Top header -->
-        <Header />
-
-        <!-- Section: Navigation Tab -->
-        <NavigationTab />
 
         <!-- Section: Hero (banner) -->
         <iframe title="AW Fulfilment" style="width:100%;height: 320px; border: 0px;overflow:hidden;"
@@ -140,8 +132,6 @@ const textRandom = `<div id="blackboard_1" style="position: relative; height: 46
                     framescrolling="no" marginheight="0" marginwidth="0" allowfullscreen></iframe>
             </div>
         </div>
-
-        <Footer />
 
     </div>
 </template>
