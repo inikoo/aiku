@@ -16,3 +16,11 @@ Route::get('/', function () {
 Route::get('/contact', function () {
     return Inertia::render('Contact');
 })->name('.contact');
+
+Route::get('/about', function () {
+    return Inertia::render('About');
+})->name('.about');
+
+Route::get('/tnc', function () {
+    return Inertia::render('Tnc');
+})->name('.tnc');
