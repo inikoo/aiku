@@ -85,8 +85,16 @@ php artisan fetch:locations -d "${DB_SUFFIX}"
 php artisan fetch:deleted-locations -d "${DB_SUFFIX}"
 pg_dump -Fc -f "devops/devel/snapshots/locations.dump" ${DB}
 
-php artisan fetch:customers -w clients -w web-users  -d "${DB_SUFFIX}"
+php artisan fetch:customers   -d "${DB_SUFFIX}"
 php artisan fetch:deleted-customers -d "${DB_SUFFIX}"
 pg_dump -Fc -f "devops/devel/snapshots/customers.dump" ${DB}
 
+php artisan fetch:customer-clients -d "${DB_SUFFIX}"
+pg_dump -Fc -f "devops/devel/snapshots/customer-clients.dump" ${DB}
+
+php artisan fetch:web-users -d "${DB_SUFFIX}"
+pg_dump -Fc -f "devops/devel/snapshots/web-users.dump" ${DB}
+
+php artisan fetch:prospects -d "${DB_SUFFIX}"
+pg_dump -Fc -f "devops/devel/snapshots/prospects.dump" ${DB}
 pg_dump -Fc -f "devops/devel/snapshots/aiku.dump" ${DB}

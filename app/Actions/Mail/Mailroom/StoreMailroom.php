@@ -7,10 +7,8 @@
 
 namespace App\Actions\Mail\Mailroom;
 
-use App\Enums\Mail\Mailroom\MailroomCodeEnum;
 use App\Models\Mail\Mailroom;
-use App\Models\SysAdmin\Group;
-use Illuminate\Validation\Rule;
+use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
@@ -19,32 +17,37 @@ class StoreMailroom
     use AsAction;
     use WithAttributes;
 
-    private bool $asAction = false;
+    private bool $asAction=false;
 
-    public function handle(Group $group, array $modelData): Mailroom
+    public function handle(array $modelData): Mailroom
     {
-        /** @var Mailroom $mailroom */
-        $mailroom = $group->mailrooms()->create($modelData);
+        $mailroom = Mailroom::create($modelData);
         $mailroom->stats()->create();
 
         return $mailroom;
     }
 
+    public function authorize(ActionRequest $request): bool
+    {
+        if($this->asAction) {
+            return true;
+        }
+        return $request->user()->hasPermissionTo("inventory.warehouses.edit");
+    }
 
     public function rules(): array
     {
         return [
-            'code' => [Rule::enum(MailroomCodeEnum::class)],
-            'name' => ['required', 'string'],
+            'code'         => ['required', 'string', 'unique:tenant.mailrooms', 'between:2,9', 'alpha_dash'],
         ];
     }
 
-    public function action(Group $group, array $modelData): Mailroom
+    public function action(array $objectData): Mailroom
     {
-        $this->asAction = true;
-        $this->setRawAttributes($modelData);
+        $this->asAction=true;
+        $this->setRawAttributes($objectData);
         $validatedData = $this->validateAttributes();
 
-        return $this->handle($group, $validatedData);
+        return $this->handle($validatedData);
     }
 }

@@ -56,11 +56,10 @@ class ProspectImport implements ToCollection, WithHeadingRow, SkipsOnFailure, Wi
                 'type' => 'Upload',
             ]);
 
-
             StoreProspect::make()->action(
                 $this->scope,
                 $modelData,
-                []
+                1
             );
 
 

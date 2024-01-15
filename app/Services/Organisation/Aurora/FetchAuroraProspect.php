@@ -70,6 +70,11 @@ class FetchAuroraProspect extends FetchAurora
         $email = $this->auroraModelData->{'Prospect Main Plain Email'};
         $email = preg_replace('/\.+/', '.', $email);
 
+        $phone = $this->auroraModelData->{'Prospect Main Plain Mobile'};
+        if(strlen($phone)<=5 or strlen($phone)>24) {
+            $phone = null;
+        }
+
         $this->parsedData['prospect'] =
             [
                 'state'             => $state,
@@ -81,7 +86,7 @@ class FetchAuroraProspect extends FetchAurora
                 'contact_name'      => $this->auroraModelData->{'Prospect Main Contact Name'},
                 'company_name'      => $this->auroraModelData->{'Prospect Company Name'},
                 'email'             => $email,
-                'phone'             => $this->auroraModelData->{'Prospect Main Plain Mobile'},
+                'phone'             => $phone,
                 'contact_website'   => $this->auroraModelData->{'Prospect Website'},
                 'source_id'         => $this->organisation->id.':'.$this->auroraModelData->{'Prospect Key'},
                 'customer_id'       => $customer_id,

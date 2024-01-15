@@ -1,8 +1,8 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Wed, 10 Jan 2024 12:27:04 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2024, Raul A Perusquia Flores
+ * Created: Wed, 13 Dec 2023 02:40:39 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
 namespace App\Models\Mail;
@@ -21,6 +21,11 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder|EmailTemplatePivotEmailCategory newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|EmailTemplatePivotEmailCategory newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|EmailTemplatePivotEmailCategory query()
+ * @method static \Illuminate\Database\Eloquent\Builder|EmailTemplatePivotEmailCategory whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|EmailTemplatePivotEmailCategory whereEmailTemplateCategoryId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|EmailTemplatePivotEmailCategory whereEmailTemplateId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|EmailTemplatePivotEmailCategory whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|EmailTemplatePivotEmailCategory whereUpdatedAt($value)
  * @mixin \Eloquent
  */
 class EmailTemplatePivotEmailCategory extends Model

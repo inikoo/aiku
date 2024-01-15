@@ -7,7 +7,7 @@
 
 namespace App\Actions\Mail\Mailshot\UI;
 
-use App\Actions\Mail\Mailroom\ShowMailroom;
+use App\Actions\Mail\Mailroom\UI\ShowMailroom;
 use App\Actions\UI\Marketing\MarketingHub;
 use App\Models\Mail\Mailroom;
 use App\Models\Mail\Outbox;

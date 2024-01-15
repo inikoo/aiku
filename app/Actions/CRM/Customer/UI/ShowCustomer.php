@@ -8,7 +8,7 @@
 namespace App\Actions\CRM\Customer\UI;
 
 use App\Actions\InertiaAction;
-use App\Actions\Mail\DispatchedEmail\IndexDispatchedEmails;
+use App\Actions\Mail\DispatchedEmail\UI\IndexDispatchedEmails;
 use App\Actions\Market\Shop\UI\ShowShop;
 use App\Actions\OMS\Order\UI\IndexOrders;
 use App\Actions\UI\Dashboard\ShowDashboard;

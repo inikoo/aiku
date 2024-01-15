@@ -26,15 +26,27 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $slug
  * @property string $code
  * @property string $url
- * @property string $purpose
+ * @property int $level
+ * @property bool $is_fixed
+ * @property string $state
  * @property string $type
+ * @property string $purpose
+ * @property int|null $parent_id
  * @property int $website_id
- * @property int|null $main_variant_id
+ * @property int|null $unpublished_snapshot_id
+ * @property int|null $live_snapshot_id
+ * @property mixed $compiled_layout
+ * @property string|null $ready_at
+ * @property string|null $live_at
+ * @property string|null $closed_at
+ * @property string|null $published_checksum
+ * @property bool $is_dirty
  * @property mixed $data
  * @property mixed $settings
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property string|null $deleted_at
+ * @property string|null $delete_comment
  * @property string|null $source_id
  * @property-read \App\Models\Web\WebpageVariant|null $mainVariant
  * @property-read \App\Models\Web\WebpageStats|null $stats

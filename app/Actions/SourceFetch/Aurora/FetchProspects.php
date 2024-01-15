@@ -9,15 +9,15 @@ namespace App\Actions\SourceFetch\Aurora;
 
 use App\Actions\CRM\Prospect\StoreProspect;
 use App\Actions\CRM\Prospect\UpdateProspect;
-use App\Actions\Helpers\Fetch\UpdateFetch;
 use App\Models\CRM\Prospect;
 use App\Services\Organisation\SourceOrganisationService;
+use Exception;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 
 class FetchProspects extends FetchAction
 {
-    public string $commandSignature = 'fetch:prospects {organisations?*} {--s|source_id=} {--S|shop= : Shop slug} {--w|with=* : Accepted values: clients orders web-users} {--N|only_new : Fetch only new} {--d|db_suffix=}';
+    public string $commandSignature = 'fetch:prospects {organisations?*} {--s|source_id=} {--S|shop= : Shop slug} {--w|with=* : Accepted values: clients orders web-users} {--N|only_new : Fetch only new} {--d|db_suffix=} {--r|reset}';
 
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Prospect
@@ -25,31 +25,33 @@ class FetchProspects extends FetchAction
         if ($prospectData = $organisationSource->fetchProspect($organisationSourceId)) {
             if ($prospect = Prospect::withTrashed()->where('source_id', $prospectData['prospect']['source_id'])
                 ->first()) {
-                $prospect = UpdateProspect::make()->action(
-                    $prospect,
-                    $prospectData['prospect'],
-                    60,
-                    false
-                );
+                try {
+                    $prospect = UpdateProspect::make()->action(
+                        $prospect,
+                        $prospectData['prospect'],
+                        60,
+                        false
+                    );
+                    $this->recordChange($organisationSource, $prospect->wasChanged());
+                } catch (Exception $e) {
+                    $this->recordError($organisationSource, $e, $prospectData['prospect'], 'Prospect', 'update');
 
-
-                if ($prospect->wasChanged()) {
-                    $this->number_updates++;
-                    UpdateFetch::run($this->fetch, ['number_updates' => $this->number_updates]);
-                } else {
-                    $this->number_no_changes++;
-                    UpdateFetch::run($this->fetch, ['number_no_changes' => $this->number_no_changes]);
+                    return null;
                 }
             } else {
-                //print_r($prospectData['prospect']);
-                $prospect = StoreProspect::make()->action(
-                    $prospectData['shop'],
-                    $prospectData['prospect'],
-                    60,
-                    false
-                );
-                $this->number_stores++;
-                UpdateFetch::run($this->fetch, ['number_stores' => $this->number_stores]);
+                try {
+                    $prospect = StoreProspect::make()->action(
+                        $prospectData['shop'],
+                        $prospectData['prospect'],
+                        60,
+                        false
+                    );
+                    $this->recordNew($organisationSource);
+                } catch (Exception $e) {
+                    $this->recordError($organisationSource, $e, $prospectData['prospect'], 'Prospect', 'store');
+
+                    return null;
+                }
             }
 
 
@@ -94,5 +96,10 @@ class FetchProspects extends FetchAction
         }
 
         return $query->count();
+    }
+
+    public function reset(): void
+    {
+        DB::connection('aurora')->table('Prospect Dimension')->update(['aiku_id' => null]);
     }
 }

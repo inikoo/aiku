@@ -155,12 +155,28 @@ class Prospect extends Model
     {
         return SlugOptions::create()
             ->generateSlugsFrom(function () {
-                $name = $this->company_name == '' ? $this->contact_name : $this->company_name;
-                if ($name != '') {
-                    return Abbreviate::run($name);
+
+                $slug='';
+                if($this->email) {
+                    $tmp=explode('@', $this->email);
+                    if(!empty($tmp[0])) {
+                        $slug=substr($tmp[0], 0, 8);
+                    }
                 }
 
-                return ReadableRandomStringGenerator::run();
+
+                $name=$this->company_name ? ' '.Abbreviate::run(string: $this->company_name, maximumLength: 4) : ''  ;
+                if($name=='') {
+                    $name=$this->contact_name ? ' '.Abbreviate::run(string: $this->contact_name, maximumLength: 4) : '';
+                }
+                $slug.=$name;
+
+
+                if ($slug == '') {
+                    $slug=ReadableRandomStringGenerator::run();
+                }
+
+                return $slug;
             })
             ->doNotGenerateSlugsOnUpdate()
             ->saveSlugsTo('slug')

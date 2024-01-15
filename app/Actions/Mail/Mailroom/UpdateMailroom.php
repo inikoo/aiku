@@ -33,7 +33,7 @@ class UpdateMailroom
     public function rules(): array
     {
         return [
-            'code'         => ['sometimes', 'required', 'unique:mailrooms', 'between:2,9', 'alpha_dash'],
+            'code'         => ['sometimes', 'required', 'unique:tenant.mailrooms', 'between:2,9', 'alpha_dash'],
             'name'         => ['sometimes', 'required', 'max:250', 'string'],
         ];
     }
@@ -44,10 +44,10 @@ class UpdateMailroom
         return $this->handle($mailroom, $request->all());
     }
 
-    public function action(Mailroom $mailroom, $modelData): Mailroom
+    public function action(Mailroom $mailroom, $objectData): Mailroom
     {
         $this->asAction=true;
-        $this->setRawAttributes($modelData);
+        $this->setRawAttributes($objectData);
         $validatedData = $this->validateAttributes();
 
         return $this->handle($mailroom, $validatedData);

@@ -12,17 +12,15 @@ use App\Actions\CRM\Customer\UpdateCustomer;
 use App\Models\CRM\Customer;
 use App\Services\Organisation\SourceOrganisationService;
 use Arr;
+use Exception;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 
 class FetchDeletedCustomers extends FetchAction
 {
-    public string $commandSignature = 'fetch:deleted-customers {organisations?*} {--s|source_id=} {--d|db_suffix=}';
+    public string $commandSignature = 'fetch:deleted-customers {organisations?*} {--s|source_id=} {--d|db_suffix=} {--N|only_new : Fetch only new} {--r|reset}';
 
 
-    /**
-     * @throws \Throwable
-     */
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Customer
     {
         if ($customerData = $organisationSource->fetchDeletedCustomer($organisationSourceId)) {
@@ -30,20 +28,33 @@ class FetchDeletedCustomers extends FetchAction
                 if ($customer = Customer::withTrashed()->where('source_id', $customerData['customer']['source_id'])
                     ->first()) {
                     if (Arr::get($customer->data, 'deleted.source') == 'aurora') {
-                        $customer = UpdateCustomer::make()->action($customer, $customerData['customer'], 60, false);
+                        try {
+                            $customer = UpdateCustomer::make()->action($customer, $customerData['customer'], 60, false);
+                            $this->recordChange($organisationSource, $customer->wasChanged());
+                        } catch (Exception $e) {
+                            $this->recordError($organisationSource, $e, $customerData['customer'], 'DeletedCustomer', 'update');
+
+                            return null;
+                        }
                     }
                 } else {
+                    try {
+                        $customer = StoreCustomer::make()->action(
+                            shop: $customerData['shop'],
+                            modelData: $customerData['customer'],
+                            hydratorsDelay: $this->hydrateDelay,
+                            strict: false
+                        );
 
-                    $customer = StoreCustomer::make()->action(
-                        shop: $customerData['shop'],
-                        modelData: $customerData['customer'],
-                        hydratorsDelay: $this->hydrateDelay,
-                        strict: false
-                    );
+                        $this->recordNew($organisationSource);
+                    } catch (Exception $e) {
+                        $this->recordError($organisationSource, $e, $customerData['customer'], 'DeletedCustomer', 'store');
 
+                        return null;
+                    }
                 }
 
-                $sourceData=explode(':', $customer->source_id);
+                $sourceData = explode(':', $customer->source_id);
                 DB::connection('aurora')->table('Customer Deleted Dimension')
                     ->where('Customer Key', $sourceData[1])
                     ->update(['aiku_id' => $customer->id]);
@@ -57,14 +68,32 @@ class FetchDeletedCustomers extends FetchAction
 
     public function getModelsQuery(): Builder
     {
-        return DB::connection('aurora')
+        $query = DB::connection('aurora')
             ->table('Customer Deleted Dimension')
             ->select('Customer Key as source_id')
             ->orderBy('source_id');
+
+
+        if ($this->onlyNew) {
+            $query->whereNull('aiku_id');
+        }
+
+
+        return $query;
     }
 
     public function count(): ?int
     {
-        return DB::connection('aurora')->table('Customer Deleted Dimension')->count();
+        $query = DB::connection('aurora')->table('Customer Deleted Dimension');
+        if ($this->onlyNew) {
+            $query->whereNull('aiku_id');
+        }
+
+        return $query->count();
+    }
+
+    public function reset(): void
+    {
+        DB::connection('aurora')->table('Customer Deleted Dimension')->update(['aiku_id' => null]);
     }
 }

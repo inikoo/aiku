@@ -11,6 +11,7 @@ use App\Actions\CRM\WebUser\StoreWebUser;
 use App\Actions\CRM\WebUser\UpdateWebUser;
 use App\Models\SysAdmin\WebUser;
 use App\Services\Organisation\SourceOrganisationService;
+use Exception;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 
@@ -25,14 +26,26 @@ class FetchWebUsers extends FetchAction
             if ($webUserData['customer']) {
                 if ($webUser = WebUser::withTrashed()->where('source_id', $webUserData['webUser']['source_id'])
                     ->first()) {
-                    // print_r( $webUserData['webUser']);
-                    $webUser = UpdateWebUser::make()->action($webUser, $webUserData['webUser'], 60, false);
+                    try {
+                        $webUser = UpdateWebUser::make()->action($webUser, $webUserData['webUser'], 60, false);
+                        $this->recordChange($organisationSource, $webUser->wasChanged());
+                    } catch (Exception $e) {
+                        $this->recordError($organisationSource, $e, $webUserData['webUser'], 'WebUser', 'update');
+
+                        return null;
+                    }
                 } else {
-                    //print_r( $webUserData['webUser']);
-                    $webUser = StoreWebUser::make()->action($webUserData['customer'], $webUserData['webUser'], 60, false);
+                    try {
+                        $webUser = StoreWebUser::make()->action($webUserData['customer'], $webUserData['webUser'], 60, false);
+                        $this->recordNew($organisationSource);
+                    } catch (Exception $e) {
+                        $this->recordError($organisationSource, $e, $webUserData['webUser'], 'WebUser', 'store');
+
+                        return null;
+                    }
                 }
 
-                $sourceData= explode(':', $webUser->source_id);
+                $sourceData = explode(':', $webUser->source_id);
                 DB::connection('aurora')->table('Website User Dimension')
                     ->where('Website User Key', $sourceData[1])
                     ->update(['aiku_id' => $webUser->id]);
@@ -48,7 +61,7 @@ class FetchWebUsers extends FetchAction
 
     public function getModelsQuery(): Builder
     {
-        $query= DB::connection('aurora')
+        $query = DB::connection('aurora')
             ->table('Website User Dimension')
             ->select('Website User Key as source_id')
             ->orderBy('source_id');
@@ -58,7 +71,7 @@ class FetchWebUsers extends FetchAction
         }
 
         if ($this->shop) {
-            $sourceData= explode(':', $this->shop->website->source_id);
+            $sourceData = explode(':', $this->shop->website->source_id);
             $query->where('Website User Website Key', $sourceData[1]);
         }
 
@@ -73,7 +86,7 @@ class FetchWebUsers extends FetchAction
             $query->whereNull('aiku_id');
         }
         if ($this->shop) {
-            $sourceData= explode(':', $this->shop->website->source_id);
+            $sourceData = explode(':', $this->shop->website->source_id);
             $query->where('Website User Website Key', $sourceData[1]);
         }
 

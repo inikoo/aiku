@@ -86,21 +86,13 @@ class UpdateProspect extends OrgAction
                 'sometimes',
                 'nullable',
                 'string',
-                'max:255',
+                'max:24',
             ],
             'contact_website'   => [
                 'sometimes',
                 'nullable',
                 'string',
                 'max:500',
-                new IUnique(
-                    table: 'prospects',
-                    extraConditions: [
-                        ['column' => 'shop_id', 'value' => $this->shop->id],
-                        ['column' => 'id', 'operator' => '!=', 'value' => $this->prospect->id]
-
-                    ]
-                ),
             ],
         ];
 

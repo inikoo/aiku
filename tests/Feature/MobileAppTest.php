@@ -10,6 +10,7 @@ use App\Actions\HumanResources\Workplace\StoreWorkplace;
 use App\Actions\UI\Profile\GetProfileAppLoginQRCode;
 use App\Enums\HumanResources\ClockingMachine\ClockingMachineTypeEnum;
 use App\Enums\HumanResources\Workplace\WorkplaceTypeEnum;
+use App\Models\Assets\Timezone;
 use App\Models\Helpers\Address;
 use App\Models\HumanResources\Workplace;
 use App\Models\SysAdmin\Organisation;
@@ -38,9 +39,10 @@ beforeEach(function () {
 
     if (!Workplace::where('name', 'office')->exists()) {
         $modelData = [
-            'name'    => 'office',
-            'type'    => WorkplaceTypeEnum::BRANCH,
-            'address' => Address::factory()->definition()
+            'name'       => 'office',
+            'type'       => WorkplaceTypeEnum::BRANCH,
+            'address'    => Address::factory()->definition(),
+            'timezone_id'=> Timezone::where('name', 'Asia/Kuala_Lumpur')->first()->id
         ];
 
         StoreWorkplace::make()->action($this->organisation, $modelData);
@@ -142,7 +144,7 @@ test('get working places list', function () {
         ->toHaveCount(1);
 });
 
-test('get workingplace data', function () {
+test('get workplace data', function () {
     Sanctum::actingAs(
         $this->user,
         ['*']

@@ -1,8 +1,8 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Wed, 10 Jan 2024 12:27:04 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2024, Raul A Perusquia Flores
+ * Created: Wed, 13 Dec 2023 02:40:39 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
 namespace App\Models\Mail;
@@ -27,9 +27,19 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Mail\EmailTemplate> $templates
+ * @property-read int|null $templates_count
  * @method static \Illuminate\Database\Eloquent\Builder|EmailTemplateCategory newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|EmailTemplateCategory newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|EmailTemplateCategory query()
+ * @method static \Illuminate\Database\Eloquent\Builder|EmailTemplateCategory whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|EmailTemplateCategory whereIcon($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|EmailTemplateCategory whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|EmailTemplateCategory whereIsSeeded($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|EmailTemplateCategory whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|EmailTemplateCategory whereNumberOfSeededTemplates($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|EmailTemplateCategory whereNumberOfTemplates($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|EmailTemplateCategory whereSlug($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|EmailTemplateCategory whereUpdatedAt($value)
  * @mixin \Eloquent
  */
 class EmailTemplateCategory extends Model

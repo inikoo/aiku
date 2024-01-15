@@ -11,6 +11,7 @@ use App\Actions\Inventory\Location\StoreLocation;
 use App\Actions\Inventory\Location\UpdateLocation;
 use App\Models\Inventory\Location;
 use App\Services\Organisation\SourceOrganisationService;
+use Exception;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 
@@ -23,15 +24,29 @@ class FetchLocations extends FetchAction
         if ($locationData = $organisationSource->fetchLocation($organisationSourceId)) {
             if ($location = Location::withTrashed()->where('source_id', $locationData['location']['source_id'])
                 ->first()) {
-                $location = UpdateLocation::make()->action(
-                    location:  $location,
-                    modelData: $locationData['location']
-                );
+                try {
+                    $location = UpdateLocation::make()->action(
+                        location: $location,
+                        modelData: $locationData['location']
+                    );
+                    $this->recordChange($organisationSource, $location->wasChanged());
+                } catch (Exception $e) {
+                    $this->recordError($organisationSource, $e, $locationData['location'], 'Location', 'update');
+
+                    return null;
+                }
             } else {
-                $location = StoreLocation::make()->action(
-                    parent:    $locationData['parent'],
-                    modelData: $locationData['location'],
-                );
+                try {
+                    $location = StoreLocation::make()->action(
+                        parent: $locationData['parent'],
+                        modelData: $locationData['location'],
+                    );
+                    $this->recordNew($organisationSource);
+                } catch (Exception $e) {
+                    $this->recordError($organisationSource, $e, $locationData['location'], 'Location', 'update');
+
+                    return null;
+                }
             }
 
 

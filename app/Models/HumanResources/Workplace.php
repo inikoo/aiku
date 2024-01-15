@@ -13,7 +13,6 @@ use App\Models\Assets\Timezone;
 use App\Models\Helpers\Address;
 use App\Models\Search\UniversalSearch;
 use App\Models\SysAdmin\Organisation;
-use App\Models\Traits\HasAddresses;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
 use Eloquent;
@@ -70,7 +69,6 @@ class Workplace extends Model implements Auditable
     use HasSlug;
     use HasUniversalSearch;
     use SoftDeletes;
-    use HasAddresses;
     use HasHistory;
 
     protected $casts = [
@@ -105,6 +103,11 @@ class Workplace extends Model implements Auditable
             ->saveSlugsTo('slug')
             ->doNotGenerateSlugsOnUpdate()
             ->slugsShouldBeNoLongerThan(8);
+    }
+
+    public function address(): BelongsTo
+    {
+        return $this->belongsTo(Address::class);
     }
 
     public function timezone(): BelongsTo
