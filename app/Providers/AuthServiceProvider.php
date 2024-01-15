@@ -8,7 +8,6 @@
 namespace App\Providers;
 
 use App\Extensions\UserWithLegacyPasswordProvider;
-use App\Models\Auth\OrganisationUser;
 use App\Models\SysAdmin\User;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Auth;
