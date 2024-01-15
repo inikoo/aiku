@@ -27,10 +27,11 @@ export const useLiveUsers = defineStore('useLiveUsers', {
             window.Echo.leave(`grp.live.users`)
         },
         subscribe() {
+            console.log('eqqq')
             window.Echo.join(`grp.live.users`)
                 .here((rawUsers) => {
                     // console.log('Who is here: ', rawUsers);
-
+                    console.log('eeee')
                     axios.get(route('grp.models.live-group-users-current-page.index'))
                         .then((response) => {
                             // console.log('lll', response.data)
@@ -41,6 +42,7 @@ export const useLiveUsers = defineStore('useLiveUsers', {
                                 this.liveUsers[userKey].name = (rawUsers.find((rawUser) => rawUser.id === userKey))?.name
                             })
                         })
+                        console.log('eeee')
 
                 }).joining((user) => {
                     // console.log('Someone is join: ', user);

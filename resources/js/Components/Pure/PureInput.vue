@@ -1,5 +1,5 @@
 <script setup lang='ts'>
-import { ref } from 'vue'
+import { ref, defineExpose } from 'vue'
 import { useCopyText } from '@/Composables/useCopyText'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faCopy } from '@fal'
@@ -43,12 +43,19 @@ const clearValue=()=>{
     emits('update:modelValue', '')
 }
 
+const inputRef = ref(null)
+
+defineExpose({
+    inputRef
+})
+
 </script>
 
 <template>
     <div class="bg-white w-full flex group relative ring-1 ring-gray-300 focus-within:ring-2 focus-within:ring-gray-500 rounded-md overflow-hidden">
         <div class="relative w-full">
             <input
+                ref="inputRef"
                 :value="modelValue"
                 @input="(event: any) => emits('update:modelValue', event.target.value)"
                 :id="inputName"
