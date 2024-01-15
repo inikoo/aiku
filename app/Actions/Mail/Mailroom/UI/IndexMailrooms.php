@@ -1,14 +1,14 @@
 <?php
 /*
- * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
- * Created: Fri, 17 Mar 2023 14:13:34 Central European Standard Time, Malaga, Spain
- * Copyright (c) 2023, Inikoo LTD
+ * Author: Artha <artha@aw-advantage.com>
+ * Created: Mon, 15 Jan 2024 13:12:44 Central Indonesia Time, Sanur, Bali, Indonesia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Mail\Mailroom;
+namespace App\Actions\Mail\Mailroom\UI;
 
 use App\Actions\InertiaAction;
-use App\Actions\Mail\DispatchedEmail\IndexDispatchedEmails;
+use App\Actions\Mail\DispatchedEmail\UI\IndexDispatchedEmails;
 use App\Actions\Mail\Mailshot\IndexMailshots;
 use App\Actions\Mail\Outbox\IndexOutboxes;
 use App\Actions\UI\Dashboard\ShowDashboard;
@@ -17,6 +17,7 @@ use App\Http\Resources\Mail\DispatchedEmailResource;
 use App\Http\Resources\Mail\MailroomResource;
 use App\Http\Resources\Mail\MailshotResource;
 use App\Http\Resources\Mail\OutboxResource;
+use App\InertiaTable\InertiaTable;
 use App\Models\Mail\Mailroom;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -24,7 +25,6 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
-use App\InertiaTable\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 

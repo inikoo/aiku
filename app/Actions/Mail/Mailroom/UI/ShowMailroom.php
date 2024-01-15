@@ -1,11 +1,11 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Wed, 26 Oct 2022 13:06:04 British Summer Time, Sheffield, UK
- *  Copyright (c) 2022, Raul A Perusquia Flores
+ * Author: Artha <artha@aw-advantage.com>
+ * Created: Mon, 15 Jan 2024 13:12:44 Central Indonesia Time, Sanur, Bali, Indonesia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Mail\Mailroom;
+namespace App\Actions\Mail\Mailroom\UI;
 
 use App\Actions\InertiaAction;
 use App\Actions\UI\Marketing\MarketingHub;
@@ -25,6 +25,7 @@ class ShowMailroom extends InertiaAction
     {
         return $mailroom;
     }
+
     public function authorize(ActionRequest $request): bool
     {
         return $request->user()->hasPermissionTo('marketing.view');

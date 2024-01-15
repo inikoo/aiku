@@ -1,11 +1,11 @@
 <?php
 /*
- * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
- * Created: Thu, 16 Mar 2023 08:17:53 Central European Standard Time, Malaga, Spain
- * Copyright (c) 2023, Inikoo LTD
+ * Author: Artha <artha@aw-advantage.com>
+ * Created: Mon, 15 Jan 2024 13:09:13 Central Indonesia Time, Sanur, Bali, Indonesia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Mail\DispatchedEmail;
+namespace App\Actions\Mail\DispatchedEmail\UI;
 
 use App\Actions\InertiaAction;
 use App\Http\Resources\Mail\DispatchedEmailResource;

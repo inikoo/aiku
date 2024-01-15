@@ -1,8 +1,8 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Wed, 10 Jan 2024 12:27:04 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2024, Raul A Perusquia Flores
+ * Created: Fri, 27 Oct 2023 19:32:09 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
 namespace App\Models\Mail;
@@ -26,29 +26,46 @@ use Spatie\Sluggable\SlugOptions;
  * App\Models\Mail\EmailTemplate
  *
  * @property int $id
- * @property string $slug
- * @property string $type
  * @property string $name
  * @property string $parent_type
  * @property int $parent_id
  * @property array $data
  * @property array $compiled
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string $slug
  * @property int|null $screenshot_id
  * @property bool $is_seeded
  * @property bool $is_transactional
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string $type
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Mail\EmailTemplateCategory> $categories
+ * @property-read int|null $categories_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Deployment> $deployments
+ * @property-read int|null $deployments_count
  * @property-read Snapshot|null $liveSnapshot
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, Media> $media
+ * @property-read int|null $media_count
  * @property-read Model|\Eloquent $parent
  * @property-read Media|null $screenshot
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Snapshot> $snapshots
+ * @property-read int|null $snapshots_count
  * @property-read Snapshot|null $unpublishedSnapshot
  * @method static \Illuminate\Database\Eloquent\Builder|EmailTemplate newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|EmailTemplate newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|EmailTemplate query()
+ * @method static \Illuminate\Database\Eloquent\Builder|EmailTemplate whereCompiled($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|EmailTemplate whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|EmailTemplate whereData($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|EmailTemplate whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|EmailTemplate whereIsSeeded($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|EmailTemplate whereIsTransactional($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|EmailTemplate whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|EmailTemplate whereParentId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|EmailTemplate whereParentType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|EmailTemplate whereScreenshotId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|EmailTemplate whereSlug($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|EmailTemplate whereType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|EmailTemplate whereUpdatedAt($value)
  * @mixin \Eloquent
  */
 class EmailTemplate extends Model implements HasMedia
