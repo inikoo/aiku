@@ -12,16 +12,16 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faSearch, faHome, faInfoCircle, faPhone, faFile, faChevronDown } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import Button from '@/Components/Elements/Buttons/Button.vue'
-import { faPhone as fasPhone, faBuilding, faEnvelope, faBalanceScale, faIndustry, faUserPlus, faSignIn } from '@fas'
+import { faPhone as fasPhone, faBuilding, faEnvelope, faBalanceScale, faIndustry, faUserPlus, faSignIn, faBox, faDollarSign, faHome as fasHome } from '@fas'
 import { ref } from 'vue'
-library.add(faSearch, faHome, faInfoCircle, faPhone, faFile, faChevronDown, fasPhone, faBuilding, faEnvelope, faBalanceScale, faIndustry, faUserPlus, faSignIn)
+library.add(faSearch, faHome, faInfoCircle, faPhone, faFile, faChevronDown, faBox, faDollarSign, fasHome, fasPhone, faBuilding, faEnvelope, faBalanceScale, faIndustry, faUserPlus, faSignIn)
 
 const navigations = {
     home: {
         name: 'home',
         label: 'Home',
         href: '#',
-        icon: 'fal fa-home',
+        icon: 'fas fa-home',
         subNav: {
             homepage: {
                 name: 'homepage',
@@ -53,7 +53,7 @@ const navigations = {
         name: 'fulfilment',
         label: 'Fulfilment',
         href: '#',
-        icon: 'fal fa-box',
+        icon: 'fas fa-box',
         subNav: {
             storage: {
                 name: 'storage',
@@ -79,7 +79,7 @@ const navigations = {
         name: 'pricing',
         label: 'Pricing',
         href: '#',
-        icon: 'fal fa-dollar-sign',
+        icon: 'fas fa-dollar-sign',
         subNav: {
             pricing: {
                 name: 'pricing',
@@ -200,6 +200,8 @@ const footerAbout = [
 const inputSearch = ref()
 const inputValue = ref('')
 
+const textRandom = `<div id="blackboard_1" style="position: relative; height: 460.99px; width: 1240px" > <div id="blackboard_text_1694661242360" class="blackboard_text _au_vw_" style=" position: absolute; top: 0px; left: 100.98958587646px; width: 1062.99px; height: 192.986px; " ><h1><br /></h1 ><h3 style="text-align: center" >AW Fulfilment ensure seamless operations.&nbsp;</h3 ><h2 style="text-align: center" >Boost efficiency, reduce costs, and leave your customers amazed.</h2 ><p><br /></p ><p style="text-align: justify" >As a leading UK fulfilment center, we are committed to streamlining your supply chain and ensuring seamless operations. &nbsp;Our state-of-the-art fulfilment warehouse UK in Sheffield's Affinity Park is strategically positioned to cater to businesses across the United Kingdom. Whether you're a budding e-commerce startup or an established brand, our fulfilment services are tailored to meet your unique needs. Our comprehensive range of services encompasses everything you need for successful order fulfilment in the UK. We offer simple tariffs, &nbsp;transparent systems without hidden costs.</p ><p style="text-align: justify"><br /></p ><p style="text-align: justify" ><strong >At AW Fulfilment we offer an affordable, flexible and efficient way to store your goods. &nbsp;Warehouse spaces available for immediate use. Your goods are stored directly within our 100 000 sq foot warehouse facility. Our heavy duty racking, trained staff and onsite security setup ensure your inventory is in safe hands.&nbsp;</strong ></p ><h4 style="text-align: center" ><a href="https://www.aw-fulfilment.co.uk/pricing" rel="noopener noreferrer" target="_blank" >Pay only for the space and services you use. Expand as needed.</a ></h4 ><p >Our Fulfillment as a service offers competitive prices without compromising on excellence. Whether you need simple short term storage or a full service pack to store, pick &amp; pack and despatch - at AW Fulfilment Sheffield we can offer cost effective solutions. With rental rates from £2.00 &nbsp;/ pallet space per week and picking, packing and despatch services to hand so we can solve your fulfilment issues.&nbsp;</p ><p ><strong >For European companies wishing to solve the Brexit distribution problem, we can help you open up the UK market. Multilingual staff available, we speak your language: French, Spanish, Italian, Czech, Slovak, German, Polish &amp; Dutch.</strong ></p ></div > </div>`
+
 </script>
 
 <template>
@@ -209,8 +211,8 @@ const inputValue = ref('')
         <div class="grid grid-cols-3 h-24 items-center">
             <div class="justify-self-start self-center"><img src="https://www.aw-fulfilment.co.uk/wi.php?id=1837721" class="h-20"></div>
             <div class="text-center place-self-center">
-                <h3 class="text-amber-700 text-xl font-bold">Your UK's Best Fulfilment Warehouse</h3>
-                <span class="text-amber-700">Storage - Pick & Pack - Distribution</span>
+                <h3 class="text-indigo-700 text-xl font-bold">Your UK's Best Fulfilment Warehouse</h3>
+                <span class="text-indigo-700">Storage - Pick & Pack - Distribution</span>
             </div>
             <div class="w-3/4 justify-self-end text-sm pr-4">
                 <p class="text-gray-500 text-xs">We Can Fulfil Your Orders</p>
@@ -226,25 +228,23 @@ const inputValue = ref('')
         </div>
 
         <!-- Section: Navigation Tab -->
-        <div class="w-full bg-amber-700 flex justify-between h-10 pl-3 pr-5">
+        <div class="w-full bg-indigo-600 flex justify-between h-10 pl-3 pr-5">
             <div class="flex gap-x-2">
                 <Popover v-for="navigation, idxNavigation in navigations" :key="idxNavigation" v-slot="{ open }" as="div"
                     class="relative">
-                    <PopoverButton :class="open ? 'text-white' : 'text-white/90'"
-                        class="group inline-flex items-center gap-x-2 rounded-md hover:bg-amber-600 px-3 py-2 text-base font-medium hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/75">
+                    <PopoverButton :class="open ? 'text-white bg-indigo-500' : 'text-white/90'"
+                        class="group inline-flex items-center gap-x-2 rounded-md hover:bg-indigo-500 px-3 py-2 text-base font-medium hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/75">
+                        <FontAwesomeIcon :icon='navigation.icon' class='' fixed-width aria-hidden='true' />
                         <span>{{ navigation.label }}</span>
                         <FontAwesomeIcon v-if="navigation.subNav" icon='fal fa-chevron-down'
                             class='text-xs transition-all duration-100 ease-in-out' :class="open ? 'rotate-180' : ''"
                             aria-hidden='true' />
                     </PopoverButton>
                     <transition name="headlessui">
-                        <PopoverPanel
-                            class="absolute left-0 bg-amber-500 flex flex-col gap-y-0.5 rounded-md overflow-hidden z-10 mt-2 transform px-1 py-1 min-w-64">
-                            <Link v-for="subNav in navigation.subNav" :href="subNav.href"
-                                class="hover:bg-amber-400 px-2 py-1 rounded">
-                            <FontAwesomeIcon v-if="subNav.icon" :icon='subNav.icon' class='text-sm' fixed-width
-                                aria-hidden='true' />
-                            {{ subNav.label }}
+                        <PopoverPanel class="absolute left-0 text-white bg-indigo-500 flex flex-col gap-y-0.5 rounded-md overflow-hidden z-10 mt-2 transform p-1.5 min-w-64">
+                            <Link v-for="subNav in navigation.subNav" :href="subNav.href" class="hover:bg-indigo-300 px-2 py-1 rounded">
+                                <FontAwesomeIcon v-if="subNav.icon" :icon='subNav.icon' class='text-sm' fixed-width aria-hidden='true' />
+                                {{ subNav.label }}
                             </Link>
                         </PopoverPanel>
                     </transition>
@@ -269,33 +269,11 @@ const inputValue = ref('')
         <!-- Section: Content -->
         <div>
             <!-- Section: Middle text -->
-            <div class="text-justify">
-                <h2 class="mx-auto">AW Fulfilment ensure seamless operations.</h2>
-                <h3 class="mx-auto">Boost efficiency, reduce costs, and leave your customers amazed.</h3>
-                <p class="text-justify">As a leading UK fulfilment center, we are committed to streamlining your supply
-                    chain and ensuring seamless operations. Our state-of-the-art fulfilment warehouse UK in Sheffield's
-                    Affinity Park is strategically positioned to cater to businesses across the United Kingdom. Whether
-                    you're a budding e-commerce startup or an established brand, our fulfilment services are tailored to
-                    meet your unique needs. Our comprehensive range of services encompasses everything you need for
-                    successful order fulfilment in the UK. We offer simple tariffs, transparent systems without hidden
-                    costs.</p>
-                <p class="font-medium text-justify">At AW Fulfilment we offer an affordable, flexible and efficient way to
-                    store your goods. Warehouse spaces available for immediate use. Your goods are stored directly within
-                    our 100 000 sq foot warehouse facility. Our heavy duty racking, trained staff and onsite security setup
-                    ensure your inventory is in safe hands. </p>
-                <h3 class="text-center">Pay only for the space and services you use. Expand as needed.</h3>
-                <p class="text-justify">Our Fulfillment as a service offers competitive prices without compromising on
-                    excellence. Whether you need simple short term storage or a full service pack to store, pick & pack and
-                    despatch - at AW Fulfilment Sheffield we can offer cost effective solutions. With rental rates from
-                    £2.00 / pallet space per week and picking, packing and despatch services to hand so we can solve your
-                    fulfilment issues.</p>
-                <p class="font-medium">For European companies wishing to solve the Brexit distribution problem, we can help
-                    you open up the UK market. Multilingual staff available, we speak your language: French, Spanish,
-                    Italian, Czech, Slovak, German, Polish & Dutch.</p>
+            <div class="text-justify text-gray-600" v-html="textRandom">
             </div>
 
             <!-- Section: Our Services -->
-            <div class="py-24 sm:py-32">
+            <div class="py-12 sm:py-20">
                 <div class="mx-auto max-w-7xl px-6 lg:px-8">
                     <div class="mx-auto max-w-2xl text-center">
                         <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">Our services</h2>
@@ -428,7 +406,7 @@ const inputValue = ref('')
             </div>
 
             <!-- Section: Copyright -->
-            <div class="bg-sky-500 text-white py-2 px-4 text-center">
+            <div class="text-gray-600 py-2 px-4 text-center">
                 Copyright &#169; <span class="font-bold">2024 Aurora</span>. All rights reserved.
                 <Link href="#" class="hover:underline">Terms of Use</Link> |
                 <Link href="#" class="hover:underline">Privacy Policy</Link>
