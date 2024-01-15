@@ -143,6 +143,15 @@ class Kernel extends HttpKernel
             SubstituteBindings::class,
             'auth:api-tenant-user'
         ],
+        'broadcast'  => [
+            EncryptCookies::class,
+            AddQueuedCookiesToResponse::class,
+            StartSession::class,
+            ShareErrorsFromSession::class,
+            VerifyCsrfToken::class,
+            SubstituteBindings::class,
+            'auth:broadcasting'
+        ],
 
 
     ];

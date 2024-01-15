@@ -8,9 +8,12 @@
 namespace App\Providers;
 
 use App\Extensions\UserWithLegacyPasswordProvider;
+use App\Models\Auth\OrganisationUser;
+use App\Models\SysAdmin\User;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Support\Facades\Session;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -22,6 +25,21 @@ class AuthServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->registerPolicies();
+
+        Auth::viaRequest('websockets-auth', function () {
+
+            $id=Session::get('login_org_'.sha1('Illuminate\Auth\SessionGuard'));
+            if (!is_null($id)) {
+                return User::find($id);
+            }
+            //... todo: try other guards
+
+            return false;
+
+
+
+
+        });
 
         Auth::provider('user-with-legacy-password', function (Application $app, array $config) {
             return new UserWithLegacyPasswordProvider($app['hash'], $config['model']);
