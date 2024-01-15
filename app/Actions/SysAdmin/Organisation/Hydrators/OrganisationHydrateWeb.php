@@ -7,52 +7,55 @@
 
 namespace App\Actions\SysAdmin\Organisation\Hydrators;
 
-use App\Enums\Web\Website\WebsiteEngineEnum;
+use App\Actions\Traits\WithEnumStats;
 use App\Enums\Web\Website\WebsiteStateEnum;
 use App\Enums\Web\Website\WebsiteTypeEnum;
 use App\Models\SysAdmin\Organisation;
-use App\Models\Web\WebpageVariant;
 use App\Models\Web\Website;
-use Arr;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class OrganisationHydrateWeb implements ShouldBeUnique
 {
     use AsAction;
-
+    use WithEnumStats;
 
     public function handle(Organisation $organisation): void
     {
         $stats = [
-            'number_websites' => Website::count(),
-            'number_webpages' => WebpageVariant::count()
+            'number_websites' => $organisation->websites()->count(),
+            'number_webpages' => $organisation->webpages()->count(),
         ];
 
-        $websiteStateCount = Website::selectRaw('state, count(*) as total')
-            ->groupBy('state')
-            ->pluck('total', 'state')->all();
+        $stats = array_merge(
+            $stats,
+            $this->getEnumStats(
+                model: 'websites',
+                field: 'state',
+                enum: WebsiteStateEnum::class,
+                models: Website::class,
+                where: function ($q) use ($organisation) {
+                    $q->where('organisation_id', $organisation->id);
+                }
+            )
+        );
+
+        $stats = array_merge(
+            $stats,
+            $this->getEnumStats(
+                model: 'websites',
+                field: 'type',
+                enum: WebsiteTypeEnum::class,
+                models: Website::class,
+                where: function ($q) use ($organisation) {
+                    $q->where('organisation_id', $organisation->id);
+                }
+            )
+        );
+
+        //todo , engine??
 
 
-        foreach (WebsiteStateEnum::cases() as $websiteState) {
-            $stats['number_websites_state_'.$websiteState->snake()] = Arr::get($websiteStateCount, $websiteState->value, 0);
-        }
-
-        $websiteEngineCount = Website::selectRaw('engine, count(*) as total')
-            ->groupBy('engine')
-            ->pluck('total', 'engine')->all();
-
-        foreach (WebsiteEngineEnum::cases() as $websiteEngine) {
-            $stats['number_websites_engine_'.$websiteEngine->snake()] = Arr::get($websiteEngineCount, $websiteEngine->value, 0);
-        }
-
-        $websiteTypeCount = Website::selectRaw('type, count(*) as total')
-            ->groupBy('type')
-            ->pluck('total', 'type')->all();
-
-        foreach (WebsiteTypeEnum::cases() as $websiteType) {
-            $stats['number_websites_type_'.$websiteType->snake()] = Arr::get($websiteTypeCount, $websiteType->value, 0);
-        }
 
 
         $organisation->webStats()->update($stats);

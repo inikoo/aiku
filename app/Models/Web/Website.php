@@ -64,6 +64,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $launched_at
  * @property string|null $closed_at
  * @property Carbon|null $deleted_at
+ * @property string|null $delete_comment
  * @property string|null $cloudflare_id
  * @property WebsiteCloudflareStatusEnum|null $cloudflare_status
  * @property string|null $source_id

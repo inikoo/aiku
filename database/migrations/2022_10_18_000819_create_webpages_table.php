@@ -14,6 +14,7 @@ return new class () extends Migration {
     {
         Schema::create('webpages', function (Blueprint $table) {
             $table->increments('id');
+            $table=$this->groupOrgRelationship($table);
             $table->string('slug')->unique()->collation('und_ns');
             $table->string('code')->index()->collation('und_ns');
             $table->string('url')->index()->collation('und_ns');

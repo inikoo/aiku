@@ -41,6 +41,11 @@ class StoreGroup
         $group->humanResourcesStats()->create();
         $group->inventoryStats()->create();
         $group->crmStats()->create();
+        $group->salesStats()->create(
+            [
+                'currency_id' => $group->currency_id,
+            ]
+        );
 
         SetGroupLogo::dispatch($group);
 

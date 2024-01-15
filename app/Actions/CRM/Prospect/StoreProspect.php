@@ -9,7 +9,6 @@ namespace App\Actions\CRM\Prospect;
 
 use App\Actions\CRM\Prospect\Hydrators\ProspectHydrateUniversalSearch;
 use App\Actions\CRM\Prospect\Tags\SyncTagsProspect;
-use App\Actions\Helpers\Address\StoreAddressAttachToModel;
 use App\Actions\Helpers\Query\HydrateModelTypeQueries;
 use App\Actions\Market\Shop\Hydrators\ShopHydrateProspects;
 use App\Actions\OrgAction;
@@ -22,6 +21,7 @@ use App\Enums\CRM\Prospect\ProspectFailStatusEnum;
 use App\Enums\CRM\Prospect\ProspectStateEnum;
 use App\Enums\CRM\Prospect\ProspectSuccessStatusEnum;
 use App\Models\CRM\Prospect;
+use App\Models\Helpers\Address;
 use App\Models\Market\Shop;
 use App\Rules\IUnique;
 use App\Rules\Phone;
@@ -83,8 +83,11 @@ class StoreProspect extends OrgAction
         $prospect->save();
 
         if ($contactAddressData) {
-            StoreAddressAttachToModel::run($prospect, $contactAddressData, ['scope' => 'contact']);
-            $prospect->location = $prospect->getLocation();
+            data_set($contactAddressData, 'owner_type', 'Prospect');
+            data_set($contactAddressData, 'owner_id', $prospect->id);
+            $address=Address::create($contactAddressData);
+            $prospect->address()->associate($address);
+            $prospect->location = $prospect->address->getLocation();
             $prospect->save();
         }
 

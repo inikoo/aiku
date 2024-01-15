@@ -61,6 +61,9 @@ return [
             'provider' => 'api-tenant-user',
             'hash'     => false,
         ],
+        'broadcasting' => [
+            'driver' => 'websockets-auth',
+        ],
 
     ],
 

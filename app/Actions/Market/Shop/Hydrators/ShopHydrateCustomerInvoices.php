@@ -10,13 +10,25 @@ namespace App\Actions\Market\Shop\Hydrators;
 use App\Enums\CRM\Customer\CustomerTradeStateEnum;
 use App\Models\CRM\Customer;
 use App\Models\Market\Shop;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
+use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class ShopHydrateCustomerInvoices implements ShouldBeUnique
+class ShopHydrateCustomerInvoices
 {
     use AsAction;
+
+    private Shop $shop;
+
+    public function __construct(Shop $shop)
+    {
+        $this->shop = $shop;
+    }
+
+    public function getJobMiddleware(): array
+    {
+        return [(new WithoutOverlapping($this->shop->id))->dontRelease()];
+    }
 
 
     public function handle(Shop $shop): void
@@ -33,11 +45,8 @@ class ShopHydrateCustomerInvoices implements ShouldBeUnique
             $stats['number_customers_trade_state_'.$tradeState->snake()] =
                 Arr::get($numberInvoicesStateCounts, $tradeState->value, 0);
         }
-        $shop->stats()->update($stats);
+        $shop->crmStats()->update($stats);
     }
 
-    public function getJobUniqueId(Shop $shop): string
-    {
-        return $shop->id;
-    }
+
 }

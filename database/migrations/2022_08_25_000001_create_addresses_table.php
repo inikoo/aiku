@@ -16,6 +16,7 @@ return new class () extends Migration {
             'addresses',
             function (Blueprint $table) {
                 $table->increments('id');
+                $table->nullableMorphs('owner');
                 $table->string('address_line_1', 255)->nullable();
                 $table->string('address_line_2', 255)->nullable();
                 $table->string('sorting_code')->nullable();

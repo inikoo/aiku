@@ -20,7 +20,7 @@ use Lorisleiva\Actions\ActionRequest;
 class StoreCustomerClient extends OrgAction
 {
     private bool $asAction = false;
-    private bool $strict   =true;
+    private bool $strict   = true;
 
     public function handle(Customer $customer, array $modelData): CustomerClient
     {

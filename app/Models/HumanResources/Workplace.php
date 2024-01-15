@@ -47,7 +47,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
- * @property-read Collection<int, Address> $addresses
+ * @property-read Address|null $address
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Collection<int, \App\Models\HumanResources\ClockingMachine> $clockingMachines
  * @property-read Collection<int, \App\Models\HumanResources\Clocking> $clockings

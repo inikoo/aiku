@@ -109,6 +109,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, \App\Models\Market\Product> $products
  * @property-read Collection<int, Prospect> $prospects
  * @property-read Collection<int, Role> $roles
+ * @property-read \App\Models\Market\ShopSalesStats|null $salesStats
  * @property-read Collection<int, SerialReference> $serialReferences
  * @property-read Collection<int, \App\Models\Market\ShippingZoneSchema> $shippingZoneSchemas
  * @property-read \App\Models\Market\ShopStats|null $stats
@@ -172,6 +173,11 @@ class Shop extends Model
     public function crmStats(): HasOne
     {
         return $this->hasOne(ShopCRMStats::class);
+    }
+
+    public function salesStats(): HasOne
+    {
+        return $this->hasOne(ShopSalesStats::class);
     }
 
     public function stats(): HasOne

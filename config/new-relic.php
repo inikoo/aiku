@@ -109,6 +109,7 @@ return [
             'debugbar.**',
             'horizon.**',
             'telescope.**',
+            'broadcasting/auth'
             //'aurora.**',
             //'deployments.**',
         ],

@@ -62,6 +62,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\Organisation> $organisations
  * @property-read \App\Models\SysAdmin\GroupProcurementStats|null $procurementStats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\Role> $roles
+ * @property-read \App\Models\SysAdmin\GroupSalesStats|null $salesStats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, StockFamily> $stockFamilies
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Stock> $stocks
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Supplier> $suppliers
@@ -126,6 +127,11 @@ class Group extends Model implements HasMedia
     public function crmStats(): HasOne
     {
         return $this->hasOne(GroupCRMStats::class);
+    }
+
+    public function salesStats(): HasOne
+    {
+        return $this->hasOne(GroupSalesStats::class);
     }
     public function procurementStats(): HasOne
     {

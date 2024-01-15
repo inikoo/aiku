@@ -24,6 +24,8 @@ use App\Models\Market\Shop;
 use App\Models\Media\Media;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\Traits\HasLogo;
+use App\Models\Web\Webpage;
+use App\Models\Web\Website;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -89,6 +91,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Timezone $timezone
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Warehouse> $warehouses
  * @property-read \App\Models\SysAdmin\OrganisationWebStats|null $webStats
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Webpage> $webpages
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Website> $websites
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Workplace> $workplaces
  * @method static \Database\Factories\SysAdmin\OrganisationFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder|Organisation newModelQuery()
@@ -295,6 +299,18 @@ class Organisation extends Model implements HasMedia
     {
         return $this->hasMany(Prospect::class);
     }
+
+    public function websites(): HasMany
+    {
+        return $this->hasMany(Website::class);
+    }
+
+    public function webpages(): HasMany
+    {
+        return $this->hasMany(Webpage::class);
+    }
+
+
 
 
 }

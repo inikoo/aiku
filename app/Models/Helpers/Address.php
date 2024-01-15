@@ -19,6 +19,8 @@ use Illuminate\Support\Carbon;
  * App\Models\Helpers\Address
  *
  * @property int $id
+ * @property string|null $owner_type
+ * @property int|null $owner_id
  * @property string|null $address_line_1
  * @property string|null $address_line_2
  * @property string|null $sorting_code

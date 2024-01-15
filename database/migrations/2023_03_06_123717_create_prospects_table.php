@@ -32,6 +32,8 @@ return new class () extends Migration {
             $table->foreign('customer_id')->references('id')->on('customers');
             $table->string('name', 256)->nullable();
             $table = $this->contactFields(table: $table, withWebsite: true);
+            $table->unsignedInteger('address_id')->nullable()->index();
+            $table->foreign('address_id')->references('id')->on('addresses');
             $table->jsonb('location');
             $table->boolean('is_valid_email')->default(false)->index();
             $table->string('state')->index()->default(ProspectStateEnum::NO_CONTACTED->value);
