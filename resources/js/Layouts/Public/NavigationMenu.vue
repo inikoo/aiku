@@ -20,7 +20,6 @@ interface Navigation {
     [key: string]: {
         name: string
         label: string
-        href: string
         icon: string
         subNav?: {
             [key: string]: SubNav
@@ -32,31 +31,30 @@ const navigations: Navigation = {
     home: {
         name: 'home',
         label: 'Home',
-        href: '#',
         icon: 'fas fa-home',
         subNav: {
             homepage: {
                 name: 'homepage',
                 label: 'Homepage',
-                href: '#',
+                href: '/',
                 icon: 'fal fa-home',
             },
             about: {
                 name: 'about',
                 label: 'About',
-                href: '#',
+                href: '/about',
                 icon: 'fal fa-info-circle',
             },
             contact: {
                 name: 'contact',
                 label: 'Contact',
-                href: '#',
+                href: '/contact',
                 icon: 'fal fa-phone',
             },
             tnc: {
                 name: 'tnc',
                 label: 'Terms & Conditions',
-                href: '#',
+                href: '/tnc',
                 icon: 'fal fa-file',
             },
         }
@@ -64,36 +62,34 @@ const navigations: Navigation = {
     fulfilment: {
         name: 'fulfilment',
         label: 'Fulfilment',
-        href: '#',
         icon: 'fas fa-box',
         subNav: {
             storage: {
                 name: 'storage',
                 label: 'Pallet storage & distribution',
-                href: '#',
+                href: '/storage',
             },
             pickPack: {
                 name: 'pickPack',
                 label: 'Pick, Pack & dispatch',
-                href: '#',
+                href: '/pickpack',
             },
             repacking: {
                 name: 'repacking',
                 label: 'Repacking, reworking, etc',
-                href: '#',
+                href: '/repacking',
             },
         },
     },
     pricing: {
         name: 'pricing',
         label: 'Pricing',
-        href: '#',
         icon: 'fas fa-dollar-sign',
         subNav: {
             pricing: {
                 name: 'pricing',
                 label: 'Pricing Example',
-                href: '#',
+                href: '/pricing',
             },
         }
     },
@@ -114,7 +110,7 @@ const navigations: Navigation = {
                         aria-hidden='true' />
                 </PopoverButton>
                 <transition name="headlessui">
-                    <PopoverPanel class="absolute left-0 bg-white text-indigo-600 font-semibold flex flex-col gap-y-0.5 rounded-md overflow-hidden z-10 mt-2 transform p-1.5 min-w-64">
+                    <PopoverPanel class="absolute left-0 bg-white text-gray-600 font-semibold flex flex-col gap-y-0.5 rounded-md overflow-hidden z-10 mt-2 transform p-1.5 min-w-64">
                         <Link v-for="subNav in navigation.subNav" :href="subNav.href" class="hover:bg-indigo-500 hover:text-white px-2 py-1 rounded">
                             <FontAwesomeIcon v-if="subNav.icon" :icon='subNav.icon' class='text-sm' fixed-width aria-hidden='true' />
                             {{ subNav.label }}

@@ -12,3 +12,7 @@ use Inertia\Inertia;
 Route::get('/', function () {
     return Inertia::render('Welcome');
 })->name('.welcome');
+
+Route::get('/contact', function () {
+    return Inertia::render('Contact');
+})->name('.contact');

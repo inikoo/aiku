@@ -9,9 +9,9 @@
 
 <script setup lang="ts">
 import Notification from '@/Components/Utils/Notification.vue'
-import Header from '@/Components/Public/Header.vue'
-import NavigationMenu from '@/Components/Public/NavigationMenu.vue'
-import Footer from '@/Components/Public/Footer.vue'
+import Header from '@/Layouts/Public/Header.vue'
+import NavigationMenu from '@/Layouts/Public/NavigationMenu.vue'
+import Footer from '@/Layouts/Public/Footer.vue'
 
 </script>
 
@@ -31,10 +31,7 @@ import Footer from '@/Components/Public/Footer.vue'
             
             <Footer />
         </div>
-
     </div>
-
-
 
     <!-- Global declaration: Notification -->
     <notifications dangerously-set-inner-html :max="3" width="500" classes="custom-style-notification" :pauseOnHover="true">

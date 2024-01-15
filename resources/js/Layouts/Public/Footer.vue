@@ -2,9 +2,9 @@
 import { Link } from '@inertiajs/vue3'
 import Copyright from '@/Layouts/Public/Copyright.vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faBuilding, faEnvelope, faBalanceScale, faIndustry } from '@fas'
+import { faBuilding, faEnvelope, faBalanceScale, faIndustry, faPhone } from '@fas'
 import { library } from '@fortawesome/fontawesome-svg-core'
-library.add(faBuilding, faEnvelope, faBalanceScale, faIndustry)
+library.add(faBuilding, faEnvelope, faBalanceScale, faIndustry, faPhone)
 
 const contactAddress = {
     company: {
@@ -99,7 +99,7 @@ const footerAbout = [
                     <p class="text-xl text-white">AW Family</p>
                     <div class="flex flex-col">
                         <Link v-for="family in families" :href="family.href" class="text-slate-400 hover:text-slate-200">
-                        {{ family.label }}
+                            {{ family.label }}
                         </Link>
                     </div>
                 </div>
@@ -108,7 +108,7 @@ const footerAbout = [
                     <p class="text-xl text-white">About AW-Fulfillment</p>
                     <div class="flex flex-col">
                         <Link v-for="about in footerAbout" :href="about.href" class="text-slate-400 hover:text-slate-200">
-                        {{ about.label }}
+                            {{ about.label }}
                         </Link>
                     </div>
                 </div>

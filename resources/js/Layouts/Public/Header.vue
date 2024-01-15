@@ -14,8 +14,8 @@ const inputValue = ref('')
     <div class="grid grid-cols-3 h-24 items-center">
         <div class="justify-self-start self-center"><img src="https://www.aw-fulfilment.co.uk/wi.php?id=1837721" class="h-20"></div>
         <div class="text-center place-self-center">
-            <h3 class="text-indigo-700 text-xl font-bold">Your UK's Best Fulfilment Warehouse</h3>
-            <span class="text-indigo-700">Storage - Pick & Pack - Distribution</span>
+            <h3 class="text-indigo-600 text-xl font-bold leading-5">Your UK's Best Fulfilment Warehouse</h3>
+            <span class="text-gray-500 text-sm">Storage - Pick & Pack - Distribution</span>
         </div>
         <div class="w-3/4 justify-self-end text-sm pr-4">
             <p class="text-gray-500 text-xs">We Can Fulfil Your Orders</p>
