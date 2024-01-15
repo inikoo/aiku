@@ -14,6 +14,7 @@ use App\Actions\CRM\Customer\StoreCustomer;
 use App\Actions\CRM\Customer\UpdateCustomer;
 use App\Models\CRM\Customer;
 use App\Services\Organisation\SourceOrganisationService;
+use Exception;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 
@@ -22,9 +23,6 @@ class FetchCustomers extends FetchAction
     public string $commandSignature = 'fetch:customers {organisations?*} {--s|source_id=} {--S|shop= : Shop slug} {--w|with=* : Accepted values: clients orders web-users} {--N|only_new : Fetch only new} {--d|db_suffix=} {--r|reset}';
 
 
-    /**
-     * @throws \Throwable
-     */
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Customer
     {
         $with = $this->with;
@@ -32,25 +30,33 @@ class FetchCustomers extends FetchAction
         if ($customerData = $organisationSource->fetchCustomer($organisationSourceId)) {
             if ($customer = Customer::withTrashed()->where('source_id', $customerData['customer']['source_id'])
                 ->first()) {
-                // print_r($customerData['customer']);
-                $customer = UpdateCustomer::make()->action(
-                    customer:$customer,
-                    modelData: $customerData['customer'],
-                    hydratorsDelay: 60,
-                    strict: false
-                );
+                try {
+                    $customer = UpdateCustomer::make()->action(
+                        customer: $customer,
+                        modelData: $customerData['customer'],
+                        hydratorsDelay: 60,
+                        strict: false
+                    );
+                    $this->recordChange($organisationSource, $customer->wasChanged());
+                } catch (Exception $e) {
+                    $this->recordError($organisationSource, $e, $customerData['customer'], 'Customer', 'update');
 
+                    return null;
+                }
             } else {
+                try {
+                    $customer = StoreCustomer::make()->action(
+                        shop: $customerData['shop'],
+                        modelData: $customerData['customer'],
+                        hydratorsDelay: $this->hydrateDelay,
+                        strict: false
+                    );
+                    $this->recordNew($organisationSource);
+                } catch (Exception $e) {
+                    $this->recordError($organisationSource, $e, $customerData['customer'], 'Customer', 'store');
 
-
-                //print_r($customerData['customer']);
-                $customer = StoreCustomer::make()->action(
-                    shop: $customerData['shop'],
-                    modelData: $customerData['customer'],
-                    hydratorsDelay: $this->hydrateDelay,
-                    strict: false
-                );
-
+                    return null;
+                }
             }
 
             $sourceData = explode(':', $customer->source_id);
@@ -105,7 +111,6 @@ class FetchCustomers extends FetchAction
             }
 
 
-
             DB::connection('aurora')->table('Customer Dimension')
                 ->where('Customer Key', $sourceData[1])
                 ->update(['aiku_id' => $customer->id]);
@@ -128,7 +133,7 @@ class FetchCustomers extends FetchAction
         }
 
         if ($this->shop) {
-            $sourceData=explode(':', $this->shop->source_id);
+            $sourceData = explode(':', $this->shop->source_id);
             $query->where('Customer Store Key', $sourceData[1]);
         }
 
@@ -143,7 +148,7 @@ class FetchCustomers extends FetchAction
             $query->whereNull('aiku_id');
         }
         if ($this->shop) {
-            $sourceData=explode(':', $this->shop->source_id);
+            $sourceData = explode(':', $this->shop->source_id);
             $query->where('Customer Store Key', $sourceData[1]);
         }
 

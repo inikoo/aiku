@@ -236,6 +236,17 @@ trait WithAuroraParsers
         return $shop;
     }
 
+    public function parseWebsite($sourceId): Shop
+    {
+        $website = Website::where('source_id', $sourceId)->first();
+        if (!$website) {
+            $sourceData   =explode(':', $sourceId);
+            $website      = FetchWebsites::run($this->organisationSource, $sourceData[1]);
+        }
+
+        return $website;
+    }
+
 
     public function parseHistoricProduct($sourceId): HistoricProduct
     {

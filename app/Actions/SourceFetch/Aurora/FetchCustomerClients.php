@@ -11,6 +11,7 @@ use App\Actions\Dropshipping\CustomerClient\StoreCustomerClient;
 use App\Actions\Dropshipping\CustomerClient\UpdateCustomerClient;
 use App\Models\Dropshipping\CustomerClient;
 use App\Services\Organisation\SourceOrganisationService;
+use Exception;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 
@@ -24,16 +25,28 @@ class FetchCustomerClients extends FetchAction
         if ($customerClientData = $organisationSource->fetchCustomerClient($organisationSourceId)) {
             if ($customerClient = CustomerClient::withTrashed()->where('source_id', $customerClientData['customer_client']['source_id'])
                 ->first()) {
-                $customerClient = UpdateCustomerClient::make()->asFetch(
-                    customerClient: $customerClient,
-                    modelData:      $customerClientData['customer_client']
-                );
+                try {
+                    $customerClient = UpdateCustomerClient::make()->asFetch(
+                        customerClient: $customerClient,
+                        modelData: $customerClientData['customer_client']
+                    );
+                    $this->recordChange($organisationSource, $customerClient->wasChanged());
+                } catch (Exception $e) {
+                    $this->recordError($organisationSource, $e, $customerClient['customer_client'], 'CustomerClient', 'update');
 
+                    return null;
+                }
             } else {
-                $customerClient = StoreCustomerClient::make()->asFetch(
-                    customer:      $customerClientData['customer'],
-                    modelData:     $customerClientData['customer_client'],
-                );
+                try {
+                    $customerClient = StoreCustomerClient::make()->asFetch(
+                        customer: $customerClientData['customer'],
+                        modelData: $customerClientData['customer_client'],
+                    );
+                } catch (Exception $e) {
+                    $this->recordError($organisationSource, $e, $customerClientData['customer_client'], 'CustomerClient', 'store');
+
+                    return null;
+                }
             }
             $sourceData = explode(':', $customerClient->source_id);
             DB::connection('aurora')->table('Customer Client Dimension')
@@ -58,7 +71,7 @@ class FetchCustomerClients extends FetchAction
         }
 
         if ($this->shop) {
-            $sourceData=explode(':', $this->shop->source_id);
+            $sourceData = explode(':', $this->shop->source_id);
             $query->where('Customer Client Store Key', $sourceData[1]);
         }
 
@@ -73,7 +86,7 @@ class FetchCustomerClients extends FetchAction
             $query->whereNull('aiku_id');
         }
         if ($this->shop) {
-            $sourceData=explode(':', $this->shop->source_id);
+            $sourceData = explode(':', $this->shop->source_id);
             $query->where('Customer Client Store Key', $sourceData[1]);
         }
 

@@ -8,8 +8,8 @@
 
 namespace App\Services\Organisation;
 
-use AllowDynamicProperties;
 use App\Models\Dispatch\DeliveryNote;
+use App\Models\Helpers\Fetch;
 use App\Models\SysAdmin\Organisation;
 use App\Services\Organisation\Aurora\FetchAuroraAgent;
 use App\Services\Organisation\Aurora\FetchAuroraCustomer;
@@ -67,11 +67,11 @@ use App\Services\Organisation\Aurora\FetchAuroraWebUser;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
-/**
- * @property Organisation $organisation
- */
-#[AllowDynamicProperties] class AuroraOrganisationService implements SourceOrganisationService
+class AuroraOrganisationService implements SourceOrganisationService
 {
+    public Organisation $organisation;
+    public ?Fetch $fetch=null;
+
     public function initialisation(Organisation $organisation, string $databaseSuffix = ''): void
     {
         $database_settings = data_get(config('database.connections'), 'aurora');

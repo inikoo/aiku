@@ -7,11 +7,11 @@
 
 namespace App\Actions\HumanResources\Workplace;
 
-use App\Actions\Helpers\Address\StoreAddressAttachToModel;
 use App\Actions\HumanResources\Workplace\Hydrators\WorkplaceHydrateUniversalSearch;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWorkplaces;
 use App\Enums\HumanResources\Workplace\WorkplaceTypeEnum;
+use App\Models\Helpers\Address;
 use App\Models\HumanResources\Workplace;
 use App\Models\SysAdmin\Organisation;
 use App\Rules\IUnique;
@@ -36,9 +36,12 @@ class StoreWorkplace extends OrgAction
         Arr::forget($modelData, 'address');
         /** @var Workplace $workplace */
         $workplace = $organisation->workplaces()->create($modelData);
-        StoreAddressAttachToModel::run($workplace, $addressData, ['scope' => 'contact']);
 
-        $workplace->location = $workplace->getLocation();
+        $address = Address::create($addressData);
+        $workplace->update([
+            'address_id' => $address->id,
+        ]);
+
         $workplace->save();
         $workplace->stats()->create();
         OrganisationHydrateWorkplaces::run($organisation);
@@ -69,8 +72,9 @@ class StoreWorkplace extends OrgAction
                     ]
                 ),
             ],
-            'type'    => ['required', new Enum(WorkplaceTypeEnum::class)],
-            'address' => ['required', new ValidAddress()]
+            'type'         => ['required', new Enum(WorkplaceTypeEnum::class)],
+            'address'      => ['required', new ValidAddress()],
+             'timezone_id' => ['required', 'exists:timezones,id']
         ];
     }
 

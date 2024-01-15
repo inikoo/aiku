@@ -143,12 +143,13 @@ class StoreProspect extends OrgAction
                 'nullable',
                 'string',
                 'min:5',
-                'max:16'
+                'max:24'
 
             ],
             'contact_website'   => [
                 'nullable',
-                'string'
+                'string',
+                'max:500',
             ],
 
         ];
