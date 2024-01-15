@@ -10,7 +10,7 @@
     @apply bg-indigo-200/20 sm:border-l-4 sm:border-indigo-100 text-white font-semibold transition-all duration-0 ease-in-out
 }
 .subNav {
-    @apply hover:bg-indigo-300/30 text-indigo-400 hover:text-indigo-500 font-semibold transition-all duration-0 ease-in-out
+    @apply hover:bg-white/80 text-gray-100 hover:text-indigo-500 font-semibold transition-all duration-0 ease-in-out
 }
 
 .navigationSecondActive {
