@@ -17,7 +17,7 @@ import Footer from '@/Layouts/Public/Footer.vue'
 
 <template>
     <div class="relative">
-        <div class="container max-w-7xl mx-auto">
+        <div class="container max-w-7xl mx-auto shadow-xl">
             <!-- Section: Top header -->
             <Header />
             

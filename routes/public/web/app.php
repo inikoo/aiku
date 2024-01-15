@@ -24,3 +24,15 @@ Route::get('/about', function () {
 Route::get('/tnc', function () {
     return Inertia::render('Tnc');
 })->name('.tnc');
+
+Route::get('/storage', function () {
+    return Inertia::render('Storage');
+})->name('.storage');
+
+Route::get('/pick_pack', function () {
+    return Inertia::render('Pick_pack');
+})->name('.pick_pack');
+
+Route::get('/rework', function () {
+    return Inertia::render('Rework');
+})->name('.rework');
