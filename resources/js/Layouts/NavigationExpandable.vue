@@ -20,16 +20,16 @@ const props = defineProps<{
 }>()
 
 const layout = useLayoutStore()
-const navigationName = props.navKey.split('_')[0].slice(0, -1)  // shops_navigation to shop
+const navigationName = props.navKey.split('_')[0].slice(0, -1)  // shops_navigation to shops | warehouses_navigation to warehouses
 </script>
 
 <template>
     <component :is="layout.leftSidebar.show ? Disclosure : Popover" v-slot="{ open }" as="div"
-        class="relative "
+        class="relative hover:bg-indigo-300/30"
         :class="[navKey === layout.currentModule ? 'px-0.5' : '', layout.leftSidebar.show ? 'pl-4 pr-2 py-1' : '',]">
         <!-- Label Navigation: Shops/Warehouses -->
         <component :is="layout.leftSidebar.show ? DisclosureButton : PopoverButton" as="div"
-            class="flex items-center justify-between mb-1 cursor-pointer"
+            class="flex items-center justify-between cursor-pointer"
             :class="layout.leftSidebar.show ? '' : open ? 'pl-3 pr-2 py-2 bg-indigo-600' : 'pl-3 pr-2 py-2 hover:bg-indigo-500'"
         >
             <div class="leading-none capitalize text-white font-bold pb-1 select-none flex items-center gap-x-1">
@@ -47,20 +47,24 @@ const navigationName = props.navKey.split('_')[0].slice(0, -1)  // shops_navigat
         <transition>
             <teleport to="#leftSidebar" :disabled="layout.leftSidebar.show ? true : false">
                 <component :is="layout.leftSidebar.show ? DisclosurePanel : PopoverPanel"
-                    :class="layout.leftSidebar.show ? '' : 'absolute top-0 left-12 max-h-96 min-h-fit overflow-y-auto bg-indigo-100 rounded-lg overflow-hidden z-10 mt-3 w-64 px-3 py-2'"
+                    :class="layout.leftSidebar.show ? 'mt-1' : 'absolute top-0 left-12 max-h-96 min-h-fit overflow-y-auto bg-indigo-300 rounded-lg overflow-hidden z-10 mt-3 w-64 px-3 py-2'"
                 >
                     <!-- If shop/warehouse not selected, then show all -->
                     <template v-if="!layout.currentParams[navigationName]">
-                        <div v-for="(navigationShopWarehouse, indexShopWarehouse) in subNav" :key="indexShopWarehouse"
+                        <div v-if="!layout.leftSidebar.show" class="flex items-center gap-x-1 text-white font-bold mt-1">
+                            <span class="capitalize leading-none text-sm">{{ navigationName }}s</span>
+                            <hr class="w-full border border-white rounded-full mt-1">
+                        </div>
+                        <div v-for="(navigationShopWarehouse, indexShopWarehouse) in useLayoutStore().organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.[`authorised_${navigationName}s`]" :key="indexShopWarehouse"
                             class="group flex flex-col justify-center text-sm py-0.5 gap-y-1" :class="[
-                                indexShopWarehouse === layout.currentModule ? '' : '',
+                                navigationShopWarehouse.slug === layout.currentModule ? '' : '',
                                 layout.leftSidebar.show ? '' : ''
                             ]"
-                            :aria-current="indexShopWarehouse === layout.currentModule ? 'page' : undefined">
-                            <p v-if="Object.keys(subNav).length > 1" class="bg-indigo-300 py-0.5 pl-1 capitalize text-slate-700 font-bold mb-0.5">{{ indexShopWarehouse }}</p>
+                            :aria-current="navigationShopWarehouse.slug === layout.currentModule ? 'page' : undefined">
+                            <!-- <p v-if="Object.keys(subNav).length > 1" class="bg-indigo-300 py-0.5 pl-1 capitalize text-slate-700 font-bold mb-0.5">{{ navigationShopWarehouse.name }}</p> -->
                             
                             <!-- Looping: Navigation in Shop -->
-                            <Link v-for="(shopNavigation, navigationIndex) in navigationShopWarehouse"
+                            <!-- <Link v-for="(shopNavigation, navigationIndex) in navigationShopWarehouse.authorised_shops"
                                 :href="shopNavigation.route?.name ? route(shopNavigation.route.name, shopNavigation.route.parameters) : '#'"
                                 class="group flex items-center text-sm py-2 rounded-md pl-2" :class="[
                                     navigationIndex === layout.currentModule
@@ -72,7 +76,22 @@ const navigationName = props.navKey.split('_')[0].slice(0, -1)  // shops_navigat
                                 <div class="flex items-center gap-x-2">
                                     <FontAwesomeIcon aria-hidden="true" class="flex-shrink-0 h-4 w-4 opacity-60" :icon="shopNavigation.icon" />
                                     <span class="capitalize leading-none whitespace-nowrap">
-                                        {{ shopNavigation.label }}
+                                        {{ shopNavigation.name }}
+                                    </span>
+                                </div>
+                            </Link> -->
+                            <Link :href="navigationShopWarehouse.route?.name ? route(navigationShopWarehouse.route.name, navigationShopWarehouse.route.parameters) : '#'"
+                                class="group flex items-center text-sm py-2 rounded-md pl-2" :class="[
+                                    navigationShopWarehouse.slug === layout.currentModule
+                                        ? 'subNavActive px-0.5'
+                                        : 'subNav px-1',
+                                    layout.leftSidebar.show ? Object.keys(subNav).length > 1 ? 'px-3' : 'pr-3' : '',
+                                ]"
+                                :aria-current="navigationShopWarehouse.slug === layout.currentModule ? 'page' : undefined">
+                                <div class="flex items-center gap-x-2">
+                                    <!-- <FontAwesomeIcon aria-hidden="true" class="flex-shrink-0 h-4 w-4 opacity-60" :icon="navigationShopWarehouse.icon" /> -->
+                                    <span class="capitalize leading-none whitespace-nowrap">
+                                        {{ navigationShopWarehouse.name }}
                                     </span>
                                 </div>
                             </Link>
