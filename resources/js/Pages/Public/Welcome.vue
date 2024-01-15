@@ -5,91 +5,15 @@
   -->
 
 <script setup lang="ts">
-import { Head, Link } from '@inertiajs/vue3'
-import PureInput from '@/Components/Pure/PureInput.vue'
-import { Popover, PopoverButton, PopoverPanel } from '@headlessui/vue'
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faSearch, faHome, faInfoCircle, faPhone, faFile, faChevronDown } from '@fal'
-import { library } from '@fortawesome/fontawesome-svg-core'
+import { Head } from '@inertiajs/vue3'
+import Header from '@/Components/Public/Header.vue'
+import NavigationTab from '@/Components/Public/NavigationTab.vue'
+import Footer from '@/Components/Public/Footer.vue'
 import Button from '@/Components/Elements/Buttons/Button.vue'
-import { faPhone as fasPhone, faBuilding, faEnvelope, faBalanceScale, faIndustry, faUserPlus, faSignIn, faBox, faDollarSign, faHome as fasHome } from '@fas'
-import { ref } from 'vue'
-library.add(faSearch, faHome, faInfoCircle, faPhone, faFile, faChevronDown, faBox, faDollarSign, fasHome, fasPhone, faBuilding, faEnvelope, faBalanceScale, faIndustry, faUserPlus, faSignIn)
-
-const navigations = {
-    home: {
-        name: 'home',
-        label: 'Home',
-        href: '#',
-        icon: 'fas fa-home',
-        subNav: {
-            homepage: {
-                name: 'homepage',
-                label: 'Homepage',
-                href: '#',
-                icon: 'fal fa-home',
-            },
-            about: {
-                name: 'about',
-                label: 'About',
-                href: '#',
-                icon: 'fal fa-info-circle',
-            },
-            contact: {
-                name: 'contact',
-                label: 'Contact',
-                href: '#',
-                icon: 'fal fa-phone',
-            },
-            tnc: {
-                name: 'tnc',
-                label: 'Terms & Conditions',
-                href: '#',
-                icon: 'fal fa-file',
-            },
-        }
-    },
-    fulfilment: {
-        name: 'fulfilment',
-        label: 'Fulfilment',
-        href: '#',
-        icon: 'fas fa-box',
-        subNav: {
-            storage: {
-                name: 'storage',
-                label: 'Pallet storage & distribution',
-                href: '#',
-                // icon: 'fal fa-box',
-            },
-            pickPack: {
-                name: 'pickPack',
-                label: 'Pick, Pack & dispatch',
-                href: '#',
-                // icon: 'fal fa-box',
-            },
-            repacking: {
-                name: 'repacking',
-                label: 'Repacking, reworking, etc',
-                href: '#',
-                // icon: 'fal fa-box',
-            },
-        },
-    },
-    pricing: {
-        name: 'pricing',
-        label: 'Pricing',
-        href: '#',
-        icon: 'fas fa-dollar-sign',
-        subNav: {
-            pricing: {
-                name: 'pricing',
-                label: 'Pricing Example',
-                href: '#',
-                // icon: 'fal fa-dollar-sign',
-            },
-        }
-    },
-}
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { faPhone as fasPhone } from '@fas'
+library.add(fasPhone)
 
 const contentImages = [
     {
@@ -124,82 +48,6 @@ const contentImages = [
     },
 ]
 
-const contactAddress = {
-    company: {
-        label: "Ancient Wisdom Marketing Ltd. Affinity Park, Europa Drive   Sheffield, s9 1xt",
-        icon: "fas fa-building"
-    },
-    email: {
-        label: "info@aw-fulfilment.co.uk",
-        icon: "fas fa-envelope"
-    },
-    phone: {
-        label: "+44 (0)1142 729 165",
-        icon: "fas fa-phone"
-    },
-    vat: {
-        label: "Vat No:GB764298589",
-        icon: "fas fa-balance-scale"
-    },
-    reg: {
-        label: "Reg. No: 04108870",
-        icon: "fas fa-industry"
-    }
-}
-
-const families = [
-    {
-        label: "Ancient Wisdom",
-        href: "https://www.ancientwisdom.biz",
-    },
-    {
-        label: "AW Aromatics - UK",
-        href: "https://www.aw-aromatics.com/",
-    },
-    {
-        label: "AW Artisan Spain",
-        href: "https://www.awartisan.eu/",
-    },
-    {
-        label: "AW Gifts Europe",
-        href: "https://www.awgifts.eu/",
-    },
-    {
-        label: "AW Dropshipping - UK",
-        href: "https://www.aw-dropship.com/",
-    },
-    {
-        label: "AW Dropshipping - EU",
-        href: "https://www.aw-dropship.eu/",
-    },
-    {
-        label: "AW Fulfilment Europe",
-        href: "https://www.aw-fulfilment.eu/",
-    }
-]
-
-const footerAbout = [
-    {
-        label: "Contact Us",
-        href: "https://www.aw-fulfilment.co.uk/contact.sys",
-    },
-    {
-        label: "About Us",
-        href: "https://www.aw-fulfilment.co.uk/about.sys",
-    },
-    {
-        label: "Delivery",
-        href: "https://www.aw-fulfilment.co.uk/shipping.sys",
-    },
-    {
-        label: "Terms & Conditions",
-        href: "https://www.aw-fulfilment.co.uk/tac.sys",
-    }
-]
-
-const inputSearch = ref()
-const inputValue = ref('')
-
 const textRandom = `<div id="blackboard_1" style="position: relative; height: 460.99px; width: 1240px" > <div id="blackboard_text_1694661242360" class="blackboard_text _au_vw_" style=" position: absolute; top: 0px; left: 100.98958587646px; width: 1062.99px; height: 192.986px; " ><h1><br /></h1 ><h3 style="text-align: center" >AW Fulfilment ensure seamless operations.&nbsp;</h3 ><h2 style="text-align: center" >Boost efficiency, reduce costs, and leave your customers amazed.</h2 ><p><br /></p ><p style="text-align: justify" >As a leading UK fulfilment center, we are committed to streamlining your supply chain and ensuring seamless operations. &nbsp;Our state-of-the-art fulfilment warehouse UK in Sheffield's Affinity Park is strategically positioned to cater to businesses across the United Kingdom. Whether you're a budding e-commerce startup or an established brand, our fulfilment services are tailored to meet your unique needs. Our comprehensive range of services encompasses everything you need for successful order fulfilment in the UK. We offer simple tariffs, &nbsp;transparent systems without hidden costs.</p ><p style="text-align: justify"><br /></p ><p style="text-align: justify" ><strong >At AW Fulfilment we offer an affordable, flexible and efficient way to store your goods. &nbsp;Warehouse spaces available for immediate use. Your goods are stored directly within our 100 000 sq foot warehouse facility. Our heavy duty racking, trained staff and onsite security setup ensure your inventory is in safe hands.&nbsp;</strong ></p ><h4 style="text-align: center" ><a href="https://www.aw-fulfilment.co.uk/pricing" rel="noopener noreferrer" target="_blank" >Pay only for the space and services you use. Expand as needed.</a ></h4 ><p >Our Fulfillment as a service offers competitive prices without compromising on excellence. Whether you need simple short term storage or a full service pack to store, pick &amp; pack and despatch - at AW Fulfilment Sheffield we can offer cost effective solutions. With rental rates from £2.00 &nbsp;/ pallet space per week and picking, packing and despatch services to hand so we can solve your fulfilment issues.&nbsp;</p ><p ><strong >For European companies wishing to solve the Brexit distribution problem, we can help you open up the UK market. Multilingual staff available, we speak your language: French, Spanish, Italian, Czech, Slovak, German, Polish &amp; Dutch.</strong ></p ></div > </div>`
 
 </script>
@@ -208,59 +56,10 @@ const textRandom = `<div id="blackboard_1" style="position: relative; height: 46
     <Head :title="$t('Welcome to aiku')" />
     <div class="bg-white shadow-lg mx-auto max-w-7xl w-full">
         <!-- Section: Top header -->
-        <div class="grid grid-cols-3 h-24 items-center">
-            <div class="justify-self-start self-center"><img src="https://www.aw-fulfilment.co.uk/wi.php?id=1837721" class="h-20"></div>
-            <div class="text-center place-self-center">
-                <h3 class="text-indigo-700 text-xl font-bold">Your UK's Best Fulfilment Warehouse</h3>
-                <span class="text-indigo-700">Storage - Pick & Pack - Distribution</span>
-            </div>
-            <div class="w-3/4 justify-self-end text-sm pr-4">
-                <p class="text-gray-500 text-xs">We Can Fulfil Your Orders</p>
-                <div class="flex gap-x-2 items-center relative">
-                    <PureInput v-model="inputValue" placeholder="Search your needs" ref="inputSearch" />
-                    <FontAwesomeIcon icon='fal fa-search' @click="() => inputSearch.inputRef.focus()" class='absolute right-3 h-6 text-gray-400' aria-hidden='true' />
-                </div>
-                <div class="mt-1 flex gap-x-4 text-xxs text-gray-500">
-                    <div>Tel: <span class="font-semibold">+44 (0) 1142729165</span></div>
-                    <div>Email: <span class="font-semibold">info@aw-fulfilment.co.uk</span></div>
-                </div>
-            </div>
-        </div>
+        <Header />
 
         <!-- Section: Navigation Tab -->
-        <div class="w-full bg-indigo-600 flex justify-between h-10 pl-3 pr-5">
-            <div class="flex gap-x-2">
-                <Popover v-for="navigation, idxNavigation in navigations" :key="idxNavigation" v-slot="{ open }" as="div"
-                    class="relative">
-                    <PopoverButton :class="open ? 'text-white bg-indigo-500' : 'text-white/90'"
-                        class="group inline-flex items-center gap-x-2 rounded-md hover:bg-indigo-500 px-3 py-2 text-base font-medium hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/75">
-                        <FontAwesomeIcon :icon='navigation.icon' class='' fixed-width aria-hidden='true' />
-                        <span>{{ navigation.label }}</span>
-                        <FontAwesomeIcon v-if="navigation.subNav" icon='fal fa-chevron-down'
-                            class='text-xs transition-all duration-100 ease-in-out' :class="open ? 'rotate-180' : ''"
-                            aria-hidden='true' />
-                    </PopoverButton>
-                    <transition name="headlessui">
-                        <PopoverPanel class="absolute left-0 text-white bg-indigo-500 flex flex-col gap-y-0.5 rounded-md overflow-hidden z-10 mt-2 transform p-1.5 min-w-64">
-                            <Link v-for="subNav in navigation.subNav" :href="subNav.href" class="hover:bg-indigo-300 px-2 py-1 rounded">
-                                <FontAwesomeIcon v-if="subNav.icon" :icon='subNav.icon' class='text-sm' fixed-width aria-hidden='true' />
-                                {{ subNav.label }}
-                            </Link>
-                        </PopoverPanel>
-                    </transition>
-                </Popover>
-            </div>
-            <div class="flex gap-x-4 h-full items-center ">
-                <Link href="#" class="space-x-1 text-gray-300 hover:text-white hover:-translate-y-0.5 transition-all duration-75 ease-in-out">
-                    <FontAwesomeIcon fixed-width icon='fas fa-user-plus' class='opacity-80' aria-hidden='true' />
-                    Register
-                </Link>
-                <Link href="#" class="space-x-1 text-gray-300 hover:text-white hover:-translate-y-0.5 transition-all duration-75 ease-in-out">
-                    <FontAwesomeIcon fixed-width icon='fas fa-sign-in' class='opacity-80' aria-hidden='true' />
-                    Login
-                </Link>
-            </div>
-        </div>
+        <NavigationTab />
 
         <!-- Section: Hero (banner) -->
         <iframe title="AW Fulfilment" style="width:100%;height: 320px; border: 0px;overflow:hidden;"
@@ -319,7 +118,7 @@ const textRandom = `<div id="blackboard_1" style="position: relative; height: 46
                         style="clip-path: polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)" />
                 </div>
                 <div class="mx-auto max-w-2xl text-center">
-                    <h2 class="text-4xl font-bold tracking-tight text-white sm:text-6xl">Support center</h2>
+                    <h2 class="text-4xl font-bold tracking-tight text-white sm:text-6xl">Support Center</h2>
                     <!-- <p class="mt-6 text-lg leading-8 text-gray-300">Click here</p> -->
                     <Button :style="'white'" label="Contact Us" size="xl" class="mt-10" />
                     <div class="w-3/4 flex gap-x-3 items-center mx-auto mt-7">
@@ -342,76 +141,7 @@ const textRandom = `<div id="blackboard_1" style="position: relative; height: 46
             </div>
         </div>
 
-        <footer>
-            <h2 id="footer-heading" class="sr-only">Footer</h2>
-            <div class="bg-gray-900 mx-auto max-w-7xl px-6 pb-8 pt-16 lg:px-8">
-                <div class="xl:grid xl:grid-cols-4 xl:gap-8">
-                    <!-- Contact Section -->
-                    <div class="pl-3 pt-0.5 flex flex-col text-sm pb-2 space-y-3 text-gray-400">
-                        <!-- Company name -->
-                        <p class="text-xl text-white">Contact</p>
-                        <div v-for="contact in contactAddress" class="grid grid-flow-col gap-x-2 justify-start items-start">
-                            <FontAwesomeIcon fixed-width :icon="contact.icon" class="mt-1 text-gray-400" aria-hidden="true" />
-                            <span class="">{{ contact.label }}</span>
-                        </div>
-                    </div>
-                    
-                    <!-- AW Family -->
-                    <div class="space-y-2">
-                        <p class="text-xl text-white">AW Family</p>
-                        <div class="flex flex-col">
-                            <Link v-for="family in families" :href="family.href" class="text-slate-400 hover:text-slate-200">
-                                {{ family.label }}
-                            </Link>
-                        </div>
-                    </div>
-
-                    <!-- About -->
-                    <div class="space-y-2">
-                        <p class="text-xl text-white">About AW-Fulfillment</p>
-                        <div class="flex flex-col">
-                            <Link v-for="about in footerAbout" :href="about.href" class="text-slate-400 hover:text-slate-200">
-                                {{ about.label }}
-                            </Link>
-                        </div>
-                    </div>
-                    
-                    <!-- Description -->
-                    <div class="space-y-2">
-                        <p class="text-xl text-white">AW-Fulfilment</p>
-                        <div class="text-justify text-gray-400">
-                            AW-Fulfilment is a trading brand of Ancient Wisdom.<br>We have affordable warehouse spaces available for immediate use. There is no middle man here. Your goods are stored directly within our 100 000 sq foot state of the art warehouse facility. Our heavy duty racking, trained staff and onsite security setup ensure your inventory is in safe hands
-                        </div>
-                    </div>
-                </div>
-
-                <div
-                    class="mt-16 border-t border-white/10 pt-8 sm:mt-20 lg:mt-24 lg:flex lg:items-center lg:justify-between">
-                    <div>
-                        <h3 class="text-sm font-semibold leading-6 text-white">Subscribe to our newsletter</h3>
-                        <p class="mt-2 text-sm leading-6 text-gray-300">The latest news, articles, and resources, sent
-                            to your inbox weekly.</p>
-                    </div>
-                    <form class="mt-6 sm:flex sm:max-w-md lg:mt-0">
-                        <label for="email-address" class="sr-only">Email address</label>
-                        <input type="email" name="email-address" id="email-address" autocomplete="email" required
-                            class="w-full min-w-0 appearance-none rounded-md border-0 bg-white/5 px-3 py-1.5 text-base text-white shadow-sm ring-1 ring-inset ring-white/10 placeholder:text-gray-500 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:w-56 sm:text-sm sm:leading-6"
-                            placeholder="Enter your email" />
-                        <div class="mt-4 sm:ml-4 sm:mt-0 sm:flex-shrink-0">
-                            <button type="submit"
-                                class="flex w-full items-center justify-center rounded-md bg-indigo-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500">Subscribe</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-            <!-- Section: Copyright -->
-            <div class="text-gray-600 py-2 px-4 text-center">
-                Copyright &#169; <span class="font-bold">2024 Aurora</span>. All rights reserved.
-                <Link href="#" class="hover:underline">Terms of Use</Link> |
-                <Link href="#" class="hover:underline">Privacy Policy</Link>
-            </div>
-        </footer>
+        <Footer />
 
     </div>
 </template>
