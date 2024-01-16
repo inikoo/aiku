@@ -16,6 +16,7 @@ use App\Models\Helpers\Address;
 use App\Models\HumanResources\Workplace;
 use App\Models\SysAdmin\Organisation;
 use App\Rules\IUnique;
+use App\Rules\ValidAddress;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -85,7 +86,7 @@ class UpdateWorkplace extends OrgAction
                 ),
             ],
             'type'    => ['sometimes', 'required'],
-            'address' => ['sometimes', 'required']
+            'address' => ['sometimes', 'required', new ValidAddress()]
         ];
     }
 
