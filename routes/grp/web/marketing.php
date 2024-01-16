@@ -5,10 +5,10 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-use App\Actions\Mail\DispatchedEmail\UI\IndexDispatchedEmails;
-use App\Actions\Mail\DispatchedEmail\UI\ShowDispatchedEmail;
-use App\Actions\Mail\Mailroom\UI\IndexMailrooms;
-use App\Actions\Mail\Mailroom\UI\ShowMailroom;
+use App\Actions\Mail\DispatchedEmail\IndexDispatchedEmails;
+use App\Actions\Mail\DispatchedEmail\ShowDispatchedEmail;
+use App\Actions\Mail\Mailroom\IndexMailrooms;
+use App\Actions\Mail\Mailroom\ShowMailroom;
 use App\Actions\Mail\Mailshot\IndexMailshots;
 use App\Actions\Mail\Mailshot\ShowMailshot;
 use App\Actions\Mail\Mailshot\UI\CreateMailshot;

@@ -1,17 +1,16 @@
 <?php
 /*
- * Author: Artha <artha@aw-advantage.com>
- * Created: Mon, 15 Jan 2024 13:09:13 Central Indonesia Time, Sanur, Bali, Indonesia
- * Copyright (c) 2024, Raul A Perusquia Flores
+ * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
+ * Created: Thu, 16 Mar 2023 08:17:51 Central European Standard Time, Malaga, Spain
+ * Copyright (c) 2023, Inikoo LTD
  */
 
-namespace App\Actions\Mail\DispatchedEmail\UI;
+namespace App\Actions\Mail\DispatchedEmail;
 
 use App\Actions\InertiaAction;
-use App\Actions\Mail\Mailroom\UI\ShowMailroom;
+use App\Actions\Mail\Mailroom\ShowMailroom;
 use App\Actions\UI\Marketing\MarketingHub;
 use App\Http\Resources\Mail\DispatchedEmailResource;
-use App\InertiaTable\InertiaTable;
 use App\Models\Mail\DispatchedEmail;
 use App\Models\Mail\Mailroom;
 use App\Models\Mail\Mailshot;
@@ -24,6 +23,7 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
+use App\InertiaTable\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 

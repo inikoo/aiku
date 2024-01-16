@@ -8,7 +8,7 @@
 namespace App\Actions\Mail\Outbox;
 
 use App\Actions\InertiaAction;
-use App\Actions\Mail\Mailroom\UI\ShowMailroom;
+use App\Actions\Mail\Mailroom\ShowMailroom;
 use App\Actions\UI\Marketing\MarketingHub;
 use App\Http\Resources\Mail\OutboxResource;
 use App\Models\Mail\Mailroom;
