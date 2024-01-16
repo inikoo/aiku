@@ -62,6 +62,7 @@ use App\Services\Organisation\Aurora\FetchAuroraTransaction;
 use App\Services\Organisation\Aurora\FetchAuroraUser;
 use App\Services\Organisation\Aurora\FetchAuroraWarehouse;
 use App\Services\Organisation\Aurora\FetchAuroraWarehouseArea;
+use App\Services\Organisation\Aurora\FetchAuroraWebpage;
 use App\Services\Organisation\Aurora\FetchAuroraWebsite;
 use App\Services\Organisation\Aurora\FetchAuroraWebUser;
 use Illuminate\Support\Arr;
@@ -121,6 +122,11 @@ class AuroraOrganisationService implements SourceOrganisationService
     public function fetchWebsite($id): ?array
     {
         return (new FetchAuroraWebsite($this))->fetch($id);
+    }
+
+    public function fetchWebpage($id): ?array
+    {
+        return (new FetchAuroraWebpage($this))->fetch($id);
     }
 
     public function fetchShipper($id): ?array
