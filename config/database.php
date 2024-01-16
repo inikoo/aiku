@@ -73,14 +73,13 @@ return [
         ],
 
         'aurora' => [
-            'driver'         => env('AURORA_DB_DRIVER', 'mysql'),
-            //'url'            => env('DATABASE_URL'),
+            'driver'         => 'mysql',
             'host'           => env('AURORA_DB_HOST', '127.0.0.1'),
-            'port'           => env('AURORA_DB_PORT', '3306'),
+            'port'           => 3306,
             'database'       => null,
             'username'       => env('AURORA_DB_USERNAME', ''),
             'password'       => env('AURORA_DB_PASSWORD', ''),
-            'unix_socket'    => env('AURORA_DB_PDB_SOCKET', ''),
+            'unix_socket'    => '',
             'charset'        => 'utf8mb4',
             'collation'      => 'utf8mb4_unicode_ci',
             'prefix'         => '',
