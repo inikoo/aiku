@@ -51,6 +51,9 @@ class StoreShop extends OrgAction
         $shop->accountingStats()->create();
         $shop->mailStats()->create();
         $shop->crmStats()->create();
+        $shop->salesStats()->create([
+            'currency_id'=> $shop->currency_id
+        ]);
         if ($shop->type == ShopTypeEnum::FULFILMENT) {
             $shop->fulfilmentStats()->create();
         }

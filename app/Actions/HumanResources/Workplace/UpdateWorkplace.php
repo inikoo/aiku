@@ -7,15 +7,16 @@
 
 namespace App\Actions\HumanResources\Workplace;
 
-use App\Actions\Helpers\Address\StoreAddressAttachToModel;
 use App\Actions\HumanResources\Workplace\Hydrators\WorkplaceHydrateUniversalSearch;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWorkplaces;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\HumanResources\WorkplaceResource;
+use App\Models\Helpers\Address;
 use App\Models\HumanResources\Workplace;
 use App\Models\SysAdmin\Organisation;
 use App\Rules\IUnique;
+use App\Rules\ValidAddress;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -33,11 +34,19 @@ class UpdateWorkplace extends OrgAction
 
         $workplace = $this->update($workplace, $modelData, ['data']);
 
-        if ($addressData) {
-            StoreAddressAttachToModel::run($workplace, $addressData, ['scope' => 'contact']);
-            $workplace->location = $workplace->getLocation();
+        if($addressData) {
+            if($workplace->address) {
+                $workplace->address()->update($addressData);
+            } else {
+                data_set($addressData, 'owner_type', 'Workplace');
+                data_set($addressData, 'owner_id', $workplace->id);
+                $address = Address::create($addressData);
+                $workplace->address()->associate($address);
+            }
+            $workplace->location = $workplace->address->getLocation();
             $workplace->save();
         }
+
         if ($workplace->wasChanged('type')) {
             OrganisationHydrateWorkplaces::run($workplace->organisation);
         }
@@ -77,7 +86,7 @@ class UpdateWorkplace extends OrgAction
                 ),
             ],
             'type'    => ['sometimes', 'required'],
-            'address' => ['sometimes', 'required']
+            'address' => ['sometimes', 'required', new ValidAddress()]
         ];
     }
 

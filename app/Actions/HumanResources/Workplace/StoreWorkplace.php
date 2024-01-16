@@ -37,10 +37,12 @@ class StoreWorkplace extends OrgAction
         /** @var Workplace $workplace */
         $workplace = $organisation->workplaces()->create($modelData);
 
-        $address = Address::create($addressData);
-        $workplace->update([
-            'address_id' => $address->id,
-        ]);
+        data_set($addressData, 'owner_type', 'Workplace');
+        data_set($addressData, 'owner_id', $workplace->id);
+
+        $address=Address::create($addressData);
+        $workplace->address()->associate($address);
+        $workplace->location = $workplace->address->getLocation();
 
         $workplace->save();
         $workplace->stats()->create();
@@ -62,7 +64,7 @@ class StoreWorkplace extends OrgAction
     public function rules(): array
     {
         return [
-            'name'    => [
+            'name'        => [
                 'required',
                 'max:255',
                 new IUnique(
@@ -72,9 +74,9 @@ class StoreWorkplace extends OrgAction
                     ]
                 ),
             ],
-            'type'         => ['required', new Enum(WorkplaceTypeEnum::class)],
-            'address'      => ['required', new ValidAddress()],
-             'timezone_id' => ['required', 'exists:timezones,id']
+            'type'        => ['required', new Enum(WorkplaceTypeEnum::class)],
+            'address'     => ['required', new ValidAddress()],
+            'timezone_id' => ['sometimes','nullable', 'exists:timezones,id']
         ];
     }
 

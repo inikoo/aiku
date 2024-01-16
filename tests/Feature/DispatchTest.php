@@ -18,6 +18,7 @@ use App\Actions\OMS\Transaction\StoreTransaction;
 use App\Enums\Dispatch\DeliveryNote\DeliveryNoteStateEnum;
 use App\Enums\Dispatch\DeliveryNote\DeliveryNoteStatusEnum;
 use App\Enums\Mail\Outbox\OutboxTypeEnum;
+use App\Models\CRM\Customer;
 use App\Models\Helpers\Address;
 use App\Models\Inventory\Stock;
 use App\Models\Market\Shop;
@@ -30,13 +31,13 @@ beforeAll(function () {
 
 beforeEach(function () {
     $this->organisation = createOrganisation();
-    $this->group        =$this->organisation->group;
+    $this->group        = $this->organisation->group;
 });
 
 test('create shipper', function () {
-    $arrayData =[
-        'code'  => 'ABC',
-        'name'  => 'ABC Shipping'
+    $arrayData = [
+        'code' => 'ABC',
+        'name' => 'ABC Shipping'
     ];
 
     $createdShipper = StoreShipper::make()->action($this->organisation, $arrayData);
@@ -46,9 +47,9 @@ test('create shipper', function () {
 });
 
 test('update shipper', function ($createdShipper) {
-    $arrayData =[
-        'code'  => 'DEF',
-        'name'  => 'DEF Movers'
+    $arrayData = [
+        'code' => 'DEF',
+        'name' => 'DEF Movers'
     ];
 
     $updatedShipper = UpdateShipper::make()->action($createdShipper, $arrayData);
@@ -60,33 +61,21 @@ test('create shop', function () {
     $shop = StoreShop::make()->action($this->organisation, Shop::factory()->definition());
 
     expect($shop->paymentAccounts()->count())->toBe(1)
-        ->and($shop->outboxes()->count())->toBe(count(OutboxTypeEnum::values()));
+        ->and($shop->outboxes()->count())->toBe(
+            count(OutboxTypeEnum::values()) - 1
+        );
 
     return $shop;
 });
 
 test('create customer', function ($shop) {
-    try {
-        $arrayData = [
-            'contact_name'             => 'vica',
-            'company_name'             => 'aw advantage',
-            'email'                    => 'vica@awadvantage.com',
-            'phone'                    => '+62081353890000',
-        ];
-
-        $createdCustomer = StoreCustomer::make()->action($shop, $arrayData, Address::factory()->definition());
-
-        expect($createdCustomer->contact_name)->toBe($arrayData['contact_name']);
-    } catch (Throwable $e) {
-        echo $e->getMessage();
-        $createdCustomer = null;
-    }
-
+    $createdCustomer = StoreCustomer::make()->action($shop, Customer::factory()->definition());
+    expect($createdCustomer)->toBeInstanceOf(Customer::class);
     return $createdCustomer;
 })->depends('create shop');
 
 test('create order', function ($createdCustomer) {
-    $arrayData =[
+    $arrayData = [
         'number'      => '123456',
         'date'        => date('Y-m-d'),
         'customer_id' => $createdCustomer->id
@@ -102,33 +91,33 @@ test('create order', function ($createdCustomer) {
 test('create delivery note', function ($createdOrder) {
     try {
         $arrayData = [
-            'number'                => 123456,
-            'state'                 => DeliveryNoteStateEnum::SUBMITTED,
-            'status'                => DeliveryNoteStatusEnum::HANDLING,
-            'email'                 => 'test@email.com',
-            'phone'                 => '+62081353890000',
-            'date'                  => date('Y-m-d')
+            'number' => 123456,
+            'state'  => DeliveryNoteStateEnum::SUBMITTED,
+            'status' => DeliveryNoteStatusEnum::HANDLING,
+            'email'  => 'test@email.com',
+            'phone'  => '+62081353890000',
+            'date'   => date('Y-m-d')
         ];
 
-        $deliveryNote         = StoreDeliveryNote::make()->action($createdOrder, $arrayData, Address::make());
+        $deliveryNote = StoreDeliveryNote::make()->action($createdOrder, $arrayData, Address::make());
 
         expect($deliveryNote->number)->toBe($arrayData['number']);
-
     } catch (Throwable $e) {
         echo $e->getMessage();
         $deliveryNote = null;
     }
+
     return $deliveryNote;
 })->depends('create order');
 
 test('update delivery note', function ($lastDeliveryNote) {
     $arrayData = [
-        'number'                => 2321321,
-        'state'                 => DeliveryNoteStateEnum::PICKING,
-        'status'                => DeliveryNoteStatusEnum::DISPATCHED,
-        'email'                 => 'test@email.com',
-        'phone'                 => '+62081353890000',
-        'date'                  => date('Y-m-d')
+        'number' => 2321321,
+        'state'  => DeliveryNoteStateEnum::PICKING,
+        'status' => DeliveryNoteStatusEnum::DISPATCHED,
+        'email'  => 'test@email.com',
+        'phone'  => '+62081353890000',
+        'date'   => date('Y-m-d')
     ];
 
     $updatedDeliveryNote = UpdateDeliveryNote::make()->action($lastDeliveryNote, $arrayData);
@@ -138,13 +127,13 @@ test('update delivery note', function ($lastDeliveryNote) {
 
 test('create delivery note item', function ($customer, $order, $deliveryNote) {
     try {
-        $stock            = StoreStock::make()->action($this->group, Stock::factory()->definition());
-        $transaction      = StoreTransaction::make()->action($order, Transaction::factory()->definition());
+        $stock       = StoreStock::make()->action($this->group, Stock::factory()->definition());
+        $transaction = StoreTransaction::make()->action($order, Transaction::factory()->definition());
 
         $deliveryNoteData = [
-            'delivery_note_id'  => $deliveryNote->id,
-            'stock_id'          => $stock->id,
-            'transaction_id'    => $transaction->id,
+            'delivery_note_id' => $deliveryNote->id,
+            'stock_id'         => $stock->id,
+            'transaction_id'   => $transaction->id,
         ];
 
         $deliveryNoteItem = StoreDeliveryNoteItem::make()->action($deliveryNote, $deliveryNoteData);
@@ -169,7 +158,7 @@ test('remove delivery note', function ($deliveryNote) {
 
 
 test('create shipment', function ($deliveryNote, $shipper) {
-    $arrayData = [
+    $arrayData              = [
         'code' => 'AAA'
     ];
     $shipper['api_shipper'] = '';

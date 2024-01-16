@@ -16,7 +16,6 @@ use App\Enums\CRM\Prospect\ProspectSuccessStatusEnum;
 use App\Models\Helpers\Address;
 use App\Models\Market\Shop;
 use App\Models\Search\UniversalSearch;
-use App\Models\Traits\HasAddresses;
 use App\Models\Traits\HasUniversalSearch;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
@@ -48,6 +47,7 @@ use Spatie\Tags\HasTags;
  * @property string|null $identity_document_type
  * @property string|null $identity_document_number
  * @property string|null $contact_website
+ * @property int|null $address_id
  * @property array $location
  * @property bool $is_valid_email
  * @property ProspectStateEnum $state
@@ -73,7 +73,7 @@ use Spatie\Tags\HasTags;
  * @property Carbon|null $deleted_at
  * @property string|null $delete_comment
  * @property string|null $source_id
- * @property-read Collection<int, Address> $addresses
+ * @property-read Address|null $address
  * @property-read \App\Models\CRM\Customer|null $customer
  * @property Collection<int, \Spatie\Tags\Tag> $tags
  * @property-read Shop $shop
@@ -95,7 +95,6 @@ use Spatie\Tags\HasTags;
 class Prospect extends Model
 {
     use SoftDeletes;
-    use HasAddresses;
     use HasSlug;
     use HasUniversalSearch;
     use HasFactory;
@@ -191,5 +190,10 @@ class Prospect extends Model
     public function customer(): BelongsTo
     {
         return $this->belongsTo(Customer::class);
+    }
+
+    public function address(): BelongsTo
+    {
+        return $this->belongsTo(Address::class);
     }
 }

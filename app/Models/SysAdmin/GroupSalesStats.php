@@ -7,17 +7,14 @@
 
 namespace App\Models\SysAdmin;
 
-use Eloquent;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Carbon;
 
 /**
- * App\Models\SysAdmin\OrganisationSalesStats
+ * App\Models\SysAdmin\GroupSalesStats
  *
  * @property int $id
- * @property int $organisation_id
+ * @property int $group_id
  * @property int $number_orders
  * @property int $number_orders_state_creating
  * @property int $number_orders_state_submitted
@@ -65,22 +62,22 @@ use Illuminate\Support\Carbon;
  * @property string $pq3
  * @property string $pq4
  * @property string $pq5
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
- * @property-read \App\Models\SysAdmin\Organisation $organisation
- * @method static Builder|OrganisationSalesStats newModelQuery()
- * @method static Builder|OrganisationSalesStats newQuery()
- * @method static Builder|OrganisationSalesStats query()
- * @mixin Eloquent
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\SysAdmin\Group $group
+ * @method static \Illuminate\Database\Eloquent\Builder|GroupSalesStats newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|GroupSalesStats newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|GroupSalesStats query()
+ * @mixin \Eloquent
  */
-class OrganisationSalesStats extends Model
+class GroupSalesStats extends Model
 {
-    protected $table = 'organisation_sales_stats';
+    protected $table = 'group_sales_stats';
 
     protected $guarded = [];
 
-    public function organisation(): BelongsTo
+    public function group(): BelongsTo
     {
-        return $this->belongsTo(Organisation::class);
+        return $this->belongsTo(Group::class);
     }
 }

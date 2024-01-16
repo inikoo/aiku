@@ -8,7 +8,7 @@
 namespace App\Imports\CRM;
 
 use App\Actions\CRM\Customer\StoreCustomer;
-use App\Actions\SysAdmin\User\StoreUser;
+use App\Actions\CRM\WebUser\StoreWebUser;
 use App\Imports\WithImport;
 use App\Models\Market\Shop;
 use App\Rules\ValidAddress;
@@ -60,7 +60,7 @@ class CustomerImport implements ToCollection, WithHeadingRow, SkipsOnFailure, Wi
             );
 
             if (Arr::get($row, 'password') and Arr::get($row, 'email')) {
-                StoreUser::make()->action(
+                StoreWebUser::make()->action(
                     $customer,
                     array_merge(
                         $row->only(['email', 'password', 'reset_password'])->all(),

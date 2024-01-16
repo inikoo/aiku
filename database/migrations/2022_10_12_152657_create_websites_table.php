@@ -9,12 +9,14 @@ use App\Enums\Web\Website\WebsiteCloudflareStatusEnum;
 use App\Enums\Web\Website\WebsiteEngineEnum;
 use App\Enums\Web\Website\WebsiteStateEnum;
 use App\Stubs\Migrations\HasGroupOrganisationRelationship;
+use App\Stubs\Migrations\HasSoftDeletes;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
     use HasGroupOrganisationRelationship;
+    use HasSoftDeletes;
     public function up(): void
     {
         Schema::create('websites', function (Blueprint $table) {
@@ -48,7 +50,7 @@ return new class () extends Migration {
             $table->timestampsTz();
             $table->timestampTz('launched_at')->nullable();
             $table->timestampTz('closed_at')->nullable();
-            $table->softDeletesTz();
+            $table=$this->softDeletes($table);
             $table->string('cloudflare_id')->index()->nullable();
             $table->string('cloudflare_status')->nullable()->default(WebsiteCloudflareStatusEnum::NOT_SET->value);
             $table->string('source_id')->nullable()->unique();

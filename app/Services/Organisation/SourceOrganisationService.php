@@ -27,6 +27,8 @@ interface SourceOrganisationService
 
     public function fetchWebsite($id);
 
+    public function fetchWebpage($id);
+
     public function fetchShipper($id);
 
     public function fetchTransaction($id);

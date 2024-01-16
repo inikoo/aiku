@@ -16,9 +16,11 @@ use App\Enums\CRM\Prospect\ProspectFailStatusEnum;
 use App\Enums\CRM\Prospect\ProspectSuccessStatusEnum;
 use App\Http\Resources\Lead\ProspectResource;
 use App\Models\CRM\Prospect;
+use App\Models\Helpers\Address;
 use App\Models\Market\Shop;
 use App\Models\SysAdmin\Organisation;
 use App\Rules\IUnique;
+use App\Rules\ValidAddress;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
@@ -27,6 +29,7 @@ class UpdateProspect extends OrgAction
 {
     use WithActionUpdate;
     use WithProspectPrepareForValidation;
+
     private bool $asAction     = false;
     public int $hydratorsDelay = 0;
     private bool $strict       = true;
@@ -35,8 +38,10 @@ class UpdateProspect extends OrgAction
 
     public function handle(Prospect $prospect, array $modelData): Prospect
     {
+        $contactAddressData = Arr::get($modelData, 'address');
+        Arr::forget($modelData, 'address');
 
-        if(Arr::has($modelData, 'email')) {
+        if (Arr::has($modelData, 'email')) {
             $isValidEmail = true;
             if (Arr::get($modelData, 'email', '') != '' && !filter_var(Arr::get($modelData, 'email'), FILTER_VALIDATE_EMAIL)) {
                 $isValidEmail = false;
@@ -45,6 +50,20 @@ class UpdateProspect extends OrgAction
         }
 
         $prospect = $this->update($prospect, $modelData, ['data']);
+
+        if ($contactAddressData) {
+            if ($prospect->address) {
+                $prospect->address()->update($contactAddressData);
+            } else {
+                data_set($contactAddressData, 'owner_type', 'Prospect');
+                data_set($contactAddressData, 'owner_id', $prospect->id);
+                $address = Address::create($contactAddressData);
+                $prospect->address()->associate($address);
+            }
+            $prospect->location = $prospect->address->getLocation();
+            $prospect->save();
+        }
+
         ProspectHydrateUniversalSearch::dispatch($prospect);
 
         return $prospect;
@@ -69,6 +88,7 @@ class UpdateProspect extends OrgAction
             'last_contacted_at' => 'sometimes|nullable|date',
             'contact_name'      => ['sometimes', 'nullable', 'string', 'max:255'],
             'company_name'      => ['sometimes', 'nullable', 'string', 'max:255'],
+            'address'           => ['sometimes', 'nullable', new ValidAddress()],
             'email'             => [
                 'sometimes',
                 'string:500',

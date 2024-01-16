@@ -47,3 +47,6 @@ _ide_helper.php
 /storage/app/media
 
 /storage/media-library/*
+aurora_migration_base.sh
+aurora_migration_base_tmp.sh
+aurora_migration_crm.sh

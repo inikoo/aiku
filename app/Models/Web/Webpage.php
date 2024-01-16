@@ -23,6 +23,8 @@ use Spatie\Sluggable\SlugOptions;
  * App\Models\Web\Webpage
  *
  * @property int $id
+ * @property int $group_id
+ * @property int $organisation_id
  * @property string $slug
  * @property string $code
  * @property string $url

@@ -10,14 +10,25 @@ namespace App\Actions\Market\Shop\Hydrators;
 use App\Enums\OMS\Order\OrderStateEnum;
 use App\Models\Market\Shop;
 use App\Models\OMS\Order;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
+use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class ShopHydrateOrders implements ShouldBeUnique
+class ShopHydrateOrders
 {
     use AsAction;
 
+    private Shop $shop;
+
+    public function __construct(Shop $shop)
+    {
+        $this->shop = $shop;
+    }
+
+    public function getJobMiddleware(): array
+    {
+        return [(new WithoutOverlapping($this->shop->id))->dontRelease()];
+    }
 
     public function handle(Shop $shop): void
     {
@@ -35,11 +46,7 @@ class ShopHydrateOrders implements ShouldBeUnique
             $stats['number_orders_state_' . $orderState->snake()] = Arr::get($stateCounts, $orderState->value, 0);
         }
 
-        $shop->crmStats()->update($stats);
+        $shop->salesStats()->update($stats);
     }
 
-    public function getJobUniqueId(Shop $shop): string
-    {
-        return $shop->id;
-    }
 }

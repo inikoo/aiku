@@ -7,6 +7,7 @@
 
 namespace Database\Factories\Dropshipping;
 
+use App\Models\Helpers\Address;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class CustomerClientFactory extends Factory
@@ -14,10 +15,11 @@ class CustomerClientFactory extends Factory
     public function definition(): array
     {
         return [
-            'reference'                => fake()->lexify(),
-            'contact_name'             => fake()->name,
-            'company_name'             => fake()->company,
-            'email'                    => fake()->email,
+            'reference'        => fake()->lexify(),
+            'contact_name'     => fake()->name,
+            'company_name'     => fake()->company,
+            'email'            => fake()->email,
+            'delivery_address' => Address::factory()->definition(),
         ];
     }
 }

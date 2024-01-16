@@ -1,23 +1,20 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Sun, 23 Apr 2023 11:32:22 Malaysia Time, Sanur, Bali, Indonesia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Tue, 16 Jan 2024 01:00:00 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Models\SysAdmin;
+namespace App\Models\Market;
 
-use Eloquent;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Carbon;
 
 /**
- * App\Models\SysAdmin\OrganisationSalesStats
+ * App\Models\Market\ShopSalesStats
  *
  * @property int $id
- * @property int $organisation_id
+ * @property int $shop_id
  * @property int $number_orders
  * @property int $number_orders_state_creating
  * @property int $number_orders_state_submitted
@@ -65,22 +62,22 @@ use Illuminate\Support\Carbon;
  * @property string $pq3
  * @property string $pq4
  * @property string $pq5
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
- * @property-read \App\Models\SysAdmin\Organisation $organisation
- * @method static Builder|OrganisationSalesStats newModelQuery()
- * @method static Builder|OrganisationSalesStats newQuery()
- * @method static Builder|OrganisationSalesStats query()
- * @mixin Eloquent
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\Market\Shop $shop
+ * @method static \Illuminate\Database\Eloquent\Builder|ShopSalesStats newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|ShopSalesStats newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|ShopSalesStats query()
+ * @mixin \Eloquent
  */
-class OrganisationSalesStats extends Model
+class ShopSalesStats extends Model
 {
-    protected $table = 'organisation_sales_stats';
+    protected $table = 'shop_sales_stats';
 
     protected $guarded = [];
 
-    public function organisation(): BelongsTo
+    public function shop(): BelongsTo
     {
-        return $this->belongsTo(Organisation::class);
+        return $this->belongsTo(Shop::class);
     }
 }

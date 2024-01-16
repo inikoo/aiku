@@ -59,6 +59,7 @@ beforeEach(function () {
 });
 
 test('create group', function () {
+
     $modelData = Group::factory()->definition();
 
     $modelData = array_merge($modelData, [
@@ -100,7 +101,7 @@ test('update group name', function (Group $group) {
 
 test('mailrooms seeded correctly', function () {
     $mailrooms = Mailroom::all();
-    expect($mailrooms->count())->toBe(6);
+    expect($mailrooms->count())->toBe(10);
 });
 
 test('create a system admin', function () {

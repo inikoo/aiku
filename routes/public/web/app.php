@@ -12,3 +12,35 @@ use Inertia\Inertia;
 Route::get('/', function () {
     return Inertia::render('Welcome');
 })->name('.welcome');
+
+Route::get('/contact', function () {
+    return Inertia::render('Contact');
+})->name('.contact');
+
+Route::get('/about', function () {
+    return Inertia::render('About');
+})->name('.about');
+
+Route::get('/tnc', function () {
+    return Inertia::render('Tnc');
+})->name('.tnc');
+
+Route::get('/storage', function () {
+    return Inertia::render('Storage');
+})->name('.storage');
+
+Route::get('/pick_pack', function () {
+    return Inertia::render('Pick_pack');
+})->name('.pick_pack');
+
+Route::get('/rework', function () {
+    return Inertia::render('Rework');
+})->name('.rework');
+
+Route::get('/pricing', function () {
+    return Inertia::render('Pricing');
+})->name('.pricing');
+
+Route::get('/shipping', function () {
+    return Inertia::render('Shipping');
+})->name('.shipping');

@@ -64,7 +64,7 @@ test('update working place successful', function ($createdWorkplace) {
     $arrayData = [
         'name'    => 'vica smith',
         'type'    => WorkplaceTypeEnum::HOME,
-        'address' => Address::create(Address::factory()->definition())->toArray()
+        'address' => Address::factory()->definition()
     ];
 
     $updatedWorkplace = UpdateWorkplace::run($createdWorkplace, $arrayData);
