@@ -5,7 +5,7 @@ const textTnc = `<h1>Terms &amp; Conditions</h1><p><strong><em>Who reads the sma
 </script>
 
 <template layout="Public">
-    <div class="px-4 py-3" v-html="textTnc">
+    <div class="px-10 py-5" v-html="textTnc">
 
     </div>
 </template>

@@ -40,3 +40,7 @@ Route::get('/rework', function () {
 Route::get('/pricing', function () {
     return Inertia::render('Pricing');
 })->name('.pricing');
+
+Route::get('/shipping', function () {
+    return Inertia::render('Shipping');
+})->name('.shipping');

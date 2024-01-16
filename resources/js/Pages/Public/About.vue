@@ -3,6 +3,6 @@ const textAbout = `<h1 class="text-2xl font-bold mb-2">About AW Fulfilment</h1><
 </script>
 
 <template layout="Public">
-    <div class="relative px-4 py-3" v-html="textAbout">
+    <div class="relative px-10 py-5" v-html="textAbout">
     </div>
 </template>

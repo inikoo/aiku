@@ -63,19 +63,19 @@ const families = [
 const footerAbout = [
     {
         label: "Contact Us",
-        href: "https://www.aw-fulfilment.co.uk/contact.sys",
+        href: "/contact",
     },
     {
         label: "About Us",
-        href: "https://www.aw-fulfilment.co.uk/about.sys",
+        href: "/about",
     },
     {
         label: "Delivery",
-        href: "https://www.aw-fulfilment.co.uk/shipping.sys",
+        href: "/shipping",
     },
     {
         label: "Terms & Conditions",
-        href: "https://www.aw-fulfilment.co.uk/tac.sys",
+        href: "/tnc",
     }
 ]
 </script>
@@ -97,7 +97,7 @@ const footerAbout = [
                 <!-- AW Family -->
                 <div class="space-y-2">
                     <p class="text-xl text-white">AW Family</p>
-                    <div class="flex flex-col">
+                    <div class="flex flex-col gap-y-1">
                         <Link v-for="family in families" :href="family.href" class="text-slate-400 hover:text-slate-200">
                             {{ family.label }}
                         </Link>
@@ -106,7 +106,7 @@ const footerAbout = [
                 <!-- About -->
                 <div class="space-y-2">
                     <p class="text-xl text-white">About AW-Fulfillment</p>
-                    <div class="flex flex-col">
+                    <div class="flex flex-col gap-y-1">
                         <Link v-for="about in footerAbout" :href="about.href" class="text-slate-400 hover:text-slate-200">
                             {{ about.label }}
                         </Link>
@@ -115,7 +115,7 @@ const footerAbout = [
                 <!-- Description -->
                 <div class="space-y-2">
                     <p class="text-xl text-white">AW-Fulfilment</p>
-                    <div class="text-justify text-gray-400">
+                    <div class="text-justify text-gray-400 text-sm">
                         AW-Fulfilment is a trading brand of Ancient Wisdom.<br>We have affordable warehouse spaces available for
                         immediate use. There is no middle man here. Your goods are stored directly within our 100 000 sq foot
                         state of the art warehouse facility. Our heavy duty racking, trained staff and onsite security setup
