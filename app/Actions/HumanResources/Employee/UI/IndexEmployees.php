@@ -14,6 +14,7 @@ use App\Enums\HumanResources\Employee\EmployeeTypeEnum;
 use App\Http\Resources\HumanResources\EmployeeInertiaResource;
 use App\Http\Resources\HumanResources\EmployeeResource;
 use App\Models\HumanResources\Employee;
+use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -27,6 +28,8 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexEmployees extends OrgAction
 {
+    private Organisation $parent;
+
     protected function getElementGroups(): array
     {
         return [
@@ -52,7 +55,7 @@ class IndexEmployees extends OrgAction
         ];
     }
 
-    public function handle($prefix = null): LengthAwarePaginator
+    public function handle(Organisation|Group $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -67,6 +70,14 @@ class IndexEmployees extends OrgAction
 
 
         $queryBuilder = QueryBuilder::for(Employee::class);
+
+        if (class_basename($parent) == 'Organisation') {
+            $queryBuilder->where('organisation_id', $parent->id);
+        } elseif (class_basename($parent) == 'Group') {
+            $queryBuilder->where('group_id', $parent->id);
+        }
+
+
         foreach ($this->getElementGroups() as $key => $elementGroup) {
             /** @noinspection PhpUndefinedMethodInspection */
             $queryBuilder->whereElementGroup(
@@ -88,9 +99,9 @@ class IndexEmployees extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure(?array $modelOperations = null, $prefix = null): Closure
+    public function tableStructure(Organisation|Group $parent, ?array $modelOperations = null, $prefix = null): Closure
     {
-        return function (InertiaTable $table) use ($modelOperations, $prefix) {
+        return function (InertiaTable $table) use ($modelOperations, $prefix, $parent) {
             if ($prefix) {
                 $table
                     ->name($prefix)
@@ -108,12 +119,14 @@ class IndexEmployees extends OrgAction
 
             $table
                 ->withModelOperations($modelOperations)
-                ->withGlobalSearch()
-                ->withEmptyState(
+                ->withGlobalSearch();
+
+            if(class_basename($parent)=='Organisation') {
+                $table->withEmptyState(
                     [
                         'title'       => __('no employees'),
                         'description' => $this->canEdit ? __('Get started by creating a new employee.') : null,
-                        'count'       => $this->organisation->humanResourcesStats->number_employees,
+                        'count'       => $parent->humanResourcesStats->number_employees,
                         'action'      => $this->canEdit ? [
                             'type'    => 'button',
                             'style'   => 'create',
@@ -122,13 +135,14 @@ class IndexEmployees extends OrgAction
                             'route'   => [
                                 'name'       => 'grp.org.hr.employees.create',
                                 'parameters' => [
-                                    'organisation' => $this->organisation->slug
+                                    'organisation' => $this->parent->slug
                                 ]
                             ]
                         ] : null
                     ]
-                )
-                ->column(key: 'slug', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
+                );
+            }
+            $table->column(key: 'slug', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'contact_name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'job_title', label: __('position'), canBeHidden: false)
                 ->column(key: 'state', label: __('state'), canBeHidden: false)
@@ -138,9 +152,13 @@ class IndexEmployees extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo("human-resources.{$this->organisation->slug}.edit");
+        if(class_basename($this->parent)=='Organisation') {
+            $this->canEdit = $request->user()->hasPermissionTo("human-resources.{$this->organisation->slug}.edit");
 
-        return $request->user()->hasPermissionTo("human-resources.{$this->organisation->slug}.view");
+            return $request->user()->hasPermissionTo("human-resources.{$this->organisation->slug}.view");
+        } else {
+            return $request->user()->hasPermissionTo('group-business-intelligence');
+        }
     }
 
 
@@ -173,15 +191,16 @@ class IndexEmployees extends OrgAction
                 ],
                 'data'        => EmployeeInertiaResource::collection($employees),
             ]
-        )->table($this->tableStructure());
+        )->table($this->tableStructure($this->parent));
     }
 
 
     public function asController(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
+        $this->parent = $organisation;
         $this->initialisation($organisation, $request);
 
-        return $this->handle();
+        return $this->handle($organisation);
     }
 
 
@@ -195,7 +214,14 @@ class IndexEmployees extends OrgAction
                     'simple' => [
                         'route' => [
                             'name'       => 'grp.org.hr.employees.index',
-                            'parameters' => $routeParameters
+                            'parameters' => array_merge(
+                                [
+                                    '_query' => [
+                                        'elements[state]' => 'working'
+                                    ]
+                                ],
+                                $routeParameters
+                            )
                         ],
                         'label' => __('employees'),
                         'icon'  => 'fal fa-bars',
