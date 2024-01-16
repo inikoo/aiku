@@ -14,8 +14,8 @@ import { useLayoutStore } from '@/Stores/layout'
     <div>
         resources/js/Pages/Grp/Dashboard/Dashboard.vue
         <!-- <pre>{{ route().v()?.params?.organisation }}</pre> -->
-        <pre>{{ usePage().props }}</pre>
+        <!-- <pre>{{ usePage().props }}</pre> -->
         <!-- <pre>{{ route(useLayoutStore().currentRoute, useLayoutStore().currentParams) }}</pre> -->
-        <!-- <pre>{{ useLayoutStore().navigation.org[useLayoutStore().currentParams.organisation]?.shops_navigation[useLayoutStore().currentParams.shop] }}</pre> -->
+        <pre>{{ useLayoutStore().organisations }}</pre>
     </div>
 </template>

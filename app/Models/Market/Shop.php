@@ -22,6 +22,7 @@ use App\Models\Assets\Timezone;
 use App\Models\CRM\Customer;
 use App\Models\CRM\Prospect;
 use App\Models\Fulfilment\FulfilmentOrder;
+use App\Models\Mail\Mailshot;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Helpers\Address;
 use App\Models\Helpers\Issue;
@@ -320,6 +321,12 @@ class Shop extends Model
     {
         return $this->morphMany(Role::class, 'scope');
     }
+
+    public function mailshots(): HasMany
+    {
+        return $this->hasMany(Mailshot::class, 'shop_id');
+    }
+
 
 
 }

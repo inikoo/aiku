@@ -1,59 +1,70 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Fri, 10 Mar 2023 20:59:01 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Fri, 10 Nov 2023 00:37:46 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
 namespace App\Actions\Mail\DispatchedEmail;
 
+use App\Actions\Mail\Mailshot\Hydrators\MailshotHydrateCumulativeDispatchedEmailsState;
+use App\Actions\Mail\Mailshot\Hydrators\MailshotHydrateDispatchedEmailsState;
 use App\Actions\Traits\WithActionUpdate;
-use App\Http\Resources\Mail\DispatchedEmailResource;
+use App\Enums\Mail\DispatchedEmail\DispatchedEmailStateEnum;
 use App\Models\Mail\DispatchedEmail;
-use Lorisleiva\Actions\ActionRequest;
 
 class UpdateDispatchedEmail
 {
     use WithActionUpdate;
 
-    private bool $asAction=false;
 
     public function handle(DispatchedEmail $dispatchedEmail, array $modelData): DispatchedEmail
     {
-        return $this->update($dispatchedEmail, $modelData, ['data']);
-    }
 
-    public function authorize(ActionRequest $request): bool
-    {
-        if($this->asAction) {
-            return true;
+        $dispatchedEmail = $this->update($dispatchedEmail, $modelData, ['data']);
+
+        if ($dispatchedEmail->mailshot_id) {
+            if ($dispatchedEmail->wasChanged(['is_error'])) {
+                MailshotHydrateCumulativeDispatchedEmailsState::run($dispatchedEmail->mailshot, DispatchedEmailStateEnum::ERROR);
+            }
+            if ($dispatchedEmail->wasChanged(['is_rejected'])) {
+                MailshotHydrateCumulativeDispatchedEmailsState::run($dispatchedEmail->mailshot, DispatchedEmailStateEnum::REJECTED);
+            }
+            if ($dispatchedEmail->wasChanged(['is_sent'])) {
+                MailshotHydrateCumulativeDispatchedEmailsState::run($dispatchedEmail->mailshot, DispatchedEmailStateEnum::SENT);
+            }
+            if ($dispatchedEmail->wasChanged(['is_delivered'])) {
+                MailshotHydrateCumulativeDispatchedEmailsState::run($dispatchedEmail->mailshot, DispatchedEmailStateEnum::DELIVERED);
+            }
+            if ($dispatchedEmail->wasChanged(['is_hard_bounced'])) {
+                MailshotHydrateCumulativeDispatchedEmailsState::run($dispatchedEmail->mailshot, DispatchedEmailStateEnum::HARD_BOUNCE);
+            }
+            if ($dispatchedEmail->wasChanged(['is_soft_bounced'])) {
+                MailshotHydrateCumulativeDispatchedEmailsState::run($dispatchedEmail->mailshot, DispatchedEmailStateEnum::SOFT_BOUNCE);
+            }
+            if ($dispatchedEmail->wasChanged(['is_opened'])) {
+                MailshotHydrateCumulativeDispatchedEmailsState::run($dispatchedEmail->mailshot, DispatchedEmailStateEnum::OPENED);
+            }
+            if ($dispatchedEmail->wasChanged(['is_clicked'])) {
+                MailshotHydrateCumulativeDispatchedEmailsState::run($dispatchedEmail->mailshot, DispatchedEmailStateEnum::CLICKED);
+            }
+            if ($dispatchedEmail->wasChanged(['is_spam'])) {
+                MailshotHydrateCumulativeDispatchedEmailsState::run($dispatchedEmail->mailshot, DispatchedEmailStateEnum::SPAM);
+            }
+            if ($dispatchedEmail->wasChanged(['is_unsubscribed'])) {
+                MailshotHydrateCumulativeDispatchedEmailsState::run($dispatchedEmail->mailshot, DispatchedEmailStateEnum::UNSUBSCRIBED);
+            }
+
+
+
+            if ($dispatchedEmail->wasChanged(['state'])) {
+                MailshotHydrateDispatchedEmailsState::dispatch($dispatchedEmail->mailshot);
+            }
         }
-        return $request->user()->hasPermissionTo("mail.edit");
-    }
-    public function rules(): array
-    {
-        return [
-            'code'         => ['sometimes', 'required', 'unique:dispatched_emails', 'between:2,64', 'alpha_dash'],
-        ];
-    }
-    public function action(DispatchedEmail $dispatchedEmail, array $modelData): DispatchedEmail
-    {
-        $this->asAction=true;
-        $this->setRawAttributes($modelData);
-        $validatedData = $this->validateAttributes();
 
-        return $this->handle($dispatchedEmail, $validatedData);
-    }
 
-    public function asController(DispatchedEmail $dispatchedEmail, ActionRequest $request): DispatchedEmail
-    {
-        $request->validate();
-        return $this->handle($dispatchedEmail, $request->all());
+        return $dispatchedEmail;
     }
 
 
-    public function jsonResponse(DispatchedEmail $dispatchedEmail): DispatchedEmailResource
-    {
-        return new DispatchedEmailResource($dispatchedEmail);
-    }
 }
