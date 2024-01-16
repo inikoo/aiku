@@ -36,13 +36,6 @@ class UploadProgressResource extends JsonResource
             'last_updated' => $upload->updated_at,
             'total'        => $upload->number_rows,
             'done'         => $upload->number_success + $upload->number_fails,
-            'view_route'   => [
-                'name'       => 'org.crm.shop.prospects.uploads.show',
-                'parameters' => [
-                    'shop'      => $this->organisation?->shops()->first()->slug,
-                    'upload'    => $upload->id,
-                ],
-            ],
             'data'         => [
                 'type'           => $upload->type,
                 'filename'       => $upload->filename,

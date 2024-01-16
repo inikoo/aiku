@@ -33,13 +33,6 @@ class UploadsResource extends JsonResource
                 'name'       => 'org.uploads.download',
                 'parameters' => $upload->id,
             ],
-            'view_route' => [
-                'name'       => 'org.crm.shop.prospects.uploads.show',
-                'parameters' => [
-                    'shop'      => organisation()->shops()->first()->slug,
-                    'upload'    => $upload->id,
-                ],
-            ],
         ];
     }
 }
