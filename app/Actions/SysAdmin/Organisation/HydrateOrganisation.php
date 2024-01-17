@@ -40,7 +40,7 @@ class HydrateOrganisation extends HydrateModel
     }
 
 
-    public string $commandSignature = 'organisations:hydrate {organisations?*}';
+    public string $commandSignature = 'organisation:hydrate {organisations?*}';
 
     public function asCommand(Command $command): int
     {
