@@ -10,7 +10,7 @@ namespace App\Actions\Inventory\Location\UI;
 use App\Actions\InertiaAction;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\Inventory\WarehouseArea\UI\ShowWarehouseArea;
-use App\Actions\UI\Inventory\InventoryDashboard;
+use App\Actions\UI\Inventory\ShowInventoryDashboard;
 use App\Enums\UI\WarehouseAreaTabsEnum;
 use App\Enums\UI\WarehouseTabsEnum;
 use App\Http\Resources\Inventory\LocationResource;
@@ -288,7 +288,7 @@ class IndexLocations extends InertiaAction
         return match ($routeName) {
             'grp.org.inventory.locations.index' =>
             array_merge(
-                (new InventoryDashboard())->getBreadcrumbs(),
+                (new ShowInventoryDashboard())->getBreadcrumbs(),
                 $headCrumb(
                     [
                         'name' => 'grp.org.inventory.locations.index',

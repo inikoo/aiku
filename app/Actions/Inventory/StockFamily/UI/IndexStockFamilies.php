@@ -8,7 +8,7 @@
 namespace App\Actions\Inventory\StockFamily\UI;
 
 use App\Actions\InertiaAction;
-use App\Actions\UI\Inventory\InventoryDashboard;
+use App\Actions\UI\Inventory\ShowInventoryDashboard;
 use App\Http\Resources\Inventory\StockFamilyResource;
 use App\Models\Inventory\StockFamily;
 use Closure;
@@ -158,7 +158,7 @@ class IndexStockFamilies extends InertiaAction
     public function getBreadcrumbs($suffix = null): array
     {
         return array_merge(
-            (new InventoryDashboard())->getBreadcrumbs(),
+            (new ShowInventoryDashboard())->getBreadcrumbs(),
             [
                 [
                     'type'   => 'simple',

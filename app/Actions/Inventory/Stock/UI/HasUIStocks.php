@@ -7,14 +7,14 @@
 
 namespace App\Actions\Inventory\Stock\UI;
 
-use App\Actions\UI\Inventory\InventoryDashboard;
+use App\Actions\UI\Inventory\ShowInventoryDashboard;
 
 trait HasUIStocks
 {
     public function getBreadcrumbs(): array
     {
         return array_merge(
-            (new InventoryDashboard())->getBreadcrumbs(),
+            (new ShowInventoryDashboard())->getBreadcrumbs(),
             [
                 'grp.org.inventory.stocks.index' => [
                     'route'      => 'grp.org.inventory.stocks.index',

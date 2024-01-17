@@ -17,7 +17,7 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class InventoryDashboard extends OrgAction
+class ShowInventoryDashboard extends OrgAction
 {
     use AsAction;
     use WithInertia;

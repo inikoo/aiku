@@ -19,7 +19,9 @@ use App\Models\Dispatch\Shipper;
 use App\Models\HumanResources\ClockingMachine;
 use App\Models\HumanResources\Employee;
 use App\Models\HumanResources\Workplace;
+use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
+use App\Models\Inventory\WarehouseArea;
 use App\Models\Market\Shop;
 use App\Models\Media\Media;
 use App\Models\Procurement\PurchaseOrder;
@@ -100,6 +102,7 @@ use Spatie\Sluggable\SlugOptions;
  * @method static \Illuminate\Database\Eloquent\Builder|Organisation query()
  * @mixin \Eloquent
  */
+
 class Organisation extends Model implements HasMedia
 {
     use HasFactory;
@@ -252,6 +255,16 @@ class Organisation extends Model implements HasMedia
     public function warehouses(): HasMany
     {
         return $this->hasMany(Warehouse::class);
+    }
+
+    public function warehouseAreas(): HasMany
+    {
+        return $this->hasMany(WarehouseArea::class);
+    }
+
+    public function locations(): HasMany
+    {
+        return $this->hasMany(Location::class);
     }
 
     public function purchaseOrders(): HasMany

@@ -7,7 +7,7 @@
 
 namespace App\Actions\Inventory\StockFamily\UI;
 
-use App\Actions\UI\Inventory\InventoryDashboard;
+use App\Actions\UI\Inventory\ShowInventoryDashboard;
 use App\Models\Inventory\StockFamily;
 
 trait HasUIStockFamily
@@ -15,7 +15,7 @@ trait HasUIStockFamily
     public function getBreadcrumbs(StockFamily $stockFamily): array
     {
         return array_merge(
-            (new InventoryDashboard())->getBreadcrumbs(),
+            (new ShowInventoryDashboard())->getBreadcrumbs(),
             [
                 'grp.oms.stocks.show' => [
                     'route'           => 'grp.oms.stock-families.show',
