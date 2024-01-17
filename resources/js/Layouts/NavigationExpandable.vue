@@ -26,20 +26,24 @@ const navigationName = props.navKey.split('_')[0].slice(0, -1)  // shops_navigat
 <template>
     <component :is="layout.leftSidebar.show ? Disclosure : Popover" v-slot="{ open }" as="div"
         class="relative hover:bg-indigo-300/30"
-        :class="[navKey === layout.currentModule ? 'px-0.5' : '', layout.leftSidebar.show ? 'pl-4 pr-2 py-1' : '',]">
+        :class="[navKey === layout.currentModule ? 'px-0.5' : '']">
         <!-- Label Navigation: Shops/Warehouses -->
         <component :is="layout.leftSidebar.show ? DisclosureButton : PopoverButton" as="div"
             class="flex items-center justify-between cursor-pointer"
-            :class="layout.leftSidebar.show ? '' : open ? 'pl-3 pr-2 py-2 bg-indigo-600' : 'pl-3 pr-2 py-2 hover:bg-indigo-500'"
+            :class="layout.leftSidebar.show ? 'pt-2 py-1 pl-4 pr-2' : open ? 'py-2 bg-indigo-600' : 'py-2 hover:bg-indigo-500'"
         >
-            <div class="leading-none capitalize text-white font-bold pb-1 select-none flex items-center gap-x-1">
-                <FontAwesomeIcon v-if="navKey == 'shops_navigation'" icon='fal fa-store-alt' class='text-sm opacity-75'
-                    aria-hidden='true' />
-                <FontAwesomeIcon v-if="navKey == 'warehouses_navigation'" icon='fal fa-warehouse-alt'
-                    class='text-sm opacity-75' aria-hidden='true' />
-                <span v-if="layout.leftSidebar.show">{{ navKey.split('_')[0] }}</span>
+            <div class="leading-none capitalize text-white font-bold pb-1 select-none flex items-center gap-x-1" :class="layout.leftSidebar.show ? '' : 'mx-auto'">
+                <FontAwesomeIcon v-if="navKey == 'shops_navigation'" icon='fal fa-store-alt' class='text-sm opacity-65' aria-hidden='true' />
+                <FontAwesomeIcon v-if="navKey == 'warehouses_navigation'" icon='fal fa-warehouse-alt' class='text-sm opacity-65' aria-hidden='true' />
+                
+                <span v-if="layout.leftSidebar.show">
+                    <template v-if="useLayoutStore().organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.[`authorised_${navigationName}s`].length === 1">
+                        {{ useLayoutStore().organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.[`authorised_${navigationName}s`][0].name }}
+                    </template>
+                    <template v-else>{{ navKey.split('_')[0] }}</template>
+                </span>
             </div>
-            <FontAwesomeIcon v-if="layout.leftSidebar.show" icon='fal fa-chevron-down' class='text-white text-xs transition-all duration-100 ease-in-out'
+            <FontAwesomeIcon v-if="layout.leftSidebar.show" icon='fal fa-chevron-down' class='text-white text-xs transition-all duration-200 ease-in-out'
                 :class="[open ? 'rotate-180' : '']" aria-hidden='true' />
         </component>
 
@@ -51,51 +55,56 @@ const navigationName = props.navKey.split('_')[0].slice(0, -1)  // shops_navigat
                 >
                     <!-- If shop/warehouse not selected, then show all -->
                     <template v-if="!layout.currentParams[navigationName]">
+                        <!-- LeftSidebar: Popover (if minimize)-->
                         <div v-if="!layout.leftSidebar.show" class="flex items-center gap-x-1 text-white font-bold mt-1">
                             <span class="capitalize leading-none text-sm">{{ navigationName }}s</span>
                             <hr class="w-full border border-white rounded-full mt-1">
                         </div>
-                        <div v-for="(navigationShopWarehouse, indexShopWarehouse) in useLayoutStore().organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.[`authorised_${navigationName}s`]" :key="indexShopWarehouse"
-                            class="group flex flex-col justify-center text-sm py-0.5 gap-y-1" :class="[
-                                navigationShopWarehouse.slug === layout.currentModule ? '' : '',
-                                layout.leftSidebar.show ? '' : ''
-                            ]"
-                            :aria-current="navigationShopWarehouse.slug === layout.currentModule ? 'page' : undefined">
-                            <!-- <p v-if="Object.keys(subNav).length > 1" class="bg-indigo-300 py-0.5 pl-1 capitalize text-slate-700 font-bold mb-0.5">{{ navigationShopWarehouse.name }}</p> -->
-                            
-                            <!-- Looping: Navigation in Shop -->
-                            <!-- <Link v-for="(shopNavigation, navigationIndex) in navigationShopWarehouse.authorised_shops"
+
+                        <!-- If: Length available is only 1 -->
+                        <template v-if="useLayoutStore().organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.[`authorised_${navigationName}s`].length === 1">
+                            <Link v-for="(shopNavigation, navigationIndex) in subNav[useLayoutStore().organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.[`authorised_${navigationName}s`][0].slug]"
                                 :href="shopNavigation.route?.name ? route(shopNavigation.route.name, shopNavigation.route.parameters) : '#'"
-                                class="group flex items-center text-sm py-2 rounded-md pl-2" :class="[
+                                class="group flex items-center text-sm rounded-md px-3 py-2 w-fit" :class="[
                                     navigationIndex === layout.currentModule
-                                        ? 'subNavActive px-0.5'
-                                        : 'subNav px-1',
-                                    layout.leftSidebar.show ? Object.keys(subNav).length > 1 ? 'px-3 text-white' : 'pr-3' : '',
+                                        ? 'subNavActive'
+                                        : 'subNav',
+                                    layout.leftSidebar.show ? 'ml-6' : 'text-indigo-500',
                                 ]"
                                 :aria-current="navigationIndex === layout.currentModule ? 'page' : undefined">
                                 <div class="flex items-center gap-x-2">
-                                    <FontAwesomeIcon aria-hidden="true" class="flex-shrink-0 h-4 w-4 opacity-60" :icon="shopNavigation.icon" />
+                                    <FontAwesomeIcon aria-hidden="true" class="flex-shrink-0 h-4 w-4" :icon="shopNavigation.icon" />
                                     <span class="capitalize leading-none whitespace-nowrap">
-                                        {{ shopNavigation.name }}
-                                    </span>
-                                </div>
-                            </Link> -->
-                            <Link :href="navigationShopWarehouse.route?.name ? route(navigationShopWarehouse.route.name, navigationShopWarehouse.route.parameters) : '#'"
-                                class="group flex items-center text-sm py-2 rounded-md pl-2" :class="[
-                                    navigationShopWarehouse.slug === layout.currentModule
-                                        ? 'subNavActive px-0.5'
-                                        : 'subNav px-1',
-                                    layout.leftSidebar.show ? Object.keys(subNav).length > 1 ? 'px-3' : 'pr-3' : '',
-                                ]"
-                                :aria-current="navigationShopWarehouse.slug === layout.currentModule ? 'page' : undefined">
-                                <div class="flex items-center gap-x-2">
-                                    <!-- <FontAwesomeIcon aria-hidden="true" class="flex-shrink-0 h-4 w-4 opacity-60" :icon="navigationShopWarehouse.icon" /> -->
-                                    <span class="capitalize leading-none whitespace-nowrap">
-                                        {{ navigationShopWarehouse.name }}
+                                        {{ shopNavigation.label }}
                                     </span>
                                 </div>
                             </Link>
-                        </div>
+                        </template>
+
+                        <template v-else>
+                            <div v-for="(navigationShopWarehouse, indexShopWarehouse) in useLayoutStore().organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.[`authorised_${navigationName}s`]" :key="indexShopWarehouse"
+                                class="group flex flex-col justify-center text-sm py-0.5 gap-y-1" :class="[
+                                    navigationShopWarehouse.slug === layout.currentModule ? '' : '',
+                                    layout.leftSidebar.show ? '' : ''
+                                ]"
+                                :aria-current="navigationShopWarehouse.slug === layout.currentModule ? 'page' : undefined">
+                                <Link :href="navigationShopWarehouse.route?.name ? route(navigationShopWarehouse.route.name, navigationShopWarehouse.route.parameters) : '#'"
+                                    class="group flex items-center text-sm py-2 px-3 rounded-md w-fit" :class="[
+                                        navigationShopWarehouse.slug === layout.currentModule
+                                            ? 'subNavActive'
+                                            : 'subNav',
+                                        layout.leftSidebar.show ? 'ml-6' : '',
+                                    ]"
+                                    :aria-current="navigationShopWarehouse.slug === layout.currentModule ? 'page' : undefined">
+                                    <div class="flex items-center gap-x-2">
+                                        <!-- <FontAwesomeIcon aria-hidden="true" class="flex-shrink-0 h-4 w-4 opacity-60" :icon="navigationShopWarehouse.icon" /> -->
+                                        <span class="capitalize leading-none whitespace-nowrap">
+                                            {{ navigationShopWarehouse.name }}
+                                        </span>
+                                    </div>
+                                </Link>
+                            </div>
+                        </template>
                     </template>
                     
                     <!-- If shop selected, show only selected shop -->
@@ -105,16 +114,16 @@ const navigationName = props.navKey.split('_')[0].slice(0, -1)  // shops_navigat
                                 layout.currentParams[navigationName] === layout.currentModule ? '' : '',
                             ]"
                             :aria-current="layout.currentParams[navigationName] === layout.currentModule ? 'page' : undefined">
-                            <p class="bg-indigo-300 py-0.5 pl-1 capitalize text-slate-700 font-bold">{{ layout.currentParams[navigationName] }}</p>
+                            <!-- <p class="bg-indigo-300 py-0.5 pl-1 capitalize text-slate-700 font-bold">{{ layout.currentParams[navigationName] }}</p> -->
                             
                             <!-- Looping: Navigation in Shop -->
                             <Link v-for="(shopNavigation, navigationIndex) in subNav[layout.currentParams[navigationName]]"
                                 :href="shopNavigation.route?.name ? route(shopNavigation.route.name, shopNavigation.route.parameters) : '#'"
-                                class="group flex items-center text-sm rounded-md py-2 pl-2" :class="[
+                                class="group flex items-center text-sm rounded-md px-3 py-2 w-fit" :class="[
                                     navigationIndex === layout.currentModule
-                                        ? 'subNavActive px-0.5'
-                                        : 'subNav px-1',
-                                    layout.leftSidebar.show ? 'px-3' : 'text-indigo-500',
+                                        ? 'subNavActive'
+                                        : 'subNav',
+                                    layout.leftSidebar.show ? 'ml-6' : 'text-indigo-500',
                                 ]"
                                 :aria-current="navigationIndex === layout.currentModule ? 'page' : undefined">
                                 <div class="flex items-center gap-x-2">
