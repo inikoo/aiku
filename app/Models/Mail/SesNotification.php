@@ -1,8 +1,8 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Thu, 09 Nov 2023 14:46:06 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Wed, 10 Jan 2024 12:27:04 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
 namespace App\Models\Mail;
@@ -23,12 +23,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static \Illuminate\Database\Eloquent\Builder|SesNotification newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|SesNotification onlyTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|SesNotification query()
- * @method static \Illuminate\Database\Eloquent\Builder|SesNotification whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|SesNotification whereData($value)
- * @method static \Illuminate\Database\Eloquent\Builder|SesNotification whereDeletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|SesNotification whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|SesNotification whereMessageId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|SesNotification whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|SesNotification withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|SesNotification withoutTrashed()
  * @mixin \Eloquent

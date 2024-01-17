@@ -131,19 +131,21 @@ class ShowEmployee extends OrgAction
                         'index' => [
                             'route' => [
                                 'name'       => 'grp.org.hr.employees.index',
-                                'parameters' => [
-                                    'organisation' => $this->organisation->slug
-                                ]
+                                'parameters' => array_merge(
+                                    [
+                                        '_query' => [
+                                            'elements[state]' => 'working'
+                                        ]
+                                    ],
+                                    Arr::only($routeParameters, 'organisation')
+                                )
                             ],
                             'label' => __('employees')
                         ],
                         'model' => [
                             'route' => [
                                 'name'       => 'grp.org.hr.employees.show',
-                                'parameters' => [
-                                    'organisation' => $this->organisation->slug,
-                                    'employee'     => $employee->slug
-                                ]
+                                'parameters' => $routeParameters
                             ],
                             'label' => $employee->slug,
                         ],

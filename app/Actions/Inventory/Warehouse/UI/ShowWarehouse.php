@@ -11,7 +11,7 @@ use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\OrgAction;
 use App\Actions\Inventory\Location\UI\IndexLocations;
 use App\Actions\Inventory\WarehouseArea\UI\IndexWarehouseAreas;
-use App\Actions\UI\Inventory\InventoryDashboard;
+use App\Actions\UI\Inventory\ShowInventoryDashboard;
 use App\Enums\UI\WarehouseTabsEnum;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\Inventory\LocationResource;
@@ -23,9 +23,6 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-/**
- * @property Warehouse $warehouse
- */
 class ShowWarehouse extends OrgAction
 {
     public function handle(Warehouse $warehouse): Warehouse
@@ -51,6 +48,8 @@ class ShowWarehouse extends OrgAction
 
     public function htmlResponse(Warehouse $warehouse, ActionRequest $request): Response
     {
+        $routeParameters = $request->route()->originalParameters();
+
         return Inertia::render(
             'Inventory/Warehouse',
             [
@@ -61,7 +60,7 @@ class ShowWarehouse extends OrgAction
                     'next'     => $this->getNext($warehouse, $request),
                 ],
                 'pageHead'                         => [
-                    'icon'  =>
+                    'icon'    =>
                         [
                             'icon'  => ['fal', 'warehouse'],
                             'title' => __('warehouse')
@@ -73,7 +72,7 @@ class ShowWarehouse extends OrgAction
                             'style' => 'edit',
                             'route' => [
                                 'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
-                                'parameters' => array_values($request->route()->originalParameters())
+                                'parameters' => array_values($routeParameters)
                             ]
                         ] : false,
                         $this->canDelete ? [
@@ -81,17 +80,17 @@ class ShowWarehouse extends OrgAction
                             'style' => 'delete',
                             'route' => [
                                 'name'       => 'grp.org.inventory.warehouses.remove',
-                                'parameters' => array_values($request->route()->originalParameters())
+                                'parameters' => array_values($routeParameters)
                             ]
                         ] : false
                     ],
-                    'meta' => [
+                    'meta'    => [
                         [
                             'name'     => trans_choice('warehouse area|warehouse areas', $warehouse->stats->number_warehouse_areas),
                             'number'   => $warehouse->stats->number_warehouse_areas,
                             'href'     => [
-                                'grp.org.inventory.warehouses.show.warehouse-areas.index',
-                                $warehouse->slug
+                                'name'       => 'grp.org.inventory.warehouses.show.warehouse-areas.index',
+                                'parameters' => array_merge($routeParameters, [$warehouse->slug])
                             ],
                             'leftIcon' => [
                                 'icon'    => 'fal fa-map-signs',
@@ -102,8 +101,8 @@ class ShowWarehouse extends OrgAction
                             'name'     => trans_choice('location|locations', $warehouse->stats->number_locations),
                             'number'   => $warehouse->stats->number_locations,
                             'href'     => [
-                                'grp.org.inventory.warehouses.show.locations.index',
-                                $warehouse->slug
+                                'name'       => 'grp.org.inventory.warehouses.show.locations.index',
+                                'parameters' => array_merge($routeParameters, [$warehouse->slug])
                             ],
                             'leftIcon' => [
                                 'icon'    => 'fal fa-inventory',
@@ -129,27 +128,28 @@ class ShowWarehouse extends OrgAction
                     fn () => WarehouseAreaResource::collection(
                         IndexWarehouseAreas::run(
                             parent: $warehouse,
-                            prefix: 'warehouse_areas'
+                            prefix: WarehouseTabsEnum::WAREHOUSE_AREAS->value
                         )
                     )
                     : Inertia::lazy(fn () => WarehouseAreaResource::collection(
                         IndexWarehouseAreas::run(
                             parent: $warehouse,
-                            prefix: 'warehouse_areas'
+                            prefix: WarehouseTabsEnum::WAREHOUSE_AREAS->value
                         )
                     )),
 
-                WarehouseTabsEnum::LOCATIONS->value       => $this->tab == WarehouseTabsEnum::LOCATIONS->value ?
+                WarehouseTabsEnum::LOCATIONS->value => $this->tab == WarehouseTabsEnum::LOCATIONS->value
+                    ?
                     fn () => LocationResource::collection(
                         IndexLocations::run(
                             parent: $warehouse,
-                            prefix: 'locations'
+                            prefix:  WarehouseTabsEnum::LOCATIONS->value
                         )
                     )
                     : Inertia::lazy(fn () => LocationResource::collection(
                         IndexLocations::run(
                             parent: $warehouse,
-                            prefix: 'locations'
+                            prefix:  WarehouseTabsEnum::LOCATIONS->value
                         )
                     )),
 
@@ -161,6 +161,7 @@ class ShowWarehouse extends OrgAction
         )->table(
             IndexWarehouseAreas::make()->tableStructure(
                 parent: $warehouse,
+                prefix: WarehouseTabsEnum::WAREHOUSE_AREAS->value
                 /* modelOperations: [
                       'createLink' => $this->canEdit ? [
                           'route' => [
@@ -176,6 +177,7 @@ class ShowWarehouse extends OrgAction
         )->table(
             IndexLocations::make()->tableStructure(
                 parent: $warehouse,
+
                 /* modelOperations: [
                     'createLink' => $this->canEdit ? [
                         'route' => [
@@ -199,13 +201,10 @@ class ShowWarehouse extends OrgAction
 
     public function getBreadcrumbs(array $routeParameters, $suffix = null): array
     {
-        if(!$this->warehouse) {
-            $warehouse=Warehouse::where('slug', $routeParameters['warehouse'])->first();
-        } else {
-            $warehouse=$this->warehouse;
-        }
+        $warehouse = Warehouse::where('slug', $routeParameters['warehouse'])->first();
+
         return array_merge(
-            (new InventoryDashboard())->getBreadcrumbs($routeParameters),
+            (new ShowInventoryDashboard())->getBreadcrumbs($routeParameters),
             [
                 [
                     'type'           => 'modelWithIndex',
@@ -260,7 +259,8 @@ class ShowWarehouse extends OrgAction
                 'route' => [
                     'name'       => $routeName,
                     'parameters' => [
-                        'warehouse' => $warehouse->slug
+                        'organisation' => $this->organisation->slug,
+                        'warehouse'    => $warehouse->slug
                     ]
 
                 ]

@@ -12,25 +12,26 @@ import { WarehouseArea } from "@/types/warehouse-area";
 const props = defineProps<{
     data: object,
     tab?: string
-}>()
+}>();
 
 function warehouseAreaRoute(warehouseArea: WarehouseArea) {
 
     switch (route().current()) {
-        case "inventory.warehouses.show":
-        case "inventory.warehouses.show.warehouse-areas.index":
+        case "grp.org.inventory.warehouses.show":
+        case "grp.org.inventory.warehouses.show.warehouse-areas.index":
             return route(
-                "inventory.warehouses.show.warehouse-areas.show",
+                "grp.org.inventory.warehouses.show.warehouse-areas.show",
                 [
-                    warehouseArea.warehouse_slug,
+                    route().params["organisation"],
+                    route().params["warehouse"],
                     warehouseArea.slug
                 ]
             );
-        case "inventory.warehouse-areas.index":
+        case "grp.org.inventory.warehouse-areas.index":
         default:
             return route(
-                "inventory.warehouse-areas.show",
-                [warehouseArea.slug]);
+                "grp.org.inventory.warehouse-areas.show",
+                [route().params["organisation"],warehouseArea.slug]);
     }
 
 }
@@ -38,16 +39,20 @@ function warehouseAreaRoute(warehouseArea: WarehouseArea) {
 function locationsRoute(warehouseArea: WarehouseArea) {
     switch (route().current()) {
 
-        case "inventory.warehouses.show":
-        case "inventory.warehouses.show.warehouse-areas.index":
+        case "grp.org.inventory.warehouses.show":
+        case "grp.org.inventory.warehouses.show.warehouse-areas.index":
             return route(
-                "inventory.warehouses.show.warehouse-areas.show.locations.index",
-                [warehouseArea.warehouse_slug, warehouseArea.slug]);
+                "grp.org.inventory.warehouses.show.warehouse-areas.show.locations.index",
+                [
+                    route().params["organisation"],
+                    route().params["warehouse"],
+                    warehouseArea.slug
+                ]);
         case "inventor.warehouse-areas.index":
         default:
             return route(
-                "inventory.warehouse-areas.show.locations.index",
-                [warehouseArea.slug]);
+                "grp.org.inventory.warehouse-areas.show.locations.index",
+                [route().params["organisation"],warehouseArea.slug]);
     }
 
 }

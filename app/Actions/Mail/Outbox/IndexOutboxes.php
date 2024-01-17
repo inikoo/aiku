@@ -8,10 +8,9 @@
 namespace App\Actions\Mail\Outbox;
 
 use App\Actions\InertiaAction;
-use App\Actions\Mail\Mailroom\UI\ShowMailroom;
+use App\Actions\Mail\Mailroom\ShowMailroom;
 use App\Actions\UI\Marketing\MarketingHub;
 use App\Http\Resources\Mail\OutboxResource;
-use App\InertiaTable\InertiaTable;
 use App\Models\Mail\Mailroom;
 use App\Models\Mail\Outbox;
 use App\Models\SysAdmin\Organisation;
@@ -21,6 +20,7 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
+use App\InertiaTable\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 

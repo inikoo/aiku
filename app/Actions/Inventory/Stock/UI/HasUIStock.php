@@ -7,7 +7,7 @@
 
 namespace App\Actions\Inventory\Stock\UI;
 
-use App\Actions\UI\Inventory\InventoryDashboard;
+use App\Actions\UI\Inventory\ShowInventoryDashboard;
 use App\Models\Inventory\Stock;
 
 trait HasUIStock
@@ -15,7 +15,7 @@ trait HasUIStock
     public function getBreadcrumbs(Stock $stock): array
     {
         return array_merge(
-            (new InventoryDashboard())->getBreadcrumbs(),
+            (new ShowInventoryDashboard())->getBreadcrumbs(),
             [
                 'grp.org.inventory.stocks.show' => [
                     'route'           => 'grp.org.inventory.stocks.show',

@@ -10,7 +10,7 @@ namespace App\Actions\Inventory\Stock\UI;
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\InertiaAction;
 use App\Actions\Inventory\StockFamily\UI\ShowStockFamily;
-use App\Actions\UI\Inventory\InventoryDashboard;
+use App\Actions\UI\Inventory\ShowInventoryDashboard;
 use App\Enums\UI\StockTabsEnum;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\Inventory\StockResource;
@@ -139,7 +139,7 @@ class ShowStock extends InertiaAction
         return match ($routeName) {
             'grp.org.inventory.stocks.show' =>
             array_merge(
-                (new InventoryDashboard())->getBreadcrumbs(),
+                (new ShowInventoryDashboard())->getBreadcrumbs(),
                 $headCrumb(
                     $routeParameters['stock'],
                     [

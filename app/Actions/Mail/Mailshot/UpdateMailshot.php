@@ -1,59 +1,60 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Fri, 10 Nov 2023 14:41:00 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Fri, 10 Mar 2023 20:59:01 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
 namespace App\Actions\Mail\Mailshot;
 
-use App\Actions\Mail\Mailshot\Hydrators\MailshotHydrateEstimatedEmails;
-use App\Actions\Mail\Outbox\Hydrators\OutboxHydrateMailshots;
-use App\Actions\Market\Shop\Hydrators\ShopHydrateMailshots;
-use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateMailshots;
 use App\Actions\Traits\WithActionUpdate;
-use App\Enums\Mail\Mailshot\MailshotTypeEnum;
+use App\Http\Resources\Mail\MailshotResource;
 use App\Models\Mail\Mailshot;
-use App\Models\Market\Shop;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateMailshot
 {
     use WithActionUpdate;
 
+    private bool $asAction=false;
+
     public function handle(Mailshot $mailshot, array $modelData): Mailshot
     {
-        $mailshot = $this->update($mailshot, $modelData, ['data']);
-        $mailshot->refresh();
+        return $this->update($mailshot, $modelData, ['data']);
+    }
 
-        OrganisationHydrateMailshots::dispatch();
-        if ($mailshot->type == MailshotTypeEnum::PROSPECT_MAILSHOT) {
-            ShopHydrateMailshots::dispatch($mailshot->parent);
+    public function authorize(ActionRequest $request): bool
+    {
+        if($this->asAction) {
+            return true;
         }
-
-        MailshotHydrateEstimatedEmails::run($mailshot);
-        OutboxHydrateMailshots::dispatch($mailshot->outbox);
-
-        return $mailshot;
+        return $request->user()->hasPermissionTo("inventory.warehouses.edit");
     }
+    //    public function rules(): array
+    //    {
+    //        return [
+    //            'code'         => ['sometimes', 'required', 'unique:mailshots', 'between:2,256', 'alpha_dash'],
+    //            'name'         => ['sometimes', 'required', 'max:250', 'string'],
+    //        ];
+    //    }
 
-
-    public function rules(): array
+    public function action(Mailshot $mailshot, $modelData): Mailshot
     {
-        return [
-            'subject'           => ['sometimes', 'string', 'max:255'],
-            'recipients_recipe' => ['sometimes', 'array']
-        ];
-    }
-
-    /**
-     * @throws \Exception
-     */
-    public function shopProspects(Shop $shop, Mailshot $mailshot, ActionRequest $request): Mailshot
-    {
-        $this->fillFromRequest($request);
+        $this->asAction=true;
+        $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 
         return $this->handle($mailshot, $validatedData);
+    }
+    public function asController(Mailshot $mailshot, ActionRequest $request): Mailshot
+    {
+        $request->validate();
+        return $this->handle($mailshot, $request->all());
+    }
+
+
+    public function jsonResponse(Mailshot $mailshot): MailshotResource
+    {
+        return new MailshotResource($mailshot);
     }
 }

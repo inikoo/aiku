@@ -51,10 +51,17 @@ class ShowHumanResourcesDashboard
                 'stats'       => [
                     [
                         'name' => __('employees'),
-                        'stat' => $this->organisation->humanResourcesStats->number_employees,
+                        'stat' => $this->organisation->humanResourcesStats->number_employees_state_working,
                         'href' => [
                             'name'       => 'grp.org.hr.employees.index',
-                            'parameters' => $request->route()->originalParameters()
+                            'parameters' => array_merge(
+                                [
+                                    '_query' => [
+                                        'elements[state]' => 'working'
+                                    ]
+                                ],
+                                $request->route()->originalParameters()
+                            )
                         ]
                     ],
                     [

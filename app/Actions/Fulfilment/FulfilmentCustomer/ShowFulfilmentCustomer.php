@@ -11,7 +11,7 @@ use App\Actions\CRM\Customer\UI\GetCustomerShowcase;
 use App\Actions\Fulfilment\FulfilmentOrder\UI\IndexFulfilmentOrders;
 use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItems;
 use App\Actions\InertiaAction;
-use App\Actions\Mail\DispatchedEmail\UI\IndexDispatchedEmails;
+use App\Actions\Mail\DispatchedEmail\IndexDispatchedEmails;
 use App\Actions\UI\Dashboard\ShowDashboard;
 use App\Enums\UI\CustomerFulfilmentTabsEnum;
 use App\Http\Resources\Fulfilment\StoredItemResource;

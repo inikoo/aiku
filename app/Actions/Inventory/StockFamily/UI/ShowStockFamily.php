@@ -10,7 +10,7 @@ namespace App\Actions\Inventory\StockFamily\UI;
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\InertiaAction;
 use App\Actions\Inventory\Stock\UI\IndexStocks;
-use App\Actions\UI\Inventory\InventoryDashboard;
+use App\Actions\UI\Inventory\ShowInventoryDashboard;
 use App\Enums\UI\StockFamilyTabsEnum;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\Inventory\StockFamilyResource;
@@ -137,7 +137,7 @@ class ShowStockFamily extends InertiaAction
     public function getBreadcrumbs(StockFamily $stockFamily, $suffix = null): array
     {
         return array_merge(
-            (new InventoryDashboard())->getBreadcrumbs(),
+            (new ShowInventoryDashboard())->getBreadcrumbs(),
             [
                 [
                     'type'           => 'modelWithIndex',

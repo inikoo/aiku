@@ -7,9 +7,9 @@
 
 namespace App\Actions\Inventory\WarehouseArea\UI;
 
-use App\Actions\InertiaAction;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
-use App\Actions\UI\Inventory\InventoryDashboard;
+use App\Actions\OrgAction;
+use App\Actions\UI\Inventory\ShowInventoryDashboard;
 use App\Enums\UI\WarehouseTabsEnum;
 use App\Http\Resources\Inventory\WarehouseAreaResource;
 use App\Models\Inventory\Warehouse;
@@ -26,7 +26,7 @@ use App\InertiaTable\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
-class IndexWarehouseAreas extends InertiaAction
+class IndexWarehouseAreas extends OrgAction
 {
     private Warehouse|Organisation $parent;
 
@@ -42,16 +42,17 @@ class IndexWarehouseAreas extends InertiaAction
     }
 
 
-    public function inOrganisation(ActionRequest $request): LengthAwarePaginator
+    public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisation($request);
+        $this->initialisation($organisation, $request);
         $this->parent = app('currentTenant');
         return $this->handle(app('currentTenant'));
     }
 
-    public function inWarehouse(Warehouse $warehouse, ActionRequest $request): LengthAwarePaginator
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inWarehouse(Organisation $organisation, Warehouse $warehouse, ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisation($request)->withTab(WarehouseTabsEnum::values());
+        $this->initialisationFromWarehouse($warehouse, $request)->withTab(WarehouseTabsEnum::values());
         $this->parent = $warehouse;
         return $this->handle($warehouse);
     }
@@ -61,8 +62,8 @@ class IndexWarehouseAreas extends InertiaAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->where('warehouse_areas.name', 'ILIKE', "%$value%")
-                    ->orWhere('warehouse_areas.code', 'ILIKE', "%$value%");
+                $query->whereStartWith('warehouse_areas.code', $value)
+                    ->whereWith('warehouse_areas.name', $value);
             });
         });
 
@@ -71,14 +72,7 @@ class IndexWarehouseAreas extends InertiaAction
         }
 
         $queryBuilder = QueryBuilder::for(WarehouseArea::class);
-        foreach ($this->elementGroups as $key => $elementGroup) {
-            $queryBuilder->whereElementGroup(
-                prefix: $prefix,
-                key: $key,
-                allowedElements: array_keys($elementGroup['elements']),
-                engine: $elementGroup['engine']
-            );
-        }
+
 
         return $queryBuilder
             ->defaultSort('warehouse_areas.code')
@@ -129,8 +123,8 @@ class IndexWarehouseAreas extends InertiaAction
                                 'tooltip' => __('new warehouse'),
                                 'label'   => __('warehouse'),
                                 'route'   => [
-                                    'name'       => 'grp.oms.warehouses.create',
-                                    'parameters' => array_values($request->route()->originalParameters())
+                                    'name'       => 'grp.org.inventory.warehouses.create',
+                                    'parameters' => [$parent->slug]
                                 ]
                             ] : null
                         ],
@@ -145,8 +139,11 @@ class IndexWarehouseAreas extends InertiaAction
                                 'tooltip' => __('new warehouse area'),
                                 'label'   => __('warehouse area'),
                                 'route'   => [
-                                    'name'       => 'grp.oms.warehouses.show.warehouse-areas.create',
-                                    'parameters' => array_values($request->route()->originalParameters())
+                                    'name'       => 'grp.org.inventory.warehouses.show.warehouse-areas.create',
+                                    'parameters' => [
+                                        $parent->organisation->slug,
+                                        $parent->slug
+                                    ]
                                 ]
                             ] : null
                         ],
@@ -244,7 +241,7 @@ class IndexWarehouseAreas extends InertiaAction
         return match ($routeName) {
             'grp.oms.warehouse-areas.index' =>
             array_merge(
-                (new InventoryDashboard())->getBreadcrumbs(),
+                (new ShowInventoryDashboard())->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     [
                         'name' => 'grp.oms.warehouse-areas.index',

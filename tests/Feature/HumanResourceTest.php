@@ -90,7 +90,7 @@ test('create employee successful', function () {
         'employment_start_at' => '2019-01-01',
         'date_of_birth'       => '2000-01-01',
         'job_title'           => 'director',
-        'state'               => EmployeeStateEnum::WORKING,
+        'state'               => EmployeeStateEnum::HIRED,
         'positions'           => ['acc-m'],
         'worker_number'       => '1234567890',
         'work_email'          => null,
@@ -102,7 +102,8 @@ test('create employee successful', function () {
     expect($employee)->toBeInstanceOf(Employee::class)
         ->and($this->organisation->humanResourcesStats->number_employees)->toBe(1)
         ->and($this->organisation->humanResourcesStats->number_employees_type_employee)->toBe(1)
-        ->and($this->organisation->humanResourcesStats->number_employees_state_working)->toBe(1);
+        ->and($this->organisation->humanResourcesStats->number_employees_state_hired)->toBe(1)
+        ->and($this->organisation->humanResourcesStats->number_employees_state_working)->toBe(0);
 
     return $employee;
 });
@@ -112,12 +113,16 @@ test('update employees successful', function ($lastEmployee) {
         'contact_name'  => 'vica',
         'date_of_birth' => '2019-01-01',
         'job_title'     => 'director',
-        'state'         => 'hired'
+        'state'         => EmployeeStateEnum::WORKING
     ];
 
     $updatedEmployee = UpdateEmployee::run($lastEmployee, $arrayData);
 
-    expect($updatedEmployee->contact_name)->toBe($arrayData['contact_name']);
+    expect($updatedEmployee->contact_name)->toBe($arrayData['contact_name'])
+        ->and($this->organisation->humanResourcesStats->number_employees)->toBe(1)
+        ->and($this->organisation->humanResourcesStats->number_employees_type_employee)->toBe(1)
+        ->and($this->organisation->humanResourcesStats->number_employees_state_hired)->toBe(0)
+        ->and($this->organisation->humanResourcesStats->number_employees_state_working)->toBe(1);
 })->depends('create employee successful');
 
 test('update employee working hours', function () {

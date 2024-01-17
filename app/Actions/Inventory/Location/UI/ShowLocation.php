@@ -11,7 +11,7 @@ use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\InertiaAction;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\Inventory\WarehouseArea\UI\ShowWarehouseArea;
-use App\Actions\UI\Inventory\InventoryDashboard;
+use App\Actions\UI\Inventory\ShowInventoryDashboard;
 use App\Enums\UI\LocationTabsEnum;
 use App\Http\Resources\History\HistoryResource;
 use App\Models\Inventory\Location;
@@ -172,7 +172,7 @@ class ShowLocation extends InertiaAction
         return match ($routeName) {
             'grp.org.inventory.locations.show' =>
             array_merge(
-                InventoryDashboard::make()->getBreadcrumbs(),
+                ShowInventoryDashboard::make()->getBreadcrumbs(),
                 $headCrumb(
                     $routeParameters['location'],
                     [

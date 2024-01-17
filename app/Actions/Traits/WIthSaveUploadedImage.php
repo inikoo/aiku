@@ -7,11 +7,10 @@
 
 namespace App\Actions\Traits;
 
-use App\Models\Auth\OrganisationUser;
-use App\Models\Auth\User;
 use App\Models\Mail\EmailTemplate;
 use App\Models\Media\Media;
 use App\Models\SysAdmin\Organisation;
+use App\Models\SysAdmin\User;
 use App\Models\Web\Website;
 
 trait WIthSaveUploadedImage
@@ -21,14 +20,14 @@ trait WIthSaveUploadedImage
      * @throws \Spatie\MediaLibrary\MediaCollections\Exceptions\FileDoesNotExist
      */
     public function saveUploadedImage(
-        Website|Organisation|OrganisationUser|User|EmailTemplate $model,
+        Website|Organisation|User|EmailTemplate $model,
         string $collection,
         string $field,
         string $imagePath,
         string $originalFilename,
         string $extension = null,
         array $properties = []
-    ): Website|Organisation|OrganisationUser|User|EmailTemplate {
+    ): Website|Organisation|User|EmailTemplate {
         $checksum = md5_file($imagePath);
 
 

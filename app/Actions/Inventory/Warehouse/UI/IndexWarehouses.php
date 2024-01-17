@@ -8,7 +8,7 @@
 namespace App\Actions\Inventory\Warehouse\UI;
 
 use App\Actions\OrgAction;
-use App\Actions\UI\Inventory\InventoryDashboard;
+use App\Actions\UI\Inventory\ShowInventoryDashboard;
 use App\Http\Resources\Inventory\WarehouseResource;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Group;
@@ -160,7 +160,7 @@ class IndexWarehouses extends OrgAction
 
 
         return array_merge(
-            (new InventoryDashboard())->getBreadcrumbs($routeParameters),
+            (new ShowInventoryDashboard())->getBreadcrumbs($routeParameters),
             [
                 [
                     'type'   => 'simple',

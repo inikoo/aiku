@@ -11,7 +11,7 @@ use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\InertiaAction;
 use App\Actions\Inventory\Location\UI\IndexLocations;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
-use App\Actions\UI\Inventory\InventoryDashboard;
+use App\Actions\UI\Inventory\ShowInventoryDashboard;
 use App\Enums\UI\WarehouseAreaTabsEnum;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\Inventory\LocationResource;
@@ -209,7 +209,7 @@ class ShowWarehouseArea extends InertiaAction
         return match ($routeName) {
             'grp.oms.warehouse-areas.show' =>
             array_merge(
-                (new InventoryDashboard())->getBreadcrumbs(),
+                (new ShowInventoryDashboard())->getBreadcrumbs(),
                 $headCrumb(
                     $routeParameters['warehouseArea'],
                     [

@@ -17,7 +17,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 
@@ -38,31 +37,16 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
- * @property int|null $source_id
+ * @property string|null $source_id
  * @property-read Collection<int, \App\Models\Mail\DispatchedEmail> $dispatchedEmails
- * @property-read int|null $dispatched_emails_count
- * @property-read Collection<int, \App\Models\Mail\EmailTemplate> $emailTemplates
- * @property-read int|null $email_templates_count
  * @property-read Collection<int, \App\Models\Mail\Mailshot> $mailshots
- * @property-read int|null $mailshots_count
  * @property-read Shop|null $shop
  * @property-read \App\Models\Mail\OutboxStats|null $stats
+ * @method static \Database\Factories\Mail\OutboxFactory factory($count = null, $state = [])
  * @method static Builder|Outbox newModelQuery()
  * @method static Builder|Outbox newQuery()
  * @method static Builder|Outbox onlyTrashed()
  * @method static Builder|Outbox query()
- * @method static Builder|Outbox whereCreatedAt($value)
- * @method static Builder|Outbox whereData($value)
- * @method static Builder|Outbox whereDeletedAt($value)
- * @method static Builder|Outbox whereId($value)
- * @method static Builder|Outbox whereMailroomId($value)
- * @method static Builder|Outbox whereName($value)
- * @method static Builder|Outbox whereShopId($value)
- * @method static Builder|Outbox whereSlug($value)
- * @method static Builder|Outbox whereSourceId($value)
- * @method static Builder|Outbox whereState($value)
- * @method static Builder|Outbox whereType($value)
- * @method static Builder|Outbox whereUpdatedAt($value)
  * @method static Builder|Outbox withTrashed()
  * @method static Builder|Outbox withoutTrashed()
  * @mixin Eloquent
@@ -94,14 +78,13 @@ class Outbox extends Model
     {
         return SlugOptions::create()
             ->generateSlugsFrom(function () {
-                if ($this->type == 'reorder-reminder') {
-                    $abbreviation = 'ror';
+                if ($this->type=='reorder-reminder') {
+                    $abbreviation='ror';
                 } else {
-                    $abbreviation = Abbreviate::run($this->type);
+                    $abbreviation= Abbreviate::run($this->type);
                 }
-
-                if ($this->shop_id) {
-                    $abbreviation = $abbreviation.' '.$this->shop->slug;
+                if($this->shop_id) {
+                    $abbreviation.=' '.$this->shop->slug;
                 }
 
                 return $abbreviation;
@@ -125,12 +108,6 @@ class Outbox extends Model
     {
         return $this->hasMany(Mailshot::class);
     }
-
-    public function emailTemplates(): MorphMany
-    {
-        return $this->morphMany(EmailTemplate::class, 'parent');
-    }
-
 
     public function dispatchedEmails(): HasMany
     {

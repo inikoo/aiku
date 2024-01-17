@@ -1,8 +1,8 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Wed, 08 Nov 2023 15:02:55 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Wed, 10 Jan 2024 12:27:04 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
 namespace App\Models\Mail;
@@ -21,12 +21,6 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder|Email newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Email newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Email query()
- * @method static \Illuminate\Database\Eloquent\Builder|Email whereAddress($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Email whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Email whereHardBounceType($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Email whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Email whereIsHardBounced($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Email whereUpdatedAt($value)
  * @mixin \Eloquent
  */
 class Email extends Model

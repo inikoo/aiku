@@ -37,10 +37,10 @@ use App\Actions\Inventory\WarehouseArea\UI\EditWarehouseArea;
 use App\Actions\Inventory\WarehouseArea\UI\IndexWarehouseAreas;
 use App\Actions\Inventory\WarehouseArea\UI\RemoveWarehouseArea;
 use App\Actions\Inventory\WarehouseArea\UI\ShowWarehouseArea;
-use App\Actions\UI\Inventory\InventoryDashboard;
+use App\Actions\UI\Inventory\ShowInventoryDashboard;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', InventoryDashboard::class)->name('dashboard');
+Route::get('/', ShowInventoryDashboard::class)->name('dashboard');
 
 Route::get('/warehouses/export', ExportWarehouses::class)->name('warehouses.export');
 

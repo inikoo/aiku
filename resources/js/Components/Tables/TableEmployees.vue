@@ -21,7 +21,7 @@ function employeeRoute(employee: Employee) {
         case 'grp.org.hr.employees.index':
             return route(
                 'grp.org.hr.employees.show',
-                [employee.slug]);
+                [route().params['organisation'],employee.slug]);
 
     }
 }

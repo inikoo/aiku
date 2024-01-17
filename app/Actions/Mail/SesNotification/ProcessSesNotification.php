@@ -1,14 +1,15 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Thu, 09 Nov 2023 18:07:21 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Wed, 10 Jan 2024 12:27:04 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
 namespace App\Actions\Mail\SesNotification;
 
 use App\Actions\CRM\Prospect\UpdateProspectEmailClicked;
 use App\Actions\CRM\Prospect\UpdateProspectEmailHardBounced;
+use App\Actions\CRM\Prospect\UpdateProspectEmailOpened;
 use App\Actions\CRM\Prospect\UpdateProspectEmailSoftBounced;
 use App\Actions\CRM\Prospect\UpdateProspectEmailUnsubscribed;
 use App\Actions\Mail\DispatchedEmail\UpdateDispatchedEmail;
