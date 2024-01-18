@@ -81,6 +81,7 @@ enum RolesEnum: string
                 OrganisationPermissionsEnum::HUMAN_RESOURCES,
                 OrganisationPermissionsEnum::SUPERVISOR_HUMAN_RESOURCES,
                 OrganisationPermissionsEnum::SHOPS,
+                OrganisationPermissionsEnum::WAREHOUSES,
                 OrganisationPermissionsEnum::INVENTORIES,
             ],
             RolesEnum::PROCUREMENT_CLERK => [
@@ -119,6 +120,7 @@ enum RolesEnum: string
                 ShopPermissionsEnum::SUPERVISOR_CRM
             ],
             RolesEnum::WAREHOUSE_ADMIN => [
+                OrganisationPermissionsEnum::WAREHOUSES,
                 WarehousePermissionsEnum::WAREHOUSE,
                 WarehousePermissionsEnum::INVENTORY,
                 WarehousePermissionsEnum::DISPATCHING,
@@ -128,6 +130,7 @@ enum RolesEnum: string
 
             ],
             RolesEnum::STOCK_CONTROLLER => [
+                OrganisationPermissionsEnum::WAREHOUSES,
                 WarehousePermissionsEnum::INVENTORY,
                 WarehousePermissionsEnum::DISPATCHING,
             ],
