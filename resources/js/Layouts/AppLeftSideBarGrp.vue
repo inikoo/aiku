@@ -11,7 +11,8 @@ import { ref, onMounted } from "vue"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faBoxUsd, faUsersCog, faLightbulb, faUserHardHat, faUser, faInventory, faChevronDown } from "@fal"
 import { useLayoutStore } from "@/Stores/layout.js"
-import NavigationExpandable from '@//Layouts/NavigationExpandable.vue';
+import NavigationExpandable from '@//Layouts/NavigationExpandable.vue'
+import NavigationSimple from '@//Layouts/NavigationSimple.vue'
 
 import { get } from "lodash"
 library.add(faBoxUsd, faUsersCog, faLightbulb, faUserHardHat, faUser, faInventory, faChevronDown)
@@ -63,71 +64,94 @@ const generateRoute = (item) => {
 //         return item.label.all
 //     }
 //     return item.label
+
 // }
 
+// Conver string from 'shops_navigation' to 'shop', etc
+const generateNavigationName = (navKey: string) => {
+    return navKey.split('_')[0].slice(0, -1)
+}
 
 </script>
 
 <template>
     <nav class="isolate relative flex flex-grow flex-col pt-3 pb-4 h-full overflow-y-auto custom-hide-scrollbar flex-1 space-y-1" aria-label="Sidebar">
         <!-- LeftSidebar: Org -->
-
-        <template v-if="get(useLayoutStore(), ['navigation', 'org', layout.currentParams.organisation], false)">
-            <template v-for="(items, itemKey) in useLayoutStore().navigation.org[layout.currentParams.organisation]"
+        <span class="text-white">{{ layout.currentShop }} -- {{ layout.currentWarehouse }}</span>
+        <template v-if="get(layout, ['navigation', 'org', layout.currentParams.organisation], false)">
+            <template v-for="(orgNav, itemKey) in layout.navigation.org[layout.currentParams.organisation]"
                 :key="itemKey"
             >
-                <!-- If multi item (Shops or Warehouses) -->
-                <NavigationExpandable
-                    v-if="itemKey == 'shops_navigation' || itemKey == 'warehouses_navigation'"
-                    :subNav="items"
-                    :navKey="itemKey"
-                />
+                <template v-if="itemKey == 'shops_index' || itemKey == 'warehouses_index'">
+                    <template v-if="itemKey == 'shops_index'">
+                        <NavigationSimple v-if="!layout.currentShop"
+                            :nav="orgNav"
+                            :navKey="itemKey"
+                        />
+                    </template>
 
-                <!-- If simple navigation -->
-                <Link v-else
-                    :href="items.route?.name ? route(items.route.name, items.route.parameters) : '#'"
-                    class="group flex items-center text-sm py-2"
-                    :class="[
-                        itemKey === layout.currentModule
-                            ? 'navigationActive px-0.5'
-                            : 'navigation px-1',
-                        layout.leftSidebar.show ? 'px-3' : '',
-                    ]"
-                    :aria-current="itemKey === layout.currentModule ? 'page' : undefined"
-                >
-                    <div class="flex items-center px-2">
-                        <FontAwesomeIcon aria-hidden="true" class="flex-shrink-0 h-4 w-4" :icon="items.icon"/>
-                    </div>
-                    <Transition>
-                        <span class="capitalize leading-none whitespace-nowrap" :class="[layout.leftSidebar.show ? 'block md:block' : 'block md:hidden']">
-                            {{ items.label }}
-                        </span>
-                    </Transition>
-                </Link>
+                    <template v-if="itemKey == 'warehouses_index'">
+                        <NavigationSimple v-if="!layout.currentWarehouse"
+                            :nav="orgNav"
+                            :navKey="itemKey"
+                        />
+                    </template>
+                </template>
+
+                <template v-else-if="itemKey == 'shops_navigation' || itemKey == 'warehouses_navigation'">
+                    <template v-if="itemKey == 'shops_navigation' && layout.currentShop">
+                        <NavigationSimple v-for="aaa, aaaindex in orgNav[layout.currentShop]"
+                            :nav="aaa"
+                            :navKey="aaaindex"
+                        />
+                    </template>
+
+                    <template v-if="itemKey == 'warehouses_navigation' && layout.currentWarehouse">
+                        <NavigationSimple v-for="aaa, aaaindex in orgNav[layout.currentWarehouse]"
+                            :nav="aaa"
+                            :navKey="aaaindex"
+                        />
+                    </template>
+                </template>
+
+                <template v-else>
+                    <!-- {{ itemKey }} -->
+                    <NavigationSimple
+                        :nav="orgNav"
+                        :navKey="itemKey"
+                    />
+                </template>
+                
+                <!-- <template v-if="itemKey == 'shops_navigation' || itemKey == 'warehouses_navigation'">
+                    <template v-if="layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.[`authorised_${generateNavigationName(itemKey)}s`].length === 1">
+                        <NavigationSimple
+                            :nav="orgNav[Object.keys(orgNav)[0]][generateNavigationName(itemKey)]"
+                            :navKey="generateNavigationName(itemKey)"
+                        />
+                    </template>
+
+                    <NavigationExpandable v-else
+                        :subNav="orgNav"
+                        :navKey="itemKey"
+                    />
+                </template>
+
+                <NavigationSimple v-else
+                    :nav="orgNav"
+                    :navKey="itemKey"
+                /> -->
+                
             </template>
         </template>
 
         <!-- LeftSidebar: Grp -->
-        <Link v-else v-for="(item, itemKey, index) in layout.navigation.grp"
-            :key="`${itemKey}${index}`"
-            :href="generateRoute(item)"
-            class="group flex items-center text-sm py-2"
-            :class="[
-                itemKey === layout.currentModule
-                    ? 'navigationActive px-0.5'
-                    : 'navigation px-1',
-                layout.leftSidebar.show ? 'px-3' : '',
-            ]"
-            :aria-current="itemKey === layout.currentModule ? 'page' : undefined"
-        >
-            <div class="flex items-center px-2">
-                <FontAwesomeIcon aria-hidden="true" fixed-witdh class="h-4 w-4" :icon="item.icon"/>
-            </div>
-            <Transition>
-                <span class="capitalize leading-none whitespace-nowrap" :class="[layout.leftSidebar.show ? 'block md:block' : 'block md:hidden']">
-                    {{ item.label }}
-                </span>
-            </Transition>
-        </Link>
+        <template v-else>
+            <NavigationSimple
+                v-for="(grpNav, itemKey) in layout.navigation.grp"
+                :nav="grpNav"
+                :navKey="itemKey"
+            />
+        </template>
+        
     </nav>
 </template>

@@ -38,8 +38,8 @@ const navigationName = props.navKey.split('_')[0].slice(0, -1)  // shops_navigat
                 <FontAwesomeIcon v-if="navKey == 'warehouses_navigation'" icon='fal fa-warehouse-alt' class='text-sm opacity-65' aria-hidden='true' />
                 
                 <span v-if="layout.leftSidebar.show">
-                    <template v-if="useLayoutStore().organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.[`authorised_${navigationName}s`].length === 1">
-                        {{ useLayoutStore().organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.[`authorised_${navigationName}s`][0].name }}
+                    <template v-if="layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.[`authorised_${navigationName}s`].length === 1">
+                        {{ layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.[`authorised_${navigationName}s`][0].name }}
                     </template>
                     <template v-else>{{ navKey.split('_')[0] }}</template>
                 </span>
@@ -63,15 +63,15 @@ const navigationName = props.navKey.split('_')[0].slice(0, -1)  // shops_navigat
                         </div>
 
                         <!-- If: Length available is only 1 -->
-                        <template v-if="useLayoutStore().organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.[`authorised_${navigationName}s`].length === 1">
-                            <SubNavigation v-for="(shopNavigation, navigationIndex) in subNav[useLayoutStore().organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.[`authorised_${navigationName}s`][0].slug]"
+                        <template v-if="layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.[`authorised_${navigationName}s`].length === 1">
+                            <SubNavigation v-for="(shopNavigation, navigationIndex) in subNav[layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.[`authorised_${navigationName}s`][0].slug]"
                                 :navigation="shopNavigation" :indexNav="navigationIndex">
                             </SubNavigation>
                         </template>
 
                         <!-- Else: Length available is more than 1 -->
                         <template v-else>
-                            <div v-for="(navigationShopWarehouse, indexShopWarehouse) in useLayoutStore().organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.[`authorised_${navigationName}s`]" :key="indexShopWarehouse"
+                            <div v-for="(navigationShopWarehouse, indexShopWarehouse) in layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.[`authorised_${navigationName}s`]" :key="indexShopWarehouse"
                                 class="group flex flex-col justify-center text-sm py-0.5 gap-y-1" :class="[
                                     navigationShopWarehouse.slug === layout.currentModule ? '' : '',
                                     layout.leftSidebar.show ? '' : ''

@@ -134,11 +134,11 @@ class ShowInventoryDashboard extends OrgAction
                     'title' => __('inventory'),
                 ],
                 'flatTreeMaps' => [
-                    [
-                        $warehousesNode,
-                        $warehouseAreasNode,
-                        $locationsNode
-                    ],
+                    // [
+                    //     $warehousesNode,
+                    //     $warehouseAreasNode,
+                    //     $locationsNode
+                    // ],
                     [
                         [
                             'name'  => __('SKUs families'),
