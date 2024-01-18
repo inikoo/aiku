@@ -69,7 +69,7 @@ const navigationName = props.navKey.split('_')[0].slice(0, -1)  // shops_navigat
                             </SubNavigation>
                         </template>
 
-                        <!-- Else: Lengt available is more than 1 -->
+                        <!-- Else: Length available is more than 1 -->
                         <template v-else>
                             <div v-for="(navigationShopWarehouse, indexShopWarehouse) in useLayoutStore().organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.[`authorised_${navigationName}s`]" :key="indexShopWarehouse"
                                 class="group flex flex-col justify-center text-sm py-0.5 gap-y-1" :class="[
@@ -77,7 +77,34 @@ const navigationName = props.navKey.split('_')[0].slice(0, -1)  // shops_navigat
                                     layout.leftSidebar.show ? '' : ''
                                 ]"
                                 :aria-current="navigationShopWarehouse.slug === layout.currentModule ? 'page' : undefined">
-                                <SubNavigation :navigation="navigationShopWarehouse" :indexNav="navigationShopWarehouse.slug" />
+                                <Disclosure v-slot="{ open: subOpen }">
+                                    <DisclosureButton>
+                                        <div class="group flex items-center justify-between text-sm px-3 py-2 text-indigo-200 font-semibold transition-all duration-0 ease-in-out" :class="[
+                                            navigationShopWarehouse.slug === layout.currentModule
+                                                ? 'bg-white/20 text-white border-l-4 border-indigo-100'
+                                                : 'border-l-4 border-transparent hover:border-indigo-100/30 hover:bg-indigo-100/10',
+                                            subOpen ? 'bg-white/20 text-white border-l-4 border-indigo-100' : '',
+                                            layout.leftSidebar.show ? 'ml-6' : 'text-indigo-500',
+                                        ]" :aria-current="navigationShopWarehouse.slug === layout.currentModule ? 'page' : undefined">
+                                            <div class="flex items-center gap-x-2">
+                                                <FontAwesomeIcon v-if="navigationShopWarehouse.icon" aria-hidden="true" class="flex-shrink-0 h-4 w-4" :icon="navigationShopWarehouse.icon" />
+                                                <span class="capitalize leading-none whitespace-nowrap">
+                                                    {{ navigationShopWarehouse.name }}
+                                                </span>
+                                            </div>
+                                            <FontAwesomeIcon v-if="layout.leftSidebar.show" icon='fal fa-chevron-down' class='text-white text-xxs transition-all duration-200 ease-in-out' :class="[subOpen ? 'rotate-180' : '']" aria-hidden='true' />
+                                        </div>
+                                    </DisclosureButton>
+                                    
+                                    <DisclosurePanel>
+                                        <div class="pl-2">
+                                            <SubNavigation v-for="(shopNavigation, navigationIndex) in subNav[navigationShopWarehouse.slug]"
+                                                :navigation="shopNavigation" :indexNav="navigationIndex">
+                                            </SubNavigation>
+                                        </div>
+                                    </DisclosurePanel>
+                                </Disclosure>
+                                
                             </div>
                         </template>
                     </template>
