@@ -7,31 +7,35 @@
 
 namespace App\Actions\SysAdmin\Organisation\UI;
 
+use App\Actions\OrgAction;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
+use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class ShowOrganisationDashboard
+class ShowOrganisationDashboard extends OrgAction
 {
     use AsAction;
 
-    public function handle(): Response
+    public function handle(ActionRequest $request): Response
     {
         return Inertia::render(
-            'Dashboard/Dashboard',
+            'Dashboard/OrganisationDashboard',
             [
-            'breadcrumbs' => $this->getBreadcrumbs(__('dashboard')),
+                'breadcrumbs' => $this->getBreadcrumbs($request->route()->originalParameters(), __('dashboard')),
             ]
         );
     }
 
-    public function asController(Organisation $organisation): Response
+    public function asController(Organisation $organisation, ActionRequest $request): Response
     {
-        return $this->handle();
+        $this->initialisation($organisation, $request);
+
+        return $this->handle($request);
     }
 
-    public function getBreadcrumbs($label=null): array
+    public function getBreadcrumbs(array $routeParameters, $label = null): array
     {
         return [
             [
@@ -41,7 +45,8 @@ class ShowOrganisationDashboard
                     'icon'  => 'fal fa-tachometer-alt-fast',
                     'label' => $label,
                     'route' => [
-                        'name' => 'grp.dashboard.show'
+                        'name'       => 'grp.org.dashboard.show',
+                        'parameters' => $routeParameters
                     ]
                 ]
 

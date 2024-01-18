@@ -17,26 +17,13 @@ class GetWarehouseNavigation
 
     public function handle(Warehouse $warehouse, User $user): array
     {
-
-
         $navigation = [];
 
-        /*
-                if ($user->hasPermissionTo("dispatching.$warehouse->slug.view")) {
-                    $navigation['dispatch'] = [
-                        'label'   => __('Dispatch'),
-                        'icon'    => ['fal', 'fa-conveyor-belt-alt'],
-                        'route'   => 'grp.dispatch.hub',
-                        'topMenu' => [
-                            'subSections' => []
-                        ]
-                    ];
-                }
-        */
+
         if ($user->hasPermissionTo("inventory.$warehouse->slug.view")) {
             $navigation['warehouse'] = [
                 'scope'   => 'warehouses',
-                'label'   => __('inventory'),
+                'label'   => __('warehouse'),
                 'icon'    => ['fal', 'fa-inventory'],
                 'route'   => [
                     'name'       => 'grp.org.warehouses.show',
@@ -115,6 +102,19 @@ class GetWarehouseNavigation
                 ]
             ];
         }
+
+
+        if ($user->hasPermissionTo("dispatching.$warehouse->slug.view")) {
+            $navigation['dispatch'] = [
+                'label'   => __('Dispatch'),
+                'icon'    => ['fal', 'fa-conveyor-belt-alt'],
+                'route'   => 'grp.dispatch.hub',
+                'topMenu' => [
+                    'subSections' => []
+                ]
+            ];
+        }
+
 
         return $navigation;
     }
