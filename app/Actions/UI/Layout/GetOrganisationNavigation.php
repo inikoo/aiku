@@ -56,6 +56,33 @@ class GetOrganisationNavigation
             ];
         }
 
+        if ($user->hasPermissionTo("shops.$organisation->slug.view")) {
+            $navigation['shops_index'] = [
+                'label' => __('Shops'),
+
+                'scope' => 'shops',
+                'icon'  => ['fal', 'fa-store-alt'],
+
+                'route' => [
+                    'name'       => 'grp.org.shops.index',
+                    'parameters' => [$organisation->slug],
+                ],
+
+                'topMenu' => [
+
+                    'dropdown' => [
+                        'links' => [
+                            [
+                                'label'   => __('dashboard'),
+                                'tooltip' => __('Dashboard'),
+
+                            ]
+                        ]
+                    ]
+                ]
+            ];
+        }
+
         $navigation['shops_navigation'] = [];
         foreach ($organisation->authorisedModels()->where('user_id', $user->id)->where('model_type', 'Shop')->get() as $authorisedModel) {
             $shop                                        = $authorisedModel->model;
@@ -77,6 +104,34 @@ class GetOrganisationNavigation
                     ],
 
 
+                ]
+            ];
+        }
+
+
+        if ($user->hasPermissionTo("warehouses.$organisation->slug.view")) {
+            $navigation['warehouses_index'] = [
+                'label' => __('Warehouses'),
+
+                'scope' => 'warehouses',
+                'icon'  => ['fal', 'fa-warehouse-alt'],
+
+                'route' => [
+                    'name'       => 'grp.org.warehouses.index',
+                    'parameters' => [$organisation->slug],
+                ],
+
+                'topMenu' => [
+
+                    'dropdown' => [
+                        'links' => [
+                            [
+                                'label'   => __('dashboard'),
+                                'tooltip' => __('Dashboard'),
+
+                            ]
+                        ]
+                    ]
                 ]
             ];
         }
