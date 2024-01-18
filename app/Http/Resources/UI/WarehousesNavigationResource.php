@@ -23,7 +23,7 @@ class WarehousesNavigationResource extends JsonResource
             'code'  => $warehouse->code,
             'name'  => $warehouse->name,
             'route' => [
-                'name'       => 'grp.org.inventory.warehouses.show',
+                'name'       => 'grp.org.warehouses.show',
                 'parameters' => [
                     $warehouse->organisation->slug,
                     $warehouse->slug

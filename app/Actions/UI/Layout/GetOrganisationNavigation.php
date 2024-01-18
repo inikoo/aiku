@@ -56,18 +56,37 @@ class GetOrganisationNavigation
             ];
         }
 
-        $navigation['shops_navigation']=[];
+        $navigation['shops_navigation'] = [];
         foreach ($organisation->authorisedModels()->where('user_id', $user->id)->where('model_type', 'Shop')->get() as $authorisedModel) {
-            $shop                                        =$authorisedModel->model;
+            $shop                                        = $authorisedModel->model;
             $navigation['shops_navigation'][$shop->slug] = GetShopNavigation::run($shop, $user);
         }
 
-        $navigation['warehouses_navigation']=[];
-        foreach ($organisation->authorisedModels()->where('user_id', $user->id)->where('model_type', 'Warehouse')->get() as $authorisedModel) {
-            $warehouse                                             =$authorisedModel->model;
-            $navigation['warehouses_navigation'][$warehouse->slug] = GetWarehouseNavigation::run($warehouse, $user);
+        if ($user->hasPermissionTo("inventories.$organisation->slug.view")) {
+            $navigation['inventory'] = [
+                'label'   => __('inventory'),
+                'icon'    => ['fal', 'fa-inventory'],
+                'route'   => [
+                    'name'       => 'grp.org.inventory.dashboard',
+                    'parameters' => [$organisation->slug],
+                ],
+                'topMenu' => [
+                    'subSections' => [
+
+
+                    ],
+
+
+                ]
+            ];
         }
 
+
+        $navigation['warehouses_navigation'] = [];
+        foreach ($organisation->authorisedModels()->where('user_id', $user->id)->where('model_type', 'Warehouse')->get() as $authorisedModel) {
+            $warehouse                                             = $authorisedModel->model;
+            $navigation['warehouses_navigation'][$warehouse->slug] = GetWarehouseNavigation::run($warehouse, $user);
+        }
 
 
 
@@ -264,9 +283,9 @@ class GetOrganisationNavigation
                 'label'   => __('human resources'),
                 'icon'    => ['fal', 'fa-user-hard-hat'],
                 'route'   => [
-                    'name'      => 'grp.org.hr.dashboard',
-                    'parameters'=> [$organisation->slug],
-                    ],
+                    'name'       => 'grp.org.hr.dashboard',
+                    'parameters' => [$organisation->slug],
+                ],
                 'topMenu' => [
                     'subSections' => [
                         [

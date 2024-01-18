@@ -40,13 +40,15 @@ class ShowInventoryDashboard extends OrgAction
     {
         $routeParameters = $request->route()->originalParameters();
 
+
+
         if ($this->organisation->inventoryStats->number_warehouses == 1) {
             $warehouse          = Warehouse::first();
             $warehousesNode     = [
                 'name' => __('warehouse'),
                 'icon' => ['fal', 'fa-warehouse'],
                 'href' => [
-                    'name'       => 'grp.org.inventory.warehouses.show',
+                    'name'       => 'grp.org.warehouses.show',
                     'parameters' => [
                         'organisation' => $this->organisation->slug,
                         'warehouse'    => $warehouse->slug
@@ -59,7 +61,7 @@ class ShowInventoryDashboard extends OrgAction
                 'shortName' => __('areas'),
                 'icon'      => ['fal', 'fa-map-signs'],
                 'href'      => [
-                    'name'       => 'grp.org.inventory.warehouses.show.warehouse-areas.index',
+                    'name'       => 'grp.org.warehouses.show.warehouse-areas.index',
                     'parameters' => [
                         'organisation' => $this->organisation->slug,
                         'warehouse'    => $warehouse->slug
@@ -73,7 +75,7 @@ class ShowInventoryDashboard extends OrgAction
                 'name'  => __('locations'),
                 'icon'  => ['fal', 'fa-inventory'],
                 'href'  => [
-                    'name'       => 'grp.org.inventory.warehouses.show.locations.index',
+                    'name'       => 'grp.org.warehouses.show.locations.index',
                     'parameters' => [
                         'organisation' => $this->organisation->slug,
                         'warehouse'    => $warehouse->slug
@@ -89,7 +91,7 @@ class ShowInventoryDashboard extends OrgAction
                 'name'  => __('warehouses'),
                 'icon'  => ['fal', 'fa-warehouse'],
                 'href'  => [
-                    'name'       => 'grp.org.inventory.warehouses.index',
+                    'name'       => 'grp.org.warehouses.index',
                     'parameters' => $routeParameters
                 ],
                 'index' => [

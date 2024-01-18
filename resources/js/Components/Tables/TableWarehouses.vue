@@ -16,27 +16,27 @@ const props = defineProps<{
 
 function warehouseRoute(warehouse: Warehouse) {
     switch (route().current()) {
-        case 'grp.org.inventory.warehouses.index':
+        case 'grp.org.warehouses.index':
             return route(
-                'grp.org.inventory.warehouses.show',
+                'grp.org.warehouses.show',
                 [route().params['organisation'], warehouse.slug]);
     }
 }
 
 function warehouseAreasRoute(warehouse: Warehouse) {
     switch (route().current()) {
-        case 'grp.org.inventory.warehouses.index':
+        case 'grp.org.warehouses.index':
             return route(
-                'grp.org.inventory.warehouses.show.warehouse-areas.index',
+                'grp.org.warehouses.show.warehouse-areas.index',
                 [route().params['organisation'], warehouse.slug]);
     }
 }
 
 function locationsRoute(warehouse: Warehouse) {
     switch (route().current()) {
-        case 'grp.org.inventory.warehouses.index':
+        case 'grp.org.warehouses.index':
             return route(
-                'grp.org.inventory.warehouses.show.locations.index',
+                'grp.org.warehouses.show.locations.index',
                 [route().params['organisation'], warehouse.slug]);
     }
 }

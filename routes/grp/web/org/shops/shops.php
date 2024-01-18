@@ -48,7 +48,7 @@ Route::prefix("hr")
     ->group(__DIR__."/hr.php");
 Route::prefix("inventory")
     ->name("inventory.")
-    ->group(__DIR__."/inventory.php");
+    ->group(__DIR__."/warehouses.php");
 Route::prefix("fulfilment")
     ->name("fulfilment.")
     ->group(__DIR__."/fulfilment.php");

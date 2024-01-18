@@ -122,12 +122,12 @@ class StoreLocation extends OrgAction
     public function htmlResponse(Location $location): RedirectResponse
     {
         if (!$location->warehouse_area_id) {
-            return Redirect::route('grp.org.inventory.warehouses.show.locations.show', [
+            return Redirect::route('grp.org.warehouses.show.locations.show', [
                 $location->warehouse->slug,
                 $location->slug
             ]);
         } else {
-            return Redirect::route('grp.org.inventory.warehouses.show.warehouse-areas.show.locations.show', [
+            return Redirect::route('grp.org.warehouses.show.warehouse-areas.show.locations.show', [
                 $location->warehouse->slug,
                 $location->warehouseArea->slug,
                 $location->slug

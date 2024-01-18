@@ -101,7 +101,7 @@ class IndexWarehouses extends OrgAction
                             'tooltip' => __('new warehouse'),
                             'label'   => __('warehouse'),
                             'route'   => [
-                                'name'       => 'grp.org.inventory.warehouses.create',
+                                'name'       => 'grp.org.warehouses.create',
                                 'parameters' => $parent->slug
                             ]
                         ] : null
@@ -138,13 +138,13 @@ class IndexWarehouses extends OrgAction
                         'icon'  => 'fal fa-warehouse'
                     ],
                     'actions'=> [
-                        $this->canEdit && $request->route()->routeName == 'grp.org.inventory.warehouses.index' ? [
+                        $this->canEdit && $request->route()->routeName == 'grp.org.warehouses.index' ? [
                             'type'    => 'button',
                             'style'   => 'create',
                             'tooltip' => __('new warehouse'),
                             'label'   => __('warehouse'),
                             'route'   => [
-                                'name'       => 'grp.org.inventory.warehouses.create',
+                                'name'       => 'grp.org.warehouses.create',
                                 'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ] : false,
@@ -166,7 +166,7 @@ class IndexWarehouses extends OrgAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => [
-                            'name'       => 'grp.org.inventory.warehouses.index',
+                            'name'       => 'grp.org.warehouses.index',
                             'parameters' => $routeParameters
                         ],
                         'label' => __('warehouses'),

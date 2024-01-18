@@ -103,7 +103,7 @@ class StoreWarehouse extends OrgAction
 
     public function htmlResponse(Warehouse $warehouse): RedirectResponse
     {
-        return Redirect::route('grp.org.inventory.warehouses.index');
+        return Redirect::route('grp.org.warehouses.index');
     }
 
     public string $commandSignature = 'warehouse:create {organisation : organisation slug} {code} {name}';

@@ -39,7 +39,7 @@ class GetWarehouseNavigation
                 'label'   => __('inventory'),
                 'icon'    => ['fal', 'fa-inventory'],
                 'route'   => [
-                    'name'       => 'grp.org.inventory.warehouses.show',
+                    'name'       => 'grp.org.warehouses.show',
                     'parameters' => [$warehouse->organisation->slug, $warehouse->slug]
                 ],
                 'topMenu' => [

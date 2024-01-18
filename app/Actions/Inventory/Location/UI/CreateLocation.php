@@ -37,7 +37,7 @@ class CreateLocation extends InertiaAction
                             'style' => 'cancel',
                             'label' => __('cancel'),
                             'route' => [
-                                'name'       => 'grp.org.inventory.warehouses.show.locations.index',
+                                'name'       => 'grp.org.warehouses.show.locations.index',
                                 'parameters' => array_values($request->route()->originalParameters())
                             ],
                         ]
@@ -98,7 +98,7 @@ class CreateLocation extends InertiaAction
 
                     ],
                     'route' => match ($request->route()->getName()) {
-                        'grp.org.inventory.warehouses.show.locations.create' => [
+                        'grp.org.warehouses.show.locations.create' => [
                             'name'      => 'grp.models.warehouse.location.store',
                             'arguments' => [$request->route()->parameters['warehouse']->slug]
                         ],
