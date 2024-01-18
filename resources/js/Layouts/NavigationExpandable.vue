@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faStoreAlt, faWarehouseAlt } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { Link } from '@inertiajs/vue3'
+import SubNavigation from '@/Layouts/SubNavigation.vue'
 import {
     Disclosure, DisclosureButton, DisclosurePanel,
     Popover, PopoverButton, PopoverPanel
@@ -63,24 +64,12 @@ const navigationName = props.navKey.split('_')[0].slice(0, -1)  // shops_navigat
 
                         <!-- If: Length available is only 1 -->
                         <template v-if="useLayoutStore().organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.[`authorised_${navigationName}s`].length === 1">
-                            <Link v-for="(shopNavigation, navigationIndex) in subNav[useLayoutStore().organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.[`authorised_${navigationName}s`][0].slug]"
-                                :href="shopNavigation.route?.name ? route(shopNavigation.route.name, shopNavigation.route.parameters) : '#'"
-                                class="group flex items-center text-sm rounded-md px-3 py-2 w-fit" :class="[
-                                    navigationIndex === layout.currentModule
-                                        ? 'subNavActive'
-                                        : 'subNav',
-                                    layout.leftSidebar.show ? 'ml-6' : 'text-indigo-500',
-                                ]"
-                                :aria-current="navigationIndex === layout.currentModule ? 'page' : undefined">
-                                <div class="flex items-center gap-x-2">
-                                    <FontAwesomeIcon aria-hidden="true" class="flex-shrink-0 h-4 w-4" :icon="shopNavigation.icon" />
-                                    <span class="capitalize leading-none whitespace-nowrap">
-                                        {{ shopNavigation.label }}
-                                    </span>
-                                </div>
-                            </Link>
+                            <SubNavigation v-for="(shopNavigation, navigationIndex) in subNav[useLayoutStore().organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.[`authorised_${navigationName}s`][0].slug]"
+                                :navigation="shopNavigation" :indexNav="navigationIndex">
+                            </SubNavigation>
                         </template>
 
+                        <!-- Else: Lengt available is more than 1 -->
                         <template v-else>
                             <div v-for="(navigationShopWarehouse, indexShopWarehouse) in useLayoutStore().organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.[`authorised_${navigationName}s`]" :key="indexShopWarehouse"
                                 class="group flex flex-col justify-center text-sm py-0.5 gap-y-1" :class="[
@@ -88,21 +77,7 @@ const navigationName = props.navKey.split('_')[0].slice(0, -1)  // shops_navigat
                                     layout.leftSidebar.show ? '' : ''
                                 ]"
                                 :aria-current="navigationShopWarehouse.slug === layout.currentModule ? 'page' : undefined">
-                                <Link :href="navigationShopWarehouse.route?.name ? route(navigationShopWarehouse.route.name, navigationShopWarehouse.route.parameters) : '#'"
-                                    class="group flex items-center text-sm py-2 px-3 rounded-md w-fit" :class="[
-                                        navigationShopWarehouse.slug === layout.currentModule
-                                            ? 'subNavActive'
-                                            : 'subNav',
-                                        layout.leftSidebar.show ? 'ml-6' : '',
-                                    ]"
-                                    :aria-current="navigationShopWarehouse.slug === layout.currentModule ? 'page' : undefined">
-                                    <div class="flex items-center gap-x-2">
-                                        <!-- <FontAwesomeIcon aria-hidden="true" class="flex-shrink-0 h-4 w-4 opacity-60" :icon="navigationShopWarehouse.icon" /> -->
-                                        <span class="capitalize leading-none whitespace-nowrap">
-                                            {{ navigationShopWarehouse.name }}
-                                        </span>
-                                    </div>
-                                </Link>
+                                <SubNavigation :navigation="navigationShopWarehouse" :indexNav="navigationShopWarehouse.slug" />
                             </div>
                         </template>
                     </template>
@@ -117,22 +92,9 @@ const navigationName = props.navKey.split('_')[0].slice(0, -1)  // shops_navigat
                             <!-- <p class="bg-indigo-300 py-0.5 pl-1 capitalize text-slate-700 font-bold">{{ layout.currentParams[navigationName] }}</p> -->
                             
                             <!-- Looping: Navigation in Shop -->
-                            <Link v-for="(shopNavigation, navigationIndex) in subNav[layout.currentParams[navigationName]]"
-                                :href="shopNavigation.route?.name ? route(shopNavigation.route.name, shopNavigation.route.parameters) : '#'"
-                                class="group flex items-center text-sm rounded-md px-3 py-2 w-fit" :class="[
-                                    navigationIndex === layout.currentModule
-                                        ? 'subNavActive'
-                                        : 'subNav',
-                                    layout.leftSidebar.show ? 'ml-6' : 'text-indigo-500',
-                                ]"
-                                :aria-current="navigationIndex === layout.currentModule ? 'page' : undefined">
-                                <div class="flex items-center gap-x-2">
-                                    <FontAwesomeIcon aria-hidden="true" class="flex-shrink-0 h-4 w-4" :icon="shopNavigation.icon" />
-                                    <span class="capitalize leading-none whitespace-nowrap">
-                                        {{ shopNavigation.label }}
-                                    </span>
-                                </div>
-                            </Link>
+                            <SubNavigation v-for="(shopNavigation, navigationIndex) in subNav[layout.currentParams[navigationName]]"
+                                :navigation="shopNavigation" :indexNav="navigationIndex">
+                            </SubNavigation>
                         </div>
                     </template>
                 </component>
