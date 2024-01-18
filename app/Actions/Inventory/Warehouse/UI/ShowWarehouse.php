@@ -11,7 +11,7 @@ use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\OrgAction;
 use App\Actions\Inventory\Location\UI\IndexLocations;
 use App\Actions\Inventory\WarehouseArea\UI\IndexWarehouseAreas;
-use App\Actions\UI\Inventory\ShowInventoryDashboard;
+use App\Actions\SysAdmin\Organisation\UI\ShowOrganisationDashboard;
 use App\Enums\UI\WarehouseTabsEnum;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\Inventory\LocationResource;
@@ -19,6 +19,7 @@ use App\Http\Resources\Inventory\WarehouseAreaResource;
 use App\Http\Resources\Inventory\WarehouseResource;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
+use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -198,7 +199,7 @@ class ShowWarehouse extends OrgAction
         $warehouse = Warehouse::where('slug', $routeParameters['warehouse'])->first();
 
         return array_merge(
-            (new ShowInventoryDashboard())->getBreadcrumbs($routeParameters),
+            (new ShowOrganisationDashboard())->getBreadcrumbs(Arr::only($routeParameters, 'organisation')),
             [
                 [
                     'type'           => 'modelWithIndex',

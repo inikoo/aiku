@@ -7,7 +7,7 @@
 
 namespace App\Actions\UI\HumanResources;
 
-use App\Actions\UI\Dashboard\ShowDashboard;
+use App\Actions\SysAdmin\Organisation\UI\ShowOrganisationDashboard;
 use App\Actions\UI\WithInertia;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
@@ -82,7 +82,7 @@ class ShowHumanResourcesDashboard
     {
         return
             array_merge(
-                ShowDashboard::make()->getBreadcrumbs(),
+                ShowOrganisationDashboard::make()->getBreadcrumbs($routeParameters),
                 [
                     [
                         'type'   => 'simple',

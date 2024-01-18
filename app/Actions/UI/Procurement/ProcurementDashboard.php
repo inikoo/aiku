@@ -7,31 +7,32 @@
 
 namespace App\Actions\UI\Procurement;
 
+use App\Actions\OrgAction;
 use App\Actions\UI\Dashboard\ShowDashboard;
 use App\Actions\UI\WithInertia;
-use App\Models\SysAdmin\Group;
+use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class ProcurementDashboard
+class ProcurementDashboard extends OrgAction
 {
     use AsAction;
     use WithInertia;
 
 
-    private Group $group;
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("procurement.view");
+        return $request->user()->hasPermissionTo("procurement.{$this->organisation->id}.view");
     }
 
 
-    public function asController(ActionRequest $request): void
+    public function asController(Organisation $organisation, ActionRequest $request): void
     {
-        $this->group = app('group');
+        $this->initialisation($organisation, $request);
+
     }
 
 
@@ -55,7 +56,7 @@ class ProcurementDashboard
                             'icon'         => ['fal', 'fa-people-arrows'],
                             'href'         => ['grp.procurement.agents.index'],
                             'index'        => [
-                                'number' => $this->group->procurementStats->number_agents
+                                'number' => $this->organisation->procurementStats->number_agents
                             ],
                             'rightSubLink' => [
                                 'tooltip'    => __('marketplace agents'),
@@ -71,7 +72,7 @@ class ProcurementDashboard
                             'icon'         => ['fal', 'fa-person-dolly'],
                             'href'         => ['grp.procurement.suppliers.index'],
                             'index'        => [
-                                'number' => $this->group->procurementStats->number_suppliers
+                                'number' => $this->organisation->procurementStats->number_suppliers
                             ],
                             'rightSubLink' => [
                                 'tooltip'    => __('marketplace suppliers'),
@@ -88,7 +89,7 @@ class ProcurementDashboard
                             'icon'         => ['fal', 'fa-box-usd'],
                             'href'         => ['grp.procurement.supplier-products.index'],
                             'index'        => [
-                                'number' => $this->group->procurementStats->number_supplier_products
+                                'number' => $this->organisation->procurementStats->number_supplier_products
                             ],
                             'rightSubLink' => [
                                 'tooltip'    => __('marketplace suppliers'),
@@ -107,7 +108,7 @@ class ProcurementDashboard
                             'icon'  => ['fal', 'fa-clipboard-list'],
                             'href'  => ['grp.procurement.purchase-orders.index'],
                             'index' => [
-                                'number' => $this->group->procurementStats->number_purchase_orders
+                                'number' => $this->organisation->procurementStats->number_purchase_orders
                             ]
 
                         ],
@@ -116,7 +117,7 @@ class ProcurementDashboard
                             'icon'  => ['fal', 'fa-truck-container'],
                             'href'  => ['grp.procurement.supplier-deliveries.index'],
                             'index' => [
-                                'number' => $this->group->procurementStats->number_deliveries
+                                'number' => $this->organisation->procurementStats->number_deliveries
                             ]
 
                         ],

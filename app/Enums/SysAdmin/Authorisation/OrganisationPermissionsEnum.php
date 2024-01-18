@@ -41,9 +41,17 @@ enum OrganisationPermissionsEnum: string
     case WAREHOUSES_EDIT = 'warehouses.edit';
     case WAREHOUSES_VIEW = 'warehouses.view';
 
+    case DISPATCHING      = 'dispatching';
+    case DISPATCHING_EDIT = 'dispatching.edit';
+    case DISPATCHING_VIEW = 'dispatching.view';
+
     case SUPERVISOR_HUMAN_RESOURCES = 'supervisor-human-resources';
     case SUPERVISOR_ACCOUNTING      = 'supervisor-accounting';
     case SUPERVISOR_PROCUREMENT     = 'supervisor-procurement';
+
+    case SUPERVISOR_DISPATCHING     = 'supervisor-dispatching';
+
+
     //   case SUPERVISOR_INVENTORIES       = 'supervisor-inventories';
 
 

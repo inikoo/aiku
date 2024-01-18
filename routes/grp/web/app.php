@@ -20,9 +20,9 @@ Route::middleware([
         Route::prefix("dashboard")
             ->name("dashboard.")
             ->group(__DIR__."/dashboard.php");
-        Route::prefix("procurement")
-            ->name("procurement.")
-            ->group(__DIR__."/procurement.php");
+        Route::prefix("supply-chain")
+            ->name("supply-chain.")
+            ->group(__DIR__."/supply-chain.php");
         Route::prefix("profile")
             ->name("profile.")
             ->group(__DIR__."/profile.php");

@@ -22,16 +22,16 @@ class GetGroupNavigation
 
         if ($user->hasPermissionTo('supply-chain.view')) {
             $groupNavigation['supply-chain'] = [
-                'label'   => __('procurement'),
+                'label'   => __('Supply Chain'),
                 'icon'    => ['fal', 'fa-box-usd'],
-                'route'   => 'grp.procurement.dashboard',
+                'route'   => 'grp.supply-chain.dashboard',
                 'topMenu' => [
                     'subSections' => [
                         [
                             'label' => __('agents'),
                             'icon'  => ['fal', 'fa-people-arrows'],
                             'route' => [
-                                'name' => 'grp.procurement.agents.index',
+                                'name' => 'grp.supply-chain.agents.index',
 
                             ]
                         ],
@@ -39,7 +39,7 @@ class GetGroupNavigation
                             'label' => __('suppliers'),
                             'icon'  => ['fal', 'fa-person-dolly'],
                             'route' => [
-                                'name' => 'grp.procurement.suppliers.index',
+                                'name' => 'grp.supply-chain.suppliers.index',
 
                             ]
                         ],
