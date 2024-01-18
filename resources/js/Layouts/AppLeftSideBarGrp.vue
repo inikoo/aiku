@@ -9,13 +9,13 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { Link } from "@inertiajs/vue3"
 import { ref, onMounted } from "vue"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faBoxUsd, faUsersCog, faLightbulb, faUserHardHat, faUser, faInventory, faChevronDown } from "@fal"
+import { faBoxUsd, faUsersCog, faLightbulb, faUserHardHat, faUser, faInventory, faConveyorBeltAlt, faChevronDown } from "@fal"
 import { useLayoutStore } from "@/Stores/layout.js"
 import NavigationExpandable from '@//Layouts/NavigationExpandable.vue'
 import NavigationSimple from '@//Layouts/NavigationSimple.vue'
 
 import { get } from "lodash"
-library.add(faBoxUsd, faUsersCog, faLightbulb, faUserHardHat, faUser, faInventory, faChevronDown)
+library.add(faBoxUsd, faUsersCog, faLightbulb, faUserHardHat, faUser, faInventory, faConveyorBeltAlt, faChevronDown)
 
 const layout = useLayoutStore()
 

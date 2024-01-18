@@ -160,7 +160,7 @@ const logoutAuth = () => {
                                     <div class="flex items-center gap-x-1">
                                         <FontAwesomeIcon icon='fal fa-store-alt' class='opacity-60 text-xs' fixed-width aria-hidden='true' />
                                         <!-- <FontAwesomeIcon v-else icon='fal fa-city' class='opacity-60 text-xs' fixed-width aria-hidden='true' /> -->
-                                        {{ useLayoutStore().organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_shops.find(shop => shop.slug == layout.currentParams.shop)?.name ?? 'Select shop' }}
+                                        {{ useLayoutStore().organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_shops.find(shop => shop.slug == layout.currentParams.shop)?.name ?? trans('Go to shop') }}
                                     </div>
                                     <!-- {{ layout.organisations.currentOrganisations ? layout.organisations.currentOrganisations : 'Select group or organisations' }} -->
                                     <FontAwesomeIcon icon='far fa-chevron-down' class='text-xs' aria-hidden='true' />

@@ -32,7 +32,7 @@ export const initialiseApp = () => {
 
         router.on('navigate', (event) => {
             layout.currentParams = route().params  // current params
-            console.log('www', layout.currentParams)
+            // console.log('www', layout.currentParams)
             layout.currentRoute = route().current()  // current route
             layout.currentModule = layout.currentRoute.split('.')[2]  // grp.org.xxx.yyy.zzz to xxx
 
@@ -42,7 +42,7 @@ export const initialiseApp = () => {
             layout.currentWarehouse = route().params.warehouse ?? layout.currentWarehouse  ?? storageLayout.currentWarehouse // 'ed' | 'ac'
             localStorage.setItem('layout', JSON.stringify({...storageLayout, currentShop: layout.currentShop, currentWarehouse: layout.currentWarehouse}))
             
-            console.log(layout.currentShop, layout.currentWarehouse)
+            // console.log(layout.currentShop, layout.currentWarehouse)
 
             if (usePage().props.auth.user?.id) {
                 // console.log("===== ada auth id =====")
