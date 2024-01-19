@@ -77,7 +77,7 @@ const generateNavigationName = (navKey: string) => {
 <template>
     <nav class="isolate relative flex flex-grow flex-col pt-3 pb-4 h-full overflow-y-auto custom-hide-scrollbar flex-1 space-y-1" aria-label="Sidebar">
         <!-- LeftSidebar: Org -->
-        <span class="text-white">{{ layout.currentShop }} -- {{ layout.currentWarehouse }}</span>
+        <!-- <span class="text-white">{{ layout.currentShop }} -- {{ layout.currentWarehouse }}</span> -->
         <template v-if="get(layout, ['navigation', 'org', layout.currentParams.organisation], false)">
             <template v-for="(orgNav, itemKey) in layout.navigation.org[layout.currentParams.organisation]"
                 :key="itemKey"

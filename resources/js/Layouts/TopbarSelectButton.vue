@@ -1,16 +1,14 @@
 <script setup lang='ts'>
-import { useLayoutStore } from '@/Stores/layout'
 import { MenuButton } from "@headlessui/vue"
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
-const layout = useLayoutStore()
 const props = defineProps<{
     activeButton: boolean
     icon: string | string[]
     label: string
 }>()
 
-console.log(props.label, props.activeButton)
+// console.log(props.label, props.activeButton)
 
 </script>
 

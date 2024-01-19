@@ -9,6 +9,7 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 library.add(faStoreAlt)
 
 const props = defineProps<{
+    icon: string | string[]
     navKey: string  // shop | warehouse
     closeMenu: () => void
 }>()
@@ -27,7 +28,7 @@ const layout = useLayoutStore()
         </div> -->
         <div @click="() => (router.visit(route(layout.navigation.org[layout.currentParams.organisation][`${navKey}s_index`].route.name, layout.navigation.org[layout.currentParams.organisation][`${navKey}s_index`].route.parameters)), closeMenu())"
             class="flex gap-x-2 items-center pl-3 py-1.5 cursor-pointer rounded-md text-slate-600 hover:bg-slate-200/75 hover:text-indigo-600">
-            <FontAwesomeIcon icon='fal fa-store-alt' class='' aria-hidden='true' />
+            <FontAwesomeIcon v-if="icon" :icon='icon' class='' aria-hidden='true' />
             <span class="font-semibold">Show all {{ navKey }}s</span>
         </div>
         <hr class="w-11/12 mx-auto border-t border-gray-300 mt-1 mb-0.5">

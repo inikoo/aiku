@@ -53,7 +53,7 @@ const label = {
     <Disclosure as="nav" class=" fixed top-0 z-[21] w-full bg-gray-50 text-gray-700" v-slot="{ open }">
         <div class="px-0">
             <div class="flex h-11 lg:h-10 flex-shrink-0">
-                <div class="border-b border-indigo-300 flex">
+                <div class="flex">
                     <!-- Mobile: Hamburger -->
                     <button class="block md:hidden w-10 h-10 relative focus:outline-none" @click="$emit('sidebarOpen', !sidebarOpen)">
                         <span class="sr-only">Open sidebar</span>
@@ -67,14 +67,14 @@ const label = {
                     </button>
 
                     <!-- App Title: Image and Title -->
-                    <div class="bg-indigo-400 flex flex-1 items-center justify-center md:justify-start transition-all duration-300 ease-in-out"
+                    <div class="bg-indigo-700 flex flex-1 items-center justify-center md:justify-start transition-all duration-300 ease-in-out"
                         :class="[layout.leftSidebar.show ? 'md:w-48 md:pr-4' : 'md:w-10']"
                     >
                         <Link :href="layout.app?.url ?? '#'"
                             class="hidden md:flex flex-nowrap items-center h-full overflow-hidden gap-x-1.5 transition-all duration-200 ease-in-out"
                             :class="[layout.leftSidebar.show ? 'py-1 pl-4' : 'pl-2.5 w-full']"
                         >
-                            <Image :src="layout.organisations.data.find((item) => item.slug == layout.currentParams.organisation)?.logo ?? layout.group.logo" class="aspect-square h-5"/>
+                            <Image :src="layout.organisations.data.find((item) => item.slug == layout.currentParams.organisation)?.logo ?? layout.group?.logo" class="aspect-square h-5"/>
                             <Transition name="slide-to-left">
                                 <p v-if="layout.leftSidebar.show" class="bg-gradient-to-r from-white to-indigo-100 text-transparent text-lg bg-clip-text font-bold whitespace-nowrap leading-none lg:truncate">
                                     Aiku
@@ -89,9 +89,15 @@ const label = {
                     <!-- Section: Dropdown + subsections -->
                     <div class="flex items-center gap-x-2 pl-2">
                         <!-- Section: Dropdown -->
-                        <div class="p-0.5 flex border border-gray-300 rounded-md gap-x-0.5">
+                        <div v-if="
+                            layout.group
+                            || (layout.organisations.data.length > 1 ? true : false)
+                            || useLayoutStore().organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation) && (route(useLayoutStore().currentRoute, useLayoutStore().currentParams)).includes('shops')
+                            || useLayoutStore().navigation.org[layout.currentParams.organisation]?.warehouses_navigation && (route(useLayoutStore().currentRoute, useLayoutStore().currentParams)).includes('warehouse')
+                        " 
+                        class="p-0.5 flex border border-gray-300 rounded-md gap-x-0.5">
                             <!-- Dropdown: Organisations -->
-                            <Menu as="div" class="relative inline-block text-left">
+                            <Menu v-if="layout.group || (layout.organisations.data.length > 1 ? true : false)" as="div" class="relative inline-block text-left">
                                 <TopbarSelectButton
                                     :icon="layout.currentParams.organisation ? 'fal fa-building' : 'fal fa-city'"
                                     :activeButton="!!(layout.organisations.data.find((item) => item.slug == layout.currentParams.organisation))"
@@ -102,7 +108,7 @@ const label = {
                                         class="absolute left-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
                                         <div class="px-1 py-1 space-y-2.5">
                                             <!-- Dropdown: Group -->
-                                            <div class="">
+                                            <div v-if="layout.group" class="">
                                                 <div class="flex items-center gap-x-1.5 px-1 mb-1">
                                                     <FontAwesomeIcon icon='fal fa-city' class='text-gray-400 text-xxs' aria-hidden='true' />
                                                     <span class="text-[9px] leading-none text-gray-400">Groups</span>
@@ -115,14 +121,14 @@ const label = {
                                                     >
                                                         <FontAwesomeIcon icon='fal fa-city' class='' ariaa-hidden='true' />
                                                         <div class="space-x-1">
-                                                            <span class="font-semibold">{{ layout.group.name }}</span>
+                                                            <span class="font-semibold">{{ layout.group?.name }}</span>
                                                             <span class="text-[9px] leading-none text-gray-400">({{ trans('Group') }})</span>
                                                         </div>
                                                     </div>
                                                 </MenuItem>
                                             </div>
 
-                                            <div>
+                                            <div v-if="layout.organisations.data.length > 1 ? true : false">
                                                 <!-- Dropdown: Organisation -->
                                                 <div class="flex items-center gap-x-1.5 px-1 mb-1">
                                                     <FontAwesomeIcon icon='fal fa-building' class='text-gray-400 text-xxs' aria-hidden='true' />
@@ -163,7 +169,7 @@ const label = {
 
                                 <transition>
                                     <MenuItems class="absolute left-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
-                                        <MenuPopoverList :navKey="'shop'" :closeMenu="closeMenu" />
+                                        <MenuPopoverList icon="fal fa-store-alt" :navKey="'shop'" :closeMenu="closeMenu" />
                                     </MenuItems>
                                 </transition>
                             </Menu>
@@ -181,7 +187,7 @@ const label = {
                                 <transition>
                                     <MenuItems
                                         class="absolute left-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
-                                        <MenuPopoverList :navKey="'warehouse'" :closeMenu="closeMenu" />
+                                        <MenuPopoverList icon="fal fa-warehouse-alt" :navKey="'warehouse'" :closeMenu="closeMenu" />
                                     </MenuItems>
                                 </transition>
                             </Menu>

@@ -51,7 +51,7 @@ export const useLayoutStore = defineStore("layout", {
             currentParams: {} as {[key: string]: string},
             currentShop: null as string | null,
             currentWarehouse: null as string | null,
-            group: {} as Group,
+            group: null as Group | null,
             leftSidebar: {
                 show: true,
             },
