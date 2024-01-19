@@ -1,0 +1,118 @@
+<script setup lang='ts'>
+import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
+
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { faCity, faBuilding, faStoreAlt, faWarehouseAlt } from '@fas'
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { trans } from 'laravel-vue-i18n'
+import { useLayoutStore } from '@/Stores/layout' 
+import { router } from '@inertiajs/vue3'
+import { reactive, ref, computed } from 'vue'
+library.add(faCity, faBuilding, faStoreAlt, faWarehouseAlt)
+
+const layout = useLayoutStore()
+
+const bottomNavigation = computed(() => [
+    {
+        show: layout.group ? true : false,
+        icon: 'fal fa-city',
+        label: 'Group',
+        activeState: !layout.currentParams.organisation,
+        data: [{
+            name: layout.group?.name,
+            route: {
+                name: 'grp.dashboard.show',
+                parameters: {}
+            }
+        
+        }],
+
+    },
+    {
+        show: layout.organisations.data?.length > 1 ? true : false,
+        icon: 'fal fa-building',
+        label: 'Organisations',
+        activeState: layout.currentParams.organisation ?? false,
+        data: layout.organisations.data,
+
+    },
+    {
+        show: layout.currentParams.organisation ?? false,
+        icon: 'fal fa-store-alt',
+        label: 'Shops',
+        activeState: layout.currentShop,
+        showAll: {
+            label: 'Show all shops',
+            route: {
+                name: layout.navigation.org?.[layout.currentParams.organisation]?.shops_index?.route.name,
+                parameters: layout.navigation.org?.[layout.currentParams.organisation]?.shops_index?.route.parameters
+            }
+        },
+        data: layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_shops,
+
+    },
+    {
+        show: layout.currentParams.organisation ?? false,
+        icon: 'fal fa-warehouse-alt',
+        label: 'Warehouses',
+        activeState: layout.currentWarehouse,
+        showAll: {
+            label: 'Show all warehouses',
+            route: {
+                name: layout.navigation.org?.[layout.currentParams.organisation]?.warehouses_index.route.name,
+                parameters: layout.navigation.org?.[layout.currentParams.organisation]?.warehouses_index.route.parameters
+            }
+        },
+        data: layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_warehouses,
+    }
+])
+console.log(layout.group)
+</script>
+
+<template>
+    <div class="flex justify-around px-2">
+        <!-- Shops -->
+        <template v-for="(bottomNav, indexBottomNav) in bottomNavigation" :key="indexBottomNav">
+            <Menu v-if="bottomNav.show"
+                as="div" class=""
+                v-slot="{ open, close: closeMenu }"
+            >
+                <MenuButton v-tooltip="bottomNav.label" :aria-label="bottomNav.label"
+                    class="flex flex-col items-center justify-center gap-y-1 px-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/75"
+                    :class="[bottomNav.activeState ? 'text-white' : 'text-indigo-300 hover:text-white',
+                        open ? 'ring-1 ring-gray-500' : ''
+                    ]">
+                    <FontAwesomeIcon :icon='bottomNav.icon' class='leading-none' fixed-width aria-hidden='true' />
+                    <span class="text-[7px] leading-none tracking-widest text-center">{{ bottomNav.activeState ? bottomNav.activeState.toString().slice(0, 3) : '' }}</span>
+                </MenuButton>
+                
+                <transition>
+                    <MenuItems class="absolute bottom-full -translate-y-2 left-1/2 -translate-x-1/2 w-11/12 p-1 origin-bottom-left rounded bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
+                        <!-- Section: Show All -->
+                        <template v-if="bottomNav.showAll">
+                            <div @click="() => (router.visit(route(bottomNav.showAll.route.name, bottomNav.showAll.route.parameters)), closeMenu())"
+                                class="flex gap-x-2 items-center pl-3 py-1.5 text-xs cursor-pointer rounded text-slate-500 hover:bg-slate-200/75 hover:text-slate-600">
+                                <FontAwesomeIcon icon='fal fa-store-alt' class='' aria-hidden='true' />
+                                <span class="font-semibold">{{bottomNav.showAll.label}}</span>
+                            </div>
+                            <hr class="w-11/12 mx-auto border-t border-slate-300 mt-1 mb-2.5">
+                        </template>
+                        <!-- Section: Looping Item -->
+                        <div v-if="bottomNav.data" class="max-h-52 overflow-y-auto space-y-1.5">
+                            <MenuItem
+                                v-for="(showare, idxSH) in bottomNav.data"
+                                v-slot="{ active }">
+                                <div @click="() => router.visit(route(showare.route?.name, showare.route?.parameters))" :class="[
+                                    showare.slug == bottomNav.activeState ? 'bg-slate-500 text-white' : 'text-slate-600 hover:bg-slate-200/75 hover:text-indigo-600',
+                                    'group flex gap-x-2 w-full justify-start items-center rounded px-2 py-2 text-sm cursor-pointer',
+                                ]">
+                                    <div class="font-semibold">{{ showare.name }}</div>
+                                </div>
+                            </MenuItem>
+                        </div>
+                    </MenuItems>
+                </transition>
+            </Menu>
+        </template>
+    </div>
+</template>
