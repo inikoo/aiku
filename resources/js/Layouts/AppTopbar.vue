@@ -85,7 +85,6 @@ const label = {
                 </div>
 
                 <div class="flex items-center w-full justify-between pr-6 space-x-3 border-b border-gray-200">
-                    <!-- Section: Top menu -->
 
                     <!-- Section: Dropdown + subsections -->
                     <div class="flex items-center gap-x-2 pl-2">
@@ -104,17 +103,21 @@ const label = {
                                         <div class="px-1 py-1 space-y-2.5">
                                             <!-- Dropdown: Group -->
                                             <div class="">
-                                                <!-- <div class="flex items-center gap-x-1.5 px-1 mb-1">
+                                                <div class="flex items-center gap-x-1.5 px-1 mb-1">
+                                                    <FontAwesomeIcon icon='fal fa-city' class='text-gray-400 text-xxs' aria-hidden='true' />
                                                     <span class="text-[9px] leading-none text-gray-400">Groups</span>
                                                     <hr class="w-full rounded-full border-slate-300">
-                                                </div> -->
+                                                </div>
                                                 <MenuItem v-slot="{ active }">
                                                     <div @click="() => router.visit(route('grp.dashboard.show'))" :class="[
-                                                        !layout.currentParams.organisation ? 'bg-indigo-500 text-white' : active ? 'bg-slate-200/75 text-indigo-600' : 'text-slate-600']"
+                                                        !layout.currentParams.organisation ? 'bg-slate-300 text-slate-600' : active ? 'bg-slate-200/75 text-indigo-600' : 'text-slate-600']"
                                                         class="group flex w-full gap-x-2 items-center rounded pl-3 pr-2 py-2 text-sm cursor-pointer"
                                                     >
                                                         <FontAwesomeIcon icon='fal fa-city' class='' ariaa-hidden='true' />
-                                                        <span class="font-semibold">{{ layout.group.name }}</span>
+                                                        <div class="space-x-1">
+                                                            <span class="font-semibold">{{ layout.group.name }}</span>
+                                                            <span class="text-[9px] leading-none text-gray-400">({{ trans('Group') }})</span>
+                                                        </div>
                                                     </div>
                                                 </MenuItem>
                                             </div>
@@ -129,7 +132,7 @@ const label = {
                                                 <div class="max-h-52 overflow-y-auto space-y-1.5">
                                                     <MenuItem v-for="(item) in layout.organisations.data" v-slot="{ active }">
                                                         <div @click="() => router.visit(route('grp.org.dashboard.show', { organisation: item.slug }))" :class="[
-                                                            item.slug == layout.currentParams.organisation ? 'bg-indigo-500 text-white' : 'text-slate-600 hover:bg-slate-200/75 hover:text-indigo-600',
+                                                            item.slug == layout.currentParams.organisation ? 'bg-slate-300 text-slate-600' : 'text-slate-600 hover:bg-slate-200/75 hover:text-indigo-600',
                                                             'group flex gap-x-2 w-full justify-start items-center rounded px-2 py-2 text-sm cursor-pointer',
                                                         ]">
                                                             <div class="h-5 rounded-full overflow-hidden ring-1 ring-slate-200 bg-slate-50">
