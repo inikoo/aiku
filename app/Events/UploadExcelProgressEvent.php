@@ -36,7 +36,7 @@ class UploadExcelProgressEvent implements ShouldBroadcastNow
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel('org.personal.'.$this->data->organisation_id)
+            new PrivateChannel('grp.personal.'.$this->data->organisation_id)
         ];
     }
 

@@ -11,11 +11,6 @@ use App\Http\Resources\HasSelfCall;
 use App\Models\SysAdmin\User;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-/**
- * @property string $username
- * @property string $email
- * @property mixed $avatar_id
- */
 class LoggedUserResource extends JsonResource
 {
     use HasSelfCall;
@@ -26,6 +21,7 @@ class LoggedUserResource extends JsonResource
         $user = $this;
 
         return [
+            'id'               => $user->id,
             'username'         => $user->username,
             'email'            => $user->email,
             'avatar_thumbnail' => !blank($user->avatar_id) ? $user->avatarImageSources(0, 48) : null,

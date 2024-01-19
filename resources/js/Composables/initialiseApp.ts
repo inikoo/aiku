@@ -29,13 +29,13 @@ export const initialiseApp = () => {
     echoGeneral.subscribe()  // Websockets: notification
 
     if (usePage().props?.auth?.user) {
-        echoPersonal.subscribe(usePage().props.auth.user.username)
+        echoPersonal.subscribe(usePage().props.auth.user.id)
 
         router.on('navigate', (event) => {
             layout.currentParams = route().params  // current params
             layout.currentRoute = route().current()  // current route
             layout.currentModule = layout.currentRoute.split('.')[2]  // grp.org.xxx.yyy.zzz to xxx
-            
+
             layout.organisationsState = {
                 ...layout.organisationsState,
                 [layout.currentParams.organisation]: {
@@ -43,7 +43,7 @@ export const initialiseApp = () => {
                     currentWarehouse: route().params.warehouse ?? layout.organisationsState?.[layout.currentParams.organisation]?.currentWarehouse
                 }
             }
-            
+
             localStorage.setItem('layout', JSON.stringify({
                 ...storageLayout,
                 [layout.currentParams.organisation]: {
@@ -77,7 +77,7 @@ export const initialiseApp = () => {
 
     watchEffect(() => {
         // Aiku
-        
+
         // Set group
         if (usePage().props.layout?.group) {
             layout.group = usePage().props.layout.group

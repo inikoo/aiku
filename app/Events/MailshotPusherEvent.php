@@ -37,7 +37,7 @@ class MailshotPusherEvent implements ShouldBroadcast
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel('org.general')
+            new PrivateChannel('grp.general')
         ];
     }
 

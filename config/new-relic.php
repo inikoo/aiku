@@ -53,7 +53,7 @@ return [
         'production',
     ],
     'loggable'     => [
-       // 'local',
+        // 'local',
     ],
 
     /*
@@ -109,9 +109,8 @@ return [
             'debugbar.**',
             'horizon.**',
             'telescope.**',
+            'broadcasting/auth',
             'broadcasting/auth'
-            //'aurora.**',
-            //'deployments.**',
         ],
     ],
 

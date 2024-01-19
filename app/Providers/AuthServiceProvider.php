@@ -26,18 +26,11 @@ class AuthServiceProvider extends ServiceProvider
         $this->registerPolicies();
 
         Auth::viaRequest('websockets-auth', function () {
-
-            $id=Session::get('login_org_'.sha1('Illuminate\Auth\SessionGuard'));
+            $id=Session::get('login_web_'.sha1('Illuminate\Auth\SessionGuard'));
             if (!is_null($id)) {
                 return User::find($id);
             }
-            //... todo: try other guards
-
             return false;
-
-
-
-
         });
 
         Auth::provider('user-with-legacy-password', function (Application $app, array $config) {

@@ -27,14 +27,16 @@ export const useLiveUsers = defineStore('useLiveUsers', {
             window.Echo.leave(`grp.live.users`)
         },
         subscribe() {
-            console.log('eqqq')
+
             window.Echo.join(`grp.live.users`)
                 .here((rawUsers) => {
-                    // console.log('Who is here: ', rawUsers);
+                    console.log('Who is here: ', rawUsers);
+                    /*
+
                     console.log('eeee')
                     axios.get(route('grp.models.live-group-users-current-page.index'))
                         .then((response) => {
-                            // console.log('lll', response.data)
+                            console.log('lll', response.data)
                             this.liveUsers = response.data
 
                             Object.keys(this.liveUsers).forEach((userKey) => {
@@ -44,12 +46,14 @@ export const useLiveUsers = defineStore('useLiveUsers', {
                         })
                         console.log('eeee')
 
+                     */
+
                 }).joining((user) => {
-                    // console.log('Someone is join: ', user);
+                    console.log('Someone is join: ', user);
                     this.liveUsers[user.id] = user
 
                 }).leaving((user) => {
-                    // console.log('Someone leaved: ', user);
+                    console.log('Someone leaved: ', user);
                     delete this.liveUsers[user.id]
 
                 }).error((error) => {
@@ -57,7 +61,7 @@ export const useLiveUsers = defineStore('useLiveUsers', {
 
                 }).listen('.changePage', (data) => {
                     // Listen from another user who change the page
-                    // console.log('Another user ' + data.user_alias + '  is change the page ' + data.active_page);
+                    console.log('Another user ' + data.user_alias + '  is change the page ' + data.active_page);
                     this.liveUsers[data.user_id].active_page = data.active_page
 
                 })

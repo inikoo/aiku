@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Route;
 Route::patch('/profile', UpdateProfile::class)->name('profile.update');
 Route::get('/profile/app-login-qrcode', GetProfileAppLoginQRCode::class)->name('profile.app-login-qrcode');
 
+
 /*
 
 Route::post('/shop/', StoreShop::class)->name('shop.store');

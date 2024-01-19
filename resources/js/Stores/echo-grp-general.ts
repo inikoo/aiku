@@ -15,7 +15,7 @@ export const useEchoGrpGeneral = defineStore(
         actions: {
             subscribe() {
                 // console.log('subscribe general')
-                let abcdef = window.Echo.private('grp.1.general').
+                let abcdef = window.Echo.private('grp.general').
                     listen('.notification', (e: {}) => {
                         console.log('From echo-org-general', e)
                         notify({
