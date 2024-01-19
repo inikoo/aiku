@@ -55,6 +55,11 @@ class MacroServiceProvider extends ServiceProvider
 
             return $this->where(DB::raw("extensions.remove_accents(".$column.")  COLLATE \"C\""), '~*', DB::raw("('\y' ||  extensions.remove_accents($quotedValue) ||   '.*\y')"));
         });
+        Builder::macro('orWhereAnyWordStartWith', function (string $column, string $value): Builder {
+            $quotedValue = DB::connection()->getPdo()->quote($value);
+
+            return $this->orWhere(DB::raw("extensions.remove_accents(".$column.")  COLLATE \"C\""), '~*', DB::raw("('\y' ||  extensions.remove_accents($quotedValue) ||   '.*\y')"));
+        });
 
         Builder::macro('orWhereStartWith', function (string $column, string $value): Builder {
             return $this->orWhereRaw("$column COLLATE \"C\" ILIKE ?", $value.'%');

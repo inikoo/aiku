@@ -51,7 +51,7 @@ enum MarketplaceAgentTabsEnum: string
                 'icon'  => 'fal fa-box-usd',
             ],
             MarketplaceAgentTabsEnum::SHOWCASE => [
-                'title' => __('Agent'),
+                'title' => __('AgentOrganisation'),
                 'icon'  => 'fas fa-info-circle',
             ],
 

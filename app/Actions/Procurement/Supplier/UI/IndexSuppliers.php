@@ -10,8 +10,9 @@ namespace App\Actions\Procurement\Supplier\UI;
 use App\Actions\InertiaAction;
 use App\Actions\UI\Procurement\ProcurementDashboard;
 use App\Http\Resources\Procurement\SupplierResource;
-use App\Models\Procurement\Agent;
-use App\Models\Procurement\Supplier;
+use App\InertiaTable\InertiaTable;
+use App\Models\SupplyChain\Agent;
+use App\Models\SupplyChain\Supplier;
 use App\Models\SysAdmin\Organisation;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -19,7 +20,6 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
-use App\InertiaTable\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
@@ -84,9 +84,9 @@ class IndexSuppliers extends InertiaAction
                     $query->addSelect('agents.slug as agent_slug');
                     $query->addSelect('agents.name as agent_name');
                 } else {
-                    $query ->leftJoin('supplier_tenant', 'suppliers.id', 'supplier_tenant.supplier_id');
+                    $query ->leftJoin('organisation_supplier', 'suppliers.id', 'organisation_supplier.supplier_id');
                     $query->where('suppliers.owner_type', 'Organisation');
-                    $query->where('supplier_tenant.tenant_id', app('currentTenant')->id);
+                    $query->where('organisation_supplier.organisation_id', app('currentTenant')->id);
 
                 }
             })

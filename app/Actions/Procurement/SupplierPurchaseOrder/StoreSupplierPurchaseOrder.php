@@ -8,9 +8,9 @@
 namespace App\Actions\Procurement\SupplierPurchaseOrder;
 
 use App\Actions\Procurement\SupplierPurchaseOrder\Traits\HasHydrators;
-use App\Models\Procurement\Agent;
 use App\Models\Procurement\PurchaseOrder;
-use App\Models\Procurement\Supplier;
+use App\Models\SupplyChain\Agent;
+use App\Models\SupplyChain\Supplier;
 use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;

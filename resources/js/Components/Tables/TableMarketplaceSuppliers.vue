@@ -19,17 +19,17 @@ const props = defineProps<{
 
 function marketplaceSupplierRoute(marketplaceSupplier: MarketplaceSupplier) {
     switch (route().current()) {
-        case 'grp.procurement.marketplace.agents.show':
+        case 'grp.org.procurement.marketplace.agents.show':
             return route(
-                'grp.procurement.marketplace.agents.show.suppliers.show',
+                'grp.org.procurement.marketplace.agents.show.suppliers.show',
                 [route().params['agent'],marketplaceSupplier.slug]);
-        case 'grp.procurement.marketplace.suppliers.index':
+        case 'grp.org.procurement.marketplace.suppliers.index':
             return route(
-                'grp.procurement.marketplace.suppliers.show',
+                'grp.org.procurement.marketplace.suppliers.show',
                 [marketplaceSupplier.slug]);
         default:
             return route(
-                'grp.procurement.marketplace.suppliers.show',
+                'grp.org.procurement.marketplace.suppliers.show',
                 [marketplaceSupplier.slug]);
     }
 }

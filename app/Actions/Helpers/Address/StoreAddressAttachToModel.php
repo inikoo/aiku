@@ -13,8 +13,8 @@ use App\Models\Dropshipping\CustomerClient;
 use App\Models\Helpers\Address;
 use App\Models\HumanResources\Workplace;
 use App\Models\Market\Shop;
-use App\Models\Procurement\Agent;
-use App\Models\Procurement\Supplier;
+use App\Models\SupplyChain\Agent;
+use App\Models\SupplyChain\Supplier;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class StoreAddressAttachToModel

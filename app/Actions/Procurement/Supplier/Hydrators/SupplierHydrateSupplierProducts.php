@@ -9,8 +9,8 @@ namespace App\Actions\Procurement\Supplier\Hydrators;
 
 use App\Enums\Procurement\SupplierProduct\SupplierProductQuantityStatusEnum;
 use App\Enums\Procurement\SupplierProduct\SupplierProductStateEnum;
-use App\Models\Procurement\Supplier;
-use App\Models\Procurement\SupplierProduct;
+use App\Models\SupplyChain\Supplier;
+use App\Models\SupplyChain\SupplierProduct;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;

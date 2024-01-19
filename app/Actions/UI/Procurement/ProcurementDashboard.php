@@ -8,9 +8,10 @@
 namespace App\Actions\UI\Procurement;
 
 use App\Actions\OrgAction;
-use App\Actions\UI\Dashboard\ShowDashboard;
+use App\Actions\SysAdmin\Organisation\UI\ShowOrganisationDashboard;
 use App\Actions\UI\WithInertia;
 use App\Models\SysAdmin\Organisation;
+use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -22,28 +23,26 @@ class ProcurementDashboard extends OrgAction
     use WithInertia;
 
 
-
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("procurement.{$this->organisation->id}.view");
+        return $request->user()->hasPermissionTo("procurement.{$this->organisation->slug}.view");
     }
 
 
-    public function asController(Organisation $organisation, ActionRequest $request): void
+    public function asController(Organisation $organisation, ActionRequest $request): ActionRequest
     {
         $this->initialisation($organisation, $request);
 
+        return $request;
     }
 
 
-    public function htmlResponse(): Response
+    public function htmlResponse(ActionRequest $request): Response
     {
-        $this->validateAttributes();
-
         return Inertia::render(
             'Procurement/ProcurementDashboard',
             [
-                'breadcrumbs'  => $this->getBreadcrumbs(),
+                'breadcrumbs'  => $this->getBreadcrumbs($request->route()->originalParameters()),
                 'title'        => __('procurement'),
                 'pageHead'     => [
                     'title' => __('procurement'),
@@ -54,7 +53,10 @@ class ProcurementDashboard extends OrgAction
                         [
                             'name'         => __('agents'),
                             'icon'         => ['fal', 'fa-people-arrows'],
-                            'href'         => ['grp.procurement.agents.index'],
+                            'href'         => [
+                                'name'       => 'grp.org.procurement.agents.index',
+                                'parameters' => ['organisation' => $this->organisation->slug]
+                            ],
                             'index'        => [
                                 'number' => $this->organisation->procurementStats->number_agents
                             ],
@@ -62,7 +64,10 @@ class ProcurementDashboard extends OrgAction
                                 'tooltip'    => __('marketplace agents'),
                                 'icon'       => ['fal', 'fa-store'],
                                 'labelStyle' => 'bordered',
-                                'href'       => ['grp.procurement.marketplace.agents.index'],
+                                'href'       => [
+                                    'name'       => 'grp.org.procurement.marketplace.agents.index',
+                                    'parameters' => ['organisation' => $this->organisation->slug]
+                                ],
 
                             ]
 
@@ -70,7 +75,10 @@ class ProcurementDashboard extends OrgAction
                         [
                             'name'         => __('suppliers'),
                             'icon'         => ['fal', 'fa-person-dolly'],
-                            'href'         => ['grp.procurement.suppliers.index'],
+                            'href'         => [
+                                'name'       => 'grp.org.procurement.suppliers.index',
+                                'parameters' => ['organisation' => $this->organisation->slug]
+                            ],
                             'index'        => [
                                 'number' => $this->organisation->procurementStats->number_suppliers
                             ],
@@ -78,7 +86,10 @@ class ProcurementDashboard extends OrgAction
                                 'tooltip'    => __('marketplace suppliers'),
                                 'icon'       => ['fal', 'fa-store'],
                                 'labelStyle' => 'bordered',
-                                'href'       => ['grp.procurement.marketplace.suppliers.index'],
+                                'href'       => [
+                                    'name'       => 'grp.org.procurement.marketplace.suppliers.index',
+                                    'parameters' => ['organisation' => $this->organisation->slug]
+                                ],
 
                             ]
 
@@ -87,7 +98,7 @@ class ProcurementDashboard extends OrgAction
                             'name'         => __('supplier products'),
                             'shortName'    => __('products'),
                             'icon'         => ['fal', 'fa-box-usd'],
-                            'href'         => ['grp.procurement.supplier-products.index'],
+                            'href'         => ['name' => 'grp.org.procurement.supplier-products.index', 'parameters' => ['organisation' => $this->organisation->slug]],
                             'index'        => [
                                 'number' => $this->organisation->procurementStats->number_supplier_products
                             ],
@@ -95,7 +106,7 @@ class ProcurementDashboard extends OrgAction
                                 'tooltip'    => __('marketplace suppliers'),
                                 'icon'       => ['fal', 'fa-store'],
                                 'labelStyle' => 'bordered',
-                                'href'       => ['grp.procurement.marketplace.supplier-products.index'],
+                                'href'       => ['name' => 'grp.org.procurement.marketplace.supplier-products.index', 'parameters' => ['organisation' => $this->organisation->slug]],
 
                             ]
 
@@ -106,7 +117,7 @@ class ProcurementDashboard extends OrgAction
                         [
                             'name'  => __('purchase orders'),
                             'icon'  => ['fal', 'fa-clipboard-list'],
-                            'href'  => ['grp.procurement.purchase-orders.index'],
+                            'href'  => ['name' => 'grp.org.procurement.purchase-orders.index', 'parameters' => ['organisation' => $this->organisation->slug]],
                             'index' => [
                                 'number' => $this->organisation->procurementStats->number_purchase_orders
                             ]
@@ -115,7 +126,7 @@ class ProcurementDashboard extends OrgAction
                         [
                             'name'  => __('supplier deliveries'),
                             'icon'  => ['fal', 'fa-truck-container'],
-                            'href'  => ['grp.procurement.supplier-deliveries.index'],
+                            'href'  => ['name' => 'grp.org.procurement.supplier-deliveries.index', 'parameters' => ['organisation' => $this->organisation->slug]],
                             'index' => [
                                 'number' => $this->organisation->procurementStats->number_deliveries
                             ]
@@ -128,17 +139,18 @@ class ProcurementDashboard extends OrgAction
         );
     }
 
-    public function getBreadcrumbs(): array
+    public function getBreadcrumbs(array $routeParameters): array
     {
         return
             array_merge(
-                ShowDashboard::make()->getBreadcrumbs(),
+                ShowOrganisationDashboard::make()->getBreadcrumbs(Arr::only($routeParameters, 'organisation')),
                 [
                     [
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name' => 'grp.procurement.dashboard'
+                                'name'       => 'grp.org.procurement.dashboard',
+                                'parameters' => Arr::only($routeParameters, 'organisation')
                             ],
                             'label' => __('procurement'),
                         ]

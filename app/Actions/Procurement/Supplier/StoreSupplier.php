@@ -8,14 +8,15 @@
 namespace App\Actions\Procurement\Supplier;
 
 use App\Actions\Assets\Currency\SetCurrencyHistoricFields;
-use App\Actions\Helpers\Address\StoreAddressAttachToModel;
 use App\Actions\GrpAction;
-use App\Actions\Procurement\Agent\Hydrators\AgentHydrateSuppliers;
+use App\Actions\Helpers\Address\StoreAddressAttachToModel;
 use App\Actions\Procurement\Supplier\Hydrators\SupplierHydrateUniversalSearch;
+use App\Actions\SupplyChain\Agent\Hydrators\AgentHydrateSuppliers;
+use App\Actions\SupplyChain\Supplier\AttachAgentSupplierToOrganisations;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateProcurement;
+use App\Models\SupplyChain\Agent;
+use App\Models\SupplyChain\Supplier;
 use App\Models\SysAdmin\Group;
-use App\Models\Procurement\Agent;
-use App\Models\Procurement\Supplier;
 use App\Rules\IUnique;
 use App\Rules\ValidAddress;
 use Illuminate\Http\RedirectResponse;
@@ -54,7 +55,7 @@ class StoreSupplier extends GrpAction
             $group = $parent;
         }
 
-        /** @var Supplier $supplier */
+        /** @var \App\Models\SupplyChain\Supplier $supplier */
         $supplier = $parent->suppliers()->create($modelData);
         $supplier->stats()->create();
         SetCurrencyHistoricFields::run($supplier->currency, $supplier->created_at);
@@ -62,11 +63,14 @@ class StoreSupplier extends GrpAction
         StoreAddressAttachToModel::run($supplier, $addressData, ['scope' => 'contact']);
         $supplier->location = $supplier->getLocation();
         $supplier->save();
+        $supplier->refresh();
 
         GroupHydrateProcurement::run($group);
 
+
         if ($supplier->agent_id) {
             AgentHydrateSuppliers::dispatch($supplier->agent);
+            AttachAgentSupplierToOrganisations::run($supplier);
         }
 
         SupplierHydrateUniversalSearch::dispatch($supplier);
@@ -148,7 +152,7 @@ class StoreSupplier extends GrpAction
     public function htmlResponse(Supplier $supplier): RedirectResponse
     {
         if ($supplier->owner_type == 'Agent') {
-            /** @var Agent $agent */
+            /** @var \App\Models\SupplyChain\Agent $agent */
             $agent = $supplier->owner;
 
             return Redirect::route('grp.procurement.agents.show.suppliers.index', $agent->slug);

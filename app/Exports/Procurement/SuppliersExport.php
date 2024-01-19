@@ -7,7 +7,7 @@
 
 namespace App\Exports\Procurement;
 
-use App\Models\Procurement\Supplier;
+use App\Models\SupplyChain\Supplier;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Database\Query\Builder;
 use Maatwebsite\Excel\Concerns\FromQuery;
@@ -17,7 +17,7 @@ use Maatwebsite\Excel\Concerns\WithMapping;
 
 class SuppliersExport implements FromQuery, WithMapping, ShouldAutoSize, WithHeadings
 {
-    public function query(): Relation|\Illuminate\Database\Eloquent\Builder|Supplier|Builder
+    public function query(): Relation|\Illuminate\Database\Eloquent\Builder|\App\Models\SupplyChain\Supplier|Builder
     {
         return Supplier::query();
     }

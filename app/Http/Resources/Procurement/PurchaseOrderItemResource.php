@@ -10,7 +10,7 @@ namespace App\Http\Resources\Procurement;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * @property \App\Models\Procurement\SupplierProduct $supplierProduct
+ * @property \App\Models\SupplyChain\SupplierProduct $supplierProduct
  * @property string $data
  * @property float $unit_quantity
  * @property float $unit_price

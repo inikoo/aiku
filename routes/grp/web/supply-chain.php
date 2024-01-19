@@ -6,19 +6,16 @@
  */
 
 
-use App\Actions\Procurement\Agent\ExportAgents;
-use App\Actions\Procurement\Agent\UI\CreateAgent;
-use App\Actions\Procurement\Agent\UI\EditAgent;
-use App\Actions\Procurement\Agent\UI\IndexAgents;
-use App\Actions\Procurement\Agent\UI\RemoveAgent;
-use App\Actions\Procurement\Agent\UI\ShowAgent;
-use App\Actions\Procurement\Supplier\UI\EditSupplier;
+use App\Actions\Procurement\AgentOrganisation\UI\EditAgent;
+
+use App\Actions\Procurement\AgentOrganisation\UI\ShowAgent;
 use App\Actions\Procurement\PurchaseOrder\ExportPurchaseOrders;
 use App\Actions\Procurement\PurchaseOrder\UI\CreatePurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\UI\EditPurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\UI\IndexPurchaseOrders;
 use App\Actions\Procurement\PurchaseOrder\UI\ShowPurchaseOrder;
 use App\Actions\Procurement\Supplier\ExportSuppliers;
+use App\Actions\Procurement\Supplier\UI\EditSupplier;
 use App\Actions\Procurement\Supplier\UI\IndexSuppliers;
 use App\Actions\Procurement\Supplier\UI\RemoveSupplier;
 use App\Actions\Procurement\Supplier\UI\ShowSupplier;
@@ -34,22 +31,57 @@ use App\Actions\Procurement\SupplierPurchaseOrder\UI\CreateSupplierPurchaseOrder
 use App\Actions\Procurement\SupplierPurchaseOrder\UI\EditSupplierPurchaseOrder;
 use App\Actions\Procurement\SupplierPurchaseOrder\UI\IndexSupplierPurchaseOrders;
 use App\Actions\Procurement\SupplierPurchaseOrder\UI\ShowSupplierPurchaseOrder;
+use App\Actions\SupplyChain\Agent\ExportAgents;
+use App\Actions\SupplyChain\Agent\UI\CreateAgent;
+use App\Actions\SupplyChain\Agent\UI\IndexAgents;
+use App\Actions\SupplyChain\Agent\UI\RemoveAgent;
+use App\Actions\SupplyChain\Supplier\UI\CreateSupplier;
 use App\Actions\UI\SupplyChain\ShowSupplyChainDashboard;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', ShowSupplyChainDashboard::class)->name('dashboard');
 
-Route::get('/suppliers/export', ExportSuppliers::class)->name('suppliers.export');
 
-Route::get('/suppliers', IndexSuppliers::class)->name('suppliers.index');
-Route::get('/suppliers/{supplier}', ShowSupplier::class)->name('suppliers.show');
-Route::get('/suppliers/{supplier}/edit', EditSupplier::class)->name('suppliers.edit');
-Route::get('/suppliers/{supplier}/delete', RemoveSupplier::class)->name('suppliers.remove');
+
+
+Route::prefix("agents")->name("agents.")->group(
+    function () {
+        Route::get('', IndexAgents::class)->name('index');
+        Route::get('create', CreateAgent::class)->name('create');
+
+    }
+);
+
+Route::prefix("suppliers")->name("suppliers.")->group(
+    function () {
+        Route::get('', IndexSuppliers::class)->name('index');
+        Route::get('create', CreateSupplier::class)->name('create');
+        Route::get('export', ExportSuppliers::class)->name('export');
+        Route::get('{supplier}', ShowSupplier::class)->name('show');
+        Route::get('{supplier}/edit', EditSupplier::class)->name('edit');
+        Route::get('{supplier}/delete', RemoveSupplier::class)->name('remove');
+
+
+    }
+);
+
+Route::prefix("supplier-products")->name("supplier-products.")->group(
+    function () {
+        Route::get('', IndexSupplierProducts::class)->name('index');
+        Route::get('/{supplierProduct}', ShowSupplierProduct::class)->name('show');
+
+    }
+);
+
+
+
+/*
+
 
 Route::get('/agents/export', ExportAgents::class)->name('agents.export');
 
-Route::get('/agents', IndexAgents::class)->name('agents.index');
-Route::get('/agents/create', CreateAgent::class)->name('agents.create');
+
+
 Route::get('/agents/{agent}', ShowAgent::class)->name('agents.show');
 Route::get('/agents/{agent}/edit', EditAgent::class)->name('agents.edit');
 Route::get('/agents/{agent}/delete', RemoveAgent::class)->name('agents.remove');
@@ -63,8 +95,7 @@ Route::get('/agents/{agent}/supplier-purchase-orders/{supplierPurchaseOrder}', S
 
 Route::get('/supplier-products/export', ExportSupplierProducts::class)->name('supplier-products.export');
 
-Route::get('/supplier-products', IndexSupplierProducts::class)->name('supplier-products.index');
-Route::get('/supplier-products/{supplierProduct}', ShowSupplierProduct::class)->name('supplier-products.show');
+
 
 Route::get('/purchase-orders/export', ExportPurchaseOrders::class)->name('purchase-orders.export');
 
@@ -95,3 +126,4 @@ Route::prefix("marketplace")
             require __DIR__.'/procurement-marketplace.php';
         }
     );
+*/

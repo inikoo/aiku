@@ -7,12 +7,12 @@
 
 namespace App\Actions\Procurement\Supplier;
 
-use App\Actions\Helpers\Address\UpdateAddress;
 use App\Actions\GrpAction;
+use App\Actions\Helpers\Address\UpdateAddress;
 use App\Actions\Procurement\Supplier\Hydrators\SupplierHydrateUniversalSearch;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Procurement\SupplierResource;
-use App\Models\Procurement\Supplier;
+use App\Models\SupplyChain\Supplier;
 use App\Rules\IUnique;
 use App\Rules\ValidAddress;
 use Illuminate\Support\Arr;

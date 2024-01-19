@@ -7,6 +7,7 @@
 
 namespace App\Models\Procurement;
 
+use App\Models\SupplyChain\Supplier;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -24,7 +25,7 @@ use Illuminate\Support\Carbon;
  * @property string|null $notes
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read \App\Models\Procurement\Supplier $supplier
+ * @property-read Supplier $supplier
  * @method static Builder|SupplierProductTradeUnit newModelQuery()
  * @method static Builder|SupplierProductTradeUnit newQuery()
  * @method static Builder|SupplierProductTradeUnit query()

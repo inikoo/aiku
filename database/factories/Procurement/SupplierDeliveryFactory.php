@@ -11,7 +11,7 @@ use App\Models\Assets\Currency;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Procurement\Supplier>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\SupplyChain\Supplier>
  */
 class SupplierDeliveryFactory extends Factory
 {
