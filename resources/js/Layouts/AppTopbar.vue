@@ -6,6 +6,7 @@ import { get } from 'lodash'
 import { useLiveUsers } from '@/Stores/active-users'
 import {capitalize} from "@/Composables/capitalize"
 import MenuPopoverList from "@/Layouts/MenuPopoverList.vue"
+import TopbarSelectButton from "@/Layouts/TopbarSelectButton.vue"
 
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/vue"
 import { Disclosure } from "@headlessui/vue"
@@ -82,24 +83,17 @@ const logoutAuth = () => {
                     <!-- Section: Top menu -->
                     <!-- <OrgTopBarNavs /> -->
 
-                    <!-- Section: Dropdown organisation -->
-                    <div class="flex items-center gap-x-2">
+                    <!-- Section: Dropdown + subsections -->
+                    <div class="flex items-center gap-x-2 pl-2">
                         <!-- Section: Dropdown -->
-                        <div class="pl-2 py-1 space-x-2">
+                        <div class="p-0.5 flex border border-gray-300 rounded-md gap-x-0.5">
                             <!-- Dropdown: Organisations -->
                             <Menu as="div" class="relative inline-block text-left">
-                                <MenuButton
-                                    class="inline-flex min-w-32 max-w-full whitespace-nowrap justify-between items-center gap-x-2 rounded px-2.5 py-2 text-xs font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-white/75"
-                                    :class="[ layout.organisations.data.find((item) => item.slug == layout.currentParams.organisation) ? 'bg-indigo-500 text-white hover:bg-indigo-600' : 'bg-slate-100 hover:bg-slate-200 text-slate-600 ring-1 ring-slate-300']"
-                                >
-                                    <div class="flex items-center gap-x-1">
-                                        <FontAwesomeIcon v-if="layout.currentParams.organisation" icon='fal fa-building' class='opacity-60 text-xs' fixed-width aria-hidden='true' />
-                                        <FontAwesomeIcon v-else icon='fal fa-city' class='opacity-60 text-xs' fixed-width aria-hidden='true' />
-                                        {{ layout.organisations.data.find((item) => item.slug == layout.currentParams.organisation)?.name ?? `Select organisation's group` }}
-                                    </div>
-                                    <!-- {{ layout.organisations.currentOrganisations ? layout.organisations.currentOrganisations : 'Select group or organisations' }} -->
-                                    <FontAwesomeIcon icon='far fa-chevron-down' class='text-xs' aria-hidden='true' />
-                                </MenuButton>
+                                <TopbarSelectButton
+                                    :icon="layout.currentParams.organisation ? 'fal fa-building' : 'fal fa-city'"
+                                    :activeButton="!!(layout.organisations.data.find((item) => item.slug == layout.currentParams.organisation))"
+                                    :label="layout.organisations.data.find((item) => item.slug == layout.currentParams.organisation)?.name ?? `Select organisation's group`"
+                                />
                                 <transition>
                                     <MenuItems
                                         class="absolute left-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
@@ -155,7 +149,7 @@ const logoutAuth = () => {
                             >
                                 <MenuButton
                                     class="inline-flex min-w-32 max-w-full whitespace-nowrap justify-between items-center gap-x-2 rounded px-2.5 py-2 text-xs font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-white/75"
-                                    :class="[ layout.currentParams.shop ? 'bg-indigo-500 text-white hover:bg-indigo-600' : 'bg-slate-100 hover:bg-slate-200 text-slate-600 ring-1 ring-slate-300']"
+                                    :class="[ layout.currentParams.shop ? 'bg-indigo-500 text-white hover:bg-indigo-600' : 'hover:bg-slate-200 text-slate-600']"
                                 >
                                     <div class="flex items-center gap-x-1">
                                         <FontAwesomeIcon icon='fal fa-store-alt' class='opacity-60 text-xs' fixed-width aria-hidden='true' />
@@ -180,7 +174,7 @@ const logoutAuth = () => {
                             >
                                 <MenuButton
                                     class="inline-flex min-w-32 max-w-full whitespace-nowrap justify-between items-center gap-x-2 rounded px-2.5 py-2 text-xs font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-white/75"
-                                    :class="[ layout.currentParams.warehouse ? 'bg-indigo-500 text-white hover:bg-indigo-600' : 'bg-slate-100 hover:bg-slate-200 text-slate-600 ring-1 ring-slate-300']"
+                                    :class="[ layout.currentParams.warehouse ? 'bg-indigo-500 text-white hover:bg-indigo-600' : 'hover:bg-slate-200 text-slate-600']"
                                 >
                                     <div class="flex items-center gap-x-1">
                                         <FontAwesomeIcon icon='fal fa-warehouse-alt' class='opacity-60 text-xs' fixed-width aria-hidden='true' />
