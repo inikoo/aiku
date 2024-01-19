@@ -15,7 +15,7 @@ import NavigationExpandable from '@//Layouts/NavigationExpandable.vue'
 import NavigationSimple from '@//Layouts/NavigationSimple.vue'
 
 import { get } from "lodash"
-library.add(faBoxUsd, faUsersCog, faLightbulb, faUserHardHat, faUser, faInventory, faConveyorBeltAlt, faChevronDown)
+library.add(faBoxUsd, faUsersCog, faLightbulb, faUserHardHat, faUser, faUsersCog, faInventory, faConveyorBeltAlt, faChevronDown)
 
 const layout = useLayoutStore()
 
@@ -121,7 +121,7 @@ const generateNavigationName = (navKey: string) => {
                         :navKey="itemKey"
                     />
                 </template>
-                
+
                 <!-- <template v-if="itemKey == 'shops_navigation' || itemKey == 'warehouses_navigation'">
                     <template v-if="layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.[`authorised_${generateNavigationName(itemKey)}s`].length === 1">
                         <NavigationSimple
@@ -140,7 +140,7 @@ const generateNavigationName = (navKey: string) => {
                     :nav="orgNav"
                     :navKey="itemKey"
                 /> -->
-                
+
             </template>
         </template>
 
@@ -152,6 +152,6 @@ const generateNavigationName = (navKey: string) => {
                 :navKey="itemKey"
             />
         </template>
-        
+
     </nav>
 </template>

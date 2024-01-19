@@ -49,6 +49,14 @@ class GetGroupNavigation
             ];
         }
 
+        if ($user->hasPermissionTo('supply-chain.view')) {
+            $groupNavigation['organisations'] = [
+                'label'   => __('Organisations'),
+                'icon'    => ['fal', 'fa-user'],
+                'route'   => 'grp.org.dashboard',
+                'topMenu' => []
+            ];
+        }
 
         if ($user->hasPermissionTo('sysadmin.view')) {
             $groupNavigation['sysadmin'] = [

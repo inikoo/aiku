@@ -6,6 +6,7 @@
  */
 
 
+use App\Actions\SysAdmin\Organisation\UI\IndexOrganisation;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware([
@@ -16,7 +17,11 @@ Route::middleware([
     Route::middleware(["auth"])->group(function () {
         Route::get('/', function () {
             return redirect('/dashboard');
+
         });
+
+        Route::get('/org', IndexOrganisation::class)->name('index');
+
         Route::prefix("dashboard")
             ->name("dashboard.")
             ->group(__DIR__."/dashboard.php");

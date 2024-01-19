@@ -22,8 +22,8 @@ class OrganisationResource extends JsonResource
 
         return [
             'slug' => $organisation->slug,
-            'code' => $organisation->code,
             'name' => $organisation->name,
+            'email' => $organisation->email,
             'logo' => $organisation->logoImageSources(48, 48),
         ];
     }
