@@ -15,7 +15,7 @@ trait WithOrganisationsArgument
 {
     protected function getOrganisations(Command $command): LazyCollection
     {
-        return Organisation::query()
+        return Organisation::query()->where('type', 'shop')
             ->when($command->argument('organisations'), function ($query) use ($command) {
                 $query->whereIn('slug', $command->argument('organisations'));
             })

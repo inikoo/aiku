@@ -8,10 +8,10 @@
 namespace App\Actions\SupplyChain\Agent;
 
 use App\Actions\GrpAction;
-use App\Actions\Helpers\Address\UpdateAddress;
 use App\Actions\SupplyChain\Agent\Hydrators\AgentHydrateUniversalSearch;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateProcurement;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateProcurement;
+use App\Actions\SysAdmin\Organisation\UpdateOrganisation;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Procurement\AgentResource;
 use App\Models\SupplyChain\Agent;
@@ -30,9 +30,12 @@ class UpdateAgent extends GrpAction
 
     public function handle(Agent $agent, array $modelData): Agent
     {
-        $addressData = Arr::get($modelData, 'address');
-        Arr::forget($modelData, 'address');
-        $agent = $this->update($agent, $modelData, ['data', 'settings']);
+
+        UpdateOrganisation::run($agent->organisation, Arr::except($modelData, ['source_id','source_slug','status']));
+
+
+
+        $agent = $this->update($agent, Arr::only($modelData, 'status'));
         if ($agent->wasChanged('status')) {
 
             foreach($agent->organisations as $organisation) {
@@ -41,11 +44,7 @@ class UpdateAgent extends GrpAction
 
             GroupHydrateProcurement::run($this->group);
         }
-        if ($addressData) {
-            UpdateAddress::run($agent->getAddress('contact'), $addressData);
-            $agent->location = $agent->getLocation();
-            $agent->save();
-        }
+
         AgentHydrateUniversalSearch::dispatch($agent);
 
 
@@ -71,19 +70,18 @@ class UpdateAgent extends GrpAction
                 'max:9',
                 'alpha_dash',
                 new IUnique(
-                    table: 'agents',
+                    table: 'organisations',
                     extraConditions: [
                         ['column' => 'group_id', 'value' => $this->group->id],
                         [
                             'column'   => 'id',
                             'operator' => '!=',
-                            'value'    => $this->agent->id
+                            'value'    => $this->agent->organisation->id
                         ],
                     ]
                 ),
             ],
-            'contact_name' => ['sometimes', 'required', 'string', 'max:255'],
-            'company_name' => ['sometimes', 'required', 'string', 'max:255'],
+            'name'         => ['sometimes', 'required', 'string', 'max:255'],
             'email'        => ['nullable', 'email'],
             'phone'        => ['nullable', 'phone:AUTO'],
             'address'      => ['sometimes', 'required', new ValidAddress()],

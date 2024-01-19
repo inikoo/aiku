@@ -27,8 +27,8 @@ return new class () extends Migration {
             $table->foreign('timezone_id')->references('id')->on('timezones');
             $table->unsignedInteger('address_id')->nullable()->index();
             $table->foreign('address_id')->references('id')->on('addresses');
-            $table->jsonb('data');
             $table->jsonb('location');
+            $table->jsonb('data');
             $table->timestamps();
             $table->softDeletesTz();
             $table->unique(['group_id', 'slug']);

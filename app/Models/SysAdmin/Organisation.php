@@ -17,6 +17,7 @@ use App\Models\Assets\Timezone;
 use App\Models\CRM\Customer;
 use App\Models\CRM\Prospect;
 use App\Models\Dispatch\Shipper;
+use App\Models\Helpers\Address;
 use App\Models\HumanResources\ClockingMachine;
 use App\Models\HumanResources\Employee;
 use App\Models\HumanResources\Workplace;
@@ -57,7 +58,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $code
  * @property string $name
  * @property string|null $email
+ * @property string|null $phone
  * @property bool $status
+ * @property int|null $address_id
+ * @property array $location
  * @property array $data
  * @property array $settings
  * @property array $source
@@ -70,6 +74,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $deleted_at
  * @property-read \App\Models\SysAdmin\OrganisationAccountingStats|null $accountingStats
+ * @property-read Address|null $address
+ * @property-read Agent|null $agent
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Agent> $agents
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\OrganisationAuthorisedModels> $authorisedModels
  * @property-read \Illuminate\Database\Eloquent\Collection<int, ClockingMachine> $clockingMachines
@@ -124,6 +130,7 @@ class Organisation extends Model implements HasMedia
         'data'     => 'array',
         'settings' => 'array',
         'source'   => 'array',
+        'location' => 'array',
         'type'     => OrganisationTypeEnum::class
     ];
 
@@ -131,6 +138,7 @@ class Organisation extends Model implements HasMedia
         'data'     => '{}',
         'settings' => '{}',
         'source'   => '{}',
+        'location' => '{}'
     ];
 
     protected $guarded = [];
@@ -146,6 +154,11 @@ class Organisation extends Model implements HasMedia
     public function getRouteKeyName(): string
     {
         return 'slug';
+    }
+
+    public function address(): BelongsTo
+    {
+        return $this->belongsTo(Address::class);
     }
 
     public function employees(): HasMany
@@ -348,6 +361,11 @@ class Organisation extends Model implements HasMedia
             ->using(OrganisationSupplier::class)
             ->withPivot(['source_id'])
             ->withTimestamps();
+    }
+
+    public function agent(): HasOne
+    {
+        return $this->hasOne(Agent::class);
     }
 
 

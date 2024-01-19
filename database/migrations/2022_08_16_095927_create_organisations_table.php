@@ -25,7 +25,11 @@ return new class () extends Migration {
             $table->string('code')->index();
             $table->string('name');
             $table->string('email')->nullable();
+            $table->string('phone')->nullable();
             $table->boolean('status')->default(true);
+            $table->unsignedInteger('address_id')->nullable()->index();
+            $table->foreign('address_id')->references('id')->on('addresses');
+            $table->jsonb('location');
             $table->jsonb('data');
             $table->jsonb('settings');
             $table->jsonb('source');

@@ -7,7 +7,10 @@
 
 namespace Database\Factories\SupplyChain;
 
+use App\Models\Assets\Country;
 use App\Models\Assets\Currency;
+use App\Models\Assets\Language;
+use App\Models\Assets\Timezone;
 use App\Models\Helpers\Address;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -18,13 +21,14 @@ class AgentFactory extends Factory
         $currency = Currency::latest()->first();
 
         return [
-            'code'         => fake()->lexify(),
-            'name'         => fake()->company,
-            'company_name' => fake()->company,
-            'contact_name' => fake()->name,
-            'email'        => fake()->email,
-            'currency_id'  => $currency->id,
-            'address'      => Address::factory()->definition()
+            'code'        => fake()->lexify(),
+            'name'        => fake()->company,
+            'email'       => fake()->email,
+            'currency_id' => $currency->id,
+            'country_id'  => Country::first()->id,
+            'timezone_id' => Timezone::first()->id,
+            'language_id' => Language::where('code', 'en')->first()->id,
+            'address'     => Address::factory()->definition()
 
         ];
     }
