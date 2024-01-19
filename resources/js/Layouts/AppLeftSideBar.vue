@@ -8,7 +8,7 @@
 
 import { ref } from "vue"
 
-import AppLeftSideBarGrp from "@/Layouts/AppLeftSideBarGrp.vue"
+import LeftSidebarNavigation from "@/Layouts/LeftSidebarNavigation.vue"
 import { useLayoutStore } from "@/Stores/layout"
 
 import { library } from "@fortawesome/fontawesome-svg-core"
@@ -43,7 +43,7 @@ const handleToggleLeftbar = () => {
         </div>
 
         <div class="flex flex-grow flex-col h-full overflow-y-auto custom-hide-scrollbar pb-4">
-            <AppLeftSideBarGrp />
+            <LeftSidebarNavigation />
         </div>
     </div>
 </template>

@@ -16,11 +16,9 @@ const props = defineProps<{
 
 const layout = useLayoutStore()
 
-// console.log(props.navKey, props.nav)
 </script>
 
 <template>
-    
     <Link :href="nav.route?.name ? route(nav.route.name, nav.route.parameters) : '#'"
         class="group flex items-center text-sm py-2 pl-4 gap-x-2" :class="[
             navKey === layout.currentModule
