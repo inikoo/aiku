@@ -1,0 +1,189 @@
+<?php
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Thu, 18 Jan 2024 16:20:26 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
+
+namespace App\Actions\Procurement\Agent\UI;
+
+use App\Actions\OrgAction;
+use App\Actions\UI\Procurement\ProcurementDashboard;
+use App\Http\Resources\Procurement\MarketplaceAgentResource;
+use App\InertiaTable\InertiaTable;
+use App\Models\SupplyChain\Agent;
+use App\Models\SysAdmin\Organisation;
+use Closure;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\DB;
+use Inertia\Inertia;
+use Inertia\Response;
+use Lorisleiva\Actions\ActionRequest;
+use Spatie\QueryBuilder\AllowedFilter;
+use Spatie\QueryBuilder\QueryBuilder;
+
+class IndexMarketAgents extends OrgAction
+{
+    private bool $canCreateAgent = false;
+
+    public function handle($prefix=null): LengthAwarePaginator
+    {
+        $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
+            $query->where(function ($query) use ($value) {
+                $query->where('agents.code', 'ILIKE', "%$value%")
+                    ->orWhere('agents.name', 'LIKE', "%$value%");
+            });
+        });
+
+        if ($prefix) {
+            InertiaTable::updateQueryBuilderParameters($prefix);
+        }
+
+        $queryBuilder=QueryBuilder::for(Agent::class);
+
+        /*
+        foreach ($this->elementGroups as $key => $elementGroup) {
+            $queryBuilder->whereElementGroup(
+                prefix: $prefix,
+                key: $key,
+                allowedElements: array_keys($elementGroup['elements']),
+                engine: $elementGroup['engine']
+            );
+        }
+        */
+
+
+        /** @noinspection PhpUndefinedMethodInspection */
+        return $queryBuilder
+            ->leftJoin('agent_stats', 'agent_stats.agent_id', '=', 'agents.id')
+            ->defaultSort('agents.code')
+            ->select(['code', 'name', 'slug', 'number_suppliers', 'number_supplier_products', 'location'
+          //  DB::raw(' (select count(*) from agent_organisation where agent_organisation.agent_id=agents.id and  agent_organisation.organisation_id=? )  as adoption',$this->organisation->id)
+            ])
+            ->selectRaw('
+                (select count(*) from agent_organisation where agent_organisation.agent_id=agents.id and  agent_organisation.organisation_id=? )  as adoption', [$this->organisation->id])
+
+
+            ->allowedFilters([$globalSearch])
+            ->allowedSorts(['code', 'name', 'number_suppliers', 'number_supplier_products'])
+            ->withPaginator($prefix)
+            ->withQueryString();
+    }
+
+    public function tableStructure($prefix=null): Closure
+    {
+        return function (InertiaTable $table) use ($prefix) {
+
+            if($prefix) {
+                $table
+                    ->name($prefix)
+                    ->pageName($prefix.'Page');
+            }
+
+            $table
+                ->withGlobalSearch()
+                ->withEmptyState(
+                    [
+                        'title'       => __('no agents'),
+                        'description' => $this->canCreateAgent ? __('Get started by creating a new agent.') : null,
+                        'count'       => $this->organisation->procurementStats->number_agents,
+                        'action'      => $this->canEdit ? [
+                            'type'    => 'button',
+                            'style'   => 'create',
+                            'tooltip' => __('new agent'),
+                            'label'   => __('agent'),
+                            'route'   => [
+                                'name'       => 'grp.supply-chain.agents.create',
+
+                            ]
+                        ] : null
+                    ]
+                )
+                ->column(key: 'adoption', label: [
+                    'type'   => 'icon',
+                    'data'   => ['fal','fa-yin-yang'],
+                    'tooltip'=> __('adoption')
+                ], canBeHidden: false)
+                ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'location', label: __('location'), canBeHidden: false)
+                ->column(key: 'number_suppliers', label: __('suppliers'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'number_supplier_products', label: __('products'), canBeHidden: false, sortable: true, searchable: true)
+                ->defaultSort('code');
+        };
+    }
+
+    public function authorize(ActionRequest $request): bool
+    {
+        $this->canEdit        = $request->user()->hasPermissionTo("procurement.{$this->organisation->slug}.view");
+        $this->canCreateAgent = $request->user()->hasPermissionTo("supply-chain.edit");
+        return $request->user()->hasPermissionTo("procurement.{$this->organisation->slug}.view");
+    }
+
+    public function asController(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
+    {
+
+        $this->initialisation($organisation, $request);
+
+        return $this->handle();
+    }
+
+
+    public function jsonResponse(LengthAwarePaginator $agent): AnonymousResourceCollection
+    {
+        return MarketplaceAgentResource::collection($agent);
+    }
+
+
+    public function htmlResponse(LengthAwarePaginator $agent, ActionRequest $request): Response
+    {
+
+
+        return Inertia::render(
+            'Procurement/MarketplaceAgents',
+            [
+                'breadcrumbs' => $this->getBreadcrumbs($request->route()->originalParameters()),
+                'title'       => __("agent's marketplace"),
+                'pageHead'    => [
+                    'title'  => __("agent's marketplace"),
+
+                    'actions'=> [
+                        $this->canEdit && $request->route()->getName() == 'grp.org.procurement.marketplace.agents.index' ? [
+                            'type'    => 'button',
+                            'style'   => 'create',
+                            'tooltip' => __('new agent'),
+                            'label'   => __('agent'),
+                            'route'   => [
+                                'name'       => 'grp.org.procurement.marketplace.agents.create',
+                                'parameters' => array_values($request->route()->originalParameters())
+                            ]
+                        ] : false,
+                    ]
+                ],
+                'data'        => MarketplaceAgentResource::collection($agent),
+            ]
+        )->table($this->tableStructure());
+    }
+
+    public function getBreadcrumbs(array $routeParameters): array
+    {
+        return
+            array_merge(
+                ProcurementDashboard::make()->getBreadcrumbs($routeParameters),
+                [
+                    [
+                        'type'   => 'simple',
+                        'simple' => [
+                            'route' => [
+                                'name'       => 'grp.org.procurement.marketplace.agents.index',
+                                'parameters' => array_values($routeParameters)
+                            ],
+                            'label' => __("agent's marketplace"),
+                            'icon'  => 'fal fa-bars'
+                        ]
+                    ]
+                ]
+            );
+    }
+}

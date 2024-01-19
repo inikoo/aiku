@@ -7,15 +7,15 @@
 
 namespace App\Actions\Procurement\PurchaseOrder;
 
-use App\Actions\Procurement\Agent\Hydrators\AgentHydratePurchaseOrders;
 use App\Actions\Procurement\Supplier\Hydrators\SupplierHydratePurchaseOrders;
+use App\Actions\SupplyChain\Agent\Hydrators\AgentHydratePurchaseOrders;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateProcurement;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Procurement\SupplierProduct\SupplierProductStateEnum;
-use App\Models\SysAdmin\Organisation;
-use App\Models\Procurement\Agent;
 use App\Models\Procurement\PurchaseOrder;
-use App\Models\Procurement\Supplier;
+use App\Models\SupplyChain\Agent;
+use App\Models\SupplyChain\Supplier;
+use App\Models\SysAdmin\Organisation;
 use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -69,8 +69,8 @@ class StorePurchaseOrder
 
         if ($this->provider->products->where('state', '<>', SupplierProductStateEnum::DISCONTINUED)->count() == 0) {
             $message = match (class_basename($this->provider)) {
-                'Agent'    => 'You can not create purchase order if the agent dont have any product',
-                'Supplier' => 'You can not create purchase order if the supplier dont have any product',
+                'AgentOrganisation'    => 'You can not create purchase order if the agent dont have any product',
+                'Supplier'             => 'You can not create purchase order if the supplier dont have any product',
             };
             $validator->errors()->add('purchase_order', $message);
         }

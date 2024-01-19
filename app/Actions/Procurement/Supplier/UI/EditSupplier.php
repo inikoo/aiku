@@ -12,8 +12,8 @@ use App\Actions\Assets\Country\UI\GetCountriesOptions;
 use App\Actions\Assets\Currency\UI\GetCurrenciesOptions;
 use App\Actions\InertiaAction;
 use App\Http\Resources\Helpers\AddressResource;
-use App\Models\Procurement\Agent;
-use App\Models\Procurement\Supplier;
+use App\Models\SupplyChain\Agent;
+use App\Models\SupplyChain\Supplier;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -284,7 +284,7 @@ class EditSupplier extends InertiaAction
     public function getPrevious(Supplier $supplier, ActionRequest $request): ?array
     {
         $previous = Supplier::where('code', '<', $supplier->code)->when(true, function ($query) use ($supplier, $request) {
-            if ($request->route()->getName() == 'grp.procurement.marketplace.agents.show.suppliers.show') {
+            if ($request->route()->getName() == 'grp.org.procurement.marketplace.agents.show.suppliers.show') {
                 $query->where('suppliers.agent_id', $supplier->agent_id);
             }
         })->orderBy('code', 'desc')->first();

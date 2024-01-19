@@ -8,8 +8,8 @@
 namespace App\Actions\Procurement\Marketplace\Supplier\UI;
 
 use App\Actions\InertiaAction;
-use App\Models\Procurement\Agent;
-use App\Models\Procurement\Supplier;
+use App\Models\SupplyChain\Agent;
+use App\Models\SupplyChain\Supplier;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;

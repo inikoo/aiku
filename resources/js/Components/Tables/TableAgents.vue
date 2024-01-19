@@ -7,30 +7,42 @@
 <script setup lang="ts">
 import {Link} from '@inertiajs/vue3';
 import Table from '@/Components/Table/Table.vue';
-import {Agent} from "@/types/agent";
+import { MarketplaceAgent } from "@/types/marketplace-agent";
 import AddressLocation from "@/Components/Elements/Info/AddressLocation.vue";
+import ProcurementMarketplaceAdoption from "@/Components/Elements/Specialised/ProcurementMarketplaceAdoption.vue";
 
 const props = defineProps<{
     data: object,
-    tab?: string
+    tab?:string
 }>()
 
 
-function agentRoute(agent: Agent) {
+function marketplacesAgentRoute(marketplaceAgent: MarketplaceAgent) {
     switch (route().current()) {
-        case 'grp.procurement.agents.index':
+        case 'grp.supply-chain.agents.index':
             return route(
-                'grp.procurement.agents.show',
-                [agent.slug]);
+                'grp.supply-chain.agents.show',
+                [marketplaceAgent.slug]);
+        case 'grp.supply-chain.agents.show.suppliers.index':
+            return route(
+                'grp.supply-chain.agents.show.suppliers.show',
+                [marketplaceAgent.slug]
+            )
     }
 }
+
+
+
 
 </script>
 
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
+        <template #cell(adoption)="{ item: agent }">
+            <ProcurementMarketplaceAdoption :value="agent['adoption']"/>
+        </template>
         <template #cell(code)="{ item: agent }">
-            <Link :href="agentRoute(agent)">
+            <Link :href="marketplacesAgentRoute(agent)">
                 {{ agent['code'] }}
             </Link>
         </template>

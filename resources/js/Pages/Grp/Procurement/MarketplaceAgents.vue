@@ -1,7 +1,7 @@
 <!--
-  - Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
-  - Created: Wed, 22 Feb 2023 12:20:38 Central European Standard Time, Malaga, Spain
-  - Copyright (c) 2023, Inikoo LTD
+  - Author: Raul Perusquia <raul@inikoo.com>
+  - Created: Fri, 19 Jan 2024 11:02:47 Malaysia Time, Kuala Lumpur, Malaysia
+  - Copyright (c) 2024, Raul A Perusquia Flores
   -->
 
 <script setup lang="ts">
@@ -17,9 +17,8 @@ const props = defineProps <{
 }>()
 </script>
 
-<!--suppress HtmlUnknownAttribute -->
+
 <template layout="App">
-    <!--suppress HtmlRequiredTitleElement -->
     <Head :title="capitalize(title)"/>
     <PageHeading :data="pageHead"></PageHeading>
     <TableMarketplaceAgents :data="data" />

@@ -7,7 +7,7 @@
 
 namespace App\Actions\Procurement\Supplier;
 
-use App\Models\Procurement\Agent;
+use App\Models\SupplyChain\Agent;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;

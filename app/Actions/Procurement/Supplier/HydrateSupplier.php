@@ -9,7 +9,7 @@ namespace App\Actions\Procurement\Supplier;
 
 use App\Actions\HydrateModel;
 use App\Actions\Procurement\Supplier\Hydrators\SupplierHydrateSupplierProducts;
-use App\Models\Procurement\Supplier;
+use App\Models\SupplyChain\Supplier;
 use Illuminate\Support\Collection;
 
 class HydrateSupplier extends HydrateModel

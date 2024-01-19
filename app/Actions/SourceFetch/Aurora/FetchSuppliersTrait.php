@@ -9,7 +9,9 @@ namespace App\Actions\SourceFetch\Aurora;
 
 use App\Actions\Procurement\Supplier\StoreSupplier;
 use App\Actions\Procurement\Supplier\UpdateSupplier;
-use App\Models\Procurement\Supplier;
+use App\Actions\SysAdmin\Organisation\AttachSupplierToOrganisation;
+use App\Models\Procurement\OrganisationSupplier;
+use App\Models\SupplyChain\Supplier;
 use App\Services\Organisation\SourceOrganisationService;
 
 trait FetchSuppliersTrait
@@ -20,17 +22,19 @@ trait FetchSuppliersTrait
      */
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Supplier
     {
-
         $supplierData = $this->fetch($organisationSource, $organisationSourceId);
         if (!$supplierData) {
             return null;
         }
 
+        $baseSupplier = null;
 
         if (Supplier::withTrashed()->where('source_slug', $supplierData['supplier']['source_slug'])->exists()) {
             if ($supplier = Supplier::withTrashed()->where('source_id', $supplierData['supplier']['source_id'])->first()) {
                 $supplier = UpdateSupplier::make()->run($supplier, $supplierData['supplier']);
             }
+            $baseSupplier = Supplier::withTrashed()->where('source_slug', $supplierData['supplier']['source_slug'])->first();
+
         } else {
             $supplier = StoreSupplier::run(
                 parent: $supplierData['parent'],
@@ -38,14 +42,45 @@ trait FetchSuppliersTrait
             );
         }
 
-
         if ($supplier) {
+
+            if ($supplier->agent_id) {
+                OrganisationSupplier::where('supplier_id', $supplier->id)
+                    ->where('organisation_id', $organisationSource->getOrganisation()->id)
+                    ->update(
+                        [
+                            'source_id' => $supplierData['supplier']['source_id']
+                        ]
+                    );
+            } else {
+                AttachSupplierToOrganisation::run(
+                    $organisationSource->getOrganisation(),
+                    $supplier,
+                    [
+                        'source_id' => $supplierData['supplier']['source_id']
+                    ]
+                );
+            }
+
             if (array_key_exists('photo', $supplierData)) {
                 foreach ($supplierData['photo'] as $photoData) {
                     $this->saveImage($supplier, $photoData);
                 }
             }
+        } elseif ($baseSupplier) {
+            AttachSupplierToOrganisation::run(
+                $organisationSource->getOrganisation(),
+                $baseSupplier,
+                [
+                    'source_id' => $supplierData['supplier']['source_id']
+                ]
+            );
+
+
+
         }
+
+
 
         return $supplier;
     }

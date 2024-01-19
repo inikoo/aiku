@@ -7,7 +7,7 @@
 
 namespace App\Actions\Procurement\Supplier\Hydrators;
 
-use App\Models\Procurement\Supplier;
+use App\Models\SupplyChain\Supplier;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class SupplierHydrateUniversalSearch

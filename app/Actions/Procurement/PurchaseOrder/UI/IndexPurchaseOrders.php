@@ -10,15 +10,15 @@ namespace App\Actions\Procurement\PurchaseOrder\UI;
 use App\Actions\InertiaAction;
 use App\Actions\UI\Procurement\ProcurementDashboard;
 use App\Http\Resources\Procurement\PurchaseOrderResource;
-use App\Models\Procurement\Agent;
+use App\InertiaTable\InertiaTable;
 use App\Models\Procurement\PurchaseOrder;
+use App\Models\SupplyChain\Agent;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
-use App\InertiaTable\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
@@ -68,7 +68,7 @@ class IndexPurchaseOrders extends InertiaAction
                 ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
                 ->column(key: 'number', label: __('number'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'provider', label: __('Agent/Supplier'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'provider', label: __('AgentOrganisation/Supplier'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'created_by', label: __('Created by'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'date', label: __('date'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'author', label: __('state'), canBeHidden: false, sortable: true, searchable: true)

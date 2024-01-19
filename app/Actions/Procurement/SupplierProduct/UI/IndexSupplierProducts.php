@@ -8,18 +8,18 @@
 namespace App\Actions\Procurement\SupplierProduct\UI;
 
 use App\Actions\InertiaAction;
-use App\Actions\Procurement\Agent\UI\ShowAgent;
+use App\Actions\Procurement\AgentOrganisation\UI\ShowAgent;
 use App\Actions\UI\Procurement\ProcurementDashboard;
 use App\Http\Resources\Procurement\SupplierProductResource;
-use App\Models\Procurement\Agent;
-use App\Models\Procurement\SupplierProduct;
+use App\InertiaTable\InertiaTable;
+use App\Models\SupplyChain\Agent;
+use App\Models\SupplyChain\SupplierProduct;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
-use App\InertiaTable\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
@@ -64,7 +64,7 @@ class IndexSupplierProducts extends InertiaAction
                 } elseif (class_basename($parent) == 'Organisation') {
 
                     $query->leftJoin('supplier_product_tenant', 'supplier_product_tenant.supplier_product_id', 'supplier_products.id');
-                    $query->where('supplier_product_tenant.tenant_id', $parent->id);
+                    $query->where('supplier_product_tenant.organisation_id', $parent->id);
                 } elseif (class_basename($parent) == 'Supplier') {
 
                     $query->where('supplier_products.supplier_id', $parent->id);

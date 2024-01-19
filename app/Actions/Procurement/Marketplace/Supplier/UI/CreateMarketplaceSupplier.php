@@ -11,10 +11,9 @@ use App\Actions\Assets\Country\UI\GetAddressData;
 use App\Actions\Assets\Country\UI\GetCountriesOptions;
 use App\Actions\Assets\Currency\UI\GetCurrenciesOptions;
 use App\Actions\InertiaAction;
-use App\Actions\Procurement\Marketplace\Agent\UI\ShowMarketplaceAgent;
 use App\Http\Resources\Helpers\AddressFormFieldsResource;
 use App\Models\Helpers\Address;
-use App\Models\Procurement\Agent;
+use App\Models\SupplyChain\Agent;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
@@ -52,13 +51,13 @@ class CreateMarketplaceSupplier extends InertiaAction
                             'style' => 'cancel',
                             'label' => __('cancel'),
                             'route' => match ($request->route()->getName()) {
-                                'grp.procurement.marketplace.agents.show.suppliers.create' =>
+                                'grp.org.procurement.marketplace.agents.show.suppliers.create' =>
                                 [
-                                    'name'       => 'grp.procurement.marketplace.agents.show',
+                                    'name'       => 'grp.org.procurement.marketplace.agents.show',
                                     'parameters' => array_values($request->route()->originalParameters())
                                 ],
                                 default => [
-                                    'name'       => 'grp.procurement.marketplace.suppliers.index',
+                                    'name'       => 'grp.org.procurement.marketplace.suppliers.index',
                                     'parameters' => array_values($request->route()->originalParameters())
                                 ],
                             }
@@ -263,7 +262,7 @@ class CreateMarketplaceSupplier extends InertiaAction
                     ],
                     'route'     =>
                         match (class_basename($owner)) {
-                            'Agent' => [
+                            'AgentOrganisation' => [
                                 'name'       => 'grp.models.agent.supplier.store',
                                 'arguments'  => $owner->slug
                             ],
@@ -304,8 +303,8 @@ class CreateMarketplaceSupplier extends InertiaAction
     {
         return array_merge(
             match ($routeName) {
-                'grp.procurement.marketplace.agents.show.suppliers.create' =>
-                ShowMarketplaceAgent::make()->getBreadcrumbs(
+                'grp.org.procurement.marketplace.agents.show.suppliers.create' =>
+                \App\Actions\Procurement\Agent\UI\ShowMarketplaceAgent::make()->getBreadcrumbs(
                     routeParameters: $routeParameters,
                 ),
                 default => IndexMarketplaceSuppliers::make()->getBreadcrumbs(
@@ -320,8 +319,8 @@ class CreateMarketplaceSupplier extends InertiaAction
 
 
                         'label' => match ($routeName) {
-                            'grp.procurement.marketplace.agents.show.suppliers.create' => __("creating agent's supplier"),
-                            default                                                    => __("creating supplier")
+                            'grp.org.procurement.marketplace.agents.show.suppliers.create' => __("creating agent's supplier"),
+                            default                                                        => __("creating supplier")
                         }
 
                     ]

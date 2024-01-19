@@ -16,15 +16,16 @@ class GetGroupNavigation
 
     public function handle(User $user): array
     {
-
-        $groupNavigation=[];
+        $groupNavigation = [];
 
 
         if ($user->hasPermissionTo('supply-chain.view')) {
             $groupNavigation['supply-chain'] = [
                 'label'   => __('Supply Chain'),
                 'icon'    => ['fal', 'fa-box-usd'],
-                'route'   => 'grp.supply-chain.dashboard',
+                'route'   => [
+                    'name' => 'grp.supply-chain.dashboard'
+                ],
                 'topMenu' => [
                     'subSections' => [
                         [
@@ -54,7 +55,9 @@ class GetGroupNavigation
             $groupNavigation['sysadmin'] = [
                 'label'   => __('sysadmin'),
                 'icon'    => ['fal', 'fa-users-cog'],
-                'route'   => 'grp.sysadmin.dashboard',
+                'route'   => [
+                    'name' => 'grp.sysadmin.dashboard'
+                ],
                 'topMenu' => [
                     'subSections' => [
                         [
@@ -85,9 +88,6 @@ class GetGroupNavigation
                 ]
             ];
         }
-
-
-
 
 
         return $groupNavigation;

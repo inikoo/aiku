@@ -8,6 +8,7 @@
 namespace App\Models\SysAdmin;
 
 use App\Enums\Accounting\PaymentServiceProvider\PaymentServiceProviderTypeEnum;
+use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Models\Accounting\PaymentServiceProvider;
 use App\Models\Assets\Country;
 use App\Models\Assets\Currency;
@@ -24,13 +25,18 @@ use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
 use App\Models\Market\Shop;
 use App\Models\Media\Media;
+use App\Models\Procurement\AgentOrganisation;
 use App\Models\Procurement\PurchaseOrder;
+use App\Models\Procurement\OrganisationSupplier;
+use App\Models\SupplyChain\Agent;
+use App\Models\SupplyChain\Supplier;
 use App\Models\Traits\HasLogo;
 use App\Models\Web\Webpage;
 use App\Models\Web\Website;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
@@ -46,6 +52,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $id
  * @property int $group_id
  * @property string $ulid
+ * @property OrganisationTypeEnum $type
  * @property string $slug
  * @property string $code
  * @property string $name
@@ -63,6 +70,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $deleted_at
  * @property-read \App\Models\SysAdmin\OrganisationAccountingStats|null $accountingStats
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Agent> $agents
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\OrganisationAuthorisedModels> $authorisedModels
  * @property-read \Illuminate\Database\Eloquent\Collection<int, ClockingMachine> $clockingMachines
  * @property-read Country $country
@@ -75,6 +83,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\OrganisationHumanResourcesStats|null $humanResourcesStats
  * @property-read \App\Models\SysAdmin\OrganisationInventoryStats|null $inventoryStats
  * @property-read Language $language
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Location> $locations
  * @property-read Media|null $logo
  * @property-read \App\Models\SysAdmin\OrganisationMailStats|null $mailStats
  * @property-read \App\Models\SysAdmin\OrganisationMarketStats|null $marketStats
@@ -89,8 +98,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Shipper> $shippers
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Shop> $shops
  * @property-read \App\Models\SysAdmin\OrganisationStats|null $stats
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Supplier> $suppliers
  * @property-read \App\Models\SysAdmin\SysUser|null $sysUser
  * @property-read Timezone $timezone
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, WarehouseArea> $warehouseAreas
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Warehouse> $warehouses
  * @property-read \App\Models\SysAdmin\OrganisationWebStats|null $webStats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Webpage> $webpages
@@ -102,7 +113,6 @@ use Spatie\Sluggable\SlugOptions;
  * @method static \Illuminate\Database\Eloquent\Builder|Organisation query()
  * @mixin \Eloquent
  */
-
 class Organisation extends Model implements HasMedia
 {
     use HasFactory;
@@ -114,6 +124,7 @@ class Organisation extends Model implements HasMedia
         'data'     => 'array',
         'settings' => 'array',
         'source'   => 'array',
+        'type'     => OrganisationTypeEnum::class
     ];
 
     protected $attributes = [
@@ -323,7 +334,21 @@ class Organisation extends Model implements HasMedia
         return $this->hasMany(Webpage::class);
     }
 
+    public function agents(): BelongsToMany
+    {
+        return $this->belongsToMany(Agent::class)
+            ->using(AgentOrganisation::class)
+            ->withPivot(['source_id', 'status'])
+            ->withTimestamps();
+    }
 
+    public function suppliers(): BelongsToMany
+    {
+        return $this->belongsToMany(Supplier::class)
+            ->using(OrganisationSupplier::class)
+            ->withPivot(['source_id'])
+            ->withTimestamps();
+    }
 
 
 }

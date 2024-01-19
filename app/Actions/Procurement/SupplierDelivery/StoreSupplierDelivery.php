@@ -8,10 +8,10 @@
 namespace App\Actions\Procurement\SupplierDelivery;
 
 use App\Actions\Procurement\SupplierDelivery\Traits\HasHydrators;
-use App\Models\SysAdmin\Organisation;
-use App\Models\Procurement\Agent;
 use App\Models\Procurement\SupplierDelivery;
-use App\Models\Procurement\Supplier;
+use App\Models\SupplyChain\Agent;
+use App\Models\SupplyChain\Supplier;
+use App\Models\SysAdmin\Organisation;
 use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;

@@ -13,7 +13,7 @@ use App\Enums\Procurement\SupplierDelivery\SupplierDeliveryStateEnum;
 use App\Enums\Procurement\SupplierDelivery\SupplierDeliveryStatusEnum;
 use App\Enums\Procurement\SupplierProduct\SupplierProductQuantityStatusEnum;
 use App\Enums\Procurement\SupplierProduct\SupplierProductStateEnum;
-use App\Enums\Procurement\SupplierOrganisation\SupplierOrganisationStatusEnum;
+
 use Illuminate\Database\Schema\Blueprint;
 
 trait HasProcurementStats
@@ -33,10 +33,6 @@ trait HasProcurementStats
         $table->unsignedInteger('number_suppliers')->default(0)->comment('Active suppliers, status=true');
         $table->unsignedInteger('number_archived_suppliers')->default(0)->comment('Archived suppliers status=false');
 
-
-        foreach (SupplierOrganisationStatusEnum::cases() as $supplierTenantStatus) {
-            $table->unsignedInteger('number_suppliers_status_'.$supplierTenantStatus->snake())->default(0);
-        }
 
         if($table->getTable()!='agent_stats') {
             $table->unsignedInteger('number_suppliers_in_agents')->default(0)->comment('Active suppliers, status=true');

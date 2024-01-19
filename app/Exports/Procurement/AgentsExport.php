@@ -7,7 +7,7 @@
 
 namespace App\Exports\Procurement;
 
-use App\Models\Procurement\Agent;
+use App\Models\SupplyChain\Agent;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Database\Query\Builder;
 use Maatwebsite\Excel\Concerns\FromQuery;
@@ -22,7 +22,7 @@ class AgentsExport implements FromQuery, WithMapping, ShouldAutoSize, WithHeadin
         return Agent::query();
     }
 
-    /** @var Agent $row */
+    /** @var \App\Models\SupplyChain\Agent $row */
     public function map($row): array
     {
         return [
