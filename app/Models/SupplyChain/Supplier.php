@@ -76,6 +76,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SupplyChain\SupplierStats|null $stats
  * @property-read Collection<int, SupplierDelivery> $supplierDeliveries
  * @property-read UniversalSearch|null $universalSearch
+ * @method static \Database\Factories\SupplyChain\SupplierFactory factory($count = null, $state = [])
  * @method static Builder|Supplier newModelQuery()
  * @method static Builder|Supplier newQuery()
  * @method static Builder|Supplier onlyTrashed()

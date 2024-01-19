@@ -8,6 +8,7 @@
 namespace App\Models\SysAdmin;
 
 use App\Enums\Accounting\PaymentServiceProvider\PaymentServiceProviderTypeEnum;
+use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Models\Accounting\PaymentServiceProvider;
 use App\Models\Assets\Country;
 use App\Models\Assets\Currency;
@@ -51,6 +52,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $id
  * @property int $group_id
  * @property string $ulid
+ * @property OrganisationTypeEnum $type
  * @property string $slug
  * @property string $code
  * @property string $name
@@ -111,7 +113,6 @@ use Spatie\Sluggable\SlugOptions;
  * @method static \Illuminate\Database\Eloquent\Builder|Organisation query()
  * @mixin \Eloquent
  */
-
 class Organisation extends Model implements HasMedia
 {
     use HasFactory;
@@ -123,6 +124,7 @@ class Organisation extends Model implements HasMedia
         'data'     => 'array',
         'settings' => 'array',
         'source'   => 'array',
+        'type'     => OrganisationTypeEnum::class
     ];
 
     protected $attributes = [
