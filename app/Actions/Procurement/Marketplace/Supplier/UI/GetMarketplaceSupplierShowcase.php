@@ -8,7 +8,7 @@
 namespace App\Actions\Procurement\Marketplace\Supplier\UI;
 
 use App\Http\Resources\Helpers\AddressResource;
-use App\Models\Procurement\Supplier;
+use App\Models\SupplyChain\Supplier;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 class GetMarketplaceSupplierShowcase

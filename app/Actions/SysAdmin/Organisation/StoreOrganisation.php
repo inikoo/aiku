@@ -14,17 +14,21 @@ use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateOrganisations;
 use App\Actions\SysAdmin\User\UserAddRoles;
 use App\Enums\Accounting\PaymentServiceProvider\PaymentServiceProviderTypeEnum;
 use App\Enums\SysAdmin\Authorisation\RolesEnum;
+use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Models\Assets\Country;
 use App\Models\Assets\Currency;
 use App\Models\Assets\Language;
 use App\Models\Assets\Timezone;
+use App\Models\Helpers\Address;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\Role;
+use App\Rules\ValidAddress;
 use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
@@ -36,6 +40,9 @@ class StoreOrganisation
     public function handle(Group $group, array $modelData): Organisation
     {
 
+        $addressData = Arr::get($modelData, 'address');
+        Arr::forget($modelData, 'address');
+
         data_set($modelData, 'ulid', Str::ulid());
         data_set($modelData, 'settings.ui.name', Arr::get($modelData, 'name'));
 
@@ -43,16 +50,30 @@ class StoreOrganisation
         $organisation = $group->organisations()->create($modelData);
         SeedOrganisationPermissions::run($organisation);
 
+
+
+        if ($addressData) {
+            data_set($addressData, 'owner_type', 'Organisation');
+            data_set($addressData, 'owner_id', $organisation->id);
+            $address = Address::create($addressData);
+
+            $organisation->address()->associate($address);
+
+            $organisation->location = $organisation->address->getLocation();
+            $organisation->save();
+
+
+
+        }
         $superAdmins = $group->users()->with('roles')->get()->filter(
             fn ($user) => $user->roles->where('name', 'super-admin')->toArray()
         );
 
-        foreach($superAdmins as $superAdmin) {
+        foreach ($superAdmins as $superAdmin) {
             UserAddRoles::run($superAdmin, [
                 Role::where('name', RolesEnum::getRoleName('org-admin', $organisation))->where('scope_id', $organisation->id)->first()
             ]);
         }
-
 
 
         $organisation->refresh();
@@ -73,9 +94,8 @@ class StoreOrganisation
         $organisation->webStats()->create();
 
 
-
         StorePaymentServiceProvider::make()->action(
-            organisation:$organisation,
+            organisation: $organisation,
             modelData: [
                 'type' => PaymentServiceProviderTypeEnum::ACCOUNT->value,
                 'code' => $organisation->slug.'-accounts'
@@ -86,20 +106,24 @@ class StoreOrganisation
         SetOrganisationLogo::dispatch($organisation);
         SeedOrganisationOutboxes::run();
 
+
         return $organisation;
     }
 
     public function rules(): array
     {
         return [
-            'code'        => ['required', 'unique:organisations', 'between:2,6', 'alpha'],
+            'code'        => ['required', 'unique:organisations', 'max:12', 'alpha'],
             'name'        => ['required', 'max:64'],
-            'email'       => ['required', 'email', 'unique:organisations'],
+            'email'       => ['required', 'nullable', 'email', 'unique:organisations'],
+            'phone'       => ['sometimes', 'nullable', 'phone:AUTO'],
             'currency_id' => ['required', 'exists:currencies,id'],
             'country_id'  => ['required', 'exists:countries,id'],
             'language_id' => ['required', 'exists:languages,id'],
             'timezone_id' => ['required', 'exists:timezones,id'],
-            'source'      => ['sometimes', 'array']
+            'source'      => ['sometimes', 'array'],
+            'type'        => ['sometimes', Rule::enum(OrganisationTypeEnum::class)],
+            'address'     => ['sometimes', 'required', new ValidAddress()],
         ];
     }
 
@@ -120,11 +144,11 @@ class StoreOrganisation
 
     public function asCommand(Command $command): int
     {
-
         try {
             $group = Group::where('code', $command->argument('group'))->firstOrFail();
         } catch (Exception $e) {
             $command->error($e->getMessage());
+
             return 1;
         }
         setPermissionsTeamId($group->id);

@@ -7,7 +7,6 @@
 
 namespace App\Exports\Procurement;
 
-use App\Models\Procurement\SupplierProduct;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Database\Query\Builder;
 use Maatwebsite\Excel\Concerns\Exportable;
@@ -21,12 +20,12 @@ class SupplierProductsExport implements FromQuery, WithMapping, ShouldAutoSize, 
 {
     use Exportable;
 
-    public function query(): Relation|\Illuminate\Database\Eloquent\Builder|SupplierProduct|Builder
+    public function query(): Relation|\Illuminate\Database\Eloquent\Builder|\App\Models\SupplyChain\SupplierProduct|Builder
     {
-        return SupplierProduct::query();
+        return \App\Models\SupplyChain\SupplierProduct::query();
     }
 
-    /** @var SupplierProduct $row */
+    /** @var \App\Models\SupplyChain\SupplierProduct $row */
     public function map($row): array
     {
         return [

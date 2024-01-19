@@ -7,7 +7,7 @@
 
 namespace Database\Factories\Procurement;
 
-use App\Models\Procurement\SupplierProduct;
+use App\Models\SupplyChain\SupplierProduct;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**

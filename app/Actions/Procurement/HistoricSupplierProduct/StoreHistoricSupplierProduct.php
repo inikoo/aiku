@@ -8,7 +8,7 @@
 namespace App\Actions\Procurement\HistoricSupplierProduct;
 
 use App\Models\Procurement\HistoricSupplierProduct;
-use App\Models\Procurement\SupplierProduct;
+use App\Models\SupplyChain\SupplierProduct;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
 

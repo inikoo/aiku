@@ -16,11 +16,9 @@ const props = defineProps<{
 
 const layout = useLayoutStore()
 
-// console.log(props.navKey, props.nav)
 </script>
 
 <template>
-    
     <Link :href="nav.route?.name ? route(nav.route.name, nav.route.parameters) : '#'"
         class="group flex items-center text-sm py-2 pl-4 gap-x-2" :class="[
             navKey === layout.currentModule
@@ -28,7 +26,7 @@ const layout = useLayoutStore()
                 : 'navigation',
             layout.leftSidebar.show ? 'px-3' : '',
         ]" :aria-current="navKey === layout.currentModule ? 'page' : undefined">
-        <FontAwesomeIcon aria-hidden="true" class="flex-shrink-0 h-4 w-4" fixed-width :icon="nav.icon" />
+        <FontAwesomeIcon v-if="nav.icon" aria-hidden="true" class="flex-shrink-0 h-4 w-4" fixed-width :icon="nav.icon" />
         <Transition>
             <span class="capitalize leading-none whitespace-nowrap"
                 :class="[layout.leftSidebar.show ? 'block md:block' : 'block md:hidden']">

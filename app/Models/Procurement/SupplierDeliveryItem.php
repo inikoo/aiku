@@ -7,6 +7,7 @@
 
 namespace App\Models\Procurement;
 
+use App\Models\SupplyChain\SupplierProduct;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -30,7 +31,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $updated_at
  * @property string|null $deleted_at
  * @property-read \App\Models\Procurement\SupplierDelivery $supplierDelivery
- * @property-read \App\Models\Procurement\SupplierProduct $supplierProduct
+ * @property-read SupplierProduct $supplierProduct
  * @method static \Database\Factories\Procurement\SupplierDeliveryItemFactory factory($count = null, $state = [])
  * @method static Builder|SupplierDeliveryItem newModelQuery()
  * @method static Builder|SupplierDeliveryItem newQuery()

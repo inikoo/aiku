@@ -7,6 +7,7 @@
 
 namespace App\Actions\SysAdmin\Group\Hydrators;
 
+use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Models\SysAdmin\Group;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -19,7 +20,7 @@ class GroupHydrateOrganisations
 
         $group->update(
             [
-                'number_organisations' => $group->organisations()->count()
+                'number_organisations' => $group->organisations()->where('type', OrganisationTypeEnum::SHOP)->count()
             ]
         );
     }

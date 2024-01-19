@@ -7,7 +7,7 @@
 
 namespace App\Actions\Procurement\SupplierProduct;
 
-use App\Models\Procurement\SupplierProduct;
+use App\Models\SupplyChain\SupplierProduct;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class SyncSupplierProductTradeUnits

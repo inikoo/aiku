@@ -144,7 +144,6 @@ class GetOrganisationNavigation
         }
 
 
-
         if ($user->hasPermissionTo('fulfilment.view')
             //  and app('currentTenant')->marketStats->number_shops_type_fulfilment
         ) {
@@ -249,14 +248,18 @@ class GetOrganisationNavigation
             $navigation['procurement'] = [
                 'label'   => __('procurement'),
                 'icon'    => ['fal', 'fa-box-usd'],
-                'route'   => 'grp.procurement.dashboard',
+                'route'   => [
+                    'name'       => 'grp.org.procurement.dashboard',
+                    'parameters' => [$organisation->slug],
+                ],
                 'topMenu' => [
                     'subSections' => [
                         [
                             'label' => __('agents'),
                             'icon'  => ['fal', 'fa-people-arrows'],
                             'route' => [
-                                'name' => 'grp.procurement.agents.index',
+                                'name' => 'grp.org.procurement.agents.index',
+
 
                             ]
                         ],
@@ -264,16 +267,16 @@ class GetOrganisationNavigation
                             'label' => __('suppliers'),
                             'icon'  => ['fal', 'fa-person-dolly'],
                             'route' => [
-                                'name' => 'grp.procurement.suppliers.index',
-
+                                'name'       => 'grp.org.procurement.suppliers.index',
+                                'parameters' => [$organisation->slug],
                             ]
                         ],
                         [
                             'label' => __('purchase orders'),
                             'icon'  => ['fal', 'fa-clipboard-list'],
                             'route' => [
-                                'name' => 'grp.procurement.purchase-orders.index',
-
+                                'name'       => 'grp.org.procurement.purchase-orders.index',
+                                'parameters' => [$organisation->slug],
                             ]
                         ],
                     ]

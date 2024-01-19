@@ -8,7 +8,8 @@
 
 import { ref } from "vue"
 
-import AppLeftSideBarGrp from "@/Layouts/AppLeftSideBarGrp.vue"
+import LeftSidebarNavigation from "@/Layouts/LeftSidebarNavigation.vue"
+import LeftSidebarBottomNav from "@/Layouts/LeftSidebarBottomNav.vue"
 import { useLayoutStore } from "@/Stores/layout"
 
 import { library } from "@fortawesome/fontawesome-svg-core"
@@ -26,7 +27,7 @@ const handleToggleLeftbar = () => {
 </script>
 
 <template>
-    <div class="mt-11 pb-10 fixed md:flex md:flex-col md:inset-y-0 lg:mt-10 bg-gradient-to-t from-indigo-600 to-indigo-400 h-full text-gray-400 transition-all duration-200 ease-in-out"
+    <div class="mt-11 pb-10 fixed md:flex md:flex-col md:inset-y-0 lg:mt-10 bg-gradient-to-t to-indigo-600 from-indigo-500 h-full text-gray-400 transition-all duration-200 ease-in-out"
         :class="[layout.leftSidebar.show ? 'w-8/12 md:w-48' : 'w-8/12 md:w-10']"
         id="leftSidebar"
     >
@@ -42,8 +43,12 @@ const handleToggleLeftbar = () => {
             </div>
         </div>
 
-        <div class="flex flex-grow flex-col h-full overflow-y-auto custom-hide-scrollbar border-r border-gray-200 pb-4">
-            <AppLeftSideBarGrp />
+        <div class="flex flex-grow flex-col h-full overflow-y-auto custom-hide-scrollbar pb-4">
+            <LeftSidebarNavigation />
+        </div>
+
+        <div class="absolute bottom-[68px] w-full">
+            <LeftSidebarBottomNav />
         </div>
     </div>
 </template>

@@ -13,9 +13,9 @@ use App\Models\Goods\TradeUnit;
 use App\Models\HumanResources\Employee;
 use App\Models\Inventory\Stock;
 use App\Models\Market\Product;
-use App\Models\Procurement\Agent;
-use App\Models\Procurement\Supplier;
-use App\Models\Procurement\SupplierProduct;
+use App\Models\SupplyChain\Agent;
+use App\Models\SupplyChain\Supplier;
+use App\Models\SupplyChain\SupplierProduct;
 use App\Models\SysAdmin\Guest;
 
 class StoreImage

@@ -19,7 +19,8 @@ export const initialiseApp = () => {
     const layout = useLayoutStore()
     const locale = useLocaleStore()
 
-    const storageLayout = JSON.parse(localStorage.getItem('layout') ?? '{}')
+    const storageLayout = JSON.parse(localStorage.getItem('layout') ?? '{}')  // Get layout from localStorage
+    layout.organisationsState = storageLayout  // { 'awa' : { currentShop: 'bali', currentWarehouse: 'ed' }, ... }
 
     const echoPersonal = useEchoGrpPersonal()
     const echoGeneral = useEchoGrpGeneral()
@@ -32,17 +33,24 @@ export const initialiseApp = () => {
 
         router.on('navigate', (event) => {
             layout.currentParams = route().params  // current params
-            // console.log('www', layout.currentParams)
             layout.currentRoute = route().current()  // current route
             layout.currentModule = layout.currentRoute.split('.')[2]  // grp.org.xxx.yyy.zzz to xxx
-
-            // layout.currentShop = layout.navigation.org[layout.currentParams.organisation].shops_navigation[layout.currentParams.shop] ?? layout.currentShop
-            layout.currentShop = route().params.shop ?? layout.currentShop ?? storageLayout.currentShop // 'bali' | 'java'
-            // layout.currentWarehouse = layout.navigation.org[layout.currentParams.organisation].warehouses_navigation[layout.currentParams.warehouse] ?? layout.currentWarehouse
-            layout.currentWarehouse = route().params.warehouse ?? layout.currentWarehouse  ?? storageLayout.currentWarehouse // 'ed' | 'ac'
-            localStorage.setItem('layout', JSON.stringify({...storageLayout, currentShop: layout.currentShop, currentWarehouse: layout.currentWarehouse}))
             
-            // console.log(layout.currentShop, layout.currentWarehouse)
+            layout.organisationsState = {
+                ...layout.organisationsState,
+                [layout.currentParams.organisation]: {
+                    currentShop: route().params.shop ?? layout.organisationsState?.[layout.currentParams.organisation]?.currentShop,
+                    currentWarehouse: route().params.warehouse ?? layout.organisationsState?.[layout.currentParams.organisation]?.currentWarehouse
+                }
+            }
+            
+            localStorage.setItem('layout', JSON.stringify({
+                ...storageLayout,
+                [layout.currentParams.organisation]: {
+                    currentShop: layout.organisationsState?.[layout.currentParams.organisation]?.currentShop,
+                    currentWarehouse: layout.organisationsState?.[layout.currentParams.organisation]?.currentWarehouse
+                }
+            }))
 
             if (usePage().props.auth.user?.id) {
                 // console.log("===== ada auth id =====")

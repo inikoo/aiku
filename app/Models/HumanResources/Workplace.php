@@ -42,8 +42,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $name
  * @property int|null $timezone_id
  * @property int|null $address_id
- * @property array $data
  * @property array $location
+ * @property array $data
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at

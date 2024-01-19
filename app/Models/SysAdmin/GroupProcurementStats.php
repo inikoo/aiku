@@ -22,9 +22,6 @@ use Illuminate\Support\Carbon;
  * @property int $number_archived_agents Archived agents, status=false
  * @property int $number_suppliers Active suppliers, status=true
  * @property int $number_archived_suppliers Archived suppliers status=false
- * @property int $number_suppliers_status_owner
- * @property int $number_suppliers_status_adopted
- * @property int $number_suppliers_status_available
  * @property int $number_suppliers_in_agents Active suppliers, status=true
  * @property int $number_archived_suppliers_in_agents Archived suppliers status=false
  * @property int $number_supplier_products Number supplier products (all excluding discontinued)

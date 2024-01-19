@@ -7,9 +7,10 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-use App\Actions\Procurement\Agent\StoreAgent;
-use App\Actions\Procurement\Agent\UpdateAgent;
-use App\Models\Procurement\Agent;
+use App\Actions\SupplyChain\Agent\StoreAgent;
+use App\Actions\SupplyChain\Agent\UpdateAgent;
+use App\Actions\SysAdmin\Organisation\AttachAgentToOrganisation;
+use App\Models\SupplyChain\Agent;
 use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
@@ -19,39 +20,55 @@ class FetchAgents extends FetchAction
     public string $commandSignature = 'fetch:agents {organisations?*} {--s|source_id=} {--d|db_suffix=}';
 
 
-    /**
-     * @throws \Spatie\MediaLibrary\MediaCollections\Exceptions\FileDoesNotExist
-     * @throws \Spatie\MediaLibrary\MediaCollections\Exceptions\FileIsTooBig
-     */
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Agent
     {
         if ($agentData = $organisationSource->fetchAgent($organisationSourceId)) {
             $organisation = $organisationSource->getOrganisation();
+
+            $baseAgent = null;
 
 
             if (Agent::withTrashed()->where('source_slug', $agentData['agent']['source_slug'])->exists()) {
                 if ($agent = Agent::withTrashed()->where('source_id', $agentData['agent']['source_id'])->first()) {
                     $agent = UpdateAgent::make()->run($agent, $agentData['agent']);
                 }
+                $baseAgent = Agent::withTrashed()->where('source_slug', $agentData['agent']['source_slug'])->first();
             } else {
-
                 $agent = StoreAgent::make()->action(
                     group: $organisation->group,
                     modelData: $agentData['agent'],
                 );
             }
 
+
             if ($agent) {
+                AttachAgentToOrganisation::run(
+                    $organisation,
+                    $agent,
+                    [
+                        'source_id' => $agentData['agent']['source_id'],
+                    ]
+                );
+
+                /*
                 foreach ($agentData['photo'] as $photoData) {
                     $this->saveImage($agent, $photoData);
                 }
-
+                */
 
                 $sourceData = explode(':', $agentData['agent']['source_id']);
 
                 DB::connection('aurora')->table('Agent Dimension')
                     ->where('Agent Key', $sourceData[1])
                     ->update(['aiku_id' => $agent->id]);
+            } elseif ($baseAgent) {
+                AttachAgentToOrganisation::run(
+                    $organisation,
+                    $baseAgent,
+                    [
+                        'source_id' => $agentData['agent']['source_id'],
+                    ]
+                );
             }
 
 

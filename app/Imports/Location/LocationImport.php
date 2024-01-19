@@ -10,7 +10,6 @@ namespace App\Imports\Location;
 use App\Actions\Inventory\Location\StoreLocation;
 use App\Imports\WithImport;
 use App\Models\Inventory\Warehouse;
-use App\Rules\IUnique;
 use Exception;
 use Illuminate\Support\Arr;
 use Maatwebsite\Excel\Concerns\SkipsOnFailure;
@@ -38,7 +37,7 @@ class LocationImport implements ToCollection, WithHeadingRow, SkipsOnFailure, Wi
 
 
         try {
-            $modelData = $row->only($fields)->all();
+            $modelData     = $row->only($fields)->all();
             $warehouse     = Warehouse::find($row->get('warehouse_id'));
 
             data_set($modelData, 'data.bulk_import', [

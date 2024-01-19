@@ -7,8 +7,6 @@
 
 namespace App\Http\Resources\Procurement;
 
-use App\Models\Procurement\Agent;
-use App\Models\Procurement\Supplier;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
@@ -33,10 +31,10 @@ class PurchaseOrderResource extends JsonResource
             'date'       => $this->date,
             'provider'   => $this->when($this->relationLoaded('provider'), function () {
                 switch (true) {
-                    case $this->resource->resource instanceof Agent:
+                    case $this->resource->resource instanceof \App\Models\SupplyChain\Agent:
                         return new AgentResource($this->resource->resource);
 
-                    case $this->resource->resource instanceof Supplier:
+                    case $this->resource->resource instanceof \App\Models\SupplyChain\Supplier:
                         return new SupplierResource($this->resource->resource);
                 }
             }),

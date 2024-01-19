@@ -63,12 +63,12 @@ class PostmenGetTenantAddress
             return false;
         }
 
-        $shipperAccount             = new ShipperAccount();
-        $shipperAccount->slug       = $request->get('shipper');
-        $shipperAccount->label      = $request->get('label');
-        $shipperAccount->shipper_id = $this->shipper->id;
-        $shipperAccount->tenant_id  = $organisation->id;
-        $shipperAccount->data       = $response['data']['data'];
+        $shipperAccount                   = new ShipperAccount();
+        $shipperAccount->slug             = $request->get('shipper');
+        $shipperAccount->label            = $request->get('label');
+        $shipperAccount->shipper_id       = $this->shipper->id;
+        $shipperAccount->organisation_id  = $organisation->id;
+        $shipperAccount->data             = $response['data']['data'];
         $shipperAccount->save();
 
         return $shipperAccount;

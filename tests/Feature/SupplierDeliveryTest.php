@@ -22,8 +22,8 @@ use App\Actions\Procurement\SupplierProduct\StoreSupplierProduct;
 use App\Enums\Procurement\SupplierDelivery\SupplierDeliveryStateEnum;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\Procurement\PurchaseOrderItem;
-use App\Models\Procurement\Supplier;
 use App\Models\Procurement\SupplierDeliveryItem;
+use App\Models\SupplyChain\Supplier;
 use Illuminate\Validation\ValidationException;
 
 beforeAll(function () {

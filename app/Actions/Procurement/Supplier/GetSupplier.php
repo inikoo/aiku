@@ -8,7 +8,7 @@
 namespace App\Actions\Procurement\Supplier;
 
 use App\Actions\Procurement\Supplier\UI\IndexSuppliers;
-use App\Models\Procurement\Agent;
+use App\Models\SupplyChain\Agent;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class GetSupplier

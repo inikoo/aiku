@@ -15,7 +15,7 @@ interface OrganisationsData {
     id: number
     slug: string
     code: string
-    name: string
+    label: string
     logo: Image
     route: routeType
     authorised_shops: {
@@ -42,6 +42,12 @@ interface Group {
     name: string
 }
 
+// Each organisation have their own state
+interface OrganisationState {
+    currentShop: string
+    currentWarehouse: string
+}
+
 export const useLayoutStore = defineStore("layout", {
     state: () => (
         {
@@ -49,9 +55,7 @@ export const useLayoutStore = defineStore("layout", {
             currentModule: "",
             currentRoute: "grp.dashboard.show", // Define value to avoid route null at first load
             currentParams: {} as {[key: string]: string},
-            currentShop: null as string | null,
-            currentWarehouse: null as string | null,
-            group: {} as Group,
+            group: null as Group | null,
             leftSidebar: {
                 show: true,
             },
@@ -63,6 +67,7 @@ export const useLayoutStore = defineStore("layout", {
                 // currentOrganisations: '',
                 data: {} as OrganisationsData[]
             },
+            organisationsState: {} as {[key: string]: OrganisationState},
             rightSidebar: {
                 activeUsers: {
                     users: [],

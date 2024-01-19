@@ -8,12 +8,13 @@
 namespace App\Actions\Procurement\Marketplace\Supplier\UI;
 
 use App\Actions\InertiaAction;
-use App\Actions\Procurement\Marketplace\Agent\UI\ShowMarketplaceAgent;
+use App\Actions\Procurement\Agent\UI\ShowMarketplaceAgent;
 use App\Actions\UI\Procurement\ProcurementDashboard;
 use App\Http\Resources\Procurement\MarketplaceSupplierResource;
-use App\Models\Procurement\Agent;
-use App\Models\Procurement\Supplier;
-use App\Models\Procurement\SupplierOrganisation;
+use App\InertiaTable\InertiaTable;
+use App\Models\Procurement\OrganisationSupplier;
+use App\Models\SupplyChain\Agent;
+use App\Models\SupplyChain\Supplier;
 use App\Models\SysAdmin\Organisation;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -21,7 +22,6 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
-use App\InertiaTable\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
@@ -56,9 +56,9 @@ class IndexMarketplaceSuppliers extends InertiaAction
             ->leftJoin('supplier_stats', 'supplier_stats.supplier_id', '=', 'suppliers.id')
             ->select(['suppliers.code', 'suppliers.slug', 'suppliers.name', 'number_supplier_products', 'suppliers.location'])
             ->addSelect([
-                'adoption' => SupplierOrganisation::select('supplier_tenant.status')
-                    ->whereColumn('supplier_tenant.supplier_id', 'suppliers.id')
-                    ->where('supplier_tenant.tenant_id', app('currentTenant')->id)
+                'adoption' => OrganisationSupplier::select('organisation_supplier.status')
+                    ->whereColumn('organisation_supplier.supplier_id', 'suppliers.id')
+                    ->where('organisation_supplier.organisation_id', app('currentTenant')->id)
                     ->limit(1)
             ])
             ->when($parent, function ($query) use ($parent) {
@@ -97,7 +97,7 @@ class IndexMarketplaceSuppliers extends InertiaAction
                             'tooltip' => __('new supplier'),
                             'label'   => __('supplier'),
                             'route'   => [
-                                'name'       => 'grp.procurement.marketplace.suppliers.create',
+                                'name'       => 'grp.org.procurement.marketplace.suppliers.create',
                                 'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ] : null
@@ -157,8 +157,8 @@ class IndexMarketplaceSuppliers extends InertiaAction
             $request->route()->parameters['agent'];
 
         $title = match (class_basename($parent)) {
-            'Agent' => __('suppliers'),
-            default => __("supplier's marketplace")
+            'AgentOrganisation' => __('suppliers'),
+            default             => __("supplier's marketplace")
         };
 
         return Inertia::render(
@@ -179,12 +179,12 @@ class IndexMarketplaceSuppliers extends InertiaAction
                             'label'   => __('supplier'),
                             'route'   =>
                                 match (class_basename($parent)) {
-                                    'Agent' => [
-                                        'name'       => 'grp.procurement.marketplace.agents.show.suppliers.create',
+                                    'AgentOrganisation' => [
+                                        'name'       => 'grp.org.procurement.marketplace.agents.show.suppliers.create',
                                         'parameters' => array_values($request->route()->originalParameters())
                                     ],
                                     default => [
-                                        'name'       => 'grp.procurement.marketplace.suppliers.create',
+                                        'name'       => 'grp.org.procurement.marketplace.suppliers.create',
                                         'parameters' => array_values($request->route()->originalParameters())
                                     ],
                                 },
@@ -214,24 +214,24 @@ class IndexMarketplaceSuppliers extends InertiaAction
         };
 
         return match ($routeName) {
-            'grp.procurement.marketplace.suppliers.index' =>
+            'grp.org.procurement.marketplace.suppliers.index' =>
             array_merge(
                 ProcurementDashboard::make()->getBreadcrumbs(),
                 $headCrumb(
                     [
-                        'name' => 'grp.procurement.marketplace.suppliers.index',
+                        'name' => 'grp.org.procurement.marketplace.suppliers.index',
                         null
                     ]
                 ),
             ),
 
 
-            'grp.procurement.marketplace.agents.show.suppliers.index' =>
+            'grp.org.procurement.marketplace.agents.show.suppliers.index' =>
             array_merge(
                 (new ShowMarketplaceAgent())->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     [
-                        'name'       => 'grp.procurement.marketplace.agents.show.suppliers.index',
+                        'name'       => 'grp.org.procurement.marketplace.agents.show.suppliers.index',
                         'parameters' =>
                             [
                                 $routeParameters['agent']->slug
