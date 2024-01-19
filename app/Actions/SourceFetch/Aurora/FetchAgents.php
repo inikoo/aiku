@@ -20,16 +20,13 @@ class FetchAgents extends FetchAction
     public string $commandSignature = 'fetch:agents {organisations?*} {--s|source_id=} {--d|db_suffix=}';
 
 
-    /**
-     * @throws \Spatie\MediaLibrary\MediaCollections\Exceptions\FileDoesNotExist
-     * @throws \Spatie\MediaLibrary\MediaCollections\Exceptions\FileIsTooBig
-     */
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Agent
     {
         if ($agentData = $organisationSource->fetchAgent($organisationSourceId)) {
             $organisation = $organisationSource->getOrganisation();
 
             $baseAgent = null;
+
 
             if (Agent::withTrashed()->where('source_slug', $agentData['agent']['source_slug'])->exists()) {
                 if ($agent = Agent::withTrashed()->where('source_id', $agentData['agent']['source_id'])->first()) {
@@ -53,10 +50,11 @@ class FetchAgents extends FetchAction
                     ]
                 );
 
+                /*
                 foreach ($agentData['photo'] as $photoData) {
                     $this->saveImage($agent, $photoData);
                 }
-
+                */
 
                 $sourceData = explode(':', $agentData['agent']['source_id']);
 

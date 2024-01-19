@@ -39,7 +39,6 @@ class StoreWorkplace extends OrgAction
 
         data_set($addressData, 'owner_type', 'Workplace');
         data_set($addressData, 'owner_id', $workplace->id);
-
         $address=Address::create($addressData);
         $workplace->address()->associate($address);
         $workplace->location = $workplace->address->getLocation();

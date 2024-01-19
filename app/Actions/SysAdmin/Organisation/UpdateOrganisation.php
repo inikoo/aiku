@@ -8,7 +8,10 @@
 namespace App\Actions\SysAdmin\Organisation;
 
 use App\Actions\Traits\WithActionUpdate;
+use App\Models\Helpers\Address;
 use App\Models\SysAdmin\Organisation;
+use App\Rules\ValidAddress;
+use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateOrganisation
@@ -19,7 +22,26 @@ class UpdateOrganisation
 
     public function handle(Organisation $organisation, array $modelData): Organisation
     {
-        return $this->update($organisation, $modelData, ['data', 'settings']);
+        $addressData = Arr::get($modelData, 'address');
+        Arr::forget($modelData, 'address');
+
+        $organisation= $this->update($organisation, $modelData, ['data', 'settings']);
+
+        if($addressData) {
+            if($organisation->address) {
+                $organisation->address()->update($addressData);
+            } else {
+                data_set($addressData, 'owner_type', 'Organisation');
+                data_set($addressData, 'owner_id', $organisation->id);
+                $address = Address::create($addressData);
+                $organisation->address()->associate($address);
+            }
+            $organisation->location = $organisation->address->getLocation();
+            $organisation->save();
+        }
+
+        return $organisation;
+
     }
 
 
@@ -38,7 +60,8 @@ class UpdateOrganisation
             'name'                    => ['sometimes', 'required', 'max:24', 'string'],
             'google_client_id'        => ['sometimes', 'string'],
             'google_client_secret'    => ['sometimes', 'string'],
-            'google_drive_folder_key' => ['sometimes', 'string']
+            'google_drive_folder_key' => ['sometimes', 'string'],
+            'address'                 => ['sometimes', 'required', new ValidAddress()]
         ];
     }
 

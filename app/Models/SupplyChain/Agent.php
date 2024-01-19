@@ -41,23 +41,9 @@ use Spatie\Sluggable\SlugOptions;
  *
  * @property int $id
  * @property int $group_id
+ * @property int $organisation_id
  * @property bool $status
  * @property string $slug
- * @property string $code
- * @property string|null $name
- * @property int|null $image_id
- * @property string|null $contact_name
- * @property string|null $company_name
- * @property string|null $email
- * @property string|null $phone
- * @property string|null $identity_document_type
- * @property string|null $identity_document_number
- * @property string|null $contact_website
- * @property int|null $address_id
- * @property array $location
- * @property int $currency_id
- * @property array $settings
- * @property array $data
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
@@ -68,6 +54,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Currency $currency
  * @property-read Group $group
  * @property-read MediaCollection<int, \App\Models\Media\Media> $media
+ * @property-read Organisation $organisation
  * @property-read Collection<int, Organisation> $organisations
  * @property-read Collection<int, \App\Models\SupplyChain\SupplierProduct> $products
  * @property-read Collection<int, PurchaseOrder> $purchaseOrders
@@ -95,44 +82,19 @@ class Agent extends Model implements HasMedia, Auditable
     use HasHistory;
 
     protected $casts = [
-        'data'        => 'array',
-        'settings'    => 'array',
-        'location'    => 'array',
         'status'      => 'boolean',
-        'is_private'  => 'boolean'
     ];
 
-    protected $attributes = [
-        'data'        => '{}',
-        'settings'    => '{}',
-        'location'    => '{}',
-    ];
 
     protected $guarded = [];
 
-    protected static function booted(): void
-    {
-        static::creating(
-            function (Agent $agent) {
-                $agent->name = $agent->company_name == '' ? $agent->contact_name : $agent->company_name;
-            }
-        );
-
-        static::updated(function (Agent $agent) {
-            if (!$agent->wasRecentlyCreated) {
-                if ($agent->wasChanged(['contact_name', 'company_name'])) {
-                    $agent->name = $agent->company_name == '' ? $agent->contact_name : $agent->company_name;
-                }
-
-
-            }
-        });
-    }
 
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
-            ->generateSlugsFrom('code')
+            ->generateSlugsFrom(function () {
+                return $this->organisation->slug;
+            })
             ->doNotGenerateSlugsOnUpdate()
             ->saveSlugsTo('slug');
     }
@@ -140,6 +102,11 @@ class Agent extends Model implements HasMedia, Auditable
     public function group(): BelongsTo
     {
         return $this->belongsTo(Group::class);
+    }
+
+    public function organisation(): BelongsTo
+    {
+        return $this->belongsTo(Organisation::class);
     }
 
     public function stats(): HasOne
