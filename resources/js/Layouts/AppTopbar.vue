@@ -40,13 +40,20 @@ const logoutAuth = () => {
     router.post(route(props.urlPrefix + 'logout'))
     useLiveUsers().unsubscribe()  // Unsubscribe from Laravel Echo
 }
+
+// For label 
+const label = {
+    organisationSelect: trans('Select organisation'),
+    shopSelect: trans('Go to shop'),
+    warehouseSelect: trans('Select warehouse'),
+}
 </script>
 
 <template>
     <Disclosure as="nav" class=" fixed top-0 z-[21] w-full bg-gray-50 text-gray-700" v-slot="{ open }">
         <div class="px-0">
             <div class="flex h-11 lg:h-10 flex-shrink-0">
-                <div class="border-b border-org-500 flex">
+                <div class="border-b border-indigo-300 flex">
                     <!-- Mobile: Hamburger -->
                     <button class="block md:hidden w-10 h-10 relative focus:outline-none" @click="$emit('sidebarOpen', !sidebarOpen)">
                         <span class="sr-only">Open sidebar</span>
@@ -60,18 +67,16 @@ const logoutAuth = () => {
                     </button>
 
                     <!-- App Title: Image and Title -->
-                    <div class="bg-gradient-to-t from-gray-200 to-gray-50 flex flex-1 items-center justify-center md:justify-start transition-all duration-200 ease-in-out"
+                    <div class="bg-indigo-400 flex flex-1 items-center justify-center md:justify-start transition-all duration-300 ease-in-out"
                         :class="[layout.leftSidebar.show ? 'md:w-48 md:pr-4' : 'md:w-10']"
                     >
-                        <Link :href="layout.app?.url ?? '/'"
+                        <Link :href="layout.app?.url ?? '#'"
                             class="hidden md:flex flex-nowrap items-center h-full overflow-hidden gap-x-1.5 transition-all duration-200 ease-in-out"
                             :class="[layout.leftSidebar.show ? 'py-1 pl-4' : 'pl-2.5 w-full']"
                         >
                             <Image :src="layout.organisations.data.find((item) => item.slug == layout.currentParams.organisation)?.logo ?? layout.group.logo" class="aspect-square h-5"/>
-                            <!-- <img v-else src="@/../art/logo/logo-white-square.png" class="aspect-square h-5 opacity-60" alt=""> -->
-
-                            <Transition>
-                                <p v-if="layout.leftSidebar.show" class="bg-gradient-to-r from-indigo-700 to-indigo-500 text-transparent text-lg bg-clip-text font-bold whitespace-nowrap leading-none lg:truncate">
+                            <Transition name="slide-to-left">
+                                <p v-if="layout.leftSidebar.show" class="bg-gradient-to-r from-white to-indigo-100 text-transparent text-lg bg-clip-text font-bold whitespace-nowrap leading-none lg:truncate">
                                     Aiku
                                 </p>
                             </Transition>
@@ -81,7 +86,6 @@ const logoutAuth = () => {
 
                 <div class="flex items-center w-full justify-between pr-6 space-x-3 border-b border-gray-200">
                     <!-- Section: Top menu -->
-                    <!-- <OrgTopBarNavs /> -->
 
                     <!-- Section: Dropdown + subsections -->
                     <div class="flex items-center gap-x-2 pl-2">
@@ -92,7 +96,7 @@ const logoutAuth = () => {
                                 <TopbarSelectButton
                                     :icon="layout.currentParams.organisation ? 'fal fa-building' : 'fal fa-city'"
                                     :activeButton="!!(layout.organisations.data.find((item) => item.slug == layout.currentParams.organisation))"
-                                    :label="layout.organisations.data.find((item) => item.slug == layout.currentParams.organisation)?.name ?? `Select organisation's group`"
+                                    :label="layout.organisations.data.find((item) => item.slug == layout.currentParams.organisation)?.name ?? label.organisationSelect"
                                 />
                                 <transition>
                                     <MenuItems
@@ -142,23 +146,17 @@ const logoutAuth = () => {
                                 </transition>
                             </Menu>
 
-                            <!-- Dropdown: Shops (If shops already selected) -->
+                            <!-- Dropdown: Shops -->
                             <Menu v-if="useLayoutStore().organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation) && (route(useLayoutStore().currentRoute, useLayoutStore().currentParams)).includes('shops')"
                                 as="div" class="relative inline-block text-left"
                                 v-slot="{ close: closeMenu }"    
                             >
-                                <MenuButton
-                                    class="inline-flex min-w-32 max-w-full whitespace-nowrap justify-between items-center gap-x-2 rounded px-2.5 py-2 text-xs font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-white/75"
-                                    :class="[ layout.currentParams.shop ? 'bg-indigo-500 text-white hover:bg-indigo-600' : 'hover:bg-slate-200 text-slate-600']"
-                                >
-                                    <div class="flex items-center gap-x-1">
-                                        <FontAwesomeIcon icon='fal fa-store-alt' class='opacity-60 text-xs' fixed-width aria-hidden='true' />
-                                        <!-- <FontAwesomeIcon v-else icon='fal fa-city' class='opacity-60 text-xs' fixed-width aria-hidden='true' /> -->
-                                        {{ useLayoutStore().organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_shops.find(shop => shop.slug == layout.currentParams.shop)?.name ?? trans('Go to shop') }}
-                                    </div>
-                                    <!-- {{ layout.organisations.currentOrganisations ? layout.organisations.currentOrganisations : 'Select group or organisations' }} -->
-                                    <FontAwesomeIcon icon='far fa-chevron-down' class='text-xs' aria-hidden='true' />
-                                </MenuButton>
+                                <TopbarSelectButton
+                                    icon="fal fa-store-alt"
+                                    :activeButton="!!(layout.currentParams.shop)"
+                                    :label="useLayoutStore().organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_shops.find(shop => shop.slug == layout.currentParams.shop)?.name ?? label.shopSelect"
+                                    :key="`shop` + layout.currentParams.shop"
+                                />
 
                                 <transition>
                                     <MenuItems class="absolute left-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
@@ -172,18 +170,11 @@ const logoutAuth = () => {
                                 as="div" class="relative inline-block text-left"
                                 v-slot="{ close: closeMenu }"    
                             >
-                                <MenuButton
-                                    class="inline-flex min-w-32 max-w-full whitespace-nowrap justify-between items-center gap-x-2 rounded px-2.5 py-2 text-xs font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-white/75"
-                                    :class="[ layout.currentParams.warehouse ? 'bg-indigo-500 text-white hover:bg-indigo-600' : 'hover:bg-slate-200 text-slate-600']"
-                                >
-                                    <div class="flex items-center gap-x-1">
-                                        <FontAwesomeIcon icon='fal fa-warehouse-alt' class='opacity-60 text-xs' fixed-width aria-hidden='true' />
-                                        <!-- <FontAwesomeIcon v-else icon='fal fa-city' class='opacity-60 text-xs' fixed-width aria-hidden='true' /> -->
-                                        {{ useLayoutStore().organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_warehouses.find(warehouse => warehouse.slug == layout.currentParams.warehouse)?.name ?? 'Select warehouse' }}
-                                    </div>
-                                    <!-- {{ layout.organisations.currentOrganisations ? layout.organisations.currentOrganisations : 'Select group or organisations' }} -->
-                                    <FontAwesomeIcon icon='far fa-chevron-down' class='text-xs' aria-hidden='true' />
-                                </MenuButton>
+                                <TopbarSelectButton
+                                    icon="fal fa-warehouse-alt"
+                                    :activeButton="!!(layout.currentParams.warehouse)"
+                                    :label="useLayoutStore().organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_warehouses.find(warehouse => warehouse.slug == layout.currentParams.warehouse)?.name ?? label.warehouseSelect"
+                                />
                                 <transition>
                                     <MenuItems
                                         class="absolute left-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">

@@ -42,7 +42,7 @@ const handleToggleLeftbar = () => {
             </div>
         </div>
 
-        <div class="flex flex-grow flex-col h-full overflow-y-auto custom-hide-scrollbar border-r border-gray-200 pb-4">
+        <div class="flex flex-grow flex-col h-full overflow-y-auto custom-hide-scrollbar pb-4">
             <AppLeftSideBarGrp />
         </div>
     </div>
