@@ -44,7 +44,7 @@ const layout = useLayoutStore()
                         <Image v-show="imageSkeleton[idxSH]" :src="item.logo" @onLoadImage="() => imageSkeleton[idxSH] = true"/>
                         <div v-show="!imageSkeleton[idxSH]" class="skeleton w-5 h-5"/>
                     </div> -->
-                    <div class="font-semibold">{{ showare.name }}</div>
+                    <div class="font-semibold">{{ showare.label }}</div>
                 </div>
             </MenuItem>
         </div>

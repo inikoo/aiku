@@ -45,7 +45,7 @@ const logoutAuth = () => {
 const label = {
     organisationSelect: trans('Select organisation'),
     shopSelect: trans('Go to shop'),
-    warehouseSelect: trans('Select warehouse'),
+    warehouseSelect: trans('Warehouses'),
 }
 </script>
 
@@ -91,9 +91,9 @@ const label = {
                         <!-- Section: Dropdown -->
                         <div v-if="
                             layout.group
-                            || (layout.organisations.data.length > 1 ? true : false)
-                            || useLayoutStore().organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation) && (route(useLayoutStore().currentRoute, useLayoutStore().currentParams)).includes('shops')
-                            || useLayoutStore().navigation.org[layout.currentParams.organisation]?.warehouses_navigation && (route(useLayoutStore().currentRoute, useLayoutStore().currentParams)).includes('warehouse')
+                            || (layout.organisations.data?.length > 1 ? true : false)
+                            || useLayoutStore().organisations.data?.find(organisation => organisation.slug == layout.currentParams.organisation) && (route(useLayoutStore().currentRoute, useLayoutStore().currentParams)).includes('shops')
+                            || useLayoutStore().navigation.org?.[layout.currentParams.organisation]?.warehouses_navigation && (route(useLayoutStore().currentRoute, useLayoutStore().currentParams)).includes('warehouse')
                         " 
                         class="p-0.5 flex border border-gray-300 rounded-md gap-x-0.5">
                             <!-- Dropdown: Organisations -->
@@ -145,7 +145,7 @@ const label = {
                                                                 <Image v-show="imageSkeleton[item.slug]" :src="item.logo" @onLoadImage="() => imageSkeleton[item.slug] = true"/>
                                                                 <div v-show="!imageSkeleton[item.slug]" class="skeleton w-5 h-5"/>
                                                             </div>
-                                                            <div class="font-semibold">{{ item.name }}</div>
+                                                            <div class="font-semibold">{{ item.label }}</div>
                                                         </div>
                                                     </MenuItem>
                                                 </div>

@@ -82,32 +82,45 @@ const generateNavigationName = (navKey: string) => {
             <template v-for="(orgNav, itemKey) in layout.navigation.org[layout.currentParams.organisation]"
                 :key="itemKey"
             >
+                <!-- shops_index or warehouses_index -->
                 <template v-if="itemKey == 'shops_index' || itemKey == 'warehouses_index'">
                     <template v-if="itemKey == 'shops_index'">
-                        <NavigationSimple v-if="!layout.currentShop"
+                        
+                        <template v-if="useLayoutStore().organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_shops.length == 1">
+                            <!-- Will always looping 1 only -->
+                            <template v-for="shop in layout.navigation.org[layout.currentParams.organisation].shops_navigation">  
+                                <NavigationSimple v-for="shopSubnav, idxShopSubnav in shop"
+                                    :nav="shopSubnav"
+                                    :navKey="idxShopSubnav"
+                                />
+                            </template>
+                        </template>
+
+                        <NavigationSimple v-else-if="!layout.organisationsState[layout.currentParams.organisation].currentShop"
                             :nav="orgNav"
                             :navKey="itemKey"
                         />
                     </template>
 
                     <template v-if="itemKey == 'warehouses_index'">
-                        <NavigationSimple v-if="!layout.currentWarehouse"
+                        <NavigationSimple v-if="!layout.organisationsState?.[layout.currentParams.organisation]?.currentWarehouse"
                             :nav="orgNav"
                             :navKey="itemKey"
                         />
                     </template>
                 </template>
 
+                <!-- shops_navigation or warehouses_navigation -->
                 <template v-else-if="itemKey == 'shops_navigation' || itemKey == 'warehouses_navigation'">
-                    <template v-if="itemKey == 'shops_navigation' && layout.currentShop">
-                        <NavigationSimple v-for="aaa, aaaindex in orgNav[layout.currentShop]"
+                    <template v-if="itemKey == 'shops_navigation' && layout.organisationsState?.[layout.currentParams.organisation]?.currentShop">
+                        <NavigationSimple v-for="aaa, aaaindex in orgNav[layout.organisationsState[layout.currentParams.organisation].currentShop]"
                             :nav="aaa"
                             :navKey="aaaindex"
                         />
                     </template>
 
-                    <template v-if="itemKey == 'warehouses_navigation' && layout.currentWarehouse">
-                        <NavigationSimple v-for="aaa, aaaindex in orgNav[layout.currentWarehouse]"
+                    <template v-if="itemKey == 'warehouses_navigation' && layout.organisationsState?.[layout.currentParams.organisation]?.currentWarehouse">
+                        <NavigationSimple v-for="aaa, aaaindex in orgNav[layout.organisationsState?.[layout.currentParams.organisation]?.currentWarehouse]"
                             :nav="aaa"
                             :navKey="aaaindex"
                         />

@@ -25,9 +25,9 @@ class GroupResource extends JsonResource
         $group = $this;
 
         return [
-            'slug' => $group->slug,
-            'name' => $group->name,
-            'logo' => $group->logoImageSources(48, 48),
+            'slug'  => $group->slug,
+            'label' => $group->name,
+            'logo'  => $group->logoImageSources(48, 48),
         ];
     }
 }

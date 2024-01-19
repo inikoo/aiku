@@ -47,7 +47,7 @@ const handleToggleLeftbar = () => {
             <LeftSidebarNavigation />
         </div>
 
-        <div class="absolute bottom-20 w-full">
+        <div class="absolute bottom-[68px] w-full">
             <LeftSidebarBottomNav />
         </div>
     </div>

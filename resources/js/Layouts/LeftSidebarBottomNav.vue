@@ -14,6 +14,7 @@ const layout = useLayoutStore()
 
 const bottomNavigation = computed(() => [
     {
+        // Group
         show: layout.group ? true : false,
         icon: 'fal fa-city',
         label: 'Group',
@@ -29,6 +30,7 @@ const bottomNavigation = computed(() => [
 
     },
     {
+        // Organisations
         show: layout.organisations.data?.length > 1 ? true : false,
         icon: 'fal fa-building',
         label: 'Organisations',
@@ -37,10 +39,11 @@ const bottomNavigation = computed(() => [
 
     },
     {
-        show: layout.currentParams.organisation ?? false,
+        // Shops
+        show: (layout.currentParams.organisation && (layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_shops?.length > 1)) ?? false,
         icon: 'fal fa-store-alt',
         label: 'Shops',
-        activeState: layout.currentShop,
+        activeState: layout.organisationsState?.[layout.currentParams.organisation]?.currentShop,
         showAll: {
             label: 'Show all shops',
             route: {
@@ -52,7 +55,8 @@ const bottomNavigation = computed(() => [
 
     },
     {
-        show: layout.currentParams.organisation ?? false,
+        // Warehouses
+        show: (layout.currentParams.organisation && (layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_warehouses.length > 1)) ?? false,
         icon: 'fal fa-warehouse-alt',
         label: 'Warehouses',
         activeState: layout.currentWarehouse,
@@ -66,7 +70,7 @@ const bottomNavigation = computed(() => [
         data: layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_warehouses,
     }
 ])
-console.log(layout.group)
+// console.log(layout.group)
 </script>
 
 <template>
@@ -78,9 +82,8 @@ console.log(layout.group)
                 v-slot="{ open, close: closeMenu }"
             >
                 <MenuButton v-tooltip="bottomNav.label" :aria-label="bottomNav.label"
-                    class="flex flex-col items-center justify-center gap-y-1 px-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/75"
-                    :class="[bottomNav.activeState ? 'text-white' : 'text-indigo-300 hover:text-white',
-                        open ? 'ring-1 ring-gray-500' : ''
+                    class="px-4 py-2 rounded-md flex flex-col items-center justify-center gap-y-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/75"
+                    :class="[open ? 'bg-indigo-400 rounded-md text-white' : bottomNav.activeState ? 'text-white' :  'text-indigo-300 hover:text-white',
                     ]">
                     <FontAwesomeIcon :icon='bottomNav.icon' class='leading-none' fixed-width aria-hidden='true' />
                     <span class="text-[7px] leading-none tracking-widest text-center">{{ bottomNav.activeState ? bottomNav.activeState.toString().slice(0, 3) : '' }}</span>
@@ -88,6 +91,13 @@ console.log(layout.group)
                 
                 <transition>
                     <MenuItems class="absolute bottom-full -translate-y-2 left-1/2 -translate-x-1/2 w-11/12 p-1 origin-bottom-left rounded bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
+                        
+                            <div class="flex items-center gap-x-1.5 px-1 mb-1">
+                                <FontAwesomeIcon :icon='bottomNav.icon' class='text-gray-400 text-xxs' aria-hidden='true' />
+                                <span class="text-[9px] leading-none text-gray-400">{{ bottomNav.label }}</span>
+                                <hr class="w-full rounded-full border-slate-300">
+                            </div>
+                        
                         <!-- Section: Show All -->
                         <template v-if="bottomNav.showAll">
                             <div @click="() => (router.visit(route(bottomNav.showAll.route.name, bottomNav.showAll.route.parameters)), closeMenu())"
@@ -97,6 +107,7 @@ console.log(layout.group)
                             </div>
                             <hr class="w-11/12 mx-auto border-t border-slate-300 mt-1 mb-2.5">
                         </template>
+                        
                         <!-- Section: Looping Item -->
                         <div v-if="bottomNav.data" class="max-h-52 overflow-y-auto space-y-1.5">
                             <MenuItem
@@ -106,7 +117,7 @@ console.log(layout.group)
                                     showare.slug == bottomNav.activeState ? 'bg-slate-500 text-white' : 'text-slate-600 hover:bg-slate-200/75 hover:text-indigo-600',
                                     'group flex gap-x-2 w-full justify-start items-center rounded px-2 py-2 text-sm cursor-pointer',
                                 ]">
-                                    <div class="font-semibold">{{ showare.name }}</div>
+                                    <div class="font-semibold">{{ showare.label }}</div>
                                 </div>
                             </MenuItem>
                         </div>
