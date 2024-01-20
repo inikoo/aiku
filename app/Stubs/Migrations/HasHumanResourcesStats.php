@@ -17,6 +17,13 @@ use Illuminate\Database\Schema\Blueprint;
 
 trait HasHumanResourcesStats
 {
+    public function getJobPositionsStats(Blueprint $table): Blueprint
+    {
+        $table->unsignedSmallInteger('number_job_positions')->default(0);
+
+        return $table;
+    }
+
     public function getEmployeeFieldStats(Blueprint $table): Blueprint
     {
         $table->unsignedSmallInteger('number_employees')->default(0);
@@ -37,7 +44,6 @@ trait HasHumanResourcesStats
 
     public function getWorkplaceFieldStats(Blueprint $table): Blueprint
     {
-
         $table->unsignedSmallInteger('number_workplaces')->default(0);
         foreach (WorkplaceTypeEnum::cases() as $case) {
             $table->unsignedSmallInteger('number_workplaces_type_'.$case->snake())->default(0);
@@ -49,8 +55,6 @@ trait HasHumanResourcesStats
 
     public function getClockingFieldStats(Blueprint $table): Blueprint
     {
-
-
         $table->unsignedSmallInteger('number_clocking_machines')->default(0);
         $table->unsignedSmallInteger('number_clocking_machines_type_'.ClockingMachineTypeEnum::STATIC_NFC->snake())->default(0);
         $table->unsignedSmallInteger('number_clocking_machines_type_'.ClockingMachineTypeEnum::MOBILE_APP->snake())->default(0);

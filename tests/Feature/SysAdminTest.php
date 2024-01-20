@@ -362,10 +362,10 @@ test('Hydrate group via command', function (Group $group) {
 })->depends('create group');
 
 test('Hydrate organisation via command', function (Organisation $organisation) {
-    $this->artisan('organisation:hydrate', [
+    $this->artisan('org:hydrate', [
         'organisations' => [$organisation->slug],
     ])->assertSuccessful();
-    $this->artisan('organisation:hydrate', [])->assertSuccessful();
+    $this->artisan('org:hydrate', [])->assertSuccessful();
 })->depends('create organisation');
 
 test('can show app login', function () {

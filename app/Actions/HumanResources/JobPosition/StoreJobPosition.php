@@ -9,33 +9,26 @@ namespace App\Actions\HumanResources\JobPosition;
 
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateJobPositions;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateJobPositions;
 use App\Models\HumanResources\JobPosition;
-use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Rules\IUnique;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsAction;
-use Lorisleiva\Actions\Concerns\WithAttributes;
 
 class StoreJobPosition extends OrgAction
 {
-    use AsAction;
-    use WithAttributes;
+    private bool $trusted=false;
 
-    /**
-     * @var true
-     */
-    private bool $trusted;
-
-    public function handle(Group $group, array $modelData): JobPosition
+    public function handle(Organisation $organisation, array $modelData): JobPosition
     {
+        data_set($modelData, 'group_id', $organisation->group_id);
         /** @var JobPosition $jobPosition */
-        $jobPosition = $group->josPositions()->create($modelData);
+        $jobPosition = $organisation->josPositions()->create($modelData);
 
-        GroupHydrateJobPositions::run($group);
-
+        GroupHydrateJobPositions::run($organisation->group);
+        OrganisationHydrateJobPositions::run($organisation);
 
         return $jobPosition;
     }
@@ -45,7 +38,7 @@ class StoreJobPosition extends OrgAction
         if($this->trusted) {
             return true;
         }
-        return $request->user()->hasPermissionTo("human-resources.{$this->organisation->slug}.edit");
+        return $request->user()->hasPermissionTo("supervisor.human-resources.{$this->organisation->slug}");
     }
 
 
@@ -56,7 +49,7 @@ class StoreJobPosition extends OrgAction
                        new IUnique(
                            table: 'job_positions',
                            extraConditions: [
-                               ['column' => 'group_id', 'value' => app('group')->id]
+                               ['column' => 'organisation_id', 'value' => $this->organisation->id]
                            ],
                        ),
                         'max:8', 'alpha_dash'],
@@ -64,20 +57,19 @@ class StoreJobPosition extends OrgAction
         ];
     }
 
-    public function action(Group $group, array $modelData): JobPosition
+    public function action(Organisation $organisation, array $modelData): JobPosition
     {
         $this->trusted = true;
-        $this->setRawAttributes($modelData);
-        $validatedData = $this->validateAttributes();
+        $this->initialisation($organisation, $modelData);
 
-        return $this->handle($group, $validatedData);
+        return $this->handle($organisation, $this->validatedData);
     }
 
     public function asController(Organisation $organisation, ActionRequest $request): JobPosition
     {
-        $request->validate();
+        $this->initialisation($organisation, $request);
 
-        return $this->handle(app('group'), $request->validated());
+        return $this->handle($organisation, $this->validatedData);
     }
 
     public function htmlResponse(JobPosition $jobPosition): RedirectResponse

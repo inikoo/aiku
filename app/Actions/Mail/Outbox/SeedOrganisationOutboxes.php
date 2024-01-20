@@ -38,7 +38,7 @@ class SeedOrganisationOutboxes
         }
     }
 
-    public string $commandSignature = 'organisation:seed-outboxes';
+    public string $commandSignature = 'org:seed-outboxes';
 
     public function asCommand(): int
     {

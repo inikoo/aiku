@@ -13,13 +13,14 @@ use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
     use HasHumanResourcesStats;
+
     public function up(): void
     {
         Schema::create('group_human_resources_stats', function (Blueprint $table) {
             $table->smallIncrements('id');
             $table->unsignedSmallInteger('group_id');
             $table->foreign('group_id')->references('id')->on('groups')->onUpdate('cascade')->onDelete('cascade');
-            $table->unsignedSmallInteger('number_job_positions')->default(0);
+            $this->getJobPositionsStats($table);
             $this->getWorkplaceFieldStats($table);
             $this->getEmployeeFieldStats($table);
             $this->getClockingFieldStats($table);

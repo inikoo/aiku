@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *
  * @property int $id
  * @property int $organisation_id
+ * @property int $number_job_positions
  * @property int $number_workplaces
  * @property int $number_workplaces_type_hq
  * @property int $number_workplaces_type_branch

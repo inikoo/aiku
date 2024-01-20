@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Fri, 16 Jun 2023 09:33:11 Malaysia Time, Pantai Lembeng, Bali, Id
+ * Created: Fri, 16 Jun 2023 09:33:11 Malaysia Time, Pantai Lembeng, Bali, Indonesia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
@@ -25,7 +25,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 class IndexJobPositions extends OrgAction
 {
     /** @noinspection PhpUndefinedMethodInspection */
-    public function handle(string $prefix = null): LengthAwarePaginator
+    public function handle(Organisation $parent, string $prefix = null): LengthAwarePaginator
     {
         if ($prefix) {
             InertiaTable::updateQueryBuilderParameters($prefix);
@@ -35,11 +35,19 @@ class IndexJobPositions extends OrgAction
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
                 $query->whereAnyWordStartWith('job_positions.name', $value)
-                    ->orWhere('job_positions.slug', 'ILIKE', "$value%");
+                    ->orWhereStartWith('job_positions.slug', $value);
             });
         });
 
-        $queryBuilder=QueryBuilder::for(JobPosition::class);
+        $queryBuilder = QueryBuilder::for(JobPosition::class);
+
+        if(class_basename($parent) === 'Organisation') {
+            $queryBuilder->where('organisation_id', $parent->id);
+        } else {
+            $queryBuilder->where('group_id', $this->organisation->group_id);
+        }
+
+
 
         return $queryBuilder
             ->defaultSort('job_positions.slug')
@@ -53,6 +61,7 @@ class IndexJobPositions extends OrgAction
     public function authorize(ActionRequest $request): bool
     {
         $this->canEdit = $request->user()->hasPermissionTo("human-resources.{$this->organisation->slug}.edit");
+
         return
             (
                 $request->user()->tokenCan('root') or
@@ -61,9 +70,9 @@ class IndexJobPositions extends OrgAction
     }
 
 
-    public function jsonResponse(): AnonymousResourceCollection
+    public function jsonResponse(LengthAwarePaginator $jobPositions): AnonymousResourceCollection
     {
-        return JobPositionResource::collection($this->handle());
+        return JobPositionResource::collection($jobPositions);
     }
 
     public function tableStructure(?array $modelOperations = null, $prefix = null): Closure
@@ -79,25 +88,6 @@ class IndexJobPositions extends OrgAction
             $table
                 ->withModelOperations($modelOperations)
                 ->withGlobalSearch()
-                ->withEmptyState(
-                    [
-                        'title'       => __('no job positions'),
-                        'description' => $this->canEdit ? __('Get started by creating a new job position.') : null,
-                        'count'       => app('currentTenant')->stats->number_job_position,
-                        'action'      => $this->canEdit ? [
-                            'type'    => 'button',
-                            'style'   => 'create',
-                            'tooltip' => __('new job position'),
-                            'label'   => __('job position'),
-                            'route'   => [
-                                'name'       => 'grp.org.hr.job-positions.create',
-                                'parameters' => [
-                                    'organisation' => $this->organisation->slug
-                                ]
-                            ]
-                        ] : null
-                    ]
-                )
                 ->column(key: 'slug', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'number_employees', label: __('employees'), canBeHidden: false, sortable: true, searchable: true)
@@ -105,16 +95,16 @@ class IndexJobPositions extends OrgAction
         };
     }
 
-    public function htmlResponse(LengthAwarePaginator $jobPositions): Response
+    public function htmlResponse(LengthAwarePaginator $jobPositions, ActionRequest $request): Response
     {
         return Inertia::render(
             'HumanResources/JobPositions',
             [
-                'breadcrumbs' => $this->getBreadcrumbs(),
+                'breadcrumbs' => $this->getBreadcrumbs($request->route()->originalParameters()),
                 'title'       => __('job positions'),
                 'pageHead'    => [
-                    'title'  => __('positions'),
-                    'actions'=> [
+                    'title'   => __('positions'),
+                    'actions' => [
                         $this->canEdit ? [
                             'type'  => 'button',
                             'style' => 'create',
@@ -139,24 +129,21 @@ class IndexJobPositions extends OrgAction
     public function asController(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($organisation, $request);
-        $this->perPage = 100;
 
-        return $this->handle();
+        return $this->handle($organisation);
     }
 
-    public function getBreadcrumbs(): array
+    public function getBreadcrumbs(array $routeParameters): array
     {
         return array_merge(
-            (new ShowHumanResourcesDashboard())->getBreadcrumbs(),
+            (new ShowHumanResourcesDashboard())->getBreadcrumbs($routeParameters),
             [
                 [
                     'type'   => 'simple',
                     'simple' => [
                         'route' => [
                             'name'       => 'grp.org.hr.job-positions.index',
-                            'parameters' => [
-                                'organisation' => $this->organisation->slug
-                            ]
+                            'parameters' => $routeParameters
                         ],
                         'label' => __('positions'),
                         'icon'  => 'fal fa-bars',

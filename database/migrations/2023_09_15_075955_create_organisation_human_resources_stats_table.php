@@ -12,17 +12,18 @@ use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
     use HasHumanResourcesStats;
+
     public function up(): void
     {
         Schema::create('organisation_human_resources_stats', function (Blueprint $table) {
             $table->smallIncrements('id');
             $table->unsignedSmallInteger('organisation_id');
             $table->foreign('organisation_id')->references('id')->on('organisations')->onUpdate('cascade')->onDelete('cascade');
+            $this->getJobPositionsStats($table);
             $this->getWorkplaceFieldStats($table);
             $this->getClockingFieldStats($table);
             $this->getEmployeeFieldStats($table);
             $table->timestampsTz();
-
         });
     }
 

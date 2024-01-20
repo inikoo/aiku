@@ -5,17 +5,18 @@
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
+use App\Stubs\Migrations\HasGroupOrganisationRelationship;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
+    use HasGroupOrganisationRelationship;
     public function up(): void
     {
         Schema::create('job_positions', function (Blueprint $table) {
             $table->smallIncrements('id');
-            $table->unsignedSmallInteger('group_id');
-            $table->foreign('group_id')->references('id')->on('groups')->onUpdate('cascade')->onDelete('cascade');
+            $table=$this->groupOrgRelationship($table);
             $table->string('slug')->unique()->collation('und_ns');
             $table->string('code')->index()->collation('und_ns');
             $table->string('name')->index()->collation('und_ci');
@@ -28,9 +29,7 @@ return new class () extends Migration {
             $table->double('number_work_time')->default(0);
             $table->decimal('share_work_time', 7, 6)->nullable();
             $table->timestampsTz();
-            $table->index([
-                'code','group_id'
-            ]);
+            $table->index(['code','organisation_id']);
         });
     }
 

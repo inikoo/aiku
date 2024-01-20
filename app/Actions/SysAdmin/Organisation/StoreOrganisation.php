@@ -48,7 +48,9 @@ class StoreOrganisation
 
         /** @var Organisation $organisation */
         $organisation = $group->organisations()->create($modelData);
+        $organisation->refresh();
         SeedOrganisationPermissions::run($organisation);
+        SeedOrganisationJobPositions::run($organisation);
 
 
 

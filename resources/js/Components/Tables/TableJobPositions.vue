@@ -20,7 +20,10 @@ function jobPositionRoute(jobPosition: JobPosition) {
         case 'grp.org.hr.job-positions.index':
             return route(
                 'grp.org.hr.job-positions.show',
-                [jobPosition.slug]);
+                [
+                    route().params['organisation'],
+                    jobPosition.slug
+                ]);
 
     }
 }

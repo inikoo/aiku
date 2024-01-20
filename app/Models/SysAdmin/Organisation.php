@@ -20,6 +20,7 @@ use App\Models\Dispatch\Shipper;
 use App\Models\Helpers\Address;
 use App\Models\HumanResources\ClockingMachine;
 use App\Models\HumanResources\Employee;
+use App\Models\HumanResources\JobPosition;
 use App\Models\HumanResources\Workplace;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
@@ -88,6 +89,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \App\Models\SysAdmin\OrganisationHumanResourcesStats|null $humanResourcesStats
  * @property-read \App\Models\SysAdmin\OrganisationInventoryStats|null $inventoryStats
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, JobPosition> $josPositions
  * @property-read Language $language
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Location> $locations
  * @property-read Media|null $logo
@@ -164,6 +166,11 @@ class Organisation extends Model implements HasMedia
     public function employees(): HasMany
     {
         return $this->hasMany(Employee::class);
+    }
+
+    public function josPositions(): HasMany
+    {
+        return $this->hasMany(JobPosition::class);
     }
 
     public function workplaces(): HasMany
@@ -367,6 +374,8 @@ class Organisation extends Model implements HasMedia
     {
         return $this->hasOne(Agent::class);
     }
+
+
 
 
 }

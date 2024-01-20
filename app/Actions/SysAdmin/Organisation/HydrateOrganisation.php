@@ -11,6 +11,7 @@ use App\Actions\HydrateModel;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateAccounting;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateCustomers;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateEmployees;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateJobPositions;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateMarket;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateOrders;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateProcurement;
@@ -37,10 +38,11 @@ class HydrateOrganisation extends HydrateModel
         OrganisationHydrateProcurement::run($organisation);
         OrganisationHydrateWeb::run($organisation);
         OrganisationHydrateProspects::run($organisation);
+        OrganisationHydrateJobPositions::run($organisation);
     }
 
 
-    public string $commandSignature = 'organisation:hydrate {organisations?*}';
+    public string $commandSignature = 'org:hydrate {organisations?*}';
 
     public function asCommand(Command $command): int
     {

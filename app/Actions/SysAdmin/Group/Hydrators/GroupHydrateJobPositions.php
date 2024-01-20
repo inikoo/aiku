@@ -8,17 +8,28 @@
 namespace App\Actions\SysAdmin\Group\Hydrators;
 
 use App\Models\SysAdmin\Group;
-use App\Models\HumanResources\JobPosition;
+use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class GroupHydrateJobPositions
 {
     use AsAction;
 
+    private Group $group;
+    public function __construct(Group $group)
+    {
+        $this->group = $group;
+    }
+
+    public function getJobMiddleware(): array
+    {
+        return [(new WithoutOverlapping($this->group->id))->dontRelease()];
+    }
+
     public function handle(Group $group): void
     {
         $stats = [
-            'number_job_positions' => JobPosition::count()
+            'number_job_positions' => $group->josPositions()->count()
         ];
         $group->humanResourcesStats()->update($stats);
     }

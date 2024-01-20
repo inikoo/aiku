@@ -68,7 +68,7 @@ class StoreEmployee extends OrgAction
                     ),
                     'contact_name'   => $employee->contact_name,
                     'email'          => $employee->work_email,
-                    'reset_password' => Arr::get($credentials, 'reset_password', false),
+                    'reset_password' => Arr::get($credentials, 'reset_password', true),
                 ]
             );
         }
