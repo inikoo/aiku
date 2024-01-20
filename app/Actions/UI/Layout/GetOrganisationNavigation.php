@@ -302,6 +302,7 @@ class GetOrganisationNavigation
                             'icon'  => ['fal', 'fa-money-check-alt'],
                             'route' => [
                                 'name' => 'grp.accounting.payment-accounts.index',
+
                             ]
                         ],
                     ],
@@ -350,7 +351,8 @@ class GetOrganisationNavigation
                             'label' => __('job positions'),
                             'icon'  => ['fal', 'fa-network-wired'],
                             'route' => [
-                                'name' => 'grp.org.hr.job-positions.index',
+                                'name'       => 'grp.org.hr.job-positions.index',
+                                'parameters' => [$organisation->slug],
 
                             ]
                         ],
@@ -358,7 +360,8 @@ class GetOrganisationNavigation
                             'label' => __('employees'),
                             'icon'  => ['fal', 'fa-user-hard-hat'],
                             'route' => [
-                                'name' => 'grp.org.hr.employees.index',
+                                'name'       => 'grp.org.hr.employees.index',
+                                'parameters' => [$organisation->slug],
 
                             ]
                         ],
@@ -366,7 +369,8 @@ class GetOrganisationNavigation
                             'label' => __('calendar'),
                             'icon'  => ['fal', 'fa-calendar'],
                             'route' => [
-                                'name' => 'grp.org.hr.calendars.index',
+                                'name'       => 'grp.org.hr.calendars.index',
+                                'parameters' => [$organisation->slug],
 
                             ]
                         ],
@@ -374,7 +378,8 @@ class GetOrganisationNavigation
                             'label' => __('time sheets'),
                             'icon'  => ['fal', 'fa-stopwatch'],
                             'route' => [
-                                'name' => 'grp.org.hr.time-sheets.index',
+                                'name'       => 'grp.org.hr.time-sheets.index',
+                                'parameters' => [$organisation->slug],
 
                             ]
                         ],
@@ -382,7 +387,8 @@ class GetOrganisationNavigation
                             'label' => __('working place'),
                             'icon'  => ['fal', 'fa-building'],
                             'route' => [
-                                'name' => 'grp.org.hr.workplaces.index',
+                                'name'       => 'grp.org.hr.workplaces.index',
+                                'parameters' => [$organisation->slug],
 
                             ]
                         ]

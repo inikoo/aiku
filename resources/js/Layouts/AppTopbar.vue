@@ -41,7 +41,7 @@ const logoutAuth = () => {
     useLiveUsers().unsubscribe()  // Unsubscribe from Laravel Echo
 }
 
-// For label 
+// For label
 const label = {
     organisationSelect: trans('Select organisation'),
     shopSelect: trans('Go to shop'),
@@ -94,7 +94,7 @@ const label = {
                             || (layout.organisations.data?.length > 1 ? true : false)
                             || useLayoutStore().organisations.data?.find(organisation => organisation.slug == layout.currentParams.organisation) && (route(useLayoutStore().currentRoute, useLayoutStore().currentParams)).includes('shops')
                             || useLayoutStore().navigation.org?.[layout.currentParams.organisation]?.warehouses_navigation && (route(useLayoutStore().currentRoute, useLayoutStore().currentParams)).includes('warehouse')
-                        " 
+                        "
                         class="p-0.5 flex border border-gray-300 rounded-md gap-x-0.5">
                             <!-- Dropdown: Organisations -->
                             <Menu v-if="layout.group || (layout.organisations.data.length > 1 ? true : false)" as="div" class="relative inline-block text-left">
@@ -158,7 +158,7 @@ const label = {
                             <!-- Dropdown: Shops -->
                             <Menu v-if="useLayoutStore().organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation) && (route(useLayoutStore().currentRoute, useLayoutStore().currentParams)).includes('shops')"
                                 as="div" class="relative inline-block text-left"
-                                v-slot="{ close: closeMenu }"    
+                                v-slot="{ close: closeMenu }"
                             >
                                 <TopbarSelectButton
                                     icon="fal fa-store-alt"
@@ -177,7 +177,7 @@ const label = {
                             <!-- Dropdown: Warehouse -->
                             <Menu v-if="useLayoutStore().navigation.org[layout.currentParams.organisation]?.warehouses_navigation && (route(useLayoutStore().currentRoute, useLayoutStore().currentParams)).includes('warehouse')"
                                 as="div" class="relative inline-block text-left"
-                                v-slot="{ close: closeMenu }"    
+                                v-slot="{ close: closeMenu }"
                             >
                                 <TopbarSelectButton
                                     icon="fal fa-warehouse-alt"
@@ -199,7 +199,7 @@ const label = {
                             <!-- {{ get('layout', ['navigation', 'org', get('layout', ['currentParams', 'organisation']), get('layout', ['currentModule']), 'topMenu', 'subSections'], false) }} -->
                             <template v-if="layout.navigation.org?.[layout.currentParams.organisation]?.[layout.currentModule]?.topMenu.subSections.length">
                                 <Link v-for="menu in layout.navigation.org[layout.currentParams.organisation][layout.currentModule]?.topMenu.subSections"
-                                    :href="'#'"
+                                    :href="route(menu.route.name, menu.route.parameters)"
                                     :id="get(menu, 'label', menu?.route.name)"
                                     class="group relative text-gray-700 group text-sm flex justify-end items-center cursor-pointer py-3 gap-x-2 px-4 md:px-4 lg:px-4"
                                     :title="capitalize(menu.tooltip ?? menu.label ?? '')">
