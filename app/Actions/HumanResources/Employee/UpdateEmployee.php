@@ -17,7 +17,6 @@ use App\Enums\HumanResources\Employee\EmployeeStateEnum;
 use App\Http\Resources\HumanResources\EmployeeResource;
 use App\Models\HumanResources\Employee;
 use App\Models\HumanResources\JobPosition;
-use App\Models\SysAdmin\Organisation;
 use App\Rules\AlphaDashDot;
 use App\Rules\IUnique;
 use Illuminate\Support\Arr;
@@ -130,12 +129,12 @@ class UpdateEmployee extends OrgAction
             'contact_name'        => ['sometimes', 'string', 'max:256'],
             'date_of_birth'       => ['sometimes', 'nullable', 'date', 'before_or_equal:today'],
             'job_title'           => ['sometimes', 'nullable', 'string', 'max:256'],
-            'state'               => ['required', new Enum(EmployeeStateEnum::class)],
+            'state'               => ['sometimes','required', new Enum(EmployeeStateEnum::class)],
             'positions'           => ['sometimes', 'array'],
             'positions.*'         => ['sometimes', 'exists:job_positions,slug'],
             'email'               => ['sometimes', 'nullable', 'email'],
-            'username'            => ['nullable', new AlphaDashDot(), 'iunique:users'],
-            'password'            => ['exclude_if:username,null', 'required', 'max:255', app()->isLocal() || app()->environment('testing') ? null : Password::min(8)->uncompromised()],
+            'username'            => ['sometimes','nullable', new AlphaDashDot(), 'iunique:users'],
+            'password'            => ['sometimes','exclude_if:username,null', 'required', 'max:255', app()->isLocal() || app()->environment('testing') ? null : Password::min(8)->uncompromised()],
             'reset_password'      => ['sometimes', 'boolean'],
             'source_id'           => ['sometimes', 'string', 'max:64'],
         ];
@@ -151,7 +150,7 @@ class UpdateEmployee extends OrgAction
         return $this->handle($employee, $this->validatedData);
     }
 
-    public function asController(Organisation $organisation, Employee $employee, ActionRequest $request): Employee
+    public function asController(Employee $employee, ActionRequest $request): Employee
     {
         $this->employee = $employee;
         $this->initialisation($employee->organisation, $request);

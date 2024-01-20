@@ -31,10 +31,6 @@ Route::prefix("procurement")
     ->name("procurement.")
     ->group(__DIR__."/procurement.php");
 
-Route::prefix("models")
-    ->name("models.")
-    ->group(__DIR__."/models.php");
-
 /*
 
 Route::prefix("crm")

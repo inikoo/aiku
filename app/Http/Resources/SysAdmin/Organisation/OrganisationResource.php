@@ -21,10 +21,10 @@ class OrganisationResource extends JsonResource
         $organisation = $this;
 
         return [
-            'slug' => $organisation->slug,
-            'name' => $organisation->name,
+            'slug'  => $organisation->slug,
+            'name'  => $organisation->name,
             'email' => $organisation->email,
-            'logo' => $organisation->logoImageSources(48, 48),
+            'logo'  => $organisation->logoImageSources(48, 48),
         ];
     }
 }

@@ -16,6 +16,7 @@ use App\Models\HumanResources\Employee;
 use App\Models\HumanResources\JobPosition;
 use App\Models\SysAdmin\Organisation;
 use Exception;
+use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -45,6 +46,127 @@ class EditEmployee extends OrgAction
      */
     public function htmlResponse(Employee $employee, ActionRequest $request): Response
     {
+
+
+        $sections['properties'] = [
+            'label'  => __('Properties'),
+            'icon'   => 'fal fa-sliders-h',
+            'fields' => [
+                'worker_number'       => [
+                    'type'     => 'input',
+                    'label'    => __('worker number'),
+                    'required' => true,
+                    'value'    => $employee->worker_number
+                ],
+                'alias'               => [
+                    'type'     => 'input',
+                    'label'    => __('alias'),
+                    'required' => true,
+                    'value'    => $employee->alias
+                ],
+                'work_email'          => [
+                    'type'  => 'input',
+                    'label' => __('work email'),
+                    'value' => $employee->work_email
+                ],
+                'state'               => [
+                    'type'    => 'radio',
+                    'mode'    => 'card',
+                    'label'   => '',
+                    'value'   => $employee->state,
+                    'options' => [
+                        [
+                            'title'       => __('Hired'),
+                            'description' => __('Will start in future date'),
+                            'value'       => EmployeeStateEnum::HIRED->value
+                        ],
+                        [
+                            'title'       => __('Working'),
+                            'description' => __('Employee already working'),
+                            'value'       => EmployeeStateEnum::WORKING->value
+                        ],
+                    ]
+                ],
+                'employment_start_at' => [
+                    'type'     => 'date',
+                    'label'    => __('employment start at'),
+                    'value'    => $employee->employment_start_at,
+                    'required' => true
+                ],
+                'job_title'           => [
+                    'type'        => 'input',
+                    'label'       => __('job title'),
+                    'placeholder' => __('Job title'),
+                    'searchable'  => true,
+                    'value'       => $employee->job_title,
+                    'required'    => true
+                ],
+                'positions' => [
+                    'type'     => 'employeePosition',
+                    'required' => true,
+                    'label'    => __('position'),
+                    'options'  => [
+                        'positions'     => JobPositionResource::collection(JobPosition::all()),
+                        'shops'         => ShopResource::collection($this->organisation->shops),
+                        'warehouses'    => WarehouseResource::collection($this->organisation->warehouses),
+                    ],
+                    'value'    => [],
+                    'full'     => true
+                ],
+
+
+            ]
+        ];
+
+
+        $sections['personal'] = [
+            'label'  => __('Personal information'),
+            'icon'   => 'fal fa-id-card',
+            'fields' => [
+                'contact_name'  => [
+                    'type'        => 'input',
+                    'label'       => __('name'),
+                    'placeholder' => __('Name'),
+                    'value'       => $employee->contact_name,
+                    'required'    => true
+                ],
+                'date_of_birth' => [
+                    'type'        => 'date',
+                    'label'       => __('date of birth'),
+                    'placeholder' => __('Date of birth'),
+                    'value'       => $employee->date_of_birth
+                ],
+                'email'         => [
+                    'type'  => 'input',
+                    'label' => __('personal email'),
+                    'value' => $employee->email
+                ],
+            ]
+        ];
+
+        $sections['credentials'] = [
+            'label'  => __('Credentials'),
+            'icon'   => 'fal fa-key',
+            'fields' => [
+                'username' => [
+                    'type'  => 'input',
+                    'label' => __('username'),
+                    'value' => $employee->user ? $employee->user->username : ''
+
+                ],
+                'password' => [
+                    'type'  => 'password',
+                    'label' => __('password'),
+
+                ],
+            ]
+        ];
+
+        $currentSection = 'properties';
+        if ($request->has('section') and Arr::has($sections, $request->get('section'))) {
+            $currentSection = $request->get('section');
+        }
+
         return Inertia::render(
             'EditModel',
             [
@@ -63,122 +185,14 @@ class EditEmployee extends OrgAction
                         ]
                     ]
                 ],
-                'formData' => [
-                    'blueprint' => [
-                        [
-                            'title'  => __('personal information'),
-                            'fields' => [
 
-                                'contact_name' => [
-                                    'type'        => 'input',
-                                    'label'       => __('name'),
-                                    'placeholder' => __('Name'),
-                                    'value'       => $employee->contact_name
-                                ],
-                                'date_of_birth' => [
-                                    'type'        => 'date',
-                                    'label'       => __('date of birth'),
-                                    'placeholder' => __('Date of birth'),
-                                    'value'       => $employee->date_of_birth
-                                ],
-
-
-                            ]
-                        ],
-                        [
-                            'title'  => __('Employment'),
-                            'fields' => [
-                                'worker_number'       => [
-                                    'type'     => 'input',
-                                    'label'    => __('worker number'),
-                                    'required' => true,
-                                    'value'    => $employee->worker_number
-                                ],
-                                'alias'               => [
-                                    'type'     => 'input',
-                                    'label'    => __('alias'),
-                                    'required' => true,
-                                    'value'    => $employee->alias
-                                ],
-                                'work_email'          => [
-                                    'type'  => 'input',
-                                    'label' => __('work email'),
-                                    'value' => $employee->work_email
-                                ],
-                                'state'               => [
-                                    'label'    => __('state'),
-                                    'type'     => 'radio',
-                                    'mode'     => 'card',
-                                    'required' => true,
-                                    'value'    => $employee->state,
-                                    'options'  => [
-                                        [
-                                            'title'       => __('Hired'),
-                                            'description' => __('Will start in future date'),
-                                            'value'       => EmployeeStateEnum::HIRED->value
-                                        ],
-                                        [
-                                            'title'       => __('Working'),
-                                            'description' => __('Employee already working'),
-                                            'value'       => EmployeeStateEnum::WORKING->value
-                                        ],
-                                    ]
-                                ],
-                                'employment_start_at' => [
-                                    'type'     => 'date',
-                                    'label'    => __('employment start at'),
-                                    'value'    => $employee->employment_start_at,
-                                    'required' => true
-                                ],
-                            ]
-                        ],
-                        [
-                            'title'  => __('job'),
-                            'fields' => [
-                                'job_title' => [
-                                    'type'        => 'input',
-                                    'label'       => __('job title'),
-                                    'placeholder' => __('Job title'),
-                                    'searchable'  => true,
-                                    'value'       => $employee->job_title
-                                ],
-                                'positions' => [
-                                    'type'     => 'employeePosition',
-                                    'required' => true,
-                                    'label'    => __('position'),
-                                    'options'  => [
-                                        'positions'     => JobPositionResource::collection(JobPosition::all()),
-                                        'shops'         => ShopResource::collection($this->organisation->shops),
-                                        'warehouses'    => WarehouseResource::collection($this->organisation->warehouses),
-                                    ],
-                                    'value'    => [],
-                                    'full'     => true
-                                ],
-                            ]
-                        ],
-                        [
-                            'title'  => __('User credentials'),
-                            'fields' => [
-
-                                'username' => [
-                                    'type'  => 'input',
-                                    'label' => __('username'),
-                                    'value' => ''
-
-                                ],
-                                'password' => [
-                                    'type'  => 'password',
-                                    'label' => __('password'),
-                                    'value' => ''
-                                ],
-                            ]
-                        ],
-
-                    ],
+                'formData'    => [
+                    'current'   => $currentSection,
+                    'blueprint' => $sections,
                     'args'      => [
                         'updateRoute' => [
                             'name'       => 'grp.models.employee.update',
-                            'parameters' => $employee->slug
+                            'parameters' => [$employee->id]
 
                         ],
                     ]

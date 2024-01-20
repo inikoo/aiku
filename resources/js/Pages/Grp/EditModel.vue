@@ -14,8 +14,8 @@ import { useLayoutStore } from '@/Stores/layout'
 import {library} from "@fortawesome/fontawesome-svg-core"
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome"
 import {faGoogle} from "@fortawesome/free-brands-svg-icons"
-import { Action as TSAction } from '@/types/Action'
 import { routeType } from '@/types/route'
+import PageHeading from '@/Components/Headings/PageHeading.vue';
 
 import { faUserLock, faBell, faCopyright, faUserCircle, faMobileAndroidAlt, faKey, faClone, faPaintBrush, faMoonStars, faLightbulbOn, faCheck, faPhone, faIdCard, faFingerprint, faLanguage, faAddressBook, faTrashAlt } from '@fal'
 
@@ -23,7 +23,16 @@ library.add(faUserLock,faBell,faCopyright,faUserCircle, faMobileAndroidAlt, faKe
 
 
 const props = defineProps<{
-
+    title: string,
+    pageHead: {
+        title: string
+        exitEdit: {
+            route: {
+                name: string
+                parameters: string[]
+            }
+        }
+    },
     formData: {
         current?:string,
         blueprint: {
@@ -115,6 +124,10 @@ onBeforeUnmount(() => {
 
 
 <template layout="App">
+    <Head :title="capitalize(title)"/>
+    <PageHeading :data="pageHead"></PageHeading>
+
+
     <!-- If overflow-hidden, affect to Multiselect on Address -->
     <div class="rounded-lg shadow">
         <div v-if="!isMobile" class="divide-y divide-gray-200 lg:grid grid-flow-col lg:grid-cols-12 lg:divide-y-0 lg:divide-x">
@@ -150,7 +163,7 @@ onBeforeUnmount(() => {
                 <template v-for="(sectionData, sectionIdx ) in formData.blueprint" :key="sectionIdx">
                     <div v-show="sectionIdx === currentTab" >
                         <div class="sr-only absolute -top-16" :id="`field${sectionIdx}`"/>
-                
+
                         <!-- Title -->
                         <div class="flex items-center gap-x-2" ref="buttonRefs">
                             <h3 v-if="sectionData.title" class="text-lg leading-6 font-medium text-gray-700 capitalize">
@@ -160,7 +173,7 @@ onBeforeUnmount(() => {
                                 {{ sectionData.subtitle }}
                             </p>
                         </div>
-                        
+
                         <!-- Looping Field -->
                         <div class="my-2 pt-4 space-y-5 transition-all duration-1000 ease-in-out" :class="fieldGroupAnimateSection">
                             <dd v-for="(fieldData, fieldName, index) in sectionData.fields" :key="index" class="py-2">

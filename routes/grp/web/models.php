@@ -6,12 +6,35 @@
  */
 
 
+use App\Actions\CRM\Prospect\ImportShopProspects;
+use App\Actions\HumanResources\Employee\DeleteEmployee;
+use App\Actions\HumanResources\Employee\StoreEmployee;
+use App\Actions\HumanResources\Employee\UpdateEmployee;
+use App\Actions\HumanResources\Workplace\DeleteWorkplace;
+use App\Actions\HumanResources\Workplace\StoreWorkplace;
+use App\Actions\HumanResources\Workplace\UpdateWorkplace;
 use App\Actions\UI\Profile\GetProfileAppLoginQRCode;
 use App\Actions\UI\Profile\UpdateProfile;
 use Illuminate\Support\Facades\Route;
 
 Route::patch('/profile', UpdateProfile::class)->name('profile.update');
 Route::get('/profile/app-login-qrcode', GetProfileAppLoginQRCode::class)->name('profile.app-login-qrcode');
+
+
+Route::patch('/employees/{employee:id}', UpdateEmployee::class)->name('employee.update');
+Route::delete('/employee/{employee}', DeleteEmployee::class)->name('employee.delete');
+Route::patch('/working-place/{workplace}', UpdateWorkplace::class)->name('working-place.update');
+Route::delete('/working-place/{workplace}', DeleteWorkplace::class)->name('working-place.delete');
+
+Route::name('org.')->prefix('org/{organisation}')->group(function () {
+    Route::post('/employee/', StoreEmployee::class)->name('employee.store');
+    Route::post('/working-place/', StoreWorkplace::class)->name('working-place.store');
+});
+
+Route::name('shop.')->prefix('shop/{shop}')->group(function () {
+    Route::post('prospect/upload', [ImportShopProspects::class, 'inShop'])->name('prospects.upload');
+
+});
 
 
 /*
