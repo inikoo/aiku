@@ -16,7 +16,6 @@ use App\Services\Organisation\Aurora\FetchAuroraCustomer;
 use App\Services\Organisation\Aurora\FetchAuroraCustomerClient;
 use App\Services\Organisation\Aurora\FetchAuroraDeletedCustomer;
 use App\Services\Organisation\Aurora\FetchAuroraDeletedEmployee;
-use App\Services\Organisation\Aurora\FetchAuroraDeletedGuest;
 use App\Services\Organisation\Aurora\FetchAuroraDeletedInvoice;
 use App\Services\Organisation\Aurora\FetchAuroraDeletedLocation;
 use App\Services\Organisation\Aurora\FetchAuroraDeletedStock;
@@ -29,7 +28,6 @@ use App\Services\Organisation\Aurora\FetchAuroraDispatchedEmail;
 use App\Services\Organisation\Aurora\FetchAuroraEmailTrackingEvent;
 use App\Services\Organisation\Aurora\FetchAuroraEmployee;
 use App\Services\Organisation\Aurora\FetchAuroraFamily;
-use App\Services\Organisation\Aurora\FetchAuroraGuest;
 use App\Services\Organisation\Aurora\FetchAuroraHistoricProduct;
 use App\Services\Organisation\Aurora\FetchAuroraHistoricService;
 use App\Services\Organisation\Aurora\FetchAuroraInvoice;
@@ -59,7 +57,6 @@ use App\Services\Organisation\Aurora\FetchAuroraOrganisation;
 use App\Services\Organisation\Aurora\FetchAuroraTradeUnit;
 use App\Services\Organisation\Aurora\FetchAuroraTradeUnitImages;
 use App\Services\Organisation\Aurora\FetchAuroraTransaction;
-use App\Services\Organisation\Aurora\FetchAuroraUser;
 use App\Services\Organisation\Aurora\FetchAuroraWarehouse;
 use App\Services\Organisation\Aurora\FetchAuroraWarehouseArea;
 use App\Services\Organisation\Aurora\FetchAuroraWebpage;
@@ -94,24 +91,9 @@ class AuroraOrganisationService implements SourceOrganisationService
         return (new FetchAuroraOrganisation($this))->fetch();
     }
 
-    public function fetchUser($id): ?array
-    {
-        return (new FetchAuroraUser($this))->fetch($id);
-    }
-
     public function fetchEmployee($id): ?array
     {
         return (new FetchAuroraEmployee($this))->fetch($id);
-    }
-
-    public function fetchGuest($id): ?array
-    {
-        return (new FetchAuroraGuest($this))->fetch($id);
-    }
-
-    public function fetchDeletedGuest($id): ?array
-    {
-        return (new FetchAuroraDeletedGuest($this))->fetch($id);
     }
 
     public function fetchShop($id): ?array

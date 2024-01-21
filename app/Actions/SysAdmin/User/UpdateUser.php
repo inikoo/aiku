@@ -7,23 +7,31 @@
 
 namespace App\Actions\SysAdmin\User;
 
+use App\Actions\GrpAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateUsers;
 use App\Actions\Traits\WithActionUpdate;
+use App\Enums\SysAdmin\User\UserAuthTypeEnum;
 use App\Http\Resources\SysAdmin\UserResource;
 use App\Models\SysAdmin\User;
 use App\Rules\AlphaDashDot;
+use App\Rules\IUnique;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdateUser
+class UpdateUser extends GrpAction
 {
     use WithActionUpdate;
 
     private bool $asAction = false;
 
+    private User $user;
+
     public function handle(User $user, array $modelData): User
     {
+
+
         $user= $this->update($user, $modelData, ['profile', 'settings']);
 
         if($user->wasChanged('status')) {
@@ -45,34 +53,74 @@ class UpdateUser
     public function rules(): array
     {
         return [
-            'username' => ['sometimes', 'required', new AlphaDashDot(), 'unique:App\Models\SysAdmin\SysUser,username'],
-            'password' => ['sometimes', 'required', app()->isLocal()  || app()->environment('testing') ? null : Password::min(8)->uncompromised()],
-            'email'    => 'sometimes|required|email|unique:App\Models\SysAdmin\GroupUser,email'
+            'username'        => ['sometimes','required', new AlphaDashDot(),
+
+                                   Rule::notIn(['export', 'create']),
+                                  new IUnique(
+                                      table: 'employees',
+                                      extraConditions: [
+
+                                          [
+                                              'column'   => 'id',
+                                              'operator' => '!=',
+                                              'value'    => $this->user->id
+                                          ],
+                                      ]
+                                  ),
+
+
+
+
+            ],
+            'password'        => ['sometimes','required', app()->isLocal() || app()->environment('testing') ? null : Password::min(8)->uncompromised()],
+            'legacy_password' => ['sometimes', 'string'],
+            'email'           => ['sometimes', 'nullable', 'email',
+                                  new IUnique(
+                                      table: 'employees',
+                                      extraConditions: [
+                                          [
+                                              'column' => 'group_id',
+                                              'value'  => $this->group->id
+                                          ],
+                                          [
+                                              'column'   => 'id',
+                                              'operator' => '!=',
+                                              'value'    => $this->user->id
+                                          ],
+                                      ]
+                                  ),
+                ],
+            'contact_name'    => ['sometimes', 'string', 'max:255'],
+            'reset_password'  => ['sometimes', 'boolean'],
+            'auth_type'       => ['sometimes', Rule::enum(UserAuthTypeEnum::class)],
+            'status'          => ['sometimes', 'boolean'],
+            'language_id'     => ['sometimes', 'required', 'exists:languages,id'],
         ];
     }
 
 
     public function afterValidator(Validator $validator, ActionRequest $request): void
     {
-        if ($request->exists('username') and $request->get('username') != strtolower($request->get('username'))) {
-            $validator->errors()->add('invalid_username', 'Username must be lowercase.');
+        if ($this->has('username') and $this->get('username') != strtolower($this->get('username'))) {
+            $validator->errors()->add('user', __('Username must be lowercase.'));
         }
     }
 
 
     public function asController(User $user, ActionRequest $request): User
     {
-        $request->validate();
-        return $this->handle($user, $request->validated());
+        $this->user=$user;
+        $this->initialisation($user->group, $request);
+        return $this->handle($user, $this->validatedData);
     }
 
     public function action(User $user, $modelData): User
     {
+        $this->user     =$user;
         $this->asAction = true;
-        $this->setRawAttributes($modelData);
-        $validatedData = $this->validateAttributes();
+        $this->initialisation($user->group, $modelData);
 
-        return $this->handle($user, $validatedData);
+        return $this->handle($user, $this->validatedData);
 
     }
 

@@ -104,9 +104,12 @@ class StoreEmployee extends OrgAction
 
     public function prepareForValidation(ActionRequest $request): void
     {
-        if ($request->get('username')) {
-            $request->merge(['some' => 'additional data']);
+        if (!$this->get('username')) {
+            $this->set('username', null);
         }
+
+
+
     }
 
     public function rules(): array
@@ -146,11 +149,14 @@ class StoreEmployee extends OrgAction
             'email'               => ['sometimes', 'nullable', 'email'],
             'username'            => ['nullable', new AlphaDashDot(), 'iunique:users'],
             'password'            => ['exclude_if:username,null', 'required', 'max:255', app()->isLocal() || app()->environment('testing') ? null : Password::min(8)->uncompromised()],
-            'reset_password'      => ['sometimes', 'boolean'],
+            'reset_password'      => ['exclude_if:username,null','sometimes', 'boolean'],
             'source_id'           => ['sometimes', 'string', 'max:64'],
             'deleted_at'          => ['sometimes', 'nullable', 'date'],
         ];
     }
+
+
+
 
     public function action(Organisation|Workplace $parent, $modelData): Employee
     {

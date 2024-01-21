@@ -11,17 +11,14 @@ use App\Actions\HumanResources\Employee\Hydrators\EmployeeHydrateUniversalSearch
 use App\Actions\HumanResources\SyncJobPosition;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateEmployees;
-use App\Actions\SysAdmin\User\UpdateUser;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
 use App\Http\Resources\HumanResources\EmployeeResource;
 use App\Models\HumanResources\Employee;
 use App\Models\HumanResources\JobPosition;
-use App\Rules\AlphaDashDot;
 use App\Rules\IUnique;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rules\Enum;
-use Illuminate\Validation\Rules\Password;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateEmployee extends OrgAction
@@ -35,16 +32,6 @@ class UpdateEmployee extends OrgAction
 
     public function handle(Employee $employee, array $modelData): Employee
     {
-        $credentials = [];
-        if (Arr::exists($modelData, 'username')) {
-            $credentials['username'] = Arr::get($modelData, 'username');
-        }
-        if (Arr::exists($modelData, 'password')) {
-            $credentials['password'] = Arr::get($modelData, 'password');
-        }
-
-        Arr::forget($modelData, ['username', 'password']);
-
 
         if (Arr::exists($modelData, 'positions')) {
             $jobPositions = [];
@@ -67,9 +54,6 @@ class UpdateEmployee extends OrgAction
             OrganisationHydrateEmployees::dispatch($employee->organisation);
         }
 
-        if (count($credentials) > 0 and $employee->user) {
-            UpdateUser::run($employee->user, $credentials);
-        }
 
 
         return $employee;
@@ -133,9 +117,6 @@ class UpdateEmployee extends OrgAction
             'positions'           => ['sometimes', 'array'],
             'positions.*'         => ['sometimes', 'exists:job_positions,slug'],
             'email'               => ['sometimes', 'nullable', 'email'],
-            'username'            => ['sometimes','nullable', new AlphaDashDot(), 'iunique:users'],
-            'password'            => ['sometimes','exclude_if:username,null', 'required', 'max:255', app()->isLocal() || app()->environment('testing') ? null : Password::min(8)->uncompromised()],
-            'reset_password'      => ['sometimes', 'boolean'],
             'source_id'           => ['sometimes', 'string', 'max:64'],
         ];
     }

@@ -15,13 +15,7 @@ interface SourceOrganisationService
 {
     public function fetchOrganisation(Organisation $organisation);
 
-    public function fetchUser($id);
-
     public function fetchEmployee($id);
-
-    public function fetchGuest($id);
-
-    public function fetchDeletedGuest($id);
 
     public function fetchShop($id);
 

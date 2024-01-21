@@ -7,26 +7,25 @@
 
 namespace App\Actions\SysAdmin\User;
 
+use App\Actions\GrpAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateUsers;
 use App\Actions\SysAdmin\User\Hydrators\UserHydrateUniversalSearch;
 use App\Actions\SysAdmin\User\UI\SetUserAvatar;
+use App\Enums\SysAdmin\User\UserAuthTypeEnum;
 use App\Models\HumanResources\Employee;
 use App\Models\SupplyChain\Agent;
 use App\Models\SupplyChain\Supplier;
 use App\Models\SysAdmin\Guest;
 use App\Models\SysAdmin\User;
 use App\Rules\AlphaDashDot;
+use App\Rules\IUnique;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
+use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsAction;
-use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class StoreUser
+class StoreUser extends GrpAction
 {
-    use AsAction;
-    use WithAttributes;
-
     private bool $asAction = false;
 
 
@@ -67,10 +66,36 @@ class StoreUser
     public function rules(): array
     {
         return [
-            'username' => ['required', new AlphaDashDot(), 'unique:users,username', Rule::notIn(['export', 'create'])],
-            'password' => ['required', app()->isLocal() || app()->environment('testing') ? null : Password::min(8)->uncompromised()],
-            'email'    => ['sometimes', 'nullable', 'email', 'unique:users,email']
+            'username'        => ['required', new AlphaDashDot(), 'iunique:users,username', Rule::notIn(['export', 'create'])],
+            'password'        => ['required', app()->isLocal() || app()->environment('testing') ? null : Password::min(8)->uncompromised()],
+            'legacy_password' => ['sometimes', 'string'],
+            'email'           => ['sometimes', 'nullable', 'email',
+                                  new IUnique(
+                                      table: 'employees',
+                                      extraConditions: [
+                                          [
+                                              'column' => 'group_id',
+                                              'value'  => $this->group->id
+                                          ],
+                                      ]
+                                  ),
+
+                ],
+            'contact_name'    => ['sometimes', 'string', 'max:255'],
+            'reset_password'  => ['sometimes', 'boolean'],
+            'auth_type'       => ['sometimes', Rule::enum(UserAuthTypeEnum::class)],
+            'status'          => ['sometimes', 'boolean'],
+            'source_id'       => ['sometimes', 'string'],
+            'created_at'      => ['sometimes', 'date'],
+            'language_id'     => ['sometimes', 'required', 'exists:languages,id'],
         ];
+    }
+
+    public function afterValidator(Validator $validator, ActionRequest $request): void
+    {
+        if ($this->get('username') != strtolower($this->get('username'))) {
+            $validator->errors()->add('user', __('Username must be lowercase.'));
+        }
     }
 
 
@@ -78,10 +103,9 @@ class StoreUser
     {
         $this->asAction = true;
 
-        $this->setRawAttributes($modelData);
-        $validatedData = $this->validateAttributes();
+        $this->initialisation($parent->group, $modelData);
 
-        return $this->handle($parent, $validatedData);
+        return $this->handle($parent, $this->validatedData);
     }
 
 

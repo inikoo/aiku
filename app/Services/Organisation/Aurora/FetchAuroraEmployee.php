@@ -8,6 +8,7 @@
 namespace App\Services\Organisation\Aurora;
 
 use App\Models\HumanResources\JobPosition;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -23,6 +24,7 @@ class FetchAuroraEmployee extends FetchAurora
 
         if ($this->auroraModelData) {
             $this->parseModel();
+            $this->parseUser();
             $this->parsePhoto();
             $this->parseJobPositions();
         }
@@ -71,11 +73,9 @@ class FetchAuroraEmployee extends FetchAurora
         $positions = [];
 
 
-
         if ($this->auroraModelData->{'Staff ID'}) {
             $workerNumber = preg_replace('/[()]/', '', $this->auroraModelData->{'Staff ID'});
             $workerNumber = preg_replace('/\s+/', '-', $workerNumber);
-
         } else {
             $workerNumber = $this->auroraModelData->{'Staff Key'};
         }
@@ -103,10 +103,102 @@ class FetchAuroraEmployee extends FetchAurora
             'errors'                   => $errors,
             'source_id'                => $this->organisation->id.':'.$this->auroraModelData->{'Staff Key'},
             'positions'                => $positions,
-            'username'                 => null,
 
         ];
     }
+
+    private function parseUser(): void
+    {
+        $auroraUserData = DB::connection('aurora')
+            ->table('User Dimension as users')
+            ->leftJoin('Staff Dimension', 'Staff Key', 'User Parent Key')
+            ->selectRaw('*,(select GROUP_CONCAT(`Role Code`) from `Staff Role Bridge` SRB where (SRB.`Staff Key`=`Staff Dimension`.`Staff Key`) ) as staff_positions')
+            ->whereIn('User Type', ['Staff', 'Contractor'])
+            ->where('users.aiku_ignore', 'No')
+            ->where('User Parent Key', $this->auroraModelData->{'Staff Key'})->first();
+
+        if ($auroraUserData) {
+            $legacyPassword = $auroraUserData->{'User Password'};
+            if (app()->isLocal()) {
+                $legacyPassword = hash('sha256', 'hello');
+            }
+
+            if($auroraUserData->aiku_alt_username) {
+                $username=$auroraUserData->aiku_alt_username;
+            } else {
+                $username=$auroraUserData->{'User Handle'};
+            }
+
+
+
+            $this->parsedData['user'] = [
+                'source_id'       => $this->organisation->id.':'.$auroraUserData->{'User Key'},
+                'username'        => Str::kebab(Str::lower($username)),
+                'status'          => $auroraUserData->{'User Active'} == 'Yes',
+                'created_at'      => $auroraUserData->{'User Created'},
+                'legacy_password' => $legacyPassword,
+                'language_id'     => $this->parseLanguageID($auroraUserData->{'User Preferred Locale'}),
+            ];
+        }
+    }
+
+    private function parseUserRoles(): void
+    {
+        $roles = collect(config('blueprint.roles'))->mapWithKeys(function ($item, $key) {
+            return [$key => false];
+        })->all();
+
+
+        foreach (DB::connection('aurora')->table('User Group User Bridge')->where('User Key', $this->auroraModelData->{'User Key'})->select('User Group Key')->get() as $auRole) {
+            $role = match ($auRole->{'User Group Key'}) {
+                1, 15 => 'system-admin',
+                6  => 'human-resources-clerk',
+                20 => 'human-resources-manager',
+                8  => 'procurement-clerk',
+                21, 28 => 'procurement-manager',
+                4 => 'production-operative',
+                27, 7 => 'production-manager',
+                3  => 'distribution-clerk',
+                22 => 'distribution-manager',
+
+                23 => 'accountant-manager',
+
+                17 => 'distribution-dispatcher-manager',
+                24 => 'distribution-dispatcher-picker',
+                25 => 'distribution-dispatcher-packer',
+
+
+                16 => 'customer-services-manager',
+                2  => 'customer-services-clerk',
+                18 => 'shop-manager',
+                9  => 'shop-clerk',
+
+                14, 5 => 'business-intelligence-analyst',
+                29 => 'marketing-broadcaster-clerk',
+                30 => 'marketing-broadcaster-manager',
+                32 => 'fulfilment-manager',
+                31 => 'fulfilment-clerk',
+
+                default => $auRole->{'User Group Key'},
+            };
+
+            if (Arr::has($roles, $role)) {
+                $roles[$role] = true;
+            }
+            //else{
+            //    print "$role\n";
+            //}
+        }
+
+
+        $this->parsedData['roles'] = array_keys(
+            collect($roles)->filter(function ($value) {
+                return $value;
+            })->all()
+        );
+    }
+
+
 
     private function parsePhoto(): void
     {

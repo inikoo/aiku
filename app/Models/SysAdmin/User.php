@@ -55,6 +55,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $remember_token
  * @property array $data
  * @property array $settings
+ * @property bool $reset_password
  * @property int $language_id
  * @property int|null $avatar_id
  * @property \Illuminate\Support\Carbon|null $created_at
