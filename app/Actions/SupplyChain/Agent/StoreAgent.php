@@ -19,6 +19,7 @@ use App\Rules\ValidAddress;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
 class StoreAgent extends GrpAction
@@ -75,6 +76,7 @@ class StoreAgent extends GrpAction
                 'required',
                 'max:9',
                 'alpha_dash',
+                Rule::notIn(['export', 'create', 'upload']),
                 new IUnique(
                     table: 'organisations',
                     extraConditions: [

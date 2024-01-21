@@ -9,12 +9,14 @@ namespace App\Models\Goods;
 
 use App\Models\Inventory\Stock;
 use App\Models\Market\Product;
+use App\Models\SysAdmin\Group;
 use App\Models\Traits\HasImages;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
@@ -27,6 +29,7 @@ use Spatie\Sluggable\SlugOptions;
  * App\Models\Goods\TradeUnit
  *
  * @property int $id
+ * @property int $group_id
  * @property string $slug
  * @property string $code
  * @property string|null $name
@@ -44,6 +47,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $deleted_at
  * @property string|null $source_slug
  * @property string|null $source_id
+ * @property-read Group $group
  * @property-read MediaCollection<int, \App\Models\Media\Media> $media
  * @property-read Collection<int, Product> $products
  * @property-read Collection<int, Stock> $stocks
@@ -82,6 +86,11 @@ class TradeUnit extends Model implements HasMedia
             ->generateSlugsFrom('code')
             ->saveSlugsTo('slug')
             ->doNotGenerateSlugsOnUpdate();
+    }
+
+    public function group(): BelongsTo
+    {
+        return $this->belongsTo(Group::class);
     }
 
     public function stocks(): BelongsToMany
