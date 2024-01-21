@@ -56,7 +56,7 @@ class GetOrganisationNavigation
             ];
         }
 
-        if ($user->hasPermissionTo("shops.$organisation->slug.view")) {
+        if ($user->hasPermissionTo("shops.$organisation->id.view")) {
             $navigation['shops_index'] = [
                 'label' => __('Shops'),
 
@@ -89,7 +89,7 @@ class GetOrganisationNavigation
             $navigation['shops_navigation'][$shop->slug] = GetShopNavigation::run($shop, $user);
         }
 
-        if ($user->hasPermissionTo("inventories.$organisation->slug.view")) {
+        if ($user->hasPermissionTo("inventories.$organisation->id.view")) {
             $navigation['inventory'] = [
                 'label'   => __('inventory'),
                 'icon'    => ['fal', 'fa-inventory'],
@@ -109,7 +109,7 @@ class GetOrganisationNavigation
         }
 
 
-        if ($user->hasPermissionTo("warehouses.$organisation->slug.view")) {
+        if ($user->hasPermissionTo("warehouses.$organisation->id.view")) {
             $navigation['warehouses_index'] = [
                 'label' => __('Warehouses'),
 
@@ -191,7 +191,7 @@ class GetOrganisationNavigation
             ];
         }
 
-        if ($user->hasPermissionTo("production.$organisation->slug.view")) {
+        if ($user->hasPermissionTo("production.$organisation->id.view")) {
             $navigation['production'] = [
                 'label'   => __('production'),
                 'icon'    => ['fal', 'fa-industry'],
@@ -244,7 +244,7 @@ class GetOrganisationNavigation
             ];
         }
 
-        if ($user->hasPermissionTo("procurement.$organisation->slug.view")) {
+        if ($user->hasPermissionTo("procurement.$organisation->id.view")) {
             $navigation['procurement'] = [
                 'label'   => __('procurement'),
                 'icon'    => ['fal', 'fa-box-usd'],
@@ -284,7 +284,7 @@ class GetOrganisationNavigation
             ];
         }
 
-        if ($user->hasPermissionTo("accounting.$organisation->slug.view")) {
+        if ($user->hasPermissionTo("accounting.$organisation->id.view")) {
             $navigation['accounting'] = [
                 'scope' => 'shops',
                 'label' => __('Accounting'),
@@ -337,7 +337,7 @@ class GetOrganisationNavigation
             ];
         }
 
-        if ($user->hasPermissionTo("human-resources.$organisation->slug.view")) {
+        if ($user->hasPermissionTo("human-resources.$organisation->id.view")) {
             $navigation['hr'] = [
                 'label'   => __('human resources'),
                 'icon'    => ['fal', 'fa-user-hard-hat'],

@@ -20,7 +20,7 @@ class GetWarehouseNavigation
         $navigation = [];
 
 
-        if ($user->hasPermissionTo("inventory.$warehouse->slug.view")) {
+        if ($user->hasPermissionTo("inventory.$warehouse->id.view")) {
             $navigation['warehouse'] = [
                 'scope'   => 'warehouses',
                 'label'   => __('warehouse'),
@@ -104,7 +104,7 @@ class GetWarehouseNavigation
         }
 
 
-        if ($user->hasPermissionTo("dispatching.$warehouse->slug.view")) {
+        if ($user->hasPermissionTo("dispatching.$warehouse->id.view")) {
             $navigation['dispatch'] = [
                 'label'   => __('Dispatch'),
                 'icon'    => ['fal', 'fa-conveyor-belt-alt'],

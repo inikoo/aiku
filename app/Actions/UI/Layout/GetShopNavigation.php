@@ -20,7 +20,7 @@ class GetShopNavigation
         $navigation = [];
 
 
-        if ($user->hasPermissionTo("products.$shop->slug.view")) {
+        if ($user->hasPermissionTo("products.$shop->id.view")) {
             $navigation['shop'] = [
                 'scope' => 'shops',
                 'icon'  => ['fal', 'fa-store-alt'],
@@ -87,7 +87,7 @@ class GetShopNavigation
             ];
         }
 
-        if ($user->hasPermissionTo("web.$shop->slug.view")) {
+        if ($user->hasPermissionTo("web.$shop->id.view")) {
             $navigation['web'] = [
                 'scope' => 'websites',
                 'icon'  => ['fal', 'fa-globe'],
@@ -160,7 +160,7 @@ class GetShopNavigation
             ];
         }
 
-        if ($user->hasPermissionTo("crm.$shop->slug.view")) {
+        if ($user->hasPermissionTo("crm.$shop->id.view")) {
             $navigation['crm'] = [
                 'scope' => 'shops',
                 'label' => __('Customers'),
@@ -212,7 +212,7 @@ class GetShopNavigation
             ];
         }
 
-        if ($user->hasPermissionTo("oms.$shop->slug.view")) {
+        if ($user->hasPermissionTo("oms.$shop->id.view")) {
             $navigation['oms'] = [
                 'scope'   => 'shops',
                 'label'   => __('Orders'),
