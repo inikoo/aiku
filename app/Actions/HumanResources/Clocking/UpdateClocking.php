@@ -34,7 +34,7 @@ class UpdateClocking extends OrgAction
         if($this->asAction) {
             return true;
         }
-        return $request->user()->hasPermissionTo("human-resources.workplaces.{$this->organisation->slug}.edit");
+        return $request->user()->hasPermissionTo("human-resources.workplaces.{$this->organisation->id}.edit");
     }
 
     public function rules(): array

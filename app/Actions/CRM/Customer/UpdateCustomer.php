@@ -114,7 +114,7 @@ class UpdateCustomer extends OrgAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("crm.{$this->shop->slug}.edit");
+        return $request->user()->hasPermissionTo("crm.{$this->shop->id}.edit");
     }
 
     public function rules(): array

@@ -50,7 +50,7 @@ enum WarehousePermissionsEnum: string
     public static function getPermissionName(string $rawName, Warehouse $warehouse): string
     {
         $permissionComponents = explode('.', $rawName);
-        $permissionComponents = array_merge(array_slice($permissionComponents, 0, 1), [$warehouse->slug], array_slice($permissionComponents, 1));
+        $permissionComponents = array_merge(array_slice($permissionComponents, 0, 1), [$warehouse->id], array_slice($permissionComponents, 1));
 
         return join('.', $permissionComponents);
     }

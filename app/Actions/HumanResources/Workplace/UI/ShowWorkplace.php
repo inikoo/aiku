@@ -35,10 +35,10 @@ class ShowWorkplace extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit   = $request->user()->hasPermissionTo("human-resources.{$this->organisation->slug}.edit");
-        $this->canDelete = $request->user()->hasPermissionTo("human-resources.{$this->organisation->slug}.edit");
+        $this->canEdit   = $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.edit");
+        $this->canDelete = $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.edit");
 
-        return $request->user()->hasPermissionTo("human-resources.{$this->organisation->slug}.view");
+        return $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.view");
     }
 
 

@@ -96,9 +96,9 @@ class IndexClockingMachines extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo("human-resources.workplaces.{$this->organisation->slug}.edit");
+        $this->canEdit = $request->user()->hasPermissionTo("human-resources.workplaces.{$this->organisation->id}.edit");
 
-        return $request->user()->hasPermissionTo("human-resources.{$this->organisation->slug}.view");
+        return $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.view");
     }
 
     public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator

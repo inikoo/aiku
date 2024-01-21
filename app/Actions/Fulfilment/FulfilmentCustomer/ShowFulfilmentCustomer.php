@@ -33,9 +33,9 @@ class ShowFulfilmentCustomer extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo("crm.{$this->shop->slug}.edit");
+        $this->canEdit = $request->user()->hasPermissionTo("crm.{$this->shop->id}.edit");
 
-        return $request->user()->hasPermissionTo("crm.{$this->shop->slug}.view");
+        return $request->user()->hasPermissionTo("crm.{$this->shop->id}.view");
     }
 
     public function asController(Customer $customer, ActionRequest $request): Customer

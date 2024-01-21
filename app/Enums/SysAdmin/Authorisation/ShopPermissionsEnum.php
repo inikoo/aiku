@@ -65,7 +65,7 @@ enum ShopPermissionsEnum: string
     public static function getPermissionName(string $rawName, Shop $shop): string
     {
         $permissionComponents = explode('.', $rawName);
-        $permissionComponents = array_merge(array_slice($permissionComponents, 0, 1), [$shop->slug], array_slice($permissionComponents, 1));
+        $permissionComponents = array_merge(array_slice($permissionComponents, 0, 1), [$shop->id], array_slice($permissionComponents, 1));
 
         return join('.', $permissionComponents);
     }

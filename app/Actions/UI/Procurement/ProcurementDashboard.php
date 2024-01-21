@@ -25,7 +25,7 @@ class ProcurementDashboard extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("procurement.{$this->organisation->slug}.view");
+        return $request->user()->hasPermissionTo("procurement.{$this->organisation->id}.view");
     }
 
 

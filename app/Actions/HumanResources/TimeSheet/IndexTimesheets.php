@@ -68,12 +68,12 @@ class IndexTimesheets extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo("human-resources.{$this->organisation->slug}.edit");
+        $this->canEdit = $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.edit");
 
         return
             (
                 $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo("human-resources.{$this->organisation->slug}.edit")
+                $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.edit")
             );
     }
 

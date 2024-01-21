@@ -33,10 +33,10 @@ class ShowWarehouse extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit   = $request->user()->hasPermissionTo("inventory.{$this->warehouse->slug}.edit");
-        $this->canDelete = $request->user()->hasPermissionTo("inventory.{$this->warehouse->slug}.edit");
+        $this->canEdit   = $request->user()->hasPermissionTo("inventory.{$this->warehouse->id}.edit");
+        $this->canDelete = $request->user()->hasPermissionTo("inventory.{$this->warehouse->id}.edit");
 
-        return $request->user()->hasPermissionTo("inventory.{$this->warehouse->slug}.view");
+        return $request->user()->hasPermissionTo("inventory.{$this->warehouse->id}.view");
     }
 
     public function asController(Organisation $organisation, Warehouse $warehouse, ActionRequest $request): Warehouse

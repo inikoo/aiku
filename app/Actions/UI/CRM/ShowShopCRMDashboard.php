@@ -26,7 +26,7 @@ class ShowShopCRMDashboard extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("crm.{$this->shop->slug}.view");
+        return $request->user()->hasPermissionTo("crm.{$this->shop->id}.view");
     }
 
 

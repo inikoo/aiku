@@ -33,7 +33,7 @@ class UpdateShipper extends OrgAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("dispatching.{$this->organisation->slug}.edit");
+        return $request->user()->hasPermissionTo("dispatching.{$this->organisation->id}.edit");
     }
 
     public function prepareForValidation(ActionRequest $request): void

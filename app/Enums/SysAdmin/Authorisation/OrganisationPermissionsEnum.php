@@ -71,7 +71,7 @@ enum OrganisationPermissionsEnum: string
     public static function getPermissionName(string $rawName, Organisation $organisation): string
     {
         $permissionComponents = explode('.', $rawName);
-        $permissionComponents = array_merge(array_slice($permissionComponents, 0, 1), [$organisation->slug], array_slice($permissionComponents, 1));
+        $permissionComponents = array_merge(array_slice($permissionComponents, 0, 1), [$organisation->id], array_slice($permissionComponents, 1));
 
         return join('.', $permissionComponents);
     }

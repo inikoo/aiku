@@ -63,7 +63,7 @@ class CreateClockingMachine extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("human-resources.clocking-machines.{$this->organisation->slug}.edit");
+        return $request->user()->hasPermissionTo("human-resources.clocking-machines.{$this->organisation->id}.edit");
     }
 
 

@@ -86,7 +86,7 @@ class CreateJobPosition extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("human-resources.{$this->organisation->slug}.edit");
+        return $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.edit");
     }
 
 

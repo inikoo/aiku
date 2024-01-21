@@ -26,7 +26,7 @@ class ShowOrganisationCRMDashboard extends OrgAction
     public function authorize(ActionRequest $request): bool
     {
 
-        return $request->user()->hasPermissionTo("crm.{$this->organisation->slug}.view");
+        return $request->user()->hasPermissionTo("crm.{$this->organisation->id}.view");
     }
 
 

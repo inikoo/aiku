@@ -24,7 +24,7 @@ class ShowInventoryDashboard extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("inventories.{$this->organisation->slug}.view");
+        return $request->user()->hasPermissionTo("inventories.{$this->organisation->id}.view");
     }
 
 
