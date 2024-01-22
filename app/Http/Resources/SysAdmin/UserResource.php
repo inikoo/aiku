@@ -8,6 +8,8 @@
 namespace App\Http\Resources\SysAdmin;
 
 use App\Http\Resources\HumanResources\EmployeeResource;
+use App\Http\Resources\SysAdmin\Group\GroupResource;
+use App\Http\Resources\SysAdmin\Organisation\OrganisationResource;
 use App\Models\SysAdmin\User;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -33,6 +35,8 @@ class UserResource extends JsonResource
                     default    => [],
                 };
             }),
+            'group'       => GroupResource::make($user->group),
+            'organisation' => OrganisationResource::collection($user->authorisedOrganisations),
             'created_at'   => $user->created_at,
             'updated_at'   => $user->updated_at,
             'roles'        => $user->getRoleNames()->toArray(),
