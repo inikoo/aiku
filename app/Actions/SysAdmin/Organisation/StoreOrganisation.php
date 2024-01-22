@@ -20,15 +20,19 @@ use App\Models\Assets\Currency;
 use App\Models\Assets\Language;
 use App\Models\Assets\Timezone;
 use App\Models\Helpers\Address;
+use App\Models\HumanResources\Employee;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\Role;
 use App\Rules\ValidAddress;
 use Exception;
 use Illuminate\Console\Command;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
@@ -129,6 +133,18 @@ class StoreOrganisation
         ];
     }
 
+    public function asController(Group $group, ActionRequest $request): Organisation
+    {
+        $this->setRawAttributes($request->all());
+        $validatedData = $this->validateAttributes();
+
+        return $this->handle($group, $validatedData);
+    }
+
+    public function htmlResponse(Organisation $organisation): RedirectResponse
+    {
+        return Redirect::route('grp.org.dashboard.show', $organisation->slug);
+    }
 
     public function action(Group $group, $modelData): Organisation
     {
