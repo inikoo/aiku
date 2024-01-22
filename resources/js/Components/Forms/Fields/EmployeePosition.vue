@@ -12,11 +12,13 @@ interface TypeShop {
     code: string
     name: string
     type: string
+    state: string
 }
 
 interface TypeWarehouse {
     name: string
     slug: string
+    state: string
 }
 
 interface optionsJob {
@@ -265,14 +267,17 @@ const handleClickSubDepartment = (department: string, subDepartmentSlug: any, ty
     } else { // If the box clicked is not 'admin'
         if(optionsJob[department].options){  // If department have options shops/warehouses
             if(optionsJob[department].value && Object.values(optionsJob[department].value ?? {}).every(value => value === subDepartmentSlug)){
-                // If in department, all the shops have same value
+                // If in department, all the shops is have value then set to all null
                 optionsJob[department].value = props.options[typeOptions].data.reduce((accumulator :any, shop) => {
                     accumulator[shop.slug] = null
                     return accumulator
                 }, {})
             } else {
+                // If all shops is null then set to value
                 optionsJob[department].value = props.options[typeOptions].data.reduce((accumulator: any, shop) => {
-                    accumulator[shop.slug] = subDepartmentSlug
+                    if(shop.state == 'open'){
+                        accumulator[shop.slug] = subDepartmentSlug
+                    }
                     return accumulator
                 }, {})
             }
@@ -367,34 +372,46 @@ watch(optionsJob, () => {
 
                     <!-- Fine tune content -->
                     <transition mode="in-out">
-                        <div v-if="openFinetune == jobGroup.department" class="relative bg-slate-400/10 border border-gray-300 rounded-md py-2 px-2 space-y-0.5 mb-3">
-                            <div v-for="shop in jobGroup.options" class="grid grid-cols-3 hover:bg-gray-700/10 py-[2px] pl-2 rounded">
-                                <div class="font-semibold">{{ shop.name }} </div>
-                                <div class="col-span-2 flex gap-x-2">
-                                    <button v-for="(subDepartment, idxSubDepartment) in jobGroup.subDepartment"
-                                        @click.prevent="onClickJobFinetune(departmentName, shop.slug, subDepartment.slug)"
-                                        class="group h-full cursor-pointer flex items-center justify-start rounded-md px-3 font-medium capitalize disabled:text-gray-400 disabled:cursor-not-allowed disabled:ring-0 disabled:active:active:ring-offset-0"
-
-                                        :disabled="!!optionsJob.admin.value"
-                                    >
-                                        <span class="relative text-left">
-                                            <div class="absolute -left-0.5 -translate-x-full top-1/2 -translate-y-1/2">
-                                                <FontAwesomeIcon v-if="optionsJob.admin.value && idxSubDepartment === 0 " icon='fas fa-check-circle' fixed-width aria-hidden='true' />
-                                                <FontAwesomeIcon v-else-if="!optionsJob.admin.value && optionsJob[departmentName].value?.[shop.slug] == subDepartment.slug" icon='fas fa-check-circle' class="text-lime-500" fixed-width aria-hidden='true' />
-                                                <FontAwesomeIcon v-else icon='fal fa-circle' fixed-width aria-hidden='true' />
+                        <div v-if="openFinetune == jobGroup.department" class="relative bg-slate-400/10 border border-gray-300 rounded-md py-2 px-2 mb-3">
+                            <div class="space-y-0.5 mb-3">
+                                <div v-for="option in jobGroup.options?.filter(option => option.state == 'open')" class="grid grid-cols-3 hover:bg-gray-700/10 py-[2px] pl-2 rounded">
+                                    <div class="font-semibold">{{ option.name }} </div>
+                                    <div class="col-span-2 flex gap-x-2">
+                                        <button v-for="(subDepartment, idxSubDepartment) in jobGroup.subDepartment"
+                                            @click.prevent="onClickJobFinetune(departmentName, option.slug, subDepartment.slug)"
+                                            class="group h-full cursor-pointer flex items-center justify-start rounded-md px-3 font-medium capitalize disabled:text-gray-400 disabled:cursor-not-allowed disabled:ring-0 disabled:active:active:ring-offset-0"
+                                            :disabled="!!optionsJob.admin.value"
+                                        >
+                                            <div class="relative text-left">
+                                                <div class="absolute -left-0.5 -translate-x-full top-1/2 -translate-y-1/2">
+                                                    <FontAwesomeIcon v-if="optionsJob.admin.value && idxSubDepartment === 0 " icon='fas fa-check-circle' fixed-width aria-hidden='true' />
+                                                    <FontAwesomeIcon v-else-if="!optionsJob.admin.value && optionsJob[departmentName].value?.[option.slug] == subDepartment.slug" icon='fas fa-check-circle' class="text-lime-500" fixed-width aria-hidden='true' />
+                                                    <FontAwesomeIcon v-else icon='fal fa-circle' fixed-width aria-hidden='true' />
+                                                </div>
+                                                <span v-tooltip="subDepartment.number_employees + ' employees on this position'" :class="[
+                                                    optionsJob.admin.value && departmentName != 'admin'? 'text-gray-300' : ' text-gray-500 group-hover:text-gray-700'
+                                                ]">
+                                                    {{ subDepartment.label }}
+                                                </span>
                                             </div>
-                                            <span v-tooltip="subDepartment.number_employees + ' employees on this position'" :class="[
-                                                optionsJob.admin.value && departmentName != 'admin'? 'text-gray-300' : ' text-gray-500 group-hover:text-gray-700'
-                                            ]">
-                                                {{ subDepartment.label }}
-                                            </span>
-                                        </span>
-                                    </button>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
+
+                            <div class="px-2 bg-gray-400/20 py-2 rounded">
+                                <div class="flex items-center gap-x-1">
+                                    <FontAwesomeIcon icon='fal fa-info-circle' class='h-3' fixed-width aria-hidden='true' />
+                                    These {{jobGroup.optionsType}} can't be selected due closed:
+                                </div>
+                                <div v-for="option, idxOption in jobGroup.options?.filter(option => option.state == 'closed')" class="inline opacity-70">
+                                    <template v-if="idxOption != 0">, </template>
+                                    {{ option.name }}
+                                </div>
+                            </div>
+
                             <div @click="openFinetune = ''" class="absolute top-1 right-2 w-fit px-1 text-slate-400 hover:text-slate-500 cursor-pointer hover:">
                                 <FontAwesomeIcon icon='fal fa-times' class='' aria-hidden='true' />
-                                <!-- Close -->
                             </div>
                         </div>
                     </transition>
