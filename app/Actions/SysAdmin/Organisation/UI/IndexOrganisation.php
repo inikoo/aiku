@@ -98,7 +98,7 @@ class IndexOrganisation extends InertiaAction
                             'tooltip' => __('new organisation'),
                             'label'   => __('organisation'),
                             'route'   => [
-                                'name'       => 'grp.sysadmin.guests.create',
+                                'name'       => 'grp.orgs.create',
                                 'parameters' => array_values(request()->route()->originalParameters())
                             ]
                         ] : null
@@ -144,7 +144,7 @@ class IndexOrganisation extends InertiaAction
                             'style' => 'create',
                             'label' => __('organisation'),
                             'route' => [
-                                'name'       => 'grp.sysadmin.guests.create',
+                                'name'       => 'grp.orgs.create',
                                 'parameters' => array_values(request()->route()->originalParameters())
                             ]
                         ] : false

@@ -13,6 +13,7 @@ use App\Actions\HumanResources\Employee\UpdateEmployee;
 use App\Actions\HumanResources\Workplace\DeleteWorkplace;
 use App\Actions\HumanResources\Workplace\StoreWorkplace;
 use App\Actions\HumanResources\Workplace\UpdateWorkplace;
+use App\Actions\SysAdmin\Organisation\StoreOrganisation;
 use App\Actions\UI\Profile\GetProfileAppLoginQRCode;
 use App\Actions\UI\Profile\UpdateProfile;
 use Illuminate\Support\Facades\Route;
@@ -36,6 +37,7 @@ Route::name('shop.')->prefix('shop/{shop}')->group(function () {
 
 });
 
+Route::post('group/{group:id}/orgs', StoreOrganisation::class)->name('orgs.store');
 
 /*
 
