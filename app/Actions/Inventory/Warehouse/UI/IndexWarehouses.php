@@ -40,6 +40,13 @@ class IndexWarehouses extends OrgAction
         return $this->handle();
     }
 
+    public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = $organisation;
+        $this->initialisation($organisation, $request);
+        return $this->handle();
+    }
+
     /** @noinspection PhpUndefinedMethodInspection */
     public function handle($prefix = null): LengthAwarePaginator
     {

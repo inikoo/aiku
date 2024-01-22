@@ -12,4 +12,7 @@ Route::prefix("org/{organisation:id}")
         Route::prefix("hr")
             ->name("hr.")
             ->group(__DIR__."/org/hr.php");
+        Route::prefix("warehouses")
+            ->name("warehouses.")
+            ->group(__DIR__."/org/warehouses.php");
     });
