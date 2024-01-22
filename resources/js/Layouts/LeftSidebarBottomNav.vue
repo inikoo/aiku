@@ -63,8 +63,8 @@ const bottomNavigation = computed(() => [
         showAll: {
             label: 'Show all warehouses',
             route: {
-                name: layout.navigation.org?.[layout.currentParams.organisation]?.warehouses_index.route.name,
-                parameters: layout.navigation.org?.[layout.currentParams.organisation]?.warehouses_index.route.parameters
+                name: layout.navigation.org?.[layout.currentParams.organisation]?.warehouses_index?.route?.name,
+                parameters: layout.navigation.org?.[layout.currentParams.organisation]?.warehouses_index?.route?.parameters
             }
         },
         data: layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_warehouses,
