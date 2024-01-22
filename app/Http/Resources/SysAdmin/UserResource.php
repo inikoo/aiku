@@ -36,7 +36,7 @@ class UserResource extends JsonResource
                 };
             }),
             'group'         => GroupResource::make($user->group),
-            'organisations' => UserOrganisationResource::collectionForUser($user->authorisedOrganisations, $user),
+            'organisations' => UserOrganisationResource::collectionForUser($user->authorisedOrganisations, $this->resource),
             'created_at'    => $user->created_at,
             'updated_at'    => $user->updated_at,
             'roles'         => $user->getRoleNames()->toArray(),
