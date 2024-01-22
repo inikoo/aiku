@@ -301,10 +301,10 @@ class IndexLocations extends InertiaAction
                 (new ShowWarehouse())->getBreadcrumbs($routeParameters['warehouse']),
                 $headCrumb([
                     'name'       => 'grp.org.warehouses.show.locations.index',
-                    'parameters' =>
-                        [
-                            $routeParameters['warehouse']->slug
-                        ]
+                    'parameters' =>  [
+                        $routeParameters['organisation']->slug,
+                        $routeParameters['warehouse']->slug
+                    ]
                 ])
             ),
             'grp.org.inventory.warehouse-areas.show.locations.index' =>
