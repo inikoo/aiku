@@ -17,26 +17,26 @@ const props = defineProps<{
 
 function locationRoute(location: Location) {
     switch (route().current()) {
-        case 'grp.oms.warehouses.show':
-        case 'grp.oms.warehouses.show.locations.index':
+        case 'grp.org.warehouses.show':
+        case 'grp.org.warehouses.show.locations.index':
             return route(
-                'grp.oms.warehouses.show.locations.show',
-                [route().params['warehouse'], location.slug]);
-        case 'grp.oms.warehouse-areas.show':
-        case 'grp.oms.warehouse-areas.locations.index':
+                'grp.org.warehouses.show.locations.show',
+                [route().params['organisation'], route().params['warehouse'], location.slug]);
+        case 'grp.org.warehouse-areas.show':
+        case 'grp.org.warehouse-areas.locations.index':
             return route(
-                'grp.oms.warehouse-areas.show.locations.show',
-                [route().params['warehouseArea'], location.slug]);
+                'grp.org.warehouse-areas.show.locations.show',
+                [route().params['organisation'], route().params['warehouseArea'], location.slug]);
 
-        case 'grp.oms.warehouses.show.warehouse-areas.show':
-        case 'grp.oms.warehouses.show.warehouse-areas.show.locations.index':
+        case 'grp.org.warehouses.show.warehouse-areas.show':
+        case 'grp.org.warehouses.show.warehouse-areas.show.locations.index':
             return route(
-                'grp.oms.warehouses.show.warehouse-areas.show.locations.show',
-                [route().params['warehouse'],route().params['warehouseArea'], location.slug]);
+                'grp.org.warehouses.show.warehouse-areas.show.locations.show',
+                [route().params['organisation'], route().params['warehouse'],route().params['warehouseArea'], location.slug]);
         default:
             return route(
-                'grp.oms.locations.show',
-                [location.slug]);
+                'grp.org.locations.show',
+                [route().params['organisation'], location.slug]);
     }
 
 }

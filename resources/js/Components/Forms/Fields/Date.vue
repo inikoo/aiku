@@ -14,7 +14,7 @@ import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 library.add(faExclamationCircle,faCheckCircle);
 
 
-const props = defineProps(['form', 'fieldName','options']);
+const props = defineProps(['form', 'fieldName','options', 'fieldData']);
 
 const handleChange = (form) => {
     if(form.fieldType==='edit'){

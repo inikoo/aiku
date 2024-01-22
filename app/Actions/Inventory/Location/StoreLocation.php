@@ -63,7 +63,7 @@ class StoreLocation extends OrgAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("inventory.warehouses.edit");
+        return $request->user()->hasPermissionTo("inventories.{$this->organisation->id}.edit");
     }
 
     public function rules(): array
@@ -123,11 +123,13 @@ class StoreLocation extends OrgAction
     {
         if (!$location->warehouse_area_id) {
             return Redirect::route('grp.org.warehouses.show.locations.show', [
+                $location->organisation->slug,
                 $location->warehouse->slug,
                 $location->slug
             ]);
         } else {
             return Redirect::route('grp.org.warehouses.show.warehouse-areas.show.locations.show', [
+                $location->organisation->slug,
                 $location->warehouse->slug,
                 $location->warehouseArea->slug,
                 $location->slug

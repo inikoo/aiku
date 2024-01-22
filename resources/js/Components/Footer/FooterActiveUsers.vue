@@ -8,11 +8,14 @@
 import { trans } from 'laravel-vue-i18n'
 import { useLayoutStore } from "@/Stores/layout"
 import FooterTab from '@/Components/Footer/FooterTab.vue'
-import { faBriefcase} from '@fal'
+import { faBriefcase } from '@fal'
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { useLiveUsers } from '@/Stores/active-users'
+import { useTruncate } from '../../Composables/useTruncate'
+import Image from '@/Components/Image.vue'
+import { Link } from '@inertiajs/vue3'
 
-library.add(faBriefcase);
+library.add(faBriefcase)
 
 const props = defineProps<{
     isTabActive: string | boolean
@@ -27,35 +30,33 @@ const layout = useLayoutStore()
 </script>
 
 <template>
-
-
-    <div class="relative h-full flex z-50 select-none justify-center items-center px-8 gap-x-1 cursor-pointer text-gray-800"
-         :class="[
-            isTabActive == 'activeUsers'
-                ? layout.systemName === 'org' ? 'bg-white text-gray-700' : 'text-gray-300'
-                : layout.systemName === 'org' ? '' : 'text-gray-300 hover:bg-gray-600',
-        ]"
-         @click="isTabActive == 'activeUsers' ? $emit('isTabActive', !isTabActive) : $emit('isTabActive', 'activeUsers')"
-    >
-        <!-- Tab -->
+    <div class="relative h-full flex z-50 select-none justify-center items-center px-8 gap-x-1 cursor-pointer" :class="[
+        isTabActive == 'activeUsers' ? 'text-gray-300' : 'text-gray-300 hover:bg-gray-600'
+    ]"
+        @click="isTabActive == 'activeUsers' ? $emit('isTabActive', !isTabActive) : $emit('isTabActive', 'activeUsers')">
+        <!-- Tab: Box label -->
         <div class="relative text-xs flex items-center gap-x-1">
-            <div class="ring-1 h-2 aspect-square rounded-full" :class="[useLiveUsers().count> 0 ? 'animate-pulse bg-green-400 ring-green-600' : 'bg-gray-400 ring-gray-600']" />
+            <div class="ring-1 h-2 aspect-square rounded-full" :class="[useLiveUsers().count > 0 ? 'animate-pulse bg-green-400 ring-green-600' : 'bg-gray-400 ring-gray-600']" />
             <span class="">{{ trans('Active users') }} ({{ useLiveUsers().count ?? 0 }})</span>
         </div>
 
         <!-- Content -->
         <Transition name="slide-to-up">
-            <FooterTab @pinTab="() => $emit('isTabActive', false)" v-if="isTabActive == 'activeUsers'" :tabName="`activeUsers`">
+            <FooterTab @pinTab="() => $emit('isTabActive', false)" v-if="isTabActive == 'activeUsers'"
+                :tabName="`activeUsers`">
                 <template #default>
-                    <div v-for="(dataUser, index) in useLiveUsers().liveUsers" class="flex justify-start py-1 px-2 gap-x-1.5 cursor-default">
-                        <!-- <img :src="`/media/${user.user.avatar_thumbnail}`" :alt="user.user.contact_name" srcset="" class="h-4 rounded-full shadow"> -->
-                        <span class="capitalize font-semibold">{{ dataUser?.name }}</span>
-                        <span v-if="dataUser.current_page?.label" class="capitalize">- {{ dataUser?.current_page?.label }}</span>
-                        <span v-else class="capitalize text-gray-500 italic">- Unknown</span>
+                    <Link v-for="(dataUser, index) in useLiveUsers().liveUsers" :href="dataUser.current_page?.url || '#'" class="flex items-center py-1 px-2 gap-x-1.5 hover:bg-gray-300/10" :class="dataUser.id == layout.user.id ? 'bg-gray-100/20' : ''">
+                        <Image :src="dataUser.avatar_thumbnail" :alt="dataUser.username" class="h-5 rounded-full shadow overflow-hidden" />
+                        <p class="flex flex-col items-start">
+                            <span class="capitalize text-xs font-bold">{{ dataUser?.username }}</span>
+
+                            <span v-if="dataUser.current_page?.label" class="capitalize opacity-70">{{ useTruncate(dataUser?.current_page?.label, 17) }}</span>
+                            <span v-else class="capitalize text-gray-500 italic opacity-60">Unknown</span>
+                        </p>
                         <!-- <span v-if="dataUser.loggedIn" class="text-gray-800">{{ dataUser.route?.name ? trans(dataUser.route.label ?? '') : '' }}</span>
-                        <span v-else-if="getAwayStatus(dataUser.last_active)" class="text-gray-800">{{ getAwayStatus(dataUser.last_active) ? 'Away' : '' }}</span> -->
+                            <span v-else-if="getAwayStatus(dataUser.last_active)" class="text-gray-800">{{ getAwayStatus(dataUser.last_active) ? 'Away' : '' }}</span> -->
                         <!-- <span v-if="dataUser.route.subject" class="capitalize text-gray-300">{{ dataUser.route.subject }}</span> -->
-                    </div>
+                    </Link>
                 </template>
             </FooterTab>
         </Transition>

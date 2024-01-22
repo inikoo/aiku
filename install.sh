@@ -40,6 +40,7 @@ php artisan org:create aw awa indo@inikoo.com 'Advantage' ID IDR
 php artisan org:create aw inikoo raul@inikoo.com 'Inikoo' GB GBP
 
 php artisan guest:create aw 'Mr Aiku' aiku -e aiku@inikoo.com --roles=super-admin
+php artisan guest:create aw 'Mr Vika' vika -e vika@inikoo.com --roles=super-admin
 pg_dump -Fc -f "devops/devel/snapshots/guests.dump" ${DB}
 php artisan shop:create awa bali   "bali b2b shop" b2b
 php artisan shop:create awa lomb "Lombok b2c shop" b2c

@@ -52,22 +52,22 @@ export const initialiseApp = () => {
                 }
             }))
 
-            if (usePage().props.auth.user?.id) {
-                // console.log("===== ada auth id =====")
-                // axios.post(
-                //     route('org.models.live-organisation-users-current-page.store',
-                //         usePage().props.auth.user?.id),
-                //     {
-                //         'label': event.detail.page.props.title
-                //     }
-                // )
-                //     .then((response) => {
-                //         // console.log("Broadcast sukses", response)
-                //     })
-                //     .catch(error => {
-                //         console.error('Error broadcasting.' + error)
-                //     })
+            // console.log('qq', usePage().props.auth.user)
+
+            const dataActiveUser = {
+                ...usePage().props.auth.user,
+                name: null,
+                current_page: {
+                    label: event.detail.page.props.title,
+                    url: event.detail.page.url
+                }
             }
+
+            // Set to self
+            useLiveUsers().liveUsers[usePage().props.auth.user.id] = dataActiveUser
+
+            // Websockets: broadcast to others
+            window.Echo.join(`grp.live.users`).whisper('otherIsNavigating', dataActiveUser)
         })
     }
 

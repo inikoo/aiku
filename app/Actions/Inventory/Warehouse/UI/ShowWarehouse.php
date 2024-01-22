@@ -182,8 +182,8 @@ class ShowWarehouse extends OrgAction
                         'label' => __('location'),
                         'style' => 'create'
                     ] : false
-                ],
-                prefix: 'locations' */
+                ], */
+                prefix: WarehouseTabsEnum::LOCATIONS->value
             )
         )->table(IndexHistory::make()->tableStructure());
     }
@@ -217,7 +217,7 @@ class ShowWarehouse extends OrgAction
                                 'name'       => 'grp.org.warehouses.show',
                                 'parameters' => $routeParameters
                             ],
-                            'label' => $warehouse->code,
+                            'label' => $warehouse?->code,
                             'icon'  => 'fal fa-bars'
                         ],
                     ],

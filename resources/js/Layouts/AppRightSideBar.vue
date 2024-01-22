@@ -7,6 +7,8 @@ import { onMounted } from 'vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faTimes } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
+import { useTruncate } from '../Composables/useTruncate'
+import { Link } from '@inertiajs/vue3'
 library.add(faTimes)
 
 type UserOnline = {
@@ -50,13 +52,13 @@ const onClickRemoveBar = (tabName: 'activeUsers') => {
                 </div>
 
                 <!-- Looping: user list -->
-                <div v-for="(user, index) in useLiveUsers().liveUsers" class="pl-2.5 pr-1.5 flex justify-start items-center py-1 gap-x-2.5 cursor-default">
-                    <p class="text-gray-600 flex items-center gap-y-0.5 gap-x-1">
-                        <span class="text-gray-700 leading-none capitalize font-semibold">{{ user?.name }}</span>
+                <Link v-for="(user, index) in useLiveUsers().liveUsers" :href="user.current_page?.url || '#'" class="pl-2.5 pr-1.5 flex justify-start items-center py-1 gap-x-2.5">
+                    <p class="text-gray-600 flex items-center gap-y-0.5 gap-x-1 truncate">
+                        <span class="text-gray-700 leading-none capitalize font-semibold">{{ useTruncate(user?.username, 10) }}</span>
                         <span class="leading-none">-</span>
-                        <span class="text-gray-500 whitespace-normal leading-none text-[10px] capitalize">{{ user?.current_page?.label ?? 'Unknown' }}</span>
+                        <span class="text-gray-500 whitespace-nowrap leading-none text-[10px] capitalize truncate">{{ user?.current_page?.label || 'Unknown' }}</span>
                     </p>
-                </div>
+                </Link>
             </li>
         </TransitionGroup>
 

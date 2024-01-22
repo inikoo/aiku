@@ -17,6 +17,7 @@ use App\Http\Resources\History\HistoryResource;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
+use App\Models\SysAdmin\Organisation;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -24,20 +25,27 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowLocation extends InertiaAction
 {
+    /**
+     * @var \App\Models\SysAdmin\Organisation
+     */
+    private Organisation $organisation;
+
     public function handle(Location $location): Location
     {
         return $location;
     }
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit   = $request->user()->hasPermissionTo('inventory.edit');
-        $this->canDelete = $request->user()->hasPermissionTo('inventory.edit');
-        return $request->user()->hasPermissionTo("inventory.view");
+        $this->canEdit   = $request->user()->hasPermissionTo("inventories.{$this->organisation->id}.edit");
+        $this->canDelete = $request->user()->hasPermissionTo("inventories.{$this->organisation->id}.edit");
+
+        return $request->user()->hasPermissionTo("inventories.{$this->organisation->id}.view");
     }
 
 
-    public function inOrganisation(Location $location, ActionRequest $request): Location
+    public function inOrganisation(Organisation $organisation, Warehouse $warehouse, Location $location, ActionRequest $request): Location
     {
+        $this->organisation = $organisation;
         $this->initialisation($request);
         return $this->handle($location);
     }
@@ -172,36 +180,44 @@ class ShowLocation extends InertiaAction
         return match ($routeName) {
             'grp.org.inventory.locations.show' =>
             array_merge(
-                ShowInventoryDashboard::make()->getBreadcrumbs(),
+                ShowInventoryDashboard::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     $routeParameters['location'],
                     [
                         'index' => [
                             'name'       => 'grp.org.inventory.locations.index',
-                            'parameters' => []
+                            'parameters' => [
+                                $routeParameters['organisation']->slug,
+                                $routeParameters['location']->slug,
+                            ]
                         ],
                         'model' => [
                             'name'       => 'grp.org.inventory.locations.show',
-                            'parameters' => [$routeParameters['location']->slug]
+                            'parameters' => [
+                                $routeParameters['organisation']->slug,
+                                $routeParameters['location']->slug
+                            ]
                         ]
                     ],
                     $suffix
                 ),
             ),
             'grp.org.warehouses.show.locations.show' => array_merge(
-                (new ShowWarehouse())->getBreadcrumbs($routeParameters['warehouse']),
+                (new ShowWarehouse())->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     $routeParameters['location'],
                     [
                         'index' => [
                             'name'       => 'grp.org.warehouses.show.locations.index',
                             'parameters' => [
+                                $routeParameters['organisation']->slug,
                                 $routeParameters['warehouse']->slug,
                             ]
                         ],
                         'model' => [
                             'name'       => 'grp.org.warehouses.show.locations.show',
                             'parameters' => [
+                                $routeParameters['organisation']->slug,
                                 $routeParameters['warehouse']->slug,
                                 $routeParameters['location']->slug
                             ]
@@ -341,6 +357,7 @@ class ShowLocation extends InertiaAction
                 'route'=> [
                     'name'      => $routeName,
                     'parameters'=> [
+                        'organisation' => $location->organisation->slug,
                         'warehouse' => $location->warehouse->slug,
                         'location'  => $location->slug
                     ]
