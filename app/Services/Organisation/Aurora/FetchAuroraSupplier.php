@@ -39,9 +39,9 @@ class FetchAuroraSupplier extends FetchAurora
             $this->parsedData['parent'] = $this->organisation->group;
         }
 
-        $deleted_at = $this->parseDate($this->auroraModelData->{'Supplier Valid To'});
+        $deletedAt = $this->parseDate($this->auroraModelData->{'Supplier Valid To'});
         if ($this->auroraModelData->{'Supplier Type'} != 'Archived') {
-            $deleted_at = null;
+            $deletedAt = null;
         }
         $phone = $this->auroraModelData->{'Supplier Main Plain Mobile'};
         if ($phone == '') {
@@ -55,7 +55,7 @@ class FetchAuroraSupplier extends FetchAurora
         }
 
         $sourceSlug = Str::kebab(strtolower($this->auroraModelData->{'Supplier Code'}));
-        if ($deleted_at) {
+        if ($deletedAt) {
             $sourceSlug .= '-deleted';
         }
 
@@ -71,7 +71,7 @@ class FetchAuroraSupplier extends FetchAurora
                 'source_id'    => $this->organisation->id.':'.$this->auroraModelData->{'Supplier Key'},
                 'source_slug'  => $sourceSlug,
                 'created_at'   => $this->parseDate($this->auroraModelData->{'Supplier Valid From'}),
-                'deleted_at'   => $deleted_at,
+                'deleted_at'   => $deletedAt,
                 'address'      => $this->parseAddress(prefix: 'Supplier Contact', auAddressData: $this->auroraModelData)
 
             ];

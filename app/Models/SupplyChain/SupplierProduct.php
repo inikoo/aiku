@@ -14,6 +14,7 @@ use App\Models\Goods\TradeUnit;
 use App\Models\Procurement\HistoricSupplierProduct;
 use App\Models\Procurement\SupplierProductTradeUnit;
 use App\Models\Search\UniversalSearch;
+use App\Models\SysAdmin\Group;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
 use Eloquent;
@@ -36,6 +37,7 @@ use Spatie\Sluggable\SlugOptions;
  * App\Models\SupplyChain\SupplierProduct
  *
  * @property int $id
+ * @property int $group_id
  * @property SupplierProductTradeUnitCompositionEnum|null $trade_unit_composition
  * @property string $slug
  * @property int|null $current_historic_supplier_product_id
@@ -61,6 +63,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property SupplierProductQuantityStatusEnum $quantity_status
  * @property-read \App\Models\SupplyChain\Agent|null $agent
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
+ * @property-read Group $group
  * @property-read Collection<int, HistoricSupplierProduct> $historicRecords
  * @property-read \App\Models\SupplyChain\SupplierProductStats|null $stats
  * @property-read \App\Models\SupplyChain\Supplier|null $supplier
@@ -111,6 +114,11 @@ class SupplierProduct extends Model implements Auditable
     public function getRouteKeyName(): string
     {
         return 'slug';
+    }
+
+    public function group(): BelongsTo
+    {
+        return $this->belongsTo(Group::class);
     }
 
     public function historicRecords(): HasMany

@@ -7,7 +7,6 @@
 
 namespace App\Http\Resources\SysAdmin;
 
-use App\Actions\UI\GetFirstLoadProps;
 use App\Http\Resources\HumanResources\EmployeeResource;
 use App\Http\Resources\SysAdmin\Group\GroupResource;
 use App\Http\Resources\SysAdmin\Organisation\OrganisationResource;
@@ -36,7 +35,8 @@ class UserResource extends JsonResource
                     default    => [],
                 };
             }),
-            'first_load' => GetFirstLoadProps::run($this->resource),
+            'group'        => GroupResource::make($user->group),
+            'organisation' => OrganisationResource::collection($user->authorisedOrganisations),
             'created_at'   => $user->created_at,
             'updated_at'   => $user->updated_at,
             'roles'        => $user->getRoleNames()->toArray(),

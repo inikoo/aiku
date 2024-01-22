@@ -9,21 +9,46 @@ namespace App\Services\Organisation\Aurora;
 
 use App\Enums\Procurement\SupplierProduct\SupplierProductStateEnum;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class FetchAuroraSupplierProduct extends FetchAurora
 {
+    use WithAuroraParsers;
     protected function parseModel(): void
     {
 
+        if($this->auroraModelData->aiku_ignore=='Yes') {
+            return;
+        }
 
 
-        $supplier = $this->parseSupplier($this->auroraModelData->{'Supplier Part Supplier Key'});
+        $supplierDeletedAt = $this->parseDate($this->auroraModelData->{'Supplier Valid To'});
+        if ($this->auroraModelData->{'Supplier Type'} != 'Archived') {
+            $supplierDeletedAt = null;
+        }
+
+        $supplierSourceSlug = Str::kebab(strtolower($this->auroraModelData->{'Supplier Code'}));
+        if ($supplierDeletedAt) {
+            $supplierSourceSlug .= '-deleted';
+        }
+
+
+
+        $supplier = $this->parseSupplier($supplierSourceSlug);
+
 
         if(!$supplier) {
             return;
         }
 
-        $this->parsedData['trade_unit']=$this->parseTradeUnit($this->auroraModelData->{'Supplier Part Part SKU'});
+
+        $tradeUnitReference  = $this->cleanTradeUnitReference($this->auroraModelData->{'Part Reference'});
+        $tradeUnitSlug       = Str::lower($tradeUnitReference);
+
+        $this->parsedData['trade_unit']=$this->parseTradeUnit(
+            $tradeUnitSlug,
+            $this->auroraModelData->{'Part SKU'}
+        );
 
 
         $this->parsedData['supplier'] =$supplier;
@@ -58,11 +83,23 @@ class FetchAuroraSupplierProduct extends FetchAurora
             default => strtolower($this->auroraModelData->{'Part Stock Status'})
         };
 
+        $partReference=$this->cleanTradeUnitReference($this->auroraModelData->{'Part Reference'});
+        $sourceSlug   =$supplier->source_slug.':'.Str::kebab(strtolower($partReference));
+
+
+        $name= $this->auroraModelData->{'Supplier Part Description'};
+        if($name=='') {
+            $name=$this->auroraModelData->{'Supplier Part Reference'};
+        }
+
+
+        $code=$this->auroraModelData->{'Supplier Part Reference'};
+        $code=str_replace('&', 'and', $code);
 
         $this->parsedData['supplierProduct'] =
             [
-                'code' => $this->auroraModelData->{'Supplier Part Reference'},
-                'name' => $this->auroraModelData->{'Supplier Part Description'},
+                'code' => $code,
+                'name' => $name,
 
                 'cost'             => round($this->auroraModelData->{'Supplier Part Unit Cost'} ?? 0, 2),
                 'units_per_pack'   => $this->auroraModelData->{'Part Units Per Package'},
@@ -76,6 +113,7 @@ class FetchAuroraSupplierProduct extends FetchAurora
                 'data'        => $data,
                 'settings'    => $settings,
                 'created_at'  => $created_at,
+                'source_slug' => $sourceSlug,
                 'source_id'   => $this->organisation->id.':'.$this->auroraModelData->{'Supplier Part Key'}
             ];
     }
@@ -84,8 +122,10 @@ class FetchAuroraSupplierProduct extends FetchAurora
     protected function fetchData($id): object|null
     {
         return DB::connection('aurora')
-            ->table('Supplier Part Dimension')
+            ->table('Supplier Part Dimension as ssp')
+            ->leftjoin('Supplier Dimension', 'Supplier Part Supplier Key', 'Supplier Key')
             ->leftjoin('Part Dimension', 'Supplier Part Part SKU', 'Part SKU')
+            ->where('ssp.aiku_ignore', 'No')
             ->where('Supplier Part Key', $id)->first();
     }
 }

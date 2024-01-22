@@ -7,6 +7,7 @@
 
 namespace App\Actions\Procurement\SupplierProduct;
 
+use App\Actions\GrpAction;
 use App\Actions\Procurement\HistoricSupplierProduct\StoreHistoricSupplierProduct;
 use App\Actions\Procurement\Supplier\Hydrators\SupplierHydrateSupplierProducts;
 use App\Actions\Procurement\SupplierProduct\Hydrators\SupplierProductHydrateUniversalSearch;
@@ -14,22 +15,34 @@ use App\Actions\SupplyChain\Agent\Hydrators\AgentHydrateSuppliers;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateProcurement;
 use App\Models\SupplyChain\Supplier;
 use App\Models\SupplyChain\SupplierProduct;
-use Lorisleiva\Actions\Concerns\AsAction;
-use Lorisleiva\Actions\Concerns\WithAttributes;
+use App\Rules\AlphaDashDotSpaceSlashParenthesis;
+use App\Rules\IUnique;
+use Illuminate\Validation\Rule;
+use Lorisleiva\Actions\ActionRequest;
 
-class StoreSupplierProduct
+class StoreSupplierProduct extends GrpAction
 {
-    use AsAction;
-    use WithAttributes;
-
-    public int $hydratorsDelay = 0;
     public bool $skipHistoric  = false;
+    private int $supplier_id;
+
+    public function authorize(ActionRequest $request): bool
+    {
+        if ($this->asAction) {
+            return true;
+        }
+
+        return $request->user()->hasPermissionTo("procurement.".$this->group->id.".edit");
+    }
 
     public function handle(Supplier $supplier, array $modelData): SupplierProduct
     {
+
+        data_set($modelData, 'group_id', $supplier->group_id);
+
         if ($supplier->agent_id) {
             $modelData['agent_id'] = $supplier->agent_id;
         }
+
 
 
         /** @var SupplierProduct $supplierProduct */
@@ -59,31 +72,36 @@ class StoreSupplierProduct
     public function rules(): array
     {
         return [
-            'code'        => ['required', 'unique:supplier_products', 'between:2,9', 'alpha'],
-            'name'        => ['required', 'max:250', 'string'],
+            'code'        => ['required',
+                              'max:64',
+                              new AlphaDashDotSpaceSlashParenthesis(),
+                              Rule::notIn(['export', 'create', 'upload']),
+                              new IUnique(
+                                  table: 'supplier_products',
+                                  extraConditions: [
+                                      ['column' => 'supplier_id', 'value' => $this->supplier_id],
+                                  ]
+                              ),
+
+                ],
+            'name'        => ['required',  'string', 'max:255'],
             'cost'        => ['required'],
             'source_id'   => ['sometimes', 'nullable', 'string'],
             'source_slug' => ['sometimes', 'nullable', 'string'],
         ];
     }
 
-    public function action(Supplier $supplier, array $modelData, bool $skipHistoric = false): SupplierProduct
+    public function action(Supplier $supplier, array $modelData, bool $skipHistoric = false, int $hydratorsDelay = 0): SupplierProduct
     {
-        $this->setRawAttributes($modelData);
-        $validatedData = $this->validateAttributes();
-
-        return $this->handle($supplier, $validatedData, $skipHistoric);
-    }
-
-    public function asFetch(
-        Supplier $supplier,
-        array $modelData,
-        int $hydratorsDelay = 60,
-        bool $skipHistoric = false,
-    ): SupplierProduct {
+        $this->supplier_id    =$supplier->id;
+        $this->asAction       = true;
         $this->hydratorsDelay = $hydratorsDelay;
         $this->skipHistoric   = $skipHistoric;
 
-        return $this->handle($supplier, $modelData);
+        $this->initialisation($supplier->group, $modelData);
+
+        return $this->handle($supplier, $this->validatedData);
     }
+
+
 }

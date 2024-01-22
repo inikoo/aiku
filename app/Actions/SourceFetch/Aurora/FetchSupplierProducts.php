@@ -14,65 +14,67 @@ use App\Models\SupplyChain\SupplierProduct;
 use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
-use JetBrains\PhpStorm\NoReturn;
 
 class FetchSupplierProducts extends FetchAction
 {
     public string $commandSignature = 'fetch:supplier-products {organisations?*} {--s|source_id=} {--d|db_suffix=}';
 
 
-    #[NoReturn] public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?SupplierProduct
+    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?SupplierProduct
     {
+
         if ($supplierProductData = $organisationSource->fetchSupplierProduct($organisationSourceId)) {
 
 
 
-            $supplier=$supplierProductData['supplier'];
 
-
-            if(!$supplier) {
-                return null;
-            }
-
-            if($supplier->type=='supplier') {
-                if($supplier->owner_id!=app('currentTenant')->id) {
-                    return null;
-                }
-            } else {
-
-                if(!$supplier->owner) {
-                    return null;
-                }
-
-                if($supplier->owner->owner_id!=app('currentTenant')->id) {
-                    return null;
-                }
-
-            }
-
-            if ($supplierProduct = SupplierProduct::withTrashed()->where('source_id', $supplierProductData['supplierProduct']['source_id'])
+            print_r($supplierProductData['supplierProduct']);
+            if ($baseSupplierProduct=SupplierProduct::withTrashed()
+                ->where(
+                    'source_slug',
+                    $supplierProductData['supplierProduct']['source_slug']
+                )
                 ->first()) {
-                $supplierProduct = UpdateSupplierProduct::run(
-                    supplierProduct: $supplierProduct,
-                    modelData:       $supplierProductData['supplierProduct'],
-                    skipHistoric:    true
-                );
+
+
+                if($supplierProduct = SupplierProduct::withTrashed()->where('source_id', $supplierProductData['supplierProduct']['source_id'])
+                    ->first()) {
+                    $supplierProduct = UpdateSupplierProduct::make()->action(
+                        supplierProduct: $supplierProduct,
+                        modelData:       $supplierProductData['supplierProduct'],
+                        skipHistoric:    true,
+                        hydratorsDelay: $this->hydrateDelay
+                    );
+                }
+
             } else {
-                $supplierProduct = StoreSupplierProduct::make()->asFetch(
+
+                $supplierProduct = StoreSupplierProduct::make()->action(
                     supplier: $supplierProductData['supplier'],
                     modelData: $supplierProductData['supplierProduct'],
-                    hydratorsDelay: $this->hydrateDelay,
-                    skipHistoric: true
+                    skipHistoric: true,
+                    hydratorsDelay: $this->hydrateDelay
                 );
             }
+
 
             $tradeUnit = $supplierProductData['trade_unit'];
 
-            SyncSupplierProductTradeUnits::run($supplierProduct, [
-                $tradeUnit->id => [
-                    'package_quantity' => $supplierProductData['supplierProduct']['units_per_pack']
-                ]
-            ]);
+
+
+            if($supplierProduct) {
+                SyncSupplierProductTradeUnits::run($supplierProduct, [
+                    $tradeUnit->id => [
+                        'package_quantity' => $supplierProductData['supplierProduct']['units_per_pack']
+                    ]
+                ]);
+            } else {
+                print_r($baseSupplierProduct);
+                dd('errrrorrrr');
+            }
+
+
+
 
             return $supplierProduct;
         }
@@ -83,16 +85,18 @@ class FetchSupplierProducts extends FetchAction
     public function getModelsQuery(): Builder
     {
         return DB::connection('aurora')
-            ->table('Supplier Part Dimension')
+            ->table('Supplier Part Dimension as spp')
             ->select('Supplier Part Key as source_id')
+            ->where('spp.aiku_ignore', 'No')
             ->orderBy('source_id');
     }
 
     public function count(): ?int
     {
         return DB::connection('aurora')
-            ->table('Supplier Part Dimension')
+            ->table('Supplier Part Dimension as spp')
             ->select('Supplier Part Key as source_id')
+            ->where('spp.aiku_ignore', 'No')
             ->count();
     }
 }
