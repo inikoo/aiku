@@ -66,7 +66,7 @@ class UserHydrateAuthorisedModels
 
         $this->handle($user);
 
-        $command->info("User {$user->contact_name} authorised models hydrated 💦");
+        $command->info("User $user->contact_name authorised models hydrated 💦");
 
         return 0;
     }
