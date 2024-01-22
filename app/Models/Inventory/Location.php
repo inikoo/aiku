@@ -9,7 +9,6 @@ namespace App\Models\Inventory;
 
 use App\Enums\Inventory\Location\LocationStatusEnum;
 use App\Models\Search\UniversalSearch;
-use App\Models\SupplyChain\Stock;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
@@ -51,9 +50,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $source_id
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Collection<int, \App\Models\Inventory\LostAndFoundStock> $lostAndFoundStocks
+ * @property-read Collection<int, \App\Models\Inventory\OrgStock> $orgStocks
  * @property-read Organisation $organisation
  * @property-read \App\Models\Inventory\LocationStats|null $stats
- * @property-read Collection<int, Stock> $stocks
  * @property-read UniversalSearch|null $universalSearch
  * @property-read \App\Models\Inventory\Warehouse $warehouse
  * @property-read \App\Models\Inventory\WarehouseArea|null $warehouseArea
@@ -112,9 +111,9 @@ class Location extends Model implements Auditable
     }
 
 
-    public function stocks(): BelongsToMany
+    public function orgStocks(): BelongsToMany
     {
-        return $this->belongsToMany(Stock::class)->using(LocationStock::class);
+        return $this->belongsToMany(OrgStock::class)->using(LocationOrgStock::class);
     }
 
     public function stats(): HasOne

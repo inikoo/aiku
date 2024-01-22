@@ -7,7 +7,7 @@
 
 namespace App\Actions\Inventory\OrgStock;
 
-use App\Actions\Inventory\OrgStock\Hydrators\StockHydrateUniversalSearch;
+use App\Actions\Inventory\OrgStock\Hydrators\OrgStockHydrateUniversalSearch;
 use App\Actions\OrgAction;
 use App\Models\Inventory\OrgStock;
 use App\Models\SupplyChain\Stock;
@@ -23,13 +23,14 @@ class StoreOrgStock extends OrgAction
     {
 
         data_set($modelData, 'group_id', $organisation->group_id);
-        data_set($modelData, 'or', $organisation->group_id);
+        data_set($modelData, 'organisation_id', $organisation->group_id);
 
 
-        $orgStock = $stock->orgStock()->create($modelData);
+        /** @var OrgStock $orgStock */
+        $orgStock = $stock->orgStocks()->create($modelData);
         $orgStock->stats()->create();
 
-        //StockHydrateUniversalSearch::dispatch($stock);
+        OrgStockHydrateUniversalSearch::dispatch($orgStock);
 
 
 
@@ -44,14 +45,16 @@ class StoreOrgStock extends OrgAction
         ];
     }
 
-    public function action(Organisation $organisation, Stock $stock, $modelData): OrgStock
+    public function action(Organisation $organisation, Stock $stock, $modelData, $hydratorDelay=0): OrgStock
     {
-        $this->asAction = true;
+        $this->asAction      = true;
+        $this->hydratorsDelay=$hydratorDelay;
         $this->initialisation($organisation, $modelData);
 
         return $this->handle($organisation, $stock, $this->validatedData);
     }
 
+    /*
     public function inStockFamily(StockFamily $stockFamily, ActionRequest $request): Stock
     {
         $this->fillFromRequest($request);
@@ -65,6 +68,7 @@ class StoreOrgStock extends OrgAction
 
         return $this->handle(group(), $request->validated());
     }
+    */
 
     public function htmlResponse(Stock $stock): RedirectResponse
     {

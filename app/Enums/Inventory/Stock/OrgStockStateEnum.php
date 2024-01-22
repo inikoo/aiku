@@ -9,10 +9,12 @@ namespace App\Enums\Inventory\Stock;
 
 use App\Enums\EnumHelperTrait;
 
-enum LostAndFoundStockStateEnum: string
+enum OrgStockStateEnum: string
 {
     use EnumHelperTrait;
 
-    case LOST  = 'lost';
-    case FOUND = 'found';
+    case IN_PROCESS        = 'in-process';
+    case ACTIVE            = 'active';
+    case DISCONTINUING     = 'discontinuing';
+    case DISCONTINUED      = 'discontinued';
 }

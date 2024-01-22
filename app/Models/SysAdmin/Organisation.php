@@ -23,6 +23,7 @@ use App\Models\HumanResources\Employee;
 use App\Models\HumanResources\JobPosition;
 use App\Models\HumanResources\Workplace;
 use App\Models\Inventory\Location;
+use App\Models\Inventory\OrgStock;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
 use App\Models\Market\Shop;
@@ -96,6 +97,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\OrganisationMailStats|null $mailStats
  * @property-read \App\Models\SysAdmin\OrganisationMarketStats|null $marketStats
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, Media> $media
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, OrgStock> $orgStocks
  * @property-read \Illuminate\Database\Eloquent\Collection<int, PaymentServiceProvider> $paymentServiceProviders
  * @property-read \App\Models\SysAdmin\OrganisationProcurementStats|null $procurementStats
  * @property-read \App\Models\SysAdmin\OrganisationProductionStats|null $productionStats
@@ -375,7 +377,10 @@ class Organisation extends Model implements HasMedia
         return $this->hasOne(Agent::class);
     }
 
-
+    public function orgStocks(): HasMany
+    {
+        return $this->hasMany(OrgStock::class);
+    }
 
 
 }

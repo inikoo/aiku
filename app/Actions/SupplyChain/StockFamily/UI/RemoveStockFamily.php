@@ -38,7 +38,7 @@ class RemoveStockFamily extends InertiaAction
         return  [
             'buttonLabel' => __('Delete'),
             'title'       => __('Delete Stock Family'),
-            'text'        => __("This action will delete this Stock Family and its Stocks"),
+            'text'        => __("This action will delete this Stock Family and its Stock"),
             'route'       => $route
         ];
     }

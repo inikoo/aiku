@@ -11,7 +11,7 @@ use App\Models\SupplyChain\Stock;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class StockHydrateLocations implements ShouldBeUnique
+class OrgStockHydrateLocations implements ShouldBeUnique
 {
     use AsAction;
 

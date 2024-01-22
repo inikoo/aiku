@@ -7,9 +7,12 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-use App\Actions\Inventory\OrgStock\UpdateStock;
+use App\Actions\Inventory\OrgStock\StoreOrgStock;
+use App\Actions\Inventory\OrgStock\SyncOrgStockLocations;
+use App\Actions\Inventory\OrgStock\UpdateOrgStock;
 use App\Actions\SupplyChain\Stock\StoreStock;
 use App\Actions\SupplyChain\Stock\SyncStockTradeUnits;
+use App\Actions\SupplyChain\Stock\UpdateStock;
 use App\Models\SupplyChain\Stock;
 use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
@@ -22,17 +25,16 @@ class FetchStocks extends FetchAction
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Stock
     {
         if ($stockData = $organisationSource->fetchStock($organisationSourceId)) {
-            print_r($stockData['stock']);
+            //print_r($stockData['stock']);
 
 
-            if (Stock::withTrashed()->where('source_slug', $stockData['stock']['source_slug'])->exists()) {
+            if ($baseStock = Stock::withTrashed()->where('source_slug', $stockData['stock']['source_slug'])->first()) {
                 if ($stock = Stock::withTrashed()->where('source_id', $stockData['stock']['source_id'])->first()) {
                     $stock = UpdateStock::make()->action(
                         stock: $stock,
                         modelData: $stockData['stock'],
                     );
                 }
-                $baseStock = Stock::withTrashed()->where('source_slug', $stockData['stock']['source_slug'])->first();
             } else {
                 $stock = StoreStock::make()->action(
                     group: $organisationSource->getOrganisation()->group,
@@ -58,10 +60,34 @@ class FetchStocks extends FetchAction
                     ->where('Part SKU', $sourceData[1])
                     ->update(['aiku_id' => $stock->id]);
             }
-            //$locationsData = $organisationSource->fetchLocationStocks($organisationSourceId);
-            //$stock->locations()->sync($locationsData['stock_locations']);
+
+            $effectiveStock = $stock ?? $baseStock;
 
 
+            $organisation = $organisationSource->getOrganisation();
+
+            /** @var \App\Models\Inventory\OrgStock $orgStock */
+            if ($orgStock = $organisation->orgStocks()->where('source_id', $stockData['stock']['source_id'])->first()) {
+                $orgStock = UpdateOrgStock::make()->action(
+                    orgStock: $orgStock,
+                    modelData: $stockData['stock'],
+                    hydratorDelay: 30
+                );
+            } else {
+                $orgStock = StoreOrgStock::make()->action(
+                    organisation: $organisationSource->getOrganisation(),
+                    stock: $effectiveStock,
+                    modelData: $stockData['stock'],
+                    hydratorDelay: 30
+                );
+            }
+
+            $sourceData = explode(':', $stockData['stock']['source_id']);
+
+            $locationsData = $organisationSource->fetchLocationStocks($sourceData[1]);
+
+
+            SyncOrgStockLocations::run($orgStock, $locationsData['stock_locations']);
 
 
             return $stock;

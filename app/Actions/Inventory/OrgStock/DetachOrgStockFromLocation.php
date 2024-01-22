@@ -1,7 +1,7 @@
 <?php
 /*
- * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Sun, 02 Apr 2023 21:13:56 Malaysia Time, Sanur, Bali, Indonesia
+ * Author: Artha <artha@aw-advantage.com>
+ * Created: Fri, 12 May 2023 15:16:28 Central Indonesia Time, Sanur, Bali, Indonesia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
@@ -13,16 +13,16 @@ use App\Models\Inventory\Location;
 use App\Models\SupplyChain\Stock;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class AttachStockToLocation
+class DetachOrgStockFromLocation
 {
     use AsAction;
 
     public function handle(Location $location, Stock $stock): Location
     {
-        $location->stocks()->attach([$stock->id]);
+        $location->stocks()->detach([$stock->id]);
 
-        LocationHydrateStocks::dispatch($location);
-        LocationHydrateStockValue::dispatch($location);
+        LocationHydrateStocks::run($location);
+        LocationHydrateStockValue::run($location);
 
         return $location;
     }

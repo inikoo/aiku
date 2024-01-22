@@ -7,7 +7,7 @@
 
 namespace App\Http\Resources\Inventory;
 
-use App\Models\Inventory\LocationStock;
+use App\Models\Inventory\LocationOrgStock;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
@@ -26,7 +26,7 @@ class LocationResource extends JsonResource
             'id'       => $this->id,
             'slug'     => $this->slug,
             'code'     => $this->code,
-            'quantity' => $this->whenPivotLoaded(new LocationStock(), function () {
+            'quantity' => $this->whenPivotLoaded(new LocationOrgStock(), function () {
                 return $this->pivot->quantity;
             }),
             'warehouse_slug'     => $this->warehouse_slug,

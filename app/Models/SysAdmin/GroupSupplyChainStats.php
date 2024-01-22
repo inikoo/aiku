@@ -14,7 +14,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 
 /**
- * App\Models\SysAdmin\GroupInventoryStats
+ * App\Models\SysAdmin\GroupSupplyChainStats
  *
  * @property int $id
  * @property int $group_id
@@ -65,14 +65,14 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read \App\Models\SysAdmin\Group $group
- * @method static Builder|GroupInventoryStats newModelQuery()
- * @method static Builder|GroupInventoryStats newQuery()
- * @method static Builder|GroupInventoryStats query()
+ * @method static Builder|GroupSupplyChainStats newModelQuery()
+ * @method static Builder|GroupSupplyChainStats newQuery()
+ * @method static Builder|GroupSupplyChainStats query()
  * @mixin Eloquent
  */
-class GroupInventoryStats extends Model
+class GroupSupplyChainStats extends Model
 {
-    protected $table = 'group_inventory_stats';
+    protected $table = 'group_supply_chain_stats';
 
     protected $guarded = [];
 

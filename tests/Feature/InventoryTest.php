@@ -11,10 +11,10 @@ use App\Actions\Goods\TradeUnit\StoreTradeUnit;
 use App\Actions\Inventory\Location\AuditLocation;
 use App\Actions\Inventory\Location\StoreLocation;
 use App\Actions\Inventory\Location\UpdateLocation;
-use App\Actions\Inventory\OrgStock\AddLostAndFoundStock;
-use App\Actions\Inventory\OrgStock\AttachStockToLocation;
-use App\Actions\Inventory\OrgStock\DetachStockFromLocation;
-use App\Actions\Inventory\OrgStock\MoveStockLocation;
+use App\Actions\Inventory\OrgStock\AddLostAndFoundOrgStock;
+use App\Actions\Inventory\OrgStock\AttachOrgStockToLocation;
+use App\Actions\Inventory\OrgStock\DetachOrgStockFromLocation;
+use App\Actions\Inventory\OrgStock\MoveOrgStockLocation;
 use App\Actions\Inventory\OrgStock\RemoveLostAndFoundStock;
 use App\Actions\Inventory\Warehouse\StoreWarehouse;
 use App\Actions\Inventory\Warehouse\UpdateWarehouse;
@@ -22,10 +22,10 @@ use App\Actions\Inventory\WarehouseArea\StoreWarehouseArea;
 use App\Actions\Inventory\WarehouseArea\UpdateWarehouseArea;
 use App\Actions\SupplyChain\Stock\SyncStockTradeUnits;
 use App\Actions\SupplyChain\StockFamily\StoreStockFamily;
-use App\Enums\Inventory\Stock\LostAndFoundStockStateEnum;
+use App\Enums\Inventory\Stock\LostAndFoundOrgStockStateEnum;
 use App\Models\Goods\TradeUnit;
 use App\Models\Inventory\Location;
-use App\Models\Inventory\LocationStock;
+use App\Models\Inventory\LocationOrgStock;
 use App\Models\Inventory\LostAndFoundStock;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
@@ -159,7 +159,7 @@ test('create location in warehouse area', function ($warehouseArea) {
 test('create stock families', function () {
     $arrayData = [
         'code' => 'ABC',
-        'name' => 'ABC Stocks'
+        'name' => 'ABC Stock'
     ];
 
     $stockFamily = StoreStockFamily::make()->action($this->group, $arrayData);
@@ -181,7 +181,7 @@ test('create stock', function () {
     ]);
 
     expect($stock)->toBeInstanceOf(Stock::class)
-        ->and($this->group->inventoryStats->number_stocks)->toBe(1);
+        ->and($this->group->supplyChainStats->number_stocks)->toBe(1);
 
     return $stock->fresh();
 });
@@ -197,7 +197,7 @@ test('create another stock', function () {
         ]
     ]);
     expect($stock)->toBeInstanceOf(Stock::class)
-        ->and($this->group->inventoryStats->number_stocks)->toBe(2);
+        ->and($this->group->supplyChainStats->number_stocks)->toBe(2);
 
     return $stock->fresh();
 });
@@ -206,7 +206,7 @@ test('attach stock to location', function ($location) {
     $stocks = Stock::all();
     expect($stocks->count())->toBe(2);
     foreach ($stocks as $stock) {
-        $location = AttachStockToLocation::run($location, $stock);
+        $location = AttachOrgStockToLocation::run($location, $stock);
     }
     expect($location->stocks()->count())->toBe(2)
         ->and($location->stats->number_stock_slots)->toBe(2);
@@ -214,16 +214,16 @@ test('attach stock to location', function ($location) {
 
 
 test('detach stock from location', function ($location, $stock) {
-    DetachStockFromLocation::run($location, $stock);
+    DetachOrgStockFromLocation::run($location, $stock);
     $location->refresh();
     expect($location->stats->number_stock_slots)->toBe(1);
 })->depends('create location in warehouse area', 'create stock');
 
 test('move stock location', function () {
-    $currentLocation = LocationStock::first();
-    $targetLocation  = LocationStock::latest()->first();
+    $currentLocation = LocationOrgStock::first();
+    $targetLocation  = LocationOrgStock::latest()->first();
 
-    $stock = MoveStockLocation::make()->action($currentLocation, $targetLocation, [
+    $stock = MoveOrgStockLocation::make()->action($currentLocation, $targetLocation, [
         'quantity' => 1
     ]);
 
@@ -241,27 +241,27 @@ test('audit stock in location', function ($location) {
 })->depends('create location in warehouse area');
 
 test('add found stock', function ($location) {
-    $lostAndFound = AddLostAndFoundStock::make()->action(
+    $lostAndFound = AddLostAndFoundOrgStock::make()->action(
         $location,
         array_merge(LostAndFoundStock::factory()->definition(), [
-            'type' => LostAndFoundStockStateEnum::FOUND->value
+            'type' => LostAndFoundOrgStockStateEnum::FOUND->value
         ])
     );
 
-    expect($lostAndFound->type)->toBe(LostAndFoundStockStateEnum::FOUND->value);
+    expect($lostAndFound->type)->toBe(LostAndFoundOrgStockStateEnum::FOUND->value);
 
     return $lostAndFound;
 })->depends('create location in warehouse area');
 
 test('add lost stock', function ($location) {
-    $lostAndFound = AddLostAndFoundStock::make()->action(
+    $lostAndFound = AddLostAndFoundOrgStock::make()->action(
         $location,
         array_merge(LostAndFoundStock::factory()->definition(), [
-            'type' => LostAndFoundStockStateEnum::LOST->value
+            'type' => LostAndFoundOrgStockStateEnum::LOST->value
         ])
     );
 
-    expect($lostAndFound->type)->toBe(LostAndFoundStockStateEnum::LOST->value);
+    expect($lostAndFound->type)->toBe(LostAndFoundOrgStockStateEnum::LOST->value);
 
     return $lostAndFound;
 })->depends('create location in warehouse area');

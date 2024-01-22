@@ -1,14 +1,14 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Sat, 03 Sept 2022 02:05:57 Malaysia Time, Kuala Lumpur, Malaysia
- *  Copyright (c) 2022, Raul A Perusquia Flores
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Tue, 23 Jan 2024 11:09:26 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Inventory\OrgStock;
+namespace App\Actions\SupplyChain\Stock;
 
 use App\Actions\GrpAction;
-use App\Actions\Inventory\OrgStock\Hydrators\StockHydrateUniversalSearch;
+use App\Actions\Inventory\OrgStock\Hydrators\OrgStockHydrateUniversalSearch;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Inventory\StockResource;
 use App\Models\SupplyChain\Stock;
@@ -29,7 +29,7 @@ class UpdateStock extends GrpAction
     public function handle(Stock $stock, array $modelData): Stock
     {
         $stock = $this->update($stock, $modelData, ['data', 'settings']);
-        StockHydrateUniversalSearch::dispatch($stock);
+        OrgStockHydrateUniversalSearch::dispatch($stock);
 
         return $stock;
     }

@@ -9,14 +9,14 @@ namespace App\Actions\Inventory\OrgStock;
 
 use App\Actions\Inventory\Warehouse\HydrateWarehouse;
 use App\Actions\Traits\WithActionUpdate;
-use App\Models\Inventory\LocationStock;
+use App\Models\Inventory\LocationOrgStock;
 use Lorisleiva\Actions\ActionRequest;
 
-class MoveStockLocation
+class MoveOrgStockLocation
 {
     use WithActionUpdate;
 
-    public function handle(LocationStock $currentLocationStock, LocationStock $targetLocation, array $movementData): LocationStock
+    public function handle(LocationOrgStock $currentLocationStock, LocationOrgStock $targetLocation, array $movementData): LocationOrgStock
     {
         $this->update($currentLocationStock, [
             'quantity' => $currentLocationStock->quantity - $movementData['quantity'],
@@ -38,7 +38,7 @@ class MoveStockLocation
         ];
     }
 
-    public function action(LocationStock $currentLocationStock, LocationStock $targetLocation, $modelData): LocationStock
+    public function action(LocationOrgStock $currentLocationStock, LocationOrgStock $targetLocation, $modelData): LocationOrgStock
     {
         $this->setRawAttributes($modelData);
         $this->validateAttributes();
@@ -46,7 +46,7 @@ class MoveStockLocation
         return $this->handle($currentLocationStock, $targetLocation, $modelData);
     }
 
-    public function asController(LocationStock $currentLocationStock, LocationStock $targetLocation, ActionRequest $request): LocationStock
+    public function asController(LocationOrgStock $currentLocationStock, LocationOrgStock $targetLocation, ActionRequest $request): LocationOrgStock
     {
         $request->validate();
         return $this->handle($currentLocationStock, $targetLocation, $request->all());

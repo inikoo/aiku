@@ -7,7 +7,7 @@
 
 namespace App\Models\SupplyChain;
 
-use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateInventory;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateSupplyChain;
 use App\Enums\Inventory\StockFamily\StockFamilyStateEnum;
 use App\Models\Search\UniversalSearch;
 use App\Models\SysAdmin\Group;
@@ -77,7 +77,7 @@ class StockFamily extends Model
     {
         static::updated(function (StockFamily $stockFamily) {
             if ($stockFamily->wasChanged('state')) {
-                GroupHydrateInventory::dispatch(group());
+                GroupHydrateSupplyChain::dispatch(group());
             }
         });
     }
