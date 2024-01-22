@@ -54,7 +54,9 @@ class GetGroupNavigation
             $groupNavigation['organisations'] = [
                 'label'   => __('Organisations'),
                 'icon'    => ['fal', 'fa-user'],
-                'route'   => 'grp.org.dashboard',
+                'route'   => [
+                    'name' => 'grp.orgs.index'
+                ],
                 'topMenu' => []
             ];
         }

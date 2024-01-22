@@ -20,7 +20,7 @@ Route::middleware([
 
         });
 
-        Route::get('/org', IndexOrganisation::class)->name('index');
+        Route::get('/org', IndexOrganisation::class)->name('orgs.index');
 
         Route::prefix("dashboard")
             ->name("dashboard.")
