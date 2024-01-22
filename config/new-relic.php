@@ -31,7 +31,7 @@ return [
     | api_key:  Optional, but required to use the New Relic deployments feature.
     |
     */
-    'app_name'     => ini_get('newrelic.appname') ?: env('APP_NAME', 'laravel'),
+    'app_name'     => env('APP_NAME', 'aiku').env('APP_ENV')=='production' ? '' : '-'.env('APP_ENV'),
 
     /*
     |--------------------------------------------------------------------------
@@ -51,6 +51,7 @@ return [
     */
     'environments' => [
         'production',
+        'staging',
     ],
     'loggable'     => [
         // 'local',
