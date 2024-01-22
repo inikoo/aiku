@@ -24,7 +24,6 @@ class UpdateUser extends GrpAction
 {
     use WithActionUpdate;
 
-    private bool $asAction = false;
 
     private User $user;
 

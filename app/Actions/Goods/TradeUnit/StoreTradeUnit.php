@@ -17,8 +17,6 @@ use Illuminate\Validation\Rule;
 
 class StoreTradeUnit extends GrpAction
 {
-    private int $hydratorsDelay = 0;
-
     public function handle(Group $group, array $modelData): TradeUnit
     {
         /** @var TradeUnit $tradeUnit */

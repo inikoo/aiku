@@ -24,10 +24,6 @@ class UpdateWebUser extends OrgAction
 {
     use WithActionUpdate;
 
-    private bool $asAction     = false;
-    public int $hydratorsDelay = 0;
-    private bool $strict       = true;
-
     private WebUser $webUser;
 
     public function handle(WebUser $webUser, array $modelData): WebUser

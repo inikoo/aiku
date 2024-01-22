@@ -10,18 +10,42 @@ namespace App\Services\Organisation\Aurora;
 use App\Actions\SourceFetch\Aurora\FetchStockFamilies;
 use App\Enums\Inventory\Stock\StockStateEnum;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class FetchAuroraStock extends FetchAurora
 {
+    use WithAuroraParsers;
+
     protected function parseModel(): void
     {
-        $this->parsedData['trade_unit']=$this->parseTradeUnit($this->auroraModelData->{'Part SKU'});
+        $tradeUnitReference = $this->cleanTradeUnitReference($this->auroraModelData->{'Part Reference'});
+        $tradeUnitSlug      = Str::lower($tradeUnitReference);
+
+
+        $this->parsedData['trade_unit'] = $this->parseTradeUnit(
+            $tradeUnitSlug,
+            $this->auroraModelData->{'Part SKU'}
+        );
+
+        $code = $this->cleanTradeUnitReference($this->auroraModelData->{'Part Reference'});
+
+
+        $sourceSlug = Str::kebab(strtolower($code));
+
+        $name = $this->auroraModelData->{'Part Recommended Product Unit Name'};
+        if ($name == '') {
+            $name = $this->auroraModelData->{'Part Package Description'};
+        }
+        if ($name == '') {
+            $name = 'Not set';
+        }
+
+
 
         $this->parsedData['stock'] = [
-            'description'     => $this->auroraModelData->{'Part Recommended Product Unit Name'},
+            'name'            => $name,
             'stock_family_id' => $this->getStockFamilyId($this->auroraModelData->{'Part SKU'}),
-            'code'            => $this->auroraModelData->{'Part Reference'},
-            'source_id'       => $this->organisation->id.':'.$this->auroraModelData->{'Part SKU'},
+            'code'            => $code,
             'created_at'      => $this->parseDate($this->auroraModelData->{'Part Valid From'}),
             'activated_at'    => $this->parseDate($this->auroraModelData->{'Part Active From'}),
             'units_per_pack'  => $this->auroraModelData->{'Part Units Per Package'},
@@ -36,7 +60,9 @@ class FetchAuroraStock extends FetchAurora
                 'Discontinuing' => StockStateEnum::DISCONTINUING,
                 'In Process'    => StockStateEnum::IN_PROCESS,
                 'Not In Use'    => StockStateEnum::DISCONTINUED,
-            }
+            },
+            'source_id'       => $this->organisation->id.':'.$this->auroraModelData->{'Part SKU'},
+            'source_slug'     => $sourceSlug
         ];
     }
 

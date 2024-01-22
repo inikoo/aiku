@@ -20,10 +20,6 @@ return new class () extends Migration {
             $table->increments('id');
             $table->unsignedSmallInteger('group_id');
             $table->foreign('group_id')->references('id')->on('groups')->onUpdate('cascade')->onDelete('cascade');
-            $table->unsignedSmallInteger('organisation_id')->nullable();
-            $table->foreign('organisation_id')->references('id')->on('organisations')->onUpdate('cascade')->onDelete('cascade');
-            $table->unsignedInteger('customer_id')->index()->nullable();
-            $table->foreign('customer_id')->references('id')->on('customers')->onUpdate('cascade')->onDelete('cascade');
             $table->string('slug')->unique()->collation('und_ns');
             $table = $this->assertCodeDescription($table);
             $table->unsignedSmallInteger('stock_family_id')->index()->nullable();
@@ -35,12 +31,7 @@ return new class () extends Migration {
             $table->string('barcode')->index()->nullable();
             $table->unsignedInteger('units_per_pack')->nullable()->comment('units per pack');
             $table->unsignedInteger('units_per_carton')->nullable()->comment('units per carton');
-            $table->decimal('quantity_in_locations', 16, 3)->nullable()->default(0)->comment('stock quantity in units');
-            $table->string('quantity_status')->nullable()->index();
-            $table->float('available_forecast')->nullable()->comment('days');
-            $table->unsignedSmallInteger('number_locations')->default(0);
             $table->decimal('unit_value', 16)->nullable();
-            $table->decimal('value_in_locations', 16)->default(0);
             $table->unsignedInteger('image_id')->nullable();
             $table->jsonb('settings');
             $table->jsonb('data');
@@ -49,6 +40,7 @@ return new class () extends Migration {
             $table->dateTimeTz('discontinuing_at')->nullable();
             $table->dateTimeTz('discontinued_at')->nullable();
             $table->softDeletesTz();
+            $table->string('source_slug')->index()->nullable();
             $table->string('source_id')->nullable()->unique();
         });
         DB::statement('CREATE INDEX ON stocks USING gin (name gin_trgm_ops) ');

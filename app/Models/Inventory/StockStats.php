@@ -7,6 +7,7 @@
 
 namespace App\Models\Inventory;
 
+use App\Models\SupplyChain\Stock;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -20,7 +21,7 @@ use Illuminate\Support\Carbon;
  * @property int $stock_id
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read \App\Models\Inventory\Stock $stock
+ * @property-read Stock $stock
  * @method static Builder|StockStats newModelQuery()
  * @method static Builder|StockStats newQuery()
  * @method static Builder|StockStats query()

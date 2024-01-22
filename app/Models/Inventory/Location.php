@@ -9,6 +9,7 @@ namespace App\Models\Inventory;
 
 use App\Enums\Inventory\Location\LocationStatusEnum;
 use App\Models\Search\UniversalSearch;
+use App\Models\SupplyChain\Stock;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
@@ -24,7 +25,6 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Contracts\Auditable;
-
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -53,7 +53,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, \App\Models\Inventory\LostAndFoundStock> $lostAndFoundStocks
  * @property-read Organisation $organisation
  * @property-read \App\Models\Inventory\LocationStats|null $stats
- * @property-read Collection<int, \App\Models\Inventory\Stock> $stocks
+ * @property-read Collection<int, Stock> $stocks
  * @property-read UniversalSearch|null $universalSearch
  * @property-read \App\Models\Inventory\Warehouse $warehouse
  * @property-read \App\Models\Inventory\WarehouseArea|null $warehouseArea

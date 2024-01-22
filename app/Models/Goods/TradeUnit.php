@@ -7,8 +7,8 @@
 
 namespace App\Models\Goods;
 
-use App\Models\Inventory\Stock;
 use App\Models\Market\Product;
+use App\Models\SupplyChain\Stock;
 use App\Models\SysAdmin\Group;
 use App\Models\Traits\HasImages;
 use Eloquent;

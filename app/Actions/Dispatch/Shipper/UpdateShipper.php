@@ -18,7 +18,6 @@ class UpdateShipper extends OrgAction
 {
     use WithActionUpdate;
 
-    protected bool $asAction = false;
 
     private Shipper $shipper;
 

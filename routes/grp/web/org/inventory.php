@@ -5,18 +5,18 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-use App\Actions\Inventory\Stock\ExportStocks;
-use App\Actions\Inventory\Stock\UI\CreateStock;
-use App\Actions\Inventory\Stock\UI\EditStock;
-use App\Actions\Inventory\Stock\UI\IndexStocks;
-use App\Actions\Inventory\Stock\UI\RemoveStock;
-use App\Actions\Inventory\Stock\UI\ShowStock;
-use App\Actions\Inventory\StockFamily\ExportStockFamilies;
-use App\Actions\Inventory\StockFamily\UI\CreateStockFamily;
-use App\Actions\Inventory\StockFamily\UI\EditStockFamily;
-use App\Actions\Inventory\StockFamily\UI\IndexStockFamilies;
-use App\Actions\Inventory\StockFamily\UI\RemoveStockFamily;
-use App\Actions\Inventory\StockFamily\UI\ShowStockFamily;
+use App\Actions\Inventory\OrgStock\ExportStocks;
+use App\Actions\Inventory\OrgStock\UI\CreateStock;
+use App\Actions\Inventory\OrgStock\UI\EditStock;
+use App\Actions\Inventory\OrgStock\UI\IndexStocks;
+use App\Actions\Inventory\OrgStock\UI\RemoveStock;
+use App\Actions\Inventory\OrgStock\UI\ShowStock;
+use App\Actions\SupplyChain\StockFamily\ExportStockFamilies;
+use App\Actions\SupplyChain\StockFamily\UI\CreateStockFamily;
+use App\Actions\SupplyChain\StockFamily\UI\EditStockFamily;
+use App\Actions\SupplyChain\StockFamily\UI\IndexStockFamilies;
+use App\Actions\SupplyChain\StockFamily\UI\RemoveStockFamily;
+use App\Actions\SupplyChain\StockFamily\UI\ShowStockFamily;
 use App\Actions\UI\Inventory\ShowInventoryDashboard;
 use Illuminate\Support\Facades\Route;
 

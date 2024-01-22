@@ -5,10 +5,6 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-use App\Actions\HumanResources\ClockingMachine\StoreClockingMachine;
-use App\Actions\HumanResources\ClockingMachine\UI\IndexClockingMachines;
-use App\Actions\HumanResources\Workplace\UI\IndexWorkplaces;
-use App\Actions\HumanResources\Workplace\UI\ShowWorkplace;
 use App\Actions\Inventory\Location\UI\IndexLocations;
 use App\Actions\Inventory\Warehouse\UI\IndexWarehouses;
 use App\Actions\Inventory\WarehouseArea\UI\IndexWarehouseAreas;

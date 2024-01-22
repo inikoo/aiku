@@ -21,9 +21,6 @@ use Lorisleiva\Actions\ActionRequest;
 
 class StoreWebsite extends OrgAction
 {
-    private bool $asAction = false;
-
-
     public function handle(Shop $shop, array $modelData): Website
     {
 

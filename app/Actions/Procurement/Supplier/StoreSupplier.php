@@ -32,8 +32,6 @@ class StoreSupplier extends GrpAction
     use AsAction;
     use WithAttributes;
 
-    private bool $asAction = false;
-
     public function authorize(ActionRequest $request): bool
     {
         if ($this->asAction) {

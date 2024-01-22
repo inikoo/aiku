@@ -14,14 +14,9 @@ use App\Models\SysAdmin\Organisation;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsController;
-use Lorisleiva\Actions\Concerns\WithAttributes;
 
 class DeleteClockingMachine extends OrgAction
 {
-    use AsController;
-    use WithAttributes;
-
     public function handle(ClockingMachine $clockingMachine): ClockingMachine
     {
         $clockingMachine->clockings()->delete();

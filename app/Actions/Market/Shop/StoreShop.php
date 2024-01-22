@@ -39,8 +39,6 @@ use Lorisleiva\Actions\ActionRequest;
 
 class StoreShop extends OrgAction
 {
-    private bool $asAction = false;
-
     public function handle(Organisation $organisation, array $modelData): Shop
     {
         data_set($modelData, 'group_id', $organisation->group_id);

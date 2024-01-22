@@ -30,10 +30,6 @@ class UpdateProspect extends OrgAction
     use WithActionUpdate;
     use WithProspectPrepareForValidation;
 
-    private bool $asAction     = false;
-    public int $hydratorsDelay = 0;
-    private bool $strict       = true;
-
     private Prospect $prospect;
 
     public function handle(Prospect $prospect, array $modelData): Prospect

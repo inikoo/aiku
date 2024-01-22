@@ -25,6 +25,11 @@ class GrpAction
 
     protected bool $canEdit               = false;
     protected bool $canDelete             = false;
+
+    protected bool $asAction    = false;
+    public int $hydratorsDelay  = 0;
+    private bool $strict        = true;
+
     protected array $validatedData;
 
 

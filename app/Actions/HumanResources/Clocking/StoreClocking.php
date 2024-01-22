@@ -16,16 +16,9 @@ use App\Models\SysAdmin\Organisation;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsAction;
-use Lorisleiva\Actions\Concerns\WithAttributes;
 
 class StoreClocking extends OrgAction
 {
-    use AsAction;
-    use WithAttributes;
-
-    private bool $asAction=false;
-
     public function handle(ClockingMachine|Workplace $parent, array $modelData): Clocking
     {
 

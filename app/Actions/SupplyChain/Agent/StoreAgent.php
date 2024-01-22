@@ -24,9 +24,6 @@ use Lorisleiva\Actions\ActionRequest;
 
 class StoreAgent extends GrpAction
 {
-    private bool $asAction = false;
-
-
     public function authorize(ActionRequest $request): bool
     {
         if ($this->asAction) {

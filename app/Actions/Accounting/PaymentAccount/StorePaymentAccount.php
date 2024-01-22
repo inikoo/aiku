@@ -19,8 +19,6 @@ use Lorisleiva\Actions\ActionRequest;
 
 class StorePaymentAccount extends OrgAction
 {
-    private bool $asAction = false;
-
     public function handle(PaymentServiceProvider $paymentServiceProvider, array $modelData): PaymentAccount
     {
         data_set($modelData, 'group_id', $paymentServiceProvider->group_id);

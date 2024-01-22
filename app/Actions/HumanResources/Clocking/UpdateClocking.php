@@ -18,7 +18,6 @@ class UpdateClocking extends OrgAction
 {
     use WithActionUpdate;
 
-    private bool $asAction=false;
 
     public function handle(Clocking $clocking, array $modelData): Clocking
     {

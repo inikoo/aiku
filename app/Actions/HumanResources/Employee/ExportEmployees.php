@@ -12,14 +12,10 @@ use App\Actions\Traits\WithExportData;
 use App\Exports\HumanResources\EmployeesExport;
 use App\Models\SysAdmin\Organisation;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsAction;
-use Lorisleiva\Actions\Concerns\WithAttributes;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class ExportEmployees extends OrgAction
 {
-    use AsAction;
-    use WithAttributes;
     use WithExportData;
 
     /**

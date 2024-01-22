@@ -26,9 +26,6 @@ use Lorisleiva\Actions\ActionRequest;
 
 class StoreWarehouse extends OrgAction
 {
-    private bool $asAction = false;
-
-
     public function handle(Organisation $organisation, $modelData): Warehouse
     {
         data_set($modelData, 'group_id', $organisation->group_id);

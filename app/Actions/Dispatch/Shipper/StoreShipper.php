@@ -16,8 +16,6 @@ use Lorisleiva\Actions\ActionRequest;
 
 class StoreShipper extends OrgAction
 {
-    private bool $asAction = false;
-
     public function handle(Organisation $organisation, array $modelData): Shipper
     {
         data_set($modelData, 'group_id', $organisation->group_id);

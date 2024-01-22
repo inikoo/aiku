@@ -28,9 +28,6 @@ class UpdateCustomer extends OrgAction
 {
     use WithActionUpdate;
 
-    private bool $asAction     = false;
-    public int $hydratorsDelay = 0;
-    private bool $strict       = true;
     private Customer $customer;
 
     public function handle(Customer $customer, array $modelData): Customer

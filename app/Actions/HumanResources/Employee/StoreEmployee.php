@@ -30,9 +30,6 @@ use Lorisleiva\Actions\ActionRequest;
 
 class StoreEmployee extends OrgAction
 {
-    private bool $asAction = false;
-
-
     public function handle(Organisation|Workplace $parent, array $modelData): Employee
     {
         if (class_basename($parent) === 'Workplace') {

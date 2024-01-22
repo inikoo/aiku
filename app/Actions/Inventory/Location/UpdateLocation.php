@@ -19,8 +19,6 @@ class UpdateLocation extends OrgAction
 {
     use WithActionUpdate;
 
-    private bool $asAction = false;
-
     private Location $location;
 
     public function handle(Location $location, array $modelData): Location

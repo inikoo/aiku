@@ -19,17 +19,9 @@ use App\Rules\IUnique;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsAction;
-use Lorisleiva\Actions\Concerns\WithAttributes;
 
 class StoreLocation extends OrgAction
 {
-    use AsAction;
-    use WithAttributes;
-
-    private bool $asAction = false;
-
-
     public function handle(WarehouseArea|Warehouse $parent, array $modelData): Location
     {
         data_set($modelData, 'group_id', $parent->group_id);

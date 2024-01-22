@@ -22,8 +22,6 @@ class UpdateWarehouse extends OrgAction
 {
     use WithActionUpdate;
 
-    private bool $asAction = false;
-
 
     public function handle(Warehouse $warehouse, array $modelData): Warehouse
     {

@@ -23,8 +23,6 @@ class FetchTradeUnits extends FetchAction
         if ($tradeUnitData = $organisationSource->fetchTradeUnit($organisationSourceId)) {
             $baseTradeUnit = null;
 
-            print_r($tradeUnitData);
-
 
             if (TradeUnit::withTrashed()->where('source_slug', $tradeUnitData['trade_unit']['source_slug'])->exists()) {
                 if ($tradeUnit = TradeUnit::withTrashed()->where('source_id', $tradeUnitData['trade_unit']['source_id'])->first()) {

@@ -7,10 +7,10 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-use App\Actions\Inventory\Stock\StoreStock;
-use App\Actions\Inventory\Stock\SyncStockTradeUnits;
-use App\Actions\Inventory\Stock\UpdateStock;
-use App\Models\Inventory\Stock;
+use App\Actions\Inventory\OrgStock\UpdateStock;
+use App\Actions\SupplyChain\Stock\StoreStock;
+use App\Actions\SupplyChain\Stock\SyncStockTradeUnits;
+use App\Models\SupplyChain\Stock;
 use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
@@ -22,33 +22,47 @@ class FetchStocks extends FetchAction
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Stock
     {
         if ($stockData = $organisationSource->fetchStock($organisationSourceId)) {
-            if ($stock = Stock::withTrashed()->where('source_id', $stockData['stock']['source_id'])
-                ->first()) {
-                $stock = UpdateStock::run(
-                    stock: $stock,
-                    modelData: $stockData['stock'],
-                );
+            print_r($stockData['stock']);
+
+
+            if (Stock::withTrashed()->where('source_slug', $stockData['stock']['source_slug'])->exists()) {
+                if ($stock = Stock::withTrashed()->where('source_id', $stockData['stock']['source_id'])->first()) {
+                    $stock = UpdateStock::make()->action(
+                        stock: $stock,
+                        modelData: $stockData['stock'],
+                    );
+                }
+                $baseStock = Stock::withTrashed()->where('source_slug', $stockData['stock']['source_slug'])->first();
             } else {
-                $stock = StoreStock::run(
-                    owner: $organisationSource->getOrganisation(),
-                    modelData: $stockData['stock']
+                $stock = StoreStock::make()->action(
+                    group: $organisationSource->getOrganisation()->group,
+                    modelData: $stockData['stock'],
+                    hydratorDelay: 30
                 );
             }
-            $tradeUnit = $stockData['trade_unit'];
 
-            SyncStockTradeUnits::run($stock, [
-                $tradeUnit->id => [
-                    'quantity' => $stockData['stock']['units_per_pack']
-                ]
-            ]);
-            $locationsData = $organisationSource->fetchLocationStocks($organisationSourceId);
 
-            $stock->locations()->sync($locationsData['stock_locations']);
+            if ($stock) {
+                $tradeUnit = $stockData['trade_unit'];
 
-            DB::connection('aurora')
-                ->table('Part Dimension')
-                ->where('Part SKU', $stock->source_id)
-                ->update(['aiku_id' => $stock->id]);
+                SyncStockTradeUnits::run($stock, [
+                    $tradeUnit->id => [
+                        'quantity' => $stockData['stock']['units_per_pack']
+                    ]
+                ]);
+
+                $sourceData = explode(':', $stock->source_id);
+
+                DB::connection('aurora')
+                    ->table('Part Dimension')
+                    ->where('Part SKU', $sourceData[1])
+                    ->update(['aiku_id' => $stock->id]);
+            }
+            //$locationsData = $organisationSource->fetchLocationStocks($organisationSourceId);
+            //$stock->locations()->sync($locationsData['stock_locations']);
+
+
+
 
             return $stock;
         }
@@ -80,6 +94,7 @@ class FetchStocks extends FetchAction
         if ($this->onlyNew) {
             $query->whereNull('aiku_id');
         }
+
         return $query->count();
     }
 
