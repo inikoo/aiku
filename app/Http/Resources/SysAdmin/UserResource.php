@@ -9,7 +9,7 @@ namespace App\Http\Resources\SysAdmin;
 
 use App\Http\Resources\HumanResources\EmployeeResource;
 use App\Http\Resources\SysAdmin\Group\GroupResource;
-use App\Http\Resources\SysAdmin\Organisation\OrganisationResource;
+use App\Http\Resources\SysAdmin\Organisation\UserOrganisationResource;
 use App\Models\SysAdmin\User;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -23,24 +23,24 @@ class UserResource extends JsonResource
         $user = $this;
 
         return [
-            'id'           => $user->id,
-            'username'     => $user->username,
-            'avatar'       => $user->avatarImageSources(48, 48),
-            'parent_type'  => $user->parent_type,
-            'contact_name' => $user->contact_name,
-            'parent'       => $this->when($this->relationLoaded('parent'), function () {
+            'id'            => $user->id,
+            'username'      => $user->username,
+            'avatar'        => $user->avatarImageSources(48, 48),
+            'parent_type'   => $user->parent_type,
+            'contact_name'  => $user->contact_name,
+            'parent'        => $this->when($this->relationLoaded('parent'), function () {
                 return match (class_basename($this->resource->parent)) {
                     'Employee' => new EmployeeResource($this->resource->parent),
                     'Guest'    => new GuestResource($this->resource->parent),
                     default    => [],
                 };
             }),
-            'group'        => GroupResource::make($user->group),
-            'organisation' => OrganisationResource::collection($user->authorisedOrganisations),
-            'created_at'   => $user->created_at,
-            'updated_at'   => $user->updated_at,
-            'roles'        => $user->getRoleNames()->toArray(),
-            'permissions'  => $user->getAllPermissions()->pluck('name')->toArray()
+            'group'         => GroupResource::make($user->group),
+            'organisations' => UserOrganisationResource::collectionForUser($user->authorisedOrganisations, $user),
+            'created_at'    => $user->created_at,
+            'updated_at'    => $user->updated_at,
+            'roles'         => $user->getRoleNames()->toArray(),
+            'permissions'   => $user->getAllPermissions()->pluck('name')->toArray()
 
         ];
     }
