@@ -7,7 +7,6 @@ import { grpNavigation, orgNavigation } from "@/types/Navigation"
 
 
 import { defineStore } from "pinia"
-import { trans } from "laravel-vue-i18n"
 import { Image } from "@/types/Image"
 import { routeType } from "@/types/route"
 
@@ -79,7 +78,7 @@ export const useLayoutStore = defineStore("layout", {
                 }
             },
             systemName: "",  // For styling navigation depend on which App
-            user: {} as { avatar_thumbnail: Image, email: string, username: string },
+            user: {} as { id: number, avatar_thumbnail: Image, email: string, username: string },
         }
     )
 });
