@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import { watchEffect, reactive, ref } from 'vue'
-import { RadioGroup, RadioGroupLabel, RadioGroupOption } from '@headlessui/vue'
-import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/vue"
+import { reactive, ref, watch } from 'vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faCircle, faCrown, faBars, faAbacus, faCommentsDollar, faCheckDouble, faQuestionCircle, faTimes, faCheckCircle as falCheckCircle } from '@fal'
 import { faExclamationCircle, faCheckCircle as fasCheckCircle } from '@fas'
@@ -19,6 +17,22 @@ interface TypeShop {
 interface TypeWarehouse {
     name: string
     slug: string
+}
+
+interface optionsJob {
+    [key: string]: {
+        department: string
+        icon?: string
+        subDepartment: {
+            slug: string
+            label: string
+            grade?: string
+            number_employees: number
+        }[]
+        options?: TypeShop[] | TypeWarehouse[]
+        optionsType?: string
+        value: any
+    }
 }
 
 const props = defineProps<{
@@ -44,26 +58,6 @@ const props = defineProps<{
     fieldData?: {
     }
 }>()
-
-interface selectedJob {
-    [key: string]: string
-}
-
-interface optionsJob {
-    [key: string]: {
-        department: string
-        icon?: string
-        subDepartment: {
-            slug: string
-            label: string
-            grade?: string
-            number_employees: number
-        }[]
-        options?: TypeShop[] | TypeWarehouse[]
-        optionsType?: string
-        value: any
-    }
-}
 
 const optionsJob = reactive<optionsJob>({
     admin: {
@@ -263,36 +257,28 @@ const optionsJob = reactive<optionsJob>({
 
 // Temporary data
 const openFinetune = ref('')
-const selectedBox: selectedJob = reactive({})
-
-// To preserved on first load (so the box is selected)
-for (const key in optionsJob) {
-    for (const item of optionsJob[key].subDepartment) {
-        if ((props.form[props.fieldName].map((option: any) => option = option.slug)).includes(item.slug)) {
-            selectedBox[key] = item.slug
-        }
-    }
-}
 
 // When the radio is clicked
 const handleClickSubDepartment = (department: string, subDepartmentSlug: any, typeOptions: 'warehouses' | 'shops') => {
     if(department == 'admin'){  // If the radio clicked is on department 'admin'
-        optionsJob[department].value = optionsJob[department].value == subDepartmentSlug ? "" : subDepartmentSlug
+        optionsJob[department].value = optionsJob[department].value == subDepartmentSlug ? null : subDepartmentSlug
     } else { // If the box clicked is not 'admin'
         if(optionsJob[department].options){  // If department have options shops/warehouses
             if(optionsJob[department].value && Object.values(optionsJob[department].value ?? {}).every(value => value === subDepartmentSlug)){
                 // If in department, all the shops have same value
-                optionsJob[department].value = null
+                optionsJob[department].value = props.options[typeOptions].data.reduce((accumulator :any, shop) => {
+                    accumulator[shop.slug] = null
+                    return accumulator
+                }, {})
             } else {
-
-                optionsJob[department].value = props.options[typeOptions].data.reduce((accumulator, shop) => {
+                optionsJob[department].value = props.options[typeOptions].data.reduce((accumulator: any, shop) => {
                     accumulator[shop.slug] = subDepartmentSlug
                     return accumulator
                 }, {})
             }
         } else {
             // If department is simple department (have no shops/warehouses)
-            optionsJob[department].value = optionsJob[department].value == subDepartmentSlug ? "" : subDepartmentSlug
+            optionsJob[department].value = optionsJob[department].value == subDepartmentSlug ? null : subDepartmentSlug
         }
     }
 
@@ -302,52 +288,27 @@ const handleClickSubDepartment = (department: string, subDepartmentSlug: any, ty
 
 // When the box warehouses/shops is clicked
 const onClickJobFinetune = (departmentName: string, shopName: string, subDepartmentName: any) => {
-    optionsJob[departmentName].value[shopName] = optionsJob[departmentName].value[shopName] == subDepartmentName ? '' : subDepartmentName
-
+    optionsJob[departmentName].value[shopName] = optionsJob[departmentName].value[shopName] == subDepartmentName ? null : subDepartmentName
     props.form.errors[props.fieldName] = ''
 }
 
-// Method: check if array value is exist in array of object is includes same values
-// const isEqual = (arrayString: string[], arrayObject: {slug: string}[]) => {
-//     if(!arrayString.length) {
-//         // arrayString == 0
-//         return false
-//     }
-//     return arrayString.every(value => arrayObject.some(obj => obj.slug === value))
-// }
+watch(optionsJob, () => {
+    const tempObject = {...optionsJob}
+    if(!tempObject.admin.value) {
+        delete tempObject.admin
+    }
 
-// On select shop
-// const onSelectShop = (departmentName: string, shopName: string) => {
-//     const index = selectedShop[departmentName].selectedShops.indexOf(shopName)
+    const resultObject = {}
 
-//     index === -1
-//         ? selectedShop[departmentName].selectedShops.push(shopName)
-//         : selectedShop[departmentName].selectedShops.splice(index, 1)
-// }
+    for (const key in tempObject) {
+        if (Object.prototype.hasOwnProperty.call(tempObject, key)) {
+            resultObject[key] = tempObject[key].value
+        }
+    }
 
-// On click select all/unselect all
-// const onSelectUnselectShops = (departmentName: string) => {
-//     if(isEqual(selectedShop[departmentName].selectedShops, props.options.shops.data)){
-//         // if all shop is alreayd selected then make it empty
-//         selectedShop[departmentName].selectedShops = []
-//     } else {
-//         selectedShop[departmentName].selectedShops = []
-//         props.options.shops.data.forEach(shop => {
-//             // console.log('foreach', shop)
-//             selectedShop[departmentName].selectedShops.push(shop.slug)
-//         })
-//         // selectedShop[departmentName].selectedShops = [...props.options.shops.data]
-//     }
-// }
+    props.form[props.fieldName] = tempObject.admin ? [tempObject.admin.value] : resultObject
+})
 
-// To save the temporary data (selectedBox) to props.form
-// watchEffect(() => {
-//     const tempObject = {...selectedBox}
-//     selectedBox.admin ? '' : delete tempObject.admin
-//     props.form[props.fieldName] = selectedBox.admin ? [selectedBox.admin] : Object.values(tempObject).filter(item=> item)
-// })
-
-// TODO: Advanced Selection shouldn't appear when there is only 1 shop or 1 warehouse
 </script>
 
 <template>
@@ -363,8 +324,7 @@ const onClickJobFinetune = (departmentName: string, shopName: string, subDepartm
                 </div>
 
                 <!-- Section: Radio (the clickable area) -->
-                <div class="h-full col-span-2 flex-col transition-all duration-200 ease-in-out"
-                >
+                <div class="h-full col-span-2 flex-col transition-all duration-200 ease-in-out">
                     <div class="flex items-center divide-x divide-slate-300">
                         <!-- Button: Radio position -->
                         <div class="pl-2 flex items-center gap-x-4">
@@ -384,21 +344,21 @@ const onClickJobFinetune = (departmentName: string, shopName: string, subDepartm
                                     <span v-tooltip="subDepartment.number_employees + ' employees on this position'" :class="[
                                         optionsJob.admin.value && departmentName != 'admin' ? 'text-gray-400' : 'text-gray-600 group-hover:text-gray-800'
                                     ]">
-                                        {{ subDepartment.label }} ({{ subDepartment.number_employees }})
+                                        {{ subDepartment.label }}
                                     </span>
                                 </span>
                             </button>
                         </div>
 
                         <!-- Section: All shops & Fine tunes -->
-                        <div v-if="jobGroup.department == 'Customer Service' || jobGroup.department == 'Marketing' || jobGroup.department == 'Webmaster' || jobGroup.department == 'Dispatch' || jobGroup.department == 'Warehouse'" class="flex gap-x-2 px-3">
+                        <div v-if="jobGroup.options && jobGroup.options.length > 1 && (jobGroup.department == 'Customer Service' || jobGroup.department == 'Marketing' || jobGroup.department == 'Webmaster' || jobGroup.department == 'Dispatch' || jobGroup.department == 'Warehouse')" class="flex gap-x-2 px-3">
                             <!-- <div class="flex gap-x-1 items-center">
                                 <input type="checkbox" :name="jobGroup.department + 'allshops'" :id="jobGroup.department + 'allshops'" class="h-3 w-3 appearance-none">
                                 <label :for="jobGroup.department + 'allshops'" class="cursor-pointer">{{ jobGroup.department == 'Dispatch' || jobGroup.department == 'Warehouse' ? 'All warehouses' : 'All shops'}}</label>
                             </div> -->
                             <button @click.prevent="() => openFinetune = openFinetune == jobGroup.department ? '' : jobGroup.department"
                                 class="underline disabled:no-underline whitespace-nowrap cursor-pointer disabled:cursor-auto disabled:text-gray-400"
-                                :disabled="!jobGroup.value"
+                                :disabled="!Object.values(jobGroup.value || {}).some((item) => item)"
                             >
                                 Advanced selection
                             </button>
@@ -408,8 +368,8 @@ const onClickJobFinetune = (departmentName: string, shopName: string, subDepartm
                     <!-- Fine tune content -->
                     <transition mode="in-out">
                         <div v-if="openFinetune == jobGroup.department" class="relative bg-slate-400/10 border border-gray-300 rounded-md py-2 px-2 space-y-0.5 mb-3">
-                            <div v-for="shop in jobGroup.options" class="grid grid-cols-3">
-                                <div class=" font-semibold">{{ shop.name }} </div>
+                            <div v-for="shop in jobGroup.options" class="grid grid-cols-3 hover:bg-gray-700/10 py-[2px] pl-2 rounded">
+                                <div class="font-semibold">{{ shop.name }} </div>
                                 <div class="col-span-2 flex gap-x-2">
                                     <button v-for="(subDepartment, idxSubDepartment) in jobGroup.subDepartment"
                                         @click.prevent="onClickJobFinetune(departmentName, shop.slug, subDepartment.slug)"
@@ -426,7 +386,7 @@ const onClickJobFinetune = (departmentName: string, shopName: string, subDepartm
                                             <span v-tooltip="subDepartment.number_employees + ' employees on this position'" :class="[
                                                 optionsJob.admin.value && departmentName != 'admin'? 'text-gray-300' : ' text-gray-500 group-hover:text-gray-700'
                                             ]">
-                                                {{ subDepartment.label }} ({{ subDepartment.number_employees }})
+                                                {{ subDepartment.label }}
                                             </span>
                                         </span>
                                     </button>
@@ -442,6 +402,7 @@ const onClickJobFinetune = (departmentName: string, shopName: string, subDepartm
                 </div>
             </div>
         </div>
+        <!-- <pre>{{ form[fieldName] }}</pre> -->
 
         <!-- State: error icon & error description -->
         <div v-if="form.errors[fieldName] || form.recentlySuccessful " class="mt-1 flex items-center gap-x-1.5 pointer-events-none">

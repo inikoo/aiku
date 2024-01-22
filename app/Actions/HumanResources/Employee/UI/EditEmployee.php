@@ -67,7 +67,7 @@ class EditEmployee extends OrgAction
                 'work_email'          => [
                     'type'  => 'input',
                     'label' => __('work email'),
-                    'value' => $employee->work_email
+                    'value' => $employee->work_email ?? ''
                 ],
                 'state'               => [
                     'type'    => 'radio',
