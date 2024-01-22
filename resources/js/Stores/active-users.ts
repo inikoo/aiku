@@ -4,23 +4,35 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-import axios from 'axios'
+import { Image } from '@/types/Image'
+import { usePage } from '@inertiajs/vue3'
 import { defineStore } from 'pinia'
+// import { useLayoutStore } from './layout'
+
+// const layout = useLayoutStore()
+
+interface LiveUser {
+    id: number
+    username: string  // aiku
+    avatar_thumbnail: Image
+    name: string  // Mr. Aiku
+    current_page?: {
+        label: string,
+        url: string
+    }
+}
+interface LiveUsers {
+    [key: number]: LiveUser
+}
 
 
 export const useLiveUsers = defineStore('useLiveUsers', {
     state: () => ({
-        liveUsers: {
-            1: {
-                name: '',
-                current_page: {
-                    label: ''
-                }
-            }
-        },
+        liveUsers: { } as LiveUsers,
     }),
     getters: {
         count: (state) => Object.keys(state.liveUsers).length,
+        // liveUsersWithoutMe: (state) => state.liveUsers.filter((liveUser, keyUser) => keyUser != layout.user.id )
     },
     actions: {
         unsubscribe() {
@@ -29,43 +41,38 @@ export const useLiveUsers = defineStore('useLiveUsers', {
         subscribe() {
 
             window.Echo.join(`grp.live.users`)
-                .here((rawUsers) => {
-                    console.log('Who is here: ', rawUsers);
-                    /*
+                // .here((rawUsers) => {
+                //     console.log('Who is here: ', rawUsers);
 
-                    console.log('eeee')
-                    axios.get(route('grp.models.live-group-users-current-page.index'))
-                        .then((response) => {
-                            console.log('lll', response.data)
-                            this.liveUsers = response.data
+                // })
 
-                            Object.keys(this.liveUsers).forEach((userKey) => {
-                                // Retrieve alias from Echo.here data
-                                this.liveUsers[userKey].name = (rawUsers.find((rawUser) => rawUser.id === userKey))?.name
-                            })
-                        })
-                        console.log('eeee')
-
-                     */
-
-                }).joining((user) => {
-                    console.log('Someone is join: ', user);
-                    this.liveUsers[user.id] = user
-
-                }).leaving((user) => {
-                    console.log('Someone leaved: ', user);
-                    delete this.liveUsers[user.id]
-
-                }).error((error) => {
-                    console.log('error', error)
-
-                }).listen('.changePage', (data) => {
-                    // Listen from another user who change the page
-                    console.log('Another user ' + data.user_alias + '  is change the page ' + data.active_page);
-                    this.liveUsers[data.user_id].active_page = data.active_page
-
+                .joining((user) => {
+                    console.log('Someone join')
+                    window.Echo.join(`grp.live.users`).whisper(`sendTo${user.id}`, this.liveUsers[usePage().props.auth.user.id])
                 })
 
+                .leaving((user: {id: number, alias: string, name: string}) => {
+                    console.log('Someone leaved: ', user);
+                    delete this.liveUsers[user.id]
+                })
+
+                .error((error) => {
+                    console.log('error', error)
+                })
+                
+                .listenForWhisper('otherIsNavigating', (e: LiveUsers) => {
+                    // On the first load and on navigating page 
+                    // console.log('qwer', this.liveUsers)
+                    this.liveUsers[e.id] = e
+                    // console.log('qwer', this.liveUsers)
+                })
+
+                .listenForWhisper(`sendTo${usePage().props.auth.user.id}`, (otherUser: LiveUser) => {
+                    // console.log('receive the emit')
+                    // On the first load and on navigating page 
+                    this.liveUsers[otherUser.id] = otherUser
+                    // console.log('qwer', this.liveUsers)
+                })
         },
     },
 })
