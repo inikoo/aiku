@@ -7,14 +7,10 @@
 
 namespace App\Models\Inventory;
 
-use App\Enums\Inventory\Stock\StockQuantityStatusEnum;
-use App\Enums\Inventory\Stock\StockStateEnum;
-use App\Enums\Inventory\Stock\StockTradeUnitCompositionEnum;
-use App\Models\Goods\TradeUnit;
-use App\Models\Helpers\Barcode;
-use App\Models\Media\Media;
+use App\Enums\Inventory\OrgStock\OrgStockQuantityStatusEnum;
+use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
 use App\Models\SupplyChain\Stock;
-use App\Models\SupplyChain\StockFamily;
+use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -23,7 +19,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
-use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -37,32 +32,28 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $stock_id
  * @property int|null $customer_id
  * @property string $slug
- * @property string $org_state
- * @property bool $org_sellable
- * @property bool $org_raw_material
- * @property \Illuminate\Database\Eloquent\Collection<int, Barcode> $barcode
+ * @property string $state_in_organisation
+ * @property bool $is_sellable_in_organisation
+ * @property bool $is_raw_material_in_organisation
+ * @property OrgStockQuantityStatusEnum|null $quantity_status
  * @property string|null $quantity_in_locations stock quantity in units
- * @property StockQuantityStatusEnum|null $quantity_status
- * @property float|null $available_forecast days
- * @property int $number_locations
  * @property string $value_in_locations
+ * @property float|null $available_forecast days
+ * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property string|null $org_activated_at
- * @property string|null $org_discontinuing_at
- * @property string|null $org_discontinued_at
+ * @property string|null $activated_in_organisation_at
+ * @property string|null $discontinuing_in_organisation_at
+ * @property string|null $discontinued_in_organisation_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $source_id
- * @property StockStateEnum $state
- * @property StockTradeUnitCompositionEnum $trade_unit_composition
- * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, Media> $images
+ * @property OrgStockStateEnum $state
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Inventory\Location> $locations
+ * @property-read Organisation $organisation
  * @property-read Model|\Eloquent $owner
- * @property-read \App\Models\Inventory\StockStats|null $stats
+ * @property-read \App\Models\Inventory\OrgStockStats|null $stats
  * @property-read Stock|null $stock
- * @property-read StockFamily|null $stockFamily
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Inventory\StockMovement> $stockMovements
- * @property-read \Illuminate\Database\Eloquent\Collection<int, TradeUnit> $tradeUnits
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
  * @method static \Illuminate\Database\Eloquent\Builder|OrgStock newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|OrgStock newQuery()
@@ -81,46 +72,54 @@ class OrgStock extends Model
 
     protected $casts = [
         'data'                   => 'array',
-        'settings'               => 'array',
         'activated_at'           => 'datetime',
         'discontinuing_at'       => 'datetime',
         'discontinued_at'        => 'datetime',
-        'state'                  => StockStateEnum::class,
-        'quantity_status'        => StockQuantityStatusEnum::class,
-        'trade_unit_composition' => StockTradeUnitCompositionEnum::class,
+        'state'                  => OrgStockStateEnum::class,
+        'quantity_status'        => OrgStockQuantityStatusEnum::class,
     ];
 
     protected $attributes = [
         'data'     => '{}',
-        'settings' => '{}',
     ];
 
     protected $guarded = [];
 
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
+
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
-            ->generateSlugsFrom('code')
+            ->generateSlugsFrom(function () {
+                return $this->stock->code. ' '.$this->organisation->code;
+            })
             ->doNotGenerateSlugsOnUpdate()
             ->saveSlugsTo('slug');
     }
+
+    public function organisation(): BelongsTo
+    {
+        return $this->belongsTo(Organisation::class);
+    }
+
 
     public function stock(): BelongsTo
     {
         return $this->belongsTo(Stock::class);
     }
 
-    public function tradeUnits(): BelongsToMany
+
+    public function orgStockFamily(): BelongsTo
     {
-        return $this->belongsToMany(
-            TradeUnit::class,
-            'stock_trade_unit',
-        )->withPivot(['quantity','notes'])->withTimestamps();
+        return $this->belongsTo(OrgStockFamily::class);
     }
 
     public function locations(): BelongsToMany
     {
-        return $this->belongsToMany(Location::class)->using(LocationStock::class)->withTimestamps()
+        return $this->belongsToMany(Location::class)->using(LocationOrgStock::class)->withTimestamps()
             ->withPivot('quantity');
     }
 
@@ -136,28 +135,8 @@ class OrgStock extends Model
 
     public function stats(): HasOne
     {
-        return $this->hasOne(StockStats::class);
+        return $this->hasOne(OrgStockStats::class);
     }
 
-    public function stockFamily(): BelongsTo
-    {
-        return $this->belongsTo(StockFamily::class);
-    }
 
-    public function getRouteKeyName(): string
-    {
-        return 'slug';
-    }
-
-    public function images(): BelongsToMany
-    {
-        return $this->belongsToMany(Media::class, 'media_stock')->withTimestamps()
-            ->withPivot(['public','owner_type','owner_id'])
-            ->wherePivot('type', 'image');
-    }
-
-    public function barcode(): MorphToMany
-    {
-        return $this->morphToMany(Barcode::class, 'barcodeable');
-    }
 }

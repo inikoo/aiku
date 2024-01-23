@@ -37,23 +37,23 @@ function warehouseAreaRoute(warehouseArea: WarehouseArea) {
 }
 
 function locationsRoute(warehouseArea: WarehouseArea) {
-    switch (route().current()) {
-
-        case "grp.org.warehouses.show":
-        case "grp.org.warehouses.show.warehouse-areas.index":
-            return route(
-                "grp.org.warehouses.show.warehouse-areas.show.locations.index",
-                [
-                    route().params["organisation"],
-                    route().params["warehouse"],
-                    warehouseArea.slug
-                ]);
-        case "inventor.warehouse-areas.index":
-        default:
-            return route(
-                "grp.org.inventory.warehouse-areas.show.locations.index",
-                [route().params["organisation"],warehouseArea.slug]);
-    }
+    // switch (route().current()) {
+    //
+    //     case "grp.org.warehouses.show":
+    //     case "grp.org.warehouses.show.warehouse-areas.index":
+    //         return route(
+    //             "grp.org.warehouses.show.warehouse-areas.show.locations.index",
+    //             [
+    //                 route().params["organisation"],
+    //                 route().params["warehouse"],
+    //                 warehouseArea.slug
+    //             ]);
+    //     case "inventor.warehouse-areas.index":
+    //     default:
+    //         return route(
+    //             "grp.org.inventory.warehouse-areas.show.locations.index",
+    //             [route().params["organisation"],warehouseArea.slug]);
+    // }
 
 }
 

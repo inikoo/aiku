@@ -104,7 +104,7 @@ class IndexOrganisation extends InertiaAction
                         ] : null
                     ]
                 )
-                ->column(key: 'slug', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'email', label: __('email'), canBeHidden: false, sortable: true, searchable: true)
                 ->defaultSort('slug');

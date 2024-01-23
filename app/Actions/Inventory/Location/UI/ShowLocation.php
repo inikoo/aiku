@@ -11,6 +11,7 @@ use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\InertiaAction;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\Inventory\WarehouseArea\UI\ShowWarehouseArea;
+use App\Actions\OrgAction;
 use App\Actions\UI\Inventory\ShowInventoryDashboard;
 use App\Enums\UI\LocationTabsEnum;
 use App\Http\Resources\History\HistoryResource;
@@ -23,17 +24,13 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class ShowLocation extends InertiaAction
+class ShowLocation extends OrgAction
 {
-    /**
-     * @var \App\Models\SysAdmin\Organisation
-     */
-    private Organisation $organisation;
-
     public function handle(Location $location): Location
     {
         return $location;
     }
+
     public function authorize(ActionRequest $request): bool
     {
         $this->canEdit   = $request->user()->hasPermissionTo("inventories.{$this->organisation->id}.edit");
@@ -42,33 +39,39 @@ class ShowLocation extends InertiaAction
         return $request->user()->hasPermissionTo("inventories.{$this->organisation->id}.view");
     }
 
-
     public function inOrganisation(Organisation $organisation, Warehouse $warehouse, Location $location, ActionRequest $request): Location
     {
         $this->organisation = $organisation;
-        $this->initialisation($request);
+        $this->initialisation($organisation, $request);
+        return $this->handle($location);
+    }
+
+    public function asController(Organisation $organisation, Location $location, ActionRequest $request): Location
+    {
+        $this->organisation = $organisation;
+        $this->initialisation($organisation, $request);
         return $this->handle($location);
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inWarehouse(Warehouse $warehouse, Location $location, ActionRequest $request): Location
+    public function inWarehouse(Organisation $organisation, Warehouse $warehouse, Location $location, ActionRequest $request): Location
     {
-        $this->initialisation($request);
+        $this->initialisation($organisation, $request);
         return $this->handle($location);
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inWarehouseArea(WarehouseArea $warehouseArea, Location $location, ActionRequest $request): Location
+    public function inWarehouseArea(Organisation $organisation, WarehouseArea $warehouseArea, Location $location, ActionRequest $request): Location
     {
-        $this->initialisation($request);
+        $this->initialisation($organisation, $request);
         return $this->handle($location);
     }
 
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inWarehouseInWarehouseArea(Warehouse $warehouse, WarehouseArea $warehouseArea, Location $location, ActionRequest $request): Location
+    public function inWarehouseInWarehouseArea(Organisation $organisation, Warehouse $warehouse, WarehouseArea $warehouseArea, Location $location, ActionRequest $request): Location
     {
-        $this->initialisation($request);
+        $this->initialisation($organisation, $request);
         return $this->handle($location);
     }
 

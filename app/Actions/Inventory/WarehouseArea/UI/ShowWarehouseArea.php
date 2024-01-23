@@ -11,6 +11,7 @@ use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\InertiaAction;
 use App\Actions\Inventory\Location\UI\IndexLocations;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
+use App\Actions\OrgAction;
 use App\Actions\UI\Inventory\ShowInventoryDashboard;
 use App\Enums\UI\WarehouseAreaTabsEnum;
 use App\Http\Resources\History\HistoryResource;
@@ -18,30 +19,31 @@ use App\Http\Resources\Inventory\LocationResource;
 use App\Http\Resources\Inventory\WarehouseAreaResource;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
+use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class ShowWarehouseArea extends InertiaAction
+class ShowWarehouseArea extends OrgAction
 {
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit   = $request->user()->hasPermissionTo('inventory.warehouse-areas.edit');
-        $this->canDelete = $request->user()->hasPermissionTo('inventory.warehouse-areas.edit');
-        return $request->user()->hasPermissionTo("inventory.view");
+        $this->canEdit   = $request->user()->hasPermissionTo("inventories.{$this->organisation->id}.edit");
+        $this->canDelete = $request->user()->hasPermissionTo("inventories.{$this->organisation->id}.edit");
+        return $request->user()->hasPermissionTo("inventories.{$this->organisation->id}.view");
     }
 
-    public function inOrganisation(WarehouseArea $warehouseArea, ActionRequest $request): WarehouseArea
+    public function inOrganisation(Organisation $organisation, Warehouse $warehouse, WarehouseArea $warehouseArea, ActionRequest $request): WarehouseArea
     {
-        $this->initialisation($request)->withTab(WarehouseAreaTabsEnum::values());
+        $this->initialisation($organisation, $request)->withTab(WarehouseAreaTabsEnum::values());
 
         return $warehouseArea;
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inWarehouse(Warehouse $warehouse, WarehouseArea $warehouseArea, ActionRequest $request): WarehouseArea
+    public function inWarehouse(Organisation $organisation, Warehouse $warehouse, WarehouseArea $warehouseArea, ActionRequest $request): WarehouseArea
     {
-        $this->initialisation($request)->withTab(WarehouseAreaTabsEnum::values());
+        $this->initialisation($organisation, $request)->withTab(WarehouseAreaTabsEnum::values());
 
         return $warehouseArea;
     }
@@ -80,37 +82,36 @@ class ShowWarehouseArea extends InertiaAction
                             'type'  => 'button',
                             'style' => 'delete',
                             'route' => [
-                                'name'       => 'grp.oms.warehouses.show.warehouse-areas.remove',
+                                'name'       => 'grp.org.warehouses.show.warehouse-areas.remove',
                                 'parameters' => array_values($request->route()->originalParameters())
                             ]
 
                         ] : false
                     ],
-                    'meta' => [
+                    /*'meta' => [
                         [
                             'name'   => trans_choice('location|locations', $warehouseArea->stats->number_locations),
                             'number' => $warehouseArea->stats->number_locations,
                             'href'   =>
                                 match ($request->route()->getName()) {
-                                    'grp.oms.warehouses.show.warehouse-areas.show' => [
-                                        'grp.oms.warehouses.show.warehouse-areas.show.locations.index',
-                                        [$warehouseArea->warehouse->slug, $warehouseArea->slug]
+                                    'grp.org.warehouses.show.warehouse-areas.show' => [
+                                        'grp.org.warehouses.show.warehouse-areas.show.locations.index',
+                                        [$warehouseArea->organisation->slug, $warehouseArea->warehouse->slug, $warehouseArea->slug]
                                     ],
                                     default => [
-                                        'grp.oms.warehouse-areas.show.locations.index',
-                                        $warehouseArea->slug
+                                        'grp.org.warehouse-areas.show.locations.index',
+                                        [
+                                            $warehouseArea->organisation->slug,
+                                            $warehouseArea->slug
+                                        ]
                                     ]
-                                }
-
-
-                            ,
+                                },
                             'leftIcon' => [
                                 'icon'    => 'fal fa-inventory',
                                 'tooltip' => __('locations')
                             ]
                         ]
-                    ]
-
+                    ]*/
                 ],
                 'tabs' => [
                     'current'    => $this->tab,
@@ -171,8 +172,8 @@ class ShowWarehouseArea extends InertiaAction
                        'label' => __('location'),
                        'style' => 'create'
                    ] : false
-                ],
-                prefix: 'locations' */
+                ], */
+                prefix: WarehouseAreaTabsEnum::LOCATIONS->value
             )
         )->table(IndexHistory::make()->tableStructure());
     }
@@ -207,9 +208,9 @@ class ShowWarehouseArea extends InertiaAction
         };
 
         return match ($routeName) {
-            'grp.oms.warehouse-areas.show' =>
+            'grp.org.warehouse-areas.show' =>
             array_merge(
-                (new ShowInventoryDashboard())->getBreadcrumbs(),
+                (new ShowInventoryDashboard())->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     $routeParameters['warehouseArea'],
                     [
@@ -227,21 +228,23 @@ class ShowWarehouseArea extends InertiaAction
                     $suffix
                 )
             ),
-            'grp.oms.warehouses.show.warehouse-areas.show' =>
+            'grp.org.warehouses.show.warehouse-areas.show' =>
             array_merge(
-                (new ShowWarehouse())->getBreadcrumbs($routeParameters['warehouse']),
+                (new ShowWarehouse())->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     $routeParameters['warehouseArea'],
                     [
                         'index' => [
                             'name'       => 'grp.org.warehouses.show.warehouse-areas.index',
                             'parameters' => [
+                                $routeParameters['organisation']->slug,
                                 $routeParameters['warehouse']->slug
                             ]
                         ],
                         'model' => [
                             'name'       => 'grp.org.warehouses.show.warehouse-areas.show',
                             'parameters' => [
+                                $routeParameters['organisation']->slug,
                                 $routeParameters['warehouse']->slug,
                                 $routeParameters['warehouseArea']->slug
                             ]
@@ -261,6 +264,7 @@ class ShowWarehouseArea extends InertiaAction
                 $query->where('warehouse_id', $warehouseArea->warehouse_id);
             }
         })->orderBy('code', 'desc')->first();
+
         return $this->getNavigation($previous, $request->route()->getName());
     }
 
@@ -287,6 +291,7 @@ class ShowWarehouseArea extends InertiaAction
                 'route' => [
                     'name'       => $routeName,
                     'parameters' => [
+                        'organisation' => $warehouseArea->organisation->slug,
                         'warehouseArea' => $warehouseArea->slug
                     ]
 
@@ -297,12 +302,14 @@ class ShowWarehouseArea extends InertiaAction
                 'route' => [
                     'name'       => $routeName,
                     'parameters' => [
+                        'organisation' => $warehouseArea->organisation->slug,
                         'warehouse'     => $warehouseArea->warehouse->slug,
                         'warehouseArea' => $warehouseArea->slug
                     ]
 
                 ]
-            ]
+            ],
+            default => []
         };
     }
 

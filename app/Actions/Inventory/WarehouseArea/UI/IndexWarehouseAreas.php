@@ -252,12 +252,13 @@ class IndexWarehouseAreas extends OrgAction
             'grp.org.warehouses.show.warehouse-areas.index',
             =>
             array_merge(
-                ShowWarehouse::make()->getBreadcrumbs($routeParameters['warehouse']),
+                ShowWarehouse::make()->getBreadcrumbs($routeParameters),
                 $headCrumb([
                     'name'       => 'grp.org.warehouses.show.warehouse-areas.index',
                     'parameters' =>
                         [
-                            $routeParameters['warehouse']->slug
+                            $routeParameters['organisation'],
+                            Warehouse::where('slug', $routeParameters['warehouse'])->first()->slug
                         ]
                 ])
             ),

@@ -7,8 +7,8 @@
 
 namespace App\Models\SupplyChain;
 
-use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateInventory;
-use App\Enums\Inventory\StockFamily\StockFamilyStateEnum;
+use App\Enums\SupplyChain\StockFamily\StockFamilyStateEnum;
+use App\Models\Inventory\OrgStockFamily;
 use App\Models\Search\UniversalSearch;
 use App\Models\SysAdmin\Group;
 use App\Models\Traits\HasUniversalSearch;
@@ -73,14 +73,7 @@ class StockFamily extends Model
 
     protected $guarded = [];
 
-    protected static function booted(): void
-    {
-        static::updated(function (StockFamily $stockFamily) {
-            if ($stockFamily->wasChanged('state')) {
-                GroupHydrateInventory::dispatch(group());
-            }
-        });
-    }
+
 
     public function getSlugOptions(): SlugOptions
     {
@@ -109,6 +102,11 @@ class StockFamily extends Model
     public function group(): BelongsTo
     {
         return $this->belongsTo(Group::class);
+    }
+
+    public function orgStockFamilies(): HasMany
+    {
+        return $this->hasMany(OrgStockFamily::class);
     }
 
 }

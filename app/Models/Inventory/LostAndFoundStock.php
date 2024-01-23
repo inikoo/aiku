@@ -2,7 +2,7 @@
 
 namespace App\Models\Inventory;
 
-use App\Enums\Inventory\Stock\LostAndFoundStockStateEnum;
+use App\Enums\Inventory\OrgStock\LostAndFoundOrgStockStateEnum;
 use App\Models\Search\UniversalSearch;
 use App\Models\Traits\HasUniversalSearch;
 use Eloquent;
@@ -22,7 +22,7 @@ use Illuminate\Support\Carbon;
  * @property string $type
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property LostAndFoundStockStateEnum $state
+ * @property LostAndFoundOrgStockStateEnum $state
  * @property-read UniversalSearch|null $universalSearch
  * @method static \Database\Factories\Inventory\LostAndFoundStockFactory factory($count = null, $state = [])
  * @method static Builder|LostAndFoundStock newModelQuery()
@@ -37,7 +37,7 @@ class LostAndFoundStock extends Model
     use HasFactory;
 
     protected $casts = [
-        'state' => LostAndFoundStockStateEnum::class,
+        'state' => LostAndFoundOrgStockStateEnum::class,
     ];
 
     protected $guarded = [];

@@ -366,7 +366,8 @@ trait WithAuroraParsers
     {
         $location = Location::where('source_id', $sourceId)->first();
         if (!$location) {
-            $location = FetchLocations::run($this->organisationSource, $sourceId);
+            $sourceData = explode(':', $sourceId);
+            $location   = FetchLocations::run($this->organisationSource, $sourceData[1]);
         }
 
         return $location;
@@ -491,7 +492,8 @@ trait WithAuroraParsers
 
         $warehouse = Warehouse::withTrashed()->where('source_id', $sourceId)->first();
         if (!$warehouse) {
-            $warehouse = FetchWarehouses::run($this->organisationSource, $sourceId);
+            $sourceData = explode(':', $sourceId);
+            $warehouse  = FetchWarehouses::run($this->organisationSource, $sourceData[1]);
         }
 
         return $warehouse;

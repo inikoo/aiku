@@ -8,18 +8,31 @@
 import {Link} from '@inertiajs/vue3';
 import Table from '@/Components/Table/Table.vue';
 import {Prospect} from "@/types/prospect";
+import {Employee} from "@/types/employee";
 
 const props = defineProps<{
     data: object,
     tab?: string
 }>()
 
+function orgRoute(org) {
+    switch (route().current()) {
+        case 'grp.orgs.index':
+            return route(
+                'grp.org.dashboard.show',
+                [org.slug]);
+
+    }
+}
+
 </script>
 
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
-        <template #cell(name)="{ item: org }">
-            {{ org['name'] }}
+        <template #cell(code)="{ item: org }">
+            <Link :href="orgRoute(org)" class="specialUnderline">
+                {{ org['slug'] }}
+            </Link>
         </template>
     </Table>
 </template>

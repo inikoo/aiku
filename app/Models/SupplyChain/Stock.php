@@ -1,21 +1,19 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Mon, 22 Jan 2024 12:59:06 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Tue, 23 Jan 2024 09:56:53 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
 namespace App\Models\SupplyChain;
 
-use App\Enums\Inventory\Stock\StockQuantityStatusEnum;
-use App\Enums\Inventory\Stock\StockStateEnum;
-use App\Enums\Inventory\Stock\StockTradeUnitCompositionEnum;
+use App\Enums\SupplyChain\Stock\StockStateEnum;
+use App\Enums\SupplyChain\Stock\StockTradeUnitCompositionEnum;
 use App\Models\Goods\TradeUnit;
 use App\Models\Helpers\Barcode;
 use App\Models\Inventory\Location;
-use App\Models\Inventory\LocationStock;
-use App\Models\Inventory\StockMovement;
-use App\Models\Inventory\StockStats;
+use App\Models\Inventory\LocationOrgStock;
+use App\Models\Inventory\OrgStock;
 use App\Models\Media\Media;
 use App\Models\Search\UniversalSearch;
 use App\Models\SysAdmin\Group;
@@ -28,9 +26,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Relations\MorphMany;
-use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
@@ -68,15 +65,13 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $deleted_at
  * @property string|null $source_slug
  * @property string|null $source_id
- * @property StockQuantityStatusEnum $quantity_status
  * @property-read Group $group
  * @property-read MediaCollection<int, Media> $images
  * @property-read Collection<int, Location> $locations
  * @property-read MediaCollection<int, Media> $media
- * @property-read Model|\Eloquent $owner
- * @property-read StockStats|null $stats
+ * @property-read Collection<int, OrgStock> $orgStocks
+ * @property-read \App\Models\SupplyChain\StockStats|null $stats
  * @property-read \App\Models\SupplyChain\StockFamily|null $stockFamily
- * @property-read Collection<int, StockMovement> $stockMovements
  * @property-read Collection<int, TradeUnit> $tradeUnits
  * @property-read UniversalSearch|null $universalSearch
  * @method static Builder|Stock newModelQuery()
@@ -102,7 +97,6 @@ class Stock extends Model implements HasMedia
         'discontinuing_at'       => 'datetime',
         'discontinued_at'        => 'datetime',
         'state'                  => StockStateEnum::class,
-        'quantity_status'        => StockQuantityStatusEnum::class,
         'trade_unit_composition' => StockTradeUnitCompositionEnum::class,
     ];
 
@@ -112,6 +106,12 @@ class Stock extends Model implements HasMedia
     ];
 
     protected $guarded = [];
+
+
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
 
     public function getSlugOptions(): SlugOptions
     {
@@ -130,26 +130,26 @@ class Stock extends Model implements HasMedia
         )->withPivot(['quantity','notes'])->withTimestamps();
     }
 
+    public function orgStocks(): HasMany
+    {
+        return $this->hasMany(OrgStock::class);
+    }
+
+
     public function locations(): BelongsToMany
     {
-        return $this->belongsToMany(Location::class)->using(LocationStock::class)->withTimestamps()
+        return $this->belongsToMany(Location::class)->using(LocationOrgStock::class)->withTimestamps()
             ->withPivot('quantity');
     }
 
-    public function owner(): MorphTo
-    {
-        return $this->morphTo();
-    }
+
 
     public function group(): BelongsTo
     {
         return $this->belongsTo(Group::class);
     }
 
-    public function stockMovements(): MorphMany
-    {
-        return $this->morphMany(StockMovement::class, 'stockable');
-    }
+
 
     public function stats(): HasOne
     {
@@ -161,10 +161,6 @@ class Stock extends Model implements HasMedia
         return $this->belongsTo(StockFamily::class);
     }
 
-    public function getRouteKeyName(): string
-    {
-        return 'slug';
-    }
 
     public function images(): BelongsToMany
     {

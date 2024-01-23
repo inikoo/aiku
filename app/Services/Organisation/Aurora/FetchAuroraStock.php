@@ -8,7 +8,7 @@
 namespace App\Services\Organisation\Aurora;
 
 use App\Actions\SourceFetch\Aurora\FetchStockFamilies;
-use App\Enums\Inventory\Stock\StockStateEnum;
+use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -56,10 +56,10 @@ class FetchAuroraStock extends FetchAurora
                     :
                     null,
             'state'           => match ($this->auroraModelData->{'Part Status'}) {
-                'In Use'        => StockStateEnum::ACTIVE,
-                'Discontinuing' => StockStateEnum::DISCONTINUING,
-                'In Process'    => StockStateEnum::IN_PROCESS,
-                'Not In Use'    => StockStateEnum::DISCONTINUED,
+                'In Use'        => OrgStockStateEnum::ACTIVE,
+                'Discontinuing' => OrgStockStateEnum::DISCONTINUING,
+                'In Process'    => OrgStockStateEnum::IN_PROCESS,
+                'Not In Use'    => OrgStockStateEnum::DISCONTINUED,
             },
             'source_id'       => $this->organisation->id.':'.$this->auroraModelData->{'Part SKU'},
             'source_slug'     => $sourceSlug
