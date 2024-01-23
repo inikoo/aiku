@@ -18,8 +18,6 @@ class UpdatePaymentAccount extends OrgAction
 {
     use WithActionUpdate;
 
-    private bool $asAction = false;
-
     private PaymentAccount $paymentAccount;
 
     public function handle(PaymentAccount $paymentAccount, array $modelData): PaymentAccount

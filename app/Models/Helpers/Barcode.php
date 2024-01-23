@@ -7,15 +7,14 @@
 
 namespace App\Models\Helpers;
 
-use App\Models\Inventory\Stock;
 use App\Models\Market\Product;
+use App\Models\SupplyChain\Stock;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 

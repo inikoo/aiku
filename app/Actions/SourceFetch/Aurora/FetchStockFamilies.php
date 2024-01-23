@@ -7,34 +7,38 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-use App\Actions\Inventory\StockFamily\StoreStockFamily;
-use App\Actions\Inventory\StockFamily\UpdateStockFamily;
-use App\Models\Inventory\StockFamily;
+use App\Actions\SupplyChain\StockFamily\StoreStockFamily;
+use App\Actions\SupplyChain\StockFamily\UpdateStockFamily;
+use App\Models\SupplyChain\StockFamily;
 use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
-use JetBrains\PhpStorm\NoReturn;
 
 class FetchStockFamilies extends FetchAction
 {
     public string $commandSignature = 'fetch:stock-families {organisations?*} {--s|source_id=} {--d|db_suffix=}';
 
-    #[NoReturn] public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?StockFamily
+    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?StockFamily
     {
         if ($stockFamilyData = $organisationSource->fetchStockFamily($organisationSourceId)) {
-            if ($stockFamily = StockFamily::where('source_id', $stockFamilyData['stock_family']['source_id'])
-                ->first()) {
-                $stockFamily = UpdateStockFamily::run(
-                    stockFamily: $stockFamily,
-                    modelData:   $stockFamilyData['stock_family'],
-                );
+
+            if ($baseStockFamily = StockFamily::withTrashed()->where('source_slug', $stockFamilyData['stock_family']['source_slug'])->first()) {
+                if ($stockFamily = StockFamily::where('source_id', $stockFamilyData['stock_family']['source_id'])
+                    ->first()) {
+                    $stockFamily = UpdateStockFamily::make()->action(
+                        stockFamily: $stockFamily,
+                        modelData: $stockFamilyData['stock_family'],
+                    );
+                }
             } else {
-                $stockFamily = StoreStockFamily::run(
+                $stockFamily = StoreStockFamily::make()->action(
+                    group: $organisationSource->getOrganisation()->group,
                     modelData: $stockFamilyData['stock_family']
                 );
             }
 
-            return $stockFamily;
+
+            return $stockFamily ?? $baseStockFamily;
         }
 
 

@@ -22,62 +22,60 @@ class OrgAction
     use WithTab;
 
 
-
     protected Organisation $organisation;
     protected Shop $shop;
     protected Warehouse $warehouse;
 
-    protected bool $canEdit               = false;
-    protected bool $canDelete             = false;
+    protected bool $asAction    = false;
+    protected bool $canEdit     = false;
+    protected bool $canDelete   = false;
+
+    public int $hydratorsDelay = 0;
+    private bool $strict       = true;
+
     protected array $validatedData;
 
 
     public function initialisation(Organisation $organisation, ActionRequest|array $request): static
     {
-        $this->organisation          = $organisation;
-        if(is_array($request)) {
+        $this->organisation = $organisation;
+        if (is_array($request)) {
             $this->setRawAttributes($request);
         } else {
             $this->fillFromRequest($request);
-
         }
-        $this->validatedData=$this->validateAttributes();
+        $this->validatedData = $this->validateAttributes();
 
         return $this;
     }
 
     public function initialisationFromShop(Shop $shop, ActionRequest|array $request): static
     {
-        $this->shop          = $shop;
-        $this->organisation  = $shop->organisation;
-        if(is_array($request)) {
+        $this->shop         = $shop;
+        $this->organisation = $shop->organisation;
+        if (is_array($request)) {
             $this->setRawAttributes($request);
         } else {
             $this->fillFromRequest($request);
-
         }
-        $this->validatedData=$this->validateAttributes();
+        $this->validatedData = $this->validateAttributes();
 
         return $this;
     }
 
     public function initialisationFromWarehouse(Warehouse $warehouse, ActionRequest|array $request): static
     {
-        $this->warehouse          = $warehouse;
-        $this->organisation       = $warehouse->organisation;
-        if(is_array($request)) {
+        $this->warehouse    = $warehouse;
+        $this->organisation = $warehouse->organisation;
+        if (is_array($request)) {
             $this->setRawAttributes($request);
         } else {
             $this->fillFromRequest($request);
-
         }
-        $this->validatedData=$this->validateAttributes();
+        $this->validatedData = $this->validateAttributes();
 
         return $this;
     }
-
-
-
 
 
 }

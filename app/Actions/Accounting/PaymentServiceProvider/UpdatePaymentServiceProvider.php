@@ -18,8 +18,6 @@ class UpdatePaymentServiceProvider extends OrgAction
 {
     use WithActionUpdate;
 
-    private bool $asAction = false;
-
     private PaymentServiceProvider $paymentServiceProvider;
 
     public function handle(PaymentServiceProvider $paymentServiceProvider, array $modelData): PaymentServiceProvider

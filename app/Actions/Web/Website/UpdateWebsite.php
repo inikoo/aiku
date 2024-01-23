@@ -22,7 +22,6 @@ class UpdateWebsite extends OrgAction
 
     private Website $website;
 
-    private bool $asAction = false;
 
     public function handle(Website $website, array $modelData): Website
     {

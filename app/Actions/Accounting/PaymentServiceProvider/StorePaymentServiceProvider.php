@@ -16,16 +16,9 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsAction;
-use Lorisleiva\Actions\Concerns\WithAttributes;
 
 class StorePaymentServiceProvider extends OrgAction
 {
-    use AsAction;
-    use WithAttributes;
-
-    private bool $asAction = false;
-
     public function handle(Organisation $organisation, array $modelData): PaymentServiceProvider
     {
         data_set($modelData, 'group_id', $organisation->group_id);

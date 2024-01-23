@@ -13,14 +13,9 @@ use App\Models\SysAdmin\Organisation;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsController;
-use Lorisleiva\Actions\Concerns\WithAttributes;
 
 class DeleteJobPosition extends OrgAction
 {
-    use AsController;
-    use WithAttributes;
-
     public function handle(JobPosition $jobPosition): JobPosition
     {
         $jobPosition->delete();

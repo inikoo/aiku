@@ -24,10 +24,6 @@ class UpdateCustomerClient extends OrgAction
 {
     use WithActionUpdate;
 
-    private bool $asAction     = false;
-    public int $hydratorsDelay = 0;
-    private bool $strict       = true;
-
     public function handle(CustomerClient $customerClient, array $modelData): CustomerClient
     {
         if (Arr::has($modelData, 'delivery_address')) {

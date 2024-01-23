@@ -8,6 +8,7 @@
 namespace App\Models\Inventory;
 
 use App\Enums\Inventory\LocationStock\LocationStockTypeEnum;
+use App\Models\SupplyChain\Stock;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -32,7 +33,7 @@ use Illuminate\Support\Carbon;
  * @property int|null $source_stock_id
  * @property int|null $source_location_id
  * @property-read \App\Models\Inventory\Location $location
- * @property-read \App\Models\Inventory\Stock $stock
+ * @property-read Stock $stock
  * @method static Builder|LocationStock newModelQuery()
  * @method static Builder|LocationStock newQuery()
  * @method static Builder|LocationStock query()

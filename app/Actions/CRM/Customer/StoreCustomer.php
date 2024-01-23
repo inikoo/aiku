@@ -34,11 +34,6 @@ use Lorisleiva\Actions\ActionRequest;
 
 class StoreCustomer extends OrgAction
 {
-    private bool $asAction     = false;
-    public int $hydratorsDelay = 0;
-    private bool $strict       = true;
-
-
     public function handle(Shop $shop, array $modelData): Customer
     {
         $contactAddressData = Arr::get($modelData, 'contact_address');

@@ -18,9 +18,7 @@ return new class () extends Migration {
             $table->smallIncrements('id');
             $table->unsignedSmallInteger('group_id');
             $table->foreign('group_id')->references('id')->on('groups')->onUpdate('cascade')->onDelete('cascade');
-
-
-
+            $table->unsignedInteger('number_trade_units')->default(0);
             $table= $this->inventoryStats($table);
             $table->timestampsTz();
         });

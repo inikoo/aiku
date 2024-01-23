@@ -7,9 +7,9 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-use App\Actions\Inventory\Stock\StoreStock;
-use App\Actions\Inventory\Stock\UpdateStock;
-use App\Models\Inventory\Stock;
+use App\Actions\Inventory\OrgStock\UpdateStock;
+use App\Actions\SupplyChain\Stock\StoreStock;
+use App\Models\SupplyChain\Stock;
 use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
@@ -32,7 +32,7 @@ class FetchDeletedStocks extends FetchAction
                     );
                 } else {
                     $stock = StoreStock::run(
-                        owner:     $organisationSource->getOrganisation(),
+                        group:     $organisationSource->getOrganisation()->group,
                         modelData: $deletedStockData['stock']
                     );
                 }

@@ -8,13 +8,15 @@
 namespace App\Models\SysAdmin;
 
 use App\Models\Assets\Currency;
+use App\Models\Goods\TradeUnit;
 use App\Models\HumanResources\Employee;
 use App\Models\HumanResources\JobPosition;
-use App\Models\Inventory\Stock;
-use App\Models\Inventory\StockFamily;
 use App\Models\Mail\Mailroom;
 use App\Models\SupplyChain\Agent;
+use App\Models\SupplyChain\Stock;
+use App\Models\SupplyChain\StockFamily;
 use App\Models\SupplyChain\Supplier;
+use App\Models\SupplyChain\SupplierProduct;
 use App\Models\Traits\HasLogo;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
@@ -65,8 +67,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\GroupSalesStats|null $salesStats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, StockFamily> $stockFamilies
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Stock> $stocks
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, SupplierProduct> $supplierProducts
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Supplier> $suppliers
  * @property-read \App\Models\SysAdmin\GroupSysAdminStats|null $sysadminStats
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, TradeUnit> $tradeUnits
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\User> $users
  * @method static \Database\Factories\SysAdmin\GroupFactory factory($count = null, $state = [])
  * @method static Builder|Group newModelQuery()
@@ -100,6 +104,10 @@ class Group extends Model implements HasMedia
         return 'slug';
     }
 
+    public function tradeUnits(): HasMany
+    {
+        return $this->hasMany(TradeUnit::class);
+    }
     public function stockFamilies(): HasMany
     {
         return $this->hasMany(StockFamily::class);
@@ -117,6 +125,11 @@ class Group extends Model implements HasMedia
     public function suppliers(): HasMany
     {
         return $this->hasMany(Supplier::class);
+    }
+
+    public function supplierProducts(): HasMany
+    {
+        return $this->hasMany(SupplierProduct::class);
     }
 
     public function humanResourcesStats(): HasOne

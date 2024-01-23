@@ -12,14 +12,9 @@ use App\Models\HumanResources\Workplace;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsController;
-use Lorisleiva\Actions\Concerns\WithAttributes;
 
 class DeleteWorkplace extends OrgAction
 {
-    use AsController;
-    use WithAttributes;
-
     public function handle(Workplace $workplace): Workplace
     {
         $workplace->delete();

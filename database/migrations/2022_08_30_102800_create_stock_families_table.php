@@ -25,6 +25,7 @@ return new class () extends Migration {
             $table->jsonb('data');
             $table->timestampstz();
             $table->softDeletesTz();
+            $table->string('source_slug')->index()->nullable();
             $table->string('source_id')->nullable()->unique();
         });
         DB::statement('CREATE INDEX ON stock_families USING gin (name gin_trgm_ops) ');

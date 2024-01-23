@@ -20,8 +20,6 @@ class UpdateWarehouseArea extends OrgAction
 {
     use WithActionUpdate;
 
-    private bool $asAction = false;
-
     private WarehouseArea $warehouseArea;
 
     public function handle(WarehouseArea $warehouseArea, array $modelData): WarehouseArea

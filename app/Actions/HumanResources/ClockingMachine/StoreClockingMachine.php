@@ -27,8 +27,6 @@ use Lorisleiva\Actions\ActionRequest;
 
 class StoreClockingMachine extends OrgAction
 {
-    private bool $asAction = false;
-
     public function handle(Workplace $workplace, array $modelData): ClockingMachine
     {
         data_set($modelData, 'group_id', $workplace->group_id);

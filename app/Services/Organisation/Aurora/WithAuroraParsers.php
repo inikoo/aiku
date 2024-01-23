@@ -11,13 +11,11 @@ namespace App\Services\Organisation\Aurora;
 use App\Actions\SourceFetch\Aurora\FetchCustomers;
 use App\Actions\SourceFetch\Aurora\FetchDeletedCustomers;
 use App\Actions\SourceFetch\Aurora\FetchDeletedEmployees;
-use App\Actions\SourceFetch\Aurora\FetchDeletedGuests;
 use App\Actions\SourceFetch\Aurora\FetchDeletedStocks;
 use App\Actions\SourceFetch\Aurora\FetchDepartments;
 use App\Actions\SourceFetch\Aurora\FetchDispatchedEmails;
 use App\Actions\SourceFetch\Aurora\FetchEmployees;
 use App\Actions\SourceFetch\Aurora\FetchFamilies;
-use App\Actions\SourceFetch\Aurora\FetchGuests;
 use App\Actions\SourceFetch\Aurora\FetchHistoricProducts;
 use App\Actions\SourceFetch\Aurora\FetchHistoricServices;
 use App\Actions\SourceFetch\Aurora\FetchLocations;
@@ -50,7 +48,6 @@ use App\Models\Dispatch\Shipper;
 use App\Models\Goods\TradeUnit;
 use App\Models\HumanResources\Employee;
 use App\Models\Inventory\Location;
-use App\Models\Inventory\Stock;
 use App\Models\Inventory\Warehouse;
 use App\Models\Mail\DispatchedEmail;
 use App\Models\Mail\Mailshot;
@@ -62,8 +59,8 @@ use App\Models\Market\Shop;
 use App\Models\OMS\Order;
 use App\Models\OMS\Transaction;
 use App\Models\SupplyChain\Agent;
+use App\Models\SupplyChain\Stock;
 use App\Models\SupplyChain\Supplier;
-use App\Models\SysAdmin\Guest;
 use App\Models\Web\Website;
 use Carbon\Carbon;
 use Exception;
@@ -80,8 +77,9 @@ trait WithAuroraParsers
 
     protected function parseDatetime($value): ?Carbon
     {
-        return ($value && $value  != '2018-00-00 00:00:00') ? Carbon::parse($value) : null;
+        return ($value && $value != '2018-00-00 00:00:00') ? Carbon::parse($value) : null;
     }
+
     protected function parseTaxNumber(?string $number, ?int $countryID, array $rawData = []): ?array
     {
         if (!$number) {
@@ -231,8 +229,8 @@ trait WithAuroraParsers
     {
         $shop = Shop::where('source_id', $sourceId)->first();
         if (!$shop) {
-            $sourceData=explode(':', $sourceId);
-            $shop      = FetchShops::run($this->organisationSource, $sourceData[1]);
+            $sourceData = explode(':', $sourceId);
+            $shop       = FetchShops::run($this->organisationSource, $sourceData[1]);
         }
 
         return $shop;
@@ -242,8 +240,8 @@ trait WithAuroraParsers
     {
         $website = Website::where('source_id', $sourceId)->first();
         if (!$website) {
-            $sourceData   =explode(':', $sourceId);
-            $website      = FetchWebsites::run($this->organisationSource, $sourceData[1]);
+            $sourceData = explode(':', $sourceId);
+            $website    = FetchWebsites::run($this->organisationSource, $sourceData[1]);
         }
 
         return $website;
@@ -331,8 +329,8 @@ trait WithAuroraParsers
         }
         $customer = Customer::withTrashed()->where('source_id', $sourceId)->first();
         if (!$customer) {
-            $sourceData=explode(':', $sourceId);
-            $customer  = FetchCustomers::run($this->organisationSource, $sourceData[1]);
+            $sourceData = explode(':', $sourceId);
+            $customer   = FetchCustomers::run($this->organisationSource, $sourceData[1]);
             if (!$customer) {
                 $customer = FetchDeletedCustomers::run($this->organisationSource, $sourceData[1]);
             }
@@ -344,13 +342,11 @@ trait WithAuroraParsers
     public function parseSupplier($sourceSlug): ?Supplier
     {
         return Supplier::withTrashed()->where('source_slug', $sourceSlug)->first();
-
     }
 
     public function parseAgent($sourceSlug): ?Agent
     {
-        return  Agent::withTrashed()->where('source_slug', $sourceSlug)->first();
-
+        return Agent::withTrashed()->where('source_slug', $sourceSlug)->first();
     }
 
     public function parseStock($sourceId): ?Stock
@@ -438,18 +434,6 @@ trait WithAuroraParsers
         return $employee;
     }
 
-    public function parseGuest($sourceId): ?Guest
-    {
-        $guest = Guest::withTrashed()->where('source_id', $sourceId)->first();
-        if (!$guest) {
-            $guest = FetchGuests::run($this->organisationSource, $sourceId);
-        }
-        if (!$guest) {
-            $guest = FetchDeletedGuests::run($this->organisationSource, $sourceId);
-        }
-
-        return $guest;
-    }
 
     public function parseOutbox($sourceId): ?Outbox
     {
@@ -523,13 +507,24 @@ trait WithAuroraParsers
         return $payment;
     }
 
-    public function parseTradeUnit($sourceId): TradeUnit
+    public function parseTradeUnit($sourceSlug, $sourceId): TradeUnit
     {
-        $tradeUnit = TradeUnit::withTrashed()->where('source_id', $sourceId)->first();
+        $tradeUnit = TradeUnit::withTrashed()->where('source_slug', $sourceSlug)->first();
         if (!$tradeUnit) {
             $tradeUnit = FetchTradeUnits::run($this->organisationSource, $sourceId);
         }
 
         return $tradeUnit;
     }
+
+    public function cleanTradeUnitReference(string $reference): string
+    {
+        $reference = str_replace('&', 'and', $reference);
+        $reference = str_replace('/', '_', $reference);
+        $reference = str_replace(' ', '-', $reference);
+        $reference = str_replace('(', '', $reference);
+
+        return str_replace(')', '', $reference);
+    }
+
 }

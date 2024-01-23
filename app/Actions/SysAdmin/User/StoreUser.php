@@ -26,9 +26,6 @@ use Lorisleiva\Actions\ActionRequest;
 
 class StoreUser extends GrpAction
 {
-    private bool $asAction = false;
-
-
     public function handle(Guest|Employee|Supplier|Agent $parent, array $modelData = []): User
     {
         data_set($modelData, 'group_id', $parent->group_id);

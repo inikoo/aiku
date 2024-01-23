@@ -11,7 +11,7 @@ use App\Actions\Dispatch\Shipment\StoreShipment;
 use App\Actions\Dispatch\Shipment\UpdateShipment;
 use App\Actions\Dispatch\Shipper\StoreShipper;
 use App\Actions\Dispatch\Shipper\UpdateShipper;
-use App\Actions\Inventory\Stock\StoreStock;
+use App\Actions\Inventory\OrgStock\StoreStock;
 use App\Actions\Market\Shop\StoreShop;
 use App\Actions\OMS\Order\StoreOrder;
 use App\Actions\OMS\Transaction\StoreTransaction;
@@ -20,9 +20,9 @@ use App\Enums\Dispatch\DeliveryNote\DeliveryNoteStatusEnum;
 use App\Enums\Mail\Outbox\OutboxTypeEnum;
 use App\Models\CRM\Customer;
 use App\Models\Helpers\Address;
-use App\Models\Inventory\Stock;
 use App\Models\Market\Shop;
 use App\Models\OMS\Transaction;
+use App\Models\SupplyChain\Stock;
 use Throwable;
 
 beforeAll(function () {

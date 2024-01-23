@@ -39,9 +39,6 @@ class StoreProspect extends OrgAction
     use WithCheckCanContactByEmail;
     use WithCheckCanContactByPhone;
 
-    private bool $asAction     = false;
-    public int $hydratorsDelay = 0;
-    private bool $strict       = true;
 
     public function handle(Shop $shop, array $modelData): Prospect
     {

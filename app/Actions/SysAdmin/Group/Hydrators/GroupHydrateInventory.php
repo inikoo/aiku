@@ -10,9 +10,9 @@ namespace App\Actions\SysAdmin\Group\Hydrators;
 use App\Enums\Inventory\Stock\StockQuantityStatusEnum;
 use App\Enums\Inventory\Stock\StockStateEnum;
 use App\Enums\Inventory\StockFamily\StockFamilyStateEnum;
+use App\Models\SupplyChain\Stock;
+use App\Models\SupplyChain\StockFamily;
 use App\Models\SysAdmin\Group;
-use App\Models\Inventory\Stock;
-use App\Models\Inventory\StockFamily;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
 

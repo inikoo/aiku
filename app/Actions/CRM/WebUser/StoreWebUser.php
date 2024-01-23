@@ -24,11 +24,6 @@ use Lorisleiva\Actions\ActionRequest;
 
 class StoreWebUser extends OrgAction
 {
-    private bool $asAction     = false;
-    public int $hydratorsDelay = 0;
-    private bool $strict       = true;
-
-
     public function handle(Customer $customer, array $modelData): Webuser
     {
         data_set($modelData, 'group_id', $customer->group_id);

@@ -14,10 +14,13 @@ use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
     use HasAssetCodeDescription;
+
     public function up(): void
     {
         Schema::create('supplier_products', function (Blueprint $table) {
             $table->increments('id');
+            $table->unsignedSmallInteger('group_id');
+            $table->foreign('group_id')->references('id')->on('groups')->onUpdate('cascade')->onDelete('cascade');
             $table->string('trade_unit_composition')->default(SupplierProductTradeUnitCompositionEnum::MATCH->value)->nullable();
             $table->string('slug')->unique()->collation('und_ns');
             $table->unsignedInteger('current_historic_supplier_product_id')->index()->nullable();
@@ -40,6 +43,7 @@ return new class () extends Migration {
             $table->softDeletesTz();
             $table->string('source_slug')->index()->nullable();
             $table->string('source_id')->nullable()->unique();
+            $table->unique(['supplier_id', 'code']);
         });
         DB::statement('CREATE INDEX ON supplier_products USING gin (name gin_trgm_ops) ');
     }

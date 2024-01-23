@@ -358,8 +358,8 @@ class ShowLocation extends InertiaAction
                     'name'      => $routeName,
                     'parameters'=> [
                         'organisation' => $location->organisation->slug,
-                        'warehouse' => $location->warehouse->slug,
-                        'location'  => $location->slug
+                        'warehouse'    => $location->warehouse->slug,
+                        'location'     => $location->slug
                     ]
 
                 ]

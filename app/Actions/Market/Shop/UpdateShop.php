@@ -22,8 +22,6 @@ class UpdateShop extends OrgAction
 {
     use WithActionUpdate;
 
-    private bool $asAction = false;
-
     public function handle(Shop $shop, array $modelData): Shop
     {
         $shop =  $this->update($shop, $modelData, ['data', 'settings']);

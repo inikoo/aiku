@@ -6,8 +6,8 @@
  */
 
 use App\Actions\Fulfilment\FulfilmentOrder\CreateFulfilmentOrderFromIris;
-use App\Actions\Inventory\Stock\CreateCustomerStockFromIris;
-use App\Actions\Inventory\Stock\UpdateCustomerStockFromIris;
+use App\Actions\Inventory\OrgStock\CreateCustomerStockFromIris;
+use App\Actions\Inventory\OrgStock\UpdateCustomerStockFromIris;
 
 Route::post('/stocks', CreateCustomerStockFromIris::class)->name('create.stock');
 Route::patch('/stocks', UpdateCustomerStockFromIris::class)->name('update.stock');

@@ -13,28 +13,39 @@ use App\Models\Goods\TradeUnit;
 use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
-use JetBrains\PhpStorm\NoReturn;
 
 class FetchTradeUnits extends FetchAction
 {
     public string $commandSignature = 'fetch:trade-units {organisations?*} {--s|source_id=} {--d|db_suffix=}';
 
-    #[NoReturn] public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?TradeUnit
+    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?TradeUnit
     {
         if ($tradeUnitData = $organisationSource->fetchTradeUnit($organisationSourceId)) {
-            if ($tradeUnit = TradeUnit::withTrashed()->where('source_id', $tradeUnitData['trade_unit']['source_id'])
-                ->first()) {
-                $tradeUnit = UpdateTradeUnit::run(
-                    tradeUnit: $tradeUnit,
-                    modelData: $tradeUnitData['trade_unit'],
-                );
+            $baseTradeUnit = null;
+
+
+            if (TradeUnit::withTrashed()->where('source_slug', $tradeUnitData['trade_unit']['source_slug'])->exists()) {
+                if ($tradeUnit = TradeUnit::withTrashed()->where('source_id', $tradeUnitData['trade_unit']['source_id'])->first()) {
+                    $tradeUnit = UpdateTradeUnit::make()->action(
+                        tradeUnit: $tradeUnit,
+                        modelData: $tradeUnitData['trade_unit'],
+                    );
+                }
+                $baseTradeUnit = TradeUnit::withTrashed()->where('source_slug', $tradeUnitData['trade_unit']['source_slug'])->first();
             } else {
-                $tradeUnit = StoreTradeUnit::run(
-                    modelData: $tradeUnitData['trade_unit']
+                $tradeUnit = StoreTradeUnit::make()->action(
+                    group: $organisationSource->getOrganisation()->group,
+                    modelData: $tradeUnitData['trade_unit'],
+                    hydratorDelay: 30
                 );
             }
 
-            return $tradeUnit;
+
+            if ($tradeUnit) {
+                return $tradeUnit;
+            }
+
+            return $baseTradeUnit;
         }
 
 

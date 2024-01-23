@@ -8,18 +8,33 @@
 namespace App\Services\Organisation\Aurora;
 
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class FetchAuroraTradeUnit extends FetchAurora
 {
     use WithAuroraImages;
+    use WithAuroraParsers;
 
     protected function parseModel(): void
     {
 
+        $reference  = $this->cleanTradeUnitReference($this->auroraModelData->{'Part Reference'});
+
+
+        $sourceSlug = Str::lower($reference);
+
+
+        $name=$this->auroraModelData->{'Part Recommended Product Unit Name'};
+        if($name=='') {
+            $name=$reference;
+        }
+
+
         $this->parsedData['trade_unit'] = [
-            'name'                     => $this->auroraModelData->{'Part Recommended Product Unit Name'},
-            'code'                     => $this->auroraModelData->{'Part Reference'},
-            'source_id'                => $this->organisation->id.':'.$this->auroraModelData->{'Part SKU'},
+            'name'        => $name,
+            'code'        => $reference,
+            'source_id'   => $this->organisation->id.':'.$this->auroraModelData->{'Part SKU'},
+            'source_slug' => $sourceSlug
         ];
     }
 
@@ -30,4 +45,7 @@ class FetchAuroraTradeUnit extends FetchAurora
             ->table('Part Dimension')
             ->where('Part SKU', $id)->first();
     }
+
+
+
 }

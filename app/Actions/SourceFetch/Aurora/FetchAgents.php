@@ -25,14 +25,13 @@ class FetchAgents extends FetchAction
         if ($agentData = $organisationSource->fetchAgent($organisationSourceId)) {
             $organisation = $organisationSource->getOrganisation();
 
-            $baseAgent = null;
 
 
-            if (Agent::withTrashed()->where('source_slug', $agentData['agent']['source_slug'])->exists()) {
+
+            if ($baseAgent=Agent::withTrashed()->where('source_slug', $agentData['agent']['source_slug'])->first()) {
                 if ($agent = Agent::withTrashed()->where('source_id', $agentData['agent']['source_id'])->first()) {
                     $agent = UpdateAgent::make()->run($agent, $agentData['agent']);
                 }
-                $baseAgent = Agent::withTrashed()->where('source_slug', $agentData['agent']['source_slug'])->first();
             } else {
                 $agent = StoreAgent::make()->action(
                     group: $organisation->group,
