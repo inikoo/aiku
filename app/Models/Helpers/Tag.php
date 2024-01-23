@@ -20,13 +20,13 @@ use Spatie\Tags\Tag as BaseTag;
  * @property int $id
  * @property array $name
  * @property array $slug
- * @property string|null $type
- * @property int|null $order_column
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property int $number_subjects
  * @property string|null $tag_slug
  * @property string|null $label
+ * @property string|null $type
+ * @property int|null $order_column
+ * @property int $number_subjects
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Helpers\TagCrmStats|null $crmStats
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
  * @method static Builder|Tag containing(string $name, $locale = null)

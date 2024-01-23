@@ -30,6 +30,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $group_id
  * @property int $organisation_id
  * @property int|null $stock_id
+ * @property int|null $org_stock_family_id
  * @property int|null $customer_id
  * @property string $slug
  * @property string $state_in_organisation
@@ -49,6 +50,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $source_id
  * @property OrgStockStateEnum $state
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Inventory\Location> $locations
+ * @property-read \App\Models\Inventory\OrgStockFamily|null $orgStockFamily
  * @property-read Organisation $organisation
  * @property-read Model|\Eloquent $owner
  * @property-read \App\Models\Inventory\OrgStockStats|null $stats

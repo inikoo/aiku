@@ -33,8 +33,6 @@
         "http-interop/http-factory-guzzle": "^1.2",
         "inertiajs/inertia-laravel": "^0.6",
         "jackwh/laravel-new-relic": "^1.0",
-        "kreait/laravel-firebase": "^5.2",
-        "laravel-notification-channels/fcm": "^3.2",
         "laravel/framework": "^10",
         "laravel/horizon": "^5",
         "laravel/pulse": "^1.0@beta",

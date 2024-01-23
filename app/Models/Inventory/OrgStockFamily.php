@@ -21,6 +21,34 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
+/**
+ * App\Models\Inventory\OrgStockFamily
+ *
+ * @property int $id
+ * @property int $group_id
+ * @property int $organisation_id
+ * @property int|null $stock_family_id
+ * @property string $slug
+ * @property OrgStockFamilyStateEnum $state
+ * @property array $data
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property string|null $source_id
+ * @property-read Group $group
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Inventory\OrgStock> $orgStocks
+ * @property-read Organisation $organisation
+ * @property-read OrgStockFamilyStats|null $stats
+ * @property-read StockFamily|null $stockFamily
+ * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
+ * @method static \Illuminate\Database\Eloquent\Builder|OrgStockFamily newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|OrgStockFamily newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|OrgStockFamily onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|OrgStockFamily query()
+ * @method static \Illuminate\Database\Eloquent\Builder|OrgStockFamily withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|OrgStockFamily withoutTrashed()
+ * @mixin \Eloquent
+ */
 class OrgStockFamily extends Model
 {
     use HasSlug;
