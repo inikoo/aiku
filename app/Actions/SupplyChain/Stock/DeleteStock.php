@@ -1,14 +1,14 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Wed, 22 Feb 2023 12:49:18 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Tue, 23 Jan 2024 11:09:48 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Inventory\OrgStock;
+namespace App\Actions\SupplyChain\Stock;
 
 use App\Actions\SupplyChain\StockFamily\Hydrators\StockFamilyHydrateStocks;
-use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateInventory;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateSupplyChain;
 use App\Actions\Traits\WithActionUpdate;
 use App\Actions\Traits\WithOrganisationArgument;
 use App\Models\SupplyChain\Stock;
@@ -28,7 +28,7 @@ class DeleteStock
         $stock = $this->update($stock, $deletedData, ['data']);
         //Todo: PKA-18
         if (!$skipHydrate) {
-            GroupHydrateInventory::dispatch(group());
+            GroupHydrateSupplyChain::dispatch(group());
             if ($stock->stock_family_id) {
                 StockFamilyHydrateStocks::dispatch($stock->stockFamily);
             }

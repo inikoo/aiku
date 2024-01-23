@@ -1,11 +1,11 @@
 <?php
 /*
- * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
- * Created: Mon, 13 Mar 2023 10:02:57 Central European Standard Time, Malaga, Spain
- * Copyright (c) 2023, Inikoo LTD
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Tue, 23 Jan 2024 10:36:42 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Inventory\OrgStock\Hydrators;
+namespace App\Actions\SupplyChain\Stock\Hydrators;
 
 use App\Models\SupplyChain\Stock;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -20,7 +20,7 @@ class StockHydrateUniversalSearch
         $stock->universalSearch()->updateOrCreate(
             [],
             [
-                'section'     => 'inventory',
+                'section'     => 'supply-chain',
                 'title'       => trim($stock->code.' '.$stock->description),
                 'description' => ''
             ]

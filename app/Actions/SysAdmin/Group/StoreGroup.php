@@ -38,7 +38,7 @@ class StoreGroup
         $group->procurementStats()->create();
         $group->sysadminStats()->create();
         $group->humanResourcesStats()->create();
-        $group->inventoryStats()->create();
+        $group->supplyChainStats()->create();
         $group->crmStats()->create();
         $group->salesStats()->create(
             [

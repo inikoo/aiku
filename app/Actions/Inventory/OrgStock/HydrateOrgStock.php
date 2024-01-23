@@ -8,22 +8,22 @@
 namespace App\Actions\Inventory\OrgStock;
 
 use App\Actions\HydrateModel;
-use App\Actions\Inventory\OrgStock\Hydrators\StockHydrateLocations;
-use App\Actions\Inventory\OrgStock\Hydrators\StockHydrateQuantityInLocations;
-use App\Actions\Inventory\OrgStock\Hydrators\StockHydrateValueInLocations;
+use App\Actions\Inventory\OrgStock\Hydrators\OrgStockHydrateLocations;
+use App\Actions\Inventory\OrgStock\Hydrators\OrgStockHydrateQuantityInLocations;
+use App\Actions\Inventory\OrgStock\Hydrators\OrgStockHydrateValueInLocations;
 use App\Models\SupplyChain\Stock;
 use Illuminate\Support\Collection;
 
-class HydrateStock extends HydrateModel
+class HydrateOrgStock extends HydrateModel
 {
-    public string $commandSignature = 'hydrate:stock {organisations?*} {--i|id=} ';
+    public string $commandSignature = 'org-stocks:hydrate {organisations?*} {--i|id=} ';
 
 
     public function handle(Stock $stock): void
     {
-        StockHydrateLocations::run($stock);
-        StockHydrateQuantityInLocations::run($stock);
-        StockHydrateValueInLocations::run($stock);
+        OrgStockHydrateLocations::run($stock);
+        OrgStockHydrateQuantityInLocations::run($stock);
+        OrgStockHydrateValueInLocations::run($stock);
     }
 
 

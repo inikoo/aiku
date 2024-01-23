@@ -7,14 +7,14 @@
 
 namespace App\Actions\Inventory\OrgStock;
 
-use App\Enums\Inventory\Stock\LostAndFoundStockStateEnum;
+use App\Enums\Inventory\Stock\LostAndFoundOrgStockStateEnum;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\LostAndFoundStock;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class AddLostAndFoundStock
+class AddLostAndFoundOrgStock
 {
     use AsAction;
     use WithAttributes;
@@ -31,7 +31,7 @@ class AddLostAndFoundStock
     {
         return [
             'code'  => ['required', 'string'],
-            'type'  => ['required', Rule::in([LostAndFoundStockStateEnum::LOST->value, LostAndFoundStockStateEnum::FOUND->value])],
+            'type'  => ['required', Rule::in([LostAndFoundOrgStockStateEnum::LOST->value, LostAndFoundOrgStockStateEnum::FOUND->value])],
         ];
     }
 

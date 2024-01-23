@@ -8,18 +8,14 @@
 namespace App\Models\Inventory;
 
 use App\Enums\Inventory\LocationStock\LocationStockTypeEnum;
-use App\Models\SupplyChain\Stock;
-use Eloquent;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
-use Illuminate\Support\Carbon;
 
 /**
- * App\Models\Inventory\LocationStock
+ * App\Models\Inventory\LocationOrgStock
  *
  * @property int $id
- * @property int $stock_id
+ * @property int $org_stock_id
  * @property int $location_id
  * @property string $quantity in units
  * @property LocationStockTypeEnum $type
@@ -28,19 +24,21 @@ use Illuminate\Support\Carbon;
  * @property array $data
  * @property array $settings
  * @property string|null $audited_at
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
  * @property int|null $source_stock_id
  * @property int|null $source_location_id
  * @property-read \App\Models\Inventory\Location $location
- * @property-read Stock $stock
- * @method static Builder|LocationStock newModelQuery()
- * @method static Builder|LocationStock newQuery()
- * @method static Builder|LocationStock query()
- * @mixin Eloquent
+ * @property-read \App\Models\Inventory\OrgStock $orgStock
+ * @method static \Illuminate\Database\Eloquent\Builder|LocationOrgStock newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|LocationOrgStock newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|LocationOrgStock query()
+ * @mixin \Eloquent
  */
-class LocationStock extends Pivot
+class LocationOrgStock extends Pivot
 {
+    public $incrementing = true;
+
     protected $casts = [
         'data'     => 'array',
         'settings' => 'array',
@@ -55,9 +53,9 @@ class LocationStock extends Pivot
     protected $guarded = [];
 
 
-    public function stock(): BelongsTo
+    public function orgStock(): BelongsTo
     {
-        return $this->belongsTo(Stock::class);
+        return $this->belongsTo(OrgStock::class);
     }
 
     public function location(): BelongsTo

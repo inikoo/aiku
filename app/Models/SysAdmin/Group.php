@@ -56,7 +56,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Employee> $employees
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\Guest> $guests
  * @property-read \App\Models\SysAdmin\GroupHumanResourcesStats|null $humanResourcesStats
- * @property-read \App\Models\SysAdmin\GroupInventoryStats|null $inventoryStats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, JobPosition> $josPositions
  * @property-read \App\Models\Media\Media|null $logo
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Mailroom> $mailrooms
@@ -69,6 +68,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Stock> $stocks
  * @property-read \Illuminate\Database\Eloquent\Collection<int, SupplierProduct> $supplierProducts
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Supplier> $suppliers
+ * @property-read \App\Models\SysAdmin\GroupSupplyChainStats|null $supplyChainStats
  * @property-read \App\Models\SysAdmin\GroupSysAdminStats|null $sysadminStats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, TradeUnit> $tradeUnits
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\User> $users
@@ -155,9 +155,9 @@ class Group extends Model implements HasMedia
         return $this->hasOne(GroupSysAdminStats::class);
     }
 
-    public function inventoryStats(): HasOne
+    public function supplyChainStats(): HasOne
     {
-        return $this->hasOne(GroupInventoryStats::class);
+        return $this->hasOne(GroupSupplyChainStats::class);
     }
 
     public function organisations(): HasMany

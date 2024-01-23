@@ -9,7 +9,7 @@ namespace App\Enums\Inventory\Stock;
 
 use App\Enums\EnumHelperTrait;
 
-enum StockQuantityStatusEnum: string
+enum OrgStockQuantityStatusEnum: string
 {
     use EnumHelperTrait;
 

@@ -7,8 +7,8 @@
 
 namespace App\Stubs\Migrations;
 
-use App\Enums\Inventory\Stock\StockQuantityStatusEnum;
-use App\Enums\Inventory\Stock\StockStateEnum;
+use App\Enums\Inventory\Stock\OrgStockQuantityStatusEnum;
+use App\Enums\Inventory\Stock\OrgStockStateEnum;
 use App\Enums\Inventory\StockFamily\StockFamilyStateEnum;
 use Illuminate\Database\Schema\Blueprint;
 
@@ -29,10 +29,10 @@ trait HasInventoryStats
         }
 
         $table->unsignedInteger('number_stocks')->default(0);
-        foreach (StockStateEnum::cases() as $stockState) {
+        foreach (OrgStockStateEnum::cases() as $stockState) {
             $table->unsignedInteger('number_stocks_state_'.$stockState->snake())->default(0);
         }
-        foreach (StockQuantityStatusEnum::cases() as $stockQuantityStatus) {
+        foreach (OrgStockQuantityStatusEnum::cases() as $stockQuantityStatus) {
             $table->unsignedInteger('number_stocks_quantity_status_'.$stockQuantityStatus->snake())->default(0);
         }
 

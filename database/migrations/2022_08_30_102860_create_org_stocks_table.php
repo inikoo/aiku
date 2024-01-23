@@ -5,7 +5,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-use App\Enums\Inventory\Stock\StockStateEnum;
+use App\Enums\Inventory\Stock\OrgStockStateEnum;
 use App\Stubs\Migrations\HasAssetCodeDescription;
 use App\Stubs\Migrations\HasGroupOrganisationRelationship;
 use Illuminate\Database\Migrations\Migration;
@@ -28,21 +28,22 @@ return new class () extends Migration {
             $table->foreign('customer_id')->references('id')->on('customers')->onUpdate('cascade')->onDelete('cascade');
             $table->string('slug')->unique()->collation('und_ns');
 
-            $table->string('org_state')->default(StockStateEnum::IN_PROCESS->value)->index();
-            $table->boolean('org_sellable')->default(1)->index();
-            $table->boolean('org_raw_material')->default(0)->index();
-            $table->string('barcode')->index()->nullable();
-            $table->decimal('quantity_in_locations', 16, 3)->nullable()->default(0)->comment('stock quantity in units');
+            $table->string('state_in_organisation')->default(OrgStockStateEnum::IN_PROCESS->value)->index();
+            $table->boolean('is_sellable_in_organisation')->default(1)->index();
+            $table->boolean('is_raw_material_in_organisation')->default(0)->index();
+
             $table->string('quantity_status')->nullable()->index();
-            $table->float('available_forecast')->nullable()->comment('days');
-            $table->unsignedSmallInteger('number_locations')->default(0);
 
+            $table->decimal('quantity_in_locations', 16, 3)->nullable()->default(0)->comment('stock quantity in units');
             $table->decimal('value_in_locations', 16)->default(0);
+            $table->float('available_forecast')->nullable()->comment('days');
 
+
+            $table->jsonb('data');
             $table->timestampsTz();
-            $table->dateTimeTz('org_activated_at')->nullable();
-            $table->dateTimeTz('org_discontinuing_at')->nullable();
-            $table->dateTimeTz('org_discontinued_at')->nullable();
+            $table->dateTimeTz('activated_in_organisation_at')->nullable();
+            $table->dateTimeTz('discontinuing_in_organisation_at')->nullable();
+            $table->dateTimeTz('discontinued_in_organisation_at')->nullable();
             $table->softDeletesTz();
             $table->string('source_id')->nullable()->unique();
         });

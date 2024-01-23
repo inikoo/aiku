@@ -14,9 +14,12 @@ class FetchAuroraLocationStocks extends FetchAurora
 {
     protected function parseModel(): void
     {
+
+
+
         $stockLocations = [];
         foreach ($this->auroraModelData as $modelData) {
-            $location = $this->parseLocation($modelData->{'Location Key'});
+            $location = $this->parseLocation($this->organisation->id.':'.$modelData->{'Location Key'});
             $settings = [];
             if ($modelData->{'Minimum Quantity'}) {
                 $settings['min_stock'] = $modelData->{'Minimum Quantity'};
@@ -29,9 +32,9 @@ class FetchAuroraLocationStocks extends FetchAurora
             }
 
             $pickingPriority = null;
-            $type            = LocationStockTypeEnum::STORING;
+            $type            = LocationStockTypeEnum::STORING->value;
             if ($modelData->{'Can Pick'}) {
-                $type            = LocationStockTypeEnum::PICKING;
+                $type            = LocationStockTypeEnum::PICKING->value;
                 $pickingPriority = is_null($pickingPriority) ? 0 : $pickingPriority + 1;
             }
 
@@ -53,6 +56,9 @@ class FetchAuroraLocationStocks extends FetchAurora
 
     protected function fetchData($id): object|null
     {
+
+
+
         return DB::connection('aurora')
             ->table('Part Location Dimension')
             ->where('Part SKU', $id)->get();

@@ -13,10 +13,10 @@ use Illuminate\Support\Facades\Schema;
 return new class () extends Migration {
     public function up(): void
     {
-        Schema::create('location_stock', function (Blueprint $table) {
+        Schema::create('location_org_stock', function (Blueprint $table) {
             $table->increments('id');
-            $table->unsignedInteger('stock_id')->index();
-            $table->foreign('stock_id')->references('id')->on('stocks');
+            $table->unsignedInteger('org_stock_id')->index();
+            $table->foreign('org_stock_id')->references('id')->on('org_stocks');
             $table->unsignedInteger('location_id')->index();
             $table->foreign('location_id')->references('id')->on('locations');
             $table->decimal('quantity', 16, 3)->default(0)->comment('in units');
@@ -29,12 +29,12 @@ return new class () extends Migration {
             $table->timestampsTz();
             $table->unsignedInteger('source_stock_id')->nullable();
             $table->unsignedInteger('source_location_id')->nullable();
-            $table->unique(['stock_id', 'location_id']);
+            $table->unique(['org_stock_id', 'location_id']);
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('location_stock');
+        Schema::dropIfExists('location_org_stock');
     }
 };

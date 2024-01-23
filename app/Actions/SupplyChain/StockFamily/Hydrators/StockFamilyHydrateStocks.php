@@ -7,15 +7,14 @@
 
 namespace App\Actions\SupplyChain\StockFamily\Hydrators;
 
-use App\Enums\Inventory\Stock\StockQuantityStatusEnum;
-use App\Enums\Inventory\Stock\StockStateEnum;
+use App\Enums\Inventory\Stock\OrgStockQuantityStatusEnum;
+use App\Enums\Inventory\Stock\OrgStockStateEnum;
 use App\Models\SupplyChain\Stock;
 use App\Models\SupplyChain\StockFamily;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class StockFamilyHydrateStocks implements ShouldBeUnique
+class StockFamilyHydrateStocks
 {
     use AsAction;
 
@@ -31,7 +30,7 @@ class StockFamilyHydrateStocks implements ShouldBeUnique
             ->groupBy('state')
             ->pluck('total', 'state')->all();
 
-        foreach (StockStateEnum::cases() as $stockState) {
+        foreach (OrgStockStateEnum::cases() as $stockState) {
             $stats['number_stocks_state_'.$stockState->snake()] = Arr::get($stateCounts, $stockState->value, 0);
         }
 
@@ -40,7 +39,7 @@ class StockFamilyHydrateStocks implements ShouldBeUnique
             ->groupBy('quantity_status')
             ->pluck('total', 'quantity_status')->all();
 
-        foreach (StockQuantityStatusEnum::cases() as $quantityStatus) {
+        foreach (OrgStockQuantityStatusEnum::cases() as $quantityStatus) {
             $stats['number_stocks_quantity_status_'.$quantityStatus->snake()] = Arr::get($quantityStatusCounts, $quantityStatus->value, 0);
         }
 
@@ -48,8 +47,5 @@ class StockFamilyHydrateStocks implements ShouldBeUnique
         $stockFamily->stats()->update($stats);
     }
 
-    public function getJobUniqueId(StockFamily $stockFamily): int
-    {
-        return $stockFamily->id;
-    }
+
 }

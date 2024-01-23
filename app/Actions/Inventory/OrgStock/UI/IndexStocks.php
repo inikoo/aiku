@@ -179,7 +179,7 @@ class IndexStocks extends InertiaAction
             ];
         }
         return Inertia::render(
-            'Inventory/Stocks',
+            'Inventory/Stock',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),

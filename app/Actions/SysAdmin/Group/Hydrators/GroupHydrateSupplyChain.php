@@ -7,8 +7,8 @@
 
 namespace App\Actions\SysAdmin\Group\Hydrators;
 
-use App\Enums\Inventory\Stock\StockQuantityStatusEnum;
-use App\Enums\Inventory\Stock\StockStateEnum;
+use App\Enums\Inventory\Stock\OrgStockQuantityStatusEnum;
+use App\Enums\Inventory\Stock\OrgStockStateEnum;
 use App\Enums\Inventory\StockFamily\StockFamilyStateEnum;
 use App\Models\SupplyChain\Stock;
 use App\Models\SupplyChain\StockFamily;
@@ -16,7 +16,7 @@ use App\Models\SysAdmin\Group;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class GroupHydrateInventory
+class GroupHydrateSupplyChain
 {
     use AsAction;
 
@@ -43,7 +43,7 @@ class GroupHydrateInventory
             ->pluck('total', 'state')->all();
 
 
-        foreach (StockStateEnum::cases() as $stockState) {
+        foreach (OrgStockStateEnum::cases() as $stockState) {
             $stats['number_stocks_state_'.$stockState->snake()] = Arr::get($stockStateCount, $stockState->value, 0);
         }
 
@@ -52,12 +52,12 @@ class GroupHydrateInventory
             ->pluck('total', 'quantity_status')->all();
 
 
-        foreach (StockQuantityStatusEnum::cases() as $stockQuantityStatus) {
+        foreach (OrgStockQuantityStatusEnum::cases() as $stockQuantityStatus) {
             $stats['number_stocks_quantity_status_'.$stockQuantityStatus->snake()] = Arr::get($stockQuantityStatusCount, $stockQuantityStatus->value, 0);
         }
 
 
-        $group->inventoryStats()->update($stats);
+        $group->supplyChainStats()->update($stats);
     }
 
 

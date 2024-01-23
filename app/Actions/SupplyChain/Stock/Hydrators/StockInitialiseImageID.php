@@ -1,11 +1,11 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 04 Apr 2023 11:42:49 Malaysia Time, Sanur, Bali, Indonesia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Tue, 23 Jan 2024 10:36:23 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Inventory\OrgStock\Hydrators;
+namespace App\Actions\SupplyChain\Stock\Hydrators;
 
 use App\Models\SupplyChain\Stock;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
