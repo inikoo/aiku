@@ -5,7 +5,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Enums\Inventory\Stock;
+namespace App\Enums\Inventory\OrgStock;
 
 use App\Enums\EnumHelperTrait;
 

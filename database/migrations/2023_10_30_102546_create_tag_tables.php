@@ -16,8 +16,11 @@ return new class () extends Migration {
             $table->smallIncrements('id');
             $table->json('name');
             $table->json('slug');
+            $table->string('tag_slug')->nullable()->unique()->collation('und_ns');
+            $table->string('label')->nullable()->index()->collation('und_ci');
             $table->string('type')->nullable();
             $table->integer('order_column')->nullable();
+            $table->unsignedSmallInteger('number_subjects')->default(0);
             $table->timestampsTz();
         });
 

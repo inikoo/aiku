@@ -1,11 +1,11 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Fri, 24 Mar 2023 03:00:22 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Tue, 23 Jan 2024 14:08:16 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Enums\Inventory\StockFamily;
+namespace App\Enums\SupplyChain\StockFamily;
 
 use App\Enums\EnumHelperTrait;
 

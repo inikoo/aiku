@@ -7,8 +7,8 @@
 
 namespace App\Models\Inventory;
 
-use App\Enums\Inventory\Stock\OrgStockQuantityStatusEnum;
-use App\Enums\Inventory\Stock\OrgStockStateEnum;
+use App\Enums\Inventory\OrgStock\OrgStockQuantityStatusEnum;
+use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
 use App\Models\SupplyChain\Stock;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasUniversalSearch;
@@ -93,7 +93,9 @@ class OrgStock extends Model
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
-            ->generateSlugsFrom('code')
+            ->generateSlugsFrom(function () {
+                return $this->stock->code. ' '.$this->organisation->code;
+            })
             ->doNotGenerateSlugsOnUpdate()
             ->saveSlugsTo('slug');
     }
@@ -110,6 +112,10 @@ class OrgStock extends Model
     }
 
 
+    public function orgStockFamily(): BelongsTo
+    {
+        return $this->belongsTo(OrgStockFamily::class);
+    }
 
     public function locations(): BelongsToMany
     {

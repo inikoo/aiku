@@ -1,4 +1,9 @@
 <?php
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Tue, 23 Jan 2024 15:52:49 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
 
 namespace App\Http\Middleware;
 
@@ -14,6 +19,16 @@ class LogUserRequestMiddleware
      */
     public function handle(Request $request, Closure $next)
     {
+
+        if(!str_starts_with($request->route()->getName(), 'grp.')) {
+            return $next($request);
+        }
+
+        if($request->route()->getName()=='grp.logout') {
+            return $next($request);
+        }
+
+
         /* @var \App\Models\SysAdmin\User $user */
         $user = $request->user();
 
