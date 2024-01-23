@@ -81,7 +81,7 @@ class IndexLocations extends OrgAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->where('locations.code', 'ILIKE', "%$value%");
+                $query->where('locations.code', 'LIKE', $value);
             });
         });
 
