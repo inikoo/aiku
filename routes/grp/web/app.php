@@ -12,7 +12,6 @@ Route::middleware([
     "app",
 ])->group(function () {
 
-
     Route::middleware(["auth"])->group(function () {
         Route::get('/', function () {
             return redirect('/dashboard');
