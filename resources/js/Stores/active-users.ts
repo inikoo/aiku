@@ -19,6 +19,14 @@ interface LiveUser {
     current_page?: {
         label: string,
         url: string
+        icon_left: {
+            icon: string | string[]
+            class: string
+        }
+        icon_right: {
+            icon: string | string[]
+            class: string
+        }
     }
 }
 interface LiveUsers {
@@ -60,9 +68,9 @@ export const useLiveUsers = defineStore('useLiveUsers', {
                     console.log('error', error)
                 })
                 
-                .listenForWhisper('otherIsNavigating', (e: LiveUsers) => {
+                .listenForWhisper('otherIsNavigating', (e: LiveUser) => {
                     // On the first load and on navigating page 
-                    // console.log('qwer', this.liveUsers)
+                    // console.log('qwer', e)
                     this.liveUsers[e.id] = e
                     // console.log('qwer', this.liveUsers)
                 })

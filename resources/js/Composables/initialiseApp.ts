@@ -57,10 +57,13 @@ export const initialiseApp = () => {
             const dataActiveUser = {
                 ...usePage().props.auth.user,
                 name: null,
+                last_active: new Date(),
                 current_page: {
                     label: event.detail.page.props.title,
-                    url: event.detail.page.url
-                }
+                    url: event.detail.page.url,
+                    icon_left: usePage().props.live_users?.icon_left || null,
+                    icon_right: usePage().props.live_users?.icon_right || null,
+                },
             }
 
             // Set to self

@@ -170,6 +170,16 @@ class EditEmployee extends OrgAction
         return Inertia::render(
             'EditModel',
             [
+                'live_users'=> [
+                    'icon_left'   => [
+                        'icon' => 'fal fa-user-hard-hat',
+                        'class'=> 'text-lime-400'
+                    ],
+                    'icon_right'  => [
+                        'icon' => 'fal fa-pencil',
+                        'class'=> 'text-gray-300'
+                    ],
+                ],
                 'title'       => __('employee'),
                 'breadcrumbs' => $this->getBreadcrumbs($request->route()->originalParameters()),
                 'pageHead'    => [
