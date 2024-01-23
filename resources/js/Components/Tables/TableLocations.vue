@@ -44,11 +44,11 @@ function locationRoute(location: Location) {
 </script>
 
 <template>
-    <Table :resource="data" :name="tab" class="mt-5">
+    <Table :resource="data" :name="tab ?? 'locations'" class="mt-5">
         <template #cell(code)="{ item: location }">
-            <Link :href="locationRoute(location)">
+<!--            <Link :href="locationRoute(location)">-->
                 {{ location['code'] }}
-            </Link>
+<!--            </Link>-->
         </template>
     </Table>
 </template>

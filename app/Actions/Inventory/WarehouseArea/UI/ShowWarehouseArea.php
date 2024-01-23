@@ -172,8 +172,8 @@ class ShowWarehouseArea extends OrgAction
                        'label' => __('location'),
                        'style' => 'create'
                    ] : false
-                ],
-                prefix: 'locations' */
+                ], */
+                prefix: WarehouseAreaTabsEnum::LOCATIONS->value
             )
         )->table(IndexHistory::make()->tableStructure());
     }
