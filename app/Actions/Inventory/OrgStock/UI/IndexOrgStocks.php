@@ -7,12 +7,13 @@
 
 namespace App\Actions\Inventory\OrgStock\UI;
 
-use App\Actions\InertiaAction;
-use App\Actions\SupplyChain\StockFamily\UI\IndexStockFamilies;
+use App\Actions\OrgAction;
+use App\Actions\SupplyChain\StockFamily\UI\ShowStockFamily;
+use App\Actions\UI\Inventory\ShowInventoryDashboard;
 use App\Http\Resources\Inventory\StockResource;
 use App\InertiaTable\InertiaTable;
-use App\Models\SupplyChain\Stock;
-use App\Models\SupplyChain\StockFamily;
+use App\Models\Inventory\OrgStock;
+use App\Models\Inventory\OrgStockFamily;
 use App\Models\SysAdmin\Organisation;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -24,42 +25,40 @@ use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
-class IndexStocks extends InertiaAction
+class IndexOrgStocks extends OrgAction
 {
-    private StockFamily|Organisation $parent;
+    private OrgStockFamily|Organisation $parent;
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo('inventory.stocks.edit');
+        $this->canEdit = $request->user()->hasPermissionTo("inventories.{$this->organisation->id}.edit");
 
-        return
-            (
-                $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo('inventory.stocks.view')
-            );
+        return $request->user()->hasPermissionTo("inventories.{$this->organisation->id}.view");
+
+
     }
 
-    public function asController(ActionRequest $request): LengthAwarePaginator
+    public function asController(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
-        $this->parent    = app('currentTenant');
-        return $this->handle(parent:  app('currentTenant'));
+        $this->initialisation($organisation, $request);
+        $this->parent    = $organisation;
+        return $this->handle(parent:  $organisation);
     }
 
-    public function inStockFamily(StockFamily $stockFamily, ActionRequest $request): LengthAwarePaginator
+    public function inStockFamily(Organisation $organisation, OrgStockFamily $orgStockFamily, ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisation($request);
-        $this->parent = $stockFamily;
-        return $this->handle(parent:  $stockFamily);
+        $this->initialisation($organisation, $request);
+        $this->parent    = $orgStockFamily;
+        return $this->handle(parent:  $orgStockFamily);
     }
 
-    /** @noinspection PhpUndefinedMethodInspection */
-    public function handle(StockFamily|Organisation $parent, $prefix=null): LengthAwarePaginator
+
+    public function handle(OrgStockFamily|Organisation $parent, $prefix=null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->where('stocks.code', 'LIKE', "$value%")
-                    ->orWhere('stocks.name', 'LIKE', "%$value%")
-                    ->orWhere('stocks.description', 'LIKE', "%$value%");
+                $query->whereStartWith('stocks.code', $value)
+                    ->orWhereAnyWordStartWith('stocks.name', $value);
             });
         });
 
@@ -67,18 +66,23 @@ class IndexStocks extends InertiaAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        $queryBuilder=QueryBuilder::for(Stock::class);
-        foreach ($this->elementGroups as $key => $elementGroup) {
-            $queryBuilder->whereElementGroup(
-                prefix: $prefix,
-                key: $key,
-                allowedElements: array_keys($elementGroup['elements']),
-                engine: $elementGroup['engine']
-            );
-        }
+        $queryBuilder=QueryBuilder::for(OrgStock::class);
 
+        /*
+         foreach ($this->elementGroups as $key => $elementGroup) {
+             $queryBuilder->whereElementGroup(
+                 prefix: $prefix,
+                 key: $key,
+                 allowedElements: array_keys($elementGroup['elements']),
+                 engine: $elementGroup['engine']
+             );
+         }
+        */
+
+        /** @noinspection PhpUndefinedMethodInspection */
         return $queryBuilder
             ->defaultSort('stocks.code')
+
             ->select([
                 'stock_families.slug as family_slug',
                 'stock_families.code as family_code',
@@ -88,11 +92,15 @@ class IndexStocks extends InertiaAction
                 'stocks.unit_value',
                 'number_locations',
                 'quantity_in_locations'])
-            ->leftJoin('stock_stats', 'stock_stats.stock_id', 'stocks.id')
-            ->leftJoin('stock_families', 'stock_families.id', 'stocks.stock_family_id')
+            ->leftJoin('stocks', 'org_stocks.stock_id', 'stocks.id')
+            ->leftJoin('org_stock_stats', 'org_stock_stats.org_stock_id', 'org_stocks.id')
+            ->leftJoin('org_stock_families', 'org_stock_families.id', 'org_stocks.org_stock_family_id')
+            ->leftJoin('stock_families', 'stock_families.id', 'org_stock_families.stock_family_id')
             ->when($parent, function ($query) use ($parent) {
                 if (class_basename($parent) == 'StockFamily') {
-                    $query->where('stocks.stock_family_id', $parent->id);
+                    $query->where('org_stocks.org_stock_family_id', $parent->id);
+                } elseif (class_basename($parent) == 'Organisation') {
+                    $query->where('org_stocks.organisation_id', $parent->id);
                 }
             })
             ->allowedSorts(['code', 'family_code','description', 'unit_value'])
@@ -120,32 +128,12 @@ class IndexStocks extends InertiaAction
                             'description' => $this->canEdit && $parent->stats->number_stock_families == 0 ? __('Get started by creating a shop. ✨')
                                 : __("In fact, is no even create a SKUs family yet 🤷🏽‍♂️"),
                             'count'       => $parent->stats->number_stocks,
-                            'action'      => $this->canEdit && $parent->stats->number_stock_families == 0 ? [
-                                'type'    => 'button',
-                                'style'   => 'create',
-                                'tooltip' => __('new SKUs family'),
-                                'label'   => __('SKUs family'),
-                                'route'   => [
-                                    'name'       => 'inventory.families.create',
-                                    'parameters' => array_values($request->route()->originalParameters())
-                                ]
-                            ] : null
                         ],
                         'StockFamily' => [
                             'title'       => __("No SKUs found"),
                             'description' => $this->canEdit ? __('Get started by creating a new SKU. ✨')
                                 : null,
                             'count'       => $parent->stats->number_stocks,
-                            'action'      => $this->canEdit ? [
-                                'type'    => 'button',
-                                'style'   => 'create',
-                                'tooltip' => __('new SKU'),
-                                'label'   => __('SKU'),
-                                'route'   => [
-                                    'name'       => 'inventory.stock-families.show.stocks.create',
-                                    'parameters' => array_values($request->route()->originalParameters())
-                                ]
-                            ] : null
                         ],
                         default => null
                     }
@@ -167,9 +155,9 @@ class IndexStocks extends InertiaAction
     public function htmlResponse(LengthAwarePaginator $stocks, ActionRequest $request): Response
     {
 
-        $parent       = $request->route()->parameters() == [] ? app('currentTenant') : last($request->route()->parameters());
-        $this->parent = $parent;
-        $scope        = $parent;
+
+
+        $scope        = $this->parent;
         $container    =null;
         if (class_basename($scope) == 'StockFamily') {
             $container = [
@@ -179,7 +167,7 @@ class IndexStocks extends InertiaAction
             ];
         }
         return Inertia::render(
-            'Inventory/Stock',
+            'Inventory/OrgStocks',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
@@ -193,14 +181,14 @@ class IndexStocks extends InertiaAction
                         'icon'  => ['fal', 'fa-box'],
                         'title' => __('SKU')
                     ],
-                    'actions'=> [
+                    'actions_xx'=> [
                         $this->canEdit ? [
                             'type'    => 'button',
                             'style'   => 'create',
                             'tooltip' => __('new SKU'),
                             'label'   => __('SKU'),
                             'route'   => match ($request->route()->getName()) {
-                                'inventory.stock-families.show.stocks.index' => [
+                                'grp.org.inventory.stock-families.show.stocks.index' => [
                                     'name'       => 'inventory.stock-families.show.stocks.create',
                                     'parameters' => array_values($request->route()->originalParameters())
                                 ],
@@ -235,10 +223,12 @@ class IndexStocks extends InertiaAction
             ];
         };
 
+
+
         return match ($routeName) {
-            'inventory.stocks.index' =>
+            'grp.org.inventory.stocks.index' =>
             array_merge(
-                IndexStockFamilies::make()->getBreadcrumbs(),
+                ShowInventoryDashboard::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     [
                         'name'       => $routeName,
@@ -250,7 +240,7 @@ class IndexStocks extends InertiaAction
 
             'inventory.stock-families.show.stocks.index' =>
             array_merge(
-                \App\Actions\SupplyChain\StockFamily\UI\ShowStockFamily::make()->getBreadcrumbs($routeParameters['stockFamily']),
+                ShowStockFamily::make()->getBreadcrumbs($routeParameters['stockFamily']),
                 $headCrumb(
                     [
                         'name'       => $routeName,

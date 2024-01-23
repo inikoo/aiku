@@ -6,7 +6,6 @@
 <script setup lang="ts">
 import {Head} from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
-import {useLocaleStore} from '@/Stores/locale';
 import TableStocks from "@/Components/Tables/TableStocks.vue";
 import { capitalize } from "@/Composables/capitalize"
 
@@ -16,11 +15,6 @@ const props = defineProps<{
     pageHead: object
 }>()
 
-const locale = useLocaleStore();
-
-const columnsType={
-    'quantity':'number'
-}
 
 </script>
 
