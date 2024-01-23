@@ -99,7 +99,6 @@
     "autoload-dev": {
         "psr-4": {
             "Tests\\": "tests/"
-            "Tests\\": "tests/"
         }
     },
     "scripts": {
