@@ -91,14 +91,6 @@ class IndexLocations extends OrgAction
         }
 
         $queryBuilder=QueryBuilder::for(Location::class);
-        foreach ($this->elementGroups as $key => $elementGroup) {
-            $queryBuilder->whereElementGroup(
-                prefix: $prefix,
-                key: $key,
-                allowedElements: array_keys($elementGroup['elements']),
-                engine: $elementGroup['engine']
-            );
-        }
 
         return $queryBuilder
             ->defaultSort('locations.code')
