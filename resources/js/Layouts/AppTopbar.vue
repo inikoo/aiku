@@ -190,7 +190,7 @@ const label = {
                             </Menu>
 
                             <!-- Dropdown: Warehouse -->
-                            <Menu v-if="useLayoutStore().navigation.org[layout.currentParams.organisation]?.warehouses_navigation && (route(useLayoutStore().currentRoute, useLayoutStore().currentParams)).includes('warehouse')"
+                            <Menu v-if="Object.keys(useLayoutStore().navigation.org[layout.currentParams.organisation]?.warehouses_navigation || []).length > 1 && (route(useLayoutStore().currentRoute, useLayoutStore().currentParams)).includes('warehouse')"
                                 as="div" class="relative inline-block text-left"
                                 v-slot="{ close: closeMenu }"
                             >
@@ -200,8 +200,7 @@ const label = {
                                     :label="useLayoutStore().organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_warehouses.find(warehouse => warehouse.slug == layout.currentParams.warehouse)?.name ?? label.warehouseSelect"
                                 />
                                 <transition>
-                                    <MenuItems
-                                        class="absolute left-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
+                                    <MenuItems class="absolute left-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
                                         <MenuPopoverList icon="fal fa-warehouse-alt" :navKey="'warehouse'" :closeMenu="closeMenu" />
                                     </MenuItems>
                                 </transition>

@@ -14,14 +14,21 @@ const props = defineProps<{
     nav: Navigation
 }>()
 
+// From 'shops_index' to 'shops'
+const separateUnderscore = (str: string | number) => {
+    const realString = str.toString()
+
+    return realString.split('_')
+}
+
 const layout = useLayoutStore()
 
 </script>
 
 <template>
     <Link :href="nav.route?.name ? route(nav.route.name, nav.route.parameters) : '#'"
-        class="group flex items-center text-sm py-2 pl-4 gap-x-2" :class="[
-            navKey === layout.currentModule
+        class="group flex items-center text-sm py-2 pl-4 gap-x-2 transition-all duration-50 ease-in-out" :class="[
+            separateUnderscore(navKey)[0] === layout.currentModule || layout.currentModule.includes(navKey.toString())  // 'shops' == 'shops' || 'shop' include in 'shops'
                 ? 'navigationActive'
                 : 'navigation',
             layout.leftSidebar.show ? 'px-3' : '',
