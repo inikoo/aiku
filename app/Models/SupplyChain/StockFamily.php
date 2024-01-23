@@ -42,6 +42,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $source_slug
  * @property string|null $source_id
  * @property-read Group $group
+ * @property-read Collection<int, OrgStockFamily> $orgStockFamilies
  * @property-read \App\Models\SupplyChain\StockFamilyStats|null $stats
  * @property-read Collection<int, \App\Models\SupplyChain\Stock> $stocks
  * @property-read UniversalSearch|null $universalSearch

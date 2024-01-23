@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {Link, router} from "@inertiajs/vue3"
+import { Link, router, usePage } from '@inertiajs/vue3'
 import { useLayoutStore } from "@/Stores/layout"
 import { ref, reactive } from 'vue'
 import { get } from 'lodash'
@@ -38,6 +38,20 @@ const showSearchDialog = ref(false)
 
 const logoutAuth = () => {
     router.post(route(props.urlPrefix + 'logout'))
+
+    const dataActiveUser = {
+        ...layout.user,
+        name: null,
+        last_active: new Date(),
+        action: 'logout',
+        current_page: {
+            label: trans('Logout'),
+            url: null,
+            icon_left: null,
+            icon_right: null,
+        },
+    }
+    window.Echo.join(`grp.live.users`).whisper('otherIsNavigating', dataActiveUser)
     useLiveUsers().unsubscribe()  // Unsubscribe from Laravel Echo
 }
 
@@ -47,6 +61,7 @@ const label = {
     shopSelect: trans('Go to shop'),
     warehouseSelect: trans('Warehouses'),
 }
+
 </script>
 
 <template>
@@ -175,7 +190,7 @@ const label = {
                             </Menu>
 
                             <!-- Dropdown: Warehouse -->
-                            <Menu v-if="useLayoutStore().navigation.org[layout.currentParams.organisation]?.warehouses_navigation && (route(useLayoutStore().currentRoute, useLayoutStore().currentParams)).includes('warehouse')"
+                            <Menu v-if="Object.keys(useLayoutStore().navigation.org[layout.currentParams.organisation]?.warehouses_navigation || []).length > 1 && (route(useLayoutStore().currentRoute, useLayoutStore().currentParams)).includes('warehouse')"
                                 as="div" class="relative inline-block text-left"
                                 v-slot="{ close: closeMenu }"
                             >
@@ -185,8 +200,7 @@ const label = {
                                     :label="useLayoutStore().organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_warehouses.find(warehouse => warehouse.slug == layout.currentParams.warehouse)?.name ?? label.warehouseSelect"
                                 />
                                 <transition>
-                                    <MenuItems
-                                        class="absolute left-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
+                                    <MenuItems class="absolute left-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
                                         <MenuPopoverList icon="fal fa-warehouse-alt" :navKey="'warehouse'" :closeMenu="closeMenu" />
                                     </MenuItems>
                                 </transition>

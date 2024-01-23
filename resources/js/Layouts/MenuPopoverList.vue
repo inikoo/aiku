@@ -13,12 +13,13 @@ const props = defineProps<{
     navKey: string  // shop | warehouse
     closeMenu: () => void
 }>()
+
 const layout = useLayoutStore()
 
 </script>
 
 <template>
-    <div class="px-1 py-1 ">
+    <div class="px-1 py-1">
         <div @click="() => (router.visit(route(layout.navigation.org[layout.currentParams.organisation][`${navKey}s_index`].route.name, layout.navigation.org[layout.currentParams.organisation][`${navKey}s_index`].route.parameters)), closeMenu())"
             class="flex gap-x-2 items-center pl-3 py-1.5 cursor-pointer rounded-md text-slate-600 hover:bg-slate-200/75 hover:text-indigo-600">
             <FontAwesomeIcon v-if="icon" :icon='icon' class='' aria-hidden='true' />
@@ -29,17 +30,18 @@ const layout = useLayoutStore()
             <MenuItem
                 v-for="(showare, idxSH) in layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.[`authorised_${navKey}s`]"
                 v-slot="{ active }"
+                v-tooltip="showare.state == 'closed' ? `This ${navKey} is closed` : false"
                 as="div"
                 :disabled="showare.state == 'closed'"
                 @click="() => router.visit(route(showare.route?.name, showare.route?.parameters))" :class="[
-                    showare.state == 'closed' ? 'bg-slate-200 select-none' : showare.slug == layout.currentParams[navKey] ? 'bg-slate-500 text-white' : 'text-slate-600 hover:bg-slate-200/75 hover:text-indigo-600',
-                    'group flex gap-x-2 w-full justify-start items-center rounded px-2 py-2 text-sm cursor-pointer',
+                    showare.state == 'closed' ? 'bg-slate-200 select-none curs' : showare.slug == layout.currentParams[navKey] ? 'bg-slate-500 text-white cursor-pointer' : 'text-slate-600 hover:bg-slate-200/75 hover:text-indigo-600 cursor-pointer',
+                    'group flex gap-x-2 w-full justify-start items-center rounded px-2 py-2 text-sm',
                 ]">
                     <!-- <div class="h-5 rounded-full overflow-hidden ring-1 ring-slate-200 bg-slate-50">
                         <Image v-show="imageSkeleton[idxSH]" :src="item.logo" @onLoadImage="() => imageSkeleton[idxSH] = true"/>
                         <div v-show="!imageSkeleton[idxSH]" class="skeleton w-5 h-5"/>
                     </div> -->
-                    <div class="font-semibold">{{ showare.state }}</div>
+                    <div class="font-semibold">{{ showare.label }}</div>
             </MenuItem>
         </div>
     </div>

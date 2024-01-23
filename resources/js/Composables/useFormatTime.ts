@@ -79,3 +79,12 @@ export const useMilisecondToTime = (miliSecond: number) => {
 
     return formattedTime // 2 hours 56 minutes 23 seconds
 }
+
+// Check if the provided date is a future date and does it already passed?
+export const useIsFutureIsAPast = (dateIso: Date | string, additionalSeconds: number) => {
+    if (!dateIso) return false  // If the provided data date is null
+
+    const newDate = addSeconds(new Date(dateIso), additionalSeconds)
+
+    return isPast(newDate)  // true or false
+}

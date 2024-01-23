@@ -95,9 +95,7 @@ Route::prefix("media")
 Route::prefix("json")
     ->name("json.")
     ->group(__DIR__."/json.php");
-Route::prefix("firebase")
-    ->name("firebase.")
-    ->group(__DIR__."/firebase.php");
+
 Route::prefix("google")
     ->name("google.")
     ->group(__DIR__."/google.php");

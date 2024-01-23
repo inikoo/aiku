@@ -23,12 +23,6 @@ use Illuminate\Support\Carbon;
  * @property int $number_stocks_state_active
  * @property int $number_stocks_state_discontinuing
  * @property int $number_stocks_state_discontinued
- * @property int $number_stocks_quantity_status_excess
- * @property int $number_stocks_quantity_status_ideal
- * @property int $number_stocks_quantity_status_low
- * @property int $number_stocks_quantity_status_critical
- * @property int $number_stocks_quantity_status_out_of_stock
- * @property int $number_stocks_quantity_status_error
  * @property string|null $deleted_at
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at

@@ -16,8 +16,6 @@ dropdb --force --if-exists ${BACKUP_DB}
 createdb --template=template0 --lc-collate="${DB_COLLATE}" --lc-ctype="${DB_COLLATE}" ${BACKUP_DB}
 echo -e "✨ Resetting elasticsearch"
 php artisan es:refresh
-#echo -e "✨ Resetting firebase"
-#php artisan firebase:flush
 echo "Public assets link 🔗"
 php artisan storage:link
 echo "Clear horizon 🧼"

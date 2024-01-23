@@ -57,17 +57,25 @@ export const initialiseApp = () => {
             const dataActiveUser = {
                 ...usePage().props.auth.user,
                 name: null,
+                last_active: new Date(),
+                action: 'navigate',
                 current_page: {
                     label: event.detail.page.props.title,
-                    url: event.detail.page.url
-                }
+                    url: event.detail.page.url,
+                    icon_left: usePage().props.live_users?.icon_left || null,
+                    icon_right: usePage().props.live_users?.icon_right || null,
+                },
             }
 
-            // Set to self
-            useLiveUsers().liveUsers[usePage().props.auth.user.id] = dataActiveUser
+            // To avoid emit on logout
+            if(dataActiveUser.id){
+                // Set to self
+                useLiveUsers().liveUsers[usePage().props.auth.user.id ] = dataActiveUser
+                
+                // Websockets: broadcast to others
+                window.Echo.join(`grp.live.users`).whisper('otherIsNavigating', dataActiveUser)
+            }
 
-            // Websockets: broadcast to others
-            window.Echo.join(`grp.live.users`).whisper('otherIsNavigating', dataActiveUser)
         })
     }
 

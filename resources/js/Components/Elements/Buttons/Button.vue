@@ -7,32 +7,35 @@
 <script setup lang="ts">
 import { trans } from 'laravel-vue-i18n'
 import { faSave as fadSave } from '@fad'
-import { faDownload } from '@fal'
-import { faArrowLeft } from '@far'
-import { faPlus, faSave, faUpload } from '@fas'
 import { library } from '@fortawesome/fontawesome-svg-core'
+import { faDownload } from '@fal'
+import { faArrowLeft, faPencil, faTrashAlt } from '@far'
+import { faPlus, faSave, faUpload } from '@fas'
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { useLayoutStore } from '@/Stores/layout'
+import { faSpinnerThird } from '@fad'
 
 const layout = useLayoutStore()
 
 const props = withDefaults(defineProps<{
-    'style'?: string
-    'size'?: string
-    'icon'?: string | string[]
-    'iconRight'?: string | string[]
-    'action'?: string
-    'label'?: string
-    'full'?: boolean
+    style?: string
+    size?: string
+    icon?: string | string[]
+    iconRight?: string | string[]
+    action?: string
+    label?: string
+    full?: boolean
     capitalize?: boolean
     tooltip?: string
+    loading?:boolean
 }>(), {
     style: 'primary',
     size: 'm',
-    capitalize: true
+    capitalize: true,
+    loading:false
 })
 
-library.add(faPlus, faSave, fadSave, faUpload, faDownload, faArrowLeft)
+library.add(faPlus, faSave, fadSave, faUpload, faDownload, faArrowLeft, faPencil, faTrashAlt, faSpinnerThird)
 
 let styleClass = ''
 let sizeClass = ''
@@ -40,7 +43,7 @@ let sizeClass = ''
 // Styling the Button depends on the 'style' props
 if (props.style == 'primary' || props.style == 'create' || props.style == 'save') {
     if(layout.systemName == 'org') {
-        styleClass = 'bg-fuchsia-700 bg-gradient-to-r from-fuchsia-600 to-fuchsia-700 text-gray-100 hover:bg-none'
+        styleClass = 'bg-fuchsia-700 bg-gradient-to-r from-fuchsia-600 to-fuchsia-700 text-gray-100 hover:bg-none focus:outline-none focus:ring-2 focus:ring-fuchsia-700 focus:ring-offset-2'
     } else {
         styleClass = 'bg-gray-700 bg-gradient-to-r from-gray-600 to-gray-800 text-gray-100 hover:bg-none'
     }
@@ -49,13 +52,13 @@ else if (props.style == 'orgSolid') styleClass = 'bg-fuchsia-600 text-gray-100 h
 
 else if (props.style == 'secondary' || props.style == 'edit') {
     if(layout.systemName == 'org') {
-        styleClass = 'bg-org-400 bg-gradient-to-r from-org-400 to-org-600 text-white hover:bg-none'
+        styleClass = 'bg-org-400 bg-gradient-to-r from-org-400 to-org-600 text-white hover:bg-none focus:outline-none focus:ring-2 focus:ring-org-500 focus:ring-offset-2'
     } else {
-        styleClass = 'bg-gray-200 bg-gradient-to-r from-gray-50 to-gray-200 border border-gray-300 text-gray-500 hover:bg-none'
+        styleClass = 'border border-gray-300 text-gray-600 bg-gray-300 bg-gradient-to-r from-gray-100 to-gray-300 hover:bg-none'
     }
 } 
 else if (props.style == 'tertiary') styleClass = 'bg-transparent border border-gray-300 text-gray-700 hover:bg-gray-200/70'
-else if (props.style == 'rainbow') styleClass = 'bg-gradient-to-r from-blue-500 to-purple-600 border border-gray-300 text-gray-100 hover:bg-purple-600'
+else if (props.style == 'rainbow') styleClass = 'bg-indigo-500 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2'
 
 else if (props.style == 'delete' || props.style == 'negative' || props.style == 'cancel') styleClass = 'border border-red-400 text-red-500 hover:text-red-800 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2'
 else if (props.style == 'positive') styleClass = 'border border-lime-500 text-lime-600 hover:text-lime-800 hover:bg-lime-50 focus:outline-none focus:ring-2 focus:ring-lime-600 focus:ring-offset-2'
@@ -63,29 +66,31 @@ else if (props.style == 'positive') styleClass = 'border border-lime-500 text-li
 else if (props.style == 'white') styleClass = 'bg-white text-gray-600'
 else if (props.style == 'red') styleClass = 'bg-red-500 hover:bg-red-600 text-white focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2'
 else if (props.style == 'green') styleClass = 'bg-lime-400 hover:bg-lime-500 text-white focus:outline-none focus:ring-2 focus:ring-lime-400 focus:ring-offset-2'
+else if (props.style == 'gray') styleClass = 'bg-gray-200 hover:bg-gray-300 border border-gray-400 text-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2'
 
+// else if (props.style == 'negative' || props.style == 'cancel') styleClass = 'border border-red-400 text-red-600 hover:text-red-800 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2'
 else if (props.style == 'disabled') styleClass = 'cursor-not-allowed border border-gray-300 bg-transparent text-gray-700 hover:bg-gray-200/70 disabled:cursor-not-allowed disabled:opacity-70'
 else styleClass = 'border border-gray-300 bg-transparent text-gray-700 hover:bg-gray-200/70'
 
 // Styling depends on the 'size' props
 switch (props.size) {
     case 'xxs':
-        sizeClass = 'rounded px-2 py-0.5 text-xxs'
+        sizeClass = 'rounded px-2 py-1 text-xxs'
         break
     case 'xs':
         sizeClass = 'rounded px-2.5 py-1.5 text-xs'
         break
     case 's':
-        sizeClass = 'rounded-md px-3 py-2 text-sm'
+        sizeClass = 'rounded-md px-3 py-[7px] text-sm'
         break
     case 'm':
-        sizeClass = 'rounded-md px-4 py-2 text-sm'
+        sizeClass = 'rounded-md px-4 py-[9px] text-sm'
         break
     case 'l':
-        sizeClass = 'rounded-md px-4 py-2 text-base'
+        sizeClass = 'rounded-md px-[18px] py-[11px] text-base'
         break
     case 'xl':
-        sizeClass = 'rounded-md px-6 py-3 text-base'
+        sizeClass = 'rounded-md px-6 py-[13px] text-lg'
         break
 }
 
@@ -144,7 +149,7 @@ const getActionIcon = (icon: any) => {
 
 <template>
     <button type="button"
-        class="leading-4 inline-flex items-center gap-x-2 font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+        class="leading-4 inline-flex items-center gap-x-2 font-medium shadow-sm focus:outline-none"
         :class="[
             // icon ? 'px-2 sm:px-4' : 'px-3 sm:px-5 ',
             full ? 'w-full justify-center' : 'min-w-max',
@@ -155,6 +160,9 @@ const getActionIcon = (icon: any) => {
         v-tooltip="tooltip ?? undefined"    
     >
         <slot>
+            <slot name="loading">
+                <FontAwesomeIcon v-if="loading" icon='fad fa-spinner-third' class='animate-spin' fixed-width  aria-hidden="true"/>
+            </slot>
             <slot name="icon">
                 <FontAwesomeIcon v-if="getActionIcon(icon)" :icon="getActionIcon(icon)" fixed-width class="" aria-hidden="true"/>
             </slot>

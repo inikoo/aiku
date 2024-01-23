@@ -3,7 +3,7 @@
  *  Created: Thu, 25 Aug 2022 00:33:39 Malaysia Time, Kuala Lumpur, Malaysia
  *  Copyright (c) 2022, Raul A Perusquia F
  */
-import { grpNavigation, orgNavigation } from "@/types/Navigation"
+import { Navigation, grpNavigation, orgNavigation } from "@/types/Navigation"
 
 
 import { defineStore } from "pinia"
@@ -60,7 +60,7 @@ export const useLayoutStore = defineStore("layout", {
             },
             navigation: {
                 grp: {} as grpNavigation,
-                org: {} as { [key: string]: orgNavigation }
+                org: {} as { [key: string]: orgNavigation } | { [key: string]: Navigation } | Navigation
             },
             organisations: {
                 // currentOrganisations: '',

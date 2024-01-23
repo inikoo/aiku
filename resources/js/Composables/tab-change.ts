@@ -4,14 +4,23 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-import {router} from "@inertiajs/vue3";
+import { router } from "@inertiajs/vue3"
+import { Ref } from 'vue'
 
-export function useTabChange(tabSlug, currentTab) {
+export const useTabChange = (tabSlug: string, currentTab: Ref<string>) => {
+
+    // console.log(tabSlug, currentTab.value)
+    if (tabSlug === currentTab.value) {
+        return
+    }
+
     router.reload(
-        {data: {tab: tabSlug},
-            only: [tabSlug],
+        {
+            data: { tab: tabSlug },
+            only: [tabSlug],  // only reload the props with dynamic name tabSlug
             onSuccess: () => {
                 currentTab.value = tabSlug;
             },
-        })
+        }
+    )
 }

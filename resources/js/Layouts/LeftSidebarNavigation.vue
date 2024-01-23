@@ -26,30 +26,30 @@ onMounted(() => {
     }
 })
 
-const generateRoute = (item) => {
-    const scope = item.scope
-    if (scope && typeof item.route === "object" && item.route !== null) {
-        if (scope == "shops") {
-            if (layout.currentShopData.slug) {
-                return route(item.route.selected, layout.currentShopData.slug)
-            }
-            return route(item.route.all)
-        }
-        if (scope == "websites") {
-            if (layout.currentWebsiteData.slug) {
-                return route(item.route.selected, layout.currentWebsiteData.slug)
-            }
-            return route(item.route.all)
-        }
-        if (scope == "warehouses") {
-            if (layout.currentWarehouseData.slug) {
-                return route(item.route.selected, layout.currentWarehouseData.slug)
-            }
-            return route(item.route.all)
-        }
-    }
-    return route(item.route, item.routeParameters)
-}
+// const generateRoute = (item) => {
+//     const scope = item.scope
+//     if (scope && typeof item.route === "object" && item.route !== null) {
+//         if (scope == "shops") {
+//             if (layout.currentShopData.slug) {
+//                 return route(item.route.selected, layout.currentShopData.slug)
+//             }
+//             return route(item.route.all)
+//         }
+//         if (scope == "websites") {
+//             if (layout.currentWebsiteData.slug) {
+//                 return route(item.route.selected, layout.currentWebsiteData.slug)
+//             }
+//             return route(item.route.all)
+//         }
+//         if (scope == "warehouses") {
+//             if (layout.currentWarehouseData.slug) {
+//                 return route(item.route.selected, layout.currentWarehouseData.slug)
+//             }
+//             return route(item.route.all)
+//         }
+//     }
+//     return route(item.route, item.routeParameters)
+// }
 
 // const generateLabel = (item) => {
 //     const scope = item.scope
@@ -68,9 +68,9 @@ const generateRoute = (item) => {
 // }
 
 // Conver string from 'shops_navigation' to 'shop', etc
-const generateNavigationName = (navKey: string) => {
-    return navKey.split('_')[0].slice(0, -1)
-}
+// const generateNavigationName = (navKey: string) => {
+//     return navKey.split('_')[0].slice(0, -1)
+// }
 
 </script>
 
@@ -79,13 +79,10 @@ const generateNavigationName = (navKey: string) => {
         <!-- LeftSidebar: Org -->
         <!-- <span class="text-white">{{ layout.currentShop }} -- {{ layout.currentWarehouse }}</span> -->
         <template v-if="get(layout, ['navigation', 'org', layout.currentParams.organisation], false)">
-            <template v-for="(orgNav, itemKey) in layout.navigation.org[layout.currentParams.organisation]"
-                :key="itemKey"
-            >
+            <template v-for="(orgNav, itemKey) in layout.navigation.org[layout.currentParams.organisation]" :key="itemKey" >
                 <!-- shops_index or warehouses_index -->
                 <template v-if="itemKey == 'shops_index' || itemKey == 'warehouses_index'">
                     <template v-if="itemKey == 'shops_index'">
-                        
                         <template v-if="useLayoutStore().organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_shops.length == 1">
                             <!-- Will always looping 1 only -->
                             <template v-for="shop in layout.navigation.org[layout.currentParams.organisation].shops_navigation">  
@@ -93,6 +90,7 @@ const generateNavigationName = (navKey: string) => {
                                     :nav="shopSubnav"
                                     :navKey="idxShopSubnav"
                                 />
+                                
                             </template>
                         </template>
 
@@ -113,17 +111,39 @@ const generateNavigationName = (navKey: string) => {
                 <!-- shops_navigation or warehouses_navigation -->
                 <template v-else-if="itemKey == 'shops_navigation' || itemKey == 'warehouses_navigation'">
                     <template v-if="itemKey == 'shops_navigation' && layout.organisationsState?.[layout.currentParams.organisation]?.currentShop">
-                        <NavigationSimple v-for="aaa, aaaindex in orgNav[layout.organisationsState[layout.currentParams.organisation].currentShop]"
-                            :nav="aaa"
-                            :navKey="aaaindex"
-                        />
+                        <!-- If Shops length is 1 (Show the subnav straighly) -->
+                        <template v-if="Object.keys(orgNav || []).length === 1">
+                            <NavigationSimple v-for="aaa, aaaindex in orgNav[Object.keys(orgNav)[0]]"
+                                :nav="aaa"
+                                :navKey="aaaindex"
+                            />
+                        </template>
+                        
+                        <!-- If Shops length is not 1 and current warehouse is exist -->
+                        <template v-else-if="layout.organisationsState?.[layout.currentParams.organisation]?.currentShop">
+                            <NavigationSimple v-for="aaa, aaaindex in orgNav[layout.organisationsState?.[layout.currentParams.organisation]?.currentShop]"
+                                :nav="aaa"
+                                :navKey="aaaindex"
+                            />
+                        </template>
                     </template>
-
-                    <template v-if="itemKey == 'warehouses_navigation' && layout.organisationsState?.[layout.currentParams.organisation]?.currentWarehouse">
-                        <NavigationSimple v-for="aaa, aaaindex in orgNav[layout.organisationsState?.[layout.currentParams.organisation]?.currentWarehouse]"
-                            :nav="aaa"
-                            :navKey="aaaindex"
-                        />
+                    
+                    <template v-if="itemKey == 'warehouses_navigation'">
+                        <!-- If Warehouse length is 1 (Show the subnav straighly) -->
+                        <template v-if="Object.keys(orgNav || []).length === 1">
+                            <NavigationSimple v-for="aaa, aaaindex in orgNav[Object.keys(orgNav)[0]]"
+                                :nav="aaa"
+                                :navKey="aaaindex"
+                            />
+                        </template>
+                        
+                        <!-- If warehouse length is not 1 and current warehouse is exist -->
+                        <template v-else-if="layout.organisationsState?.[layout.currentParams.organisation]?.currentWarehouse">
+                            <NavigationSimple v-for="aaa, aaaindex in orgNav[layout.organisationsState?.[layout.currentParams.organisation]?.currentWarehouse]"
+                                :nav="aaa"
+                                :navKey="aaaindex"
+                            />
+                        </template>
                     </template>
                 </template>
 
