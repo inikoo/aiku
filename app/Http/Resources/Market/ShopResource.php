@@ -27,7 +27,7 @@ class ShopResource extends JsonResource
             'code'    => $this->code,
             'name'    => $this->name,
             'type'    => $this->type,
-
+            'state'   => $this->state,
         ];
     }
 }

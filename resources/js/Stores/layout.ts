@@ -38,7 +38,7 @@ interface OrganisationsData {
 interface Group {
     logo: Image
     slug: string
-    name: string
+    label: string
 }
 
 // Each organisation have their own state

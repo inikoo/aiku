@@ -95,13 +95,13 @@ const label = {
                             || useLayoutStore().organisations.data?.find(organisation => organisation.slug == layout.currentParams.organisation) && (route(useLayoutStore().currentRoute, useLayoutStore().currentParams)).includes('shops')
                             || useLayoutStore().navigation.org?.[layout.currentParams.organisation]?.warehouses_navigation && (route(useLayoutStore().currentRoute, useLayoutStore().currentParams)).includes('warehouse')
                         "
-                        class="p-0.5 flex border border-gray-300 rounded-md gap-x-0.5">
+                        class="flex border border-gray-300 rounded-md">
                             <!-- Dropdown: Organisations -->
                             <Menu v-if="layout.group || (layout.organisations.data.length > 1 ? true : false)" as="div" class="relative inline-block text-left">
                                 <TopbarSelectButton
                                     :icon="layout.currentParams.organisation ? 'fal fa-building' : 'fal fa-city'"
                                     :activeButton="!!(layout.organisations.data.find((item) => item.slug == layout.currentParams.organisation))"
-                                    :label="layout.organisations.data.find((item) => item.slug == layout.currentParams.organisation)?.name ?? label.organisationSelect"
+                                    :label="layout.organisations.data.find((item) => item.slug == layout.currentParams.organisation)?.label ?? label.organisationSelect"
                                 />
                                 <transition>
                                     <MenuItems
@@ -121,7 +121,7 @@ const label = {
                                                     >
                                                         <FontAwesomeIcon icon='fal fa-city' class='' ariaa-hidden='true' />
                                                         <div class="space-x-1">
-                                                            <span class="font-semibold">{{ layout.group?.name }}</span>
+                                                            <span class="font-semibold">{{ layout.group?.label }}</span>
                                                             <span class="text-[9px] leading-none text-gray-400">({{ trans('Group') }})</span>
                                                         </div>
                                                     </div>
