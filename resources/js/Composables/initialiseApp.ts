@@ -58,6 +58,7 @@ export const initialiseApp = () => {
                 ...usePage().props.auth.user,
                 name: null,
                 last_active: new Date(),
+                action: 'navigate',
                 current_page: {
                     label: event.detail.page.props.title,
                     url: event.detail.page.url,
@@ -66,11 +67,15 @@ export const initialiseApp = () => {
                 },
             }
 
-            // Set to self
-            useLiveUsers().liveUsers[usePage().props.auth.user.id] = dataActiveUser
+            // To avoid emit on logout
+            if(dataActiveUser.id){
+                // Set to self
+                useLiveUsers().liveUsers[usePage().props.auth.user.id ] = dataActiveUser
+                
+                // Websockets: broadcast to others
+                window.Echo.join(`grp.live.users`).whisper('otherIsNavigating', dataActiveUser)
+            }
 
-            // Websockets: broadcast to others
-            window.Echo.join(`grp.live.users`).whisper('otherIsNavigating', dataActiveUser)
         })
     }
 

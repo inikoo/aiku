@@ -16,6 +16,8 @@ interface LiveUser {
     username: string  // aiku
     avatar_thumbnail: Image
     name: string  // Mr. Aiku
+    action: string  // navigate, leave, logout
+    last_active: Date
     current_page?: {
         label: string,
         url: string
@@ -43,6 +45,20 @@ export const useLiveUsers = defineStore('useLiveUsers', {
         // liveUsersWithoutMe: (state) => state.liveUsers.filter((liveUser, keyUser) => keyUser != layout.user.id )
     },
     actions: {
+        // getFilteredLiveUsers() {
+        //     const xxx = {}
+        //     Object.keys(this.liveUsers).forEach((key) => {
+        //         if(!(
+        //             (this.liveUsers[key].action === 'leave' && useIsFutureIsAPast(this.liveUsers[key]?.last_active, 300)) ||
+        //             (this.liveUsers[key].action === 'logout' && useIsFutureIsAPast(this.liveUsers[key]?.last_active, 3)))
+        //         ){
+        //             console.log(xxx[key] = this.liveUsers[key])
+        //             return xxx[key] = this.liveUsers[key]
+        //         }}
+        //     )
+
+        //     return xxx 
+        // },
         unsubscribe() {
             window.Echo.leave(`grp.live.users`)
         },
@@ -56,12 +72,18 @@ export const useLiveUsers = defineStore('useLiveUsers', {
 
                 .joining((user) => {
                     console.log('Someone join')
+                    // if UserA join, then others send their data to UserA
                     window.Echo.join(`grp.live.users`).whisper(`sendTo${user.id}`, this.liveUsers[usePage().props.auth.user.id])
                 })
 
                 .leaving((user: {id: number, alias: string, name: string}) => {
-                    console.log('Someone leaved: ', user);
-                    delete this.liveUsers[user.id]
+                    console.log('Someone leaved: ', user)
+                    
+                    // If user 'logout', no need to set the action to 'leave'
+                    if (this.liveUsers[user.id].action != 'logout') {
+                        this.liveUsers[user.id].action = 'leave'
+                        this.liveUsers[user.id].last_active = new Date()
+                    }
                 })
 
                 .error((error) => {
