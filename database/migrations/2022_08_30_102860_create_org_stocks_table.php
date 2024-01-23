@@ -5,7 +5,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-use App\Enums\Inventory\Stock\OrgStockStateEnum;
+use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
 use App\Stubs\Migrations\HasAssetCodeDescription;
 use App\Stubs\Migrations\HasGroupOrganisationRelationship;
 use Illuminate\Database\Migrations\Migration;
@@ -23,6 +23,9 @@ return new class () extends Migration {
             $table = $this->groupOrgRelationship($table);
             $table->unsignedInteger('stock_id')->index()->nullable();
             $table->foreign('stock_id')->references('id')->on('stocks')->onUpdate('cascade')->onDelete('cascade');
+            $table->unsignedSmallInteger('org_stock_family_id')->index()->nullable();
+            $table->foreign('org_stock_family_id')->references('id')->on('org_stock_families');
+
 
             $table->unsignedInteger('customer_id')->index()->nullable();
             $table->foreign('customer_id')->references('id')->on('customers')->onUpdate('cascade')->onDelete('cascade');

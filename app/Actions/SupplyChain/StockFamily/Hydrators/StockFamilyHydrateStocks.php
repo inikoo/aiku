@@ -7,8 +7,8 @@
 
 namespace App\Actions\SupplyChain\StockFamily\Hydrators;
 
-use App\Enums\Inventory\Stock\OrgStockQuantityStatusEnum;
-use App\Enums\Inventory\Stock\OrgStockStateEnum;
+use App\Enums\Inventory\OrgStock\OrgStockQuantityStatusEnum;
+use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
 use App\Models\SupplyChain\Stock;
 use App\Models\SupplyChain\StockFamily;
 use Illuminate\Support\Arr;

@@ -5,16 +5,14 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Enums\Inventory\Stock;
+namespace App\Enums\Inventory\OrgStock;
 
 use App\Enums\EnumHelperTrait;
 
-enum OrgStockStateEnum: string
+enum LostAndFoundOrgStockStateEnum: string
 {
     use EnumHelperTrait;
 
-    case IN_PROCESS        = 'in-process';
-    case ACTIVE            = 'active';
-    case DISCONTINUING     = 'discontinuing';
-    case DISCONTINUED      = 'discontinued';
+    case LOST  = 'lost';
+    case FOUND = 'found';
 }

@@ -5,33 +5,30 @@
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
-use App\Enums\Inventory\Stock\OrgStockQuantityStatusEnum;
-use App\Enums\Inventory\Stock\OrgStockStateEnum;
+use App\Enums\SupplyChain\Stock\StockStateEnum;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
-    public function up()
+    public function up(): void
     {
         Schema::create('stock_family_stats', function (Blueprint $table) {
             $table->smallIncrements('id');
             $table->unsignedSmallInteger('stock_family_id')->index();
             $table->foreign('stock_family_id')->references('id')->on('stock_families');
             $table->unsignedInteger('number_stocks')->default(0);
-            foreach (OrgStockStateEnum::cases() as $stockState) {
+            foreach (StockStateEnum::cases() as $stockState) {
                 $table->unsignedInteger('number_stocks_state_'.$stockState->snake())->default(0);
             }
-            foreach (OrgStockQuantityStatusEnum::cases() as $quantityStatus) {
-                $table->unsignedInteger('number_stocks_quantity_status_'.$quantityStatus->snake())->default(0);
-            }
+
             $table->softDeletesTz();
             $table->timestampsTz();
         });
     }
 
 
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('stock_family_stats');
     }

@@ -7,9 +7,9 @@
 
 namespace App\Stubs\Migrations;
 
-use App\Enums\Inventory\Stock\OrgStockQuantityStatusEnum;
-use App\Enums\Inventory\Stock\OrgStockStateEnum;
-use App\Enums\Inventory\StockFamily\StockFamilyStateEnum;
+use App\Enums\Inventory\OrgStock\OrgStockQuantityStatusEnum;
+use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
+use App\Enums\SupplyChain\StockFamily\StockFamilyStateEnum;
 use Illuminate\Database\Schema\Blueprint;
 
 trait HasInventoryStats

@@ -7,9 +7,9 @@
 
 namespace App\Actions\SysAdmin\Group\Hydrators;
 
-use App\Enums\Inventory\Stock\OrgStockQuantityStatusEnum;
-use App\Enums\Inventory\Stock\OrgStockStateEnum;
-use App\Enums\Inventory\StockFamily\StockFamilyStateEnum;
+use App\Enums\Inventory\OrgStock\OrgStockQuantityStatusEnum;
+use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
+use App\Enums\SupplyChain\StockFamily\StockFamilyStateEnum;
 use App\Models\SupplyChain\Stock;
 use App\Models\SupplyChain\StockFamily;
 use App\Models\SysAdmin\Group;

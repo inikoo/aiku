@@ -22,7 +22,7 @@ use App\Actions\Inventory\WarehouseArea\StoreWarehouseArea;
 use App\Actions\Inventory\WarehouseArea\UpdateWarehouseArea;
 use App\Actions\SupplyChain\Stock\SyncStockTradeUnits;
 use App\Actions\SupplyChain\StockFamily\StoreStockFamily;
-use App\Enums\Inventory\Stock\LostAndFoundOrgStockStateEnum;
+use App\Enums\Inventory\OrgStock\LostAndFoundOrgStockStateEnum;
 use App\Models\Goods\TradeUnit;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\LocationOrgStock;

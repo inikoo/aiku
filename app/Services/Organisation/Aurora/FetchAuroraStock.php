@@ -8,7 +8,7 @@
 namespace App\Services\Organisation\Aurora;
 
 use App\Actions\SourceFetch\Aurora\FetchStockFamilies;
-use App\Enums\Inventory\Stock\OrgStockStateEnum;
+use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 

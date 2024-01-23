@@ -5,7 +5,7 @@
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
-use App\Enums\Inventory\StockFamily\StockFamilyStateEnum;
+use App\Enums\SupplyChain\StockFamily\StockFamilyStateEnum;
 use App\Stubs\Migrations\HasAssetCodeDescription;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;

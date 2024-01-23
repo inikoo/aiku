@@ -5,7 +5,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-use App\Enums\Inventory\Stock\OrgStockStateEnum;
+use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
 use App\Enums\SupplyChain\Stock\StockTradeUnitCompositionEnum;
 use App\Stubs\Migrations\HasAssetCodeDescription;
 use Illuminate\Database\Migrations\Migration;

@@ -7,7 +7,7 @@
 
 namespace App\Actions\Inventory\OrgStock;
 
-use App\Enums\Inventory\Stock\LostAndFoundOrgStockStateEnum;
+use App\Enums\Inventory\OrgStock\LostAndFoundOrgStockStateEnum;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\LostAndFoundStock;
 use Illuminate\Validation\Rule;

@@ -2,7 +2,7 @@
 
 namespace App\Models\Inventory;
 
-use App\Enums\Inventory\Stock\LostAndFoundOrgStockStateEnum;
+use App\Enums\Inventory\OrgStock\LostAndFoundOrgStockStateEnum;
 use App\Models\Search\UniversalSearch;
 use App\Models\Traits\HasUniversalSearch;
 use Eloquent;

@@ -8,10 +8,10 @@
 namespace App\Actions\Inventory\OrgStock;
 
 use App\Actions\Inventory\OrgStock\Hydrators\OrgStockHydrateUniversalSearch;
+use App\Actions\Inventory\OrgStockFamily\StoreOrgStockFamily;
 use App\Actions\OrgAction;
 use App\Models\Inventory\OrgStock;
 use App\Models\SupplyChain\Stock;
-use App\Models\SupplyChain\StockFamily;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
@@ -21,17 +21,23 @@ class StoreOrgStock extends OrgAction
 {
     public function handle(Organisation $organisation, Stock $stock, $modelData): OrgStock
     {
-
         data_set($modelData, 'group_id', $organisation->group_id);
-        data_set($modelData, 'organisation_id', $organisation->group_id);
+        data_set($modelData, 'organisation_id', $organisation->id);
 
 
         /** @var OrgStock $orgStock */
         $orgStock = $stock->orgStocks()->create($modelData);
         $orgStock->stats()->create();
 
-        OrgStockHydrateUniversalSearch::dispatch($orgStock);
+        if ($stockFamily = $stock->stockFamily) {
+            if (!$orgStockFamily = $stockFamily->orgStockFamilies()->where('organisation_id', $organisation->id)->first()) {
+                $orgStockFamily = StoreOrgStockFamily::run($organisation, $stockFamily, []);
+            }
+            $orgStock->orgStockFamily()->associate($orgStockFamily);
+            $orgStock->save();
+        }
 
+        OrgStockHydrateUniversalSearch::dispatch($orgStock);
 
 
         return $orgStock;
@@ -45,30 +51,15 @@ class StoreOrgStock extends OrgAction
         ];
     }
 
-    public function action(Organisation $organisation, Stock $stock, $modelData, $hydratorDelay=0): OrgStock
+    public function action(Organisation $organisation, Stock $stock, $modelData, $hydratorDelay = 0): OrgStock
     {
-        $this->asAction      = true;
-        $this->hydratorsDelay=$hydratorDelay;
+        $this->asAction       = true;
+        $this->hydratorsDelay = $hydratorDelay;
         $this->initialisation($organisation, $modelData);
 
         return $this->handle($organisation, $stock, $this->validatedData);
     }
 
-    /*
-    public function inStockFamily(StockFamily $stockFamily, ActionRequest $request): Stock
-    {
-        $this->fillFromRequest($request);
-        $this->fill(
-            [
-                'stock_family_id' => $stockFamily->id
-            ]
-        );
-
-        $request->validate();
-
-        return $this->handle(group(), $request->validated());
-    }
-    */
 
     public function htmlResponse(Stock $stock): RedirectResponse
     {
