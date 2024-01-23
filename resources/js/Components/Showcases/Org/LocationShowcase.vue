@@ -6,7 +6,7 @@ const buf = ref('weqewq')
 
 
 onMounted(() => {
-    JsBarcode('#locationBarcode', "123456789012", {
+    JsBarcode('#locationBarcode', route().v().params.location, {
         lineColor: "rgb(41 37 36)",
         width: 1.6,
         height: 40,
