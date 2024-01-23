@@ -17,7 +17,6 @@ use App\Rules\AlphaDashDot;
 use App\Rules\IUnique;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
-use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateUser extends GrpAction
@@ -52,11 +51,11 @@ class UpdateUser extends GrpAction
     public function rules(): array
     {
         return [
-            'username'        => ['sometimes','required', new AlphaDashDot(),
+            'username'        => ['sometimes','required', 'lowercase',new AlphaDashDot(),
 
                                    Rule::notIn(['export', 'create']),
                                   new IUnique(
-                                      table: 'employees',
+                                      table: 'users',
                                       extraConditions: [
 
                                           [
@@ -95,14 +94,6 @@ class UpdateUser extends GrpAction
             'status'          => ['sometimes', 'boolean'],
             'language_id'     => ['sometimes', 'required', 'exists:languages,id'],
         ];
-    }
-
-
-    public function afterValidator(Validator $validator, ActionRequest $request): void
-    {
-        if ($this->has('username') and $this->get('username') != strtolower($this->get('username'))) {
-            $validator->errors()->add('user', __('Username must be lowercase.'));
-        }
     }
 
 

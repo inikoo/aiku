@@ -1,11 +1,11 @@
 <?php
 /*
- * Author: Artha <artha@aw-advantage.com>
- * Created: Fri, 12 May 2023 09:11:21 Central Indonesia Time, Sanur, Bali, Indonesia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Tue, 23 Jan 2024 21:31:03 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace Database\Factories\Inventory;
+namespace Database\Factories\SupplyChain;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 

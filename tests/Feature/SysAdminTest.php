@@ -356,7 +356,7 @@ test('delete guest', function ($user) {
 })->depends('update user password');
 
 test('Hydrate group via command', function (Group $group) {
-    $this->artisan('hydrate:group', [
+    $this->artisan('group:hydrate', [
         'group' => $group->slug,
     ])->assertSuccessful();
 })->depends('create group');

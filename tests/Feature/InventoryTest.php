@@ -16,10 +16,12 @@ use App\Actions\Inventory\OrgStock\AttachOrgStockToLocation;
 use App\Actions\Inventory\OrgStock\DetachOrgStockFromLocation;
 use App\Actions\Inventory\OrgStock\MoveOrgStockLocation;
 use App\Actions\Inventory\OrgStock\RemoveLostAndFoundStock;
+use App\Actions\Inventory\OrgStock\StoreOrgStock;
 use App\Actions\Inventory\Warehouse\StoreWarehouse;
 use App\Actions\Inventory\Warehouse\UpdateWarehouse;
 use App\Actions\Inventory\WarehouseArea\StoreWarehouseArea;
 use App\Actions\Inventory\WarehouseArea\UpdateWarehouseArea;
+use App\Actions\SupplyChain\Stock\StoreStock;
 use App\Actions\SupplyChain\Stock\SyncStockTradeUnits;
 use App\Actions\SupplyChain\StockFamily\StoreStockFamily;
 use App\Enums\Inventory\OrgStock\LostAndFoundOrgStockStateEnum;
@@ -27,6 +29,7 @@ use App\Models\Goods\TradeUnit;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\LocationOrgStock;
 use App\Models\Inventory\LostAndFoundStock;
+use App\Models\Inventory\OrgStock;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
 use App\Models\SupplyChain\Stock;
@@ -55,7 +58,7 @@ test('create warehouse', function () {
         ->and($this->organisation->inventoryStats->number_warehouses)->toBe(1)
         ->and($this->guest->user->authorisedWarehouses()->where('organisation_id', $this->organisation->id)->count())->toBe(1)
         ->and($this->guest->user->number_authorised_warehouses)->toBe(1)
-        ->and($this->guest->user->hasPermissionTo("warehouses.$warehouse->slug"))->toBeTrue();
+        ->and($this->guest->user->hasPermissionTo("warehouses.$warehouse->id"))->toBeTrue();
 
 
     return $warehouse;
@@ -170,7 +173,7 @@ test('create stock families', function () {
 });
 
 test('create stock', function () {
-    $tradeUnit = StoreTradeUnit::make()->action(TradeUnit::factory()->definition());
+    $tradeUnit = StoreTradeUnit::make()->action($this->group, TradeUnit::factory()->definition());
 
     $stock = StoreStock::make()->action($this->group, Stock::factory()->definition());
 
@@ -186,9 +189,23 @@ test('create stock', function () {
     return $stock->fresh();
 });
 
+test('create org stock', function (Stock $stock) {
+
+    $orgStock=StoreOrgStock::make()->action(
+        $this->organisation,
+        $stock,
+        []
+    );
+
+    expect($orgStock)->toBeInstanceOf($orgStock::class);
+
+    return $orgStock;
+
+})->depends('create stock');
+
 
 test('create another stock', function () {
-    $tradeUnit = StoreTradeUnit::make()->action(TradeUnit::factory()->definition());
+    $tradeUnit = StoreTradeUnit::make()->action($this->group, TradeUnit::factory()->definition());
     $stock     = StoreStock::make()->action($this->group, Stock::factory()->definition());
 
     SyncStockTradeUnits::run($stock, [
@@ -196,6 +213,12 @@ test('create another stock', function () {
             'quantity' => 1
         ]
     ]);
+
+    StoreOrgStock::make()->action(
+        $this->organisation,
+        $stock,
+        []
+    );
     expect($stock)->toBeInstanceOf(Stock::class)
         ->and($this->group->supplyChainStats->number_stocks)->toBe(2);
 
@@ -203,21 +226,21 @@ test('create another stock', function () {
 });
 
 test('attach stock to location', function ($location) {
-    $stocks = Stock::all();
-    expect($stocks->count())->toBe(2);
-    foreach ($stocks as $stock) {
-        $location = AttachOrgStockToLocation::run($location, $stock);
+    $orgStocks = OrgStock::all();
+    expect($orgStocks->count())->toBe(2);
+    foreach ($orgStocks as $orgStock) {
+        $location = AttachOrgStockToLocation::run($location, $orgStock, []);
     }
-    expect($location->stocks()->count())->toBe(2)
-        ->and($location->stats->number_stock_slots)->toBe(2);
+    expect($location->orgStocks()->count())->toBe(2)
+        ->and($location->stats->number_org_stock_slots)->toBe(2);
 })->depends('create location in warehouse area');
 
 
-test('detach stock from location', function ($location, $stock) {
-    DetachOrgStockFromLocation::run($location, $stock);
+test('detach stock from location', function ($location, $orgStock) {
+    DetachOrgStockFromLocation::run($location, $orgStock);
     $location->refresh();
-    expect($location->stats->number_stock_slots)->toBe(1);
-})->depends('create location in warehouse area', 'create stock');
+    expect($location->stats->number_org_stock_slots)->toBe(1);
+})->depends('create location in warehouse area', 'create org stock');
 
 test('move stock location', function () {
     $currentLocation = LocationOrgStock::first();

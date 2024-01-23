@@ -32,7 +32,7 @@ class LocationHydrateStocks
     {
         $numberStockSlots = $location->orgStocks()->count();
         $stats            = [
-            'number_stock_slots' => $numberStockSlots,
+            'number_org_stock_slots' => $numberStockSlots,
         ];
 
         $location->stats()->update($stats);

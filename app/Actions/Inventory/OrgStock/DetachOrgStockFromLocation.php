@@ -10,16 +10,16 @@ namespace App\Actions\Inventory\OrgStock;
 use App\Actions\Inventory\Location\Hydrators\LocationHydrateStocks;
 use App\Actions\Inventory\Location\Hydrators\LocationHydrateStockValue;
 use App\Models\Inventory\Location;
-use App\Models\SupplyChain\Stock;
+use App\Models\Inventory\OrgStock;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class DetachOrgStockFromLocation
 {
     use AsAction;
 
-    public function handle(Location $location, Stock $stock): Location
+    public function handle(Location $location, OrgStock $orgStock): Location
     {
-        $location->stocks()->detach([$stock->id]);
+        $location->orgStocks()->detach($orgStock->id);
 
         LocationHydrateStocks::run($location);
         LocationHydrateStockValue::run($location);
