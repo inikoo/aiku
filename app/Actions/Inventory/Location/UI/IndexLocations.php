@@ -10,6 +10,7 @@ namespace App\Actions\Inventory\Location\UI;
 use App\Actions\InertiaAction;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\Inventory\WarehouseArea\UI\ShowWarehouseArea;
+use App\Actions\OrgAction;
 use App\Actions\UI\Inventory\ShowInventoryDashboard;
 use App\Enums\UI\WarehouseAreaTabsEnum;
 use App\Enums\UI\WarehouseTabsEnum;
@@ -29,48 +30,48 @@ use App\InertiaTable\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
-class IndexLocations extends InertiaAction
+class IndexLocations extends OrgAction
 {
     private Warehouse|WarehouseArea|Organisation $parent;
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo('inventory.edit');
+        $this->canEdit = $request->user()->hasPermissionTo("inventories.{$this->organisation->id}.edit");
 
         return
             (
                 $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo('inventory.view')
+                $request->user()->hasPermissionTo("inventories.{$this->organisation->id}.edit")
             );
     }
 
-    public function inOrganisation(ActionRequest $request): LengthAwarePaginator
+    public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisation($request);
-        $this->parent = app('currentTenant');
-        return $this->handle(parent: app('currentTenant'));
+        $this->initialisation($organisation, $request);
+        $this->parent = $organisation;
+        return $this->handle(parent: $organisation);
     }
 
-    public function inWarehouse(Warehouse $warehouse, ActionRequest $request): LengthAwarePaginator
+    public function inWarehouse(Organisation $organisation, Warehouse $warehouse, ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisation($request)->withTab(WarehouseTabsEnum::values());
+        $this->initialisation($organisation, $request)->withTab(WarehouseTabsEnum::values());
         $this->parent = $warehouse;
         return $this->handle(parent: $warehouse);
     }
 
 
-    public function inWarehouseArea(WarehouseArea $warehouseArea, ActionRequest $request): LengthAwarePaginator
+    public function inWarehouseArea(Organisation $organisation, WarehouseArea $warehouseArea, ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisation($request)->withTab(WarehouseAreaTabsEnum::values());
+        $this->initialisation($organisation, $request)->withTab(WarehouseAreaTabsEnum::values());
         $this->parent = $warehouseArea;
         return $this->handle(parent: $warehouseArea);
     }
 
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inWarehouseInWarehouseArea(Warehouse $warehouse, WarehouseArea $warehouseArea, ActionRequest $request): LengthAwarePaginator
+    public function inWarehouseInWarehouseArea(Organisation $organisation, Warehouse $warehouse, WarehouseArea $warehouseArea, ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisation($request)->withTab(WarehouseAreaTabsEnum::values());
+        $this->initialisation($organisation, $request)->withTab(WarehouseAreaTabsEnum::values());
         $this->parent = $warehouseArea;
         return $this->handle(parent: $warehouseArea);
     }

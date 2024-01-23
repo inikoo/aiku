@@ -32,12 +32,12 @@ class IndexWarehouseAreas extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo('inventory.warehouses.edit');
+        $this->canEdit = $request->user()->hasPermissionTo("inventories.{$this->organisation->id}.edit");
 
         return
             (
                 $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo('inventory.view')
+                $request->user()->hasPermissionTo("inventories.{$this->organisation->id}.view")
             );
     }
 
@@ -45,8 +45,8 @@ class IndexWarehouseAreas extends OrgAction
     public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($organisation, $request);
-        $this->parent = app('currentTenant');
-        return $this->handle(app('currentTenant'));
+        $this->parent = $organisation;
+        return $this->handle($organisation);
     }
 
     /** @noinspection PhpUnusedParameterInspection */
