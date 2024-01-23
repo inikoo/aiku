@@ -170,7 +170,6 @@ return [
         App\Providers\RouteServiceProvider::class,
         App\Providers\MacroServiceProvider::class,
         ElasticSearchServiceProvider::class,
-        Kreait\Laravel\Firebase\ServiceProvider::class,
         GDriveServiceProvider::class
 
     ])->toArray(),
@@ -213,7 +212,6 @@ return [
         App\Providers\RouteServiceProvider::class,
         App\Providers\MacroServiceProvider::class,
         ElasticSearchServiceProvider::class,
-        Kreait\Laravel\Firebase\ServiceProvider::class,
 
     ],
 */

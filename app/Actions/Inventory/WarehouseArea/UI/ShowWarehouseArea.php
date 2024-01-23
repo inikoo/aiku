@@ -8,7 +8,6 @@
 namespace App\Actions\Inventory\WarehouseArea\UI;
 
 use App\Actions\Helpers\History\IndexHistory;
-use App\Actions\InertiaAction;
 use App\Actions\Inventory\Location\UI\IndexLocations;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
@@ -291,7 +290,7 @@ class ShowWarehouseArea extends OrgAction
                 'route' => [
                     'name'       => $routeName,
                     'parameters' => [
-                        'organisation' => $warehouseArea->organisation->slug,
+                        'organisation'  => $warehouseArea->organisation->slug,
                         'warehouseArea' => $warehouseArea->slug
                     ]
 
@@ -302,7 +301,7 @@ class ShowWarehouseArea extends OrgAction
                 'route' => [
                     'name'       => $routeName,
                     'parameters' => [
-                        'organisation' => $warehouseArea->organisation->slug,
+                        'organisation'  => $warehouseArea->organisation->slug,
                         'warehouse'     => $warehouseArea->warehouse->slug,
                         'warehouseArea' => $warehouseArea->slug
                     ]
