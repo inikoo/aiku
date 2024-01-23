@@ -239,7 +239,7 @@ class IndexWarehouseAreas extends OrgAction
         };
 
         return match ($routeName) {
-            'grp.oms.warehouse-areas.index' =>
+            'grp.org.warehouse-areas.index' =>
             array_merge(
                 (new ShowInventoryDashboard())->getBreadcrumbs($routeParameters),
                 $headCrumb(
