@@ -32,7 +32,7 @@ interface OrganisationsData {
         code: string
         name: string
         route: routeType
-    }
+    }[]
 }
 
 interface Group {

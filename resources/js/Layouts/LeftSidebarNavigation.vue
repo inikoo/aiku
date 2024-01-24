@@ -82,25 +82,16 @@ onMounted(() => {
             <template v-for="(orgNav, itemKey) in layout.navigation.org[layout.currentParams.organisation]" :key="itemKey" >
                 <!-- shops_index or warehouses_index -->
                 <template v-if="itemKey == 'shops_index' || itemKey == 'warehouses_index'">
-                    <template v-if="itemKey == 'shops_index'">
-                        <template v-if="useLayoutStore().organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_shops.length == 1">
-                            <!-- Will always looping 1 only -->
-                            <template v-for="shop in layout.navigation.org[layout.currentParams.organisation].shops_navigation">  
-                                <NavigationSimple v-for="shopSubnav, idxShopSubnav in shop"
-                                    :nav="shopSubnav"
-                                    :navKey="idxShopSubnav"
-                                />
-                                
-                            </template>
-                        </template>
-
-                        <NavigationSimple v-else-if="!layout.organisationsState[layout.currentParams.organisation].currentShop"
+                    <!-- Shops index (if the shop lenght more than 1) -->
+                    <template v-if="itemKey == 'shops_index' && (layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_shops.length || 0) > 1">
+                        <NavigationSimple v-if="!layout.organisationsState[layout.currentParams.organisation].currentShop"
                             :nav="orgNav"
                             :navKey="itemKey"
                         />
                     </template>
 
-                    <template v-if="itemKey == 'warehouses_index'">
+                    <!-- Warehouses index (if the warehouse lenght more than 1) -->
+                    <template v-if="itemKey == 'warehouses_index' && (layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_warehouses.length || 0) > 1">
                         <NavigationSimple v-if="!layout.organisationsState?.[layout.currentParams.organisation]?.currentWarehouse"
                             :nav="orgNav"
                             :navKey="itemKey"

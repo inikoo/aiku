@@ -1,9 +1,9 @@
 /* Navigation: Aiku */
 .navigationActive {
-    @apply bg-indigo-200/20 sm:border-l-4 sm:border-indigo-100 text-white font-semibold transition-all duration-0 ease-in-out
+    @apply bg-indigo-200/20 sm:border-l-4 sm:border-indigo-100 text-white font-semibold transition-all duration-75 ease-out
 }
 .navigation {
-    @apply hover:bg-gray-300/30 text-indigo-200 hover:text-indigo-50 font-semibold transition-all duration-0 ease-in-out
+    @apply hover:bg-gray-300/30 text-indigo-200 hover:text-indigo-50 font-semibold transition-all duration-75 ease-out
 }
 
 .subNavActive {

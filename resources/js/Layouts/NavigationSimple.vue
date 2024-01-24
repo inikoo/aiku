@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import {  } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { Link } from '@inertiajs/vue3'
-import SubNavigation from '@/Layouts/SubNavigation.vue'
+// import SubNavigation from '@/Layouts/SubNavigation.vue'
 
 library.add()
 
@@ -27,7 +27,7 @@ const layout = useLayoutStore()
 
 <template>
     <Link :href="nav.route?.name ? route(nav.route.name, nav.route.parameters) : '#'"
-        class="group flex items-center text-sm py-2 pl-4 gap-x-2 transition-all duration-50 ease-in-out" :class="[
+        class="group flex items-center text-sm py-2 pl-4 gap-x-2" :class="[
             separateUnderscore(navKey)[0] === layout.currentModule || layout.currentModule.includes(navKey.toString())  // 'shops' == 'shops' || 'shop' include in 'shops'
                 ? 'navigationActive'
                 : 'navigation',
