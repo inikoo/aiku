@@ -23,10 +23,13 @@ const generateCurrentString = (str: string) => {
 </script>
 
 <template>
-    <div class="bg-black/15 rounded px-1 py-1 space-y-1">
-        <div class="flex items-center gap-x-1.5 px-1 mb-2 text-indigo-100/70">
-            <FontAwesomeIcon :icon='icon' class='text-xxs' aria-hidden='true' />
-            <span class="text-[9px] leading-none uppercase">
+    <div class="bg-black/15 rounded pt-1 space-y-1 transition-all duration-200 ease-in-out"
+        :class="layout.leftSidebar.show ? 'px-1' : 'px-0'"
+    >
+        <!-- Label: Icon shops/warehouses and slug -->
+        <div class="flex items-end gap-x-1.5 mt-1 px-2.5 mb-2 text-indigo-100/70">
+            <FontAwesomeIcon :icon='icon' class='text-xxs' fixed-width aria-hidden='true' />
+            <span v-if="layout.leftSidebar.show" class="text-[9px] leading-none uppercase">
                 {{ layout.organisationsState?.[layout.currentParams.organisation]?.[generateCurrentString(itemKey)] || Object.keys(orgNav)[0] }}
             </span>
         </div>
