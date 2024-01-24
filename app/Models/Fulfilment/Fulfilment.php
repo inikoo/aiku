@@ -31,6 +31,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $source_id
+ * @property-read Group $group
  * @property-read Organisation $organisation
  * @property-read Shop $shop
  * @property-read \App\Models\Fulfilment\FulfilmentStats|null $stats

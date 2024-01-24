@@ -90,6 +90,33 @@ class GetOrganisationNavigation
         }
 
 
+        if ($user->hasPermissionTo("fulfilments.$organisation->id.view")) {
+            $navigation['fulfilments_index'] = [
+                'label' => __('Fulfilment shops'),
+
+                'scope' => 'fulfilments',
+                'icon'  => ['fal', 'fa-store-alt'],
+
+                'route' => [
+                    'name'       => 'grp.org.fulfilments.index',
+                    'parameters' => [$organisation->slug],
+                ],
+
+                'topMenu' => [
+
+                    'dropdown' => [
+                        'links' => [
+                            [
+                                'label'   => __('dashboard'),
+                                'tooltip' => __('Dashboard'),
+
+                            ]
+                        ]
+                    ]
+                ]
+            ];
+        }
+
 
         $navigation['fulfilment_navigation'] = [];
         foreach ($organisation->authorisedModels()->where('user_id', $user->id)->where('model_type', 'Fulfilment')->get() as $authorisedModel) {

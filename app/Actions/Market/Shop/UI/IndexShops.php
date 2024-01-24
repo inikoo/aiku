@@ -56,7 +56,7 @@ class IndexShops extends OrgAction
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
                 $query->whereAnyWordStartWith('shops.name', $value)
-                    ->orWhere('shops.code', 'ilike', "$value%");
+                    ->orWhereStartWith('shops.code', $value);
             });
         });
 

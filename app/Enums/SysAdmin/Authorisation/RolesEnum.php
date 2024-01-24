@@ -36,6 +36,8 @@ enum RolesEnum: string
     case FULFILMENT_ADMIN = 'fulfilment-admin';
     case FULFILMENT_CLERK = 'fulfilment-clerk';
 
+    case FULFILMENT_WAREHOUSE_WORKER = 'fulfilment-warehouse-worker';
+
     case WAREHOUSE_ADMIN = 'warehouse-admin';
 
     case STOCK_CONTROLLER       = 'stock-controller';
@@ -60,6 +62,7 @@ enum RolesEnum: string
             RolesEnum::SHOP_ADMIN                  => __('Shop admin'),
             RolesEnum::FULFILMENT_ADMIN            => __('Fulfilment admin'),
             RolesEnum::FULFILMENT_CLERK            => __('Fulfilment clerk'),
+            RolesEnum::FULFILMENT_WAREHOUSE_WORKER => __('Fulfilment warehouse worker'),
             RolesEnum::WAREHOUSE_ADMIN             => __('Warehouse admin'),
             RolesEnum::CUSTOMER_SERVICE_CLERK      => __('Customer service clerk'),
             RolesEnum::CUSTOMER_SERVICE_SUPERVISOR => __('Customer service supervisor'),
@@ -86,8 +89,9 @@ enum RolesEnum: string
                 OrganisationPermissionsEnum::ORG_BUSINESS_INTELLIGENCE,
                 OrganisationPermissionsEnum::PROCUREMENT,
                 OrganisationPermissionsEnum::HUMAN_RESOURCES,
-                OrganisationPermissionsEnum::SUPERVISOR_HUMAN_RESOURCES,
+                OrganisationPermissionsEnum::SUPERVISOR,
                 OrganisationPermissionsEnum::SHOPS,
+                OrganisationPermissionsEnum::FULFILMENTS,
                 OrganisationPermissionsEnum::WAREHOUSES,
                 OrganisationPermissionsEnum::INVENTORIES,
                 OrganisationPermissionsEnum::DISPATCHING,
@@ -121,10 +125,14 @@ enum RolesEnum: string
                 ShopPermissionsEnum::SUPERVISOR_PRODUCTS
             ],
             RolesEnum::FULFILMENT_ADMIN => [
-                FulfilmentPermissionsEnum::STORED_ITEMS,
+                FulfilmentPermissionsEnum::FULFILMENT,
+                FulfilmentPermissionsEnum::SUPERVISOR_FULFILMENT,
                 FulfilmentPermissionsEnum::SUPERVISOR_STORED_ITEMS,
             ],
             RolesEnum::FULFILMENT_CLERK => [
+                FulfilmentPermissionsEnum::FULFILMENT,
+            ],
+            RolesEnum::FULFILMENT_WAREHOUSE_WORKER => [
                 FulfilmentPermissionsEnum::STORED_ITEMS,
             ],
             RolesEnum::CUSTOMER_SERVICE_CLERK => [

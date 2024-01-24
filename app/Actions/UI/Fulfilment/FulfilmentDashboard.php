@@ -7,25 +7,23 @@
 
 namespace App\Actions\UI\Fulfilment;
 
+use App\Actions\OrgAction;
 use App\Actions\UI\Dashboard\ShowDashboard;
 use App\Actions\UI\WithInertia;
-use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class FulfilmentDashboard
+class FulfilmentDashboard extends OrgAction
 {
     use AsAction;
     use WithInertia;
 
 
-    private ?Organisation $organisation;
-
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("fulfilment.view");
+        return $request->user()->hasPermissionTo("fulfilments.{}.view");
     }
 
 

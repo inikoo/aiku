@@ -1,11 +1,14 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Mon, 06 Mar 2023 18:44:51 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Wed, 24 Jan 2024 14:54:18 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
 
+use App\Actions\Fulfilment\Fulfilment\UI\CreateFulfilment;
+use App\Actions\Fulfilment\Fulfilment\UI\IndexFulfilments;
+use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\FulfilmentCustomer\IndexFulfilmentCustomers;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\FulfilmentOrder\UI\IndexFulfilmentOrders;
@@ -18,6 +21,18 @@ use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItems;
 use App\Actions\Fulfilment\StoredItem\UI\ShowStoredItem;
 use App\Actions\UI\Fulfilment\FulfilmentDashboard;
 use Illuminate\Support\Facades\Route;
+
+Route::get('/', IndexFulfilments::class)->name('index');
+Route::get('create', CreateFulfilment::class)->name('create');
+
+Route::prefix('{fulfilment}')
+    ->group(function () {
+        Route::get('', ShowFulfilment::class)->name('show');
+
+
+    });
+
+/*
 
 Route::get('/', FulfilmentDashboard::class)->name('dashboard');
 Route::get('/stored-items', IndexStoredItems::class)->name('stored-items.index');
@@ -32,3 +47,4 @@ Route::get('/customers/{customer:slug}', ShowFulfilmentCustomer::class)->name('c
 
 Route::get('/orders', [IndexFulfilmentOrders::class, 'inShop'])->name('orders.index');
 Route::get('/orders/{order}', ShowFulfilmentOrder::class)->name('orders.show');
+*/

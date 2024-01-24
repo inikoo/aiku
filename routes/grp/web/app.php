@@ -57,7 +57,7 @@ Route::middleware([
             ->group(__DIR__."/warehouses.php");
         Route::prefix("fulfilment")
             ->name("fulfilment.")
-            ->group(__DIR__."/fulfilment.php");
+            ->group(__DIR__."/fulfilments.php");
         Route::prefix("dropshipping")
             ->name("dropshipping.")
             ->group(__DIR__."/dropshipping.php");

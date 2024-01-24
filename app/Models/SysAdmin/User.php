@@ -52,6 +52,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $parent_type
  * @property int $number_authorised_organisations
  * @property int $number_authorised_shops
+ * @property int $number_authorised_fulfilments
  * @property int $number_authorised_warehouses
  * @property string|null $remember_token
  * @property array $data
@@ -66,6 +67,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $source_id
  * @property string|null $legacy_password source password
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Fulfilment> $authorisedFulfilments
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\Organisation> $authorisedOrganisations
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Shop> $authorisedShops
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Warehouse> $authorisedWarehouses

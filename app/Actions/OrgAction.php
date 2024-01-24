@@ -8,6 +8,7 @@
 namespace App\Actions;
 
 use App\Actions\Traits\WithTab;
+use App\Models\Fulfilment\Fulfilment;
 use App\Models\Inventory\Warehouse;
 use App\Models\Market\Shop;
 use App\Models\SysAdmin\Organisation;
@@ -24,6 +25,7 @@ class OrgAction
 
     protected Organisation $organisation;
     protected Shop $shop;
+    protected Fulfilment $fulfilment;
     protected Warehouse $warehouse;
 
     protected bool $asAction    = false;
@@ -53,6 +55,21 @@ class OrgAction
     {
         $this->shop         = $shop;
         $this->organisation = $shop->organisation;
+        if (is_array($request)) {
+            $this->setRawAttributes($request);
+        } else {
+            $this->fillFromRequest($request);
+        }
+        $this->validatedData = $this->validateAttributes();
+
+        return $this;
+    }
+
+    public function initialisationFromFulfilment(Fulfilment $fulfilment, ActionRequest|array $request): static
+    {
+        $this->fulfilment         = $fulfilment;
+        $this->shop               = $fulfilment->shop;
+        $this->organisation       = $fulfilment->organisation;
         if (is_array($request)) {
             $this->setRawAttributes($request);
         } else {
