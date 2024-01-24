@@ -35,8 +35,8 @@ class UserHydrateAuthorisedModels
                 $shop                                   = Shop::find($permission->scope_id);
                 $authorisedShops[$permission->scope_id] = ['org_id' => $shop->organisation_id];
             } elseif ($permission->scope_type === 'Fulfilment') {
-                $fulfilment                             = Fulfilment::find($permission->scope_id);
-                $authorisedShops[$permission->scope_id] = ['org_id' => $fulfilment->organisation_id];
+                $fulfilment                                   = Fulfilment::find($permission->scope_id);
+                $authorisedFulfilments[$permission->scope_id] = ['org_id' => $fulfilment->organisation_id];
             } elseif ($permission->scope_type === 'Warehouse') {
                 $warehouse                                   = Warehouse::find($permission->scope_id);
                 $authorisedWarehouses[$permission->scope_id] = ['org_id' => $warehouse->organisation_id];
@@ -57,6 +57,8 @@ class UserHydrateAuthorisedModels
 
         $user->update($stats);
     }
+
+
 
     public string $commandSignature = 'user:hydrate-authorised-models {user : User slug}';
 

@@ -120,10 +120,9 @@ class GetOrganisationNavigation
 
         $navigation['fulfilment_navigation'] = [];
         foreach ($organisation->authorisedModels()->where('user_id', $user->id)->where('model_type', 'Fulfilment')->get() as $authorisedModel) {
-            $shop                                        = $authorisedModel->model;
-            $navigation['shops_navigation'][$shop->slug] = GetShopNavigation::run($shop, $user);
+            $fulfilment                                             = $authorisedModel->model;
+            $navigation['fulfilment_navigation'][$fulfilment->slug] = GetFulfilmentNavigation::run($fulfilment, $user);
         }
-
 
 
         if ($user->hasPermissionTo("inventories.$organisation->id.view")) {

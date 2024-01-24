@@ -168,12 +168,14 @@ enum RolesEnum: string
             RolesEnum::SUPPLY_CHAIN => 'Group',
             RolesEnum::SHOP_ADMIN,
             RolesEnum::CUSTOMER_SERVICE_CLERK,
-            RolesEnum::CUSTOMER_SERVICE_SUPERVISOR
+            RolesEnum::CUSTOMER_SERVICE_SUPERVISOR,
             => 'Shop',
             RolesEnum::WAREHOUSE_ADMIN,
             RolesEnum::STOCK_CONTROLLER => 'Warehouse',
             RolesEnum::FULFILMENT_ADMIN,
-            RolesEnum::FULFILMENT_CLERK => 'Fulfilment',
+            RolesEnum::FULFILMENT_CLERK,
+            RolesEnum::FULFILMENT_WAREHOUSE_WORKER
+                                        => 'Fulfilment',
             default                     => 'Organisation'
         };
     }
