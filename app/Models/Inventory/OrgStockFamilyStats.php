@@ -29,7 +29,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string|null $deleted_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read OrgStockFamily $orgStockFamily
+ * @property-read \App\Models\Inventory\OrgStockFamily $orgStockFamily
  * @method static \Illuminate\Database\Eloquent\Builder|OrgStockFamilyStats newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|OrgStockFamilyStats newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|OrgStockFamilyStats query()

@@ -26,7 +26,7 @@ use Spatie\Sluggable\SlugOptions;
 use App\Models\Inventory\Location;
 
 /**
- * App\Models\Fulfilment\StoredItem
+ * App\Models\Fulfilment\Fulfilment\StoredItem
  *
  * @property int $id
  * @property string $slug

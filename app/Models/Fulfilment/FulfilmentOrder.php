@@ -25,7 +25,7 @@ use Illuminate\Support\Carbon;
 use Spatie\Sluggable\HasSlug;
 
 /**
- * App\Models\Fulfilment\FulfilmentOrder
+ * App\Models\Fulfilment\Fulfilment\FulfilmentOrder
  *
  * @property int $id
  * @property string $slug

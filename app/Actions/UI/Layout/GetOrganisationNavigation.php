@@ -89,6 +89,16 @@ class GetOrganisationNavigation
             $navigation['shops_navigation'][$shop->slug] = GetShopNavigation::run($shop, $user);
         }
 
+
+
+        $navigation['fulfilment_navigation'] = [];
+        foreach ($organisation->authorisedModels()->where('user_id', $user->id)->where('model_type', 'Fulfilment')->get() as $authorisedModel) {
+            $shop                                        = $authorisedModel->model;
+            $navigation['shops_navigation'][$shop->slug] = GetShopNavigation::run($shop, $user);
+        }
+
+
+
         if ($user->hasPermissionTo("inventories.$organisation->id.view")) {
             $navigation['inventory'] = [
                 'label'   => __('inventory'),

@@ -59,7 +59,6 @@ beforeEach(function () {
 });
 
 test('create group', function () {
-
     $modelData = Group::factory()->definition();
 
     $modelData = array_merge($modelData, [
@@ -192,14 +191,14 @@ test('roles are seeded', function () {
     expect(Role::count())->toBe(17);
 });
 
-test('create guest', function (Group $group) {
+test('create guest', function (Group $group, Organisation $organisation) {
     app()->instance('group', $group);
     setPermissionsTeamId($group->id);
     $guestData = Guest::factory()->definition();
     data_set($guestData, 'username', 'hello');
     data_set($guestData, 'password', 'secret-password');
     data_set($guestData, 'phone', '+6281212121212');
-    data_set($guestData, 'roles', ['supply-chain', 'org-admin-acme']);
+    data_set($guestData, 'roles', ['supply-chain', 'org-admin-'.$organisation->id]);
 
     $guest = StoreGuest::make()->action(
         $group,
@@ -221,7 +220,7 @@ test('create guest', function (Group $group) {
 
 
     return $guest;
-})->depends('create group');
+})->depends('create group', 'create organisation');
 
 test('UserHydrateAuthorisedModels command', function (Guest $guest) {
     $this->artisan('user:hydrate-authorised-models', [
@@ -230,10 +229,11 @@ test('UserHydrateAuthorisedModels command', function (Guest $guest) {
 })->depends('create guest');
 
 test('create guest from command', function (Group $group) {
+    expect($group->sysadminStats->number_guests)->toBe(1);
     $this->artisan(
         'guest:create',
         [
-            'group'      => $group->code,
+            'group'      => $group->slug,
             'name'       => 'Mr Pika',
             'username'   => 'pika',
             '--password' => 'hello1234',

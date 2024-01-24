@@ -8,6 +8,7 @@
 namespace App\Http\Resources\SysAdmin\Organisation;
 
 use App\Http\Resources\HasSelfCall;
+use App\Http\Resources\UI\FulfilmentsNavigationResource;
 use App\Http\Resources\UI\ShopsNavigationResource;
 use App\Http\Resources\UI\WarehousesNavigationResource;
 use App\Models\SysAdmin\Organisation;
@@ -40,8 +41,9 @@ class UserOrganisationResource extends JsonResource
                     $organisation->slug
                 ]
             ],
-            'authorised_shops'      => ShopsNavigationResource::collection($user->authorisedShops()->where('organisation_id', $organisation->id)->get()),
-            'authorised_warehouses' => WarehousesNavigationResource::collection($user->authorisedWarehouses()->where('organisation_id', $organisation->id)->get()),
+            'authorised_shops'            => ShopsNavigationResource::collection($user->authorisedShops()->where('organisation_id', $organisation->id)->get()),
+            'authorised_fulfilments'      => FulfilmentsNavigationResource::collection($user->authorisedFulfilments()->where('organisation_id', $organisation->id)->get()),
+            'authorised_warehouses'       => WarehousesNavigationResource::collection($user->authorisedWarehouses()->where('organisation_id', $organisation->id)->get()),
         ];
     }
 

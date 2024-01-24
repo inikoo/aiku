@@ -40,7 +40,7 @@ class StoreGuest
 
     private Group $group;
 
-    private bool $validatePhone=false;
+    private bool $validatePhone = false;
 
     public function handle(Group $group, array $modelData): Guest
     {
@@ -124,11 +124,10 @@ class StoreGuest
 
     public function rules(): array
     {
+        $phoneValidation = ['sometimes', 'nullable'];
 
-        $phoneValidation=['sometimes', 'nullable'];
-
-        if($this->validatePhone) {
-            $phoneValidation[]= 'phone:AUTO';
+        if ($this->validatePhone) {
+            $phoneValidation[] = 'phone:AUTO';
         }
 
 
@@ -143,9 +142,9 @@ class StoreGuest
                 Rule::exists('roles', 'name')
                     ->where('group_id', $this->group->id)
             ],
-            'password'          => ['sometimes', 'required', 'max:255', app()->isLocal() || app()->environment('testing') ? null : Password::min(8)->uncompromised()],
-            'reset_password'    => ['sometimes', 'boolean'],
-            'source_id'         => ['sometimes', 'string'],
+            'password'       => ['sometimes', 'required', 'max:255', app()->isLocal() || app()->environment('testing') ? null : Password::min(8)->uncompromised()],
+            'reset_password' => ['sometimes', 'boolean'],
+            'source_id'      => ['sometimes', 'string'],
         ];
     }
 
@@ -179,7 +178,7 @@ class StoreGuest
         $this->asAction = true;
 
         try {
-            $group       = Group::where('code', $command->argument('group'))->firstOrFail();
+            $group       = Group::where('slug', $command->argument('group'))->firstOrFail();
             $this->group = $group;
             app()->instance('group', $group);
             setPermissionsTeamId($group->id);

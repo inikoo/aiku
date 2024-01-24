@@ -15,10 +15,10 @@ return new class () extends Migration {
 
     public function up(): void
     {
-        Schema::create('shop_fulfilment_stats', function (Blueprint $table) {
+        Schema::create('fulfilment_stats', function (Blueprint $table) {
             $table->smallIncrements('id');
-            $table->unsignedSmallInteger('shop_id');
-            $table->foreign('shop_id')->references('id')->on('shops')->onUpdate('cascade')->onDelete('cascade');
+            $table->unsignedSmallInteger('fulfilment_id');
+            $table->foreign('fulfilment_id')->references('id')->on('fulfilments')->onUpdate('cascade')->onDelete('cascade');
             $table = $this->containerFulfilmentStats($table);
             $table = $this->fulfilmentStats($table);
             $table->timestampsTz();
@@ -28,6 +28,6 @@ return new class () extends Migration {
 
     public function down(): void
     {
-        Schema::dropIfExists('shop_fulfilment_stats');
+        Schema::dropIfExists('fulfilment_stats');
     }
 };

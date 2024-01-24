@@ -60,6 +60,7 @@ class AppServiceProvider extends ServiceProvider
                 'Customer'        => 'App\Models\CRM\Customer',
                 'Prospect'        => 'App\Models\Deals\Prospect',
                 'Shop'            => 'App\Models\Market\Shop',
+                'Fulfilment'      => 'App\Models\Fulfilment\Fulfilment',
                 'SysUser'         => 'App\Models\SysAdmin\SysUser',
                 'ProductCategory' => 'App\Models\Market\ProductCategory',
                 'Product'         => 'App\Models\Market\Product',
