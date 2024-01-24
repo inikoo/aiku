@@ -90,7 +90,7 @@ const label = {
                             class="hidden md:flex flex-nowrap items-center h-full overflow-hidden gap-x-1.5 transition-all duration-200 ease-in-out"
                             :class="[layout.leftSidebar.show ? 'py-1 pl-4' : 'pl-2.5 w-full']"
                         >
-                            <Image :src="layout.organisations.data.find((item) => item.slug == layout.currentParams.organisation)?.logo ?? layout.group?.logo" class="aspect-square h-5"/>
+                            <Image :src="layout.organisations.data.find((item) => item.slug == layout.currentParams.organisation)?.logo || layout.group?.logo" class="aspect-square h-5"/>
                             <Transition name="slide-to-left">
                                 <p v-if="layout.leftSidebar.show" class="bg-gradient-to-r from-white to-indigo-100 text-transparent text-lg bg-clip-text font-bold whitespace-nowrap leading-none lg:truncate">
                                     Aiku
@@ -179,7 +179,7 @@ const label = {
                                 <TopbarSelectButton
                                     icon="fal fa-store-alt"
                                     :activeButton="!!(layout.currentParams.shop)"
-                                    :label="useLayoutStore().organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_shops.find(shop => shop.slug == layout.currentParams.shop)?.name ?? label.shopSelect"
+                                    :label="layout.organisationsState?.[layout.currentParams.organisation]?.currentShop || label.shopSelect"
                                     :key="`shop` + layout.currentParams.shop"
                                 />
 

@@ -11,7 +11,7 @@ import { ref, onMounted } from "vue"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faBoxUsd, faUsersCog, faLightbulb, faUserHardHat, faUser, faInventory, faConveyorBeltAlt, faChevronDown } from "@fal"
 import { useLayoutStore } from "@/Stores/layout.js"
-import NavigationExpandable from '@//Layouts/NavigationExpandable.vue'
+// import NavigationExpandable from '@//Layouts/NavigationExpandable.vue'
 import NavigationSimple from '@//Layouts/NavigationSimple.vue'
 
 import { get } from "lodash"
@@ -69,12 +69,12 @@ onMounted(() => {
 
 // Conver string from 'shops_navigation' to 'shop', etc
 const generateNavigationName = (navKey: string) => {
-    return navKey.split('_')[0].slice(0, -1)
+    return navKey.split('_')[0]
 }
 
 const iconList: {[key: string]: string} = {
-    shop: 'fal fa-store-alt',
-    warehouse: 'fal fa-warehouse-alt',
+    shops: 'fal fa-store-alt',
+    warehouses: 'fal fa-warehouse-alt',
 }
 
 </script>
@@ -107,7 +107,7 @@ const iconList: {[key: string]: string} = {
                 <!-- shops_navigation or warehouses_navigation -->
                 <template v-else-if="itemKey == 'shops_navigation' || itemKey == 'warehouses_navigation'">
                     <template v-if="itemKey == 'shops_navigation' && layout.organisationsState?.[layout.currentParams.organisation]?.currentShop">
-                        <div class="bg-indigo-100/20 rounded px-1 py-1 space-y-1">
+                        <div class="bg-black/15 rounded px-1 py-1 space-y-1">
                             <div class="flex items-center gap-x-1.5 px-1 mb-2 text-indigo-100/70">
                                 <FontAwesomeIcon :icon='iconList[generateNavigationName(itemKey)]' class='text-xxs' aria-hidden='true' />
                                 <span class="text-[9px] leading-none uppercase">
@@ -161,32 +161,11 @@ const iconList: {[key: string]: string} = {
                 </template>
 
                 <template v-else>
-                    <!-- {{ itemKey }} -->
                     <NavigationSimple
                         :nav="orgNav"
                         :navKey="itemKey"
                     />
                 </template>
-
-                <!-- <template v-if="itemKey == 'shops_navigation' || itemKey == 'warehouses_navigation'">
-                    <template v-if="layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.[`authorised_${generateNavigationName(itemKey)}s`].length === 1">
-                        <NavigationSimple
-                            :nav="orgNav[Object.keys(orgNav)[0]][generateNavigationName(itemKey)]"
-                            :navKey="generateNavigationName(itemKey)"
-                        />
-                    </template>
-
-                    <NavigationExpandable v-else
-                        :subNav="orgNav"
-                        :navKey="itemKey"
-                    />
-                </template>
-
-                <NavigationSimple v-else
-                    :nav="orgNav"
-                    :navKey="itemKey"
-                /> -->
-
             </template>
         </template>
 
