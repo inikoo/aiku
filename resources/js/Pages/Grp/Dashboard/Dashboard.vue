@@ -16,6 +16,6 @@ import { useLayoutStore } from '@/Stores/layout'
         <!-- <pre>{{ route().v()?.params?.organisation }}</pre> -->
         <!-- <pre>{{ usePage().props }}</pre> -->
         <!-- <pre>{{ route(useLayoutStore().currentRoute, useLayoutStore().currentParams) }}</pre> -->
-        <pre>{{ useLayoutStore().organisations }}</pre>
+        <pre>{{ useLayoutStore().navigation.org }}</pre>
     </div>
 </template>

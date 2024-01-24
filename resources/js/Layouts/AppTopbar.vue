@@ -60,7 +60,8 @@ const logoutAuth = () => {
 const label = {
     organisationSelect: trans('Select organisation'),
     shopSelect: trans('Go to shop'),
-    warehouseSelect: trans('Warehouses'),
+    warehouseSelect: trans('Select warehouses'),
+    fulfilmentSelect: trans('Select fulfilments'),
 }
 
 </script>
@@ -191,18 +192,35 @@ const label = {
                             </Menu>
 
                             <!-- Dropdown: Warehouse -->
-                            <Menu v-if="Object.keys(useLayoutStore().navigation.org[layout.currentParams.organisation]?.warehouses_navigation || []).length > 1 && (route(useLayoutStore().currentRoute, useLayoutStore().currentParams)).includes('warehouse')"
+                            <Menu v-if="Object.keys(useLayoutStore().navigation.org[layout.currentParams.organisation]?.warehouses_navigation || []).length > 1 && (route(useLayoutStore().currentRoute, useLayoutStore().currentParams)).includes('warehouses')"
                                 as="div" class="relative inline-block text-left"
                                 v-slot="{ close: closeMenu }"
                             >
                                 <TopbarSelectButton
                                     icon="fal fa-warehouse-alt"
                                     :activeButton="!!(layout.currentParams.warehouse)"
-                                    :label="useLayoutStore().organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_warehouses.find(warehouse => warehouse.slug == layout.currentParams.warehouse)?.name ?? label.warehouseSelect"
+                                    :label="useLayoutStore().organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_warehouses.find(warehouse => warehouse.slug == layout.currentParams.warehouse)?.label ?? label.warehouseSelect"
                                 />
                                 <transition>
                                     <MenuItems class="absolute left-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
                                         <MenuPopoverList icon="fal fa-warehouse-alt" :navKey="'warehouse'" :closeMenu="closeMenu" />
+                                    </MenuItems>
+                                </transition>
+                            </Menu>
+
+                            <!-- Dropdown: Warehouse -->
+                            <Menu v-if="Object.keys(useLayoutStore().navigation.org[layout.currentParams.organisation]?.fulfilments_navigation || []).length > 1 && (route(useLayoutStore().currentRoute, useLayoutStore().currentParams)).includes('fulfilment')"
+                                as="div" class="relative inline-block text-left"
+                                v-slot="{ close: closeMenu }"
+                            >
+                                <TopbarSelectButton
+                                    icon="fal fa-warehouse-alt"
+                                    :activeButton="!!(layout.currentParams.fulfilment)"
+                                    :label="useLayoutStore().organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_fulfilments.find(fulfilment => fulfilment.slug == layout.currentParams.fulfilment)?.label ?? label.fulfilmentSelect"
+                                />
+                                <transition>
+                                    <MenuItems class="absolute left-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
+                                        <MenuPopoverList icon="fal fa-warehouse-alt" :navKey="'fulfilment'" :closeMenu="closeMenu" />
                                     </MenuItems>
                                 </transition>
                             </Menu>
@@ -217,12 +235,14 @@ const label = {
                                     :href="route(menu.route.name, menu.route.parameters)"
                                     :id="get(menu, 'label', menu?.route.name)"
                                     class="group relative text-gray-700 group text-sm flex justify-end items-center cursor-pointer py-3 gap-x-2 px-4 md:px-4 lg:px-4"
+                                    :class="[]"
                                     :title="capitalize(menu.tooltip ?? menu.label ?? '')">
-                                    <!-- <div :class="[
-                                        route(layout.currentRoute, route().v().params).includes(route(menu.route.name,menu.route.parameters))
+                                    <div :class="[
+                                        route(layout.currentRoute, route().v().params).includes(route(menu.route.name, menu.route.parameters))
                                         ? 'bottomNavigationActive'
                                         : 'bottomNavigation'
-                                    ]"/> -->
+                                    ]"/>
+                                    <!-- {{ route(menu.route.name, menu.route.parameters) }} -->
                                     <FontAwesomeIcon :icon="menu.icon"
                                         class="h-5 lg:h-3.5 w-auto group-hover:opacity-100 opacity-70 transition duration-100 ease-in-out"
                                         aria-hidden="true"/>
