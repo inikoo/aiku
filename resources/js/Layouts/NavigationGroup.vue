@@ -28,7 +28,7 @@ const generateCurrentString = (str: string) => {
     >
         <!-- Label: Icon shops/warehouses and slug -->
         <div class="flex items-end gap-x-1.5 mt-1 px-2.5 mb-2 text-indigo-100/70">
-            <FontAwesomeIcon :icon='icon' class='text-xxs' fixed-width aria-hidden='true' />
+            <FontAwesomeIcon v-if="icon" :icon='icon' class='text-xxs' fixed-width aria-hidden='true' />
             <span v-if="layout.leftSidebar.show" class="text-[9px] leading-none uppercase">
                 {{ layout.organisationsState?.[layout.currentParams.organisation]?.[generateCurrentString(itemKey)] || Object.keys(orgNav)[0] }}
             </span>

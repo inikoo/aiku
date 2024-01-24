@@ -42,7 +42,8 @@ export const initialiseApp = () => {
                 ...layout.organisationsState,
                 [layout.currentParams.organisation]: {
                     currentShop: route().params.shop ?? layout.organisationsState?.[layout.currentParams.organisation]?.currentShop,
-                    currentWarehouse: route().params.warehouse ?? layout.organisationsState?.[layout.currentParams.organisation]?.currentWarehouse
+                    currentWarehouse: route().params.warehouse ?? layout.organisationsState?.[layout.currentParams.organisation]?.currentWarehouse,
+                    currentFulfilment: route().params.fulfilment ?? layout.organisationsState?.[layout.currentParams.organisation]?.currentFulfilment
                 }
             }
 
@@ -50,7 +51,8 @@ export const initialiseApp = () => {
                 ...storageLayout,
                 [layout.currentParams.organisation]: {
                     currentShop: layout.organisationsState?.[layout.currentParams.organisation]?.currentShop,
-                    currentWarehouse: layout.organisationsState?.[layout.currentParams.organisation]?.currentWarehouse
+                    currentWarehouse: layout.organisationsState?.[layout.currentParams.organisation]?.currentWarehouse,
+                    currentFulfilment: layout.organisationsState?.[layout.currentParams.organisation]?.currentFulfilment
                 }
             }))
 
