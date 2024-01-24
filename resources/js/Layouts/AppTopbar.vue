@@ -18,6 +18,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faChevronDown } from '@far'
 import { faTerminal, faUserAlien, faCog, faCity, faBuilding, faNetworkWired, faUserHardHat, faCalendar, faStopwatch, faStoreAlt, faWarehouseAlt } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
+import { useTruncate } from '../Composables/useTruncate'
 library.add(faChevronDown, faTerminal, faUserAlien, faCog, faCity, faBuilding, faNetworkWired, faUserHardHat, faCalendar, faStopwatch, faStoreAlt, faWarehouseAlt)
 
 const props = defineProps<{
@@ -83,7 +84,7 @@ const label = {
 
                     <!-- App Title: Image and Title -->
                     <div class="bg-indigo-700 flex flex-1 items-center justify-center md:justify-start transition-all duration-300 ease-in-out"
-                        :class="[layout.leftSidebar.show ? 'md:w-48 md:pr-4' : 'md:w-10']"
+                        :class="[layout.leftSidebar.show ? 'md:w-48 md:pr-4' : 'md:w-12']"
                     >
                         <Link :href="layout.app?.url ?? '#'"
                             class="hidden md:flex flex-nowrap items-center h-full overflow-hidden gap-x-1.5 transition-all duration-200 ease-in-out"
@@ -120,7 +121,7 @@ const label = {
                                 />
                                 <transition>
                                     <MenuItems
-                                        class="absolute left-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
+                                        class="min-w-24 w-fit max-w-96 absolute left-0 mt-2 origin-top-right divide-y divide-gray-100 rounded bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
                                         <div class="px-1 py-1 space-y-2.5">
                                             <!-- Dropdown: Group -->
                                             <div v-if="layout.group" class="">
@@ -143,7 +144,7 @@ const label = {
                                                 </MenuItem>
                                             </div>
 
-                                            <div v-if="layout.organisations.data.length > 1 ? true : false">
+                                            <div v-if="layout.organisations.data.length > 1">
                                                 <!-- Dropdown: Organisation -->
                                                 <div class="flex items-center gap-x-1.5 px-1 mb-1">
                                                     <FontAwesomeIcon icon='fal fa-building' class='text-gray-400 text-xxs' aria-hidden='true' />
@@ -154,13 +155,13 @@ const label = {
                                                     <MenuItem v-for="(item) in layout.organisations.data" v-slot="{ active }">
                                                         <div @click="() => router.visit(route('grp.org.dashboard.show', { organisation: item.slug }))" :class="[
                                                             item.slug == layout.currentParams.organisation ? 'bg-slate-300 text-slate-600' : 'text-slate-600 hover:bg-slate-200/75 hover:text-indigo-600',
-                                                            'group flex gap-x-2 w-full justify-start items-center rounded px-2 py-2 text-sm cursor-pointer',
+                                                            'group flex gap-x-2 w-full justify-start items-center rounded pl-2 pr-4 py-2 text-sm cursor-pointer',
                                                         ]">
-                                                            <div class="h-5 rounded-full overflow-hidden ring-1 ring-slate-200 bg-slate-50">
+                                                            <div class="h-5 aspect-square rounded-full overflow-hidden ring-1 ring-slate-200 bg-slate-50">
                                                                 <Image v-show="imageSkeleton[item.slug]" :src="item.logo" @onLoadImage="() => imageSkeleton[item.slug] = true"/>
                                                                 <div v-show="!imageSkeleton[item.slug]" class="skeleton w-5 h-5"/>
                                                             </div>
-                                                            <div class="font-semibold">{{ item.label }}</div>
+                                                            <div class="font-semibold whitespace-nowrap">{{ useTruncate(item.label, 20) }}</div>
                                                         </div>
                                                     </MenuItem>
                                                 </div>

@@ -68,7 +68,7 @@ const sidebarOpen = ref(false)
 
         <!-- Section: Breadcrumbs -->
         <Breadcrumbs class="fixed top-11 lg:top-10 z-[19] w-full transition-all duration-200 ease-in-out"
-            :class="[layout.leftSidebar.show ? 'left-0 md:left-48' : 'left-0 md:left-10']"
+            :class="[layout.leftSidebar.show ? 'left-0 md:left-48' : 'left-0 md:left-12']"
             :breadcrumbs="usePage().props.breadcrumbs ?? []" :navigation="usePage().props.navigation ?? []" />
 
         <!-- Sidebar: Left -->
@@ -83,7 +83,7 @@ const sidebarOpen = ref(false)
         <!-- Main Content -->
         <main
             class="h-full relative flex flex-col pt-20 md:pt-16 pb-6 text-gray-700 transition-all duration-200 ease-in-out"
-            :class="[layout.leftSidebar.show ? 'ml-0 md:ml-48' : 'ml-0 md:ml-10']">
+            :class="[layout.leftSidebar.show ? 'ml-0 md:ml-48' : 'ml-0 md:ml-12']">
             <slot />
         </main>
 
