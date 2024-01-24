@@ -29,7 +29,7 @@ Route::prefix('{fulfilment}')
     ->group(function () {
         Route::get('', ShowFulfilment::class)->name('show');
 
-
+        Route::get('/pallets', IndexPallets::class)->name('stored-items.index');
     });
 
 /*
