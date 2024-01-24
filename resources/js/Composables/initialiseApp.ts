@@ -34,7 +34,9 @@ export const initialiseApp = () => {
         router.on('navigate', (event) => {
             layout.currentParams = route().params  // current params
             layout.currentRoute = route().current()  // current route
-            layout.currentModule = layout.currentRoute.split('.')[2]  // grp.org.xxx.yyy.zzz to xxx
+
+            const currentRouteSplit = layout.currentRoute.split('.')  // to handle grp with route grp.xxx.zzz with org with route grp.org.xxx.zzz
+            layout.currentModule = currentRouteSplit[1] == 'org' ? layout.currentRoute.split('.')[2] : layout.currentRoute.split('.')[1]  // grp.org.xxx.yyy.zzz to xxx
 
             layout.organisationsState = {
                 ...layout.organisationsState,
