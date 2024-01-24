@@ -7,6 +7,7 @@
 
 namespace App\Enums\SysAdmin\Authorisation;
 
+use App\Models\Fulfilment\Fulfilment;
 use App\Models\Inventory\Warehouse;
 use App\Models\Market\Shop;
 use App\Models\SysAdmin\Group;
@@ -32,6 +33,9 @@ enum RolesEnum: string
 
     case SHOP_ADMIN = 'shop-admin';
 
+    case FULFILMENT_ADMIN = 'fulfilment-admin';
+    case FULFILMENT_CLERK = 'fulfilment-clerk';
+
     case WAREHOUSE_ADMIN = 'warehouse-admin';
 
     case STOCK_CONTROLLER       = 'stock-controller';
@@ -50,9 +54,12 @@ enum RolesEnum: string
             RolesEnum::ORG_ADMIN                   => __('Organisation admin'),
             RolesEnum::HUMAN_RESOURCES_CLERK       => __('Human resources clerk'),
             RolesEnum::HUMAN_RESOURCES_SUPERVISOR  => __('Human resources supervisor'),
+            RolesEnum::STOCK_CONTROLLER            => __('Stock controller'),
             RolesEnum::ACCOUNTING_CLERK            => __('Accounting clerk'),
             RolesEnum::ACCOUNTING_SUPERVISOR       => __('Accounting supervisor'),
             RolesEnum::SHOP_ADMIN                  => __('Shop admin'),
+            RolesEnum::FULFILMENT_ADMIN            => __('Fulfilment admin'),
+            RolesEnum::FULFILMENT_CLERK            => __('Fulfilment clerk'),
             RolesEnum::WAREHOUSE_ADMIN             => __('Warehouse admin'),
             RolesEnum::CUSTOMER_SERVICE_CLERK      => __('Customer service clerk'),
             RolesEnum::CUSTOMER_SERVICE_SUPERVISOR => __('Customer service supervisor'),
@@ -113,6 +120,13 @@ enum RolesEnum: string
                 ShopPermissionsEnum::SUPERVISOR_CRM,
                 ShopPermissionsEnum::SUPERVISOR_PRODUCTS
             ],
+            RolesEnum::FULFILMENT_ADMIN => [
+                FulfilmentPermissionsEnum::STORED_ITEMS,
+                FulfilmentPermissionsEnum::SUPERVISOR_STORED_ITEMS,
+            ],
+            RolesEnum::FULFILMENT_CLERK => [
+                FulfilmentPermissionsEnum::STORED_ITEMS,
+            ],
             RolesEnum::CUSTOMER_SERVICE_CLERK => [
                 ShopPermissionsEnum::CRM,
             ],
@@ -150,12 +164,13 @@ enum RolesEnum: string
             => 'Shop',
             RolesEnum::WAREHOUSE_ADMIN,
             RolesEnum::STOCK_CONTROLLER => 'Warehouse',
-
-            default => 'Organisation'
+            RolesEnum::FULFILMENT_ADMIN,
+            RolesEnum::FULFILMENT_CLERK => 'Fulfilment',
+            default                     => 'Organisation'
         };
     }
 
-    public static function getRolesWithScope(Group|Organisation|Shop|Warehouse $scope): array
+    public static function getRolesWithScope(Group|Organisation|Shop|Warehouse|Fulfilment $scope): array
     {
         $rawRoleNames = array_column(
             array_filter(RolesEnum::cases(), fn ($role) => $role->scope() == class_basename($scope)),
@@ -171,10 +186,10 @@ enum RolesEnum: string
     }
 
 
-    public static function getRoleName(string $rawName, Group|Organisation|Shop|Warehouse $scope): string
+    public static function getRoleName(string $rawName, Group|Organisation|Shop|Warehouse|Fulfilment $scope): string
     {
         return match (class_basename($scope)) {
-            'Organisation', 'Shop', 'Warehouse' => $rawName.'-'.$scope->slug,
+            'Organisation', 'Shop', 'Warehouse', 'Fulfilment' => $rawName.'-'.$scope->id,
             default => $rawName
         };
     }

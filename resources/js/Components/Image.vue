@@ -35,11 +35,17 @@ const webp: Ref<string | undefined> = ref(get(imageSrc, ['value', 'webp'], fallb
 const original = ref(get(imageSrc, ['value', 'original'], fallbackPath))
 
 watch(src, (newValue) => {
-    imageSrc.value = newValue
-    avif.value = newValue.avif
-    webp.value = newValue.webp
-    original.value = newValue.original
-    setImage()
+    if(!newValue) {
+        
+    }
+
+    else {
+        imageSrc.value = newValue
+        avif.value = newValue.avif
+        webp.value = newValue.webp
+        original.value = newValue.original
+        setImage()
+    }
 })
 
 const setImage = () => {

@@ -123,7 +123,10 @@ test('create supplier product in agent supplier', function ($supplier) {
 
 
 test('create trade unit', function () {
-    $tradeUnit = StoreTradeUnit::make()->action(TradeUnit::factory()->definition());
+    $tradeUnit = StoreTradeUnit::make()->action(
+        $this->group,
+        TradeUnit::factory()->definition()
+    );
     $this->assertModelExists($tradeUnit);
 
     return $tradeUnit;

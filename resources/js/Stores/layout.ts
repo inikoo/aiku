@@ -31,8 +31,9 @@ interface OrganisationsData {
         slug: string
         code: string
         name: string
+        state: string
         route: routeType
-    }
+    }[]
 }
 
 interface Group {
@@ -43,14 +44,12 @@ interface Group {
 
 // Each organisation have their own state
 interface OrganisationState {
-    currentShop: string
-    currentWarehouse: string
+    [key: string] : string  // 'currentShop' | 'currentWarehouse'
 }
 
 export const useLayoutStore = defineStore("layout", {
     state: () => (
         {
-            booted: false,
             currentModule: "",
             currentRoute: "grp.dashboard.show", // Define value to avoid route null at first load
             currentParams: {} as {[key: string]: string},

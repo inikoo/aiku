@@ -7,7 +7,7 @@
 
 namespace App\Actions\Inventory\OrgStock\Hydrators;
 
-use App\Models\SupplyChain\Stock;
+use App\Models\Inventory\OrgStock;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class OrgStockHydrateUniversalSearch
@@ -15,13 +15,13 @@ class OrgStockHydrateUniversalSearch
     use AsAction;
 
 
-    public function handle(Stock $stock): void
+    public function handle(OrgStock $orgStock): void
     {
-        $stock->universalSearch()->updateOrCreate(
+        $orgStock->universalSearch()->updateOrCreate(
             [],
             [
                 'section'     => 'inventory',
-                'title'       => trim($stock->code.' '.$stock->description),
+                'title'       => trim($orgStock->stock->code.' '.$orgStock->stock->name),
                 'description' => ''
             ]
         );

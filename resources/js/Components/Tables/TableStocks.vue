@@ -23,8 +23,11 @@ function stockRoute(stock: Stock) {
                 [stock.family_slug,stock.slug]);
         default:
             return route(
-                'grp.oms.stocks.show',
-                [stock.slug]);
+                'grp.org.inventory.stocks.show',
+                [
+                    route().params['organisation'],
+                    stock.slug
+                ]);
     }
 }
 
@@ -36,8 +39,11 @@ function stockFamilyRoute(stock: Stock) {
                 [stock.family_slug]);
         default:
             return route(
-                'grp.oms.stock-families.show',
-                [stock.family_slug]);
+                'grp.org.inventory.stock-families.show',
+                [
+                    route().params['organisation'],
+                    stock.family_slug
+                ]);
     }
 }
 

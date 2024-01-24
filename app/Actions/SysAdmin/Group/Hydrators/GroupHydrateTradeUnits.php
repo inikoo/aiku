@@ -8,20 +8,31 @@
 namespace App\Actions\SysAdmin\Group\Hydrators;
 
 use App\Models\SysAdmin\Group;
+use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class GroupHydrateTradeUnits
 {
     use AsAction;
 
+    private Group $group;
+    public function __construct(Group $group)
+    {
+        $this->group = $group;
+    }
+
+    public function getJobMiddleware(): array
+    {
+        return [(new WithoutOverlapping($this->group->id))->dontRelease()];
+    }
+
     public function handle(Group $group): void
     {
 
-        $group->update(
+        $group->supplyChainStats()->update(
             [
                 'number_trade_units' => $group->tradeUnits()->count()
             ]
         );
     }
-
 }

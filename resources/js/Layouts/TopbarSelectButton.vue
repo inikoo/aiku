@@ -1,6 +1,7 @@
 <script setup lang='ts'>
 import { MenuButton } from "@headlessui/vue"
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { useTruncate } from '../Composables/useTruncate'
 
 const props = defineProps<{
     activeButton: boolean
@@ -18,7 +19,7 @@ const props = defineProps<{
         :class="[activeButton ? 'bg-slate-200 text-slate-600 hover:bg-slate-300' : 'hover:bg-slate-200 text-slate-600']">
         <div class="flex items-center gap-x-1">
             <FontAwesomeIcon v-if="icon" :icon='icon' class='opacity-60 text-xs' fixed-width aria-hidden='true' />
-            {{ label }}
+            {{ useTruncate(label, 20) }}
         </div>
         <FontAwesomeIcon icon='far fa-chevron-down' class='text-xs transition-all duration-200 ease-in-out' :class="[open ? 'rotate-180' : '']" aria-hidden='true' />
     </MenuButton>

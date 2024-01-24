@@ -6,10 +6,10 @@ const buf = ref('weqewq')
 
 
 onMounted(() => {
-    JsBarcode('#locationBarcode', route().v().params.location, {
+    JsBarcode('#locationBarcode', route().v().params.location.padStart(4, 0), {
         lineColor: "rgb(41 37 36)",
-        width: 1.6,
-        height: 40,
+        width: 2,
+        height: 70,
         displayValue: true
     });
 })

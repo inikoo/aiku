@@ -9,6 +9,7 @@ namespace App\Actions\Market\Shop;
 
 use App\Actions\Accounting\PaymentAccount\StorePaymentAccount;
 use App\Actions\Assets\Currency\SetCurrencyHistoricFields;
+use App\Actions\Fulfilment\Fulfilment\StoreFulfilment;
 use App\Actions\Helpers\Query\Seeders\ProspectQuerySeeder;
 use App\Actions\Mail\Outbox\SeedShopOutboxes;
 use App\Actions\OrgAction;
@@ -50,11 +51,8 @@ class StoreShop extends OrgAction
         $shop->mailStats()->create();
         $shop->crmStats()->create();
         $shop->salesStats()->create([
-            'currency_id'=> $shop->currency_id
+            'currency_id' => $shop->currency_id
         ]);
-        if ($shop->type == ShopTypeEnum::FULFILMENT) {
-            $shop->fulfilmentStats()->create();
-        }
 
 
         $shop->serialReferences()->create(
@@ -70,17 +68,23 @@ class StoreShop extends OrgAction
             ]
         );
 
-        SeedShopPermissions::run($shop);
 
-        $orgAdmins = $organisation->group->users()->with('roles')->get()->filter(
-            fn ($user) => $user->roles->where('name', "org-admin-$organisation->slug")->toArray()
-        );
+        if ($shop->type == ShopTypeEnum::FULFILMENT) {
+            StoreFulfilment::make()->action($shop, []);
+        } else {
+            SeedShopPermissions::run($shop);
 
-        foreach ($orgAdmins as $orgAdmin) {
-            UserAddRoles::run($orgAdmin, [
-                Role::where('name', RolesEnum::getRoleName('shop-admin', $shop))->first()
-            ]);
+            $orgAdmins = $organisation->group->users()->with('roles')->get()->filter(
+                fn ($user) => $user->roles->where('name', "org-admin-$organisation->id")->toArray()
+            );
+
+            foreach ($orgAdmins as $orgAdmin) {
+                UserAddRoles::run($orgAdmin, [
+                    Role::where('name', RolesEnum::getRoleName('shop-admin', $shop))->first()
+                ]);
+            }
         }
+
 
         SetCurrencyHistoricFields::run($shop->currency, $shop->created_at);
 

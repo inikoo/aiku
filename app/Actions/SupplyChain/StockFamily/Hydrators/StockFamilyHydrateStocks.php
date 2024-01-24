@@ -7,16 +7,27 @@
 
 namespace App\Actions\SupplyChain\StockFamily\Hydrators;
 
-use App\Enums\Inventory\OrgStock\OrgStockQuantityStatusEnum;
-use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
+use App\Enums\SupplyChain\Stock\StockStateEnum;
 use App\Models\SupplyChain\Stock;
 use App\Models\SupplyChain\StockFamily;
+use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class StockFamilyHydrateStocks
 {
     use AsAction;
+
+    private StockFamily $stockFamily;
+    public function __construct(StockFamily $stockFamily)
+    {
+        $this->stockFamily = $stockFamily;
+    }
+
+    public function getJobMiddleware(): array
+    {
+        return [(new WithoutOverlapping($this->stockFamily->id))->dontRelease()];
+    }
 
 
     public function handle(StockFamily $stockFamily): void
@@ -30,18 +41,10 @@ class StockFamilyHydrateStocks
             ->groupBy('state')
             ->pluck('total', 'state')->all();
 
-        foreach (OrgStockStateEnum::cases() as $stockState) {
+        foreach (StockStateEnum::cases() as $stockState) {
             $stats['number_stocks_state_'.$stockState->snake()] = Arr::get($stateCounts, $stockState->value, 0);
         }
 
-        $quantityStatusCounts = Stock::where('stock_family_id', $stockFamily->id)
-            ->selectRaw('quantity_status, count(*) as total')
-            ->groupBy('quantity_status')
-            ->pluck('total', 'quantity_status')->all();
-
-        foreach (OrgStockQuantityStatusEnum::cases() as $quantityStatus) {
-            $stats['number_stocks_quantity_status_'.$quantityStatus->snake()] = Arr::get($quantityStatusCounts, $quantityStatus->value, 0);
-        }
 
 
         $stockFamily->stats()->update($stats);

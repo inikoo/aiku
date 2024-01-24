@@ -36,7 +36,7 @@ class StoreWarehouse extends OrgAction
         SeedWarehousePermissions::run($warehouse);
 
         $orgAdmins = $organisation->group->users()->with('roles')->get()->filter(
-            fn ($user) => $user->roles->where('name', "org-admin-$organisation->slug")->toArray()
+            fn ($user) => $user->roles->where('name', "org-admin-$organisation->id")->toArray()
         );
 
         foreach ($orgAdmins as $orgAdmin) {

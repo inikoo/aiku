@@ -18,7 +18,7 @@ use Illuminate\Support\Carbon;
  *
  * @property int $id
  * @property int $location_id
- * @property int $number_stock_slots
+ * @property int $number_org_stock_slots
  * @property int $number_empty_stock_slots
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at

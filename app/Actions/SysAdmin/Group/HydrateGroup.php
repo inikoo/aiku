@@ -13,6 +13,7 @@ use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateSupplyChain;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateJobPositions;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateOrganisations;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateProcurement;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateTradeUnits;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateUsers;
 use App\Actions\Traits\WithNormalise;
 use App\Models\SysAdmin\Group;
@@ -23,17 +24,19 @@ class HydrateGroup extends HydrateModel
 {
     use WithNormalise;
 
-    public string $commandSignature = 'hydrate:group {group : Group slug}';
+    public string $commandSignature = 'group:hydrate {group : Group slug}';
 
 
     public function handle(Group $group): void
     {
+        GroupHydrateGuests::run($group);
+        GroupHydrateJobPositions::run($group);
         GroupHydrateOrganisations::run($group);
         GroupHydrateProcurement::run($group);
         GroupHydrateSupplyChain::run($group);
+        GroupHydrateTradeUnits::run($group);
         GroupHydrateUsers::run($group);
-        GroupHydrateGuests::run($group);
-        GroupHydrateJobPositions::run($group);
+
     }
 
 

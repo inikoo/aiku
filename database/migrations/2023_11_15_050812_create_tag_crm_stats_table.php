@@ -28,11 +28,9 @@ return new class () extends Migration {
             }
 
             $this->prospectsStats($table);
-
             $table->timestampsTz();
 
         });
-
 
     }
 

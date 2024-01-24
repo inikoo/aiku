@@ -12,6 +12,7 @@ use App\Actions\Market\Product\UI\IndexProducts;
 use App\Actions\Market\ProductCategory\UI\IndexDepartments;
 use App\Actions\Market\ProductCategory\UI\IndexFamilies;
 use App\Actions\UI\Dashboard\ShowDashboard;
+use App\Enums\Market\Shop\ShopTypeEnum;
 use App\Enums\UI\ShopsTabsEnum;
 use App\Http\Resources\Market\DepartmentResource;
 use App\Http\Resources\Market\FamilyResource;
@@ -37,6 +38,7 @@ class IndexShops extends OrgAction
     public function authorize(ActionRequest $request): bool
     {
         $this->canEdit = $request->user()->hasPermissionTo('shops');
+
         return $request->user()->hasPermissionTo("shops.{$this->organisation->id}.edit");
     }
 
@@ -63,8 +65,9 @@ class IndexShops extends OrgAction
         }
 
         $queryBuilder = QueryBuilder::for(Shop::class);
+        $queryBuilder->where('type', '!=', ShopTypeEnum::FULFILMENT);
 
-        if(class_basename($this->parent) == 'Organisation') {
+        if (class_basename($this->parent) == 'Organisation') {
             $queryBuilder->where('organisation_id', $this->parent->id);
         } else {
             $queryBuilder->where('group_id', $this->parent->id);

@@ -1,18 +1,17 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 23 Jan 2024 15:20:09 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Wed, 24 Jan 2024 10:56:31 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Models;
+namespace App\Models\Inventory;
 
-use App\Models\Inventory\OrgStockFamily;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * App\Models\OrgStockFamilyStats
+ * App\Models\Inventory\OrgStockFamilyStats
  *
  * @property int $id
  * @property int $org_stock_family_id
@@ -30,7 +29,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string|null $deleted_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read OrgStockFamily $orgStockFamily
+ * @property-read \App\Models\Inventory\OrgStockFamily $orgStockFamily
  * @method static \Illuminate\Database\Eloquent\Builder|OrgStockFamilyStats newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|OrgStockFamilyStats newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|OrgStockFamilyStats query()

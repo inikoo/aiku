@@ -113,6 +113,5 @@ export const initialiseApp = () => {
         }
 
         layout.systemName = "Aiku"
-        layout.booted = true
     })
 }

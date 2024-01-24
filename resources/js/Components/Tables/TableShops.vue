@@ -36,12 +36,12 @@ function shopRoute(shop: Shop) {
     <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(code)="{ item: shop }">
             <div class="flex">
-                <div v-if="shop.code == useLayoutStore().organisationsState?.[useLayoutStore().currentParams.organisation]?.currentShop" v-tooltip="trans('Recently selected')" class="px-0.5 leading-none">
-                    <FontAwesomeIcon icon='fas fa-circle' class='text-lime-500 text-[6px]' fixed-width aria-hidden='true' />
-                </div>
                 <Link :href="shopRoute(shop)" class="specialUnderline">
                     {{ shop.code }}
                 </Link>
+                <div v-if="shop.code == useLayoutStore().organisationsState?.[useLayoutStore().currentParams.organisation]?.currentShop" v-tooltip="trans('Recently selected')" class="px-0.5 leading-none">
+                    <FontAwesomeIcon icon='fas fa-circle' class='text-lime-500 text-[6px]' fixed-width aria-hidden='true' />
+                </div>
             </div>
         </template>
     </Table>

@@ -86,6 +86,15 @@ class Kernel extends HttpKernel
             HandleInertiaGrpRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
         ],
+        'horizon'    => [
+            EncryptCookies::class,
+            AddQueuedCookiesToResponse::class,
+            StartSession::class,
+            ShareErrorsFromSession::class,
+            VerifyCsrfToken::class,
+            BindGroupInstance::class,
+            SubstituteBindings::class,
+        ],
 
         'webhooks-api' => [
             ForceJsonResponse::class,

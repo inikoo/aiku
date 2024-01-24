@@ -7,6 +7,7 @@
 
 namespace App\Actions\SysAdmin\User\Hydrators;
 
+use App\Models\Fulfilment\Fulfilment;
 use App\Models\Inventory\Warehouse;
 use App\Models\Market\Shop;
 use App\Models\SysAdmin\User;
@@ -24,27 +25,33 @@ class UserHydrateAuthorisedModels
 
         $authorisedOrganisations = [];
         $authorisedShops         = [];
-        $authorisedWarehouses    =[];
+        $authorisedFulfilments   = [];
+        $authorisedWarehouses    = [];
 
         foreach ($user->getAllPermissions() as $permission) {
             if ($permission->scope_type === 'Organisation') {
                 $authorisedOrganisations[$permission->scope_id] = ['org_id' => $permission->scope_id];
             } elseif ($permission->scope_type === 'Shop') {
-                $shop                                   =Shop::find($permission->scope_id);
+                $shop                                   = Shop::find($permission->scope_id);
                 $authorisedShops[$permission->scope_id] = ['org_id' => $shop->organisation_id];
+            } elseif ($permission->scope_type === 'Fulfilment') {
+                $fulfilment                             = Fulfilment::find($permission->scope_id);
+                $authorisedShops[$permission->scope_id] = ['org_id' => $fulfilment->organisation_id];
             } elseif ($permission->scope_type === 'Warehouse') {
-                $warehouse                                   =Warehouse::find($permission->scope_id);
+                $warehouse                                   = Warehouse::find($permission->scope_id);
                 $authorisedWarehouses[$permission->scope_id] = ['org_id' => $warehouse->organisation_id];
             }
         }
 
         $user->authorisedOrganisations()->sync($authorisedOrganisations);
         $user->authorisedShops()->sync($authorisedShops);
+        $user->authorisedFulfilments()->sync($authorisedFulfilments);
         $user->authorisedWarehouses()->sync($authorisedWarehouses);
 
         $stats = [
             'number_authorised_organisations' => count($authorisedOrganisations),
             'number_authorised_shops'         => count($authorisedShops),
+            'number_authorised_fulfilments'   => count($authorisedFulfilments),
             'number_authorised_warehouses'    => count($authorisedWarehouses),
         ];
 
