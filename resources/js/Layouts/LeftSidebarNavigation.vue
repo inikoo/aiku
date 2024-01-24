@@ -68,9 +68,14 @@ onMounted(() => {
 // }
 
 // Conver string from 'shops_navigation' to 'shop', etc
-// const generateNavigationName = (navKey: string) => {
-//     return navKey.split('_')[0].slice(0, -1)
-// }
+const generateNavigationName = (navKey: string) => {
+    return navKey.split('_')[0].slice(0, -1)
+}
+
+const iconList: {[key: string]: string} = {
+    shop: 'fal fa-store-alt',
+    warehouse: 'fal fa-warehouse-alt',
+}
 
 </script>
 
@@ -102,39 +107,56 @@ onMounted(() => {
                 <!-- shops_navigation or warehouses_navigation -->
                 <template v-else-if="itemKey == 'shops_navigation' || itemKey == 'warehouses_navigation'">
                     <template v-if="itemKey == 'shops_navigation' && layout.organisationsState?.[layout.currentParams.organisation]?.currentShop">
-                        <!-- If Shops length is 1 (Show the subnav straighly) -->
-                        <template v-if="Object.keys(orgNav || []).length === 1">
-                            <NavigationSimple v-for="aaa, aaaindex in orgNav[Object.keys(orgNav)[0]]"
-                                :nav="aaa"
-                                :navKey="aaaindex"
-                            />
-                        </template>
-                        
-                        <!-- If Shops length is not 1 and current warehouse is exist -->
-                        <template v-else-if="layout.organisationsState?.[layout.currentParams.organisation]?.currentShop">
-                            <NavigationSimple v-for="aaa, aaaindex in orgNav[layout.organisationsState?.[layout.currentParams.organisation]?.currentShop]"
-                                :nav="aaa"
-                                :navKey="aaaindex"
-                            />
-                        </template>
+                        <div class="bg-indigo-100/20 rounded px-1 py-1 space-y-1">
+                            <div class="flex items-center gap-x-1.5 px-1 mb-2 text-indigo-100/70">
+                                <FontAwesomeIcon :icon='iconList[generateNavigationName(itemKey)]' class='text-xxs' aria-hidden='true' />
+                                <span class="text-[9px] leading-none uppercase">
+                                    {{ layout.organisationsState?.[layout.currentParams.organisation]?.currentShop || Object.keys(orgNav)[0] }}
+                                </span>
+                            </div>
+                            <!-- If Shops length is 1 (Show the subnav straighly) -->
+                            <template v-if="Object.keys(orgNav || []).length === 1">
+                                <NavigationSimple v-for="aaa, aaaindex in orgNav[Object.keys(orgNav)[0]]"
+                                    :nav="aaa"
+                                    :navKey="aaaindex"
+                                />
+                            </template>
+                            
+                            <!-- If Shops length is not 1 and current shop is exist -->
+                            <template v-else-if="layout.organisationsState?.[layout.currentParams.organisation]?.currentShop">
+                                <NavigationSimple v-for="aaa, aaaindex in orgNav[layout.organisationsState?.[layout.currentParams.organisation]?.currentShop]"
+                                    :nav="aaa"
+                                    :navKey="aaaindex"
+                                />
+                            </template>
+                        </div>
                     </template>
                     
                     <template v-if="itemKey == 'warehouses_navigation'">
-                        <!-- If Warehouse length is 1 (Show the subnav straighly) -->
-                        <template v-if="Object.keys(orgNav || []).length === 1">
-                            <NavigationSimple v-for="aaa, aaaindex in orgNav[Object.keys(orgNav)[0]]"
-                                :nav="aaa"
-                                :navKey="aaaindex"
-                            />
-                        </template>
-                        
-                        <!-- If warehouse length is not 1 and current warehouse is exist -->
-                        <template v-else-if="layout.organisationsState?.[layout.currentParams.organisation]?.currentWarehouse">
-                            <NavigationSimple v-for="aaa, aaaindex in orgNav[layout.organisationsState?.[layout.currentParams.organisation]?.currentWarehouse]"
-                                :nav="aaa"
-                                :navKey="aaaindex"
-                            />
-                        </template>
+                        <div class="bg-black/15 rounded px-1 py-1 space-y-1">
+                            <div class="flex items-center gap-x-1.5 px-1 mb-2 text-indigo-100/70">
+                                <FontAwesomeIcon :icon='iconList[generateNavigationName(itemKey)]' class='text-xxs' aria-hidden='true' />
+                                <span class="text-[9px] leading-none uppercase">
+                                    {{ layout.organisationsState?.[layout.currentParams.organisation]?.currentWarehouse || Object.keys(orgNav)[0] }}
+                                </span>
+                            </div>
+
+                            <!-- If Warehouse length is 1 (Show the subnav straighly) -->
+                            <template v-if="Object.keys(orgNav || []).length === 1">
+                                <NavigationSimple v-for="aaa, aaaindex in orgNav[Object.keys(orgNav)[0]]"
+                                    :nav="aaa"
+                                    :navKey="aaaindex"
+                                />
+                            </template>
+                            
+                            <!-- If warehouse length is not 1 and current warehouse is exist -->
+                            <template v-else-if="layout.organisationsState?.[layout.currentParams.organisation]?.currentWarehouse">
+                                <NavigationSimple v-for="aaa, aaaindex in orgNav[layout.organisationsState?.[layout.currentParams.organisation]?.currentWarehouse]"
+                                    :nav="aaa"
+                                    :navKey="aaaindex"
+                                />
+                            </template>
+                        </div>
                     </template>
                 </template>
 
