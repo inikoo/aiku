@@ -6,7 +6,7 @@
 
 <script setup lang="ts">
 import { ref, onBeforeMount } from 'vue';
-import moment from 'moment';
+// import moment from 'moment';
 
 const props = defineProps<{
     data: {
