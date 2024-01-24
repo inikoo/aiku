@@ -44,8 +44,7 @@ interface Group {
 
 // Each organisation have their own state
 interface OrganisationState {
-    currentShop: string
-    currentWarehouse: string
+    [key: string] : string  // 'currentShop' | 'currentWarehouse'
 }
 
 export const useLayoutStore = defineStore("layout", {

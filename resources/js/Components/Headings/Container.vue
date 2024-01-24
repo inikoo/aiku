@@ -6,9 +6,12 @@
 
 <script setup lang="ts">
 
-import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome';
 import {useLocaleStore} from "@/Stores/locale";
 import {capitalize} from "@/Composables/capitalize";
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { faLevelUp } from '@fal'
+import { library } from '@fortawesome/fontawesome-svg-core'
+library.add(faLevelUp)
 
 
 const props = defineProps<{
