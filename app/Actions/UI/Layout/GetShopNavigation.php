@@ -27,7 +27,7 @@ class GetShopNavigation
 
                 'label' => __('Products'),
                 'route' => [
-                    'name'       => 'grp.org.shops.index',
+                    'name'       => 'grp.org.shops.show',
                     'parameters' => [$shop->organisation->slug, $shop->slug]
                 ],
 

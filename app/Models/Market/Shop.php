@@ -21,8 +21,8 @@ use App\Models\Assets\Currency;
 use App\Models\Assets\Timezone;
 use App\Models\CRM\Customer;
 use App\Models\CRM\Prospect;
+use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentOrder;
-use App\Models\SysAdmin\Organisation;
 use App\Models\Helpers\Address;
 use App\Models\Helpers\Issue;
 use App\Models\Helpers\SerialReference;
@@ -32,6 +32,7 @@ use App\Models\Marketing\OfferCampaign;
 use App\Models\OMS\Order;
 use App\Models\Search\UniversalSearch;
 use App\Models\SysAdmin\ApiTenantUser;
+use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\Role;
 use App\Models\Traits\HasAddresses;
 use App\Models\Traits\HasUniversalSearch;
@@ -94,8 +95,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Currency $currency
  * @property-read Collection<int, Customer> $customers
  * @property-read Collection<int, \App\Models\Market\ProductCategory> $departments
+ * @property-read Fulfilment|null $fulfilment
  * @property-read Collection<int, FulfilmentOrder> $fulfilmentOrders
- * @property-read \App\Models\Market\ShopFulfilmentStats|null $fulfilmentStats
  * @property-read Collection<int, Invoice> $invoices
  * @property-read Collection<int, Issue> $issues
  * @property-read \App\Models\Market\ShopMailStats|null $mailStats
@@ -188,11 +189,6 @@ class Shop extends Model
     public function accountingStats(): HasOne
     {
         return $this->hasOne(ShopAccountingStats::class);
-    }
-
-    public function fulfilmentStats(): HasOne
-    {
-        return $this->hasOne(ShopFulfilmentStats::class);
     }
 
     public function customers(): HasMany
@@ -319,6 +315,11 @@ class Shop extends Model
     public function roles(): MorphMany
     {
         return $this->morphMany(Role::class, 'scope');
+    }
+
+    public function fulfilment(): HasOne
+    {
+        return $this->hasOne(Fulfilment::class);
     }
 
 

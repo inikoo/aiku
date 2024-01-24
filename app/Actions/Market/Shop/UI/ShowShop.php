@@ -19,7 +19,6 @@ use App\Http\Resources\Market\FamilyResource;
 use App\Http\Resources\Market\ProductResource;
 use App\Http\Resources\Market\ShopResource;
 use App\Models\Market\Shop;
-use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -32,7 +31,6 @@ class ShowShop extends OrgAction
     use WithInertia;
 
 
-    private Organisation|Group $parent;
 
     public function handle(Shop $shop): Shop
     {
@@ -41,15 +39,15 @@ class ShowShop extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit   = $request->user()->hasPermissionTo("shops.{$this->parent->slug}.edit");
-        $this->canDelete = $request->user()->hasPermissionTo("shops.{$this->parent->slug}.edit");
+        $this->canEdit   = $request->user()->hasPermissionTo("shops.{$this->organisation->id}.edit");
+        $this->canDelete = $request->user()->hasPermissionTo("shops.{$this->organisation->id}.edit");
 
-        return $request->user()->hasPermissionTo("shops.{$this->parent->slug}.view");
+        return $request->user()->hasPermissionTo("shops.{$this->organisation->id}.view");
     }
 
     public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): Shop
     {
-        $this->parent=$organisation;
+
         $this->initialisation($organisation, $request)->withTab(ShopTabsEnum::values());
         return $this->handle($shop);
     }
@@ -157,7 +155,7 @@ class ShowShop extends OrgAction
                             'icon'  => ['fal', 'fa-shopping-cart'],
                             'href'  => ['grp.crm.shops.show.orders.index', $shop->slug],
                             'index' => [
-                                'number' => $shop->stats->number_orders
+                                'number' => $shop->salesStats->number_orders
                             ]
                         ],
                         [
@@ -354,7 +352,7 @@ class ShowShop extends OrgAction
                 'route' => [
                     'name'       => $routeName,
                     'parameters' => [
-                        'organisation'=> $this->parent->slug,
+                        'organisation'=> $this->organisation->slug,
                         'shop'        => $shop->slug
                     ]
 

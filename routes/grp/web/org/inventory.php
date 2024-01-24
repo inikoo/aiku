@@ -8,7 +8,7 @@
 use App\Actions\Inventory\OrgStock\ExportStocks;
 use App\Actions\Inventory\OrgStock\UI\CreateStock;
 use App\Actions\Inventory\OrgStock\UI\EditStock;
-use App\Actions\Inventory\OrgStock\UI\IndexStocks;
+use App\Actions\Inventory\OrgStock\UI\IndexOrgStocks;
 use App\Actions\Inventory\OrgStock\UI\RemoveStock;
 use App\Actions\Inventory\OrgStock\UI\ShowStock;
 use App\Actions\SupplyChain\StockFamily\ExportStockFamilies;
@@ -30,7 +30,7 @@ Route::get('/families/create', CreateStockFamily::class)->name('stock-families.c
 Route::get('/families/{stockFamily}', ShowStockFamily::class)->name('stock-families.show');
 Route::get('/families/{stockFamily}/edit', EditStockFamily::class)->name('stock-families.edit');
 Route::get('/families/{stockFamily}/delete', RemoveStockFamily::class)->name('stock-families.remove');
-Route::get('/families/{stockFamily}/stocks', [IndexStocks::class, 'inStockFamily'])->name('stock-families.show.stocks.index');
+Route::get('/families/{stockFamily}/stocks', [IndexOrgStocks::class, 'inStockFamily'])->name('stock-families.show.stocks.index');
 Route::get('/families/{stockFamily}/stocks/create', [CreateStock::class,'inStockFamily'])->name('stock-families.show.stocks.create');
 Route::get('/families/{stockFamily}/stocks/{stock}', [ShowStock::class, 'inStockFamily'])->name('stock-families.show.stocks.show');
 Route::get('/families/{stockFamily}/stocks/{stock}/edit', [EditStock::class, 'inStockFamily'])->name('stock-families.show.stocks.edit');
@@ -38,7 +38,7 @@ Route::get('/families/{stockFamily}/stocks/{stock}/delete', [RemoveStock::class,
 
 Route::get('/stocks/export', ExportStocks::class)->name('stocks.export');
 
-Route::get('/stocks', IndexStocks::class)->name('stocks.index');
+Route::get('/stocks', IndexOrgStocks::class)->name('stocks.index');
 Route::get('/stocks/create', CreateStock::class)->name('stocks.create');
 Route::get('/stocks/{stock}', ShowStock::class)->name('stocks.show');
 Route::get('/stocks/{stock}/edit', EditStock::class)->name('stocks.edit');

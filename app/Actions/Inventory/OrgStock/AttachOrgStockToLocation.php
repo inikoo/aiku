@@ -10,16 +10,16 @@ namespace App\Actions\Inventory\OrgStock;
 use App\Actions\Inventory\Location\Hydrators\LocationHydrateStocks;
 use App\Actions\Inventory\Location\Hydrators\LocationHydrateStockValue;
 use App\Models\Inventory\Location;
-use App\Models\SupplyChain\Stock;
+use App\Models\Inventory\OrgStock;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class AttachOrgStockToLocation
 {
     use AsAction;
 
-    public function handle(Location $location, Stock $stock, array $modelData): Location
+    public function handle(Location $location, OrgStock $orgStock, array $modelData): Location
     {
-        $location->orgStocks()->attach([$stock->id,$modelData]);
+        $location->orgStocks()->attach($orgStock->id, $modelData);
 
         LocationHydrateStocks::dispatch($location);
         LocationHydrateStockValue::dispatch($location);

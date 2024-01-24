@@ -70,7 +70,7 @@ return [
     |
     */
 
-    'middleware' => ['app'],
+    'middleware' => ['horizon'],
 
     /*
     |--------------------------------------------------------------------------
@@ -240,7 +240,6 @@ return [
                 'balanceCooldown' => 3,
             ],
         ],
-
         'local' => [
             'supervisor-1' => [
                 'maxProcesses'    => 15,

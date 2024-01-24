@@ -11,6 +11,7 @@ use App\Actions\Helpers\Images\GetPictureSources;
 use App\Enums\SysAdmin\User\UserAuthTypeEnum;
 use App\Helpers\ImgProxy\Image;
 use App\Models\Assets\Language;
+use App\Models\Fulfilment\Fulfilment;
 use App\Models\Inventory\Warehouse;
 use App\Models\Market\Shop;
 use App\Models\Media\Media;
@@ -212,6 +213,11 @@ class User extends Authenticatable implements HasMedia, Auditable
     public function authorisedShops(): MorphToMany
     {
         return $this->morphedByMany(Shop::class, 'model', 'user_has_authorised_models')->withTimestamps();
+    }
+
+    public function authorisedFulfilments(): MorphToMany
+    {
+        return $this->morphedByMany(Fulfilment::class, 'model', 'user_has_authorised_models')->withTimestamps();
     }
 
     public function authorisedWarehouses(): MorphToMany

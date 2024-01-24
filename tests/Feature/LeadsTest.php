@@ -182,13 +182,12 @@ test('can show list of tags', function () {
 })->todo();
 
 test('can fetch 1 prospect from aurora', function () {
-    $shop           = $this->shop;
 
     $this->organisation->update(
         [
             'source' => [
                 'type'    => 'Aurora',
-                'db_name' => 'sk',
+                'db_name' => config('database.connections.aurora.database'),
             ]
         ]
     );
@@ -205,7 +204,7 @@ test('can fetch 1 prospect from aurora', function () {
     $this->artisan($command)->assertExitCode(0);
     /** @var Shop $fetchedShop */
     $fetchedShop=Shop::whereNotNull('source_id')->first();
-    expect($fetchedShop)->toBeInstanceOf(Shop::class)->and($fetchedShop->source_id)->toBe('1:2')
+    expect($fetchedShop)->toBeInstanceOf(Shop::class)->and($fetchedShop->source_id)->toBe('1:1')
         ->and($fetchedShop->crmStats->number_prospects)->toBe(1);
     $fetch = Fetch::first();
     expect($fetch->number_items)->toBe(1)->and($fetch->number_stores)->toBe(1);

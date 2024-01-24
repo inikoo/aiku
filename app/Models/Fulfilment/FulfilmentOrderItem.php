@@ -17,7 +17,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 
 /**
- * App\Models\Fulfilment\FulfilmentOrderItem
+ * App\Models\Fulfilment\Fulfilment\FulfilmentOrderItem
  *
  * @property int $id
  * @property int $shop_id

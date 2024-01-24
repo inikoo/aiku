@@ -9,7 +9,7 @@ namespace App\Actions\SupplyChain\StockFamily\UI;
 
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\InertiaAction;
-use App\Actions\Inventory\OrgStock\UI\IndexStocks;
+use App\Actions\Inventory\OrgStock\UI\IndexOrgStocks;
 use App\Actions\UI\Inventory\ShowInventoryDashboard;
 use App\Enums\UI\StockFamilyTabsEnum;
 use App\Http\Resources\History\HistoryResource;
@@ -110,13 +110,13 @@ class ShowStockFamily extends InertiaAction
                 StockFamilyTabsEnum::STOCK->value => $this->tab == StockFamilyTabsEnum::STOCK->value
                     ?
                     fn () => StockResource::collection(
-                        IndexStocks::run(
+                        IndexOrgStocks::run(
                             parent: $stockFamily,
                             prefix: 'stocks'
                         )
                     )
                     : Inertia::lazy(fn () => StockResource::collection(
-                        IndexStocks::run(
+                        IndexOrgStocks::run(
                             parent: $stockFamily,
                             prefix: 'stocks'
                         )

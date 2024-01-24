@@ -96,7 +96,7 @@ class CreateStock extends InertiaAction
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
         return array_merge(
-            IndexStocks::make()->getBreadcrumbs(
+            IndexOrgStocks::make()->getBreadcrumbs(
                 routeName: preg_replace('/create$/', 'index', $routeName),
                 routeParameters: $routeParameters,
             ),

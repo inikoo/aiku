@@ -21,7 +21,7 @@ class StockHydrateUniversalSearch
             [],
             [
                 'section'     => 'supply-chain',
-                'title'       => trim($stock->code.' '.$stock->description),
+                'title'       => trim($stock->code.' '.$stock->name),
                 'description' => ''
             ]
         );

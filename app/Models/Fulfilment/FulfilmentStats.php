@@ -1,20 +1,20 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Thu, 20 Jul 2023 15:07:29 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Wed, 24 Jan 2024 11:02:04 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Models\Market;
+namespace App\Models\Fulfilment;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * App\Models\Market\ShopFulfilmentStats
+ * App\Models\Fulfilment\FulfilmentStats
  *
  * @property int $id
- * @property int $shop_id
+ * @property int $fulfilment_id
  * @property int $number_customers_with_stored_items
  * @property int $number_customers_with_assets
  * @property int $number_customers_with_stored_items_state_in_process
@@ -41,20 +41,20 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_stored_items_status_returned
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Market\Shop $shop
- * @method static \Illuminate\Database\Eloquent\Builder|ShopFulfilmentStats newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|ShopFulfilmentStats newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|ShopFulfilmentStats query()
+ * @property-read \App\Models\Fulfilment\Fulfilment $fulfilment
+ * @method static \Illuminate\Database\Eloquent\Builder|FulfilmentStats newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|FulfilmentStats newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|FulfilmentStats query()
  * @mixin \Eloquent
  */
-class ShopFulfilmentStats extends Model
+class FulfilmentStats extends Model
 {
-    protected $table = 'shop_fulfilment_stats';
+    protected $table = 'fulfilment_stats';
 
     protected $guarded = [];
 
-    public function shop(): BelongsTo
+    public function fulfilment(): BelongsTo
     {
-        return $this->belongsTo(Shop::class);
+        return $this->belongsTo(Fulfilment::class);
     }
 }

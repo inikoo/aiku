@@ -74,6 +74,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SupplyChain\StockFamily|null $stockFamily
  * @property-read Collection<int, TradeUnit> $tradeUnits
  * @property-read UniversalSearch|null $universalSearch
+ * @method static \Database\Factories\SupplyChain\StockFactory factory($count = null, $state = [])
  * @method static Builder|Stock newModelQuery()
  * @method static Builder|Stock newQuery()
  * @method static Builder|Stock onlyTrashed()
