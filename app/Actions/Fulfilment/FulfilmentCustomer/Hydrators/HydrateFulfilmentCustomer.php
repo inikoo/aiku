@@ -8,8 +8,9 @@
 namespace App\Actions\Fulfilment\FulfilmentCustomer\Hydrators;
 
 use App\Actions\Traits\WithActionUpdate;
+use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
-use App\Models\FulfilmentCustomer;
+
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class HydrateFulfilmentCustomer

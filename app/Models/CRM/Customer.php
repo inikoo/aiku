@@ -14,11 +14,11 @@ use App\Enums\CRM\Customer\CustomerTradeStateEnum;
 use App\Models\Accounting\Invoice;
 use App\Models\Accounting\Payment;
 use App\Models\Dropshipping\CustomerClient;
+use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\FulfilmentOrder;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Fulfilment\StoredItem;
-use App\Models\FulfilmentCustomer;
 use App\Models\Helpers\Address;
 use App\Models\Helpers\Issue;
 use App\Models\Helpers\TaxNumber;
@@ -83,7 +83,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, Address> $addresses
  * @property-read Collection<int, CustomerClient> $clients
  * @property-read Collection<int, FulfilmentOrder> $fulfilmentOrders
- * @property-read \App\Models\CRM\CustomerFulfilmentStats|null $fulfilmentStats
+ * @property-read Collection<int, FulfilmentCustomer> $fulfilments
  * @property-read Collection<int, Invoice> $invoices
  * @property-read Collection<int, Issue> $issues
  * @property-read MediaCollection<int, \App\Models\Media\Media> $media
@@ -181,11 +181,6 @@ class Customer extends Model implements HasMedia
     public function stats(): HasOne
     {
         return $this->hasOne(CustomerStats::class);
-    }
-
-    public function fulfilmentStats(): HasOne
-    {
-        return $this->hasOne(CustomerFulfilmentStats::class);
     }
 
     public function invoices(): HasMany

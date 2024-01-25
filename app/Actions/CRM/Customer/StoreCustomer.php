@@ -73,13 +73,10 @@ class StoreCustomer extends OrgAction
         /** @var Customer $customer */
         $customer = $shop->customers()->create($modelData);
 
-        if($modelData['is_fulfilment']) {
-            StoreFulfilmentCustomer::run($customer, $shop);
-        }
 
         $customer->stats()->create();
         if ($customer->is_fulfilment) {
-            $customer->fulfilmentStats()->create();
+            StoreFulfilmentCustomer::run($customer, $shop);
         }
 
 

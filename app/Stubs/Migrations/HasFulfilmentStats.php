@@ -7,6 +7,9 @@
 
 namespace App\Stubs\Migrations;
 
+use App\Enums\Fulfilment\Pallet\PalletStateEnum;
+use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
+use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use App\Enums\Fulfilment\StoredItem\StoredItemStateEnum;
 use App\Enums\Fulfilment\StoredItem\StoredItemStatusEnum;
 use App\Enums\Fulfilment\StoredItem\StoredItemTypeEnum;
@@ -16,6 +19,19 @@ trait HasFulfilmentStats
 {
     public function fulfilmentStats(Blueprint $table): Blueprint
     {
+
+        $table->unsignedInteger('number_pallets')->default(0);
+
+        foreach (PalletTypeEnum::cases() as $type) {
+            $table->unsignedInteger("number_pallets_type_{$type->snake()}")->default(0);
+        }
+        foreach (PalletStateEnum::cases() as $state) {
+            $table->unsignedInteger("number_pallets_state_{$state->snake()}")->default(0);
+        }
+        foreach (PalletStatusEnum::cases() as $status) {
+            $table->unsignedInteger("number_pallets_status_{$status->snake()}")->default(0);
+        }
+
 
         $table->unsignedInteger('number_stored_items')->default(0);
 
