@@ -99,23 +99,23 @@ class IndexPallets extends InertiaAction
     public function htmlResponse(LengthAwarePaginator $pallets): Response
     {
         return Inertia::render(
-            'Fulfilment/StoredItems',
+            'Fulfilment/Pallets',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(),
-                'title'       => __('stored items'),
+                'title'       => __('pallets'),
                 'pageHead'    => [
-                    'title'   => __('stored items'),
+                    'title'   => __('pallets'),
                     'actions' => [
                         'buttons' => [
                             'route' => [
-                                'name'       => 'grp.org.hr.employees.create',
-                                'parameters' => array_values($request->route()->originalParameters())
+                                'name'       => 'grp.org.fulfilment.pallets.create',
+                                'parameters' => array_values(request()->route()->originalParameters())
                             ],
-                            'label' => __('stored items')
+                            'label' => __('pallets')
                         ]
                     ],
                 ],
-                'data' => StoredItemResource::collection($pallets),
+                'data' => PalletResource::collection($pallets),
             ]
         )->table($this->tableStructure($pallets));
     }
