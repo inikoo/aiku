@@ -70,7 +70,7 @@ const props = defineProps<{
 }>()
 
 const layout = useLayoutStore()
-const currentTab: Ref<string> = ref(props.formData?.current ?? Object.keys(props.formData?.blueprint)[0])  // if formData.current not exist, take first navigation
+const currentTab = ref<string|number>(props.formData?.current || parseInt(Object.keys(props.formData?.blueprint)[0]))  // if formData.current not exist, take first navigation
 const buttonRefs = ref([])  // For click linked to Navigation
 const isMobile = ref(false)
 const tabActive: any = ref({})
@@ -162,7 +162,7 @@ onBeforeUnmount(() => {
             <!-- Content of forms -->
             <div class="px-4 sm:px-6 md:px-4 col-span-9">
                 <template v-for="(sectionData, sectionIdx ) in formData.blueprint" :key="sectionIdx">
-                    <div v-show="sectionIdx === currentTab" >
+                    <div v-show="sectionIdx == currentTab" >
                         <div class="sr-only absolute -top-16" :id="`field${sectionIdx}`"/>
 
                         <!-- Title -->

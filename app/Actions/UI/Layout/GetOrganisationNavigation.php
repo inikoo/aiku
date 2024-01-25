@@ -118,10 +118,10 @@ class GetOrganisationNavigation
         }
 
 
-        $navigation['fulfilment_navigation'] = [];
+        $navigation['fulfilments_navigation'] = [];
         foreach ($organisation->authorisedModels()->where('user_id', $user->id)->where('model_type', 'Fulfilment')->get() as $authorisedModel) {
-            $fulfilment                                             = $authorisedModel->model;
-            $navigation['fulfilment_navigation'][$fulfilment->slug] = GetFulfilmentNavigation::run($fulfilment, $user);
+            $fulfilment                                              = $authorisedModel->model;
+            $navigation['fulfilments_navigation'][$fulfilment->slug] = GetFulfilmentNavigation::run($fulfilment, $user);
         }
 
 

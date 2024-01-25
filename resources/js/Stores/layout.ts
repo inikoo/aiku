@@ -21,7 +21,7 @@ interface OrganisationsData {
         id: number
         slug: string
         code: string
-        name: string
+        label: string
         state: string
         type: string
         route: routeType
@@ -30,8 +30,17 @@ interface OrganisationsData {
         id: number
         slug: string
         code: string
-        name: string
+        label: string
         state: string
+        route: routeType
+    }[]
+    authorised_fulfilments: {
+        id: number
+        slug: string
+        code: string
+        label: string
+        state: string
+        type: string
         route: routeType
     }[]
 }
@@ -44,7 +53,7 @@ interface Group {
 
 // Each organisation have their own state
 interface OrganisationState {
-    [key: string] : string  // 'currentShop' | 'currentWarehouse'
+    [key: string] : string  // 'currentShop' | 'currentWarehouse' | 'currentFulfilment'
 }
 
 export const useLayoutStore = defineStore("layout", {

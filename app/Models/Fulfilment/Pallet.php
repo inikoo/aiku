@@ -25,7 +25,7 @@ class Pallet extends Model
     use HasSoftDeletes;
 
     protected $guarded = [];
-    protected $casts = [
+    protected $casts   = [
         'data' => 'array',
     ];
 
