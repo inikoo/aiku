@@ -37,7 +37,7 @@ Route::name('shop.')->prefix('shop/{shop}')->group(function () {
 
 });
 
-Route::post('group/{group:id}/orgs', StoreOrganisation::class)->name('orgs.store');
+Route::post('group/{group:id}/organisation', StoreOrganisation::class)->name('organisation.store');
 
 /*
 
