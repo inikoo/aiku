@@ -26,7 +26,7 @@ const generateCurrentString = (str: string) => {
 </script>
 
 <template>
-    <div class="relative isolate border-2 border-white/20 rounded transition-all duration-200 ease-in-out"
+    <div class="relative isolate ring-1 ring-white/20 rounded transition-all duration-200 ease-in-out"
         :class="layout.leftSidebar.show ? 'px-1' : 'px-0'"
     >
         <!-- Label: Icon shops/warehouses and slug -->

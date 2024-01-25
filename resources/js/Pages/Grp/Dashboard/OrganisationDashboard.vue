@@ -10,11 +10,13 @@
 import { usePage } from '@inertiajs/vue3'
 import { useLayoutStore } from '@/Stores/layout'
 
+const layout = useLayoutStore()
+
 </script>
 
 <template layout="App">
     <div>
         resources/js/Pages/Grp/Dashboard/OrganisationDashboard.vue
-        <pre>{{ useLayoutStore().navigation.org.aw }}</pre>
+        <pre>{{ layout.organisations }}</pre>
     </div>
 </template>
