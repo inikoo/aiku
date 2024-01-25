@@ -34,7 +34,7 @@ class HydrateModel
     public function asCommand(Command $command): int
     {
         $exitCode = 0;
-        if(!$command->argument('slugs')) {
+        if(!$command->option('slugs')) {
 
             if($command->argument('organisations')) {
                 $this->organisation = $this->getOrganisations($command)->first();
@@ -43,7 +43,7 @@ class HydrateModel
             $this->loopAll($command);
         } else {
 
-            foreach($command->argument('slugs') as $slug) {
+            foreach($command->option('slugs') as $slug) {
                 $model=$this->getModel($slug);
                 $this->handle($model);
                 $command->line(class_basename($model)." $model->name hydrated 💦");

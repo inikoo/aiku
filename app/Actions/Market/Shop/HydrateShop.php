@@ -23,7 +23,7 @@ use Illuminate\Support\Collection;
 
 class HydrateShop extends HydrateModel
 {
-    public string $commandSignature = 'hydrate:shop {organisations?*} {--i|id=} ';
+    public string $commandSignature = 'shop:hydrate {organisations?*} {--s|slugs=} ';
 
 
     public function handle(Shop $shop): void
