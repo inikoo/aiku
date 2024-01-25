@@ -144,7 +144,7 @@ class ShowInventoryDashboard extends OrgAction
                             'name'  => __('SKUs families'),
                             'icon'  => ['fal', 'fa-boxes-alt'],
                             'href'  => [
-                                'name'       => 'grp.org.inventory.stock-families.index',
+                                'name'       => 'grp.org.inventory.org-stock-families.index',
                                 'parameters' => $routeParameters
                             ],
                             'index' => [
@@ -156,7 +156,7 @@ class ShowInventoryDashboard extends OrgAction
                             'name'  => 'SKUs',
                             'icon'  => ['fal', 'fa-box'],
                             'href'  => [
-                                'name'       => 'grp.org.inventory.stocks.index',
+                                'name'       => 'grp.org.inventory.org-stocks.index',
                                 'parameters' => $routeParameters
                             ],
                             'index' => [
