@@ -61,7 +61,7 @@ class FetchAuroraPallet extends FetchAurora
             'status'             => $status,
             'type'               => $type,
             'customer_reference' => $reference,
-            'notes'              => $this->auroraModelData->{'Fulfilment Asset Note'},
+            'notes'              => (string) $this->auroraModelData->{'Fulfilment Asset Note'},
             'created_at'         => $this->auroraModelData->{'Fulfilment Asset From'} ?? null,
             'received_at'        => $received_at,
             'source_id'          => $this->organisation->id.':'.$this->auroraModelData->{'Fulfilment Asset Key'},
