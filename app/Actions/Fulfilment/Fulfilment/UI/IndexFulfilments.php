@@ -110,7 +110,7 @@ class IndexFulfilments extends OrgAction
     public function htmlResponse(LengthAwarePaginator $fulfilments, ActionRequest $request): Response
     {
         return Inertia::render(
-            'Fulfilment/Fulfilments',
+            'Org/Fulfilment/Fulfilments',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
@@ -143,13 +143,13 @@ class IndexFulfilments extends OrgAction
                 ],
 
 
-                FulfilmentTabsEnum::FULFILMENTS->value => $this->tab == FulfilmentTabsEnum::FULFILMENTS->value ?
+                FulfilmentTabsEnum::DASHBOARD->value => $this->tab == FulfilmentTabsEnum::DASHBOARD->value ?
                     fn () => FulfilmentsResource::collection($fulfilments)
                     : Inertia::lazy(fn () => FulfilmentsResource::collection($fulfilments)),
 
 
             ]
-        )->table($this->tableStructure(parent: $this->parent, prefix: FulfilmentTabsEnum::FULFILMENTS->value));
+        )->table($this->tableStructure(parent: $this->parent, prefix: FulfilmentTabsEnum::DASHBOARD->value));
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters, $suffix = null): array
