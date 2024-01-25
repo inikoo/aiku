@@ -17,6 +17,7 @@ use App\Models\Dropshipping\CustomerClient;
 use App\Models\Fulfilment\FulfilmentOrder;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\StoredItem;
+use App\Models\FulfilmentCustomer;
 use App\Models\Helpers\Address;
 use App\Models\Helpers\Issue;
 use App\Models\Helpers\TaxNumber;
@@ -245,5 +246,10 @@ class Customer extends Model implements HasMedia
     public function palletDeliveries(): HasMany
     {
         return $this->hasMany(PalletDelivery::class);
+    }
+
+    public function fulfilments(): HasMany
+    {
+        return $this->hasMany(FulfilmentCustomer::class);
     }
 }
