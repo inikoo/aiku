@@ -13,6 +13,28 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * App\Models\Fulfilment\PalletDelivery
+ *
+ * @property int $id
+ * @property int $group_id
+ * @property int $organisation_id
+ * @property string $ulid
+ * @property int $customer_id
+ * @property string $name
+ * @property PalletDeliveryStateEnum $state
+ * @property \Illuminate\Support\Carbon|null $in_at
+ * @property \Illuminate\Support\Carbon|null $out_at
+ * @property array|null $data
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read Customer $customer
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\Pallet> $pallets
+ * @method static \Illuminate\Database\Eloquent\Builder|PalletDelivery newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|PalletDelivery newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|PalletDelivery query()
+ * @mixin \Eloquent
+ */
 class PalletDelivery extends Model
 {
     protected $guarded = [];

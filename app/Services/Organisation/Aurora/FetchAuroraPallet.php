@@ -19,9 +19,6 @@ class FetchAuroraPallet extends FetchAurora
         $customer                     = $this->parseCustomer($this->organisation->id.':'.$this->auroraModelData->{'Fulfilment Asset Customer Key'});
         $this->parsedData['customer'] = $customer;
 
-
-
-
         $state  = match ($this->auroraModelData->{'Fulfilment Asset State'}) {
             'InProcess' => PalletStateEnum::IN_PROCESS,
             'Received'  => PalletStateEnum::RECEIVED,
