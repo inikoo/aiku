@@ -7,37 +7,117 @@
 
 namespace App\Models\Fulfilment;
 
-use App\Stubs\Migrations\HasSoftDeletes;
+use App\Actions\Utils\Abbreviate;
+use App\Enums\Fulfilment\Pallet\PalletStateEnum;
+use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
+use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
+use App\Models\CRM\Customer;
+use App\Models\Inventory\Location;
+use App\Models\SysAdmin\Organisation;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
 /**
+ * App\Models\Fulfilment\Pallet
  *
  * @property int $id
+ * @property int $group_id
+ * @property int $organisation_id
  * @property string $slug
- * @property string $label
+ * @property string|null $customer_reference
+ * @property int $fulfilment_id
+ * @property int $customer_id
+ * @property int|null $location_id
+ * @property PalletStatusEnum $status
+ * @property PalletStateEnum $state
+ * @property PalletTypeEnum $type
+ * @property string $notes
+ * @property string $items_quantity
+ * @property string|null $received_at
+ * @property string|null $booked_in_at
+ * @property string|null $settled_at
+ * @property array $data
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property string|null $delete_comment
+ * @property string|null $source_id
+ * @property-read Customer $customer
+ * @property-read \App\Models\Fulfilment\Fulfilment $fulfilment
+ * @property-read Location|null $location
+ * @property-read Organisation $organisation
+ * @method static \Illuminate\Database\Eloquent\Builder|Pallet newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Pallet newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Pallet onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|Pallet query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Pallet withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|Pallet withoutTrashed()
+ * @mixin \Eloquent
  */
-
 class Pallet extends Model
 {
     use HasSlug;
-    use HasSoftDeletes;
+    use SoftDeletes;
+
 
     protected $guarded = [];
     protected $casts   = [
-        'data' => 'array',
+        'data'   => 'array',
+        'state'  => PalletStateEnum::class,
+        'status' => PalletStatusEnum::class,
+        'type'   => PalletTypeEnum::class
     ];
 
     protected $attributes = [
-        'data' => '{}',
+        'data'  => '{}',
+        'notes' => '',
     ];
+
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
+
 
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
-            ->generateSlugsFrom('label')
+            ->generateSlugsFrom(function () {
+                $slug = $this->customer->slug;
+
+                if ($this->customer_reference != '') {
+                    $slug .=' '.$this->customer_reference;
+                } elseif($this->notes) {
+                    $slug .=' '.Abbreviate::run($this->notes);
+                }
+                return $slug;
+            })
             ->doNotGenerateSlugsOnUpdate()
             ->saveSlugsTo('slug')->slugsShouldBeNoLongerThan(12);
     }
+
+    public function organisation(): BelongsTo
+    {
+        return $this->belongsTo(Organisation::class);
+    }
+
+    public function fulfilment(): BelongsTo
+    {
+        return $this->belongsTo(Fulfilment::class);
+    }
+
+    public function customer(): BelongsTo
+    {
+        return $this->belongsTo(Customer::class);
+    }
+
+    public function location(): BelongsTo
+    {
+        return $this->belongsTo(Location::class);
+    }
+
+
 }

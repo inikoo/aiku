@@ -9,9 +9,7 @@ namespace App\Actions\Fulfilment\Pallet\Hydrators;
 
 use App\Actions\HydrateModel;
 use App\Actions\Traits\WithActionUpdate;
-use App\Models\Fulfilment\FulfilmentOrder;
 use App\Models\Fulfilment\Pallet;
-use Illuminate\Support\Collection;
 
 class HydrateQuantityPalletStoredItems extends HydrateModel
 {

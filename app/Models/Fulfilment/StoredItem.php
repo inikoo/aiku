@@ -51,6 +51,7 @@ use App\Models\Inventory\Location;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Customer $customer
  * @property-read Location|null $location
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\Pallet> $pallets
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
  * @method static Builder|StoredItem newModelQuery()
  * @method static Builder|StoredItem newQuery()

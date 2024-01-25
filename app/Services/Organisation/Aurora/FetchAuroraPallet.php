@@ -28,8 +28,9 @@ class FetchAuroraPallet extends FetchAurora
         $status = match ($this->auroraModelData->{'Fulfilment Asset State'}) {
             'InProcess', 'Received' => PalletStatusEnum::IN_PROCESS,
             'BookedIn' => PalletStatusEnum::STORING,
-            'Invoiced' => PalletStatusEnum::RETURNED,
+            'BookedOut', 'Invoiced' => PalletStatusEnum::RETURNED,
             'Lost'     => PalletStatusEnum::LOST,
+
         };
 
         $type = match ($this->auroraModelData->{'Fulfilment Asset Type'}) {
@@ -46,6 +47,10 @@ class FetchAuroraPallet extends FetchAurora
 
         $reference = $this->auroraModelData->{'Fulfilment Asset Reference'};
 
+        $reference=str_replace('&', 'and', $reference);
+        $reference=str_replace(',', ' ', $reference);
+        $reference=str_replace('\'', '', $reference);
+        $reference=str_replace('"', '', $reference);
         if ($reference == '') {
             $reference = null;
         }

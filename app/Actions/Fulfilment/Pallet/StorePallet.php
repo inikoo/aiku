@@ -17,7 +17,7 @@ use App\Models\CRM\Customer;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\Pallet;
 use App\Models\SysAdmin\Organisation;
-use App\Rules\AlphaDashDotSpaceSlash;
+use App\Rules\AlphaDashDotSpaceSlashParenthesis;
 use App\Rules\IUnique;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
@@ -59,7 +59,7 @@ class StorePallet extends OrgAction
                 'sometimes',
                 'nullable',
                 'max:64',
-                new AlphaDashDotSpaceSlash(),
+                new AlphaDashDotSpaceSlashParenthesis(),
                 Rule::notIn(['export', 'create', 'upload']),
                 new IUnique(
                     table: 'pallets',

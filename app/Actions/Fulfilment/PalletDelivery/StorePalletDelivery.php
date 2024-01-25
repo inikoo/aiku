@@ -7,16 +7,19 @@
 
 namespace App\Actions\Fulfilment\PalletDelivery;
 
+use App\Actions\OrgAction;
 use App\Models\CRM\Customer;
+use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\Pallet;
-use App\Models\PalletDelivery;
+use App\Models\Fulfilment\PalletDelivery;
+use App\Models\SysAdmin\Organisation;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class StorePalletDelivery
+class StorePalletDelivery extends OrgAction
 {
     use AsAction;
     use WithAttributes;
@@ -25,7 +28,7 @@ class StorePalletDelivery
 
     public function handle(Customer $customer, array $modelData): PalletDelivery
     {
-        /** @var \App\Models\PalletDelivery $palletDelivery */
+        /** @var PalletDelivery $palletDelivery */
         $palletDelivery = $customer->palletDeliveries()->create($modelData);
 
         return $palletDelivery;
@@ -45,12 +48,11 @@ class StorePalletDelivery
         ];
     }
 
-    public function asController(Customer $customer, ActionRequest $request): PalletDelivery
+    public function asController(Organisation $organisation, Fulfilment $fulfilment, Customer $customer, ActionRequest $request): PalletDelivery
     {
-        $this->customer = $customer;
-        $this->setRawAttributes($request->all());
+        $this->initialisationFromFulfilment($fulfilment, $request);
 
-        return $this->handle($customer, $this->validateAttributes());
+        return $this->handle($customer, $this->validatedData);
     }
 
     public function htmlResponse(Pallet $pallet, ActionRequest $request): RedirectResponse

@@ -16,6 +16,7 @@ use App\Models\Accounting\Payment;
 use App\Models\Dropshipping\CustomerClient;
 use App\Models\Fulfilment\FulfilmentOrder;
 use App\Models\Fulfilment\Pallet;
+use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Fulfilment\StoredItem;
 use App\Models\FulfilmentCustomer;
 use App\Models\Helpers\Address;
@@ -24,7 +25,6 @@ use App\Models\Helpers\TaxNumber;
 use App\Models\Market\Product;
 use App\Models\Market\Shop;
 use App\Models\OMS\Order;
-use App\Models\PalletDelivery;
 use App\Models\Search\UniversalSearch;
 use App\Models\SupplyChain\Stock;
 use App\Models\SysAdmin\WebUser;
@@ -88,6 +88,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, Issue> $issues
  * @property-read MediaCollection<int, \App\Models\Media\Media> $media
  * @property-read Collection<int, Order> $orders
+ * @property-read Collection<int, PalletDelivery> $palletDeliveries
  * @property-read Collection<int, Pallet> $pallets
  * @property-read Collection<int, Payment> $payments
  * @property-read Collection<int, Product> $products
