@@ -28,7 +28,7 @@ class FetchSupplierProducts extends FetchAction
 
 
 
-            //print_r($supplierProductData['supplierProduct']);
+            print_r($supplierProductData['supplierProduct']);
             if ($baseSupplierProduct=SupplierProduct::withTrashed()
                 ->where(
                     'source_slug',

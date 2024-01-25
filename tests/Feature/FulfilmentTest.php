@@ -5,12 +5,22 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Actions\CRM\Customer\StoreCustomer;
 use App\Actions\Market\Shop\StoreShop;
+use App\Enums\CRM\Customer\CustomerStatusEnum;
 use App\Enums\Market\Shop\ShopTypeEnum;
+use App\Enums\UI\FulfilmentTabsEnum;
+use App\Models\CRM\Customer;
 use App\Models\Fulfilment\Fulfilment;
+use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Market\Shop;
 use App\Models\SysAdmin\Permission;
 use App\Models\SysAdmin\Role;
+
+use Inertia\Testing\AssertableInertia;
+
+use function Pest\Laravel\actingAs;
+use function Pest\Laravel\get;
 
 beforeAll(function () {
     loadDB('test_base_database.dump');
@@ -19,7 +29,13 @@ beforeAll(function () {
 
 beforeEach(function () {
     $this->organisation = createOrganisation();
-    $this->guest        = createAdminGuest($this->organisation->group);
+    $this->adminGuest   = createAdminGuest($this->organisation->group);
+
+    Config::set(
+        'inertia.testing.page_paths',
+        [resource_path('js/Pages/Grp')]
+    );
+    actingAs($this->adminGuest->user);
 });
 
 test('create fulfilment shop', function () {
@@ -29,10 +45,10 @@ test('create fulfilment shop', function () {
     $shop = StoreShop::make()->action($this->organisation, $storeData);
     $organisation->refresh();
 
-    $shopRoles            =Role::where('scope_type', 'Shop')->where('scope_id', $shop->id)->get();
-    $shopPermissions      =Permission::where('scope_type', 'Shop')->where('scope_id', $shop->id)->get();
-    $fulfilmentRoles      =Role::where('scope_type', 'Fulfilment')->where('scope_id', $shop->id)->get();
-    $fulfilmentPermissions=Permission::where('scope_type', 'Fulfilment')->where('scope_id', $shop->id)->get();
+    $shopRoles             = Role::where('scope_type', 'Shop')->where('scope_id', $shop->id)->get();
+    $shopPermissions       = Permission::where('scope_type', 'Shop')->where('scope_id', $shop->id)->get();
+    $fulfilmentRoles       = Role::where('scope_type', 'Fulfilment')->where('scope_id', $shop->id)->get();
+    $fulfilmentPermissions = Permission::where('scope_type', 'Fulfilment')->where('scope_id', $shop->id)->get();
 
     expect($shop)->toBeInstanceOf(Shop::class)
         ->and($shop->fulfilment)->toBeInstanceOf(Fulfilment::class)
@@ -44,7 +60,7 @@ test('create fulfilment shop', function () {
         ->and($fulfilmentRoles->count())->toBe(3)
         ->and($fulfilmentPermissions->count())->toBe(8);
 
-    $user= $this->guest->user;
+    $user = $this->adminGuest->user;
     $user->refresh();
 
     expect($user->getAllPermissions()->count())->toBe(15)
@@ -53,4 +69,31 @@ test('create fulfilment shop', function () {
 
 
     return $shop;
+});
+
+test('create fulfilment customer', function ($shop) {
+    $customer = StoreCustomer::make()->action(
+        $shop,
+        Customer::factory()->definition(),
+    );
+
+    expect($customer)->toBeInstanceOf(Customer::class)
+        ->and($customer->reference)->toBe('000001')
+        ->and($customer->status)->toBe(CustomerStatusEnum::APPROVED)
+        ->and($customer->fulfilment)->toBeInstanceOf(FulfilmentCustomer::class)
+        ->and($customer->fulfilment->number_pallets)->toBe(0)
+        ->and($customer->fulfilment->number_stored_items)->toBe(0);
+
+    return $customer;
+})->depends('create fulfilment shop');
+
+test('can show list of fulfilment shops', function () {
+    $response = get(route('grp.org.fulfilment.index', $this->organisation->slug));
+    expect(FulfilmentTabsEnum::FULFILMENT_SHOPS->value)->toBe('fulfilments');
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Fulfilment/Fulfilments')
+            ->has('title')->has('tabs')->has(FulfilmentTabsEnum::FULFILMENT_SHOPS->value.'.data')
+            ->has('breadcrumbs', 2);
+    });
 });
