@@ -12,7 +12,7 @@ Broadcast::channel('grp.personal.{userID}', function (User $user, int $userID) {
     return $userID === $user->id;
 });
 
-Broadcast::channel('grp.general', function (User $user) {
+Broadcast::channel('grp.{groupID}.general', function (User $user) {
     return true;
 });
 
