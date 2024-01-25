@@ -7,8 +7,6 @@
 
 namespace App\Actions\Fulfilment\PalletDelivery;
 
-use App\Actions\CRM\Customer\Hydrators\CustomerHydrateStoredItems;
-use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateFulfilment;
 use App\Models\CRM\Customer;
 use App\Models\Fulfilment\Pallet;
 use App\Models\PalletDelivery;
