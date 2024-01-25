@@ -23,12 +23,12 @@ class FetchFamilies extends FetchAction
         if ($familyData = $organisationSource->fetchFamily($organisationSourceId)) {
             if ($family = ProductCategory::where('source_family_id', $familyData['family']['source_family_id'])
                 ->first()) {
-                $family = UpdateProductCategory::run(
+                $family = UpdateProductCategory::make()->action(
                     productCategory:    $family,
                     modelData: $familyData['family'],
                 );
             } else {
-                $family = StoreProductCategory::run(
+                $family = StoreProductCategory::make()->action(
                     parent:    $familyData['parent'],
                     modelData: $familyData['family']
                 );

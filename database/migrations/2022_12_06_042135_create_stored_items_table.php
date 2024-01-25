@@ -7,17 +7,20 @@
 
 use App\Enums\Fulfilment\StoredItem\StoredItemStateEnum;
 use App\Enums\Fulfilment\StoredItem\StoredItemStatusEnum;
+use App\Stubs\Migrations\HasGroupOrganisationRelationship;
 use App\Stubs\Migrations\HasSoftDeletes;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
+    use HasGroupOrganisationRelationship;
     use HasSoftDeletes;
     public function up(): void
     {
         Schema::create('stored_items', function (Blueprint $table) {
             $table->increments('id');
+            $table=$this->groupOrgRelationship($table);
             $table->string('slug')->unique()->collation('und_ns');
             $table->string('reference')->index()->collation('und_ci');
             $table->string('status')->default(StoredItemStatusEnum::IN_PROCESS->value);

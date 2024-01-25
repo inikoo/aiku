@@ -9,24 +9,15 @@ namespace App\Actions\Market\ProductCategory;
 
 use App\Actions\Market\ProductCategory\Hydrators\ProductCategoryHydrateUniversalSearch;
 use App\Actions\Market\Shop\Hydrators\ShopHydrateDepartments;
+use App\Actions\OrgAction;
 use App\Enums\Market\ProductCategory\ProductCategoryTypeEnum;
 use App\Models\Market\ProductCategory;
 use App\Models\Market\Shop;
 use App\Models\SysAdmin\Organisation;
-use App\Rules\CaseSensitive;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsAction;
-use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class StoreProductCategory
+class StoreProductCategory extends OrgAction
 {
-    use AsAction;
-    use WithAttributes;
-
-    private int $hydratorsDelay =0;
-
     public function handle(Shop|ProductCategory $parent, array $modelData): ProductCategory
     {
         if (class_basename($parent) == 'ProductCategory') {
@@ -37,6 +28,10 @@ class StoreProductCategory
             $modelData['shop_id'] = $parent->id;
         }
 
+        data_set($modelData, 'group_id', $parent->group_id);
+        data_set($modelData, 'organisation', $parent->organisation_id);
+
+
         /** @var ProductCategory $productCategory */
         $productCategory = $parent->departments()->create($modelData);
 
@@ -44,9 +39,8 @@ class StoreProductCategory
         $productCategory->salesStats()->create([
             'scope' => 'sales'
         ]);
-        /** @var Organisation $organisation */
-        $organisation = app('currentTenant');
-        if ($productCategory->shop->currency_id != $organisation->currency_id) {
+
+        if ($productCategory->shop->currency_id != $parent->organisation->currency_id) {
             $productCategory->salesStats()->create([
                 'scope' => 'sales-tenant-currency'
             ]);
@@ -61,7 +55,7 @@ class StoreProductCategory
     public function rules(): array
     {
         return [
-            'code'        => ['required', 'unique:product_categories', 'between:2,9', 'alpha_dash', new CaseSensitive('product_categories')],
+            'code'        => ['required', 'unique:product_categories', 'between:2,9', 'alpha_dash'],
             'name'        => ['required', 'max:250', 'string'],
             'image_id'    => ['sometimes', 'required', 'exists:media,id'],
             'state'       => ['sometimes', 'required'],
@@ -69,24 +63,20 @@ class StoreProductCategory
         ];
     }
 
-    public function action(Shop|ProductCategory $parent, array $modelData): ProductCategory
+    public function action(Shop|ProductCategory $parent, array $modelData, int $hydratorsDelay = 0): ProductCategory
     {
-        $this->setRawAttributes($modelData);
-        $validatedData = $this->validateAttributes();
+        $this->hydratorsDelay = $hydratorsDelay;
+        $this->initialisation($parent->organisation, $modelData);
 
-        return $this->handle($parent, $validatedData);
+        return $this->handle($parent, $this->validatedData);
     }
 
-    public function inShop(Shop $shop, ActionRequest $request): RedirectResponse
+    public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): ProductCategory
     {
-        $request->validate();
-        $this->handle($shop, $request->all());
-        return  Redirect::route('grp.shops.show.departments.index', $shop);
+        $this->initialisationFromShop($shop, $request);
+
+        return $this->handle($shop, $this->validatedData);
     }
 
-    public function asFetch(Shop $shop, array $productCategoryData, int $hydratorsDelay=60): ProductCategory
-    {
-        $this->hydratorsDelay=$hydratorsDelay;
-        return $this->handle($shop, $productCategoryData);
-    }
+
 }

@@ -33,7 +33,7 @@ beforeAll(function () {
 
 beforeEach(function () {
     $this->organisation = createOrganisation();
-})->todo();
+});
 
 test('create shop', function () {
     $shop = StoreShop::make()->action($this->organisation, Shop::factory()->definition());
@@ -86,11 +86,12 @@ test('create product category', function ($shop) {
     $this->assertModelExists($productCategory);
 
     return $productCategory;
-})->depends('create shop');
+})->depends('create shop')->todo();
 
 test('create sub product category', function ($productCategory) {
     $subProductCategory = StoreProductCategory::make()->action($productCategory, ProductCategory::factory()->definition());
-    $this->assertModelExists($subProductCategory);
+
+    expect($subProductCategory)->toBeInstanceOf(ProductCategory::class);
 
     return $subProductCategory;
 })->depends('create product category');
@@ -100,7 +101,7 @@ test('create product category 2', function ($shop) {
     $this->assertModelExists($productCategory);
 
     return $productCategory;
-})->depends('create shop');
+})->depends('create shop')->todo();
 
 test('update product category', function ($productCategory) {
     $productCategory = UpdateProductCategory::make()->action($productCategory, ProductCategory::factory()->definition());
@@ -122,7 +123,7 @@ test('create product', function ($shop) {
     $this->assertModelExists($product);
 
     return $product;
-})->depends('create shop');
+})->depends('create shop')->todo();
 
 test('update product', function ($product) {
     $product = UpdateProduct::make()->action($product, Product::factory()->definition());

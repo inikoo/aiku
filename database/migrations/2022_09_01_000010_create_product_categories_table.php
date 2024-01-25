@@ -6,16 +6,22 @@
  */
 
 use App\Stubs\Migrations\HasAssetCodeDescription;
+use App\Stubs\Migrations\HasGroupOrganisationRelationship;
+use App\Stubs\Migrations\HasSoftDeletes;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
     use HasAssetCodeDescription;
+    use HasGroupOrganisationRelationship;
+    use HasSoftDeletes;
+
     public function up(): void
     {
         Schema::create('product_categories', function (Blueprint $table) {
             $table->smallIncrements('id');
+            $table = $this->groupOrgRelationship($table);
             $table->string('slug')->unique()->collation('und_ns');
             $table = $this->assertCodeDescription($table);
             $table->unsignedInteger('image_id')->nullable();
@@ -28,10 +34,10 @@ return new class () extends Migration {
             $table->string('state')->nullable()->index();
             $table->jsonb('data');
             $table->timestampstz();
-            $table->softDeletesTz();
+            $table = $this->softDeletes($table);
             $table->unsignedInteger('source_department_id')->nullable()->unique();
             $table->unsignedInteger('source_family_id')->nullable()->unique();
-            $table->index(['parent_id','parent_type']);
+            $table->index(['parent_id', 'parent_type']);
         });
         DB::statement('CREATE INDEX ON product_categories USING gin (name gin_trgm_ops) ');
     }

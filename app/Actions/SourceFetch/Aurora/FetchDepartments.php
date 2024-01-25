@@ -23,12 +23,12 @@ class FetchDepartments extends FetchAction
         if ($productCategoryData = $organisationSource->fetchDepartment($organisationSourceId)) {
             if ($productCategory = ProductCategory::where('source_department_id', $productCategoryData['department']['source_department_id'])
                 ->first()) {
-                $productCategory = UpdateProductCategory::run(
+                $productCategory = UpdateProductCategory::make()->action(
                     productCategory: $productCategory,
                     modelData: $productCategoryData['department'],
                 );
             } else {
-                $productCategory = StoreProductCategory::run(
+                $productCategory = StoreProductCategory::make()->action(
                     parent: $productCategoryData['shop'],
                     modelData: $productCategoryData['department']
                 );

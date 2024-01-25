@@ -11,6 +11,8 @@ use App\Actions\Market\Shop\Hydrators\ShopHydrateDepartments;
 use App\Enums\Market\ProductCategory\ProductCategoryStateEnum;
 use App\Models\BI\SalesStats;
 use App\Models\Search\UniversalSearch;
+use App\Models\SysAdmin\Group;
+use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
 use Eloquent;
@@ -111,6 +113,17 @@ class ProductCategory extends Model implements Auditable
             ->doNotGenerateSlugsOnUpdate()
             ->slugsShouldBeNoLongerThan(64);
     }
+
+    public function group(): BelongsTo
+    {
+        return $this->belongsTo(Group::class);
+    }
+
+    public function organisation(): BelongsTo
+    {
+        return $this->belongsTo(Organisation::class);
+    }
+
 
     public function shop(): BelongsTo
     {
