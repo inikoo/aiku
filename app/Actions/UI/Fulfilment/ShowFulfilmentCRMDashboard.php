@@ -5,53 +5,53 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\UI\CRM;
+namespace App\Actions\UI\Fulfilment;
 
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Organisation\UI\ShowOrganisationDashboard;
-use App\Models\Market\Shop;
+use App\Models\Fulfilment\Fulfilment;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class ShowShopCRMDashboard extends OrgAction
+class ShowFulfilmentCRMDashboard extends OrgAction
 {
-    public function handle(Shop $shop): Shop
+    public function handle(Fulfilment $fulfilment): Fulfilment
     {
-        return $shop;
+        return $fulfilment;
     }
 
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("crm.{$this->shop->id}.view");
+        return $request->user()->hasPermissionTo("fulfilment.{$this->fulfilment->id}.view");
     }
 
 
-    /** @noinspection PhpUnusedParameterInspection */
-    public function inShop(Organisation $organisation, Shop $shop, ActionRequest $request): Shop
+
+    public function asController(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): Fulfilment
     {
-        $this->initialisationFromShop($shop, $request);
+        $this->initialisationFromFulfilment($fulfilment, $request);
 
-        return $this->handle($shop);
+        return $this->handle($fulfilment);
     }
 
 
-    public function htmlResponse(Shop $shop, ActionRequest $request): Response
+    public function htmlResponse(Fulfilment $fulfilment, ActionRequest $request): Response
     {
         $container = [
-            'icon'    => ['fal', 'fa-store-alt'],
-            'tooltip' => __('Shop'),
-            'label'   => Str::possessive($shop->name)
+            'icon'    => ['fal', 'fa-pallet-alt'],
+            'tooltip' => __('Fulfilment'),
+            'label'   => Str::possessive($fulfilment->shop->name)
         ];
 
 
         $routeParameters = $request->route()->originalParameters();
 
         return Inertia::render(
-            'Org/Shop/CRM/CRMDashboard',
+            'Org/Fulfilment/CRM/Dashboard',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->originalParameters()
@@ -64,21 +64,21 @@ class ShowShopCRMDashboard extends OrgAction
                 'stats'       => [
                     'customers' => [
                         'name' => __('customers'),
-                        'stat' => $shop->crmStats->number_customers,
+                        'stat' => $fulfilment->shop->crmStats->number_customers,
 
                         'href' =>
                             [
-                                'name'       => 'grp.org.shops.crm.customers.index',
+                                'name'       => 'grp.org.fulfilment.crm.customers.index',
                                 'parameters' => $routeParameters
                             ]
 
                     ],
                     'prospects' => [
                         'name' => __('prospects'),
-                        'stat' => $shop->crmStats->number_prospects,
+                        'stat' => $fulfilment->shop->crmStats->number_prospects,
                         'href' =>
                             [
-                                'name'       => 'grp.org.shops.crm.prospects.index',
+                                'name'       => 'grp.org.fulfilment.crm.prospects.index',
                                 'parameters' => array_merge($routeParameters, [
                                     '_query' => [
                                         'tab' => 'prospects'
@@ -95,7 +95,7 @@ class ShowShopCRMDashboard extends OrgAction
     public function getBreadcrumbs(array $routeParameters): array
     {
 
-        $shop=Shop::where('slug', $routeParameters['shop'])->first();
+        $fulfilment=Fulfilment::where('slug', $routeParameters['fulfilment'])->first();
 
         return array_merge(
             ShowOrganisationDashboard::make()->getBreadcrumbs($routeParameters),
@@ -104,10 +104,10 @@ class ShowShopCRMDashboard extends OrgAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => [
-                            'name'       => 'grp.org.shops.crm.dashboard',
+                            'name'       => 'grp.org.fulfilment.crm.dashboard',
                             'parameters' => $routeParameters
                         ],
-                        'label' => __('CRM').' ('.$shop->code.')',
+                        'label' => __('CRM').' ('.$fulfilment->shop->code.')',
                     ]
                 ]
             ]

@@ -20,8 +20,8 @@ Route::prefix("shops")
     ->group(__DIR__."/shops/shops.php");
 
 Route::prefix("fulfilment")
-    ->name("fulfilments.")
-    ->group(__DIR__."/fulfilments.php");
+    ->name("fulfilment.")
+    ->group(__DIR__."/fulfilment/fulfilment.php");
 
 
 Route::prefix("inventory")

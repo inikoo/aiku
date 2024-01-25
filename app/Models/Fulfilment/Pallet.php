@@ -12,13 +12,20 @@ use Illuminate\Database\Eloquent\Model;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
+/**
+ *
+ * @property int $id
+ * @property string $slug
+ * @property string $label
+ */
+
 class Pallet extends Model
 {
     use HasSlug;
     use HasSoftDeletes;
 
     protected $guarded = [];
-    protected $casts = [
+    protected $casts   = [
         'data' => 'array',
     ];
 

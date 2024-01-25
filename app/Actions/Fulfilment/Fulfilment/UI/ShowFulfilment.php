@@ -65,7 +65,7 @@ class ShowFulfilment extends OrgAction
                     'title'   => $fulfilment->shop->name,
                     'icon'    => [
                         'title' => __('Fulfilment'),
-                        'icon'  => 'fal fa-store-alt'
+                        'icon'  => 'fal fa-pallet-alt'
                     ],
 
                 ],
@@ -109,15 +109,15 @@ class ShowFulfilment extends OrgAction
                         'modelWithIndex' => [
                             'index' => [
                                 'route' => [
-                                    'name'       => 'grp.org.fulfilments.index',
+                                    'name'       => 'grp.org.fulfilment.index',
                                     'parameters' => $routeParameters
                                 ],
-                                'label' => __('fulfilments'),
+                                'label' => __('fulfilment'),
                                 'icon'  => 'fal fa-bars'
                             ],
                             'model' => [
                                 'route' => [
-                                    'name'       => 'grp.org.fulfilments.show',
+                                    'name'       => 'grp.org.fulfilment.show',
                                     'parameters' => $routeParameters
                                 ],
                                 'label' => $fulfilment->shop->code,
@@ -153,7 +153,7 @@ class ShowFulfilment extends OrgAction
         }
 
         return match ($routeName) {
-            'grp.org.fulfilments.show' => [
+            'grp.org.fulfilment.show' => [
                 'label' => $fulfilment->shop->name,
                 'route' => [
                     'name'       => $routeName,
