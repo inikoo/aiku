@@ -37,8 +37,10 @@ const generateCurrentString = (str: string) => {
             </span>
         </div>
 
+        <!-- {{ Object.keys(orgNav[layout.organisationsState?.[layout.currentParams.organisation]?.[generateCurrentString(itemKey)]]) }} -->
         <!-- If Shops/Warehouses length is 1 (Show the subnav straighly) -->
         <div v-if="Object.keys(orgNav || []).length === 1" class="flex flex-col gap-y-1 mb-1">
+            group only 1
             <template v-for="nav, navIndex in orgNav[Object.keys(orgNav)[0]]">
                 <NavigationSimple
                     :nav="nav"
@@ -54,6 +56,7 @@ const generateCurrentString = (str: string) => {
         <!-- If Shops/Warehouses length is more than 1 and current warehouse is exist -->
         <div v-else-if="layout.organisationsState?.[layout.currentParams.organisation]?.[generateCurrentString(itemKey)]"
             class="flex flex-col gap-y-1 mb-1">
+            <!-- Looping: SubNav -->
             <template v-for="nav, navIndex in orgNav[layout.organisationsState?.[layout.currentParams.organisation]?.[generateCurrentString(itemKey)]]">
                 <NavigationSimple
                     :nav="nav"

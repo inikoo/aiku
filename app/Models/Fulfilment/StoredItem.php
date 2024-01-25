@@ -46,6 +46,7 @@ use App\Models\Inventory\Location;
  * @property string|null $settled_at
  * @property array $data
  * @property Carbon|null $deleted_at
+ * @property string|null $delete_comment
  * @property string|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Customer $customer

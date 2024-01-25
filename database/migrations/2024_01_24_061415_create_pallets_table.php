@@ -5,24 +5,36 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
+use App\Enums\Fulfilment\Pallet\PalletStateEnum;
+use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
+use App\Stubs\Migrations\HasGroupOrganisationRelationship;
+use App\Stubs\Migrations\HasSoftDeletes;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
+    use HasGroupOrganisationRelationship;
+    use HasSoftDeletes;
     public function up(): void
     {
         Schema::create('pallets', function (Blueprint $table) {
-            $table->id();
+            $table->increments('id');
+            $table = $this->groupOrgRelationship($table);
             $table->string('slug')->unique()->collation('und_ns');
-            $table->string('reference')->index()->collation('und_ci');
+            $table->string('customer_reference')->nullable()->index()->collation('und_ci');
 
+            $table->unsignedInteger('fulfilment_id')->index();
+            $table->foreign('fulfilment_id')->references('id')->on('fulfilments');
             $table->unsignedInteger('customer_id')->index();
             $table->foreign('customer_id')->references('id')->on('customers');
 
             $table->unsignedInteger('location_id')->index()->nullable();
             $table->foreign('location_id')->references('id')->on('locations');
-
+            $table->string('status')->index()->default(PalletStatusEnum::IN_PROCESS->value);
+            $table->string('state')->index()->default(PalletStateEnum::IN_PROCESS->value);
+            $table->string('type')->index()->default(PalletTypeEnum::PALLET->value);
             $table->string('notes');
             $table->decimal('items_quantity')->default(0);
 
@@ -30,9 +42,9 @@ return new class () extends Migration {
             $table->dateTimeTz('booked_in_at')->nullable();
             $table->dateTimeTz('settled_at')->nullable();
             $table->jsonb('data');
-
-            $table->softDeletes();
             $table->timestampsTz();
+            $table = $this->softDeletes($table);
+            $table->string('source_id')->nullable()->unique();
         });
     }
 

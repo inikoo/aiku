@@ -9,6 +9,7 @@ use App\Enums\CRM\Customer\CustomerStateEnum;
 use App\Enums\CRM\Customer\CustomerTradeStateEnum;
 use App\Stubs\Migrations\HasContact;
 use App\Stubs\Migrations\HasGroupOrganisationRelationship;
+use App\Stubs\Migrations\HasSoftDeletes;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -16,6 +17,7 @@ use Illuminate\Support\Facades\Schema;
 return new class () extends Migration {
     use HasContact;
     use HasGroupOrganisationRelationship;
+    use HasSoftDeletes;
     public function up(): void
     {
         Schema::create('customers', function (Blueprint $table) {
@@ -36,7 +38,7 @@ return new class () extends Migration {
             $table->boolean('is_dropshipping')->index()->default(false);
             $table->jsonb('data');
             $table->timestampsTz();
-            $table->softDeletesTz();
+            $table = $this->softDeletes($table);
             $table->string('source_id')->nullable()->unique();
             $table->unique(['shop_id', 'reference']);
         });
