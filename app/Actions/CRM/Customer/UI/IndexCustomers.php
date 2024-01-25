@@ -1,13 +1,13 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 20 Jun 2023 20:32:25 Malaysia Time, Pantai Lembeng, Bali, Id
+ * Created: Tue, 20 Jun 2023 20:32:25 Malaysia Time, Pantai Lembeng, Bali, Indonesia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
 namespace App\Actions\CRM\Customer\UI;
 
-use App\Actions\InertiaAction;
+use App\Actions\OrgAction;
 use App\Actions\UI\CRM\ShowShopCRMDashboard;
 use App\Enums\Market\Shop\ShopTypeEnum;
 use App\Http\Resources\Sales\CustomerResource;
@@ -25,7 +25,7 @@ use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
-class IndexCustomers extends InertiaAction
+class IndexCustomers extends OrgAction
 {
     private Shop|Organisation $parent;
     private bool $canCreateShop = false;
@@ -35,29 +35,27 @@ class IndexCustomers extends InertiaAction
         $this->canEdit       = $request->user()->hasPermissionTo("crm.{$this->shop->id}.edit");
         $this->canCreateShop = $request->user()->hasPermissionTo('shops.edit');
 
-        return
-            (
-                $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo("crm.{$this->shop->id}.view")
-            );
+        return $request->user()->hasPermissionTo("crm.{$this->shop->id}.view");
     }
 
-    public function inOrganisation(ActionRequest $request): LengthAwarePaginator
+    public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisation($request);
-        $this->parent = app('currentTenant');
+        $this->initialisation($organisation, $request);
+        $this->parent = $organisation;
+
         return $this->handle($this->parent);
     }
 
-    public function inShop(Shop $shop, ActionRequest $request): LengthAwarePaginator
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inShop(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisation($request);
+        $this->initialisationFromShop($shop, $request);
         $this->parent = $shop;
 
         return $this->handle($shop);
     }
 
-    /** @noinspection PhpUndefinedMethodInspection */
+
     public function handle(Organisation|Shop $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -73,6 +71,16 @@ class IndexCustomers extends InertiaAction
         }
 
         $queryBuilder = QueryBuilder::for(Customer::class);
+
+
+        if (class_basename($parent) == 'Shop') {
+            $queryBuilder->where('customers.shop_id', $parent->id);
+        } else {
+            $queryBuilder->where('customers.organisation_id', $parent->id);
+        }
+
+
+        /*
         foreach ($this->elementGroups as $key => $elementGroup) {
             $queryBuilder->whereElementGroup(
                 prefix: $prefix,
@@ -81,7 +89,9 @@ class IndexCustomers extends InertiaAction
                 engine: $elementGroup['engine']
             );
         }
+        */
 
+        /** @noinspection PhpUndefinedMethodInspection */
         return $queryBuilder
             ->defaultSort('customers.slug')
             ->select([
@@ -95,11 +105,6 @@ class IndexCustomers extends InertiaAction
             ])
             ->leftJoin('customer_stats', 'customers.id', 'customer_stats.customer_id')
             ->leftJoin('shops', 'shops.id', 'shop_id')
-            ->when(true, function ($query) use ($parent) {
-                if (class_basename($parent) == 'Shop') {
-                    $query->where('customers.shop_id', $parent->id);
-                }
-            })
             ->allowedSorts(['reference', 'name', 'number_active_clients', 'slug'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
@@ -126,15 +131,17 @@ class IndexCustomers extends InertiaAction
                             'description' => $this->canCreateShop && $parent->marketStats->number_shops == 0 ? __('Get started by creating a shop. ✨')
                                 : __("In fact, is no even a shop yet 🤷🏽‍♂️"),
                             'count'       => $parent->crmStats->number_customers,
-                            'action'      => $this->canCreateShop && $parent->marketStats->number_shops == 0 ? [
-                                'type'    => 'button',
-                                'style'   => 'create',
-                                'tooltip' => __('new shop'),
-                                'label'   => __('shop'),
-                                'route'   => [
-                                    'name' => 'shops.create',
+                            'action'      => $this->canCreateShop && $parent->marketStats->number_shops == 0
+                                ? [
+                                    'type'    => 'button',
+                                    'style'   => 'create',
+                                    'tooltip' => __('new shop'),
+                                    'label'   => __('shop'),
+                                    'route'   => [
+                                        'name' => 'shops.create',
+                                    ]
                                 ]
-                            ] :
+                                :
                                 [
                                     'type'    => 'button',
                                     'style'   => 'create',
@@ -162,7 +169,7 @@ class IndexCustomers extends InertiaAction
                                 ]
                             ] : null
                         ],
-                        default=> null
+                        default => null
                     }
                     /*
                     [
@@ -208,7 +215,7 @@ class IndexCustomers extends InertiaAction
         }
 
         return Inertia::render(
-            'CRM/Customers',
+            'Org/Shop/CRM/Customers',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
@@ -245,6 +252,7 @@ class IndexCustomers extends InertiaAction
         };
 
         return match ($routeName) {
+            /*
             'grp.crm.customers.index' =>
             array_merge(
                 (new ShowShopCRMDashboard())->getBreadcrumbs(
@@ -258,10 +266,10 @@ class IndexCustomers extends InertiaAction
                     ]
                 ),
             ),
+            */
             'grp.crm.shops.show.customers.index' =>
             array_merge(
                 (new ShowShopCRMDashboard())->getBreadcrumbs(
-                    'grp.crm.shops.show.dashboard',
                     $routeParameters
                 ),
                 $headCrumb(

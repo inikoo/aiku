@@ -130,7 +130,7 @@ class IndexFulfilments extends OrgAction
                             'tooltip' => __('new fulfilment shop'),
                             'label'   => __('Fulfilment Shop'),
                             'route'   => [
-                                'name'       => 'grp.org.fulfilments.create',
+                                'name'       => 'grp.org.fulfilment.create',
                                 'parameters' => $request->route()->originalParameters()
                             ]
                         ] : false,

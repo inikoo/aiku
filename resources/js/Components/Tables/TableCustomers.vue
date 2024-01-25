@@ -27,8 +27,12 @@ function customerRoute(customer: Customer) {
                 [customer.slug]);
         default:
             return route(
-                'grp.crm.customers.show',
-                [customer.slug]);
+                'grp.org.shops.crm.customers.show',
+                [
+                    route().params['organisation'],
+                    route().params['shop'],
+                    customer.slug
+                ]);
     }
 }
 

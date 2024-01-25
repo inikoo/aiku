@@ -8,7 +8,7 @@
 namespace App\Actions\UI\CRM;
 
 use App\Actions\OrgAction;
-use App\Actions\UI\Dashboard\ShowDashboard;
+use App\Actions\SysAdmin\Organisation\UI\ShowOrganisationDashboard;
 use App\Models\Market\Shop;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Str;
@@ -54,7 +54,7 @@ class ShowShopCRMDashboard extends OrgAction
             'Org/Shop/CRM/CRMDashboard',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
-                    $request->route()->parameters
+                    $request->route()->originalParameters()
                 ),
                 'title'       => 'CRM',
                 'pageHead'    => [
@@ -94,8 +94,11 @@ class ShowShopCRMDashboard extends OrgAction
 
     public function getBreadcrumbs(array $routeParameters): array
     {
+
+        $shop=Shop::where('slug', $routeParameters['shop'])->first();
+
         return array_merge(
-            ShowDashboard::make()->getBreadcrumbs(),
+            ShowOrganisationDashboard::make()->getBreadcrumbs($routeParameters),
             [
                 [
                     'type'   => 'simple',
@@ -104,7 +107,7 @@ class ShowShopCRMDashboard extends OrgAction
                             'name'       => 'grp.org.shops.crm.dashboard',
                             'parameters' => $routeParameters
                         ],
-                        'label' => __('CRM').' ('.$routeParameters['shop']->code.')',
+                        'label' => __('CRM').' ('.$shop->code.')',
                     ]
                 ]
             ]
