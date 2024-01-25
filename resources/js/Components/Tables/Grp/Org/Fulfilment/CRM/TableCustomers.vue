@@ -19,7 +19,7 @@ function customerRoute(customer: Customer) {
     switch (route().current()) {
         default:
             return route(
-                'grp.org.fulfilment.shops.crm.customers.show',
+                'grp.org.fulfilment.shops.show.crm.customers.show',
                 [
                     route().params['organisation'],
                     route().params['fulfilment'],

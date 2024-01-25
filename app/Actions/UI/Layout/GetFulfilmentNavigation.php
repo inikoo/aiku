@@ -36,7 +36,7 @@ class GetFulfilmentNavigation
                             'label' => __('crm'),
                             'icon'  => ['fal', 'fa-users'],
                             'route' => [
-                                'name'       => 'grp.org.fulfilment.shops.crm',
+                                'name'       => 'grp.org.fulfilment.shops.show.crm',
                                 'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug],
 
                             ]
@@ -127,7 +127,7 @@ class GetFulfilmentNavigation
                 'icon'  => ['fal', 'fa-user'],
 
                 'route' => [
-                    'name'       => 'grp.org.fulfilment.shops.crm.dashboard',
+                    'name'       => 'grp.org.fulfilment.shops.show.crm.dashboard',
                     'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug]
                 ],
 

@@ -68,7 +68,7 @@ class ShowFulfilmentCRMDashboard extends OrgAction
 
                         'href' =>
                             [
-                                'name'       => 'grp.org.fulfilment.shops.crm.customers.index',
+                                'name'       => 'grp.org.fulfilment.shops.show.crm.customers.index',
                                 'parameters' => $routeParameters
                             ]
 
@@ -78,7 +78,7 @@ class ShowFulfilmentCRMDashboard extends OrgAction
                         'stat' => $fulfilment->shop->crmStats->number_prospects,
                         'href' =>
                             [
-                                'name'       => 'grp.org.fulfilment.shops.crm.prospects.index',
+                                'name'       => 'grp.org.fulfilment.shops.show.crm.prospects.index',
                                 'parameters' => array_merge($routeParameters, [
                                     '_query' => [
                                         'tab' => 'prospects'
@@ -104,7 +104,7 @@ class ShowFulfilmentCRMDashboard extends OrgAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => [
-                            'name'       => 'grp.org.fulfilment.shops.crm.dashboard',
+                            'name'       => 'grp.org.fulfilment.shops.show.crm.dashboard',
                             'parameters' => $routeParameters
                         ],
                         'label' => __('CRM').' ('.$fulfilment->shop->code.')',
