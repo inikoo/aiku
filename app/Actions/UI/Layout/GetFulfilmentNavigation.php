@@ -22,12 +22,10 @@ class GetFulfilmentNavigation
 
         if ($user->hasPermissionTo("products.$fulfilment->id.view")) {
             $navigation['fulfilment'] = [
-                'scope' => 'fulfilments',
                 'icon'  => ['fal', 'fa-store-alt'],
-
                 'label' => __('Fulfilment'),
                 'route' => [
-                    'name'       => 'grp.org.fulfilments.show',
+                    'name'       => 'grp.org.fulfilment.show',
                     'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug]
                 ],
 

@@ -94,11 +94,11 @@ class GetOrganisationNavigation
             $navigation['fulfilments_index'] = [
                 'label' => __('Fulfilment shops'),
 
-                'scope' => 'fulfilments',
+
                 'icon'  => ['fal', 'fa-store-alt'],
 
                 'route' => [
-                    'name'       => 'grp.org.fulfilments.index',
+                    'name'       => 'grp.org.fulfilment.index',
                     'parameters' => [$organisation->slug],
                 ],
 
