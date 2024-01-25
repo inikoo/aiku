@@ -16,10 +16,10 @@ use App\Actions\OrgAction;
 use App\Actions\Mail\Outbox\StoreOutbox;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateMarket;
 use App\Actions\SysAdmin\User\UserAddRoles;
+use App\Actions\Traits\Rules\WithShopRules;
 use App\Enums\Accounting\PaymentAccount\PaymentAccountTypeEnum;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Enums\Mail\Outbox\OutboxTypeEnum;
-use App\Enums\Market\Shop\ShopStateEnum;
 use App\Enums\Market\Shop\ShopTypeEnum;
 use App\Enums\SysAdmin\Authorisation\RolesEnum;
 use App\Models\Assets\Country;
@@ -29,17 +29,17 @@ use App\Models\Assets\Timezone;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Market\Shop;
 use App\Models\SysAdmin\Role;
-use App\Rules\IUnique;
 use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
-use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\ActionRequest;
 
 class StoreShop extends OrgAction
 {
+    use WithShopRules;
+
     public function handle(Organisation $organisation, array $modelData): Shop
     {
         data_set($modelData, 'group_id', $organisation->group_id);
@@ -70,7 +70,8 @@ class StoreShop extends OrgAction
 
 
         if ($shop->type == ShopTypeEnum::FULFILMENT) {
-            StoreFulfilment::make()->action($shop, []);
+            //it must use run to bypass rules
+            StoreFulfilment::make()->run($shop, []);
         } else {
             SeedShopPermissions::run($shop);
 
@@ -129,51 +130,14 @@ class StoreShop extends OrgAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("shops.edit");
+        return $request->user()->hasPermissionTo("shops.{$this->organisation->id}.edit");
     }
-
 
     public function rules(): array
     {
-        return [
-            'code' => [
-                'required',
-                'max:4',
-                'alpha_dash',
-                new IUnique(
-                    table: 'shops',
-                    extraConditions: [
-                        ['column' => 'group_id', 'value' => $this->organisation->group_id],
-                    ]
-                ),
-
-
-            ],
-            'name' => ['required', 'string', 'max:255'],
-
-            'contact_name'             => ['nullable', 'string', 'max:255'],
-            'company_name'             => ['nullable', 'string', 'max:255'],
-            'email'                    => ['nullable', 'email'],
-            'phone'                    => 'nullable',
-            'identity_document_number' => ['nullable', 'string'],
-            'identity_document_type'   => ['nullable', 'string'],
-            'state'                    => ['sometimes', 'required', Rule::in(ShopStateEnum::values())],
-            'type'                     => ['required', Rule::in(ShopTypeEnum::values())],
-            'country_id'               => ['required', 'exists:countries,id'],
-            'currency_id'              => ['required', 'exists:currencies,id'],
-            'language_id'              => ['required', 'exists:languages,id'],
-            'timezone_id'              => ['required', 'exists:timezones,id'],
-            'closed_at'                => ['sometimes', 'nullable', 'date'],
-            'settings'                 => ['sometimes', 'array'],
-            'created_at'               => ['sometimes', 'date'],
-            'source_id'                => ['sometimes', 'string']
-        ];
+        return $this->getStoreShopRules();
     }
 
-    public function htmlResponse(Shop $shop): RedirectResponse
-    {
-        return Redirect::route('grp.shops.show', $shop->slug);
-    }
 
     public function afterValidator(Validator $validator, ActionRequest $request): void
     {
@@ -189,7 +153,6 @@ class StoreShop extends OrgAction
     {
         $this->asAction = true;
         $this->initialisation($organisation, $modelData);
-
         return $this->handle($organisation, $this->validatedData);
     }
 
@@ -293,5 +256,9 @@ class StoreShop extends OrgAction
         return 0;
     }
 
+    public function htmlResponse(Shop $shop): RedirectResponse
+    {
+        return Redirect::route('grp.org.shops.show', [$this->organisation->slug, $shop->slug]);
+    }
 
 }
