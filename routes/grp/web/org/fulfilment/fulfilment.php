@@ -21,6 +21,11 @@ use App\Actions\Fulfilment\StoredItem\UI\EditStoredItem;
 use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItems;
 use App\Actions\Fulfilment\StoredItem\UI\ShowStoredItem;
 use App\Actions\UI\Fulfilment\ShowFulfilmentsDashboard;
+use App\Actions\Web\Webpage\IndexWebpages;
+use App\Actions\Web\Website\UI\EditWebsite;
+use App\Actions\Web\Website\UI\IndexWebsites;
+use App\Actions\Web\Website\UI\ShowWebsite;
+use App\Actions\Web\Website\UI\ShowWebsiteWorkshop;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', ShowFulfilmentsDashboard::class)->name('dashboard');
@@ -31,16 +36,45 @@ Route::prefix('shops')->name('shops.')
         Route::get('create', CreateFulfilment::class)->name('create');
 
 
-        Route::prefix('{fulfilment}')
+        Route::prefix('{fulfilment}')->name('show')
             ->group(function () {
-                Route::get('', ShowFulfilment::class)->name('show');
+                Route::get('', ShowFulfilment::class);
 
                 Route::prefix("crm")
-                    ->name("crm.")
+                    ->name(".crm.")
                     ->group(__DIR__."/crm.php");
 
-                Route::get('/pallets', IndexPallets::class)->name('stored-items.index');
+                Route::get('/pallets', IndexPallets::class)->name('.pallets.index');
+
+                Route::prefix('websites')->name('.websites.')
+                    ->group(function () {
+                        Route::get('/', IndexWebsites::class)->name('index');
+                        Route::get('/{website}/show', ShowWebsite::class)->name('show');
+                        Route::get('/{website}/edit', EditWebsite::class)->name('edit');
+                        Route::get('/{website}/workshop', ShowWebsiteWorkshop::class)->name('workshop');
+
+                        //Route::get('/{website}/workshop/preview', ShowWebsiteWorkshopPreview::class)->name('preview');
+                        //Route::get('/{website}/blog/article/create', CreateArticle::class)->name('show.blog.article.create');
+
+                        // Route::get('/{website}/webpages/create', CreateWebpage::class)->name('show.webpages.create');
+                        Route::get('/{website}/webpages', [IndexWebpages::class, 'inWebsite'])->name('show.webpages.index');
+
+
+                        //Route::get('/{website}/webpages/{webpage}/create', [CreateWebpage::class, 'inWebsiteInWebpage'])->name('show.webpages.show.webpages.create');
+                        Route::get('/{website}/webpages/{webpage}/webpages', [IndexWebpages::class, 'inWebpage'])->name('show.webpages.show.webpages.index');
+                        //Route::get('/{website}/webpages/{webpage}/edit', [EditWebpage::class, 'inWebsite'])->name('show.webpages.edit');
+                        //Route::get('/{website}/webpages/{webpage}/workshop', [ShowWebpageWorkshop::class, 'inWebsite'])->name('show.webpages.workshop');
+                        //Route::post('/{website}/webpages/{webpage}/workshop/images', [UploadImagesToWebpage::class, 'inWebsite'])->name('show.webpages.workshop.images.store');
+
+
+                        //Route::get('/{website}/webpages/{webpage}/workshop/preview', [ShowWebpageWorkshopPreview::class, 'inWebsite'])->name('show.webpages.preview');
+                        //Route::get('/{website}/webpages/{webpage}', [ShowWebpage::class, 'inWebsite'])->name('show.webpages.show');
+
+                    });
+
             });
+
+
 
     });
 
