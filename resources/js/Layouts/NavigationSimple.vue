@@ -7,6 +7,7 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 import { Link, usePage } from '@inertiajs/vue3'
 // import SubNavigation from '@/Layouts/SubNavigation.vue'
 import { capitalize } from "@/Composables/capitalize"
+import { isRouteSameAsCurrentUrl } from '@/Composables/useUrl'
 
 library.add()
 
@@ -23,20 +24,6 @@ const props = defineProps<{
 // }
 
 const layout = useLayoutStore()
-
-// http://app.aiku.test/org/sk/inventory to /org/sk/inventory
-const removeDomain = (fullUrl: string, domain: string) => {
-    if(!fullUrl) return ''
-
-    const domainRegex = new RegExp(`https?://${domain}`, 'i')
-
-    return fullUrl.replace(domainRegex, '')
-}
-
-// Check if current route is same as the given route
-const isRouteSameAsCurrentUrl = (expectedRoute: string) => {
-    return usePage().url.includes(removeDomain(expectedRoute, route().v().route.domain))
-}
 
 </script>
 
