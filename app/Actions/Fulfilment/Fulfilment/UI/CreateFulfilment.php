@@ -154,7 +154,10 @@ class CreateFulfilment extends OrgAction
                         ],
                     ],
                     'route'     => [
-                        'name' => 'grp.models.shop.store',
+                        'name'       => 'grp.models.org.shop.store',
+                        'parameters' => [
+                            'organisation' => $this->organisation->slug
+                        ]
                     ]
                 ],
 
