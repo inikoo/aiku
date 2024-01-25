@@ -8,14 +8,9 @@
 import { Head } from "@inertiajs/vue3";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import {
-    faCube,
-    faFileInvoice,
-    faFolder,
-    faFolderTree,
-    faChartLine,
-    faShoppingCart, faStickyNote
+    faTachometerAlt,faPallet
 } from '@fal';
-import { faCheckCircle } from '@fas';
+
 
 import PageHeading from "@/Components/Headings/PageHeading.vue";
 import { capitalize } from "@/Composables/capitalize";
@@ -26,7 +21,7 @@ import ModelDetails from "@/Components/ModelDetails.vue";
 import TableHistories from "@/Components/Tables/TableHistories.vue";
 import ShopShowcase from "@/Components/Showcases/Grp/ShopShowcase.vue";
 
-library.add(faChartLine, faCheckCircle, faFolderTree, faFolder, faCube, faShoppingCart, faFileInvoice, faStickyNote);
+library.add(faTachometerAlt,faPallet);
 
 const props = defineProps<{
     pageHead: object
