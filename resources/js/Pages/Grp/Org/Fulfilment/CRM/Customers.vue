@@ -1,13 +1,13 @@
 <!--
-  -  Author: Raul Perusquia <raul@inikoo.com>
-  -  Created: Mon, 17 Oct 2022 17:33:07 British Summer Time, Sheffield, UK
-  -  Copyright (c) 2022, Raul A Perusquia Flores
+  - Author: Raul Perusquia <raul@inikoo.com>
+  - Created: Thu, 25 Jan 2024 11:44:31 Malaysia Time, Bali Office, Indonesia
+  - Copyright (c) 2024, Raul A Perusquia Flores
   -->
 
 <script setup  lang="ts">
 import {Head} from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
-import TableCustomers from '@/Components/Tables/TableCustomers.vue';
+import TableCustomers from '@/Components/Tables/Grp/Org/Fulfilment/CRM/TableCustomers.vue';
 import { capitalize } from "@/Composables/capitalize"
 
 const props = defineProps<{

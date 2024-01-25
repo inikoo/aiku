@@ -9,13 +9,10 @@ namespace App\Actions\Fulfilment\Pallet;
 
 use App\Actions\CRM\Customer\Hydrators\CustomerHydrateStoredItems;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateFulfilment;
-use App\Enums\Fulfilment\StoredItem\StoredItemTypeEnum;
 use App\Models\CRM\Customer;
 use App\Models\Fulfilment\Pallet;
-use App\Models\Fulfilment\StoredItem;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
-use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;

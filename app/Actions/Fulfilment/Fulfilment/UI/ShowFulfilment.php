@@ -65,7 +65,7 @@ class ShowFulfilment extends OrgAction
                     'title'   => $fulfilment->shop->name,
                     'icon'    => [
                         'title' => __('Fulfilment'),
-                        'icon'  => 'fal fa-pallet'
+                        'icon'  => 'fal fa-pallet-alt'
                     ],
 
                 ],
