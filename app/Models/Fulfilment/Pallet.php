@@ -9,6 +9,7 @@ namespace App\Models\Fulfilment;
 
 use App\Stubs\Migrations\HasSoftDeletes;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -32,6 +33,11 @@ class Pallet extends Model
     protected $attributes = [
         'data' => '{}',
     ];
+
+    public function storedItems(): BelongsToMany
+    {
+        return $this->belongsToMany(StoredItem::class)->using(PalletStoredItem::class);
+    }
 
     public function getSlugOptions(): SlugOptions
     {

@@ -17,6 +17,7 @@ use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Contracts\Auditable;
@@ -101,4 +102,10 @@ class StoredItem extends Model implements Auditable
     {
         return $this->belongsTo(Location::class);
     }
+
+    public function pallets(): BelongsToMany
+    {
+        return $this->belongsToMany(Pallet::class)->using(PalletStoredItem::class);
+    }
+
 }

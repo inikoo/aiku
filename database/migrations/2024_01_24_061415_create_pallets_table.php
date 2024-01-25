@@ -24,6 +24,7 @@ return new class () extends Migration {
             $table->foreign('location_id')->references('id')->on('locations');
 
             $table->string('notes');
+            $table->decimal('items_quantity')->default(0);
 
             $table->dateTimeTz('received_at')->nullable();
             $table->dateTimeTz('booked_in_at')->nullable();
