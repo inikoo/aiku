@@ -50,7 +50,6 @@ const isRouteSameAsCurrentUrl = (expectedRoute: string) => {
         ]" :aria-current="navKey === layout.currentModule ? 'page' : undefined"
         v-tooltip="layout.leftSidebar.show ? false : capitalize(nav.label)"    
     >
-    {{ usePage().url.includes(removeDomain((nav.route?.name ? route(nav.route.name, nav.route.parameters) : null), route().v().route.domain)) }}
         <FontAwesomeIcon v-if="nav.icon" aria-hidden="true" class="flex-shrink-0 h-4 w-4" fixed-width :icon="nav.icon" />
         <Transition name="slide-to-left">
             <span v-if="layout.leftSidebar.show" class="capitalize leading-none whitespace-nowrap block md:block"
