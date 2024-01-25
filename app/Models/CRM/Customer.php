@@ -23,6 +23,7 @@ use App\Models\Helpers\TaxNumber;
 use App\Models\Market\Product;
 use App\Models\Market\Shop;
 use App\Models\OMS\Order;
+use App\Models\PalletDelivery;
 use App\Models\Search\UniversalSearch;
 use App\Models\SupplyChain\Stock;
 use App\Models\SysAdmin\WebUser;
@@ -236,6 +237,11 @@ class Customer extends Model implements HasMedia
 
     public function pallets(): HasMany
     {
-        return $this->hasMany(Pallet::class, 'pallet_id');
+        return $this->hasMany(Pallet::class);
+    }
+
+    public function palletDeliveries(): HasMany
+    {
+        return $this->hasMany(PalletDelivery::class);
     }
 }

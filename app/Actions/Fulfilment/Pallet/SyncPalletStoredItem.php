@@ -37,12 +37,6 @@ class SyncPalletStoredItem
         return $pallet;
     }
 
-    public function authorize(ActionRequest $request): bool
-    {
-        return $request->user()->hasPermissionTo("fulfilment.edit");
-    }
-
-
     public function rules(): array
     {
         return [
@@ -50,14 +44,10 @@ class SyncPalletStoredItem
         ];
     }
 
-    public function asController(Customer $customer, ActionRequest $request): Pallet
+    public function asController(Pallet $pallet, ActionRequest $request): Pallet
     {
-        $this->customer = $customer;
-        $mergedArray    = array_merge($request->all(), [
-            'location_id' => $request->input('location')['id']
-        ]);
-        $this->setRawAttributes($mergedArray);
+        $this->setRawAttributes($request->all());
 
-        return $this->handle($customer, $this->validateAttributes());
+        return $this->handle($pallet, $this->validateAttributes());
     }
 }
