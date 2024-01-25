@@ -7,7 +7,6 @@
 
 namespace App\Actions\HumanResources\Calendar;
 
-use App\Actions\InertiaAction;
 use App\Actions\OrgAction;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
 use App\Enums\UI\TabsAbbreviationEnum;
@@ -125,7 +124,7 @@ class IndexCalendars extends OrgAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => [
-                            'name' => 'grp.org.hr.employees.index',
+                            'name'       => 'grp.org.hr.employees.index',
                             'parameters' => array_values(request()->route()->originalParameters())
                         ],
                         'label' => __('employees'),
