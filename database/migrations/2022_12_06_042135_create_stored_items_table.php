@@ -7,11 +7,13 @@
 
 use App\Enums\Fulfilment\StoredItem\StoredItemStateEnum;
 use App\Enums\Fulfilment\StoredItem\StoredItemStatusEnum;
+use App\Stubs\Migrations\HasSoftDeletes;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
+    use HasSoftDeletes;
     public function up(): void
     {
         Schema::create('stored_items', function (Blueprint $table) {
@@ -32,7 +34,7 @@ return new class () extends Migration {
             $table->dateTimeTz('booked_in_at')->nullable();
             $table->dateTimeTz('settled_at')->nullable();
             $table->jsonb('data');
-            $table->softDeletesTz();
+            $table = $this->softDeletes($table);
             $table->string('source_id')->nullable()->unique();
         });
     }

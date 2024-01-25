@@ -115,6 +115,6 @@ interface SourceOrganisationService
 
     public function fetchSupplierDelivery($id);
 
-    public function fetchStoredItem($id);
+    public function fetchPallet($id);
 
 }

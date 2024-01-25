@@ -50,3 +50,4 @@ _ide_helper.php
 aurora_migration_base.sh
 aurora_migration_base_tmp.sh
 aurora_migration_crm.sh
+/backup_load.sh

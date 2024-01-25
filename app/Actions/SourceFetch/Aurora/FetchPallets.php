@@ -7,35 +7,36 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-use App\Actions\Fulfilment\StoredItem\StoreStoredItem;
-use App\Actions\Fulfilment\StoredItem\UpdateStoredItem;
-use App\Models\Fulfilment\StoredItem;
+use App\Actions\Fulfilment\Pallet\StorePallet;
+use App\Actions\Fulfilment\Pallet\UpdatePallet;
+
+use App\Models\Fulfilment\Pallet;
 use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 
-class FetchStoredItems extends FetchAction
+class FetchPallets extends FetchAction
 {
-    public string $commandSignature = 'fetch:stored-items {organisations?*} {--s|source_id=} {--d|db_suffix=}';
+    public string $commandSignature = 'fetch:pallets {organisations?*} {--s|source_id=} {--d|db_suffix=}';
 
-    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?StoredItem
+    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Pallet
     {
-        if ($storedItemData = $organisationSource->fetchStoredItem($organisationSourceId)) {
-            if ($storedItem = StoredItem::withTrashed()->where('source_id', $storedItemData['storedItem']['source_id'])
+        if ($palletData = $organisationSource->fetchPallet($organisationSourceId)) {
+            if ($pallet = Pallet::withTrashed()->where('source_id', $palletData['pallet']['source_id'])
                 ->first()) {
-                $storedItem = UpdateStoredItem::run(
-                    storedItem: $storedItem,
-                    modelData: $storedItemData['storedItem']
+                $pallet = UpdatePallet::run(
+                    pallet: $pallet,
+                    modelData: $palletData['pallet']
                 );
             } else {
-                $storedItem = StoreStoredItem::run(
-                    customer: $storedItemData['customer'],
-                    modelData: $storedItemData['storedItem'],
+                $pallet = StorePallet::make()->action(
+                    customer: $palletData['customer'],
+                    modelData: $palletData['pallet'],
                 );
             }
 
 
-            return $storedItem;
+            return $pallet;
         }
 
         return null;

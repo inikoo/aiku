@@ -75,6 +75,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
+ * @property string|null $delete_comment
  * @property string|null $source_id
  * @property int|null $prospects_sender_email_id
  * @property-read Collection<int, Address> $addresses
@@ -85,6 +86,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, Issue> $issues
  * @property-read MediaCollection<int, \App\Models\Media\Media> $media
  * @property-read Collection<int, Order> $orders
+ * @property-read Collection<int, Pallet> $pallets
  * @property-read Collection<int, Payment> $payments
  * @property-read Collection<int, Product> $products
  * @property-read Shop|null $shop
@@ -236,6 +238,6 @@ class Customer extends Model implements HasMedia
 
     public function pallets(): HasMany
     {
-        return $this->hasMany(Pallet::class, 'pallet_id');
+        return $this->hasMany(Pallet::class);
     }
 }

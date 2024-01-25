@@ -10,6 +10,22 @@ namespace App\Models\Fulfilment;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * App\Models\Fulfilment\PalletStoredItem
+ *
+ * @property int $id
+ * @property int $pallet_id
+ * @property int $stored_item_id
+ * @property string $quantity
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\Fulfilment\Pallet $pallet
+ * @property-read \App\Models\Fulfilment\StoredItem $storedItem
+ * @method static \Illuminate\Database\Eloquent\Builder|PalletStoredItem newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|PalletStoredItem newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|PalletStoredItem query()
+ * @mixin \Eloquent
+ */
 class PalletStoredItem extends Model
 {
     protected $guarded = [];

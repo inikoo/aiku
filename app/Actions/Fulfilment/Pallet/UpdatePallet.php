@@ -8,16 +8,26 @@
 namespace App\Actions\Fulfilment\Pallet;
 
 use App\Actions\Fulfilment\StoredItem\Hydrators\StoredItemHydrateUniversalSearch;
+use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
-use App\Enums\Fulfilment\StoredItem\StoredItemTypeEnum;
+use App\Enums\Fulfilment\Pallet\PalletStateEnum;
+use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
+use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use App\Http\Resources\Fulfilment\StoredItemResource;
+use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\Pallet;
+use App\Models\SysAdmin\Organisation;
+use App\Rules\AlphaDashDotSpaceSlash;
+use App\Rules\IUnique;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdatePallet
+class UpdatePallet extends OrgAction
 {
     use WithActionUpdate;
+
+
+    private Pallet $pallet;
 
     public function handle(Pallet $pallet, array $modelData): Pallet
     {
@@ -31,26 +41,66 @@ class UpdatePallet
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.edit");
+        if ($this->asAction) {
+            return true;
+        }
+        return $request->user()->hasPermissionTo("fulfilment.{$this->fulfilment->id}.edit");
     }
 
     public function rules(): array
     {
         return [
-            'reference'   => ['sometimes', 'required', 'unique:stored_items', 'between:2,9', 'alpha'],
-            'type'        => ['sometimes', 'required', Rule::in(StoredItemTypeEnum::values())],
-            'location_id' => ['required', 'exists:locations,id']
+            'customer_reference' => [
+                'sometimes',
+                'nullable',
+                'max:64',
+                new AlphaDashDotSpaceSlash(),
+                Rule::notIn(['export', 'create', 'upload']),
+                new IUnique(
+                    table: 'pallets',
+                    extraConditions: [
+                        ['column' => 'customer_id', 'value' => $this->pallet->customer->id],
+                        [
+                            'column'   => 'id',
+                            'operator' => '!=',
+                            'value'    => $this->pallet->id
+                        ],
+                    ]
+                ),
+
+
+            ],
+            'state'              => [
+                'sometimes',
+                Rule::enum(PalletStateEnum::class)
+            ],
+            'status'               => [
+                'sometimes',
+                Rule::enum(PalletStatusEnum::class)
+            ],
+            'type'             => [
+                'sometimes',
+                Rule::enum(PalletTypeEnum::class)
+            ],
+            'notes'              => ['sometimes', 'string'],
+            'received_at'        => ['sometimes', 'nullable', 'date'],
         ];
     }
 
-    public function asController(Pallet $pallet, ActionRequest $request): Pallet
+    public function asController(Organisation $organisation, Fulfilment $fulfilment, Pallet $pallet, ActionRequest $request): Pallet
     {
-        $mergedArray = array_merge($request->all(), [
-            'location_id' => $request->input('location')['id']
-        ]);
-        $this->setRawAttributes($mergedArray);
-
+        $this->pallet=$pallet;
+        $this->initialisationFromFulfilment($fulfilment, $request);
         return $this->handle($pallet, $this->validateAttributes());
+    }
+
+    public function action(Pallet $pallet, array $modelData, int $hydratorsDelay = 0): Pallet
+    {
+        $this->pallet         =$pallet;
+        $this->asAction       =true;
+        $this->hydratorsDelay = $hydratorsDelay;
+        $this->initialisationFromFulfilment($pallet->fulfilment, $modelData);
+        return $this->handle($pallet, $this->validatedData);
     }
 
     public function jsonResponse(Pallet $pallet): StoredItemResource
