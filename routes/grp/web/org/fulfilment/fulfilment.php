@@ -23,19 +23,29 @@ use App\Actions\Fulfilment\StoredItem\UI\ShowStoredItem;
 use App\Actions\UI\Fulfilment\FulfilmentDashboard;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', IndexFulfilments::class)->name('index');
-Route::get('create', CreateFulfilment::class)->name('create');
-
-Route::prefix('{fulfilment}')
+Route::prefix('shops')->name('shops.')
     ->group(function () {
-        Route::get('', ShowFulfilment::class)->name('show');
+        Route::get('', IndexFulfilments::class)->name('index');
+        Route::get('create', CreateFulfilment::class)->name('create');
 
-        Route::prefix("crm")
-            ->name("crm.")
-            ->group(__DIR__."/crm.php");
 
-        Route::get('/pallets', IndexPallets::class)->name('stored-items.index');
+        Route::prefix('{fulfilment}')
+            ->group(function () {
+                Route::get('', ShowFulfilment::class)->name('show');
+
+                Route::prefix("crm")
+                    ->name("crm.")
+                    ->group(__DIR__."/crm.php");
+
+                Route::get('/pallets', IndexPallets::class)->name('stored-items.index');
+            });
+
     });
+
+
+
+
+
 
 /*
 

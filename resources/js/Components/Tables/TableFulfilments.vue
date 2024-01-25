@@ -23,9 +23,9 @@ const props = defineProps<{
 
 function fulfilmentRoute(fulfilment: Fulfilment) {
     switch (route().current()) {
-        case 'grp.org.fulfilment.index':
+        case 'grp.org.fulfilment.shops.index':
             return route(
-                'grp.org.fulfilment.show',
+                'grp.org.fulfilment.shops.show',
                 [route().params['organisation'], fulfilment.slug])
     }
 }

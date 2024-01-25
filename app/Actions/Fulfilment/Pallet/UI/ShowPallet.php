@@ -8,7 +8,6 @@
 namespace App\Actions\Fulfilment\Pallet\UI;
 
 use App\Actions\Helpers\History\IndexHistory;
-use App\Actions\InertiaAction;
 use App\Actions\OrgAction;
 use App\Actions\UI\Fulfilment\FulfilmentDashboard;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;

@@ -7,8 +7,8 @@
 
 namespace App\Actions\UI\Fulfilment;
 
+use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\OrgAction;
-use App\Actions\SysAdmin\Organisation\UI\ShowOrganisationDashboard;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Str;
@@ -68,7 +68,7 @@ class ShowFulfilmentCRMDashboard extends OrgAction
 
                         'href' =>
                             [
-                                'name'       => 'grp.org.fulfilment.crm.customers.index',
+                                'name'       => 'grp.org.fulfilment.shops.crm.customers.index',
                                 'parameters' => $routeParameters
                             ]
 
@@ -78,7 +78,7 @@ class ShowFulfilmentCRMDashboard extends OrgAction
                         'stat' => $fulfilment->shop->crmStats->number_prospects,
                         'href' =>
                             [
-                                'name'       => 'grp.org.fulfilment.crm.prospects.index',
+                                'name'       => 'grp.org.fulfilment.shops.crm.prospects.index',
                                 'parameters' => array_merge($routeParameters, [
                                     '_query' => [
                                         'tab' => 'prospects'
@@ -98,13 +98,13 @@ class ShowFulfilmentCRMDashboard extends OrgAction
         $fulfilment=Fulfilment::where('slug', $routeParameters['fulfilment'])->first();
 
         return array_merge(
-            ShowOrganisationDashboard::make()->getBreadcrumbs($routeParameters),
+            ShowFulfilment::make()->getBreadcrumbs($routeParameters),
             [
                 [
                     'type'   => 'simple',
                     'simple' => [
                         'route' => [
-                            'name'       => 'grp.org.fulfilment.crm.dashboard',
+                            'name'       => 'grp.org.fulfilment.shops.crm.dashboard',
                             'parameters' => $routeParameters
                         ],
                         'label' => __('CRM').' ('.$fulfilment->shop->code.')',

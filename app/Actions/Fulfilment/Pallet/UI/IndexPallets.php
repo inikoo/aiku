@@ -107,7 +107,7 @@ class IndexPallets extends InertiaAction
                     'actions' => [
                         'buttons' => [
                             'route' => [
-                                'name'       => 'grp.org.fulfilment.pallets.create',
+                                'name'       => 'grp.org.fulfilment.shops.pallets.create',
                                 'parameters' => array_values(request()->route()->originalParameters())
                             ],
                             'label' => __('pallets')
