@@ -13,6 +13,7 @@ use App\Actions\Fulfilment\FulfilmentCustomer\IndexFulfilmentCustomers;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\FulfilmentOrder\UI\IndexFulfilmentOrders;
 use App\Actions\Fulfilment\FulfilmentOrder\UI\ShowfulfilmentOrder;
+use App\Actions\Fulfilment\Pallet\UI\IndexPallets;
 use App\Actions\Fulfilment\StoredItem\SetDamagedStoredItem;
 use App\Actions\Fulfilment\StoredItem\SetReturnStoredItem;
 use App\Actions\Fulfilment\StoredItem\UI\CreateStoredItem;
@@ -33,6 +34,7 @@ Route::prefix('{fulfilment}')
             ->name("crm.")
             ->group(__DIR__."/crm.php");
 
+        Route::get('/pallets', IndexPallets::class)->name('stored-items.index');
     });
 
 /*

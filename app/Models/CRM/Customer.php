@@ -15,6 +15,7 @@ use App\Models\Accounting\Invoice;
 use App\Models\Accounting\Payment;
 use App\Models\Dropshipping\CustomerClient;
 use App\Models\Fulfilment\FulfilmentOrder;
+use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\StoredItem;
 use App\Models\Helpers\Address;
 use App\Models\Helpers\Issue;
@@ -231,5 +232,10 @@ class Customer extends Model implements HasMedia
     public function issues(): MorphToMany
     {
         return $this->morphToMany(Issue::class, 'issuable');
+    }
+
+    public function pallets(): HasMany
+    {
+        return $this->hasMany(Pallet::class, 'pallet_id');
     }
 }
