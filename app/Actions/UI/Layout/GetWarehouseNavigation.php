@@ -32,72 +32,44 @@ class GetWarehouseNavigation
                 'topMenu' => [
                     'subSections' => [
                         [
-                            'icon'  => ['fal', 'fa-chart-network'],
-                            'route' => [
-                                'name' => 'grp.org.inventory.dashboard',
+                            'tooltip' => __('warehouses'),
+                            'icon'    => ['fal', 'fa-store-alt'],
+                            'route'   => [
+                                'all'      => 'inventory.warehouses.index',
+                                'selected' => 'inventory.warehouses.show',
+
+                            ],
+                            'label'   => [
+                                'all'      => __('Warehouses'),
+                                'selected' => __('Warehouse'),
+
                             ]
                         ],
 
+
                         [
-                            'label' => __('SKUs'),
-                            'icon'  => ['fal', 'fa-box'],
-                            'route' => [
-                                'name' => 'grp.org.inventory.stocks.index',
+                            'label'   => __('warehouse areas'),
+                            'tooltip' => __('Warehouse Areas'),
+                            'icon'    => ['fal', 'fa-map-signs'],
+                            'route'   => [
+                                'all'      => 'inventory.warehouse-areas.index',
+                                'selected' => 'inventory.warehouses.show.warehouse-areas.index',
+
                             ]
                         ],
                         [
-                            'label'   => __('SKUs Families'),
-                            'tooltip' => __('SKUs families'),
-                            'icon'    => ['fal', 'fa-boxes-alt'],
+                            'label'   => __('locations'),
+                            'tooltip' => __('Locations'),
+                            'icon'    => ['fal', 'fa-inventory'],
                             'route'   => [
-                                'name' => 'inventory.stock-families.index',
+                                'all'      => 'inventory.locations.index',
+                                'selected' => 'inventory.warehouses.show.locations.index',
+
                             ]
                         ],
 
                     ],
 
-                    'dropdown' => [
-                        'links' => [
-
-
-                            [
-                                'tooltip' => __('warehouses'),
-                                'icon'    => ['fal', 'fa-store-alt'],
-                                'route'   => [
-                                    'all'      => 'inventory.warehouses.index',
-                                    'selected' => 'inventory.warehouses.show',
-
-                                ],
-                                'label'   => [
-                                    'all'      => __('Warehouses'),
-                                    'selected' => __('Warehouse'),
-
-                                ]
-                            ],
-
-
-                            [
-                                'label'   => __('warehouse areas'),
-                                'tooltip' => __('Warehouse Areas'),
-                                'icon'    => ['fal', 'fa-map-signs'],
-                                'route'   => [
-                                    'all'      => 'inventory.warehouse-areas.index',
-                                    'selected' => 'inventory.warehouses.show.warehouse-areas.index',
-
-                                ]
-                            ],
-                            [
-                                'label'   => __('locations'),
-                                'tooltip' => __('Locations'),
-                                'icon'    => ['fal', 'fa-inventory'],
-                                'route'   => [
-                                    'all'      => 'inventory.locations.index',
-                                    'selected' => 'inventory.warehouses.show.locations.index',
-
-                                ]
-                            ],
-                        ]
-                    ]
 
                 ]
             ];

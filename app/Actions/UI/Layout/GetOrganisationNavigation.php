@@ -33,24 +33,21 @@ class GetOrganisationNavigation
 
                 'topMenu' => [
 
-                    'dropdown' => [
-                        'links' => [
-                            [
-                                'label'   => __('dashboard'),
-                                'tooltip' => __('Dashboard'),
+                    'subSections' => [
+
+                        [
+                            'label'   => __('dashboard'),
+                            'tooltip' => __('Dashboard'),
 
 
-                                'icon'  => ['fal', 'fa-tasks-alt'],
-                                'route' =>
-                                    [
-                                        'all'      => ['grp.business_intelligence.dashboard'],
-                                        'selected' => ['grp.business_intelligence.shops.show.dashboard'],
+                            'icon'  => ['fal', 'fa-tasks-alt'],
+                            'route' =>
+                                [
+                                    'all'      => ['grp.business_intelligence.dashboard'],
+                                    'selected' => ['grp.business_intelligence.shops.show.dashboard'],
 
-                                    ]
-                            ],
-
-
-                        ]
+                                ]
+                        ],
                     ]
                 ],
             ];
@@ -59,7 +56,6 @@ class GetOrganisationNavigation
         if ($user->hasPermissionTo("shops.$organisation->id.view")) {
             $navigation['shops_index'] = [
                 'label' => __('Shops'),
-
                 'scope' => 'shops',
                 'icon'  => ['fal', 'fa-store-alt'],
 
@@ -69,17 +65,16 @@ class GetOrganisationNavigation
                 ],
 
                 'topMenu' => [
+                    'subSections' => [
 
-                    'dropdown' => [
-                        'links' => [
-                            [
-                                'label'   => __('dashboard'),
-                                'tooltip' => __('Dashboard'),
+                        [
+                            'label'   => __('dashboard'),
+                            'tooltip' => __('Dashboard'),
 
-                            ]
                         ]
                     ]
                 ]
+
             ];
         }
 
@@ -95,7 +90,7 @@ class GetOrganisationNavigation
                 'label' => __('Fulfilment shops'),
 
 
-                'icon'  => ['fal', 'fa-store-alt'],
+                'icon' => ['fal', 'fa-store-alt'],
 
                 'route' => [
                     'name'       => 'grp.org.fulfilment.index',
@@ -104,13 +99,11 @@ class GetOrganisationNavigation
 
                 'topMenu' => [
 
-                    'dropdown' => [
-                        'links' => [
-                            [
-                                'label'   => __('dashboard'),
-                                'tooltip' => __('Dashboard'),
+                    'subSections' => [
+                        [
+                            'label'   => __('dashboard'),
+                            'tooltip' => __('Dashboard'),
 
-                            ]
                         ]
                     ]
                 ]
@@ -135,7 +128,31 @@ class GetOrganisationNavigation
                 ],
                 'topMenu' => [
                     'subSections' => [
+                        [
+                            'icon'  => ['fal', 'fa-chart-network'],
+                            'route' => [
+                                'name'       => 'grp.org.inventory.dashboard',
+                                'parameters' => [$organisation->slug],
+                            ]
+                        ],
 
+                        [
+                            'label' => __('SKUs'),
+                            'icon'  => ['fal', 'fa-box'],
+                            'route' => [
+                                'name'       => 'grp.org.inventory.org-stocks.index',
+                                'parameters' => [$organisation->slug],
+                            ]
+                        ],
+                        [
+                            'label'   => __('SKUs Families'),
+                            'tooltip' => __('SKUs families'),
+                            'icon'    => ['fal', 'fa-boxes-alt'],
+                            'route'   => [
+                                'name'       => 'grp.org.inventory.org-stock-families.index',
+                                'parameters' => [$organisation->slug],
+                            ]
+                        ],
 
                     ],
 
@@ -158,14 +175,11 @@ class GetOrganisationNavigation
                 ],
 
                 'topMenu' => [
+                    'links' => [
+                        [
+                            'label'   => __('dashboard'),
+                            'tooltip' => __('Dashboard'),
 
-                    'dropdown' => [
-                        'links' => [
-                            [
-                                'label'   => __('dashboard'),
-                                'tooltip' => __('Dashboard'),
-
-                            ]
                         ]
                     ]
                 ]
@@ -294,8 +308,8 @@ class GetOrganisationNavigation
                             'label' => __('agents'),
                             'icon'  => ['fal', 'fa-people-arrows'],
                             'route' => [
-                                'name' => 'grp.org.procurement.agents.index',
-
+                                'name'       => 'grp.org.procurement.agents.index',
+                                'parameters' => [$organisation->slug],
 
                             ]
                         ],
@@ -341,34 +355,27 @@ class GetOrganisationNavigation
 
                             ]
                         ],
+                        [
+                            'label'   => __('customers'),
+                            'tooltip' => __('Customers'),
+                            'icon'    => ['fal', 'fa-user'],
+                            'route'   => [
+                                'all'      => ['grp.crm.customers.index'],
+                                'selected' => ['grp.crm.shops.show.customers.index'],
+
+                            ]
+                        ],
+                        [
+                            'label'   => __('prospects'),
+                            'tooltip' => __('Prospects'),
+                            'icon'    => ['fal', 'fa-user-plus'],
+                            'route'   => [
+                                'all'      => ['grp.crm.prospects.index'],
+                                'selected' => ['grp.crm.shops.show.prospects.index'],
+
+                            ]
+                        ],
                     ],
-                    'dropdown'    => [
-                        'links' => [
-
-                            [
-                                'label'   => __('customers'),
-                                'tooltip' => __('Customers'),
-                                'icon'    => ['fal', 'fa-user'],
-                                'route'   => [
-                                    'all'      => ['grp.crm.customers.index'],
-                                    'selected' => ['grp.crm.shops.show.customers.index'],
-
-                                ]
-                            ],
-                            [
-                                'label'   => __('prospects'),
-                                'tooltip' => __('Prospects'),
-                                'icon'    => ['fal', 'fa-user-plus'],
-                                'route'   => [
-                                    'all'      => ['grp.crm.prospects.index'],
-                                    'selected' => ['grp.crm.shops.show.prospects.index'],
-
-                                ]
-                            ],
-
-
-                        ]
-                    ]
                 ]
             ];
         }

@@ -4,9 +4,10 @@ import { Navigation } from '@/types/Navigation'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import {  } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { Link } from '@inertiajs/vue3'
+import { Link, usePage } from '@inertiajs/vue3'
 // import SubNavigation from '@/Layouts/SubNavigation.vue'
 import { capitalize } from "@/Composables/capitalize"
+import { isRouteSameAsCurrentUrl } from '@/Composables/useUrl'
 
 library.add()
 
@@ -16,11 +17,11 @@ const props = defineProps<{
 }>()
 
 // From 'shops_index' to 'shops'
-const separateUnderscore = (str: string | number) => {
-    const realString = str.toString()
+// const separateUnderscore = (str: string | number) => {
+//     const realString = str.toString()
 
-    return realString.split('_')
-}
+//     return realString.split('_')
+// }
 
 const layout = useLayoutStore()
 
@@ -29,7 +30,7 @@ const layout = useLayoutStore()
 <template>
     <Link :href="nav.route?.name ? route(nav.route.name, nav.route.parameters) : '#'"
         class="group flex items-center px-2 text-sm gap-x-2" :class="[
-            separateUnderscore(navKey)[0] === layout.currentModule || layout.currentModule.includes(navKey.toString())  // 'shops' == 'shops' || 'shop' include in 'shops'
+            (nav.route?.name ? isRouteSameAsCurrentUrl(route(nav.route.name, nav.route.parameters)) : false)
                 ? 'navigationActive'
                 : 'navigation',
             layout.leftSidebar.show ? '' : '',

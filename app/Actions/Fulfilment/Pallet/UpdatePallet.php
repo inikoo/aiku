@@ -12,7 +12,6 @@ use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\StoredItem\StoredItemTypeEnum;
 use App\Http\Resources\Fulfilment\StoredItemResource;
 use App\Models\Fulfilment\Pallet;
-use App\Models\Fulfilment\StoredItem;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 

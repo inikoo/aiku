@@ -51,7 +51,7 @@ class ShowFulfilment extends OrgAction
     public function htmlResponse(Fulfilment $fulfilment, ActionRequest $request): Response
     {
         return Inertia::render(
-            'Fulfilment/Fulfilment',
+            'Org/Fulfilment/Fulfilment',
             [
                 'title'        => __('fulfilment'),
                 'breadcrumbs'  => $this->getBreadcrumbs(
@@ -65,7 +65,7 @@ class ShowFulfilment extends OrgAction
                     'title'   => $fulfilment->shop->name,
                     'icon'    => [
                         'title' => __('Fulfilment'),
-                        'icon'  => 'fal fa-pallet'
+                        'icon'  => 'fal fa-pallet-alt'
                     ],
 
                 ],

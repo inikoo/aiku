@@ -7,6 +7,7 @@ import { useLiveUsers } from '@/Stores/active-users'
 import {capitalize} from "@/Composables/capitalize"
 import MenuPopoverList from "@/Layouts/MenuPopoverList.vue"
 import TopbarSelectButton from "@/Layouts/TopbarSelectButton.vue"
+import { useValueInDeepObject } from "@/Composables/useFindKeyObject"
 
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/vue"
 import { Disclosure } from "@headlessui/vue"
@@ -230,8 +231,8 @@ const label = {
                         <div class="flex h-full">
                             <!-- {{layout.navigation.org[layout.currentParams.organisation][layout.currentModule].topMenu.subSections.length}} -->
                             <!-- {{ get('layout', ['navigation', 'org', get('layout', ['currentParams', 'organisation']), get('layout', ['currentModule']), 'topMenu', 'subSections'], false) }} -->
-                            <template v-if="layout.navigation.org?.[layout.currentParams.organisation]?.[layout.currentModule]?.topMenu.subSections.length">
-                                <Link v-for="menu in layout.navigation.org[layout.currentParams.organisation][layout.currentModule]?.topMenu.subSections"
+                            <template v-if="useValueInDeepObject(layout.navigation.org?.[layout.currentParams.organisation]?.[layout.currentModule], 'topMenu')?.subSections?.length">
+                                <Link v-for="menu in useValueInDeepObject(layout.navigation.org?.[layout.currentParams.organisation]?.[layout.currentModule], 'topMenu').subSections"
                                     :href="route(menu.route.name, menu.route.parameters)"
                                     :id="get(menu, 'label', menu?.route.name)"
                                     class="group relative text-gray-700 group text-sm flex justify-end items-center cursor-pointer py-3 gap-x-2 px-4 md:px-4 lg:px-4"

@@ -11,7 +11,6 @@ use App\Actions\InertiaAction;
 use App\Actions\UI\Fulfilment\FulfilmentDashboard;
 use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Fulfilment\PalletResource;
-use App\Http\Resources\Fulfilment\StoredItemResource;
 use App\Models\CRM\Customer;
 use App\Models\Fulfilment\StoredItem;
 use App\Models\SysAdmin\Organisation;

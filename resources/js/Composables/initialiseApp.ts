@@ -38,6 +38,7 @@ export const initialiseApp = () => {
             const currentRouteSplit = layout.currentRoute.split('.')  // to handle grp with route grp.xxx.zzz with org with route grp.org.xxx.zzz
             layout.currentModule = currentRouteSplit[1] == 'org' ? layout.currentRoute.split('.')[2] : layout.currentRoute.split('.')[1]  // grp.org.xxx.yyy.zzz to xxx
 
+            // Set current shop, current warehouse, current fulfilment
             layout.organisationsState = {
                 ...layout.organisationsState,
                 [layout.currentParams.organisation]: {
