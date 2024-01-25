@@ -17,7 +17,6 @@ use App\Http\Resources\Fulfilment\StoredItemResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\Pallet;
 use App\Models\SysAdmin\Organisation;
-use App\Rules\AlphaDashDotSpaceSlashParenthesis;
 use App\Rules\IUnique;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
@@ -31,7 +30,7 @@ class UpdatePallet extends OrgAction
 
     public function handle(Pallet $pallet, array $modelData): Pallet
     {
-        $pallet =  $this->update($pallet, $modelData, ['data']);
+        $pallet = $this->update($pallet, $modelData, ['data']);
 
         StoredItemHydrateUniversalSearch::dispatch($pallet);
 
@@ -44,6 +43,7 @@ class UpdatePallet extends OrgAction
         if ($this->asAction) {
             return true;
         }
+
         return $request->user()->hasPermissionTo("fulfilment.{$this->fulfilment->id}.edit");
     }
 
@@ -54,7 +54,7 @@ class UpdatePallet extends OrgAction
                 'sometimes',
                 'nullable',
                 'max:64',
-                new AlphaDashDotSpaceSlashParenthesis(),
+                'string',
                 Rule::notIn(['export', 'create', 'upload']),
                 new IUnique(
                     table: 'pallets',
@@ -74,11 +74,11 @@ class UpdatePallet extends OrgAction
                 'sometimes',
                 Rule::enum(PalletStateEnum::class)
             ],
-            'status'               => [
+            'status'             => [
                 'sometimes',
                 Rule::enum(PalletStatusEnum::class)
             ],
-            'type'             => [
+            'type'               => [
                 'sometimes',
                 Rule::enum(PalletTypeEnum::class)
             ],
@@ -89,17 +89,19 @@ class UpdatePallet extends OrgAction
 
     public function asController(Organisation $organisation, Fulfilment $fulfilment, Pallet $pallet, ActionRequest $request): Pallet
     {
-        $this->pallet=$pallet;
+        $this->pallet = $pallet;
         $this->initialisationFromFulfilment($fulfilment, $request);
+
         return $this->handle($pallet, $this->validateAttributes());
     }
 
     public function action(Pallet $pallet, array $modelData, int $hydratorsDelay = 0): Pallet
     {
-        $this->pallet         =$pallet;
-        $this->asAction       =true;
+        $this->pallet         = $pallet;
+        $this->asAction       = true;
         $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisationFromFulfilment($pallet->fulfilment, $modelData);
+
         return $this->handle($pallet, $this->validatedData);
     }
 
