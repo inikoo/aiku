@@ -8,6 +8,7 @@
 namespace App\Actions\CRM\Customer;
 
 use App\Actions\CRM\Customer\Hydrators\CustomerHydrateUniversalSearch;
+use App\Actions\Fulfilment\FulfilmentCustomer\StoreFulfilmentCustomer;
 use App\Actions\Helpers\Address\StoreAddressAttachToModel;
 use App\Actions\Helpers\SerialReference\GetSerialReference;
 use App\Actions\Helpers\TaxNumber\StoreTaxNumber;
@@ -72,6 +73,9 @@ class StoreCustomer extends OrgAction
         /** @var Customer $customer */
         $customer = $shop->customers()->create($modelData);
 
+        if($modelData['is_fulfilment']) {
+            StoreFulfilmentCustomer::run($customer, $shop);
+        }
 
         $customer->stats()->create();
         if ($customer->is_fulfilment) {
