@@ -39,7 +39,7 @@ class FulfilmentDashboard extends OrgAction
 
 
         return Inertia::render(
-            'Fulfilment/FulfilmentDashboard',
+            'Org/Fulfilment/FulfilmentDashboard',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(),
                 'title'       => __('fulfilment'),
