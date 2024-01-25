@@ -33,7 +33,6 @@ class IndexFulfilments extends OrgAction
     public function authorize(ActionRequest $request): bool
     {
         $this->canEdit = $request->user()->hasPermissionTo("fulfilments.{$this->organisation->id}.edit");
-
         return $request->user()->hasPermissionTo("fulfilments.{$this->organisation->id}.view");
     }
 

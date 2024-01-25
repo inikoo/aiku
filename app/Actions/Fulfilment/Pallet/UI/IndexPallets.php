@@ -8,7 +8,7 @@
 namespace App\Actions\Fulfilment\Pallet\UI;
 
 use App\Actions\InertiaAction;
-use App\Actions\UI\Fulfilment\FulfilmentDashboard;
+use App\Actions\UI\Fulfilment\ShowFulfilmentsDashboard;
 use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Fulfilment\PalletResource;
 use App\Models\CRM\Customer;
@@ -129,7 +129,7 @@ class IndexPallets extends InertiaAction
     public function getBreadcrumbs(): array
     {
         return array_merge(
-            (new FulfilmentDashboard())->getBreadcrumbs(),
+            (new ShowFulfilmentsDashboard())->getBreadcrumbs(),
             [
                 [
                     'type'   => 'simple',

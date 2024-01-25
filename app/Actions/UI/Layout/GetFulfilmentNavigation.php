@@ -46,20 +46,40 @@ class GetFulfilmentNavigation
                     ]
 
 
-
                 ],
             ];
         }
 
-        if ($user->hasPermissionTo("fulfilment.$fulfilment->id..view")) {
+        if ($user->hasPermissionTo("fulfilment.$fulfilment->id.view")) {
             $navigation['web'] = [
                 'scope' => 'websites',
                 'icon'  => ['fal', 'fa-globe'],
                 'label' => __('Website'),
-                'route' => [
-                    'name'       => 'grp.org.fulfilment.shops.web',
-                    'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug]
-                ],
+                'route' =>
+
+                    $fulfilment->shop->website
+                        ?
+                        [
+                            'name'       => 'grp.org.fulfilment.shops.show.websites.show',
+                            'parameters' => [
+                                $fulfilment->organisation->slug,
+                                $fulfilment->slug,
+                                $fulfilment->shop->website->slug
+                            ]
+
+                        ]
+                        :
+                        [
+                            'name'       => 'grp.org.fulfilment.shops.show.websites.index',
+                            'parameters' => [
+                                $fulfilment->organisation->slug,
+                                $fulfilment->slug,
+                            ]
+
+                        ]
+
+
+                ,
 
 
                 'topMenu' => [
@@ -147,7 +167,6 @@ class GetFulfilmentNavigation
                 ]
 
             ];
-
         }
 
         return $navigation;

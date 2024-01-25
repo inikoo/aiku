@@ -20,8 +20,10 @@ use App\Actions\Fulfilment\StoredItem\UI\CreateStoredItem;
 use App\Actions\Fulfilment\StoredItem\UI\EditStoredItem;
 use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItems;
 use App\Actions\Fulfilment\StoredItem\UI\ShowStoredItem;
-use App\Actions\UI\Fulfilment\FulfilmentDashboard;
+use App\Actions\UI\Fulfilment\ShowFulfilmentsDashboard;
 use Illuminate\Support\Facades\Route;
+
+Route::get('/', ShowFulfilmentsDashboard::class)->name('dashboard');
 
 Route::prefix('shops')->name('shops.')
     ->group(function () {
@@ -49,7 +51,7 @@ Route::prefix('shops')->name('shops.')
 
 /*
 
-Route::get('/', FulfilmentDashboard::class)->name('dashboard');
+
 Route::get('/stored-items', IndexStoredItems::class)->name('stored-items.index');
 Route::get('/customers/{customer}/stored-items/create', CreateStoredItem::class)->name('stored-items.create');
 Route::get('stored-items/{storedItem}', ShowStoredItem::class)->name('stored-items.show');

@@ -8,7 +8,7 @@
 namespace App\Actions\Fulfilment\FulfilmentCustomer;
 
 use App\Actions\InertiaAction;
-use App\Actions\UI\Fulfilment\FulfilmentDashboard;
+use App\Actions\UI\Fulfilment\ShowFulfilmentsDashboard;
 use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Sales\CustomerResource;
 use App\InertiaTable\InertiaTable;
@@ -148,7 +148,7 @@ class IndexFulfilmentCustomers extends InertiaAction
     public function getBreadcrumbs(): array
     {
         return array_merge(
-            (new FulfilmentDashboard())->getBreadcrumbs(),
+            (new ShowFulfilmentsDashboard())->getBreadcrumbs(),
             [
                 [
                     'type'   => 'simple',

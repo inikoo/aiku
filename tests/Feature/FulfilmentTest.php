@@ -87,6 +87,16 @@ test('create fulfilment customer', function ($shop) {
     return $customer;
 })->depends('create fulfilment shop');
 
+test('UI fulfilment shops dashboard', function () {
+    $response = get(route('grp.org.fulfilment.dashboard', $this->organisation->slug));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Fulfilment/FulfilmentsDashboard')
+            ->has('title')
+            ->has('breadcrumbs', 2);
+    });
+});
+
 test('UI list of fulfilment shops', function () {
     $response = get(route('grp.org.fulfilment.shops.index', $this->organisation->slug));
     expect(FulfilmentsTabsEnum::FULFILMENT_SHOPS->value)->toBe('fulfilments');

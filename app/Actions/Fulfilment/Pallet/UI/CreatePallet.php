@@ -8,7 +8,7 @@
 namespace App\Actions\Fulfilment\Pallet\UI;
 
 use App\Actions\InertiaAction;
-use App\Actions\UI\Fulfilment\FulfilmentDashboard;
+use App\Actions\UI\Fulfilment\ShowFulfilmentsDashboard;
 use App\Enums\Fulfilment\StoredItem\StoredItemTypeEnum;
 use App\Http\Resources\Fulfilment\StoredItemResource;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -101,7 +101,7 @@ class CreatePallet extends InertiaAction
     public function getBreadcrumbs(): array
     {
         return array_merge(
-            (new FulfilmentDashboard())->getBreadcrumbs(),
+            (new ShowFulfilmentsDashboard())->getBreadcrumbs(),
             [
                 [
                     'type'   => 'simple',
