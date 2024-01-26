@@ -43,7 +43,6 @@ class ShowFulfilment extends OrgAction
 
     public function asController(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): Fulfilment
     {
-
         $this->initialisation($organisation, $request)->withTab(FulfilmentTabsEnum::values());
         return $this->handle($fulfilment);
     }
