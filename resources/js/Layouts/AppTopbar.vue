@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Link, router } from '@inertiajs/vue3'
+import { Link, router, usePage } from '@inertiajs/vue3'
 import { useLayoutStore } from "@/Stores/layout"
 import { reactive } from 'vue'
 import { get } from 'lodash'
@@ -152,25 +152,35 @@ const label = {
                                 </transition>
                             </Menu>
 
-                            <!-- Dropdown: Shops -->
+                            <!-- Dropdown: Shops and Fulfilment-->
                             <Menu v-if="
-                                layoutStore.organisations.data.find(organisation => organisation.slug == layoutStore.currentParams.organisation) && (route(layoutStore.currentRoute, layoutStore.currentParams)).includes('shops') || 
-                                Object.keys(layoutStore.navigation.org[layoutStore.currentParams.organisation]?.fulfilments_navigation || []).length > 1 && (route(layoutStore.currentRoute, layoutStore.currentParams)).includes('fulfilment')
+                                (route(layoutStore.currentRoute, layoutStore.currentParams)).includes('shops') || 
+                                (route(layoutStore.currentRoute, layoutStore.currentParams)).includes('fulfilment')
                             "
                                 as="div" class="relative inline-block text-left"
                                 v-slot="{ close: closeMenu }"
                             >
                                 <TopbarSelectButton
-                                    icon="fal fa-store-alt"
-                                    :activeButton="!!(layoutStore.currentParams.shop)"
-                                    :label="layoutStore.organisationsState?.[layoutStore.currentParams.organisation]?.currentShop || label.shopSelect"
+                                    :icon="(route(layoutStore.currentRoute, layoutStore.currentParams)).includes('fulfilment') ? 'fal fa-pallet-alt' : 'fal fa-store-alt'"
+                                    :activeButton="
+                                        usePage().url.includes('fulfilment') && layoutStore.organisationsState[layoutStore.currentParams.organisation].currentFulfilment ? true
+                                        : usePage().url.includes('shops') && layoutStore.organisationsState[layoutStore.currentParams.organisation].currentShop ? true
+                                        : false
+                                    "
+                                    :label="
+                                        usePage().url.includes('fulfilment') ? layoutStore.organisationsState?.[layoutStore.currentParams.organisation]?.currentFulfilment || label.fulfilmentSelect
+                                            : usePage().url.includes('shops')
+                                                ? layoutStore.organisationsState?.[layoutStore.currentParams.organisation]?.currentShop || label.shopSelect
+                                                : 'Select shops/fulfilments'
+                                    "
                                     :key="`shop` + layoutStore.currentParams.shop"
                                 />
 
                                 <transition>
                                     <MenuItems class="absolute left-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
+                                        aaa {{ layoutStore.organisationsState[layoutStore.currentParams.organisation].currentFulfilment }}
                                         <MenuPopoverList icon="fal fa-store-alt" :navKey="'shop'" :closeMenu="closeMenu" />
-                                        <MenuPopoverList icon="fal fa-warehouse-alt" :navKey="'fulfilment'" :closeMenu="closeMenu" />
+                                        <MenuPopoverList icon="fal fa-pallet-alt" :navKey="'fulfilment'" :closeMenu="closeMenu" />
                                     </MenuItems>
                                 </transition>
                             </Menu>

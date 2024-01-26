@@ -1,7 +1,10 @@
 <script setup lang='ts'>
 import { MenuButton } from "@headlessui/vue"
+import { useTruncate } from '@/Composables/useTruncate'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { useTruncate } from '../Composables/useTruncate'
+import { faPalletAlt } from '@fal'
+import { library } from '@fortawesome/fontawesome-svg-core'
+library.add(faPalletAlt)
 
 const props = defineProps<{
     activeButton: boolean
