@@ -55,6 +55,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $source_family_id
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Collection<int, ProductCategory> $departments
+ * @property-read Group $group
+ * @property-read Organisation $organisation
  * @property-read Model|\Eloquent $parent
  * @property-read Collection<int, \App\Models\Market\Product> $products
  * @property-read SalesStats|null $salesStats

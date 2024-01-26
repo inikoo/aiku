@@ -82,8 +82,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $prospects_sender_email_id
  * @property-read Collection<int, Address> $addresses
  * @property-read Collection<int, CustomerClient> $clients
+ * @property-read FulfilmentCustomer|null $fulfilment
  * @property-read Collection<int, FulfilmentOrder> $fulfilmentOrders
- * @property-read Collection<int, FulfilmentCustomer> $fulfilments
  * @property-read Collection<int, Invoice> $invoices
  * @property-read Collection<int, Issue> $issues
  * @property-read MediaCollection<int, \App\Models\Media\Media> $media
@@ -178,6 +178,7 @@ class Customer extends Model implements HasMedia
         return $this->hasMany(CustomerClient::class);
     }
 
+
     public function stats(): HasOne
     {
         return $this->hasOne(CustomerStats::class);
@@ -244,8 +245,8 @@ class Customer extends Model implements HasMedia
         return $this->hasMany(PalletDelivery::class);
     }
 
-    public function fulfilments(): HasMany
+    public function fulfilment(): HasOne
     {
-        return $this->hasMany(FulfilmentCustomer::class);
+        return $this->hasOne(FulfilmentCustomer::class);
     }
 }

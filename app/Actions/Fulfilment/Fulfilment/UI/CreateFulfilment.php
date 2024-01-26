@@ -23,7 +23,6 @@ class CreateFulfilment extends OrgAction
 {
     public function handle()
     {
-
     }
 
     /**
@@ -72,9 +71,12 @@ class CreateFulfilment extends OrgAction
                                     'label'       => __('type'),
                                     'placeholder' => __('Select one option'),
                                     'options'     => Options::forEnum(ShopTypeEnum::class),
+                                    'value'       => ShopTypeEnum::FULFILMENT,
                                     'required'    => true,
                                     'mode'        => 'single',
-                                    'searchable'  => true
+                                    'searchable'  => true,
+                                    'hidden'      => true,
+                                    'readonly'    => true
                                 ],
                             ]
                         ],
@@ -88,7 +90,7 @@ class CreateFulfilment extends OrgAction
                                     'label'       => __('country'),
                                     'placeholder' => __('Select a country'),
                                     'options'     => GetCountriesOptions::run(),
-                                    'value'       => app('currentTenant')->country_id,
+                                    'value'       => $this->organisation->country_id,
                                     'required'    => true,
                                     'mode'        => 'single'
                                 ],
@@ -97,7 +99,7 @@ class CreateFulfilment extends OrgAction
                                     'label'       => __('language'),
                                     'placeholder' => __('Select a language'),
                                     'options'     => GetLanguagesOptions::make()->all(),
-                                    'value'       => app('currentTenant')->language_id,
+                                    'value'       => $this->organisation->language_id,
                                     'required'    => true,
                                     'mode'        => 'single'
                                 ],
@@ -106,7 +108,7 @@ class CreateFulfilment extends OrgAction
                                     'label'       => __('currency'),
                                     'placeholder' => __('Select a currency'),
                                     'options'     => GetCurrenciesOptions::run(),
-                                    'value'       => app('currentTenant')->currency_id,
+                                    'value'       => $this->organisation->currency_id,
                                     'required'    => true,
                                     'mode'        => 'single'
                                 ],
@@ -115,7 +117,7 @@ class CreateFulfilment extends OrgAction
                                     'label'       => __('timezone'),
                                     'placeholder' => __('Select a timezone'),
                                     'options'     => GetTimeZonesOptions::run(),
-                                    'value'       => app('currentTenant')->timezone_id,
+                                    'value'       => $this->organisation->timezone_id,
                                     'required'    => true,
                                     'mode'        => 'single'
                                 ],
@@ -162,9 +164,8 @@ class CreateFulfilment extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo('shops.edit');
+        return $request->user()->hasPermissionTo("fulfilments.{$this->organisation->id}.edit");
     }
-
 
 
     public function asController(Organisation $organisation, ActionRequest $request): ActionRequest
@@ -177,7 +178,7 @@ class CreateFulfilment extends OrgAction
     public function getBreadcrumbs(array $routeParameters): array
     {
         return array_merge(
-            IndexFulfilments::make()->getBreadcrumbs('grp.org.fulfilment.index', $routeParameters),
+            IndexFulfilments::make()->getBreadcrumbs($routeParameters),
             [
                 [
                     'type'          => 'creatingModel',
