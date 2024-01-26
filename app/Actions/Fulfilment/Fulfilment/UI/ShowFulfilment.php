@@ -21,6 +21,7 @@ use App\Http\Resources\Sales\OrderResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Market\Shop;
 use App\Models\SysAdmin\Organisation;
+use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -115,15 +116,15 @@ class ShowFulfilment extends OrgAction
                         'modelWithIndex' => [
                             'index' => [
                                 'route' => [
-                                    'name'       => 'grp.org.fulfilment.index',
-                                    'parameters' => $routeParameters
+                                    'name'       => 'grp.org.fulfilment.shops.index',
+                                    'parameters' => Arr::only($routeParameters, 'organisation')
                                 ],
                                 'label' => __('fulfilment'),
                                 'icon'  => 'fal fa-bars'
                             ],
                             'model' => [
                                 'route' => [
-                                    'name'       => 'grp.org.fulfilment.show',
+                                    'name'       => 'grp.org.fulfilment.shops.show',
                                     'parameters' => $routeParameters
                                 ],
                                 'label' => $fulfilment->shop->code,
@@ -159,7 +160,7 @@ class ShowFulfilment extends OrgAction
         }
 
         return match ($routeName) {
-            'grp.org.fulfilment.show' => [
+            'grp.org.fulfilment.shops.show' => [
                 'label' => $fulfilment->shop->name,
                 'route' => [
                     'name'       => $routeName,

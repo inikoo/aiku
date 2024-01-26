@@ -8,9 +8,8 @@
 namespace App\Actions\Fulfilment\Pallet\UI;
 
 use App\Actions\Helpers\History\IndexHistory;
-use App\Actions\InertiaAction;
 use App\Actions\OrgAction;
-use App\Actions\UI\Fulfilment\FulfilmentDashboard;
+use App\Actions\UI\Fulfilment\ShowFulfilmentsDashboard;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\UI\PalletTabsEnum;
 use App\Http\Resources\Fulfilment\PalletResource;
@@ -120,7 +119,7 @@ class ShowPallet extends OrgAction
     public function getBreadcrumbs(Pallet $pallet, $suffix = null): array
     {
         return array_merge(
-            (new FulfilmentDashboard())->getBreadcrumbs(),
+            (new ShowFulfilmentsDashboard())->getBreadcrumbs(),
             [
                 [
                     'type'           => 'modelWithIndex',

@@ -23,9 +23,9 @@ const props = defineProps<{
 
 function fulfilmentRoute(fulfilment: Fulfilment) {
     switch (route().current()) {
-        case 'grp.org.fulfilment.index':
+        case 'grp.org.fulfilment.shops.index':
             return route(
-                'grp.org.fulfilment.show',
+                'grp.org.fulfilment.shops.show',
                 [route().params['organisation'], fulfilment.slug])
     }
 }
@@ -36,12 +36,12 @@ function fulfilmentRoute(fulfilment: Fulfilment) {
     <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(code)="{ item: fulfilment }">
             <div class="flex">
-                <div v-if="fulfilment.code == useLayoutStore().organisationsState?.[useLayoutStore().currentParams.organisation]?.currentFulfilment" v-tooltip="trans('Recently selected')" class="px-0.5 leading-none">
-                    <FontAwesomeIcon icon='fas fa-circle' class='text-lime-500 text-[6px]' fixed-width aria-hidden='true' />
-                </div>
                 <Link :href="fulfilmentRoute(fulfilment)" class="specialUnderline">
                     {{ fulfilment.code }}
                 </Link>
+                <div v-if="fulfilment.code == useLayoutStore().organisationsState?.[useLayoutStore().currentParams.organisation]?.currentFulfilment" v-tooltip="trans('Recently selected')" class="px-0.5 leading-none">
+                    <FontAwesomeIcon icon='fas fa-circle' class='text-lime-500 text-[6px]' fixed-width aria-hidden='true' />
+                </div>
             </div>
         </template>
     </Table>

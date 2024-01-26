@@ -9,7 +9,7 @@ use App\Actions\CRM\Customer\StoreCustomer;
 use App\Actions\Market\Shop\StoreShop;
 use App\Enums\CRM\Customer\CustomerStatusEnum;
 use App\Enums\Market\Shop\ShopTypeEnum;
-use App\Enums\UI\FulfilmentTabsEnum;
+use App\Enums\UI\FulfilmentsTabsEnum;
 use App\Models\CRM\Customer;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -87,19 +87,29 @@ test('create fulfilment customer', function ($shop) {
     return $customer;
 })->depends('create fulfilment shop');
 
+test('UI fulfilment shops dashboard', function () {
+    $response = get(route('grp.org.fulfilment.dashboard', $this->organisation->slug));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Fulfilment/FulfilmentsDashboard')
+            ->has('title')
+            ->has('breadcrumbs', 2);
+    });
+});
+
 test('UI list of fulfilment shops', function () {
-    $response = get(route('grp.org.fulfilment.index', $this->organisation->slug));
-    expect(FulfilmentTabsEnum::FULFILMENT_SHOPS->value)->toBe('fulfilments');
+    $response = get(route('grp.org.fulfilment.shops.index', $this->organisation->slug));
+    expect(FulfilmentsTabsEnum::FULFILMENT_SHOPS->value)->toBe('fulfilments');
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('Org/Fulfilment/Fulfilments')
-            ->has('title')->has('tabs')->has(FulfilmentTabsEnum::FULFILMENT_SHOPS->value.'.data')
+            ->has('title')->has('tabs')->has(FulfilmentsTabsEnum::FULFILMENT_SHOPS->value.'.data')
             ->has('breadcrumbs', 2);
     });
 });
 
 test('UI create fulfilment', function () {
-    $response = get(route('grp.org.fulfilment.create', $this->organisation->slug));
+    $response = get(route('grp.org.fulfilment.shops.create', $this->organisation->slug));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('CreateModel')

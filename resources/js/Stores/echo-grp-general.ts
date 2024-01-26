@@ -7,24 +7,33 @@
 import { defineStore } from 'pinia'
 import { notify } from '@kyvg/vue3-notification'
 
+interface NotificationData {
+    title: string
+    text: string
+    type: string
+}
+
 export const useEchoGrpGeneral = defineStore(
     'echo-grp-general', {
         state: () => ({
             prospectsDashboard: {},
         }),
         actions: {
-            subscribe() {
-                // console.log('subscribe general')
-                let abcdef = window.Echo.private('grp.general').
-                    listen('.notification', (e: {}) => {
-                        console.log('From echo-org-general', e)
+            subscribe(groupId: string) {
+                if (!groupId) {
+                    console.log("WS General Failed (Group id isn't provided)")
+                    return 
+                }
+                let abcdef = window.Echo.private(`grp.${groupId}.general`).
+                    listen('.notification', (e: NotificationData) => {
+                        // console.log('From echo-org-general', e)
                         notify({
-                            title: 'General',
-                            text: 'From echo-org-general',
-                            type: 'success',
+                            title: e.title || 'General',
+                            text: e.text || 'From echo-org-general',
+                            type: e.type || 'success',
                         })
                     })
-                console.log('Subscribed to General: :', abcdef.subscription.subscribed)
+                // console.log('Subscribed to General: :', abcdef)
             },
         },
     }

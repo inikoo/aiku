@@ -8,7 +8,7 @@
 namespace App\Actions\Fulfilment\StoredItem\UI;
 
 use App\Actions\InertiaAction;
-use App\Actions\UI\Fulfilment\FulfilmentDashboard;
+use App\Actions\UI\Fulfilment\ShowFulfilmentsDashboard;
 use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Fulfilment\StoredItemResource;
 use App\Models\CRM\Customer;
@@ -130,7 +130,7 @@ class IndexStoredItems extends InertiaAction
     public function getBreadcrumbs(): array
     {
         return array_merge(
-            (new FulfilmentDashboard())->getBreadcrumbs(),
+            (new ShowFulfilmentsDashboard())->getBreadcrumbs(),
             [
                 [
                     'type'   => 'simple',

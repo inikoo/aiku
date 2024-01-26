@@ -10,16 +10,9 @@ namespace App\Actions\Fulfilment\Pallet;
 use App\Actions\Fulfilment\StoredItem\Hydrators\StoredItemHydrateUniversalSearch;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
-use App\Enums\Fulfilment\Pallet\PalletStateEnum;
-use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
-use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
-use App\Http\Resources\Fulfilment\StoredItemResource;
-use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Inventory\Location;
 use App\Models\SysAdmin\Organisation;
-use App\Rules\IUnique;
-use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdatePalletLocation extends OrgAction

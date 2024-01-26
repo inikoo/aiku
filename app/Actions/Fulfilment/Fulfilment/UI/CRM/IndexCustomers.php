@@ -104,7 +104,7 @@ class IndexCustomers extends OrgAction
                                 'tooltip' => __('new customer'),
                                 'label'   => __('customer'),
                                 'route'   => [
-                                    'name'       => 'grp.org.fulfilment.show.customers.create',
+                                    'name'       => 'grp.org.fulfilment.shops.show.customers.create',
                                     'parameters' => [$fulfilment->organisation->slug,$fulfilment->slug]
                                 ]
                             ]

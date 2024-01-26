@@ -43,7 +43,7 @@ class CreateFulfilment extends OrgAction
                             'style' => 'cancel',
                             'label' => __('cancel'),
                             'route' => [
-                                'name'       => 'grp.org.fulfilment.index',
+                                'name'       => 'grp.org.fulfilment.shops.index',
                                 'parameters' => $request->route()->originalParameters()
                             ],
                         ]
@@ -153,7 +153,7 @@ class CreateFulfilment extends OrgAction
                         ],
                     ],
                     'route'     => [
-                        'name'       => 'grp.models.org.shop.store',
+                        'name'       => 'grp.models.org.fulfilment.store',
                         'parameters' => [
                             'organisation' => $this->organisation->slug
                         ]

@@ -10,7 +10,6 @@ import { faEmptySet, faStar, faWrench, faWarehouse, faStore, faCashRegister, faM
 import { useLocaleStore } from '@/Stores/locale'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { capitalize } from "@/Composables/capitalize"
-import { useLayoutStore } from '@/Stores/layout';
 library.add(faEmptySet, faStar, faWrench, faWarehouse, faStore, faCashRegister, faMoneyCheckAlt, faTasks)
 
 const props = defineProps(['nodes'])
@@ -19,14 +18,13 @@ const locale = useLocaleStore()
 </script>
 
 <template>
-    <!-- {{ nodes[0] }} -->
-    <nav aria-label="Progress" class="py-1 md:py-0">
+    <nav aria-label="Progress" class="py-1 md:py-0 mt-3">
         <ol v-if="nodes" role="list" class="divide-y divide-gray-300 rounded-md border border-gray-300 md:flex md:divide-y-0">
             <li v-for="(node, nodeIdx) in nodes" :key="node.name" class="relative flex flex-1 items-center">
                 <!-- Main Tree -->
-                <Link :href="route(node.href['name'], node.href['parameters'])" class="group flex-1 items-center">
+                <component :is="node.href?.name ? Link : 'div'"  :href="node.href?.name ? route(node.href.name, node.href.parameters) : '#'" class="group flex-1 items-center">
                     <div class="flex items-center px-4 text-lg xl:px-6 py-4 font-medium gap-x-4">
-                        <FontAwesomeIcon size="lg" :icon="node.icon" class="flex-shrink-0 text-gray-400" aria-hidden="true" />
+                        <FontAwesomeIcon v-if="node.icon" size="lg" :icon="node.icon" class="flex-shrink-0 text-gray-400" aria-hidden="true" />
                         <p class="md:leading-none md:text-sm lg:text-base inline capitalize font-medium text-gray-500 group-hover:text-gray-600">
                             <span class="hidden lg:inline">{{ node.name }}</span>
                             <span class="inline lg:hidden">{{ node.shortName ? node.shortName : node.name }}</span>
@@ -39,19 +37,15 @@ const locale = useLocaleStore()
                             <FontAwesomeIcon v-else icon="fal fa-empty-set" />
                         </span>
                     </div>
-                </Link>
+                </component>
 
                 <!-- Sublink on right each section (Marketplace) -->
                 <div v-if="node.rightSubLink" class="pr-4 " :title="capitalize(node.rightSubLink.tooltip)">
                     <!-- {{ importIcon(node.rightSubLink.icon) }} -->
-                    <Link :href="route(
-                        node.rightSubLink.href['name'],
-                        node.rightSubLink.href['parameters'])"
-                          class="w-9 h-9 flex flex-0 justify-center items-center border-2 text-gray-500 rounded-md cursor-pointer hover:text-white"
-                          :class="useLayoutStore().appName === 'org' ? 'hover:bg-org-500 border-org-500' : 'hover:bg-gray-500 border-gray-500'"
-                    >
-                        <FontAwesomeIcon :icon="node.rightSubLink.icon" class="flex-shrink-0 " aria-hidden="true" />
-                    </Link>
+                    <component :is="node.rightSubLink?.href?.name ? Link : 'div'"  :href="node.href?.name ? route(node.rightSubLink.href.name, node.rightSubLink.href.parameters) : '#'"
+                        class="w-9 h-9 flex flex-0 justify-center items-center hover:bg-gray-500 border-gray-500 border-2 text-gray-500 rounded-md cursor-pointer hover:text-white">
+                        <FontAwesomeIcon v-if="node.rightSubLink?.icon" :icon="node.rightSubLink.icon" class="flex-shrink-0 " aria-hidden="true" />
+                    </component>
                 </div>
 
                 <template v-if="nodeIdx !== nodes.length - 1">
@@ -59,7 +53,7 @@ const locale = useLocaleStore()
                     <div class="hidden h-full w-5 md:block" aria-hidden="true">
                         <svg class="h-full w-full text-gray-300" viewBox="0 0 22 80" fill="none" preserveAspectRatio="none">
                             <path d="M0 -2L20 40L0 82" vector-effect="non-scaling-stroke" stroke="currentcolor"
-                                  stroke-linejoin="round" />
+                                stroke-linejoin="round" />
                         </svg>
                     </div>
                 </template>

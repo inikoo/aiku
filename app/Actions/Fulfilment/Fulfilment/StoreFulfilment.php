@@ -7,16 +7,22 @@
 
 namespace App\Actions\Fulfilment\Fulfilment;
 
+use App\Actions\Market\Shop\StoreShop;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\User\UserAddRoles;
+use App\Actions\Traits\Rules\WithShopRules;
 use App\Enums\SysAdmin\Authorisation\RolesEnum;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Market\Shop;
+use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\Role;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
 
 class StoreFulfilment extends OrgAction
 {
+    use WithShopRules;
     public function handle(Shop $shop, $modelData): Fulfilment
     {
         data_set($modelData, 'group_id', $shop->group_id);
@@ -43,12 +49,28 @@ class StoreFulfilment extends OrgAction
     }
 
 
+    public function authorize(ActionRequest $request): bool
+    {
+        if ($this->asAction) {
+            return true;
+        }
+
+        return $request->user()->hasPermissionTo("fulfilments.{$this->organisation->id}.edit");
+    }
+
     public function rules(ActionRequest $request): array
     {
-        return [
-
-        ];
+        return $this->getStoreShopRules();
     }
+
+
+    public function asController(Organisation $organisation, ActionRequest $request): Fulfilment
+    {
+        $this->initialisation($organisation, $request);
+        $shop=StoreShop::make()->action($organisation, $this->validatedData);
+        return $shop->fulfilment;
+    }
+
 
     public function action(Shop $shop, $modelData, $hydratorDelay = 0): Fulfilment
     {
@@ -59,5 +81,15 @@ class StoreFulfilment extends OrgAction
         return $this->handle($shop, $this->validatedData);
     }
 
+    public function htmlResponse(Fulfilment $fulfilment): RedirectResponse
+    {
+        return Redirect::route(
+            'grp.org.fulfilment.shops.show',
+            [
+                $this->organisation->slug,
+                $fulfilment->slug
+            ]
+        );
+    }
 
 }

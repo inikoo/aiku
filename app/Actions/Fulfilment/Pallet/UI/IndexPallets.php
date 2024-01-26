@@ -8,8 +8,8 @@
 namespace App\Actions\Fulfilment\Pallet\UI;
 
 use App\Actions\InertiaAction;
+use App\Actions\UI\Fulfilment\ShowFulfilmentsDashboard;
 use App\Actions\OrgAction;
-use App\Actions\UI\Fulfilment\FulfilmentDashboard;
 use App\Enums\UI\FulfilmentTabsEnum;
 use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Fulfilment\PalletResource;
@@ -117,7 +117,7 @@ class IndexPallets extends OrgAction
                     'actions' => [
                         'buttons' => [
                             'route' => [
-                                'name'       => 'grp.org.fulfilment.pallets.create',
+                                'name'       => 'grp.org.fulfilment.shops.show.pallets.create',
                                 'parameters' => array_values(request()->route()->originalParameters())
                             ],
                             'label' => __('pallets')
@@ -153,7 +153,7 @@ class IndexPallets extends OrgAction
     public function getBreadcrumbs(): array
     {
         return array_merge(
-            (new FulfilmentDashboard())->getBreadcrumbs(),
+            (new ShowFulfilmentsDashboard())->getBreadcrumbs(),
             [
                 [
                     'type'   => 'simple',

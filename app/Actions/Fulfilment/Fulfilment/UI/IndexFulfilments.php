@@ -33,7 +33,6 @@ class IndexFulfilments extends OrgAction
     public function authorize(ActionRequest $request): bool
     {
         $this->canEdit = $request->user()->hasPermissionTo("fulfilments.{$this->organisation->id}.edit");
-
         return $request->user()->hasPermissionTo("fulfilments.{$this->organisation->id}.view");
     }
 
@@ -130,7 +129,7 @@ class IndexFulfilments extends OrgAction
                             'tooltip' => __('new fulfilment shop'),
                             'label'   => __('Fulfilment Shop'),
                             'route'   => [
-                                'name'       => 'grp.org.fulfilment.create',
+                                'name'       => 'grp.org.fulfilment.shops.create',
                                 'parameters' => $request->route()->originalParameters()
                             ]
                         ] : false,
@@ -162,7 +161,7 @@ class IndexFulfilments extends OrgAction
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name'       => 'grp.org.fulfilment.index',
+                                'name'       => 'grp.org.fulfilment.shops.index',
                                 'parameters' => $routeParameters
                             ],
                             'label' => __('fulfilment shops'),

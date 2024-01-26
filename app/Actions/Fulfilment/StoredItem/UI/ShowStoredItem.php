@@ -9,7 +9,7 @@ namespace App\Actions\Fulfilment\StoredItem\UI;
 
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\InertiaAction;
-use App\Actions\UI\Fulfilment\FulfilmentDashboard;
+use App\Actions\UI\Fulfilment\ShowFulfilmentsDashboard;
 use App\Enums\Fulfilment\StoredItem\StoredItemStatusEnum;
 use App\Enums\UI\StoredItemTabsEnum;
 use App\Http\Resources\Fulfilment\StoredItemResource;
@@ -113,7 +113,7 @@ class ShowStoredItem extends InertiaAction
     public function getBreadcrumbs(StoredItem $storedItem, $suffix = null): array
     {
         return array_merge(
-            (new FulfilmentDashboard())->getBreadcrumbs(),
+            (new ShowFulfilmentsDashboard())->getBreadcrumbs(),
             [
                 [
                     'type'           => 'modelWithIndex',
