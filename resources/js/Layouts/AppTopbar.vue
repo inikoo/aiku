@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { Link, router, usePage } from '@inertiajs/vue3'
+import { Link, router } from '@inertiajs/vue3'
 import { useLayoutStore } from "@/Stores/layout"
-import { ref, reactive } from 'vue'
+import { reactive } from 'vue'
 import { get } from 'lodash'
-import { useLiveUsers } from '@/Stores/active-users'
 import {capitalize} from "@/Composables/capitalize"
 import MenuPopoverList from "@/Layouts/MenuPopoverList.vue"
 import TopbarSelectButton from "@/Layouts/TopbarSelectButton.vue"
@@ -12,14 +11,14 @@ import { useValueInDeepObject } from "@/Composables/useFindKeyObject"
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/vue"
 import { Disclosure } from "@headlessui/vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
-import SearchBar from "@/Components/SearchBar.vue"
 import { trans } from "laravel-vue-i18n"
 import Image from "@/Components/Image.vue"
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faChevronDown } from '@far'
 import { faTerminal, faUserAlien, faCog, faCity, faBuilding, faNetworkWired, faUserHardHat, faCalendar, faStopwatch, faStoreAlt, faWarehouseAlt, faChartNetwork } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { useTruncate } from '../Composables/useTruncate'
+import { useTruncate } from '@/Composables/useTruncate'
+import MenuTopRight from '@/Layouts/MenuTopRight.vue'
 library.add(faChevronDown, faTerminal, faUserAlien, faCog, faCity, faBuilding, faNetworkWired, faUserHardHat, faCalendar, faStopwatch, faStoreAlt, faWarehouseAlt, faChartNetwork)
 
 const props = defineProps<{
@@ -35,27 +34,7 @@ defineEmits<{
 // To handle skeleton image in dropdown
 const imageSkeleton: {[key:string]: boolean} = reactive({})
 
-const layout = useLayoutStore()
-const showSearchDialog = ref(false)
-
-const logoutAuth = () => {
-    router.post(route(props.urlPrefix + 'logout'))
-
-    const dataActiveUser = {
-        ...layout.user,
-        name: null,
-        last_active: new Date(),
-        action: 'logout',
-        current_page: {
-            label: trans('Logout'),
-            url: null,
-            icon_left: null,
-            icon_right: null,
-        },
-    }
-    window.Echo.join(`grp.live.users`).whisper('otherIsNavigating', dataActiveUser)
-    useLiveUsers().unsubscribe()  // Unsubscribe from Laravel Echo
-}
+const layoutStore = useLayoutStore()
 
 // For label
 const label = {
@@ -86,15 +65,15 @@ const label = {
 
                     <!-- App Title: Image and Title -->
                     <div class="bg-indigo-700 flex flex-1 items-center justify-center md:justify-start transition-all duration-300 ease-in-out"
-                        :class="[layout.leftSidebar.show ? 'md:w-48 md:pr-4' : 'md:w-12']"
+                        :class="[layoutStore.leftSidebar.show ? 'md:w-48 md:pr-4' : 'md:w-12']"
                     >
-                        <Link :href="layout.app?.url ?? '#'"
+                        <Link :href="layoutStore.app?.url ?? '#'"
                             class="hidden md:flex flex-nowrap items-center h-full overflow-hidden gap-x-1.5 transition-all duration-200 ease-in-out"
-                            :class="[layout.leftSidebar.show ? 'py-1 pl-4' : 'pl-2.5 w-full']"
+                            :class="[layoutStore.leftSidebar.show ? 'py-1 pl-4' : 'pl-2.5 w-full']"
                         >
-                            <Image :src="layout.organisations.data.find((item) => item.slug == layout.currentParams.organisation)?.logo || layout.group?.logo" class="aspect-square h-5"/>
+                            <Image :src="layoutStore.organisations.data.find((item) => item.slug == layoutStore.currentParams.organisation)?.logo || layoutStore.group?.logo" class="aspect-square h-5"/>
                             <Transition name="slide-to-left">
-                                <p v-if="layout.leftSidebar.show" class="bg-gradient-to-r from-white to-indigo-100 text-transparent text-lg bg-clip-text font-bold whitespace-nowrap leading-none lg:truncate">
+                                <p v-if="layoutStore.leftSidebar.show" class="bg-gradient-to-r from-white to-indigo-100 text-transparent text-lg bg-clip-text font-bold whitespace-nowrap leading-none lg:truncate">
                                     Aiku
                                 </p>
                             </Transition>
@@ -108,25 +87,25 @@ const label = {
                     <div class="flex items-center gap-x-2 pl-2">
                         <!-- Section: Dropdown -->
                         <div v-if="
-                            layout.group
-                            || (layout.organisations.data?.length > 1 ? true : false)
-                            || useLayoutStore().organisations.data?.find(organisation => organisation.slug == layout.currentParams.organisation) && (route(useLayoutStore().currentRoute, useLayoutStore().currentParams)).includes('shops')
-                            || useLayoutStore().navigation.org?.[layout.currentParams.organisation]?.warehouses_navigation && (route(useLayoutStore().currentRoute, useLayoutStore().currentParams)).includes('warehouse')
+                            layoutStore.group
+                            || (layoutStore.organisations.data?.length > 1 ? true : false)
+                            || layoutStore.organisations.data?.find(organisation => organisation.slug == layoutStore.currentParams.organisation) && (route(layoutStore.currentRoute, layoutStore.currentParams)).includes('shops')
+                            || layoutStore.navigation.org?.[layoutStore.currentParams.organisation]?.warehouses_navigation && (route(layoutStore.currentRoute, layoutStore.currentParams)).includes('warehouse')
                         "
                         class="flex border border-gray-300 rounded-md">
                             <!-- Dropdown: Organisations -->
-                            <Menu v-if="layout.group || (layout.organisations.data.length > 1 ? true : false)" as="div" class="relative inline-block text-left">
+                            <Menu v-if="layoutStore.group || (layoutStore.organisations.data.length > 1 ? true : false)" as="div" class="relative inline-block text-left">
                                 <TopbarSelectButton
-                                    :icon="layout.currentParams.organisation ? 'fal fa-building' : 'fal fa-city'"
-                                    :activeButton="!!(layout.organisations.data.find((item) => item.slug == layout.currentParams.organisation))"
-                                    :label="layout.organisations.data.find((item) => item.slug == layout.currentParams.organisation)?.label ?? label.organisationSelect"
+                                    :icon="layoutStore.currentParams.organisation ? 'fal fa-building' : 'fal fa-city'"
+                                    :activeButton="!!(layoutStore.organisations.data.find((item) => item.slug == layoutStore.currentParams.organisation))"
+                                    :label="layoutStore.organisations.data.find((item) => item.slug == layoutStore.currentParams.organisation)?.label ?? label.organisationSelect"
                                 />
                                 <transition>
                                     <MenuItems
                                         class="min-w-24 w-fit max-w-96 absolute left-0 mt-2 origin-top-right divide-y divide-gray-100 rounded bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
                                         <div class="px-1 py-1 space-y-2.5">
                                             <!-- Dropdown: Group -->
-                                            <div v-if="layout.group" class="">
+                                            <div v-if="layoutStore.group" class="">
                                                 <div class="flex items-center gap-x-1.5 px-1 mb-1">
                                                     <FontAwesomeIcon icon='fal fa-city' class='text-gray-400 text-xxs' aria-hidden='true' />
                                                     <span class="text-[9px] leading-none text-gray-400">Groups</span>
@@ -134,19 +113,19 @@ const label = {
                                                 </div>
                                                 <MenuItem v-slot="{ active }">
                                                     <div @click="() => router.visit(route('grp.dashboard.show'))" :class="[
-                                                        !layout.currentParams.organisation ? 'bg-slate-300 text-slate-600' : active ? 'bg-slate-200/75 text-indigo-600' : 'text-slate-600']"
+                                                        !layoutStore.currentParams.organisation ? 'bg-slate-300 text-slate-600' : active ? 'bg-slate-200/75 text-indigo-600' : 'text-slate-600']"
                                                         class="group flex w-full gap-x-2 items-center rounded pl-3 pr-2 py-2 text-sm cursor-pointer"
                                                     >
                                                         <FontAwesomeIcon icon='fal fa-city' class='' ariaa-hidden='true' />
                                                         <div class="space-x-1">
-                                                            <span class="font-semibold">{{ layout.group?.label }}</span>
+                                                            <span class="font-semibold">{{ layoutStore.group?.label }}</span>
                                                             <span class="text-[9px] leading-none text-gray-400">({{ trans('Group') }})</span>
                                                         </div>
                                                     </div>
                                                 </MenuItem>
                                             </div>
 
-                                            <div v-if="layout.organisations.data.length > 1">
+                                            <div v-if="layoutStore.organisations.data.length > 1">
                                                 <!-- Dropdown: Organisation -->
                                                 <div class="flex items-center gap-x-1.5 px-1 mb-1">
                                                     <FontAwesomeIcon icon='fal fa-building' class='text-gray-400 text-xxs' aria-hidden='true' />
@@ -154,9 +133,9 @@ const label = {
                                                     <hr class="w-full rounded-full border-slate-300">
                                                 </div>
                                                 <div class="max-h-52 overflow-y-auto space-y-1.5">
-                                                    <MenuItem v-for="(item) in layout.organisations.data" v-slot="{ active }">
+                                                    <MenuItem v-for="(item) in layoutStore.organisations.data" v-slot="{ active }">
                                                         <div @click="() => router.visit(route('grp.org.dashboard.show', { organisation: item.slug }))" :class="[
-                                                            item.slug == layout.currentParams.organisation ? 'bg-slate-300 text-slate-600' : 'text-slate-600 hover:bg-slate-200/75 hover:text-indigo-600',
+                                                            item.slug == layoutStore.currentParams.organisation ? 'bg-slate-300 text-slate-600' : 'text-slate-600 hover:bg-slate-200/75 hover:text-indigo-600',
                                                             'group flex gap-x-2 w-full justify-start items-center rounded pl-2 pr-4 py-2 text-sm cursor-pointer',
                                                         ]">
                                                             <div class="h-5 aspect-square rounded-full overflow-hidden ring-1 ring-slate-200 bg-slate-50">
@@ -174,33 +153,37 @@ const label = {
                             </Menu>
 
                             <!-- Dropdown: Shops -->
-                            <Menu v-if="useLayoutStore().organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation) && (route(useLayoutStore().currentRoute, useLayoutStore().currentParams)).includes('shops')"
+                            <Menu v-if="
+                                layoutStore.organisations.data.find(organisation => organisation.slug == layoutStore.currentParams.organisation) && (route(layoutStore.currentRoute, layoutStore.currentParams)).includes('shops') || 
+                                Object.keys(layoutStore.navigation.org[layoutStore.currentParams.organisation]?.fulfilments_navigation || []).length > 1 && (route(layoutStore.currentRoute, layoutStore.currentParams)).includes('fulfilment')
+                            "
                                 as="div" class="relative inline-block text-left"
                                 v-slot="{ close: closeMenu }"
                             >
                                 <TopbarSelectButton
                                     icon="fal fa-store-alt"
-                                    :activeButton="!!(layout.currentParams.shop)"
-                                    :label="layout.organisationsState?.[layout.currentParams.organisation]?.currentShop || label.shopSelect"
-                                    :key="`shop` + layout.currentParams.shop"
+                                    :activeButton="!!(layoutStore.currentParams.shop)"
+                                    :label="layoutStore.organisationsState?.[layoutStore.currentParams.organisation]?.currentShop || label.shopSelect"
+                                    :key="`shop` + layoutStore.currentParams.shop"
                                 />
 
                                 <transition>
                                     <MenuItems class="absolute left-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
                                         <MenuPopoverList icon="fal fa-store-alt" :navKey="'shop'" :closeMenu="closeMenu" />
+                                        <MenuPopoverList icon="fal fa-warehouse-alt" :navKey="'fulfilment'" :closeMenu="closeMenu" />
                                     </MenuItems>
                                 </transition>
                             </Menu>
 
                             <!-- Dropdown: Warehouse -->
-                            <Menu v-if="Object.keys(useLayoutStore().navigation.org[layout.currentParams.organisation]?.warehouses_navigation || []).length > 1 && (route(useLayoutStore().currentRoute, useLayoutStore().currentParams)).includes('warehouses')"
+                            <Menu v-if="Object.keys(layoutStore.navigation.org[layoutStore.currentParams.organisation]?.warehouses_navigation || []).length > 1 && (route(layoutStore.currentRoute, layoutStore.currentParams)).includes('warehouses')"
                                 as="div" class="relative inline-block text-left"
                                 v-slot="{ close: closeMenu }"
                             >
                                 <TopbarSelectButton
                                     icon="fal fa-warehouse-alt"
-                                    :activeButton="!!(layout.currentParams.warehouse)"
-                                    :label="useLayoutStore().organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_warehouses.find(warehouse => warehouse.slug == layout.currentParams.warehouse)?.label ?? label.warehouseSelect"
+                                    :activeButton="!!(layoutStore.currentParams.warehouse)"
+                                    :label="layoutStore.organisations.data.find(organisation => organisation.slug == layoutStore.currentParams.organisation)?.authorised_warehouses.find(warehouse => warehouse.slug == layoutStore.currentParams.warehouse)?.label ?? label.warehouseSelect"
                                 />
                                 <transition>
                                     <MenuItems class="absolute left-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
@@ -209,37 +192,37 @@ const label = {
                                 </transition>
                             </Menu>
 
-                            <!-- Dropdown: Warehouse -->
-                            <Menu v-if="Object.keys(useLayoutStore().navigation.org[layout.currentParams.organisation]?.fulfilments_navigation || []).length > 1 && (route(useLayoutStore().currentRoute, useLayoutStore().currentParams)).includes('fulfilment')"
+                            <!-- Dropdown: Fulfilment -->
+                            <!-- <Menu v-if="Object.keys(layoutStore.navigation.org[layoutStore.currentParams.organisation]?.fulfilments_navigation || []).length > 1 && (route(layoutStore.currentRoute, layoutStore.currentParams)).includes('fulfilment')"
                                 as="div" class="relative inline-block text-left"
                                 v-slot="{ close: closeMenu }"
                             >
                                 <TopbarSelectButton
                                     icon="fal fa-warehouse-alt"
-                                    :activeButton="!!(layout.currentParams.fulfilment)"
-                                    :label="useLayoutStore().organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_fulfilments.find(fulfilment => fulfilment.slug == layout.currentParams.fulfilment)?.label ?? label.fulfilmentSelect"
+                                    :activeButton="!!(layoutStore.currentParams.fulfilment)"
+                                    :label="layoutStore.organisations.data.find(organisation => organisation.slug == layoutStore.currentParams.organisation)?.authorised_fulfilments.find(fulfilment => fulfilment.slug == layoutStore.currentParams.fulfilment)?.label ?? label.fulfilmentSelect"
                                 />
                                 <transition>
                                     <MenuItems class="absolute left-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
                                         <MenuPopoverList icon="fal fa-warehouse-alt" :navKey="'fulfilment'" :closeMenu="closeMenu" />
                                     </MenuItems>
                                 </transition>
-                            </Menu>
+                            </Menu> -->
                         </div>
 
                         <!-- Section: Subsections -->
                         <div class="flex h-full">
-                            <!-- {{layout.navigation.org[layout.currentParams.organisation][layout.currentModule].topMenu.subSections.length}} -->
+                            <!-- {{layoutStore.navigation.org[layoutStore.currentParams.organisation][layoutStore.currentModule].topMenu.subSections.length}} -->
                             <!-- {{ get('layout', ['navigation', 'org', get('layout', ['currentParams', 'organisation']), get('layout', ['currentModule']), 'topMenu', 'subSections'], false) }} -->
-                            <template v-if="useValueInDeepObject(layout.navigation.org?.[layout.currentParams.organisation]?.[layout.currentModule], 'topMenu')?.subSections?.length">
-                                <Link v-for="menu in useValueInDeepObject(layout.navigation.org?.[layout.currentParams.organisation]?.[layout.currentModule], 'topMenu').subSections"
+                            <template v-if="useValueInDeepObject(layoutStore.navigation.org?.[layoutStore.currentParams.organisation]?.[layoutStore.currentModule], 'topMenu')?.subSections?.length">
+                                <Link v-for="menu in useValueInDeepObject(layoutStore.navigation.org?.[layoutStore.currentParams.organisation]?.[layoutStore.currentModule], 'topMenu').subSections"
                                     :href="route(menu.route.name, menu.route.parameters)"
                                     :id="get(menu, 'label', menu?.route.name)"
                                     class="group relative text-gray-700 group text-sm flex justify-end items-center cursor-pointer py-3 gap-x-2 px-4 md:px-4 lg:px-4"
                                     :class="[]"
                                     :title="capitalize(menu.tooltip ?? menu.label ?? '')">
                                     <div :class="[
-                                        route(layout.currentRoute, route().v().params).includes(route(menu.route.name, menu.route.parameters))
+                                        route(layoutStore.currentRoute, route().v().params).includes(route(menu.route.name, menu.route.parameters))
                                         ? 'bottomNavigationActive'
                                         : 'bottomNavigation'
                                     ]"/>
@@ -253,57 +236,8 @@ const label = {
                         </div>
                     </div>
 
-                    <!-- Avatar Group -->
-                    <div class="flex justify-between">
-                        <div class="flex">
-                            <!-- Button: Search -->
-                            <button @click="showSearchDialog = !showSearchDialog" id="search"
-                                    class="h-8 w-8 grid items-center justify-center rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500">
-                                <span class="sr-only">{{ trans("Search") }}</span>
-                                <FontAwesomeIcon aria-hidden="true" icon="fa-regular fa-search" size="lg" />
-                                <SearchBar v-if="showSearchDialog" v-on:close="showSearchDialog = false" />
-                            </button>
-                            <!-- Button: Notifications -->
-                            <!-- <button type="button"
-                                    class="h-8 w-8 grid items-center justify-center rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500">
-                                <span class="sr-only">{{ trans("View notifications") }}</span>
-                                <FontAwesomeIcon aria-hidden="true" icon="fa-regular fa-bell" size="lg" />
-                            </button> -->
-                        </div>
-
-                        <!-- Avatar Button -->
-                        <Menu as="div" class="relative">
-                            <MenuButton id="avatar-thumbnail"
-                                class="flex max-w-xs overflow-hidden items-center rounded-full bg-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-gray-500">
-                                <span class="sr-only">{{ trans("Open user menu") }}</span>
-                                <Image  class="h-8 w-8 rounded-full"
-                                    :src="layout.user.avatar_thumbnail"
-                                    alt="" />
-                            </MenuButton>
-                            <transition enter-active-class="transition ease-out duration-100" enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100"
-                                        leave-active-class="transition ease-in duration-75" leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
-                                <MenuItems class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-200 focus:outline-none">
-                                    <div class="py-1">
-                                        <MenuItem v-slot="{ active }">
-                                            <div type="button" @click="router.visit(route(urlPrefix+'profile.show'))"
-                                                :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm cursor-pointer']">
-                                                {{ trans("View profile") }}
-                                            </div>
-                                        </MenuItem>
-                                    </div>
-                                    <div class="py-1">
-                                        <MenuItem v-slot="{ active }">
-                                            <div @click="logoutAuth()"
-                                                :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm cursor-pointer']"
-                                            >
-                                                {{ trans('Logout') }}
-                                            </div>
-                                        </MenuItem>
-                                    </div>
-                                </MenuItems>
-                            </transition>
-                        </Menu>
-                    </div>
+                    <!-- Section: Search, Notification, Profile -->
+                    <MenuTopRight :urlPrefix="urlPrefix" />
                 </div>
             </div>
         </div>
