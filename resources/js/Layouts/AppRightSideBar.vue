@@ -17,7 +17,7 @@ const layout = useLayoutStore()
 onMounted(() => {
     if (localStorage.getItem('rightSidebar')) {
         // Read from local storage then store to Pinia
-        layout.rightSidebar = JSON.parse(localStorage.getItem('rightSidebar') ?? '')
+        layout.rightSidebar = JSON.parse(localStorage.getItem('rightSidebar') || '')
     }
 })
 
