@@ -9,14 +9,14 @@ namespace App\Actions\Fulfilment\Fulfilment\UI;
 
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Organisation\UI\ShowOrganisationDashboard;
-use App\Enums\UI\FulfilmentTabsEnum;
+use App\Enums\UI\FulfilmentsTabsEnum;
 use App\Http\Resources\Fulfilment\FulfilmentsResource;
 use App\Http\Resources\Market\ShopResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
-use Arr;
+use Illuminate\Support\Arr;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -40,7 +40,7 @@ class IndexFulfilments extends OrgAction
     public function asController(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $organisation;
-        $this->initialisation($organisation, $request)->withTab(FulfilmentTabsEnum::values());
+        $this->initialisation($organisation, $request)->withTab(FulfilmentsTabsEnum::values());
 
         return $this->handle();
     }
@@ -139,17 +139,17 @@ class IndexFulfilments extends OrgAction
 
                 'tabs' => [
                     'current'    => $this->tab,
-                    'navigation' => FulfilmentTabsEnum::navigation(),
+                    'navigation' => FulfilmentsTabsEnum::navigation(),
                 ],
 
 
-                FulfilmentTabsEnum::FULFILMENT_SHOPS->value => $this->tab == FulfilmentTabsEnum::FULFILMENT_SHOPS->value ?
+                FulfilmentsTabsEnum::FULFILMENT_SHOPS->value => $this->tab == FulfilmentsTabsEnum::FULFILMENT_SHOPS->value ?
                     fn () => FulfilmentsResource::collection($fulfilments)
                     : Inertia::lazy(fn () => FulfilmentsResource::collection($fulfilments)),
 
 
             ]
-        )->table($this->tableStructure(parent: $this->parent, prefix: FulfilmentTabsEnum::FULFILMENT_SHOPS->value));
+        )->table($this->tableStructure(parent: $this->parent, prefix: FulfilmentsTabsEnum::FULFILMENT_SHOPS->value));
     }
 
     public function getBreadcrumbs(array $routeParameters, $suffix = null): array
