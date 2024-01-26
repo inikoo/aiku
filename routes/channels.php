@@ -1,4 +1,4 @@
-<?php
+    <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Wed, 10 Jan 2024 16:41:28 Malaysia Time, Kuala Lumpur, Malaysia
@@ -23,3 +23,4 @@ Broadcast::channel('grp.live.users', function (User $user) {
         'name'  => $user->contact_name,
     ];
 });
+

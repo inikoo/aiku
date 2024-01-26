@@ -18,6 +18,7 @@ import ModelDetails from "@/Components/ModelDetails.vue"
 import TableHistories from "@/Components/Tables/TableHistories.vue"
 import ShopShowcase from "@/Components/Showcases/Grp/ShopShowcase.vue"
 import FulfilmentShowcase from "@/Components/Showcases/Org/FulfilmentShowcase.vue"
+import TablePallets from "@/Components/Tables/TablePallets.vue";
 
 library.add(faTachometerAlt, faPalletAlt)
 
@@ -29,6 +30,7 @@ const props = defineProps<{
     },
     title: string
     showcase?: object
+    pallets?: object
 
 
 }>()
@@ -39,7 +41,7 @@ const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab)
 const component = computed(() => {
     const components = {
         dashboard: FulfilmentShowcase,
-        showcase: ShopShowcase,
+        pallets: TablePallets,
         details: ModelDetails,
         history: TableHistories
     }

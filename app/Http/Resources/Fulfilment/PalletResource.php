@@ -13,7 +13,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 /**
  * @property int $id
  * @property string $slug
- * @property string $reference
+ * @property string $customer_reference
  * @property string $state
  * @property string $status
  * @property string $notes
@@ -27,7 +27,7 @@ class PalletResource extends JsonResource
     {
         return [
             'id'            => $this->id,
-            'reference'     => $this->reference,
+            'customer_reference' => $this->customer_reference,
             'slug'          => $this->slug,
             'customer_name' => $this->customer?->name,
             'location'      => LocationResource::make($this->location),
