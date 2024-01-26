@@ -68,12 +68,12 @@ test('create fulfilment shop', function () {
         ->and($user->hasAllRoles(["shop-admin-$shop->id"]))->toBe(false);
 
 
-    return $shop;
+    return $shop->fulfilment;
 });
 
-test('create fulfilment customer', function ($shop) {
+test('create fulfilment customer', function (Fulfilment $fulfilment) {
     $customer = StoreCustomer::make()->action(
-        $shop,
+        $fulfilment->shop,
         Customer::factory()->definition(),
     );
 
@@ -114,6 +114,78 @@ test('UI create fulfilment', function () {
         $page
             ->component('CreateModel')
             ->has('title')->has('formData')->has('pageHead')->has('breadcrumbs', 3);
-
     });
 });
+
+
+test('UI show fulfilment shop', function (Fulfilment $fulfilment) {
+    $response = get(
+        route(
+            'grp.org.fulfilment.shops.show',
+            [
+                $this->organisation->slug,
+                $fulfilment->slug
+            ]
+        )
+    );
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Fulfilment/Fulfilment')
+            ->has('title')->has('tabs')
+            ->has('breadcrumbs', 2);
+    });
+})->depends('create fulfilment shop');
+
+test('UI show fulfilment shop CRM dashboard', function (Fulfilment $fulfilment) {
+    $response = get(
+        route(
+            'grp.org.fulfilment.shops.show.crm.dashboard',
+            [
+                $this->organisation->slug,
+                $fulfilment->slug
+            ]
+        )
+    );
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Fulfilment/CRM/Dashboard')
+            ->has('title')
+            ->has('breadcrumbs', 3);
+    });
+})->depends('create fulfilment shop');
+
+test('UI show fulfilment shop customers list', function (Fulfilment $fulfilment) {
+    $response = get(
+        route(
+            'grp.org.fulfilment.shops.show.crm.customers.index',
+            [
+                $this->organisation->slug,
+                $fulfilment->slug
+            ]
+        )
+    );
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Fulfilment/CRM/Customers')
+            ->has('title')
+            ->has('breadcrumbs', 3);
+    });
+})->depends('create fulfilment shop');
+
+test('UI show fulfilment pallet list', function (Fulfilment $fulfilment) {
+    $response = get(
+        route(
+            'grp.org.fulfilment.shops.show.pallets.index',
+            [
+                $this->organisation->slug,
+                $fulfilment->slug
+            ]
+        )
+    );
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Fulfilment/CRM/Customers')
+            ->has('title')
+            ->has('breadcrumbs', 3);
+    });
+})->depends('create fulfilment shop');

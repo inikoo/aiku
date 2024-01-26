@@ -8,16 +8,14 @@
 
 use App\Actions\CRM\Customer\UI\CreateCustomer;
 use App\Actions\CRM\Customer\UI\EditCustomer;
-
 use App\Actions\CRM\Customer\UI\ShowCustomer;
 use App\Actions\CRM\Prospect\UI\CreateProspect;
 use App\Actions\CRM\Prospect\UI\IndexProspects;
 use App\Actions\CRM\WebUser\EditWebUser;
 use App\Actions\CRM\WebUser\IndexWebUser;
 use App\Actions\CRM\WebUser\ShowWebUser;
-use App\Actions\Fulfilment\Fulfilment\UI\CRM\IndexCustomers;
+use App\Actions\Fulfilment\FulfilmentCustomer\UI\IndexFulfilmentCustomers;
 use App\Actions\OMS\Order\UI\ShowOrder;
-use App\Actions\UI\CRM\ShowShopCRMDashboard;
 use App\Actions\UI\Fulfilment\ShowFulfilmentCRMDashboard;
 
 /*
@@ -37,7 +35,7 @@ Route::get('/prospects', [IndexProspects::class, 'inOrganisation'])->name('prosp
 
 Route::get('', ShowFulfilmentCRMDashboard::class)->name('dashboard');
 Route::get('/customers/create', CreateCustomer::class)->name('customers.create');
-Route::get('/customers', IndexCustomers::class)->name('customers.index');
+Route::get('/customers', IndexFulfilmentCustomers::class)->name('customers.index');
 Route::get('/customers/{customer}', [ShowCustomer::class, 'inShop'])->name('customers.show');
 Route::get('/customers/{customer}/edit', [EditCustomer::class, 'inShop'])->name('customers.edit');
 Route::get('/customers/{customer}/orders/{order}', [ShowOrder::class, 'inCustomerInShop'])->name('customers.show.orders.show');

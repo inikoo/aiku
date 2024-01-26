@@ -1,18 +1,18 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Thu, 25 Jan 2024 11:41:27 Malaysia Time, Bali Office, Indonesia
+ * Created: Fri, 26 Jan 2024 17:17:19 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Fulfilment\Fulfilment\UI\CRM;
+namespace App\Actions\Fulfilment\FulfilmentCustomer\UI;
 
 use App\Actions\OrgAction;
 use App\Actions\UI\CRM\ShowShopCRMDashboard;
-use App\Http\Resources\Sales\CustomerResource;
+use App\Http\Resources\Fulfilment\FulfilmentCustomersResource;
 use App\InertiaTable\InertiaTable;
-use App\Models\CRM\Customer;
 use App\Models\Fulfilment\Fulfilment;
+use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\SysAdmin\Organisation;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -24,19 +24,20 @@ use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
-class IndexCustomers extends OrgAction
+class IndexFulfilmentCustomers extends OrgAction
 {
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit       = $request->user()->hasPermissionTo("fulfilments.{$this->fulfilment->id}.edit");
+        $this->canEdit = $request->user()->hasPermissionTo("fulfilments.{$this->fulfilment->id}.edit");
+
         return $request->user()->hasPermissionTo("fulfilments.{$this->fulfilment->id}.view");
     }
-
 
 
     public function asController(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisationFromFulfilment($fulfilment, $request);
+
         return $this->handle($fulfilment);
     }
 
@@ -55,9 +56,8 @@ class IndexCustomers extends OrgAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        $queryBuilder = QueryBuilder::for(Customer::class);
+        $queryBuilder = QueryBuilder::for(FulfilmentCustomer::class);
         $queryBuilder->where('customers.shop_id', $fulfilment->shop->id);
-
 
 
         /** @noinspection PhpUndefinedMethodInspection */
@@ -70,11 +70,13 @@ class IndexCustomers extends OrgAction
                 'customers.slug',
                 'shops.code as shop_code',
                 'shops.slug as shop_slug',
-                'number_active_clients'
+                'number_pallets',
+                'number_pallets_status_storing'
             ])
+            ->leftJoin('customers', 'customers.id', 'fulfilment_customers.customer_id')
             ->leftJoin('customer_stats', 'customers.id', 'customer_stats.customer_id')
             ->leftJoin('shops', 'shops.id', 'shop_id')
-            ->allowedSorts(['reference', 'name', 'number_active_clients', 'slug'])
+            ->allowedSorts(['reference', 'name', 'number_pallets', 'slug', 'number_pallets_status_storing'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -95,37 +97,34 @@ class IndexCustomers extends OrgAction
                 ->withGlobalSearch()
                 ->withEmptyState(
                     [
-                            'title'       => __("No customers found"),
-                            'description' => __("You can add your customer 🤷🏽‍♂️"),
-                            'count'       => $fulfilment->shop->crmStats->number_customers,
-                            'action'      => [
-                                'type'    => 'button',
-                                'style'   => 'create',
-                                'tooltip' => __('new customer'),
-                                'label'   => __('customer'),
-                                'route'   => [
-                                    'name'       => 'grp.org.fulfilment.shops.show.customers.create',
-                                    'parameters' => [$fulfilment->organisation->slug,$fulfilment->slug]
-                                ]
+                        'title'       => __("No customers found"),
+                        'description' => __("You can add your customer 🤷🏽‍♂️"),
+                        'count'       => $fulfilment->shop->crmStats->number_customers,
+                        'action'      => [
+                            'type'    => 'button',
+                            'style'   => 'create',
+                            'tooltip' => __('new customer'),
+                            'label'   => __('customer'),
+                            'route'   => [
+                                'name'       => 'grp.org.fulfilment.shops.show.customers.create',
+                                'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug]
                             ]
                         ]
+                    ]
                 )
-                ->column(key: 'slug', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
-
+                ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'number_pallets_status_storing', label: __('Pallets'), canBeHidden: false, sortable: true, searchable: true);
         };
     }
 
     public function jsonResponse(LengthAwarePaginator $customers): AnonymousResourceCollection
     {
-        return CustomerResource::collection($customers);
+        return FulfilmentCustomersResource::collection($customers);
     }
 
     public function htmlResponse(LengthAwarePaginator $customers, ActionRequest $request): Response
     {
-
-
-
         $container = [
             'icon'    => ['fal', 'fa-pallets'],
             'tooltip' => __('Fulfilment Shop'),
@@ -137,8 +136,7 @@ class IndexCustomers extends OrgAction
             'Org/Fulfilment/CRM/Customers',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
-                    $request->route()->getName(),
-                    $request->route()->parameters
+                    $request->route()->originalParameters()
                 ),
                 'title'       => __('customers'),
                 'pageHead'    => [
@@ -149,13 +147,13 @@ class IndexCustomers extends OrgAction
                         'title' => __('customer')
                     ]
                 ],
-                'data'        => CustomerResource::collection($customers),
+                'data'        => FulfilmentCustomersResource::collection($customers),
 
             ]
         )->table($this->tableStructure($this->fulfilment));
     }
 
-    public function getBreadcrumbs(string $routeName, array $routeParameters): array
+    public function getBreadcrumbs(array $routeParameters): array
     {
         $headCrumb = function (array $routeParameters = []) {
             return [
@@ -170,35 +168,17 @@ class IndexCustomers extends OrgAction
             ];
         };
 
-        return match ($routeName) {
-            /*
-            'grp.crm.customers.index' =>
-            array_merge(
-                (new ShowShopCRMDashboard())->getBreadcrumbs(
-                    'grp.crm.dashboard',
-                    $routeParameters
-                ),
-                $headCrumb(
-                    [
-                        'name' => 'grp.crm.customers.index',
-                        null
-                    ]
-                ),
+
+        return array_merge(
+            (new ShowShopCRMDashboard())->getBreadcrumbs(
+                $routeParameters
             ),
-            */
-            'grp.crm.shops.show.customers.index' =>
-            array_merge(
-                (new ShowShopCRMDashboard())->getBreadcrumbs(
-                    $routeParameters
-                ),
-                $headCrumb(
-                    [
-                        'name'       => 'grp.crm.shops.show.customers.index',
-                        'parameters' => $routeParameters
-                    ]
-                )
-            ),
-            default => []
-        };
+            $headCrumb(
+                [
+                    'name'       => 'grp.org.fulfilment.shops.show.crm.customers.index',
+                    'parameters' => $routeParameters
+                ]
+            )
+        );
     }
 }

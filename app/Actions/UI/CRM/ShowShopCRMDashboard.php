@@ -9,6 +9,7 @@ namespace App\Actions\UI\CRM;
 
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Organisation\UI\ShowOrganisationDashboard;
+use App\Models\Fulfilment\Fulfilment;
 use App\Models\Market\Shop;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Str;
@@ -95,7 +96,7 @@ class ShowShopCRMDashboard extends OrgAction
     public function getBreadcrumbs(array $routeParameters): array
     {
 
-        $shop=Shop::where('slug', $routeParameters['shop'])->first();
+        $fulfilment=Fulfilment::where('slug', $routeParameters['fulfilment'])->first();
 
         return array_merge(
             ShowOrganisationDashboard::make()->getBreadcrumbs($routeParameters),
@@ -104,10 +105,10 @@ class ShowShopCRMDashboard extends OrgAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => [
-                            'name'       => 'grp.org.shops.crm.dashboard',
+                            'name'       => 'grp.org.fulfilment.shops.show.crm.dashboard',
                             'parameters' => $routeParameters
                         ],
-                        'label' => __('CRM').' ('.$shop->code.')',
+                        'label' => __('CRM').' ('.$fulfilment->shop->code.')',
                     ]
                 ]
             ]
