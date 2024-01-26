@@ -87,7 +87,7 @@ test('create fulfilment customer', function ($shop) {
     return $customer;
 })->depends('create fulfilment shop');
 
-test('can show list of fulfilment shops', function () {
+test('UI list of fulfilment shops', function () {
     $response = get(route('grp.org.fulfilment.index', $this->organisation->slug));
     expect(FulfilmentTabsEnum::FULFILMENT_SHOPS->value)->toBe('fulfilments');
     $response->assertInertia(function (AssertableInertia $page) {
@@ -95,5 +95,15 @@ test('can show list of fulfilment shops', function () {
             ->component('Org/Fulfilment/Fulfilments')
             ->has('title')->has('tabs')->has(FulfilmentTabsEnum::FULFILMENT_SHOPS->value.'.data')
             ->has('breadcrumbs', 2);
+    });
+});
+
+test('UI create fulfilment', function () {
+    $response = get(route('grp.org.fulfilment.create', $this->organisation->slug));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('CreateModel')
+            ->has('title')->has('formData')->has('pageHead')->has('breadcrumbs', 3);
+
     });
 });
