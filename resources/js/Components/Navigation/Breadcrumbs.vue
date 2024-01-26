@@ -114,17 +114,17 @@ router.on('navigate', (event) => {
                         <template v-else-if="breadcrumb.type === 'modelWithIndex'">
                             <div class="hidden md:inline-flex">
                                 <FontAwesomeIcon v-if="breadcrumbIdx !== 0" class="flex-shrink-0 h-3 w-3 mx-3 opacity-50 place-self-center" icon="fa-regular fa-chevron-right" aria-hidden="true" />
-                                <Link class="hover:text-gray-700 grid grid-flow-col items-center" :href="breadcrumb.modelWithIndex?.index?.route?.name ? route(breadcrumb.modelWithIndex.index.route.name, breadcrumb.modelWithIndex.index.route.parameters) : '#' ">
+                                <component :is="breadcrumb.modelWithIndex?.index?.route?.name ? Link : 'div'"  class="hover:text-gray-700 grid grid-flow-col items-center" :href="breadcrumb.modelWithIndex?.index?.route?.name ? route(breadcrumb.modelWithIndex.index.route.name, breadcrumb.modelWithIndex.index.route.parameters) : '#' ">
                                     <FontAwesomeIcon icon="fal fa-bars" class="flex-shrink-0 h-3.5 w-3.5 mr-1" aria-hidden="true" />
                                     <span class="capitalize">{{ breadcrumb.modelWithIndex.index.label }}</span>
-                                </Link>
+                                </component>
                             </div>
                             <span class="mx-3 select-none">→</span>
-                            <Link class="text-indigo-400 hover:text-indigo-500" :href="breadcrumb.modelWithIndex?.model?.route?.name ? route(breadcrumb.modelWithIndex.model.route.name, breadcrumb.modelWithIndex.model.route.parameters) : '#'">
+                            <component :is="breadcrumb.modelWithIndex?.model?.route?.name ? Link : 'div'" class="text-indigo-400 hover:text-indigo-500" :href="breadcrumb.modelWithIndex?.model?.route?.name ? route(breadcrumb.modelWithIndex.model.route.name, breadcrumb.modelWithIndex.model.route.parameters) : '#'">
                                 <span class="capitalize">
                                     {{ breadcrumb.modelWithIndex.model.label }}
                                 </span>
-                            </Link>
+                            </component>
                         </template>
                         <span v-if="breadcrumb.suffix" :class="breadcrumb.type ? 'ml-1' : ''" class="italic">{{ breadcrumb.suffix }}</span>
                     </div>
@@ -142,7 +142,7 @@ router.on('navigate', (event) => {
                         class="origin-top-right absolute left-4 top-9 w-64 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-200 focus:outline-none">
                         <MenuItem v-for="(breadcrumb, breadcrumbIdx) in breadcrumbs" :key="breadcrumbIdx" class="">
                         <template v-if="breadcrumb.type === 'simple'">
-                            <component :is="breadcrumb.simple.route ? Link : 'span'"
+                            <component :is="breadcrumb.simple?.route ? Link : 'span'"
                                 :class="'py-2 grid grid-flow-col items-center justify-start' || ''"
                                 :href="breadcrumb.simple?.route?.name ? route(breadcrumb.simple.route.name, breadcrumb.simple.route.parameters) : ''"
                                 :style="{ paddingLeft: 12 + breadcrumbIdx * 7 + 'px' }"
@@ -160,8 +160,7 @@ router.on('navigate', (event) => {
                                 </span>
 
                                 <!-- Icon List (Simple) -->
-                                <FontAwesomeIcon v-if="breadcrumb.simple.icon && breadcrumbIdx != 0"
-                                    class="flex-shrink-0 h-3.5 w-3.5" :icon="breadcrumb.simple.icon" aria-hidden="true" />
+                                <FontAwesomeIcon v-if="breadcrumb.simple.icon && breadcrumbIdx != 0" class="flex-shrink-0 h-3.5 w-3.5" :icon="breadcrumb.simple.icon" aria-hidden="true" />
                             </component>
                         </template>
 
@@ -173,7 +172,7 @@ router.on('navigate', (event) => {
 
                         <template v-else-if="breadcrumb.type === 'modelWithIndex'">
                             <div class="divide-y divide-gray-200">
-                                <Link class="py-2 grid grid-flow-col justify-start items-center"
+                                <component :is="breadcrumb.modelWithIndex?.index?.route?.name ? Link : 'div'" Link class="py-2 grid grid-flow-col justify-start items-center"
                                     :href="breadcrumb.modelWithIndex?.index?.route?.name ? route(breadcrumb.modelWithIndex.index.route.name, breadcrumb.modelWithIndex.index.route.parameters) : '#' "
                                     :style="{ paddingLeft: 12 + breadcrumbIdx * 7 + 'px' }"
                                 >
@@ -184,10 +183,10 @@ router.on('navigate', (event) => {
 
                                     <!-- Icon List -->
                                     <FontAwesomeIcon :icon="['fal', 'bars']" class="flex-shrink-0 h-3.5 w-3.5" aria-hidden="true" />
-                                </Link>
+                                </component>
 
                                 <!-- Subpage -->
-                                <Link class="py-2 grid grid-flow-col justify-start items-center text-indigo-400"
+                                <component :is="breadcrumb.modelWithIndex?.model?.route?.name ? Link : 'div'"  class="py-2 grid grid-flow-col justify-start items-center text-indigo-400"
                                     :href="breadcrumb.modelWithIndex?.model?.route?.name ? route(breadcrumb.modelWithIndex.model.route.name, breadcrumb.modelWithIndex.model.route.parameters) : '#'"
                                     :style="{ paddingLeft: 12 + (breadcrumbIdx + 1) * 7 + 'px', }"
                                 >
@@ -195,7 +194,7 @@ router.on('navigate', (event) => {
                                     <span class="capitalize ml-4 mr-3">
                                         {{ breadcrumb.modelWithIndex.model.label }}
                                     </span>
-                                </Link>
+                                </component>
                             </div>
                         </template>
                         </MenuItem>

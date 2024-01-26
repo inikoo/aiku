@@ -18,11 +18,11 @@ const locale = useLocaleStore()
 </script>
 
 <template>
-    <nav aria-label="Progress" class="py-1 md:py-0">
+    <nav aria-label="Progress" class="py-1 md:py-0 mt-3">
         <ol v-if="nodes" role="list" class="divide-y divide-gray-300 rounded-md border border-gray-300 md:flex md:divide-y-0">
             <li v-for="(node, nodeIdx) in nodes" :key="node.name" class="relative flex flex-1 items-center">
                 <!-- Main Tree -->
-                <Link :href="node.href?.name ? route(node.href.name, node.href.parameters) : '#'" class="group flex-1 items-center">
+                <component :is="node.href?.name ? Link : 'div'"  :href="node.href?.name ? route(node.href.name, node.href.parameters) : '#'" class="group flex-1 items-center">
                     <div class="flex items-center px-4 text-lg xl:px-6 py-4 font-medium gap-x-4">
                         <FontAwesomeIcon v-if="node.icon" size="lg" :icon="node.icon" class="flex-shrink-0 text-gray-400" aria-hidden="true" />
                         <p class="md:leading-none md:text-sm lg:text-base inline capitalize font-medium text-gray-500 group-hover:text-gray-600">
@@ -37,15 +37,15 @@ const locale = useLocaleStore()
                             <FontAwesomeIcon v-else icon="fal fa-empty-set" />
                         </span>
                     </div>
-                </Link>
+                </component>
 
                 <!-- Sublink on right each section (Marketplace) -->
                 <div v-if="node.rightSubLink" class="pr-4 " :title="capitalize(node.rightSubLink.tooltip)">
                     <!-- {{ importIcon(node.rightSubLink.icon) }} -->
-                    <Link :href="node.href?.name ? route( node.rightSubLink.href.name, node.rightSubLink.href.parameters) : '#'"
+                    <component :is="node.rightSubLink?.href?.name ? Link : 'div'"  :href="node.href?.name ? route(node.rightSubLink.href.name, node.rightSubLink.href.parameters) : '#'"
                         class="w-9 h-9 flex flex-0 justify-center items-center hover:bg-gray-500 border-gray-500 border-2 text-gray-500 rounded-md cursor-pointer hover:text-white">
                         <FontAwesomeIcon v-if="node.rightSubLink?.icon" :icon="node.rightSubLink.icon" class="flex-shrink-0 " aria-hidden="true" />
-                    </Link>
+                    </component>
                 </div>
 
                 <template v-if="nodeIdx !== nodes.length - 1">
