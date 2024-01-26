@@ -98,7 +98,7 @@ class CreateOrganisation extends InertiaAction
 
                     ],
                     'route'     => [
-                        'name'       => 'grp.models.orgs.store',
+                        'name'       => 'grp.org.models.organisation.store',
                         'parameters' => [
                             'group' => group()->id
                         ]

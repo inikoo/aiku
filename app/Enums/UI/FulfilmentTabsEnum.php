@@ -16,19 +16,27 @@ enum FulfilmentTabsEnum: string
     use HasTabs;
 
 
-    case FULFILMENT_SHOPS                       = 'fulfilments';
+    case DASHBOARD                     = 'dashboard';
+    case PALLETS                       = 'pallets';
+    case HISTORY                       = 'history';
 
     public function blueprint(): array
     {
         return match ($this) {
-
-
-            FulfilmentTabsEnum::FULFILMENT_SHOPS => [
-                'title' => __('fulfilment shops'),
+            FulfilmentTabsEnum::DASHBOARD => [
+                'title' => __('dashboard'),
+                'icon'  => 'fas fa-info-circle',
+            ],
+            FulfilmentTabsEnum::PALLETS => [
+                'title' => __('pallets'),
                 'icon'  => 'fal fa-bars',
             ],
-
-
+            FulfilmentTabsEnum::HISTORY => [
+                'title' => __('history'),
+                'icon'  => 'fal fa-clock',
+                'type'  => 'icon',
+                'align' => 'right',
+            ]
         };
     }
 }

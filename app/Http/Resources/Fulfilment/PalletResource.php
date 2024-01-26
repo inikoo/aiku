@@ -7,6 +7,7 @@
 
 namespace App\Http\Resources\Fulfilment;
 
+use App\Http\Resources\Inventory\LocationResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
@@ -28,7 +29,11 @@ class PalletResource extends JsonResource
             'reference'     => $this->reference,
             'slug'          => $this->slug,
             'customer_name' => $this->customer['name'],
-            'location'      => $this->location ? $this->location['slug'] : '-'
+            'location'      => LocationResource::make($this->whenLoaded('location')),
+            'state'         => $this->state,
+            'status'        => $this->status,
+            'notes'         => $this->notes,
+            'items'         => StoredItemResource::collection($this->whenLoaded('storedItems'))
         ];
     }
 }

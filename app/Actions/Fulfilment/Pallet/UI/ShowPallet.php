@@ -10,6 +10,8 @@ namespace App\Actions\Fulfilment\Pallet\UI;
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\InertiaAction;
 use App\Actions\UI\Fulfilment\FulfilmentDashboard;
+use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
+use App\Enums\UI\PalletTabsEnum;
 use App\Http\Resources\Fulfilment\PalletResource;
 use App\Http\Resources\History\HistoryResource;
 use App\Models\CRM\Customer;
@@ -32,11 +34,17 @@ class ShowPallet extends InertiaAction
         return $request->user()->hasPermissionTo("fulfilment.view");
     }
 
-    public function asController(Customer $customer, Pallet $pallet, ActionRequest $request): void
+    public function asController(Customer $customer, Pallet $pallet, ActionRequest $request): Pallet
     {
         $this->customer = $customer;
         $this->initialisation($request)->withTab(PalletTabsEnum::values());
-        $this->pallet = $pallet;
+
+        return $this->handle($pallet);
+    }
+
+    public function handle(Pallet $pallet): Pallet
+    {
+        return $pallet;
     }
 
 
@@ -45,13 +53,13 @@ class ShowPallet extends InertiaAction
         return Inertia::render(
             'Fulfilment/Pallet',
             [
-                'title'       => __('stored item'),
+                'title'       => __('pallets'),
                 'breadcrumbs' => $this->getBreadcrumbs($this->pallet),
                 'pageHead'    => [
                     'icon'          =>
                         [
                             'icon'  => ['fa', 'fa-narwhal'],
-                            'title' => __('stored item')
+                            'title' => __('pallets')
                         ],
                     'title'  => $this->pallet->slug,
                     'actions'=> [
@@ -103,9 +111,9 @@ class ShowPallet extends InertiaAction
     }
 
 
-    public function jsonResponse(): PalletResource
+    public function jsonResponse(Pallet $pallet): PalletResource
     {
-        return new PalletResource($this->pallet);
+        return new PalletResource($pallet);
     }
 
     public function getBreadcrumbs(Pallet $pallet, $suffix = null): array
@@ -125,7 +133,7 @@ class ShowPallet extends InertiaAction
                         'model' => [
                             'route' => [
                                 'name'       => 'grp.fulfilment.stored-items.show',
-                                'parameters' => array_values($request->route()->originalParameters())
+                                'parameters' => array_values(request()->route()->originalParameters())
                             ],
                             'label' => $pallet->slug,
                         ],

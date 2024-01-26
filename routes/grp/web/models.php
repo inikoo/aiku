@@ -13,6 +13,7 @@ use App\Actions\HumanResources\Employee\UpdateEmployee;
 use App\Actions\HumanResources\Workplace\DeleteWorkplace;
 use App\Actions\HumanResources\Workplace\StoreWorkplace;
 use App\Actions\HumanResources\Workplace\UpdateWorkplace;
+use App\Actions\Market\Shop\StoreShop;
 use App\Actions\SysAdmin\Organisation\StoreOrganisation;
 use App\Actions\UI\Profile\GetProfileAppLoginQRCode;
 use App\Actions\UI\Profile\UpdateProfile;
@@ -30,18 +31,18 @@ Route::delete('/working-place/{workplace}', DeleteWorkplace::class)->name('worki
 Route::name('org.')->prefix('org/{organisation}')->group(function () {
     Route::post('/employee/', StoreEmployee::class)->name('employee.store');
     Route::post('/working-place/', StoreWorkplace::class)->name('working-place.store');
+    Route::post('/shop/', StoreShop::class)->name('shop.store');
 });
 
 Route::name('shop.')->prefix('shop/{shop}')->group(function () {
     Route::post('prospect/upload', [ImportShopProspects::class, 'inShop'])->name('prospects.upload');
-
 });
 
-Route::post('group/{group:id}/orgs', StoreOrganisation::class)->name('orgs.store');
+Route::post('group/{group:id}/organisation', StoreOrganisation::class)->name('organisation.store');
 
 /*
 
-Route::post('/shop/', StoreShop::class)->name('shop.store');
+
 
 Route::patch('/shop/{shop}', UpdateShop::class)->name('shop.update');
 Route::delete('/shop/{shop}', DeleteShop::class)->name('shop.delete');
