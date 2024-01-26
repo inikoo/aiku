@@ -15,15 +15,17 @@ enum FulfilmentTabsEnum: string
     use EnumHelperTrait;
     use HasTabs;
 
-    case DASHBOARD                       = 'dashboard';
 
+    case FULFILMENT_SHOPS                       = 'fulfilments';
 
     public function blueprint(): array
     {
         return match ($this) {
-            FulfilmentTabsEnum::DASHBOARD => [
-                'title' => __('dashboard'),
-                'icon'  => 'fal fa-tachometer-alt',
+
+
+            FulfilmentTabsEnum::FULFILMENT_SHOPS => [
+                'title' => __('fulfilment shops'),
+                'icon'  => 'fal fa-bars',
             ],
 
 

@@ -17,7 +17,7 @@ class StoreFulfilmentCustomer extends OrgAction
     public function handle(Customer $customer, Shop $shop): FulfilmentCustomer
     {
         /** @var FulfilmentCustomer $customerFulfilment */
-        $customerFulfilment = $customer->fulfilments()->create([
+        $customerFulfilment = $customer->fulfilment()->create([
             'fulfilment_id'   => $shop->fulfilment->id,
             'group_id'        => $customer->group_id,
             'organisation_id' => $customer->organisation_id,

@@ -8,7 +8,7 @@
 namespace App\Actions\Fulfilment\Fulfilment\UI;
 
 use App\Actions\OrgAction;
-use App\Actions\UI\Dashboard\ShowDashboard;
+use App\Actions\SysAdmin\Organisation\UI\ShowOrganisationDashboard;
 use App\Enums\UI\FulfilmentTabsEnum;
 use App\Http\Resources\Fulfilment\FulfilmentsResource;
 use App\Http\Resources\Market\ShopResource;
@@ -16,6 +16,7 @@ use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
+use Arr;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -113,7 +114,6 @@ class IndexFulfilments extends OrgAction
             'Org/Fulfilment/Fulfilments',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
-                    $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
                 'title'       => __('fulfilment shops'),
@@ -143,39 +143,35 @@ class IndexFulfilments extends OrgAction
                 ],
 
 
-                FulfilmentTabsEnum::DASHBOARD->value => $this->tab == FulfilmentTabsEnum::DASHBOARD->value ?
+                FulfilmentTabsEnum::FULFILMENT_SHOPS->value => $this->tab == FulfilmentTabsEnum::FULFILMENT_SHOPS->value ?
                     fn () => FulfilmentsResource::collection($fulfilments)
                     : Inertia::lazy(fn () => FulfilmentsResource::collection($fulfilments)),
 
 
             ]
-        )->table($this->tableStructure(parent: $this->parent, prefix: FulfilmentTabsEnum::DASHBOARD->value));
+        )->table($this->tableStructure(parent: $this->parent, prefix: FulfilmentTabsEnum::FULFILMENT_SHOPS->value));
     }
 
-    public function getBreadcrumbs(string $routeName, array $routeParameters, $suffix = null): array
+    public function getBreadcrumbs(array $routeParameters, $suffix = null): array
     {
-        if ($routeName == 'grp.org.shops.index') {
-            return
-                array_merge(
-                    (new ShowDashboard())->getBreadcrumbs(),
+        return
+            array_merge(
+                ShowOrganisationDashboard::make()->getBreadcrumbs(Arr::only($routeParameters, 'organisation')),
+                [
                     [
-                        [
-                            'type'   => 'simple',
-                            'simple' => [
-                                'route' => [
-                                    'name'       => 'grp.org.shops.index',
-                                    'parameters' => $routeParameters
-                                ],
-                                'label' => __('shops'),
-                                'icon'  => 'fal fa-bars'
+                        'type'   => 'simple',
+                        'simple' => [
+                            'route' => [
+                                'name'       => 'grp.org.fulfilment.index',
+                                'parameters' => $routeParameters
                             ],
-                            'suffix' => $suffix
+                            'label' => __('fulfilment shops'),
+                            'icon'  => 'fal fa-bars'
+                        ],
+                        'suffix' => $suffix
 
-                        ]
                     ]
-                );
-        }
-
-        return [];
+                ]
+            );
     }
 }
