@@ -9,6 +9,7 @@ import {  useForm } from '@inertiajs/vue3'
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faExclamationCircle, faCheckCircle, faAsterisk } from '@fas'
+import { faPhone } from '@fal'
 import { library } from "@fortawesome/fontawesome-svg-core"
 import Input from '@/Components/Forms/Fields/Input.vue'
 import SenderEmail from '@/Components/Forms/Fields/SenderEmail.vue'
@@ -29,7 +30,7 @@ import EmployeePosition from '@/Components/Forms/Fields/EmployeePosition.vue'
 import { ref, onMounted } from 'vue'
 import Textarea from "@/Components/Forms/Fields/Textarea.vue"
 
-library.add(faExclamationCircle, faAsterisk, faCheckCircle)
+library.add(faExclamationCircle, faAsterisk, faCheckCircle, faPhone)
 
 const props = defineProps<{
     formData: {
