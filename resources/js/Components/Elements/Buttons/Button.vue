@@ -42,21 +42,13 @@ let sizeClass = ''
 
 // Styling the Button depends on the 'style' props
 if (props.style == 'primary' || props.style == 'create' || props.style == 'save') {
-    if(layout.systemName == 'org') {
-        styleClass = 'bg-fuchsia-700 bg-gradient-to-r from-fuchsia-600 to-fuchsia-700 text-gray-100 hover:bg-none focus:outline-none focus:ring-2 focus:ring-fuchsia-700 focus:ring-offset-2'
-    } else {
-        styleClass = 'bg-gray-700 bg-gradient-to-r from-gray-600 to-gray-800 text-gray-100 hover:bg-none'
-    }
+    styleClass = 'border border-indigo-500 bg-indigo-600 bg-gradient-to-r from-indigo-600 to-indigo-500 text-white hover:bg-none'
 }
-else if (props.style == 'orgSolid') styleClass = 'bg-fuchsia-600 text-gray-100 hover:bg-fuchsia-700'
 
 else if (props.style == 'secondary' || props.style == 'edit') {
-    if(layout.systemName == 'org') {
-        styleClass = 'bg-org-400 bg-gradient-to-r from-org-400 to-org-600 text-white hover:bg-none focus:outline-none focus:ring-2 focus:ring-org-500 focus:ring-offset-2'
-    } else {
-        styleClass = 'border border-gray-300 text-gray-600 bg-gray-300 bg-gradient-to-r from-gray-100 to-gray-300 hover:bg-none'
-    }
-} 
+    styleClass = 'border border-indigo-500 text-gray-600 hover:bg-indigo-500/30 focus:bg-indigo-500 focus:text-white'
+}
+
 else if (props.style == 'tertiary') styleClass = 'bg-transparent border border-gray-300 text-gray-700 hover:bg-gray-200/70'
 else if (props.style == 'rainbow') styleClass = 'bg-indigo-500 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2'
 
@@ -166,7 +158,7 @@ const getActionIcon = (icon: any) => {
             <slot name="icon">
                 <FontAwesomeIcon v-if="getActionIcon(icon)" :icon="getActionIcon(icon)" fixed-width class="" aria-hidden="true"/>
             </slot>
-            <span v-if="getActionLabel(label)" :class="{'capitalize': capitalize}">{{ getActionLabel(label) }}</span>
+            <span v-if="getActionLabel(label)" class="leading-none" :class="{'capitalize': capitalize}">{{ getActionLabel(label) }}</span>
             <slot name="iconRight">
                 <FontAwesomeIcon v-if="iconRight" :icon="getActionIcon(iconRight)" fixed-width class="" aria-hidden="true"/>
             </slot>
