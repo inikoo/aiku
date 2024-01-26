@@ -19,6 +19,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property string $notes
  * @property \App\Models\CRM\Customer $customer
  * @property \App\Models\Inventory\Location $location
+ * @property \App\Models\Fulfilment\StoredItem $storedItems
  */
 class PalletResource extends JsonResource
 {
@@ -28,12 +29,12 @@ class PalletResource extends JsonResource
             'id'            => $this->id,
             'reference'     => $this->reference,
             'slug'          => $this->slug,
-            'customer_name' => $this->customer['name'],
-            'location'      => LocationResource::make($this->whenLoaded('location')),
+            'customer_name' => $this->customer?->name,
+            'location'      => LocationResource::make($this->location),
             'state'         => $this->state,
             'status'        => $this->status,
             'notes'         => $this->notes,
-            'items'         => StoredItemResource::collection($this->whenLoaded('storedItems'))
+            'items'         => StoredItemResource::collection($this->storedItems ?? [])
         ];
     }
 }
