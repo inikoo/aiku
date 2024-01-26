@@ -9,6 +9,7 @@ import {  useForm } from '@inertiajs/vue3'
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faExclamationCircle, faCheckCircle, faAsterisk } from '@fas'
+import { faPhone } from '@fal'
 import { library } from "@fortawesome/fontawesome-svg-core"
 import Input from '@/Components/Forms/Fields/Input.vue'
 import SenderEmail from '@/Components/Forms/Fields/SenderEmail.vue'
@@ -29,7 +30,7 @@ import EmployeePosition from '@/Components/Forms/Fields/EmployeePosition.vue'
 import { ref, onMounted } from 'vue'
 import Textarea from "@/Components/Forms/Fields/Textarea.vue"
 
-library.add(faExclamationCircle, faAsterisk, faCheckCircle)
+library.add(faExclamationCircle, faAsterisk, faCheckCircle, faPhone)
 
 const props = defineProps<{
     formData: {
@@ -140,54 +141,57 @@ onMounted(() => {
             <!-- Main form -->
             <form class="px-4 sm:px-6 md:px-10 col-span-9 gap-y-8 pb-8 divide-y divide-gray-200"
                 @submit.prevent="handleFormSubmit">
-                <div v-for="(sectionData, sectionIdx ) in formData['blueprint']" :key="sectionIdx" class="relative py-4">
-                    <!-- Helper: Section click -->
-                    <div class="sr-only absolute -top-16" :id="`field${sectionIdx}`" />
-
-                    <!-- Title -->
-                    <div class="flex items-center gap-x-2" ref="buttonRefs">
-                        <FontAwesomeIcon v-if="sectionData.icon" :icon='sectionData.icon' class='' aria-hidden='true' />
-                        <h3 v-if="sectionData.title" class="text-lg leading-6 font-medium text-gray-700 capitalize">
-                            {{ sectionData.title }}
-                        </h3>
-                        <p v-if="sectionData.subtitle" class="max-w-2xl text-sm text-gray-500">
-                            {{ sectionData.subtitle }}
-                        </p>
-                    </div>
-
-                    <div class="mt-2 pt-4 sm:pt-5">
-                        <div v-for="(fieldData, fieldName, index ) in sectionData.fields" :key="index" class="mt-1 ">
-                            <dl class="divide-y divide-green-200  ">
-                                <div class="pb-4 sm:pb-5 sm:grid sm:grid-cols-3 sm:gap-4"
-                                    :class="fieldData.full ? '' : 'max-w-2xl'"
-                                >
-                                    <!-- Title of Field -->
-                                    <dt class="text-sm font-medium text-gray-500 capitalize">
-                                        <div class="inline-flex items-start leading-none">
-                                            <!-- Icon: Required -->
-                                            <FontAwesomeIcon v-if="fieldData.required" :icon="['fas', 'asterisk']"
-                                                class="font-light text-[12px] text-red-400 mr-1" />
-                                            <span>{{ fieldData.label }}</span>
+                <template v-for="(sectionData, sectionIdx ) in formData['blueprint']" :key="sectionIdx">
+                    <!-- If Section: all fields is not hidden -->
+                    <div v-if="!(Object.values(sectionData.fields).every((field: any) => field.hidden))" class="relative py-4">
+                        <!-- Helper: Section click -->
+                        <div class="sr-only absolute -top-16" :id="`field${sectionIdx}`" />
+                        <!-- Title -->
+                        <div class="flex items-center gap-x-2" ref="buttonRefs">
+                            <FontAwesomeIcon v-if="sectionData.icon" :icon='sectionData.icon' class='' aria-hidden='true' />
+                            <h3 v-if="sectionData.title" class="text-lg leading-6 font-medium text-gray-700 capitalize">
+                                {{ sectionData.title }}
+                            </h3>
+                            <p v-if="sectionData.subtitle" class="max-w-2xl text-sm text-gray-500">
+                                {{ sectionData.subtitle }}
+                            </p>
+                        </div>
+                        <div class="mt-2 pt-4 sm:pt-5">
+                            <template v-for="(fieldData, fieldName, index ) in sectionData.fields" :key="index">
+                                <!-- If Field is not hidden = true -->
+                                <div v-if="!fieldData.hidden" class="mt-1 ">
+                                    <dl class="divide-y divide-green-200  ">
+                                        <div class="pb-4 sm:pb-5 sm:grid sm:grid-cols-3 sm:gap-4"
+                                            :class="fieldData.full ? '' : 'max-w-2xl'"
+                                        >
+                                            <!-- Title of Field -->
+                                            <dt class="text-sm font-medium text-gray-500 capitalize">
+                                                <div class="inline-flex items-start leading-none">
+                                                    <!-- Icon: Required -->
+                                                    <FontAwesomeIcon v-if="fieldData.required" :icon="['fas', 'asterisk']"
+                                                        class="font-light text-[12px] text-red-400 mr-1" />
+                                                    <span>{{ fieldData.label }}</span>
+                                                </div>
+                                            </dt>
+                                            <!-- Field (Full: to full the component field i.e create Prospects Mailshot) -->
+                                            <dd :class="fieldData.full ? 'sm:col-span-3' : 'sm:col-span-2'">
+                                                <div class="mt-1 flex text-sm text-gray-700 sm:mt-0">
+                                                    <div class="relative flex-grow">
+                                                        <!-- Dynamic component -->
+                                                        <component :is="getComponent(fieldData['type'])" :form="form"
+                                                            :fieldName="fieldName" :options="fieldData['options']"
+                                                            :fieldData="fieldData" :key="index">
+                                                        </component>
+                                                    </div>
+                                                </div>
+                                            </dd>
                                         </div>
-                                    </dt>
-
-                                    <!-- Field (Full: to full the component field i.e create Prospects Mailshot) -->
-                                    <dd :class="fieldData.full ? 'sm:col-span-3' : 'sm:col-span-2'">
-                                        <div class="mt-1 flex text-sm text-gray-700 sm:mt-0">
-                                            <div class="relative flex-grow">
-                                                <!-- Dynamic component -->
-                                                <component :is="getComponent(fieldData['type'])" :form="form"
-                                                    :fieldName="fieldName" :options="fieldData['options']"
-                                                    :fieldData="fieldData" :key="index">
-                                                </component>
-                                            </div>
-                                        </div>
-                                    </dd>
+                                    </dl>
                                 </div>
-                            </dl>
+                            </template>
                         </div>
                     </div>
-                </div>
+                </template>
 
                 <!-- Button -->
                 <div class="pt-5 border-t-2 border-orange-500">

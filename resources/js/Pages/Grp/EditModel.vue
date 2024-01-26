@@ -17,10 +17,10 @@ import {faGoogle} from "@fortawesome/free-brands-svg-icons"
 import { routeType } from '@/types/route'
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 
-import { faUserLock, faBell, faCopyright, faUserCircle, faMobileAndroidAlt, faKey, faClone, faPaintBrush, faMoonStars, faLightbulbOn, faCheck, faPhone, faIdCard, faFingerprint, faLanguage, faAddressBook, faTrashAlt } from '@fal'
+import { faUserLock, faBell, faCopyright, faUserCircle, faMobileAndroidAlt, faKey, faClone, faPaintBrush, faMoonStars, faLightbulbOn, faCheck, faPhone, faIdCard, faFingerprint, faLanguage, faAddressBook, faTrashAlt, faSlidersH } from '@fal'
 import { Head } from '@inertiajs/vue3'
 
-library.add(faUserLock,faBell,faCopyright,faUserCircle, faMobileAndroidAlt, faKey, faClone, faPaintBrush, faMoonStars, faLightbulbOn, faCheck, faPhone, faIdCard, faFingerprint,faLanguage,faAddressBook,faTrashAlt, faGoogle)
+library.add(faUserLock,faBell,faCopyright,faUserCircle, faMobileAndroidAlt, faKey, faClone, faPaintBrush, faMoonStars, faLightbulbOn, faCheck, faPhone, faIdCard, faFingerprint,faLanguage,faAddressBook,faTrashAlt, faSlidersH, faGoogle)
 
 
 const props = defineProps<{
@@ -136,56 +136,57 @@ onBeforeUnmount(() => {
             <!-- Tab: Navigation -->
             <aside class="bg-gray-50/50 py-0 lg:col-span-3 lg:h-full">
                 <div class="sticky top-16">
-                    <template v-for="(item, key) in formData.blueprint">
-                        <div @click="currentTab = key"
+                    <template v-for="(sectionData, key) in formData.blueprint">
+                        <!-- If Section: all fields is not hidden -->
+                        <div v-if="!(Object.values(sectionData.fields).every((field: any) => field.hidden))" @click="currentTab = key"
                             :class="[
                                 key == currentTab
                                     ? `navigationSecondActive`
                                     : `navigationSecond`,
                                 'cursor-pointer group px-3 py-2 flex items-center text-sm font-medium',
                             ]">
-                            <FontAwesomeIcon v-if="item.icon" aria-hidden="true" class="flex-shrink-0 -ml-1 mr-2 h-4 w-4"
+                            <FontAwesomeIcon v-if="sectionData.icon" aria-hidden="true" class="flex-shrink-0 -ml-1 mr-2 h-4 w-4"
                                 :class="[
                                     tabActive[key]
                                         ? 'text-gray-400 group-hover:text-gray-500'
                                         : 'text-gray-400',
                                 ]"
-                                :icon="item.icon" />
-                            <span class="capitalize truncate">{{ item.label }}</span>
+                                :icon="sectionData.icon" />
+                            <span class="capitalize truncate">{{ sectionData.label }}</span>
                             <!-- {{ tabActive }} -- {{ key == currentTab }} -->
                         </div>
                     </template>
                 </div>
             </aside>
 
-
             <!-- Content of forms -->
             <div class="px-4 sm:px-6 md:px-4 col-span-9">
                 <template v-for="(sectionData, sectionIdx ) in formData.blueprint" :key="sectionIdx">
-                    <div v-show="sectionIdx == currentTab" >
-                        <div class="sr-only absolute -top-16" :id="`field${sectionIdx}`"/>
-
-                        <!-- Title -->
-                        <div class="flex items-center gap-x-2" ref="buttonRefs">
-                            <h3 v-if="sectionData.title" class="text-lg leading-6 font-medium text-gray-700 capitalize">
-                                {{ sectionData.title }}
-                            </h3>
-                            <p v-if="sectionData.subtitle" class="max-w-2xl text-sm text-gray-500">
-                                {{ sectionData.subtitle }}
-                            </p>
+                    <!-- If Section: all fields is not hidden -->
+                    <template v-if="!(Object.values(sectionData.fields).every((field: any) => field.hidden))">
+                        <div v-show="sectionIdx == currentTab" >
+                            <div class="sr-only absolute -top-16" :id="`field${sectionIdx}`"/>
+                            <!-- Title -->
+                            <div class="flex items-center gap-x-2" ref="buttonRefs">
+                                <h3 v-if="sectionData.title" class="text-lg leading-6 font-medium text-gray-700 capitalize">
+                                    {{ sectionData.title }}
+                                </h3>
+                                <p v-if="sectionData.subtitle" class="max-w-2xl text-sm text-gray-500">
+                                    {{ sectionData.subtitle }}
+                                </p>
+                            </div>
+                            <!-- Looping Field -->
+                            <div class="my-2 pt-4 space-y-5 transition-all duration-1000 ease-in-out" :class="fieldGroupAnimateSection">
+                                <template v-for="(fieldData, fieldName, index) in sectionData.fields" :key="index">
+                                    <!-- Field: is not hidden = true -->
+                                    <div v-if="!fieldData?.hidden" class="py-2 mt-1 flex text-sm text-gray-700 sm:mt-0">
+                                        <Action v-if="fieldData.type==='action'" :action="fieldData.action" :dataToSubmit="fieldData.action?.data" />
+                                        <FieldForm v-else :key="index" :field="fieldName" :fieldData="fieldData" :args="formData.args" />
+                                    </div>
+                                </template>
+                            </div>
                         </div>
-
-                        <!-- Looping Field -->
-                        <div class="my-2 pt-4 space-y-5 transition-all duration-1000 ease-in-out" :class="fieldGroupAnimateSection">
-                            <dd v-for="(fieldData, fieldName, index) in sectionData.fields" :key="index" class="py-2">
-                                <!-- Field -->
-                                <div class="mt-1 flex text-sm text-gray-700 sm:mt-0">
-                                    <Action v-if="fieldData.type==='action'" :action="fieldData.action" :dataToSubmit="fieldData.action?.data" />
-                                    <FieldForm v-else :key="index" :field="fieldName" :fieldData="fieldData" :args="formData.args" />
-                                </div>
-                            </dd>
-                        </div>
-                    </div>
+                    </template>
                 </template>
 
                 <!-- For button Authorize Google -->
@@ -199,30 +200,35 @@ onBeforeUnmount(() => {
                     </component>
                 </div>
             </div>
-
         </div>
 
         <!-- Mobile view -->
         <ul v-else class="space-y-8">
-            <li v-for="(item, key) in formData.blueprint"
-                class="group font-medium"
-                :aria-current="key === currentTab ? 'page' : undefined"
-            >
-                <div class="bg-gray-200 py-3 pl-5 flex items-center">
-                    <FontAwesomeIcon v-if="item.icon" aria-hidden="true" :icon="item.icon"
-                        class="flex-shrink-0 mr-3 h-5 w-5"
-                        :class="[
-                            key === currentTab ? 'text-gray-400' : 'text-gray-500',
-                        ]"/>
-                    <span class="capitalize truncate">{{ item.title }}</span>
-                </div>
-                <div class="px-5">
-                    <div v-for="(fieldData, fieldName, index) in formData.blueprint[key].fields" class="py-4">
-                        <Action v-if="fieldData.type === 'action'" :action="fieldData.action" :dataToSubmit="fieldData.action?.data" />
-                        <FieldForm v-else :key="index" :field="fieldName" :fieldData="fieldData" :args="formData.args" :id="fieldData.name" />
+            <template v-for="(sectionData, key) in formData.blueprint">
+                <!-- If Section: all fields is not hidden -->
+                <li v-if="!(Object.values(sectionData.fields).every((field: any) => field.hidden))"
+                    class="group font-medium"
+                    :aria-current="key === currentTab ? 'page' : undefined"
+                >
+                    <div class="bg-gray-200 py-3 pl-5 flex items-center">
+                        <FontAwesomeIcon v-if="sectionData.icon" aria-hidden="true" :icon="sectionData.icon"
+                            class="flex-shrink-0 mr-3 h-5 w-5"
+                            :class="[
+                                key === currentTab ? 'text-gray-400' : 'text-gray-500',
+                            ]"/>
+                        <span class="capitalize truncate">{{ sectionData.label }}</span>
                     </div>
-                </div>
-            </li>
+                    <div class="px-5">
+                        <template v-for="(fieldData, fieldName, index) in formData.blueprint[key].fields" >
+                            <!-- Field: is not hidden = true -->
+                            <div v-if="!fieldData?.hidden" class="py-4">
+                                <Action v-if="fieldData.type === 'action'" :action="fieldData.action" :dataToSubmit="fieldData.action?.data" />
+                                <FieldForm v-else :key="index" :field="fieldName" :fieldData="fieldData" :args="formData.args" :id="fieldData.name" />
+                            </div>
+                        </template>
+                    </div>
+                </li>
+            </template>
         </ul>
 
     </div>

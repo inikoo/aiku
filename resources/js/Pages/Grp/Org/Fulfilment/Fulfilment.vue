@@ -9,7 +9,6 @@ import { Head } from "@inertiajs/vue3"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faTachometerAlt, faPalletAlt } from '@fal'
 
-
 import PageHeading from "@/Components/Headings/PageHeading.vue"
 import { capitalize } from "@/Composables/capitalize"
 import Tabs from "@/Components/Navigation/Tabs.vue"
@@ -18,6 +17,7 @@ import { useTabChange } from "@/Composables/tab-change"
 import ModelDetails from "@/Components/ModelDetails.vue"
 import TableHistories from "@/Components/Tables/TableHistories.vue"
 import ShopShowcase from "@/Components/Showcases/Grp/ShopShowcase.vue"
+import FulfilmentShowcase from "@/Components/Showcases/Org/FulfilmentShowcase.vue"
 
 library.add(faTachometerAlt, faPalletAlt)
 
@@ -37,15 +37,16 @@ let currentTab = ref(props.tabs.current)
 const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab)
 
 const component = computed(() => {
-
     const components = {
+        dashboard: FulfilmentShowcase,
         showcase: ShopShowcase,
         details: ModelDetails,
         history: TableHistories
     }
-    return components[currentTab.value]
 
-});
+    return components[currentTab.value]
+})
+
 
 </script>
 
