@@ -75,7 +75,6 @@ class CreateFulfilment extends OrgAction
                                     'required'    => true,
                                     'mode'        => 'single',
                                     'searchable'  => true,
-                                    'hidden'      => true,
                                     'readonly'    => true
                                 ],
                             ]
