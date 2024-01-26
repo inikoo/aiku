@@ -8,21 +8,24 @@
 namespace App\Actions\HumanResources\Calendar;
 
 use App\Actions\InertiaAction;
+use App\Actions\OrgAction;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
 use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\HumanResources\EmployeeInertiaResource;
 use App\Http\Resources\HumanResources\EmployeeResource;
 use App\Models\HumanResources\Employee;
+use App\Models\SysAdmin\Organisation;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
+use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use App\InertiaTable\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
-class IndexCalendars extends InertiaAction
+class IndexCalendars extends OrgAction
 {
     public function handle(): LengthAwarePaginator
     {
@@ -66,12 +69,12 @@ class IndexCalendars extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo('hr.edit');
+        $this->canEdit = $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.edit");
 
         return
             (
                 $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo('hr.view')
+                $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.view")
             );
     }
 
@@ -82,7 +85,7 @@ class IndexCalendars extends InertiaAction
     }
 
 
-    public function htmlResponse(LengthAwarePaginator $employees): \Inertia\Response
+    public function htmlResponse(LengthAwarePaginator $employees): Response
     {
         return Inertia::render(
             'HumanResources/Calendar',
@@ -94,7 +97,7 @@ class IndexCalendars extends InertiaAction
                     'create' => $this->canEdit ? [
                         'route' => [
                             'name'       => 'grp.org.hr.employees.create',
-                            'parameters' => array_values($request->route()->originalParameters())
+                            'parameters' => array_values(request()->route()->originalParameters())
                         ],
                         'label' => __('employee')
                     ] : false,
@@ -105,9 +108,9 @@ class IndexCalendars extends InertiaAction
     }
 
 
-    public function asController(ActionRequest $request): LengthAwarePaginator
+    public function asController(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisation($request);
+        $this->initialisation($organisation, $request);
 
         return $this->handle();
     }
@@ -116,13 +119,14 @@ class IndexCalendars extends InertiaAction
     public function getBreadcrumbs(): array
     {
         return array_merge(
-            (new ShowHumanResourcesDashboard())->getBreadcrumbs(),
+            (new ShowHumanResourcesDashboard())->getBreadcrumbs(request()->route()->originalParameters()),
             [
                 [
                     'type'   => 'simple',
                     'simple' => [
                         'route' => [
-                            'name' => 'grp.org.hr.employees.index'
+                            'name' => 'grp.org.hr.employees.index',
+                            'parameters' => array_values(request()->route()->originalParameters())
                         ],
                         'label' => __('employees'),
                         'icon'  => 'fal fa-bars',
