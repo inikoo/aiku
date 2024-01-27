@@ -81,7 +81,7 @@ class ShowFulfilmentsDashboard extends OrgAction
                             'name'  => __('Orders'),
                             'icon'  => ['fal', 'fa-business-time'],
                             'index' => [
-                                'number' => $this->organisation->fulfilmentStats->number_customers_with_assets
+                                'number' => $this->organisation->fulfilmentStats->number_customers_with_pallets
                             ],
 
                         ]

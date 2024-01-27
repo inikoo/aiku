@@ -7,13 +7,10 @@
 
 namespace App\Actions\SysAdmin\Organisation\Hydrators;
 
-use App\Models\CRM\Customer;
-use App\Models\Fulfilment\StoredItem;
 use App\Models\SysAdmin\Organisation;
-use App\Models\OMS\Order;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class OrganisationHydrateFulfilment
+class OrganisationHydrateFulfilmentCustomers
 {
     use AsAction;
 
@@ -21,9 +18,8 @@ class OrganisationHydrateFulfilment
     public function handle(Organisation $organisation): void
     {
         $stats = [
-            'number_customers_with_stored_items' => Customer::count(),
-            'number_customers_with_assets'       => Order::count(),
-            'number_stored_items'                => StoredItem::count()
+            'number_customers_with_stored_items' => $organisation->fulfilmentCustomers()->where('number_stored_items', '>', 0)->count(),
+            'number_customers_with_pallets'      => $organisation->fulfilmentCustomers()->where('number_pallets', '>', 0)->count(),
         ];
 
         $organisation->fulfilmentStats()->update($stats);

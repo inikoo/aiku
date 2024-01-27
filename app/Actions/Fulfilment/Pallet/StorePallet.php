@@ -7,14 +7,14 @@
 
 namespace App\Actions\Fulfilment\Pallet;
 
-use App\Actions\CRM\Customer\Hydrators\CustomerHydrateStoredItems;
+use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydratePallets;
 use App\Actions\OrgAction;
-use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateFulfilment;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateFulfilmentCustomers;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
-use App\Models\CRM\Customer;
 use App\Models\Fulfilment\Fulfilment;
+use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
 use App\Models\SysAdmin\Organisation;
 use App\Rules\IUnique;
@@ -25,19 +25,20 @@ use Lorisleiva\Actions\ActionRequest;
 
 class StorePallet extends OrgAction
 {
-    private Customer $customer;
+    private FulfilmentCustomer $fulfilmentCustomer;
 
-    public function handle(Customer $customer, array $modelData): Pallet
+    public function handle(FulfilmentCustomer $fulfilmentCustomer, array $modelData): Pallet
     {
-        data_set($modelData, 'group_id', $customer->group_id);
-        data_set($modelData, 'organisation_id', $customer->organisation_id);
-        data_set($modelData, 'fulfilment_id', $customer->shop->fulfilment->id);
+        data_set($modelData, 'group_id', $fulfilmentCustomer->group_id);
+        data_set($modelData, 'organisation_id', $fulfilmentCustomer->organisation_id);
+        data_set($modelData, 'fulfilment_id', $fulfilmentCustomer->fulfilment->id);
 
         /** @var Pallet $pallet */
-        $pallet = $customer->pallets()->create($modelData);
-        //CustomerHydrateStoredItems::dispatch($customer);
-        // OrganisationHydrateFulfilment::dispatch();
+        $pallet = $fulfilmentCustomer->pallets()->create($modelData);
+        FulfilmentCustomerHydratePallets::dispatch($fulfilmentCustomer);
+        OrganisationHydrateFulfilmentCustomers::dispatch($fulfilmentCustomer->organisation);
 
+        $pallet->refresh();
         return $pallet;
     }
 
@@ -63,7 +64,7 @@ class StorePallet extends OrgAction
                 new IUnique(
                     table: 'pallets',
                     extraConditions: [
-                        ['column' => 'customer_id', 'value' => $this->customer->id],
+                        ['column' => 'fulfilment_customer_id', 'value' => $this->fulfilmentCustomer->id],
                     ]
                 ),
 
@@ -88,22 +89,22 @@ class StorePallet extends OrgAction
         ];
     }
 
-    public function asController(Organisation $organisation, Fulfilment $fulfilment, Customer $customer, ActionRequest $request): Pallet
+    public function asController(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): Pallet
     {
-        $this->customer = $customer;
+        $this->fulfilmentCustomer = $fulfilmentCustomer;
         $this->initialisationFromFulfilment($fulfilment, $request);
 
-        return $this->handle($customer, $this->validateAttributes());
+        return $this->handle($fulfilmentCustomer, $this->validateAttributes());
     }
 
-    public function action(Customer $customer, array $modelData, int $hydratorsDelay = 0): Pallet
+    public function action(FulfilmentCustomer $fulfilmentCustomer, array $modelData, int $hydratorsDelay = 0): Pallet
     {
-        $this->asAction       = true;
-        $this->hydratorsDelay = $hydratorsDelay;
-        $this->customer       = $customer;
-        $this->initialisationFromFulfilment($customer->shop->fulfilment, $modelData);
+        $this->asAction                 = true;
+        $this->hydratorsDelay           = $hydratorsDelay;
+        $this->fulfilmentCustomer       = $fulfilmentCustomer;
+        $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $modelData);
 
-        return $this->handle($customer, $this->validatedData);
+        return $this->handle($fulfilmentCustomer, $this->validatedData);
     }
 
 

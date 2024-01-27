@@ -84,6 +84,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
+ * @property string|null $delete_comment
  * @property string|null $source_id
  * @property int|null $sender_email_id
  * @property int|null $prospects_sender_email_id

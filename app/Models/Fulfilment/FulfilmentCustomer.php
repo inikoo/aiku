@@ -12,6 +12,8 @@ use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Sluggable\SlugOptions;
 
 /**
@@ -51,7 +53,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property string|null $deleted_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $delete_comment
  * @property-read Customer $customer
  * @property-read \App\Models\Fulfilment\Fulfilment $fulfilment
@@ -62,11 +64,16 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\StoredItem> $storedItems
  * @method static \Illuminate\Database\Eloquent\Builder|FulfilmentCustomer newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|FulfilmentCustomer newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|FulfilmentCustomer onlyTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|FulfilmentCustomer query()
+ * @method static \Illuminate\Database\Eloquent\Builder|FulfilmentCustomer withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|FulfilmentCustomer withoutTrashed()
  * @mixin \Eloquent
  */
 class FulfilmentCustomer extends Model
 {
+    use SoftDeletes;
+
     protected $guarded = [];
     protected $casts   = [
         'data' => 'array',
@@ -110,5 +117,20 @@ class FulfilmentCustomer extends Model
     public function fulfilment(): BelongsTo
     {
         return $this->belongsTo(Fulfilment::class);
+    }
+
+    public function pallets(): HasMany
+    {
+        return $this->hasMany(Pallet::class);
+    }
+
+    public function storedItems(): HasMany
+    {
+        return $this->hasMany(StoredItem::class);
+    }
+
+    public function palletDeliveries(): HasMany
+    {
+        return $this->hasMany(PalletDelivery::class);
     }
 }

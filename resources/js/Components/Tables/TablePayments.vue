@@ -7,7 +7,7 @@
 <script setup lang="ts">
 import {Link} from '@inertiajs/vue3';
 import Table from '@/Components/Table/Table.vue';
-import {Payment} from "@/types/payment";
+import {Pallet} from "@/types/pallet";
 
 const props = defineProps<{
     data: object,
@@ -15,33 +15,13 @@ const props = defineProps<{
 }>()
 
 
-function paymentsRoute(payment: Payment) {
+function palletsRoute(pallet: Pallet) {
     switch (route().current()) {
 
-        case 'shops.show.orders.show':
-            return route(
-                'shops.show.orders.show.payments.show',
-                [route().params['shop'],route().params['order'],payment.slug]);
-        case 'orders.show':
-            return route(
-                'orders.show.payments.show',
-                [route().params['order'],payment.slug]);
-        case 'grp.accounting.payment-service-providers.show.payment-accounts.show.payments.index':
-            return route(
-                'grp.accounting.payment-service-providers.show.payment-accounts.show.payments.show',
-                [payment.payment_service_providers_slug,payment.payment_accounts_slug, payment.slug]);
-        case 'grp.accounting.payment-service-providers.show.payments.index':
-            return route(
-                'grp.accounting.payment-service-providers.show.payments.show',
-                [payment.payment_service_providers_slug, payment.slug]);
-        case 'grp.accounting.payment-accounts.show.payments.index':
-            return route(
-                'grp.accounting.payment-accounts.show.payments.show',
-                [payment.payment_accounts_slug, payment.slug]);
         default:
             return route(
-                'grp.accounting.payments.index',
-                [payment.slug]);
+                'grp.accounting.pallets.index',
+                [pallet.slug]);
     }
 
 }
@@ -49,9 +29,9 @@ function paymentsRoute(payment: Payment) {
 
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
-        <template #cell(reference)="{ item: payment }">
-            <Link :href="paymentsRoute(payment)">
-                {{ payment['reference'] }}
+        <template #cell(reference)="{ item: pallet }">
+            <Link :href="palletsRoute(pallet)">
+                {{ pallet['reference'] }}
             </Link>
         </template>
     </Table>

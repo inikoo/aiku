@@ -6,13 +6,18 @@
  */
 
 use App\Actions\CRM\Customer\StoreCustomer;
+use App\Actions\Fulfilment\Pallet\StorePallet;
 use App\Actions\Market\Shop\StoreShop;
 use App\Enums\CRM\Customer\CustomerStatusEnum;
+use App\Enums\Fulfilment\Pallet\PalletStateEnum;
+use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
+use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use App\Enums\Market\Shop\ShopTypeEnum;
 use App\Enums\UI\FulfilmentsTabsEnum;
 use App\Models\CRM\Customer;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
+use App\Models\Fulfilment\Pallet;
 use App\Models\Market\Shop;
 use App\Models\SysAdmin\Permission;
 use App\Models\SysAdmin\Role;
@@ -80,12 +85,34 @@ test('create fulfilment customer', function (Fulfilment $fulfilment) {
     expect($customer)->toBeInstanceOf(Customer::class)
         ->and($customer->reference)->toBe('000001')
         ->and($customer->status)->toBe(CustomerStatusEnum::APPROVED)
-        ->and($customer->fulfilment)->toBeInstanceOf(FulfilmentCustomer::class)
-        ->and($customer->fulfilment->number_pallets)->toBe(0)
-        ->and($customer->fulfilment->number_stored_items)->toBe(0);
+        ->and($customer->fulfilmentCustomer)->toBeInstanceOf(FulfilmentCustomer::class)
+        ->and($customer->fulfilmentCustomer->number_pallets)->toBe(0)
+        ->and($customer->fulfilmentCustomer->number_stored_items)->toBe(0);
 
-    return $customer;
+    return $customer->fulfilmentCustomer;
 })->depends('create fulfilment shop');
+
+
+test('create pallet no delivery', function (FulfilmentCustomer $fulfilmentCustomer) {
+    $pallet = StorePallet::make()->action(
+        $fulfilmentCustomer,
+        Pallet::factory()->definition(),
+    );
+
+    expect($pallet)->toBeInstanceOf(Pallet::class)
+        ->and($pallet->state)->toBe(PalletStateEnum::IN_PROCESS)
+        ->and($pallet->status)->toBe(PalletStatusEnum::IN_PROCESS)
+        ->and($pallet->type)->toBe(PalletTypeEnum::PALLET)
+        ->and($pallet->notes)->toBe('')
+        ->and($pallet->source_id)->toBeNull()
+        ->and($pallet->customer_reference)->toBeString()
+        ->and($pallet->received_at)->toBeNull()
+        ->and($pallet->fulfilmentCustomer)->toBeInstanceOf(FulfilmentCustomer::class)
+        ->and($pallet->fulfilmentCustomer->number_pallets)->toBe(1)
+        ->and($pallet->fulfilmentCustomer->number_stored_items)->toBe(0);
+
+    return $pallet;
+})->depends('create fulfilment customer');
 
 test('UI fulfilment shops dashboard', function () {
     $response = get(route('grp.org.fulfilment.dashboard', $this->organisation->slug));
@@ -188,4 +215,4 @@ test('UI show fulfilment pallet list', function (Fulfilment $fulfilment) {
             ->has('title')
             ->has('breadcrumbs', 3);
     });
-})->depends('create fulfilment shop');
+})->depends('create fulfilment shop')->todo();

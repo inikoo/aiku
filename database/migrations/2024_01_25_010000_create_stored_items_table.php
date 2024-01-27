@@ -26,8 +26,8 @@ return new class () extends Migration {
             $table->string('status')->default(StoredItemStatusEnum::IN_PROCESS->value);
             $table->string('state')->index()->default(StoredItemStateEnum::IN_PROCESS->value);
             $table->string('type')->index();
-            $table->unsignedInteger('customer_id')->index();
-            $table->foreign('customer_id')->references('id')->on('customers');
+            $table->unsignedInteger('fulfilment_customer_id')->index();
+            $table->foreign('fulfilment_customer_id')->references('id')->on('fulfilment_customers');
             $table->unsignedInteger('location_id')->index()->nullable();
             $table->foreign('location_id')->references('id')->on('locations');
             $table->string('notes');

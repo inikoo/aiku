@@ -1,21 +1,19 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Thu, 25 May 2023 21:14:38 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Fri, 26 Jan 2024 18:40:36 Malaysia Time, Sanur, Bali, Indonesia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
 namespace App\Actions\Fulfilment\Pallet\UI;
 
-use App\Actions\InertiaAction;
-use App\Actions\UI\Fulfilment\ShowFulfilmentsDashboard;
+use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\OrgAction;
 use App\Enums\UI\FulfilmentTabsEnum;
-use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Fulfilment\PalletResource;
-use App\Models\CRM\Customer;
+use App\Models\Fulfilment\Fulfilment;
+use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
-use App\Models\Fulfilment\StoredItem;
 use App\Models\Inventory\Location;
 use App\Models\SysAdmin\Organisation;
 use Closure;
@@ -30,12 +28,11 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexPallets extends OrgAction
 {
-    /** @noinspection PhpUndefinedMethodInspection */
-    public function handle(Organisation|Customer|Location|null $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Organisation|FulfilmentCustomer|Location|Fulfilment $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->where('customer_reference', 'ILIKE', "%$value%");
+                $query->whereStartWith('customer_reference', $value);
             });
         });
 
@@ -43,20 +40,28 @@ class IndexPallets extends OrgAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        return QueryBuilder::for(Pallet::class)
-            ->defaultSort('slug')
-            ->with('customer')
-            ->when($parent, function ($query) use ($parent) {
-                if(class_basename($parent) == "Customer") {
-                    $query->where('customer_id', $parent->id);
-                }
-                if(class_basename($parent) == "Location") {
-                    $query->where('location_id', $parent->id);
-                }
-                if($parent == null) {
-                    $query->where('location_id', null);
-                }
-            })
+        $query=QueryBuilder::for(Pallet::class);
+
+        switch (class_basename($parent)) {
+            case "FulfilmentCustomer":
+                $query->where('fulfilment_customer_id', $parent->id);
+                break;
+            case "Location":
+                $query->where('location_id', $parent->id);
+                break;
+            case "Organisation":
+                $query->where('organisation_id', $parent->id);
+                break;
+            case "Fulfilment":
+                $query->where('fulfilment_id', $parent->id);
+                break;
+
+        }
+
+
+
+        /** @noinspection PhpUndefinedMethodInspection */
+        return $query->defaultSort('slug')
             ->allowedSorts(['customer_reference'])
             ->allowedFilters([$globalSearch, 'customer_reference'])
             ->withPaginator($prefix)
@@ -66,11 +71,14 @@ class IndexPallets extends OrgAction
     public function tableStructure($prefix = null): Closure
     {
         return function (InertiaTable $table) use ($prefix) {
-            $table
-                ->name($prefix)
-                ->pageName($prefix.'Page')
 
-                ->withGlobalSearch()
+            if ($prefix) {
+                $table
+                    ->name($prefix)
+                    ->pageName($prefix.'Page');
+            }
+
+            $table->withGlobalSearch()
                 ->withEmptyState(
                     [
                         'title' => __("No pallets found"),
@@ -89,13 +97,10 @@ class IndexPallets extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo('fulfilment.edit');
+        $this->canEdit = $request->user()->hasPermissionTo("fulfilment.{$this->fulfilment->id}.stored-items.edit");
 
-        return
-            (
-                $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo('hr.view')
-            );
+        return $request->user()->hasPermissionTo("fulfilment.{$this->fulfilment->id}.stored-items.view");
+
     }
 
 
@@ -105,41 +110,30 @@ class IndexPallets extends OrgAction
     }
 
 
-    public function htmlResponse(LengthAwarePaginator $pallets): Response
+    public function htmlResponse(LengthAwarePaginator $pallets, ActionRequest $request): Response
     {
         return Inertia::render(
-            'Fulfilment/Pallets',
+            'Org/Fulfilment/Pallets',
             [
-                'breadcrumbs' => $this->getBreadcrumbs(),
+                'breadcrumbs' => $this->getBreadcrumbs($request->route()->originalParameters()),
                 'title'       => __('pallets'),
                 'pageHead'    => [
                     'title'   => __('pallets'),
-                    'actions' => [
-                        'buttons' => [
-                            'route' => [
-                                'name'       => 'grp.org.fulfilment.shops.show.pallets.create',
-                                'parameters' => array_values(request()->route()->originalParameters())
-                            ],
-                            'label' => __('pallets')
-                        ]
-                    ],
                 ],
                 'data' => PalletResource::collection($pallets),
             ]
         )->table($this->tableStructure($pallets));
     }
 
-    public function asController(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
+    public function asController(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisation($organisation, $request);
-
+        $this->initialisationFromFulfilment($fulfilment, $request);
         return $this->handle($organisation, FulfilmentTabsEnum::PALLETS->value);
     }
 
     public function inLocation(Organisation $organisation, Location $location, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($organisation, $request);
-
         return $this->handle($location, FulfilmentTabsEnum::PALLETS->value);
     }
 
@@ -150,18 +144,22 @@ class IndexPallets extends OrgAction
         return $this->handle(null, FulfilmentTabsEnum::PALLETS->value);
     }
 
-    public function getBreadcrumbs(): array
+    public function getBreadcrumbs(array $routeParameters): array
     {
         return array_merge(
-            (new ShowFulfilmentsDashboard())->getBreadcrumbs(),
+            ShowFulfilment::make()->getBreadcrumbs($routeParameters),
             [
                 [
                     'type'   => 'simple',
                     'simple' => [
                         'route' => [
-                            'name' => 'grp.fulfilment.stored-items.index'
+                            'name'       => 'grp.org.fulfilment.shops.show.pallets.index',
+                            'parameters' => [
+                                'organisation' => $routeParameters['organisation'],
+                                'fulfilment'   => $routeParameters['fulfilment'],
+                            ]
                         ],
-                        'label' => __('stored items'),
+                        'label' => __('pallets'),
                         'icon'  => 'fal fa-bars',
                     ],
 

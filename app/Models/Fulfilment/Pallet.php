@@ -14,6 +14,7 @@ use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use App\Models\CRM\Customer;
 use App\Models\Inventory\Location;
 use App\Models\SysAdmin\Organisation;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -29,7 +30,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $slug
  * @property string|null $customer_reference
  * @property int $fulfilment_id
- * @property int $customer_id
+ * @property int $fulfilment_customer_id
  * @property int|null $location_id
  * @property PalletStatusEnum $status
  * @property PalletStateEnum $state
@@ -45,10 +46,11 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $delete_comment
  * @property string|null $source_id
- * @property-read Customer $customer
  * @property-read \App\Models\Fulfilment\Fulfilment $fulfilment
+ * @property-read \App\Models\Fulfilment\FulfilmentCustomer $fulfilmentCustomer
  * @property-read Location|null $location
  * @property-read Organisation $organisation
+ * @method static \Database\Factories\Fulfilment\PalletFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder|Pallet newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Pallet newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Pallet onlyTrashed()
@@ -61,6 +63,7 @@ class Pallet extends Model
 {
     use HasSlug;
     use SoftDeletes;
+    use HasFactory;
 
 
     protected $guarded = [];
@@ -86,7 +89,7 @@ class Pallet extends Model
     {
         return SlugOptions::create()
             ->generateSlugsFrom(function () {
-                $slug = $this->customer->slug;
+                $slug =$this->fulfilmentCustomer->slug;
 
                 if ($this->customer_reference != '') {
                     $slug .=' '.$this->customer_reference;
@@ -109,9 +112,9 @@ class Pallet extends Model
         return $this->belongsTo(Fulfilment::class);
     }
 
-    public function customer(): BelongsTo
+    public function fulfilmentCustomer(): BelongsTo
     {
-        return $this->belongsTo(Customer::class);
+        return $this->belongsTo(FulfilmentCustomer::class);
     }
 
     public function location(): BelongsTo

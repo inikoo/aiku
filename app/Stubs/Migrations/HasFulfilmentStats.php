@@ -51,7 +51,7 @@ trait HasFulfilmentStats
     public function containerFulfilmentStats(Blueprint $table): Blueprint
     {
         $table->unsignedInteger('number_customers_with_stored_items')->default(0);
-        $table->unsignedInteger('number_customers_with_assets')->default(0);
+        $table->unsignedInteger('number_customers_with_pallets')->default(0);
 
         foreach (StoredItemStateEnum::cases() as $state) {
             $table->unsignedInteger("number_customers_with_stored_items_state_{$state->snake()}")->default(0);

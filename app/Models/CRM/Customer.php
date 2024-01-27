@@ -16,8 +16,6 @@ use App\Models\Accounting\Payment;
 use App\Models\Dropshipping\CustomerClient;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\FulfilmentOrder;
-use App\Models\Fulfilment\Pallet;
-use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Fulfilment\StoredItem;
 use App\Models\Helpers\Address;
 use App\Models\Helpers\Issue;
@@ -82,14 +80,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $prospects_sender_email_id
  * @property-read Collection<int, Address> $addresses
  * @property-read Collection<int, CustomerClient> $clients
- * @property-read FulfilmentCustomer|null $fulfilment
+ * @property-read FulfilmentCustomer|null $fulfilmentCustomer
  * @property-read Collection<int, FulfilmentOrder> $fulfilmentOrders
  * @property-read Collection<int, Invoice> $invoices
  * @property-read Collection<int, Issue> $issues
  * @property-read MediaCollection<int, \App\Models\Media\Media> $media
  * @property-read Collection<int, Order> $orders
- * @property-read Collection<int, PalletDelivery> $palletDeliveries
- * @property-read Collection<int, Pallet> $pallets
  * @property-read Collection<int, Payment> $payments
  * @property-read Collection<int, Product> $products
  * @property-read Shop|null $shop
@@ -235,17 +231,7 @@ class Customer extends Model implements HasMedia
         return $this->morphToMany(Issue::class, 'issuable');
     }
 
-    public function pallets(): HasMany
-    {
-        return $this->hasMany(Pallet::class);
-    }
-
-    public function palletDeliveries(): HasMany
-    {
-        return $this->hasMany(PalletDelivery::class);
-    }
-
-    public function fulfilment(): HasOne
+    public function fulfilmentCustomer(): HasOne
     {
         return $this->hasOne(FulfilmentCustomer::class);
     }

@@ -31,11 +31,10 @@ class FetchPallets extends FetchAction
             } else {
                 // print_r($palletData);
                 $pallet = StorePallet::make()->action(
-                    customer: $palletData['customer'],
+                    fulfilmentCustomer: $palletData['customer']->fulfilmentCustomer,
                     modelData: $palletData['pallet'],
                 );
             }
-
 
             return $pallet;
         }

@@ -19,6 +19,7 @@ use App\Models\Assets\Timezone;
 use App\Models\CRM\Customer;
 use App\Models\CRM\Prospect;
 use App\Models\Dispatch\Shipper;
+use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Helpers\Address;
 use App\Models\HumanResources\ClockingMachine;
 use App\Models\HumanResources\Employee;
@@ -88,6 +89,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Currency $currency
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Customer> $customers
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Employee> $employees
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, FulfilmentCustomer> $fulfilmentCustomers
  * @property-read \App\Models\SysAdmin\OrganisationFulfilmentStats|null $fulfilmentStats
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \App\Models\SysAdmin\OrganisationHumanResourcesStats|null $humanResourcesStats
@@ -354,6 +356,11 @@ class Organisation extends Model implements HasMedia
     public function customers(): HasMany
     {
         return $this->hasMany(Customer::class);
+    }
+
+    public function fulfilmentCustomers(): HasMany
+    {
+        return $this->hasMany(FulfilmentCustomer::class);
     }
 
     public function prospects(): HasMany

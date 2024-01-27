@@ -23,4 +23,3 @@ Broadcast::channel('grp.live.users', function (User $user) {
         'name'  => $user->contact_name,
     ];
 });
-

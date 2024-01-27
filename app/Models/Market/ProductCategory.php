@@ -36,6 +36,8 @@ use Spatie\Sluggable\SlugOptions;
  * App\Models\Market\Department
  *
  * @property int $id
+ * @property int $group_id
+ * @property int $organisation_id
  * @property string $slug
  * @property string $code
  * @property string|null $name
@@ -51,6 +53,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
+ * @property string|null $delete_comment
  * @property int|null $source_department_id
  * @property int|null $source_family_id
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits

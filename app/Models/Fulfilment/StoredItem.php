@@ -30,6 +30,8 @@ use App\Models\Inventory\Location;
  * App\Models\Fulfilment\Fulfilment\StoredItem
  *
  * @property int $id
+ * @property int $group_id
+ * @property int $organisation_id
  * @property string $slug
  * @property string $reference
  * @property StoredItemStatusEnum $status
@@ -95,9 +97,9 @@ class StoredItem extends Model implements Auditable
         return 'slug';
     }
 
-    public function customer(): BelongsTo
+    public function fulfilmentCustomer(): BelongsTo
     {
-        return $this->belongsTo(Customer::class);
+        return $this->belongsTo(FulfilmentCustomer::class);
     }
 
     public function location(): BelongsTo

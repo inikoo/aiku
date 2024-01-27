@@ -7,9 +7,7 @@
 
 namespace App\Actions\Fulfilment\Pallet;
 
-use App\Actions\CRM\Customer\Hydrators\CustomerHydrateStoredItems;
 use App\Actions\OrgAction;
-use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateFulfilment;
 use App\Models\CRM\Customer;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\Pallet;
@@ -27,8 +25,8 @@ class StorePalletFromDelivery extends OrgAction
     {
         /** @var Pallet $pallet */
         $pallet = $palletDelivery->pallets()->create($modelData);
-        //CustomerHydrateStoredItems::dispatch($customer);
-        // OrganisationHydrateFulfilment::dispatch();
+        //FulfilmentCustomerHydrateStoredItems::dispatch($customer);
+        // OrganisationHydrateFulfilmentCustomers::dispatch();
 
         return $pallet;
     }

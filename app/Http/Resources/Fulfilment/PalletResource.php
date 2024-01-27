@@ -26,15 +26,15 @@ class PalletResource extends JsonResource
     public function toArray($request): array
     {
         return [
-            'id'            => $this->id,
+            'id'                 => $this->id,
             'customer_reference' => $this->customer_reference,
-            'slug'          => $this->slug,
-            'customer_name' => $this->customer?->name,
-            'location'      => LocationResource::make($this->location),
-            'state'         => $this->state,
-            'status'        => $this->status,
-            'notes'         => $this->notes,
-            'items'         => StoredItemResource::collection($this->storedItems ?? [])
+            'slug'               => $this->slug,
+            'customer_name'      => $this->customer?->name,
+            'location'           => LocationResource::make($this->location),
+            'state'              => $this->state,
+            'status'             => $this->status,
+            'notes'              => $this->notes,
+            'items'              => StoredItemResource::collection($this->storedItems ?? [])
         ];
     }
 }
