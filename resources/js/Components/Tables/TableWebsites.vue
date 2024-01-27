@@ -16,11 +16,16 @@ const props = defineProps<{
 
 
 function websiteRoute(website: Website) {
+    console.log(route().current())
     switch (route().current()) {
         case 'grp.web.websites.index':
             return route(
                 'grp.web.websites.show',
                 [website.slug]);
+        case 'grp.org.fulfilment.shops.show.websites.index':
+            return route(
+                'grp.org.fulfilment.shops.show.websites.show',
+                [route().params.organisation, route().params.fulfilment, website.slug]);
     }
 }
 
@@ -29,7 +34,7 @@ function websiteRoute(website: Website) {
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(slug)="{ item: website }">
-            <Link :href="websiteRoute(website)">
+            <Link :href="websiteRoute(website)" class="specialUnderline">
                 {{ website['slug'] }}
             </Link>
         </template>

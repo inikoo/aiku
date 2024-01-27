@@ -48,7 +48,7 @@ Route::prefix('shops')->name('shops.')
 
                 Route::prefix('websites')->name('.websites.')
                     ->group(function () {
-                        Route::get('/', IndexWebsites::class)->name('index');
+                        Route::get('/', [IndexWebsites::class,'inFulfilment'])->name('index');
                         Route::get('/{website}/show', ShowWebsite::class)->name('show');
                         Route::get('/{website}/edit', EditWebsite::class)->name('edit');
                         Route::get('/{website}/workshop', ShowWebsiteWorkshop::class)->name('workshop');

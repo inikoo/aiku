@@ -22,13 +22,13 @@ class WebsiteResource extends JsonResource
     public function toArray($request): array
     {
         return [
-            'slug'           => $this->slug,
-            'shop_slug'      => $this->whenHas('shop_slug'),
-            'code'           => $this->code,
-            'name'           => $this->name,
-            'domain'         => $this->domain,
-            'state'          => $this->state,
-            'in_maintenance' => $this->in_maintenance
+            'slug'      => $this->slug,
+            'shop_slug' => $this->whenHas('shop_slug'),
+            'code'      => $this->code,
+            'name'      => $this->name,
+            'domain'    => $this->domain,
+            'state'     => $this->state,
+            'status'    => $this->status
 
 
         ];
