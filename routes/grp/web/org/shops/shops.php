@@ -10,7 +10,6 @@ use App\Actions\Market\Shop\UI\EditShop;
 use App\Actions\Market\Shop\UI\IndexShops;
 use App\Actions\Market\Shop\UI\RemoveShop;
 use App\Actions\Market\Shop\UI\ShowShop;
-use App\Actions\Web\Website\UI\CreateWebsite;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', IndexShops::class)->name('index');
@@ -21,11 +20,14 @@ Route::prefix('{shop}')
         Route::get('', ShowShop::class)->name('show');
         Route::get('edit', EditShop::class)->name('edit');
         Route::get('delete', RemoveShop::class)->name('remove');
-        Route::get('website/create', [CreateWebsite::class, 'inShop'])->name('show.website.create');
 
         Route::prefix("crm")
             ->name("crm.")
             ->group(__DIR__."/crm.php");
+
+        Route::prefix("websites")
+            ->name("show.websites.")
+            ->group(__DIR__."/websites.php");
 
     });
 
@@ -59,12 +61,8 @@ Route::prefix("production")
     ->name("production.")
     ->group(__DIR__."/production.php");
 
-Route::prefix("shops")
-    ->name("shops.")
-    ->group(__DIR__."/shops.php");
-Route::prefix("web")
-    ->name("web.")
-    ->group(__DIR__."/web.php");
+
+
 Route::prefix("products")
     ->name("products.")
     ->group(__DIR__."/products.php");

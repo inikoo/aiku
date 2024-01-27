@@ -31,6 +31,7 @@ class StoreWebsite extends OrgAction
         /** @var Website $website */
         $website = $shop->website()->create($modelData);
         $website->webStats()->create();
+        $website->refresh();
 
 
         //AddWebsiteToCloudflare::run($website);

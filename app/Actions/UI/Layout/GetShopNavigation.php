@@ -93,7 +93,7 @@ class GetShopNavigation
                 'icon'  => ['fal', 'fa-globe'],
                 'label' => __('Website'),
                 'route' => [
-                    'name'       => 'grp.org.shops.index',
+                    'name'       => 'grp.org.shops.show.websites.index',
                     'parameters' => [$shop->organisation->slug, $shop->slug]
                 ],
 

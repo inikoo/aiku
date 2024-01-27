@@ -8,12 +8,14 @@
 use App\Actions\CRM\Customer\StoreCustomer;
 use App\Actions\Fulfilment\Pallet\StorePallet;
 use App\Actions\Market\Shop\StoreShop;
+use App\Actions\Web\Website\StoreWebsite;
 use App\Enums\CRM\Customer\CustomerStatusEnum;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use App\Enums\Market\Shop\ShopTypeEnum;
 use App\Enums\UI\FulfilmentsTabsEnum;
+use App\Enums\Web\Website\WebsiteStateEnum;
 use App\Models\CRM\Customer;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -22,6 +24,7 @@ use App\Models\Market\Shop;
 use App\Models\SysAdmin\Permission;
 use App\Models\SysAdmin\Role;
 
+use App\Models\Web\Website;
 use Inertia\Testing\AssertableInertia;
 
 use function Pest\Laravel\actingAs;
@@ -75,6 +78,18 @@ test('create fulfilment shop', function () {
 
     return $shop->fulfilment;
 });
+
+test('create fulfilment website', function (Fulfilment $fulfilment) {
+    $website = StoreWebsite::make()->action(
+        $fulfilment->shop,
+        Website::factory()->definition(),
+    );
+
+    expect($website)->toBeInstanceOf(Website::class)
+        ->and($website->state)->toBe(WebsiteStateEnum::IN_PROCESS);
+
+    return $website;
+})->depends('create fulfilment shop');
 
 test('create fulfilment customer', function (Fulfilment $fulfilment) {
     $customer = StoreCustomer::make()->action(
@@ -134,6 +149,22 @@ test('UI list of fulfilment shops', function () {
             ->has('breadcrumbs', 2);
     });
 });
+
+test('UI list of websites in fulfilment', function (Fulfilment $fulfilment) {
+    $response = get(route(
+        'grp.org.fulfilment.shops.show.websites.index',
+        [
+        $this->organisation->slug,
+        $fulfilment->slug
+    ]
+    ));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Web/Websites')
+            ->has('title')
+            ->has('breadcrumbs', 3);
+    });
+})->depends('create fulfilment shop');
 
 test('UI create fulfilment', function () {
     $response = get(route('grp.org.fulfilment.shops.create', $this->organisation->slug));
