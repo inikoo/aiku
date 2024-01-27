@@ -523,7 +523,7 @@ trait WithAuroraParsers
     {
         $reference = str_replace('&', 'and', $reference);
         $reference = str_replace('/', '_', $reference);
-        $reference = preg_replace('\s+', '-', $reference);
+        $reference = preg_replace('/\s+/', '-', $reference);
         $reference =preg_replace('/\)$/', '', $reference);
         $reference = str_replace('(', '-', $reference);
         return str_replace(')', '-', $reference);
