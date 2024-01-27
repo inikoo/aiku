@@ -9,9 +9,9 @@ import PageHeading from '@/Components/Headings/PageHeading.vue';
 import { computed, defineAsyncComponent, ref } from "vue";
 import { useTabChange } from "@/Composables/tab-change";
 import Tabs from "@/Components/Navigation/Tabs.vue";
-import IrisWorkshopHeader from "@/Components/CMS/Workshops/HeaderWorkshop.vue";
-import IrisWorkshopMenu from "@/Components/CMS/Workshops/MenuWorkshop.vue";
-import IrisWorkshopFooter from "@/Components/CMS/Workshops/FooterWorkshop.vue";
+import WorkshopHeader from "@/Components/CMS/Workshops/HeaderWorkshop.vue";
+import WorkshopMenu from "@/Components/CMS/Workshops/MenuWorkshop.vue";
+import WorkshopFooter from "@/Components/CMS/Workshops/FooterWorkshop.vue";
 import { capitalize } from "@/Composables/capitalize"
 
 library.add(
@@ -48,9 +48,9 @@ const component = computed(() => {
 
     const components = {
 
-        header: IrisWorkshopHeader,
-        menu: IrisWorkshopMenu,
-        footer: IrisWorkshopFooter,
+        header: WorkshopHeader,
+        menu: WorkshopMenu,
+        footer: WorkshopFooter,
     };
     return components[currentTab.value];
 
@@ -60,7 +60,6 @@ const component = computed(() => {
 
 
 <template layout="App">
-    <!--suppress HtmlRequiredTitleElement -->
     <Head :title="capitalize(title)"/>
     <PageHeading :data="pageHead"></PageHeading>
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate"/>

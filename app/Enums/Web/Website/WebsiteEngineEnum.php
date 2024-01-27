@@ -8,13 +8,14 @@
 namespace App\Enums\Web\Website;
 
 use App\Enums\EnumHelperTrait;
+use App\Models\SysAdmin\Organisation;
 
 enum WebsiteEngineEnum: string
 {
     use EnumHelperTrait;
 
     case AURORA = 'aurora';
-    case IRIS   = 'iris';
+    case AIKU   = 'aiku';
     case OTHER  = 'other';
 
 
@@ -22,18 +23,18 @@ enum WebsiteEngineEnum: string
     {
         return [
             'aurora' => 'Aurora',
-            'iris'   => 'Iris',
+            'aiku'   => 'Aiku',
             'other'  => __('Other'),
         ];
     }
 
-    public static function count(): array
+    public static function count(Organisation $organisation): array
     {
-        $webStats = app('currentTenant')->webStats;
+        $webStats = $organisation->webStats;
 
         return [
             'aurora' => $webStats->number_websites_engine_aurora,
-            'iris'   => $webStats->number_websites_engine_iris,
+            'aiku'   => $webStats->number_websites_engine_aiku,
             'other'  => $webStats->number_websites_engine_other,
         ];
     }

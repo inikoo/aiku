@@ -9,7 +9,3 @@
 Route::prefix('aurora')
     ->name('aurora.')
     ->group(__DIR__.'/aurora.php');
-
-Route::prefix('iris')
-    ->name('iris.')
-    ->group(__DIR__.'/iris/iris.php');

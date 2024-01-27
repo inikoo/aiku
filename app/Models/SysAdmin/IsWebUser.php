@@ -15,8 +15,6 @@ use Laravel\Sanctum\HasApiTokens;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
-// ⚠️ Warning shared Aiku/Iris file ⚠️
-// Edit only in aiku repo 💣
 trait IsWebUser
 {
     use HasApiTokens;
