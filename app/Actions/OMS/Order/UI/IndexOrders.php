@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 20 Jun 2023 20:33:12 Malaysia Time, Pantai Lembeng, Bali, Id
+ * Created: Tue, 20 Jun 2023 20:33:12 Malaysia Time, Pantai Lembeng, Bali, Indonesia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
@@ -9,7 +9,6 @@ namespace App\Actions\OMS\Order\UI;
 
 use App\Actions\InertiaAction;
 use App\Actions\Market\Shop\UI\ShowShop;
-use App\Actions\UI\CRM\ShowShopCRMDashboard;
 use App\Actions\UI\Dashboard\ShowDashboard;
 use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Sales\OrderResource;
@@ -168,10 +167,7 @@ class IndexOrders extends InertiaAction
         return match ($routeName) {
             'grp.crm.orders.index' =>
             array_merge(
-                (new ShowShopCRMDashboard())->getBreadcrumbs(
-                    'grp.crm.dashboard',
-                    $routeParameters
-                ),
+                (new ShowShop())->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     [
                         'name' => 'grp.crm.orders.index',
@@ -181,10 +177,7 @@ class IndexOrders extends InertiaAction
             ),
             'grp.crm.shops.show.orders.index' =>
             array_merge(
-                (new ShowShopCRMDashboard())->getBreadcrumbs(
-                    'grp.crm.shops.show.dashboard',
-                    $routeParameters
-                ),
+                (new ShowShop())->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     [
                         'name'       => 'grp.crm.shops.show.orders.index',

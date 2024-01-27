@@ -29,7 +29,7 @@ const props = defineProps<{
         navigation: object
     },
     title: string
-    showcase?: object
+    dashboard?: object
     pallets?: object
 
 

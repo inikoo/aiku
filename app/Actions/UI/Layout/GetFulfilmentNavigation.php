@@ -25,7 +25,7 @@ class GetFulfilmentNavigation
                 'icon'  => ['fal', 'fa-pallet-alt'],
                 'label' => __('Stored items'),
                 'route' => [
-                    'name'       => 'grp.org.fulfilment.shops.show',
+                    'name'       => 'grp.org.fulfilments.show',
                     'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug]
                 ],
 
@@ -33,10 +33,10 @@ class GetFulfilmentNavigation
                 'topMenu' => [
                     'subSections' => [
                         [
-                            'label' => __('crm'),
+                            'label' => __('customers'),
                             'icon'  => ['fal', 'fa-users'],
                             'route' => [
-                                'name'       => 'grp.org.fulfilment.shops.show.crm',
+                                'name'       => 'grp.org.fulfilments.show.customers.index',
                                 'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug],
 
                             ]
@@ -52,15 +52,15 @@ class GetFulfilmentNavigation
 
         if ($user->hasPermissionTo("fulfilment.$fulfilment->id.view")) {
             $navigation['web'] = [
-                'scope' => 'websites',
-                'icon'  => ['fal', 'fa-globe'],
-                'label' => __('Website'),
-                'route' =>
+                'scope'   => 'websites',
+                'icon'    => ['fal', 'fa-globe'],
+                'label'   => __('Website'),
+                'route'   =>
 
                     $fulfilment->shop->website
                         ?
                         [
-                            'name'       => 'grp.org.fulfilment.shops.show.websites.show',
+                            'name'       => 'grp.org.fulfilments.show.websites.show',
                             'parameters' => [
                                 $fulfilment->organisation->slug,
                                 $fulfilment->slug,
@@ -70,24 +70,19 @@ class GetFulfilmentNavigation
                         ]
                         :
                         [
-                            'name'       => 'grp.org.fulfilment.shops.show.websites.index',
+                            'name'       => 'grp.org.fulfilments.show.websites.index',
                             'parameters' => [
                                 $fulfilment->organisation->slug,
                                 $fulfilment->slug,
                             ]
 
-                        ]
-
-
-                ,
-
-
+                        ],
                 'topMenu' => [
                     'subSections' => [
                         [
                             'icon'  => ['fal', 'fa-chart-network'],
                             'route' => [
-                                'name' => 'grp.org.fulfilment.shops.web.dashboard',
+                                'name' => 'grp.org.fulfilments.web.dashboard',
                             ]
                         ],
 
@@ -95,8 +90,8 @@ class GetFulfilmentNavigation
                             'tooltip' => __('websites'),
                             'icon'    => ['fal', 'fa-globe'],
                             'route'   => [
-                                'all'      => 'grp.org.fulfilment.shops.web.websites.index',
-                                'selected' => 'grp.org.fulfilment.shops.web.websites.show',
+                                'all'      => 'grp.org.fulfilments.web.websites.index',
+                                'selected' => 'grp.org.fulfilments.web.websites.show',
 
                             ],
                             'label'   => [
@@ -110,8 +105,8 @@ class GetFulfilmentNavigation
                             'tooltip' => __('Webpages'),
                             'icon'    => ['fal', 'fa-browser'],
                             'route'   => [
-                                'all'      => ['grp.org.fulfilment.shops.web.webpages.index'],
-                                'selected' => ['grp.org.fulfilment.shops.web.websites.show.webpages.index'],
+                                'all'      => ['grp.org.fulfilments.web.webpages.index'],
+                                'selected' => ['grp.org.fulfilments.web.websites.show.webpages.index'],
 
                             ]
                         ],
@@ -127,7 +122,7 @@ class GetFulfilmentNavigation
                 'icon'  => ['fal', 'fa-user'],
 
                 'route' => [
-                    'name'       => 'grp.org.fulfilment.shops.show.crm.dashboard',
+                    'name'       => 'grp.org.fulfilments.show.crm.dashboard',
                     'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug]
                 ],
 

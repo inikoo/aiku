@@ -43,7 +43,7 @@ class CreateFulfilment extends OrgAction
                             'style' => 'cancel',
                             'label' => __('cancel'),
                             'route' => [
-                                'name'       => 'grp.org.fulfilment.shops.index',
+                                'name'       => 'grp.org.fulfilments.index',
                                 'parameters' => $request->route()->originalParameters()
                             ],
                         ]

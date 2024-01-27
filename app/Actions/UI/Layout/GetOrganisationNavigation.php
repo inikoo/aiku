@@ -93,7 +93,7 @@ class GetOrganisationNavigation
                 'icon' => ['fal', 'fa-store-alt'],
 
                 'route' => [
-                    'name'       => 'grp.org.fulfilment.shops.index',
+                    'name'       => 'grp.org.fulfilments.index',
                     'parameters' => [$organisation->slug],
                 ],
 

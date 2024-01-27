@@ -128,7 +128,7 @@ class IndexFulfilments extends OrgAction
                             'tooltip' => __('new fulfilment shop'),
                             'label'   => __('Fulfilment Shop'),
                             'route'   => [
-                                'name'       => 'grp.org.fulfilment.shops.create',
+                                'name'       => 'grp.org.fulfilments.create',
                                 'parameters' => $request->route()->originalParameters()
                             ]
                         ] : false,
@@ -160,7 +160,7 @@ class IndexFulfilments extends OrgAction
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name'       => 'grp.org.fulfilment.shops.index',
+                                'name'       => 'grp.org.fulfilments.index',
                                 'parameters' => $routeParameters
                             ],
                             'label' => __('fulfilment shops'),

@@ -19,9 +19,9 @@ Route::prefix("shops")
     ->name("shops.")
     ->group(__DIR__."/shops/shops.php");
 
-Route::prefix("fulfilment")
-    ->name("fulfilment.")
-    ->group(__DIR__."/fulfilment/fulfilment.php");
+Route::prefix("fulfilments")
+    ->name("fulfilments.")
+    ->group(__DIR__."/fulfilments/fulfilments.php");
 
 
 Route::prefix("inventory")

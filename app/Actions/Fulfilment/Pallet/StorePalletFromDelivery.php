@@ -61,6 +61,6 @@ class StorePalletFromDelivery extends OrgAction
 
     public function htmlResponse(Pallet $pallet, ActionRequest $request): RedirectResponse
     {
-        return Redirect::route('grp.org.fulfilment.shops.show.pallets.show', $pallet->slug);
+        return Redirect::route('grp.org.fulfilments.show.pallets.show', $pallet->slug);
     }
 }

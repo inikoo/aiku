@@ -8,7 +8,6 @@
 namespace App\Actions\Fulfilment\StoredItem\UI;
 
 use App\Actions\InertiaAction;
-use App\Actions\UI\Fulfilment\ShowFulfilmentsDashboard;
 use App\Enums\Fulfilment\StoredItem\StoredItemTypeEnum;
 use App\Http\Resources\Fulfilment\StoredItemResource;
 use App\Models\Fulfilment\StoredItem;
@@ -114,7 +113,7 @@ class EditStoredItem extends InertiaAction
     public function getBreadcrumbs(): array
     {
         return array_merge(
-            (new ShowFulfilmentsDashboard())->getBreadcrumbs(),
+            ShowFulfilment::make()->getBreadcrumbs(),
             [
                 [
                     'type'   => 'simple',

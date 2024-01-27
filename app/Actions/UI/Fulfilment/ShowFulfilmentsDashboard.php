@@ -47,7 +47,7 @@ class ShowFulfilmentsDashboard extends OrgAction
                             'name'  => __('Fulfilment Shops'),
                             'icon'  => ['fal', 'fa-pallets'],
                             'href'  => [
-                                'name'       => 'grp.org.fulfilment.shops.index',
+                                'name'       => 'grp.org.fulfilments.index',
                                 'parameters' => $request->route()->originalParameters()
                             ],
                             'index' => [

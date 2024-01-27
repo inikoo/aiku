@@ -7,8 +7,8 @@
 
 namespace App\Actions\Fulfilment\FulfilmentCustomer\UI;
 
+use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\OrgAction;
-use App\Actions\UI\CRM\ShowShopCRMDashboard;
 use App\Http\Resources\Fulfilment\FulfilmentCustomersResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\Fulfilment;
@@ -105,7 +105,7 @@ class IndexFulfilmentCustomers extends OrgAction
                             'tooltip' => __('new customer'),
                             'label'   => __('customer'),
                             'route'   => [
-                                'name'       => 'grp.org.fulfilment.shops.show.customers.create',
+                                'name'       => 'grp.org.fulfilments.show.customers.create',
                                 'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug]
                             ]
                         ]
@@ -132,7 +132,7 @@ class IndexFulfilmentCustomers extends OrgAction
         ];
 
         return Inertia::render(
-            'Org/Fulfilment/CRM/Customers',
+            'Org/Fulfilment/Customers',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->originalParameters()
@@ -169,12 +169,12 @@ class IndexFulfilmentCustomers extends OrgAction
 
 
         return array_merge(
-            (new ShowShopCRMDashboard())->getBreadcrumbs(
+            ShowFulfilment::make()->getBreadcrumbs(
                 $routeParameters
             ),
             $headCrumb(
                 [
-                    'name'       => 'grp.org.fulfilment.shops.show.crm.customers.index',
+                    'name'       => 'grp.org.fulfilments.show.customers.index',
                     'parameters' => $routeParameters
                 ]
             )

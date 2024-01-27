@@ -129,18 +129,10 @@ test('create pallet no delivery', function (FulfilmentCustomer $fulfilmentCustom
     return $pallet;
 })->depends('create fulfilment customer');
 
-test('UI fulfilment shops dashboard', function () {
-    $response = get(route('grp.org.fulfilment.dashboard', $this->organisation->slug));
-    $response->assertInertia(function (AssertableInertia $page) {
-        $page
-            ->component('Org/Fulfilment/FulfilmentsDashboard')
-            ->has('title')
-            ->has('breadcrumbs', 2);
-    });
-});
+
 
 test('UI list of fulfilment shops', function () {
-    $response = get(route('grp.org.fulfilment.shops.index', $this->organisation->slug));
+    $response = get(route('grp.org.fulfilments.index', $this->organisation->slug));
     expect(FulfilmentsTabsEnum::FULFILMENT_SHOPS->value)->toBe('fulfilments');
     $response->assertInertia(function (AssertableInertia $page) {
         $page
@@ -152,7 +144,7 @@ test('UI list of fulfilment shops', function () {
 
 test('UI list of websites in fulfilment', function (Fulfilment $fulfilment) {
     $response = get(route(
-        'grp.org.fulfilment.shops.show.websites.index',
+        'grp.org.fulfilments.show.websites.index',
         [
         $this->organisation->slug,
         $fulfilment->slug
@@ -167,7 +159,7 @@ test('UI list of websites in fulfilment', function (Fulfilment $fulfilment) {
 })->depends('create fulfilment shop');
 
 test('UI create fulfilment', function () {
-    $response = get(route('grp.org.fulfilment.shops.create', $this->organisation->slug));
+    $response = get(route('grp.org.fulfilments.create', $this->organisation->slug));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('CreateModel')
@@ -179,7 +171,7 @@ test('UI create fulfilment', function () {
 test('UI show fulfilment shop', function (Fulfilment $fulfilment) {
     $response = get(
         route(
-            'grp.org.fulfilment.shops.show',
+            'grp.org.fulfilments.show',
             [
                 $this->organisation->slug,
                 $fulfilment->slug
@@ -194,28 +186,11 @@ test('UI show fulfilment shop', function (Fulfilment $fulfilment) {
     });
 })->depends('create fulfilment shop');
 
-test('UI show fulfilment shop CRM dashboard', function (Fulfilment $fulfilment) {
-    $response = get(
-        route(
-            'grp.org.fulfilment.shops.show.crm.dashboard',
-            [
-                $this->organisation->slug,
-                $fulfilment->slug
-            ]
-        )
-    );
-    $response->assertInertia(function (AssertableInertia $page) {
-        $page
-            ->component('Org/Fulfilment/CRM/Dashboard')
-            ->has('title')
-            ->has('breadcrumbs', 3);
-    });
-})->depends('create fulfilment shop');
 
 test('UI show fulfilment shop customers list', function (Fulfilment $fulfilment) {
     $response = get(
         route(
-            'grp.org.fulfilment.shops.show.crm.customers.index',
+            'grp.org.fulfilments.show.customers.index',
             [
                 $this->organisation->slug,
                 $fulfilment->slug
@@ -224,7 +199,7 @@ test('UI show fulfilment shop customers list', function (Fulfilment $fulfilment)
     );
     $response->assertInertia(function (AssertableInertia $page) {
         $page
-            ->component('Org/Fulfilment/CRM/Customers')
+            ->component('Org/Fulfilment/Customers')
             ->has('title')
             ->has('breadcrumbs', 3);
     });
@@ -233,7 +208,7 @@ test('UI show fulfilment shop customers list', function (Fulfilment $fulfilment)
 test('UI show fulfilment pallet list', function (Fulfilment $fulfilment) {
     $response = get(
         route(
-            'grp.org.fulfilment.shops.show.pallets.index',
+            'grp.org.fulfilments.show.pallets.index',
             [
                 $this->organisation->slug,
                 $fulfilment->slug
@@ -242,7 +217,7 @@ test('UI show fulfilment pallet list', function (Fulfilment $fulfilment) {
     );
     $response->assertInertia(function (AssertableInertia $page) {
         $page
-            ->component('Org/Fulfilment/CRM/Customers')
+            ->component('Org/Fulfilment/Pallets')
             ->has('title')
             ->has('breadcrumbs', 3);
     });

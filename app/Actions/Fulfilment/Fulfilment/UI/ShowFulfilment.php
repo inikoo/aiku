@@ -30,7 +30,6 @@ class ShowFulfilment extends OrgAction
     use WithInertia;
 
 
-
     public function handle(Fulfilment $fulfilment): Fulfilment
     {
         return $fulfilment;
@@ -47,7 +46,61 @@ class ShowFulfilment extends OrgAction
     public function asController(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): Fulfilment
     {
         $this->initialisation($organisation, $request)->withTab(FulfilmentTabsEnum::values());
+
         return $this->handle($fulfilment);
+    }
+
+    private function getDashboard(ActionRequest $request): array
+    {
+        return [
+            'flatTreeMaps' => [
+
+                [
+                    [
+                        'name'  => __('Fulfilment Shops'),
+                        'icon'  => ['fal', 'fa-pallets'],
+                        'href'  => [
+                            'name'       => 'grp.org.fulfilments.index',
+                            'parameters' => $request->route()->originalParameters()
+                        ],
+                        'index' => [
+                            'number' => $this->organisation->marketStats->number_shops_type_fulfilment
+                        ],
+
+                    ],
+                ],
+
+                [
+
+
+                    [
+                        'name'  => __('Customers'),
+                        'icon'  => ['fal', 'fa-user-tie'],
+                        'index' => [
+                            'number' => $this->organisation->fulfilmentStats->number_customers_with_stored_items
+                        ],
+
+                    ],
+                    [
+                        'name'  => __('Stored Items'),
+                        'icon'  => ['fal', 'fa-narwhal'],
+                        'index' => [
+                            'number' => $this->organisation->fulfilmentStats->number_stored_items
+                        ],
+
+                    ],
+
+                    [
+                        'name'  => __('Orders'),
+                        'icon'  => ['fal', 'fa-business-time'],
+                        'index' => [
+                            'number' => $this->organisation->fulfilmentStats->number_customers_with_pallets
+                        ],
+
+                    ]
+                ]
+            ]
+        ];
     }
 
     public function htmlResponse(Fulfilment $fulfilment, ActionRequest $request): Response
@@ -55,31 +108,39 @@ class ShowFulfilment extends OrgAction
         return Inertia::render(
             'Org/Fulfilment/Fulfilment',
             [
-                'title'        => __('fulfilment'),
-                'breadcrumbs'  => $this->getBreadcrumbs(
+                'title'       => __('fulfilment'),
+                'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->originalParameters()
                 ),
-                'navigation'   => [
+                'navigation'  => [
                     'previous' => $this->getPrevious($fulfilment, $request),
                     'next'     => $this->getNext($fulfilment, $request),
                 ],
-                'pageHead'     => [
-                    'title'   => $fulfilment->shop->name,
-                    'icon'    => [
+                'pageHead'    => [
+                    'title' => $fulfilment->shop->name,
+                    'icon'  => [
                         'title' => __('Fulfilment'),
                         'icon'  => 'fal fa-pallet-alt'
                     ],
 
                 ],
 
-                'tabs'         => [
+                'tabs' => [
                     'current'    => $this->tab,
                     'navigation' => FulfilmentTabsEnum::navigation()
                 ],
 
-                FulfilmentTabsEnum::PALLETS->value => $this->tab == FulfilmentTabsEnum::PALLETS->value ?
+                FulfilmentTabsEnum::DASHBOARD->value => $this->tab == FulfilmentTabsEnum::DASHBOARD->value
+                    ?
+                    fn () => $this->getDashboard($request)
+                    : Inertia::lazy(fn () => $this->getDashboard($request)),
+
+                FulfilmentTabsEnum::PALLETS->value => $this->tab == FulfilmentTabsEnum::PALLETS->value
+                    ?
                     fn () => PalletResource::collection(IndexPallets::run($fulfilment->organisation, FulfilmentTabsEnum::PALLETS->value))
-                    : Inertia::lazy(fn () => PalletResource::collection(IndexPallets::run($fulfilment->organisation, FulfilmentTabsEnum::PALLETS->value))),
+                    : Inertia::lazy(fn () => PalletResource::collection(
+                        IndexPallets::run($fulfilment->organisation, FulfilmentTabsEnum::PALLETS->value)
+                    )),
 
             ]
         )->table(IndexPallets::make()->tableStructure(prefix: FulfilmentTabsEnum::PALLETS->value));
@@ -101,8 +162,7 @@ class ShowFulfilment extends OrgAction
 
     public function getBreadcrumbs(array $routeParameters, $suffix = null): array
     {
-
-        $fulfilment=Fulfilment::where('slug', $routeParameters['fulfilment'])->first();
+        $fulfilment = Fulfilment::where('slug', $routeParameters['fulfilment'])->first();
 
         return
             array_merge(
@@ -113,7 +173,7 @@ class ShowFulfilment extends OrgAction
                         'modelWithIndex' => [
                             'index' => [
                                 'route' => [
-                                    'name'       => 'grp.org.fulfilment.shops.index',
+                                    'name'       => 'grp.org.fulfilments.index',
                                     'parameters' => Arr::only($routeParameters, 'organisation')
                                 ],
                                 'label' => __('fulfilment'),
@@ -121,7 +181,7 @@ class ShowFulfilment extends OrgAction
                             ],
                             'model' => [
                                 'route' => [
-                                    'name'       => 'grp.org.fulfilment.shops.show',
+                                    'name'       => 'grp.org.fulfilments.show',
                                     'parameters' => $routeParameters
                                 ],
                                 'label' => $fulfilment->shop->code,
@@ -138,14 +198,14 @@ class ShowFulfilment extends OrgAction
 
     public function getPrevious(Fulfilment $fulfilment, ActionRequest $request): ?array
     {
-        $previous = Shop::where('type', ShopTypeEnum::FULFILMENT)->where('code', '<', $fulfilment->shop->code)->orderBy('code', 'desc')->first();
+        $previous = Shop::where('organisation_id', $this->organisation->id)->where('type', ShopTypeEnum::FULFILMENT)->where('code', '<', $fulfilment->shop->code)->orderBy('code', 'desc')->first();
 
         return $this->getNavigation($previous?->fulfilment, $request->route()->getName());
     }
 
     public function getNext(Fulfilment $fulfilment, ActionRequest $request): ?array
     {
-        $next = Shop::where('type', ShopTypeEnum::FULFILMENT)->where('code', '>', $fulfilment->shop->code)->orderBy('code')->first();
+        $next = Shop::where('organisation_id', $this->organisation->id)->where('type', ShopTypeEnum::FULFILMENT)->where('code', '>', $fulfilment->shop->code)->orderBy('code')->first();
 
         return $this->getNavigation($next?->fulfilment, $request->route()->getName());
     }
@@ -157,13 +217,13 @@ class ShowFulfilment extends OrgAction
         }
 
         return match ($routeName) {
-            'grp.org.fulfilment.shops.show' => [
+            'grp.org.fulfilments.show' => [
                 'label' => $fulfilment->shop->name,
                 'route' => [
                     'name'       => $routeName,
                     'parameters' => [
-                        'organisation'      => $this->organisation->slug,
-                        'fulfilment'        => $fulfilment->slug
+                        'organisation' => $this->organisation->slug,
+                        'fulfilment'   => $fulfilment->slug
                     ]
 
                 ]

@@ -22,9 +22,9 @@ function websiteRoute(website: Website) {
             return route(
                 'grp.web.websites.show',
                 [website.slug]);
-        case 'grp.org.fulfilment.shops.show.websites.index':
+        case 'grp.org.fulfilments.show.websites.index':
             return route(
-                'grp.org.fulfilment.shops.show.websites.show',
+                'grp.org.fulfilments.show.websites.show',
                 [route().params.organisation, route().params.fulfilment, website.slug]);
     }
 }

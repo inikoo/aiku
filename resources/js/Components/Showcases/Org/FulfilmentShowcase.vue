@@ -5,8 +5,7 @@
   -->
 
 <script setup lang="ts">
-
-
+import FlatTreeMap from "@/Components/Navigation/FlatTreeMap.vue";
 
 const props = defineProps<{
     data: object
@@ -17,7 +16,5 @@ const props = defineProps<{
 </script>
 
 <template>
-    <div>
-        Fulfilment Showcase
-    </div>
+    <FlatTreeMap class="mx-4" v-for="(treeMap,idx) in flatTreeMaps" :key="idx" :nodes="treeMap"/>
 </template>

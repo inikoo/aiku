@@ -8,7 +8,7 @@
 namespace App\Actions\Fulfilment\Pallet\UI;
 
 use App\Actions\InertiaAction;
-use App\Actions\UI\Fulfilment\ShowFulfilmentsDashboard;
+use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use App\Http\Resources\Fulfilment\PalletResource;
 use App\Models\Fulfilment\Pallet;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -113,7 +113,7 @@ class EditPallet extends InertiaAction
     public function getBreadcrumbs(): array
     {
         return array_merge(
-            (new ShowFulfilmentsDashboard())->getBreadcrumbs(),
+            ShowFulfilment::make()->getBreadcrumbs(),
             [
                 [
                     'type'   => 'simple',

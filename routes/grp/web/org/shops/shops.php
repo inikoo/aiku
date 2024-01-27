@@ -21,17 +21,21 @@ Route::prefix('{shop}')
         Route::get('edit', EditShop::class)->name('edit');
         Route::get('delete', RemoveShop::class)->name('remove');
 
-        Route::prefix("crm")
-            ->name("crm.")
-            ->group(__DIR__."/crm.php");
+        Route::name('show.')
+            ->group(function () {
+                Route::prefix("customers")
+                    ->name("customers.")
+                    ->group(__DIR__."/customers.php");
 
-        Route::prefix("websites")
-            ->name("show.websites.")
-            ->group(__DIR__."/websites.php");
+                Route::prefix("prospects")
+                    ->name("prospects.")
+                    ->group(__DIR__."/prospects.php");
 
+                Route::prefix("websites")
+                    ->name("websites.")
+                    ->group(__DIR__."/websites.php");
+            });
     });
-
-
 
 
 /*

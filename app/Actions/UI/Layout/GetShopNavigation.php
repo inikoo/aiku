@@ -157,7 +157,7 @@ class GetShopNavigation
                 'icon'  => ['fal', 'fa-user'],
 
                 'route' => [
-                    'name'       => 'grp.org.shops.crm.dashboard',
+                    'name'       => 'grp.org.shops.show.customers.index',
                     'parameters' => [$shop->organisation->slug, $shop->slug]
                 ],
 

@@ -59,8 +59,6 @@ class IndexPallets extends OrgAction
         }
 
 
-
-        /** @noinspection PhpUndefinedMethodInspection */
         return $query->defaultSort('slug')
             ->allowedSorts(['customer_reference'])
             ->allowedFilters([$globalSearch, 'customer_reference'])
@@ -153,7 +151,7 @@ class IndexPallets extends OrgAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => [
-                            'name'       => 'grp.org.fulfilment.shops.show.pallets.index',
+                            'name'       => 'grp.org.fulfilments.show.pallets.index',
                             'parameters' => [
                                 'organisation' => $routeParameters['organisation'],
                                 'fulfilment'   => $routeParameters['fulfilment'],

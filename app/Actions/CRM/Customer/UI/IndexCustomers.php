@@ -7,8 +7,9 @@
 
 namespace App\Actions\CRM\Customer\UI;
 
+use App\Actions\Market\Shop\UI\ShowShop;
 use App\Actions\OrgAction;
-use App\Actions\UI\CRM\ShowShopCRMDashboard;
+
 use App\Enums\Market\Shop\ShopTypeEnum;
 use App\Http\Resources\Sales\CustomerResource;
 use App\InertiaTable\InertiaTable;
@@ -252,24 +253,10 @@ class IndexCustomers extends OrgAction
         };
 
         return match ($routeName) {
-            /*
-            'grp.crm.customers.index' =>
-            array_merge(
-                (new ShowShopCRMDashboard())->getBreadcrumbs(
-                    'grp.crm.dashboard',
-                    $routeParameters
-                ),
-                $headCrumb(
-                    [
-                        'name' => 'grp.crm.customers.index',
-                        null
-                    ]
-                ),
-            ),
-            */
+
             'grp.crm.shops.show.customers.index' =>
             array_merge(
-                (new ShowShopCRMDashboard())->getBreadcrumbs(
+                ShowShop::make()->getBreadcrumbs(
                     $routeParameters
                 ),
                 $headCrumb(
