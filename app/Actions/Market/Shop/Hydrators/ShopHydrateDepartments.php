@@ -7,35 +7,52 @@
 
 namespace App\Actions\Market\Shop\Hydrators;
 
+use App\Actions\Traits\WithEnumStats;
 use App\Enums\Market\ProductCategory\ProductCategoryStateEnum;
 use App\Models\Market\ProductCategory;
 use App\Models\Market\Shop;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
-use Illuminate\Support\Arr;
+use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class ShopHydrateDepartments implements ShouldBeUnique
+class ShopHydrateDepartments
 {
     use AsAction;
+    use WithEnumStats;
 
+    private Shop $shop;
+
+    public function __construct(Shop $shop)
+    {
+        $this->shop = $shop;
+    }
+
+    public function getJobMiddleware(): array
+    {
+        return [(new WithoutOverlapping($this->shop->id))->dontRelease()];
+    }
 
     public function handle(Shop $shop): void
     {
-        $stateCounts      = ProductCategory::where('shop_id', $shop->id)
-            ->selectRaw('state, count(*) as total')
-            ->groupBy('state')
-            ->pluck('total', 'state')->all();
-        $stats            = [
+        $stats = [
             'number_departments' => $shop->departments->count(),
         ];
-        foreach (ProductCategoryStateEnum::cases() as $departmentState) {
-            $stats['number_departments_state_'.$departmentState->snake()] = Arr::get($stateCounts, $departmentState->value, 0);
-        }
+
+
+        $stats = array_merge(
+            $stats,
+            $this->getEnumStats(
+                model: 'departments',
+                field: 'state',
+                enum: ProductCategoryStateEnum::class,
+                models: ProductCategory::class,
+                where: function ($q) use ($shop) {
+                    $q->where('shop_id', $shop->id);
+                }
+            )
+        );
+
         $shop->stats()->update($stats);
     }
 
-    public function getJobUniqueId(Shop $shop): string
-    {
-        return $shop->id;
-    }
+
 }

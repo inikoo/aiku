@@ -7,35 +7,50 @@
 
 namespace App\Actions\Market\Shop\Hydrators;
 
+use App\Actions\Traits\WithEnumStats;
 use App\Enums\Market\Product\ProductStateEnum;
 use App\Models\Market\Product;
 use App\Models\Market\Shop;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
-use Illuminate\Support\Arr;
+use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class ShopHydrateProducts implements ShouldBeUnique
+class ShopHydrateProducts
 {
     use AsAction;
+    use WithEnumStats;
+    private Shop $shop;
 
+    public function __construct(Shop $shop)
+    {
+        $this->shop = $shop;
+    }
 
+    public function getJobMiddleware(): array
+    {
+        return [(new WithoutOverlapping($this->shop->id))->dontRelease()];
+    }
     public function handle(Shop $shop): void
     {
-        $stateCounts   = Product::where('shop_id', $shop->id)
-            ->selectRaw('state, count(*) as total')
-            ->groupBy('state')
-            ->pluck('total', 'state')->all();
+
         $stats         = [
             'number_products' => $shop->products->count(),
         ];
-        foreach (ProductStateEnum::cases() as $productState) {
-            $stats['number_products_state_'.$productState->snake()] = Arr::get($stateCounts, $productState->value, 0);
-        }
+
+        $stats = array_merge(
+            $stats,
+            $this->getEnumStats(
+                model: 'products',
+                field: 'state',
+                enum: ProductStateEnum::class,
+                models: Product::class,
+                where: function ($q) use ($shop) {
+                    $q->where('shop_id', $shop->id);
+                }
+            )
+        );
+
+
         $shop->stats()->update($stats);
     }
 
-    public function getJobUniqueId(Shop $shop): string
-    {
-        return $shop->id;
-    }
 }

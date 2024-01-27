@@ -12,7 +12,7 @@ use App\Actions\Accounting\PaymentAccount\Hydrators\PaymentAccountHydratePayment
 use App\Actions\Accounting\PaymentServiceProvider\Hydrators\PaymentServiceProviderHydratePayments;
 use App\Actions\Helpers\CurrencyExchange\GetCurrencyExchange;
 use App\Actions\Market\Shop\Hydrators\ShopHydratePayments;
-use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateAccounting;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePayments;
 use App\Enums\Accounting\Payment\PaymentStateEnum;
 use App\Enums\Accounting\Payment\PaymentStatusEnum;
 use App\Models\Accounting\Payment;
@@ -32,9 +32,11 @@ class StorePayment
 
     public function handle(Customer $customer, PaymentAccount $paymentAccount, array $modelData): Payment
     {
-        $modelData['customer_id'] = $customer->id;
-        $modelData['shop_id']     = $customer->shop_id;
-
+        data_set($modelData, 'group_id', $customer->group_id);
+        data_set($modelData, 'organisation_id', $customer->organisation_id);
+        data_set($modelData, 'payment_service_provider_id', $paymentAccount->payment_service_provider_id);
+        data_set($modelData, 'customer_id', $customer->id);
+        data_set($modelData, 'shop_id', $customer->shop_id);
         data_fill($modelData, 'currency_id', $customer->shop->currency_id);
         data_fill($modelData, 'oc_amount', GetCurrencyExchange::run($customer->shop->currency, $paymentAccount->organisation->currency));
         data_fill($modelData, 'gc_amount', GetCurrencyExchange::run($customer->shop->currency, $paymentAccount->organisation->group->currency));
@@ -43,7 +45,7 @@ class StorePayment
         /** @var Payment $payment */
         $payment = $paymentAccount->payments()->create($modelData);
 
-        OrganisationHydrateAccounting::dispatch($paymentAccount->organisation);
+        OrganisationHydratePayments::dispatch($paymentAccount->organisation);
         PaymentServiceProviderHydratePayments::dispatch($payment->paymentAccount->paymentServiceProvider);
         PaymentAccountHydratePayments::dispatch($payment->paymentAccount);
         ShopHydratePayments::dispatch($payment->shop);
@@ -67,9 +69,9 @@ class StorePayment
     {
         return [
             'reference' => ['required', 'string'],
-            'status'    => ['sometimes','required', Rule::in(PaymentStatusEnum::values())],
-            'state'     => ['sometimes','required', Rule::in(PaymentStateEnum::values())],
-            'amount'    => ['required','decimal:0,2']
+            'status'    => ['sometimes', 'required', Rule::in(PaymentStatusEnum::values())],
+            'state'     => ['sometimes', 'required', Rule::in(PaymentStateEnum::values())],
+            'amount'    => ['required', 'decimal:0,2']
 
         ];
     }

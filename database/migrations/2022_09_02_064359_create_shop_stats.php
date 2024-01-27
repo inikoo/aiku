@@ -42,11 +42,6 @@ return new class () extends Migration {
             $table->unsignedInteger('number_invoices_type_invoice')->default(0);
             $table->unsignedInteger('number_invoices_type_refund')->default(0);
 
-            $table->unsignedInteger('number_payment_service_providers')->default(0);
-            $table->unsignedInteger('number_payment_accounts')->default(0);
-            $table->unsignedInteger('number_payments')->default(0);
-
-
             $table->timestampsTz();
         });
     }

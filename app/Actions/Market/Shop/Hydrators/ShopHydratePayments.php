@@ -7,23 +7,33 @@
 
 namespace App\Actions\Market\Shop\Hydrators;
 
+use App\Actions\Traits\WithEnumStats;
 use App\Enums\Accounting\Payment\PaymentStateEnum;
+use App\Enums\Accounting\Payment\PaymentTypeEnum;
 use App\Models\Accounting\Payment;
 use App\Models\Market\Shop;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
-use Illuminate\Support\Arr;
+use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class ShopHydratePayments implements ShouldBeUnique
+class ShopHydratePayments
 {
     use AsAction;
+    use WithEnumStats;
 
+    private Shop $shop;
+
+    public function __construct(Shop $shop)
+    {
+        $this->shop = $shop;
+    }
+
+    public function getJobMiddleware(): array
+    {
+        return [(new WithoutOverlapping($this->shop->id))->dontRelease()];
+    }
 
     public function handle(Shop $shop): void
     {
-        $paymentRecords = $shop->payments()->count();
-        $refunds        = $shop->payments()->where('type', 'refund')->count();
-
         $amountTenantCurrencySuccessfullyPaid = $shop->payments()
             ->where('type', 'payment')
             ->where('status', 'success')
@@ -44,9 +54,8 @@ class ShopHydratePayments implements ShouldBeUnique
 
 
         $stats = [
-            'number_payment_records'      => $paymentRecords,
-            'number_payments'             => $paymentRecords - $refunds,
-            'number_refunds'              => $refunds,
+
+            'number_payments'             => $shop->payments()->count(),
             'amount'                      => $amountSuccessfullyPaid + $amountTenantCurrencyRefunded,
             'amount_successfully_paid'    => $amountSuccessfullyPaid,
             'amount_refunded'             => $amountRefunded,
@@ -57,39 +66,49 @@ class ShopHydratePayments implements ShouldBeUnique
 
         ];
 
-        $stateCounts = Payment::where('shop_id', $shop->id)
-            ->selectRaw('state, count(*) as total')
-            ->groupBy('state')
-            ->pluck('total', 'state')->all();
+        $stats = array_merge(
+            $stats,
+            $this->getEnumStats(
+                model: 'payments',
+                field: 'type',
+                enum: PaymentTypeEnum::class,
+                models: Payment::class,
+                where: function ($q) use ($shop) {
+                    $q->where('shop_id', $shop->id);
+                }
+            )
+        );
 
-        foreach (PaymentStateEnum::cases() as $state) {
-            $stats["number_payment_records_state_{$state->snake()}"] = Arr::get($stateCounts, $state->value, 0);
-        }
+        $stats = array_merge(
+            $stats,
+            $this->getEnumStats(
+                model: 'payments',
+                field: 'state',
+                enum: PaymentStateEnum::class,
+                models: Payment::class,
+                where: function ($q) use ($shop) {
+                    $q->where('shop_id', $shop->id);
+                }
+            )
+        );
 
-        $stateCounts = Payment::where('shop_id', $shop->id)->where('type', 'payment')
-            ->selectRaw('state, count(*) as total')
-            ->groupBy('state')
-            ->pluck('total', 'state')->all();
-
-        foreach (PaymentStateEnum::cases() as $state) {
-            $stats["number_payments_state_{$state->snake()}"] = Arr::get($stateCounts, $state->value, 0);
-        }
-
-        $stateCounts = Payment::where('shop_id', $shop->id)->where('type', 'refund')
-            ->selectRaw('state, count(*) as total')
-            ->groupBy('state')
-            ->pluck('total', 'state')->all();
-
-        foreach (PaymentStateEnum::cases() as $state) {
-            $stats["number_refunds_state_{$state->snake()}"] = Arr::get($stateCounts, $state->value, 0);
+        foreach (PaymentTypeEnum::cases() as $type) {
+            $stats = array_merge(
+                $stats,
+                $this->getEnumStats(
+                    model: "payments_type_{$type->snake()}",
+                    field: 'state',
+                    enum: PaymentStateEnum::class,
+                    models: Payment::class,
+                    where: function ($q) use ($shop, $type) {
+                        $q->where('shop_id', $shop->id)->where('type', $type->value);
+                    }
+                )
+            );
         }
 
 
         $shop->accountingStats()->update($stats);
     }
 
-    public function getJobUniqueId(Shop $shop): string
-    {
-        return $shop->id;
-    }
 }

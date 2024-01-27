@@ -8,24 +8,32 @@
 namespace App\Actions\Accounting\PaymentServiceProvider\Hydrators;
 
 use App\Models\Accounting\PaymentServiceProvider;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
+use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class PaymentServiceProviderHydrateAccounts implements ShouldBeUnique
+class PaymentServiceProviderHydrateAccounts
 {
     use AsAction;
 
+    private PaymentServiceProvider $paymentServiceProvider;
+
+    public function __construct(PaymentServiceProvider $paymentServiceProvider)
+    {
+        $this->paymentServiceProvider = $paymentServiceProvider;
+    }
+
+    public function getJobMiddleware(): array
+    {
+        return [(new WithoutOverlapping($this->paymentServiceProvider->id))->dontRelease()];
+    }
 
     public function handle(PaymentServiceProvider $paymentServiceProvider): void
     {
         $stats=[
-            'number_accounts'=> $paymentServiceProvider->accounts()->count()
+            'number_payment_accounts'=> $paymentServiceProvider->accounts()->count()
         ];
         $paymentServiceProvider->stats()->update($stats);
     }
 
-    public function getJobUniqueId(PaymentServiceProvider $paymentServiceProvider): int
-    {
-        return $paymentServiceProvider->id;
-    }
+
 }

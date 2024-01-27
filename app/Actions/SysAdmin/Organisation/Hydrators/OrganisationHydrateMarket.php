@@ -7,16 +7,29 @@
 
 namespace App\Actions\SysAdmin\Organisation\Hydrators;
 
+use App\Actions\Traits\WithEnumStats;
 use App\Enums\Market\Shop\ShopStateEnum;
 use App\Enums\Market\Shop\ShopTypeEnum;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Market\Shop;
-use Illuminate\Support\Arr;
+use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class OrganisationHydrateMarket
 {
     use AsAction;
+    use WithEnumStats;
+    private Organisation $organisation;
+
+    public function __construct(Organisation $organisation)
+    {
+        $this->organisation = $organisation;
+    }
+
+    public function getJobMiddleware(): array
+    {
+        return [(new WithoutOverlapping($this->organisation->id))->dontRelease()];
+    }
 
 
     public function handle(Organisation $organisation): void
@@ -25,23 +38,31 @@ class OrganisationHydrateMarket
             'number_shops' => Shop::count()
         ];
 
+        $stats = array_merge(
+            $stats,
+            $this->getEnumStats(
+                model: 'shops',
+                field: 'state',
+                enum: ShopStateEnum::class,
+                models: Shop::class,
+                where: function ($q) use ($organisation) {
+                    $q->where('organisation_id', $organisation->id);
+                }
+            )
+        );
 
-        $shopStatesCount = Shop::selectRaw('state, count(*) as total')
-            ->groupBy('state')
-            ->pluck('total', 'state')->all();
-        foreach (ShopStateEnum::cases() as $shopState) {
-            $stats['number_shops_state_'.$shopState->snake()] = Arr::get($shopStatesCount, $shopState->value, 0);
-        }
-
-
-        $shopTypesCount = Shop::selectRaw('type, count(*) as total')
-            ->groupBy('type')
-            ->pluck('total', 'type')->all();
-
-
-        foreach (ShopTypeEnum::cases() as $shopType) {
-            $stats['number_shops_type_'.$shopType->snake()] = Arr::get($shopTypesCount, $shopType->value, 0);
-        }
+        $stats = array_merge(
+            $stats,
+            $this->getEnumStats(
+                model: 'shops',
+                field: 'type',
+                enum: ShopTypeEnum::class,
+                models: Shop::class,
+                where: function ($q) use ($organisation) {
+                    $q->where('organisation_id', $organisation->id);
+                }
+            )
+        );
 
 
         $organisation->marketStats()->update($stats);

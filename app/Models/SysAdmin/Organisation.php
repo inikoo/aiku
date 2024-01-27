@@ -9,6 +9,8 @@ namespace App\Models\SysAdmin;
 
 use App\Enums\Accounting\PaymentServiceProvider\PaymentServiceProviderTypeEnum;
 use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
+use App\Models\Accounting\Payment;
+use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentServiceProvider;
 use App\Models\Assets\Country;
 use App\Models\Assets\Currency;
@@ -98,7 +100,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\OrganisationMarketStats|null $marketStats
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, Media> $media
  * @property-read \Illuminate\Database\Eloquent\Collection<int, OrgStock> $orgStocks
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, PaymentAccount> $paymentAccounts
  * @property-read \Illuminate\Database\Eloquent\Collection<int, PaymentServiceProvider> $paymentServiceProviders
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Payment> $payments
  * @property-read \App\Models\SysAdmin\OrganisationProcurementStats|null $procurementStats
  * @property-read \App\Models\SysAdmin\OrganisationProductionStats|null $productionStats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Prospect> $prospects
@@ -319,6 +323,17 @@ class Organisation extends Model implements HasMedia
     {
         return $this->hasMany(PaymentServiceProvider::class);
     }
+
+    public function paymentAccounts(): HasMany
+    {
+        return $this->hasMany(PaymentAccount::class);
+    }
+
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class);
+    }
+
 
     public function registerMediaCollections(): void
     {

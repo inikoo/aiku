@@ -8,12 +8,14 @@
 namespace App\Actions\SysAdmin\Organisation;
 
 use App\Actions\HydrateModel;
-use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateAccounting;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePaymentAccounts;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePayments;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateCustomers;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateEmployees;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateJobPositions;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateMarket;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateOrders;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePaymentServiceProviders;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateProcurement;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateProspects;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWarehouse;
@@ -32,7 +34,9 @@ class HydrateOrganisation extends HydrateModel
         OrganisationHydrateEmployees::run($organisation);
         OrganisationHydrateWarehouse::run($organisation);
         OrganisationHydrateMarket::run($organisation);
-        OrganisationHydrateAccounting::run($organisation);
+        OrganisationHydratePayments::run($organisation);
+        OrganisationHydratePaymentAccounts::run($organisation);
+        OrganisationHydratePaymentServiceProviders::run($organisation);
         OrganisationHydrateCustomers::run($organisation);
         OrganisationHydrateOrders::run($organisation);
         OrganisationHydrateProcurement::run($organisation);

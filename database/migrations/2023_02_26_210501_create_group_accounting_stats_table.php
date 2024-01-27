@@ -1,8 +1,8 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Sat, 11 Nov 2023 23:23:00 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Sat, 27 Jan 2024 11:39:16 Malaysia Time, Sanur, Bali, Indonesia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
 use App\Stubs\Migrations\HasPaymentStats;
@@ -15,15 +15,14 @@ return new class () extends Migration {
 
     public function up(): void
     {
-        Schema::create('organisation_accounting_stats', function (Blueprint $table) {
+        Schema::create('group_accounting_stats', function (Blueprint $table) {
             $table->smallIncrements('id');
-            $table->unsignedSmallInteger('organisation_id');
-            $table->foreign('organisation_id')->references('id')->on('organisations')->onUpdate('cascade')->onDelete('cascade');
+            $table->unsignedSmallInteger('group_id');
+            $table->foreign('group_id')->references('id')->on('groups')->onUpdate('cascade')->onDelete('cascade');
 
             $table = $this->paymentServiceProviderStats($table);
             $table = $this->paymentAccountStats($table);
             $table = $this->paymentStats($table);
-
 
             $table->unsignedInteger('number_invoices')->default(0);
             $table->unsignedInteger('number_invoices_type_invoice')->default(0);
@@ -38,6 +37,6 @@ return new class () extends Migration {
 
     public function down(): void
     {
-        Schema::dropIfExists('organisation_accounting_stats');
+        Schema::dropIfExists('group_accounting_stats');
     }
 };

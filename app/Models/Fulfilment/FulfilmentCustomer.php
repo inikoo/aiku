@@ -57,6 +57,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Fulfilment\Fulfilment $fulfilment
  * @property-read Group $group
  * @property-read Organisation $organisation
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\PalletDelivery> $palletDeliveries
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\Pallet> $pallets
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\StoredItem> $storedItems
  * @method static \Illuminate\Database\Eloquent\Builder|FulfilmentCustomer newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|FulfilmentCustomer newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|FulfilmentCustomer query()

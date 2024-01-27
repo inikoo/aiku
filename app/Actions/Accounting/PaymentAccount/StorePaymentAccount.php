@@ -9,7 +9,7 @@ namespace App\Actions\Accounting\PaymentAccount;
 
 use App\Actions\Accounting\PaymentServiceProvider\Hydrators\PaymentServiceProviderHydrateAccounts;
 use App\Actions\OrgAction;
-use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateAccounting;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePayments;
 use App\Enums\Accounting\PaymentAccount\PaymentAccountTypeEnum;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentServiceProvider;
@@ -27,7 +27,7 @@ class StorePaymentAccount extends OrgAction
         $paymentAccount = $paymentServiceProvider->accounts()->create($modelData);
         $paymentAccount->stats()->create();
         PaymentServiceProviderHydrateAccounts::dispatch($paymentServiceProvider);
-        OrganisationHydrateAccounting::dispatch($paymentServiceProvider->organisation);
+        OrganisationHydratePayments::dispatch($paymentServiceProvider->organisation);
 
         return $paymentAccount;
     }

@@ -19,8 +19,8 @@ return new class () extends Migration {
             $table->increments('id');
             $table->unsignedInteger('payment_service_provider_id')->index();
             $table->foreign('payment_service_provider_id')->references('id')->on('payment_service_providers');
-            $table->unsignedSmallInteger('number_accounts')->default(0);
 
+            $table = $this->paymentAccountStats($table);
             $table = $this->paymentStats($table);
 
             $table->timestampsTz();

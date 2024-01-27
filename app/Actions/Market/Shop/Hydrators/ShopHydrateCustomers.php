@@ -7,18 +7,30 @@
 
 namespace App\Actions\Market\Shop\Hydrators;
 
+use App\Actions\Traits\WithEnumStats;
 use App\Enums\CRM\Customer\CustomerStateEnum;
 use App\Enums\CRM\Customer\CustomerTradeStateEnum;
 use App\Models\CRM\Customer;
 use App\Models\Market\Shop;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
-use Illuminate\Support\Arr;
+use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class ShopHydrateCustomers implements ShouldBeUnique
+class ShopHydrateCustomers
 {
     use AsAction;
+    use WithEnumStats;
 
+    private Shop $shop;
+
+    public function __construct(Shop $shop)
+    {
+        $this->shop = $shop;
+    }
+
+    public function getJobMiddleware(): array
+    {
+        return [(new WithoutOverlapping($this->shop->id))->dontRelease()];
+    }
 
     public function handle(Shop $shop): void
     {
@@ -26,32 +38,29 @@ class ShopHydrateCustomers implements ShouldBeUnique
             'number_customers' => $shop->customers->count(),
         ];
 
-        $stateCounts = Customer::where('shop_id', $shop->id)
-            ->selectRaw('state, count(*) as total')
-            ->groupBy('state')
-            ->pluck('total', 'state')->all();
+        $stats=array_merge($stats, $this->getEnumStats(
+            model:'customers',
+            field: 'state',
+            enum: CustomerStateEnum::class,
+            models: Customer::class,
+            where: function ($q) use ($shop) {
+                $q->where('shop_id', $shop->id);
+            }
+        ));
 
-
-        foreach (CustomerStateEnum::cases() as $customerState) {
-            $stats['number_customers_state_'.$customerState->snake()] =
-                Arr::get($stateCounts, $customerState->value, 0);
-        }
-
-        $customerTradeStatesCount = Customer::where('shop_id', $shop->id)
-            ->selectRaw('trade_state, count(*) as total')
-            ->groupBy('trade_state')
-            ->pluck('total', 'trade_state')->all();
-
-        foreach (CustomerTradeStateEnum::cases() as $customerTradeState) {
-            $stats['number_customers_trade_state_'.$customerTradeState->snake()] = Arr::get($customerTradeStatesCount, $customerTradeState->value, 0);
-        }
+        $stats=array_merge($stats, $this->getEnumStats(
+            model:'customers',
+            field: 'trade_state',
+            enum: CustomerTradeStateEnum::class,
+            models: Customer::class,
+            where: function ($q) use ($shop) {
+                $q->where('shop_id', $shop->id);
+            }
+        ));
 
 
         $shop->crmStats()->update($stats);
     }
 
-    public function getJobUniqueId(Shop $shop): string
-    {
-        return $shop->id;
-    }
+
 }

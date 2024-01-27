@@ -24,7 +24,6 @@ return new class () extends Migration {
             $table = $this->groupOrgRelationship($table);
             $table->string('slug')->unique()->collation('und_ns');
             $table->string('customer_reference')->nullable()->index()->collation('und_ci');
-
             $table->unsignedInteger('fulfilment_id')->index();
             $table->foreign('fulfilment_id')->references('id')->on('fulfilments');
             $table->unsignedInteger('customer_id')->index();
@@ -37,7 +36,6 @@ return new class () extends Migration {
             $table->string('type')->index()->default(PalletTypeEnum::PALLET->value);
             $table->string('notes');
             $table->decimal('items_quantity')->default(0);
-
             $table->dateTimeTz('received_at')->nullable();
             $table->dateTimeTz('booked_in_at')->nullable();
             $table->dateTimeTz('settled_at')->nullable();

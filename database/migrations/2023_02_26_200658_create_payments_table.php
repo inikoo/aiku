@@ -7,15 +7,20 @@
 
 use App\Enums\Accounting\Payment\PaymentStateEnum;
 use App\Enums\Accounting\Payment\PaymentStatusEnum;
+use App\Stubs\Migrations\HasGroupOrganisationRelationship;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
+    use HasGroupOrganisationRelationship;
     public function up(): void
     {
         Schema::create('payments', function (Blueprint $table) {
             $table->increments('id');
+            $table=$this->groupOrgRelationship($table);
+            $table->unsignedSmallInteger('payment_service_provider_id')->index();
+            $table->foreign('payment_service_provider_id')->references('id')->on('payment_service_providers');
             $table->unsignedSmallInteger('payment_account_id')->index();
             $table->foreign('payment_account_id')->references('id')->on('payment_accounts');
             $table->unsignedSmallInteger('shop_id')->index();

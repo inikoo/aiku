@@ -8,12 +8,25 @@
 namespace App\Actions\Market\Shop\Hydrators;
 
 use App\Models\Market\Shop;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
+use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class ShopHydratePaymentAccounts implements ShouldBeUnique
+class ShopHydratePaymentAccounts
 {
     use AsAction;
+
+    private Shop $shop;
+
+    public function __construct(Shop $shop)
+    {
+        $this->shop = $shop;
+    }
+
+    public function getJobMiddleware(): array
+    {
+        return [(new WithoutOverlapping($this->shop->id))->dontRelease()];
+    }
+
 
     public function handle(Shop $shop): void
     {
@@ -25,8 +38,5 @@ class ShopHydratePaymentAccounts implements ShouldBeUnique
         $shop->accountingStats()->update($stats);
     }
 
-    public function getJobUniqueId(Shop $shop): string
-    {
-        return $shop->id;
-    }
+
 }

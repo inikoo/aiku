@@ -7,45 +7,53 @@
 
 namespace App\Actions\Market\Shop\Hydrators;
 
-use App\Actions\Traits\WithElasticsearch;
-
+use App\Actions\Traits\WithEnumStats;
 use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
 use App\Models\Accounting\Invoice;
 use App\Models\Market\Shop;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
-use Illuminate\Support\Arr;
+use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class ShopHydrateInvoices implements ShouldBeUnique
+class ShopHydrateInvoices
 {
     use AsAction;
+    use WithEnumStats;
 
-    use WithElasticsearch;
+    private Shop $shop;
+
+    public function __construct(Shop $shop)
+    {
+        $this->shop = $shop;
+    }
+
+    public function getJobMiddleware(): array
+    {
+        return [(new WithoutOverlapping($this->shop->id))->dontRelease()];
+    }
 
     public function handle(Shop $shop): void
     {
         $stats = [
             'number_invoices' => $shop->invoices->count(),
-
         ];
 
-        $invoiceTypeCounts = Invoice::where('shop_id', $shop->id)
-            ->selectRaw('type, count(*) as total')
-            ->groupBy('type')
-            ->pluck('total', 'type')->all();
 
+        $stats = array_merge(
+            $stats,
+            $this->getEnumStats(
+                model: 'invoices',
+                field: 'type',
+                enum: InvoiceTypeEnum::class,
+                models: Invoice::class,
+                where: function ($q) use ($shop) {
+                    $q->where('shop_id', $shop->id);
+                }
+            )
+        );
 
-        foreach (InvoiceTypeEnum::cases() as $invoiceType) {
-            $stats['number_invoices_type_'.$invoiceType->snake()] = Arr::get($invoiceTypeCounts, $invoiceType->value, 0);
-        }
-
-        //        $this->storeElastic('invoice');
 
         $shop->stats()->update($stats);
     }
 
-    public function getJobUniqueId(Shop $shop): string
-    {
-        return $shop->id;
-    }
+
 }

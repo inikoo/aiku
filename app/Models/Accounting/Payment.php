@@ -31,6 +31,9 @@ use Spatie\Sluggable\SlugOptions;
  * App\Models\Payments\Payment
  *
  * @property int $id
+ * @property int $group_id
+ * @property int $organisation_id
+ * @property int $payment_service_provider_id
  * @property int $payment_account_id
  * @property int $shop_id
  * @property int $customer_id

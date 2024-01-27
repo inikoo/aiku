@@ -13,21 +13,19 @@ use Illuminate\Support\Facades\Schema;
 return new class () extends Migration {
     use HasPaymentStats;
 
-    public function up()
+    public function up(): void
     {
         Schema::create('payment_account_stats', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedInteger('payment_account_id')->index();
             $table->foreign('payment_account_id')->references('id')->on('payment_accounts');
             $table = $this->paymentStats($table);
-
-
             $table->timestampsTz();
         });
     }
 
 
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('payment_account_stats');
     }

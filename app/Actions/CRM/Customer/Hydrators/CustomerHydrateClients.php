@@ -1,20 +1,29 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 20 Jun 2023 20:32:25 Malaysia Time, Pantai Lembeng, Bali, Id
+ * Created: Tue, 20 Jun 2023 20:32:25 Malaysia Time, Pantai Lembeng, Bali, Indonesia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
 namespace App\Actions\CRM\Customer\Hydrators;
 
 use App\Models\CRM\Customer;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
+use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class CustomerHydrateClients implements ShouldBeUnique
+class CustomerHydrateClients
 {
     use AsAction;
+    private Customer $customer;
+    public function __construct(Customer $customer)
+    {
+        $this->customer = $customer;
+    }
 
+    public function getJobMiddleware(): array
+    {
+        return [(new WithoutOverlapping($this->customer->id))->dontRelease()];
+    }
 
     public function handle(Customer $customer): void
     {
@@ -25,8 +34,5 @@ class CustomerHydrateClients implements ShouldBeUnique
         $customer->stats()->update($stats);
     }
 
-    public function getJobUniqueId(Customer $customer): int
-    {
-        return $customer->id;
-    }
+
 }

@@ -7,22 +7,34 @@
 
 namespace App\Actions\Accounting\PaymentAccount\Hydrators;
 
+use App\Actions\Traits\WithEnumStats;
 use App\Enums\Accounting\Payment\PaymentStateEnum;
+use App\Enums\Accounting\Payment\PaymentTypeEnum;
+use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
-use Illuminate\Support\Arr;
+use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class PaymentAccountHydratePayments implements ShouldBeUnique
+class PaymentAccountHydratePayments
 {
     use AsAction;
+    use WithEnumStats;
 
+
+    private PaymentAccount $paymentAccount;
+
+    public function __construct(PaymentAccount $paymentAccount)
+    {
+        $this->paymentAccount = $paymentAccount;
+    }
+
+    public function getJobMiddleware(): array
+    {
+        return [(new WithoutOverlapping($this->paymentAccount->id))->dontRelease()];
+    }
 
     public function handle(PaymentAccount $paymentAccount): void
     {
-        $paymentRecords = $paymentAccount->payments()->count();
-        $refunds        = $paymentAccount->payments()->where('payments.type', 'refund')->count();
-
         $amountTenantCurrencySuccessfullyPaid = $paymentAccount->payments()
             ->where('type', 'payment')
             ->where('status', 'success')
@@ -33,46 +45,56 @@ class PaymentAccountHydratePayments implements ShouldBeUnique
             ->sum('oc_amount');
 
         $stats = [
-            'number_payment_records'      => $paymentRecords,
-            'number_payments'             => $paymentRecords - $refunds,
-            'number_refunds'              => $refunds,
+            'number_payments'             => $paymentAccount->payments()->count(),
             'oc_amount'                   => $amountTenantCurrencySuccessfullyPaid + $amountTenantCurrencyRefunded,
             'oc_amount_successfully_paid' => $amountTenantCurrencySuccessfullyPaid,
             'oc_amount_refunded'          => $amountTenantCurrencyRefunded
         ];
 
-        $stateCounts =$paymentAccount->payments()
-            ->selectRaw('state, count(*) as total')
-            ->groupBy('state')
-            ->pluck('total', 'state')->all();
+        $stats = array_merge(
+            $stats,
+            $this->getEnumStats(
+                model: 'payments',
+                field: 'type',
+                enum: PaymentTypeEnum::class,
+                models: Payment::class,
+                where: function ($q) use ($paymentAccount) {
+                    $q->where('payment_account_id', $paymentAccount->id);
+                }
+            )
+        );
 
-        foreach (PaymentStateEnum::cases() as $state) {
-            $stats["number_payment_records_state_{$state->snake()}"] = Arr::get($stateCounts, $state->value, 0);
-        }
 
-        $stateCounts =$paymentAccount->payments()->where('payments.type', 'payment')
-            ->selectRaw('state, count(*) as total')
-            ->groupBy('state')
-            ->pluck('total', 'state')->all();
+        $stats = array_merge(
+            $stats,
+            $this->getEnumStats(
+                model: 'payments',
+                field: 'state',
+                enum: PaymentStateEnum::class,
+                models: Payment::class,
+                where: function ($q) use ($paymentAccount) {
+                    $q->where('payment_account_id', $paymentAccount->id);
+                }
+            )
+        );
 
-        foreach (PaymentStateEnum::cases() as $state) {
-            $stats["number_payments_state_{$state->snake()}"] = Arr::get($stateCounts, $state->value, 0);
-        }
-
-        $stateCounts =$paymentAccount->payments()->where('payments.type', 'refund')
-            ->selectRaw('state, count(*) as total')
-            ->groupBy('state')
-            ->pluck('total', 'state')->all();
-
-        foreach (PaymentStateEnum::cases() as $state) {
-            $stats["number_refunds_state_{$state->snake()}"] = Arr::get($stateCounts, $state->value, 0);
+        foreach (PaymentTypeEnum::cases() as $type) {
+            $stats = array_merge(
+                $stats,
+                $this->getEnumStats(
+                    model: "payments_type_{$type->snake()}",
+                    field: 'state',
+                    enum: PaymentStateEnum::class,
+                    models: Payment::class,
+                    where: function ($q) use ($paymentAccount, $type) {
+                        $q->where('payment_account_id', $paymentAccount->id)->where('type', $type->value);
+                    }
+                )
+            );
         }
 
         $paymentAccount->stats()->update($stats);
     }
 
-    public function getJobUniqueId(PaymentAccount $paymentAccount): int
-    {
-        return $paymentAccount->id;
-    }
+
 }

@@ -50,6 +50,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $deleted_at
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
+ * @property-read \App\Models\SysAdmin\GroupAccountingStats|null $accountingStats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Agent> $agents
  * @property-read \App\Models\SysAdmin\GroupCRMStats|null $crmStats
  * @property-read Currency $currency
@@ -140,6 +141,11 @@ class Group extends Model implements HasMedia
     public function crmStats(): HasOne
     {
         return $this->hasOne(GroupCRMStats::class);
+    }
+
+    public function accountingStats(): HasOne
+    {
+        return $this->hasOne(GroupAccountingStats::class);
     }
 
     public function salesStats(): HasOne

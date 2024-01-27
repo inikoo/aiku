@@ -58,9 +58,6 @@ use Illuminate\Support\Carbon;
  * @property int $number_invoices
  * @property int $number_invoices_type_invoice
  * @property int $number_invoices_type_refund
- * @property int $number_payment_service_providers
- * @property int $number_payment_accounts
- * @property int $number_payments
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read \App\Models\Market\Shop $shop

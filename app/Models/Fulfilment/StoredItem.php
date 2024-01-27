@@ -35,7 +35,7 @@ use App\Models\Inventory\Location;
  * @property StoredItemStatusEnum $status
  * @property StoredItemStateEnum $state
  * @property StoredItemTypeEnum $type
- * @property int $customer_id
+ * @property int $fulfilment_customer_id
  * @property int|null $location_id
  * @property string $notes
  * @property bool $return_requested
@@ -49,7 +49,7 @@ use App\Models\Inventory\Location;
  * @property string|null $delete_comment
  * @property string|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
- * @property-read Customer $customer
+ * @property-read \App\Models\Fulfilment\FulfilmentCustomer $fulfilmentCustomer
  * @property-read Location|null $location
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\Pallet> $pallets
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch

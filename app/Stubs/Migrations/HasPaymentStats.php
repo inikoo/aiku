@@ -8,18 +8,45 @@
 namespace App\Stubs\Migrations;
 
 use App\Enums\Accounting\Payment\PaymentStateEnum;
+use App\Enums\Accounting\Payment\PaymentTypeEnum;
+use App\Enums\Accounting\PaymentServiceProvider\PaymentServiceProviderTypeEnum;
 use Illuminate\Database\Schema\Blueprint;
 
 trait HasPaymentStats
 {
+    public function paymentServiceProviderStats(Blueprint $table): Blueprint
+    {
+        $table->unsignedSmallInteger('number_payment_service_providers')->default(0);
+        foreach (PaymentServiceProviderTypeEnum::cases() as $case) {
+            $table->unsignedInteger("number_payment_service_providers_type_{$case->snake()}")->default(0);
+        }
+        return $table;
+    }
+
+    public function paymentAccountStats(Blueprint $table): Blueprint
+    {
+        $table->unsignedSmallInteger('number_payment_accounts')->default(0);
+        return $table;
+    }
+
     public function paymentStats(Blueprint $table): Blueprint
     {
-        $table->unsignedInteger('number_payment_records')->default(0);
+
         $table->unsignedInteger('number_payments')->default(0);
-        $table->unsignedInteger('number_refunds')->default(0);
+        foreach (PaymentTypeEnum::cases() as $case) {
+            $table->unsignedInteger("number_payments_type_{$case->snake()}")->default(0);
+        }
+        foreach (PaymentStateEnum::cases() as $state) {
+            $table->unsignedInteger("number_payments_state_{$state->snake()}")->default(0);
+        }
+        foreach (PaymentTypeEnum::cases() as $type) {
+            foreach (PaymentStateEnum::cases() as $state) {
+                $table->unsignedInteger("number_payments_type_{$type->snake()}_state_{$state->snake()}")->default(0);
+            }
+        }
 
 
-        if ($table->getTable()=='shop_accounting_stats') {
+        if ($table->getTable() == 'shop_accounting_stats') {
             $table->decimal('amount', 16)->comment('amount_successfully_paid-amount_returned')->default(0);
             $table->decimal('amount_successfully_paid', 16)->default(0);
             $table->decimal('amount_refunded', 16)->default(0);
@@ -33,12 +60,6 @@ trait HasPaymentStats
         $table->decimal('gc_amount_successfully_paid', 16)->default(0);
         $table->decimal('gc_amount_refunded', 16)->default(0);
 
-
-        foreach (PaymentStateEnum::cases() as $state) {
-            $table->unsignedInteger("number_payment_records_state_{$state->snake()}")->default(0);
-            $table->unsignedInteger("number_payments_state_{$state->snake()}")->default(0);
-            $table->unsignedInteger("number_refunds_state_{$state->snake()}")->default(0);
-        }
 
         return $table;
     }
