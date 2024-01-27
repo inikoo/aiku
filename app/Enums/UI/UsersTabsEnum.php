@@ -18,6 +18,8 @@ enum UsersTabsEnum: string
     case USERS                       = 'users';
     case USERS_REQUESTS              = 'users_requests';
 
+    case USERS_HISTORIES             = 'users_histories';
+
     public function blueprint(): array
     {
         return match ($this) {
@@ -28,7 +30,13 @@ enum UsersTabsEnum: string
             UsersTabsEnum::USERS_REQUESTS => [
                 'title' => __('users requests'),
                 'icon'  => 'fal fa-road',
-            ]
+            ],
+            UsersTabsEnum::USERS_HISTORIES => [
+                'title' => __('history'),
+                'icon'  => 'fal fa-clock',
+                'type'  => 'icon',
+                'align' => 'right'
+            ],
         };
     }
 }

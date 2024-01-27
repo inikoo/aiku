@@ -7,11 +7,13 @@
 
 namespace App\Actions\SysAdmin\User\UI;
 
+use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\InertiaAction;
 use App\Actions\SysAdmin\UserRequest\IndexUserRequestLogs;
 use App\Actions\UI\SysAdmin\ShowSysAdminDashboard;
 use App\Enums\SysAdmin\User\UserTypeEnum;
 use App\Enums\UI\UsersTabsEnum;
+use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\SysAdmin\UserRequestLogsResource;
 use App\Http\Resources\SysAdmin\UserResource;
 use App\InertiaTable\InertiaTable;
@@ -72,7 +74,7 @@ class IndexUsers extends InertiaAction
     /** @noinspection PhpUndefinedMethodInspection */
     public function handle(Group $group, $prefix = null): LengthAwarePaginator
     {
-        $this->group  =$group;
+        $this->group  = $group;
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
                 $query->whereAnyWordStartWith('contact_name', $value)
@@ -178,7 +180,11 @@ class IndexUsers extends InertiaAction
 
                 UsersTabsEnum::USERS_REQUESTS->value => $this->tab == UsersTabsEnum::USERS_REQUESTS->value ?
                     fn () => UserRequestLogsResource::collection(IndexUserRequestLogs::run())
-                    : Inertia::lazy(fn () => UserRequestLogsResource::collection(IndexUserRequestLogs::run()))
+                    : Inertia::lazy(fn () => UserRequestLogsResource::collection(IndexUserRequestLogs::run())),
+
+                UsersTabsEnum::USERS_HISTORIES->value => $this->tab == UsersTabsEnum::USERS_HISTORIES->value ?
+                    fn () => HistoryResource::collection(IndexHistory::run(User::class))
+                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run(User::class)))
 
             ]
         )->table(
