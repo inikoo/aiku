@@ -7,12 +7,15 @@
 
 namespace App\Actions\Web\Website\UI;
 
-use App\Actions\InertiaAction;
+use App\Actions\OrgAction;
 use App\Actions\UI\Dashboard\ShowDashboard;
 use App\Enums\Web\Website\WebsiteStateEnum;
-use App\Http\Resources\Market\ShopResource;
 use App\Http\Resources\Web\WebsiteResource;
 use App\InertiaTable\InertiaTable;
+use App\Models\Fulfilment\Fulfilment;
+use App\Models\Market\Shop;
+use App\Models\SysAdmin\Group;
+use App\Models\SysAdmin\Organisation;
 use App\Models\Web\Website;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -23,35 +26,65 @@ use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
-class IndexWebsites extends InertiaAction
+class IndexWebsites extends OrgAction
 {
+    private Organisation|Fulfilment|Shop $parent;
+
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo('websites.edit');
+        if ($this->parent instanceof Organisation) {
+            $this->canEdit = $request->user()->hasPermissionTo("shops.{$this->organisation->id}.edit");
 
+            return $request->user()->hasPermissionTo("shops.{$this->organisation->id}.view");
+        } elseif ($this->parent instanceof Fulfilment) {
+            $this->canEdit = $request->user()->hasPermissionTo("fulfilment.{$this->fulfilment->id}.edit");
+
+            return $request->user()->hasPermissionTo("fulfilment.{$this->fulfilment->id}.view");
+        } elseif ($this->parent instanceof Shop) {
+            $this->canEdit = $request->user()->hasPermissionTo("web.{$this->shop->id}.edit");
+
+            return $request->user()->hasPermissionTo("web.{$this->shop->id}.view");
+        }
+
+
+        return false;
+    }
+
+    public function asController(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = $organisation;
+        $this->initialisation($organisation, $request);
+
+        return $this->handle($organisation);
+    }
+
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inShop(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = $shop;
+        $this->initialisationFromShop($shop, $request);
+
+        return $this->handle($shop);
+    }
+
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = $fulfilment;
+        $this->initialisationFromFulfilment($fulfilment, $request);
+
+        return $this->handle($fulfilment);
+    }
+
+    protected function getElementGroups(Group|Organisation|Shop|Fulfilment $parent): array
+    {
         return
-            (
-                $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo('websites.view')
-            );
-    }
-
-    public function asController(ActionRequest $request): LengthAwarePaginator
-    {
-        $this->initialisation($request);
-
-        return $this->handle();
-    }
-
-    protected function getElementGroups(): void
-    {
-        $this->elementGroups =
             [
                 'state' => [
                     'label'    => __('State'),
                     'elements' => array_merge_recursive(
                         WebsiteStateEnum::labels(),
-                        WebsiteStateEnum::count()
+                        WebsiteStateEnum::count($parent)
                     ),
 
                     'engine' => function ($query, $elements) {
@@ -62,8 +95,8 @@ class IndexWebsites extends InertiaAction
             ];
     }
 
-    /** @noinspection PhpUndefinedMethodInspection */
-    public function handle($prefix = null): LengthAwarePaginator
+
+    public function handle(Group|Organisation|Shop|Fulfilment $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -77,7 +110,19 @@ class IndexWebsites extends InertiaAction
         }
 
         $queryBuilder = QueryBuilder::for(Website::class);
-        foreach ($this->elementGroups as $key => $elementGroup) {
+
+        if($parent instanceof Organisation) {
+            $queryBuilder->where('websites.organisation_id', $parent->id);
+        } elseif ($parent instanceof Fulfilment) {
+            $queryBuilder->where('websites.shop_id', $parent->shop->id);
+        } elseif ($parent instanceof Shop) {
+            $queryBuilder->where('websites.shop_id', $parent->id);
+        } elseif ($parent instanceof Group) {
+            $queryBuilder->where('websites.group_id', $parent->id);
+        }
+
+
+        foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
             $queryBuilder->whereElementGroup(
                 prefix: $prefix,
                 key: $key,
@@ -89,23 +134,23 @@ class IndexWebsites extends InertiaAction
 
         return $queryBuilder
             ->defaultSort('websites.code')
-            ->select(['websites.code', 'websites.name', 'websites.slug', 'websites.domain', 'in_maintenance', 'websites.state'])
+            ->select(['websites.code', 'websites.name', 'websites.slug', 'websites.domain', 'status', 'websites.state'])
             ->allowedSorts(['slug', 'code', 'name'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
     }
 
-    public function tableStructure(?array $modelOperations = null, $prefix = null): Closure
+    public function tableStructure(Group|Organisation|Shop|Fulfilment $parent, ?array $modelOperations = null, $prefix = null): Closure
     {
-        return function (InertiaTable $table) use ($modelOperations, $prefix) {
+        return function (InertiaTable $table) use ($modelOperations, $prefix, $parent) {
             if ($prefix) {
                 $table
                     ->name($prefix)
                     ->pageName($prefix.'Page');
             }
 
-            foreach ($this->elementGroups as $key => $elementGroup) {
+            foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
                 $table->elementGroup(
                     key: $key,
                     label: $elementGroup['label'],
@@ -113,13 +158,19 @@ class IndexWebsites extends InertiaAction
                 );
             }
 
+            $countWebsites = match ($parent) {
+                $parent instanceof Group || $parent instanceof Organisation => $parent->webStats->number_websites,
+                $parent instanceof Shop                                     => $parent->website()->count(),
+                default                                                     => $parent->shop->website()->count(),
+            };
+
             $table
                 ->withModelOperations($modelOperations)
                 ->withGlobalSearch()
                 ->withEmptyState(
                     [
                         'title' => __('No websites found'),
-                        'count' => app('currentTenant')->webStats->number_websites,
+                        'count' => $countWebsites
 
                     ]
                 )
@@ -131,9 +182,9 @@ class IndexWebsites extends InertiaAction
         };
     }
 
-    public function jsonResponse(): AnonymousResourceCollection
+    public function jsonResponse(LengthAwarePaginator $websites): AnonymousResourceCollection
     {
-        return ShopResource::collection($this->handle());
+        return WebsiteResource::collection($websites);
     }
 
     public function htmlResponse(LengthAwarePaginator $websites, ActionRequest $request): Response
@@ -147,11 +198,13 @@ class IndexWebsites extends InertiaAction
                 ),
                 'title'       => __('websites'),
                 'pageHead'    => [
-                    'title'   => __('websites'),
-                    'icon'    => [
+                    'title' => __('websites'),
+                    'icon'  => [
                         'title' => __('website'),
                         'icon'  => 'fal fa-globe'
                     ],
+
+                    /*
                     'actions' => [
                         $this->canEdit ? [
                             'type'    => 'button',
@@ -164,12 +217,13 @@ class IndexWebsites extends InertiaAction
                         ] : false,
 
 
-                    ]
-                ],
-                'data'        => WebsiteResource::collection($websites),
+                ]
+                    */
+            ],
+            'data'        => WebsiteResource::collection($websites),
 
             ]
-        )->table($this->tableStructure());
+        )->table($this->tableStructure($this->parent));
     }
 
     /** @noinspection PhpUnusedParameterInspection */

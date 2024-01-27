@@ -8,6 +8,10 @@
 namespace App\Enums\Web\Website;
 
 use App\Enums\EnumHelperTrait;
+use App\Models\Fulfilment\Fulfilment;
+use App\Models\Market\Shop;
+use App\Models\SysAdmin\Group;
+use App\Models\SysAdmin\Organisation;
 
 enum WebsiteStateEnum: string
 {
@@ -27,14 +31,31 @@ enum WebsiteStateEnum: string
         ];
     }
 
-    public static function count(): array
+    public static function count(Group|Organisation|Shop|Fulfilment $parent): array
     {
-        $webStats=app('currentTenant')->webStats;
+        if($parent instanceof Group || $parent instanceof Organisation) {
+            $webStats = $parent->webStats;
+
+            return [
+                'in-process' => $webStats->number_websites_state_in_process,
+                'live'       => $webStats->number_websites_state_live,
+                'closed'     => $webStats->number_websites_state_closed,
+            ];
+        } elseif ($parent instanceof Shop) {
+            return [
+                'in-process' => $parent->website()->where('state', self::IN_PROCESS)->count(),
+                'live'       => $parent->website()->where('state', self::LIVE)->count(),
+                'closed'     => $parent->website()->where('state', self::CLOSED)->count(),
+            ];
+        }
+
         return [
-            'in-process' => $webStats->number_websites_state_in_process,
-            'live'       => $webStats->number_websites_state_live,
-            'closed'     => $webStats->number_websites_state_closed,
+            'in-process' => $parent->shop->website()->where('state', self::IN_PROCESS)->count(),
+            'live'       => $parent->shop->website()->where('state', self::LIVE)->count(),
+            'closed'     => $parent->shop->website()->where('state', self::CLOSED)->count(),
         ];
+
+
     }
 
 
