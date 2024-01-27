@@ -25,7 +25,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
-use Spatie\QueryBuilder\QueryBuilder;
+use App\Services\QueryBuilder;
 
 class IndexProspectMailshots extends InertiaAction
 {
@@ -61,16 +61,14 @@ class IndexProspectMailshots extends InertiaAction
 
 
         foreach ($this->getElementGroups() as $key => $elementGroup) {
-            /** @noinspection PhpUndefinedMethodInspection */
             $queryBuilder->whereElementGroup(
-                prefix: $prefix,
                 key: $key,
                 allowedElements: array_keys($elementGroup['elements']),
-                engine: $elementGroup['engine']
+                engine: $elementGroup['engine'],
+                prefix: $prefix
             );
         }
 
-        /** @noinspection PhpUndefinedMethodInspection */
         return $queryBuilder
             ->defaultSort('mailshots.slug')
             ->allowedSorts(['slug', 'subject', 'date'])

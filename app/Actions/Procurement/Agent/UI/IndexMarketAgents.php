@@ -21,7 +21,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
-use Spatie\QueryBuilder\QueryBuilder;
+use App\Services\QueryBuilder;
 
 class IndexMarketAgents extends OrgAction
 {
@@ -54,7 +54,7 @@ class IndexMarketAgents extends OrgAction
         */
 
 
-        /** @noinspection PhpUndefinedMethodInspection */
+
         return $queryBuilder
             ->leftJoin('agent_stats', 'agent_stats.agent_id', '=', 'agents.id')
             ->defaultSort('agents.code')

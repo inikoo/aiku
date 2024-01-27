@@ -79,59 +79,6 @@ class MacroServiceProvider extends ServiceProvider
         });
 
 
-
-
-        Builder::macro('whereElementGroup', function (string $key, array $allowedElements, callable $engine, ?string $prefix = null): Builder {
-            $elementsData = null;
-
-            $argumentName = ($prefix ? $prefix.'_' : '').'elements';
-
-
-            if (request()->has("$argumentName.$key")) {
-                $elements = explode(',', request()->input("$argumentName.$key"));
-
-
-                $validatedElements = array_intersect($allowedElements, $elements);
-
-
-                $countValidatedElements = count($validatedElements);
-                if ($countValidatedElements > 0 and $countValidatedElements < count($allowedElements)) {
-                    $elementsData = $validatedElements;
-                }
-            }
-
-
-            if ($elementsData) {
-                $engine($this, $elementsData);
-            }
-
-            return $this;
-        });
-
-        Builder::macro('withPaginator', function ($prefix) {
-            $perPage = config('ui.table.records_per_page');
-
-            $argumentName = ($prefix ? $prefix.'_' : '').'perPage';
-            if (request()->has($argumentName)) {
-                $inputtedPerPage = (int)request()->input($argumentName);
-
-                if ($inputtedPerPage < 10) {
-                    $perPage = 10;
-                } elseif ($inputtedPerPage > 1000) {
-                    $perPage = 1000;
-                } else {
-                    $perPage = $inputtedPerPage;
-                }
-            }
-
-
-            return $this->paginate(
-                perPage: $perPage,
-                pageName: $prefix ? $prefix.'Page' : 'page'
-            );
-        });
-
-
         Request::macro('validatedShiftToArray', function ($map = []): array {
             /** @noinspection PhpUndefinedMethodInspection */
             $validated = $this->validated();

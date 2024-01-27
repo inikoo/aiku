@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Lorisleiva\Actions\Concerns\AsObject;
-use Spatie\QueryBuilder\QueryBuilder;
+use App\Services\QueryBuilder;
 
 class GetQueryEloquentQueryBuilder
 {

@@ -23,7 +23,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
-use Spatie\QueryBuilder\QueryBuilder;
+use App\Services\QueryBuilder;
 
 class IndexOrgStocks extends OrgAction
 {
@@ -79,7 +79,7 @@ class IndexOrgStocks extends OrgAction
          }
         */
 
-        /** @noinspection PhpUndefinedMethodInspection */
+
         return $queryBuilder
             ->defaultSort('stocks.code')
 

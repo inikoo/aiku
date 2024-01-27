@@ -15,7 +15,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 use OwenIt\Auditing\Models\Audit;
 use Spatie\QueryBuilder\AllowedFilter;
-use Spatie\QueryBuilder\QueryBuilder;
+use App\Services\QueryBuilder;
 
 class IndexHistory
 {
@@ -49,7 +49,7 @@ class IndexHistory
             $queryBuilder->where('auditable_id', $model->id);
         }
 
-        /** @noinspection PhpUndefinedMethodInspection */
+
         return $queryBuilder
             ->defaultSort('audits.created_at')
             ->allowedSorts(['auditable_id', 'auditable_type', 'user_type', 'url','created_at'])

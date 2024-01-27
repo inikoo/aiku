@@ -16,7 +16,7 @@ use App\Models\Web\Webpage;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Lorisleiva\Actions\ActionRequest;
-use Spatie\QueryBuilder\QueryBuilder;
+use App\Services\QueryBuilder;
 
 class IndexSnapshots extends InertiaAction
 {
@@ -29,7 +29,7 @@ class IndexSnapshots extends InertiaAction
             );
     }
 
-    /** @noinspection PhpUndefinedMethodInspection */
+
     public function handle(Webpage|EmailTemplate $parent, $prefix = null): LengthAwarePaginator
     {
         $queryBuilder = QueryBuilder::for(Snapshot::class);

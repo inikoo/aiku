@@ -21,7 +21,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
-use Spatie\QueryBuilder\QueryBuilder;
+use App\Services\QueryBuilder;
 
 class IndexSuppliers extends InertiaAction
 {
@@ -63,15 +63,14 @@ class IndexSuppliers extends InertiaAction
 
         $queryBuilder = QueryBuilder::for(Supplier::class);
         foreach ($this->elementGroups as $key => $elementGroup) {
-            /** @noinspection PhpUndefinedMethodInspection */
             $queryBuilder->whereElementGroup(
-                prefix: $prefix,
                 key: $key,
                 allowedElements: array_keys($elementGroup['elements']),
-                engine: $elementGroup['engine']
+                engine: $elementGroup['engine'],
+                prefix: $prefix
             );
         }
-        /** @noinspection PhpUndefinedMethodInspection */
+
         return $queryBuilder
             ->defaultSort('suppliers.code')
             ->select(['suppliers.code', 'suppliers.slug', 'suppliers.name', 'suppliers.location as supplier_locations', 'number_supplier_products', 'number_purchase_orders'])

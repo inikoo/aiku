@@ -26,7 +26,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
-use Spatie\QueryBuilder\QueryBuilder;
+use App\Services\QueryBuilder;
 
 class IndexUsers extends InertiaAction
 {
@@ -71,7 +71,7 @@ class IndexUsers extends InertiaAction
     }
 
 
-    /** @noinspection PhpUndefinedMethodInspection */
+
     public function handle(Group $group, $prefix = null): LengthAwarePaginator
     {
         $this->group  = $group;
@@ -92,10 +92,10 @@ class IndexUsers extends InertiaAction
             ->whereNotNull('type');
         foreach ($this->getElementGroups($group) as $key => $elementGroup) {
             $queryBuilder->whereElementGroup(
-                prefix: $prefix,
                 key: $key,
                 allowedElements: array_keys($elementGroup['elements']),
-                engine: $elementGroup['engine']
+                engine: $elementGroup['engine'],
+                prefix: $prefix
             );
         }
 

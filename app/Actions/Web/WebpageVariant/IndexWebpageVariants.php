@@ -21,11 +21,10 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
-use Spatie\QueryBuilder\QueryBuilder;
+use App\Services\QueryBuilder;
 
 class IndexWebpageVariants extends InertiaAction
 {
-    /** @noinspection PhpUndefinedMethodInspection */
     public function handle($prefix=null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -42,10 +41,10 @@ class IndexWebpageVariants extends InertiaAction
         $queryBuilder = QueryBuilder::for(WebpageVariant::class);
         foreach ($this->elementGroups as $key => $elementGroup) {
             $queryBuilder->whereElementGroup(
-                prefix: $prefix,
                 key: $key,
                 allowedElements: array_keys($elementGroup['elements']),
-                engine: $elementGroup['engine']
+                engine: $elementGroup['engine'],
+                prefix: $prefix
             );
         }
 

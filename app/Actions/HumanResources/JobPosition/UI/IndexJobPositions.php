@@ -20,11 +20,10 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
-use Spatie\QueryBuilder\QueryBuilder;
+use App\Services\QueryBuilder;
 
 class IndexJobPositions extends OrgAction
 {
-    /** @noinspection PhpUndefinedMethodInspection */
     public function handle(Organisation $parent, string $prefix = null): LengthAwarePaginator
     {
         if ($prefix) {

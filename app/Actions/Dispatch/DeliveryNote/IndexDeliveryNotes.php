@@ -22,7 +22,8 @@ use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
-use Spatie\QueryBuilder\QueryBuilder;
+use App\Services\QueryBuilder;
+use Inertia\Response;
 
 class IndexDeliveryNotes extends InertiaAction
 {
@@ -94,7 +95,7 @@ class IndexDeliveryNotes extends InertiaAction
     }
 
 
-    public function htmlResponse(LengthAwarePaginator $delivery_notes, ActionRequest $request)
+    public function htmlResponse(LengthAwarePaginator $delivery_notes, ActionRequest $request): Response
     {
         $parent = $request->route()->parameters() == [] ? app('currentTenant') : last($request->route()->parameters());
         return Inertia::render(

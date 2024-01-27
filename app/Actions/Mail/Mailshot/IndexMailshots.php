@@ -22,13 +22,13 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use App\InertiaTable\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
-use Spatie\QueryBuilder\QueryBuilder;
+use App\Services\QueryBuilder;
 
 class IndexMailshots extends InertiaAction
 {
     use HasUIMailshots;
 
-    /** @noinspection PhpUndefinedMethodInspection */
+
     public function handle(Outbox|Mailroom|Organisation $parent, $prefix=null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -45,10 +45,10 @@ class IndexMailshots extends InertiaAction
         $queryBuilder=QueryBuilder::for(Mailshot::class);
         foreach ($this->elementGroups as $key => $elementGroup) {
             $queryBuilder->whereElementGroup(
-                prefix: $prefix,
                 key: $key,
                 allowedElements: array_keys($elementGroup['elements']),
-                engine: $elementGroup['engine']
+                engine: $elementGroup['engine'],
+                prefix: $prefix
             );
         }
 

@@ -27,7 +27,7 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use App\InertiaTable\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
-use Spatie\QueryBuilder\QueryBuilder;
+use App\Services\QueryBuilder;
 
 class IndexLocations extends OrgAction
 {
@@ -76,7 +76,7 @@ class IndexLocations extends OrgAction
     }
 
 
-    /** @noinspection PhpUndefinedMethodInspection */
+
     public function handle(Warehouse|WarehouseArea|Organisation $parent, $prefix=null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {

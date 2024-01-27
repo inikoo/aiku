@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Fri, 26 Jan 2024 17:17:19 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Sat, 27 Jan 2024 20:05:22 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
@@ -22,7 +22,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
-use Spatie\QueryBuilder\QueryBuilder;
+use App\Services\QueryBuilder;
 
 class IndexFulfilmentCustomers extends OrgAction
 {
@@ -60,7 +60,6 @@ class IndexFulfilmentCustomers extends OrgAction
         $queryBuilder->where('customers.shop_id', $fulfilment->shop->id);
 
 
-        /** @noinspection PhpUndefinedMethodInspection */
         return $queryBuilder
             ->defaultSort('customers.slug')
             ->select([

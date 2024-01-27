@@ -22,7 +22,7 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use App\InertiaTable\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
-use Spatie\QueryBuilder\QueryBuilder;
+use App\Services\QueryBuilder;
 
 class IndexClockingMachines extends OrgAction
 {
@@ -36,7 +36,6 @@ class IndexClockingMachines extends OrgAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        /**  @noinspection PhpUndefinedMethodInspection */
         return QueryBuilder::for(ClockingMachine::class)
             ->defaultSort('clocking_machines.name')
             ->select(

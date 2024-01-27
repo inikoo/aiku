@@ -17,7 +17,7 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
-use Spatie\QueryBuilder\QueryBuilder;
+use App\Services\QueryBuilder;
 
 class IndexQuery extends InertiaAction
 {
@@ -26,7 +26,7 @@ class IndexQuery extends InertiaAction
         return $request->user()->hasPermissionTo('portfolio.banners.view');
     }
 
-    /** @noinspection PhpUndefinedMethodInspection */
+
     public function handle($prefix = null): LengthAwarePaginator
     {
         $queryBuilder = QueryBuilder::for(Query::class);

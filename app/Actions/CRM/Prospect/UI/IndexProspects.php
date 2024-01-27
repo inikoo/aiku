@@ -30,7 +30,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
-use Spatie\QueryBuilder\QueryBuilder;
+use App\Services\QueryBuilder;
 use Spatie\Tags\Tag;
 
 class IndexProspects extends OrgAction
@@ -100,12 +100,11 @@ class IndexProspects extends OrgAction
         $query = QueryBuilder::for(Prospect::class);
 
         foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
-            /** @noinspection PhpUndefinedMethodInspection */
             $query->whereElementGroup(
-                prefix: $prefix,
                 key: $key,
                 allowedElements: array_keys($elementGroup['elements']),
-                engine: $elementGroup['engine']
+                engine: $elementGroup['engine'],
+                prefix: $prefix
             );
         }
 
@@ -113,7 +112,6 @@ class IndexProspects extends OrgAction
             $query->where('shop_id', $parent->id);
         }
 
-        /** @noinspection PhpUndefinedMethodInspection */
         return $query
             ->defaultSort('prospects.name')
             ->with('shop')

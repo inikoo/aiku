@@ -17,6 +17,7 @@ use App\Models\Market\Shop;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Web\Website;
+use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -24,7 +25,6 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
-use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexWebsites extends OrgAction
 {
@@ -105,13 +105,14 @@ class IndexWebsites extends OrgAction
                     ->orWhere('websites.code', 'ilike', "$value%");
             });
         });
+
         if ($prefix) {
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
         $queryBuilder = QueryBuilder::for(Website::class);
 
-        if($parent instanceof Organisation) {
+        if ($parent instanceof Organisation) {
             $queryBuilder->where('websites.organisation_id', $parent->id);
         } elseif ($parent instanceof Fulfilment) {
             $queryBuilder->where('websites.shop_id', $parent->shop->id);
@@ -124,14 +125,12 @@ class IndexWebsites extends OrgAction
 
         foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
             $queryBuilder->whereElementGroup(
-                prefix: $prefix,
                 key: $key,
                 allowedElements: array_keys($elementGroup['elements']),
-                engine: $elementGroup['engine']
+                engine: $elementGroup['engine'],
+                prefix: $prefix
             );
         }
-
-
         return $queryBuilder
             ->defaultSort('websites.code')
             ->select(['websites.code', 'websites.name', 'websites.slug', 'websites.domain', 'status', 'websites.state'])
@@ -139,6 +138,10 @@ class IndexWebsites extends OrgAction
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
+
+
+
+
     }
 
     public function tableStructure(Group|Organisation|Shop|Fulfilment $parent, ?array $modelOperations = null, $prefix = null): Closure
@@ -219,8 +222,8 @@ class IndexWebsites extends OrgAction
 
                 ]
                     */
-            ],
-            'data'        => WebsiteResource::collection($websites),
+                ],
+                'data'        => WebsiteResource::collection($websites),
 
             ]
         )->table($this->tableStructure($this->parent));
@@ -257,4 +260,5 @@ class IndexWebsites extends OrgAction
             default => []
         };
     }
+
 }
