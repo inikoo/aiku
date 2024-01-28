@@ -13,15 +13,53 @@ enum WebpagePurposeEnum: string
 {
     use EnumHelperTrait;
 
-    case STRUCTURAL          = 'structural';
-    case CONTENT             = 'content';
+    case STOREFRONT = 'storefront';
+
+    case PRODUCT_OVERVIEW = 'product-overview';
+    case PRODUCT_LIST     = 'product-list';
+
+    case CATEGORY_PREVIEW = 'category-preview';
+
+    case SHOPPING_CART = 'shopping-cart';
+
+
+
+
+    case INFO = 'info';
+
+    case PRIVACY        = 'privacy';
+    case COOKIES_POLICY = 'cookies-policy';
+
+    case TERMS_AND_CONDITIONS = 'terms-and-conditions';
+
+    case APPOINTMENT = 'appointment';
+
+    case CONTACT = 'contact';
+
+    case LOGIN    = 'login';
+    case REGISTER = 'register';
+
+    case BLOG    = 'blog';
+    case ARTICLE = 'article';
+
+    case CONTENT = 'content';
+
+    case OTHER_SMALL_PRINT = 'other-small-print';
+
+    case SHOP = 'shop';
 
 
     public static function labels(): array
     {
         return [
-            'structural'              => 'structural',
-            'content'                 => 'content',
+            'storefront'  => __('storefront'),
+            'appointment' => __('appointment'),
+            'login'       => __('login'),
+            'register'    => __('register'),
+            'blog'        => __('blog'),
+            'article'     => __('article'),
+            'content'     => __('content'),
+
         ];
     }
 }

@@ -7,6 +7,9 @@
 
 namespace App\Stubs\Migrations;
 
+use App\Enums\Web\Webpage\WebpagePurposeEnum;
+use App\Enums\Web\Webpage\WebpageStateEnum;
+use App\Enums\Web\Webpage\WebpageTypeEnum;
 use Illuminate\Database\Schema\Blueprint;
 
 trait HasWebStats
@@ -15,6 +18,15 @@ trait HasWebStats
     {
 
         $table->unsignedInteger('number_webpages')->default(0);
+        foreach (WebpageStateEnum::cases() as $case) {
+            $table->unsignedSmallInteger('number_webpages_state_'.$case->snake())->default(0);
+        }
+        foreach (WebpageTypeEnum::cases() as $case) {
+            $table->unsignedSmallInteger('number_webpages_type_'.$case->snake())->default(0);
+        }
+        foreach (WebpagePurposeEnum::cases() as $case) {
+            $table->unsignedSmallInteger('number_webpages_purpose_'.$case->snake())->default(0);
+        }
 
 
         return $table;

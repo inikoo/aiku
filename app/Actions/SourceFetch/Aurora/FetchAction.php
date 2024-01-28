@@ -128,7 +128,7 @@ class FetchAction
             'fetch:web-users',
             'fetch:prospects',
             'fetch:deleted-customers',
-
+            'fetch:webpages'
         ])) {
             $this->onlyNew = (bool)$command->option('only_new');
         }
@@ -172,6 +172,7 @@ class FetchAction
                 'fetch:web-users',
                 'fetch:prospects',
                 'fetch:deleted-customers',
+                'fetch:webpages'
             ]) and $command->option('reset')) {
             $this->reset();
         }

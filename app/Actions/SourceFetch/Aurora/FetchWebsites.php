@@ -13,26 +13,25 @@ use App\Models\Web\Website;
 use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
-use JetBrains\PhpStorm\NoReturn;
 
 class FetchWebsites extends FetchAction
 {
     public string $commandSignature = 'fetch:websites {organisations?*} {--s|source_id=} {--d|db_suffix=}';
 
 
-    #[NoReturn] public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Website
+    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Website
     {
         if ($websiteData = $organisationSource->fetchWebsite($organisationSourceId)) {
+
             if ($website = Website::where('source_id', $websiteData['website']['source_id'])
                 ->first()) {
                 $website = UpdateWebsite::run(
-                    website:   $website,
+                    website: $website,
                     modelData: $websiteData['website']
                 );
             } else {
-
                 $website = StoreWebsite::make()->action(
-                    shop:      $websiteData['shop'],
+                    shop: $websiteData['shop'],
                     modelData: $websiteData['website'],
                 );
             }

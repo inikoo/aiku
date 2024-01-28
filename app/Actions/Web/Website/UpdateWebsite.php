@@ -10,10 +10,12 @@ namespace App\Actions\Web\Website;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Actions\Web\Website\Hydrators\WebsiteHydrateUniversalSearch;
+use App\Enums\Web\Website\WebsiteStateEnum;
 use App\Http\Resources\Web\WebsiteResource;
 use App\Models\Market\Shop;
 use App\Models\Web\Website;
 use App\Rules\IUnique;
+use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateWebsite extends OrgAction
@@ -44,12 +46,32 @@ class UpdateWebsite extends OrgAction
     public function rules(): array
     {
         return [
-            'domain' => ['sometimes', 'required'],
+            'domain'      => [
+                'sometimes',
+                'required','ascii','lowercase','max:255','domain',
+                new IUnique(
+                    table: 'websites',
+                    extraConditions: [
+                        [
+                            'column' => 'group_id',
+                            'value'  => $this->organisation->group_id
+                        ],
+                        [
+                            'column'    => 'state',
+                            'operation' => '!=',
+                            'value'     => WebsiteStateEnum::CLOSED->value
+                        ],
+                        [
+                            'column'   => 'id',
+                            'operator' => '!=',
+                            'value'    => $this->website->id
+                        ],
+                    ]
+                ),
+            ],
             'code'   => [
                 'sometimes',
-                'required',
-                'between:2,8',
-                'alpha_dash',
+                'required','ascii','lowercase','max:64','alpha_dash',
                 new IUnique(
                     table: 'shops',
                     extraConditions: [
@@ -64,7 +86,11 @@ class UpdateWebsite extends OrgAction
                 ),
 
             ],
-            'name'   => ['sometimes', 'required']
+            'name'       => ['sometimes', 'required','string','max:255'],
+            'launched_at'=> ['sometimes', 'date'],
+            'state'      => ['sometimes', Rule::enum(WebsiteStateEnum::class)],
+            'status'     => ['sometimes', 'boolean'],
+            'engine'     => ['sometimes', Rule::enum(WebsiteStateEnum::class)],
         ];
     }
 

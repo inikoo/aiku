@@ -40,7 +40,7 @@ class FetchAuroraWebsite extends FetchAurora
     {
         $this->parsedData['shop'] = $this->parseShop($this->organisation->id.':'.$this->auroraModelData->{'Website Store Key'});
 
-        $status = match ($this->auroraModelData->{'Website Status'}) {
+        $state = match ($this->auroraModelData->{'Website Status'}) {
             'Active' => WebsiteStateEnum::LIVE,
             'Closed' => WebsiteStateEnum::CLOSED,
             default  => WebsiteStateEnum::IN_PROCESS,
@@ -56,12 +56,20 @@ class FetchAuroraWebsite extends FetchAurora
                 'name'        => $this->auroraModelData->{'Website Name'},
                 'code'        => $this->auroraModelData->code,
                 'domain'      => $domain,
-                'state'       => $status,
-                'launched_at' => $this->parseDate($this->auroraModelData->{'Website Launched'}),
-                'created_at'  => $this->parseDate($this->auroraModelData->{'Website From'}),
+                'state'       => $state,
+                'status'      => $this->auroraModelData->{'Website Status'} === 'Active',
                 'source_id'   => $this->organisation->id.':'.$this->auroraModelData->{'Website Key'},
-
             ];
+
+        if($launchedAt=$this->parseDate($this->auroraModelData->{'Website Launched'})) {
+            $this->parsedData['website']['launched_at']=$launchedAt;
+        }
+
+        if($createdAt=$this->parseDate($this->auroraModelData->{'Website From'})) {
+            $this->parsedData['website']['created_at']=$createdAt;
+        }
+
+
     }
 
 

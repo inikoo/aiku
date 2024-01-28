@@ -7,7 +7,9 @@
 
 namespace App\Services\Organisation\Aurora;
 
-use App\Enums\Web\Website\WebsiteEngineEnum;
+use App\Enums\Web\Webpage\WebpagePurposeEnum;
+use App\Enums\Web\Webpage\WebpageStateEnum;
+use App\Enums\Web\Webpage\WebpageTypeEnum;
 use App\Enums\Web\Website\WebsiteStateEnum;
 use Illuminate\Support\Facades\DB;
 
@@ -24,37 +26,93 @@ class FetchAuroraWebpage extends FetchAurora
 
     protected function parseModel(): void
     {
-        $this->parsedData['website'] = $this->parseWebsite($this->organisation->id.':'.$this->auroraModelData->{'Website Store Key'});
+        if (preg_match('/\.sys$/', $this->auroraModelData->{'Webpage Code'})) {
+            return;
+        }
+        if (preg_match('/^web\./i', $this->auroraModelData->{'Webpage Code'})) {
+            return;
+        }
 
-        $status = match ($this->auroraModelData->{'Website Status'}) {
-            'Active' => WebsiteStateEnum::LIVE,
-            'Closed' => WebsiteStateEnum::CLOSED,
-            default  => WebsiteStateEnum::IN_PROCESS,
+        if (preg_match('/^fam\./i', $this->auroraModelData->{'Webpage Code'})) {
+            return;
+        }
+
+        if (preg_match('/^dept\./i', $this->auroraModelData->{'Webpage Code'})) {
+            return;
+        }
+
+
+        $this->parsedData['website'] = $this->parseWebsite($this->organisation->id.':'.$this->auroraModelData->{'Webpage Website Key'});
+
+
+        if ($this->parsedData['website']->state == WebsiteStateEnum::CLOSED) {
+            $status = WebpageStateEnum::CLOSED;
+        } elseif ($this->parsedData['website']->state == WebsiteStateEnum::IN_PROCESS) {
+            $status = match ($this->auroraModelData->{'Webpage State'}) {
+                'Online'  => WebpageStateEnum::READY,
+                'Offline' => WebpageStateEnum::CLOSED,
+                default   => WebpageStateEnum::IN_PROCESS,
+            };
+        } else {
+            $status = match ($this->auroraModelData->{'Webpage State'}) {
+                'Online'  => WebpageStateEnum::LIVE,
+                'Offline' => WebpageStateEnum::CLOSED,
+                default   => WebpageStateEnum::IN_PROCESS,
+            };
+        }
+
+
+        $url = $this->cleanWebpageCode($this->auroraModelData->{'Webpage Code'});
+
+
+        $purpose = match ($this->auroraModelData->{'Webpage Scope'}) {
+            'Homepage', 'HomepageLogout', 'HomepageToLaunch' => WebpagePurposeEnum::STOREFRONT,
+            'Product'             => WebpagePurposeEnum::PRODUCT_OVERVIEW,
+            'Category Products'   => WebpagePurposeEnum::PRODUCT_LIST,
+            'Category Categories' => WebpagePurposeEnum::CATEGORY_PREVIEW,
+            'Register'            => WebpagePurposeEnum::REGISTER,
+            'Login', 'ResetPwd' => WebpagePurposeEnum::LOGIN,
+            'TandC' => WebpagePurposeEnum::TERMS_AND_CONDITIONS,
+            'Basket', 'Top_Up', 'Checkout' => WebpagePurposeEnum::SHOPPING_CART,
+            default => WebpagePurposeEnum::CONTENT,
         };
 
 
-        $domain = preg_replace('/^www\./', '', strtolower($this->auroraModelData->{'Website URL'}));
+        $type = match ($this->auroraModelData->{'Webpage Scope'}) {
+            'Homepage', 'HomepageLogout', 'HomepageToLaunch' => WebpageTypeEnum::STOREFRONT,
+            'Product', 'Category Categories', 'Category Products' => WebpageTypeEnum::SHOP,
+            'Register', 'Login', 'ResetPwd' => WebpageTypeEnum::AUTH,
+            'TandC' => WebpageTypeEnum::SMALL_PRINT,
+            'Basket', 'Top_Up', 'Checkout' => WebpageTypeEnum::CHECKOUT,
+            default => WebpageTypeEnum::CONTENT,
+        };
 
 
-        $this->parsedData['website'] =
+        $this->parsedData['webpage'] =
             [
-                'engine'      => WebsiteEngineEnum::AURORA,
-                'name'        => $this->auroraModelData->{'Website Name'},
-                'code'        => $this->auroraModelData->code,
-                'domain'      => $domain,
-                'state'       => $status,
-                'launched_at' => $this->parseDate($this->auroraModelData->{'Website Launched'}),
-                'created_at'  => $this->parseDate($this->auroraModelData->{'Website From'}),
-                'source_id'   => $this->organisation->id.':'.$this->auroraModelData->{'Website Key'},
+
+
+                'code'    => $url,
+                'url'     => strtolower($url),
+                'state'   => $status,
+                'purpose' => $purpose,
+                'type'    => $type,
+
+
+                'source_id' => $this->organisation->id.':'.$this->auroraModelData->{'Page Key'},
 
             ];
+        if ($createdAt = $this->parseDate($this->auroraModelData->{'Webpage Creation Date'})) {
+            $this->parsedData['webpage']['created_at'] = $createdAt;
+        }
     }
 
 
     protected function fetchData($id): object|null
     {
         return DB::connection('aurora')
-            ->table('Website Dimension')
-            ->where('Website Key', $id)->first();
+            ->table('Page Store Dimension')
+            ->where('aiku_ignore', 'No')
+            ->where('Page Key', $id)->first();
     }
 }

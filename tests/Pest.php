@@ -10,12 +10,10 @@ use App\Actions\Market\Shop\StoreShop;
 use App\Actions\SysAdmin\Group\StoreGroup;
 use App\Actions\SysAdmin\Guest\StoreGuest;
 use App\Actions\SysAdmin\Organisation\StoreOrganisation;
-use App\Actions\Web\Website\StoreWebsite;
 use App\Models\Market\Shop;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Guest;
 use App\Models\SysAdmin\Organisation;
-use App\Models\Web\Website;
 use Symfony\Component\Process\Process;
 use Tests\TestCase;
 
@@ -92,11 +90,6 @@ function createShop(): array
         $shop = StoreShop::run(
             $organisation,
             Shop::factory()->definition()
-        );
-
-        StoreWebsite::make()->action(
-            $shop,
-            Website::factory()->definition()
         );
         $shop->refresh();
     }

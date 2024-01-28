@@ -48,10 +48,19 @@ return new class () extends Migration {
             $table->string('source_id')->nullable()->unique();
 
         });
+
+        Schema::table('websites', function ($table) {
+            $table->unsignedInteger('home_id')->index()->nullable();
+            $table->foreign('home_id')->references('id')->on('webpages')->onUpdate('cascade')->onDelete('cascade');
+        });
+
     }
 
     public function down(): void
     {
+        Schema::table('websites', function (Blueprint $table) {
+            $table->dropColumn('home_id');
+        });
         Schema::dropIfExists('webpages');
     }
 };
