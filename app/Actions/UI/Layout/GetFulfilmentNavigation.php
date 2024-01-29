@@ -122,7 +122,7 @@ class GetFulfilmentNavigation
                 'icon'  => ['fal', 'fa-user'],
 
                 'route' => [
-                    'name'       => 'grp.org.fulfilments.show.crm.dashboard',
+                    'name'       => 'grp.org.fulfilments.show.customers.index',
                     'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug]
                 ],
 

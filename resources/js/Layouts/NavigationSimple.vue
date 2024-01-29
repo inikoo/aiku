@@ -44,6 +44,7 @@ const compRouteSameAsCurrentUrl = computed(() => {
 </script>
 
 <template>
+    <!-- {{ Object.keys(navKey) }} -->
     <Link :href="nav.route?.name ? route(nav.route.name, nav.route.parameters) : '#'"
         class="group flex items-center px-2 text-sm gap-x-2" :class="[
             compRouteSameAsCurrentUrl
