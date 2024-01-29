@@ -144,13 +144,13 @@ class ShowFulfilment extends OrgAction
 
             ]
         )->table(IndexPallets::make()->tableStructure(prefix: FulfilmentTabsEnum::PALLETS->value, modelOperations: [
-            'createLink' => [
+            'createLink' => [[
                 'route' => [
                     'name'       => 'grp.accounting.payment-service-providers.show.payments.create',
                     'parameters' => array_values($request->route()->originalParameters())
                 ],
                 'label' => __('pallet')
-            ],
+            ]],
         ]));
     }
 
