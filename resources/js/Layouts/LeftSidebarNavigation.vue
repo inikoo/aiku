@@ -13,6 +13,7 @@ import { faBoxUsd, faUsersCog, faLightbulb, faUserHardHat, faUser, faInventory, 
 import { useLayoutStore } from "@/Stores/layout.js"
 // import NavigationExpandable from '@//Layouts/NavigationExpandable.vue'
 import NavigationSimple from '@/Layouts/NavigationSimple.vue'
+import { generateNavigationName, generateCurrentString } from '@/Composables/useConvertString'
 
 import { get } from "lodash"
 import NavigationGroup from "./NavigationGroup.vue"
@@ -68,10 +69,7 @@ onMounted(() => {
 
 // }
 
-// Conver string from 'shops_navigation' to 'shop', etc
-const generateNavigationName = (navKey: string) => {
-    return navKey.split('_')[0].slice(0, -1)
-}
+
 
 const iconList: {[key: string]: string} = {
     shop: 'fal fa-store-alt',
@@ -81,10 +79,7 @@ const iconList: {[key: string]: string} = {
 
 // console.log(route().v())
 
-// Generate string 'shop' to 'currentShop'
-const generateCurrentString = (str: string) => {
-    return 'current' + str.charAt(0).toUpperCase() + str.slice(1)
-}
+
 
 </script>
 
@@ -132,7 +127,7 @@ const generateCurrentString = (str: string) => {
                             :navKey="generateNavigationName(Object.keys(orgNav)[0])"
                         />
                         
-                        <template v-else-if="layout.organisationsState?.[layout.currentParams.organisation]?.[generateCurrentString(generateCurrentString(itemKey))]">
+                        <template v-else-if="layout.organisationsState?.[layout.currentParams.organisation]?.[generateNavigationName(generateCurrentString(itemKey))]">
                             <NavigationGroup
                                 :orgNav="orgNav"
                                 :itemKey="generateNavigationName(itemKey)"

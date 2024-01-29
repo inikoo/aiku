@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { Navigation } from '@/types/Navigation'
 import { usePage } from '@inertiajs/vue3'
 import { isRouteSameAsCurrentUrl } from '@/Composables/useUrl'
+import { generateCurrentString } from '@/Composables/useConvertString'
 
 
 const props = defineProps<{
@@ -17,11 +18,6 @@ const props = defineProps<{
 }>()
 
 const layout = useLayoutStore()
-
-// Generate string 'shop' to 'currentShop'
-const generateCurrentString = (str: string) => {
-    return 'current' + str.charAt(0).toUpperCase() + str.slice(1)
-}
 
 </script>
 
