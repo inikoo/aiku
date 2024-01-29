@@ -11,6 +11,7 @@ use App\Actions\Market\Shop\StoreShop;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\User\UserAddRoles;
 use App\Actions\Traits\Rules\WithShopRules;
+use App\Enums\Market\Shop\ShopTypeEnum;
 use App\Enums\SysAdmin\Authorisation\RolesEnum;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Market\Shop;
@@ -41,8 +42,17 @@ class StoreFulfilment extends OrgAction
 
         foreach ($orgAdmins as $orgAdmin) {
             UserAddRoles::run($orgAdmin, [
-                Role::where('name', RolesEnum::getRoleName(RolesEnum::FULFILMENT_ADMIN->value, $fulfilment))->first()
+                Role::where('name', RolesEnum::getRoleName(RolesEnum::FULFILMENT_SHOP_SUPERVISOR->value, $fulfilment))->first()
             ]);
+            UserAddRoles::run($orgAdmin, [
+                Role::where('name', RolesEnum::getRoleName(RolesEnum::FULFILMENT_WAREHOUSE_SUPERVISOR->value, $fulfilment))->first()
+            ]);
+        }
+
+        if ($shop->type == ShopTypeEnum::FULFILMENT) {
+            $warehouse = $shop->organisation->warehouses()->first();
+
+            AttachWarehouseToFulfilment::run($shop->fulfilment, $warehouse);
         }
 
         return $fulfilment;

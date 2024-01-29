@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Fri, 19 May 2023 22:40:20 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Fri, 19 May 2023 22:38:15 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
@@ -11,7 +11,7 @@ use App\Models\Inventory\Warehouse;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class WarehouseHydrateLocations
+class WarehouseHydrateFulfilments
 {
     use AsAction;
 
@@ -30,17 +30,13 @@ class WarehouseHydrateLocations
 
     public function handle(Warehouse $warehouse): void
     {
-        $numberLocations            = $warehouse->locations()->count();
-        $numberOperationalLocations = $warehouse->locations()->where('status', 'operational')->count();
-
-
         $warehouse->stats()->update(
             [
-                'number_locations'                   => $numberLocations,
-                'number_locations_state_operational' => $numberOperationalLocations,
-                'number_locations_state_broken'      => $numberLocations - $numberOperationalLocations
+                'number_fulfilments'=> $warehouse->fulfilments()->count()
 
             ]
         );
     }
+
+
 }

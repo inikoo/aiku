@@ -19,12 +19,12 @@ return new class () extends Migration {
             $table->smallIncrements('id');
             $table->unsignedSmallInteger('warehouse_id')->index();
             $table->foreign('warehouse_id')->references('id')->on('warehouses');
+            $table->unsignedSmallInteger('number_fulfilments')->default(0);
             $table->unsignedSmallInteger('number_warehouse_areas')->default(0);
             $table = $this->locationsStats($table);
             $table->timestampsTz();
         });
     }
-
 
     public function down(): void
     {

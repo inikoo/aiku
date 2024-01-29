@@ -8,12 +8,25 @@
 namespace App\Actions\Inventory\Warehouse\Hydrators;
 
 use App\Models\Inventory\Warehouse;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
+use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class WarehouseHydrateStocks implements ShouldBeUnique
+class WarehouseHydrateStocks
 {
     use AsAction;
+
+
+    private Warehouse $warehouse;
+
+    public function __construct(Warehouse $warehouse)
+    {
+        $this->warehouse = $warehouse;
+    }
+
+    public function getJobMiddleware(): array
+    {
+        return [(new WithoutOverlapping($this->warehouse->id))->dontRelease()];
+    }
 
 
     public function handle(Warehouse $warehouse): void
@@ -26,8 +39,4 @@ class WarehouseHydrateStocks implements ShouldBeUnique
         );
     }
 
-    public function getJobUniqueId(Warehouse $warehouse): int
-    {
-        return $warehouse->id;
-    }
 }

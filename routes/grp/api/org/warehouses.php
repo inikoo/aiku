@@ -25,6 +25,6 @@ Route::patch('locations/{location}/pallets/{pallet}', UpdatePalletLocation::clas
 Route::patch('pallets/{pallet}/return', ReturnPalletToCustomer::class)->name('pallets.return');
 
 Route::get('pallets', IndexPallets::class)->name('pallets.index');
-Route::get('unlocated/pallets', [IndexPallets::class, 'inUnlocated'])->name('pallets.index');
+//Route::get('unlocated/pallets', [IndexPallets::class, 'inUnlocated'])->name('pallets.index');
 Route::get('locations/{location}/pallets', [IndexPallets::class, 'inLocation'])->name('locations.pallets.index');
 Route::get('pallets/{pallet}', ShowPallet::class)->name('pallets.show');
