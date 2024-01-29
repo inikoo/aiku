@@ -80,6 +80,12 @@ const iconList: {[key: string]: string} = {
 }
 
 // console.log(route().v())
+
+// Generate string 'shop' to 'currentShop'
+const generateCurrentString = (str: string) => {
+    return 'current' + str.charAt(0).toUpperCase() + str.slice(1)
+}
+
 </script>
 
 <template>
@@ -126,7 +132,7 @@ const iconList: {[key: string]: string} = {
                             :navKey="generateNavigationName(Object.keys(orgNav)[0])"
                         />
                         
-                        <template v-else>
+                        <template v-else-if="layout.organisationsState?.[layout.currentParams.organisation]?.[generateCurrentString(generateCurrentString(itemKey))]">
                             <NavigationGroup
                                 :orgNav="orgNav"
                                 :itemKey="generateNavigationName(itemKey)"
@@ -156,10 +162,18 @@ const iconList: {[key: string]: string} = {
                         <!-- Fulfilments: ({{ layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_fulfilments.length }})
                         {{ layout.organisationsState?.[layout.currentParams.organisation]?.currentFulfilment }} -->
                         <!-- If Fulfilment length is 1 -->
-                        <NavigationSimple v-if="layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_fulfilments.length === 1"
-                            :nav="Object.values(Object.values(orgNav)[0])[0]"
-                            :navKey="generateNavigationName(Object.keys(orgNav)[0])"
-                        />
+                        <template v-if="layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_fulfilments.length === 1">
+                            <!-- <NavigationSimple v-for="nav, navKey in Object.values(orgNav)[0]"
+                                :nav="nav"
+                                :navKey="navKey"
+                            /> -->
+
+                            <NavigationGroup
+                                :orgNav="orgNav"
+                                :itemKey="generateNavigationName(itemKey)"
+                                :icon="iconList[generateNavigationName(itemKey)] || ''"
+                            />
+                        </template>
 
                         <!-- Else: Fulfilment length more than 1 -->
                         <NavigationGroup v-else
