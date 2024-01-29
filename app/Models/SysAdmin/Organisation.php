@@ -19,6 +19,7 @@ use App\Models\Assets\Timezone;
 use App\Models\CRM\Customer;
 use App\Models\CRM\Prospect;
 use App\Models\Dispatch\Shipper;
+use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Helpers\Address;
 use App\Models\HumanResources\ClockingMachine;
@@ -404,5 +405,9 @@ class Organisation extends Model implements HasMedia
         return $this->hasMany(OrgStock::class);
     }
 
+    public function fulfilments(): HasMany
+    {
+        return $this->hasMany(Fulfilment::class);
+    }
 
 }

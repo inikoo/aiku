@@ -18,19 +18,21 @@ return new class () extends Migration {
     use HasSoftDeletes;
     public function up(): void
     {
-        Schema::create('fulfilment_customers', function (Blueprint $table) {
-            $table->increments('id');
-            $table=$this->groupOrgRelationship($table);
-            $table->unsignedInteger('customer_id');
-            $table->foreign('customer_id')->references('id')->on('customers');
-            $table->unsignedInteger('fulfilment_id');
-            $table->foreign('fulfilment_id')->references('id')->on('fulfilments');
+        if (!Schema::hasTable('fulfilment_customers')) {
+            Schema::create('fulfilment_customers', function (Blueprint $table) {
+                $table->increments('id');
+                $table = $this->groupOrgRelationship($table);
+                $table->unsignedInteger('customer_id');
+                $table->foreign('customer_id')->references('id')->on('customers');
+                $table->unsignedInteger('fulfilment_id');
+                $table->foreign('fulfilment_id')->references('id')->on('fulfilments');
 
-            $table=$this->fulfilmentStats($table);
-            $table->jsonb('data');
-            $table->timestampsTz();
-            $this->softDeletes($table);
-        });
+                $table = $this->fulfilmentStats($table);
+                $table->jsonb('data');
+                $table->timestampsTz();
+                $this->softDeletes($table);
+            });
+        }
     }
 
 

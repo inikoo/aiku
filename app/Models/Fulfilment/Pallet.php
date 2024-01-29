@@ -13,11 +13,15 @@ use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use App\Models\CRM\Customer;
 use App\Models\Inventory\Location;
+use App\Models\MovementPallet;
 use App\Models\SysAdmin\Organisation;
+use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Query\Builder;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -64,6 +68,7 @@ class Pallet extends Model
     use HasSlug;
     use SoftDeletes;
     use HasFactory;
+    use HasUniversalSearch;
 
 
     protected $guarded = [];
@@ -102,6 +107,15 @@ class Pallet extends Model
             ->saveSlugsTo('slug')->slugsShouldBeNoLongerThan(12);
     }
 
+    public function scopeLocated(Builder $query, $located): Builder
+    {
+        if ($located) {
+            return $query->whereNotNull('location_id');
+        }
+
+        return $query->whereNull('location_id');
+    }
+
     public function organisation(): BelongsTo
     {
         return $this->belongsTo(Organisation::class);
@@ -122,5 +136,8 @@ class Pallet extends Model
         return $this->belongsTo(Location::class);
     }
 
-
+    public function movements(): HasMany
+    {
+        return $this->hasMany(MovementPallet::class);
+    }
 }
