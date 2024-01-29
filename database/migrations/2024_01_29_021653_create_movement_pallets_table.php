@@ -15,10 +15,10 @@ return new class extends Migration
             $table->unsignedSmallInteger('pallet_id')->index();
             $table->foreign('pallet_id')->references('id')->on('pallets')->onDelete('cascade');
 
-            $table->unsignedSmallInteger('location_from_id')->index();
+            $table->unsignedSmallInteger('location_from_id')->index()->nullable();
             $table->foreign('location_from_id')->references('id')->on('locations')->onDelete('cascade');
 
-            $table->unsignedSmallInteger('location_to_id')->index();
+            $table->unsignedSmallInteger('location_to_id')->index()->nullable();
             $table->foreign('location_to_id')->references('id')->on('locations')->onDelete('cascade');
 
             $table->dateTimeTz('moved_at')->index();
