@@ -170,7 +170,7 @@ class StoreShop extends OrgAction
 
 
     public string $commandSignature = 'shop:create {organisation : organisation slug} {code} {name} {type}
-    {--contact_name=} {--company_name=} {--email=} {--phone=} {--identity_document_number=} {--identity_document_type=} {--country=} {--currency=} {--language=} {--timezone=}';
+    {--warehouses=*} {--contact_name=} {--company_name=} {--email=} {--phone=} {--identity_document_number=} {--identity_document_type=} {--country=} {--currency=} {--language=} {--timezone=}';
 
 
     public function asCommand(Command $command): int
@@ -245,6 +245,15 @@ class StoreShop extends OrgAction
             'currency_id' => $currency->id,
             'language_id' => $language->id,
         ]);
+
+        if($command->option('warehouses')) {
+            $this->fill([
+                'warehouses' => $command->option('warehouses')
+            ]);
+        }
+
+
+
 
         try {
             $validatedData = $this->validateAttributes();
