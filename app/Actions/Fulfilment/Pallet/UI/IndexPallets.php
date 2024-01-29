@@ -67,9 +67,9 @@ class IndexPallets extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure($prefix = null): Closure
+    public function tableStructure($prefix = null, $modelOperations = []): Closure
     {
-        return function (InertiaTable $table) use ($prefix) {
+        return function (InertiaTable $table) use ($prefix, $modelOperations) {
 
             if ($prefix) {
                 $table
@@ -84,6 +84,7 @@ class IndexPallets extends OrgAction
                         'count' => 0
                     ]
                 )
+                ->withModelOperations($modelOperations)
                 ->column(key: 'customer_reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'customer_name', label: __('Customer Name'), canBeHidden: false, searchable: true)
                 ->column(key: 'location', label: __('Location'), canBeHidden: false, searchable: true)
@@ -117,7 +118,7 @@ class IndexPallets extends OrgAction
                 'breadcrumbs' => $this->getBreadcrumbs($request->route()->originalParameters()),
                 'title'       => __('pallets'),
                 'pageHead'    => [
-                    'title'   => __('pallets'),
+                    'title'   => __('pallets')
                 ],
                 'data' => PalletResource::collection($pallets),
             ]
