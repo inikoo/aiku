@@ -87,6 +87,7 @@ class StorePallet extends OrgAction
             'received_at'        => ['sometimes', 'nullable', 'date'],
             'source_id'          => ['sometimes', 'nullable', 'string'],
             'warehouse_id'       => ['required', 'integer', 'exists:warehouses,id'],
+            'location_id'        => ['sometimes', 'nullable', 'integer', 'exists:locations,id'],
         ];
     }
 
