@@ -18,6 +18,7 @@ use App\Models\Inventory\Location;
 use App\Models\SysAdmin\Organisation;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -61,7 +62,7 @@ class IndexPallets extends OrgAction
 
         return $query->defaultSort('slug')
             ->allowedSorts(['customer_reference'])
-            ->allowedFilters([$globalSearch, 'customer_reference'])
+            ->allowedFilters([$globalSearch, 'customer_reference', AllowedFilter::scope('located')])
             ->withPaginator($prefix)
             ->withQueryString();
     }
@@ -133,13 +134,6 @@ class IndexPallets extends OrgAction
     {
         $this->initialisation($organisation, $request);
         return $this->handle($location, FulfilmentTabsEnum::PALLETS->value);
-    }
-
-    public function inUnlocated(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
-    {
-        $this->initialisation($organisation, $request);
-
-        return $this->handle(null, FulfilmentTabsEnum::PALLETS->value);
     }
 
     public function getBreadcrumbs(array $routeParameters): array

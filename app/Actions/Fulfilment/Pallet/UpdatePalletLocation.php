@@ -7,6 +7,7 @@
 
 namespace App\Actions\Fulfilment\Pallet;
 
+use App\Actions\Fulfilment\Pallet\Hydrators\HydrateMovementPallet;
 use App\Actions\Fulfilment\StoredItem\Hydrators\StoredItemHydrateUniversalSearch;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
@@ -24,11 +25,14 @@ class UpdatePalletLocation extends OrgAction
 
     public function handle(Location $location, Pallet $pallet): Pallet
     {
+        $lastLocationId = $pallet->location_id;
+
         $pallet = $this->update($pallet, [
             'location_id' => $location->id
         ]);
 
         StoredItemHydrateUniversalSearch::dispatch($pallet);
+        HydrateMovementPallet::dispatch($pallet, $lastLocationId);
 
         return $pallet;
     }

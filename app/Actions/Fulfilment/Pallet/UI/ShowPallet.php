@@ -11,12 +11,15 @@ use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\OrgAction;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
+use App\Enums\UI\FulfilmentTabsEnum;
 use App\Enums\UI\PalletTabsEnum;
 use App\Http\Resources\Fulfilment\PalletResource;
 use App\Http\Resources\History\HistoryResource;
 use App\Models\CRM\Customer;
+use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\Pallet;
 use App\Models\SysAdmin\Organisation;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -30,14 +33,15 @@ class ShowPallet extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo("fulfilments.{$this->organisation->id}.edit");
+        $this->canEdit = $request->user()->hasPermissionTo("fulfilment.{$this->fulfilment->id}.stored-items.edit");
 
-        return $request->user()->hasPermissionTo("fulfilments.{$this->organisation->id}.view");
+        return $request->user()->hasPermissionTo("fulfilment.{$this->fulfilment->id}.stored-items.view");
     }
 
-    public function asController(Organisation $organisation, Pallet $pallet, ActionRequest $request): Pallet
+
+    public function asController(Organisation $organisation, Fulfilment $fulfilment, Pallet $pallet, ActionRequest $request): Pallet
     {
-        $this->initialisation($organisation, $request)->withTab(PalletTabsEnum::values());
+        $this->initialisationFromFulfilment($fulfilment, $request);
 
         return $this->handle($pallet);
     }
