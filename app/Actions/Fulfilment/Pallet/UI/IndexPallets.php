@@ -15,6 +15,7 @@ use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Inventory\Location;
+use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -60,8 +61,8 @@ class IndexPallets extends OrgAction
 
 
         return $query->defaultSort('slug')
-            ->allowedSorts(['customer_reference'])
-            ->allowedFilters([$globalSearch, 'customer_reference'])
+            ->allowedSorts(['customer_reference', 'slug'])
+            ->allowedFilters([$globalSearch, 'customer_reference', AllowedFilter::scope('located')])
             ->withPaginator($prefix)
             ->withQueryString();
     }
@@ -123,7 +124,7 @@ class IndexPallets extends OrgAction
         )->table($this->tableStructure($pallets));
     }
 
-    public function asController(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
+    public function asController(Organisation $organisation, Warehouse $warehouse, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisationFromFulfilment($fulfilment, $request);
         return $this->handle($organisation, FulfilmentTabsEnum::PALLETS->value);
@@ -133,13 +134,6 @@ class IndexPallets extends OrgAction
     {
         $this->initialisation($organisation, $request);
         return $this->handle($location, FulfilmentTabsEnum::PALLETS->value);
-    }
-
-    public function inUnlocated(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
-    {
-        $this->initialisation($organisation, $request);
-
-        return $this->handle(null, FulfilmentTabsEnum::PALLETS->value);
     }
 
     public function getBreadcrumbs(array $routeParameters): array

@@ -26,6 +26,19 @@ class FetchAuroraWebpage extends FetchAurora
 
     protected function parseModel(): void
     {
+
+
+        $typeData=DB::connection('aurora')
+            ->table('Webpage Type Dimension')
+            ->select('Webpage Type Code')
+            ->where('Webpage Type Key', $this->auroraModelData->{'Webpage Type Key'})->first();
+
+
+        if($typeData and $typeData->{'Webpage Type Code'}=='Sys') {
+            return;
+        }
+
+
         if (preg_match('/\.sys$/', $this->auroraModelData->{'Webpage Code'})) {
             return;
         }
@@ -40,6 +53,7 @@ class FetchAuroraWebpage extends FetchAurora
         if (preg_match('/^dept\./i', $this->auroraModelData->{'Webpage Code'})) {
             return;
         }
+
 
 
         $this->parsedData['website'] = $this->parseWebsite($this->organisation->id.':'.$this->auroraModelData->{'Webpage Website Key'});

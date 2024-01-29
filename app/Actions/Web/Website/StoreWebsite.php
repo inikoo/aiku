@@ -108,9 +108,9 @@ class StoreWebsite extends OrgAction
                             'value'  => $this->organisation->group_id
                         ],
                         [
-                            'column'    => 'state',
-                            'operation' => '!=',
-                            'value'     => WebsiteStateEnum::CLOSED->value
+                            'column'    => 'status',
+                            'operation' => '=',
+                            'value'     => true
                         ],
                     ]
                 ),

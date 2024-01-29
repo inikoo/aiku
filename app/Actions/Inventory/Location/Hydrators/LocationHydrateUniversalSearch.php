@@ -22,6 +22,7 @@ class LocationHydrateUniversalSearch
             [
                 'section' => 'inventory',
                 'title'   => $location->code,
+                'ulid'    => $location->code,
             ]
         );
     }

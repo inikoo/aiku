@@ -15,24 +15,24 @@ return new class () extends Migration {
 
     public function up(): void
     {
-        Schema::create('group_accounting_stats', function (Blueprint $table) {
-            $table->smallIncrements('id');
-            $table->unsignedSmallInteger('group_id');
-            $table->foreign('group_id')->references('id')->on('groups')->onUpdate('cascade')->onDelete('cascade');
+        if (!Schema::hasTable('group_accounting_stats')) {
+            Schema::create('group_accounting_stats', function (Blueprint $table) {
+                $table->smallIncrements('id');
+                $table->unsignedSmallInteger('group_id');
+                $table->foreign('group_id')->references('id')->on('groups')->onUpdate('cascade')->onDelete('cascade');
 
-            $table = $this->paymentServiceProviderStats($table);
-            $table = $this->paymentAccountStats($table);
-            $table = $this->paymentStats($table);
+                $table = $this->paymentServiceProviderStats($table);
+                $table = $this->paymentAccountStats($table);
+                $table = $this->paymentStats($table);
 
-            $table->unsignedInteger('number_invoices')->default(0);
-            $table->unsignedInteger('number_invoices_type_invoice')->default(0);
-            $table->unsignedInteger('number_invoices_type_refund')->default(0);
+                $table->unsignedInteger('number_invoices')->default(0);
+                $table->unsignedInteger('number_invoices_type_invoice')->default(0);
+                $table->unsignedInteger('number_invoices_type_refund')->default(0);
 
-
-            $table->timestampsTz();
-        });
+                $table->timestampsTz();
+            });
+        }
     }
-
 
 
     public function down(): void

@@ -6,10 +6,12 @@
  */
 
 use App\Actions\Helpers\Avatars\GetDiceBearAvatar;
+use App\Actions\Inventory\Warehouse\StoreWarehouse;
 use App\Actions\Market\Shop\StoreShop;
 use App\Actions\SysAdmin\Group\StoreGroup;
 use App\Actions\SysAdmin\Guest\StoreGuest;
 use App\Actions\SysAdmin\Organisation\StoreOrganisation;
+use App\Models\Inventory\Warehouse;
 use App\Models\Market\Shop;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Guest;
@@ -81,12 +83,11 @@ function createAdminGuest(Group $group): Guest
 
 function createShop(): array
 {
+    $organisation = createOrganisation();
+    $adminGuest   = createAdminGuest($organisation->group);
 
-    $organisation=createOrganisation();
-    $adminGuest  =createAdminGuest($organisation->group);
-
-    $shop            =Shop::first();
-    if(!$shop) {
+    $shop = Shop::first();
+    if (!$shop) {
         $shop = StoreShop::run(
             $organisation,
             Shop::factory()->definition()
@@ -95,10 +96,27 @@ function createShop(): array
     }
 
 
-
     return [
         $organisation,
         $adminGuest->user,
         $shop
     ];
+}
+
+function createWarehouse(): Warehouse
+{
+    $organisation = createOrganisation();
+
+
+    $warehouse = Warehouse::first();
+    if (!$warehouse) {
+        $warehouse = StoreWarehouse::run(
+            $organisation,
+            Warehouse::factory()->definition()
+        );
+        $warehouse->refresh();
+    }
+
+
+    return $warehouse;
 }

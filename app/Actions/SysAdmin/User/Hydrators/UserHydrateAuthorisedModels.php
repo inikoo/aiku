@@ -13,11 +13,25 @@ use App\Models\Market\Shop;
 use App\Models\SysAdmin\User;
 use Exception;
 use Illuminate\Console\Command;
+use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class UserHydrateAuthorisedModels
 {
     use AsAction;
+    private User $user;
+
+    public function __construct(User $user)
+    {
+        $this->user = $user;
+    }
+
+    public function getJobMiddleware(): array
+    {
+        return [(new WithoutOverlapping($this->user->id))];
+    }
+
+
 
     public function handle(User $user): void
     {
@@ -42,6 +56,7 @@ class UserHydrateAuthorisedModels
                 $authorisedWarehouses[$permission->scope_id] = ['org_id' => $warehouse->organisation_id];
             }
         }
+
 
         $user->authorisedOrganisations()->sync($authorisedOrganisations);
         $user->authorisedShops()->sync($authorisedShops);

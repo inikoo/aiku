@@ -20,6 +20,7 @@ beforeAll(function () {
 beforeEach(function () {
     $this->organisation = createOrganisation();
     $this->guest        = createAdminGuest($this->organisation->group);
+    $this->warehouse    = createWarehouse();
 });
 
 test('create shop', function () {
@@ -29,8 +30,8 @@ test('create shop', function () {
     $shop = StoreShop::make()->action($this->organisation, $storeData);
     $organisation->refresh();
 
-    $shopRoles      =Role::where('scope_type', 'Shop')->where('scope_id', $shop->id)->get();
-    $shopPermissions=Permission::where('scope_type', 'Shop')->where('scope_id', $shop->id)->get();
+    $shopRoles       = Role::where('scope_type', 'Shop')->where('scope_id', $shop->id)->get();
+    $shopPermissions = Permission::where('scope_type', 'Shop')->where('scope_id', $shop->id)->get();
 
     expect($shop)->toBeInstanceOf(Shop::class)
         ->and($organisation->marketStats->number_shops)->toBe(1)
@@ -39,10 +40,10 @@ test('create shop', function () {
         ->and($shopPermissions->count())->toBe(23);
 
 
-    $user= $this->guest->user;
+    $user = $this->guest->user;
     $user->refresh();
 
-    expect($user->getAllPermissions()->count())->toBe(17)
+    expect($user->getAllPermissions()->count())->toBe(21)
         ->and($user->hasAllRoles(["shop-admin-$shop->id"]))->toBe(true);
 
 
@@ -55,30 +56,27 @@ test('create shop by command', function () {
         'organisation' => $organisation->slug,
         'name'         => 'Test Shop',
         'code'         => 'TEST',
-        'type'         => ShopTypeEnum::FULFILMENT->value
+        'type'         => ShopTypeEnum::FULFILMENT->value,
+        'warehouses'   => [$this->warehouse->id]
     ])->assertExitCode(0);
     $organisation->refresh();
 
     expect($organisation->marketStats->number_shops)->toBe(2)
         ->and($organisation->marketStats->number_shops_type_b2b)->toBe(1)
         ->and($organisation->marketStats->number_shops_type_fulfilment)->toBe(1);
-
 })->depends('create shop');
 
 test('update shop', function (Shop $shop) {
-
-    $updateData=[
-        'name'=> 'Test Shop Updated',
+    $updateData = [
+        'name' => 'Test Shop Updated',
     ];
 
     $shop = UpdateShop::make()->action($shop, $updateData);
     $shop->refresh();
 
     expect($shop->name)->toBe('Test Shop Updated');
-
 })->depends('create shop');
 
 test('seed shop permissions from command', function () {
     $this->artisan('shop:seed-permissions')->assertExitCode(0);
-
 })->depends('create shop by command');

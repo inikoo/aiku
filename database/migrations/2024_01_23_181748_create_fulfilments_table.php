@@ -20,6 +20,7 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('shop_id')->index();
             $table->foreign('shop_id')->references('id')->on('shops')->onUpdate('cascade')->onDelete('cascade');
             $table->string('slug')->unique()->collation('und_ns');
+            $table->unsignedSmallInteger('number_warehouses')->default(0);
             $table->jsonb('data');
             $table->jsonb('settings');
             $table->timestampsTz();

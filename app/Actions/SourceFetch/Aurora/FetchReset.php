@@ -82,8 +82,7 @@ class FetchReset
 
                     DB::connection('aurora')->table('Shipper Dimension')
                         ->update(['aiku_id' => null]);
-                    DB::connection('aurora')->table('Website Dimension')
-                        ->update(['aiku_id' => null]);
+
 
 
                     $command->line('✅ shops');
@@ -95,6 +94,12 @@ class FetchReset
                     DB::connection('aurora')->table('Location Dimension')
                         ->update(['aiku_id' => null]);
                     DB::connection('aurora')->table('Location Deleted Dimension')
+                        ->update(['aiku_id' => null]);
+
+                    $command->line('✅ websites');
+                    DB::connection('aurora')->table('Website Dimension')
+                        ->update(['aiku_id' => null]);
+                    DB::connection('aurora')->table('Page Store Dimension')
                         ->update(['aiku_id' => null]);
 
 

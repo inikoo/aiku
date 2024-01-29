@@ -8,6 +8,8 @@
 namespace App\Models\Inventory;
 
 use App\Enums\Inventory\Warehouse\WarehouseStateEnum;
+use App\Models\Fulfilment\Fulfilment;
+use App\Models\Fulfilment\Pallet;
 use App\Models\Helpers\Issue;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Search\UniversalSearch;
@@ -20,6 +22,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
@@ -48,9 +51,11 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $deleted_at
  * @property string|null $source_id
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
+ * @property-read Collection<int, Fulfilment> $fulfilments
  * @property-read Collection<int, Issue> $issues
  * @property-read Collection<int, \App\Models\Inventory\Location> $locations
  * @property-read Organisation $organisation
+ * @property-read Collection<int, Pallet> $pallets
  * @property-read Collection<int, Role> $roles
  * @property-read \App\Models\Inventory\WarehouseStats|null $stats
  * @property-read UniversalSearch|null $universalSearch
@@ -128,6 +133,16 @@ class Warehouse extends Model implements Auditable
     public function roles(): MorphMany
     {
         return $this->morphMany(Role::class, 'scope');
+    }
+
+    public function fulfilments(): BelongsToMany
+    {
+        return $this->belongsToMany(Fulfilment::class);
+    }
+
+    public function pallets(): BelongsToMany
+    {
+        return $this->belongsToMany(Pallet::class);
     }
 
 }

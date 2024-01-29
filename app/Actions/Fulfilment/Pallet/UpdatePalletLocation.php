@@ -7,11 +7,13 @@
 
 namespace App\Actions\Fulfilment\Pallet;
 
+use App\Actions\Fulfilment\Pallet\Hydrators\HydrateMovementPallet;
 use App\Actions\Fulfilment\StoredItem\Hydrators\StoredItemHydrateUniversalSearch;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Inventory\Location;
+use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -24,11 +26,14 @@ class UpdatePalletLocation extends OrgAction
 
     public function handle(Location $location, Pallet $pallet): Pallet
     {
+        $lastLocationId = $pallet->location_id;
+
         $pallet = $this->update($pallet, [
             'location_id' => $location->id
         ]);
 
         StoredItemHydrateUniversalSearch::dispatch($pallet);
+        HydrateMovementPallet::dispatch($pallet, $lastLocationId);
 
         return $pallet;
     }
@@ -42,7 +47,7 @@ class UpdatePalletLocation extends OrgAction
         return $request->user()->hasPermissionTo("fulfilment.{$this->fulfilment->id}.edit");
     }
 
-    public function asController(Organisation $organisation, Location $location, Pallet $pallet, ActionRequest $request): Pallet
+    public function asController(Organisation $organisation, Warehouse $warehouse, Location $location, Pallet $pallet, ActionRequest $request): Pallet
     {
         $this->pallet = $pallet;
         $this->initialisationFromFulfilment($pallet->fulfilment, $request);

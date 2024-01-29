@@ -19,6 +19,7 @@ use App\Models\Assets\Timezone;
 use App\Models\CRM\Customer;
 use App\Models\CRM\Prospect;
 use App\Models\Dispatch\Shipper;
+use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Helpers\Address;
 use App\Models\HumanResources\ClockingMachine;
@@ -91,6 +92,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Employee> $employees
  * @property-read \Illuminate\Database\Eloquent\Collection<int, FulfilmentCustomer> $fulfilmentCustomers
  * @property-read \App\Models\SysAdmin\OrganisationFulfilmentStats|null $fulfilmentStats
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Fulfilment> $fulfilments
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \App\Models\SysAdmin\OrganisationHumanResourcesStats|null $humanResourcesStats
  * @property-read \App\Models\SysAdmin\OrganisationInventoryStats|null $inventoryStats
@@ -404,5 +406,9 @@ class Organisation extends Model implements HasMedia
         return $this->hasMany(OrgStock::class);
     }
 
+    public function fulfilments(): HasMany
+    {
+        return $this->hasMany(Fulfilment::class);
+    }
 
 }

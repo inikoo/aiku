@@ -33,10 +33,11 @@ enum RolesEnum: string
 
     case SHOP_ADMIN = 'shop-admin';
 
-    case FULFILMENT_ADMIN = 'fulfilment-admin';
-    case FULFILMENT_CLERK = 'fulfilment-clerk';
+    case FULFILMENT_SHOP_SUPERVISOR = 'fulfilment-shop-supervisor';
+    case FULFILMENT_SHOP_CLERK      = 'fulfilment-shop-clerk';
 
-    case FULFILMENT_WAREHOUSE_WORKER = 'fulfilment-warehouse-worker';
+    case FULFILMENT_WAREHOUSE_SUPERVISOR = 'fulfilment-warehouse-supervisor';
+    case FULFILMENT_WAREHOUSE_WORKER     = 'fulfilment-warehouse-worker';
 
     case WAREHOUSE_ADMIN = 'warehouse-admin';
 
@@ -48,24 +49,25 @@ enum RolesEnum: string
     public function label(): string
     {
         return match ($this) {
-            RolesEnum::SUPER_ADMIN                 => __('Super admin'),
-            RolesEnum::SYSTEM_ADMIN                => __('System admin'),
-            RolesEnum::SUPPLY_CHAIN                => __('Supply chain'),
-            RolesEnum::PROCUREMENT_CLERK           => __('Procurement clerk'),
-            RolesEnum::PROCUREMENT_SUPERVISOR      => __('Procurement supervisor'),
-            RolesEnum::ORG_ADMIN                   => __('Organisation admin'),
-            RolesEnum::HUMAN_RESOURCES_CLERK       => __('Human resources clerk'),
-            RolesEnum::HUMAN_RESOURCES_SUPERVISOR  => __('Human resources supervisor'),
-            RolesEnum::STOCK_CONTROLLER            => __('Stock controller'),
-            RolesEnum::ACCOUNTING_CLERK            => __('Accounting clerk'),
-            RolesEnum::ACCOUNTING_SUPERVISOR       => __('Accounting supervisor'),
-            RolesEnum::SHOP_ADMIN                  => __('Shop admin'),
-            RolesEnum::FULFILMENT_ADMIN            => __('Fulfilment admin'),
-            RolesEnum::FULFILMENT_CLERK            => __('Fulfilment clerk'),
-            RolesEnum::FULFILMENT_WAREHOUSE_WORKER => __('Fulfilment warehouse worker'),
-            RolesEnum::WAREHOUSE_ADMIN             => __('Warehouse admin'),
-            RolesEnum::CUSTOMER_SERVICE_CLERK      => __('Customer service clerk'),
-            RolesEnum::CUSTOMER_SERVICE_SUPERVISOR => __('Customer service supervisor'),
+            RolesEnum::SUPER_ADMIN                     => __('Super admin'),
+            RolesEnum::SYSTEM_ADMIN                    => __('System admin'),
+            RolesEnum::SUPPLY_CHAIN                    => __('Supply chain'),
+            RolesEnum::PROCUREMENT_CLERK               => __('Procurement clerk'),
+            RolesEnum::PROCUREMENT_SUPERVISOR          => __('Procurement supervisor'),
+            RolesEnum::ORG_ADMIN                       => __('Organisation admin'),
+            RolesEnum::HUMAN_RESOURCES_CLERK           => __('Human resources clerk'),
+            RolesEnum::HUMAN_RESOURCES_SUPERVISOR      => __('Human resources supervisor'),
+            RolesEnum::STOCK_CONTROLLER                => __('Stock controller'),
+            RolesEnum::ACCOUNTING_CLERK                => __('Accounting clerk'),
+            RolesEnum::ACCOUNTING_SUPERVISOR           => __('Accounting supervisor'),
+            RolesEnum::SHOP_ADMIN                      => __('Shop admin'),
+            RolesEnum::FULFILMENT_SHOP_SUPERVISOR      => __('Fulfilment supervisor'),
+            RolesEnum::FULFILMENT_SHOP_CLERK           => __('Fulfilment clerk'),
+            RolesEnum::FULFILMENT_WAREHOUSE_SUPERVISOR => __('Fulfilment warehouse supervisor'),
+            RolesEnum::FULFILMENT_WAREHOUSE_WORKER     => __('Fulfilment warehouse worker'),
+            RolesEnum::WAREHOUSE_ADMIN                 => __('Warehouse admin'),
+            RolesEnum::CUSTOMER_SERVICE_CLERK          => __('Customer service clerk'),
+            RolesEnum::CUSTOMER_SERVICE_SUPERVISOR     => __('Customer service supervisor'),
         };
     }
 
@@ -124,16 +126,21 @@ enum RolesEnum: string
                 ShopPermissionsEnum::SUPERVISOR_CRM,
                 ShopPermissionsEnum::SUPERVISOR_PRODUCTS
             ],
-            RolesEnum::FULFILMENT_ADMIN => [
-                FulfilmentPermissionsEnum::FULFILMENT,
-                FulfilmentPermissionsEnum::SUPERVISOR_FULFILMENT,
-                FulfilmentPermissionsEnum::SUPERVISOR_STORED_ITEMS,
+            RolesEnum::FULFILMENT_SHOP_SUPERVISOR => [
+                FulfilmentPermissionsEnum::FULFILMENT_SHOP,
+                FulfilmentPermissionsEnum::SUPERVISOR_FULFILMENT_SHOP,
+                WarehousePermissionsEnum::FULFILMENT,
             ],
-            RolesEnum::FULFILMENT_CLERK => [
-                FulfilmentPermissionsEnum::FULFILMENT,
+            RolesEnum::FULFILMENT_SHOP_CLERK => [
+                FulfilmentPermissionsEnum::FULFILMENT_SHOP,
+                WarehousePermissionsEnum::FULFILMENT_VIEW,
+            ],
+            RolesEnum::FULFILMENT_WAREHOUSE_SUPERVISOR => [
+                FulfilmentPermissionsEnum::FULFILMENT_SHOP,
+                WarehousePermissionsEnum::FULFILMENT,
             ],
             RolesEnum::FULFILMENT_WAREHOUSE_WORKER => [
-                FulfilmentPermissionsEnum::STORED_ITEMS,
+                WarehousePermissionsEnum::FULFILMENT,
             ],
             RolesEnum::CUSTOMER_SERVICE_CLERK => [
                 ShopPermissionsEnum::CRM,
@@ -170,13 +177,14 @@ enum RolesEnum: string
             RolesEnum::CUSTOMER_SERVICE_CLERK,
             RolesEnum::CUSTOMER_SERVICE_SUPERVISOR,
             => 'Shop',
+            RolesEnum::FULFILMENT_WAREHOUSE_SUPERVISOR,
+            RolesEnum::FULFILMENT_WAREHOUSE_WORKER,
             RolesEnum::WAREHOUSE_ADMIN,
             RolesEnum::STOCK_CONTROLLER => 'Warehouse',
-            RolesEnum::FULFILMENT_ADMIN,
-            RolesEnum::FULFILMENT_CLERK,
-            RolesEnum::FULFILMENT_WAREHOUSE_WORKER
-                                        => 'Fulfilment',
-            default                     => 'Organisation'
+            RolesEnum::FULFILMENT_SHOP_SUPERVISOR,
+            RolesEnum::FULFILMENT_SHOP_CLERK,
+            => 'Fulfilment',
+            default => 'Organisation'
         };
     }
 

@@ -8,6 +8,7 @@
 namespace App\Services\Organisation\Aurora;
 
 use App\Actions\Utils\Abbreviate;
+use App\Models\Inventory\Warehouse;
 use App\Models\Market\Shop;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -47,6 +48,9 @@ class FetchAuroraShop extends FetchAurora
             countryID: $this->parseCountryID($auroraSettings['tax_country_code'])
         );
 
+
+        $type=strtolower($this->auroraModelData->{'Store Type'});
+
         $this->parsedData['shop'] = [
             'code'         => $this->auroraModelData->code,
             'name'         => $this->auroraModelData->{'Store Name'},
@@ -60,7 +64,7 @@ class FetchAuroraShop extends FetchAurora
             'identity_document_number' => $this->auroraModelData->{'Store Company Number'},
             'state'                    => Str::snake($this->auroraModelData->{'Store Status'} == 'Normal' ? 'Open' : $this->auroraModelData->{'Store Status'}, '-'),
 
-            'type'  => strtolower($this->auroraModelData->{'Store Type'}),
+            'type'  => $type,
 
             'country_id'  => $this->parseCountryID($this->auroraModelData->{'Store Home Country Code 2 Alpha'}),
             'language_id' => $this->parseLanguageID($this->auroraModelData->{'Store Locale'}),
@@ -76,6 +80,13 @@ class FetchAuroraShop extends FetchAurora
             ]
 
         ];
+
+
+        if($type=='fulfilment') {
+            $this->parsedData['shop']['warehouses']=Warehouse::first()->pluck('id')->toArray();
+        }
+
+
     }
 
 

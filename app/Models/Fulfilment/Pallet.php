@@ -13,11 +13,16 @@ use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use App\Models\CRM\Customer;
 use App\Models\Inventory\Location;
+use App\Models\Inventory\Warehouse;
+use App\Models\MovementPallet;
 use App\Models\SysAdmin\Organisation;
+use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Query\Builder;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -31,6 +36,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $customer_reference
  * @property int $fulfilment_id
  * @property int $fulfilment_customer_id
+ * @property int $warehouse_id
  * @property int|null $location_id
  * @property PalletStatusEnum $status
  * @property PalletStateEnum $state
@@ -49,8 +55,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Fulfilment\Fulfilment $fulfilment
  * @property-read \App\Models\Fulfilment\FulfilmentCustomer $fulfilmentCustomer
  * @property-read Location|null $location
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, MovementPallet> $movements
  * @property-read Organisation $organisation
+ * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
+ * @property-read Warehouse $warehouse
  * @method static \Database\Factories\Fulfilment\PalletFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder|Pallet located($located)
  * @method static \Illuminate\Database\Eloquent\Builder|Pallet newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Pallet newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Pallet onlyTrashed()
@@ -64,6 +74,7 @@ class Pallet extends Model
     use HasSlug;
     use SoftDeletes;
     use HasFactory;
+    use HasUniversalSearch;
 
 
     protected $guarded = [];
@@ -102,6 +113,15 @@ class Pallet extends Model
             ->saveSlugsTo('slug')->slugsShouldBeNoLongerThan(12);
     }
 
+    public function scopeLocated(Builder $query, $located): Builder
+    {
+        if ($located) {
+            return $query->whereNotNull('location_id');
+        }
+
+        return $query->whereNull('location_id');
+    }
+
     public function organisation(): BelongsTo
     {
         return $this->belongsTo(Organisation::class);
@@ -110,6 +130,11 @@ class Pallet extends Model
     public function fulfilment(): BelongsTo
     {
         return $this->belongsTo(Fulfilment::class);
+    }
+
+    public function warehouse(): BelongsTo
+    {
+        return $this->belongsTo(Warehouse::class);
     }
 
     public function fulfilmentCustomer(): BelongsTo
@@ -122,5 +147,8 @@ class Pallet extends Model
         return $this->belongsTo(Location::class);
     }
 
-
+    public function movements(): HasMany
+    {
+        return $this->hasMany(MovementPallet::class);
+    }
 }

@@ -7,11 +7,13 @@
 
 namespace App\Models\Fulfilment;
 
+use App\Models\Inventory\Warehouse;
 use App\Models\Market\Shop;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Sluggable\HasSlug;
@@ -25,6 +27,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $organisation_id
  * @property int $shop_id
  * @property string $slug
+ * @property int $number_warehouses
  * @property array $data
  * @property array $settings
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -35,6 +38,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Organisation $organisation
  * @property-read Shop $shop
  * @property-read \App\Models\Fulfilment\FulfilmentStats|null $stats
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Warehouse> $warehouses
  * @method static \Illuminate\Database\Eloquent\Builder|Fulfilment newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Fulfilment newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Fulfilment onlyTrashed()
@@ -94,6 +98,11 @@ class Fulfilment extends Model
     public function stats(): HasOne
     {
         return $this->hasOne(FulfilmentStats::class);
+    }
+
+    public function warehouses(): BelongsToMany
+    {
+        return $this->belongsToMany(Warehouse::class);
     }
 
 }

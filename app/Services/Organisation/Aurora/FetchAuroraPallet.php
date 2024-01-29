@@ -19,6 +19,17 @@ class FetchAuroraPallet extends FetchAurora
         $customer                     = $this->parseCustomer($this->organisation->id.':'.$this->auroraModelData->{'Fulfilment Asset Customer Key'});
         $this->parsedData['customer'] = $customer;
 
+        $warehouse = $this->parseWarehouse($this->organisation->id.':'.$this->auroraModelData->{'Fulfilment Asset Warehouse Key'});
+
+
+        $location_id = null;
+        if ($this->auroraModelData->{'Fulfilment Asset Location Key'}) {
+            $location = $this->parseLocation($this->organisation->id.':'.$this->auroraModelData->{'Fulfilment Asset Location Key'});
+            if ($location) {
+                $location_id = $location->id;
+            }
+        }
+
         $state  = match ($this->auroraModelData->{'Fulfilment Asset State'}) {
             'InProcess' => PalletStateEnum::IN_PROCESS,
             'Received'  => PalletStateEnum::RECEIVED,
@@ -29,8 +40,7 @@ class FetchAuroraPallet extends FetchAurora
             'InProcess', 'Received' => PalletStatusEnum::IN_PROCESS,
             'BookedIn' => PalletStatusEnum::STORING,
             'BookedOut', 'Invoiced' => PalletStatusEnum::RETURNED,
-            'Lost'     => PalletStatusEnum::LOST,
-
+            'Lost' => PalletStatusEnum::LOST,
         };
 
         $type = match ($this->auroraModelData->{'Fulfilment Asset Type'}) {
@@ -47,25 +57,29 @@ class FetchAuroraPallet extends FetchAurora
 
         $reference = $this->auroraModelData->{'Fulfilment Asset Reference'};
 
-        $reference=str_replace('&', 'and', $reference);
-        $reference=str_replace(',', ' ', $reference);
-        $reference=str_replace('\'', '', $reference);
-        $reference=str_replace('"', '', $reference);
+        $reference = str_replace('&', 'and', $reference);
+        $reference = str_replace(',', ' ', $reference);
+        $reference = str_replace('\'', '', $reference);
+        $reference = str_replace('"', '', $reference);
         if ($reference == '') {
             $reference = null;
         }
 
 
         $this->parsedData['pallet'] = [
+            'warehouse_id'       => $warehouse->id,
             'state'              => $state,
             'status'             => $status,
             'type'               => $type,
             'customer_reference' => $reference,
-            'notes'              => (string) $this->auroraModelData->{'Fulfilment Asset Note'},
+            'notes'              => (string)$this->auroraModelData->{'Fulfilment Asset Note'},
             'created_at'         => $this->auroraModelData->{'Fulfilment Asset From'} ?? null,
             'received_at'        => $received_at,
             'source_id'          => $this->organisation->id.':'.$this->auroraModelData->{'Fulfilment Asset Key'},
         ];
+        if ($location_id) {
+            $this->parsedData['pallet']['location_id'] = $location_id;
+        }
     }
 
 

@@ -13,6 +13,7 @@ use App\Actions\SysAdmin\User\UserAddRoles;
 use App\Actions\Traits\Rules\WithShopRules;
 use App\Enums\SysAdmin\Authorisation\RolesEnum;
 use App\Models\Fulfilment\Fulfilment;
+use App\Models\Inventory\Warehouse;
 use App\Models\Market\Shop;
 use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\Role;
@@ -23,7 +24,8 @@ use Lorisleiva\Actions\ActionRequest;
 class StoreFulfilment extends OrgAction
 {
     use WithShopRules;
-    public function handle(Shop $shop, $modelData): Fulfilment
+
+    public function handle(Shop $shop, array $warehouses, array $modelData): Fulfilment
     {
         data_set($modelData, 'group_id', $shop->group_id);
         data_set($modelData, 'organisation_id', $shop->organisation_id);
@@ -41,9 +43,20 @@ class StoreFulfilment extends OrgAction
 
         foreach ($orgAdmins as $orgAdmin) {
             UserAddRoles::run($orgAdmin, [
-                Role::where('name', RolesEnum::getRoleName(RolesEnum::FULFILMENT_ADMIN->value, $fulfilment))->first()
+                Role::where('name', RolesEnum::getRoleName(RolesEnum::FULFILMENT_SHOP_SUPERVISOR->value, $fulfilment))->first()
+            ]);
+            UserAddRoles::run($orgAdmin, [
+                Role::where('name', RolesEnum::getRoleName(RolesEnum::FULFILMENT_WAREHOUSE_SUPERVISOR->value, $fulfilment))->first()
             ]);
         }
+
+
+        foreach($warehouses as $warehouseID) {
+            $warehouse = Warehouse::find($warehouseID);
+            AttachWarehouseToFulfilment::run($fulfilment, $warehouse);
+        }
+
+
 
         return $fulfilment;
     }
@@ -67,18 +80,19 @@ class StoreFulfilment extends OrgAction
     public function asController(Organisation $organisation, ActionRequest $request): Fulfilment
     {
         $this->initialisation($organisation, $request);
-        $shop=StoreShop::make()->action($organisation, $this->validatedData);
+        $shop = StoreShop::make()->action($organisation, $this->validatedData);
+
         return $shop->fulfilment;
     }
 
 
-    public function action(Shop $shop, $modelData, $hydratorDelay = 0): Fulfilment
+    public function action(Shop $shop, array $warehouses, $modelData, $hydratorDelay = 0): Fulfilment
     {
         $this->asAction       = true;
         $this->hydratorsDelay = $hydratorDelay;
         $this->initialisation($shop->organisation, $modelData);
 
-        return $this->handle($shop, $this->validatedData);
+        return $this->handle($shop, $warehouses, $this->validatedData);
     }
 
     public function htmlResponse(Fulfilment $fulfilment): RedirectResponse

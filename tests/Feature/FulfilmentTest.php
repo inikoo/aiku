@@ -38,7 +38,7 @@ beforeAll(function () {
 beforeEach(function () {
     $this->organisation = createOrganisation();
     $this->adminGuest   = createAdminGuest($this->organisation->group);
-
+    $this->warehouse    = createWarehouse();
     Config::set(
         'inertia.testing.page_paths',
         [resource_path('js/Pages/Grp')]
@@ -50,6 +50,7 @@ test('create fulfilment shop', function () {
     $organisation = $this->organisation;
     $storeData    = Shop::factory()->definition();
     data_set($storeData, 'type', ShopTypeEnum::FULFILMENT->value);
+    data_set($storeData, 'warehouses', [$this->warehouse->id]);
     $shop = StoreShop::make()->action($this->organisation, $storeData);
     $organisation->refresh();
 
@@ -65,15 +66,16 @@ test('create fulfilment shop', function () {
         ->and($organisation->marketStats->number_shops_type_fulfilment)->toBe(1)
         ->and($shopRoles->count())->toBe(0)
         ->and($shopPermissions->count())->toBe(0)
-        ->and($fulfilmentRoles->count())->toBe(3)
-        ->and($fulfilmentPermissions->count())->toBe(8);
+        ->and($fulfilmentRoles->count())->toBe(2)
+        ->and($fulfilmentPermissions->count())->toBe(1);
 
     $user = $this->adminGuest->user;
     $user->refresh();
 
-    expect($user->getAllPermissions()->count())->toBe(15)
-        ->and($user->hasAllRoles(["fulfilment-admin-$shop->fulfilment->id"]))->toBe(false)
-        ->and($user->hasAllRoles(["shop-admin-$shop->id"]))->toBe(false);
+    expect($user->getAllPermissions()->count())->toBe(18)
+        ->and($user->hasAllRoles(["fulfilment-shop-supervisor-{$shop->fulfilment->id}"]))->toBe(true)
+        ->and($user->hasAllRoles(["shop-admin-$shop->id"]))->toBe(false)
+        ->and($shop->fulfilment->number_warehouses)->toBe(1);
 
 
     return $shop->fulfilment;
@@ -111,8 +113,11 @@ test('create fulfilment customer', function (Fulfilment $fulfilment) {
 test('create pallet no delivery', function (FulfilmentCustomer $fulfilmentCustomer) {
     $pallet = StorePallet::make()->action(
         $fulfilmentCustomer,
-        Pallet::factory()->definition(),
+        array_merge([
+            'warehouse_id' => $this->warehouse->id,
+        ], Pallet::factory()->definition())
     );
+
 
     expect($pallet)->toBeInstanceOf(Pallet::class)
         ->and($pallet->state)->toBe(PalletStateEnum::IN_PROCESS)
@@ -130,7 +135,6 @@ test('create pallet no delivery', function (FulfilmentCustomer $fulfilmentCustom
 })->depends('create fulfilment customer');
 
 
-
 test('UI list of fulfilment shops', function () {
     $response = get(route('grp.org.fulfilments.index', $this->organisation->slug));
     expect(FulfilmentsTabsEnum::FULFILMENT_SHOPS->value)->toBe('fulfilments');
@@ -143,13 +147,15 @@ test('UI list of fulfilment shops', function () {
 });
 
 test('UI list of websites in fulfilment', function (Fulfilment $fulfilment) {
-    $response = get(route(
-        'grp.org.fulfilments.show.websites.index',
-        [
-        $this->organisation->slug,
-        $fulfilment->slug
-    ]
-    ));
+    $response = get(
+        route(
+            'grp.org.fulfilments.show.websites.index',
+            [
+                $this->organisation->slug,
+                $fulfilment->slug
+            ]
+        )
+    );
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('Org/Web/Websites')
