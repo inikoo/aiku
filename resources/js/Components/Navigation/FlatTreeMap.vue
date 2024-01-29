@@ -43,7 +43,7 @@ const locale = useLocaleStore()
                 <div v-if="node.rightSubLink" class="pr-4 " :title="capitalize(node.rightSubLink.tooltip)">
                     <!-- {{ importIcon(node.rightSubLink.icon) }} -->
                     <component :is="node.rightSubLink?.href?.name ? Link : 'div'"  :href="node.href?.name ? route(node.rightSubLink.href.name, node.rightSubLink.href.parameters) : '#'"
-                        class="w-9 h-9 flex flex-0 justify-center items-center hover:bg-gray-500 border-gray-500 border-2 text-gray-500 rounded-md cursor-pointer hover:text-white">
+                        class="w-9 h-9 flex justify-center items-center specialBox">
                         <FontAwesomeIcon v-if="node.rightSubLink?.icon" :icon="node.rightSubLink.icon" class="flex-shrink-0 " aria-hidden="true" />
                     </component>
                 </div>

@@ -7,14 +7,27 @@
 
 @layer utilities {
     .specialUnderline {
-    @apply bg-gradient-to-t from-yellow-300 to-yellow-200
-    focus:ring-0 focus:outline-none focus:border-none
-    bg-no-repeat [background-position:0%_100%]
-    [background-size:100%_0.2em]
-    motion-safe:transition-all motion-safe:duration-200
-    hover:[background-size:100%_100%]
-    focus:[background-size:100%_100%] px-1;
-}
+        @apply bg-gradient-to-t from-yellow-300 to-yellow-200
+        focus:ring-0 focus:outline-none focus:border-none
+        bg-no-repeat [background-position:0%_100%]
+        [background-size:100%_0.2em]
+        motion-safe:transition-all motion-safe:duration-200
+        hover:[background-size:100%_100%]
+        focus:[background-size:100%_100%] px-1;
+    }
+    
+    .specialBox {
+        @apply bg-gradient-to-t from-yellow-300 to-yellow-200
+        border-yellow-300 border-2 rounded-md
+        text-yellow-500 hover:text-slate-600 
+        cursor-pointer
+        focus:ring-0 focus:outline-none focus:border-none
+        bg-no-repeat [background-position:0%_100%]
+        [background-size:100%_0em]
+        motion-safe:transition-all motion-safe:duration-100
+        hover:[background-size:100%_100%]
+        focus:[background-size:100%_100%] px-1;
+    }
 }
 
 .prose a { @apply specialUnderline }
