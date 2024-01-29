@@ -21,6 +21,7 @@ use App\Http\Resources\Sales\CustomerResource;
 use App\Http\Resources\Sales\OrderResource;
 use App\Http\Resources\UniversalSearch\UniversalSearchResource;
 use App\Models\CRM\Customer;
+use App\Models\Inventory\Warehouse;
 use App\Models\Search\UniversalSearch;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -35,7 +36,7 @@ class ShowUniversalScan extends OrgAction
         return UniversalSearch::where('ulid', $ulid)->firstOrFail();
     }
 
-    public function asController(Organisation $organisation, string $ulid, ActionRequest $request): UniversalSearch
+    public function asController(Organisation $organisation, Warehouse $warehouse, string $ulid, ActionRequest $request): UniversalSearch
     {
         $this->initialisation($organisation, $request);
 
