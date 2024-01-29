@@ -29,7 +29,7 @@ class SeedWebsiteFixedWebpages extends OrgAction
     public function handle(Website $website): Website
     {
         $home = StoreWebpage::run($website, [
-            'code'     => 'home',
+            'code'     => 'storefront',
             'url'      => '',
             'type'     => WebpageTypeEnum::STOREFRONT,
             'purpose'  => WebpagePurposeEnum::STOREFRONT,
