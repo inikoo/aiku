@@ -7,26 +7,12 @@
 
 namespace App\Actions\Fulfilment\UniversalScan;
 
-use App\Actions\CRM\Customer\UI\GetCustomerShowcase;
-use App\Actions\Fulfilment\FulfilmentOrder\UI\IndexFulfilmentOrders;
-use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItems;
-use App\Actions\InertiaAction;
-use App\Actions\Mail\DispatchedEmail\IndexDispatchedEmails;
 use App\Actions\OrgAction;
-use App\Actions\UI\Dashboard\ShowDashboard;
-use App\Enums\UI\CustomerFulfilmentTabsEnum;
-use App\Http\Resources\Fulfilment\StoredItemResource;
-use App\Http\Resources\Mail\DispatchedEmailResource;
-use App\Http\Resources\Sales\CustomerResource;
-use App\Http\Resources\Sales\OrderResource;
 use App\Http\Resources\UniversalSearch\UniversalSearchResource;
-use App\Models\CRM\Customer;
 use App\Models\Inventory\Warehouse;
 use App\Models\Search\UniversalSearch;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Inertia\Inertia;
-use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
 class ShowUniversalScan extends OrgAction
