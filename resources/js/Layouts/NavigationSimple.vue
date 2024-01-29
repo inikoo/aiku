@@ -8,6 +8,8 @@ import { Link, usePage } from '@inertiajs/vue3'
 // import SubNavigation from '@/Layouts/SubNavigation.vue'
 import { capitalize } from "@/Composables/capitalize"
 import { isRouteSameAsCurrentUrl } from '@/Composables/useUrl'
+import { onMounted, ref, onUnmounted, computed } from 'vue'
+import TopbarSubsections from '@/Layouts/TopbarSubsections.vue'
 
 library.add()
 
@@ -24,13 +26,27 @@ const props = defineProps<{
 // }
 
 const layout = useLayoutStore()
+const  isTopMenuActive = ref(false)
 
+onMounted(() => {
+    isTopMenuActive.value = true
+    // console.log('NavigationSimple.vue', props.navKey, props.nav)
+})
+
+onUnmounted(() => {
+    isTopMenuActive.value = false
+})
+
+const compRouteSameAsCurrentUrl = computed(() => {
+    return props.nav.route?.name ? isRouteSameAsCurrentUrl(route(props.nav.route.name, props.nav.route.parameters)) : false
+})
+// console.log(route().v().route.uri)
 </script>
 
 <template>
     <Link :href="nav.route?.name ? route(nav.route.name, nav.route.parameters) : '#'"
         class="group flex items-center px-2 text-sm gap-x-2" :class="[
-            (nav.route?.name ? isRouteSameAsCurrentUrl(route(nav.route.name, nav.route.parameters)) : false)
+            compRouteSameAsCurrentUrl
                 ? 'navigationActive'
                 : 'navigation',
             layout.leftSidebar.show ? '' : '',
@@ -48,4 +64,14 @@ const layout = useLayoutStore()
             </span>
         </Transition>
     </Link>
+    
+    <!-- If this Navigation is active, then teleport the SubSections to #TopbarSubsections in <AppTopBar> -->
+    <template v-if="compRouteSameAsCurrentUrl">
+        <Teleport to="#TopbarSubsections" :disabled="!compRouteSameAsCurrentUrl">
+            <TopbarSubsections
+                v-if="nav.topMenu?.subSections"
+                :subSections="nav.topMenu.subSections"
+            />
+        </Teleport>
+    </template>
 </template>

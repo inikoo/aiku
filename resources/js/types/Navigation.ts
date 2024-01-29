@@ -12,8 +12,9 @@ export interface DropdownLink {
 
 export interface SubSection {
     label: string
-    icon: string | string[]
+    icon?: string | string[]
     route: routeType
+    tooltip?: string
 }
 
 export interface Navigation {

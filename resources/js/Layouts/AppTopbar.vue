@@ -221,29 +221,9 @@ const label = {
                         </div>
 
                         <!-- Section: Subsections -->
-                        <div class="flex h-full">
-                            <!-- {{layoutStore.navigation.org[layoutStore.currentParams.organisation][layoutStore.currentModule].topMenu.subSections.length}} -->
-                            <!-- {{ get('layout', ['navigation', 'org', get('layout', ['currentParams', 'organisation']), get('layout', ['currentModule']), 'topMenu', 'subSections'], false) }} -->
-                            <template v-if="useValueInDeepObject(layoutStore.navigation.org?.[layoutStore.currentParams.organisation]?.[layoutStore.currentModule], 'topMenu')?.subSections?.length">
-                                <Link v-for="menu in useValueInDeepObject(layoutStore.navigation.org?.[layoutStore.currentParams.organisation]?.[layoutStore.currentModule], 'topMenu').subSections"
-                                    :href="route(menu.route.name, menu.route.parameters)"
-                                    :id="get(menu, 'label', menu?.route.name)"
-                                    class="group relative text-gray-700 group text-sm flex justify-end items-center cursor-pointer py-3 gap-x-2 px-4 md:px-4 lg:px-4"
-                                    :class="[]"
-                                    :title="capitalize(menu.tooltip ?? menu.label ?? '')">
-                                    <div :class="[
-                                        route(layoutStore.currentRoute, route().v().params).includes(route(menu.route.name, menu.route.parameters))
-                                        ? 'bottomNavigationActive'
-                                        : 'bottomNavigation'
-                                    ]"/>
-                                    <!-- {{ route(menu.route.name, menu.route.parameters) }} -->
-                                    <FontAwesomeIcon :icon="menu.icon"
-                                        class="h-5 lg:h-3.5 w-auto group-hover:opacity-100 opacity-70 transition duration-100 ease-in-out"
-                                        aria-hidden="true"/>
-                                    <span v-if="menu.label" class="hidden lg:inline capitalize whitespace-nowrap">{{ menu.label }}</span>
-                                </Link>
-                            </template>
+                        <div class="flex h-full" id="TopbarSubsections">
                         </div>
+                        
                     </div>
 
                     <!-- Section: Search, Notification, Profile -->
