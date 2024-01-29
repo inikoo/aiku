@@ -113,7 +113,7 @@ class Pallet extends Model
             ->saveSlugsTo('slug')->slugsShouldBeNoLongerThan(12);
     }
 
-    public function scopeLocated(Builder $query, $located): Builder
+    public function scopeLocationId(Builder $query, $located): Builder
     {
         if ($located) {
             return $query->whereNotNull('location_id');

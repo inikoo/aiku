@@ -19,6 +19,7 @@ use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -43,6 +44,12 @@ class IndexPallets extends OrgAction
 
         $query=QueryBuilder::for(Pallet::class);
 
+        $isLocated = request()->get('filter')['located'];
+
+        if($isLocated == "all") {
+            $query->whereNotNull('location_id');
+        }
+
         switch (class_basename($parent)) {
             case "FulfilmentCustomer":
                 $query->where('fulfilment_customer_id', $parent->id);
@@ -59,10 +66,9 @@ class IndexPallets extends OrgAction
 
         }
 
-
         return $query->defaultSort('slug')
             ->allowedSorts(['customer_reference', 'slug'])
-            ->allowedFilters([$globalSearch, 'customer_reference', AllowedFilter::scope('located')])
+            ->allowedFilters([$globalSearch, 'customer_reference'])
             ->withPaginator($prefix)
             ->withQueryString();
     }

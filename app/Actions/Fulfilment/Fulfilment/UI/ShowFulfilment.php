@@ -146,7 +146,7 @@ class ShowFulfilment extends OrgAction
         )->table(IndexPallets::make()->tableStructure(prefix: FulfilmentTabsEnum::PALLETS->value, modelOperations: [
             'createLink' => [[
                 'route' => [
-                    'name'       => 'grp.accounting.payment-service-providers.show.payments.create',
+                    'name'       => 'grp.org.fulfilments.show.pallets.create',
                     'parameters' => array_values($request->route()->originalParameters())
                 ],
                 'label' => __('pallet')
@@ -192,7 +192,7 @@ class ShowFulfilment extends OrgAction
                                     'name'       => 'grp.org.fulfilments.show',
                                     'parameters' => $routeParameters
                                 ],
-                                'label' => $fulfilment->shop->code,
+                                'label' => $fulfilment?->shop?->code,
                                 'icon'  => 'fal fa-bars'
                             ]
 

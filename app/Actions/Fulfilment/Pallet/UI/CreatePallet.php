@@ -7,49 +7,58 @@
 
 namespace App\Actions\Fulfilment\Pallet\UI;
 
+use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\InertiaAction;
+use App\Actions\OrgAction;
+use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use App\Enums\Fulfilment\StoredItem\StoredItemTypeEnum;
+use App\Enums\UI\FulfilmentTabsEnum;
+use App\Http\Resources\Fulfilment\PalletResource;
 use App\Http\Resources\Fulfilment\StoredItemResource;
+use App\Models\Fulfilment\Fulfilment;
+use App\Models\Fulfilment\PalletDelivery;
+use App\Models\Inventory\Warehouse;
+use App\Models\SysAdmin\Organisation;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
+use Spatie\LaravelOptions\Options;
 
-class CreatePallet extends InertiaAction
+class CreatePallet extends OrgAction
 {
-    public function handle($prefix=null): Response
+    public function handle(): Response
     {
         return $this->htmlResponse();
     }
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo('fulfilment.edit');
+        $this->canEdit = $request->user()->hasPermissionTo("fulfilment.{$this->fulfilment->id}.stored-items.edit");
 
         return
             (
                 $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo('hr.view')
+                $request->user()->hasPermissionTo("fulfilment.{$this->fulfilment->id}.stored-items.view")
             );
     }
 
 
     public function jsonResponse(LengthAwarePaginator $pallets): AnonymousResourceCollection
     {
-        return StoredItemResource::collection($pallets);
+        return PalletResource::collection($pallets);
     }
-
 
     public function htmlResponse(): Response
     {
         return Inertia::render(
             'CreateModel',
             [
-                'breadcrumbs' => $this->getBreadcrumbs(),
-                'title'       => __('stored items'),
+                'breadcrumbs' => $this->getBreadcrumbs(request()->route()->getName(), request()->route()->parameters()),
+                'title'       => __('pallets'),
                 'pageHead'    => [
-                    'title'  => __('stored items'),
+                    'title'  => __('pallets'),
                 ],
                 'formData' => [
                     'blueprint' => [
@@ -63,52 +72,53 @@ class CreatePallet extends InertiaAction
                                     'value'   => '',
                                     'required'=> true
                                 ],
+                                'delivery_id' => [
+                                    'type'    => 'select',
+                                    'label'   => __('pallet delivery'),
+                                    'value'   => '',
+                                    'required'=> true,
+                                    'options' => Options::forModels(PalletDelivery::class)->toArray()
+                                ],
                                 'type' => [
                                     'type'    => 'select',
                                     'label'   => __('type'),
                                     'value'   => '',
                                     'required'=> true,
-                                    'options' => StoredItemTypeEnum::values()
-                                ],
-                                'location' => [
-                                    'type'     => 'combobox',
-                                    'label'    => __('location'),
-                                    'value'    => '',
-                                    'required' => true,
-                                    'apiUrl'   => route('grp.json.locations') . '?filter[slug]=',
+                                    'options' => PalletTypeEnum::values()
                                 ],
                             ]
                         ]
                     ],
                     'route' => [
-                        'name'      => 'grp.models.stored-items.store',
-                        'arguments' => array_values($request->route()->originalParameters())
+                        'name'      => 'grp.org.fulfilments.show.pallets.create',
+                        'arguments' => array_values(request()->route()->originalParameters())
                     ]
                 ],
             ]
         );
     }
 
-    public function asController(ActionRequest $request): Response
+
+    public function asController(Organisation $organisation, Warehouse $warehouse, Fulfilment $fulfilment, ActionRequest $request): Response
     {
-        $this->initialisation($request);
+        $this->initialisationFromFulfilment($fulfilment, $request);
 
         return $this->handle();
     }
 
-
-    public function getBreadcrumbs(): array
+    public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
         return array_merge(
-            ShowFulfilment::make()->getBreadcrumbs(),
+            ShowFulfilment::make()->getBreadcrumbs($routeParameters),
             [
                 [
                     'type'   => 'simple',
                     'simple' => [
                         'route' => [
-                            'name' => 'grp.fulfilment.stored-items.index'
+                            'name' => 'grp.org.fulfilments.show.pallets.create',
+                            'parameters' => array_values($routeParameters)
                         ],
-                        'label' => __('stored items'),
+                        'label' => __('pallets'),
                         'icon'  => 'fal fa-bars',
                     ],
 
