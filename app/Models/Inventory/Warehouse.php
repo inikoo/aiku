@@ -55,6 +55,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, Issue> $issues
  * @property-read Collection<int, \App\Models\Inventory\Location> $locations
  * @property-read Organisation $organisation
+ * @property-read Collection<int, Pallet> $pallets
  * @property-read Collection<int, Role> $roles
  * @property-read \App\Models\Inventory\WarehouseStats|null $stats
  * @property-read UniversalSearch|null $universalSearch

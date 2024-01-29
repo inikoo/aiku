@@ -36,6 +36,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $customer_reference
  * @property int $fulfilment_id
  * @property int $fulfilment_customer_id
+ * @property int $warehouse_id
  * @property int|null $location_id
  * @property PalletStatusEnum $status
  * @property PalletStateEnum $state
@@ -54,8 +55,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Fulfilment\Fulfilment $fulfilment
  * @property-read \App\Models\Fulfilment\FulfilmentCustomer $fulfilmentCustomer
  * @property-read Location|null $location
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, MovementPallet> $movements
  * @property-read Organisation $organisation
+ * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
+ * @property-read Warehouse $warehouse
  * @method static \Database\Factories\Fulfilment\PalletFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder|Pallet located($located)
  * @method static \Illuminate\Database\Eloquent\Builder|Pallet newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Pallet newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Pallet onlyTrashed()

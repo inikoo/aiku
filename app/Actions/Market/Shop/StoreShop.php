@@ -32,6 +32,7 @@ use App\Models\SysAdmin\Role;
 use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\ActionRequest;
@@ -42,6 +43,9 @@ class StoreShop extends OrgAction
 
     public function handle(Organisation $organisation, array $modelData): Shop
     {
+        $warehouses = Arr::get($modelData, 'warehouses', []);
+        Arr::forget($modelData, 'warehouses');
+
         data_set($modelData, 'group_id', $organisation->group_id);
 
         /** @var Shop $shop */
@@ -71,7 +75,7 @@ class StoreShop extends OrgAction
 
         if ($shop->type == ShopTypeEnum::FULFILMENT) {
             //it must use run to bypass rules
-            StoreFulfilment::make()->run($shop, []);
+            StoreFulfilment::make()->run($shop, $warehouses, []);
         } else {
             SeedShopPermissions::run($shop);
 
@@ -139,20 +143,21 @@ class StoreShop extends OrgAction
     }
 
 
-    public function afterValidator(Validator $validator, ActionRequest $request): void
+    public function afterValidator(Validator $validator): void
     {
-        if ($request->get('identity_document_number') and !$request->get('identity_document_type')) {
-            $validator->errors()->add('contact_name', 'document type required');
-        }
-        if ($request->get('identity_document_type') and !$request->get('identity_document_number')) {
-            $validator->errors()->add('contact_name', 'document number required');
+
+        if ($this->get('type') == ShopTypeEnum::FULFILMENT->value and !$this->get('warehouses')) {
+            $validator->errors()->add('warehouses', 'warehouse required');
         }
     }
 
     public function action(Organisation $organisation, array $modelData): Shop
     {
+
+
         $this->asAction = true;
         $this->initialisation($organisation, $modelData);
+
         return $this->handle($organisation, $this->validatedData);
     }
 

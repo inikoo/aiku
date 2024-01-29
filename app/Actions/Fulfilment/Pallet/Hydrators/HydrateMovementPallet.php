@@ -20,7 +20,7 @@ class HydrateMovementPallet extends HydrateModel
         $pallet->movements()->create([
             'location_from_id' => $lastLocationId,
             'location_to_id'   => $pallet->location_id,
-            'moved_at' => now()
+            'moved_at'         => now()
         ]);
     }
 }

@@ -30,8 +30,8 @@ class UniversalSearchResource extends JsonResource
                     'User'     => new UserSearchResultResource($this->resource->model),
                     'Employee' => new EmployeeSearchResultResource($this->resource->model),
                     'Location' => new LocationResource($this->resource->model),
-                    'Pallet' => new PalletResource($this->resource->model),
-                    'Item' => new StoredItemResource($this->resource->model),
+                    'Pallet'   => new PalletResource($this->resource->model),
+                    'Item'     => new StoredItemResource($this->resource->model),
                     default    => [],
                 };
             }),
