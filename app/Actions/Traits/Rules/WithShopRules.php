@@ -47,7 +47,9 @@ trait WithShopRules
             'closed_at'                => ['sometimes', 'nullable', 'date'],
             'settings'                 => ['sometimes', 'array'],
             'created_at'               => ['sometimes', 'date'],
-            'source_id'                => ['sometimes', 'string']
+            'source_id'                => ['sometimes', 'string'],
+            'warehouses'               => ['sometimes', 'array'],
+            'warehouses.*'             => ['exists:warehouses,id'],
         ];
     }
 }

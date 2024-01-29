@@ -50,6 +50,7 @@ test('create fulfilment shop', function () {
     $organisation = $this->organisation;
     $storeData    = Shop::factory()->definition();
     data_set($storeData, 'type', ShopTypeEnum::FULFILMENT->value);
+    data_set($storeData, 'warehouses', [$this->warehouse->id]);
     $shop = StoreShop::make()->action($this->organisation, $storeData);
     $organisation->refresh();
 
