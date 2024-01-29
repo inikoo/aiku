@@ -7,6 +7,8 @@
 
 namespace App\Http\Resources\UniversalSearch;
 
+use App\Http\Resources\Fulfilment\PalletResource;
+use App\Http\Resources\Fulfilment\StoredItemResource;
 use App\Http\Resources\HumanResources\EmployeeSearchResultResource;
 use App\Http\Resources\Inventory\LocationResource;
 use App\Http\Resources\SysAdmin\UserSearchResultResource;
@@ -28,10 +30,11 @@ class UniversalSearchResource extends JsonResource
                     'User'     => new UserSearchResultResource($this->resource->model),
                     'Employee' => new EmployeeSearchResultResource($this->resource->model),
                     'Location' => new LocationResource($this->resource->model),
+                    'Pallet' => new PalletResource($this->resource->model),
+                    'Item' => new StoredItemResource($this->resource->model),
                     default    => [],
                 };
             }),
-
         ];
     }
 }
