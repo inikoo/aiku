@@ -61,7 +61,7 @@ class IndexPallets extends OrgAction
 
 
         return $query->defaultSort('slug')
-            ->allowedSorts(['customer_reference'])
+            ->allowedSorts(['customer_reference', 'slug'])
             ->allowedFilters([$globalSearch, 'customer_reference', AllowedFilter::scope('located')])
             ->withPaginator($prefix)
             ->withQueryString();

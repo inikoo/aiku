@@ -15,6 +15,7 @@ use App\Models\CRM\Customer;
 use App\Models\Inventory\Location;
 use App\Models\MovementPallet;
 use App\Models\SysAdmin\Organisation;
+use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -67,6 +68,7 @@ class Pallet extends Model
     use HasSlug;
     use SoftDeletes;
     use HasFactory;
+    use HasUniversalSearch;
 
 
     protected $guarded = [];
