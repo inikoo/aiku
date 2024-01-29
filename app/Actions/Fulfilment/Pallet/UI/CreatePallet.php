@@ -8,13 +8,9 @@
 namespace App\Actions\Fulfilment\Pallet\UI;
 
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
-use App\Actions\InertiaAction;
 use App\Actions\OrgAction;
 use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
-use App\Enums\Fulfilment\StoredItem\StoredItemTypeEnum;
-use App\Enums\UI\FulfilmentTabsEnum;
 use App\Http\Resources\Fulfilment\PalletResource;
-use App\Http\Resources\Fulfilment\StoredItemResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Inventory\Warehouse;
@@ -115,7 +111,7 @@ class CreatePallet extends OrgAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => [
-                            'name' => 'grp.org.fulfilments.show.pallets.create',
+                            'name'       => 'grp.org.fulfilments.show.pallets.create',
                             'parameters' => array_values($routeParameters)
                         ],
                         'label' => __('pallets'),

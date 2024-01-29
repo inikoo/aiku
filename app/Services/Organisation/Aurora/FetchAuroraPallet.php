@@ -16,6 +16,7 @@ class FetchAuroraPallet extends FetchAurora
 {
     protected function parseModel(): void
     {
+
         $customer                     = $this->parseCustomer($this->organisation->id.':'.$this->auroraModelData->{'Fulfilment Asset Customer Key'});
         $this->parsedData['customer'] = $customer;
 

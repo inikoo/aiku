@@ -11,14 +11,14 @@ use App\Models\Fulfilment\Fulfilment;
 
 enum FulfilmentPermissionsEnum: string
 {
-    case FULFILMENT_SHOP = 'fulfilment';
+    case FULFILMENT_SHOP = 'fulfilment-shop';
 
-    case FULFILMENT_SHOP_VIEW = 'fulfilment.view';
+    case FULFILMENT_SHOP_VIEW = 'fulfilment-shop.view';
 
-    case FULFILMENT_SHOP_EDIT = 'fulfilment.edit';
+    case FULFILMENT_SHOP_EDIT = 'fulfilment-shop.edit';
 
 
-    case SUPERVISOR_FULFILMENT_SHOP = 'supervisor-stored-items';
+    case SUPERVISOR_FULFILMENT_SHOP = 'supervisor-fulfilment-shop';
 
     public static function getAllValues(Fulfilment $fulfilment): array
     {

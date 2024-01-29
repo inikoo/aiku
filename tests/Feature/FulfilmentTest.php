@@ -56,8 +56,13 @@ test('create fulfilment shop', function () {
 
     $shopRoles             = Role::where('scope_type', 'Shop')->where('scope_id', $shop->id)->get();
     $shopPermissions       = Permission::where('scope_type', 'Shop')->where('scope_id', $shop->id)->get();
-    $fulfilmentRoles       = Role::where('scope_type', 'Fulfilment')->where('scope_id', $shop->id)->get();
-    $fulfilmentPermissions = Permission::where('scope_type', 'Fulfilment')->where('scope_id', $shop->id)->get();
+    $fulfilmentRoles       = Role::where('scope_type', 'Fulfilment')->where('scope_id', $shop->fulfilment->id)->get();
+    $fulfilmentPermissions = Permission::where('scope_type', 'Fulfilment')->where('scope_id', $shop->fulfilment->id)->get();
+    $warehouseRoles        = Role::where('scope_type', 'Warehouse')->where('scope_id', $this->warehouse->id)->get();
+    $warehousePermissions  = Permission::where('scope_type', 'Warehouse')->where('scope_id', $this->warehouse->id)->get();
+
+
+    //  dd($fulfilmentPermissions->pluck('name'));
 
     expect($shop)->toBeInstanceOf(Shop::class)
         ->and($shop->fulfilment)->toBeInstanceOf(Fulfilment::class)
@@ -67,12 +72,14 @@ test('create fulfilment shop', function () {
         ->and($shopRoles->count())->toBe(0)
         ->and($shopPermissions->count())->toBe(0)
         ->and($fulfilmentRoles->count())->toBe(2)
-        ->and($fulfilmentPermissions->count())->toBe(1);
+        ->and($fulfilmentPermissions->count())->toBe(4)
+        ->and($warehouseRoles->count())->toBe(4)
+        ->and($warehousePermissions->count())->toBe(10);
 
     $user = $this->adminGuest->user;
     $user->refresh();
 
-    expect($user->getAllPermissions()->count())->toBe(18)
+    expect($user->getAllPermissions()->count())->toBe(19)
         ->and($user->hasAllRoles(["fulfilment-shop-supervisor-{$shop->fulfilment->id}"]))->toBe(true)
         ->and($user->hasAllRoles(["shop-admin-$shop->id"]))->toBe(false)
         ->and($shop->fulfilment->number_warehouses)->toBe(1);

@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
 /**
@@ -22,6 +23,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $id
  * @property int $group_id
  * @property int $organisation_id
+ * @property string $slug
  * @property int $customer_id
  * @property int $fulfilment_id
  * @property int $number_pallets
@@ -73,6 +75,7 @@ use Spatie\Sluggable\SlugOptions;
 class FulfilmentCustomer extends Model
 {
     use SoftDeletes;
+    use HasSlug;
 
     protected $guarded = [];
     protected $casts   = [
