@@ -9,6 +9,7 @@ namespace App\Models\SysAdmin;
 
 use App\Models\Assets\Currency;
 use App\Models\Goods\TradeUnit;
+use App\Models\GroupFulfilmentStat;
 use App\Models\HumanResources\Employee;
 use App\Models\HumanResources\JobPosition;
 use App\Models\Mail\Mailroom;
@@ -210,5 +211,10 @@ class Group extends Model implements HasMedia
     public function roles(): HasMany
     {
         return $this->hasMany(Role::class);
+    }
+
+    public function fulfilmentStats(): HasMany
+    {
+        return $this->hasMany(GroupFulfilmentStat::class);
     }
 }

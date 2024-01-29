@@ -27,7 +27,6 @@ class WarehouseHydrateFulfilments
         return [(new WithoutOverlapping($this->warehouse->id))->dontRelease()];
     }
 
-
     public function handle(Warehouse $warehouse): void
     {
         $warehouse->stats()->update(
