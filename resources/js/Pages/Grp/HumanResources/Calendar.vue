@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { DatePicker } from 'v-calendar'
 import 'v-calendar/style.css'
+import { ref } from 'vue'
 
 const props = defineProps<{
     data: Object
@@ -18,6 +19,19 @@ const attrs = [
         dates: new Date(),
     },
     {
+        dates: { repeat: { weekdays: 5 } },
+        dot: {
+            color: 'red',
+            class: 'qwezxc',
+            isComplete: true,
+        },
+        popover: {
+            label: 'Take Michelle to festivals.',
+            visibility: 'hover',
+            hideIndicator: false,
+        },
+    },
+    {
         // Object
         content: {
             color: 'purple',
@@ -32,25 +46,38 @@ const attrs = [
         ],
     },
 ]
+
+const isDateSameDay = (date1: Date, date2: Date) => {
+    return date1.getFullYear() === date2.getFullYear() && date1.getMonth() === date2.getMonth() && date1.getDate() === date2.getDate()
+}
 </script>
 
 
 <template  layout="App">
     <div class="w-full mx-auto mt-5">
-        <DatePicker expanded :attributes="attrs" :min-date='new Date()'>
+        <DatePicker expanded :attributes="attrs">
             <template #day-content="{ day, attributes }">
-                <div class="hover:bg-slate-300 p-0.5 rounded h-10">
-                    <div class="text-sm text-slate-500">
+                <!-- {{ console.log() }} -->
+
+                <div class="rounded h-20 px-1 py-0.5"
+                    :class="[
+                        isDateSameDay(day.date, new Date()) ? 'bg-lime-100' : ' ',
+                    ]"
+                >
+                    <div class="text-sm text-slate-600">
                         {{ day.day }}
                     </div>
+                    <div class="">{{ attributes[0]?.popover?.label }}</div>
                 </div>
             </template>
+            <!-- <template #day-popover>
+                aaaaaaaaaaaaaaaa
+            </template> -->
         </DatePicker>
     </div>
 </template>
 
 <style lang="scss">
-
 .vc-container {
     position: relative;
     display: inline-flex;
@@ -83,7 +110,7 @@ const attrs = [
 }
 
 .vc-expanded {
-    min-width: 100%;
+    @apply min-w-full
 }
 
 .vc-transparent {
@@ -98,16 +125,31 @@ const attrs = [
     }
 }
 
-
-.vc-weekday-1, .vc-weekday-7 {
-    @apply text-red-500
-
+.vc-weeks {
+    @apply divide-x-2 divide-black/10 border border-black/10 p-0
 }
 
 .vc-week {
-    .on-left, .on-right {
-        @apply bg-red-300/20 p-2;
+    @apply divide-x-2 divide-y-2 divide-black/10
+}
+
+.vc-weekday-1,
+.vc-weekday-7 {
+    // For title Sunday and Saturday
+    @apply text-red-500 bg-red-100
+}
+
+.vc-week {
+    .on-left,
+    .on-right {
+        // For column in Sunday and Saturday
+        @apply bg-red-300/10;
     }
-} 
+}
+
+.is-not-in-month {
+    @apply bg-gray-500/10 text-red-500 #{!important};
+}
+
 </style>
 
