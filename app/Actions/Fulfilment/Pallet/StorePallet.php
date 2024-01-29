@@ -86,6 +86,7 @@ class StorePallet extends OrgAction
             'created_at'         => ['sometimes', 'date'],
             'received_at'        => ['sometimes', 'nullable', 'date'],
             'source_id'          => ['sometimes', 'nullable', 'string'],
+            'warehouse_id'       => ['required', 'integer', 'exists:warehouses,id'],
         ];
     }
 

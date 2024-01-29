@@ -28,6 +28,8 @@ return new class () extends Migration {
             $table->foreign('fulfilment_id')->references('id')->on('fulfilments');
             $table->unsignedInteger('fulfilment_customer_id')->index();
             $table->foreign('fulfilment_customer_id')->references('id')->on('fulfilment_customers');
+            $table->unsignedInteger('warehouse_id')->index();
+            $table->foreign('warehouse_id')->references('id')->on('warehouses');
             $table->unsignedInteger('location_id')->index()->nullable();
             $table->foreign('location_id')->references('id')->on('locations');
             $table->string('status')->index()->default(PalletStatusEnum::IN_PROCESS->value);

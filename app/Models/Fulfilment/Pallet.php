@@ -13,6 +13,7 @@ use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use App\Models\CRM\Customer;
 use App\Models\Inventory\Location;
+use App\Models\Inventory\Warehouse;
 use App\Models\MovementPallet;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasUniversalSearch;
@@ -124,6 +125,11 @@ class Pallet extends Model
     public function fulfilment(): BelongsTo
     {
         return $this->belongsTo(Fulfilment::class);
+    }
+
+    public function warehouse(): BelongsTo
+    {
+        return $this->belongsTo(Warehouse::class);
     }
 
     public function fulfilmentCustomer(): BelongsTo

@@ -112,8 +112,11 @@ test('create fulfilment customer', function (Fulfilment $fulfilment) {
 test('create pallet no delivery', function (FulfilmentCustomer $fulfilmentCustomer) {
     $pallet = StorePallet::make()->action(
         $fulfilmentCustomer,
-        Pallet::factory()->definition(),
+        array_merge([
+            'warehouse_id' => $this->warehouse->id,
+        ], Pallet::factory()->definition())
     );
+
 
     expect($pallet)->toBeInstanceOf(Pallet::class)
         ->and($pallet->state)->toBe(PalletStateEnum::IN_PROCESS)

@@ -5,6 +5,7 @@
  *  Copyright (c) 2022, Raul A Perusquia F
  */
 
+use App\Stubs\Migrations\HasFulfilmentStats;
 use App\Stubs\Migrations\HasLocationsStats;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -12,6 +13,7 @@ use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
     use HasLocationsStats;
+    use HasFulfilmentStats;
 
     public function up(): void
     {
@@ -19,9 +21,14 @@ return new class () extends Migration {
             $table->smallIncrements('id');
             $table->unsignedSmallInteger('warehouse_id')->index();
             $table->foreign('warehouse_id')->references('id')->on('warehouses');
-            $table->unsignedSmallInteger('number_fulfilments')->default(0);
+
             $table->unsignedSmallInteger('number_warehouse_areas')->default(0);
             $table = $this->locationsStats($table);
+
+            $table->unsignedSmallInteger('number_fulfilments')->default(0);
+            $table = $this->containerFulfilmentStats($table);
+            $table = $this->fulfilmentStats($table);
+
             $table->timestampsTz();
         });
     }
