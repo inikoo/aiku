@@ -15,7 +15,7 @@ import {
     faGraduationCap,
     faMoneyBill,
     faPaperclip, faPaperPlane, faStickyNote,
-    faTags,faCube,faCodeBranch
+    faTags,faCube,faCodeBranch, faShoppingCart, faNarwhal, faTruck
 } from '@fal';
 import ModelDetails from "@/Components/ModelDetails.vue";
 import TableOrders from "@/Components/Tables/TableOrders.vue";
@@ -37,7 +37,10 @@ library.add(
     faPaperclip,
     faPaperPlane,
     faCube,
-    faCodeBranch
+    faCodeBranch,
+    faShoppingCart,
+    faNarwhal,
+    faTruck
 )
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChangelog.vue'))

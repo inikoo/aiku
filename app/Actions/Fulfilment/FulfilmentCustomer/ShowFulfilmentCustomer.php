@@ -8,13 +8,18 @@
 namespace App\Actions\Fulfilment\FulfilmentCustomer;
 
 use App\Actions\CRM\Customer\UI\GetCustomerShowcase;
+use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
+use App\Actions\Fulfilment\FulfilmentCustomer\UI\IndexFulfilmentCustomers;
 use App\Actions\Fulfilment\FulfilmentOrder\UI\IndexFulfilmentOrders;
+use App\Actions\Fulfilment\PalletDelivery\UI\IndexPalletDeliveries;
 use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItems;
 use App\Actions\InertiaAction;
 use App\Actions\Mail\DispatchedEmail\IndexDispatchedEmails;
 use App\Actions\OrgAction;
 use App\Actions\UI\Dashboard\ShowDashboard;
+use App\Actions\UI\Fulfilment\ShowFulfilmentsDashboard;
 use App\Enums\UI\CustomerFulfilmentTabsEnum;
+use App\Http\Resources\Fulfilment\PalletDeliveriesResource;
 use App\Http\Resources\Fulfilment\StoredItemResource;
 use App\Http\Resources\Mail\DispatchedEmailResource;
 use App\Http\Resources\Sales\CustomerResource;
@@ -56,7 +61,6 @@ class ShowFulfilmentCustomer extends OrgAction
             [
                 'title'       => __('customer'),
                 'breadcrumbs' => $this->getBreadcrumbs(
-                    $request->route()->getName(),
                     $request->route()->parameters
                 ),
                 'navigation'                            => [
@@ -72,7 +76,7 @@ class ShowFulfilmentCustomer extends OrgAction
                         ]
                     ] : false,
                     'actions'=> [
-                        [
+                       /* [
                             'type'    => 'button',
                             'style'   => 'create',
                             'tooltip' => __('new delivery'),
@@ -81,7 +85,7 @@ class ShowFulfilmentCustomer extends OrgAction
                                 'name'       => 'grp.org.fulfilments.show.pallets.create',
                                 'parameters' => array_values($request->route()->originalParameters())
                             ]
-                        ],
+                        ],*/
                         /*[
                             'type'    => 'button',
                             'style'   => 'create',
@@ -109,7 +113,11 @@ class ShowFulfilmentCustomer extends OrgAction
 
                 CustomerFulfilmentTabsEnum::STORED_ITEMS->value => $this->tab == CustomerFulfilmentTabsEnum::STORED_ITEMS->value ?
                     fn () => StoredItemResource::collection(IndexStoredItems::run($customer))
-                    : Inertia::lazy(fn () => StoredItemResource::collection(IndexStoredItems::run($customer))),
+                    : Inertia::lazy(fn () => PalletDeliveriesResource::collection(IndexStoredItems::run($customer))),
+
+                CustomerFulfilmentTabsEnum::PALLET_DELIVERIES->value => $this->tab == CustomerFulfilmentTabsEnum::PALLET_DELIVERIES->value ?
+                    fn () => StoredItemResource::collection(IndexPalletDeliveries::run($customer->fulfilmentCustomer->fulfilment))
+                    : Inertia::lazy(fn () => PalletDeliveriesResource::collection(IndexPalletDeliveries::run($customer->fulfilmentCustomer->fulfilment))),
 
                 CustomerFulfilmentTabsEnum::DISPATCHED_EMAILS->value => $this->tab == CustomerFulfilmentTabsEnum::DISPATCHED_EMAILS->value ?
                     fn () => DispatchedEmailResource::collection(IndexDispatchedEmails::run($customer))
@@ -126,51 +134,35 @@ class ShowFulfilmentCustomer extends OrgAction
         return new CustomerResource($customer);
     }
 
-    public function getBreadcrumbs(string $routeName, array $routeParameters, string $suffix = ''): array
+    public function getBreadcrumbs(array $routeParameters): array
     {
-        $headCrumb = function (Customer $customer, array $routeParameters, string $suffix) {
+        $headCrumb = function (array $routeParameters = []) {
             return [
                 [
-
-                    'type'           => 'modelWithIndex',
-                    'modelWithIndex' => [
-                        'index' => [
-                            'route' => $routeParameters['index'],
-                            'label' => __('customers')
-                        ],
-                        'model' => [
-                            'route' => $routeParameters['model'],
-                            'label' => $customer->name,
-                        ],
-
+                    'type'   => 'simple',
+                    'simple' => [
+                        'label' => __($routeParameters['parameters']['customer'])
                     ],
-                    'suffix'=> $suffix
-
                 ],
             ];
         };
 
-        return match ($routeName) {
-            'grp.fulfilment.customers.show' =>
-            array_merge(
-                ShowDashboard::make()->getBreadcrumbs(),
-                $headCrumb(
-                    $routeParameters['customer'],
-                    [
-                        'index' => [
-                            'name'       => 'grp.fulfilment.customers.index',
-                            'parameters' => []
-                        ],
-                        'model' => [
-                            'name'       => 'grp.fulfilment.customers.show',
-                            'parameters' => [$routeParameters['customer']->slug]
-                        ]
-                    ],
-                    $suffix
-                ),
+
+        return array_merge(
+            IndexFulfilmentCustomers::make()->getBreadcrumbs(
+                $routeParameters
             ),
-            default => []
-        };
+            $headCrumb(
+                [
+                    'name'       => 'grp.org.fulfilments.show.customers.index',
+                    'parameters' => [
+                        'organisation' => $routeParameters['organisation']->slug,
+                        'fulfilment' => $routeParameters['fulfilment']->slug,
+                        'customer' => $routeParameters['customer']->slug
+                    ]
+                ]
+            )
+        );
     }
 
     public function getPrevious(Customer $customer, ActionRequest $request): ?array
@@ -210,6 +202,8 @@ class ShowFulfilmentCustomer extends OrgAction
                 'route'=> [
                     'name'      => $routeName,
                     'parameters'=> [
+                        'organisation'=> $customer->shop->organisation->slug,
+                        'fulfilment'=> $this->fulfilment->slug,
                         'customer'=> $customer->slug
                     ]
 

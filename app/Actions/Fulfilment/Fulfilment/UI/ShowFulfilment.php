@@ -170,7 +170,7 @@ class ShowFulfilment extends OrgAction
 
     public function getBreadcrumbs(array $routeParameters, $suffix = null): array
     {
-        $fulfilment = Fulfilment::where('slug', $routeParameters['fulfilment'])->first();
+        $fulfilment = Arr::get($routeParameters, 'fulfilment');
 
         return
             array_merge(
@@ -192,7 +192,7 @@ class ShowFulfilment extends OrgAction
                                     'name'       => 'grp.org.fulfilments.show',
                                     'parameters' => $routeParameters
                                 ],
-                                'label' => $fulfilment?->shop?->code,
+                                'label' => is_string($fulfilment) ? $fulfilment : $fulfilment->shop?->code,
                                 'icon'  => 'fal fa-bars'
                             ]
 

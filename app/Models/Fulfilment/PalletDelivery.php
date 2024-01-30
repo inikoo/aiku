@@ -21,7 +21,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int $organisation_id
  * @property string $ulid
  * @property int $customer_id
- * @property string $name
+ * @property string $reference
+ * @property string $customer_reference
  * @property PalletDeliveryStateEnum $state
  * @property \Illuminate\Support\Carbon|null $in_at
  * @property \Illuminate\Support\Carbon|null $out_at
