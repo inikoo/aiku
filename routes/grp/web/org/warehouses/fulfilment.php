@@ -7,9 +7,14 @@
 
 use App\Actions\Fulfilment\Pallet\UI\IndexPallets;
 use App\Actions\Fulfilment\Pallet\UI\ShowPallet;
+use App\Actions\Fulfilment\PalletDelivery\UI\IndexPalletDeliveries;
+use App\Actions\Fulfilment\PalletDelivery\UI\ShowPalletDelivery;
 use App\Actions\UI\Fulfilment\ShowFulfilmentDashboard;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', ShowFulfilmentDashboard::class)->name('dashboard');
 Route::get('/pallets', [IndexPallets::class, 'inWarehouse'])->name('pallets.index');
 Route::get('/pallets/{pallet}', [ShowPallet::class, 'inWarehouse'])->name('pallets.show');
+
+Route::get('deliveries', [IndexPalletDeliveries::class, 'inWarehouse'])->name('pallet-deliveries.index');
+Route::get('deliveries/{palletDelivery}', [ShowPalletDelivery::class, 'inWarehouse'])->name('pallet-deliveries.show');
