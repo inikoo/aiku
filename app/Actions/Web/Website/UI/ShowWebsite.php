@@ -9,9 +9,8 @@ namespace App\Actions\Web\Website\UI;
 
 use App\Actions\CRM\WebUser\IndexWebUser;
 use App\Actions\Helpers\History\IndexHistory;
-use App\Actions\InertiaAction;
-use App\Actions\UI\Dashboard\ShowDashboard;
-use App\Actions\UI\WithInertia;
+use App\Actions\Market\Shop\UI\ShowShop;
+use App\Actions\OrgAction;
 use App\Actions\Web\WebpageVariant\IndexWebpageVariants;
 use App\Enums\UI\WebsiteTabsEnum;
 use App\Http\Resources\CRM\WebUserResource;
@@ -19,63 +18,60 @@ use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\Web\WebpageResource;
 use App\Http\Resources\Web\WebsiteResource;
 use App\Models\Market\Shop;
+use App\Models\SysAdmin\Organisation;
 use App\Models\Web\Website;
+use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsAction;
 
-class ShowWebsite extends InertiaAction
+class ShowWebsite extends OrgAction
 {
-    use AsAction;
-    use WithInertia;
-
-
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit   = $request->user()->hasPermissionTo('websites.edit');
-        $this->canDelete = $request->user()->hasPermissionTo('websites.edit');
-        return $request->user()->hasPermissionTo("shops.websites.view");
+        $this->canEdit   = $request->user()->hasPermissionTo("web.{$this->shop->id}.edit");
+        $this->canDelete = $request->user()->hasPermissionTo("web.{$this->shop->id}.edit");
+
+        return $request->user()->hasPermissionTo("web.{$this->shop->id}.view");
     }
 
-    public function asController(Website $website, ActionRequest $request): Website
+    public function asController(Organisation $organisation, Shop $shop, Website $website, ActionRequest $request): Website
     {
-        $this->initialisation($request)->withTab(WebsiteTabsEnum::values());
+        $this->initialisationFromShop($shop, $request)->withTab(WebsiteTabsEnum::values());
 
         return $website;
     }
 
-    /** @noinspection PhpUnusedParameterInspection */
-    public function inShop(Shop $shop, Website $website, ActionRequest $request): Website
-    {
-        $this->initialisation($request)->withTab(WebsiteTabsEnum::values());
-
-        return $website;
-    }
 
     public function htmlResponse(Website $website, ActionRequest $request): Response
     {
         $this->validateAttributes();
+        /*
+                dd( $this->getBreadcrumbs(
+                    $request->route()->getName(),
+                    $request->route()->originalParameters()
+                ));
+        */
 
         return Inertia::render(
-            'Web/Website',
+            'Org/Web/Website',
             [
-                'title'       => __('Website'),
-                'breadcrumbs' => $this->getBreadcrumbs(
+                'title'                          => __('Website'),
+                'breadcrumbs'                    => $this->getBreadcrumbs(
                     $request->route()->getName(),
-                    $request->route()->parameters
+                    $request->route()->originalParameters()
                 ),
-                'navigation'   => [
+                'navigation'                     => [
                     'previous' => $this->getPrevious($website, $request),
                     'next'     => $this->getNext($website, $request),
                 ],
-                'pageHead'    => [
+                'pageHead'                       => [
                     'title'   => $website->name,
                     'icon'    => [
                         'title' => __('website'),
                         'icon'  => 'fal fa-globe'
                     ],
-                    'actions' => [
+                    'actionsx' => [
                         $this->canEdit ? [
                             'type'  => 'button',
                             'style' => 'edit',
@@ -107,7 +103,7 @@ class ShowWebsite extends InertiaAction
                     ],
 
                 ],
-                'tabs'                                => [
+                'tabs'                           => [
                     'current'    => $this->tab,
                     'navigation' => WebsiteTabsEnum::navigation()
                 ],
@@ -120,7 +116,7 @@ class ShowWebsite extends InertiaAction
                         IndexWebpageVariants::run($website)
                     )),
 
-                WebsiteTabsEnum::USERS->value => $this->tab == WebsiteTabsEnum::USERS->value
+                WebsiteTabsEnum::USERS->value     => $this->tab == WebsiteTabsEnum::USERS->value
                     ?
                     WebUserResource::collection(
                         IndexWebUser::run(
@@ -147,7 +143,7 @@ class ShowWebsite extends InertiaAction
                 modelOperations: [
                     'createLink' => $this->canEdit ? [
                         'route' => [
-                            'name'       => 'website.show.web-users.create',
+                            'name'       => 'grp.org.shop.show.websites.show.web-users.create',
                             'parameters' => array_values($request->route()->originalParameters())
                         ],
                         'label' => __('users')
@@ -167,6 +163,9 @@ class ShowWebsite extends InertiaAction
     public function getBreadcrumbs(string $routeName, array $routeParameters, string $suffix = ''): array
     {
         $headCrumb = function (string $type, Website $website, array $routeParameters, string $suffix) {
+
+
+
             return [
                 [
 
@@ -180,15 +179,12 @@ class ShowWebsite extends InertiaAction
                             'route' => $routeParameters['model'],
                             'label' => $website->name,
                         ],
-
                     ],
-                    'simple'=> [
+                    'simple'         => [
                         'route' => $routeParameters['model'],
                         'label' => $website->name
                     ],
-
-
-                    'suffix'=> $suffix
+                    'suffix' => $suffix
 
                 ],
             ];
@@ -196,23 +192,26 @@ class ShowWebsite extends InertiaAction
 
 
 
+
+
+
         return match ($routeName) {
-            'grp.web.websites.show',
-            'grp.web.websites.edit' =>
+            'grp.org.shops.show.websites.show',
+            'grp.org.shops.show.websites.edit' =>
 
             array_merge(
-                ShowDashboard::make()->getBreadcrumbs(),
+                ShowShop::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     'modelWithIndex',
-                    $routeParameters['website'],
+                    Website::where('slug', $routeParameters['website'])->first(),
                     [
                         'index' => [
-                            'name'       => 'grp.web.websites.index',
-                            'parameters' => []
+                            'name'       => 'grp.org.shops.show.websites.index',
+                            'parameters' => Arr::only($routeParameters, ['organisation','shop'])
                         ],
                         'model' => [
-                            'name'       => 'grp.web.websites.show',
-                            'parameters' => [$routeParameters['website']->slug]
+                            'name'       => 'grp.org.shops.show.websites.show',
+                            'parameters' => $routeParameters
                         ]
                     ],
                     $suffix
@@ -244,12 +243,14 @@ class ShowWebsite extends InertiaAction
         }
 
         return match ($routeName) {
-            'grp.web.websites.show' => [
+            'grp.org.shops.show.websites.show' => [
                 'label' => $website->name,
                 'route' => [
                     'name'       => $routeName,
                     'parameters' => [
-                        'website' => $website->slug
+                        'organisation' => $website->shop->organisation->slug,
+                        'shop'         => $website->shop->slug,
+                        'website'      => $website->slug
                     ]
                 ]
             ]

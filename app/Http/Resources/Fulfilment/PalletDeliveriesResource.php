@@ -7,7 +7,6 @@
 
 namespace App\Http\Resources\Fulfilment;
 
-use App\Http\Resources\Inventory\LocationResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class PalletDeliveriesResource extends JsonResource
@@ -21,7 +20,7 @@ class PalletDeliveriesResource extends JsonResource
             'id'                 => $palletDelivery->id,
             'reference'          => $palletDelivery->reference,
             'customer_reference' => $palletDelivery->customer_reference,
-            'pallets' => $palletDelivery->pallets->where('state', '!=', 'cancelled')->count(),
+            'pallets'            => $palletDelivery->pallets->where('state', '!=', 'cancelled')->count(),
         ];
     }
 }
