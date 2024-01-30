@@ -17,9 +17,9 @@
     }
     
     .specialBox {
-        @apply bg-gradient-to-t from-yellow-300 to-yellow-200
-        border-yellow-300 border-2 rounded-md
-        text-yellow-500 hover:text-slate-600 
+        @apply bg-gradient-to-t from-indigo-600 to-indigo-400
+        border-indigo-300 border-2 rounded-md
+        text-indigo-500 hover:text-white 
         cursor-pointer
         focus:ring-0 focus:outline-none focus:border-none
         bg-no-repeat [background-position:0%_100%]
