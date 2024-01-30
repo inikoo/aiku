@@ -18,7 +18,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class ShowDeliveryPallet extends OrgAction
+class ShowPalletDelivery extends OrgAction
 {
     public function handle(PalletDelivery $palletDelivery): PalletDelivery
     {

@@ -14,7 +14,7 @@ use App\Actions\Fulfilment\FulfilmentOrder\UI\IndexFulfilmentOrders;
 use App\Actions\Fulfilment\FulfilmentOrder\UI\ShowfulfilmentOrder;
 use App\Actions\Fulfilment\Pallet\UI\CreatePallet;
 use App\Actions\Fulfilment\Pallet\UI\IndexPallets;
-use App\Actions\Fulfilment\PalletDelivery\UI\ShowDeliveryPallet;
+use App\Actions\Fulfilment\PalletDelivery\UI\ShowPalletDelivery;
 use App\Actions\Fulfilment\StoredItem\SetDamagedStoredItem;
 use App\Actions\Fulfilment\StoredItem\SetReturnStoredItem;
 use App\Actions\Fulfilment\StoredItem\UI\CreateStoredItem;
@@ -50,7 +50,7 @@ Route::prefix('{fulfilment}')->name('show')
         Route::get('/pallets', IndexPallets::class)->name('.pallets.index');
         Route::get('/pallets/create', CreatePallet::class)->name('.pallets.create');
 
-        Route::get('delivery/{palletDelivery}/pallets/create', ShowDeliveryPallet::class)->name('.pallets.delivery.show');
+        Route::get('delivery/{palletDelivery}/pallets/create', ShowPalletDelivery::class)->name('.pallets.delivery.show');
 
         Route::prefix('websites')->name('.websites.')
             ->group(function () {
