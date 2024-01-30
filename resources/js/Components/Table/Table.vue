@@ -612,10 +612,10 @@ watch(name, () => {
                                         class="ring-1 ring-gray-300 overflow-hidden"
                                         :class="[queryBuilderProps.modelOperations?.createLink.length > 1 ? 'first:rounded-l last:rounded-r' : '']"
                                     >
-                                        <Button :style="linkButton.style" :icon="linkButton.icon"
+                                        <Button :style="linkButton.style" :icon="linkButton.icon"  :label="linkButton.label"
                                             class="h-full capitalize inline-flex items-center rounded-none text-sm border-none font-medium shadow-sm focus:ring-transparent focus:ring-offset-transparent focus:ring-0"
                                         >
-                                            <span v-if="linkButton.label" class="">{{ linkButton.label }}</span>
+                                          <!--   <span v-if="linkButton.label" class="">{{ linkButton.label }}</span> -->
                                         </Button>
                                     </Link>
                                 </slot>
