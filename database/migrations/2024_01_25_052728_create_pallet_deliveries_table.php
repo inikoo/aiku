@@ -25,6 +25,9 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('customer_id');
             $table->foreign('customer_id')->references('id')->on('customers');
 
+            $table->unsignedSmallInteger('warehouse_id');
+            $table->foreign('warehouse_id')->references('id')->on('warehouses');
+
             $table->string('customer_reference')->nullable()->index();
             $table->string('reference')->unique()->index();
             $table->string('state')->default(PalletDeliveryStateEnum::IN->value);
