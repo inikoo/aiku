@@ -126,7 +126,7 @@ class ShowInventoryDashboard extends OrgAction
 
 
         return Inertia::render(
-            'Inventory/InventoryDashboard',
+            'Org/Warehouse/Inventory/InventoryDashboard',
             [
                 'breadcrumbs'  => $this->getBreadcrumbs($request->route()->originalParameters()),
                 'title'        => __('inventory'),

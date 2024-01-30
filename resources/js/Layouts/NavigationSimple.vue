@@ -10,8 +10,8 @@ import { capitalize } from "@/Composables/capitalize"
 import { isRouteSameAsCurrentUrl } from '@/Composables/useUrl'
 import { onMounted, ref, onUnmounted, computed } from 'vue'
 import TopbarSubsections from '@/Layouts/TopbarSubsections.vue'
-
-library.add()
+import {faHandHoldingBox} from '@fal';
+library.add(faHandHoldingBox)
 
 const props = defineProps<{
     navKey: string | number  // shops_navigation | warehouses_navigation
@@ -56,7 +56,7 @@ const isActiveRoute = computed(() => {
                 : 'navigation',
             layout.leftSidebar.show ? '' : '',
         ]" :aria-current="navKey === layout.currentModule ? 'page' : undefined"
-        v-tooltip="layout.leftSidebar.show ? false : capitalize(nav.label)"    
+        v-tooltip="layout.leftSidebar.show ? false : capitalize(nav.label)"
     >
         <FontAwesomeIcon v-if="nav.icon" aria-hidden="true" class="flex-shrink-0 h-4 w-4" fixed-width :icon="nav.icon" />
         <Transition name="slide-to-left">
@@ -69,7 +69,7 @@ const isActiveRoute = computed(() => {
             </span>
         </Transition>
     </Link>
-    
+
     <!-- If this Navigation is active, then teleport the SubSections to #TopbarSubsections in <AppTopBar> -->
     <template v-if="isActiveRoute">
         <Teleport to="#TopbarSubsections" :disabled="!isActiveRoute">
