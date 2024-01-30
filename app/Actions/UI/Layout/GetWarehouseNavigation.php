@@ -102,15 +102,7 @@ class GetWarehouseNavigation
 
                 'topMenu' => [
                     'subSections' => [
-                        [
-                            'label' => __('customers'),
-                            'icon'  => ['fal', 'fa-users'],
-                            'route' => [
-                                'name'       => 'grp.org.fulfilments.show.customers.index',
-                                'parameters' => [$warehouse->organisation->slug, $warehouse->slug],
 
-                            ]
-                        ],
 
 
                     ]
