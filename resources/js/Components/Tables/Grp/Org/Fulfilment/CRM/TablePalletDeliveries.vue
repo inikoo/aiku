@@ -5,31 +5,35 @@
   -->
 
 <script setup lang="ts">
-import { Link } from '@inertiajs/vue3';
-import Table from '@/Components/Table/Table.vue';
-import Button from '@/Components/Elements/Buttons/Button.vue';
+import { Link } from "@inertiajs/vue3"
+import Table from "@/Components/Table/Table.vue"
+import Button from "@/Components/Elements/Buttons/Button.vue"
+import { library } from "@fortawesome/fontawesome-svg-core"
+import { faPlus } from "@fas"
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
+
+library.add(faPlus)
 
 const props = defineProps<{
-    data: object,
-    tab?: string
+	data: object
+	tab?: string
 }>()
-
-
 </script>
-  
+
 <template>
-    <Table :resource="data" :name="tab" class="mt-5">
-        <template #buttonpallet="{ linkButton: linkButton }">
-            <Link v-if="linkButton?.route?.name" method="post" :href="route(linkButton?.route?.name, linkButton?.route?.parameters)"
-                class="ring-1 ring-gray-300 overflow-hidden first:rounded-l last:rounded-r">
-            <Button :style="linkButton.style" :icon="linkButton.icon"
-                class="h-full capitalize inline-flex items-center rounded-none text-sm border-none font-medium shadow-sm focus:ring-transparent focus:ring-offset-transparent focus:ring-0">
-                <span v-if="linkButton.label" class="">{{ linkButton.label }}</span>
-            </Button>
-            </Link>
-        </template>
-    </Table>
+	<Table :resource="data" :name="tab" class="mt-5">
+		<template #buttondeliveries="{ linkButton: linkButton }">
+			<Link
+				v-if="linkButton?.route?.name"
+				method="post"
+				:href="route(linkButton?.route?.name, linkButton?.route?.parameters)"
+				class="ring-1 ring-gray-300 overflow-hidden first:rounded-l last:rounded-r">
+				<Button
+					:style="linkButton.style"
+					:label="linkButton.label"
+					class="h-full capitalize inline-flex items-center rounded-none text-sm border-none font-medium shadow-sm focus:ring-transparent focus:ring-offset-transparent focus:ring-0">
+				</Button>
+			</Link>
+		</template>
+	</Table>
 </template>
-  
-  
-  
