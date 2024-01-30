@@ -165,7 +165,7 @@ class EditProspectTag extends InertiaAction
         }
 
         return match ($routeName) {
-            'org.crm.shop.prospects.tags.edit' => [
+            'grp.org.shops.show.crm.prospects.tags.edit' => [
                 'label' => $tag->name,
                 'route' => [
                     'name'       => $routeName,

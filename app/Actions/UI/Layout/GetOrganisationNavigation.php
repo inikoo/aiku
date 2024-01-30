@@ -320,7 +320,7 @@ class GetOrganisationNavigation
                             'tooltip' => __('Customers'),
                             'icon'    => ['fal', 'fa-user'],
                             'route'   => [
-                                'all'      => ['grp.crm.customers.index'],
+                                'all'      => ['grp.org.shops.show.crm.customers.index'],
                                 'selected' => ['grp.crm.shops.show.customers.index'],
 
                             ]
@@ -330,7 +330,7 @@ class GetOrganisationNavigation
                             'tooltip' => __('Prospects'),
                             'icon'    => ['fal', 'fa-user-plus'],
                             'route'   => [
-                                'all'      => ['grp.crm.prospects.index'],
+                                'all'      => ['grp.org.shops.show.crm.prospects.index'],
                                 'selected' => ['grp.crm.shops.show.prospects.index'],
 
                             ]

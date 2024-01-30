@@ -183,7 +183,7 @@ class IndexCustomers extends OrgAction
                             'tooltip' => __('new customer'),
                             'label'   => __('customer'),
                             'route'   => [
-                                'name'       => 'grp.crm.customers.create',
+                                'name'       => 'grp.org.shops.show.crm.customers.create',
                                 'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ] : null

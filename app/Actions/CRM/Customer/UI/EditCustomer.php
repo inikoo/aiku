@@ -148,7 +148,7 @@ class EditCustomer extends InertiaAction
         }
 
         return match ($routeName) {
-            'grp.crm.customers.edit' => [
+            'grp.org.shops.show.crm.customers.edit' => [
                 'label'=> $customer->name,
                 'route'=> [
                     'name'      => $routeName,

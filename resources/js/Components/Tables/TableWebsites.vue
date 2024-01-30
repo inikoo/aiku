@@ -17,9 +17,9 @@ const props = defineProps<{
 
 function websiteRoute(website: Website) {
     switch (route().current()) {
-        case 'grp.org.shops.show.websites.index':
+        case 'grp.org.shops.show.web.websites.index':
             return route(
-                'grp.org.shops.show.websites.show',
+                'grp.org.shops.show.web.websites.show',
                 [route().params.organisation, route().params.shop, website.slug]
             );
         case 'grp.org.fulfilments.show.websites.index':

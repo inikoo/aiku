@@ -78,7 +78,7 @@ class ShowShop extends OrgAction
                             'style' => 'create',
                             'label' => __('website'),
                             'route' => [
-                                'name'       => 'grp.org.shops.show.websites.create',
+                                'name'       => 'grp.org.shops.show.web.websites.create',
                                 'parameters' => $request->route()->originalParameters()
                             ]
 
@@ -314,7 +314,7 @@ class ShowShop extends OrgAction
                             ],
                             'model' => [
                                 'route' => [
-                                    'name'       => 'grp.org.shops.show',
+                                    'name'       => 'grp.org.shops.show.catalogue.dashboard',
                                     'parameters' => Arr::only($routeParameters, ['organisation','shop'])
                                 ],
                                 'label' => $shop->code,
@@ -350,7 +350,7 @@ class ShowShop extends OrgAction
         }
 
         return match ($routeName) {
-            'grp.org.shops.show' => [
+            'grp.org.shops.show.catalogue.dashboard' => [
                 'label' => $shop->name,
                 'route' => [
                     'name'       => $routeName,

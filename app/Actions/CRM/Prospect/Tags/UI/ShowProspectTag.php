@@ -127,11 +127,11 @@ class ShowProspectTag extends InertiaAction
         };
 
         return match ($routeName) {
-            'org.crm.shop.prospects.tags.show',
-            'org.crm.shop.prospects.tags.edit' =>
+            'grp.org.shops.show.crm.prospects.tags.show',
+            'grp.org.shops.show.crm.prospects.tags.edit' =>
             array_merge(
                 IndexProspects::make()->getBreadcrumbs(
-                    'org.crm.shop.prospects.index',
+                    'grp.org.shops.show.crm.prospects.index',
                     $routeParameters
                 ),
                 $headCrumb(
@@ -139,11 +139,11 @@ class ShowProspectTag extends InertiaAction
                     Tag::firstWhere('tag_slug', $routeParameters['tag']),
                     [
                         'index' => [
-                            'name'       => 'org.crm.shop.prospects.tags.index',
+                            'name'       => 'grp.org.shops.show.crm.prospects.tags.index',
                             'parameters' => $routeParameters
                         ],
                         'model' => [
-                            'name'       => 'org.crm.shop.prospects.tags.show',
+                            'name'       => 'grp.org.shops.show.crm.prospects.tags.show',
                             'parameters' => $routeParameters
                         ]
                     ],

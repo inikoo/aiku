@@ -21,11 +21,11 @@ class GetShopNavigation
 
         if ($user->hasPermissionTo("products.$shop->id.view")) {
             $navigation["shop"] = [
-                "scope" => "shops",
+                "root"  => "grp.org.shops.show.catalogue.",
                 "icon"  => ["fal", "fa-store-alt"],
                 "label" => __("Products"),
                 "route" => [
-                    "name"       => "grp.org.shops.show",
+                    "name"       => 'grp.org.shops.show.catalogue.dashboard',
                     "parameters" => [$shop->organisation->slug, $shop->slug],
                 ],
                 "topMenu" => [
@@ -34,7 +34,7 @@ class GetShopNavigation
                             "tooltip" => __("shop"),
                             "icon"    => ["fal", "fa-store-alt"],
                             "route"   => [
-                                "name"       => "grp.org.shops.show",
+                                "name"       => 'grp.org.shops.show.catalogue.dashboard',
                                 "parameters" => [$shop->organisation->slug, $shop->slug],
                             ],
                         ],
@@ -43,7 +43,7 @@ class GetShopNavigation
                             "tooltip" => __("Departments"),
                             "icon"    => ["fal", "fa-folder-tree"],
                             "route"   => [
-                                "name"       => "grp.org.shops.show.departments.index",
+                                "name"       => "grp.org.shops.show.catalogue.departments.index",
                                 "parameters" => [$shop->organisation->slug, $shop->slug],
                             ],
                         ],
@@ -52,7 +52,7 @@ class GetShopNavigation
                             "tooltip" => __("Families"),
                             "icon"    => ["fal", "fa-folder"],
                             "route"   => [
-                                "name"       => "grp.org.shops.show.families.index",
+                                "name"       => "grp.org.shops.show.catalogue.families.index",
                                 "parameters" => [$shop->organisation->slug, $shop->slug],
                             ],
                         ],
@@ -61,7 +61,7 @@ class GetShopNavigation
                             "tooltip" => __("Products"),
                             "icon"    => ["fal", "fa-cube"],
                             "route"   => [
-                                "name"       => "grp.org.shops.show.products.index",
+                                "name"       => "grp.org.shops.show.catalogue.products.index",
                                 "parameters" => [$shop->organisation->slug, $shop->slug],
                             ],
                         ],
@@ -74,11 +74,11 @@ class GetShopNavigation
 
             if($shop->website) {
                 $navigation["web"] = [
-                    "scope" => "websites",
+                    "root"  => "grp.org.shops.show.web.",
                     "icon"  => ["fal", "fa-globe"],
                     "label" => __("Website"),
                     "route" => [
-                        "name"       => "grp.org.shops.show.websites.show",
+                        "name"       => "grp.org.shops.show.web.websites.show",
                         "parameters" => [$shop->organisation->slug, $shop->slug, $shop->website->slug],
                     ],
 
@@ -91,7 +91,7 @@ class GetShopNavigation
                                 "tooltip" => __("website"),
                                 "icon"    => ["fal", "fa-globe"],
                                 "route"   => [
-                                    "name"       => "grp.org.shops.show.websites.show",
+                                    "name"       => "grp.org.shops.show.web.websites.show",
                                     "parameters" => [$shop->organisation->slug, $shop->slug, $shop->website->slug],
                                 ],
                             ],
@@ -100,7 +100,7 @@ class GetShopNavigation
                                 "tooltip" => __("Webpages"),
                                 "icon"    => ["fal", "fa-browser"],
                                 "route"   => [
-                                    "name"       => "grp.org.shops.show.websites.show.webpages.index",
+                                    "name"       => "grp.org.shops.show.web.websites.show.webpages.index",
                                     "parameters" => [$shop->organisation->slug, $shop->slug, $shop->website->slug],
                                 ],
                             ],
@@ -113,7 +113,7 @@ class GetShopNavigation
                     "icon"  => ["fal", "fa-globe"],
                     "label" => __("Website"),
                     "route" => [
-                        "name"       => "grp.org.shops.show.websites.index",
+                        "name"       => "grp.org.shops.show.web.websites.index",
                         "parameters" => [$shop->organisation->slug, $shop->slug],
                     ],
 
@@ -127,7 +127,7 @@ class GetShopNavigation
 
         if ($user->hasPermissionTo("marketing.view")) {
             $navigation["marketing"] = [
-                "scope"   => "shops",
+                "root"    => "grp.org.shops.show.marketing.",
                 "label"   => __("Marketing"),
                 "icon"    => ["fal", "fa-bullhorn"],
                 "route"   => "grp.marketing.hub",
@@ -139,31 +139,24 @@ class GetShopNavigation
 
         if ($user->hasPermissionTo("crm.$shop->id.view")) {
             $navigation["crm"] = [
-                "scope" => "shops",
-                "label" => __("Customers"),
+                "root"  => "grp.org.shops.show.crm.",
+                "label" => __("CRM"),
                 "icon"  => ["fal", "fa-user"],
 
                 "route" => [
-                    "name"       => "grp.org.shops.show.customers.index",
+                    "name"       => "grp.org.shops.show.crm.customers.index",
                     "parameters" => [$shop->organisation->slug, $shop->slug],
                 ],
 
                 "topMenu" => [
                     "subSections" => [
-                        [
-                            "tooltip" => __("Dashboard"),
-                            "icon"    => ["fal", "fa-chart-network"],
-                            "route"   => [
-                                "name"       => "grp.crm.dashboard",
-                                "parameters" => [$shop->organisation->slug, $shop->slug],
-                            ],
-                        ],
+
                         [
                             "label"   => __("customers"),
                             "tooltip" => __("Customers"),
                             "icon"    => ["fal", "fa-user"],
                             "route"   => [
-                                "name"       => "grp.crm.customers.index",
+                                "name"       => "grp.org.shops.show.crm.customers.index",
                                 "parameters" => [$shop->organisation->slug, $shop->slug],
                             ],
                         ],
@@ -172,7 +165,7 @@ class GetShopNavigation
                             "tooltip" => __("Prospects"),
                             "icon"    => ["fal", "fa-user-plus"],
                             "route"   => [
-                                "name"       => "grp.crm.prospects.index",
+                                "name"       => "grp.org.shops.show.crm.prospects.index",
                                 "parameters" => [$shop->organisation->slug, $shop->slug],
                             ],
                         ],

@@ -196,8 +196,8 @@ class ShowWebsite extends OrgAction
 
 
         return match ($routeName) {
-            'grp.org.shops.show.websites.show',
-            'grp.org.shops.show.websites.edit' =>
+            'grp.org.shops.show.web.websites.show',
+            'grp.org.shops.show.web.websites.edit' =>
 
             array_merge(
                 ShowShop::make()->getBreadcrumbs($routeParameters),
@@ -206,11 +206,11 @@ class ShowWebsite extends OrgAction
                     Website::where('slug', $routeParameters['website'])->first(),
                     [
                         'index' => [
-                            'name'       => 'grp.org.shops.show.websites.index',
+                            'name'       => 'grp.org.shops.show.web.websites.index',
                             'parameters' => Arr::only($routeParameters, ['organisation','shop'])
                         ],
                         'model' => [
-                            'name'       => 'grp.org.shops.show.websites.show',
+                            'name'       => 'grp.org.shops.show.web.websites.show',
                             'parameters' => $routeParameters
                         ]
                     ],
@@ -243,7 +243,7 @@ class ShowWebsite extends OrgAction
         }
 
         return match ($routeName) {
-            'grp.org.shops.show.websites.show' => [
+            'grp.org.shops.show.web.websites.show' => [
                 'label' => $website->name,
                 'route' => [
                     'name'       => $routeName,

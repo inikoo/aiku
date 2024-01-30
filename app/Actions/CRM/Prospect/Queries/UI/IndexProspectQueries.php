@@ -134,7 +134,7 @@ class IndexProspectQueries extends InertiaAction
                             'style' => 'create',
                             'label' => __('prospect list'),
                             'route' => [
-                                'name'       => 'org.crm.shop.prospects.lists.create',
+                                'name'       => 'grp.org.shops.show.crm.prospects.lists.create',
                                 'parameters' => array_values($this->originalParameters)
                             ]
                         ] : []
@@ -166,11 +166,11 @@ class IndexProspectQueries extends InertiaAction
     public function getBreadcrumbs(string $routeName, array $routeParameters, $suffix = null): array
     {
         return match ($routeName) {
-            'org.crm.shop.prospects.lists.index',
-            'org.crm.shop.prospects.lists.show' =>
+            'grp.org.shops.show.crm.prospects.lists.index',
+            'grp.org.shops.show.crm.prospects.lists.show' =>
             array_merge(
                 (new IndexProspects())->getBreadcrumbs(
-                    'org.crm.shop.prospects.index',
+                    'grp.org.shops.show.crm.prospects.index',
                     $routeParameters
                 ),
                 [
@@ -178,7 +178,7 @@ class IndexProspectQueries extends InertiaAction
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name'       => 'org.crm.shop.prospects.lists.index',
+                                'name'       => 'grp.org.shops.show.crm.prospects.lists.index',
                                 'parameters' => $routeParameters
                             ],
                             'label' => __('lists'),

@@ -143,7 +143,7 @@ test('create prospect mailshot', function () {
 
 test('can show list of prospects', function () {
     $shop     = $this->shop;
-    $response = get(route('org.crm.shop.prospects.index', [$shop->slug]));
+    $response = get(route('grp.org.shops.show.crm.prospects.index', [$shop->slug]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('CRM/Prospects')
@@ -153,7 +153,7 @@ test('can show list of prospects', function () {
 
 test('can show list of mailshots', function () {
     $shop     = $this->shop;
-    $response = get(route('org.crm.shop.prospects.mailshots.index', [$shop->slug]));
+    $response = get(route('grp.org.shops.show.crm.prospects.mailshots.index', [$shop->slug]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('CRM/Prospects/Mailshots')
@@ -163,7 +163,7 @@ test('can show list of mailshots', function () {
 
 test('can show list of prospects lists', function () {
     $shop     = $this->shop;
-    $response = get(route('org.crm.shop.prospects.lists.index', [$shop->slug]));
+    $response = get(route('grp.org.shops.show.crm.prospects.lists.index', [$shop->slug]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('CRM/Prospects/Queries')
@@ -173,7 +173,7 @@ test('can show list of prospects lists', function () {
 
 test('can show list of tags', function () {
     $shop     = $this->shop;
-    $response = get(route('org.crm.shop.prospects.tags.index', [$shop->slug]));
+    $response = get(route('grp.org.shops.show.crm.prospects.tags.index', [$shop->slug]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('CRM/Prospects/Tags')

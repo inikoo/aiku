@@ -25,7 +25,7 @@ function shopRoute(shop: Shop) {
     switch (route().current()) {
         case 'grp.org.shops.index':
             return route(
-                'grp.org.shops.show',
+                'grp.org.shops.show.catalogue.dashboard',
                 [route().params['organisation'], shop.slug])
     }
 }

@@ -139,7 +139,7 @@ class ShowCustomer extends InertiaAction
                             'type'  => 'button',
                             'style' => 'delete',
                             'route' => [
-                                'name'       => 'grp.crm.customers.remove',
+                                'name'       => 'grp.org.shops.show.crm.customers.remove',
                                 'parameters' => $request->route()->originalParameters()
                             ]
 
@@ -207,19 +207,19 @@ class ShowCustomer extends InertiaAction
         };
 
         return match ($routeName) {
-            'grp.crm.customers.show',
-            'grp.crm.customers.edit'
+            'grp.org.shops.show.crm.customers.show',
+            'grp.org.shops.show.crm.customers.edit'
             => array_merge(
                 ShowDashboard::make()->getBreadcrumbs(),
                 $headCrumb(
                     $routeParameters['customer'],
                     [
                         'index' => [
-                            'name'       => 'grp.crm.customers.index',
+                            'name'       => 'grp.org.shops.show.crm.customers.index',
                             'parameters' => []
                         ],
                         'model' => [
-                            'name'       => 'grp.crm.customers.show',
+                            'name'       => 'grp.org.shops.show.crm.customers.show',
                             'parameters' => [$routeParameters['customer']]
                         ]
                     ],
@@ -284,7 +284,7 @@ class ShowCustomer extends InertiaAction
         }
 
         return match ($routeName) {
-            'grp.crm.customers.show' => [
+            'grp.org.shops.show.crm.customers.show' => [
                 'label' => $customer->name,
                 'route' => [
                     'name'       => $routeName,

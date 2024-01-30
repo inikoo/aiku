@@ -270,7 +270,7 @@ class IndexProspects extends OrgAction
                         'createLink' => [
                             [
                                 'route' => [
-                                    'name'       => 'org.crm.shop.prospects.lists.create',
+                                    'name'       => 'grp.org.shops.show.crm.prospects.lists.create',
                                     'parameters' => array_values($request->route()->originalParameters())
                                 ],
                                 'label' => __('New list'),
@@ -315,8 +315,8 @@ class IndexProspects extends OrgAction
                     ]
                 ),
             ),
-            'org.crm.shop.prospects.index',
-            'org.crm.shop.prospects.uploads.index' =>
+            'grp.org.shops.show.crm.prospects.index',
+            'grp.org.shops.show.crm.prospects.uploads.index' =>
             array_merge(
                 (new ShowCRMDashboard())->getBreadcrumbs(
                     'org.crm.shop.dashboard',
@@ -324,7 +324,7 @@ class IndexProspects extends OrgAction
                 ),
                 $headCrumb(
                     [
-                        'name'       => 'org.crm.shop.prospects.index',
+                        'name'       => 'grp.org.shops.show.crm.prospects.index',
                         'parameters' => $routeParameters
                     ]
                 )

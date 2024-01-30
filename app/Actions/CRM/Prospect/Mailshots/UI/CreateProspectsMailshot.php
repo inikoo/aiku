@@ -132,7 +132,7 @@ class CreateProspectsMailshot extends InertiaAction
     {
         return array_merge(
             IndexProspectMailshots::make()->getBreadcrumbs(
-                'org.crm.shop.prospects.mailshots.index',
+                'grp.org.shops.show.crm.prospects.mailshots.index',
                 $routeParameters
             ),
             [

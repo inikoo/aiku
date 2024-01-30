@@ -25,7 +25,7 @@ class ShopsNavigationResource extends JsonResource
             'state'  => $shop->state,
             'type'   => $shop->type,
             'route'  => [
-                'name'       => 'grp.org.shops.show',
+                'name'       => 'grp.org.shops.show.catalogue.dashboard',
                 'parameters' => [
                     $shop->organisation->slug,
                     $shop->slug

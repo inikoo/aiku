@@ -17,7 +17,7 @@ trait WithProspectsSubNavigation
 
         $meta[] = [
             'href'     => [
-                'name'       => 'org.crm.shop.prospects.index',
+                'name'       => 'grp.org.shops.show.crm.prospects.index',
                 'parameters' => array_merge(
                     $request->route()->originalParameters(),
                     [
@@ -38,7 +38,7 @@ trait WithProspectsSubNavigation
         if ($this->parent->crmStats->number_prospects > 0) {
             $meta[] = [
                 'href'     => [
-                    'name'       => 'org.crm.shop.prospects.mailshots.index',
+                    'name'       => 'grp.org.shops.show.crm.prospects.mailshots.index',
                     'parameters' => $request->route()->originalParameters()
                 ],
                 'number'   => $this->parent->mailStats->number_mailshots_type_prospect_mailshot,
@@ -52,7 +52,7 @@ trait WithProspectsSubNavigation
 
         $meta[] = [
             'href'     => [
-                'name'       => 'org.crm.shop.prospects.lists.index',
+                'name'       => 'grp.org.shops.show.crm.prospects.lists.index',
                 'parameters' => $request->route()->originalParameters()
             ],
             'number'   => $this->parent->crmStats->number_prospect_queries,
@@ -65,7 +65,7 @@ trait WithProspectsSubNavigation
 
         $meta[] = [
             'href'     => [
-                'name'       => 'org.crm.shop.prospects.tags.index',
+                'name'       => 'grp.org.shops.show.crm.prospects.tags.index',
                 'parameters' => $request->route()->originalParameters()
             ],
             'number'   => $this->parent->crmStats->number_tags,

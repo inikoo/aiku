@@ -278,7 +278,7 @@ class StoreShop extends OrgAction
 
     public function htmlResponse(Shop $shop): RedirectResponse
     {
-        return Redirect::route('grp.org.shops.show', [$this->organisation->slug, $shop->slug]);
+        return Redirect::route('grp.org.shops.show.catalogue.dashboard', [$this->organisation->slug, $shop->slug]);
     }
 
 }

@@ -105,7 +105,7 @@ class UpdateProspectQuery
 
     public function htmlResponse(Query $query): RedirectResponse
     {
-        return redirect()->route('org.crm.shop.prospects.lists.edit', [
+        return redirect()->route('grp.org.shops.show.crm.prospects.lists.edit', [
             'shop'  => $this->scope->slug,
             'query' => $query->slug,
         ]);

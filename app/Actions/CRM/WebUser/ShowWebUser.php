@@ -62,8 +62,8 @@ class ShowWebUser extends InertiaAction
     {
         //dd($request->route()->getName());
         $scope = match ($request->route()->getName()) {
-            'grp.crm.customers.show.web-users.show' => $request->route()->parameters()['customer'],
-            default                                 => app('currentTenant')
+            'grp.org.shops.show.crm.customers.show.web-users.show' => $request->route()->parameters()['customer'],
+            default                                                => app('currentTenant')
         };
 
         $container = null;
@@ -148,21 +148,21 @@ class ShowWebUser extends InertiaAction
         };
 
         return match ($routeName) {
-            'grp.crm.customers.show.web-users.show' =>
+            'grp.org.shops.show.crm.customers.show.web-users.show' =>
             array_merge(
                 ShowCustomer::make()->getBreadcrumbs(
-                    'grp.crm.customers.show',
+                    'grp.org.shops.show.crm.customers.show',
                     ['customer' => $routeParameters['customer']]
                 ),
                 $headCrumb(
                     $routeParameters['webUser'],
                     [
                         'index' => [
-                            'name'       => 'grp.crm.customers.show.web-users.index',
+                            'name'       => 'grp.org.shops.show.crm.customers.show.web-users.index',
                             'parameters' => [$routeParameters['customer']->slug]
                         ],
                         'model' => [
-                            'name'       => 'grp.crm.customers.show.web-users.show',
+                            'name'       => 'grp.org.shops.show.crm.customers.show.web-users.show',
                             'parameters' => $routeParameters
                         ]
                     ],

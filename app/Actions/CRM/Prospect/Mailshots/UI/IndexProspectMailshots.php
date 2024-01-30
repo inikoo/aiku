@@ -107,7 +107,7 @@ class IndexProspectMailshots extends InertiaAction
                             'tooltip' => __('new mailshot'),
                             'label'   => __('mailshot'),
                             'route'   => [
-                                'name'       => 'org.crm.shop.prospects.mailshots.create',
+                                'name'       => 'grp.org.shops.show.crm.prospects.mailshots.create',
                                 'parameters' => array_values($this->originalParameters)
                             ]
                         ] : null
@@ -159,7 +159,7 @@ class IndexProspectMailshots extends InertiaAction
                                 'style' => 'create',
                                 'label' => __('New mailshot'),
                                 'route' => [
-                                    'name'       => 'org.crm.shop.prospects.mailshots.create',
+                                    'name'       => 'grp.org.shops.show.crm.prospects.mailshots.create',
                                     'parameters' => array_values($this->originalParameters)
                                 ]
                             ] : null
@@ -204,10 +204,10 @@ class IndexProspectMailshots extends InertiaAction
     public function getBreadcrumbs(string $routeName, array $routeParameters, $suffix = null): array
     {
         return match ($routeName) {
-            'org.crm.shop.prospects.mailshots.index' =>
+            'grp.org.shops.show.crm.prospects.mailshots.index' =>
             array_merge(
                 (new IndexProspects())->getBreadcrumbs(
-                    'org.crm.shop.prospects.index',
+                    'grp.org.shops.show.crm.prospects.index',
                     $routeParameters
                 ),
                 [
@@ -215,7 +215,7 @@ class IndexProspectMailshots extends InertiaAction
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name'       => 'org.crm.shop.prospects.mailshots.index',
+                                'name'       => 'grp.org.shops.show.crm.prospects.mailshots.index',
                                 'parameters' => $routeParameters
                             ],
                             'label' => __('mailshots'),

@@ -19,7 +19,7 @@ class RedirectToShopWebsite extends InertiaAction
 
     public function asController(Shop $shop): RedirectResponse
     {
-        return redirect()->route('grp.org.shops.show.websites.show', [
+        return redirect()->route('grp.org.shops.show.web.websites.show', [
             'website' => $shop->website->slug
         ]);
 

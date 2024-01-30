@@ -68,7 +68,7 @@ class StoreTag
     public function htmlResponse(): RedirectResponse
     {
         return redirect()->route(
-            'org.crm.shop.prospects.tags.index',
+            'grp.org.shops.show.crm.prospects.tags.index',
             $this->parent->slug
         );
     }

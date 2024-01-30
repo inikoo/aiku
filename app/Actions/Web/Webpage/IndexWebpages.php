@@ -192,15 +192,15 @@ class IndexWebpages extends InertiaAction
             ),
 
 
-            'grp.org.shops.show.websites.show.webpages.index' =>
+            'grp.org.shops.show.web.websites.show.webpages.index' =>
             array_merge(
                 (new ShowWebsite())->getBreadcrumbs(
-                    'grp.org.shops.show.websites.show',
+                    'grp.org.shops.show.web.websites.show',
                     $routeParameters
                 ),
                 $headCrumb(
                     [
-                        'name'       => 'grp.org.shops.show.websites.show.webpages.index',
+                        'name'       => 'grp.org.shops.show.web.websites.show.webpages.index',
                         'parameters' => $routeParameters
                     ]
                 )

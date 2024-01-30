@@ -96,12 +96,12 @@ class ShowProspectQuery extends InertiaAction
         };
 
         return match ($routeName) {
-            'org.crm.shop.prospects.lists.show' =>
+            'grp.org.shops.show.crm.prospects.lists.show' =>
             array_merge(
                 IndexProspectQueries::make()->getBreadcrumbs($routeName, $routeParameters),
                 $headCrumb(
                     [
-                        'name'       => 'org.crm.shop.prospects.lists.show',
+                        'name'       => 'grp.org.shops.show.crm.prospects.lists.show',
                         'parameters' => array_values($this->originalParameters)
                     ]
                 ),

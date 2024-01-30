@@ -113,7 +113,7 @@ class EditProspectQuery extends InertiaAction
     {
         return array_merge(
             IndexProspects::make()->getBreadcrumbs(
-                routeName: 'org.crm.shop.prospects.index',
+                routeName: 'grp.org.shops.show.crm.prospects.index',
                 routeParameters: $routeParameters,
             ),
             [

@@ -238,7 +238,7 @@ class IndexWebsites extends OrgAction
                             'tooltip' => __('Create a no shop connected website'),
                             'label'   => __('new static website'),
                             'route'   => [
-                                'name' => 'grp.org.shops.show.websites.create',
+                                'name' => 'grp.org.shops.show.web.websites.create',
                             ]
                         ] : false,
 
@@ -283,12 +283,12 @@ class IndexWebsites extends OrgAction
             ),
 
 
-            'grp.org.shops.show.websites.index' =>
+            'grp.org.shops.show.web.websites.index' =>
             array_merge(
                 ShowShop::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     [
-                        'name'      => 'grp.org.shops.show',
+                        'name'      => 'grp.org.shops.show.catalogue.dashboard',
                         'parameters'=> $routeParameters
                     ]
                 ),

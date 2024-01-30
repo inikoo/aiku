@@ -294,7 +294,7 @@ class EditWebsite extends InertiaAction
         }
 
         return match ($routeName) {
-            'grp.org.shops.show.websites.edit' => [
+            'grp.org.shops.show.web.websites.edit' => [
                 'label' => $website->name,
                 'route' => [
                     'name'       => $routeName,

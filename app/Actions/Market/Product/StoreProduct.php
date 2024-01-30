@@ -101,7 +101,7 @@ class StoreProduct
     {
         $request->validate();
         $this->handle($shop, $request->all());
-        return  Redirect::route('grp.org.shops.show.products.index', $shop);
+        return  Redirect::route('grp.org.shops.show.catalogue.products.index', $shop);
     }
 
     public function asFetch(Shop $shop, array $productData, int $hydratorsDelay=60): Product
