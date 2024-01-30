@@ -8,11 +8,11 @@
  import {Head} from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 import { capitalize } from "@/Composables/capitalize"
-import TableCustomers from "@/Components/Tables/TableCustomers.vue";
 import Tabs from "@/Components/Navigation/Tabs.vue";
 import {computed, ref} from "vue";
 import {useTabChange} from "@/Composables/tab-change";
 import TableHistories from "@/Components/Tables/TableHistories.vue";
+import ShowcasePallet from '@/Components/Pallet/Showcase.vue'
   
   const props = defineProps<{
     title: string
@@ -21,7 +21,6 @@ import TableHistories from "@/Components/Tables/TableHistories.vue";
     history?:object
     pageHead: object
 }>()
-
 
 console.log(props)
 
@@ -32,8 +31,10 @@ const component = computed(() => {
 
     const components = {
         showcase: null,
+        pallets: ShowcasePallet,
         history: TableHistories
     };
+    console.log('ini',currentTab.value)
     return components[currentTab.value];
 
 });
@@ -43,6 +44,6 @@ const component = computed(() => {
       <Head :title="capitalize(title)"/>
       <PageHeading :data="pageHead"></PageHeading>
       <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate"/>
-    <component :is="component" :data="props[currentTab]"></component>
+      <component :is="component" :data="props[currentTab]"></component>
   </template>
   

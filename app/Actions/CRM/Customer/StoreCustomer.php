@@ -25,6 +25,7 @@ use App\Models\Market\Shop;
 use App\Models\SysAdmin\Organisation;
 use App\Rules\IUnique;
 use App\Rules\ValidAddress;
+use Illuminate\Console\Command;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Redirect;
@@ -32,9 +33,15 @@ use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\ActionRequest;
+use Lorisleiva\Actions\Concerns\AsCommand;
 
 class StoreCustomer extends OrgAction
 {
+    use AsCommand;
+
+    public string $commandSignature = 'customer:store {shop}';
+
+
     public function handle(Shop $shop, array $modelData): Customer
     {
         $contactAddressData = Arr::get($modelData, 'contact_address');
@@ -208,6 +215,22 @@ class StoreCustomer extends OrgAction
         $this->strict         = $strict;
         $this->initialisationFromShop($shop, $modelData);
         return $this->handle($shop, $this->validatedData);
+    }
+
+    public function asCommand(Command $command): int
+    {
+        $this->asAction = true;
+        $shop           = Shop::where('slug', $command->argument('shop'))->firstOrFail();
+
+        $modelData = Customer::factory()->definition();
+
+        $this->initialisationFromShop($shop, $modelData);
+
+        $customer = $this->handle($shop, $this->validatedData);
+
+        echo "Customer $customer->reference created 🎉" . "\n";
+
+        return 0;
     }
 
     public function htmlResponse(Customer $customer): RedirectResponse

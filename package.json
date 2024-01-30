@@ -64,6 +64,7 @@
         "qrcode.vue": "^3.4.1",
         "qs": "^6.11.1",
         "string-to-color": "^2.2.2",
+        "swiper": "^11.0.5",
         "uuid": "^9.0.0",
         "v-calendar": "^3.0.3",
         "vue-collapsed": "^1.1.3",

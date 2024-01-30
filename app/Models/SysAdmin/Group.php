@@ -9,7 +9,6 @@ namespace App\Models\SysAdmin;
 
 use App\Models\Assets\Currency;
 use App\Models\Goods\TradeUnit;
-use App\Models\GroupFulfilmentStat;
 use App\Models\HumanResources\Employee;
 use App\Models\HumanResources\JobPosition;
 use App\Models\Mail\Mailroom;

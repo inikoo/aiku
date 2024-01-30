@@ -142,7 +142,20 @@ class GetWarehouseNavigation
                                 "parameters" => [$warehouse->organisation->slug, $warehouse->slug],
                             ],
                         ],
-                    ],
+                        [
+                            'label'   => __('Deliveries'),
+                            'tooltip' => __('deliveries'),
+                            'icon'    => ['fal', 'fa-truck-couch'],
+                            'route'   => [
+                                'name'       => 'grp.org.warehouses.show.fulfilment.pallet-deliveries.index',
+                                'parameters' => [$warehouse->organisation->slug, $warehouse->slug]
+                            ],
+                        ],
+
+
+                    ]
+
+
                 ],
             ];
         }

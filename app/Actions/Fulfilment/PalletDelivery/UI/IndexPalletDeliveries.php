@@ -13,8 +13,8 @@ use App\Http\Resources\Fulfilment\FulfilmentCustomersResource;
 use App\Http\Resources\Fulfilment\PalletDeliveriesResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\Fulfilment;
-use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletDelivery;
+use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -28,23 +28,40 @@ use App\Services\QueryBuilder;
 
 class IndexPalletDeliveries extends OrgAction
 {
+    private Fulfilment|Warehouse $parent;
+
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo("fulfilments.{$this->fulfilment->id}.edit");
+        if($this->parent instanceof Fulfilment) {
+            $this->canEdit = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+            return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
 
-        return $request->user()->hasPermissionTo("fulfilments.{$this->fulfilment->id}.view");
+        } elseif($this->parent instanceof Warehouse) {
+            $this->canEdit = $request->user()->hasPermissionTo("fulfilment.{$this->warehouse->id}.edit");
+            return $request->user()->hasPermissionTo("fulfilment.{$this->warehouse->id}.view");
+        }
+
+        return false;
     }
 
 
     public function asController(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
     {
+        $this->parent = $fulfilment;
         $this->initialisationFromFulfilment($fulfilment, $request);
 
         return $this->handle($fulfilment);
     }
 
+    public function inWarehouse(Organisation $organisation, Warehouse $warehouse, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = $warehouse;
+        $this->initialisationFromWarehouse($warehouse, $request);
 
-    public function handle(Fulfilment $fulfilment, $prefix = null): LengthAwarePaginator
+        return $this->handle($warehouse);
+    }
+
+    public function handle(Fulfilment|Warehouse $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -60,8 +77,12 @@ class IndexPalletDeliveries extends OrgAction
         }
 
         $queryBuilder = QueryBuilder::for(PalletDelivery::class);
-        $queryBuilder->where('customers.shop_id', $fulfilment->shop->id);
 
+        if($parent instanceof Fulfilment) {
+            $queryBuilder->where('pallet_deliveries.fulfilment_id', $parent->id);
+        } elseif($parent instanceof Warehouse) {
+            $queryBuilder->where('pallet_deliveries.warehouse_id', $parent->id);
+        }
 
         return $queryBuilder
             ->defaultSort('customers.slug')
@@ -81,9 +102,9 @@ class IndexPalletDeliveries extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure(Fulfilment $fulfilment, ?array $modelOperations = null, $prefix = null): Closure
+    public function tableStructure(Fulfilment|Warehouse $parent, ?array $modelOperations = null, $prefix = null): Closure
     {
-        return function (InertiaTable $table) use ($fulfilment, $modelOperations, $prefix) {
+        return function (InertiaTable $table) use ($parent, $modelOperations, $prefix) {
             if ($prefix) {
                 $table
                     ->name($prefix)
@@ -95,10 +116,10 @@ class IndexPalletDeliveries extends OrgAction
                 ->withModelOperations($modelOperations)
                 ->withGlobalSearch()
                 ->withEmptyState(
-                    [
+                    $parent instanceof Fulfilment ? [
                         'title'       => __("You don't have any customer yet").' 😭',
                         'description' => __("Dont worry soon you will be pretty busy"),
-                        'count'       => $fulfilment->shop->crmStats->number_customers,
+                        'count'       => $parent->shop->crmStats->number_customers,
                         'action'      => [
                             'type'    => 'button',
                             'style'   => 'create',
@@ -106,10 +127,10 @@ class IndexPalletDeliveries extends OrgAction
                             'label'   => __('customer'),
                             'route'   => [
                                 'name'       => 'grp.org.fulfilments.show.customers.create',
-                                'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug]
+                                'parameters' => [$parent->organisation->slug, $parent->slug]
                             ]
                         ]
-                    ]
+                    ] : null
                 )
                 ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'customer reference', label: __('customer reference'), canBeHidden: false, sortable: true, searchable: true);
@@ -123,12 +144,22 @@ class IndexPalletDeliveries extends OrgAction
 
     public function htmlResponse(LengthAwarePaginator $customers, ActionRequest $request): Response
     {
-        $container = [
-            'icon'    => ['fal', 'fa-pallet-alt'],
-            'tooltip' => __('Fulfilment Shop'),
-            'label'   => Str::possessive($this->fulfilment->shop->name)
+        $container = null;
+        if($this->parent instanceof Fulfilment) {
+            $container = [
+                'icon'    => ['fal', 'fa-pallet-alt'],
+                'tooltip' => __('Fulfilment Shop'),
+                'label'   => Str::possessive($this->fulfilment->shop->name)
 
-        ];
+            ];
+        } elseif($this->parent instanceof Warehouse) {
+            $container = [
+                'icon'    => ['fal', 'fa-warehouse-alt'],
+                'tooltip' => __('Warehouse'),
+                'label'   => Str::possessive($this->warehouse->name)
+
+            ];
+        }
 
         return Inertia::render(
             'Org/Fulfilment/Customers',
@@ -148,11 +179,13 @@ class IndexPalletDeliveries extends OrgAction
                 'data'        => FulfilmentCustomersResource::collection($customers),
 
             ]
-        )->table($this->tableStructure($this->fulfilment));
+        )->table($this->tableStructure($this->parent));
     }
 
     public function getBreadcrumbs(array $routeParameters): array
     {
+        return [];
+
         $headCrumb = function (array $routeParameters = []) {
             return [
                 [
