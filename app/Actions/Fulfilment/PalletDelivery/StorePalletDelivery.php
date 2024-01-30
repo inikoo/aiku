@@ -62,7 +62,7 @@ class StorePalletDelivery extends OrgAction
     {
         $this->initialisationFromFulfilment($fulfilment, $request);
 
-        return $this->handle($customer, $this->validatedData);
+        return $this->handle($customer->fulfilmentCustomer, $this->validatedData);
     }
 
     public function htmlResponse(Pallet $pallet, ActionRequest $request): RedirectResponse

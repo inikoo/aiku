@@ -13,6 +13,7 @@ use App\Http\Resources\Fulfilment\FulfilmentCustomersResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
+use App\Models\Fulfilment\PalletDelivery;
 use App\Models\SysAdmin\Organisation;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -56,7 +57,7 @@ class IndexPalletDeliveries extends OrgAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        $queryBuilder = QueryBuilder::for(FulfilmentCustomer::class);
+        $queryBuilder = QueryBuilder::for(PalletDelivery::class);
         $queryBuilder->where('customers.shop_id', $fulfilment->shop->id);
 
 
