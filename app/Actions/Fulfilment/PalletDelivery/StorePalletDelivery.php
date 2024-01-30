@@ -7,13 +7,17 @@
 
 namespace App\Actions\Fulfilment\PalletDelivery;
 
+use App\Actions\Helpers\SerialReference\GetSerialReference;
 use App\Actions\OrgAction;
+use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Models\CRM\Customer;
 use App\Models\Fulfilment\Fulfilment;
+use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -26,10 +30,15 @@ class StorePalletDelivery extends OrgAction
 
     public Customer $customer;
 
-    public function handle(Customer $customer, array $modelData): PalletDelivery
+    public function handle(FulfilmentCustomer $fulfilmentCustomer, array $modelData): PalletDelivery
     {
+        if (!Arr::get($modelData, 'reference')) {
+            data_set($modelData, 'reference', GetSerialReference::run(container: $fulfilmentCustomer->customer->shop, modelType: SerialReferenceModelEnum::PALLET_DELIVERY));
+        }
+
         /** @var PalletDelivery $palletDelivery */
-        $palletDelivery = $customer->palletDeliveries()->create($modelData);
+        $palletDelivery = $fulfilmentCustomer->palletDeliveries()->create($modelData);
+
 
         return $palletDelivery;
     }

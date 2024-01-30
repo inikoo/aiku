@@ -20,6 +20,8 @@ enum CustomerFulfilmentTabsEnum: string
     case STORED_ITEMS  = 'stored_items';
     case ORDERS        = 'orders';
 
+    case PALLET_DELIVERIES        = 'pallet_deliveries';
+
     case DATA              = 'data';
     case ATTACHMENTS       = 'attachments';
     case DISPATCHED_EMAILS = 'dispatched_emails';
@@ -40,6 +42,10 @@ enum CustomerFulfilmentTabsEnum: string
             ],
             CustomerFulfilmentTabsEnum::ORDERS => [
                 'title' => __('orders'),
+                'icon'  => 'fal fa-shopping-cart',
+            ],
+            CustomerFulfilmentTabsEnum::PALLET_DELIVERIES => [
+                'title' => __('pallet deliveries'),
                 'icon'  => 'fal fa-shopping-cart',
             ],
             CustomerFulfilmentTabsEnum::ATTACHMENTS => [

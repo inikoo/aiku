@@ -32,9 +32,9 @@ function customerRoute(customer: Customer) {
 
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
-        <template #cell(slug)="{ item: customer }">
-            <Link :href="customerRoute(customer)">
-                {{ customer['slug'] }}
+        <template #cell(reference)="{ item: customer }">
+            <Link :href="customerRoute(customer)" class="specialUnderline">
+                {{ customer['reference'] }} 
             </Link>
         </template>
     </Table>
