@@ -4,7 +4,7 @@ import { Navigation } from '@/types/Navigation'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import {  } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { Link, usePage } from '@inertiajs/vue3'
+import { Link, usePage, router } from '@inertiajs/vue3'
 // import SubNavigation from '@/Layouts/SubNavigation.vue'
 import { capitalize } from "@/Composables/capitalize"
 import { isRouteSameAsCurrentUrl } from '@/Composables/useUrl'
@@ -26,7 +26,7 @@ const props = defineProps<{
 // }
 
 const layout = useLayoutStore()
-const  isTopMenuActive = ref(false)
+const isTopMenuActive = ref(false)
 
 onMounted(() => {
     isTopMenuActive.value = true
@@ -37,21 +37,20 @@ onUnmounted(() => {
     isTopMenuActive.value = false
 })
 
-// const compRouteSameAsCurrentUrl = computed(() => {
-//     return props.nav.route?.name ? isRouteSameAsCurrentUrl(route(props.nav.route.name, props.nav.route.parameters)) : false
-// })
+// Check if this route has nav.root
+const isRouteActive = () => {
+    return (layout.currentRoute).includes(props.nav.root || 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')  // 'aaaa' so it will return false
+}
 
-const isActiveRoute = computed(() => {
-    return route().v().name.includes(props.nav.route.name)
-})
-// console.log(route().v().route.uri)
+
 </script>
 
 <template>
-    <!-- {{ route().v().name }} -- {{ nav.route?.name }} -->
+    <!-- {{ layout.currentRoute }} -->
+    <!-- <div class="text-xxs">{{ layout.currentRoute }} <br> {{ nav.route.name }}</div> -->
     <Link :href="nav.route?.name ? route(nav.route.name, nav.route.parameters) : '#'"
         class="group flex items-center px-2 text-sm gap-x-2" :class="[
-            isActiveRoute
+            isRouteActive()
                 ? 'navigationActive'
                 : 'navigation',
             layout.leftSidebar.show ? '' : '',
@@ -71,11 +70,12 @@ const isActiveRoute = computed(() => {
     </Link>
 
     <!-- If this Navigation is active, then teleport the SubSections to #TopbarSubsections in <AppTopBar> -->
-    <template v-if="isActiveRoute">
-        <Teleport to="#TopbarSubsections" :disabled="!isActiveRoute">
+    <template v-if="isRouteActive()">
+        <Teleport to="#TopbarSubsections" :disabled="!isRouteActive()">
             <TopbarSubsections
                 v-if="nav.topMenu?.subSections"
                 :subSections="nav.topMenu.subSections"
+                :root="nav.root"
             />
         </Teleport>
     </template>

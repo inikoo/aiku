@@ -22,6 +22,7 @@ export interface Navigation {
     scope?: string
     icon: string[]
     route?: routeType
+    root?: string  // For Navigation-Subsections active state purpose
     topMenu: {
         subSections?: SubSection[]
         dropdown?: {
