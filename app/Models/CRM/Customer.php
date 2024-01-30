@@ -218,7 +218,7 @@ class Customer extends Model implements HasMedia
 
     public function storedItems(): HasMany
     {
-        return $this->hasMany(StoredItem::class);
+        return $this->hasMany(StoredItem::class, 'fulfilment_customer_id');
     }
 
     public function taxNumber(): MorphOne

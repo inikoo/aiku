@@ -52,7 +52,7 @@ class ShowFulfilmentCustomer extends OrgAction
     public function htmlResponse(Customer $customer, ActionRequest $request): Response
     {
         return Inertia::render(
-            'Fulfilment/Customer',
+            'Org/Fulfilment/Customer',
             [
                 'title'       => __('customer'),
                 'breadcrumbs' => $this->getBreadcrumbs(
@@ -75,11 +75,11 @@ class ShowFulfilmentCustomer extends OrgAction
                         [
                             'type'    => 'button',
                             'style'   => 'create',
-                            'tooltip' => __('new stored items'),
-                            'label'   => __('create stored items'),
+                            'tooltip' => __('new delivery'),
+                            'label'   => __('create delivery'),
                             'route'   => [
-                                'name'       => 'grp.fulfilment.stored-items.create',
-                                'parameters' => [$customer->slug]
+                                'name'       => 'grp.org.fulfilments.show.pallets.create',
+                                'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ],
                         /*[
@@ -204,7 +204,7 @@ class ShowFulfilmentCustomer extends OrgAction
         }
 
         return match ($routeName) {
-            'grp.fulfilment.customers.show' ,
+            'grp.org.fulfilments.show.customers.show' ,
             'shops.customers.show'=> [
                 'label'=> $customer->name,
                 'route'=> [
