@@ -149,6 +149,8 @@ queryBuilderData.value.elementFilter = {
     // 'type': ['volunteer', 'employee']
 }
 
+console.log('queryubilder',queryBuilderProps )
+
 const pageName = computed(() => {
     return queryBuilderProps.value.pageName;
 });
@@ -604,8 +606,8 @@ watch(name, () => {
 
                             <!-- Button or Button Group -->
                             <div v-if="queryBuilderProps.modelOperations?.createLink" class="flex">
-                                <slot v-for="linkButton in queryBuilderProps.modelOperations?.createLink"
-                                    :name="`button${linkButton.mode}`" :linkButton="linkButton"
+                                <slot v-for="(linkButton,index) in queryBuilderProps.modelOperations?.createLink"
+                                    :name="`button${linkButton.label}`" :linkButton="linkButton"
                                 >
                                     <Link v-if="linkButton?.route?.name" :href="route(linkButton?.route?.name, linkButton?.route?.parameters)"
                                         class="ring-1 ring-gray-300 overflow-hidden"
