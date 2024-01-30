@@ -9,7 +9,7 @@ namespace App\Actions\Fulfilment\PalletDelivery\UI;
 
 use App\Actions\Fulfilment\FulfilmentCustomer\UI\IndexFulfilmentCustomers;
 use App\Actions\OrgAction;
-use App\Enums\UI\CustomerFulfilmentTabsEnum;
+use App\Enums\UI\PalletDeliveryTabsEnum;
 use App\Http\Resources\Fulfilment\PalletDeliveriesResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\PalletDelivery;
@@ -85,7 +85,7 @@ class ShowPalletDelivery extends OrgAction
                 ],
                 'tabs'        => [
                     'current'    => $this->tab,
-                    'navigation' => CustomerFulfilmentTabsEnum::navigation()
+                    'navigation' => PalletDeliveryTabsEnum::navigation()
                 ],
             ]
         );
