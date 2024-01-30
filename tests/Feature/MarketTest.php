@@ -53,11 +53,11 @@ test('create shop', function () {
 test('create shop by command', function () {
     $organisation = $this->organisation;
     $this->artisan('shop:create', [
-        'organisation' => $organisation->slug,
-        'name'         => 'Test Shop',
-        'code'         => 'TEST',
-        'type'         => ShopTypeEnum::FULFILMENT->value,
-        'warehouses'   => [$this->warehouse->id]
+        'organisation'   => $organisation->slug,
+        'name'           => 'Test Shop',
+        'code'           => 'TEST',
+        'type'           => ShopTypeEnum::FULFILMENT->value,
+        '--warehouses'   => [$this->warehouse->id]
     ])->assertExitCode(0);
     $organisation->refresh();
 

@@ -35,7 +35,13 @@ class SeedFulfilmentPermissions
                 Permission::where('name', $permissionName)->first()->delete();
             });
 
+
+
+
         $fulfilmentPermissions->each(function ($permissionName) use ($fulfilment) {
+
+
+
             try {
                 Permission::create(
                     [
@@ -46,6 +52,7 @@ class SeedFulfilmentPermissions
                 );
             } catch (Exception) {
             }
+
         });
 
         $fulfilmentRoles = collect(RolesEnum::getRolesWithScope($fulfilment));

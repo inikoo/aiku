@@ -6,7 +6,6 @@
  */
 
 
-use App\Actions\CRM\Customer\UI\CreateCustomer;
 use App\Actions\CRM\Customer\UI\EditCustomer;
 use App\Actions\CRM\Customer\UI\ShowCustomer;
 use App\Actions\CRM\Prospect\UI\CreateProspect;
@@ -14,14 +13,14 @@ use App\Actions\CRM\Prospect\UI\IndexProspects;
 use App\Actions\CRM\WebUser\EditWebUser;
 use App\Actions\CRM\WebUser\IndexWebUser;
 use App\Actions\CRM\WebUser\ShowWebUser;
+use App\Actions\Fulfilment\FulfilmentCustomer\UI\CreateFulfilmentCustomer;
 use App\Actions\Fulfilment\FulfilmentCustomer\UI\IndexFulfilmentCustomers;
 use App\Actions\OMS\Order\UI\ShowOrder;
-use App\Actions\UI\Fulfilment\ShowFulfilmentCRMDashboard;
 
 //Route::get('', ShowFulfilmentCRMDashboard::class)->name('dashboard');
 
 Route::get('', IndexFulfilmentCustomers::class)->name('index');
-Route::get('create', CreateCustomer::class)->name('create');
+Route::get('create', CreateFulfilmentCustomer::class)->name('create');
 Route::get('{customer}', [ShowCustomer::class, 'inShop'])->name('show');
 Route::get('{customer}/edit', [EditCustomer::class, 'inShop'])->name('edit');
 Route::get('{customer}/orders/{order}', [ShowOrder::class, 'inCustomerInShop'])->name('show.orders.show');

@@ -26,7 +26,7 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('shop_id')->index()->nullable();
             $table->foreign('shop_id')->references('id')->on('shops');
             $table->unsignedInteger('image_id')->nullable();
-            $table->string('slug')->nullable()->unique()->collation('und_ns');
+            $table->string('slug')->unique()->collation('und_ns');
             $table->string('reference')->nullable()->collation('und_ns')->index()->comment('customer public id');
             $table->string('name', 256)->nullable();
             $table = $this->contactFields(table: $table, withWebsite: true);

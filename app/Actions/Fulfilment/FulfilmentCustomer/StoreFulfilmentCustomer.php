@@ -22,6 +22,7 @@ class StoreFulfilmentCustomer extends OrgAction
             'group_id'        => $customer->group_id,
             'organisation_id' => $customer->organisation_id,
         ]);
+        $customerFulfilment->refresh();
 
         return $customerFulfilment;
     }

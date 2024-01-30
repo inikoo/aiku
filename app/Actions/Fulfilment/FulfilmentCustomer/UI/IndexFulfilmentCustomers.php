@@ -96,8 +96,8 @@ class IndexFulfilmentCustomers extends OrgAction
                 ->withGlobalSearch()
                 ->withEmptyState(
                     [
-                        'title'       => __("No customers found"),
-                        'description' => __("You can add your customer 🤷🏽‍♂️"),
+                        'title'       => __("You don't have any customer yet").' 😭',
+                        'description' => __("Dont worry soon you will be pretty busy"),
                         'count'       => $fulfilment->shop->crmStats->number_customers,
                         'action'      => [
                             'type'    => 'button',

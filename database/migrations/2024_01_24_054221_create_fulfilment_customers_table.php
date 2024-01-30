@@ -22,6 +22,7 @@ return new class () extends Migration {
             Schema::create('fulfilment_customers', function (Blueprint $table) {
                 $table->increments('id');
                 $table = $this->groupOrgRelationship($table);
+                $table->string('slug')->unique()->collation('und_ns');
                 $table->unsignedInteger('customer_id');
                 $table->foreign('customer_id')->references('id')->on('customers');
                 $table->unsignedInteger('fulfilment_id');

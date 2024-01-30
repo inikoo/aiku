@@ -29,8 +29,8 @@ Route::prefix("{warehouse:id}")->name("warehouses.")
         Route::patch('locations/{location}/pallets/{pallet}', UpdatePalletLocation::class)->name('pallets.location.update');
 
         Route::prefix("fulfilments/{fulfilment}")->name("fulfilments.")->group(function () {
-                Route::get('pallets', IndexPallets::class)->name('pallets.index');
-                Route::get('pallets/{pallet}', ShowPallet::class)->name('pallets.show');
-                Route::patch('pallets/{pallet}/return', ReturnPalletToCustomer::class)->name('pallets.return');
-            });
+            Route::get('pallets', IndexPallets::class)->name('pallets.index');
+            Route::get('pallets/{pallet}', ShowPallet::class)->name('pallets.show');
+            Route::patch('pallets/{pallet}/return', ReturnPalletToCustomer::class)->name('pallets.return');
+        });
     });
