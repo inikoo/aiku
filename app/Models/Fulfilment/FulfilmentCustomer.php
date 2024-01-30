@@ -131,4 +131,9 @@ class FulfilmentCustomer extends Model
     {
         return $this->hasMany(StoredItem::class);
     }
+
+    public function palletDeliveries(): HasMany
+    {
+        return $this->hasMany(PalletDelivery::class);
+    }
 }

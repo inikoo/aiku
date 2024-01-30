@@ -1,44 +1,40 @@
 <!--
-  -  Author: Raul Perusquia <raul@inikoo.com>
-  -  Created: Mon, 17 Oct 2022 17:33:07 British Summer Time, Sheffield, UK
-  -  Copyright (c) 2022, Raul A Perusquia Flores
+  - Author: Raul Perusquia <raul@inikoo.com>
+  - Created: Mon, 20 Mar 2023 23:18:59 Malaysia Time, Kuala Lumpur, Malaysia
+  - Copyright (c) 2023, Raul A Perusquia Flores
   -->
 
-  <script setup  lang="ts">
- import {Head} from '@inertiajs/vue3';
-import PageHeading from '@/Components/Headings/PageHeading.vue';
-import { capitalize } from "@/Composables/capitalize"
-import TableCustomers from "@/Components/Tables/TableCustomers.vue";
-import Tabs from "@/Components/Navigation/Tabs.vue";
-import {computed, ref} from "vue";
-import {useTabChange} from "@/Composables/tab-change";
-import TableHistories from "@/Components/Tables/TableHistories.vue";
-  
-  const props = defineProps<{
-    title: string
-    tabs: object
-    showcase?:object
-    history?:object
-    pageHead: object
+<script setup lang="ts">
+import Timeline from '@/Components/Timeline/Timeline.vue'
+
+const props = defineProps<{
+    data: object
 }>()
 
+const options =
+    [
+        {
+            label: "Mailshot created",
+            timestamp: "2024-01-30T07:59:12.000000Z"
+        },
+        {
+            label: "Mailshot composed",
+            timestamp: "2024-01-30T07:59:24.000000Z"
+        },
+        {
+            label: "Start send",
+            timestamp: "2024-01-30T07:59:39.000000Z"
+        },
+        {
+            label: "Sent",
+            timestamp: null
+        }
+    ]
 
 
-let currentTab = ref(props.tabs.current);
-const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
-
-const component = computed(() => {
-
-    const components = {
-        showcase: null,
-        history: TableHistories
-    };
-    return components[currentTab.value];
-
-});
-  </script>
+</script>
   
-  <template layout="App">
-     <div>hallo</div>
-  </template>
+<template>
+    <Timeline :options="options" />
+</template>
   

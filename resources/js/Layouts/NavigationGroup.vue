@@ -46,7 +46,7 @@ const isPanelOpen = ref(layout.organisationsState?.[layout.currentParams.organis
             <div v-show="isPanelOpen">
                 <DisclosurePanel static v-if="Object.keys(orgNav || []).length === 1" class="flex flex-col gap-y-1 mb-1">
                     <!-- group only 1 -->
-                    <template v-for="nav, navIndex in orgNav[Object.keys(orgNav)[0]]">
+                    <template v-for="nav, navIndex, index in orgNav[Object.keys(orgNav)[0]]" :key="navIndex + index">
                         <NavigationSimple
                             :nav="nav"
                             :navKey="navIndex"
@@ -58,7 +58,7 @@ const isPanelOpen = ref(layout.organisationsState?.[layout.currentParams.organis
                 <DisclosurePanel static v-else-if="layout.organisationsState?.[layout.currentParams.organisation]?.[generateCurrentString(itemKey)]"
                     class="flex flex-col gap-y-1 mb-1">
                     <!-- Looping: SubNav -->
-                    <template v-for="nav, navIndex in orgNav[layout.organisationsState?.[layout.currentParams.organisation]?.[generateCurrentString(itemKey)]]">
+                    <template v-for="nav, navIndex in orgNav[layout.organisationsState?.[layout.currentParams.organisation]?.[generateCurrentString(itemKey)]]" :key="navIndex">
                         <NavigationSimple
                             :nav="nav"
                             :navKey="navIndex"

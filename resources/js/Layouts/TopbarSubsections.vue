@@ -16,6 +16,13 @@ const props = defineProps<{
     subSections: SubSection[]
 }>();
 
+// Check current Route is have provided routeName
+const isSubSectionActive = (routeName: string) => {
+    if(!routeName) return false
+
+    return (layoutStore.currentRoute).includes(routeName)
+}
+
 </script>
 
 <template>
@@ -26,7 +33,7 @@ const props = defineProps<{
                :class="[]" :title="capitalize(subSection.tooltip ?? subSection.label ?? '')"
     >
         <div :class="[
-            route(layoutStore.currentRoute, layoutStore.currentParams).includes(subSection.route?.name ? route(subSection.route.name, subSection.route.parameters) : false)
+            isSubSectionActive(subSection.route?.name)
                 ? 'bottomNavigationActive'
                 : 'bottomNavigation'
         ]" />

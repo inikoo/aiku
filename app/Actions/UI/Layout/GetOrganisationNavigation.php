@@ -255,6 +255,7 @@ class GetOrganisationNavigation
 
         if ($user->hasPermissionTo("procurement.$organisation->id.view")) {
             $navigation['procurement'] = [
+                'root'    => 'grp.org.procurement',
                 'label'   => __('procurement'),
                 'icon'    => ['fal', 'fa-box-usd'],
                 'route'   => [
@@ -341,6 +342,7 @@ class GetOrganisationNavigation
 
         if ($user->hasPermissionTo("human-resources.$organisation->id.view")) {
             $navigation['hr'] = [
+                'root'    => 'grp.org.hr',
                 'label'   => __('human resources'),
                 'icon'    => ['fal', 'fa-user-hard-hat'],
                 'route'   => [
