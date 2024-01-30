@@ -146,10 +146,10 @@ class EditLocation extends InertiaAction
     {
         $previous=Location::where('slug', '<', $location->slug)->when(true, function ($query) use ($location, $request) {
             switch ($request->route()->getName()) {
-                case 'grp.org.warehouses.show.locations.edit':
+                case 'grp.org.warehouses.show.inventory.locations.edit':
                     $query->where('locations.warehouse_id', $location->warehouse_id);
                     break;
-                case 'grp.org.warehouses.show.warehouse-areas.show.locations.edit':
+                case 'grp.org.warehouses.show.inventory.warehouse-areas.show.locations.edit':
                 case 'grp.org.inventory.warehouse-areas.show.locations.show':
                     $query->where('locations.warehouse_area_id', $location->warehouse_area_id);
                     break;
@@ -165,10 +165,10 @@ class EditLocation extends InertiaAction
     {
         $next = Location::where('slug', '>', $location->slug)->when(true, function ($query) use ($location, $request) {
             switch ($request->route()->getName()) {
-                case 'grp.org.warehouses.show.locations.edit':
+                case 'grp.org.warehouses.show.inventory.locations.edit':
                     $query->where('locations.warehouse_id', $location->warehouse_id);
                     break;
-                case 'grp.org.warehouses.show.warehouse-areas.show.locations.edit':
+                case 'grp.org.warehouses.show.inventory.warehouse-areas.show.locations.edit':
                 case 'grp.org.inventory.warehouse-areas.show.locations.show':
                     $query->where('locations.warehouse_area_id', $location->warehouse_area_id);
                     break;
@@ -206,7 +206,7 @@ class EditLocation extends InertiaAction
 
                 ]
             ],
-            'grp.org.warehouses.show.locations.edit'=> [
+            'grp.org.warehouses.show.inventory.locations.edit'=> [
                 'label'=> $location->slug,
                 'route'=> [
                     'name'      => $routeName,
@@ -217,7 +217,7 @@ class EditLocation extends InertiaAction
 
                 ]
             ],
-            'grp.org.warehouses.show.warehouse-areas.show.locations.edit' => [
+            'grp.org.warehouses.show.inventory.warehouse-areas.show.locations.edit' => [
                 'label'=> $location->slug,
                 'route'=> [
                     'name'      => $routeName,

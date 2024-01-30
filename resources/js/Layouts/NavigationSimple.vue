@@ -37,17 +37,21 @@ onUnmounted(() => {
     isTopMenuActive.value = false
 })
 
-const compRouteSameAsCurrentUrl = computed(() => {
-    return props.nav.route?.name ? isRouteSameAsCurrentUrl(route(props.nav.route.name, props.nav.route.parameters)) : false
+// const compRouteSameAsCurrentUrl = computed(() => {
+//     return props.nav.route?.name ? isRouteSameAsCurrentUrl(route(props.nav.route.name, props.nav.route.parameters)) : false
+// })
+
+const isActiveRoute = computed(() => {
+    return route().v().name.includes(props.nav.route.name)
 })
 // console.log(route().v().route.uri)
 </script>
 
 <template>
-    <!-- {{ Object.keys(navKey) }} -->
+    <!-- {{ route().v().name }} -- {{ nav.route?.name }} -->
     <Link :href="nav.route?.name ? route(nav.route.name, nav.route.parameters) : '#'"
         class="group flex items-center px-2 text-sm gap-x-2" :class="[
-            compRouteSameAsCurrentUrl
+            isActiveRoute
                 ? 'navigationActive'
                 : 'navigation',
             layout.leftSidebar.show ? '' : '',
@@ -67,8 +71,8 @@ const compRouteSameAsCurrentUrl = computed(() => {
     </Link>
     
     <!-- If this Navigation is active, then teleport the SubSections to #TopbarSubsections in <AppTopBar> -->
-    <template v-if="compRouteSameAsCurrentUrl">
-        <Teleport to="#TopbarSubsections" :disabled="!compRouteSameAsCurrentUrl">
+    <template v-if="isActiveRoute">
+        <Teleport to="#TopbarSubsections" :disabled="!isActiveRoute">
             <TopbarSubsections
                 v-if="nav.topMenu?.subSections"
                 :subSections="nav.topMenu.subSections"

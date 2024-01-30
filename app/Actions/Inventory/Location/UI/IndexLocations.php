@@ -163,7 +163,7 @@ class IndexLocations extends OrgAction
                                 'tooltip' => __('new location'),
                                 'label'   => __('location'),
                                 'route'   => [
-                                    'name'       => 'grp.org.warehouses.show.locations.create',
+                                    'name'       => 'grp.org.warehouses.show.inventory.locations.create',
                                     'parameters' => array_values($request->route()->originalParameters())
                                 ]
                             ] : null
@@ -179,7 +179,7 @@ class IndexLocations extends OrgAction
                                 'tooltip' => __('new location'),
                                 'label'   => __('location'),
                                 'route'   => [
-                                    'name'       => 'grp.org.warehouses.show.warehouse-areas.show.locations.create',
+                                    'name'       => 'grp.org.warehouses.show.inventory.warehouse-areas.show.locations.create',
                                     'parameters' => array_values($request->route()->originalParameters())
                                 ]
                             ] : null
@@ -236,20 +236,20 @@ class IndexLocations extends OrgAction
                     'actions'=> [
                         $this->canEdit
                         && (
-                            $request->route()->getName() == 'grp.org.warehouses.show.locations.index' or
-                            $request->route()->getName() == 'grp.org.warehouses.show.warehouse-areas.show.locations.index'
+                            $request->route()->getName() == 'grp.org.warehouses.show.inventory.locations.index' or
+                            $request->route()->getName() == 'grp.org.warehouses.show.inventory.warehouse-areas.show.locations.index'
                         )
                             ? [
                             'type'  => 'button',
                             'style' => 'create',
                             'label' => __('locations'),
                             'route' => match ($request->route()->getName()) {
-                                'grp.org.warehouses.show.locations.index' => [
-                                    'name'       => 'grp.org.warehouses.show.locations.create',
+                                'grp.org.warehouses.show.inventory.locations.index' => [
+                                    'name'       => 'grp.org.warehouses.show.inventory.locations.create',
                                     'parameters' => array_values($request->route()->originalParameters())
                                 ],
                                 default => [
-                                    'name'       => 'grp.org.warehouses.show.warehouse-areas.show.locations.create',
+                                    'name'       => 'grp.org.warehouses.show.inventory.warehouse-areas.show.locations.create',
                                     'parameters' => array_values($request->route()->originalParameters())
                                 ]
                             }
@@ -288,11 +288,11 @@ class IndexLocations extends OrgAction
                     ]
                 )
             ),
-            'grp.org.warehouses.show.locations.index' =>
+            'grp.org.warehouses.show.inventory.locations.index' =>
             array_merge(
                 (new ShowWarehouse())->getBreadcrumbs($routeParameters['warehouse']),
                 $headCrumb([
-                    'name'       => 'grp.org.warehouses.show.locations.index',
+                    'name'       => 'grp.org.warehouses.show.inventory.locations.index',
                     'parameters' => [
                         $routeParameters['organisation']->slug,
                         $routeParameters['warehouse']->slug
@@ -315,17 +315,17 @@ class IndexLocations extends OrgAction
                         ]
                 ])
             ),
-            'grp.org.warehouses.show.warehouse-areas.show.locations.index' =>
+            'grp.org.warehouses.show.inventory.warehouse-areas.show.locations.index' =>
             array_merge(
                 (new ShowWarehouseArea())->getBreadcrumbs(
-                    'grp.org.warehouses.show.warehouse-areas.show',
+                    'grp.org.warehouses.show.inventory.warehouse-areas.show',
                     [
                         'warehouse'     => $routeParameters['warehouse'],
                         'warehouseArea' => $routeParameters['warehouseArea']
                     ]
                 ),
                 $headCrumb([
-                    'name'       => 'grp.org.warehouses.show.warehouse-areas.show.locations.index',
+                    'name'       => 'grp.org.warehouses.show.inventory.warehouse-areas.show.locations.index',
                     'parameters' =>
                         [
                             $routeParameters['warehouse']->slug,

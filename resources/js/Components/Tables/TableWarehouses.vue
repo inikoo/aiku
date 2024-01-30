@@ -27,7 +27,7 @@ function warehouseAreasRoute(warehouse: Warehouse) {
     switch (route().current()) {
         case 'grp.org.warehouses.index':
             return route(
-                'grp.org.warehouses.show.warehouse-areas.index',
+                'grp.org.warehouses.show.inventory.warehouse-areas.index',
                 [route().params['organisation'], warehouse.slug]);
     }
 }
@@ -36,7 +36,7 @@ function locationsRoute(warehouse: Warehouse) {
     switch (route().current()) {
         case 'grp.org.warehouses.index':
             return route(
-                'grp.org.warehouses.show.locations.index',
+                'grp.org.warehouses.show.inventory.locations.index',
                 [route().params['organisation'], warehouse.slug]);
     }
 }

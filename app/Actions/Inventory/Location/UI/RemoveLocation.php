@@ -106,7 +106,7 @@ class RemoveLocation extends InertiaAction
                             'name'       => 'grp.models.location.delete',
                             'parameters' => $request->route()->originalParameters()
                         ],
-                        'grp.org.warehouses.show.locations.remove' => [
+                        'grp.org.warehouses.show.inventory.locations.remove' => [
                             'name'       => 'grp.models.warehouse.location.delete',
                             'parameters' => $request->route()->originalParameters()
                         ],
@@ -114,7 +114,7 @@ class RemoveLocation extends InertiaAction
                             'name'       => 'grp.models.warehouse-area.location.delete',
                             'parameters' => $request->route()->originalParameters()
                         ],
-                        'grp.org.warehouses.show.warehouse-areas.show.locations.remove' => [
+                        'grp.org.warehouses.show.inventory.warehouse-areas.show.locations.remove' => [
                             'name'       => 'grp.models.warehouse.warehouse-area.location.delete',
                             'parameters' => $request->route()->originalParameters()
                         ]

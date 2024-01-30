@@ -29,10 +29,10 @@ Route::prefix('{warehouse}')
     ->group(function () {
 
         Route::get('edit', EditWarehouse::class)->name('edit');
-
-        Route::name('show')
+        Route::get('/', ShowWarehouse::class)->name('show');
+        Route::name('show.inventory')
             ->group(function () {
-                Route::get('/dashboard', ShowWarehouse::class);
+
                 Route::get('/areas', [IndexWarehouseAreas::class, 'inOrganisation'])->name('.warehouse-areas.index');
                 Route::get('/areas/create', CreateWarehouseArea::class)->name('.warehouse-areas.create');
                 Route::get('/areas/{warehouseArea}', [ShowWarehouseArea::class, 'inOrganisation'])->name('.warehouse-areas.show');

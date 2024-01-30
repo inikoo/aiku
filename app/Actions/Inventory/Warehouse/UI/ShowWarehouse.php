@@ -84,7 +84,7 @@ class ShowWarehouse extends OrgAction
                             'name'     => trans_choice('warehouse area|warehouse areas', $warehouse->stats->number_warehouse_areas),
                             'number'   => $warehouse->stats->number_warehouse_areas,
                             'href'     => [
-                                'name'       => 'grp.org.warehouses.show.warehouse-areas.index',
+                                'name'       => 'grp.org.warehouses.show.inventory.warehouse-areas.index',
                                 'parameters' => array_merge($routeParameters, [$warehouse->slug])
                             ],
                             'leftIcon' => [
@@ -96,7 +96,7 @@ class ShowWarehouse extends OrgAction
                             'name'     => trans_choice('location|locations', $warehouse->stats->number_locations),
                             'number'   => $warehouse->stats->number_locations,
                             'href'     => [
-                                'name'       => 'grp.org.warehouses.show.locations.index',
+                                'name'       => 'grp.org.warehouses.show.inventory.locations.index',
                                 'parameters' => array_merge($routeParameters, [$warehouse->slug])
                             ],
                             'leftIcon' => [
@@ -160,7 +160,7 @@ class ShowWarehouse extends OrgAction
                 /* modelOperations: [
                       'createLink' => $this->canEdit ? [
                           'route' => [
-                              'name'       => 'grp.org.warehouses.show.warehouse-areas.create',
+                              'name'       => 'grp.org.warehouses.show.inventory.warehouse-areas.create',
                               'parameters' => array_values([$warehouse->slug])
                           ],
                           'label' => __('area'),
@@ -176,7 +176,7 @@ class ShowWarehouse extends OrgAction
                 /* modelOperations: [
                     'createLink' => $this->canEdit ? [
                         'route' => [
-                            'name'       => 'grp.org.warehouses.show.locations.create',
+                            'name'       => 'grp.org.warehouses.show.inventory.locations.create',
                             'parameters' => array_values([$warehouse->slug])
                         ],
                         'label' => __('location'),
