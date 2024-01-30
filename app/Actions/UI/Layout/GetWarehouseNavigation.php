@@ -60,7 +60,15 @@ class GetWarehouseNavigation
                                 'parameters' => [$warehouse->organisation->slug, $warehouse->slug]
                             ],
                         ],
-
+                        [
+                            'label'   => __('fulfilment'),
+                            'tooltip' => __('fulfilment'),
+                            'icon'    => ['fal', 'fa-pallets'],
+                            'route'   => [
+                                'name'       => 'grp.org.warehouses.show.pallets.index',
+                                'parameters' => [$warehouse->organisation->slug, $warehouse->slug]
+                            ],
+                        ],
 
                     ],
 

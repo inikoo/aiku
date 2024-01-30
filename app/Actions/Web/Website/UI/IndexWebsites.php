@@ -206,7 +206,7 @@ class IndexWebsites extends OrgAction
         } elseif (class_basename($scope) == 'Fulfilment') {
             $title     =__("Fulfilment Shop Websites");
             $container = [
-                'icon'    => ['fal', 'fa-pallets'],
+                'icon'    => ['fal', 'fa-pallet'],
                 'tooltip' => __('Fulfilment shop'),
                 'label'   => Str::possessive($scope->shop->name)
             ];

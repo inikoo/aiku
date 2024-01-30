@@ -4,10 +4,12 @@ import { useLayoutStore } from '@/Stores/layout'
 import { capitalize } from '@/Composables/capitalize'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faDotCircle } from '@fas'
+import { faPallet, faUsers, faMapSigns } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
-library.add(faDotCircle)
 import { get } from 'lodash'
 import { SubSection } from '@/types/Navigation'
+
+library.add(faDotCircle, faPallet, faUsers, faMapSigns)
 
 const layoutStore = useLayoutStore()
 
@@ -25,7 +27,7 @@ const props = defineProps<{
         :class="[]" :title="capitalize(subSection.tooltip ?? subSection.label ?? '')"
     >
         <div :class="[
-            route(route().v().name, route().v().params).includes(subSection.route?.name ? route(subSection.route.name, subSection.route.parameters) : false)
+            route(layoutStore.currentRoute, layoutStore.currentParams).includes(subSection.route?.name ? route(subSection.route.name, subSection.route.parameters) : false)
                 ? 'bottomNavigationActive'
                 : 'bottomNavigation'
         ]" />
