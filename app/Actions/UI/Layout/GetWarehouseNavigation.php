@@ -60,15 +60,7 @@ class GetWarehouseNavigation
                                 'parameters' => [$warehouse->organisation->slug, $warehouse->slug]
                             ],
                         ],
-                        [
-                            'label'   => __('fulfilment'),
-                            'tooltip' => __('fulfilment'),
-                            'icon'    => ['fal', 'fa-pallets'],
-                            'route'   => [
-                                'name'       => 'grp.org.warehouses.show.pallets.index',
-                                'parameters' => [$warehouse->organisation->slug, $warehouse->slug]
-                            ],
-                        ],
+
 
                     ],
 
@@ -95,21 +87,31 @@ class GetWarehouseNavigation
                 'icon'  => ['fal', 'fa-pallet-alt'],
                 'label' => __('Fulfilment'),
                 'route' => [
-                    'name'       => 'grp.org.warehouses.show.pallets.index',
+                    'name'       => 'grp.org.warehouses.show.fulfilment.dashboard',
                     'parameters' => [$warehouse->organisation->slug, $warehouse->slug]
                 ],
 
 
                 'topMenu' => [
                     'subSections' => [
-                        [
-                            'label' => __('customers'),
-                            'icon'  => ['fal', 'fa-users'],
-                            'route' => [
-                                'name'       => 'grp.org.fulfilments.show.customers.index',
-                                'parameters' => [$warehouse->organisation->slug, $warehouse->slug],
 
-                            ]
+                        [
+                            'tooltip' => __('warehouses'),
+                            'icon'    => ['fal', 'fa-warehouse-alt'],
+                            'route'   => [
+                                'name'       => 'grp.org.warehouses.show',
+                                'parameters' => [$warehouse->organisation->slug, $warehouse->slug]
+                            ],
+                            'label'   => null
+                        ],
+
+                        [
+                            'tooltip' => __('fulfilment'),
+                            'icon'    => ['fal', 'fa-pallets'],
+                            'route'   => [
+                                'name'       => 'grp.org.warehouses.show.fulfilment.dashboard',
+                                'parameters' => [$warehouse->organisation->slug, $warehouse->slug]
+                            ],
                         ],
 
 

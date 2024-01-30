@@ -5,15 +5,7 @@ import { loadLanguageAsync } from "laravel-vue-i18n"
 import { watchEffect } from "vue"
 import { useEchoGrpPersonal } from '@/Stores/echo-grp-personal.js'
 import { useEchoGrpGeneral } from '@/Stores/echo-grp-general.js'
-import axios from "axios"
 import { useLiveUsers } from '@/Stores/active-users'
-import { Image } from "@/types/Image"
-
-interface AuthUser {
-    avatar_thumbnail: Image
-    email: string
-    username: string
-}
 
 export const initialiseApp = () => {
     const layout = useLayoutStore()
@@ -44,7 +36,8 @@ export const initialiseApp = () => {
                 [layout.currentParams.organisation]: {
                     currentShop: route().params.shop ?? layout.organisationsState?.[layout.currentParams.organisation]?.currentShop,
                     currentWarehouse: route().params.warehouse ?? layout.organisationsState?.[layout.currentParams.organisation]?.currentWarehouse,
-                    currentFulfilment: route().params.fulfilment ?? layout.organisationsState?.[layout.currentParams.organisation]?.currentFulfilment
+                    currentFulfilment: route().params.fulfilment ?? layout.organisationsState?.[layout.currentParams.organisation]?.currentFulfilment,
+                    currentType: route().params.shop ? 'shop' : route().params.fulfilment ? 'fulfilment' : route().params.warehouse ? 'warehouse' : layout.organisationsState?.[layout.currentParams.organisation]?.currentType
                 }
             }
 
@@ -53,7 +46,8 @@ export const initialiseApp = () => {
                 [layout.currentParams.organisation]: {
                     currentShop: layout.organisationsState?.[layout.currentParams.organisation]?.currentShop,
                     currentWarehouse: layout.organisationsState?.[layout.currentParams.organisation]?.currentWarehouse,
-                    currentFulfilment: layout.organisationsState?.[layout.currentParams.organisation]?.currentFulfilment
+                    currentFulfilment: layout.organisationsState?.[layout.currentParams.organisation]?.currentFulfilment,
+                    currentType: layout.organisationsState?.[layout.currentParams.organisation]?.currentType
                 }
             }))
 

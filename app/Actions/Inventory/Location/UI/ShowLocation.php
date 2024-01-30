@@ -78,7 +78,7 @@ class ShowLocation extends OrgAction
     {
 
         return Inertia::render(
-            'Inventory/Location',
+            'Org/Warehouse/Location',
             [
                 'title'       => __('location'),
                 'breadcrumbs' => $this->getBreadcrumbs(

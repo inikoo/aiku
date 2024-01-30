@@ -50,7 +50,7 @@ class ShowWarehouseArea extends OrgAction
     public function htmlResponse(WarehouseArea $warehouseArea, ActionRequest $request): Response
     {
         return Inertia::render(
-            'Inventory/WarehouseArea',
+            'Org/Warehouse/WarehouseArea',
             [
                 'title'       => __('warehouse area'),
                 'breadcrumbs' => $this->getBreadcrumbs(

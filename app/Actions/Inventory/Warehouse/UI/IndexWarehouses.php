@@ -134,7 +134,7 @@ class IndexWarehouses extends OrgAction
 
 
         return Inertia::render(
-            'Inventory/Warehouses',
+            'Org/Warehouse/Warehouses',
             [
                 'breadcrumbs' => $this->getBreadcrumbs($request->route()->originalParameters()),
                 'title'       => __('warehouses'),

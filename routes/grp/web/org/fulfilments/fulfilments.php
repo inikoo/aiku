@@ -42,6 +42,11 @@ Route::prefix('{fulfilment}')->name('show')
             ->name(".customers.")
             ->group(__DIR__."/customers.php");
 
+        Route::prefix("prospects")
+            ->name(".prospects.")
+            ->group(__DIR__."/prospects.php");
+
+
         Route::get('/pallets', IndexPallets::class)->name('.pallets.index');
         Route::get('/pallets/create', CreatePallet::class)->name('.pallets.create');
 

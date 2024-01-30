@@ -32,7 +32,7 @@ Route::prefix('{warehouse}')
 
         Route::name('show')
             ->group(function () {
-                Route::get('', ShowWarehouse::class);
+                Route::get('/dashboard', ShowWarehouse::class);
                 Route::get('/areas', [IndexWarehouseAreas::class, 'inOrganisation'])->name('.warehouse-areas.index');
                 Route::get('/areas/create', CreateWarehouseArea::class)->name('.warehouse-areas.create');
                 Route::get('/areas/{warehouseArea}', [ShowWarehouseArea::class, 'inOrganisation'])->name('.warehouse-areas.show');
@@ -45,6 +45,9 @@ Route::prefix('{warehouse}')
                 Route::get('/locations/{location}', [ShowLocation::class, 'inOrganisation'])->name('.locations.show');
                 Route::get('/locations/{location}/edit', [EditLocation::class, 'inOrganisation'])->name('.locations.edit');
                 Route::get('/locations/{location}/delete', RemoveLocation::class)->name('.locations.remove');
+
+                Route::prefix('fulfilment')->name('.fulfilment.')
+                    ->group(__DIR__."/fulfilment.php");
 
 
                 Route::get('/pallets', [IndexPallets::class, 'inWarehouse'])->name('.pallets.index');

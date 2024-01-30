@@ -178,7 +178,7 @@ class IndexWarehouseAreas extends OrgAction
             ];
         }
         return Inertia::render(
-            'Inventory/WarehouseAreas',
+            'Org/Warehouse/WarehouseAreas',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),

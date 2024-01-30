@@ -52,7 +52,7 @@ class ShowWarehouse extends OrgAction
         $routeParameters = $request->route()->originalParameters();
 
         return Inertia::render(
-            'Inventory/Warehouse',
+            'Org/Warehouse/Warehouse',
             [
                 'title'                            => __('warehouse'),
                 'breadcrumbs'                      => $this->getBreadcrumbs($request->route()->originalParameters()),
