@@ -181,7 +181,7 @@ class IndexPallets extends OrgAction
 
 
         return match ($routeName) {
-            'grp.org.warehouses.show.pallets.index'=>
+            'grp.org.warehouses.show.fulfilment.pallets.index'=>
             array_merge(
                 ShowWarehouse::make()->getBreadcrumbs($routeParameters),
                 [
@@ -189,7 +189,7 @@ class IndexPallets extends OrgAction
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name'       => 'grp.org.warehouses.show.pallets.index',
+                                'name'       => 'grp.org.warehouses.show.fulfilment.pallets.index',
                                 'parameters' => [
                                     'organisation' => $routeParameters['organisation'],
                                     'warehouse'    => $routeParameters['warehouse'],

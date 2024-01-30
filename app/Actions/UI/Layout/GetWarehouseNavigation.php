@@ -95,21 +95,22 @@ class GetWarehouseNavigation
                 'topMenu' => [
                     'subSections' => [
 
-                        [
-                            'tooltip' => __('warehouses'),
-                            'icon'    => ['fal', 'fa-warehouse-alt'],
-                            'route'   => [
-                                'name'       => 'grp.org.warehouses.show',
-                                'parameters' => [$warehouse->organisation->slug, $warehouse->slug]
-                            ],
-                            'label'   => null
-                        ],
 
                         [
                             'tooltip' => __('fulfilment'),
-                            'icon'    => ['fal', 'fa-pallets'],
+                            'icon'    => ['fal', 'fa-chart-network'],
                             'route'   => [
                                 'name'       => 'grp.org.warehouses.show.fulfilment.dashboard',
+                                'parameters' => [$warehouse->organisation->slug, $warehouse->slug]
+                            ],
+                        ],
+
+                        [
+                            'label'   => __('Pallets'),
+                            'tooltip' => __('pallets'),
+                            'icon'    => ['fal', 'fa-pallet'],
+                            'route'   => [
+                                'name'       => 'grp.org.warehouses.show.fulfilment.pallets.index',
                                 'parameters' => [$warehouse->organisation->slug, $warehouse->slug]
                             ],
                         ],
