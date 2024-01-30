@@ -13,7 +13,6 @@ use App\Http\Resources\Fulfilment\FulfilmentCustomersResource;
 use App\Http\Resources\Fulfilment\PalletDeliveriesResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\Fulfilment;
-use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
@@ -29,7 +28,6 @@ use App\Services\QueryBuilder;
 
 class IndexPalletDeliveries extends OrgAction
 {
-
     private Fulfilment|Warehouse $parent;
 
     public function authorize(ActionRequest $request): bool
@@ -38,7 +36,7 @@ class IndexPalletDeliveries extends OrgAction
             $this->canEdit = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
             return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
 
-        } else if($this->parent instanceof Warehouse) {
+        } elseif($this->parent instanceof Warehouse) {
             $this->canEdit = $request->user()->hasPermissionTo("fulfilment.{$this->warehouse->id}.edit");
             return $request->user()->hasPermissionTo("fulfilment.{$this->warehouse->id}.view");
         }
@@ -82,7 +80,7 @@ class IndexPalletDeliveries extends OrgAction
 
         if($parent instanceof Fulfilment) {
             $queryBuilder->where('pallet_deliveries.fulfilment_id', $parent->id);
-        } else if($parent instanceof Warehouse) {
+        } elseif($parent instanceof Warehouse) {
             $queryBuilder->where('pallet_deliveries.warehouse_id', $parent->id);
         }
 
@@ -154,7 +152,7 @@ class IndexPalletDeliveries extends OrgAction
                 'label'   => Str::possessive($this->fulfilment->shop->name)
 
             ];
-        } else if($this->parent instanceof Warehouse) {
+        } elseif($this->parent instanceof Warehouse) {
             $container = [
                 'icon'    => ['fal', 'fa-warehouse-alt'],
                 'tooltip' => __('Warehouse'),

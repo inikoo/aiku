@@ -7,7 +7,6 @@
 
 namespace App\Actions\Fulfilment\PalletDelivery\UI;
 
-use App\Actions\Fulfilment\FulfilmentCustomer\UI\IndexFulfilmentCustomers;
 use App\Actions\OrgAction;
 use App\Enums\UI\PalletDeliveryTabsEnum;
 use App\Http\Resources\Fulfilment\PalletDeliveriesResource;
@@ -53,7 +52,7 @@ class ShowPalletDelivery extends OrgAction
                     'next'     => $this->getNext($palletDelivery, $request),
                 ],
                 'pageHead'    => [
-                    'title' => __($palletDelivery->reference),
+                    'title'        => __($palletDelivery->reference),
                     'icon'         => [
                         'icon'  => ['fal', 'fa-truck'],
                         'title' => __($palletDelivery->reference)

@@ -13,9 +13,10 @@ use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Models\CRM\Customer;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
-use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\SysAdmin\Organisation;
+use Exception;
+use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
@@ -39,12 +40,12 @@ class StorePalletDelivery extends OrgAction
         data_set($modelData, 'ulid', Str::ulid());
 
         if (!Arr::get($modelData, 'reference')) {
-            // data_set($modelData, 'reference', GetSerialReference::run(container: $fulfilmentCustomer->customer->shop, modelType: SerialReferenceModelEnum::PALLET_DELIVERY));
-            data_set($modelData, 'reference', now()->timestamp);
+            data_set($modelData, 'reference', GetSerialReference::run(container: $fulfilmentCustomer->customer->shop, modelType: SerialReferenceModelEnum::PALLET_DELIVERY));
+
         }
 
         /** @var PalletDelivery $palletDelivery */
-        $palletDelivery = $fulfilmentCustomer->customer->palletDeliveries()->create($modelData);
+        $palletDelivery = $fulfilmentCustomer->palletDeliveries()->create($modelData);
 
 
         return $palletDelivery;
@@ -75,4 +76,34 @@ class StorePalletDelivery extends OrgAction
     {
         return Inertia::location(route('grp.org.fulfilments.show.pallets.delivery.show', $request->route()->originalParameters() + ['palletDelivery' => $palletDelivery->reference]));
     }
+
+    public string $commandSignature = 'pallet-deliveries:create {fulfillment-customer}';
+
+    public function asCommand(Command $command): int
+    {
+        $this->asAction = true;
+
+        try {
+            $fulfilmentCustomer = FulfilmentCustomer::where('slug', $command->argument('fulfilment-customer'))->firstOrFail();
+        } catch (Exception $e) {
+            $command->error($e->getMessage());
+            return 1;
+        }
+
+        try {
+            $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, []);
+        } catch (Exception $e) {
+            $command->error($e->getMessage());
+
+            return 1;
+        }
+
+        $palletDelivery = $this->handle($fulfilmentCustomer, modelData: $this->validatedData);
+
+        $command->info("Pallet delivery $palletDelivery->reference created successfully 🎉");
+
+        return 0;
+    }
+
+
 }
