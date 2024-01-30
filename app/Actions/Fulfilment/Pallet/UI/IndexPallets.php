@@ -8,6 +8,7 @@
 namespace App\Actions\Fulfilment\Pallet\UI;
 
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
+use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
 use App\Enums\UI\FulfilmentTabsEnum;
 use App\Http\Resources\Fulfilment\PalletResource;
@@ -29,7 +30,9 @@ use App\Services\QueryBuilder;
 
 class IndexPallets extends OrgAction
 {
-    public function handle(Organisation|FulfilmentCustomer|Location|Fulfilment $parent, $prefix = null): LengthAwarePaginator
+    private Organisation|FulfilmentCustomer|Location|Fulfilment|Warehouse $parent;
+
+    public function handle(Organisation|FulfilmentCustomer|Location|Fulfilment|Warehouse $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -37,9 +40,9 @@ class IndexPallets extends OrgAction
             });
         });
 
-        $isUnlocated = AllowedFilter::callback('located', function ($query, $value) {
+        $isNotLocated = AllowedFilter::callback('located', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                if($value) {
+                if ($value) {
                     $query->whereNotNull('location_id');
                 }
             });
@@ -49,7 +52,7 @@ class IndexPallets extends OrgAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        $query=QueryBuilder::for(Pallet::class);
+        $query = QueryBuilder::for(Pallet::class);
 
         switch (class_basename($parent)) {
             case "FulfilmentCustomer":
@@ -64,20 +67,24 @@ class IndexPallets extends OrgAction
             case "Fulfilment":
                 $query->where('fulfilment_id', $parent->id);
                 break;
-
+            case "Warehouse":
+                $query->where('warehouse_id', $parent->id);
+                break;
+            default:
+                $query->where('group_id', app('group')->id);
+                break;
         }
 
         return $query->defaultSort('slug')
             ->allowedSorts(['customer_reference', 'slug'])
-            ->allowedFilters([$globalSearch, $isUnlocated, 'customer_reference'])
+            ->allowedFilters([$globalSearch, $isNotLocated, 'customer_reference'])
             ->withPaginator($prefix)
             ->withQueryString();
     }
 
-    public function tableStructure($prefix = null, $modelOperations = []): Closure
+    public function tableStructure(Organisation|FulfilmentCustomer|Location|Fulfilment|Warehouse $parent, $prefix = null, $modelOperations = []): Closure
     {
         return function (InertiaTable $table) use ($prefix, $modelOperations) {
-
             if ($prefix) {
                 $table
                     ->name($prefix)
@@ -104,10 +111,15 @@ class IndexPallets extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo("fulfilment.{$this->fulfilment->id}.stored-items.edit");
+        if ($this->parent instanceof Warehouse || $this->parent instanceof Location) {
+            $this->canEdit = $request->user()->hasPermissionTo("fulfilment.{$this->warehouse->id}.edit");
+            return $request->user()->hasPermissionTo("fulfilment.{$this->warehouse->id}.view");
+        } elseif ($this->parent instanceof Fulfilment) {
+            $this->canEdit = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.stored-items.edit");
+            return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.stored-items.view");
+        }
 
-        return $request->user()->hasPermissionTo("fulfilment.{$this->fulfilment->id}.stored-items.view");
-
+        return false;
     }
 
 
@@ -122,49 +134,100 @@ class IndexPallets extends OrgAction
         return Inertia::render(
             'Org/Fulfilment/Pallets',
             [
-                'breadcrumbs' => $this->getBreadcrumbs($request->route()->originalParameters()),
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
+                    $request->route()->originalParameters()
+                ),
                 'title'       => __('pallets'),
                 'pageHead'    => [
-                    'title'   => __('pallets')
+                    'title' => __('pallets')
                 ],
-                'data' => PalletResource::collection($pallets),
+                'data'        => PalletResource::collection($pallets),
             ]
-        )->table($this->tableStructure($pallets));
+        )->table($this->tableStructure($this->parent));
     }
 
     public function asController(Organisation $organisation, Warehouse $warehouse, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisationFromFulfilment($fulfilment, $request);
+
         return $this->handle($organisation, FulfilmentTabsEnum::PALLETS->value);
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inWarehouse(Organisation $organisation, Warehouse $warehouse, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = $warehouse;
+        $this->initialisationFromWarehouse($warehouse, $request);
+
+        return $this->handle($warehouse);
+    }
+
+    /** @noinspection PhpUnusedParameterInspection */
     public function inLocation(Organisation $organisation, Warehouse $warehouse, Fulfilment $fulfilment, Location $location, ActionRequest $request): LengthAwarePaginator
     {
+        $this->parent = $location;
         $this->initialisationFromFulfilment($fulfilment, $request);
+
         return $this->handle($location, FulfilmentTabsEnum::PALLETS->value);
     }
 
-    public function getBreadcrumbs(array $routeParameters): array
+    public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
-        return array_merge(
-            ShowFulfilment::make()->getBreadcrumbs($routeParameters),
-            [
-                [
-                    'type'   => 'simple',
-                    'simple' => [
-                        'route' => [
-                            'name'       => 'grp.org.fulfilments.show.pallets.index',
-                            'parameters' => [
-                                'organisation' => $routeParameters['organisation'],
-                                'fulfilment'   => $routeParameters['fulfilment'],
-                            ]
-                        ],
-                        'label' => __('pallets'),
-                        'icon'  => 'fal fa-bars',
-                    ],
 
+        // dd($routeName);
+
+
+
+
+        return match ($routeName) {
+            'grp.org.warehouses.show.pallets.index'=>
+            array_merge(
+                ShowWarehouse::make()->getBreadcrumbs($routeParameters),
+                [
+                    [
+                        'type'   => 'simple',
+                        'simple' => [
+                            'route' => [
+                                'name'       => 'grp.org.warehouses.show.pallets.index',
+                                'parameters' => [
+                                    'organisation' => $routeParameters['organisation'],
+                                    'warehouse'    => $routeParameters['warehouse'],
+                                ]
+                            ],
+                            'label' => __('pallets'),
+                            'icon'  => 'fal fa-bars',
+                        ],
+
+                    ]
                 ]
-            ]
-        );
+            ),
+
+            'xx'=>
+            array_merge(
+                ShowFulfilment::make()->getBreadcrumbs($routeParameters),
+                [
+                    [
+                        'type'   => 'simple',
+                        'simple' => [
+                            'route' => [
+                                'name'       => 'grp.org.fulfilments.show.pallets.index',
+                                'parameters' => [
+                                    'organisation' => $routeParameters['organisation'],
+                                    'fulfilment'   => $routeParameters['fulfilment'],
+                                ]
+                            ],
+                            'label' => __('pallets'),
+                            'icon'  => 'fal fa-bars',
+                        ],
+
+                    ]
+                ]
+            )
+
+        };
+
+
+
     }
 }

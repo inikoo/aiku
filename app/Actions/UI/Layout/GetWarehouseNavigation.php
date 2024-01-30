@@ -33,39 +33,41 @@ class GetWarehouseNavigation
                     'subSections' => [
                         [
                             'tooltip' => __('warehouses'),
-                            'icon'    => ['fal', 'fa-store-alt'],
+                            'icon'    => ['fal', 'fa-warehouse-alt'],
                             'route'   => [
-                                'all'      => 'inventory.warehouses.index',
-                                'selected' => 'inventory.warehouses.show',
-
+                                'name'       => 'grp.org.warehouses.show',
+                                'parameters' => [$warehouse->organisation->slug, $warehouse->slug]
                             ],
-                            'label'   => [
-                                'all'      => __('Warehouses'),
-                                'selected' => __('Warehouse'),
-
-                            ]
+                            'label'   => null
                         ],
 
 
                         [
-                            'label'   => __('warehouse areas'),
+                            'label'   => __('areas'),
                             'tooltip' => __('Warehouse Areas'),
                             'icon'    => ['fal', 'fa-map-signs'],
                             'route'   => [
-                                'all'      => 'inventory.warehouse-areas.index',
-                                'selected' => 'inventory.warehouses.show.warehouse-areas.index',
-
-                            ]
+                                'name'       => 'grp.org.warehouses.show.warehouse-areas.index',
+                                'parameters' => [$warehouse->organisation->slug, $warehouse->slug]
+                            ],
                         ],
                         [
                             'label'   => __('locations'),
                             'tooltip' => __('Locations'),
                             'icon'    => ['fal', 'fa-inventory'],
                             'route'   => [
-                                'all'      => 'inventory.locations.index',
-                                'selected' => 'inventory.warehouses.show.locations.index',
-
-                            ]
+                                'name'       => 'grp.org.warehouses.show.locations.index',
+                                'parameters' => [$warehouse->organisation->slug, $warehouse->slug]
+                            ],
+                        ],
+                        [
+                            'label'   => __('fulfilment'),
+                            'tooltip' => __('fulfilment'),
+                            'icon'    => ['fal', 'fa-pallets'],
+                            'route'   => [
+                                'name'       => 'grp.org.warehouses.show.pallets.index',
+                                'parameters' => [$warehouse->organisation->slug, $warehouse->slug]
+                            ],
                         ],
 
                     ],
@@ -86,6 +88,39 @@ class GetWarehouseNavigation
                 ]
             ];
         }
+
+
+        if ($user->hasPermissionTo("fulfilment.$warehouse->id..view")) {
+            $navigation['fulfilment'] = [
+                'icon'  => ['fal', 'fa-pallet-alt'],
+                'label' => __('Fulfilment'),
+                'route' => [
+                    'name'       => 'grp.org.warehouses.show.pallets.index',
+                    'parameters' => [$warehouse->organisation->slug, $warehouse->slug]
+                ],
+
+
+                'topMenu' => [
+                    'subSections' => [
+                        [
+                            'label' => __('customers'),
+                            'icon'  => ['fal', 'fa-users'],
+                            'route' => [
+                                'name'       => 'grp.org.fulfilments.show.customers.index',
+                                'parameters' => [$warehouse->organisation->slug, $warehouse->slug],
+
+                            ]
+                        ],
+
+
+                    ]
+
+
+                ],
+            ];
+        }
+
+
 
 
         return $navigation;

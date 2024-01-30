@@ -19,37 +19,6 @@ class GetFulfilmentNavigation
     {
         $navigation = [];
 
-
-        if ($user->hasPermissionTo("fulfilment.$fulfilment->id.stored-items.view")) {
-            $navigation['fulfilment'] = [
-                'icon'  => ['fal', 'fa-pallet-alt'],
-                'label' => __('Stored items'),
-                'route' => [
-                    'name'       => 'grp.org.fulfilments.show',
-                    'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug]
-                ],
-
-
-                'topMenu' => [
-                    'subSections' => [
-                        [
-                            'label' => __('customers'),
-                            'icon'  => ['fal', 'fa-users'],
-                            'route' => [
-                                'name'       => 'grp.org.fulfilments.show.customers.index',
-                                'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug],
-
-                            ]
-                        ],
-
-
-                    ]
-
-
-                ],
-            ];
-        }
-
         if ($user->hasPermissionTo("fulfilment.$fulfilment->id.view")) {
             $navigation['web'] = [
                 'scope'   => 'websites',
