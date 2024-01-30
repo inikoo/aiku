@@ -31,8 +31,7 @@ class GetShopNavigation
                 "topMenu" => [
                     "subSections" => [
                         [
-                            "label"   => __("Shops"),
-                            "tooltip" => __("shops"),
+                            "tooltip" => __("shop"),
                             "icon"    => ["fal", "fa-store-alt"],
                             "route"   => [
                                 "name"       => "grp.org.shops.show",
@@ -53,7 +52,7 @@ class GetShopNavigation
                             "tooltip" => __("Families"),
                             "icon"    => ["fal", "fa-folder"],
                             "route"   => [
-                                "name"       => "grp.shops.families.index",
+                                "name"       => "grp.org.shops.show.families.index",
                                 "parameters" => [$shop->organisation->slug, $shop->slug],
                             ],
                         ],
@@ -62,7 +61,7 @@ class GetShopNavigation
                             "tooltip" => __("Products"),
                             "icon"    => ["fal", "fa-cube"],
                             "route"   => [
-                                "name"       => "grp.shops.products.index",
+                                "name"       => "grp.org.shops.show.products.index",
                                 "parameters" => [$shop->organisation->slug, $shop->slug],
                             ],
                         ],
@@ -72,45 +71,58 @@ class GetShopNavigation
         }
 
         if ($user->hasPermissionTo("web.$shop->id.view")) {
-            $navigation["web"] = [
-                "scope" => "websites",
-                "icon"  => ["fal", "fa-globe"],
-                "label" => __("Website"),
-                "route" => [
-                    "name"       => "grp.org.shops.show.websites.index",
-                    "parameters" => [$shop->organisation->slug, $shop->slug],
-                ],
 
-                "topMenu" => [
-                    "subSections" => [
-                        [
-                            "icon"  => ["fal", "fa-chart-network"],
-                            "route" => [
-                                "name" => "grp.web.dashboard",
-                            ],
-                        ],
+            if($shop->website) {
+                $navigation["web"] = [
+                    "scope" => "websites",
+                    "icon"  => ["fal", "fa-globe"],
+                    "label" => __("Website"),
+                    "route" => [
+                        "name"       => "grp.org.shops.show.websites.show",
+                        "parameters" => [$shop->organisation->slug, $shop->slug, $shop->website->slug],
+                    ],
 
-                        [
-                            "label"   => __("Websites"),
-                            "tooltip" => __("websites"),
-                            "icon"    => ["fal", "fa-globe"],
-                            "route"   => [
-                                "name"       => "grp.web.websites.index",
-                                "parameters" => [$shop->organisation->slug, $shop->slug],
+                    "topMenu" => [
+                        "subSections" => [
+
+
+                            [
+                                "label"   => __("Website"),
+                                "tooltip" => __("website"),
+                                "icon"    => ["fal", "fa-globe"],
+                                "route"   => [
+                                    "name"       => "grp.org.shops.show.websites.show",
+                                    "parameters" => [$shop->organisation->slug, $shop->slug, $shop->website->slug],
+                                ],
                             ],
-                        ],
-                        [
-                            "label"   => __("webpages"),
-                            "tooltip" => __("Webpages"),
-                            "icon"    => ["fal", "fa-browser"],
-                            "route"   => [
-                                "name"       => "grp.web.webpages.index",
-                                "parameters" => [$shop->organisation->slug, $shop->slug],
+                            [
+                                "label"   => __("webpages"),
+                                "tooltip" => __("Webpages"),
+                                "icon"    => ["fal", "fa-browser"],
+                                "route"   => [
+                                    "name"       => "grp.org.shops.show.websites.show.webpages.index",
+                                    "parameters" => [$shop->organisation->slug, $shop->slug, $shop->website->slug],
+                                ],
                             ],
                         ],
                     ],
-                ],
-            ];
+                ];
+            } else {
+                $navigation["web"] = [
+                    "scope" => "websites",
+                    "icon"  => ["fal", "fa-globe"],
+                    "label" => __("Website"),
+                    "route" => [
+                        "name"       => "grp.org.shops.show.websites.index",
+                        "parameters" => [$shop->organisation->slug, $shop->slug],
+                    ],
+
+                    "topMenu" => []
+                ];
+            }
+
+
+
         }
 
         if ($user->hasPermissionTo("marketing.view")) {

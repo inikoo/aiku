@@ -22,7 +22,7 @@ import TableOrders from "@/Components/Tables/TableOrders.vue";
 import {useTabChange} from "@/Composables/tab-change";
 import {computed, defineAsyncComponent, ref} from "vue";
 import Tabs from "@/Components/Navigation/Tabs.vue";
-import TablePallateDelivery from '@/Components/Tables/Grp/Org/Fulfilment/CRM/TablePallateDelivery.vue';
+import TablePalletDeliveries from '@/Components/Tables/Grp/Org/Fulfilment/CRM/TablePalletDeliveries.vue';
 
 import CustomerShowcase from "@/Components/Showcases/Grp/CustomerShowcase.vue";
 
@@ -72,7 +72,7 @@ const component = computed(() => {
         details: ModelDetails,
         history: ModelChangelog,
         dispatched_emails: TableDispatchedEmails,
-        pallet_deliveries:TablePallateDelivery
+        pallet_deliveries:TablePalletDeliveries
 
     };
     return components[currentTab.value];

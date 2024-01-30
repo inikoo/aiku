@@ -8,7 +8,6 @@
 use App\Actions\Market\Shop\UI\CreateShop;
 use App\Actions\Market\Shop\UI\EditShop;
 use App\Actions\Market\Shop\UI\IndexShops;
-use App\Actions\Market\Shop\UI\RemoveShop;
 use App\Actions\Market\Shop\UI\ShowShop;
 use Illuminate\Support\Facades\Route;
 
@@ -19,10 +18,15 @@ Route::prefix('{shop}')
     ->group(function () {
         Route::get('', ShowShop::class)->name('show');
         Route::get('edit', EditShop::class)->name('edit');
-        Route::get('delete', RemoveShop::class)->name('remove');
+
 
         Route::name('show.')
             ->group(function () {
+
+                require __DIR__."/products.php";
+
+
+
                 Route::prefix("customers")
                     ->name("customers.")
                     ->group(__DIR__."/customers.php");

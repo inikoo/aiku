@@ -24,7 +24,7 @@ class WebsiteSearchResultResource extends JsonResource
             'name'   => $this->name,
             'domain' => $this->domain,
             'route'  => [
-                'name'       => 'grp.web.websites.dashboard',
+                'name'       => 'grp.org.shops.show.websites.dashboard',
                 'parameters' => $this->slug
             ],
             'icon'   => ['fal', 'fa-globe']
