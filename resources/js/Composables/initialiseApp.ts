@@ -20,6 +20,7 @@ export const initialiseApp = () => {
     useLiveUsers().subscribe()  // Websockets: active users
     echoGeneral.subscribe(usePage().props.layout.group?.id)  // Websockets: notification
 
+
     if (usePage().props?.auth?.user) {
         echoPersonal.subscribe(usePage().props.auth.user.id)
 
@@ -70,7 +71,7 @@ export const initialiseApp = () => {
             if(dataActiveUser.id){
                 // Set to self
                 useLiveUsers().liveUsers[usePage().props.auth.user.id ] = dataActiveUser
-                
+
                 // Websockets: broadcast to others
                 window.Echo.join(`grp.live.users`).whisper('otherIsNavigating', dataActiveUser)
             }
