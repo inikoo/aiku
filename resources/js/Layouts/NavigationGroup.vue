@@ -20,7 +20,7 @@ const props = defineProps<{
 }>()
 
 const layout = useLayoutStore()
-const isPanelOpen = ref(Object.values(props.orgNav[Object.keys(props.orgNav)[0]]).some(nav => (nav.route?.name ? isRouteSameAsCurrentUrl(route(nav.route.name, nav.route.parameters)) : false)))
+const isPanelOpen = ref(layout.organisationsState?.[layout.currentParams.organisation]?.currentType == props.itemKey)
 
 </script>
 
