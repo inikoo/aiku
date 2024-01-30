@@ -125,7 +125,8 @@ class ShowFulfilmentCustomer extends OrgAction
 
             ]
         )->table(IndexStoredItems::make()->tableStructure($customer->storedItems))
-            ->table(IndexFulfilmentOrders::make()->tableStructure($customer));
+         ->table(IndexPalletDeliveries::make()->tableStructure($customer->fulfilmentCustomer->fulfilment, prefix: CustomerFulfilmentTabsEnum::PALLET_DELIVERIES->value))
+         ->table(IndexFulfilmentOrders::make()->tableStructure($customer));
     }
 
 
