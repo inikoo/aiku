@@ -22,6 +22,7 @@ import TableOrders from "@/Components/Tables/TableOrders.vue";
 import {useTabChange} from "@/Composables/tab-change";
 import {computed, defineAsyncComponent, ref} from "vue";
 import Tabs from "@/Components/Navigation/Tabs.vue";
+import TablePalletDeliveries from '@/Components/Tables/Grp/Org/Fulfilment/CRM/TablePalletDeliveries.vue';
 
 import CustomerShowcase from "@/Components/Showcases/Grp/CustomerShowcase.vue";
 
@@ -56,6 +57,7 @@ const props = defineProps<{
     orders?: object
     stored_items?: object
     dispatched_emails?: object
+    pallet_deliveries?:object
 }>()
 
 let currentTab = ref(props.tabs.current);
@@ -70,6 +72,8 @@ const component = computed(() => {
         details: ModelDetails,
         history: ModelChangelog,
         dispatched_emails: TableDispatchedEmails,
+        pallet_deliveries:TablePalletDeliveries
+
     };
     return components[currentTab.value];
 
@@ -177,5 +181,5 @@ const webUserForm = useForm({
         </Dialog>
     </TransitionRoot>
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate"/>
-    <component :is="component" :data="props[currentTab]"></component>
+    <component :is="component" :data="props[currentTab]" :tab="currentTab"></component>
 </template>

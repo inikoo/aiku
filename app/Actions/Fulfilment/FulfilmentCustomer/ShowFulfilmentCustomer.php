@@ -8,16 +8,12 @@
 namespace App\Actions\Fulfilment\FulfilmentCustomer;
 
 use App\Actions\CRM\Customer\UI\GetCustomerShowcase;
-use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\FulfilmentCustomer\UI\IndexFulfilmentCustomers;
 use App\Actions\Fulfilment\FulfilmentOrder\UI\IndexFulfilmentOrders;
 use App\Actions\Fulfilment\PalletDelivery\UI\IndexPalletDeliveries;
 use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItems;
-use App\Actions\InertiaAction;
 use App\Actions\Mail\DispatchedEmail\IndexDispatchedEmails;
 use App\Actions\OrgAction;
-use App\Actions\UI\Dashboard\ShowDashboard;
-use App\Actions\UI\Fulfilment\ShowFulfilmentsDashboard;
 use App\Enums\UI\CustomerFulfilmentTabsEnum;
 use App\Http\Resources\Fulfilment\PalletDeliveriesResource;
 use App\Http\Resources\Fulfilment\StoredItemResource;
@@ -27,7 +23,6 @@ use App\Http\Resources\Sales\OrderResource;
 use App\Models\CRM\Customer;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\SysAdmin\Organisation;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -125,7 +120,15 @@ class ShowFulfilmentCustomer extends OrgAction
 
             ]
         )->table(IndexStoredItems::make()->tableStructure($customer->storedItems))
-            ->table(IndexPalletDeliveries::make()->tableStructure($customer->fulfilmentCustomer->fulfilment, prefix: CustomerFulfilmentTabsEnum::PALLET_DELIVERIES->value))
+            ->table(IndexPalletDeliveries::make()->tableStructure($customer->fulfilmentCustomer->fulfilment, modelOperations: [
+                'createLink' => [[
+                    'route' => [
+                        'name'       => 'grp.models.org.fulfilment.delivery.pallet.store',
+                        'parameters' => array_values($request->route()->originalParameters())
+                    ],
+                    'label' => __('pallet')
+                ]],
+            ], prefix: CustomerFulfilmentTabsEnum::PALLET_DELIVERIES->value))
             ->table(IndexFulfilmentOrders::make()->tableStructure($customer));
     }
 
@@ -158,8 +161,8 @@ class ShowFulfilmentCustomer extends OrgAction
                     'name'       => 'grp.org.fulfilments.show.customers.index',
                     'parameters' => [
                         'organisation' => $routeParameters['organisation']->slug,
-                        'fulfilment' => $routeParameters['fulfilment']->slug,
-                        'customer' => $routeParameters['customer']->slug
+                        'fulfilment'   => $routeParameters['fulfilment']->slug,
+                        'customer'     => $routeParameters['customer']->slug
                     ]
                 ]
             )
@@ -204,8 +207,8 @@ class ShowFulfilmentCustomer extends OrgAction
                     'name'      => $routeName,
                     'parameters'=> [
                         'organisation'=> $customer->shop->organisation->slug,
-                        'fulfilment'=> $this->fulfilment->slug,
-                        'customer'=> $customer->slug
+                        'fulfilment'  => $this->fulfilment->slug,
+                        'customer'    => $customer->slug
                     ]
 
                 ]

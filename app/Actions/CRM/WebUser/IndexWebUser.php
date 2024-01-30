@@ -5,12 +5,10 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-/** @noinspection PhpUnused */
-
 namespace App\Actions\CRM\WebUser;
 
 use App\Actions\CRM\Customer\UI\ShowCustomer;
-use App\Actions\InertiaAction;
+use App\Actions\OrgAction;
 use App\Actions\Web\Website\UI\ShowWebsite;
 use App\Http\Resources\CRM\WebUserResource;
 use App\Http\Resources\Sales\CustomerResource;
@@ -31,7 +29,7 @@ use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 use App\Services\QueryBuilder;
 
-class IndexWebUser extends InertiaAction
+class IndexWebUser extends OrgAction
 {
     private Shop|Organisation|Customer|Website $parent;
 
@@ -49,12 +47,12 @@ class IndexWebUser extends InertiaAction
 
         $queryBuilder=QueryBuilder::for(WebUser::class);
         foreach ($this->elementGroups as $key => $elementGroup) {
-            /** @noinspection PhpUndefinedMethodInspection */
+
             $queryBuilder->whereElementGroup(
-                prefix: $prefix,
                 key: $key,
                 allowedElements: array_keys($elementGroup['elements']),
-                engine: $elementGroup['engine']
+                engine: $elementGroup['engine'],
+                prefix: $prefix
             );
         }
 
@@ -102,7 +100,7 @@ class IndexWebUser extends InertiaAction
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
-                    $this->parent
+                    $request->route()->originalParameters(),
                 ),
                 'title'       => __('web users'),
                 'pageHead'    => [
@@ -125,23 +123,6 @@ class IndexWebUser extends InertiaAction
             }
             $table
                 ->withModelOperations($modelOperations)
-                ->withEmptyState(
-                    [
-                        'title'       => __('no web users'),
-                        'description' => $this->canEdit ? __('Get started by creating a new web user.') : null,
-                        'count'       => app('currentTenant')->stats->number_web_users,
-                        'action'      => $this->canEdit ? [
-                            'type'    => 'button',
-                            'style'   => 'create',
-                            'tooltip' => __('new web user'),
-                            'label'   => __('web user'),
-                            'route'   => [
-                                'name'       => 'grp.web.websites.show.web-users.create',
-                                'parameters' => array_values($request->route()->originalParameters())
-                            ]
-                        ] : null
-                    ]
-                )
                 ->withGlobalSearch()
                 ->column(key: 'email', label: __('email'), canBeHidden: false, sortable: true, searchable: true)
                 ->defaultSort('email');
@@ -172,15 +153,9 @@ class IndexWebUser extends InertiaAction
         return $this->handle(parent: $customer);
     }
 
-    public function inCustomerInTenant(Customer $customer, ActionRequest $request): LengthAwarePaginator
-    {
-        $this->parent = $customer;
-        $this->initialisation($request);
-        $this->validateAttributes();
-        return $this->handle(parent:  $customer);
-    }
 
-    public function getBreadcrumbs(string $routeName, Customer|Website|Organisation $parent): array
+
+    public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
         $headCrumb = function (array $routeParameters = []) use ($routeName) {
             return [
@@ -195,22 +170,22 @@ class IndexWebUser extends InertiaAction
         };
         return match ($routeName) {
             'customers.show.web-users.index' => array_merge(
-                (new ShowCustomer())->getBreadcrumbs('customers.show', $request->route()->originalParameters()),
-                $headCrumb([$parent->slug])
+                (new ShowCustomer())->getBreadcrumbs('customers.show', $routeParameters),
+                $routeParameters
             ),
             'shops.show.customers.show.web-users.index' =>
             array_merge(
-                (new ShowCustomer())->getBreadcrumbs('shops.show.customers.show', $request->route()->originalParameters()),
-                $headCrumb([$parent->shop->slug,$parent->slug])
+                (new ShowCustomer())->getBreadcrumbs('shops.show.customers.show', $routeParameters),
+                $headCrumb($routeParameters)
             ),
-            'grp.web.websites.show.web-users.index' =>
+            'grp.org.shops.show.websites.show.web-users.index' =>
             array_merge(
                 (new ShowWebsite())->getBreadcrumbs(
                     routeName: $routeName,
-                    routeParameters: $request->route()->originalParameters()
+                    routeParameters: $routeParameters
                 ),
                 $headCrumb(
-                    [$parent->slug]
+                    $routeParameters
                 )
             ),
             default => []

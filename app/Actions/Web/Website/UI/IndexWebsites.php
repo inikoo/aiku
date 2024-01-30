@@ -8,8 +8,8 @@
 namespace App\Actions\Web\Website\UI;
 
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
+use App\Actions\Market\Shop\UI\ShowShop;
 use App\Actions\OrgAction;
-use App\Actions\UI\Dashboard\ShowDashboard;
 use App\Enums\Web\Website\WebsiteStateEnum;
 use App\Http\Resources\Web\WebsiteResource;
 use App\InertiaTable\InertiaTable;
@@ -238,7 +238,7 @@ class IndexWebsites extends OrgAction
                             'tooltip' => __('Create a no shop connected website'),
                             'label'   => __('new static website'),
                             'route'   => [
-                                'name' => 'grp.web.websites.create',
+                                'name' => 'grp.org.shops.show.websites.create',
                             ]
                         ] : false,
 
@@ -283,13 +283,13 @@ class IndexWebsites extends OrgAction
             ),
 
 
-            'grp.web.websites.index' =>
+            'grp.org.shops.show.websites.index' =>
             array_merge(
-                ShowDashboard::make()->getBreadcrumbs(),
+                ShowShop::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     [
-                        'name' => 'grp.web.websites.index',
-                        null
+                        'name'      => 'grp.org.shops.show',
+                        'parameters'=> $routeParameters
                     ]
                 ),
             ),

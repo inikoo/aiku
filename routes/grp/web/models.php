@@ -8,6 +8,7 @@
 
 use App\Actions\CRM\Prospect\ImportShopProspects;
 use App\Actions\Fulfilment\Fulfilment\StoreFulfilment;
+use App\Actions\Fulfilment\PalletDelivery\StorePalletDelivery;
 use App\Actions\HumanResources\Employee\DeleteEmployee;
 use App\Actions\HumanResources\Employee\StoreEmployee;
 use App\Actions\HumanResources\Employee\UpdateEmployee;
@@ -34,6 +35,7 @@ Route::name('org.')->prefix('org/{organisation}')->group(function () {
     Route::post('/working-place/', StoreWorkplace::class)->name('working-place.store');
     Route::post('/shop/', StoreShop::class)->name('shop.store');
     Route::post('/fulfilment/', StoreFulfilment::class)->name('fulfilment.store');
+    Route::post('/fulfilment/deliveries/pallet', StorePalletDelivery::class)->name('fulfilment.delivery.pallet.store');
 });
 
 Route::name('shop.')->prefix('shop/{shop}')->group(function () {

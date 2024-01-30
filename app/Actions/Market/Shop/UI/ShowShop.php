@@ -11,7 +11,7 @@ use App\Actions\OrgAction;
 use App\Actions\Market\Product\UI\IndexProducts;
 use App\Actions\Market\ProductCategory\UI\IndexDepartments;
 use App\Actions\Market\ProductCategory\UI\IndexFamilies;
-use App\Actions\UI\Dashboard\ShowDashboard;
+use App\Actions\SysAdmin\Organisation\UI\ShowOrganisationDashboard;
 use App\Actions\UI\WithInertia;
 use App\Enums\UI\ShopTabsEnum;
 use App\Http\Resources\Market\DepartmentResource;
@@ -20,6 +20,7 @@ use App\Http\Resources\Market\ProductResource;
 use App\Http\Resources\Market\ShopResource;
 use App\Models\Market\Shop;
 use App\Models\SysAdmin\Organisation;
+use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -294,9 +295,11 @@ class ShowShop extends OrgAction
 
         $shop=Shop::where('slug', $routeParameters['shop'])->first();
 
+
+
         return
             array_merge(
-                ShowDashboard::make()->getBreadcrumbs(),
+                ShowOrganisationDashboard::make()->getBreadcrumbs(Arr::only($routeParameters, 'organisation')),
                 [
                     [
                         'type'           => 'modelWithIndex',
@@ -304,7 +307,7 @@ class ShowShop extends OrgAction
                             'index' => [
                                 'route' => [
                                     'name'       => 'grp.org.shops.index',
-                                    'parameters' => $routeParameters
+                                    'parameters' => Arr::only($routeParameters, 'organisation')
                                 ],
                                 'label' => __('shops'),
                                 'icon'  => 'fal fa-bars'
@@ -312,7 +315,7 @@ class ShowShop extends OrgAction
                             'model' => [
                                 'route' => [
                                     'name'       => 'grp.org.shops.show',
-                                    'parameters' => $routeParameters
+                                    'parameters' => Arr::only($routeParameters, ['organisation','shop'])
                                 ],
                                 'label' => $shop->code,
                                 'icon'  => 'fal fa-bars'

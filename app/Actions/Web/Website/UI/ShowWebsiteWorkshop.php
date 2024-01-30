@@ -157,7 +157,7 @@ class ShowWebsiteWorkshop extends InertiaAction
 
 
         return match ($routeName) {
-            'grp.web.websites.workshop' =>
+            'grp.org.shops.show.websites.workshop' =>
 
             array_merge(
                 ShowDashboard::make()->getBreadcrumbs(),
@@ -166,11 +166,11 @@ class ShowWebsiteWorkshop extends InertiaAction
                     $routeParameters['website'],
                     [
                         'index' => [
-                            'name'       => 'grp.web.websites.index',
+                            'name'       => 'grp.org.shops.show.websites.index',
                             'parameters' => []
                         ],
                         'model' => [
-                            'name'       => 'grp.web.websites.show',
+                            'name'       => 'grp.org.shops.show.websites.show',
                             'parameters' => [$routeParameters['website']->slug]
                         ]
                     ],
@@ -203,7 +203,7 @@ class ShowWebsiteWorkshop extends InertiaAction
         }
 
         return match ($routeName) {
-            'grp.web.websites.workshop' => [
+            'grp.org.shops.show.websites.workshop' => [
                 'label' => $website->name,
                 'route' => [
                     'name'       => $routeName,
