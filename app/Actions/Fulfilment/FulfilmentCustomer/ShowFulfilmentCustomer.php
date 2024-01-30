@@ -128,7 +128,7 @@ class ShowFulfilmentCustomer extends OrgAction
             ->table(IndexPalletDeliveries::make()->tableStructure($customer->fulfilmentCustomer->fulfilment, modelOperations: [
                 'createLink' => [[
                     'route' => [
-                        'name'       => 'grp.org.fulfilments.show.pallets.create',
+                        'name'       => 'grp.models.org.fulfilment.delivery.pallet.store',
                         'parameters' => array_values($request->route()->originalParameters())
                     ],
                     'label' => __('pallet')
