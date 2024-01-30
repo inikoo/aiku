@@ -7,7 +7,7 @@
 <script setup lang="ts">
 import { Head } from "@inertiajs/vue3"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faTachometerAlt, faPalletAlt } from '@fal'
+import { faTachometerAlt, faHandHoldingBox } from '@fal'
 
 import PageHeading from "@/Components/Headings/PageHeading.vue"
 import { capitalize } from "@/Composables/capitalize"
@@ -16,11 +16,10 @@ import { computed, ref } from "vue"
 import { useTabChange } from "@/Composables/tab-change"
 import ModelDetails from "@/Components/ModelDetails.vue"
 import TableHistories from "@/Components/Tables/TableHistories.vue"
-import ShopShowcase from "@/Components/Showcases/Grp/ShopShowcase.vue"
 import FulfilmentShowcase from "@/Components/Showcases/Org/FulfilmentShowcase.vue"
 import TablePallets from "@/Components/Tables/TablePallets.vue";
 
-library.add(faTachometerAlt, faPalletAlt)
+library.add(faTachometerAlt, faHandHoldingBox)
 
 const props = defineProps<{
     pageHead: object

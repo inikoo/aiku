@@ -118,48 +118,7 @@ class GetOrganisationNavigation
         }
 
 
-        if ($user->hasPermissionTo("inventories.$organisation->id.view")) {
-            $navigation['inventory'] = [
-                'label'   => __('inventory'),
-                'icon'    => ['fal', 'fa-inventory'],
-                'route'   => [
-                    'name'       => 'grp.org.inventory.dashboard',
-                    'parameters' => [$organisation->slug],
-                ],
-                'topMenu' => [
-                    'subSections' => [
-                        [
-                            'icon'  => ['fal', 'fa-chart-network'],
-                            'route' => [
-                                'name'       => 'grp.org.inventory.dashboard',
-                                'parameters' => [$organisation->slug],
-                            ]
-                        ],
 
-                        [
-                            'label' => __('SKUs'),
-                            'icon'  => ['fal', 'fa-box'],
-                            'route' => [
-                                'name'       => 'grp.org.inventory.org-stocks.index',
-                                'parameters' => [$organisation->slug],
-                            ]
-                        ],
-                        [
-                            'label'   => __('SKUs Families'),
-                            'tooltip' => __('SKUs families'),
-                            'icon'    => ['fal', 'fa-boxes-alt'],
-                            'route'   => [
-                                'name'       => 'grp.org.inventory.org-stock-families.index',
-                                'parameters' => [$organisation->slug],
-                            ]
-                        ],
-
-                    ],
-
-
-                ]
-            ];
-        }
 
 
         if ($user->hasPermissionTo("warehouses.$organisation->id.view")) {
