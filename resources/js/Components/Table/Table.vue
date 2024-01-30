@@ -149,7 +149,6 @@ queryBuilderData.value.elementFilter = {
     // 'type': ['volunteer', 'employee']
 }
 
-console.log('queryubilder',queryBuilderProps )
 
 const pageName = computed(() => {
     return queryBuilderProps.value.pageName;
