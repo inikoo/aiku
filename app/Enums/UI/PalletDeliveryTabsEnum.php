@@ -15,8 +15,8 @@ enum PalletDeliveryTabsEnum: string
     use EnumHelperTrait;
     use HasTabs;
 
-    case SHOWCASE = 'showcase';
-    case HISTORY = 'history';
+    case PALLETS  = 'pallets';
+    case HISTORY  = 'history';
 
     public function blueprint(): array
     {
@@ -27,9 +27,10 @@ enum PalletDeliveryTabsEnum: string
                 'type'  => 'icon',
                 'align' => 'right',
             ],
-            PalletDeliveryTabsEnum::SHOWCASE => [
-                'title' => __('pallet delivery'),
-                'icon'  => 'fas fa-info-circle',
+
+            PalletDeliveryTabsEnum::PALLETS => [
+                'title' => __('pallets'),
+                'icon'  => 'fal fa-bars',
             ],
         };
     }
