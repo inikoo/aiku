@@ -71,6 +71,12 @@ class StoreShop extends OrgAction
                 'organisation_id' => $organisation->id,
             ]
         );
+        $shop->serialReferences()->create(
+            [
+                'model'           => SerialReferenceModelEnum::PALLET_DELIVERY,
+                'organisation_id' => $organisation->id,
+            ]
+        );
 
 
         if ($shop->type == ShopTypeEnum::FULFILMENT) {

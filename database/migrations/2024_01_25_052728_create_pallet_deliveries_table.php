@@ -25,7 +25,8 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('customer_id');
             $table->foreign('customer_id')->references('id')->on('customers');
 
-            $table->string('name');
+            $table->string('customer_reference')->nullable()->index();
+            $table->string('reference')->unique()->index();
             $table->string('state')->default(PalletDeliveryStateEnum::IN->value);
             $table->dateTimeTz('in_at')->nullable();
             $table->dateTimeTz('out_at')->nullable();
