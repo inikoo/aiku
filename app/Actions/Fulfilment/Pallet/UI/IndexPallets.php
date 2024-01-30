@@ -38,17 +38,19 @@ class IndexPallets extends OrgAction
             });
         });
 
+        $isUnlocated = AllowedFilter::callback('located', function ($query, $value) {
+            $query->where(function ($query) use ($value) {
+                if($value) {
+                    $query->whereNotNull('location_id');
+                }
+            });
+        });
+
         if ($prefix) {
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
         $query=QueryBuilder::for(Pallet::class);
-
-        $isLocated = request()->get('filter')['located'];
-
-        if($isLocated == "all") {
-            $query->whereNotNull('location_id');
-        }
 
         switch (class_basename($parent)) {
             case "FulfilmentCustomer":
@@ -68,7 +70,7 @@ class IndexPallets extends OrgAction
 
         return $query->defaultSort('slug')
             ->allowedSorts(['customer_reference', 'slug'])
-            ->allowedFilters([$globalSearch, 'customer_reference'])
+            ->allowedFilters([$globalSearch, $isUnlocated, 'customer_reference'])
             ->withPaginator($prefix)
             ->withQueryString();
     }
