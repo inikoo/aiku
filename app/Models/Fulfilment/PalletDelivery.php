@@ -46,6 +46,11 @@ class PalletDelivery extends Model
         'data'   => 'array'
     ];
 
+    public function getRouteKeyName(): string
+    {
+        return 'reference';
+    }
+
     public function customer(): BelongsTo
     {
         return $this->belongsTo(Customer::class);
