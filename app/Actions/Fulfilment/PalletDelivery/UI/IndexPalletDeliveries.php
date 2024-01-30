@@ -125,7 +125,7 @@ class IndexPalletDeliveries extends OrgAction
     public function htmlResponse(LengthAwarePaginator $customers, ActionRequest $request): Response
     {
         $container = [
-            'icon'    => ['fal', 'fa-pallets'],
+            'icon'    => ['fal', 'fa-pallet'],
             'tooltip' => __('Fulfilment Shop'),
             'label'   => Str::possessive($this->fulfilment->shop->name)
 

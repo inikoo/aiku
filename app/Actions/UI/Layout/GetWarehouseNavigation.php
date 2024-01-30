@@ -63,7 +63,7 @@ class GetWarehouseNavigation
                         [
                             'label'   => __('fulfilment'),
                             'tooltip' => __('fulfilment'),
-                            'icon'    => ['fal', 'fa-pallets'],
+                            'icon'    => ['fal', 'fa-pallet'],
                             'route'   => [
                                 'name'       => 'grp.org.warehouses.show.pallets.index',
                                 'parameters' => [$warehouse->organisation->slug, $warehouse->slug]
