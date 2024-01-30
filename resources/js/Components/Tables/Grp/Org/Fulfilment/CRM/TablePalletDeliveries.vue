@@ -7,14 +7,13 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
 import Table from '@/Components/Table/Table.vue';
-import { Customer } from "@/types/customer";
+import Button from '@/Components/Elements/Buttons/Button.vue';
 
 const props = defineProps<{
     data: object,
     tab?: string
 }>()
 
-console.log(props)
 
 </script>
   
@@ -22,7 +21,7 @@ console.log(props)
     <Table :resource="data" :name="tab" class="mt-5">
         <template #buttonpallet="{ linkButton: linkButton }">
             <Link v-if="linkButton?.route?.name" method="post" :href="route(linkButton?.route?.name, linkButton?.route?.parameters)"
-                class="ring-1 ring-gray-300 overflow-hidden first:rounded-l last:rounded-r p-3 py-1">
+                class="ring-1 ring-gray-300 overflow-hidden first:rounded-l last:rounded-r">
             <Button :style="linkButton.style" :icon="linkButton.icon"
                 class="h-full capitalize inline-flex items-center rounded-none text-sm border-none font-medium shadow-sm focus:ring-transparent focus:ring-offset-transparent focus:ring-0">
                 <span v-if="linkButton.label" class="">{{ linkButton.label }}</span>
