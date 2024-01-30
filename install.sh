@@ -52,3 +52,5 @@ pg_dump -Fc -f "devops/devel/snapshots/shops.dump" ${DB}
 
 php artisan workplace:create awa "Beach bar" hq
 php artisan workplace:create inikoo "Office B" hq
+
+php artisan customer:store bali

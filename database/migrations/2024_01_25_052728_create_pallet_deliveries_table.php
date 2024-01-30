@@ -22,8 +22,8 @@ return new class () extends Migration {
             $table = $this->groupOrgRelationship($table);
             $table->ulid()->unique()->index();
 
-            $table->unsignedSmallInteger('customer_id');
-            $table->foreign('customer_id')->references('id')->on('customers');
+            $table->unsignedSmallInteger('fulfilment_customer_id');
+            $table->foreign('fulfilment_customer_id')->references('id')->on('fulfilment_customers');
 
             $table->unsignedSmallInteger('warehouse_id');
             $table->foreign('warehouse_id')->references('id')->on('warehouses');
