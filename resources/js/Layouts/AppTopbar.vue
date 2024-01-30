@@ -15,11 +15,11 @@ import { trans } from "laravel-vue-i18n"
 import Image from "@/Components/Image.vue"
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faChevronDown } from '@far'
-import { faTerminal, faUserAlien, faCog, faCity, faBuilding, faNetworkWired, faUserHardHat, faCalendar, faStopwatch, faStoreAlt, faWarehouseAlt, faChartNetwork } from '@fal'
+import { faTerminal, faUserAlien, faCog, faCity, faBuilding, faNetworkWired, faUserHardHat, faCalendar, faStopwatch, faStoreAlt, faWarehouseAlt, faChartNetwork, faFolderTree, faFolder, faCube, faUserPlus } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { useTruncate } from '@/Composables/useTruncate'
 import MenuTopRight from '@/Layouts/MenuTopRight.vue'
-library.add(faChevronDown, faTerminal, faUserAlien, faCog, faCity, faBuilding, faNetworkWired, faUserHardHat, faCalendar, faStopwatch, faStoreAlt, faWarehouseAlt, faChartNetwork)
+library.add(faChevronDown, faTerminal, faUserAlien, faCog, faCity, faBuilding, faNetworkWired, faUserHardHat, faCalendar, faStopwatch, faStoreAlt, faWarehouseAlt, faChartNetwork, faFolderTree, faFolder, faCube, faUserPlus)
 
 const props = defineProps<{
     sidebarOpen: boolean
@@ -177,10 +177,9 @@ const label = {
                                 />
 
                                 <transition>
-                                    <MenuItems class="absolute left-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
-                                        <!-- aaa {{ layoutStore.organisationsState[layoutStore.currentParams.organisation].currentFulfilment }} -->
-                                        <MenuPopoverList icon="fal fa-store-alt" :navKey="'shop'" :closeMenu="closeMenu" />
-                                        <MenuPopoverList icon="fal fa-pallet-alt" :navKey="'fulfilment'" :closeMenu="closeMenu" />
+                                    <MenuItems class="absolute left-0 mt-2 w-56 origin-top-right divide-y divide-gray-400 rounded bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
+                                        <MenuPopoverList v-if="layoutStore.organisations.data.find(organisation => organisation.slug == layoutStore.currentParams.organisation)?.authorised_shops.length" icon="fal fa-store-alt" :navKey="'shop'" :closeMenu="closeMenu" />
+                                        <MenuPopoverList v-if="layoutStore.organisations.data.find(organisation => organisation.slug == layoutStore.currentParams.organisation)?.authorised_fulfilments.length" icon="fal fa-pallet-alt" :navKey="'fulfilment'" :closeMenu="closeMenu" />
                                     </MenuItems>
                                 </transition>
                             </Menu>
@@ -220,7 +219,7 @@ const label = {
                             </Menu> -->
                         </div>
 
-                        <!-- Section: Subsections -->
+                        <!-- Section: Subsections (Something will teleport to this section) -->
                         <div class="flex h-full" id="TopbarSubsections">
                         </div>
                         

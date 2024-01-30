@@ -25,7 +25,7 @@ const props = defineProps<{
         :class="[]" :title="capitalize(subSection.tooltip ?? subSection.label ?? '')"
     >
         <div :class="[
-            route(layoutStore.currentRoute, route().v().params).includes(subSection.route?.name ? route(subSection.route.name, subSection.route.parameters) : false)
+            route(route().v().name, route().v().params).includes(subSection.route?.name ? route(subSection.route.name, subSection.route.parameters) : false)
                 ? 'bottomNavigationActive'
                 : 'bottomNavigation'
         ]" />

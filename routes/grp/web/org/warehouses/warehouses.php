@@ -5,6 +5,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Actions\Fulfilment\Pallet\UI\IndexPallets;
 use App\Actions\Inventory\Location\ExportLocations;
 use App\Actions\Inventory\Location\UI\EditLocation;
 use App\Actions\Inventory\Location\UI\IndexLocations;
@@ -44,6 +45,13 @@ Route::prefix('{warehouse}')
                 Route::get('/locations/{location}', [ShowLocation::class, 'inOrganisation'])->name('.locations.show');
                 Route::get('/locations/{location}/edit', [EditLocation::class, 'inOrganisation'])->name('.locations.edit');
                 Route::get('/locations/{location}/delete', RemoveLocation::class)->name('.locations.remove');
+
+
+                Route::get('/pallets', [IndexPallets::class, 'inWarehouse'])->name('.pallets.index');
+
+
+
+
             });
     });
 
