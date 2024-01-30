@@ -32,7 +32,7 @@ Route::prefix('{warehouse}')
 
         Route::name('show')
             ->group(function () {
-                Route::get('', ShowWarehouse::class);
+                Route::get('/dashboard', ShowWarehouse::class);
                 Route::get('/areas', [IndexWarehouseAreas::class, 'inOrganisation'])->name('.warehouse-areas.index');
                 Route::get('/areas/create', CreateWarehouseArea::class)->name('.warehouse-areas.create');
                 Route::get('/areas/{warehouseArea}', [ShowWarehouseArea::class, 'inOrganisation'])->name('.warehouse-areas.show');
