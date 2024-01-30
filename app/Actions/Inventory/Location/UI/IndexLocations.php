@@ -219,7 +219,7 @@ class IndexLocations extends OrgAction
             ];
         }
         return Inertia::render(
-            'Inventory/Locations',
+            'Org/Warehouse/Locations',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
