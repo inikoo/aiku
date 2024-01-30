@@ -115,19 +115,19 @@ class ShowLocation extends OrgAction
                                     ],
 
                                 ],
-                                'grp.org.warehouses.show.locations.show' => [
+                                'grp.org.warehouses.show.infrastructure.locations.show' => [
                                     'type'  => 'button',
                                     'style' => 'delete',
                                     'route' => [
-                                        'name'       => 'grp.org.warehouses.show.locations.remove',
+                                        'name'       => 'grp.org.warehouses.show.infrastructure.locations.remove',
                                         'parameters' => $request->route()->originalParameters()
                                     ],
                                 ],
-                                'grp.org.warehouses.show.warehouse-areas.show.locations.show' => [
+                                'grp.org.warehouses.show.infrastructure.warehouse-areas.show.locations.show' => [
                                     'type'  => 'button',
                                     'style' => 'delete',
                                     'route' => [
-                                        'name'       => 'grp.org.warehouses.show.warehouse-areas.show.locations.remove',
+                                        'name'       => 'grp.org.warehouses.show.infrastructure.warehouse-areas.show.locations.remove',
                                         'parameters' => $request->route()->originalParameters()
                                     ]
                                 ]
@@ -204,20 +204,20 @@ class ShowLocation extends OrgAction
                     $suffix
                 ),
             ),
-            'grp.org.warehouses.show.locations.show' => array_merge(
+            'grp.org.warehouses.show.infrastructure.locations.show' => array_merge(
                 (new ShowWarehouse())->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     $routeParameters['location'],
                     [
                         'index' => [
-                            'name'       => 'grp.org.warehouses.show.locations.index',
+                            'name'       => 'grp.org.warehouses.show.infrastructure.locations.index',
                             'parameters' => [
                                 $routeParameters['organisation']->slug,
                                 $routeParameters['warehouse']->slug,
                             ]
                         ],
                         'model' => [
-                            'name'       => 'grp.org.warehouses.show.locations.show',
+                            'name'       => 'grp.org.warehouses.show.infrastructure.locations.show',
                             'parameters' => [
                                 $routeParameters['organisation']->slug,
                                 $routeParameters['warehouse']->slug,
@@ -255,9 +255,9 @@ class ShowLocation extends OrgAction
                     $suffix
                 ),
             ),
-            'grp.org.warehouses.show.warehouse-areas.show.locations.show' => array_merge(
+            'grp.org.warehouses.show.infrastructure.warehouse-areas.show.locations.show' => array_merge(
                 (new ShowWarehouseArea())->getBreadcrumbs(
-                    'grp.org.warehouses.show.warehouse-areas.show',
+                    'grp.org.warehouses.show.infrastructure.warehouse-areas.show',
                     [
                         'warehouse'     => $routeParameters['warehouse'],
                         'warehouseArea' => $routeParameters['warehouseArea'],
@@ -267,14 +267,14 @@ class ShowLocation extends OrgAction
                     $routeParameters['location'],
                     [
                         'index' => [
-                            'name'       => 'grp.org.warehouses.show.warehouse-areas.show.locations.index',
+                            'name'       => 'grp.org.warehouses.show.infrastructure.warehouse-areas.show.locations.index',
                             'parameters' => [
                                 $routeParameters['warehouse']->slug,
                                 $routeParameters['warehouseArea']->slug,
                             ]
                         ],
                         'model' => [
-                            'name'       => 'grp.org.warehouses.show.warehouse-areas.show.locations.show',
+                            'name'       => 'grp.org.warehouses.show.infrastructure.warehouse-areas.show.locations.show',
                             'parameters' => [
                                 $routeParameters['warehouse']->slug,
                                 $routeParameters['warehouseArea']->slug,
@@ -294,10 +294,10 @@ class ShowLocation extends OrgAction
     {
         $previous=Location::where('slug', '<', $location->slug)->when(true, function ($query) use ($location, $request) {
             switch ($request->route()->getName()) {
-                case 'grp.org.warehouses.show.locations.show':
+                case 'grp.org.warehouses.show.infrastructure.locations.show':
                     $query->where('locations.warehouse_id', $location->warehouse_id);
                     break;
-                case 'grp.org.warehouses.show.warehouse-areas.show.locations.show':
+                case 'grp.org.warehouses.show.infrastructure.warehouse-areas.show.locations.show':
                 case 'grp.org.inventory.warehouse-areas.show.locations.show':
                     $query->where('locations.warehouse_area_id', $location->warehouse_area_id);
                     break;
@@ -313,10 +313,10 @@ class ShowLocation extends OrgAction
     {
         $next = Location::where('slug', '>', $location->slug)->when(true, function ($query) use ($location, $request) {
             switch ($request->route()->getName()) {
-                case 'grp.org.warehouses.show.locations.show':
+                case 'grp.org.warehouses.show.infrastructure.locations.show':
                     $query->where('locations.warehouse_id', $location->warehouse_id);
                     break;
-                case 'grp.org.warehouses.show.warehouse-areas.show.locations.show':
+                case 'grp.org.warehouses.show.infrastructure.warehouse-areas.show.locations.show':
                 case 'grp.org.inventory.warehouse-areas.show.locations.show':
                     $query->where('locations.warehouse_area_id', $location->warehouse_area_id);
                     break;
@@ -354,7 +354,7 @@ class ShowLocation extends OrgAction
 
                 ]
             ],
-            'grp.org.warehouses.show.locations.show'=> [
+            'grp.org.warehouses.show.infrastructure.locations.show'=> [
                 'label'=> $location->slug,
                 'route'=> [
                     'name'      => $routeName,

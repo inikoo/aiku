@@ -139,7 +139,7 @@ class IndexWarehouseAreas extends OrgAction
                                 'tooltip' => __('new warehouse area'),
                                 'label'   => __('warehouse area'),
                                 'route'   => [
-                                    'name'       => 'grp.org.warehouses.show.warehouse-areas.create',
+                                    'name'       => 'grp.org.warehouses.show.infrastructure.warehouse-areas.create',
                                     'parameters' => [
                                         $parent->organisation->slug,
                                         $parent->slug
@@ -249,12 +249,12 @@ class IndexWarehouseAreas extends OrgAction
                     ]
                 )
             ),
-            'grp.org.warehouses.show.warehouse-areas.index',
+            'grp.org.warehouses.show.infrastructure.warehouse-areas.index',
             =>
             array_merge(
                 ShowWarehouse::make()->getBreadcrumbs($routeParameters),
                 $headCrumb([
-                    'name'       => 'grp.org.warehouses.show.warehouse-areas.index',
+                    'name'       => 'grp.org.warehouses.show.infrastructure.warehouse-areas.index',
                     'parameters' =>
                         [
                             $routeParameters['organisation'],

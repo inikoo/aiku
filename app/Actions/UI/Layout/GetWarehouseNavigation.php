@@ -22,11 +22,11 @@ class GetWarehouseNavigation
 
         if ($user->hasPermissionTo("inventory.$warehouse->id.view")) {
             $navigation['warehouse'] = [
-                'scope'   => 'warehouses',
+                'root'    => 'grp.org.warehouses.show.infrastructure.dashboard',
                 'label'   => __('warehouse'),
                 'icon'    => ['fal', 'fa-inventory'],
                 'route'   => [
-                    'name'       => 'grp.org.warehouses.show',
+                    'name'       => 'grp.org.warehouses.show.infrastructure.dashboard',
                     'parameters' => [$warehouse->organisation->slug, $warehouse->slug]
                 ],
                 'topMenu' => [
@@ -35,7 +35,7 @@ class GetWarehouseNavigation
                             'tooltip' => __('warehouses'),
                             'icon'    => ['fal', 'fa-warehouse-alt'],
                             'route'   => [
-                                'name'       => 'grp.org.warehouses.show',
+                                'name'       => 'grp.org.warehouses.show.infrastructure.dashboard',
                                 'parameters' => [$warehouse->organisation->slug, $warehouse->slug]
                             ],
                             'label'   => null
@@ -47,7 +47,7 @@ class GetWarehouseNavigation
                             'tooltip' => __('Warehouse Areas'),
                             'icon'    => ['fal', 'fa-map-signs'],
                             'route'   => [
-                                'name'       => 'grp.org.warehouses.show.warehouse-areas.index',
+                                'name'       => 'grp.org.warehouses.show.infrastructure.warehouse-areas.index',
                                 'parameters' => [$warehouse->organisation->slug, $warehouse->slug]
                             ],
                         ],
@@ -56,7 +56,7 @@ class GetWarehouseNavigation
                             'tooltip' => __('Locations'),
                             'icon'    => ['fal', 'fa-inventory'],
                             'route'   => [
-                                'name'       => 'grp.org.warehouses.show.locations.index',
+                                'name'       => 'grp.org.warehouses.show.infrastructure.locations.index',
                                 'parameters' => [$warehouse->organisation->slug, $warehouse->slug]
                             ],
                         ],
@@ -70,20 +70,21 @@ class GetWarehouseNavigation
         }
 
 
-        if ($user->hasPermissionTo("dispatching.$warehouse->id.view")) {
-            $navigation['dispatch'] = [
-                'label'   => __('Dispatch'),
-                'icon'    => ['fal', 'fa-conveyor-belt-alt'],
-                'route'   => 'grp.dispatch.hub',
-                'topMenu' => [
-                    'subSections' => []
-                ]
-            ];
-        }
+        // if ($user->hasPermissionTo("dispatching.$warehouse->id.view")) {
+        //     $navigation['dispatch'] = [
+        //         'label'   => __('Dispatch'),
+        //         'icon'    => ['fal', 'fa-conveyor-belt-alt'],
+        //         'route'   => 'grp.dispatch.hub',
+        //         'topMenu' => [
+        //             'subSections' => []
+        //         ]
+        //     ];
+        // }
 
 
         if ($user->hasPermissionTo("fulfilment.$warehouse->id..view")) {
             $navigation['fulfilment'] = [
+                'root'  => 'grp.org.warehouses.show.fulfilment.',
                 'icon'  => ['fal', 'fa-pallet-alt'],
                 'label' => __('Fulfilment'),
                 'route' => [
@@ -108,7 +109,7 @@ class GetWarehouseNavigation
                         [
                             'label'   => __('Pallets'),
                             'tooltip' => __('pallets'),
-                            'icon'    => ['fal', 'fa-pallet'],
+                            'icon'    => ['fal', 'fa-pallet-alt'],
                             'route'   => [
                                 'name'       => 'grp.org.warehouses.show.fulfilment.pallets.index',
                                 'parameters' => [$warehouse->organisation->slug, $warehouse->slug]

@@ -18,9 +18,9 @@ function warehouseAreaRoute(warehouseArea: WarehouseArea) {
 
     switch (route().current()) {
         case "grp.org.warehouses.show":
-        case "grp.org.warehouses.show.warehouse-areas.index":
+        case "grp.org.warehouses.show.infrastructure.warehouse-areas.index":
             return route(
-                "grp.org.warehouses.show.warehouse-areas.show",
+                "grp.org.warehouses.show.infrastructure.warehouse-areas.show",
                 [
                     route().params["organisation"],
                     route().params["warehouse"],
@@ -40,9 +40,9 @@ function locationsRoute(warehouseArea: WarehouseArea) {
     // switch (route().current()) {
     //
     //     case "grp.org.warehouses.show":
-    //     case "grp.org.warehouses.show.warehouse-areas.index":
+    //     case "grp.org.warehouses.show.infrastructure.warehouse-areas.index":
     //         return route(
-    //             "grp.org.warehouses.show.warehouse-areas.show.locations.index",
+    //             "grp.org.warehouses.show.infrastructure.warehouse-areas.show.locations.index",
     //             [
     //                 route().params["organisation"],
     //                 route().params["warehouse"],
