@@ -33,7 +33,8 @@ class StorePalletDelivery extends OrgAction
     public function handle(FulfilmentCustomer $fulfilmentCustomer, array $modelData): PalletDelivery
     {
         if (!Arr::get($modelData, 'reference')) {
-            data_set($modelData, 'reference', GetSerialReference::run(container: $fulfilmentCustomer->customer->shop, modelType: SerialReferenceModelEnum::PALLET_DELIVERY));
+            // data_set($modelData, 'reference', GetSerialReference::run(container: $fulfilmentCustomer->customer->shop, modelType: SerialReferenceModelEnum::PALLET_DELIVERY));
+            data_set($modelData, 'reference', now()->timestamp);
         }
 
         /** @var PalletDelivery $palletDelivery */

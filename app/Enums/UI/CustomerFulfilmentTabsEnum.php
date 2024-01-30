@@ -32,7 +32,7 @@ enum CustomerFulfilmentTabsEnum: string
         return match ($this) {
             CustomerFulfilmentTabsEnum::STORED_ITEMS => [
                 'title' => __('stored items'),
-                'icon'  => 'fa fa-narwhal',
+                'icon'  => 'fal fa-narwhal',
             ],
             CustomerFulfilmentTabsEnum::DATA => [
                 'align' => 'right',
@@ -46,7 +46,7 @@ enum CustomerFulfilmentTabsEnum: string
             ],
             CustomerFulfilmentTabsEnum::PALLET_DELIVERIES => [
                 'title' => __('pallet deliveries'),
-                'icon'  => 'fal fa-shopping-cart',
+                'icon'  => 'fal fa-truck',
             ],
             CustomerFulfilmentTabsEnum::ATTACHMENTS => [
                 'align' => 'right',
