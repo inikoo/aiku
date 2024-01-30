@@ -62,7 +62,7 @@ class ShowWebUser extends InertiaAction
     {
         //dd($request->route()->getName());
         $scope = match ($request->route()->getName()) {
-            'grp.org.shops.show.crm.customers.show.web-users.show' => $request->route()->parameters()['customer'],
+            'grp.org.shops.show.crm.customers.show.web-users.show' => $request->route()->originalParameters()()['customer'],
             default                                                => app('currentTenant')
         };
 
@@ -81,7 +81,7 @@ class ShowWebUser extends InertiaAction
                 'title'       => __('Web user'),
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
-                    $request->route()->parameters
+                    $request->route()->originalParameters()
                 ),
                 'pageHead'    => [
                     'title'     => __('web user'),

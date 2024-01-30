@@ -45,7 +45,7 @@ class EditAgent extends InertiaAction
             [
                 'title'       => __('edit agent'),
                 'breadcrumbs' => $this->getBreadcrumbs(
-                    $request->route()->parameters
+                    $request->route()->originalParameters()
                 ),
                 'navigation'  => [
                     'previous' => $this->getPrevious($agent, $request),

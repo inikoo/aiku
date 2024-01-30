@@ -321,7 +321,7 @@ class GetOrganisationNavigation
                             'icon'    => ['fal', 'fa-user'],
                             'route'   => [
                                 'all'      => ['grp.org.shops.show.crm.customers.index'],
-                                'selected' => ['grp.crm.shops.show.customers.index'],
+                                'selected' => ['grp.org.shops.show.crm.customers.index'],
 
                             ]
                         ],

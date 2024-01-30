@@ -27,7 +27,7 @@ trait DeletedMarketplaceAgentTrait
             [
                 'title'                                    => __("agent"),
                 'breadcrumbs'                              => $this->getBreadcrumbs(
-                    $request->route()->parameters
+                    $request->route()->originalParameters()
                 ),
                 'navigation'    => [
                     'previous'  => $this->getPrevious($agent, $request),

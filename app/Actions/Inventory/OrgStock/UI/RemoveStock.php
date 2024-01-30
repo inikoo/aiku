@@ -61,7 +61,7 @@ class RemoveStock extends InertiaAction
                 'title'       => __('delete sku'),
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
-                    $request->route()->parameters
+                    $request->route()->originalParameters()
                 ),
                 'pageHead'    => [
                     'icon'  =>

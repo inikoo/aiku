@@ -61,7 +61,7 @@ class RemoveClockingMachine extends OrgAction
                 'title'       => __('delete clocking machine'),
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
-                    $request->route()->parameters
+                    $request->route()->originalParameters()
                 ),
                 'pageHead'    => [
                     'icon'  =>

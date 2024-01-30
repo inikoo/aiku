@@ -53,7 +53,7 @@ class EditMarketplaceSupplier extends InertiaAction
                 'title'       => __('edit marketplace supplier'),
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
-                    $request->route()->parameters
+                    $request->route()->originalParameters()
                 ),
                 'navigation'                              => [
                     'previous' => $this->getPrevious($supplier, $request),

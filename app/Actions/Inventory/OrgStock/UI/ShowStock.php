@@ -59,7 +59,7 @@ class ShowStock extends InertiaAction
                  'title'       => __('stock'),
                  'breadcrumbs' => $this->getBreadcrumbs(
                      $request->route()->getName(),
-                     $request->route()->parameters
+                     $request->route()->originalParameters()
                  ),
                  'navigation'  => [
                      'previous' => $this->getPrevious($stock, $request),

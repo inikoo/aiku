@@ -167,7 +167,7 @@ class IndexStocks extends InertiaAction
     public function htmlResponse(LengthAwarePaginator $stocks, ActionRequest $request): Response
     {
 
-        $parent       = $request->route()->parameters() == [] ? app('currentTenant') : last($request->route()->parameters());
+        $parent       = $request->route()->originalParameters()() == [] ? app('currentTenant') : last($request->route()->originalParameters()());
         $this->parent = $parent;
         $scope        = $parent;
         $container    =null;
@@ -183,7 +183,7 @@ class IndexStocks extends InertiaAction
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
-                    $request->route()->parameters
+                    $request->route()->originalParameters()
                 ),
                 'title'       => __("SKUs"),
                 'pageHead'    => [

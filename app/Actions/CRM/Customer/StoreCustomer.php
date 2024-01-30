@@ -235,6 +235,6 @@ class StoreCustomer extends OrgAction
 
     public function htmlResponse(Customer $customer): RedirectResponse
     {
-        return Redirect::route('grp.crm.shops.show.customers.show', [$customer->shop->slug, $customer->slug]);
+        return Redirect::route('grp.org.shops.show.crm.customers.show', [$customer->shop->slug, $customer->slug]);
     }
 }

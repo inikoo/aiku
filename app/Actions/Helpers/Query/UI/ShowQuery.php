@@ -39,7 +39,7 @@ class ShowQuery extends InertiaAction
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
-                    $request->route()->parameters
+                    $request->route()->originalParameters()
                 ),
                 'title'    => __('images'),
                 'pageHead' => [

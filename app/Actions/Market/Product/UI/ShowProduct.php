@@ -62,7 +62,7 @@ class ShowProduct extends InertiaAction
                 'title'       => __('product'),
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
-                    $request->route()->parameters
+                    $request->route()->originalParameters()
                 ),
                 'navigation'                            => [
                     'previous' => $this->getPrevious($product, $request),

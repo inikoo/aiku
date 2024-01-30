@@ -78,7 +78,7 @@ class RemoveLocation extends InertiaAction
                 'title'       => __('delete location'),
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
-                    $request->route()->parameters
+                    $request->route()->originalParameters()
                 ),
                 'pageHead'    => [
                     'icon'  =>

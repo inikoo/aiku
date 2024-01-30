@@ -34,7 +34,7 @@ class ShowMarketplaceAgent extends InertiaAction
     {
         /** @var Organisation $organisation */
         $organisation      = app('currentTenant');
-        $agentID           =$request->route()->parameters()['agent']->id;
+        $agentID           =$request->route()->originalParameters()()['agent']->id;
         $agentIsOwned      =$organisation->myAgents->contains($agentID);
 
         $this->canEdit   = $agentIsOwned and $request->user()->hasPermissionTo('procurement.edit') ;
@@ -64,7 +64,7 @@ class ShowMarketplaceAgent extends InertiaAction
             [
                 'title'                                   => __("agent"),
                 'breadcrumbs'                             => $this->getBreadcrumbs(
-                    $request->route()->parameters
+                    $request->route()->originalParameters()
                 ),
                 'navigation'                              => [
                     'previous' => $this->getPrevious($agent, $request),

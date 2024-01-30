@@ -110,7 +110,7 @@ class ShowCustomer extends InertiaAction
                 'title'       => __('customer'),
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
-                    $request->route()->parameters
+                    $request->route()->originalParameters()
                 ),
                 'navigation'  => [
                     'previous' => $this->getPrevious($customer, $request),
@@ -227,21 +227,21 @@ class ShowCustomer extends InertiaAction
                 ),
             ),
 
-            'grp.crm.shops.show.customers.show',
-            'grp.crm.shops.show.customers.edit'
+            'grp.org.shops.show.crm.customers.show',
+            'grp.org.shops.show.crm.customers.edit'
             => array_merge(
                 (new ShowShop())->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     $routeParameters['customer'],
                     [
                         'index' => [
-                            'name'       => 'grp.crm.shops.show.customers.index',
+                            'name'       => 'grp.org.shops.show.crm.customers.index',
                             'parameters' => [
                                 $routeParameters['shop']->slug,
                             ]
                         ],
                         'model' => [
-                            'name'       => 'grp.crm.shops.show.customers.show',
+                            'name'       => 'grp.org.shops.show.crm.customers.show',
                             'parameters' => [
                                 $routeParameters['shop']->slug,
                                 $routeParameters['customer']->slug
@@ -294,7 +294,7 @@ class ShowCustomer extends InertiaAction
 
                 ]
             ],
-            'grp.crm.shops.show.customers.show' => [
+            'grp.org.shops.show.crm.customers.show' => [
                 'label' => $customer->name,
                 'route' => [
                     'name'       => $routeName,

@@ -44,7 +44,7 @@ class CreateFamily extends InertiaAction
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
-                    $request->route()->parameters
+                    $request->route()->originalParameters()
                 ),
                 'title'       => __('New Family'),
                 'pageHead'    => [
@@ -83,7 +83,7 @@ class CreateFamily extends InertiaAction
                     'route' => match ($request->route()->getName()) {
                         'shops.show.families.create' => [
                             'name'      => 'grp.models.shop.family.store',
-                            'arguments' => [$request->route()->parameters['shop']->slug]
+                            'arguments' => [$request->route()->originalParameters()['shop']->slug]
                         ],
                         default => [
                             'name' => 'grp.models.family.store'

@@ -50,7 +50,7 @@ class RemoveMarketplaceAgent extends InertiaAction
             [
                 'title'       => __('delete marketplace agent'),
                 'breadcrumbs' => $this->getBreadcrumbs(
-                    $request->route()->parameters
+                    $request->route()->originalParameters()
                 ),
                 'pageHead'    => [
                     'icon'  =>

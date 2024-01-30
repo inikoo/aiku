@@ -128,7 +128,7 @@ class IndexClockingMachines extends OrgAction
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
-                    $request->route()->parameters
+                    $request->route()->originalParameters()
                 ),
                 'title'       => __('clocking machines'),
                 'pageHead'    => [

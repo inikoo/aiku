@@ -66,7 +66,7 @@ class ShowDeliveryNote extends InertiaAction
             'Market/DeliveryNote',
             [
                 'title'                                 => __('delivery_note'),
-                'breadcrumbs'                           => $this->getBreadcrumbs($request->route()->getName(), $request->route()->parameters(), $deliveryNote),
+                'breadcrumbs'                           => $this->getBreadcrumbs($request->route()->getName(), $request->route()->originalParameters()(), $deliveryNote),
                 'navigation'                            => [
                     'previous' => $this->getPrevious($deliveryNote, $request),
                     'next'     => $this->getNext($deliveryNote, $request),

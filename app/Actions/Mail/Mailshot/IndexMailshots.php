@@ -111,7 +111,7 @@ class IndexMailshots extends InertiaAction
 
     public function htmlResponse(LengthAwarePaginator $mailshots, ActionRequest $request): Response
     {
-        $parent = $request->route()->parameters() == [] ? app('currentTenant') : last($request->route()->parameters());
+        $parent = $request->route()->originalParameters()() == [] ? app('currentTenant') : last($request->route()->originalParameters()());
 
         return Inertia::render(
             'Mail/Mailshots',

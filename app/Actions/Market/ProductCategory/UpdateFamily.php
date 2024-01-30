@@ -58,7 +58,7 @@ class UpdateFamily
 
     public function asController(ProductCategory $productCategory, ActionRequest $request): ProductCategory
     {
-        $productCategory = $productCategory::where('slug', $request->route()->parameters)->first();
+        $productCategory = $productCategory::where('slug', $request->route()->originalParameters())->first();
         return $this->handle($productCategory, $request->all());
     }
 

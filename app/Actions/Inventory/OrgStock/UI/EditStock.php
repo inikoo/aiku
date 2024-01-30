@@ -54,7 +54,7 @@ class EditStock extends InertiaAction
                 'title'       => __('sku'),
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
-                    $request->route()->parameters
+                    $request->route()->originalParameters()
                 ),
                 'navigation'                            => [
                     'previous' => $this->getPrevious($stock, $request),

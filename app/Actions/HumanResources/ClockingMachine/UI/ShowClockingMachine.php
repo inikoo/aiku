@@ -55,7 +55,7 @@ class ShowClockingMachine extends OrgAction
                 'title'                                 => __('clocking machine'),
                 'breadcrumbs'                           => $this->getBreadcrumbs(
                     $request->route()->getName(),
-                    $request->route()->parameters
+                    $request->route()->originalParameters()
                 ),
                 'navigation'                            => [
                     'previous' => $this->getPrevious($clockingMachine, $request),

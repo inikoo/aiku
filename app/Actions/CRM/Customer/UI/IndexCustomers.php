@@ -165,7 +165,7 @@ class IndexCustomers extends OrgAction
                                 'tooltip' => __('new customer'),
                                 'label'   => __('customer'),
                                 'route'   => [
-                                    'name'       => 'grp.crm.shops.show.customers.create',
+                                    'name'       => 'grp.org.shops.show.crm.customers.create',
                                     'parameters' => [$parent->slug]
                                 ]
                             ] : null
@@ -220,7 +220,7 @@ class IndexCustomers extends OrgAction
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
-                    $request->route()->parameters
+                    $request->route()->originalParameters()
                 ),
                 'title'       => __('customers'),
                 'pageHead'    => [
@@ -254,14 +254,14 @@ class IndexCustomers extends OrgAction
 
         return match ($routeName) {
 
-            'grp.crm.shops.show.customers.index' =>
+            'grp.org.shops.show.crm.customers.index' =>
             array_merge(
                 ShowShop::make()->getBreadcrumbs(
                     $routeParameters
                 ),
                 $headCrumb(
                     [
-                        'name'       => 'grp.crm.shops.show.customers.index',
+                        'name'       => 'grp.org.shops.show.crm.customers.index',
                         'parameters' => $routeParameters
                     ]
                 )

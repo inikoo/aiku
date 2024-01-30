@@ -154,7 +154,7 @@ class IndexPaymentAccounts extends InertiaAction
     public function htmlResponse(LengthAwarePaginator $paymentAccounts, ActionRequest $request): Response
     {
         $routeName       = $request->route()->getName();
-        $routeParameters = $request->route()->parameters;
+        $routeParameters = $request->route()->originalParameters();
 
         return Inertia::render(
             'Accounting/PaymentAccounts',

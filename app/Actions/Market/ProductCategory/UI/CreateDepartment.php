@@ -44,7 +44,7 @@ class CreateDepartment extends InertiaAction
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
-                    $request->route()->parameters
+                    $request->route()->originalParameters()
                 ),
                 'title'       => __('New Department'),
                 'pageHead'    => [
@@ -83,7 +83,7 @@ class CreateDepartment extends InertiaAction
                     'route' => match ($request->route()->getName()) {
                         'shops.show.departments.create' => [
                             'name'      => 'grp.models.shop.department.store',
-                            'arguments' => [$request->route()->parameters['shop']->slug]
+                            'arguments' => [$request->route()->originalParameters()['shop']->slug]
                         ],
                         default => [
                             'name' => 'grp.models.department.store'

@@ -51,7 +51,7 @@ class EditCustomer extends InertiaAction
                 'title'       => __('customer'),
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
-                    $request->route()->parameters
+                    $request->route()->originalParameters()
                 ),
                 'navigation'                            => [
                     'previous' => $this->getPrevious($customer, $request),
@@ -158,7 +158,7 @@ class EditCustomer extends InertiaAction
 
                 ]
             ],
-            'grp.crm.shops.show.customers.edit'=> [
+            'grp.org.shops.show.crm.customers.edit'=> [
                 'label'=> $customer->name,
                 'route'=> [
                     'name'      => $routeName,

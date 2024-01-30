@@ -72,7 +72,7 @@ class CreateWebsite extends InertiaAction
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $scope,
-                    routeParameters: $request->route()->parameters
+                    routeParameters: $request->route()->originalParameters()
                 ),
                 'title'       => __('new website'),
                 'pageHead'    => [

@@ -108,7 +108,7 @@ class ShowShop extends OrgAction
                         [
                             'name'  => __('customers'),
                             'icon'  => ['fal', 'fa-user'],
-                            'href'  => ['grp.crm.shops.show.customers.index', $shop->slug],
+                            'href'  => ['grp.org.shops.show.crm.customers.index', $shop->slug],
                             'index' => [
                                 'number' => $shop->crmStats->number_customers
                             ]
@@ -292,6 +292,8 @@ class ShowShop extends OrgAction
 
     public function getBreadcrumbs(array $routeParameters, $suffix = null): array
     {
+
+        dd($r);
 
         $shop=Shop::where('slug', $routeParameters['shop'])->first();
 

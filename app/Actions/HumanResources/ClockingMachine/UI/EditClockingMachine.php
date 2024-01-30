@@ -60,7 +60,7 @@ class EditClockingMachine extends OrgAction
                 'title'       => __('clocking machines'),
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
-                    $request->route()->parameters
+                    $request->route()->originalParameters()
                 ),
                 'pageHead'    => [
                     'title'     => $clockingMachine->code,

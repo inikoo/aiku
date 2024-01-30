@@ -67,7 +67,7 @@ class EditClocking extends OrgAction
                 'title'       => __('clocking'),
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
-                    $request->route()->parameters
+                    $request->route()->originalParameters()
                 ),
                 'pageHead' => [
                     'title'    => $clocking->slug,
@@ -101,7 +101,7 @@ class EditClocking extends OrgAction
                         'updateRoute' => [
                             'name'       => 'grp.org.models.clocking.update',
                             'parameters' => [
-                                'organisation' => $request->route()->parameters['organisation']->slug,
+                                'organisation' => $request->route()->originalParameters()['organisation']->slug,
                                 'clocking'     => $clocking->slug
                             ]
                         ],

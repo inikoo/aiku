@@ -68,7 +68,7 @@ class ShowPaymentAccount extends InertiaAction
                 'title'       => $paymentAccount->name,
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
-                    $request->route()->parameters
+                    $request->route()->originalParameters()
                 ),
                 'navigation'  => [
                     'previous' => $this->getPrevious($paymentAccount, $request),

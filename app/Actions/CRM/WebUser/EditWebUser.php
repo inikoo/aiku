@@ -49,7 +49,7 @@ class EditWebUser extends InertiaAction
     public function htmlResponse(WebUser $webUser, ActionRequest $request): Response
     {
         $scope     = match ($request->route()->getName()) {
-            'grp.org.shops.show.crm.customers.show.web-users.edit' => $request->route()->parameters()['customer'],
+            'grp.org.shops.show.crm.customers.show.web-users.edit' => $request->route()->originalParameters()()['customer'],
             default                                                => app('currentTenant')
         };
         $container = null;
@@ -67,7 +67,7 @@ class EditWebUser extends InertiaAction
                 'title'       => __('web user'),
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
-                    $request->route()->parameters
+                    $request->route()->originalParameters()
                 ),
                 'pageHead'    => [
                     'title'     => __('web user'),

@@ -82,7 +82,7 @@ class ShowfulfilmentOrder extends InertiaAction
                 'title'       => __('order'),
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
-                    $request->route()->parameters(),
+                    $request->route()->originalParameters()(),
                 ),
                 'navigation'                            => [
                     'previous' => $this->getPrevious($order, $request),

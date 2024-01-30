@@ -77,7 +77,7 @@ class ShowClocking extends OrgAction
                 'title'       => __('clocking'),
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
-                    $request->route()->parameters
+                    $request->route()->originalParameters()
                 ),
                 'navigation'                            => [
                     'previous' => $this->getPrevious($clocking, $request),

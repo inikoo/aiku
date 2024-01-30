@@ -106,14 +106,14 @@ class IndexOrders extends InertiaAction
 
     public function htmlResponse(LengthAwarePaginator $orders, ActionRequest $request)
     {
-        $parent = $request->route()->parameters() == [] ? app('currentTenant') : last($request->route()->parameters());
+        $parent = $request->route()->originalParameters()() == [] ? app('currentTenant') : last($request->route()->originalParameters()());
 
         return Inertia::render(
             'OMS/Orders',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
-                    $request->route()->parameters
+                    $request->route()->originalParameters()
                 ),
                 'title'       => __('orders'),
                 'pageHead'    => [

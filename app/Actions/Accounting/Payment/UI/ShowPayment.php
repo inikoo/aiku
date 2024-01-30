@@ -99,7 +99,7 @@ class ShowPayment extends InertiaAction
             'Accounting/Payment',
             [
                 'title'                                 => __($payment->id),
-                'breadcrumbs'                           => $this->getBreadcrumbs($request->route()->getName(), $request->route()->parameters),
+                'breadcrumbs'                           => $this->getBreadcrumbs($request->route()->getName(), $request->route()->originalParameters()),
                 'navigation'                            => [
                     'previous' => $this->getPrevious($payment, $request),
                     'next'     => $this->getNext($payment, $request),

@@ -37,7 +37,7 @@ class CreateStock extends InertiaAction
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
-                    $request->route()->parameters
+                    $request->route()->originalParameters()
                 ),
                 'title'    => __('new stock'),
                 'icon'     =>
@@ -80,7 +80,7 @@ class CreateStock extends InertiaAction
                     'route' => match ($request->route()->getName()) {
                         'grp.org.inventory.stock-families.show.stocks.create' => [
                             'name'      => 'grp.models.stock-family.stock.store',
-                            'arguments' => [$request->route()->parameters['stockFamily']->slug]
+                            'arguments' => [$request->route()->originalParameters()['stockFamily']->slug]
                         ],
                         default => [
                             'name'      => 'grp.models.stock.store',

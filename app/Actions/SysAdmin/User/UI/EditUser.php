@@ -42,7 +42,7 @@ class EditUser extends InertiaAction
                 'title'       => __('user'),
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
-                    $request->route()->parameters
+                    $request->route()->originalParameters()
                 ),
                 'pageHead'    => [
                     'title'     => $user->username,

@@ -26,7 +26,7 @@ class CreateLocation extends InertiaAction
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
-                    $request->route()->parameters
+                    $request->route()->originalParameters()
                 ),
                 'title'    => __('new location'),
                 'pageHead' => [
@@ -100,12 +100,12 @@ class CreateLocation extends InertiaAction
                     'route' => match ($request->route()->getName()) {
                         'grp.org.warehouses.show.infrastructure.locations.create' => [
                             'name'      => 'grp.models.warehouse.location.store',
-                            'arguments' => [$request->route()->parameters['warehouse']->slug]
+                            'arguments' => [$request->route()->originalParameters()['warehouse']->slug]
                         ],
                         default => [
                             'name'      => 'grp.models.warehouse-area.location.store',
                             'arguments' => [
-                                $request->route()->parameters['warehouseArea']->slug
+                                $request->route()->originalParameters()['warehouseArea']->slug
                             ]
                         ]
                     }

@@ -69,7 +69,7 @@ class ShowSupplier extends InertiaAction
                 'title'       => __('supplier'),
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
-                    $request->route()->parameters
+                    $request->route()->originalParameters()
                 ),
                 'navigation'    => [
                     'previous'  => $this->getPrevious($supplier, $request),

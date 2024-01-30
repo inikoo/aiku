@@ -149,11 +149,11 @@ class IndexMarketplaceSuppliers extends InertiaAction
 
     public function htmlResponse(LengthAwarePaginator $suppliers, ActionRequest $request): Response
     {
-        $parent = $request->route()->parameters == []
+        $parent = $request->route()->originalParameters() == []
             ?
             app('currentTenant')
             :
-            $request->route()->parameters['agent'];
+            $request->route()->originalParameters()['agent'];
 
         $title = match (class_basename($parent)) {
             'AgentOrganisation' => __('suppliers'),
@@ -165,7 +165,7 @@ class IndexMarketplaceSuppliers extends InertiaAction
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
-                    $request->route()->parameters
+                    $request->route()->originalParameters()
                 ),
                 'title'       => $title,
                 'pageHead'    => [

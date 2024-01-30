@@ -50,7 +50,7 @@ class RemoveAgent extends InertiaAction
             [
                 'title'       => __('delete agent'),
                 'breadcrumbs' => $this->getBreadcrumbs(
-                    $request->route()->parameters
+                    $request->route()->originalParameters()
                 ),
                 'pageHead'    => [
                     'icon'  =>

@@ -56,7 +56,7 @@ class ShowFulfilmentCustomer extends OrgAction
             [
                 'title'       => __('customer'),
                 'breadcrumbs' => $this->getBreadcrumbs(
-                    $request->route()->parameters
+                    $request->route()->originalParameters()
                 ),
                 'navigation'                            => [
                     'previous' => $this->getPrevious($customer, $request),

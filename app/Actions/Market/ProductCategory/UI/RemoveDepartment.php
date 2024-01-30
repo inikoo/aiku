@@ -68,7 +68,7 @@ class RemoveDepartment extends InertiaAction
                 'title'       => __('delete department'),
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
-                    $request->route()->parameters
+                    $request->route()->originalParameters()
                 ),
                 'pageHead'    => [
                     'icon'  =>

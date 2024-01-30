@@ -61,7 +61,7 @@ class RemoveWarehouseArea extends InertiaAction
                 'title'       => __('delete warehouse area'),
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
-                    $request->route()->parameters
+                    $request->route()->originalParameters()
                 ),
                 'pageHead'    => [
                     'icon'  =>

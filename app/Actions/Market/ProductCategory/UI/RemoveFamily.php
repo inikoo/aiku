@@ -68,7 +68,7 @@ class RemoveFamily extends InertiaAction
                 'title'       => __('delete family'),
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
-                    $request->route()->parameters
+                    $request->route()->originalParameters()
                 ),
                 'pageHead'    => [
                     'icon'  =>

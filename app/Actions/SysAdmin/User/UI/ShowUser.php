@@ -52,7 +52,7 @@ class ShowUser extends InertiaAction
                 'title'       => __('user'),
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
-                    $request->route()->parameters
+                    $request->route()->originalParameters()
                 ),
                 'navigation' => [
                     'previous' => $this->getPrevious($user, $request),

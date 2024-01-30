@@ -73,7 +73,7 @@ class ShowMarketplaceSupplierProduct extends InertiaAction
                 'title'       => __('supplier product marketplaces'),
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
-                    $request->route()->parameters
+                    $request->route()->originalParameters()
                 ),
                 'navigation'  => [
                     'previous' => $this->getPrevious($supplierProduct, $request),
@@ -214,9 +214,9 @@ class ShowMarketplaceSupplierProduct extends InertiaAction
         $query = SupplierProduct::where('code', '<', $supplierProduct->code);
 
         $query = match ($request->route()->getName()) {
-            'grp.org.procurement.marketplace.agents.show.supplier-products.show' => $query->where('supplier_products.agent_id', $request->route()->parameters['agent']->id),
+            'grp.org.procurement.marketplace.agents.show.supplier-products.show' => $query->where('supplier_products.agent_id', $request->route()->originalParameters()['agent']->id),
             'grp.org.procurement.marketplace.agents.show.show.supplier.supplier-products.show',
-            'grp.org.procurement.marketplace.supplier.supplier-products.show' => $query->where('supplier_products.supplier_id', $request->route()->parameters['supplier']->id),
+            'grp.org.procurement.marketplace.supplier.supplier-products.show' => $query->where('supplier_products.supplier_id', $request->route()->originalParameters()['supplier']->id),
 
             default => $query
         };
@@ -232,9 +232,9 @@ class ShowMarketplaceSupplierProduct extends InertiaAction
         $query = SupplierProduct::where('code', '>', $supplierProduct->code);
 
         $query = match ($request->route()->getName()) {
-            'grp.org.procurement.marketplace.agents.show.supplier-products.show' => $query->where('supplier_products.agent_id', $request->route()->parameters['agent']->id),
+            'grp.org.procurement.marketplace.agents.show.supplier-products.show' => $query->where('supplier_products.agent_id', $request->route()->originalParameters()['agent']->id),
             'grp.org.procurement.marketplace.agents.show.show.supplier.supplier-products.show',
-            'grp.org.procurement.marketplace.supplier.supplier-products.show' => $query->where('supplier_products.supplier_id', $request->route()->parameters['supplier']->id),
+            'grp.org.procurement.marketplace.supplier.supplier-products.show' => $query->where('supplier_products.supplier_id', $request->route()->originalParameters()['supplier']->id),
 
             default => $query
         };

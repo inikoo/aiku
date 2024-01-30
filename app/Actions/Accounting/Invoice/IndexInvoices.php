@@ -99,7 +99,7 @@ class IndexInvoices extends InertiaAction
     public function htmlResponse(LengthAwarePaginator $invoices, ActionRequest $request): Response
     {
         $routeName       = $request->route()->getName();
-        $routeParameters = $request->route()->parameters;
+        $routeParameters = $request->route()->originalParameters();
 
         return Inertia::render(
             'Accounting/Invoices',

@@ -147,9 +147,9 @@ class ShowSupplierProduct extends InertiaAction
         $query = SupplierProduct::where('code', '<', $supplierProduct->code);
 
         $query = match ($request->route()->getName()) {
-            'grp.procurement.agents.show.supplier-products.show' => $query->where('supplier_products.agent_id', $request->route()->parameters['agent']->id),
+            'grp.procurement.agents.show.supplier-products.show' => $query->where('supplier_products.agent_id', $request->route()->originalParameters()['agent']->id),
             'grp.procurement.agents.show.show.supplier.supplier-products.show',
-            'grp.procurement.supplier.supplier-products.show' => $query->where('supplier_products.supplier_id', $request->route()->parameters['supplier']->id),
+            'grp.procurement.supplier.supplier-products.show' => $query->where('supplier_products.supplier_id', $request->route()->originalParameters()['supplier']->id),
 
             default => $query
         };
@@ -165,9 +165,9 @@ class ShowSupplierProduct extends InertiaAction
         $query = SupplierProduct::where('code', '>', $supplierProduct->code);
 
         $query = match ($request->route()->getName()) {
-            'grp.procurement.agents.show.supplier-products.show' => $query->where('supplier_products.agent_id', $request->route()->parameters['agent']->id),
+            'grp.procurement.agents.show.supplier-products.show' => $query->where('supplier_products.agent_id', $request->route()->originalParameters()['agent']->id),
             'grp.procurement.agents.show.show.supplier.supplier-products.show',
-            'grp.procurement.supplier.supplier-products.show' => $query->where('supplier_products.supplier_id', $request->route()->parameters['supplier']->id),
+            'grp.procurement.supplier.supplier-products.show' => $query->where('supplier_products.supplier_id', $request->route()->originalParameters()['supplier']->id),
 
             default => $query
         };

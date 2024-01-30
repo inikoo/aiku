@@ -43,7 +43,7 @@ class EditPaymentAccount extends InertiaAction
                 'title'       => __('warehouse'),
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
-                    $request->route()->parameters
+                    $request->route()->originalParameters()
                 ),
                 'pageHead'    => [
                     'title'     => $paymentAccount->code,

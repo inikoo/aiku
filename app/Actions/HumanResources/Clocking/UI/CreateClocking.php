@@ -26,7 +26,7 @@ class CreateClocking extends OrgAction
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
-                    $request->route()->parameters
+                    $request->route()->originalParameters()
                 ),
                 'title'    => __('new clocking'),
                 'pageHead' => [
@@ -74,12 +74,12 @@ class CreateClocking extends OrgAction
                     'route' => match ($request->route()->getName()) {
                         'grp.org.hr.workplaces.show.clockings.create' => [
                             'name'      => 'grp.models.working-place.clocking.store',
-                            'arguments' => [$request->route()->parameters['workplace']->slug]
+                            'arguments' => [$request->route()->originalParameters()['workplace']->slug]
                         ],
                         default => [
                             'name'      => 'grp.models.clocking-machine.clocking.store',
                             'arguments' => [
-                                $request->route()->parameters['clockingMachine']->slug
+                                $request->route()->originalParameters()['clockingMachine']->slug
                             ]
                         ]
                     }

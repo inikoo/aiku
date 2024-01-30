@@ -44,7 +44,7 @@ class EditMarketplaceAgent extends InertiaAction
             [
                 'title'       => __('edit marketplace agent'),
                 'breadcrumbs' => $this->getBreadcrumbs(
-                    $request->route()->parameters
+                    $request->route()->originalParameters()
                 ),
                 'navigation'                              => [
                     'previous' => $this->getPrevious($agent, $request),

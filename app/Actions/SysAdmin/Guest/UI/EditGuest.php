@@ -45,7 +45,7 @@ class EditGuest extends InertiaAction
                 'title'       => __('guest'),
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
-                    $request->route()->parameters
+                    $request->route()->originalParameters()
                 ),
                 'pageHead'    => [
                     'title'     => $guest->contact_name,

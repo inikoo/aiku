@@ -65,7 +65,7 @@ class AccountingDashboard
             [
                 'breadcrumbs'  => $this->getBreadcrumbs(
                     $request->route()->getName(),
-                    $request->route()->parameters
+                    $request->route()->originalParameters()
                 ),
                 'title'        => __('accounting'),
                 'pageHead'     => [
