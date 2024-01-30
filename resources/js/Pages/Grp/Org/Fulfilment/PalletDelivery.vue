@@ -22,7 +22,7 @@ import ShowcasePallet from '@/Components/Pallet/Showcase.vue'
     pageHead: object
 }>()
 
-
+console.log(props)
 
 let currentTab = ref(props.tabs.current);
 const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
@@ -31,9 +31,10 @@ const component = computed(() => {
 
     const components = {
         showcase: null,
-        pallet: ShowcasePallet,
+        pallets: ShowcasePallet,
         history: TableHistories
     };
+    console.log('ini',currentTab.value)
     return components[currentTab.value];
 
 });
