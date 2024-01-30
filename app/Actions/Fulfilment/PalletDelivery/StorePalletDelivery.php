@@ -21,9 +21,11 @@ use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Str;
+use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
+use Symfony\Component\HttpFoundation\Response;
 
 class StorePalletDelivery extends OrgAction
 {
@@ -72,8 +74,8 @@ class StorePalletDelivery extends OrgAction
         ];
     }
 
-    public function htmlResponse(PalletDelivery $palletDelivery, ActionRequest $request): RedirectResponse
+    public function htmlResponse(PalletDelivery $palletDelivery, ActionRequest $request): Response
     {
-        return Redirect::route('grp.org.fulfilments.show.pallets.delivery.show', $request->route()->originalParameters() + ['palletDelivery' => $palletDelivery->reference]);
+        return Inertia::location(route('grp.org.fulfilments.show.pallets.delivery.show', $request->route()->originalParameters() + ['palletDelivery' => $palletDelivery->reference]));
     }
 }
