@@ -30,12 +30,3 @@ Route::get('{customer}/web-users/{webUser}/edit', [EditWebUser::class, 'inCustom
 Route::prefix('deliveries')->as('deliveries.')->group(function () {
     Route::get('create', CreatePalletDelivery::class)->name('create');
 });
-
-/*
-
-Route::prefix('prospects')->as('prospects.')->group(function () {
-    Route::get('/', [IndexProspects::class, 'inShop'])->name('index');
-    Route::get('/', ['icon' => 'fa-envelope', 'label' => 'prospects'])->uses([IndexProspects::class, 'inShop'])->name('index');
-    Route::get('/create', ['icon' => 'fa-envelope', 'label' => 'create prospect'])->uses([CreateProspect::class, 'inShop'])->name('create');
-});
-*/
