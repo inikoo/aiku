@@ -220,7 +220,7 @@ class StoreCustomer extends OrgAction
     public function asCommand(Command $command): int
     {
         $this->asAction = true;
-        $shop = Shop::where('slug', $command->argument('shop'))->firstOrFail();
+        $shop           = Shop::where('slug', $command->argument('shop'))->firstOrFail();
 
         $modelData = Customer::factory()->definition();
 
