@@ -13,6 +13,7 @@ use App\Actions\CRM\Prospect\UI\IndexProspects;
 use App\Actions\CRM\WebUser\EditWebUser;
 use App\Actions\CRM\WebUser\IndexWebUser;
 use App\Actions\CRM\WebUser\ShowWebUser;
+use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\FulfilmentCustomer\UI\CreateFulfilmentCustomer;
 use App\Actions\Fulfilment\FulfilmentCustomer\UI\IndexFulfilmentCustomers;
 use App\Actions\OMS\Order\UI\ShowOrder;
@@ -21,7 +22,7 @@ use App\Actions\OMS\Order\UI\ShowOrder;
 
 Route::get('', IndexFulfilmentCustomers::class)->name('index');
 Route::get('create', CreateFulfilmentCustomer::class)->name('create');
-Route::get('{customer}', [ShowCustomer::class, 'inShop'])->name('show');
+Route::get('{customer}', ShowFulfilmentCustomer::class)->name('show');
 Route::get('{customer}/edit', [EditCustomer::class, 'inShop'])->name('edit');
 Route::get('{customer}/orders/{order}', [ShowOrder::class, 'inCustomerInShop'])->name('show.orders.show');
 Route::get('{customer}/web-users', [IndexWebUser::class, 'inCustomerInShop'])->name('show.web-users.index');

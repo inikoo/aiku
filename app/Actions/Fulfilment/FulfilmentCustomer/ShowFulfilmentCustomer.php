@@ -12,6 +12,7 @@ use App\Actions\Fulfilment\FulfilmentOrder\UI\IndexFulfilmentOrders;
 use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItems;
 use App\Actions\InertiaAction;
 use App\Actions\Mail\DispatchedEmail\IndexDispatchedEmails;
+use App\Actions\OrgAction;
 use App\Actions\UI\Dashboard\ShowDashboard;
 use App\Enums\UI\CustomerFulfilmentTabsEnum;
 use App\Http\Resources\Fulfilment\StoredItemResource;
@@ -19,11 +20,14 @@ use App\Http\Resources\Mail\DispatchedEmailResource;
 use App\Http\Resources\Sales\CustomerResource;
 use App\Http\Resources\Sales\OrderResource;
 use App\Models\CRM\Customer;
+use App\Models\Fulfilment\Fulfilment;
+use App\Models\SysAdmin\Organisation;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class ShowFulfilmentCustomer extends InertiaAction
+class ShowFulfilmentCustomer extends OrgAction
 {
     public function handle(Customer $customer): Customer
     {
@@ -33,14 +37,14 @@ class ShowFulfilmentCustomer extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo("crm.{$this->shop->id}.edit");
+        $this->canEdit = $request->user()->hasPermissionTo("fulfilments.{$this->fulfilment->id}.edit");
 
-        return $request->user()->hasPermissionTo("crm.{$this->shop->id}.view");
+        return $request->user()->hasPermissionTo("fulfilments.{$this->fulfilment->id}.view");
     }
 
-    public function asController(Customer $customer, ActionRequest $request): Customer
+    public function asController(Organisation $organisation, Fulfilment $fulfilment, Customer $customer, ActionRequest $request): Customer
     {
-        $this->initialisation($request)->withTab(CustomerFulfilmentTabsEnum::values());
+        $this->initialisationFromFulfilment($fulfilment, $request);
 
         return $this->handle($customer);
     }
