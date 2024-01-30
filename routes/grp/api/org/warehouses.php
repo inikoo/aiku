@@ -25,10 +25,10 @@ Route::prefix("{warehouse:id}")->name("warehouses.")
         Route::get('locations', [IndexLocations::class, 'inWarehouse'])->name('locations.index');
         Route::get('areas/{warehouseArea:id}/locations', [IndexLocations::class, 'inWarehouseArea'])->name('areas.locations.index');
         Route::get('locations/{location}', [ShowLocation::class, 'inWarehouse'])->name('locations.show');
-        Route::get('locations/{location}/pallets', [IndexPallets::class, 'inLocation'])->name('locations.pallets.index');
         Route::patch('locations/{location}/pallets/{pallet}', UpdatePalletLocation::class)->name('pallets.location.update');
 
         Route::prefix("fulfilments/{fulfilment}")->name("fulfilments.")->group(function () {
+            Route::get('locations/{location}/pallets', [IndexPallets::class, 'inLocation'])->name('locations.pallets.index');
             Route::get('pallets', IndexPallets::class)->name('pallets.index');
             Route::get('pallets/{pallet}', ShowPallet::class)->name('pallets.show');
             Route::patch('pallets/{pallet}/return', ReturnPalletToCustomer::class)->name('pallets.return');
