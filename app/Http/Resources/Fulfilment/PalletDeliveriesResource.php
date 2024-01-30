@@ -20,7 +20,8 @@ class PalletDeliveriesResource extends JsonResource
         return [
             'id'                 => $palletDelivery->id,
             'reference'          => $palletDelivery->reference,
-            'customer_reference' => $palletDelivery->customer_reference
+            'customer_reference' => $palletDelivery->customer_reference,
+            'pallets' => $palletDelivery->pallets->where('state', '!=', 'cancelled')->count(),
         ];
     }
 }
