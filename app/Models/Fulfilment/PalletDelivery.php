@@ -11,7 +11,7 @@ use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Models\CRM\Customer;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 /**
  * App\Models\Fulfilment\PalletDelivery
@@ -56,8 +56,8 @@ class PalletDelivery extends Model
         return $this->belongsTo(Customer::class);
     }
 
-    public function pallets(): HasMany
+    public function pallets(): BelongsToMany
     {
-        return $this->hasMany(Pallet::class);
+        return $this->belongsToMany(Pallet::class)->using(PalletDeliveryPallet::class);
     }
 }

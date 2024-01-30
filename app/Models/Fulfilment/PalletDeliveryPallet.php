@@ -1,9 +1,12 @@
 <?php
+/*
+ * Author: Artha <artha@aw-advantage.com>
+ * Created: Tue, 30 Jan 2024 16:47:52 Central Indonesia Time, Sanur, Bali, Indonesia
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
 
-namespace App\Models;
+namespace App\Models\Fulfilment;
 
-use App\Models\Fulfilment\Pallet;
-use App\Models\Fulfilment\PalletDelivery;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
