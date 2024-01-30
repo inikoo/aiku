@@ -71,7 +71,7 @@ onMounted(() => {
 
 
 
-const iconList: {[key: string]: string} = {
+const iconList: { [key: string]: string } = {
     shop: 'fal fa-store-alt',
     warehouse: 'fal fa-warehouse-alt',
     fulfilment: 'fal fa-pallet-alt',
@@ -119,8 +119,6 @@ const iconList: {[key: string]: string} = {
                 <!-- shops_navigation or warehouses_navigation or fulfilments_navigation -->
                 <template v-else-if="itemKey == 'shops_navigation' || itemKey == 'warehouses_navigation' || itemKey == 'fulfilments_navigation'">
                     <template v-if="itemKey == 'shops_navigation' && layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_shops.length">
-                        <!-- Shops: ({{ layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_shops.length }})
-                        {{ layout.organisationsState?.[layout.currentParams.organisation]?.currentShop }} -->
                         <!-- If: Shops length is 1 (show the subNav directly) -->
                         <!-- <NavigationSimple v-if="layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_shops.length === 1"
                             :nav="Object.values(Object.values(orgNav)[0])[0]"
@@ -149,8 +147,6 @@ const iconList: {[key: string]: string} = {
                     </template>
                     
                     <template v-if="itemKey == 'warehouses_navigation' && layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_warehouses.length">
-                        <!-- Warehouses: ({{ layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_warehouses.length }})
-                        {{ layout.organisationsState?.[layout.currentParams.organisation]?.currentWarehouse }} -->
                         <!-- If: Warehouses length is 1 -->
                         <!-- <NavigationSimple v-if="layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_warehouses.length === 1"
                             :nav="Object.values(Object.values(orgNav)[0])[0]"
@@ -170,16 +166,20 @@ const iconList: {[key: string]: string} = {
                         </template>
 
                         <!-- Else: Warehouses length more than 1 -->
-                        <NavigationGroup v-else
-                            :orgNav="orgNav"
-                            :itemKey="generateNavigationName(itemKey)"
-                            :icon="iconList[generateNavigationName(itemKey)]"
-                        />
+                        <template v-else-if="layout.organisationsState?.[layout.currentParams.organisation]?.[generateNavigationName(generateCurrentString(itemKey))]">
+                            <NavigationGroup
+                                :orgNav="orgNav"
+                                :itemKey="generateNavigationName(itemKey)"
+                                :icon="iconList[generateNavigationName(itemKey)]"
+                            />
+                        </template>
                     </template>
                     
-                    <template v-if="itemKey == 'fulfilments_navigation' && layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_fulfilments.length">
-                        <!-- Fulfilments: ({{ layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_fulfilments.length }})
-                        {{ layout.organisationsState?.[layout.currentParams.organisation]?.currentFulfilment }} -->
+                    <template v-if="
+                        itemKey == 'fulfilments_navigation'
+                        && layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_fulfilments.length
+                        
+                    ">
                         <!-- If Fulfilment length is 1 -->
                         <template v-if="layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_fulfilments.length === 1">
                             <!-- <NavigationSimple v-for="nav, navKey in Object.values(orgNav)[0]"
