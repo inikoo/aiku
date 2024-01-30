@@ -46,6 +46,9 @@ Route::prefix('{warehouse}')
                 Route::get('/locations/{location}/edit', [EditLocation::class, 'inOrganisation'])->name('.locations.edit');
                 Route::get('/locations/{location}/delete', RemoveLocation::class)->name('.locations.remove');
 
+                Route::prefix('fulfilment')->name('.fulfilment.')
+                    ->group(__DIR__."/fulfilment.php");
+
 
                 Route::get('/pallets', [IndexPallets::class, 'inWarehouse'])->name('.pallets.index');
 
