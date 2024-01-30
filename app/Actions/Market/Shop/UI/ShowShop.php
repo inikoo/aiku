@@ -77,7 +77,7 @@ class ShowShop extends OrgAction
                             'style' => 'create',
                             'label' => __('website'),
                             'route' => [
-                                'name'       => 'grp.org.shops.show.website.create',
+                                'name'       => 'grp.org.shops.show.websites.create',
                                 'parameters' => $request->route()->originalParameters()
                             ]
 
