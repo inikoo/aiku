@@ -53,7 +53,11 @@ class ShowPalletDelivery extends OrgAction
                     'next'     => $this->getNext($palletDelivery, $request),
                 ],
                 'pageHead'    => [
-                    'title' => $palletDelivery->reference,
+                    'title' => __($palletDelivery->reference),
+                    'icon'         => [
+                        'icon'  => ['fal', 'fa-truck'],
+                        'title' => __($palletDelivery->reference)
+                    ],
                     'edit'  => $this->canEdit ? [
                         'route' => [
                             'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
@@ -111,16 +115,16 @@ class ShowPalletDelivery extends OrgAction
         };
 
         return array_merge(
-            IndexFulfilmentCustomers::make()->getBreadcrumbs(
+            IndexPalletDeliveries::make()->getBreadcrumbs(
                 $routeParameters
             ),
             $headCrumb(
                 [
                     'name'       => 'grp.org.fulfilments.show.pallets.delivery.show',
                     'parameters' => [
-                        'organisation'       => $routeParameters['organisation']->slug,
-                        'fulfilment'         => $routeParameters['fulfilment']->slug,
-                        'palletDelivery'     => $routeParameters['palletDelivery']->slug
+                        'organisation'   => $routeParameters['organisation']->slug,
+                        'fulfilment'     => $routeParameters['fulfilment']->slug,
+                        'palletDelivery' => $routeParameters['palletDelivery']->reference
                     ]
                 ]
             )

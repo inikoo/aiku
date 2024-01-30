@@ -126,7 +126,8 @@ class ShowFulfilmentCustomer extends OrgAction
                         'name'       => 'grp.models.org.fulfilment.delivery.pallet.store',
                         'parameters' => array_values($request->route()->originalParameters())
                     ],
-                    'label' => __('pallet')
+                    'type' => 'create',
+                    'label' => __('deliveries')
                 ]],
             ], prefix: CustomerFulfilmentTabsEnum::PALLET_DELIVERIES->value))
             ->table(IndexFulfilmentOrders::make()->tableStructure($customer));

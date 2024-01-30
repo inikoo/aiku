@@ -10,9 +10,11 @@ namespace App\Actions\Fulfilment\PalletDelivery\UI;
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\OrgAction;
 use App\Http\Resources\Fulfilment\FulfilmentCustomersResource;
+use App\Http\Resources\Fulfilment\PalletDeliveriesResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
+use App\Models\Fulfilment\PalletDelivery;
 use App\Models\SysAdmin\Organisation;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -47,6 +49,7 @@ class IndexPalletDeliveries extends OrgAction
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
                 $query->whereAnyWordStartWith('customers.name', $value)
+                    ->orWhereStartWith('reference', $value)
                     ->orWhereStartWith('customers.email', $value)
                     ->orWhere('customers.reference', '=', $value);
             });
@@ -56,26 +59,23 @@ class IndexPalletDeliveries extends OrgAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        $queryBuilder = QueryBuilder::for(FulfilmentCustomer::class);
+        $queryBuilder = QueryBuilder::for(PalletDelivery::class);
         $queryBuilder->where('customers.shop_id', $fulfilment->shop->id);
 
 
         return $queryBuilder
             ->defaultSort('customers.slug')
             ->select([
-                'reference',
+                'pallet_deliveries.reference',
                 'customers.id',
                 'customers.name',
                 'customers.slug',
                 'shops.code as shop_code',
-                'shops.slug as shop_slug',
-                'number_pallets',
-                'number_pallets_status_storing'
+                'shops.slug as shop_slug'
             ])
-            ->leftJoin('customers', 'customers.id', 'fulfilment_customers.customer_id')
-            ->leftJoin('customer_stats', 'customers.id', 'customer_stats.customer_id')
+            ->leftJoin('customers', 'customers.id', 'pallet_deliveries.customer_id')
             ->leftJoin('shops', 'shops.id', 'shop_id')
-            ->allowedSorts(['reference', 'name', 'number_pallets', 'slug', 'number_pallets_status_storing'])
+            ->allowedSorts(['reference', 'name', 'slug'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -112,14 +112,13 @@ class IndexPalletDeliveries extends OrgAction
                     ]
                 )
                 ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'customer reference', label: __('customer reference'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'pallets', label: __('Pallets'), canBeHidden: false, sortable: true, searchable: true);
+                ->column(key: 'customer reference', label: __('customer reference'), canBeHidden: false, sortable: true, searchable: true);
         };
     }
 
     public function jsonResponse(LengthAwarePaginator $customers): AnonymousResourceCollection
     {
-        return FulfilmentCustomersResource::collection($customers);
+        return PalletDeliveriesResource::collection($customers);
     }
 
     public function htmlResponse(LengthAwarePaginator $customers, ActionRequest $request): Response
@@ -160,7 +159,7 @@ class IndexPalletDeliveries extends OrgAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => $routeParameters,
-                        'label' => __('customers'),
+                        'label' => __('deliveries'),
                         'icon'  => 'fal fa-bars'
                     ],
                 ],

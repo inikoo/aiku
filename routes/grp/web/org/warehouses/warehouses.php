@@ -31,6 +31,10 @@ Route::prefix('{warehouse}')
         Route::name('show')
             ->group(function () {
 
+
+                Route::prefix('inventory')->name('.inventory.')
+                    ->group(__DIR__."/inventory.php");
+
                 Route::name('.infrastructure.')
                     ->group(__DIR__."/infrastructure.php");
 
