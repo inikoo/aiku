@@ -91,7 +91,7 @@ class StoreOrder
         $seedDeliveryAddress = new Address();
         $seedBillingAddress::hydrate($request->get('delivery_address'));
         $this->handle($shop, $request->validated(), $seedBillingAddress, $seedDeliveryAddress);
-        return  Redirect::route('grp.shops.show.orders.index', $shop);
+        return  Redirect::route('grp.org.shops.show.orders.index', $shop);
     }
 
     public function action(

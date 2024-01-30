@@ -25,7 +25,7 @@ trait HasUIPayment
                     'name'            => $payment->slug,
                     'index'           =>
                         match ($routeName) {
-                            'grp.shops.show.orders.show.payments.show', 'orders.show,payments.show' => null,
+                            'grp.org.shops.show.orders.show.payments.show', 'orders.show,payments.show' => null,
                             default => [
                                 'route'           => preg_replace('/show$/', 'index', $routeName),
                                 'routeParameters' => function () use ($parameters) {
@@ -47,9 +47,9 @@ trait HasUIPayment
         };
 
         return match ($routeName) {
-            'grp.shops.show.orders.show.payments.show' => array_merge(
+            'grp.org.shops.show.orders.show.payments.show' => array_merge(
                 (new ShowOrder())->getBreadcrumbs(
-                    'grp.shops.show.orders.show',
+                    'grp.org.shops.show.orders.show',
                     [
                         'shop'  => $routeParameters['shop'],
                         'order' => $routeParameters['order']

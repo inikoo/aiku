@@ -44,7 +44,7 @@ class GetShopNavigation
                             "tooltip" => __("Departments"),
                             "icon"    => ["fal", "fa-folder-tree"],
                             "route"   => [
-                                "name"       => "grp.shops.show.departments.index",
+                                "name"       => "grp.org.shops.show.departments.index",
                                 "parameters" => [$shop->organisation->slug, $shop->slug],
                             ],
                         ],
