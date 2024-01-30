@@ -7,15 +7,13 @@
 
 
 use App\Actions\CRM\Customer\UI\EditCustomer;
-use App\Actions\CRM\Customer\UI\ShowCustomer;
-use App\Actions\CRM\Prospect\UI\CreateProspect;
-use App\Actions\CRM\Prospect\UI\IndexProspects;
 use App\Actions\CRM\WebUser\EditWebUser;
 use App\Actions\CRM\WebUser\IndexWebUser;
 use App\Actions\CRM\WebUser\ShowWebUser;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\FulfilmentCustomer\UI\CreateFulfilmentCustomer;
 use App\Actions\Fulfilment\FulfilmentCustomer\UI\IndexFulfilmentCustomers;
+use App\Actions\Fulfilment\PalletDelivery\UI\CreatePalletDelivery;
 use App\Actions\OMS\Order\UI\ShowOrder;
 
 //Route::get('', ShowFulfilmentCRMDashboard::class)->name('dashboard');
@@ -28,6 +26,10 @@ Route::get('{customer}/orders/{order}', [ShowOrder::class, 'inCustomerInShop'])-
 Route::get('{customer}/web-users', [IndexWebUser::class, 'inCustomerInShop'])->name('show.web-users.index');
 Route::get('{customer}/web-users/{webUser}', [ShowWebUser::class, 'inCustomerInShop'])->name('show.web-users.show');
 Route::get('{customer}/web-users/{webUser}/edit', [EditWebUser::class, 'inCustomerInShop'])->name('show.web-users.edit');
+
+Route::prefix('deliveries')->as('deliveries.')->group(function () {
+    Route::get('create', CreatePalletDelivery::class)->name('create');
+});
 
 /*
 
