@@ -5,7 +5,6 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-use App\Actions\Fulfilment\Pallet\UI\IndexPallets;
 use App\Actions\Inventory\Location\ExportLocations;
 use App\Actions\Inventory\Location\UI\EditLocation;
 use App\Actions\Inventory\Location\UI\IndexLocations;
@@ -29,28 +28,16 @@ Route::prefix('{warehouse}')
     ->group(function () {
 
         Route::get('edit', EditWarehouse::class)->name('edit');
-        Route::get('/', ShowWarehouse::class)->name('show');
-        Route::name('show.inventory')
+        Route::name('show')
             ->group(function () {
 
-                Route::get('/areas', [IndexWarehouseAreas::class, 'inOrganisation'])->name('.warehouse-areas.index');
-                Route::get('/areas/create', CreateWarehouseArea::class)->name('.warehouse-areas.create');
-                Route::get('/areas/{warehouseArea}', [ShowWarehouseArea::class, 'inOrganisation'])->name('.warehouse-areas.show');
-                Route::get('/areas/{warehouseArea}/edit', [EditWarehouseArea::class, 'inOrganisation'])->name('.warehouse-areas.edit');
-                Route::get('/areas/{warehouseArea}/delete', [RemoveWarehouseArea::class, 'inOrganisation'])->name('.warehouse-areas.remove');
-
-                Route::get('/locations/export', ExportLocations::class)->name('.locations.export');
-
-                Route::get('/locations', [IndexLocations::class, 'inOrganisation'])->name('.locations.index');
-                Route::get('/locations/{location}', [ShowLocation::class, 'inOrganisation'])->name('.locations.show');
-                Route::get('/locations/{location}/edit', [EditLocation::class, 'inOrganisation'])->name('.locations.edit');
-                Route::get('/locations/{location}/delete', RemoveLocation::class)->name('.locations.remove');
+                Route::name('.infrastructure.')
+                    ->group(__DIR__."/infrastructure.php");
 
                 Route::prefix('fulfilment')->name('.fulfilment.')
                     ->group(__DIR__."/fulfilment.php");
 
 
-                Route::get('/pallets', [IndexPallets::class, 'inWarehouse'])->name('.pallets.index');
 
 
 

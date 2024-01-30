@@ -16,7 +16,7 @@ enum PalletDeliveryTabsEnum: string
     use HasTabs;
 
     case SHOWCASE = 'showcase';
-    case HISTORY = 'history';
+    case HISTORY  = 'history';
 
     public function blueprint(): array
     {

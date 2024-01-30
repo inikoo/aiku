@@ -48,7 +48,7 @@ class ShowInventoryDashboard extends OrgAction
                 'name' => __('warehouse'),
                 'icon' => ['fal', 'fa-warehouse'],
                 'href' => [
-                    'name'       => 'grp.org.warehouses.show',
+                    'name'       => 'grp.org.warehouses.show.infrastructure.dashboard',
                     'parameters' => [
                         'organisation' => $this->organisation->slug,
                         'warehouse'    => $warehouse->slug
@@ -61,7 +61,7 @@ class ShowInventoryDashboard extends OrgAction
                 'shortName' => __('areas'),
                 'icon'      => ['fal', 'fa-map-signs'],
                 'href'      => [
-                    'name'       => 'grp.org.warehouses.show.inventory.warehouse-areas.index',
+                    'name'       => 'grp.org.warehouses.show.infrastructure.warehouse-areas.index',
                     'parameters' => [
                         'organisation' => $this->organisation->slug,
                         'warehouse'    => $warehouse->slug
@@ -75,7 +75,7 @@ class ShowInventoryDashboard extends OrgAction
                 'name'  => __('locations'),
                 'icon'  => ['fal', 'fa-inventory'],
                 'href'  => [
-                    'name'       => 'grp.org.warehouses.show.inventory.locations.index',
+                    'name'       => 'grp.org.warehouses.show.infrastructure.locations.index',
                     'parameters' => [
                         'organisation' => $this->organisation->slug,
                         'warehouse'    => $warehouse->slug

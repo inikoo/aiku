@@ -22,11 +22,11 @@ class GetWarehouseNavigation
 
         if ($user->hasPermissionTo("inventory.$warehouse->id.view")) {
             $navigation['warehouse'] = [
-                'root'    => 'grp.org.warehouses.show.inventory',
+                'root'    => 'grp.org.warehouses.show.infrastructure.dashboard',
                 'label'   => __('warehouse'),
                 'icon'    => ['fal', 'fa-inventory'],
                 'route'   => [
-                    'name'       => 'grp.org.warehouses.show.inventory',
+                    'name'       => 'grp.org.warehouses.show.infrastructure.dashboard',
                     'parameters' => [$warehouse->organisation->slug, $warehouse->slug]
                 ],
                 'topMenu' => [
@@ -35,7 +35,7 @@ class GetWarehouseNavigation
                             'tooltip' => __('warehouses'),
                             'icon'    => ['fal', 'fa-warehouse-alt'],
                             'route'   => [
-                                'name'       => 'grp.org.warehouses.show.inventory',
+                                'name'       => 'grp.org.warehouses.show.infrastructure.dashboard',
                                 'parameters' => [$warehouse->organisation->slug, $warehouse->slug]
                             ],
                             'label'   => null
@@ -47,7 +47,7 @@ class GetWarehouseNavigation
                             'tooltip' => __('Warehouse Areas'),
                             'icon'    => ['fal', 'fa-map-signs'],
                             'route'   => [
-                                'name'       => 'grp.org.warehouses.show.inventory.warehouse-areas.index',
+                                'name'       => 'grp.org.warehouses.show.infrastructure.warehouse-areas.index',
                                 'parameters' => [$warehouse->organisation->slug, $warehouse->slug]
                             ],
                         ],
@@ -56,7 +56,7 @@ class GetWarehouseNavigation
                             'tooltip' => __('Locations'),
                             'icon'    => ['fal', 'fa-inventory'],
                             'route'   => [
-                                'name'       => 'grp.org.warehouses.show.inventory.locations.index',
+                                'name'       => 'grp.org.warehouses.show.infrastructure.locations.index',
                                 'parameters' => [$warehouse->organisation->slug, $warehouse->slug]
                             ],
                         ],

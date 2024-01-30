@@ -81,7 +81,7 @@ class ShowWarehouseArea extends OrgAction
                             'type'  => 'button',
                             'style' => 'delete',
                             'route' => [
-                                'name'       => 'grp.org.warehouses.show.inventory.warehouse-areas.remove',
+                                'name'       => 'grp.org.warehouses.show.infrastructure.warehouse-areas.remove',
                                 'parameters' => array_values($request->route()->originalParameters())
                             ]
 
@@ -93,8 +93,8 @@ class ShowWarehouseArea extends OrgAction
                             'number' => $warehouseArea->stats->number_locations,
                             'href'   =>
                                 match ($request->route()->getName()) {
-                                    'grp.org.warehouses.show.inventory.warehouse-areas.show' => [
-                                        'grp.org.warehouses.show.inventory.warehouse-areas.show.locations.index',
+                                    'grp.org.warehouses.show.infrastructure.warehouse-areas.show' => [
+                                        'grp.org.warehouses.show.infrastructure.warehouse-areas.show.locations.index',
                                         [$warehouseArea->organisation->slug, $warehouseArea->warehouse->slug, $warehouseArea->slug]
                                     ],
                                     default => [
@@ -227,21 +227,21 @@ class ShowWarehouseArea extends OrgAction
                     $suffix
                 )
             ),
-            'grp.org.warehouses.show.inventory.warehouse-areas.show' =>
+            'grp.org.warehouses.show.infrastructure.warehouse-areas.show' =>
             array_merge(
                 (new ShowWarehouse())->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     $routeParameters['warehouseArea'],
                     [
                         'index' => [
-                            'name'       => 'grp.org.warehouses.show.inventory.warehouse-areas.index',
+                            'name'       => 'grp.org.warehouses.show.infrastructure.warehouse-areas.index',
                             'parameters' => [
                                 $routeParameters['organisation']->slug,
                                 $routeParameters['warehouse']->slug
                             ]
                         ],
                         'model' => [
-                            'name'       => 'grp.org.warehouses.show.inventory.warehouse-areas.show',
+                            'name'       => 'grp.org.warehouses.show.infrastructure.warehouse-areas.show',
                             'parameters' => [
                                 $routeParameters['organisation']->slug,
                                 $routeParameters['warehouse']->slug,
@@ -259,7 +259,7 @@ class ShowWarehouseArea extends OrgAction
     public function getPrevious(WarehouseArea $warehouseArea, ActionRequest $request): ?array
     {
         $previous = WarehouseArea::where('code', '<', $warehouseArea->code)->when(true, function ($query) use ($warehouseArea, $request) {
-            if ($request->route()->getName() == 'grp.org.warehouses.show.inventory.warehouse-areas.show') {
+            if ($request->route()->getName() == 'grp.org.warehouses.show.infrastructure.warehouse-areas.show') {
                 $query->where('warehouse_id', $warehouseArea->warehouse_id);
             }
         })->orderBy('code', 'desc')->first();
@@ -270,7 +270,7 @@ class ShowWarehouseArea extends OrgAction
     public function getNext(WarehouseArea $warehouseArea, ActionRequest $request): ?array
     {
         $next = WarehouseArea::where('code', '>', $warehouseArea->code)->when(true, function ($query) use ($warehouseArea, $request) {
-            if ($request->route()->getName() == 'grp.org.warehouses.show.inventory.warehouse-areas.show') {
+            if ($request->route()->getName() == 'grp.org.warehouses.show.infrastructure.warehouse-areas.show') {
                 $query->where('warehouse_id', $warehouseArea->warehouse->id);
             }
         })->orderBy('code')->first();
@@ -296,7 +296,7 @@ class ShowWarehouseArea extends OrgAction
 
                 ]
             ],
-            'grp.org.warehouses.show.inventory.warehouse-areas.show' => [
+            'grp.org.warehouses.show.infrastructure.warehouse-areas.show' => [
                 'label' => $warehouseArea->name,
                 'route' => [
                     'name'       => $routeName,

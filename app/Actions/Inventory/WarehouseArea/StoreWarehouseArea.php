@@ -82,7 +82,7 @@ class StoreWarehouseArea extends OrgAction
 
     public function htmlResponse(WarehouseArea $warehouseArea): RedirectResponse
     {
-        return Redirect::route('grp.org.warehouses.show.inventory.warehouse-areas.index', $warehouseArea->warehouse->slug);
+        return Redirect::route('grp.org.warehouses.show.infrastructure.warehouse-areas.index', $warehouseArea->warehouse->slug);
     }
 
 }

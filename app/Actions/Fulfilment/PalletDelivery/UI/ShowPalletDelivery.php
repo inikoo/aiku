@@ -118,8 +118,8 @@ class ShowPalletDelivery extends OrgAction
                 [
                     'name'       => 'grp.org.fulfilments.show.pallets.delivery.show',
                     'parameters' => [
-                        'organisation' => $routeParameters['organisation']->slug,
-                        'fulfilment'   => $routeParameters['fulfilment']->slug,
+                        'organisation'       => $routeParameters['organisation']->slug,
+                        'fulfilment'         => $routeParameters['fulfilment']->slug,
                         'palletDelivery'     => $routeParameters['palletDelivery']->slug
                     ]
                 ]
