@@ -44,7 +44,7 @@ class StorePalletDelivery extends OrgAction
         }
 
         /** @var PalletDelivery $palletDelivery */
-        $palletDelivery = $fulfilmentCustomer->customer->palletDeliveries()->create($modelData);
+        $palletDelivery = $fulfilmentCustomer->palletDeliveries()->create($modelData);
 
 
         return $palletDelivery;
