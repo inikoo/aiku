@@ -59,7 +59,6 @@ class StorePalletDelivery extends OrgAction
 
     public function prepareForValidation(ActionRequest $request): void
     {
-
         if($this->fulfilment->warehouses()->count()==1) {
             $this->fill(['warehouse_id' =>$this->fulfilment->warehouses()->first()->id]);
         }
