@@ -98,7 +98,7 @@ class StoreFulfilment extends OrgAction
     public function htmlResponse(Fulfilment $fulfilment): RedirectResponse
     {
         return Redirect::route(
-            'grp.org.fulfilments.show',
+            'grp.org.fulfilments.show.catalogue.dashboard',
             [
                 $this->organisation->slug,
                 $fulfilment->slug

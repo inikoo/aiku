@@ -8,6 +8,7 @@
 namespace App\Actions\Web\Website\UI;
 
 use App\Actions\CRM\WebUser\IndexWebUser;
+use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\Market\Shop\UI\ShowShop;
 use App\Actions\OrgAction;
@@ -28,16 +29,16 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowWebsite extends OrgAction
 {
-    private Fulfilment|Shop $parent;
+    private Fulfilment|Shop|Organisation $parent;
 
     public function authorize(ActionRequest $request): bool
     {
-        if($this->parent instanceof Shop) {
+        if ($this->parent instanceof Shop) {
             $this->canEdit   = $request->user()->hasPermissionTo("web.{$this->shop->id}.edit");
             $this->canDelete = $request->user()->hasPermissionTo("web.{$this->shop->id}.edit");
 
             return $request->user()->hasPermissionTo("web.{$this->shop->id}.view");
-        } elseif($this->parent instanceof Fulfilment) {
+        } elseif ($this->parent instanceof Fulfilment) {
             $this->canEdit   = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
             $this->canDelete = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
 
@@ -45,13 +46,11 @@ class ShowWebsite extends OrgAction
         }
 
         return false;
-
-
     }
 
     public function asController(Organisation $organisation, Shop $shop, Website $website, ActionRequest $request): Website
     {
-        $this->parent=$shop;
+        $this->parent = $shop;
         $this->initialisationFromShop($shop, $request)->withTab(WebsiteTabsEnum::values());
 
         return $website;
@@ -60,7 +59,7 @@ class ShowWebsite extends OrgAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Website $website, ActionRequest $request): Website
     {
-        $this->parent=$fulfilment;
+        $this->parent = $fulfilment;
         $this->initialisationFromFulfilment($fulfilment, $request)->withTab(WebsiteTabsEnum::values());
 
         return $website;
@@ -69,8 +68,6 @@ class ShowWebsite extends OrgAction
 
     public function htmlResponse(Website $website, ActionRequest $request): Response
     {
-
-
         return Inertia::render(
             'Org/Web/Website',
             [
@@ -79,10 +76,10 @@ class ShowWebsite extends OrgAction
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
-                'navigation'                     => [
+                'navigation'                     => $this->parent instanceof Organisation ? [
                     'previous' => $this->getPrevious($website, $request),
                     'next'     => $this->getNext($website, $request),
-                ],
+                ] : null,
                 'pageHead'                       => [
                     'title'   => $website->name,
                     'icon'    => [
@@ -173,9 +170,6 @@ class ShowWebsite extends OrgAction
     public function getBreadcrumbs(string $routeName, array $routeParameters, string $suffix = ''): array
     {
         $headCrumb = function (string $type, Website $website, array $routeParameters, string $suffix) {
-
-
-
             return [
                 [
 
@@ -194,21 +188,15 @@ class ShowWebsite extends OrgAction
                         'route' => $routeParameters['model'],
                         'label' => $website->name
                     ],
-                    'suffix' => $suffix
+                    'suffix'         => $suffix
 
                 ],
             ];
         };
 
-
-
-
-
-
         return match ($routeName) {
             'grp.org.shops.show.web.websites.show',
             'grp.org.shops.show.web.websites.edit' =>
-
             array_merge(
                 ShowShop::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(
@@ -217,7 +205,7 @@ class ShowWebsite extends OrgAction
                     [
                         'index' => [
                             'name'       => 'grp.org.shops.show.web.websites.index',
-                            'parameters' => Arr::only($routeParameters, ['organisation','shop'])
+                            'parameters' => Arr::only($routeParameters, ['organisation', 'shop'])
                         ],
                         'model' => [
                             'name'       => 'grp.org.shops.show.web.websites.show',
@@ -227,7 +215,26 @@ class ShowWebsite extends OrgAction
                     $suffix
                 ),
             ),
-
+            'grp.org.fulfilments.show.web.websites.show',
+            'grp.org.fulfilments.show.web.websites.edit' =>
+            array_merge(
+                ShowFulfilment::make()->getBreadcrumbs($routeParameters),
+                $headCrumb(
+                    'modelWithIndex',
+                    Website::where('slug', $routeParameters['website'])->first(),
+                    [
+                        'index' => [
+                            'name'       => 'grp.org.fulfilments.show.web.websites.index',
+                            'parameters' => Arr::only($routeParameters, ['organisation', 'shop'])
+                        ],
+                        'model' => [
+                            'name'       => 'grp.org.fulfilments.show.web.websites.show',
+                            'parameters' => $routeParameters
+                        ]
+                    ],
+                    $suffix
+                ),
+            ),
             default => []
         };
     }
@@ -252,18 +259,18 @@ class ShowWebsite extends OrgAction
             return null;
         }
 
+
         return match ($routeName) {
-            'grp.org.shops.show.web.websites.show' => [
+            'grp.org.websites.show' => [
                 'label' => $website->name,
                 'route' => [
                     'name'       => $routeName,
                     'parameters' => [
                         'organisation' => $website->shop->organisation->slug,
-                        'shop'         => $website->shop->slug,
                         'website'      => $website->slug
                     ]
                 ]
-            ]
+            ],
         };
     }
 }

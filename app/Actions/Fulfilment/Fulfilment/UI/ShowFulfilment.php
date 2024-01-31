@@ -143,7 +143,10 @@ class ShowFulfilment extends OrgAction
                     )),
 
             ]
-        )->table(IndexPallets::make()->tableStructure(prefix: FulfilmentTabsEnum::PALLETS->value, modelOperations: [
+        )->table(IndexPallets::make()->tableStructure(
+            parent: $fulfilment,
+            prefix: FulfilmentTabsEnum::PALLETS->value,
+            modelOperations: [
             'createLink' => [[
                 'route' => [
                     'name'       => 'grp.org.fulfilments.show.pallets.create',
@@ -151,7 +154,8 @@ class ShowFulfilment extends OrgAction
                 ],
                 'label' => __('pallet')
             ]],
-        ]));
+        ]
+        ));
     }
 
     public function prepareForValidation(ActionRequest $request): void
@@ -189,7 +193,7 @@ class ShowFulfilment extends OrgAction
                             ],
                             'model' => [
                                 'route' => [
-                                    'name'       => 'grp.org.fulfilments.show',
+                                    'name'       => 'grp.org.fulfilments.show.catalogue.dashboard',
                                     'parameters' => $routeParameters
                                 ],
                                 'label' => 'fix me', // $fulfilment->shop->name,
@@ -224,7 +228,7 @@ class ShowFulfilment extends OrgAction
         }
 
         return match ($routeName) {
-            'grp.org.fulfilments.show' => [
+            'grp.org.fulfilments.show.catalogue.dashboard' => [
                 'label' => $fulfilment->shop->name,
                 'route' => [
                     'name'       => $routeName,
