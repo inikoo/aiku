@@ -93,6 +93,7 @@ import {
 } from "@headlessui/vue";
 import AgentShowcase from "@/Pages/Procurement/AgentShowcase.vue";
 import TableStoredItems from "@/Components/Tables/TableStoredItems.vue";
+import { router } from '@inertiajs/vue3'
 
 
 const isOpen = ref(false);
@@ -110,24 +111,24 @@ const webUserForm = useForm({
 });
 
 
-const sendWarehouse = async (data : object) => {
-        try {
-            const response = await axios.post(
-                route(data.route?.name, data.route?.parameters),
-                { warehouse_id: get(warehouseValue.value,'id') }
-            );
-            
-        } catch (error) {
-            console.log('error',error)
-            errorMessage.value = error.response.data.message
-        }
+const sendWarehouse = async (data: object) => {
+    try {
+        const response = await axios.post(
+            route(data.route?.name, data.route?.parameters),
+            { warehouse_id: get(warehouseValue.value, 'id') }
+        );
+        router.visit(route(response.data.route.name,response.data.route.parameters))
+    } catch (error) {
+        console.log('error', error)
+        errorMessage.value = error.response.data.message
     }
+}
 
 
-    const warehouseChange = (value) => {
-        errorMessage.value = null
-        warehouseValue.value = value
-    }
+const warehouseChange = (value) => {
+    errorMessage.value = null
+    warehouseValue.value = value
+}
 
 
 </script>
@@ -136,7 +137,7 @@ const sendWarehouse = async (data : object) => {
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead">
         <template #button-create-delivery="{ action: action }">
-            <div class="relative">
+            <div v-if="action.action.options.warehouses.data.length > 1" class="relative">
                 <Popover :width="'w-full'" ref="_popover">
                     <template #button>
                         <Button :style="action.action.style" :label="action.action.label" :icon="action.action.icon"
@@ -147,23 +148,33 @@ const sendWarehouse = async (data : object) => {
                     <template #content="{ close: closed }">
                         <div class="w-[250px]">
                             <Multiselect v-model="warehouseValue" :searchable="true" :object="true" valueProp="id"
-                                :options="action.action.options.warehouses.data" track-by="name" label="name" @change="(value)=>warehouseChange(value)"
-                                :mode="'single'" ref="multiselect" placeholder="select a warehouse" class="w-full"/>
-                                <p v-if="errorMessage" class="mt-2 text-sm text-red-600" id="email-error">
-			                        {{ errorMessage }}
-		                        </p>
+                                :options="action.action.options.warehouses.data" track-by="name" label="name"
+                                @change="(value) => warehouseChange(value)" :mode="'single'" ref="multiselect"
+                                placeholder="select a warehouse" class="w-full" />
+                            <p v-if="errorMessage" class="mt-2 text-sm text-red-600" id="email-error">
+                                {{ errorMessage }}
+                            </p>
                             <div class="flex justify-end mt-3">
 
-                              <!--   <Link :href="route(action.action.route?.name, action.action.route?.parameters)" method="post"
+                                <!--   <Link :href="route(action.action.route?.name, action.action.route?.parameters)" method="post"
                                 :as="'button'" :data="{x : get(warehouseValue,'id')}" :canClear="false"> -->
 
-                                <Button :style="'save'" :label="'save'" @click="()=>sendWarehouse(action.action)" />
-                           <!--  </Link> -->
+                                <Button :style="'save'" :label="'save'" @click="() => sendWarehouse(action.action)" />
+                                <!--  </Link> -->
                             </div>
-                           
+
                         </div>
                     </template>
                 </Popover>
+            </div>
+            <div v-else>
+                <Link
+                    :href="route(action.action.route?.name, action.action.route?.parameters) "
+                    :method="'post'" :as="'button'"> 
+                <Button :style="action.action.style" :label="action.action.label" :icon="action.action.icon"
+                    :iconRight="action.action.iconRight" :key="`ActionButton${action.action.label}${action.action.style}`"
+                    :tooltip="action.action.tooltip" />
+             </Link> 
             </div>
 
         </template>
