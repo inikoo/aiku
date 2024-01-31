@@ -25,6 +25,9 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('fulfilment_customer_id');
             $table->foreign('fulfilment_customer_id')->references('id')->on('fulfilment_customers');
 
+            $table->unsignedSmallInteger('fulfilment_id');
+            $table->foreign('fulfilment_id')->references('id')->on('fulfilments');
+
             $table->unsignedSmallInteger('warehouse_id');
             $table->foreign('warehouse_id')->references('id')->on('warehouses');
 

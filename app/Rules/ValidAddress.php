@@ -9,6 +9,7 @@ namespace App\Rules;
 
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
 class ValidAddress implements ValidationRule
@@ -16,7 +17,7 @@ class ValidAddress implements ValidationRule
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
         $query = DB::table('countries');
-        if ($query->where("id", $value['country_id'])->count() <= 0) {
+        if ($query->where("id", Arr::get($value, 'country_id'))->count() <= 0) {
             $fail('The '.$attribute.' not a valid Address.');
         }
     }
