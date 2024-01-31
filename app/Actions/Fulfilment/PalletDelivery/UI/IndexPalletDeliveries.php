@@ -33,7 +33,7 @@ class IndexPalletDeliveries extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        if($this->parent instanceof Fulfilment) {
+        if($this->parent instanceof Fulfilment or $this->parent instanceof FulfilmentCustomer) {
             $this->canEdit = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
             return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
 
@@ -52,6 +52,14 @@ class IndexPalletDeliveries extends OrgAction
         $this->initialisationFromFulfilment($fulfilment, $request);
 
         return $this->handle($fulfilment);
+    }
+
+    public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = $fulfilmentCustomer;
+        $this->initialisationFromFulfilment($fulfilment, $request);
+
+        return $this->handle($fulfilmentCustomer);
     }
 
     /** @noinspection PhpUnusedParameterInspection */
@@ -155,7 +163,7 @@ class IndexPalletDeliveries extends OrgAction
         }
 
         return Inertia::render(
-            'Org/Fulfilment/Customers',
+            'Org/Fulfilment/PalletDeliveries',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->originalParameters()
@@ -177,7 +185,7 @@ class IndexPalletDeliveries extends OrgAction
 
     public function getBreadcrumbs(array $routeParameters): array
     {
-
+        return [];
 
         $headCrumb = function (array $routeParameters = []) {
             return [
