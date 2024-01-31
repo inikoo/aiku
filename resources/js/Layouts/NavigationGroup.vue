@@ -5,9 +5,9 @@ import NavigationSimple from '@/Layouts/NavigationSimple.vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { Navigation } from '@/types/Navigation'
 import { usePage } from '@inertiajs/vue3'
-import { isRouteSameAsCurrentUrl } from '@/Composables/useUrl'
+import { isNavigationActive } from '@/Composables/useUrl'
 import { generateCurrentString } from '@/Composables/useConvertString'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 
 
 const props = defineProps<{
@@ -19,8 +19,12 @@ const props = defineProps<{
 
 }>()
 
+const isCurrentRouteActive = computed(() => {
+    return Object.values(props.orgNav[Object.keys(props.orgNav)[0]]).some(nav => (isNavigationActive(nav.root)))
+})
+
 const layout = useLayoutStore()
-const isPanelOpen = ref(layout.organisationsState?.[layout.currentParams.organisation]?.currentType == props.itemKey)
+const isPanelOpen = ref(isCurrentRouteActive.value || props.itemKey == layout.organisationsState?.[layout.currentParams.organisation]?.currentType)
 
 </script>
 
@@ -31,14 +35,19 @@ const isPanelOpen = ref(layout.organisationsState?.[layout.currentParams.organis
         >
             <!-- Label: Icon shops/warehouses and slug -->
             <DisclosureButton @click="isPanelOpen = !isPanelOpen" class="w-full flex justify-between items-end pt-2 px-2.5 pb-2 text-indigo-100/70">
-                <div class="flex gap-x-1.5">
+                <div class="flex gap-x-1.5 items-center">
                     <FontAwesomeIcon v-if="icon" :icon='icon' class='text-xxs' fixed-width aria-hidden='true' />
-                    <span v-if="layout.leftSidebar.show" class="text-[9px] leading-none uppercase">
-                        {{ layout.organisationsState?.[layout.currentParams.organisation]?.[generateCurrentString(itemKey)] || Object.keys(orgNav)[0] }}
-                    </span>
+                    <template v-if="layout.leftSidebar.show">
+                        <span class="text-[9px] leading-none uppercase">
+                            {{ layout.organisationsState?.[layout.currentParams.organisation]?.[generateCurrentString(itemKey)] || Object.keys(orgNav)[0] }}
+                        </span>
+                        <span class="text-[7px] capitalize leading-none">({{ itemKey }})</span>
+                    </template>
                 </div>
-                <FontAwesomeIcon icon='fal fa-chevron-down' class='justify-self-end text-xs transition-all duration-200 ease-in-out'
-                    :class="[isPanelOpen ? 'rotate-180' : '']" aria-hidden='true' />
+                <FontAwesomeIcon icon='fal fa-chevron-down' class='transition-all duration-200 ease-in-out'
+                    :class="[isPanelOpen ? 'rotate-180' : '',
+                        layout.leftSidebar.show ? 'justify-self-end text-xs' : 'h-[4px] aspect-square p-[2px] text-white bg-indigo-700 rounded border border-gray-100/50 absolute bottom-0 translate-y-1/2 left-1/2 -translate-x-1/2 text-[4px]'
+                    ]" aria-hidden='true' />
             </DisclosureButton>
 
             <!-- {{ Object.keys(orgNav[layout.organisationsState?.[layout.currentParams.organisation]?.[generateCurrentString(itemKey)]]) }} -->
@@ -64,14 +73,14 @@ const isPanelOpen = ref(layout.organisationsState?.[layout.currentParams.organis
                             :navKey="navIndex"
                         />
                 
-                        <div v-if="(nav.route?.name ? isRouteSameAsCurrentUrl(route(nav.route.name, nav.route.parameters)) : false)"
+                        <!-- <div v-if="(nav.route?.name ? isRouteSameAsCurrentUrl(route(nav.route.name, nav.route.parameters)) : false)"
                             class="absolute inset-0 bg-black/20 rounded -z-10"
-                        />
+                        /> -->
                     </template>
                 </DisclosurePanel>
             </div>
         
-            <div v-if="Object.values(orgNav[Object.keys(orgNav)[0]]).some(nav => (nav.route?.name ? isRouteSameAsCurrentUrl(route(nav.route.name, nav.route.parameters)) : false))"
+            <div v-if="isCurrentRouteActive"
                 class="absolute inset-0 bg-black/20 rounded -z-10"
             />
         </div>

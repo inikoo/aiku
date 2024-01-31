@@ -38,7 +38,7 @@ export const initialiseApp = () => {
                     currentShop: route().params.shop ?? layout.organisationsState?.[layout.currentParams.organisation]?.currentShop,
                     currentWarehouse: route().params.warehouse ?? layout.organisationsState?.[layout.currentParams.organisation]?.currentWarehouse,
                     currentFulfilment: route().params.fulfilment ?? layout.organisationsState?.[layout.currentParams.organisation]?.currentFulfilment,
-                    currentType: route().params.shop ? 'shop' : route().params.fulfilment ? 'fulfilment' : route().params.warehouse ? 'warehouse' : layout.organisationsState?.[layout.currentParams.organisation]?.currentType
+                    currentType: route().params.shop ? 'shop' : route().params.fulfilment ? 'fulfilment' : layout.organisationsState?.[layout.currentParams.organisation]?.currentType
                 }
             }
 
