@@ -10,6 +10,7 @@ use App\Actions\Web\Website\UI\CreateWebsite;
 use App\Actions\Web\Website\UI\EditWebsite;
 use App\Actions\Web\Website\UI\IndexWebsites;
 use App\Actions\Web\Website\UI\ShowWebsite;
+use App\Actions\Web\Website\UI\ShowWebsiteWorkshop;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [IndexWebsites::class,'inShop'])->name('index');
@@ -20,6 +21,7 @@ Route::prefix('{website}')
     ->group(function () {
         Route::get('', ShowWebsite::class)->name('show');
         Route::get('edit', EditWebsite::class)->name('edit');
+        Route::get('workshop', ShowWebsiteWorkshop::class)->name('workshop');
 
         Route::name('show.')
             ->group(function () {

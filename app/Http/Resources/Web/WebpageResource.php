@@ -7,25 +7,36 @@
 
 namespace App\Http\Resources\Web;
 
+use App\Enums\Web\Webpage\WebpageTypeEnum;
+use App\Http\Resources\HasSelfCall;
+use App\Models\Web\Webpage;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-/**
- * @property string $slug
- * @property string $code
- * @property string $type
- * @property mixed $created_at
- * @property mixed $updated_at
- */
 class WebpageResource extends JsonResource
 {
+    use HasSelfCall;
+
     public function toArray($request): array
     {
+        /** @var Webpage $webpage */
+        $webpage = $this;
+
         return [
-            'slug'            => $this->slug,
-            'code'            => $this->code,
-            'type'            => $this->type,
-            'created_at'      => $this->created_at,
-            'updated_at'      => $this->updated_at,
+            'slug'       => $webpage->slug,
+            'level'      => $webpage->level,
+            'code'       => $webpage->code,
+            'url'        => $webpage->url,
+            'type'       => $webpage->type,
+            'typeIcon'   => match ($webpage->type) {
+                WebpageTypeEnum::STOREFRONT => ['fal', 'fa-home'],
+                WebpageTypeEnum::ENGAGEMENT => ['fal', 'fa-ufo-beam'],
+                WebpageTypeEnum::AUTH       => ['fal', 'fa-sign-in'],
+                WebpageTypeEnum::BLOG       => ['fal', 'fa-newspaper'],
+                default                     => ['fal', 'fa-browser']
+            },
+            'purpose'    => $webpage->purpose,
+            'created_at' => $webpage->created_at,
+            'updated_at' => $webpage->updated_at,
         ];
     }
 }
