@@ -28,58 +28,11 @@ onMounted(() => {
     }
 })
 
-// const generateRoute = (item) => {
-//     const scope = item.scope
-//     if (scope && typeof item.route === "object" && item.route !== null) {
-//         if (scope == "shops") {
-//             if (layout.currentShopData.slug) {
-//                 return route(item.route.selected, layout.currentShopData.slug)
-//             }
-//             return route(item.route.all)
-//         }
-//         if (scope == "websites") {
-//             if (layout.currentWebsiteData.slug) {
-//                 return route(item.route.selected, layout.currentWebsiteData.slug)
-//             }
-//             return route(item.route.all)
-//         }
-//         if (scope == "warehouses") {
-//             if (layout.currentWarehouseData.slug) {
-//                 return route(item.route.selected, layout.currentWarehouseData.slug)
-//             }
-//             return route(item.route.all)
-//         }
-//     }
-//     return route(item.route, item.routeParameters)
-// }
-
-// const generateLabel = (item) => {
-//     const scope = item.scope
-//     if (typeof item.label === "object" && item.label !== null) {
-//         if (
-//             (scope == "shops" && layout.currentShopData.slug) ||
-//             (scope == "websites" && layout.currentWebsiteData.slug) ||
-//             (scope == "warehouses" && layout.currentWarehouseData.slug)
-//         ) {
-//             return item.label.selected
-//         }
-//         return item.label.all
-//     }
-//     return item.label
-
-// }
-
-
-
 const iconList: { [key: string]: string } = {
     shop: 'fal fa-store-alt',
     warehouse: 'fal fa-warehouse-alt',
     fulfilment: 'fal fa-pallet-alt',
 }
-
-// console.log(route().v())
-
-
 
 </script>
 
@@ -118,7 +71,7 @@ const iconList: { [key: string]: string } = {
 
                 <!-- shops_navigation or warehouses_navigation or fulfilments_navigation -->
                 <template v-else-if="itemKey == 'shops_navigation' || itemKey == 'warehouses_navigation' || itemKey == 'fulfilments_navigation'">
-                    <template v-if="itemKey == 'shops_navigation' && layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_shops.length">
+                    <template v-if="itemKey == 'shops_navigation' && !layout.isFulfilmentPage && layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_shops.length">
                         <!-- If: Shops length is 1 (show the subNav directly) -->
                         <!-- <NavigationSimple v-if="layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_shops.length === 1"
                             :nav="Object.values(Object.values(orgNav)[0])[0]"
@@ -176,7 +129,7 @@ const iconList: { [key: string]: string } = {
                     </template>
                     
                     <template v-if="
-                        itemKey == 'fulfilments_navigation'
+                        itemKey == 'fulfilments_navigation' && !layout.isShopPage
                         && layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_fulfilments.length
                         
                     ">

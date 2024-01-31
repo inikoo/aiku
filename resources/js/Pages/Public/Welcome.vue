@@ -55,7 +55,7 @@ const textRandom = `<div id="blackboard_1" style="position: relative; height: 46
 
         <!-- Section: Hero (banner) -->
         <iframe title="AW Fulfilment" style="width:100%;height: 320px; border: 0px;overflow:hidden;"
-            src="https://delivery.wowsbar.com/banners/01HD5YYJ8DTQRJT4MPR7ERXV2V" allowfullscreen></iframe>
+            src="http://delivery.wowsbar.test/banners/01HNEDQVYS8M4KXDAF5JJKYZG6" allowfullscreen></iframe>
 
         <!-- Section: Content -->
         <div>

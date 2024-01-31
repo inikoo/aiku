@@ -16,6 +16,7 @@ const props = defineProps<{
 
 const layout = useLayoutStore()
 
+
 </script>
 
 <template>
@@ -32,7 +33,9 @@ const layout = useLayoutStore()
                     v-slot="{ active }"
                     as="div"
                     @click="() => router.visit(route(showare.route?.name, showare.route?.parameters))" :class="[
-                        showare.slug == layout.organisationsState?.[layout.currentParams.organisation]?.[`current${capitalize(navKey)}`] ? 'border-l-2 border-indigo-500 bg-indigo-500/10 text-indigo-600 rounded-r cursor-pointer' : 'rounded text-slate-600 hover:bg-slate-200/30 cursor-pointer',
+                        showare.slug == layout.organisationsState?.[layout.currentParams.organisation]?.[`current${capitalize(navKey)}`] && (navKey == layout.organisationsState?.[layout.currentParams.organisation]?.currentType)
+                            ? 'border-l-2 border-indigo-500 bg-indigo-500/10 text-indigo-600 rounded-r cursor-pointer'
+                            : 'rounded text-slate-600 hover:bg-slate-200/30 cursor-pointer',
                         'group flex gap-x-2 w-full justify-start items-center px-2 py-2 text-sm',
                     ]">
                         <!-- <div class="h-5 rounded-full overflow-hidden ring-1 ring-slate-200 bg-slate-50">
