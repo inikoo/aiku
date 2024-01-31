@@ -10,7 +10,6 @@ namespace App\Actions\Fulfilment\Pallet\UI;
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
-use App\Enums\UI\FulfilmentTabsEnum;
 use App\Http\Resources\Fulfilment\PalletResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -149,9 +148,9 @@ class IndexPallets extends OrgAction
 
     public function asController(Organisation $organisation, Warehouse $warehouse, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
     {
+        $this->parent=$fulfilment;
         $this->initialisationFromFulfilment($fulfilment, $request);
-
-        return $this->handle($organisation, FulfilmentTabsEnum::PALLETS->value);
+        return $this->handle($organisation);
     }
 
     /** @noinspection PhpUnusedParameterInspection */
@@ -169,7 +168,7 @@ class IndexPallets extends OrgAction
         $this->parent = $location;
         $this->initialisationFromFulfilment($fulfilment, $request);
 
-        return $this->handle($location, FulfilmentTabsEnum::PALLETS->value);
+        return $this->handle($location);
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array

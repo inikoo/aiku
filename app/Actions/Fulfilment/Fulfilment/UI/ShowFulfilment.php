@@ -7,14 +7,12 @@
 
 namespace App\Actions\Fulfilment\Fulfilment\UI;
 
-use App\Actions\Fulfilment\Pallet\UI\IndexPallets;
 use App\Actions\OrgAction;
 use App\Actions\UI\Dashboard\ShowDashboard;
 use App\Actions\UI\WithInertia;
 use App\Enums\Market\Shop\ShopTypeEnum;
 use App\Enums\UI\FulfilmentTabsEnum;
 use App\Http\Resources\Fulfilment\FulfilmentResource;
-use App\Http\Resources\Fulfilment\PalletResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Market\Shop;
 use App\Models\SysAdmin\Organisation;
@@ -135,27 +133,10 @@ class ShowFulfilment extends OrgAction
                     fn () => $this->getDashboard($request)
                     : Inertia::lazy(fn () => $this->getDashboard($request)),
 
-                FulfilmentTabsEnum::PALLETS->value => $this->tab == FulfilmentTabsEnum::PALLETS->value
-                    ?
-                    fn () => PalletResource::collection(IndexPallets::run($fulfilment->organisation, FulfilmentTabsEnum::PALLETS->value))
-                    : Inertia::lazy(fn () => PalletResource::collection(
-                        IndexPallets::run($fulfilment->organisation, FulfilmentTabsEnum::PALLETS->value)
-                    )),
+
 
             ]
-        )->table(IndexPallets::make()->tableStructure(
-            parent: $fulfilment,
-            prefix: FulfilmentTabsEnum::PALLETS->value,
-            modelOperations: [
-            'createLink' => [[
-                'route' => [
-                    'name'       => 'grp.org.fulfilments.show.pallets.create',
-                    'parameters' => array_values($request->route()->originalParameters())
-                ],
-                'label' => __('pallet')
-            ]],
-        ]
-        ));
+        );
     }
 
     public function prepareForValidation(ActionRequest $request): void
