@@ -69,7 +69,6 @@ class WebsiteHydrateWebpages
             }
         ));
 
-
         $website->webStats()->update($stats);
     }
 

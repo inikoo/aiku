@@ -15,15 +15,13 @@ use Illuminate\Support\Collection;
 
 class HydrateWebsite extends HydrateModel
 {
-    public string $commandSignature = 'hydrate:websites {organisations?*} {--i|id=} ';
+    public string $commandSignature = 'websites:hydrate {organisations?*} {--s|slugs=} ';
 
 
     public function handle(Website $website): void
     {
         WebsiteHydrateWebpages::run($website);
-
     }
-
 
     protected function getModel(string $slug): Website
     {

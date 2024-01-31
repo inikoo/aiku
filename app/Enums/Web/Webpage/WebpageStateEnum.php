@@ -36,11 +36,13 @@ enum WebpageStateEnum: string
     public static function count(Website|Webpage|Organisation $parent): array
     {
         $webStats = match (class_basename($parent)) {
-            'Organisation' => $parent->stats
+            'Organisation','Website' => $parent->webStats,
         };
 
+
+
         return [
-            'in-process' => $webStats->number_webpagea_state_in_process,
+            'in-process' => $webStats->number_webpages_state_in_process,
             'ready'      => $webStats->number_webpages_state_ready,
             'live'       => $webStats->number_webpages_state_live,
             'closed'     => $webStats->number_webpages_state_closed,

@@ -7,11 +7,13 @@
 
 namespace App\Actions\Web\Webpage;
 
-use App\Actions\InertiaAction;
+use App\Actions\OrgAction;
 use App\Actions\UI\Dashboard\ShowDashboard;
 use App\Actions\Web\Website\UI\ShowWebsite;
+use App\Enums\Web\Webpage\WebpageStateEnum;
 use App\Http\Resources\Web\WebpageResource;
 use App\InertiaTable\InertiaTable;
+use App\Models\Market\Shop;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Web\Webpage;
 use App\Models\Web\Website;
@@ -25,34 +27,62 @@ use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 use App\Services\QueryBuilder;
 
-class IndexWebpages extends InertiaAction
+class IndexWebpages extends OrgAction
 {
     private Organisation|Website $parent;
 
 
     public function authorize(ActionRequest $request): bool
     {
-        return
-            (
-                $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo('websites.view')
-            );
+        if ($this->parent instanceof Organisation) {
+            $this->canEdit = $request->user()->hasPermissionTo("shops.{$this->organisation->id}.edit");
+
+            return $request->user()->hasPermissionTo("shops.{$this->organisation->id}.view");
+        } elseif ($this->parent instanceof Website) {
+            $this->canEdit = $request->user()->hasPermissionTo("web.{$this->shop->id}.edit");
+
+            return $request->user()->hasPermissionTo("web.{$this->shop->id}.view");
+        }
+
+        return false;
     }
 
-    public function inOrganisation(ActionRequest $request): LengthAwarePaginator
+    public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisation($request);
-        $this->parent = app('currentTenant');
+        $this->parent =$organisation;
+        $this->initialisation($organisation, $request);
+
 
         return $this->handle($this->parent);
     }
 
-    public function inWebsite(Website $website, ActionRequest $request): LengthAwarePaginator
+    public function asController(Organisation $organisation, Shop $shop, Website $website, ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisation($request);
         $this->parent = $website;
+        $this->initialisationFromShop($website->shop, $request);
+
 
         return $this->handle($this->parent);
+    }
+
+
+    protected function getElementGroups(): array
+    {
+        return [
+            'state' => [
+                'label'    => __('State'),
+                'elements' => array_merge_recursive(
+                    WebpageStateEnum::labels(),
+                    WebpageStateEnum::count($this->parent)
+                ),
+
+                'engine' => function ($query, $elements) {
+                    $query->whereIn('state', $elements);
+                }
+
+            ],
+
+        ];
     }
 
 
@@ -60,8 +90,7 @@ class IndexWebpages extends InertiaAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->where('webpages.code', 'LIKE', "%$value%")
-                    ->orWhere('webpages.type', 'LIKE', "%$value%");
+                $query->whereStartWith('webpages.code', $value);
             });
         });
 
@@ -70,7 +99,8 @@ class IndexWebpages extends InertiaAction
         }
 
         $queryBuilder = QueryBuilder::for(Webpage::class);
-        foreach ($this->elementGroups as $key => $elementGroup) {
+
+        foreach ($this->getElementGroups() as $key => $elementGroup) {
             $queryBuilder->whereElementGroup(
                 key: $key,
                 allowedElements: array_keys($elementGroup['elements']),
@@ -79,21 +109,24 @@ class IndexWebpages extends InertiaAction
             );
         }
 
-        if (class_basename($parent) == 'Website') {
+
+        if ($parent instanceof Organisation) {
+            $queryBuilder->where('webpages.organisation_id', $parent->id);
+        } else {
             $queryBuilder->where('webpages.website_id', $parent->id);
         }
 
 
         return $queryBuilder
-            ->defaultSort('webpages.code')
-            ->select(['code', 'id', 'type', 'slug'])
-            ->allowedSorts(['code', 'type'])
+            ->defaultSort('webpages.level')
+            ->select(['code', 'id', 'type', 'slug', 'level', 'purpose', 'url'])
+            ->allowedSorts(['code', 'type', 'level'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
     }
 
-    public function tableStructure($parent, ?array $modelOperations = null, $prefix = null): Closure
+    public function tableStructure(Organisation|Website $parent, ?array $modelOperations = null, $prefix = null): Closure
     {
         return function (InertiaTable $table) use ($parent, $modelOperations, $prefix) {
             if ($prefix) {
@@ -101,6 +134,17 @@ class IndexWebpages extends InertiaAction
                     ->name($prefix)
                     ->pageName($prefix.'Page');
             }
+
+            foreach ($this->getElementGroups() as $key => $elementGroup) {
+                $table->elementGroup(
+                    key: $key,
+                    label: $elementGroup['label'],
+                    elements: $elementGroup['elements']
+                );
+            }
+
+
+
             $table
                 ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
@@ -114,14 +158,16 @@ class IndexWebpages extends InertiaAction
                         ],
                         'Website' => [
                             'title' => __("No webpages found"),
-                            'count' => $parent->stats->number_webpages,
+                            'count' => $parent->webStats->number_webpages,
                         ],
                         default => null
                     }
                 )
+                ->column(key: 'level', label: ['fal', 'fa-sort-amount-down-alt'], canBeHidden: false, sortable: true, type: 'icon')
+                ->column(key: 'type', label: ['fal', 'fa-shapes'], canBeHidden: false, type: 'icon')
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'type', label: __('type'), canBeHidden: false, sortable: true, searchable: true)
-                ->defaultSort('code');
+                ->column(key: 'url', label: __('url'), canBeHidden: false, sortable: true, searchable: true)
+                ->defaultSort('level');
         };
     }
 
@@ -143,7 +189,7 @@ class IndexWebpages extends InertiaAction
         }
 
         return Inertia::render(
-            'Web/Webpages',
+            'Org/Web/Webpages',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),

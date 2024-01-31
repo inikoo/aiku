@@ -69,13 +69,7 @@ class ShowWebsite extends OrgAction
 
     public function htmlResponse(Website $website, ActionRequest $request): Response
     {
-        $this->validateAttributes();
-        /*
-                dd( $this->getBreadcrumbs(
-                    $request->route()->getName(),
-                    $request->route()->originalParameters()
-                ));
-        */
+
 
         return Inertia::render(
             'Org/Web/Website',
@@ -95,7 +89,7 @@ class ShowWebsite extends OrgAction
                         'title' => __('website'),
                         'icon'  => 'fal fa-globe'
                     ],
-                    'actionsx' => [
+                    'actions' => [
                         $this->canEdit ? [
                             'type'  => 'button',
                             'style' => 'edit',
@@ -116,14 +110,6 @@ class ShowWebsite extends OrgAction
                                 'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ] : false,
-                        /*$this->canDelete ? [
-                            'type'  => 'button',
-                            'style' => 'delete',
-                            'route' => [
-                                'name'       => 'websites.remove',
-                                'parameters' => array_values($request->route()->originalParameters())
-                            ]
-                        ] : false */
                     ],
 
                 ],
