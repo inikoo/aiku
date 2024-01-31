@@ -19,7 +19,7 @@ function customerRoute(customer: Customer) {
     switch (route().current()) {
         default:
             return route(
-                'grp.org.fulfilments.show.customers.show',
+                'grp.org.fulfilments.show.crm.customers.show',
                 [
                     route().params['organisation'],
                     route().params['fulfilment'],
@@ -34,7 +34,7 @@ function customerRoute(customer: Customer) {
     <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(reference)="{ item: customer }">
             <Link :href="customerRoute(customer)" class="specialUnderline">
-                {{ customer['reference'] }} 
+                {{ customer['reference'] }}
             </Link>
         </template>
     </Table>

@@ -174,6 +174,8 @@ class ShowFulfilment extends OrgAction
 
     public function getBreadcrumbs(array $routeParameters, $suffix = null): array
     {
+
+
         $fulfilment = Fulfilment::where('slug', Arr::get($routeParameters, 'fulfilment'))->first();
 
         return
@@ -196,7 +198,7 @@ class ShowFulfilment extends OrgAction
                                     'name'       => 'grp.org.fulfilments.show.catalogue.dashboard',
                                     'parameters' => $routeParameters
                                 ],
-                                'label' => 'fix me', // $fulfilment->shop->name,
+                                'label' => $fulfilment->shop->name,
                                 'icon'  => 'fal fa-bars'
                             ]
 

@@ -225,7 +225,7 @@ class ShowWebsite extends OrgAction
                     [
                         'index' => [
                             'name'       => 'grp.org.fulfilments.show.web.websites.index',
-                            'parameters' => Arr::only($routeParameters, ['organisation', 'shop'])
+                            'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment'])
                         ],
                         'model' => [
                             'name'       => 'grp.org.fulfilments.show.web.websites.show',

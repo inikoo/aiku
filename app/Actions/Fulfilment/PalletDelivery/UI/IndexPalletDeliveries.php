@@ -126,7 +126,7 @@ class IndexPalletDeliveries extends OrgAction
                             'tooltip' => __('new customer'),
                             'label'   => __('customer'),
                             'route'   => [
-                                'name'       => 'grp.org.fulfilments.show.customers.create',
+                                'name'       => 'grp.org.fulfilments.show.crm.customers.create',
                                 'parameters' => [$parent->organisation->slug, $parent->slug]
                             ]
                         ]
@@ -206,7 +206,7 @@ class IndexPalletDeliveries extends OrgAction
             ),
             $headCrumb(
                 [
-                    'name'       => 'grp.org.fulfilments.show.customers.index',
+                    'name'       => 'grp.org.fulfilments.show.crm.customers.index',
                     'parameters' => $routeParameters
                 ]
             )

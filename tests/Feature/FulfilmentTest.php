@@ -203,7 +203,7 @@ test('UI show fulfilment shop', function (Fulfilment $fulfilment) {
 test('UI show fulfilment shop customers list', function (Fulfilment $fulfilment) {
     $response = get(
         route(
-            'grp.org.fulfilments.show.customers.index',
+            'grp.org.fulfilments.show.crm.customers.index',
             [
                 $this->organisation->slug,
                 $fulfilment->slug
