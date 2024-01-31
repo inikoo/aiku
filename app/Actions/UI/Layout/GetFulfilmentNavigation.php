@@ -34,7 +34,25 @@ class GetFulfilmentNavigation
 
                 'topMenu' => [
                     'subSections' => [
+                        [
+                            'label'   => __('pallets'),
+                            'tooltip' => __('Pallets'),
+                            'icon'    => ['fal', 'fa-pallet'],
+                            'route'   => [
+                                'name'       => 'grp.org.fulfilments.show.catalogue.pallets.index',
+                                'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug]
+                            ],
+                        ],
 
+                        [
+                            'label'   => __('deliveries'),
+                            'tooltip' => __('Deliveries'),
+                            'icon'    => ['fal', 'fa-truck-coach'],
+                            'route'   => [
+                                'name'       => 'grp.org.fulfilments.show.catalogue.pallet-deliveries.index',
+                                'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug]
+                            ],
+                        ],
 
                     ]
                 ]
