@@ -9,6 +9,7 @@ namespace App\Models\Fulfilment;
 
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Models\CRM\Customer;
+use App\Models\SysAdmin\Organisation;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -25,6 +26,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  * @property int $warehouse_id
  * @property string|null $customer_reference
  * @property string $reference
+ * @property \App\Models\Fulfilment\Fulfilment $fulfilment
+ * @property Organisation $organisation
+ * @property \App\Models\Fulfilment\FulfilmentCustomer $fulfilmentCustomer
  * @property PalletDeliveryStateEnum $state
  * @property \Illuminate\Support\Carbon|null $in_at
  * @property \Illuminate\Support\Carbon|null $out_at
@@ -56,6 +60,21 @@ class PalletDelivery extends Model
     public function customer(): BelongsTo
     {
         return $this->belongsTo(Customer::class);
+    }
+
+    public function organisation(): BelongsTo
+    {
+        return $this->belongsTo(Organisation::class);
+    }
+
+    public function fulfilment(): BelongsTo
+    {
+        return $this->belongsTo(Fulfilment::class);
+    }
+
+    public function fulfilmentCustomer(): BelongsTo
+    {
+        return $this->belongsTo(FulfilmentCustomer::class);
     }
 
     public function pallets(): BelongsToMany

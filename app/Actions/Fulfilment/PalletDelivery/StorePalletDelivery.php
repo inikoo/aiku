@@ -92,7 +92,12 @@ class StorePalletDelivery extends OrgAction
 
     public function htmlResponse(PalletDelivery $palletDelivery, ActionRequest $request): Response
     {
-        return Inertia::location(route('grp.org.fulfilments.show.pallet-deliveries.show', $request->route()->originalParameters() + ['palletDelivery' => $palletDelivery->reference]));
+        return Inertia::location(route('grp.org.fulfilments.show.crm.customers.show.pallet-deliveries.show', [
+            'organisation' => $palletDelivery->organisation->slug,
+            'fulfilment'   => $palletDelivery->fulfilment->slug,
+            'fulfilmentCustomer'     => $palletDelivery->fulfilmentCustomer->slug,
+            'palletDelivery' => $palletDelivery->reference
+        ]));
     }
 
     public string $commandSignature = 'pallet-deliveries:create {fulfillment-customer}';
