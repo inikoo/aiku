@@ -293,7 +293,7 @@ class ShowShop extends OrgAction
     public function getBreadcrumbs(array $routeParameters, $suffix = null): array
     {
 
-        dd($r);
+
 
         $shop=Shop::where('slug', $routeParameters['shop'])->first();
 

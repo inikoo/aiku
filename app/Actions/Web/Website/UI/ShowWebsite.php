@@ -17,6 +17,7 @@ use App\Http\Resources\CRM\WebUserResource;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\Web\WebpageResource;
 use App\Http\Resources\Web\WebsiteResource;
+use App\Models\Fulfilment\Fulfilment;
 use App\Models\Market\Shop;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Web\Website;
@@ -27,17 +28,40 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowWebsite extends OrgAction
 {
+    private Fulfilment|Shop $parent;
+
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit   = $request->user()->hasPermissionTo("web.{$this->shop->id}.edit");
-        $this->canDelete = $request->user()->hasPermissionTo("web.{$this->shop->id}.edit");
+        if($this->parent instanceof Shop) {
+            $this->canEdit   = $request->user()->hasPermissionTo("web.{$this->shop->id}.edit");
+            $this->canDelete = $request->user()->hasPermissionTo("web.{$this->shop->id}.edit");
 
-        return $request->user()->hasPermissionTo("web.{$this->shop->id}.view");
+            return $request->user()->hasPermissionTo("web.{$this->shop->id}.view");
+        } elseif($this->parent instanceof Fulfilment) {
+            $this->canEdit   = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+            $this->canDelete = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+
+            return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
+        }
+
+        return false;
+
+
     }
 
     public function asController(Organisation $organisation, Shop $shop, Website $website, ActionRequest $request): Website
     {
+        $this->parent=$shop;
         $this->initialisationFromShop($shop, $request)->withTab(WebsiteTabsEnum::values());
+
+        return $website;
+    }
+
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Website $website, ActionRequest $request): Website
+    {
+        $this->parent=$fulfilment;
+        $this->initialisationFromFulfilment($fulfilment, $request)->withTab(WebsiteTabsEnum::values());
 
         return $website;
     }

@@ -26,6 +26,7 @@ use App\Models\Market\Shop;
 use App\Models\OMS\Order;
 use App\Models\Search\UniversalSearch;
 use App\Models\SupplyChain\Stock;
+use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\WebUser;
 use App\Models\Traits\HasAddresses;
 use App\Models\Traits\HasPhoto;
@@ -163,6 +164,11 @@ class Customer extends Model implements HasMedia
                 );
             }
         });
+    }
+
+    public function organisation(): BelongsTo
+    {
+        return $this->belongsTo(Organisation::class);
     }
 
     public function shop(): BelongsTo

@@ -47,9 +47,10 @@ class IndexCustomers extends OrgAction
         return $this->handle($this->parent);
     }
 
-    /** @noinspection PhpUnusedParameterInspection */
-    public function inShop(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
+
+    public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
     {
+
         $this->initialisationFromShop($shop, $request);
         $this->parent = $shop;
 
@@ -61,8 +62,8 @@ class IndexCustomers extends OrgAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->where('customers.name', '~*', "\y$value\y")
-                    ->orWhere('customers.email', 'ILIKE', "%$value")
+                $query->whereAnyWordStartWith('customers.name', $value)
+                    ->orWhereStartWith('customers.email', $value)
                     ->orWhere('customers.reference', '=', $value);
             });
         });

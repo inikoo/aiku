@@ -1,4 +1,4 @@
-<?php
+    <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Mon, 08 Jan 2024 17:46:19 Malaysia Time, Kuala Lumpur, Malaysia
@@ -15,10 +15,10 @@ use App\Actions\CRM\WebUser\IndexWebUser;
 use App\Actions\CRM\WebUser\ShowWebUser;
 use App\Actions\OMS\Order\UI\ShowOrder;
 
-Route::get('', [IndexCustomers::class, 'inShop'])->name('index');
+Route::get('', IndexCustomers::class)->name('index');
 Route::get('create', CreateCustomer::class)->name('create');
-Route::get('{customer}', [ShowCustomer::class, 'inShop'])->name('show');
-Route::get('{customer}/edit', [EditCustomer::class, 'inShop'])->name('edit');
+Route::get('{customer}', ShowCustomer::class)->name('show');
+Route::get('{customer}/edit', EditCustomer::class)->name('edit');
 Route::get('{customer}/orders/{order}', [ShowOrder::class, 'inCustomerInShop'])->name('show.orders.show');
 Route::get('{customer}/web-users', [IndexWebUser::class, 'inCustomerInShop'])->name('show.web-users.index');
 Route::get('{customer}/web-users/{webUser}', [ShowWebUser::class, 'inCustomerInShop'])->name('show.web-users.show');
