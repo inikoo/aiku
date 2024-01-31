@@ -7,11 +7,11 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 import { Link, usePage, router } from '@inertiajs/vue3'
 // import SubNavigation from '@/Layouts/SubNavigation.vue'
 import { capitalize } from "@/Composables/capitalize"
-import { isRouteSameAsCurrentUrl } from '@/Composables/useUrl'
+import { isNavigationActive } from '@/Composables/useUrl'
 import { onMounted, ref, onUnmounted, computed } from 'vue'
 import TopbarSubsections from '@/Layouts/TopbarSubsections.vue'
 import {faHandHoldingBox} from '@fal';
-library.add(faRoute)
+library.add(faRoute, faHandHoldingBox)
 
 const props = defineProps<{
     navKey: string | number  // shops_navigation | warehouses_navigation
@@ -38,9 +38,9 @@ onUnmounted(() => {
 })
 
 // Check if this route has nav.root
-const isRouteActive = () => {
-    return (layout.currentRoute).includes(props.nav.root || 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')  // 'aaaa' so it will return false
-}
+// const isRouteActive = () => {
+//     return (layout.currentRoute).includes(props.nav.root || 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')  // 'aaaa' so it will return false
+// }
 
 
 </script>
@@ -50,7 +50,7 @@ const isRouteActive = () => {
     <!-- <div class="text-xxs">{{ layout.currentRoute }} <br> {{ nav.route.name }}</div> -->
     <Link :href="nav.route?.name ? route(nav.route.name, nav.route.parameters) : '#'"
         class="group flex items-center px-2 text-sm gap-x-2" :class="[
-            isRouteActive()
+            isNavigationActive(props.nav.root || 'xx.xx.xx.xx')
                 ? 'navigationActive'
                 : 'navigation',
             layout.leftSidebar.show ? '' : '',
@@ -70,8 +70,8 @@ const isRouteActive = () => {
     </Link>
 
     <!-- If this Navigation is active, then teleport the SubSections to #TopbarSubsections in <AppTopBar> -->
-    <template v-if="isRouteActive()">
-        <Teleport to="#TopbarSubsections" :disabled="!isRouteActive()">
+    <template v-if="isNavigationActive(props.nav.root || 'xx.xx.xx.xx')">
+        <Teleport to="#TopbarSubsections" :disabled="!isNavigationActive(props.nav.root || 'xx.xx.xx.xx')">
             <TopbarSubsections
                 v-if="nav.topMenu?.subSections"
                 :subSections="nav.topMenu.subSections"

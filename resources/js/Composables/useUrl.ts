@@ -1,3 +1,4 @@
+import { useLayoutStore } from "@/Stores/layout"
 import { usePage } from "@inertiajs/vue3"
 
 // from "http://app.aiku.test/org/sk/inventory" to "/org/sk/inventory"
@@ -12,4 +13,11 @@ export const removeDomain = (fullUrl: string, domain: string) => {
 // Check if current route is same as the given route
 export const isRouteSameAsCurrentUrl = (expectedRoute: string) => {
     return usePage().url.includes(removeDomain(expectedRoute, route().v().route.domain))
+}
+
+// routeRoot: the route.of.root to indicates a group of Navigation ('grp.org.fulfilments.show.operations.pallets.index' is exist in 'grp.org.fulfilments.show.operations.')
+export const isNavigationActive = (routeRoot: string | undefined) => {
+    if(!routeRoot) return false
+
+    return useLayoutStore().currentRoute.includes(routeRoot)
 }

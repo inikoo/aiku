@@ -31,13 +31,13 @@ onMounted(() => {
 const iconList: { [key: string]: string } = {
     shop: 'fal fa-store-alt',
     warehouse: 'fal fa-warehouse-alt',
-    fulfilment: 'fal fa-pallet-alt',
+    fulfilment: 'fal fa-hand-holding-box',
 }
 
 </script>
 
 <template>
-    <nav class="isolate relative flex flex-grow flex-col pt-3 pb-4 px-2 h-full overflow-y-auto custom-hide-scrollbar flex-1 space-y-1" aria-label="Sidebar">
+    <nav class="isolate relative flex flex-grow flex-col pt-3 pb-4 px-2 h-full overflow-y-auto custom-hide-scrollbar flex-1 gap-y-1.5" aria-label="Sidebar">
         <!-- LeftSidebar: Org -->
         <!-- <span class="text-white">{{ layout.currentShop }} -- {{ layout.currentWarehouse }}</span> -->
         <template v-if="get(layout, ['navigation', 'org', layout.currentParams.organisation], false)">
@@ -71,7 +71,7 @@ const iconList: { [key: string]: string } = {
 
                 <!-- shops_navigation or warehouses_navigation or fulfilments_navigation -->
                 <template v-else-if="itemKey == 'shops_navigation' || itemKey == 'warehouses_navigation' || itemKey == 'fulfilments_navigation'">
-                    <template v-if="itemKey == 'shops_navigation' && !layout.isFulfilmentPage && layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_shops.length">
+                    <template v-if="itemKey == 'shops_navigation' && (layout.organisationsState?.[layout.currentParams.organisation]?.currentType == 'shop') && layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_shops.length">
                         <!-- If: Shops length is 1 (show the subNav directly) -->
                         <!-- <NavigationSimple v-if="layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_shops.length === 1"
                             :nav="Object.values(Object.values(orgNav)[0])[0]"
@@ -129,7 +129,7 @@ const iconList: { [key: string]: string } = {
                     </template>
                     
                     <template v-if="
-                        itemKey == 'fulfilments_navigation' && !layout.isShopPage
+                        itemKey == 'fulfilments_navigation' && (layout.organisationsState?.[layout.currentParams.organisation]?.currentType == 'fulfilment')
                         && layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_fulfilments.length
                         
                     ">

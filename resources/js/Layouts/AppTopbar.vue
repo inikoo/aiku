@@ -159,7 +159,7 @@ const label = {
                                 v-slot="{ close: closeMenu }"
                             >
                                 <TopbarSelectButton
-                                    :icon="layoutStore.isFulfilmentPage ? 'fal fa-pallet-alt' : 'fal fa-store-alt'"
+                                    :icon="layoutStore.isFulfilmentPage ? 'fal fa-hand-holding-box' : 'fal fa-store-alt'"
                                     :activeButton="
                                         (layoutStore.isFulfilmentPage && layoutStore.organisationsState[layoutStore.currentParams.organisation].currentFulfilment)
                                         || (layoutStore.isShopPage && layoutStore.organisationsState[layoutStore.currentParams.organisation].currentShop)
@@ -179,7 +179,7 @@ const label = {
                                 <transition>
                                     <MenuItems class="absolute left-0 mt-2 w-56 origin-top-right divide-y divide-gray-400 rounded bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
                                         <MenuPopoverList v-if="layoutStore.organisations.data.find(organisation => organisation.slug == layoutStore.currentParams.organisation)?.authorised_shops.length" icon="fal fa-store-alt" :navKey="'shop'" :closeMenu="closeMenu" />
-                                        <MenuPopoverList v-if="layoutStore.organisations.data.find(organisation => organisation.slug == layoutStore.currentParams.organisation)?.authorised_fulfilments.length" icon="fal fa-pallet-alt" :navKey="'fulfilment'" :closeMenu="closeMenu" />
+                                        <MenuPopoverList v-if="layoutStore.organisations.data.find(organisation => organisation.slug == layoutStore.currentParams.organisation)?.authorised_fulfilments.length" icon="fal fa-hand-holding-box" :navKey="'fulfilment'" :closeMenu="closeMenu" />
                                     </MenuItems>
                                 </transition>
                             </Menu>
