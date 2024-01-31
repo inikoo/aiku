@@ -31,7 +31,7 @@ Route::prefix('{fulfilmentCustomer}')->as('show')->group(function () {
     Route::get('web-users/{webUser}', [ShowWebUser::class, 'inCustomerInShop'])->name('.web-users.show');
     Route::get('web-users/{webUser}/edit', [EditWebUser::class, 'inCustomerInShop'])->name('.web-users.edit');
 
-    Route::prefix('pallet-deliveries')->as('pallet-deliveries.')->group(function () {
+    Route::prefix('pallet-deliveries')->as('.pallet-deliveries.')->group(function () {
         Route::get('', [IndexPalletDeliveries::class, 'inFulfilmentCustomer'])->name('index');
         Route::get('{palletDelivery}', [ShowPalletDelivery::class, 'inFulfilmentCustomer'])->name('show');
     });

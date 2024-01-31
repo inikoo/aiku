@@ -88,6 +88,16 @@ export const useLayoutStore = defineStore("layout", {
             systemName: "",  // For styling navigation depend on which App
             user: {} as { id: number, avatar_thumbnail: Image, email: string, username: string },
         }
-    )
+    ),
+
+    getters: {
+        isShopPage: (state) => {
+            return (state.currentRoute).includes('grp.org.shops.show.')
+        },
+        isFulfilmentPage: (state) => {
+            return (state.currentRoute).includes('grp.org.fulfilments.show.')
+        },
+        // liveUsersWithoutMe: (state) => state.liveUsers.filter((liveUser, keyUser) => keyUser != layout.user.id )
+    },
 });
 
