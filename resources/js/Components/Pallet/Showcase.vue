@@ -11,6 +11,7 @@ const props = defineProps<{
     data: object
 }>()
 
+cosnole.log('ddddd',data)
 const options =
     [
         {
