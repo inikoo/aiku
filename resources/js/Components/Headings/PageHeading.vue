@@ -19,6 +19,7 @@ import Action from "@/Components/Forms/Fields/Action.vue"
 import SubNavigation from "@//Components/Navigation/SubNavigation.vue"
 import { Action as ActionTS } from "@/types/Action"
 import { routeType } from '@/types/route'
+import { kebabCase } from 'lodash'
 
 interface Icon {
     icon: string[] | string
@@ -121,8 +122,10 @@ const originUrl = location.origin
         <slot name="button" :dataPageHead="{...props }">
             <div class="flex items-center gap-2">
                 <div v-for="action in data.actions">
-                    <Action v-if="action" :action="action" :dataToSubmit="dataToSubmit"/>
-                </div>
+                    <slot :name="`button-${kebabCase(action.label)}`" :action="{ action }">
+                        <Action v-if="action" :action="action" :dataToSubmit="dataToSubmit"/>
+                        </slot>
+                    </div>
                 <slot name="other" :dataPageHead="{...props }"/>
             </div>
         </slot>

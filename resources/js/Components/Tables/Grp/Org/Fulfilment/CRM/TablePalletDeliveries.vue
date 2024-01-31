@@ -22,7 +22,7 @@ const props = defineProps<{
 
 <template>
 	<Table :resource="data" :name="tab" class="mt-5">
-		<template #buttondeliveries="{ linkButton: linkButton }">
+		<!-- <template #buttondeliveries="{ linkButton: linkButton }">
 			<Link
 				v-if="linkButton?.route?.name"
 				method="post"
@@ -34,6 +34,6 @@ const props = defineProps<{
 					class="h-full capitalize inline-flex items-center rounded-none text-sm border-none font-medium shadow-sm focus:ring-transparent focus:ring-offset-transparent focus:ring-0">
 				</Button>
 			</Link>
-		</template>
+		</template> -->
 	</Table>
 </template>
