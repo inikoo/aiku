@@ -7,6 +7,7 @@
 
 
 use App\Actions\Inventory\Location\ExportLocations;
+use App\Actions\Inventory\Location\UI\CreateLocation;
 use App\Actions\Inventory\Location\UI\EditLocation;
 use App\Actions\Inventory\Location\UI\IndexLocations;
 use App\Actions\Inventory\Location\UI\ShowLocation;
@@ -17,14 +18,40 @@ use App\Actions\Inventory\WarehouseArea\UI\IndexWarehouseAreas;
 use App\Actions\Inventory\WarehouseArea\UI\ShowWarehouseArea;
 
 Route::get('/', ShowWarehouse::class)->name('dashboard');
-Route::get('/areas', [IndexWarehouseAreas::class, 'inOrganisation'])->name('warehouse-areas.index');
-Route::get('/areas/create', CreateWarehouseArea::class)->name('warehouse-areas.create');
-Route::get('/areas/{warehouseArea}', [ShowWarehouseArea::class, 'inOrganisation'])->name('warehouse-areas.show');
-Route::get('/areas/{warehouseArea}/edit', [EditWarehouseArea::class, 'inOrganisation'])->name('warehouse-areas.edit');
+
+Route::scopeBindings()->prefix('areas')->name('warehouse-areas.')->group(function () {
+    Route::get('', [IndexWarehouseAreas::class, 'inOrganisation'])->name('index');
+    Route::get('create', CreateWarehouseArea::class)->name('create');
 
 
-Route::get('/locations/export', ExportLocations::class)->name('locations.export');
+    Route::scopeBindings()->prefix('{warehouseArea}')->group(function () {
+        Route::get('', ShowWarehouseArea::class)->name('show');
+        Route::get('edit', EditWarehouseArea::class)->name('edit');
+        Route::scopeBindings()->prefix('locations')->name('show.locations.')->group(function () {
+            Route::get('export', ExportLocations::class)->name('export');
+            Route::get('create', CreateLocation::class)->name('create');
 
-Route::get('/locations', [IndexLocations::class, 'inOrganisation'])->name('locations.index');
-Route::get('/locations/{location}', [ShowLocation::class, 'inOrganisation'])->name('locations.show');
-Route::get('/locations/{location}/edit', [EditLocation::class, 'inOrganisation'])->name('locations.edit');
+            Route::get('', IndexLocations::class)->name('index');
+
+            Route::scopeBindings()->prefix('{location}')->group(function () {
+                Route::get('', ShowLocation::class)->name('show');
+                Route::get('edit', EditLocation::class)->name('edit');
+            });
+        });
+
+    });
+
+
+});
+
+
+Route::scopeBindings()->prefix('locations')->name('locations.')->group(function () {
+    Route::get('export', [ExportLocations::class, 'inWarehouse'])->name('export');
+    Route::get('create', [CreateLocation::class,'inWarehouse'])->name('create');
+    Route::get('', [IndexLocations::class, 'inWarehouse'])->name('index');
+
+    Route::scopeBindings()->prefix('{location}')->group(function () {
+        Route::get('', [ShowLocation::class, 'inWarehouse'])->name('show');
+        Route::get('edit', [EditLocation::class, 'inWarehouse'])->name('edit');
+    });
+});

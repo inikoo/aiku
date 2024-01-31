@@ -25,7 +25,7 @@ enum FulfilmentTabsEnum: string
         return match ($this) {
             FulfilmentTabsEnum::DASHBOARD => [
                 'title' => __('dashboard'),
-                'icon'  => 'fal fa-tachometer',
+                'icon'  => 'fal fa-tachometer-alt',
             ],
 
             FulfilmentTabsEnum::HISTORY => [

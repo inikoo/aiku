@@ -16,9 +16,11 @@ enum LocationTabsEnum: string
     use HasTabs;
 
 
-    case SHOWCASE           = 'showcase';
-    case PARTS              = 'parts';
-    case STOCK_MOVEMENTS    = 'stock_movements';
+    case SHOWCASE            = 'showcase';
+    case STOCKS              = 'stocks';
+
+    case PALLETS              = 'pallets';
+    case STOCK_MOVEMENTS      = 'stock_movements';
 
     case HISTORY            = 'history';
     case DATA               = 'data';
@@ -28,9 +30,13 @@ enum LocationTabsEnum: string
     public function blueprint(): array
     {
         return match ($this) {
-            LocationTabsEnum::PARTS => [
-                'title' => __('parts'),
+            LocationTabsEnum::STOCKS => [
+                'title' => 'SKUs',
                 'icon'  => 'fal fa-box',
+            ],
+            LocationTabsEnum::PALLETS => [
+                'title' => __('pallets'),
+                'icon'  => 'fal fa-pallet',
             ],
             LocationTabsEnum::STOCK_MOVEMENTS => [
                 'title' => __('stock movements'),

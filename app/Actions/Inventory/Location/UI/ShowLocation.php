@@ -11,7 +11,7 @@ use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\Inventory\WarehouseArea\UI\ShowWarehouseArea;
 use App\Actions\OrgAction;
-use App\Actions\UI\Inventory\ShowInventoryDashboard;
+use App\Actions\Traits\Actions\WithActionButtons;
 use App\Enums\UI\LocationTabsEnum;
 use App\Http\Resources\History\HistoryResource;
 use App\Models\Inventory\Location;
@@ -19,12 +19,18 @@ use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
 class ShowLocation extends OrgAction
 {
+    use WithActionButtons;
+
+    private WarehouseArea|Warehouse $parent;
+
     public function handle(Location $location): Location
     {
         return $location;
@@ -32,50 +38,47 @@ class ShowLocation extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit   = $request->user()->hasPermissionTo("inventories.{$this->organisation->id}.edit");
-        $this->canDelete = $request->user()->hasPermissionTo("inventories.{$this->organisation->id}.edit");
+        $this->canEdit   = $request->user()->hasPermissionTo("inventory.{$this->warehouse->id}.edit");
+        $this->canDelete = $request->user()->hasPermissionTo("inventory.{$this->warehouse->id}.edit");
 
-        return $request->user()->hasPermissionTo("inventories.{$this->organisation->id}.view");
+        return $request->user()->hasPermissionTo("inventory.{$this->warehouse->id}.view");
     }
 
-    public function inOrganisation(Organisation $organisation, Warehouse $warehouse, Location $location, ActionRequest $request): Location
-    {
-        $this->organisation = $organisation;
-        $this->initialisation($organisation, $request);
-        return $this->handle($location);
-    }
 
-    public function asController(Organisation $organisation, Location $location, ActionRequest $request): Location
+    public function asController(Organisation $organisation, Warehouse $warehouse, WarehouseArea $warehouseArea, Location $location, ActionRequest $request): Location
     {
-        $this->organisation = $organisation;
-        $this->initialisation($organisation, $request);
+        $this->parent = $warehouseArea;
+        $this->initialisationFromWarehouse($warehouse, $request);
+
         return $this->handle($location);
     }
 
     /** @noinspection PhpUnusedParameterInspection */
     public function inWarehouse(Organisation $organisation, Warehouse $warehouse, Location $location, ActionRequest $request): Location
     {
-        $this->initialisation($organisation, $request);
+        $this->parent = $warehouse;
+        $this->initialisationFromWarehouse($warehouse, $request);
+
         return $this->handle($location);
     }
 
-    /** @noinspection PhpUnusedParameterInspection */
-    public function inWarehouseArea(Organisation $organisation, WarehouseArea $warehouseArea, Location $location, ActionRequest $request): Location
-    {
-        $this->initialisation($organisation, $request);
-        return $this->handle($location);
-    }
-
-
-    /** @noinspection PhpUnusedParameterInspection */
-    public function inWarehouseInWarehouseArea(Organisation $organisation, Warehouse $warehouse, WarehouseArea $warehouseArea, Location $location, ActionRequest $request): Location
-    {
-        $this->initialisation($organisation, $request);
-        return $this->handle($location);
-    }
 
     public function htmlResponse(Location $location, ActionRequest $request): Response
     {
+        if ($this->parent instanceof Warehouse) {
+            $container = [
+                'icon'    => ['fal', 'fa-warehouse'],
+                'tooltip' => __('Warehouse'),
+                'label'   => Str::possessive($this->parent->code)
+            ];
+        } else {
+            $container = [
+                'icon'    => ['fal', 'fa-map-signs'],
+                'tooltip' => __('Warehouse area'),
+                'label'   => Str::possessive($this->parent->code)
+            ];
+        }
+
 
         return Inertia::render(
             'Org/Warehouse/Location',
@@ -85,56 +88,23 @@ class ShowLocation extends OrgAction
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
-                'navigation'                            => [
+                'navigation'  => [
                     'previous' => $this->getPrevious($location, $request),
                     'next'     => $this->getNext($location, $request),
                 ],
                 'pageHead'    => [
-                    'icon'    => [
+                    'container' => $container,
+                    'icon'      => [
                         'title' => __('locations'),
                         'icon'  => 'fal fa-inventory'
                     ],
-                    'title'   => $location->slug,
-                    'actions' => [
-                        $this->canEdit ? [
-                            'type'  => 'button',
-                            'style' => 'edit',
-                            'route' => [
-                                'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
-                                'parameters' => array_values($request->route()->originalParameters())
-                            ]
-                        ] : false,
-                        $this->canDelete ?
-                            match ($request->route()->getName()) {
-                                'grp.org.inventory.locations.show' => [
-                                    'type'  => 'button',
-                                    'style' => 'delete',
-                                    'route' => [
-                                        'name'       => 'grp.org.inventory.locations.remove',
-                                        'parameters' => $request->route()->originalParameters()
-                                    ],
-
-                                ],
-                                'grp.org.warehouses.show.infrastructure.locations.show' => [
-                                    'type'  => 'button',
-                                    'style' => 'delete',
-                                    'route' => [
-                                        'name'       => 'grp.org.warehouses.show.infrastructure.locations.remove',
-                                        'parameters' => $request->route()->originalParameters()
-                                    ],
-                                ],
-                                'grp.org.warehouses.show.infrastructure.warehouse-areas.show.locations.show' => [
-                                    'type'  => 'button',
-                                    'style' => 'delete',
-                                    'route' => [
-                                        'name'       => 'grp.org.warehouses.show.infrastructure.warehouse-areas.show.locations.remove',
-                                        'parameters' => $request->route()->originalParameters()
-                                    ]
-                                ]
-                            } : false
-                    ]
+                    'title'     => $location->slug,
+                    'actions'   => [
+                        $this->canDelete ? $this->getDeleteActionIcon($request) : null,
+                        $this->canEdit ? $this->getEditActionIcon($request) : null,
+                    ],
                 ],
-                'tabs' => [
+                'tabs'        => [
                     'current'    => $this->tab,
                     'navigation' => LocationTabsEnum::navigation()
 
@@ -170,116 +140,49 @@ class ShowLocation extends OrgAction
                         ],
                         'model' => [
                             'route' => $routeParameters['model'],
-                            'label' => $location->slug,
+                            'label' => $location->code,
                         ],
 
                     ],
-                    'suffix'=> $suffix
+                    'suffix'         => $suffix
                 ],
             ];
         };
 
+        $location = Location::where('slug', $routeParameters['location'])->first();
+
         return match ($routeName) {
-            'grp.org.inventory.locations.show' =>
-            array_merge(
-                ShowInventoryDashboard::make()->getBreadcrumbs($routeParameters),
-                $headCrumb(
-                    $routeParameters['location'],
-                    [
-                        'index' => [
-                            'name'       => 'grp.org.inventory.locations.index',
-                            'parameters' => [
-                                $routeParameters['organisation']->slug,
-                                $routeParameters['location']->slug,
-                            ]
-                        ],
-                        'model' => [
-                            'name'       => 'grp.org.inventory.locations.show',
-                            'parameters' => [
-                                $routeParameters['organisation']->slug,
-                                $routeParameters['location']->slug
-                            ]
-                        ]
-                    ],
-                    $suffix
-                ),
-            ),
             'grp.org.warehouses.show.infrastructure.locations.show' => array_merge(
-                (new ShowWarehouse())->getBreadcrumbs($routeParameters),
+                (new ShowWarehouse())->getBreadcrumbs(Arr::only($routeParameters, ['organisation', 'warehouse'])),
                 $headCrumb(
-                    $routeParameters['location'],
+                    $location,
                     [
                         'index' => [
                             'name'       => 'grp.org.warehouses.show.infrastructure.locations.index',
-                            'parameters' => [
-                                $routeParameters['organisation']->slug,
-                                $routeParameters['warehouse']->slug,
-                            ]
+                            'parameters' => Arr::only($routeParameters, ['organisation', 'warehouse'])
                         ],
                         'model' => [
                             'name'       => 'grp.org.warehouses.show.infrastructure.locations.show',
-                            'parameters' => [
-                                $routeParameters['organisation']->slug,
-                                $routeParameters['warehouse']->slug,
-                                $routeParameters['location']->slug
-                            ]
+                            'parameters' => Arr::only($routeParameters, ['organisation', 'warehouse', 'location'])
                         ]
                     ],
                     $suffix
                 )
             ),
-            'grp.org.inventory.warehouse-areas.show.locations.show' => array_merge(
-                (new ShowWarehouseArea())->getBreadcrumbs(
-                    'grp.org.inventory.warehouse-areas.show',
-                    [
-                        'warehouseArea' => $routeParameters['warehouseArea']
-                    ]
-                ),
-                $headCrumb(
-                    $routeParameters['location'],
-                    [
-                        'index' => [
-                            'name'       => 'grp.org.inventory.warehouse-areas.show.locations.index',
-                            'parameters' => [
-                                $routeParameters['warehouseArea']->slug,
-                            ]
-                        ],
-                        'model' => [
-                            'name'       => 'grp.org.inventory.warehouse-areas.show.locations.show',
-                            'parameters' => [
-                                $routeParameters['warehouseArea']->slug,
-                                $routeParameters['location']->slug
-                            ]
-                        ]
-                    ],
-                    $suffix
-                ),
-            ),
             'grp.org.warehouses.show.infrastructure.warehouse-areas.show.locations.show' => array_merge(
                 (new ShowWarehouseArea())->getBreadcrumbs(
-                    'grp.org.warehouses.show.infrastructure.warehouse-areas.show',
-                    [
-                        'warehouse'     => $routeParameters['warehouse'],
-                        'warehouseArea' => $routeParameters['warehouseArea'],
-                    ]
+                    Arr::only($routeParameters, ['organisation', 'warehouse', 'warehouseArea'])
                 ),
                 $headCrumb(
-                    $routeParameters['location'],
+                    $location,
                     [
                         'index' => [
                             'name'       => 'grp.org.warehouses.show.infrastructure.warehouse-areas.show.locations.index',
-                            'parameters' => [
-                                $routeParameters['warehouse']->slug,
-                                $routeParameters['warehouseArea']->slug,
-                            ]
+                            'parameters' => Arr::only($routeParameters, ['organisation', 'warehouse', 'warehouseArea'])
                         ],
                         'model' => [
                             'name'       => 'grp.org.warehouses.show.infrastructure.warehouse-areas.show.locations.show',
-                            'parameters' => [
-                                $routeParameters['warehouse']->slug,
-                                $routeParameters['warehouseArea']->slug,
-                                $routeParameters['location']->slug
-                            ]
+                            'parameters' => Arr::only($routeParameters, ['organisation', 'warehouse', 'warehouseArea', 'location'])
                         ]
                     ],
                     $suffix
@@ -292,35 +195,24 @@ class ShowLocation extends OrgAction
 
     public function getPrevious(Location $location, ActionRequest $request): ?array
     {
-        $previous=Location::where('slug', '<', $location->slug)->when(true, function ($query) use ($location, $request) {
-            switch ($request->route()->getName()) {
-                case 'grp.org.warehouses.show.infrastructure.locations.show':
-                    $query->where('locations.warehouse_id', $location->warehouse_id);
-                    break;
-                case 'grp.org.warehouses.show.infrastructure.warehouse-areas.show.locations.show':
-                case 'grp.org.inventory.warehouse-areas.show.locations.show':
-                    $query->where('locations.warehouse_area_id', $location->warehouse_area_id);
-                    break;
-
+        $previous = Location::where('slug', '<', $location->slug)->when(true, function ($query) use ($location, $request) {
+            if ($this->parent instanceof Warehouse) {
+                $query->where('locations.warehouse_id', $location->warehouse_id);
+            } else {
+                $query->where('locations.warehouse_area_id', $location->warehouse_area_id);
             }
         })->orderBy('slug', 'desc')->first();
 
         return $this->getNavigation($previous, $request->route()->getName());
-
     }
 
     public function getNext(Location $location, ActionRequest $request): ?array
     {
         $next = Location::where('slug', '>', $location->slug)->when(true, function ($query) use ($location, $request) {
-            switch ($request->route()->getName()) {
-                case 'grp.org.warehouses.show.infrastructure.locations.show':
-                    $query->where('locations.warehouse_id', $location->warehouse_id);
-                    break;
-                case 'grp.org.warehouses.show.infrastructure.warehouse-areas.show.locations.show':
-                case 'grp.org.inventory.warehouse-areas.show.locations.show':
-                    $query->where('locations.warehouse_area_id', $location->warehouse_area_id);
-                    break;
-
+            if ($this->parent instanceof Warehouse) {
+                $query->where('locations.warehouse_id', $location->warehouse_id);
+            } else {
+                $query->where('locations.warehouse_area_id', $location->warehouse_area_id);
             }
         })->orderBy('slug')->first();
 
@@ -329,56 +221,37 @@ class ShowLocation extends OrgAction
 
     private function getNavigation(?Location $location, string $routeName): ?array
     {
-        if(!$location) {
+        if (!$location) {
             return null;
         }
-        return match ($routeName) {
-            'grp.org.inventory.locations.show'=> [
-                'label'=> $location->slug,
-                'route'=> [
-                    'name'      => $routeName,
-                    'parameters'=> [
-                        'location'  => $location->slug
-                    ]
 
-                ]
-            ],
-            'grp.org.inventory.warehouse-areas.show.locations.show' => [
-                'label'=> $location->slug,
-                'route'=> [
-                    'name'      => $routeName,
-                    'parameters'=> [
-                        'warehouseArea' => $location->warehouseArea->slug,
-                        'location'      => $location->slug
-                    ]
-
-                ]
-            ],
-            'grp.org.warehouses.show.infrastructure.locations.show'=> [
-                'label'=> $location->slug,
-                'route'=> [
-                    'name'      => $routeName,
-                    'parameters'=> [
+        if ($this->parent instanceof Warehouse) {
+            return [
+                'label' => $location->slug,
+                'route' => [
+                    'name'       => $routeName,
+                    'parameters' => [
                         'organisation' => $location->organisation->slug,
                         'warehouse'    => $location->warehouse->slug,
                         'location'     => $location->slug
                     ]
 
                 ]
-            ],
-            'inventory.warehouses.show.warehouse-areas.show.locations.show' => [
-                'label'=> $location->slug,
-                'route'=> [
-                    'name'      => $routeName,
-                    'parameters'=> [
+            ];
+        } else {
+            return [
+                'label' => $location->slug,
+                'route' => [
+                    'name'       => $routeName,
+                    'parameters' => [
+                        'organisation'  => $location->organisation->slug,
                         'warehouse'     => $location->warehouse->slug,
                         'warehouseArea' => $location->warehouseArea->slug,
                         'location'      => $location->slug
                     ]
-
                 ]
-            ]
-        };
+            ];
+        }
     }
 
 }

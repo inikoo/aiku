@@ -9,6 +9,7 @@ namespace App\Actions\HumanResources\Employee\UI;
 
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Actions\WithActionButtons;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
 use App\Enums\UI\EmployeeTabsEnum;
 use App\Http\Resources\History\HistoryResource;
@@ -22,6 +23,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowEmployee extends OrgAction
 {
+    use WithActionButtons;
     public function handle(Employee $employee): Employee
     {
         return $employee;
@@ -73,25 +75,10 @@ class ShowEmployee extends OrgAction
                                 ]
                             ] : []
                     ],
-                    'actions' => [
-                        $this->canEdit ? [
-                            'type'  => 'button',
-                            'style' => 'edit',
-                            'route' => [
-                                'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
-                                'parameters' => $request->route()->originalParameters()
-                            ]
-                        ] : false,
-                        $this->canDelete ? [
-                            'type'  => 'button',
-                            'style' => 'delete',
-                            'route' => [
-                                'name'       => 'grp.org.hr.employees.remove',
-                                'parameters' => $request->route()->originalParameters()
-                            ]
-
-                        ] : false
-                    ]
+                    'actions'     => [
+                        $this->canDelete ? $this->getDeleteActionIcon($request) : null,
+                        $this->canEdit ? $this->getEditActionIcon($request) : null,
+                    ],
                 ],
                 'tabs'        => [
                     'current'    => $this->tab,

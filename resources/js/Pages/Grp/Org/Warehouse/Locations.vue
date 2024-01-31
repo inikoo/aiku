@@ -8,6 +8,9 @@ import {Head} from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 import TableLocations from "@/Components/Tables/TableLocations.vue";
 import { capitalize } from "@/Composables/capitalize"
+import { faWarehouse,faMapSigns } from '@fal'
+import { library } from '@fortawesome/fontawesome-svg-core'
+library.add(faWarehouse, faMapSigns)
 
 const props = defineProps<{
     data: object

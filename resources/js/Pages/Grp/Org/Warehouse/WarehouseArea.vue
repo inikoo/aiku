@@ -7,8 +7,6 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
-
-
 import {library} from '@fortawesome/fontawesome-svg-core';
 import { faInventory, faWarehouse, faMapSigns, faChartLine, faClock } from '@fal';
 import Tabs from "@/Components/Navigation/Tabs.vue";
@@ -36,6 +34,8 @@ const props = defineProps<{
         current: string;
         navigation: object;
     }
+    data?:object;
+    showcase?:object;
     locations?: object;
     history?: object;
 }>()
@@ -59,6 +59,6 @@ const component = computed(() => {
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead"></PageHeading>
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate"/>
-    <component :is="component" :data="props[currentTab]"></component>
+    <component :is="component" :data="props[currentTab]" :tab="currentTab"></component>
 </template>
 

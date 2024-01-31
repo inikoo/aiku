@@ -46,6 +46,7 @@ class IndexWarehouseAreas extends OrgAction
     {
         $this->initialisation($organisation, $request);
         $this->parent = $organisation;
+
         return $this->handle($organisation);
     }
 
@@ -54,6 +55,7 @@ class IndexWarehouseAreas extends OrgAction
     {
         $this->initialisationFromWarehouse($warehouse, $request)->withTab(WarehouseTabsEnum::values());
         $this->parent = $warehouse;
+
         return $this->handle($warehouse);
     }
 
@@ -158,8 +160,6 @@ class IndexWarehouseAreas extends OrgAction
     }
 
 
-
-
     public function jsonResponse(LengthAwarePaginator $warehouseAreas): AnonymousResourceCollection
     {
         return WarehouseAreaResource::collection($warehouseAreas);
@@ -168,8 +168,8 @@ class IndexWarehouseAreas extends OrgAction
 
     public function htmlResponse(LengthAwarePaginator $warehouseAreas, ActionRequest $request): Response
     {
-        $scope    =$this->parent;
-        $container=null;
+        $scope     = $this->parent;
+        $container = null;
         if (class_basename($scope) == 'Warehouse') {
             $container = [
                 'icon'    => ['fal', 'fa-warehouse'],
@@ -177,6 +177,7 @@ class IndexWarehouseAreas extends OrgAction
                 'label'   => Str::possessive($scope->name)
             ];
         }
+
         return Inertia::render(
             'Org/Warehouse/WarehouseAreas',
             [
@@ -186,34 +187,23 @@ class IndexWarehouseAreas extends OrgAction
                 ),
                 'title'       => __('warehouse areas'),
                 'pageHead'    => [
-                    'title'        => __('warehouse areas'),
-                    'container'    => $container,
-                    'iconRight'    => [
+                    'title'     => __('warehouse areas'),
+                    'container' => $container,
+                    'iconRight' => [
                         'icon'  => ['fal', 'fa-map-signs'],
                         'title' => __('warehouse areas')
                     ],
-                    'actions' => [
-                        $this->canEdit && $request->route()->getName() == 'grp.oms.warehouses.show.warehouse-areas.index' ? [
-                            'type'    => 'buttonGroup',
-                            'buttons' => [
-                                [
-                                    'style' => 'create',
-                                    'icon'  => ['far', 'fa-border-all'],
-                                    'label' => '',
-                                    'route' => [
-                                        'name'       => 'grp.oms.warehouses.show.warehouse-areas.create-multi',
-                                        'parameters' => $request->route()->originalParameters()
-                                    ],
-                                ],
-                                [
-                                    'style' => 'create',
-                                    'label' => __('warehouse area'),
-                                    'route' => [
-                                        'name'       => 'grp.oms.warehouses.show.warehouse-areas.create',
-                                        'parameters' => $request->route()->originalParameters()
-                                    ],
-                                ]
+                    'actions'   => [
+                        $this->canEdit && $request->route()->getName() == 'grp.org.warehouses.show.infrastructure.warehouse-areas.index' ? [
+
+                            'type'  => 'button',
+                            'style' => 'create',
+                            'label' => __('areas'),
+                            'route' => [
+                                'name'       => 'grp.org.warehouses.show.infrastructure.warehouse-areas.create',
+                                'parameters' => $request->route()->originalParameters()
                             ]
+
                         ] : false
                     ]
                 ],

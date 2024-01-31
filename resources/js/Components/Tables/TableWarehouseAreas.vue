@@ -15,10 +15,10 @@ const props = defineProps<{
 }>();
 
 function warehouseAreaRoute(warehouseArea: WarehouseArea) {
-
+    console.log(route().current());
     switch (route().current()) {
-        case "grp.org.warehouses.show":
         case "grp.org.warehouses.show.infrastructure.warehouse-areas.index":
+        default:
             return route(
                 "grp.org.warehouses.show.infrastructure.warehouse-areas.show",
                 [
@@ -27,33 +27,25 @@ function warehouseAreaRoute(warehouseArea: WarehouseArea) {
                     warehouseArea.slug
                 ]
             );
-        case "grp.org.inventory.warehouse-areas.index":
-        default:
-            return route(
-                "grp.org.inventory.warehouse-areas.show",
-                [route().params["organisation"],warehouseArea.slug]);
+
     }
 
 }
 
 function locationsRoute(warehouseArea: WarehouseArea) {
-    // switch (route().current()) {
-    //
-    //     case "grp.org.warehouses.show":
-    //     case "grp.org.warehouses.show.infrastructure.warehouse-areas.index":
-    //         return route(
-    //             "grp.org.warehouses.show.infrastructure.warehouse-areas.show.locations.index",
-    //             [
-    //                 route().params["organisation"],
-    //                 route().params["warehouse"],
-    //                 warehouseArea.slug
-    //             ]);
-    //     case "inventor.warehouse-areas.index":
-    //     default:
-    //         return route(
-    //             "grp.org.inventory.warehouse-areas.show.locations.index",
-    //             [route().params["organisation"],warehouseArea.slug]);
-    // }
+    switch (route().current()) {
+
+        case "grp.org.warehouses.show.infrastructure.warehouse-areas.index":
+        default:
+            return route(
+                "grp.org.warehouses.show.infrastructure.warehouse-areas.show.locations.index",
+                [
+                    route().params["organisation"],
+                    route().params["warehouse"],
+                    warehouseArea.slug
+                ]);
+
+    }
 
 }
 
@@ -65,13 +57,13 @@ function locationsRoute(warehouseArea: WarehouseArea) {
 
     <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(code)="{ item: warehouseArea }">
-            <Link :href="warehouseAreaRoute(warehouseArea)">
+            <Link :href="warehouseAreaRoute(warehouseArea)" class="specialUnderline">
                 {{ warehouseArea["code"] }}
             </Link>
         </template>
 
         <template #cell(number_locations)="{ item: warehouseArea }">
-            <Link :href="locationsRoute(warehouseArea)">
+            <Link :href="locationsRoute(warehouseArea)" class="specialUnderline">
                 {{ warehouseArea["number_locations"] }}
             </Link>
         </template>
