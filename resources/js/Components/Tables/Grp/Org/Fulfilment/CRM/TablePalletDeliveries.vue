@@ -10,7 +10,8 @@ import Table from "@/Components/Table/Table.vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faPlus } from "@fas"
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
+
+import { PalletDelivery } from "@/types/pallet-delivery";
 
 library.add(faPlus)
 
@@ -18,10 +19,37 @@ const props = defineProps<{
 	data: object
 	tab?: string
 }>()
+
+function palletDeliveryRoute(palletDelivery: PalletDelivery) {
+    console.log(route().current())
+    switch (route().current()) {
+        default:
+            return route(
+                'grp.org.fulfilments.show.crm.customers.show.pallet-deliveries.show',
+                [
+                    route().params['organisation'],
+                    route().params['fulfilment'],
+                    route().params['fulfilmentCustomer'],
+                    palletDelivery.reference
+                ]);
+    }
+}
+
+
+
 </script>
 
 <template>
 	<Table :resource="data" :name="tab" class="mt-5">
+
+
+        <template #cell(reference)="{ item: palletDelivery }">
+        <Link :href="palletDeliveryRoute(palletDelivery)" class="specialUnderline">
+            {{ palletDelivery['reference'] }}
+        </Link>
+        </template>
+
+
 		<template #buttondeliveries="{ linkButton: linkButton }">
 			<Link
 				v-if="linkButton?.route?.name"

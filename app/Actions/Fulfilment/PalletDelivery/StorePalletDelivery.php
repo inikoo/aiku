@@ -84,8 +84,8 @@ class StorePalletDelivery extends OrgAction
     {
         return [
             'route' => [
-                'name'       => 'grp.org.fulfilments.show.pallets.delivery.show',
-                'parameters' => request()->route()->originalParameters() + ['palletDelivery' => $palletDelivery->reference]
+                'name'       => 'grp.org.shops.show.crm.customers.show.pallet-deliveries.show',
+                'parameters' => array_merge(request()->route()->originalParameters(), ['palletDelivery' => $palletDelivery->reference])
             ]
         ];
     }
