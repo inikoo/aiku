@@ -13,6 +13,8 @@ enum PalletDeliveryStateEnum: string
 {
     use EnumHelperTrait;
 
-    case IN  = 'in';
-    case OUT = 'out';
+    case IN_PROCESS  = 'in-process';
+    case READY = 'ready';
+    case RECEIVED = 'received';
+    case DONE = 'done';
 }

@@ -44,7 +44,7 @@ class StoreCustomer extends OrgAction
 
     public function handle(Shop $shop, array $modelData): Customer
     {
-        $contactAddressData = Arr::get($modelData, 'contact_address');
+            $contactAddressData = Arr::get($modelData, 'contact_address');
         Arr::forget($modelData, 'contact_address');
         $deliveryAddressData = Arr::get($modelData, 'delivery_address');
         Arr::forget($modelData, 'delivery_address');

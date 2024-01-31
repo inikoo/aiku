@@ -7,10 +7,10 @@
 
 namespace App\Models\Fulfilment;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\Pivot;
 
-class PalletDeliveryPallet extends Model
+class PalletDeliveryPallet extends Pivot
 {
     protected $guarded = [];
 

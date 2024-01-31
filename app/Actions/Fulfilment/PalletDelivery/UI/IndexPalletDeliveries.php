@@ -83,9 +83,6 @@ class IndexPalletDeliveries extends OrgAction
 
         return $queryBuilder
             ->defaultSort('reference')
-            ->select([
-                'pallet_deliveries.reference'
-            ])
             ->allowedSorts(['reference'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
@@ -123,7 +120,9 @@ class IndexPalletDeliveries extends OrgAction
                     ] : null
                 )
                 ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'customer reference', label: __('customer reference'), canBeHidden: false, sortable: true, searchable: true);
+                ->column(key: 'state', label: __('state'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'customer reference', label: __('customer reference'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'pallets', label: __('pallets'), canBeHidden: false, sortable: true, searchable: true);
         };
     }
 

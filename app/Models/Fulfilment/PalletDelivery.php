@@ -58,6 +58,6 @@ class PalletDelivery extends Model
 
     public function pallets(): BelongsToMany
     {
-        return $this->belongsToMany(Pallet::class)->using(PalletDeliveryPallet::class);
+        return $this->belongsToMany(Pallet::class, 'pallet_delivery_pallets');
     }
 }

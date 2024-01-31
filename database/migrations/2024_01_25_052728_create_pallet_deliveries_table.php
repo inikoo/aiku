@@ -33,7 +33,7 @@ return new class () extends Migration {
 
             $table->string('customer_reference')->nullable()->index();
             $table->string('reference')->unique()->index();
-            $table->string('state')->default(PalletDeliveryStateEnum::IN->value);
+            $table->string('state')->default(PalletDeliveryStateEnum::IN_PROCESS->value);
             $table->dateTimeTz('in_at')->nullable();
             $table->dateTimeTz('out_at')->nullable();
             $table->jsonb('data')->nullable();
