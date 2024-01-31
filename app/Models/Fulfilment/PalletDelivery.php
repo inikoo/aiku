@@ -20,9 +20,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  * @property int $group_id
  * @property int $organisation_id
  * @property string $ulid
- * @property int $customer_id
+ * @property int $fulfilment_customer_id
+ * @property int $fulfilment_id
+ * @property int $warehouse_id
+ * @property string|null $customer_reference
  * @property string $reference
- * @property string $customer_reference
  * @property PalletDeliveryStateEnum $state
  * @property \Illuminate\Support\Carbon|null $in_at
  * @property \Illuminate\Support\Carbon|null $out_at

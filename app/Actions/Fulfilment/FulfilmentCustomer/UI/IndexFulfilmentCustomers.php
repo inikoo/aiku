@@ -61,12 +61,12 @@ class IndexFulfilmentCustomers extends OrgAction
 
 
         return $queryBuilder
-            ->defaultSort('customers.slug')
+            ->defaultSort('fulfilment_customers.slug')
             ->select([
                 'reference',
                 'customers.id',
                 'customers.name',
-                'customers.slug',
+                'fulfilment_customers.slug',
                 'shops.code as shop_code',
                 'shops.slug as shop_slug',
                 'number_pallets',

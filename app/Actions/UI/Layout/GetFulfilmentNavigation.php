@@ -23,7 +23,7 @@ class GetFulfilmentNavigation
 
 
             $navigation['fulfilment'] = [
-
+                'root'  => 'grp.org.fulfilments.show.catalogue.',
                 'label' => __('Fulfilment'),
                 'icon'  => ['fal', 'fa-hand-holding-box'],
 
@@ -42,7 +42,7 @@ class GetFulfilmentNavigation
             ];
 
             $navigation['web'] = [
-                'scope'   => 'websites',
+                'root'    => 'grp.org.fulfilments.show.web.',
                 'icon'    => ['fal', 'fa-globe'],
                 'label'   => __('Website'),
                 'route'   =>
@@ -91,7 +91,7 @@ class GetFulfilmentNavigation
             ];
 
             $navigation['crm'] = [
-                'scope' => 'shops',
+                'root'  => 'grp.org.fulfilments.show.crm.',
                 'label' => __('Customers'),
                 'icon'  => ['fal', 'fa-user'],
 

@@ -55,6 +55,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\GroupCRMStats|null $crmStats
  * @property-read Currency $currency
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Employee> $employees
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\GroupFulfilmentStat> $fulfilmentStats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\Guest> $guests
  * @property-read \App\Models\SysAdmin\GroupHumanResourcesStats|null $humanResourcesStats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, JobPosition> $josPositions

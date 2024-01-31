@@ -20,12 +20,12 @@ use App\Actions\OMS\Order\UI\ShowOrder;
 
 Route::get('', IndexFulfilmentCustomers::class)->name('index');
 Route::get('create', CreateFulfilmentCustomer::class)->name('create');
-Route::get('{customer}', ShowFulfilmentCustomer::class)->name('show');
-Route::get('{customer}/edit', [EditCustomer::class, 'inShop'])->name('edit');
-Route::get('{customer}/orders/{order}', [ShowOrder::class, 'inCustomerInShop'])->name('show.orders.show');
-Route::get('{customer}/web-users', [IndexWebUser::class, 'inCustomerInShop'])->name('show.web-users.index');
-Route::get('{customer}/web-users/{webUser}', [ShowWebUser::class, 'inCustomerInShop'])->name('show.web-users.show');
-Route::get('{customer}/web-users/{webUser}/edit', [EditWebUser::class, 'inCustomerInShop'])->name('show.web-users.edit');
+Route::get('{fulfilmentCustomer}', ShowFulfilmentCustomer::class)->name('show');
+Route::get('{fulfilmentCustomer}/edit', [EditCustomer::class, 'inShop'])->name('edit');
+Route::get('{fulfilmentCustomer}/orders/{order}', [ShowOrder::class, 'inCustomerInShop'])->name('show.orders.show');
+Route::get('{fulfilmentCustomer}/web-users', [IndexWebUser::class, 'inCustomerInShop'])->name('show.web-users.index');
+Route::get('{fulfilmentCustomer}/web-users/{webUser}', [ShowWebUser::class, 'inCustomerInShop'])->name('show.web-users.show');
+Route::get('{fulfilmentCustomer}/web-users/{webUser}/edit', [EditWebUser::class, 'inCustomerInShop'])->name('show.web-users.edit');
 
 Route::prefix('deliveries')->as('deliveries.')->group(function () {
     Route::get('create', CreatePalletDelivery::class)->name('create');

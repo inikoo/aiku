@@ -13,6 +13,7 @@ use App\Http\Resources\Fulfilment\FulfilmentCustomersResource;
 use App\Http\Resources\Fulfilment\PalletDeliveriesResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\Fulfilment;
+use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
@@ -61,7 +62,7 @@ class IndexPalletDeliveries extends OrgAction
         return $this->handle($warehouse);
     }
 
-    public function handle(Fulfilment|Warehouse $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Fulfilment|Warehouse|FulfilmentCustomer $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -82,6 +83,8 @@ class IndexPalletDeliveries extends OrgAction
             $queryBuilder->where('pallet_deliveries.fulfilment_id', $parent->id);
         } elseif($parent instanceof Warehouse) {
             $queryBuilder->where('pallet_deliveries.warehouse_id', $parent->id);
+        } elseif($parent instanceof FulfilmentCustomer) {
+            $queryBuilder->where('pallet_deliveries.fulfilment_customer_id', $parent->id);
         }
 
         return $queryBuilder
@@ -94,7 +97,8 @@ class IndexPalletDeliveries extends OrgAction
                 'shops.code as shop_code',
                 'shops.slug as shop_slug'
             ])
-            ->leftJoin('customers', 'customers.id', 'pallet_deliveries.customer_id')
+            ->leftJoin('fulfilment_customers', 'fulfilment_customers.id', 'pallet_deliveries.fulfilment_customer_id')
+            ->leftJoin('customers', 'customers.id', 'fulfilment_customers.customer_id')
             ->leftJoin('shops', 'shops.id', 'shop_id')
             ->allowedSorts(['reference', 'name', 'slug'])
             ->allowedFilters([$globalSearch])
@@ -102,7 +106,7 @@ class IndexPalletDeliveries extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure(Fulfilment|Warehouse $parent, ?array $modelOperations = null, $prefix = null): Closure
+    public function tableStructure(Fulfilment|Warehouse|FulfilmentCustomer $parent, ?array $modelOperations = null, $prefix = null): Closure
     {
         return function (InertiaTable $table) use ($parent, $modelOperations, $prefix) {
             if ($prefix) {
