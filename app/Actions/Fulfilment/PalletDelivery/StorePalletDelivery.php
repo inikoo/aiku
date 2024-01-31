@@ -55,6 +55,23 @@ class StorePalletDelivery extends OrgAction
         return $request->user()->hasPermissionTo("fulfilments.{$this->fulfilment->id}.edit");
     }
 
+
+    public function prepareForValidation(ActionRequest $request): void
+    {
+        if($this->fulfilment->warehouses()->count()==1) {
+            $request->merge(['warehouse_id' =>$this->fulfilment->warehouses()->first()->id]);
+        }
+    }
+
+
+    public function rules(): array
+    {
+        return [
+            'warehouse_id'=> ['required','integer','exists:warehouses,id']
+        ];
+    }
+
+
     public function asController(Organisation $organisation, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): PalletDelivery
     {
         $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $request);
