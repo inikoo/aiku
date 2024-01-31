@@ -10,7 +10,9 @@ namespace App\Actions\Fulfilment\PalletDelivery\UI;
 use App\Actions\OrgAction;
 use App\Enums\UI\PalletDeliveryTabsEnum;
 use App\Http\Resources\Fulfilment\PalletDeliveriesResource;
+use App\Http\Resources\Fulfilment\PalletDeliveryResource;
 use App\Models\Fulfilment\Fulfilment;
+use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
@@ -31,7 +33,14 @@ class ShowPalletDelivery extends OrgAction
         return $request->user()->hasPermissionTo("fulfilments.{$this->fulfilment->id}.view");
     }
 
-    public function asController(Organisation $organisation, Fulfilment $fulfilment, PalletDelivery $palletDelivery, ActionRequest $request): PalletDelivery
+    public function asController(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, PalletDelivery $palletDelivery, ActionRequest $request): PalletDelivery
+    {
+        $this->initialisationFromFulfilment($fulfilment, $request);
+
+        return $this->handle($palletDelivery);
+    }
+
+    public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, PalletDelivery $palletDelivery, ActionRequest $request): PalletDelivery
     {
         $this->initialisationFromFulfilment($fulfilment, $request);
 
@@ -90,6 +99,7 @@ class ShowPalletDelivery extends OrgAction
                     'current'    => $this->tab,
                     'navigation' => PalletDeliveryTabsEnum::navigation()
                 ],
+                PalletDeliveryTabsEnum::PALLETS->value => PalletDeliveryResource::make($palletDelivery)
             ]
         );
     }
