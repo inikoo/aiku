@@ -35,7 +35,7 @@ Route::name('org.')->prefix('org/{organisation}')->group(function () {
     Route::post('/working-place/', StoreWorkplace::class)->name('working-place.store');
     Route::post('/shop/', StoreShop::class)->name('shop.store');
     Route::post('/fulfilment/', StoreFulfilment::class)->name('fulfilment.store');
-    Route::post('/fulfilment/{fulfilment}/customers/{customer}/deliveries/pallet', StorePalletDelivery::class)->name('fulfilment.delivery.pallet.store');
+    Route::post('/fulfilment/{fulfilment}/fulfilment-customers/{fulfilmentCustomer}/deliveries/pallet', StorePalletDelivery::class)->name('fulfilment.delivery.pallet.store');
 });
 
 Route::name('shop.')->prefix('shop/{shop}')->group(function () {
