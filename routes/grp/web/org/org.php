@@ -17,11 +17,11 @@ Route::prefix("hr")
 
 Route::prefix("shops")
     ->name("shops.")
-    ->group(__DIR__."/shops/shops.php");
+    ->group(__DIR__."/shops/root.php");
 
 Route::prefix("fulfilments")
     ->name("fulfilments.")
-    ->group(__DIR__."/fulfilments/fulfilments.php");
+    ->group(__DIR__."/fulfilments/root.php");
 
 
 Route::prefix("inventory")

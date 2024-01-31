@@ -88,6 +88,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, Issue> $issues
  * @property-read MediaCollection<int, \App\Models\Media\Media> $media
  * @property-read Collection<int, Order> $orders
+ * @property-read Organisation $organisation
+ * @property-read Collection<int, PalletDelivery> $palletDeliveries
  * @property-read Collection<int, Payment> $payments
  * @property-read Collection<int, Product> $products
  * @property-read Shop|null $shop

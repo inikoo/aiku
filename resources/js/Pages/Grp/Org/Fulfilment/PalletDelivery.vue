@@ -34,7 +34,6 @@ const component = computed(() => {
         pallets: ShowcasePallet,
         history: TableHistories
     };
-    console.log('ini',currentTab.value)
     return components[currentTab.value];
 
 });

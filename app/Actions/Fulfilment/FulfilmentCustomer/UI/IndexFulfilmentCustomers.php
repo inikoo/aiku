@@ -61,12 +61,12 @@ class IndexFulfilmentCustomers extends OrgAction
 
 
         return $queryBuilder
-            ->defaultSort('customers.slug')
+            ->defaultSort('fulfilment_customers.slug')
             ->select([
                 'reference',
                 'customers.id',
                 'customers.name',
-                'customers.slug',
+                'fulfilment_customers.slug',
                 'shops.code as shop_code',
                 'shops.slug as shop_slug',
                 'number_pallets',
@@ -105,7 +105,7 @@ class IndexFulfilmentCustomers extends OrgAction
                             'tooltip' => __('new customer'),
                             'label'   => __('customer'),
                             'route'   => [
-                                'name'       => 'grp.org.fulfilments.show.customers.create',
+                                'name'       => 'grp.org.fulfilments.show.crm.customers.create',
                                 'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug]
                             ]
                         ]
@@ -174,7 +174,7 @@ class IndexFulfilmentCustomers extends OrgAction
             ),
             $headCrumb(
                 [
-                    'name'       => 'grp.org.fulfilments.show.customers.index',
+                    'name'       => 'grp.org.fulfilments.show.crm.customers.index',
                     'parameters' => $routeParameters
                 ]
             )

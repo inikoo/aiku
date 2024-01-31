@@ -148,7 +148,7 @@ class ShowPalletDelivery extends OrgAction
         }
 
         return match ($routeName) {
-            'grp.org.fulfilments.show.customers.show' ,
+            'grp.org.fulfilments.show.crm.customers.show' ,
             'shops.customers.show'=> [
                 'label'=> $palletDelivery->name,
                 'route'=> [

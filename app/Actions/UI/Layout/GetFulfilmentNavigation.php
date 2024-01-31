@@ -20,8 +20,29 @@ class GetFulfilmentNavigation
         $navigation = [];
 
         if ($user->hasPermissionTo("fulfilment.$fulfilment->id.view")) {
+
+
+            $navigation['fulfilment'] = [
+                'root'  => 'grp.org.fulfilments.show.catalogue.',
+                'label' => __('Fulfilment'),
+                'icon'  => ['fal', 'fa-hand-holding-box'],
+
+                'route' => [
+                    'name'       => 'grp.org.fulfilments.show.catalogue.dashboard',
+                    'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug]
+                ],
+
+                'topMenu' => [
+                    'subSections' => [
+
+
+                    ]
+                ]
+
+            ];
+
             $navigation['web'] = [
-                'scope'   => 'websites',
+                'root'    => 'grp.org.fulfilments.show.web.',
                 'icon'    => ['fal', 'fa-globe'],
                 'label'   => __('Website'),
                 'route'   =>
@@ -29,7 +50,7 @@ class GetFulfilmentNavigation
                     $fulfilment->shop->website
                         ?
                         [
-                            'name'       => 'grp.org.fulfilments.show.websites.show',
+                            'name'       => 'grp.org.fulfilments.show.web.websites.show',
                             'parameters' => [
                                 $fulfilment->organisation->slug,
                                 $fulfilment->slug,
@@ -39,7 +60,7 @@ class GetFulfilmentNavigation
                         ]
                         :
                         [
-                            'name'       => 'grp.org.fulfilments.show.websites.index',
+                            'name'       => 'grp.org.fulfilments.show.web.websites.index',
                             'parameters' => [
                                 $fulfilment->organisation->slug,
                                 $fulfilment->slug,
@@ -55,7 +76,7 @@ class GetFulfilmentNavigation
                             'tooltip' => __('Webpages'),
                             'icon'    => ['fal', 'fa-browser'],
                             'route'   => [
-                                'name'       => 'grp.org.fulfilments.show.websites.index',
+                                'name'       => 'grp.org.fulfilments.show.web.websites.index',
                                 'parameters' => [
                                     $fulfilment->organisation->slug,
                                     $fulfilment->slug,
@@ -70,12 +91,12 @@ class GetFulfilmentNavigation
             ];
 
             $navigation['crm'] = [
-                'scope' => 'shops',
+                'root'  => 'grp.org.fulfilments.show.crm.',
                 'label' => __('Customers'),
                 'icon'  => ['fal', 'fa-user'],
 
                 'route' => [
-                    'name'       => 'grp.org.fulfilments.show.customers.index',
+                    'name'       => 'grp.org.fulfilments.show.crm.customers.index',
                     'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug]
                 ],
 
@@ -87,7 +108,7 @@ class GetFulfilmentNavigation
                             'tooltip' => __('Customers'),
                             'icon'    => ['fal', 'fa-user'],
                             'route'   => [
-                                'name'       => 'grp.org.fulfilments.show.customers.index',
+                                'name'       => 'grp.org.fulfilments.show.crm.customers.index',
                                 'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug]
                             ],
                         ],
@@ -96,7 +117,7 @@ class GetFulfilmentNavigation
                             'tooltip' => __('Prospects'),
                             'icon'    => ['fal', 'fa-user-plus'],
                             'route'   => [
-                                'name'       => 'grp.org.fulfilments.show.prospects.index',
+                                'name'       => 'grp.org.fulfilments.show.crm.prospects.index',
                                 'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug]
                             ],
                         ],
