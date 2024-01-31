@@ -103,6 +103,6 @@ const getErrors = () => {
     <PageHeading :data="pageHead"></PageHeading>
     <div v-if="props.errors.purchase_order">{{ getErrors() }}</div>
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate"/>
-    <component :is="component" :data="props[currentTab]"></component>
+    <component :is="component" :data="props[currentTab]" :tab="currentTab"></component>
 </template>
 

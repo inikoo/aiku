@@ -13,7 +13,7 @@ import {computed, ref} from "vue";
 import {useTabChange} from "@/Composables/tab-change";
 import TableHistories from "@/Components/Tables/TableHistories.vue";
 import ShowcasePallet from '@/Components/Pallet/Showcase.vue'
-  
+
   const props = defineProps<{
     title: string
     tabs: object
@@ -37,11 +37,10 @@ const component = computed(() => {
 
 });
   </script>
-  
+
   <template layout="App">
       <Head :title="capitalize(title)"/>
       <PageHeading :data="pageHead"></PageHeading>
       <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate"/>
-      <component :is="component" :data="props[currentTab]"></component>
+      <component :is="component" :data="props[currentTab]" :tab="currentTab"></component>
   </template>
-  
