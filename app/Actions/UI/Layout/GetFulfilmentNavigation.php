@@ -22,13 +22,13 @@ class GetFulfilmentNavigation
         if ($user->hasPermissionTo("fulfilment.$fulfilment->id.view")) {
 
 
-            $navigation['fulfilment'] = [
-                'root'  => 'grp.org.fulfilments.show.catalogue.',
-                'label' => __('Fulfilment'),
-                'icon'  => ['fal', 'fa-hand-holding-box'],
+            $navigation['operations'] = [
+                'root'  => 'grp.org.fulfilments.show.operations.',
+                'label' => __('Operations'),
+                'icon'  => ['fal', 'fa-route'],
 
                 'route' => [
-                    'name'       => 'grp.org.fulfilments.show.catalogue.dashboard',
+                    'name'       => 'grp.org.fulfilments.show.operations.dashboard',
                     'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug]
                 ],
 
@@ -39,7 +39,7 @@ class GetFulfilmentNavigation
                             'tooltip' => __('Pallets'),
                             'icon'    => ['fal', 'fa-pallet'],
                             'route'   => [
-                                'name'       => 'grp.org.fulfilments.show.catalogue.pallets.index',
+                                'name'       => 'grp.org.fulfilments.show.operations.pallets.index',
                                 'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug]
                             ],
                         ],
@@ -49,7 +49,7 @@ class GetFulfilmentNavigation
                             'tooltip' => __('Deliveries'),
                             'icon'    => ['fal', 'fa-truck-coach'],
                             'route'   => [
-                                'name'       => 'grp.org.fulfilments.show.catalogue.pallet-deliveries.index',
+                                'name'       => 'grp.org.fulfilments.show.operations.pallet-deliveries.index',
                                 'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug]
                             ],
                         ],

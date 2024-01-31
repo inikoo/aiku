@@ -25,7 +25,7 @@ function fulfilmentRoute(fulfilment: Fulfilment) {
     switch (route().current()) {
         case 'grp.org.fulfilments.index':
             return route(
-                'grp.org.fulfilments.show.catalogue.dashboard',
+                'grp.org.fulfilments.show.operations.dashboard',
                 [route().params['organisation'], fulfilment.slug])
     }
 }

@@ -184,7 +184,7 @@ test('UI create fulfilment', function () {
 test('UI show fulfilment shop', function (Fulfilment $fulfilment) {
     $response = get(
         route(
-            'grp.org.fulfilments.show.catalogue.dashboard',
+            'grp.org.fulfilments.show.operations.dashboard',
             [
                 $this->organisation->slug,
                 $fulfilment->slug

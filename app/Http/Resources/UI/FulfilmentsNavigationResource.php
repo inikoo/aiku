@@ -25,7 +25,7 @@ class FulfilmentsNavigationResource extends JsonResource
             'state'  => $fulfilment->shop->state,
             'type'   => $fulfilment->shop->type,
             'route'  => [
-                'name'       => 'grp.org.fulfilments.show.catalogue.dashboard',
+                'name'       => 'grp.org.fulfilments.show.operations.dashboard',
                 'parameters' => [
                     $fulfilment->organisation->slug,
                     $fulfilment->slug
