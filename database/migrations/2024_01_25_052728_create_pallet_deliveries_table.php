@@ -34,12 +34,14 @@ return new class () extends Migration {
             $table->string('customer_reference')->nullable()->index();
             $table->string('reference')->unique()->index();
 
-            $table->string('number_pallets')->default(0);
-            $table->string('number_pallet_stored_items')->default(0);
-            $table->string('number_stored_items')->default(0);
+            $table->unsignedSmallInteger('number_pallets')->default(0);
+            $table->unsignedSmallInteger('number_pallet_stored_items')->default(0);
+            $table->unsignedSmallInteger('number_stored_items')->default(0);
 
             $table->string('state')->default(PalletDeliveryStateEnum::IN_PROCESS->value);
 
+            $table->dateTimeTz('booked_in_at')->nullable();
+            $table->dateTimeTz('settled_at')->nullable();
             $table->dateTimeTz('received_at')->nullable();
             $table->dateTimeTz('dispatched_at')->nullable();
             $table->dateTimeTz('date')->nullable();
