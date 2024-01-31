@@ -28,6 +28,9 @@ return new class () extends Migration {
                 $table->unsignedInteger('fulfilment_id');
                 $table->foreign('fulfilment_id')->references('id')->on('fulfilments');
 
+
+
+
                 $table = $this->fulfilmentStats($table);
                 $table->jsonb('data');
                 $table->timestampsTz();

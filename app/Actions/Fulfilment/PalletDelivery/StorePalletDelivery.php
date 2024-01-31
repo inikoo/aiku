@@ -11,7 +11,6 @@ use App\Actions\Helpers\SerialReference\GetSerialReference;
 use App\Actions\OrgAction;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Models\CRM\Customer;
-use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\SysAdmin\Organisation;
@@ -36,7 +35,6 @@ class StorePalletDelivery extends OrgAction
     {
         data_set($modelData, 'group_id', $fulfilmentCustomer->group_id);
         data_set($modelData, 'organisation_id', $fulfilmentCustomer->organisation_id);
-        data_set($modelData, 'fulfilment_id', $fulfilmentCustomer->fulfilment_id);
 
         data_set($modelData, 'ulid', Str::ulid());
 
@@ -57,9 +55,9 @@ class StorePalletDelivery extends OrgAction
         return $request->user()->hasPermissionTo("fulfilments.{$this->fulfilment->id}.edit");
     }
 
-    public function asController(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request, ): PalletDelivery
+    public function asController(Organisation $organisation, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): PalletDelivery
     {
-        $this->initialisationFromFulfilment($fulfilment, $request);
+        $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $request);
         return $this->handle($fulfilmentCustomer, $this->validatedData);
     }
 
