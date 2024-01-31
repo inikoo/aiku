@@ -83,7 +83,7 @@ class FetchAuroraShop extends FetchAurora
 
 
         if($type=='fulfilment') {
-            $this->parsedData['shop']['warehouses']=Warehouse::first()->pluck('id')->toArray();
+            $this->parsedData['shop']['warehouses']=[Warehouse::first()->id];
         }
 
 
