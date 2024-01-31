@@ -18,11 +18,11 @@ export interface SubSection {
 }
 
 export interface Navigation {
+    root?: string  // For Navigation active state purpose
     label: string
     scope?: string
     icon: string[]
     route?: routeType
-    root?: string  // For Navigation-Subsections active state purpose
     topMenu: {
         subSections?: SubSection[]
         dropdown?: {

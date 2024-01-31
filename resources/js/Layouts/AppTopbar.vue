@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Link, router, usePage } from '@inertiajs/vue3'
 import { useLayoutStore } from "@/Stores/layout"
-import { reactive } from 'vue'
+import { reactive, computed } from 'vue'
 import { get } from 'lodash'
 import {capitalize} from "@/Composables/capitalize"
 import MenuPopoverList from "@/Layouts/MenuPopoverList.vue"
@@ -151,29 +151,29 @@ const label = {
                                     </MenuItems>
                                 </transition>
                             </Menu>
-
+                            
+                            <!-- {{ layoutStore.isShopPage && layoutStore.organisationsState[layoutStore.currentParams.organisation].currentShop }} -->
                             <!-- Dropdown: Shops and Fulfilment-->
-                            <Menu v-if="
-                                (route(layoutStore.currentRoute, layoutStore.currentParams)).includes('shops') || 
-                                (route(layoutStore.currentRoute, layoutStore.currentParams)).includes('fulfilment')
-                            "
+                            <Menu v-if="layoutStore.isShopPage || layoutStore.isFulfilmentPage"
                                 as="div" class="relative inline-block text-left"
                                 v-slot="{ close: closeMenu }"
                             >
                                 <TopbarSelectButton
-                                    :icon="(route(layoutStore.currentRoute, layoutStore.currentParams)).includes('fulfilment') ? 'fal fa-pallet-alt' : 'fal fa-store-alt'"
+                                    :icon="layoutStore.isFulfilmentPage ? 'fal fa-pallet-alt' : 'fal fa-store-alt'"
                                     :activeButton="
-                                        usePage().url.includes('fulfilment') && layoutStore.organisationsState[layoutStore.currentParams.organisation].currentFulfilment ? true
-                                        : usePage().url.includes('shops') && layoutStore.organisationsState[layoutStore.currentParams.organisation].currentShop ? true
-                                        : false
+                                        (layoutStore.isFulfilmentPage && layoutStore.organisationsState[layoutStore.currentParams.organisation].currentFulfilment)
+                                        || (layoutStore.isShopPage && layoutStore.organisationsState[layoutStore.currentParams.organisation].currentShop)
+                                            ? true
+                                            : false
                                     "
                                     :label="
-                                        usePage().url.includes('fulfilment') ? layoutStore.organisationsState?.[layoutStore.currentParams.organisation]?.currentFulfilment || label.fulfilmentSelect
-                                            : usePage().url.includes('shops')
+                                        layoutStore.isFulfilmentPage
+                                            ? layoutStore.organisationsState?.[layoutStore.currentParams.organisation]?.currentFulfilment || label.fulfilmentSelect
+                                            : layoutStore.isShopPage
                                                 ? layoutStore.organisationsState?.[layoutStore.currentParams.organisation]?.currentShop || label.shopSelect
                                                 : 'Select shops/fulfilments'
                                     "
-                                    :key="`shop` + layoutStore.currentParams.shop"
+                                    :key="`shop` + layoutStore.currentParams.shop + layoutStore.currentParams.fulfilment"
                                 />
 
                                 <transition>

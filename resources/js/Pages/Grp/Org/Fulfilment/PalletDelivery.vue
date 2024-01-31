@@ -22,7 +22,6 @@ import ShowcasePallet from '@/Components/Pallet/Showcase.vue'
     pageHead: object
 }>()
 
-console.log(props)
 
 let currentTab = ref(props.tabs.current);
 const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
