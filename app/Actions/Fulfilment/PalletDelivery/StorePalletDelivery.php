@@ -59,7 +59,6 @@ class StorePalletDelivery extends OrgAction
 
     public function prepareForValidation(ActionRequest $request): void
     {
-
         if($this->fulfilment->warehouses()->count()==1) {
             $this->fill(['warehouse_id' =>$this->fulfilment->warehouses()->first()->id]);
         }
@@ -84,8 +83,13 @@ class StorePalletDelivery extends OrgAction
     {
         return [
             'route' => [
-                'name'       => 'grp.org.shops.show.crm.customers.show.pallet-deliveries.show',
-                'parameters' => array_merge(request()->route()->originalParameters(), ['palletDelivery' => $palletDelivery->reference])
+                'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet-deliveries.show',
+                'parameters' => [
+                    'organisation' => $palletDelivery->organisation->slug,
+                    'fulfilment'   => $palletDelivery->fulfilment->slug,
+                    'fulfilmentCustomer'     => $palletDelivery->fulfilmentCustomer->slug,
+                    'palletDelivery' => $palletDelivery->reference
+                ]
             ]
         ];
     }

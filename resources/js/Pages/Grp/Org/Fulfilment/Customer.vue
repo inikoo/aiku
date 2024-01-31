@@ -29,6 +29,7 @@ import Button from '@/Components/Elements/Buttons/Button.vue'
 import Multiselect from "@vueform/multiselect"
 import { Link } from "@inertiajs/vue3"
 import { get } from 'lodash';
+import axios from 'axios';
 
 import TableDispatchedEmails from "@/Components/Tables/TableDispatchedEmails.vue";
 
@@ -96,6 +97,7 @@ import TableStoredItems from "@/Components/Tables/TableStoredItems.vue";
 
 const isOpen = ref(false);
 const warehouseValue = ref(null)
+const errorMessage = ref(null)
 
 function setIsOpen(value) {
     isOpen.value = value;
@@ -106,6 +108,28 @@ const webUserForm = useForm({
     username: null,
     password: null,
 });
+
+
+const sendWarehouse = async (data : object) => {
+        try {
+            const response = await axios.post(
+                route(data.route?.name, data.route?.parameters),
+                { warehouse_id: get(warehouseValue.value,'id') }
+            );
+            
+        } catch (error) {
+            console.log('error',error)
+            errorMessage.value = error.response.data.message
+        }
+    }
+
+
+    const warehouseChange = (value) => {
+        errorMessage.value = null
+        warehouseValue.value = value
+    }
+
+
 </script>
 
 <template layout="App">
@@ -123,14 +147,18 @@ const webUserForm = useForm({
                     <template #content="{ close: closed }">
                         <div class="w-[250px]">
                             <Multiselect v-model="warehouseValue" :searchable="true" :object="true" valueProp="id"
-                                :options="action.action.options.warehouses.data" track-by="name" label="name"
+                                :options="action.action.options.warehouses.data" track-by="name" label="name" @change="(value)=>warehouseChange(value)"
                                 :mode="'single'" ref="multiselect" placeholder="select a warehouse" class="w-full"/>
+                                <p v-if="errorMessage" class="mt-2 text-sm text-red-600" id="email-error">
+			                        {{ errorMessage }}
+		                        </p>
                             <div class="flex justify-end mt-3">
-                                <Link :href="route(action.action.route?.name, action.action.route?.parameters)" method="post"
-                                :as="'button'" :data="{id : get(warehouseValue,'id')}" >
 
-                                <Button :style="'save'" :label="'save'" />
-                            </Link>
+                              <!--   <Link :href="route(action.action.route?.name, action.action.route?.parameters)" method="post"
+                                :as="'button'" :data="{x : get(warehouseValue,'id')}" :canClear="false"> -->
+
+                                <Button :style="'save'" :label="'save'" @click="()=>sendWarehouse(action.action)" />
+                           <!--  </Link> -->
                             </div>
                            
                         </div>

@@ -185,8 +185,6 @@ class IndexPalletDeliveries extends OrgAction
 
     public function getBreadcrumbs(array $routeParameters): array
     {
-return [];
-
         $headCrumb = function (array $routeParameters = []) {
             return [
                 [
