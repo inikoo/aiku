@@ -35,6 +35,7 @@ class StorePalletDelivery extends OrgAction
     {
         data_set($modelData, 'group_id', $fulfilmentCustomer->group_id);
         data_set($modelData, 'organisation_id', $fulfilmentCustomer->organisation_id);
+        data_set($modelData, 'fulfilment_id', $fulfilmentCustomer->fulfilment_id);
 
         data_set($modelData, 'ulid', Str::ulid());
 
@@ -58,8 +59,9 @@ class StorePalletDelivery extends OrgAction
 
     public function prepareForValidation(ActionRequest $request): void
     {
+
         if($this->fulfilment->warehouses()->count()==1) {
-            $request->merge(['warehouse_id' =>$this->fulfilment->warehouses()->first()->id]);
+            $this->fill(['warehouse_id' =>$this->fulfilment->warehouses()->first()->id]);
         }
     }
 
