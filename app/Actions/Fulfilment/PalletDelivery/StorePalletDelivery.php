@@ -36,6 +36,7 @@ class StorePalletDelivery extends OrgAction
     {
         data_set($modelData, 'group_id', $fulfilmentCustomer->group_id);
         data_set($modelData, 'organisation_id', $fulfilmentCustomer->organisation_id);
+        data_set($modelData, 'fulfilment_id', $fulfilmentCustomer->fulfilment_id);
 
         data_set($modelData, 'ulid', Str::ulid());
 
@@ -74,7 +75,7 @@ class StorePalletDelivery extends OrgAction
 
     public function htmlResponse(PalletDelivery $palletDelivery, ActionRequest $request): Response
     {
-        return Inertia::location(route('grp.org.fulfilments.show.pallets.delivery.show', $request->route()->originalParameters() + ['palletDelivery' => $palletDelivery->reference]));
+        return Inertia::location(route('grp.org.fulfilments.show.pallet-deliveries.show', $request->route()->originalParameters() + ['palletDelivery' => $palletDelivery->reference]));
     }
 
     public string $commandSignature = 'pallet-deliveries:create {fulfillment-customer}';

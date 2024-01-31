@@ -65,10 +65,7 @@ class IndexPalletDeliveries extends OrgAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->whereAnyWordStartWith('customers.name', $value)
-                    ->orWhereStartWith('reference', $value)
-                    ->orWhereStartWith('customers.email', $value)
-                    ->orWhere('customers.reference', '=', $value);
+                $query->whereAnyWordStartWith('reference', $value);
             });
         });
 
@@ -85,18 +82,11 @@ class IndexPalletDeliveries extends OrgAction
         }
 
         return $queryBuilder
-            ->defaultSort('customers.slug')
+            ->defaultSort('reference')
             ->select([
-                'pallet_deliveries.reference',
-                'customers.id',
-                'customers.name',
-                'customers.slug',
-                'shops.code as shop_code',
-                'shops.slug as shop_slug'
+                'pallet_deliveries.reference'
             ])
-            ->leftJoin('customers', 'customers.id', 'pallet_deliveries.customer_id')
-            ->leftJoin('shops', 'shops.id', 'shop_id')
-            ->allowedSorts(['reference', 'name', 'slug'])
+            ->allowedSorts(['reference'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();

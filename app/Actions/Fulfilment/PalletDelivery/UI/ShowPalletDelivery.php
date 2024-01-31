@@ -120,11 +120,7 @@ class ShowPalletDelivery extends OrgAction
             $headCrumb(
                 [
                     'name'       => 'grp.org.fulfilments.show.pallets.delivery.show',
-                    'parameters' => [
-                        'organisation'   => $routeParameters['organisation']->slug,
-                        'fulfilment'     => $routeParameters['fulfilment']->slug,
-                        'palletDelivery' => $routeParameters['palletDelivery']->reference
-                    ]
+                    'parameters' => $routeParameters
                 ]
             )
         );
