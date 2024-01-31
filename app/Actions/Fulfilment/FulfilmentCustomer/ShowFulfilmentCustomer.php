@@ -17,6 +17,7 @@ use App\Actions\OrgAction;
 use App\Enums\UI\CustomerFulfilmentTabsEnum;
 use App\Http\Resources\Fulfilment\PalletDeliveriesResource;
 use App\Http\Resources\Fulfilment\StoredItemResource;
+use App\Http\Resources\Inventory\WarehouseResource;
 use App\Http\Resources\Mail\DispatchedEmailResource;
 use App\Http\Resources\Sales\CustomerResource;
 use App\Http\Resources\Sales\OrderResource;
@@ -71,20 +72,23 @@ class ShowFulfilmentCustomer extends OrgAction
                             'parameters' => array_values($request->route()->originalParameters())
                         ]
                     ] : false,
-                    'actions'=> [
+                    'actions' => [
                         [
-                             'type'    => 'button',
-                             'style'   => 'create',
-                             'tooltip' => __('new delivery'),
-                             'label'   => __('create delivery'),
-                             'route'   => [
-                                 'method'     => 'post',
-                                 'name'       => 'grp.models.org.fulfilment.delivery.pallet.store',
-                                 'parameters' => array_values($request->route()->originalParameters())
-                             ]
-                         ],
-                     ]
-                 ],
+                            'type'    => 'button',
+                            'style'   => 'create',
+                            'tooltip' => __('new delivery'),
+                            'label'   => __('create delivery'),
+                            'options' => [
+                                'warehouses'=> WarehouseResource::collection($fulfilmentCustomer->fulfilment->warehouses)
+                            ],
+                            'route'   => [
+                                'method'     => 'post',
+                                'name'       => 'grp.models.fulfilment-customer.pallet-delivery.store',
+                                'parameters' => [ $fulfilmentCustomer->id]
+                            ]
+                        ],
+                    ]
+                ],
                 'tabs'        => [
                     'current'    => $this->tab,
                     'navigation' => CustomerFulfilmentTabsEnum::navigation()
@@ -156,7 +160,6 @@ class ShowFulfilmentCustomer extends OrgAction
 
     public function getPrevious(FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): ?array
     {
-
         $previous = FulfilmentCustomer::where('slug', '<', $fulfilmentCustomer->slug)
             ->where('fulfilment_customers.fulfilment_id', $fulfilmentCustomer->fulfilment_id)
             ->orderBy('slug', 'desc')->first();
@@ -185,9 +188,9 @@ class ShowFulfilmentCustomer extends OrgAction
                 'route' => [
                     'name'       => $routeName,
                     'parameters' => [
-                        'organisation'           => $fulfilmentCustomer->organisation->slug,
-                        'fulfilment'             => $this->fulfilment->slug,
-                        'fulfilmentCustomer'     => $fulfilmentCustomer->slug
+                        'organisation'       => $fulfilmentCustomer->organisation->slug,
+                        'fulfilment'         => $this->fulfilment->slug,
+                        'fulfilmentCustomer' => $fulfilmentCustomer->slug
                     ]
 
                 ]

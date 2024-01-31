@@ -14,7 +14,7 @@ enum PalletDeliveryStateEnum: string
     use EnumHelperTrait;
 
     case IN_PROCESS  = 'in-process';
-    case READY = 'ready';
-    case RECEIVED = 'received';
-    case DONE = 'done';
+    case READY       = 'ready';
+    case RECEIVED    = 'received';
+    case DONE        = 'done';
 }
