@@ -160,11 +160,7 @@ class ShowFulfilmentCustomer extends OrgAction
             $headCrumb(
                 [
                     'name'       => 'grp.org.fulfilments.show.customers.index',
-                    'parameters' => [
-                        'organisation' => $routeParameters['organisation']->slug,
-                        'fulfilment'   => $routeParameters['fulfilment']->slug,
-                        'customer'     => $routeParameters['customer']->slug
-                    ]
+                    'parameters' => $routeParameters
                 ]
             )
         );

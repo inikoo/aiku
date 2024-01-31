@@ -154,7 +154,7 @@ class StoreCustomer extends OrgAction
             'phone'                    => ['nullable', 'max:255'],
             'identity_document_number' => ['nullable', 'string'],
             'contact_website'          => ['nullable', 'string', 'max:255'],
-            'contact_address'          => ['required', new ValidAddress()],
+            'contact_address'          => ['sometimes', new ValidAddress()],
             'delivery_address'         => ['sometimes', 'required', new ValidAddress()],
 
 
@@ -226,7 +226,10 @@ class StoreCustomer extends OrgAction
 
         $this->initialisationFromShop($shop, $modelData);
 
-        $customer = $this->handle($shop, $this->validatedData);
+        $arrayData = array_merge($this->validatedData, [
+            'is_fulfilment' => true,
+        ]);
+        $customer = $this->handle($shop, $arrayData);
 
         echo "Customer $customer->reference created 🎉" . "\n";
 

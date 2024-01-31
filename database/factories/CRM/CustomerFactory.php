@@ -20,7 +20,8 @@ class CustomerFactory extends Factory
             'email'                    => fake()->email,
             'identity_document_number' => fake('en_GB')->vat(),
             'website'                  => fake()->url,
-            'contact_address'          => Address::factory()->definition()
+            'contact_address'          => Address::factory()->definition(),
+            'is_fulfilment'            => true
         ];
     }
 }
