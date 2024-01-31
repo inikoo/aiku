@@ -56,10 +56,10 @@ class StorePalletDelivery extends OrgAction
         return $request->user()->hasPermissionTo("fulfilments.{$this->fulfilment->id}.edit");
     }
 
-    public function asController(Organisation $organisation, Fulfilment $fulfilment, Customer $customer, ActionRequest $request): PalletDelivery
+    public function asController(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request, ): PalletDelivery
     {
         $this->initialisationFromFulfilment($fulfilment, $request);
-        return $this->handle($customer->fulfilmentCustomer, $this->validatedData);
+        return $this->handle($fulfilmentCustomer, $this->validatedData);
     }
 
     public function jsonResponse(PalletDelivery $palletDelivery): array

@@ -71,29 +71,20 @@ class ShowFulfilmentCustomer extends OrgAction
                             'parameters' => array_values($request->route()->originalParameters())
                         ]
                     ] : false,
-                    'actions' => [
-                        /* [
+                    'actions'=> [
+                        [
                              'type'    => 'button',
                              'style'   => 'create',
                              'tooltip' => __('new delivery'),
                              'label'   => __('create delivery'),
                              'route'   => [
-                                 'name'       => 'grp.org.fulfilments.show.pallets.create',
+                                 'method'     => 'post',
+                                 'name'       => 'grp.models.org.fulfilment.delivery.pallet.store',
                                  'parameters' => array_values($request->route()->originalParameters())
                              ]
-                         ],*/
-                        /*[
-                            'type'    => 'button',
-                            'style'   => 'create',
-                            'tooltip' => __('upload stored items'),
-                            'label'   => __('upload stored items'),
-                            'route'   => [
-                                'name'       => 'grp.fulfilment.stored-items.create', // TODO Create Action for upload CSV/XLSX
-                                'parameters' => [$fulfilmentCustomer->slug]
-                            ]
-                        ],*/
-                    ]
-                ],
+                         ],
+                     ]
+                 ],
                 'tabs'        => [
                     'current'    => $this->tab,
                     'navigation' => CustomerFulfilmentTabsEnum::navigation()
@@ -124,18 +115,6 @@ class ShowFulfilmentCustomer extends OrgAction
             ->table(
                 IndexPalletDeliveries::make()->tableStructure(
                     $fulfilmentCustomer,
-                    modelOperations: [
-                        'createLink' => [
-                            [
-                                'route' => [
-                                    'name'       => 'grp.models.org.fulfilment.delivery.pallet.store',
-                                    'parameters' => array_values($request->route()->originalParameters())
-                                ],
-                                'style' => 'create',
-                                'label' => __('deliveries')
-                            ]
-                        ],
-                    ],
                     prefix: CustomerFulfilmentTabsEnum::PALLET_DELIVERIES->value
                 )
             )
