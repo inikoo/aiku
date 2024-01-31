@@ -2,7 +2,7 @@
 import { useLayoutStore } from '@/Stores/layout'
 import { Navigation } from '@/types/Navigation'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import {  } from '@fal'
+import { faRoute } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { Link, usePage, router } from '@inertiajs/vue3'
 // import SubNavigation from '@/Layouts/SubNavigation.vue'
@@ -11,7 +11,7 @@ import { isRouteSameAsCurrentUrl } from '@/Composables/useUrl'
 import { onMounted, ref, onUnmounted, computed } from 'vue'
 import TopbarSubsections from '@/Layouts/TopbarSubsections.vue'
 import {faHandHoldingBox} from '@fal';
-library.add(faHandHoldingBox)
+library.add(faRoute)
 
 const props = defineProps<{
     navKey: string | number  // shops_navigation | warehouses_navigation

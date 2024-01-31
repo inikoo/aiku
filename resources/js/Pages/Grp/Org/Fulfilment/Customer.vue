@@ -127,7 +127,7 @@ const webUserForm = useForm({
                                 :mode="'single'" ref="multiselect" placeholder="select a warehouse" class="w-full"/>
                             <div class="flex justify-end mt-3">
                                 <Link :href="route(action.action.route?.name, action.action.route?.parameters)" method="post"
-                                :as="'button'" :data="{id : get(warehouseValue,'id')}" >
+                                :as="'button'" :data="{warehouse_id : get(warehouseValue,'id')}" :canClear="false">
 
                                 <Button :style="'save'" :label="'save'" />
                             </Link>

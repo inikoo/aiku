@@ -176,7 +176,7 @@ class ShowFulfilment extends OrgAction
                             ],
                             'model' => [
                                 'route' => [
-                                    'name'       => 'grp.org.fulfilments.show.catalogue.dashboard',
+                                    'name'       => 'grp.org.fulfilments.show.operations.dashboard',
                                     'parameters' => $routeParameters
                                 ],
                                 'label' => $fulfilment->shop->name,
@@ -211,7 +211,7 @@ class ShowFulfilment extends OrgAction
         }
 
         return match ($routeName) {
-            'grp.org.fulfilments.show.catalogue.dashboard' => [
+            'grp.org.fulfilments.show.operations.dashboard' => [
                 'label' => $fulfilment->shop->name,
                 'route' => [
                     'name'       => $routeName,
