@@ -21,7 +21,7 @@ class PalletDeliveryResource extends JsonResource
         foreach (PalletDeliveryStateEnum::cases() as $state) {
             $timeline[$state->value] = [
                 'label'     => $state->labels()[$state->value],
-                'icon'      => $palletDelivery->state->stateIcon()[$state->value]['icon'],
+                /* 'icon'      => $palletDelivery->state->stateIcon()[$state->value]['icon'], */
                 'timestamp' => $palletDelivery->{$state->snake().'_at'} ? $palletDelivery->{$state->snake().'_at'}->toISOString() : null
             ];
         }
