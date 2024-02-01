@@ -18,6 +18,9 @@ import Popover from '@/Components/Popover.vue';
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import PureInput from '@/Components/Pure/PureInput.vue';
 import { get } from 'lodash'
+import { library } from "@fortawesome/fontawesome-svg-core";
+import {faTruckCouch} from "@fal";
+library.add(faTruckCouch);
 
 const props = defineProps<{
   title: string

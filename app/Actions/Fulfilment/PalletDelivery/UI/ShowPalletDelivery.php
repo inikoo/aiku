@@ -18,14 +18,18 @@ use App\Http\Resources\Fulfilment\PalletResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletDelivery;
+use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
 class ShowPalletDelivery extends OrgAction
 {
+    private Warehouse|FulfilmentCustomer $parent;
+
     public function handle(PalletDelivery $palletDelivery): PalletDelivery
     {
         return $palletDelivery;
@@ -33,20 +37,33 @@ class ShowPalletDelivery extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo("fulfilments.{$this->fulfilment->id}.edit");
+        if ($this->parent instanceof FulfilmentCustomer) {
+            $this->canEdit = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
 
-        return $request->user()->hasPermissionTo("fulfilments.{$this->fulfilment->id}.view");
+            return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
+        }
+        if ($this->parent instanceof Warehouse) {
+            $this->canEdit = $request->user()->hasPermissionTo("fulfilment.{$this->warehouse->id}.edit");
+
+            return $request->user()->hasPermissionTo("fulfilment.{$this->warehouse->id}.view");
+        }
+
+
+        return false;
     }
 
-    public function asController(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, PalletDelivery $palletDelivery, ActionRequest $request): PalletDelivery
+    public function asController(Organisation $organisation, Warehouse $warehouse, PalletDelivery $palletDelivery, ActionRequest $request): PalletDelivery
     {
-        $this->initialisationFromFulfilment($fulfilment, $request)->withTab(PalletDeliveryTabsEnum::values());
+        $this->parent = $warehouse;
+        $this->initialisationFromWarehouse($warehouse, $request)->withTab(PalletDeliveryTabsEnum::values());
 
         return $this->handle($palletDelivery);
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
     public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, PalletDelivery $palletDelivery, ActionRequest $request): PalletDelivery
     {
+        $this->parent = $fulfilmentCustomer;
         $this->initialisationFromFulfilment($fulfilment, $request)->withTab(PalletDeliveryTabsEnum::values());
 
         return $this->handle($palletDelivery);
@@ -54,6 +71,21 @@ class ShowPalletDelivery extends OrgAction
 
     public function htmlResponse(PalletDelivery $palletDelivery, ActionRequest $request): Response
     {
+        if ($this->parent instanceof Warehouse) {
+            $container = [
+                'icon'    => ['fal', 'fa-warehouse'],
+                'tooltip' => __('Warehouse'),
+                'label'   => Str::possessive($this->parent->code)
+            ];
+        } else {
+            $container = [
+                'icon'    => ['fal', 'fa-user'],
+                'tooltip' => __('Customer'),
+                'label'   => Str::possessive($this->parent->customer->reference)
+            ];
+        }
+
+
         return Inertia::render(
             'Org/Fulfilment/PalletDelivery',
             [
@@ -67,18 +99,19 @@ class ShowPalletDelivery extends OrgAction
                     'next'     => $this->getNext($palletDelivery, $request),
                 ],
                 'pageHead'    => [
-                    'title'   => __($palletDelivery->reference),
-                    'icon'    => [
-                        'icon'  => ['fal', 'fa-truck'],
+                    'container' => $container,
+                    'title'     => __($palletDelivery->reference),
+                    'icon'      => [
+                        'icon'  => ['fal', 'fa-truck-couch'],
                         'title' => __($palletDelivery->reference)
                     ],
-                    'edit'    => $this->canEdit ? [
+                    'edit'      => $this->canEdit ? [
                         'route' => [
                             'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
                             'parameters' => array_values($request->route()->originalParameters())
                         ]
                     ] : false,
-                    'actions' => [
+                    'actions'   => [
                         [
                             'type'    => 'button',
                             'style'   => 'create',
@@ -219,27 +252,28 @@ class ShowPalletDelivery extends OrgAction
             return null;
         }
 
-        return match ($routeName) {
-            'grp.org.fulfilments.show.crm.customers.show',
-            'shops.customers.show' => [
-                'label' => $palletDelivery->name,
+
+        return match (class_basename($this->parent)) {
+            'Warehouse' => [
+                'label' => $palletDelivery->reference,
                 'route' => [
                     'name'       => $routeName,
                     'parameters' => [
-                        'organisation' => $palletDelivery->shop->organisation->slug,
-                        'fulfilment'   => $this->fulfilment->slug,
-                        'customer'     => $palletDelivery->slug
+                        'organisation'   => $palletDelivery->organisation->slug,
+                        'warehouse'      => $palletDelivery->warehouse->slug,
+                        'palletDelivery' => $palletDelivery->reference
                     ]
 
                 ]
             ],
-            'shops.show.customers.show' => [
-                'label' => $palletDelivery->name,
+            'FulfilmentCustomer' => [
+                'label' => $palletDelivery->reference,
                 'route' => [
                     'name'       => $routeName,
                     'parameters' => [
-                        'shop'     => $palletDelivery->shop->slug,
-                        'customer' => $palletDelivery->slug
+                        'organisation' => $palletDelivery->organisation->slug,
+                        'fulfilment'   => $palletDelivery->fulfilment->slug,
+                        'customer'     => $palletDelivery->reference
                     ]
 
                 ]
