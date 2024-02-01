@@ -20,9 +20,11 @@ class PalletDeliveryResource extends JsonResource
 
         $timeline = [];
         foreach (PalletDeliveryStateEnum::cases() as $state) {
-            $timeline[$state->value] = [
+            $timeline[] = [
                 'label' => $state->labels()[$state->value],
-                /* 'icon'      => $palletDelivery->state->stateIcon()[$state->value]['icon'], */
+                'tooltip' => $state->labels()[$state->value],
+                'key'   => $state->value,
+               /*  'icon'      => $palletDelivery->state->stateIcon()[$state->value]['icon'], */
                 'timestamp' => $palletDelivery->{$state->snake() . '_at'} ? $palletDelivery->{$state->snake() . '_at'}->toISOString() : null
             ];
         }
@@ -31,7 +33,6 @@ class PalletDeliveryResource extends JsonResource
             'id'        => $palletDelivery->id,
             'reference' => $palletDelivery->reference,
             'state'     => $palletDelivery->state,
-            'pallets'   => PalletResource::collection(IndexPallets::run($palletDelivery->fulfilment, 'pallets')),
             'timeline'  => $timeline
         ];
     }

@@ -100,7 +100,7 @@ console.log('porps',props)
     </template>
 
   </PageHeading>
-  <Timeline :options="data.data.timeline" :state="data.data.state" @updateButton="updateState"/>
+<!--   <Timeline :options="data.data.timeline" :state="data.data.state" @updateButton="updateState"/> -->
   <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
   <component :is="component" :data="props[currentTab]" :timeline="timeline" :tab="currentTab"></component>
 </template>
