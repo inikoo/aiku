@@ -7,44 +7,23 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3'
 import { capitalize } from "@/Composables/capitalize"
-import {computed, ref} from "vue";
-import {useTabChange} from "@/Composables/tab-change";
+import { computed, ref } from "vue"
+import { useTabChange } from "@/Composables/tab-change"
 
-import ModelDetails from "@/Components/ModelDetails.vue";
-import TableHistories from "@/Components/Tables/TableHistories.vue";
-import TableWebpages from "@/Components/Tables/TableWebpages.vue";
+import ModelDetails from "@/Components/ModelDetails.vue"
+import TableHistories from "@/Components/Tables/TableHistories.vue"
+import TableWebpages from "@/Components/Tables/TableWebpages.vue"
 
-import PageHeading from "@/Components/Headings/PageHeading.vue";
-import Tabs from "@/Components/Navigation/Tabs.vue";
-import {library} from '@fortawesome/fontawesome-svg-core';
+import PageHeading from "@/Components/Headings/PageHeading.vue"
+import Tabs from "@/Components/Navigation/Tabs.vue"
+import { library } from '@fortawesome/fontawesome-svg-core'
 
-import {
-    faAnalytics,
-    faBrowser,
-    faChartLine,
-    faDraftingCompass,
-    faRoad,
-    faSlidersH,
-    faClock,
-    faLevelDown,
-    faShapes,
-    faSortAmountDownAlt,
-    faLayerGroup
-} from '@fal';
-import WebpageShowcase from "@/Components/Showcases/Org/WebpageShowcase.vue";
-import WebpageAnalytics from "@/Components/DataDisplay/WebpageAnalytics.vue";
-import TableSnapshots from "@/Components/Tables/TableSnapshots.vue";
+import { faUsersClass, faAnalytics, faBrowser, faChartLine, faDraftingCompass, faRoad, faSlidersH, faClock, faLevelDown, faShapes, faSortAmountDownAlt, faLayerGroup } from '@fal'
+import WebpageShowcase from "@/Components/Showcases/Org/WebpageShowcase.vue"
+import WebpageAnalytics from "@/Components/DataDisplay/WebpageAnalytics.vue"
+import TableSnapshots from "@/Components/Tables/TableSnapshots.vue"
 
-library.add(
-    faChartLine,
-    faClock,
-    faAnalytics,
-    faDraftingCompass,
-    faSlidersH,
-    faRoad,
-    faLayerGroup,
-    faBrowser,faLevelDown,faShapes,faSortAmountDownAlt
-);
+library.add( faChartLine, faClock, faUsersClass, faAnalytics, faDraftingCompass, faSlidersH, faRoad, faLayerGroup, faBrowser, faLevelDown, faShapes, faSortAmountDownAlt )
 
 const props = defineProps<{
     title: string
@@ -60,8 +39,8 @@ const props = defineProps<{
 }>()
 
 
-const currentTab = ref(props.tabs.current);
-const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
+const currentTab = ref(props.tabs.current)
+const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab)
 
 const component = computed(() => {
     const components = {
@@ -81,7 +60,6 @@ const component = computed(() => {
 <template layout="App">
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead"></PageHeading>
-    <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate"/>
-    <component :is="component" :tab="currentTab"  :data="props[currentTab]"></component>
-
+    <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
+    <component :is="component" :tab="currentTab" :data="props[currentTab]"></component>
 </template>
