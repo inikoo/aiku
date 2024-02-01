@@ -123,14 +123,17 @@ class IndexWebsites extends OrgAction
         }
 
 
-        foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
-            $queryBuilder->whereElementGroup(
-                key: $key,
-                allowedElements: array_keys($elementGroup['elements']),
-                engine: $elementGroup['engine'],
-                prefix: $prefix
-            );
+        if($parent instanceof Group || $parent instanceof Organisation) {
+            foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
+                $queryBuilder->whereElementGroup(
+                    key: $key,
+                    allowedElements: array_keys($elementGroup['elements']),
+                    engine: $elementGroup['engine'],
+                    prefix: $prefix
+                );
+            }
         }
+
 
         return $queryBuilder
             ->defaultSort('websites.code')
@@ -150,14 +153,15 @@ class IndexWebsites extends OrgAction
                     ->pageName($prefix.'Page');
             }
 
-            foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
-                $table->elementGroup(
-                    key: $key,
-                    label: $elementGroup['label'],
-                    elements: $elementGroup['elements']
-                );
+            if($parent instanceof Group || $parent instanceof Organisation) {
+                foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
+                    $table->elementGroup(
+                        key: $key,
+                        label: $elementGroup['label'],
+                        elements: $elementGroup['elements']
+                    );
+                }
             }
-
 
             $countWebsites = match (class_basename($parent)) {
                 'Group', 'Organisation' => $parent->webStats->number_websites,
@@ -175,7 +179,7 @@ class IndexWebsites extends OrgAction
 
                     ]
                 )
-                ->column(key: 'state', label: ['fal', 'fa-yin-yang'], sortable: true)
+                ->column(key: 'state', label: ['fal', 'fa-yin-yang'], sortable: true, type: 'icon')
                 ->column(key: 'slug', label: __('code'), sortable: true)
                 ->column(key: 'name', label: __('name'), sortable: true)
                 ->column(key: 'domain', label: __('domain'), sortable: true)
@@ -198,14 +202,14 @@ class IndexWebsites extends OrgAction
             $container = [
                 'icon'    => ['fal', 'fa-store-alt'],
                 'tooltip' => __('Shop'),
-                'label'   => Str::possessive($scope->name)
+                'label'   => Str::possessive($scope->code)
             ];
         } elseif (class_basename($scope) == 'Fulfilment') {
             $title     = __("Fulfilment Shop Websites");
             $container = [
                 'icon'    => ['fal', 'fa-pallet-alt'],
                 'tooltip' => __('Fulfilment shop'),
-                'label'   => Str::possessive($scope->shop->name)
+                'label'   => Str::possessive($scope->shop->code)
             ];
         }
 
@@ -267,7 +271,7 @@ class IndexWebsites extends OrgAction
 
 
         return match ($routeName) {
-            'grp.org.fulfilments.show.websites.index' =>
+            'grp.org.fulfilments.show.web.websites.index' =>
             array_merge(
                 ShowFulfilment::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(
