@@ -9,7 +9,7 @@ namespace App\Actions\Fulfilment\Pallet;
 
 use App\Actions\OrgAction;
 use App\Models\CRM\Customer;
-use App\Models\Fulfilment\Fulfilment;
+use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\SysAdmin\Organisation;
@@ -29,6 +29,10 @@ class StorePalletFromDelivery extends OrgAction
 
     public function handle(PalletDelivery $palletDelivery, array $modelData): Pallet
     {
+        data_set($modelData, 'group_id', $palletDelivery->group_id);
+        data_set($modelData, 'organisation_id', $palletDelivery->organisation_id);
+        data_set($modelData, 'fulfilment_id', $palletDelivery->fulfilment->id);
+
         /** @var Pallet $pallet */
         $pallet = $palletDelivery->pallets()->create($modelData);
         //FulfilmentCustomerHydrateStoredItems::dispatch($customer);
@@ -46,12 +50,11 @@ class StorePalletFromDelivery extends OrgAction
         return $request->user()->hasPermissionTo("fulfilment.{$this->fulfilment->id}.edit");
     }
 
-    public function asController(Organisation $organisation, Fulfilment $fulfilment, Customer $customer, PalletDelivery $palletDelivery, ActionRequest $request): Pallet
+    public function asController(Organisation $organisation, FulfilmentCustomer $fulfilmentCustomer, PalletDelivery $palletDelivery, ActionRequest $request): Pallet
     {
-        $this->customer = $customer;
-        $this->initialisationFromFulfilment($fulfilment, $request);
+        $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $request);
 
-        return $this->handle($palletDelivery, $this->validateAttributes());
+        return $this->handle($palletDelivery, $this->validatedData);
     }
 
     public function action(Customer $customer, array $modelData, int $hydratorsDelay = 0): Pallet
