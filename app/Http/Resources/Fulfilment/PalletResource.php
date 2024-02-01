@@ -19,6 +19,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property string $notes
  * @property \App\Models\Fulfilment\FulfilmentCustomer $fulfilmentCustomer
  * @property \App\Models\Inventory\Location $location
+ * @property \App\Models\Inventory\Warehouse $warehouse
  * @property \App\Models\Fulfilment\StoredItem $storedItems
  */
 class PalletResource extends JsonResource
@@ -28,6 +29,7 @@ class PalletResource extends JsonResource
         return [
             'id'                 => $this->id,
             'customer_reference' => $this->customer_reference,
+            'warehouse_slug'     => $this->warehouse->slug,
             'slug'               => $this->slug,
             'customer_name'      => $this->fulfilmentCustomer->customer->contact_name,
             'location'           => LocationResource::make($this->location),
