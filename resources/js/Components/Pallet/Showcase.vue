@@ -5,7 +5,6 @@
   -->
 
 <script setup lang="ts">
-import Timeline from '@/Components/Timeline/Timeline.vue'
 import TablePallets from "@/Components/Tables/TablePallets.vue";
 
 const props = defineProps<{
@@ -19,12 +18,8 @@ const props = defineProps<{
     }
     timeline: object
 }>()
-console.log('ini',props.data.data)
 </script>
 
 <template>
-    <div class="py-3 mx-auto px-5 w-full">
-        <Timeline :options="timeline"/>
-    </div>
-    <TablePallets :data="data" :tab="'pallets'"/>
+        <TablePallets :data="data" :tab="'pallets'"/>               
 </template>

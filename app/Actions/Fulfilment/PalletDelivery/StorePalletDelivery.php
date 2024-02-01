@@ -68,7 +68,7 @@ class StorePalletDelivery extends OrgAction
     public function rules(): array
     {
         return [
-            'warehouse_id'=> ['required','integer','exists:warehouses,id']
+            'warehouse_id'=> ['required','integer','exists:warehouses,id'],
         ];
     }
 

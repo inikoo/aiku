@@ -26,12 +26,18 @@ class StorePalletFromDelivery extends OrgAction
     private Customer $customer;
 
     public $commandSignature = 'pallet:store-from-delivery {palletDelivery}';
+    /**
+     * @var \App\Models\Fulfilment\PalletDelivery
+     */
+    private PalletDelivery $parent;
 
     public function handle(PalletDelivery $palletDelivery, array $modelData): Pallet
     {
         data_set($modelData, 'group_id', $palletDelivery->group_id);
         data_set($modelData, 'organisation_id', $palletDelivery->organisation_id);
-        data_set($modelData, 'fulfilment_id', $palletDelivery->fulfilment->id);
+        data_set($modelData, 'fulfilment_id', $palletDelivery->fulfilment_id);
+        data_set($modelData, 'fulfilment_customer_id', $palletDelivery->fulfilment_customer_id);
+        data_set($modelData, 'warehouse_id', $palletDelivery->warehouse_id);
 
         /** @var Pallet $pallet */
         $pallet = $palletDelivery->pallets()->create($modelData);
@@ -50,8 +56,16 @@ class StorePalletFromDelivery extends OrgAction
         return $request->user()->hasPermissionTo("fulfilment.{$this->fulfilment->id}.edit");
     }
 
+    public function rules() : array
+    {
+        return [
+            'notes' => ['nullable', 'string']
+        ];
+    }
+
     public function asController(Organisation $organisation, FulfilmentCustomer $fulfilmentCustomer, PalletDelivery $palletDelivery, ActionRequest $request): Pallet
     {
+        $this->parent = $palletDelivery;
         $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $request);
 
         return $this->handle($palletDelivery, $this->validatedData);
@@ -89,6 +103,11 @@ class StorePalletFromDelivery extends OrgAction
 
     public function htmlResponse(Pallet $pallet, ActionRequest $request): RedirectResponse
     {
-        return Redirect::route('grp.org.fulfilments.show.pallets.show', $pallet->slug);
+        return Redirect::route('grp.org.fulfilments.show.crm.customers.show.pallet-deliveries.show', [
+            'organisation'           => $pallet->organisation->slug,
+            'fulfilment'             => $pallet->fulfilment->slug,
+            'fulfilmentCustomer'     => $pallet->fulfilmentCustomer->slug,
+            'palletDelivery'         => $this->parent->reference
+        ]);
     }
 }
