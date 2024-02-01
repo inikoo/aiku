@@ -17,10 +17,28 @@ const props = defineProps<{
 }>()
 
 
+function customerRoute(pallet: Customer) {
+    switch (route().current()) {
+        default:
+            return route(
+                'grp.org.warehouses.show.fulfilment.pallets.show',
+                [
+                    route().params['organisation'],
+                    pallet.warehouse_slug,
+                    pallet.slug
+                ]);
+    }
+}
+
 </script>
 
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
+        <template #cell(slug)="{ item: pallet }">
+            <Link :href="customerRoute(pallet)" class="specialUnderline">
+                {{ pallet['slug'] }}
+            </Link>
+        </template>
         <template #cell(location)="{ item: pallet }">
             <AddressLocation v-if="pallet['location']" :data="pallet['location']"/>
         </template>

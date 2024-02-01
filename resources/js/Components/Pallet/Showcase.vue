@@ -21,5 +21,5 @@ const props = defineProps<{
 </script>
 
 <template>
-        <TablePallets :data="data" :tab="'pallets'"/>               
+        <TablePallets :data="data" :tab="'pallets'"></TablePallets>               
 </template>
