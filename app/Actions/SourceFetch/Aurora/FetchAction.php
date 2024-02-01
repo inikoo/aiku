@@ -112,7 +112,10 @@ class FetchAction
 
     public function processOrganisation(Command $command, Organisation $organisation): int
     {
-        $this->fetchAll = (bool)$command->option('all');
+
+        if ($command->getName() == 'fetch:webpages') {
+            $this->fetchAll = (bool)$command->option('all');
+        }
 
 
         if (in_array($command->getName(), [
