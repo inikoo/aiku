@@ -56,7 +56,7 @@ class StorePalletFromDelivery extends OrgAction
         return $request->user()->hasPermissionTo("fulfilment.{$this->fulfilment->id}.edit");
     }
 
-    public function rules() : array
+    public function rules(): array
     {
         return [
             'notes' => ['required', 'string']
@@ -71,14 +71,14 @@ class StorePalletFromDelivery extends OrgAction
         return $this->handle($palletDelivery, $this->validatedData);
     }
 
-    public function action(Customer $customer, array $modelData, int $hydratorsDelay = 0): Pallet
+    public function action(PalletDelivery $palletDelivery, array $modelData, int $hydratorsDelay = 0): Pallet
     {
         $this->asAction       = true;
         $this->hydratorsDelay = $hydratorsDelay;
-        $this->customer       = $customer;
-        $this->initialisationFromFulfilment($customer->shop->fulfilment, $modelData);
+        $this->parent         = $palletDelivery;
+        $this->initialisationFromFulfilment($palletDelivery->fulfilment, $modelData);
 
-        return $this->handle($customer, $this->validatedData);
+        return $this->handle($palletDelivery, $this->validatedData);
     }
 
 
@@ -95,7 +95,7 @@ class StorePalletFromDelivery extends OrgAction
             'slug'                   => now()->timestamp
         ]);
 
-        echo "Pallet created from delivery: {$palletDelivery->reference}\n";
+        echo "Pallet created from delivery: $palletDelivery->reference\n";
 
         return 0;
     }

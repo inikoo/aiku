@@ -7,8 +7,9 @@
 
 namespace App\Actions\Fulfilment\PalletDelivery\UI;
 
-use App\Actions\Fulfilment\Pallet\UI\IndexPallets;
+use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\Pallet\UI\IndexPalletsFromDelivery;
+use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
 use App\Enums\UI\PalletDeliveryTabsEnum;
 use App\Http\Resources\Fulfilment\PalletDeliveriesResource;
@@ -18,6 +19,7 @@ use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\SysAdmin\Organisation;
+use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -57,19 +59,20 @@ class ShowPalletDelivery extends OrgAction
             [
                 'title'       => __('pallet delivery'),
                 'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
-                'navigation' => [
+                'navigation'  => [
                     'previous' => $this->getPrevious($palletDelivery, $request),
                     'next'     => $this->getNext($palletDelivery, $request),
                 ],
-                'pageHead' => [
-                    'title' => __($palletDelivery->reference),
-                    'icon'  => [
+                'pageHead'    => [
+                    'title'   => __($palletDelivery->reference),
+                    'icon'    => [
                         'icon'  => ['fal', 'fa-truck'],
                         'title' => __($palletDelivery->reference)
                     ],
-                    'edit' => $this->canEdit ? [
+                    'edit'    => $this->canEdit ? [
                         'route' => [
                             'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
                             'parameters' => array_values($request->route()->originalParameters())
@@ -141,31 +144,71 @@ class ShowPalletDelivery extends OrgAction
         return new PalletDeliveriesResource($palletDelivery);
     }
 
-    public function getBreadcrumbs(array $routeParameters): array
+    public function getBreadcrumbs(string $routeName, array $routeParameters, $suffix = ''): array
     {
-        return [];
-        $headCrumb = function (array $routeParameters = []) {
+        $headCrumb = function (PalletDelivery $palletDelivery, array $routeParameters, string $suffix) {
             return [
                 [
-                    'type'   => 'simple',
-                    'simple' => [
-                        'label' => __($routeParameters['parameters']['palletDelivery'])
+                    'type'           => 'modelWithIndex',
+                    'modelWithIndex' => [
+                        'index' => [
+                            'route' => $routeParameters['index'],
+                            'label' => __('pallet deliveries')
+                        ],
+                        'model' => [
+                            'route' => $routeParameters['model'],
+                            'label' => $palletDelivery->reference,
+                        ],
+
                     ],
+                    'suffix'         => $suffix
                 ],
             ];
         };
 
-        return array_merge(
-            IndexPalletDeliveries::make()->getBreadcrumbs(
-                $routeParameters
+        $palletDelivery = PalletDelivery::where('reference', $routeParameters['palletDelivery'])->first();
+
+
+        return match ($routeName) {
+            'grp.org.fulfilments.show.crm.customers.show.pallet-deliveries.show' => array_merge(
+                ShowFulfilmentCustomer::make()->getBreadcrumbs(Arr::only($routeParameters, ['organisation', 'fulfilment', 'fulfilmentCustomer'])),
+                $headCrumb(
+                    $palletDelivery,
+                    [
+                        'index' => [
+                            'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet-deliveries.index',
+                            'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment', 'fulfilmentCustomer'])
+                        ],
+                        'model' => [
+                            'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet-deliveries.show',
+                            'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment', 'fulfilmentCustomer', 'palletDelivery'])
+                        ]
+                    ],
+                    $suffix
+                )
             ),
-            $headCrumb(
-                [
-                    'name'       => 'grp.org.fulfilments.show.pallets.delivery.show',
-                    'parameters' => $routeParameters
-                ]
-            )
-        );
+            'grp.org.warehouses.show.fulfilment.pallet-deliveries.show' => array_merge(
+                ShowWarehouse::make()->getBreadcrumbs(
+                    Arr::only($routeParameters, ['organisation', 'warehouse'])
+                ),
+                $headCrumb(
+                    $palletDelivery,
+                    [
+                        'index' => [
+                            'name'       => 'grp.org.warehouses.show.fulfilment.pallet-deliveries.index',
+                            'parameters' => Arr::only($routeParameters, ['organisation', 'warehouse'])
+                        ],
+                        'model' => [
+                            'name'       => 'grp.org.warehouses.show.fulfilment.pallet-deliveries.show',
+                            'parameters' => Arr::only($routeParameters, ['organisation', 'warehouse', 'palletDelivery'])
+                        ]
+                    ],
+                    $suffix
+                ),
+            ),
+
+            default => []
+        };
     }
 
     public function getPrevious(PalletDelivery $palletDelivery, ActionRequest $request): ?array
@@ -173,7 +216,6 @@ class ShowPalletDelivery extends OrgAction
         $previous = PalletDelivery::where('id', '<', $palletDelivery->id)->orderBy('id', 'desc')->first();
 
         return $this->getNavigation($previous, $request->route()->getName());
-
     }
 
     public function getNext(PalletDelivery $palletDelivery, ActionRequest $request): ?array

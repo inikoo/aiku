@@ -153,7 +153,7 @@ class ShowLocation extends OrgAction
 
         return match ($routeName) {
             'grp.org.warehouses.show.infrastructure.locations.show' => array_merge(
-                (new ShowWarehouse())->getBreadcrumbs(Arr::only($routeParameters, ['organisation', 'warehouse'])),
+                ShowWarehouse::make()->getBreadcrumbs(Arr::only($routeParameters, ['organisation', 'warehouse'])),
                 $headCrumb(
                     $location,
                     [
@@ -170,7 +170,7 @@ class ShowLocation extends OrgAction
                 )
             ),
             'grp.org.warehouses.show.infrastructure.warehouse-areas.show.locations.show' => array_merge(
-                (new ShowWarehouseArea())->getBreadcrumbs(
+                ShowWarehouseArea::make()->getBreadcrumbs(
                     Arr::only($routeParameters, ['organisation', 'warehouse', 'warehouseArea'])
                 ),
                 $headCrumb(
