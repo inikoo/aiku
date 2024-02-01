@@ -104,6 +104,18 @@ class ShowPalletDelivery extends OrgAction
                     ]
                 ],
 
+                'updateRoute' => [
+                    'route'   => [
+                        'name'       => 'grp.models.fulfilment-customer.pallet-delivery.update',
+                        'parameters' => [
+                            'organisation'       => $palletDelivery->organisation->slug,
+                            'fulfilment'         => $palletDelivery->fulfilment->slug,
+                            'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->id,
+                            'palletDelivery'     => $palletDelivery->reference
+                        ]
+                    ]
+                ],
+
                 'tabs' => [
                     'current'    => $this->tab,
                     'navigation' => PalletDeliveryTabsEnum::navigation()

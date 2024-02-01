@@ -59,7 +59,7 @@ class StorePalletFromDelivery extends OrgAction
     public function rules() : array
     {
         return [
-            'notes' => ['nullable', 'string']
+            'notes' => ['required', 'string']
         ];
     }
 

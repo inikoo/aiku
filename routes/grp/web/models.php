@@ -10,6 +10,7 @@ use App\Actions\CRM\Prospect\ImportShopProspects;
 use App\Actions\Fulfilment\Fulfilment\StoreFulfilment;
 use App\Actions\Fulfilment\Pallet\StorePalletFromDelivery;
 use App\Actions\Fulfilment\PalletDelivery\StorePalletDelivery;
+use App\Actions\Fulfilment\PalletDelivery\UpdatePalletDelivery;
 use App\Actions\HumanResources\Employee\DeleteEmployee;
 use App\Actions\HumanResources\Employee\StoreEmployee;
 use App\Actions\HumanResources\Employee\UpdateEmployee;
@@ -40,6 +41,7 @@ Route::name('org.')->prefix('org/{organisation}')->group(function () {
 
 Route::name('fulfilment-customer.')->prefix('fulfilment-customer/{fulfilmentCustomer:id}')->group(function () {
     Route::post('pallet-delivery', StorePalletDelivery::class)->name('pallet-delivery.store');
+    Route::patch('pallet-delivery/{palletDelivery}', UpdatePalletDelivery::class)->name('pallet-delivery.update');
     Route::post('pallet-delivery/{palletDelivery}/pallet', StorePalletFromDelivery::class)->name('pallet-delivery.pallet.store');
 });
 
