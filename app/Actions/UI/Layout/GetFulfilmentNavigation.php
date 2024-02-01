@@ -47,7 +47,7 @@ class GetFulfilmentNavigation
                         [
                             'label'   => __('deliveries'),
                             'tooltip' => __('Deliveries'),
-                            'icon'    => ['fal', 'fa-truck-coach'],
+                            'icon'    => ['fal', 'fa-truck-couch'],
                             'route'   => [
                                 'name'       => 'grp.org.fulfilments.show.operations.pallet-deliveries.index',
                                 'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug]
