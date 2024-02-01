@@ -15,16 +15,16 @@ const props = defineProps<{
             pallets: Array,
             reference: String,
             state: String,
-            timeline: Array
         }
     }
+    timeline: object
 }>()
-console.log(props.data.data.pallets)
+console.log('ini',props.data.data)
 </script>
 
 <template>
     <div class="py-3 mx-auto px-5 w-full">
-        <Timeline :options="data.data.timeline"/>
+        <Timeline :options="timeline"/>
     </div>
     <TablePallets :data="data" :tab="'pallets'"/>
 </template>
