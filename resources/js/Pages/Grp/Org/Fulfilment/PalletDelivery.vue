@@ -17,7 +17,7 @@ import ShowcasePallet from '@/Components/Pallet/Showcase.vue'
   const props = defineProps<{
     title: string
     tabs: object
-    showcase?:object
+    pallets?:object
     history?:object
     pageHead: object
 }>()
@@ -36,6 +36,8 @@ const component = computed(() => {
     return components[currentTab.value];
 
 });
+
+console.log(props.pallets)
   </script>
 
   <template layout="App">
