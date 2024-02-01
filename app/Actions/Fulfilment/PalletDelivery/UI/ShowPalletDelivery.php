@@ -85,7 +85,6 @@ class ShowPalletDelivery extends OrgAction
             ];
         }
 
-
         return Inertia::render(
             'Org/Fulfilment/PalletDelivery',
             [
