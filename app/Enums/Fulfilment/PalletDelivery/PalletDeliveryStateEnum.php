@@ -22,9 +22,9 @@ enum PalletDeliveryStateEnum: string
     {
         return [
             'in-process' => __('In Process'),
-            'ready' => __('Ready'),
-            'received' => __('Received'),
-            'done' => __('Done')
+            'ready'      => __('Ready'),
+            'received'   => __('Received'),
+            'done'       => __('Done')
         ];
     }
 
