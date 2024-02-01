@@ -50,8 +50,8 @@ return new class () extends Migration {
         });
 
         Schema::table('websites', function ($table) {
-            $table->unsignedInteger('home_id')->index()->nullable();
-            $table->foreign('home_id')->references('id')->on('webpages')->onUpdate('cascade')->onDelete('cascade');
+            $table->unsignedInteger('storefront_id')->index()->nullable();
+            $table->foreign('storefront_id')->references('id')->on('webpages')->onUpdate('cascade')->onDelete('cascade');
         });
 
     }
@@ -59,7 +59,7 @@ return new class () extends Migration {
     public function down(): void
     {
         Schema::table('websites', function (Blueprint $table) {
-            $table->dropColumn('home_id');
+            $table->dropColumn('storefront_id');
         });
         Schema::dropIfExists('webpages');
     }

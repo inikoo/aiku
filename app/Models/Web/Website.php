@@ -78,11 +78,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $cloudflare_id
  * @property WebsiteCloudflareStatusEnum|null $cloudflare_status
  * @property string|null $source_id
- * @property int|null $home_id
+ * @property int|null $storefront_id
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Collection<int, Deployment> $deployments
  * @property-read Group $group
- * @property-read \App\Models\Web\Webpage|null $home
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, Media> $images
  * @property-read Snapshot|null $liveSnapshot
  * @property-read Media|null $logo
@@ -90,6 +89,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Organisation $organisation
  * @property-read Shop $shop
  * @property-read Collection<int, Snapshot> $snapshots
+ * @property-read \App\Models\Web\Webpage|null $storefront
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
  * @property-read Snapshot|null $unpublishedFooterSnapshot
  * @property-read Snapshot|null $unpublishedHeaderSnapshot
@@ -146,9 +146,9 @@ class Website extends Model implements Auditable, HasMedia
     protected array $auditExclude = [
         'id',
         'slug',
-        'home_id',
+        'storefront_id',
         'live_header_snapshot_id',
-        'live_footer_snapshot_id','home_id',
+        'live_footer_snapshot_id','storefront_id',
         'compiled_layout','unpublished_header_snapshot_id',
         'unpublished_footer_snapshot_id',
         'published_header_checksum','published_footer_checksum'
@@ -192,9 +192,9 @@ class Website extends Model implements Auditable, HasMedia
         return $this->hasOne(WebsiteStats::class);
     }
 
-    public function home(): BelongsTo
+    public function storefront(): BelongsTo
     {
-        return $this->belongsTo(Webpage::class, 'home_id');
+        return $this->belongsTo(Webpage::class, 'storefront_id');
     }
 
     protected function condition(): Attribute

@@ -42,7 +42,7 @@ test('create b2b website', function () {
     );
 
     expect($website)->toBeInstanceOf(Website::class)
-        ->and($website->home)->toBeInstanceOf(Webpage::class)
+        ->and($website->storefront)->toBeInstanceOf(Webpage::class)
         ->and($website->webStats->number_webpages)->toBe(4);
 
 
