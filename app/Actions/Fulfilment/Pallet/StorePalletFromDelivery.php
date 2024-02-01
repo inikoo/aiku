@@ -56,6 +56,13 @@ class StorePalletFromDelivery extends OrgAction
         return $request->user()->hasPermissionTo("fulfilment.{$this->fulfilment->id}.edit");
     }
 
+    public function rules() : array
+    {
+        return [
+            'notes' => ['nullable', 'string']
+        ];
+    }
+
     public function asController(Organisation $organisation, FulfilmentCustomer $fulfilmentCustomer, PalletDelivery $palletDelivery, ActionRequest $request): Pallet
     {
         $this->parent = $palletDelivery;

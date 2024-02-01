@@ -31,7 +31,7 @@ const props = defineProps<{
 let currentTab = ref(props.tabs.current);
 const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
 
-const form = useForm({ reference: '' })
+const form = useForm({ notes: '' })
 
 const handleFormSubmit = (data: object, closedPopover : Function ) => {
   form.post(route(
@@ -39,9 +39,9 @@ const handleFormSubmit = (data: object, closedPopover : Function ) => {
     data.route.parameters
   ), {
     preserveScroll: true,
-    onSuccess: () => { 
+    onSuccess: () => {
       closedPopover()
-      form.reset('reference') 
+      form.reset('notes')
     },
   })
 }
@@ -71,9 +71,9 @@ const component = computed(() => {
           </template>
           <template #content="{ close: closed }">
             <div class="w-[250px]">
-              <PureInput v-model="form.reference" placeholder="Notes"></PureInput>
-              <p v-if="get(form, ['errors','reference'])" class="mt-2 text-sm text-red-600">
-                {{ form.errors.reference }}
+              <PureInput v-model="form.notes" placeholder="Notes"></PureInput>
+              <p v-if="get(form, ['errors','notes'])" class="mt-2 text-sm text-red-600">
+                {{ form.errors.notes }}
               </p>
               <div class="flex justify-end mt-3">
                 <Button :style="'save'" :label="'save'" @click="() => handleFormSubmit( action.action, closed )" />
