@@ -23,19 +23,28 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  * @property string $ulid
  * @property int $fulfilment_customer_id
  * @property int $fulfilment_id
- * @property int $warehouse_id
+ * @property int|null $warehouse_id
  * @property string|null $customer_reference
  * @property string $reference
- * @property \App\Models\Fulfilment\Fulfilment $fulfilment
- * @property Organisation $organisation
- * @property \App\Models\Fulfilment\FulfilmentCustomer $fulfilmentCustomer
+ * @property int $number_pallets
+ * @property int $number_pallet_stored_items
+ * @property int $number_stored_items
  * @property PalletDeliveryStateEnum $state
- * @property \Illuminate\Support\Carbon|null $in_at
- * @property \Illuminate\Support\Carbon|null $out_at
+ * @property string|null $booked_in_at
+ * @property string|null $settled_at
+ * @property string|null $in_process_at
+ * @property string|null $ready_at
+ * @property string|null $received_at
+ * @property string|null $done_at
+ * @property string|null $dispatched_at
+ * @property string|null $date
  * @property array|null $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read Customer $customer
+ * @property-read \App\Models\Fulfilment\Fulfilment $fulfilment
+ * @property-read \App\Models\Fulfilment\FulfilmentCustomer $fulfilmentCustomer
+ * @property-read Organisation $organisation
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\Pallet> $pallets
  * @method static \Illuminate\Database\Eloquent\Builder|PalletDelivery newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|PalletDelivery newQuery()
