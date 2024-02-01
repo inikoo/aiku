@@ -11,9 +11,13 @@ use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Models\CRM\Customer;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
+use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Sluggable\HasSlug;
+use Spatie\Sluggable\SlugOptions;
 
 /**
  * App\Models\Fulfilment\PalletDelivery
@@ -21,6 +25,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  * @property int $id
  * @property int $group_id
  * @property int $organisation_id
+ * @property string $slug
  * @property string $ulid
  * @property int $fulfilment_customer_id
  * @property int $fulfilment_id
@@ -42,19 +47,29 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  * @property array|null $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property string|null $delete_comment
  * @property-read Customer $customer
  * @property-read \App\Models\Fulfilment\Fulfilment $fulfilment
  * @property-read \App\Models\Fulfilment\FulfilmentCustomer $fulfilmentCustomer
  * @property-read Organisation $organisation
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\Pallet> $pallets
+ * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
  * @property-read Warehouse|null $warehouse
  * @method static \Illuminate\Database\Eloquent\Builder|PalletDelivery newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|PalletDelivery newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|PalletDelivery onlyTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|PalletDelivery query()
+ * @method static \Illuminate\Database\Eloquent\Builder|PalletDelivery withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|PalletDelivery withoutTrashed()
  * @mixin \Eloquent
  */
 class PalletDelivery extends Model
 {
+    use HasSlug;
+    use SoftDeletes;
+    use HasUniversalSearch;
+
     protected $guarded = [];
     protected $casts   = [
         'state'  => PalletDeliveryStateEnum::class,
@@ -65,7 +80,15 @@ class PalletDelivery extends Model
 
     public function getRouteKeyName(): string
     {
-        return 'reference';
+        return 'slug';
+    }
+
+    public function getSlugOptions(): SlugOptions
+    {
+        return SlugOptions::create()
+            ->generateSlugsFrom('reference')
+            ->doNotGenerateSlugsOnUpdate()
+            ->saveSlugsTo('slug')->slugsShouldBeNoLongerThan(64);
     }
 
     public function customer(): BelongsTo

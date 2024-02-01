@@ -8,6 +8,7 @@
 namespace App\Actions\Fulfilment\PalletDelivery\UI;
 
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
+use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
 use App\Http\Resources\Fulfilment\FulfilmentCustomersResource;
@@ -78,7 +79,8 @@ class IndexPalletDeliveries extends OrgAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->whereAnyWordStartWith('reference', $value);
+                $query->whereStartWith('reference', $value)
+                ->orWhereStartWith('customer_reference', $value);
             });
         });
 
@@ -205,6 +207,18 @@ class IndexPalletDeliveries extends OrgAction
 
 
         return match ($routeName) {
+
+            'grp.org.fulfilments.show.crm.customers.show.pallet-deliveries.index'=> array_merge(
+                ShowFulfilmentCustomer::make()->getBreadcrumbs(
+                    $routeParameters
+                ),
+                $headCrumb(
+                    [
+                        'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet-deliveries.index',
+                        'parameters' => Arr::only($routeParameters, ['organisation','fulfilment','fulfilmentCustomer'])
+                    ]
+                )
+            ),
             'grp.org.fulfilments.show.operations.pallet-deliveries.index' => array_merge(
                 ShowFulfilment::make()->getBreadcrumbs(
                     $routeParameters

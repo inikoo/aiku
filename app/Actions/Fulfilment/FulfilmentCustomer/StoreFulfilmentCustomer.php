@@ -8,6 +8,7 @@
 namespace App\Actions\Fulfilment\FulfilmentCustomer;
 
 use App\Actions\OrgAction;
+use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Models\CRM\Customer;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Market\Shop;
@@ -23,6 +24,14 @@ class StoreFulfilmentCustomer extends OrgAction
             'organisation_id' => $customer->organisation_id,
         ]);
         $customerFulfilment->refresh();
+
+        $customerFulfilment->serialReferences()->create(
+            [
+                'model'           => SerialReferenceModelEnum::PALLET_DELIVERY,
+                'organisation_id' => $customerFulfilment->organisation->id,
+                'format'          => $customerFulfilment->slug.'-%03d'
+            ]
+        );
 
         return $customerFulfilment;
     }

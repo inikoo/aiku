@@ -77,7 +77,6 @@ class Pallet extends Model
     use HasFactory;
     use HasUniversalSearch;
 
-
     protected $guarded = [];
     protected $casts   = [
         'data'   => 'array',

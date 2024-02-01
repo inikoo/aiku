@@ -114,8 +114,8 @@ class ShowPalletDelivery extends OrgAction
                         [
                             'type'    => 'button',
                             'style'   => 'create',
-                            'tooltip' => __('new pallet'),
-                            'label'   => __('create pallet'),
+                            'tooltip' => __('add pallet'),
+                            'label'   => __('add pallet'),
                             'route'   => [
                                 'name'       => 'grp.models.fulfilment-customer.pallet-delivery.pallet.store',
                                 'parameters' => [

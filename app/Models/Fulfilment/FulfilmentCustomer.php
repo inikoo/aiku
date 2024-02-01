@@ -8,11 +8,13 @@
 namespace App\Models\Fulfilment;
 
 use App\Models\CRM\Customer;
+use App\Models\Helpers\SerialReference;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -63,6 +65,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Organisation $organisation
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\PalletDelivery> $palletDeliveries
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\Pallet> $pallets
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, SerialReference> $serialReferences
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\StoredItem> $storedItems
  * @method static \Illuminate\Database\Eloquent\Builder|FulfilmentCustomer newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|FulfilmentCustomer newQuery()
@@ -135,5 +138,10 @@ class FulfilmentCustomer extends Model
     public function palletDeliveries(): HasMany
     {
         return $this->hasMany(PalletDelivery::class);
+    }
+
+    public function serialReferences(): MorphMany
+    {
+        return $this->morphMany(SerialReference::class, 'container');
     }
 }

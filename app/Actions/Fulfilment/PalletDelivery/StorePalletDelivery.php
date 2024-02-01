@@ -40,7 +40,14 @@ class StorePalletDelivery extends OrgAction
         data_set($modelData, 'ulid', Str::ulid());
 
         if (!Arr::get($modelData, 'reference')) {
-            data_set($modelData, 'reference', GetSerialReference::run(container: $fulfilmentCustomer->customer->shop, modelType: SerialReferenceModelEnum::PALLET_DELIVERY));
+            data_set(
+                $modelData,
+                'reference',
+                GetSerialReference::run(
+                    container: $fulfilmentCustomer,
+                    modelType: SerialReferenceModelEnum::PALLET_DELIVERY
+                )
+            );
 
         }
 

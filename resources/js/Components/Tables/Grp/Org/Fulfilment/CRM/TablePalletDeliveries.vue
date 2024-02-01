@@ -29,7 +29,7 @@ function palletDeliveryRoute(palletDelivery: PalletDelivery) {
                 [
                     route().params['organisation'],
                     route().params['warehouse'],
-                    palletDelivery.reference
+                    palletDelivery.slug
                 ]);
         case 'grp.org.fulfilments.show.operations.pallet-deliveries.index':
             return route(
@@ -37,7 +37,7 @@ function palletDeliveryRoute(palletDelivery: PalletDelivery) {
                 [
                     route().params['organisation'],
                     route().params['fulfilment'],
-                    palletDelivery.reference
+                    palletDelivery.slug
                 ]);
         default:
             return route(
@@ -46,7 +46,7 @@ function palletDeliveryRoute(palletDelivery: PalletDelivery) {
                     route().params['organisation'],
                     route().params['fulfilment'],
                     route().params['fulfilmentCustomer'],
-                    palletDelivery.reference
+                    palletDelivery.slug
                 ]);
     }
 }

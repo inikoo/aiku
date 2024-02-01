@@ -7,6 +7,7 @@
 
 namespace App\Actions\Helpers\SerialReference;
 
+use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Helpers\SerialReference;
 use App\Models\Market\Shop;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -19,9 +20,10 @@ class GetSerialReference
     /**
      * @throws \Throwable
      */
-    public function handle(Shop $container, $modelType): string
+    public function handle(Shop|FulfilmentCustomer $container, $modelType): string
     {
-        $serialReference = $this->getSerialReference($container, $modelType);
+        /** @var SerialReference $serialReference */
+        $serialReference = $container->serialReferences()->where('model', $modelType)->firstOrFail();
 
         $serial=DB::transaction(function () use ($serialReference) {
             $res = DB::table('serial_references')->select('serial')
@@ -41,11 +43,5 @@ class GetSerialReference
     }
 
 
-    private function getSerialReference($container, $modelType): SerialReference
-    {
-        return match (class_basename($container)) {
-            'Shop' => $container->serialReferences()->where('model', $modelType)->firstOrFail()
-        };
-    }
 
 }

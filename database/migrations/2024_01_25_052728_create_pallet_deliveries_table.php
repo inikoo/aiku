@@ -18,40 +18,32 @@ return new class () extends Migration {
     public function up(): void
     {
         Schema::create('pallet_deliveries', function (Blueprint $table) {
-            $table->id();
+            $table->increments('id');
             $table = $this->groupOrgRelationship($table);
+            $table->string('slug')->unique()->collation('und_ns');
             $table->ulid()->unique()->index();
-
             $table->unsignedSmallInteger('fulfilment_customer_id');
             $table->foreign('fulfilment_customer_id')->references('id')->on('fulfilment_customers');
-
             $table->unsignedSmallInteger('fulfilment_id');
             $table->foreign('fulfilment_id')->references('id')->on('fulfilments');
-
             $table->unsignedSmallInteger('warehouse_id')->nullable();
             $table->foreign('warehouse_id')->references('id')->on('warehouses');
-
             $table->string('customer_reference')->nullable()->index();
             $table->string('reference')->unique()->index();
-
             $table->unsignedSmallInteger('number_pallets')->default(0);
             $table->unsignedSmallInteger('number_pallet_stored_items')->default(0);
             $table->unsignedSmallInteger('number_stored_items')->default(0);
-
             $table->string('state')->default(PalletDeliveryStateEnum::IN_PROCESS->value);
-
             $table->dateTimeTz('booked_in_at')->nullable();
             $table->dateTimeTz('settled_at')->nullable();
-
             foreach (PalletDeliveryStateEnum::cases() as $state) {
                 $table->dateTimeTz("{$state->snake()}_at")->nullable();
             }
-
             $table->dateTimeTz('dispatched_at')->nullable();
             $table->dateTimeTz('date')->nullable();
-
             $table->jsonb('data')->nullable();
             $table->timestampsTz();
+            $this->softDeletes($table);
         });
     }
 

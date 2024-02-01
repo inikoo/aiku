@@ -18,6 +18,8 @@ class PalletDeliveriesResource extends JsonResource
 
         return [
             'id'                 => $palletDelivery->id,
+            'ulid'               => $palletDelivery->ulid,
+            'slug'               => $palletDelivery->slug,
             'reference'          => $palletDelivery->reference,
             'state'              => $palletDelivery->state,
             'pallets'            => $palletDelivery->pallets()->count(),
