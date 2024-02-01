@@ -58,6 +58,33 @@ enum WebsiteStateEnum: string
 
     }
 
+    public static function stateIcon(): array
+    {
+        return [
+            'in-process' => [
+
+                'tooltip' => __('in process'),
+                'icon'    => 'fal fa-seedling',
+                'class'   => 'text-indigo-500'
+
+
+            ],
+            'live'        => [
+
+                'tooltip' => __('live'),
+                'icon'    => 'fal fa-broadcast-tower',
+                'class'   => 'text-green-600 animate-pulse'
+
+            ],
+            'closed'     => [
+
+                'tooltip' => __('closed'),
+                'icon'    => 'fal fa-skull'
+
+            ],
+
+        ];
+    }
 
 
 }

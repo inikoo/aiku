@@ -40,7 +40,8 @@ class FetchAction
     protected ?ProgressBar $progressBar;
     protected ?Shop $shop;
     protected array $with;
-    protected bool $onlyNew = false;
+    protected bool $onlyNew  = false;
+    protected bool $fetchAll = false;
 
     protected int $number_stores     = 0;
     protected int $number_updates    = 0;
@@ -111,7 +112,18 @@ class FetchAction
 
     public function processOrganisation(Command $command, Organisation $organisation): int
     {
-        if (in_array($command->getName(), ['fetch:customers', 'fetch:web-users', 'fetch:products']) and $command->option('shop')) {
+
+        if ($command->getName() == 'fetch:webpages') {
+            $this->fetchAll = (bool)$command->option('all');
+        }
+
+
+        if (in_array($command->getName(), [
+                'fetch:customers',
+                'fetch:web-users',
+                'fetch:products',
+                'fetch:webpages',
+            ]) and $command->option('shop')) {
             $this->shop = Shop::where('slug', $command->option('shop'))->firstOrFail();
         }
 

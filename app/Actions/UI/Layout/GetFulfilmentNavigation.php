@@ -60,7 +60,7 @@ class GetFulfilmentNavigation
             ];
 
             $navigation['web'] = [
-                'root'    => 'grp.org.fulfilments.show.websites.',
+                'root'    => 'grp.org.fulfilments.show.web.websites.',
                 'scope'   => 'websites',
                 'icon'    => ['fal', 'fa-globe'],
                 'label'   => __('Website'),
@@ -89,20 +89,21 @@ class GetFulfilmentNavigation
                 'topMenu' => [
                     'subSections' => [
 
-
+                        $fulfilment->shop->website ?
                         [
                             'label'   => __('webpages'),
                             'tooltip' => __('Webpages'),
                             'icon'    => ['fal', 'fa-browser'],
                             'route'   => [
-                                'name'       => 'grp.org.fulfilments.show.web.websites.index',
+                                'name'       => 'grp.org.fulfilments.show.web.websites.show.webpages.index',
                                 'parameters' => [
                                     $fulfilment->organisation->slug,
                                     $fulfilment->slug,
+                                    $fulfilment->shop->website->slug
                                 ]
 
                             ]
-                        ],
+                        ] : null,
                     ],
                 ]
 

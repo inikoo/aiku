@@ -54,6 +54,10 @@ class FetchAuroraWebpage extends FetchAurora
             return;
         }
 
+        if (preg_match('/blog/i', $this->auroraModelData->{'Webpage Code'})) {
+            return;
+        }
+
 
 
         $this->parsedData['website'] = $this->parseWebsite($this->organisation->id.':'.$this->auroraModelData->{'Webpage Website Key'});
@@ -119,6 +123,9 @@ class FetchAuroraWebpage extends FetchAurora
         if ($createdAt = $this->parseDate($this->auroraModelData->{'Webpage Creation Date'})) {
             $this->parsedData['webpage']['created_at'] = $createdAt;
         }
+
+        //print_r($this->parsedData['webpage']);
+
     }
 
 

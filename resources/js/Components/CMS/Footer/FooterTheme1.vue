@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import {
 	faFacebook,
 	faInstagram,
@@ -17,7 +16,6 @@ import {
 } from "@fortawesome/free-solid-svg-icons"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import draggable from "vuedraggable"
-import { ref } from "vue"
 import Input from "../Fields/Input.vue"
 import TextArea from "../Fields/TextArea.vue"
 import HyperLink from "../Fields/Hyperlink.vue"

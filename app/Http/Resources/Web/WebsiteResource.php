@@ -7,28 +7,24 @@
 
 namespace App\Http\Resources\Web;
 
+use App\Models\Web\Website;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-/**
- * @property string $slug
- * @property string $name
- * @property string $code
- * @property string $domain
- * @property string $state
- * @property boolean $in_maintenance
- */
 class WebsiteResource extends JsonResource
 {
     public function toArray($request): array
     {
+        /** @var Website $website */
+        $website = $this;
         return [
-            'slug'      => $this->slug,
-            'shop_slug' => $this->whenHas('shop_slug'),
-            'code'      => $this->code,
-            'name'      => $this->name,
-            'domain'    => $this->domain,
-            'state'     => $this->state,
-            'status'    => $this->status
+            'slug'               => $website->slug,
+            'code'               => $website->code,
+            'name'               => $website->name,
+            'domain'             => $website->domain,
+            'state'              => $website->state,
+            'state_label'        => $website->state->labels()[$website->state->value],
+            'state_icon'         => $website->state->stateIcon()[$website->state->value],
+            'status'             => $website->status
 
 
         ];

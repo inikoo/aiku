@@ -57,7 +57,6 @@ class StoreWebsite extends OrgAction
                 ]
             ],
         );
-
         $website->update(
             [
                 'unpublished_header_snapshot_id' => $headerSnapshot->id,
@@ -68,18 +67,20 @@ class StoreWebsite extends OrgAction
                 ]
             ]
         );
-
-
         SetInitialWebsiteLogo::dispatch($website);
         $website->webStats()->create();
-
-
         //AddWebsiteToCloudflare::run($website);
 
         OrganisationHydrateWeb::dispatch($shop->organisation);
         WebsiteHydrateUniversalSearch::dispatch($website);
 
-        return SeedWebsiteFixedWebpages::run($website);
+        if($website->engine === WebsiteEngineEnum::AIKU) {
+            $website= SeedWebsiteFixedWebpages::run($website);
+        }
+
+
+        return $website;
+
     }
 
     public function authorize(ActionRequest $request): bool

@@ -20,7 +20,7 @@ Route::get('/{website}/workshop', ShowWebsiteWorkshop::class)->name('workshop');
 //Route::get('/{website}/blog/article/create', CreateArticle::class)->name('show.blog.article.create');
 
 // Route::get('/{website}/webpages/create', CreateWebpage::class)->name('show.webpages.create');
-Route::get('/{website}/webpages', [IndexWebpages::class, 'inWebsite'])->name('show.webpages.index');
+Route::get('/{website}/webpages', [IndexWebpages::class, 'inFulfilment'])->name('show.webpages.index');
 
 
 //Route::get('/{website}/webpages/{webpage}/create', [CreateWebpage::class, 'inWebsiteInWebpage'])->name('show.webpages.show.webpages.create');

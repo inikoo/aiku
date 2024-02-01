@@ -13,6 +13,7 @@ use App\Actions\Web\Website\UI\ShowWebsite;
 use App\Enums\Web\Webpage\WebpageStateEnum;
 use App\Http\Resources\Web\WebpageResource;
 use App\InertiaTable\InertiaTable;
+use App\Models\Fulfilment\Fulfilment;
 use App\Models\Market\Shop;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Web\Webpage;
@@ -29,26 +30,33 @@ use App\Services\QueryBuilder;
 
 class IndexWebpages extends OrgAction
 {
-    private Organisation|Website $parent;
+    private Organisation|Website|Fulfilment $parent;
+
+    private Organisation|Fulfilment|Shop $scope;
 
 
     public function authorize(ActionRequest $request): bool
     {
-        if ($this->parent instanceof Organisation) {
+        if ($this->scope instanceof Organisation) {
             $this->canEdit = $request->user()->hasPermissionTo("shops.{$this->organisation->id}.edit");
 
             return $request->user()->hasPermissionTo("shops.{$this->organisation->id}.view");
-        } elseif ($this->parent instanceof Website) {
+        } elseif ($this->scope instanceof Shop) {
             $this->canEdit = $request->user()->hasPermissionTo("web.{$this->shop->id}.edit");
 
             return $request->user()->hasPermissionTo("web.{$this->shop->id}.view");
+        } elseif ($this->scope instanceof Fulfilment) {
+            $this->canEdit = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+            return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
         }
+
 
         return false;
     }
 
     public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
+        $this->scope  = $organisation;
         $this->parent =$organisation;
         $this->initialisation($organisation, $request);
 
@@ -56,8 +64,21 @@ class IndexWebpages extends OrgAction
         return $this->handle($this->parent);
     }
 
+
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Website $website, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->scope  = $fulfilment;
+        $this->parent = $website;
+        $this->initialisationFromFulfilment($fulfilment, $request);
+
+
+        return $this->handle($this->parent);
+    }
+
     public function asController(Organisation $organisation, Shop $shop, Website $website, ActionRequest $request): LengthAwarePaginator
     {
+        $this->scope  = $shop;
         $this->parent = $website;
         $this->initialisationFromShop($website->shop, $request);
 
@@ -184,7 +205,7 @@ class IndexWebpages extends OrgAction
             $container = [
                 'icon'    => ['fal', 'fa-globe'],
                 'tooltip' => __('Website'),
-                'label'   => Str::possessive($scope->name)
+                'label'   => Str::possessive($scope->code)
             ];
         }
 
@@ -240,13 +261,26 @@ class IndexWebpages extends OrgAction
 
             'grp.org.shops.show.web.websites.show.webpages.index' =>
             array_merge(
-                (new ShowWebsite())->getBreadcrumbs(
+                ShowWebsite::make()->getBreadcrumbs(
                     'grp.org.shops.show.web.websites.show',
                     $routeParameters
                 ),
                 $headCrumb(
                     [
                         'name'       => 'grp.org.shops.show.web.websites.show.webpages.index',
+                        'parameters' => $routeParameters
+                    ]
+                )
+            ),
+            'grp.org.fulfilments.show.web.websites.show.webpages.index' =>
+            array_merge(
+                ShowWebsite::make()->getBreadcrumbs(
+                    'grp.org.fulfilments.show.web.websites.show',
+                    $routeParameters
+                ),
+                $headCrumb(
+                    [
+                        'name'       => 'grp.org.fulfilments.show.web.websites.show.webpages.index',
                         'parameters' => $routeParameters
                     ]
                 )

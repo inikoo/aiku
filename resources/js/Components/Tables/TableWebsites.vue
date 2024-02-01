@@ -8,6 +8,7 @@
 import {Link} from '@inertiajs/vue3';
 import Table from '@/Components/Table/Table.vue';
 import {Website} from "@/types/website";
+import Icon from '@/Components/Icon.vue'
 
 const props = defineProps<{
     data: object,
@@ -16,15 +17,16 @@ const props = defineProps<{
 
 
 function websiteRoute(website: Website) {
+    console.log(route().current())
     switch (route().current()) {
         case 'grp.org.shops.show.web.websites.index':
             return route(
                 'grp.org.shops.show.web.websites.show',
                 [route().params.organisation, route().params.shop, website.slug]
             );
-        case 'grp.org.fulfilments.show.websites.index':
+        case 'grp.org.fulfilments.show.web.websites.index':
             return route(
-                'grp.org.fulfilments.show.websites.show',
+                'grp.org.fulfilments.show.web.websites.show',
                 [route().params.organisation, route().params.fulfilment, website.slug]);
     }
 }
@@ -38,6 +40,11 @@ function websiteRoute(website: Website) {
                 {{ website['slug'] }}
             </Link>
         </template>
+
+        <template #cell(state)="{ item: banner }">
+            <Icon :data="banner['state_icon']" class="px-1"/>
+        </template>
+
     </Table>
 
 
