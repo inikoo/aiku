@@ -282,10 +282,10 @@ class ShowPalletDelivery extends OrgAction
                 'route' => [
                     'name'       => $routeName,
                     'parameters' => [
-                        'organisation' => $palletDelivery->organisation->slug,
-                        'fulfilment'   => $palletDelivery->fulfilment->slug,
+                        'organisation'         => $palletDelivery->organisation->slug,
+                        'fulfilment'           => $palletDelivery->fulfilment->slug,
                         'fulfilmentCustomer'   => $palletDelivery->fulfilmentCustomer->slug,
-                        'palletDelivery' => $palletDelivery->reference
+                        'palletDelivery'       => $palletDelivery->reference
                     ]
 
                 ]

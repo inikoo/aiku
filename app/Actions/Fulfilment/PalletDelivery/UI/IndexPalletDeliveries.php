@@ -8,6 +8,7 @@
 namespace App\Actions\Fulfilment\PalletDelivery\UI;
 
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
+use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
 use App\Http\Resources\Fulfilment\FulfilmentCustomersResource;
 use App\Http\Resources\Fulfilment\PalletDeliveriesResource;
@@ -20,6 +21,7 @@ use App\Models\SysAdmin\Organisation;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -54,6 +56,7 @@ class IndexPalletDeliveries extends OrgAction
         return $this->handle($fulfilment);
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
     public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $fulfilmentCustomer;
@@ -166,6 +169,7 @@ class IndexPalletDeliveries extends OrgAction
             'Org/Fulfilment/PalletDeliveries',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
                 'title'       => __('customers'),
@@ -183,8 +187,9 @@ class IndexPalletDeliveries extends OrgAction
         )->table($this->tableStructure($this->parent));
     }
 
-    public function getBreadcrumbs(array $routeParameters): array
+    public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
+
         $headCrumb = function (array $routeParameters = []) {
             return [
                 [
@@ -199,16 +204,32 @@ class IndexPalletDeliveries extends OrgAction
         };
 
 
-        return array_merge(
-            ShowFulfilment::make()->getBreadcrumbs(
-                $routeParameters
+        return match ($routeName) {
+            'grp.org.fulfilments.show.operations.pallet-deliveries.index' => array_merge(
+                ShowFulfilment::make()->getBreadcrumbs(
+                    $routeParameters
+                ),
+                $headCrumb(
+                    [
+                        'name'       => 'grp.org.fulfilments.show.operations.pallet-deliveries.index',
+                        'parameters' => Arr::only($routeParameters, ['organisation','fulfilment'])
+                    ]
+                )
             ),
-            $headCrumb(
-                [
-                    'name'       => 'grp.org.fulfilments.show.customers.index',
-                    'parameters' => $routeParameters
-                ]
-            )
-        );
+            'grp.org.warehouses.show.fulfilment.pallet-deliveries.index' => array_merge(
+                ShowWarehouse::make()->getBreadcrumbs(
+                    $routeParameters
+                ),
+                $headCrumb(
+                    [
+                        'name'       => 'grp.org.warehouses.show.fulfilment.pallet-deliveries.index',
+                        'parameters' => Arr::only($routeParameters, ['organisation','warehouse'])
+                    ]
+                )
+            ),
+        };
+
+
+
     }
 }

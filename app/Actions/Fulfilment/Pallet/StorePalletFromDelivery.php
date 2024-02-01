@@ -8,7 +8,6 @@
 namespace App\Actions\Fulfilment\Pallet;
 
 use App\Actions\OrgAction;
-use App\Models\CRM\Customer;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
@@ -23,12 +22,8 @@ class StorePalletFromDelivery extends OrgAction
 {
     use AsCommand;
 
-    private Customer $customer;
-
     public $commandSignature = 'pallet:store-from-delivery {palletDelivery}';
-    /**
-     * @var \App\Models\Fulfilment\PalletDelivery
-     */
+
     private PalletDelivery $parent;
 
     public function handle(PalletDelivery $palletDelivery, array $modelData): Pallet
@@ -41,8 +36,7 @@ class StorePalletFromDelivery extends OrgAction
 
         /** @var Pallet $pallet */
         $pallet = $palletDelivery->pallets()->create($modelData);
-        //FulfilmentCustomerHydrateStoredItems::dispatch($customer);
-        // OrganisationHydrateFulfilmentCustomers::dispatch();
+
 
         return $pallet;
     }
@@ -59,7 +53,7 @@ class StorePalletFromDelivery extends OrgAction
     public function rules(): array
     {
         return [
-            'notes' => ['required', 'string']
+            'notes' => ['required', 'string','max:1024']
         ];
     }
 
