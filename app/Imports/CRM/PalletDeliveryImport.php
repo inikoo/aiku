@@ -49,7 +49,7 @@ class PalletDeliveryImport implements ToCollection, WithHeadingRow, SkipsOnFailu
         $modelData = $row->only($fields)->all();
 
         data_set($modelData, 'data.bulk_import', [
-            'id' => $this->upload->id,
+            'id'   => $this->upload->id,
             'type' => 'Upload',
         ]);
 
@@ -66,10 +66,10 @@ class PalletDeliveryImport implements ToCollection, WithHeadingRow, SkipsOnFailu
                         $row->only(['email', 'password', 'reset_password'])->all(),
                         [
                             'contact_name' => $customer->contact_name,
-                            'is_root' => true,
-                            'data' => [
+                            'is_root'      => true,
+                            'data'         => [
                                 'bulk_import' => [
-                                    'id' => $this->upload->id,
+                                    'id'   => $this->upload->id,
                                     'type' => 'Upload',
                                 ]
                             ]
@@ -90,17 +90,19 @@ class PalletDeliveryImport implements ToCollection, WithHeadingRow, SkipsOnFailu
 
     public function rules(): array
     {
+
+
         return [
-            'shop' => ['required', 'exists:shops,slug'],
-            'contact_name' => ['nullable', 'string', 'max:255'],
+            'shop'            => ['required', 'exists:shops,slug'],
+            'contact_name'    => ['nullable', 'string', 'max:255'],
             'contact_address' => ['nullable', new ValidAddress()],
-            'company' => ['nullable', 'string', 'max:255'],
-            'email' => ['nullable', 'email', 'iunique:customers', 'iunique:users'],
-            'phone' => ['nullable', 'phone:AUTO'],
-            'website' => ['nullable'],
-            'password' => ['sometimes', 'string', 'min:8', 'max:64'],
-            'reset_password' => ['sometimes', 'boolean'],
-            'data' => ['sometimes', 'array'],
+            'company'         => ['nullable', 'string', 'max:255'],
+            'email'           => ['nullable', 'email', 'iunique:customers', 'iunique:users'],
+            'phone'           => ['nullable', 'phone:AUTO'],
+            'website'         => ['nullable'],
+            'password'        => ['sometimes', 'string', 'min:8', 'max:64'],
+            'reset_password'  => ['sometimes', 'boolean'],
+            'data'            => ['sometimes', 'array'],
         ];
     }
 }
