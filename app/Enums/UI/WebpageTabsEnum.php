@@ -23,6 +23,7 @@ enum WebpageTabsEnum: string
     case WORKSHOP             = 'workshop';
     case SETTINGS             = 'settings';
 
+    case SNAPSHOTS            = 'snapshots';
     case CHANGELOG            = 'changelog';
 
     case DATA                 = 'data';
@@ -54,6 +55,10 @@ enum WebpageTabsEnum: string
             WebpageTabsEnum::SETTINGS => [
                 'title' => __('settings'),
                 'icon'  => 'fal fa-sliders-h',
+            ],
+            WebpageTabsEnum::SNAPSHOTS => [
+                'title' => __('Snapshots'),
+                'icon'  => 'fal fa-layer-group',
             ],
             WebpageTabsEnum::DATA => [
                 'title' => __('data'),

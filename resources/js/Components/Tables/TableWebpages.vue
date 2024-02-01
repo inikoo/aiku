@@ -25,11 +25,17 @@ const props = defineProps<{
 
 
 function webpageRoute(webpage: Webpage) {
+    console.log(route().current())
     switch (route().current()) {
-        case 'webpages.index':
+        case 'grp.org.fulfilments.show.web.websites.show.webpages.index':
             return route(
-                'webpages.show',
-                [webpage.slug]);
+                'grp.org.fulfilments.show.web.websites.show.webpages.show',
+                [
+                    route().params['organisation'],
+                    route().params['fulfilment'],
+                    route().params['website'],
+                    webpage.slug
+                ]);
     }
 }
 
@@ -39,7 +45,7 @@ function webpageRoute(webpage: Webpage) {
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(code)="{ item: webpage }">
-            <Link :href="webpageRoute(webpage)">
+            <Link :href="webpageRoute(webpage)" class="specialUnderline">
                 {{ webpage['code'] }}
             </Link>
         </template>
