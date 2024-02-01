@@ -103,7 +103,7 @@ class ShowPalletDelivery extends OrgAction
                     'navigation' => PalletDeliveryTabsEnum::navigation()
                 ],
 
-                'timeline' => PalletDeliveryResource::make($palletDelivery),
+                'timeline' => PalletDeliveryResource::make($palletDelivery)->toArray($request)['timeline'],
 
                 PalletDeliveryTabsEnum::PALLETS->value => $this->tab == PalletDeliveryTabsEnum::PALLETS->value ?
                     fn () => PalletResource::collection(IndexPallets::run($palletDelivery->fulfilment))
