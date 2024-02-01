@@ -35,14 +35,14 @@ class ShowPalletDelivery extends OrgAction
 
     public function asController(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, PalletDelivery $palletDelivery, ActionRequest $request): PalletDelivery
     {
-        $this->initialisationFromFulfilment($fulfilment, $request);
+        $this->initialisationFromFulfilment($fulfilment, $request)->withTab(PalletDeliveryTabsEnum::values());
 
         return $this->handle($palletDelivery);
     }
 
     public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, PalletDelivery $palletDelivery, ActionRequest $request): PalletDelivery
     {
-        $this->initialisationFromFulfilment($fulfilment, $request);
+        $this->initialisationFromFulfilment($fulfilment, $request)->withTab(PalletDeliveryTabsEnum::values());
 
         return $this->handle($palletDelivery);
     }
@@ -99,6 +99,7 @@ class ShowPalletDelivery extends OrgAction
                     'current'    => $this->tab,
                     'navigation' => PalletDeliveryTabsEnum::navigation()
                 ],
+
                 PalletDeliveryTabsEnum::PALLETS->value => PalletDeliveryResource::make($palletDelivery)
             ]
         );
