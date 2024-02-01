@@ -12,11 +12,9 @@ use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\Market\Shop\UI\ShowShop;
 use App\Actions\OrgAction;
-use App\Actions\Web\WebpageVariant\IndexWebpageVariants;
 use App\Enums\UI\WebsiteTabsEnum;
 use App\Http\Resources\CRM\WebUserResource;
 use App\Http\Resources\History\HistoryResource;
-use App\Http\Resources\Web\WebpageResource;
 use App\Http\Resources\Web\WebsiteResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Market\Shop;
@@ -114,14 +112,7 @@ class ShowWebsite extends OrgAction
                     'current'    => $this->tab,
                     'navigation' => WebsiteTabsEnum::navigation()
                 ],
-                WebsiteTabsEnum::WEBPAGES->value => $this->tab == WebsiteTabsEnum::WEBPAGES->value
-                    ?
-                    fn () => WebpageResource::collection(
-                        IndexWebpageVariants::run($website)
-                    )
-                    : Inertia::lazy(fn () => WebpageResource::collection(
-                        IndexWebpageVariants::run($website)
-                    )),
+
 
                 WebsiteTabsEnum::USERS->value     => $this->tab == WebsiteTabsEnum::USERS->value
                     ?
@@ -141,10 +132,6 @@ class ShowWebsite extends OrgAction
                     fn () => HistoryResource::collection(IndexHistory::run($website))
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($website)))
             ]
-        )->table(
-            IndexWebpageVariants::make()->tableStructure(
-                $website
-            )
         )->table(
             IndexWebUser::make()->tableStructure(
                 modelOperations: [

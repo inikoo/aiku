@@ -156,7 +156,7 @@ test('UI list of fulfilment shops', function () {
 test('UI list of websites in fulfilment', function (Fulfilment $fulfilment) {
     $response = get(
         route(
-            'grp.org.fulfilments.show.websites.index',
+            'grp.org.fulfilments.show.web.websites.index',
             [
                 $this->organisation->slug,
                 $fulfilment->slug
