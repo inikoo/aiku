@@ -75,16 +75,16 @@ class ShowPalletDelivery extends OrgAction
                         ]
                     ] : false,
                     'actions' => [
-                        /* [
-                             'type'    => 'button',
-                             'style'   => 'create',
-                             'tooltip' => __('new delivery'),
-                             'label'   => __('create delivery'),
-                             'route'   => [
-                                 'name'       => 'grp.org.fulfilments.show.pallets.create',
-                                 'parameters' => array_values($request->route()->originalParameters())
-                             ]
-                         ],*/
+                        [
+                            'type'    => 'button',
+                            'style'   => 'create',
+                            'tooltip' => __('new pallet'),
+                            'label'   => __('create pallet'),
+                            'route'   => [
+                                'name'       => 'grp.models.fulfilment-customer.pallet-delivery.pallet.store',
+                                'parameters' => array_values($request->route()->originalParameters())
+                            ]
+                        ],
                         /*[
                             'type'    => 'button',
                             'style'   => 'create',
