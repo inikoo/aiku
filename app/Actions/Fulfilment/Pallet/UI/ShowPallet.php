@@ -16,7 +16,9 @@ use App\Http\Resources\Fulfilment\PalletResource;
 use App\Http\Resources\History\HistoryResource;
 use App\Models\CRM\Customer;
 use App\Models\Fulfilment\Fulfilment;
+use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
+use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
@@ -45,13 +47,20 @@ class ShowPallet extends OrgAction
         return $this->handle($pallet);
     }
 
+    public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, PalletDelivery $palletDelivery, Pallet $pallet, ActionRequest $request): Pallet
+    {
+        $this->initialisationFromFulfilment($fulfilment, $request);
+
+        return $this->handle($pallet);
+    }
+
     public function handle(Pallet $pallet): Pallet
     {
         return $pallet;
     }
 
 
-    public function htmlResponse(ActionRequest $request): Response
+    public function htmlResponse(Pallet $pallet): Response
     {
         return Inertia::render(
             'Fulfilment/Pallet',
@@ -73,7 +82,7 @@ class ShowPallet extends OrgAction
                             'label'   => __($this->pallet->status == PalletStatusEnum::RETURNED ? 'returned' : 'return to customer'),
                             'route'   => [
                                 'name'       => 'grp.fulfilment.stored-items.setReturn',
-                                'parameters' => array_values($request->route()->originalParameters())
+                                'parameters' => array_values(request()->route()->originalParameters())
                             ],
                             'disabled' => $this->pallet->status == PalletStatusEnum::RETURNED
                         ],
@@ -83,8 +92,8 @@ class ShowPallet extends OrgAction
                             'tooltip' => __('edit stored items'),
                             'label'   => __('stored items'),
                             'route'   => [
-                                'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
-                                'parameters' => array_values($request->route()->originalParameters())
+                                'name'       => preg_replace('/show$/', 'edit', request()->route()->getName()),
+                                'parameters' => array_values(request()->route()->originalParameters())
                             ]
                         ],
                         [
@@ -94,7 +103,7 @@ class ShowPallet extends OrgAction
                             'label'   => __($this->pallet->status == PalletStatusEnum::DAMAGED ? 'damaged' : 'set as damaged'),
                             'route'   => [
                                 'name'       => 'grp.fulfilment.stored-items.setDamaged',
-                                'parameters' => array_values($request->route()->originalParameters())
+                                'parameters' => array_values(request()->route()->originalParameters())
                             ],
                             'disabled' => $this->pallet->status == PalletStatusEnum::DAMAGED
                         ],
@@ -122,7 +131,7 @@ class ShowPallet extends OrgAction
     public function getBreadcrumbs(Pallet $pallet, $suffix = null): array
     {
         return array_merge(
-            ShowFulfilment::make()->getBreadcrumbs(),
+            ShowFulfilment::make()->getBreadcrumbs(request()->route()->originalParameters()),
             [
                 [
                     'type'           => 'modelWithIndex',

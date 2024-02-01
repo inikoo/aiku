@@ -21,10 +21,12 @@ function customerRoute(pallet: Customer) {
     switch (route().current()) {
         default:
             return route(
-                'grp.org.warehouses.show.fulfilment.pallets.show',
+                'grp.org.fulfilments.show.crm.customers.show.pallet-deliveries.pallets.show',
                 [
                     route().params['organisation'],
-                    pallet.warehouse_slug,
+                    route().params['fulfilment'],
+                    route().params['fulfilmentCustomer'],
+                    route().params['palletDelivery'],
                     pallet.slug
                 ]);
     }
