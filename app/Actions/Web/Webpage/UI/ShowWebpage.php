@@ -141,7 +141,7 @@ class ShowWebpage extends OrgAction
                         'title' => __('webpage'),
                         'icon'  => 'fal fa-browser'
                     ],
-                    'actions' => $actions,
+                    'actionsx' => $actions,
                 ],
 
                 'tabs' => [
