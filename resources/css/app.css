@@ -1,5 +1,6 @@
 @import url("navigation.css");
 @import url("transition.css");
+@import url("fonts.css");
 
 @tailwind base;
 @tailwind components;
