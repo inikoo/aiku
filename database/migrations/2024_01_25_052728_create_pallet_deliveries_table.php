@@ -42,7 +42,11 @@ return new class () extends Migration {
 
             $table->dateTimeTz('booked_in_at')->nullable();
             $table->dateTimeTz('settled_at')->nullable();
-            $table->dateTimeTz('received_at')->nullable();
+
+            foreach (PalletDeliveryStateEnum::cases() as $state) {
+                $table->dateTimeTz("{$state->snake()}_at")->nullable();
+            }
+
             $table->dateTimeTz('dispatched_at')->nullable();
             $table->dateTimeTz('date')->nullable();
 
