@@ -21,10 +21,9 @@ if (usePage().props.language) {
 <template>
 
     <div class="min-h-full flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-        <div class="sm:mx-auto sm:w-full sm:max-w-md">
-            <img class="mx-auto h-16 -mb-3 w-auto" src="/art/logo-color-trimmed.png" alt="Aiku" />
-
-
+        <div class="sm:mx-auto sm:w-full sm:max-w-md flex flex-col gap-y-4 items-center justify-center">
+            <img class="mx-auto h-16 -mb-3 w-auto" src="/art/logo.svg" alt="Aiku" />
+            <span class="mx-auto text-2xl font-bold text-purple-500">aiku</span>
         </div>
 
         <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">

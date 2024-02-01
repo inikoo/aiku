@@ -20,10 +20,8 @@
         <link href="https://fonts.bunny.net/css?family=figtree:100,200,300,400,500,600,700,800,900&display=swap" rel="stylesheet" />
 
 
-        <link rel="icon" type="image/png" sizes="16x16" href="{{ url('favicons/aiku-favicon-16x16.png') }}">
-        <link rel="icon" type="image/png" sizes="32x32" href="{{ url('favicons/aiku-favicon-32x32.png') }}">
-        <link rel="icon" type="image/png" sizes="48x48" href="{{ url('favicons/aiku-favicon-48x48.png') }}">
-        <link rel="apple-touch-icon" sizes="180x180" href="{{ url('favicons/aiku-favicon-180x180.png') }}">
+        <link rel="icon" type="image/png" href="{{ url('favicons/favicon.png') }}">
+        <link rel="icon" href="{{ url('favicons/favicon.svg') }}" type="image/svg+xml">
 
 
         <!-- Scripts -->

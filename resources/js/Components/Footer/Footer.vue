@@ -9,7 +9,6 @@ import { ref, Ref } from 'vue'
 import FooterActiveUsers from '@/Components/Footer/FooterActiveUsers.vue'
 import FooterLanguage from '@/Components/Footer/FooterLanguage.vue'
 import { usePage } from "@inertiajs/vue3";
-import Image from "@/Components/Image.vue";
 import { faHeart, faComputerClassic } from '@fas'
 import { faDiscord } from '@fortawesome/free-brands-svg-icons'
 import { library } from "@fortawesome/fontawesome-svg-core";
@@ -32,7 +31,7 @@ library.add(faHeart, faComputerClassic, faDiscord)
         <div class="flex justify-between">
             <!-- Left: Logo Section -->
             <div class="pl-4 flex items-center gap-x-1.5 py-1">
-                <Image class="h-4 select-none hidden lg:inline" :src="logoSrc" alt="T-Wowsbar" />
+                <img class="h-3 select-none hidden lg:inline pl-1 pr-1" src="/art/logo-yellow.svg"  alt="aiku"/>
                 <span class="text-slate-400	text-xs hidden lg:inline">
                     {{ trans('Made with') }}
                     <FontAwesomeIcon icon='fas fa-heart' class="text-red-500 mx-1" aria-hidden='true' />
