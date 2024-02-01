@@ -8,6 +8,7 @@
 namespace App\Actions\Fulfilment\PalletDelivery\UI;
 
 use App\Actions\Fulfilment\Pallet\UI\IndexPallets;
+use App\Actions\Fulfilment\Pallet\UI\IndexPalletsFromDelivery;
 use App\Actions\OrgAction;
 use App\Enums\UI\PalletDeliveryTabsEnum;
 use App\Http\Resources\Fulfilment\PalletDeliveriesResource;
@@ -54,7 +55,7 @@ class ShowPalletDelivery extends OrgAction
         return Inertia::render(
             'Org/Fulfilment/PalletDelivery',
             [
-                'title'       => __('customer'),
+                'title'       => __('pallet delivery'),
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->originalParameters()
                 ),
@@ -82,7 +83,12 @@ class ShowPalletDelivery extends OrgAction
                             'label'   => __('create pallet'),
                             'route'   => [
                                 'name'       => 'grp.models.fulfilment-customer.pallet-delivery.pallet.store',
-                                'parameters' => array_values($request->route()->originalParameters())
+                                'parameters' => [
+                                    'organisation'       => $palletDelivery->organisation->slug,
+                                    'fulfilment'         => $palletDelivery->fulfilment->slug,
+                                    'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->id,
+                                    'palletDelivery'     => $palletDelivery->reference
+                                ]
                             ]
                         ],
                         /*[
@@ -106,12 +112,12 @@ class ShowPalletDelivery extends OrgAction
                 'timeline' => PalletDeliveryResource::make($palletDelivery)->toArray($request)['timeline'],
 
                 PalletDeliveryTabsEnum::PALLETS->value => $this->tab == PalletDeliveryTabsEnum::PALLETS->value ?
-                    fn () => PalletResource::collection(IndexPallets::run($palletDelivery->fulfilment))
-                    : Inertia::lazy(fn () => PalletResource::collection(IndexPallets::run($palletDelivery->fulfilment))),
+                    fn () => PalletResource::collection(IndexPalletsFromDelivery::run($palletDelivery))
+                    : Inertia::lazy(fn () => PalletResource::collection(IndexPalletsFromDelivery::run($palletDelivery))),
             ]
         )->table(
-            IndexPallets::make()->tableStructure(
-                $palletDelivery->fulfilment,
+            IndexPalletsFromDelivery::make()->tableStructure(
+                $palletDelivery,
                 prefix: PalletDeliveryTabsEnum::PALLETS->value
             )
         );

@@ -18,6 +18,7 @@ use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Query\Builder;
@@ -149,5 +150,10 @@ class Pallet extends Model
     public function movements(): HasMany
     {
         return $this->hasMany(MovementPallet::class);
+    }
+
+    public function palletDeliveries(): BelongsToMany
+    {
+        return $this->belongsToMany(PalletDelivery::class, 'pallet_delivery_pallets');
     }
 }
