@@ -13,13 +13,19 @@ use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\SysAdmin\Organisation;
+use Illuminate\Console\Command;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
+use Lorisleiva\Actions\Concerns\AsCommand;
 
 class StorePalletFromDelivery extends OrgAction
 {
+    use AsCommand;
+
     private Customer $customer;
+
+    public $commandSignature = 'pallet:store-from-delivery {palletDelivery}';
 
     public function handle(PalletDelivery $palletDelivery, array $modelData): Pallet
     {
@@ -56,6 +62,25 @@ class StorePalletFromDelivery extends OrgAction
         $this->initialisationFromFulfilment($customer->shop->fulfilment, $modelData);
 
         return $this->handle($customer, $this->validatedData);
+    }
+
+
+    public function asCommand(Command $command): int
+    {
+        $palletDelivery = PalletDelivery::where('reference', $command->argument('palletDelivery'))->firstOrFail();
+
+        $this->handle($palletDelivery, [
+            'group_id'               => $palletDelivery->group_id,
+            'organisation_id'        => $palletDelivery->organisation_id,
+            'fulfilment_id'          => $palletDelivery->fulfilment_id,
+            'fulfilment_customer_id' => $palletDelivery->fulfilment_customer_id,
+            'warehouse_id'           => $palletDelivery->warehouse_id,
+            'slug'                   => now()->timestamp
+        ]);
+
+        echo "Pallet created from delivery: {$palletDelivery->reference}\n";
+
+        return 0;
     }
 
 

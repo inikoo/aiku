@@ -7,10 +7,12 @@
 
 namespace App\Actions\Fulfilment\PalletDelivery\UI;
 
+use App\Actions\Fulfilment\Pallet\UI\IndexPallets;
 use App\Actions\OrgAction;
 use App\Enums\UI\PalletDeliveryTabsEnum;
 use App\Http\Resources\Fulfilment\PalletDeliveriesResource;
 use App\Http\Resources\Fulfilment\PalletDeliveryResource;
+use App\Http\Resources\Fulfilment\PalletResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletDelivery;
@@ -56,33 +58,33 @@ class ShowPalletDelivery extends OrgAction
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->originalParameters()
                 ),
-                'navigation'                            => [
+                'navigation' => [
                     'previous' => $this->getPrevious($palletDelivery, $request),
                     'next'     => $this->getNext($palletDelivery, $request),
                 ],
-                'pageHead'    => [
-                    'title'        => __($palletDelivery->reference),
-                    'icon'         => [
+                'pageHead' => [
+                    'title' => __($palletDelivery->reference),
+                    'icon'  => [
                         'icon'  => ['fal', 'fa-truck'],
                         'title' => __($palletDelivery->reference)
                     ],
-                    'edit'  => $this->canEdit ? [
+                    'edit' => $this->canEdit ? [
                         'route' => [
                             'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
                             'parameters' => array_values($request->route()->originalParameters())
                         ]
                     ] : false,
-                    'actions'=> [
-                       /* [
-                            'type'    => 'button',
-                            'style'   => 'create',
-                            'tooltip' => __('new delivery'),
-                            'label'   => __('create delivery'),
-                            'route'   => [
-                                'name'       => 'grp.org.fulfilments.show.pallets.create',
-                                'parameters' => array_values($request->route()->originalParameters())
-                            ]
-                        ],*/
+                    'actions' => [
+                        /* [
+                             'type'    => 'button',
+                             'style'   => 'create',
+                             'tooltip' => __('new delivery'),
+                             'label'   => __('create delivery'),
+                             'route'   => [
+                                 'name'       => 'grp.org.fulfilments.show.pallets.create',
+                                 'parameters' => array_values($request->route()->originalParameters())
+                             ]
+                         ],*/
                         /*[
                             'type'    => 'button',
                             'style'   => 'create',
@@ -95,13 +97,23 @@ class ShowPalletDelivery extends OrgAction
                         ],*/
                     ]
                 ],
-                'tabs'        => [
+
+                'tabs' => [
                     'current'    => $this->tab,
                     'navigation' => PalletDeliveryTabsEnum::navigation()
                 ],
 
-                PalletDeliveryTabsEnum::PALLETS->value => PalletDeliveryResource::make($palletDelivery)
+                'timeline' => PalletDeliveryResource::make($palletDelivery),
+
+                PalletDeliveryTabsEnum::PALLETS->value => $this->tab == PalletDeliveryTabsEnum::PALLETS->value ?
+                    fn () => PalletResource::collection(IndexPallets::run($palletDelivery->fulfilment))
+                    : Inertia::lazy(fn () => PalletResource::collection(IndexPallets::run($palletDelivery->fulfilment))),
             ]
+        )->table(
+            IndexPallets::make()->tableStructure(
+                $palletDelivery->fulfilment,
+                prefix: PalletDeliveryTabsEnum::PALLETS->value
+            )
         );
     }
 
@@ -155,35 +167,36 @@ class ShowPalletDelivery extends OrgAction
 
     private function getNavigation(?PalletDelivery $palletDelivery, string $routeName): ?array
     {
-        if(!$palletDelivery) {
+        if (!$palletDelivery) {
             return null;
         }
 
         return match ($routeName) {
-            'grp.org.fulfilments.show.crm.customers.show' ,
-            'shops.customers.show'=> [
-                'label'=> $palletDelivery->name,
-                'route'=> [
-                    'name'      => $routeName,
-                    'parameters'=> [
-                        'organisation'=> $palletDelivery->shop->organisation->slug,
-                        'fulfilment'  => $this->fulfilment->slug,
-                        'customer'    => $palletDelivery->slug
+            'grp.org.fulfilments.show.crm.customers.show',
+            'shops.customers.show' => [
+                'label' => $palletDelivery->name,
+                'route' => [
+                    'name'       => $routeName,
+                    'parameters' => [
+                        'organisation' => $palletDelivery->shop->organisation->slug,
+                        'fulfilment'   => $this->fulfilment->slug,
+                        'customer'     => $palletDelivery->slug
                     ]
 
                 ]
             ],
-            'shops.show.customers.show'=> [
-                'label'=> $palletDelivery->name,
-                'route'=> [
-                    'name'      => $routeName,
-                    'parameters'=> [
-                        'shop'    => $palletDelivery->shop->slug,
-                        'customer'=> $palletDelivery->slug
+            'shops.show.customers.show' => [
+                'label' => $palletDelivery->name,
+                'route' => [
+                    'name'       => $routeName,
+                    'parameters' => [
+                        'shop'     => $palletDelivery->shop->slug,
+                        'customer' => $palletDelivery->slug
                     ]
 
                 ]
-            ], default => []
+            ],
+            default => []
         };
     }
 }

@@ -12,11 +12,10 @@ import TableWrapper from '@/Components/Table/TableWrapper.vue';
 // import SearchReset from '@/Components/Table/SearchReset.vue';
 import Button from '@/Components/Elements/Buttons/Button.vue';
 import EmptyState from '@/Components/Utils/EmptyState.vue'
-import { Link } from "@inertiajs/vue3"
+import {Link} from "@inertiajs/vue3"
 import {trans} from 'laravel-vue-i18n'
-import { capitalize } from "@/Composables/capitalize"
 
-import { computed, onMounted, ref, watch, onUnmounted, getCurrentInstance, Transition, toRefs } from 'vue';
+import {computed, getCurrentInstance, onMounted, onUnmounted, ref, toRefs, Transition, watch} from 'vue';
 import qs from 'qs';
 import clone from 'lodash-es/clone';
 import filter from 'lodash-es/filter';
@@ -24,12 +23,10 @@ import findKey from 'lodash-es/findKey';
 import forEach from 'lodash-es/forEach';
 import isEqual from 'lodash-es/isEqual';
 import map from 'lodash-es/map';
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 // import { library } from "@fortawesome/fontawesome-svg-core";
-
-
 import {useLocaleStore} from '@/Stores/locale';
 import CountUp from 'vue-countup-v3';
+
 const locale = useLocaleStore();
 
 const props = defineProps(
@@ -127,9 +124,9 @@ const props = defineProps(
             type: Object
         }
     });
-    const app = getCurrentInstance();
-    const $inertia = app ? app.appContext.config.globalProperties.$inertia : props.inertia;
-    const updates = ref(0);
+const app = getCurrentInstance();
+const $inertia = app ? app.appContext.config.globalProperties.$inertia : props.inertia;
+const updates = ref(0);
 
 let queryBuilderProps;
 queryBuilderProps = computed(() => {
@@ -436,9 +433,9 @@ function generateNewQueryString() {
     forEach(dataForNewQueryString(), (value, key) => {
         if (key === 'page') {
             queryStringData[pageName.value] = value;
-        // } else if (key === 'perPage') {
+            // } else if (key === 'perPage') {
             // This line make pagination error
-        //     queryStringData.perPage[prefix + key] = value;
+            //     queryStringData.perPage[prefix + key] = value;
         } else {
             queryStringData[prefix + key] = value;
         }
@@ -451,7 +448,7 @@ function generateNewQueryString() {
 
         //     return value;
         // },
-        encodeValuesOnly: true ,
+        encodeValuesOnly: true,
         skipNulls: true,
         strictNullHandling: true,
         arrayFormat: 'comma', // for elementGroups
@@ -503,7 +500,7 @@ const visit = (url) => {
                         window.pageYOffset +
                         offset;
 
-                    window.scrollTo({ top });
+                    window.scrollTo({top});
                 }
 
                 updates.value++;
@@ -519,7 +516,7 @@ watch(queryBuilderData, async () => {
             console.error("Can't visit expected path")
         }
     },
-    { deep: true },
+    {deep: true},
 );
 
 const inertiaListener = () => {
@@ -566,7 +563,7 @@ const handleElementsChange = (data) => {
     queryBuilderData.value.elementFilter = data
 }
 
-const { name }   = toRefs(props)
+const {name} = toRefs(props)
 
 watch(name, () => {
     // To reset the 'sort' on change Tabs
@@ -578,27 +575,34 @@ watch(name, () => {
 <template>
     <Transition>
         <!--suppress JSValidateTypes -->
-        <EmptyState :data="queryBuilderProps.emptyState" v-if="queryBuilderProps.emptyState?.count === 0 && compResourceMeta.total === 0" />
+        <EmptyState :data="queryBuilderProps.emptyState"
+                    v-if="queryBuilderProps.emptyState?.count === 0 && compResourceMeta.total === 0"/>
         <!--suppress HtmlUnknownAttribute -->
-        <fieldset v-else ref="tableFieldset" :key="`table-${name}`" :dusk="`table-${name}`" class="min-w-0" :class="{ 'opacity-75': isVisiting }">
+        <fieldset v-else ref="tableFieldset" :key="`table-${name}`" :dusk="`table-${name}`" class="min-w-0"
+                  :class="{ 'opacity-75': isVisiting }">
             <div class="my-2">
-            <!-- Wrapper -->
+                <!-- Wrapper -->
                 <div class="grid grid-flow-col justify-between flex-nowrap px-4">
 
                     <!-- Left Section: Records, -->
                     <div class="flex space-x-2">
                         <!-- Result Number -->
                         <div class="flex gap-2 items-center">
-                            <div class="grid border rounded-md border-gray-300 justify-end items-center text-base font-normal text-gray-700"
+                            <div
+                                class="grid border rounded-md border-gray-300 justify-end items-center text-base font-normal text-gray-700"
                                 title="Results">
-                                <div v-if="compResourceMeta.total" class="px-2 py-1.5 whitespace-nowrap flex gap-x-1 flex-nowrap">
+                                <div v-if="compResourceMeta.total"
+                                     class="px-2 py-1.5 whitespace-nowrap flex gap-x-1 flex-nowrap">
                                     <span class="font-semibold tabular-nums">
-                                        <CountUp :endVal="compResourceMeta.total" :duration="1.2" :scrollSpyOnce="true" :options="{
+                                        <CountUp :endVal="compResourceMeta.total" :duration="1.2" :scrollSpyOnce="true"
+                                                 :options="{
                                             formattingFn: (number) => locale.number(number)
-                                        }" />
+                                        }"/>
                                     </span>
                                     <!-- {{ locale.number(compResourceMeta.total) }} -->
-                                    <span class="font-thin">{{ compResourceMeta.total > 1 ? trans('records') : trans('record') }}</span>
+                                    <span class="font-thin">{{
+                                            compResourceMeta.total > 1 ? trans('records') : trans('record')
+                                        }}</span>
                                 </div>
                                 <div v-else class="px-2 py-1.5">{{ locale.number(0) }} {{ trans('record') }}</div>
                             </div>
@@ -606,32 +610,37 @@ watch(name, () => {
                             <!-- Button or Button Group -->
                             <div v-if="queryBuilderProps.modelOperations?.createLink" class="flex">
                                 <slot v-for="(linkButton,index) in queryBuilderProps.modelOperations?.createLink"
-                                    :name="`button${linkButton.label}`" :linkButton="linkButton"
+                                      :name="`button${linkButton.label}`" :linkButton="linkButton"
                                 >
-                                    <Link v-if="linkButton?.route?.name" :href="route(linkButton?.route?.name, linkButton?.route?.parameters)"
-                                        class="ring-1 ring-gray-300 overflow-hidden"
-                                        :class="[queryBuilderProps.modelOperations?.createLink.length > 1 ? 'first:rounded-l last:rounded-r' : '']"
+                                    <Link v-if="linkButton?.route?.name"
+                                          :href="route(linkButton?.route?.name, linkButton?.route?.parameters)"
+                                          class="ring-1 ring-gray-300 overflow-hidden"
+                                          :class="[queryBuilderProps.modelOperations?.createLink.length > 1 ? 'first:rounded-l last:rounded-r' : '']"
                                     >
-                                        <Button :style="linkButton.style" :icon="linkButton.icon"  :label="linkButton.label"
-                                            class="h-full capitalize inline-flex items-center rounded-none text-sm border-none font-medium shadow-sm focus:ring-transparent focus:ring-offset-transparent focus:ring-0"
+                                        <Button :style="linkButton.style" :icon="linkButton.icon"
+                                                :label="linkButton.label"
+                                                class="h-full capitalize inline-flex items-center rounded-none text-sm border-none font-medium shadow-sm focus:ring-transparent focus:ring-offset-transparent focus:ring-0"
                                         >
-                                          <!--   <span v-if="linkButton.label" class="">{{ linkButton.label }}</span> -->
+                                            <!--   <span v-if="linkButton.label" class="">{{ linkButton.label }}</span> -->
                                         </Button>
                                     </Link>
                                 </slot>
                             </div>
-                            <slot v-if="queryBuilderProps.modelOperations?.uploadFile" name="uploadFile"  id="uploadFile" :item="queryBuilderProps.modelOperations?.uploadFile"/>
+                            <slot v-if="queryBuilderProps.modelOperations?.uploadFile" name="uploadFile" id="uploadFile"
+                                  :item="queryBuilderProps.modelOperations?.uploadFile"/>
 
                             <!-- Search Input Button -->
                             <div v-if="queryBuilderProps.globalSearch"
-                                class="flex flex-row">
+                                 class="flex flex-row">
                                 <slot name="tableFilterSearch" :has-global-search="queryBuilderProps.globalSearch"
-                                    :label="queryBuilderProps.globalSearch ? queryBuilderProps.globalSearch.label : null"
-                                    :value="queryBuilderProps.globalSearch ? queryBuilderProps.globalSearch.value : null"
-                                    :on-change="changeGlobalSearchValue">
-                                    <TableFilterSearch v-if="queryBuilderProps.globalSearch" class=""  @resetSearch="() => resetQuery()"
-                                        :label="queryBuilderProps.globalSearch.label" :value="queryBuilderProps.globalSearch.value"
-                                        :on-change="changeGlobalSearchValue" />
+                                      :label="queryBuilderProps.globalSearch ? queryBuilderProps.globalSearch.label : null"
+                                      :value="queryBuilderProps.globalSearch ? queryBuilderProps.globalSearch.value : null"
+                                      :on-change="changeGlobalSearchValue">
+                                    <TableFilterSearch v-if="queryBuilderProps.globalSearch" class=""
+                                                       @resetSearch="() => resetQuery()"
+                                                       :label="queryBuilderProps.globalSearch.label"
+                                                       :value="queryBuilderProps.globalSearch.value"
+                                                       :on-change="changeGlobalSearchValue"/>
                                 </slot>
                             </div>
                         </div>
@@ -650,7 +659,10 @@ watch(name, () => {
 
                         <!-- Element Filter -->
                         <div class="w-fit">
-                            <TableElements v-if="queryBuilderProps.elementGroups" :elements="queryBuilderProps.elementGroups" @checkboxChanged="handleElementsChange" :title="queryBuilderData.title" :name="props.name"/>
+                            <TableElements v-if="queryBuilderProps.elementGroups"
+                                           :elements="queryBuilderProps.elementGroups"
+                                           @checkboxChanged="handleElementsChange" :title="queryBuilderData.title"
+                                           :name="props.name"/>
                         </div>
 
                         <!-- Button: Reset -->
@@ -669,7 +681,6 @@ watch(name, () => {
                                 :search-inputs="queryBuilderProps.searchInputsWithoutGlobal" :has-search-inputs-without-value="queryBuilderProps.hasSearchInputsWithoutValue
                                     " :on-add="showSearchInput" />
                         </slot> -->
-
 
 
                         <!-- Button: Switch toggle search the column of table -->
@@ -702,28 +713,29 @@ watch(name, () => {
                     <slot name="table">
                         <table class="divide-y divide-gray-200 bg-white w-full">
                             <thead class="bg-gray-50">
-                                <tr class="border-t border-gray-200">
-                                    <HeaderCell v-for="column in queryBuilderProps.columns"
-                                        :key="`table-${name}-header-${column.key}`" :cell="header(column.key)"
-                                        :type="columnsType[column.key]" :column="column" :resource="compResourceData">
-                                    </HeaderCell>
-                                </tr>
+                            <tr class="border-t border-gray-200">
+                                <HeaderCell v-for="column in queryBuilderProps.columns"
+                                            :key="`table-${name}-header-${column.key}`" :cell="header(column.key)"
+                                            :type="columnsType[column.key]" :column="column"
+                                            :resource="compResourceData">
+                                </HeaderCell>
+                            </tr>
                             </thead>
 
                             <tbody class="bg-white divide-y divide-gray-200">
-                                <slot name="body" :show="show">
-                                    <tr v-for="(item, key) in compResourceData" :key="`table-${name}-row-${key}`"
-                                        class=""
-                                        :class="[{
+                            <slot name="body" :show="show">
+                                <tr v-for="(item, key) in compResourceData" :key="`table-${name}-row-${key}`"
+                                    class=""
+                                    :class="[{
                                             'bg-gray-50': striped && key % 2,
                                         },
                                             striped ? 'hover:bg-gray-100' : 'hover:bg-gray-50'
                                         ]"
-                                    >
-                                        <td v-for="column in queryBuilderProps.columns" v-show="show(column.key)"
-                                            :key="`table-${name}-row-${key}-column-${column.key}`"
-                                            class="text-sm py-2 text-gray-700 whitespace-normal h-full"
-                                            :class="[
+                                >
+                                    <td v-for="column in queryBuilderProps.columns" v-show="show(column.key)"
+                                        :key="`table-${name}-row-${key}-column-${column.key}`"
+                                        class="text-sm py-2 text-gray-700 whitespace-normal h-full"
+                                        :class="[
                                                 column.type === 'avatar' || column.type === 'icon'
                                                     ? 'text-center min-w-fit'  // if type = icon
                                                     : typeof item[column.key] == 'number'
@@ -731,22 +743,24 @@ watch(name, () => {
                                                         : 'px-6',
                                                 { 'first:border-l-4 first:border-gray-700 bg-gray-200/75': selectedRow?.[name]?.includes(item.id) }
                                         ]">
-                                            <slot :name="`cell(${column.key})`" :item="item" :tabName="name" class="">
-                                                <div class="text-gray-500">{{ item[column.key] }}</div>
-                                            </slot>
-                                        </td>
-                                    </tr>
-                                </slot>
+                                        <slot :name="`cell(${column.key})`" :item="item" :tabName="name" class="">
+                                            <div class="text-gray-500">{{ item[column.key] }}</div>
+                                        </slot>
+                                    </td>
+                                </tr>
+                            </slot>
                             </tbody>
                         </table>
                     </slot>
 
                     <!-- Pagination -->
                     <slot name="pagination" :on-click="visit" :has-data="hasData" :meta="compResourceMeta"
-                        :per-page-options="queryBuilderProps.perPageOptions"
-                        :on-per-page-change="onPerPageChange">
-                        <Pagination :on-click="visit" :has-data="hasData" :meta="compResourceMeta" :exportLinks="queryBuilderProps.exportLinks"
-                            :per-page-options="queryBuilderProps.perPageOptions" :on-per-page-change="onPerPageChange" />
+                          :per-page-options="queryBuilderProps.perPageOptions"
+                          :on-per-page-change="onPerPageChange">
+                        <Pagination :on-click="visit" :has-data="hasData" :meta="compResourceMeta"
+                                    :exportLinks="queryBuilderProps.exportLinks"
+                                    :per-page-options="queryBuilderProps.perPageOptions"
+                                    :on-per-page-change="onPerPageChange"/>
                     </slot>
                 </TableWrapper>
             </slot>

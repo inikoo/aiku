@@ -4,21 +4,22 @@
   -  Copyright (c) 2022, Raul A Perusquia Flores
   -->
 
-  <script setup  lang="ts">
- import {Head} from '@inertiajs/vue3';
+<script setup lang="ts">
+import {Head} from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
-import { capitalize } from "@/Composables/capitalize"
+import {capitalize} from "@/Composables/capitalize"
 import Tabs from "@/Components/Navigation/Tabs.vue";
 import {computed, ref} from "vue";
 import {useTabChange} from "@/Composables/tab-change";
 import TableHistories from "@/Components/Tables/TableHistories.vue";
 import ShowcasePallet from '@/Components/Pallet/Showcase.vue'
 
-  const props = defineProps<{
+const props = defineProps<{
     title: string
     tabs: object
-    pallets?:object
-    history?:object
+    pallets?: object
+    timeline?: object
+    history?: object
     pageHead: object
 }>()
 
@@ -36,12 +37,12 @@ const component = computed(() => {
     return components[currentTab.value];
 
 });
+console.log('raul', props)
+</script>
 
-  </script>
-
-  <template layout="App">
-      <Head :title="capitalize(title)"/>
-      <PageHeading :data="pageHead"></PageHeading>
-      <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate"/>
-      <component :is="component" :data="props[currentTab]" :tab="currentTab"></component>
-  </template>
+<template layout="App">
+    <Head :title="capitalize(title)"/>
+    <PageHeading :data="pageHead"></PageHeading>
+    <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate"/>
+    <component :is="component" :data="props[currentTab]" :tab="currentTab"></component>
+</template>
