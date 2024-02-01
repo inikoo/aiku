@@ -33,12 +33,11 @@ const isTodayHours = (date: string | Date) => {
         currentDate.getHours() === dateValue.getHours()
 }
 
-console.log('props',props)
 
 </script>
 
 <template>
-    <div class="w-full py-6 flex flex-col isolate">
+    <div class="w-full py-6 flex flex-col isolate border-b border-gray-200">
         <Swiper ref="_swiperRef"
             :slideToClickedSlide="false"
             :slidesPerView="4"
@@ -48,7 +47,7 @@ console.log('props',props)
         >
             <template v-for="(step, stepIndex) in options">
                 <SwiperSlide>
-                    <div class="w-fit mx-auto capitalize text-sm md:text-base text-center"
+                    <div class="w-fit mx-auto capitalize text-sm md:text-xs text-center"
                         :class="step.timestamp ? 'text-gray-500 font-semibold' : 'text-gray-300'" 
                     >
                         {{ step.label }}
