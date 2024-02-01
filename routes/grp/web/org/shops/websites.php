@@ -5,7 +5,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-use App\Actions\Web\Webpage\IndexWebpages;
+use App\Actions\Web\Webpage\UI\IndexWebpages;
 use App\Actions\Web\Website\UI\CreateWebsite;
 use App\Actions\Web\Website\UI\EditWebsite;
 use App\Actions\Web\Website\UI\IndexWebsites;

@@ -8,7 +8,7 @@
 
 use App\Actions\CRM\WebUser\IndexWebUser;
 use App\Actions\UI\Websites\WebsitesDashboard;
-use App\Actions\Web\Webpage\IndexWebpages;
+use App\Actions\Web\Webpage\UI\IndexWebpages;
 use App\Actions\Web\Website\UI\CreateWebsite;
 use App\Actions\Web\Website\UI\EditWebsite;
 use App\Actions\Web\Website\UI\IndexWebsites;

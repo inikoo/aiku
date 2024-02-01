@@ -1,14 +1,15 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Fri, 07 Jul 2023 11:39:48 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Thu, 01 Feb 2024 14:48:23 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Web\Webpage;
+namespace App\Actions\Web\Webpage\UI;
 
 use App\Actions\OrgAction;
 use App\Actions\UI\Dashboard\ShowDashboard;
+use App\Actions\Web\HasWebAuthorisation;
 use App\Actions\Web\Website\UI\ShowWebsite;
 use App\Enums\Web\Webpage\WebpageStateEnum;
 use App\Http\Resources\Web\WebpageResource;
@@ -18,6 +19,7 @@ use App\Models\Market\Shop;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Web\Webpage;
 use App\Models\Web\Website;
+use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -26,38 +28,17 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
-use App\Services\QueryBuilder;
 
 class IndexWebpages extends OrgAction
 {
-    private Organisation|Website|Fulfilment $parent;
+    use HasWebAuthorisation;
+    private Organisation|Website|Fulfilment|Webpage $parent;
 
-    private Organisation|Fulfilment|Shop $scope;
-
-
-    public function authorize(ActionRequest $request): bool
-    {
-        if ($this->scope instanceof Organisation) {
-            $this->canEdit = $request->user()->hasPermissionTo("shops.{$this->organisation->id}.edit");
-
-            return $request->user()->hasPermissionTo("shops.{$this->organisation->id}.view");
-        } elseif ($this->scope instanceof Shop) {
-            $this->canEdit = $request->user()->hasPermissionTo("web.{$this->shop->id}.edit");
-
-            return $request->user()->hasPermissionTo("web.{$this->shop->id}.view");
-        } elseif ($this->scope instanceof Fulfilment) {
-            $this->canEdit = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
-            return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
-        }
-
-
-        return false;
-    }
 
     public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
         $this->scope  = $organisation;
-        $this->parent =$organisation;
+        $this->parent = $organisation;
         $this->initialisation($organisation, $request);
 
 
@@ -87,14 +68,14 @@ class IndexWebpages extends OrgAction
     }
 
 
-    protected function getElementGroups(): array
+    protected function getElementGroups(Organisation|Website|Webpage $parent): array
     {
         return [
             'state' => [
                 'label'    => __('State'),
                 'elements' => array_merge_recursive(
                     WebpageStateEnum::labels(),
-                    WebpageStateEnum::count($this->parent)
+                    WebpageStateEnum::count($parent)
                 ),
 
                 'engine' => function ($query, $elements) {
@@ -107,7 +88,7 @@ class IndexWebpages extends OrgAction
     }
 
 
-    public function handle(Organisation|Website $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Organisation|Website|Webpage $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -121,7 +102,7 @@ class IndexWebpages extends OrgAction
 
         $queryBuilder = QueryBuilder::for(Webpage::class);
 
-        foreach ($this->getElementGroups() as $key => $elementGroup) {
+        foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
             $queryBuilder->whereElementGroup(
                 key: $key,
                 allowedElements: array_keys($elementGroup['elements']),
@@ -133,6 +114,8 @@ class IndexWebpages extends OrgAction
 
         if ($parent instanceof Organisation) {
             $queryBuilder->where('webpages.organisation_id', $parent->id);
+        } elseif ($parent instanceof Webpage) {
+            $queryBuilder->where('webpages.parent_id', $parent->id);
         } else {
             $queryBuilder->where('webpages.website_id', $parent->id);
         }
@@ -147,7 +130,7 @@ class IndexWebpages extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure(Organisation|Website $parent, ?array $modelOperations = null, $prefix = null): Closure
+    public function tableStructure(Organisation|Website|Webpage $parent, ?array $modelOperations = null, $prefix = null): Closure
     {
         return function (InertiaTable $table) use ($parent, $modelOperations, $prefix) {
             if ($prefix) {
@@ -156,14 +139,13 @@ class IndexWebpages extends OrgAction
                     ->pageName($prefix.'Page');
             }
 
-            foreach ($this->getElementGroups() as $key => $elementGroup) {
+            foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
                 $table->elementGroup(
                     key: $key,
                     label: $elementGroup['label'],
                     elements: $elementGroup['elements']
                 );
             }
-
 
 
             $table

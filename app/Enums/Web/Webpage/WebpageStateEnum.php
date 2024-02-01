@@ -37,6 +37,7 @@ enum WebpageStateEnum: string
     {
         $webStats = match (class_basename($parent)) {
             'Organisation','Website' => $parent->webStats,
+            'Webpage'                => $parent->stats
         };
 
 
