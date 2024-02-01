@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\DB;
 
 class FetchWebpages extends FetchAction
 {
-    public string $commandSignature = 'fetch:webpages {organisations?*} {--s|source_id=} {--d|db_suffix=} {--N|only_new : Fetch only new} {--d|db_suffix=} {--r|reset}';
+    public string $commandSignature = 'fetch:webpages {organisations?*} {--S|shop= : Shop slug} {--A|all= : import non online webpages as well} {--s|source_id=} {--d|db_suffix=} {--N|only_new : Fetch only new} {--d|db_suffix=} {--r|reset}';
 
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Webpage
@@ -57,22 +57,48 @@ class FetchWebpages extends FetchAction
     {
         $query= DB::connection('aurora')
             ->table('Page Store Dimension')
+            ->join('Website Dimension', 'Website Dimension.Website Key', '=', 'Page Store Dimension.Webpage Website Key')
             ->select('Page Key as source_id')
             ->where('aiku_ignore', 'No')
             ->orderBy('source_id');
+
+
+        if (!$this->fetchAll) {
+            $query->where('Website Status', 'Active');
+            $query->where('Webpage State', 'Online');
+        }
+
         if ($this->onlyNew) {
             $query->whereNull('aiku_id');
         }
+        if ($this->shop) {
+            $sourceData = explode(':', $this->shop->source_id);
+            $query->where('Webpage Store Key', $sourceData[1]);
+        }
+
         return $query;
 
     }
 
     public function count(): ?int
     {
-        $query= DB::connection('aurora')->table('Page Store Dimension')
+        $query= DB::connection('aurora')
+            ->table('Page Store Dimension')
+            ->join('Website Dimension', 'Website Dimension.Website Key', '=', 'Page Store Dimension.Webpage Website Key')
+
             ->where('aiku_ignore', 'No');
         if ($this->onlyNew) {
             $query->whereNull('aiku_id');
+        }
+
+        if (!$this->fetchAll) {
+            $query->where('Website Status', 'Active');
+            $query->where('Webpage State', 'Online');
+        }
+
+        if ($this->shop) {
+            $sourceData = explode(':', $this->shop->source_id);
+            $query->where('Webpage Store Key', $sourceData[1]);
         }
         return $query->count();
     }

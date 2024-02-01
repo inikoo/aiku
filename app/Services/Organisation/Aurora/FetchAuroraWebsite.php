@@ -49,27 +49,31 @@ class FetchAuroraWebsite extends FetchAurora
 
         $domain = preg_replace('/^www\./', '', strtolower($this->auroraModelData->{'Website URL'}));
 
+        if ($state === WebsiteStateEnum::LIVE) {
+            $engine = WebsiteEngineEnum::AIKU;
+        } else {
+            $engine = WebsiteEngineEnum::AURORA;
+        }
+
 
         $this->parsedData['website'] =
             [
-                'engine'      => WebsiteEngineEnum::AURORA,
-                'name'        => $this->auroraModelData->{'Website Name'},
-                'code'        => $this->auroraModelData->code,
-                'domain'      => $domain,
-                'state'       => $state,
-                'status'      => $this->auroraModelData->{'Website Status'} === 'Active',
-                'source_id'   => $this->organisation->id.':'.$this->auroraModelData->{'Website Key'},
+                'engine'    => $engine,
+                'name'      => $this->auroraModelData->{'Website Name'},
+                'code'      => $this->auroraModelData->code,
+                'domain'    => $domain,
+                'state'     => $state,
+                'status'    => $this->auroraModelData->{'Website Status'} === 'Active',
+                'source_id' => $this->organisation->id.':'.$this->auroraModelData->{'Website Key'},
             ];
 
-        if($launchedAt=$this->parseDate($this->auroraModelData->{'Website Launched'})) {
-            $this->parsedData['website']['launched_at']=$launchedAt;
+        if ($launchedAt = $this->parseDate($this->auroraModelData->{'Website Launched'})) {
+            $this->parsedData['website']['launched_at'] = $launchedAt;
         }
 
-        if($createdAt=$this->parseDate($this->auroraModelData->{'Website From'})) {
-            $this->parsedData['website']['created_at']=$createdAt;
+        if ($createdAt = $this->parseDate($this->auroraModelData->{'Website From'})) {
+            $this->parsedData['website']['created_at'] = $createdAt;
         }
-
-
     }
 
 
