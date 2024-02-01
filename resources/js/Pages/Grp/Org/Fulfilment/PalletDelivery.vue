@@ -37,7 +37,6 @@ const component = computed(() => {
 
 });
 
-console.log(props)
   </script>
 
   <template layout="App">

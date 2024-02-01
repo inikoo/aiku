@@ -15,6 +15,7 @@ const props = defineProps<{
 }>()
 
 
+
 function customerRoute(customer: Customer) {
     switch (route().current()) {
         default:
