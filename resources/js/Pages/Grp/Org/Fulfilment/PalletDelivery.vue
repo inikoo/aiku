@@ -18,14 +18,16 @@ import Popover from '@/Components/Popover.vue';
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import PureInput from '@/Components/Pure/PureInput.vue';
 import { get } from 'lodash'
+import axios from 'axios';
 
 const props = defineProps<{
   title: string
   tabs: object
   pallets?: object
-  timeline?: object
+  data?: object
   history?: object
   pageHead: object
+  updateRoute: object
 }>()
 
 let currentTab = ref(props.tabs.current);
@@ -56,6 +58,19 @@ const component = computed(() => {
 
 });
 
+const updateState = async ( data : object ) => {
+  try {
+        const response = await axios.patch(
+            route(props.updateRoute.route.name, props.updateRoute.route?.parameters),
+            { state : get(data,'key') }
+        );
+    } catch (error) {
+        console.log('error', error)
+    }
+}
+
+console.log('porps',props)
+
 </script>
 
 <template layout="App">
@@ -85,7 +100,7 @@ const component = computed(() => {
     </template>
 
   </PageHeading>
-  <Timeline :options="timeline" />
+  <Timeline :options="data.data.timeline" :state="data.data.state" @updateButton="updateState"/>
   <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
   <component :is="component" :data="props[currentTab]" :timeline="timeline" :tab="currentTab"></component>
 </template>
