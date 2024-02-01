@@ -8,14 +8,12 @@
 import { ref, Ref } from 'vue'
 import FooterActiveUsers from '@/Components/Footer/FooterActiveUsers.vue'
 import FooterLanguage from '@/Components/Footer/FooterLanguage.vue'
-import { usePage } from "@inertiajs/vue3";
 import { faHeart, faComputerClassic } from '@fas'
 import { faDiscord } from '@fortawesome/free-brands-svg-icons'
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 
 const isTabActive: Ref<boolean | string> = ref(false)
-const logoSrc = usePage().props.art?.footer_logo;
 import { trans } from "laravel-vue-i18n";
 
 library.add(faHeart, faComputerClassic, faDiscord)
