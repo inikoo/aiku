@@ -7,6 +7,7 @@
 
 namespace App\Http\Resources\Fulfilment;
 
+use App\Actions\Fulfilment\Pallet\UI\IndexPallets;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -20,18 +21,18 @@ class PalletDeliveryResource extends JsonResource
         $timeline = [];
         foreach (PalletDeliveryStateEnum::cases() as $state) {
             $timeline[$state->value] = [
-                'label'     => $state->labels()[$state->value],
-                'icon'      => $palletDelivery->state->stateIcon()[$state->value]['icon'],
-                'timestamp' => $palletDelivery->{$state->snake().'_at'} ? $palletDelivery->{$state->snake().'_at'}->toISOString() : null
+                'label' => $state->labels()[$state->value],
+                /* 'icon'      => $palletDelivery->state->stateIcon()[$state->value]['icon'], */
+                'timestamp' => $palletDelivery->{$state->snake() . '_at'} ? $palletDelivery->{$state->snake() . '_at'}->toISOString() : null
             ];
         }
 
         return [
-            'id'                 => $palletDelivery->id,
-            'reference'          => $palletDelivery->reference,
-            'state'              => $palletDelivery->state,
-            'pallets'            => $palletDelivery->pallets,
-            'timeline'           => $timeline
+            'id'        => $palletDelivery->id,
+            'reference' => $palletDelivery->reference,
+            'state'     => $palletDelivery->state,
+            'pallets'   => PalletResource::collection(IndexPallets::run($palletDelivery->fulfilment, 'pallets')),
+            'timeline'  => $timeline
         ];
     }
 }

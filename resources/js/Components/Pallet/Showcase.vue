@@ -6,36 +6,25 @@
 
 <script setup lang="ts">
 import Timeline from '@/Components/Timeline/Timeline.vue'
+import TablePallets from "@/Components/Tables/TablePallets.vue";
 
 const props = defineProps<{
-    data: object
-}>()
-
-console.log('ddddd',props)
-const options =
-    [
-        {
-            label: "Mailshot created",
-            timestamp: "2024-01-30T07:59:12.000000Z"
-        },
-        {
-            label: "Mailshot composed",
-            timestamp: "2024-01-30T07:59:24.000000Z"
-        },
-        {
-            label: "Start send",
-            timestamp: "2024-01-30T07:59:39.000000Z"
-        },
-        {
-            label: "Sent",
-            timestamp: null
+    data: {
+        data: {
+            id: Number,
+            pallets: Array,
+            reference: String,
+            state: String,
         }
-    ]
-
-
+    }
+    timeline: object
+}>()
+console.log('ini',props.data.data)
 </script>
-  
+
 <template>
-    <Timeline :options="options" />
+    <div class="py-3 mx-auto px-5 w-full">
+        <Timeline :options="timeline"/>
+    </div>
+    <TablePallets :data="data" :tab="'pallets'"/>
 </template>
-  
