@@ -10,9 +10,11 @@ namespace App\Actions\Fulfilment\PalletDelivery;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
+use App\Http\Resources\Fulfilment\PalletDeliveryResource;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\SysAdmin\Organisation;
+use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -24,9 +26,9 @@ class UpdatePalletDeliveryTimeline extends OrgAction
     public function handle(PalletDelivery $palletDelivery, array $modelData): PalletDelivery
     {
         match ($modelData['state']) {
-            PalletDeliveryStateEnum::IN_PROCESS => $modelData['in_process_at'] = now(),
-            PalletDeliveryStateEnum::READY      => $modelData['ready_at']           = now(),
-            PalletDeliveryStateEnum::RECEIVED   => $modelData['received_at']     = now(),
+            PalletDeliveryStateEnum::IN_PROCESS => $modelData['in_process_at']       = now(),
+            PalletDeliveryStateEnum::READY      => $modelData['ready_at']            = now(),
+            PalletDeliveryStateEnum::RECEIVED   => $modelData['received_at']         = now(),
             PalletDeliveryStateEnum::DONE       => $modelData['done_at']             = now(),
             default                             => null
         };
@@ -44,6 +46,11 @@ class UpdatePalletDeliveryTimeline extends OrgAction
         return [
             'state' => ['required', Rule::in(PalletDeliveryStateEnum::values())],
         ];
+    }
+
+    public function jsonResponse(PalletDelivery $palletDelivery): JsonResource
+    {
+        return new PalletDeliveryResource($palletDelivery);
     }
 
     public function asController(Organisation $organisation, FulfilmentCustomer $fulfilmentCustomer, PalletDelivery $palletDelivery, ActionRequest $request): PalletDelivery
