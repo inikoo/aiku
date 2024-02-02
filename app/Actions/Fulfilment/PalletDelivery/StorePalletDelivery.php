@@ -33,7 +33,7 @@ class StorePalletDelivery extends OrgAction
     /**
      * @var true
      */
-    private bool $action;
+    private bool $action = false;
 
     public function handle(FulfilmentCustomer $fulfilmentCustomer, array $modelData): PalletDelivery
     {
