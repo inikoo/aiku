@@ -31,6 +31,7 @@ class GetGroupNavigation
                         [
                             'label' => __('agents'),
                             'icon'  => ['fal', 'fa-people-arrows'],
+                            'root'  => 'grp.supply-chain.agents.',
                             'route' => [
                                 'name' => 'grp.supply-chain.agents.index',
 
@@ -39,6 +40,7 @@ class GetGroupNavigation
                         [
                             'label' => __('suppliers'),
                             'icon'  => ['fal', 'fa-person-dolly'],
+                            'root'  => 'grp.supply-chain.suppliers.',
                             'route' => [
                                 'name' => 'grp.supply-chain.suppliers.index',
 
@@ -73,6 +75,7 @@ class GetGroupNavigation
                         [
                             'label' => __('users'),
                             'icon'  => ['fal', 'fa-terminal'],
+                            'root'  => 'grp.sysadmin.users.',
                             'route' => [
                                 'name' => 'grp.sysadmin.users.index',
 
@@ -81,6 +84,7 @@ class GetGroupNavigation
                         [
                             'label' => __('guests'),
                             'icon'  => ['fal', 'fa-user-alien'],
+                            'root'  => 'grp.sysadmin.guests.',
                             'route' => [
                                 'name' => 'grp.sysadmin.guests.index',
 
@@ -89,6 +93,7 @@ class GetGroupNavigation
                         [
                             'label' => __('system settings'),
                             'icon'  => ['fal', 'fa-cog'],
+                            'root'  => 'grp.sysadmin.settings.',
                             'route' => [
                                 'name' => 'grp.sysadmin.settings.edit',
 

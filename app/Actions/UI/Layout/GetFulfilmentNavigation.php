@@ -111,11 +111,10 @@ class GetFulfilmentNavigation
             ];
 
             $navigation['crm'] = [
-                'root'  => 'grp.org.fulfilments.show.customers.',
                 'scope' => 'shops',
                 'label' => __('Customers'),
                 'icon'  => ['fal', 'fa-user'],
-
+                'root'  => 'grp.org.fulfilments.show.crm.',
                 'route' => [
                     'name'       => 'grp.org.fulfilments.show.crm.customers.index',
                     'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug]
@@ -123,11 +122,11 @@ class GetFulfilmentNavigation
 
                 'topMenu' => [
                     'subSections' => [
-
                         [
                             'label'   => __('customers'),
                             'tooltip' => __('Customers'),
                             'icon'    => ['fal', 'fa-user'],
+                            'root'    => 'grp.org.fulfilments.show.crm.customers.',
                             'route'   => [
                                 'name'       => 'grp.org.fulfilments.show.crm.customers.index',
                                 'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug]
@@ -137,6 +136,7 @@ class GetFulfilmentNavigation
                             'label'   => __('prospects'),
                             'tooltip' => __('Prospects'),
                             'icon'    => ['fal', 'fa-user-plus'],
+                            'root'    => 'grp.org.fulfilments.show.crm.prospects.',
                             'route'   => [
                                 'name'       => 'grp.org.fulfilments.show.crm.prospects.index',
                                 'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug]
