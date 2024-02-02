@@ -54,3 +54,4 @@ php artisan workplace:create awa "Beach bar" hq
 php artisan workplace:create inikoo "Office B" hq
 
 php artisan customer:store java
+php artisan pallet-delivery:import -g aiku/data-sets/pallet-deliveries
