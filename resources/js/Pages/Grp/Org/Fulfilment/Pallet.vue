@@ -9,19 +9,18 @@
   import PageHeading from '@/Components/Headings/PageHeading.vue';
   import TableOrders from "@/Components/Tables/TableOrders.vue";
   import { capitalize } from "@/Composables/capitalize"
-  
+
   const props = defineProps<{
       data: object
       title: string
       pageHead: object
+      stored_items: object
   }>()
-  
+
   console.log('porps',props)
   </script>
-  
+
   <template layout="App">
       <Head :title="capitalize(title)"/>
       <PageHeading :data="pageHead"></PageHeading>
-      <div>ssdsd</div>
   </template>
-  

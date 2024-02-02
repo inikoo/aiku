@@ -60,6 +60,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\PalletDelivery> $palletDeliveries
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
  * @property-read Warehouse $warehouse
+ * @property-read \App\Models\Fulfilment\StoredItem $items
  * @method static \Database\Factories\Fulfilment\PalletFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder|Pallet locationId($located)
  * @method static \Illuminate\Database\Eloquent\Builder|Pallet newModelQuery()
@@ -150,6 +151,11 @@ class Pallet extends Model
     public function movements(): HasMany
     {
         return $this->hasMany(MovementPallet::class);
+    }
+
+    public function items(): BelongsToMany
+    {
+        return $this->belongsToMany(StoredItem::class)->using(PalletStoredItem::class);
     }
 
     public function palletDeliveries(): BelongsToMany

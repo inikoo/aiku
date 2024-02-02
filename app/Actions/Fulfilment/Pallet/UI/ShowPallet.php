@@ -13,6 +13,7 @@ use App\Actions\OrgAction;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\UI\PalletTabsEnum;
 use App\Http\Resources\Fulfilment\PalletResource;
+use App\Http\Resources\Fulfilment\StoredItemResource;
 use App\Http\Resources\History\HistoryResource;
 use App\Models\CRM\Customer;
 use App\Models\Fulfilment\Fulfilment;
@@ -63,7 +64,7 @@ class ShowPallet extends OrgAction
     public function htmlResponse(Pallet $pallet): Response
     {
         return Inertia::render(
-            'Fulfilment/Pallet',
+            'Org/Fulfilment/Pallet',
             [
                 'title'       => __('pallets'),
                 'breadcrumbs' => $this->getBreadcrumbs($this->pallet),
@@ -75,7 +76,7 @@ class ShowPallet extends OrgAction
                         ],
                     'title'  => $this->pallet->slug,
                     'actions'=> [
-                        [
+                        /*[
                             'type'    => 'button',
                             'style'   => 'cancel',
                             'tooltip' => __('return to customer'),
@@ -106,13 +107,17 @@ class ShowPallet extends OrgAction
                                 'parameters' => array_values(request()->route()->originalParameters())
                             ],
                             'disabled' => $this->pallet->status == PalletStatusEnum::DAMAGED
-                        ],
+                        ],*/
                     ],
                 ],
                 'tabs'        => [
                     'current'    => $this->tab,
                     'navigation' => PalletTabsEnum::navigation(),
                 ],
+
+                PalletTabsEnum::STORED_ITEMS->value => $this->tab == PalletTabsEnum::STORED_ITEMS->value ?
+                    fn () => StoredItemResource::make($pallet->items)
+                    : Inertia::lazy(fn () => StoredItemResource::make($pallet->items)),
 
                 PalletTabsEnum::HISTORY->value => $this->tab == PalletTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistory::run($this->pallet))
@@ -130,6 +135,8 @@ class ShowPallet extends OrgAction
 
     public function getBreadcrumbs(Pallet $pallet, $suffix = null): array
     {
+        return [];
+
         return array_merge(
             ShowFulfilment::make()->getBreadcrumbs(request()->route()->originalParameters()),
             [
