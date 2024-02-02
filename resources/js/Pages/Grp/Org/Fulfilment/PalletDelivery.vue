@@ -94,7 +94,7 @@ console.log('porps',props)
           </template>
           <template #content="{ close: closed }">
             <div class="w-[250px]">
-              <span class="text-xs px-1 my-2">Reference : </span>
+              <span class="text-xs px-1 my-2">Reference : </span><span class=" decoration-sky-500 text-xs">(optional)</span>
             <div>
               <PureInput 
                  v-model="form.reference" 

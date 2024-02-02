@@ -12,9 +12,11 @@ use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\SysAdmin\Organisation;
+use App\Rules\IUnique;
 use Illuminate\Console\Command;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsCommand;
 
@@ -53,7 +55,22 @@ class StorePalletFromDelivery extends OrgAction
     public function rules(): array
     {
         return [
-            'notes' => ['required', 'string','max:1024']
+            'customer_reference' => [
+                'sometimes',
+                'nullable',
+                'max:64',
+                'string',
+                Rule::notIn(['export', 'create', 'upload']),
+                new IUnique(
+                    table: 'pallets',
+                    extraConditions: [
+                        ['column' => 'fulfilment_customer_id', 'value' => $this->parent->fulfilmentCustomer->id],
+                    ]
+                ),
+
+
+            ],
+            'notes' => ['sometimes', 'string','max:1024']
         ];
     }
 
