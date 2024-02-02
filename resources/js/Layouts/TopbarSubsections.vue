@@ -34,7 +34,7 @@ const isSubSectionActive = (routeName: string) => {
             :class="[]" :title="capitalize(subSection.tooltip ?? subSection.label ?? '')"
         >
             <div :class="[
-                isSubSectionActive(subSection.route?.name)
+                isSubSectionActive(subSection.root)
                     ? 'bottomNavigationActive'
                     : 'bottomNavigation'
             ]" />

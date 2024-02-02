@@ -164,6 +164,7 @@ class GetOrganisationNavigation
                     'subSections' => [
                         [
                             'icon'  => ['fal', 'fa-chart-network'],
+                            'root'  => 'grp.fulfilment.dashboard',
                             'route' => [
                                 'name' => 'grp.fulfilment.dashboard',
                             ]
@@ -172,6 +173,7 @@ class GetOrganisationNavigation
                         [
                             'label' => __('customers'),
                             'icon'  => ['fal', 'fa-user-tie'],
+                            'root'  => 'grp.fulfilment.customers.',
                             'route' => [
                                 'name' => 'grp.fulfilment.customers.index',
                             ]
@@ -180,6 +182,7 @@ class GetOrganisationNavigation
                             'label'   => __('stored items'),
                             'tooltip' => __('stored items'),
                             'icon'    => ['fal', 'fa-narwhal'],
+                            'root'    => 'grp.fulfilment.stored-items.',
                             'route'   => [
                                 'name' => 'grp.fulfilment.stored-items.index',
                             ]
@@ -188,6 +191,7 @@ class GetOrganisationNavigation
                             'label'   => __('orders'),
                             'tooltip' => __('orders'),
                             'icon'    => ['fal', 'fa-business-time'],
+                            'root'    => 'grp.fulfilment.orders.',
                             'route'   => [
                                 'name' => 'grp.fulfilment.orders.index',
                             ]
@@ -210,6 +214,7 @@ class GetOrganisationNavigation
                         [
                             'label' => __('raw materials'),
                             'icon'  => ['fal', 'fa-network-wired'],
+                            'root'  => 'grp.org.hr.job-positions.',
                             'route' => [
                                 'name' => 'grp.org.hr.job-positions.index',
 
@@ -218,6 +223,7 @@ class GetOrganisationNavigation
                         [
                             'label' => __('employees'),
                             'icon'  => ['fal', 'fa-terminal'],
+                            'root'  => 'grp.org.hr.employees.',
                             'route' => [
                                 'name' => 'grp.org.hr.employees.index',
 
@@ -226,6 +232,7 @@ class GetOrganisationNavigation
                         [
                             'label' => __('calendar'),
                             'icon'  => ['fal', 'fa-calendar'],
+                            'root'  => 'grp.org.hr.calendars.',
                             'route' => [
                                 'name' => 'grp.org.hr.calendars.index',
 
@@ -234,6 +241,7 @@ class GetOrganisationNavigation
                         [
                             'label' => __('time sheets'),
                             'icon'  => ['fal', 'fa-stopwatch'],
+                            'root'  => 'grp.org.hr.time-sheets.',
                             'route' => [
                                 'name' => 'grp.org.hr.time-sheets.index',
 
@@ -242,6 +250,7 @@ class GetOrganisationNavigation
                         [
                             'label' => __('clocking machines'),
                             'icon'  => ['fal', 'fa-chess-clock'],
+                            'root'  => 'grp.org.hr.clocking-machines.',
                             'route' => [
                                 'name' => 'grp.org.hr.clocking-machines.index',
 
@@ -267,6 +276,7 @@ class GetOrganisationNavigation
                         [
                             'label' => __('agents'),
                             'icon'  => ['fal', 'fa-people-arrows'],
+                            'root'  => 'grp.org.procurement.agents.',
                             'route' => [
                                 'name'       => 'grp.org.procurement.agents.index',
                                 'parameters' => [$organisation->slug],
@@ -276,6 +286,7 @@ class GetOrganisationNavigation
                         [
                             'label' => __('suppliers'),
                             'icon'  => ['fal', 'fa-person-dolly'],
+                            'root'  => 'grp.org.procurement.suppliers.',
                             'route' => [
                                 'name'       => 'grp.org.procurement.suppliers.index',
                                 'parameters' => [$organisation->slug],
@@ -284,6 +295,7 @@ class GetOrganisationNavigation
                         [
                             'label' => __('purchase orders'),
                             'icon'  => ['fal', 'fa-clipboard-list'],
+                            'root'  => 'grp.org.procurement.purchase-orders.',
                             'route' => [
                                 'name'       => 'grp.org.procurement.purchase-orders.index',
                                 'parameters' => [$organisation->slug],
@@ -310,6 +322,7 @@ class GetOrganisationNavigation
                         [
                             'label' => __('Payment accounts'),
                             'icon'  => ['fal', 'fa-money-check-alt'],
+                            'root'  => 'grp.accounting.payment-accounts.',
                             'route' => [
                                 'name' => 'grp.accounting.payment-accounts.index',
 
@@ -319,6 +332,7 @@ class GetOrganisationNavigation
                             'label'   => __('customers'),
                             'tooltip' => __('Customers'),
                             'icon'    => ['fal', 'fa-user'],
+                            'root'    => 'grp.org.shops.show.crm.customers.',
                             'route'   => [
                                 'all'      => ['grp.org.shops.show.crm.customers.index'],
                                 'selected' => ['grp.org.shops.show.crm.customers.index'],
@@ -329,6 +343,7 @@ class GetOrganisationNavigation
                             'label'   => __('prospects'),
                             'tooltip' => __('Prospects'),
                             'icon'    => ['fal', 'fa-user-plus'],
+                            'root'    => 'grp.org.shops.show.crm.prospects.',
                             'route'   => [
                                 'all'      => ['grp.org.shops.show.crm.prospects.index'],
                                 'selected' => ['grp.crm.shops.show.prospects.index'],
@@ -342,9 +357,9 @@ class GetOrganisationNavigation
 
         if ($user->hasPermissionTo("human-resources.$organisation->id.view")) {
             $navigation['hr'] = [
-                'root'    => 'grp.org.hr',
                 'label'   => __('human resources'),
                 'icon'    => ['fal', 'fa-user-hard-hat'],
+                'root'    => 'grp.org.hr',
                 'route'   => [
                     'name'       => 'grp.org.hr.dashboard',
                     'parameters' => [$organisation->slug],
@@ -352,45 +367,50 @@ class GetOrganisationNavigation
                 'topMenu' => [
                     'subSections' => [
                         [
-                            'label' => __('job positions'),
-                            'icon'  => ['fal', 'fa-network-wired'],
-                            'route' => [
+                            'label'   => __('job positions'),
+                            'icon'    => ['fal', 'fa-network-wired'],
+                            'root'    => 'grp.org.hr.job-positions.',
+                            'route'   => [
                                 'name'       => 'grp.org.hr.job-positions.index',
                                 'parameters' => [$organisation->slug],
 
                             ]
                         ],
                         [
-                            'label' => __('employees'),
-                            'icon'  => ['fal', 'fa-user-hard-hat'],
-                            'route' => [
+                            'label'   => __('employees'),
+                            'icon'    => ['fal', 'fa-user-hard-hat'],
+                            'root'    => 'grp.org.hr.employees.',
+                            'route'   => [
                                 'name'       => 'grp.org.hr.employees.index',
                                 'parameters' => [$organisation->slug],
 
                             ]
                         ],
                         [
-                            'label' => __('calendar'),
-                            'icon'  => ['fal', 'fa-calendar'],
-                            'route' => [
+                            'label'   => __('calendar'),
+                            'icon'    => ['fal', 'fa-calendar'],
+                            'root'    => 'grp.org.hr.calendars.',
+                            'route'   => [
                                 'name'       => 'grp.org.hr.calendars.index',
                                 'parameters' => [$organisation->slug],
 
                             ]
                         ],
                         [
-                            'label' => __('time sheets'),
-                            'icon'  => ['fal', 'fa-stopwatch'],
-                            'route' => [
+                            'label'   => __('time sheets'),
+                            'icon'    => ['fal', 'fa-stopwatch'],
+                            'root'    => 'grp.org.hr.time-sheets.',
+                            'route'   => [
                                 'name'       => 'grp.org.hr.time-sheets.index',
                                 'parameters' => [$organisation->slug],
 
                             ]
                         ],
                         [
-                            'label' => __('working place'),
-                            'icon'  => ['fal', 'fa-building'],
-                            'route' => [
+                            'label'   => __('working place'),
+                            'icon'    => ['fal', 'fa-building'],
+                            'root'    => 'grp.org.hr.workplaces.',
+                            'route'   => [
                                 'name'       => 'grp.org.hr.workplaces.index',
                                 'parameters' => [$organisation->slug],
 
