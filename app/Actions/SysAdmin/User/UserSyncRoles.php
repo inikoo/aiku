@@ -28,7 +28,7 @@ class UserSyncRoles
     {
 
         $user->syncRoles($roles);
-        UserHydrateAuthorisedModels::dispatch($user);
+        UserHydrateAuthorisedModels::run($user);
 
         return $user;
     }
