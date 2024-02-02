@@ -44,14 +44,14 @@ class ShowPallet extends OrgAction
 
     public function asController(Organisation $organisation, Warehouse $warehouse, Fulfilment $fulfilment, Pallet $pallet, ActionRequest $request): Pallet
     {
-        $this->initialisationFromFulfilment($fulfilment, $request);
+        $this->initialisationFromFulfilment($fulfilment, $request)->withTab(PalletTabsEnum::values());
 
         return $this->handle($pallet);
     }
 
     public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, PalletDelivery $palletDelivery, Pallet $pallet, ActionRequest $request): Pallet
     {
-        $this->initialisationFromFulfilment($fulfilment, $request);
+        $this->initialisationFromFulfilment($fulfilment, $request)->withTab(PalletTabsEnum::values());
 
         return $this->handle($pallet);
     }
@@ -117,8 +117,8 @@ class ShowPallet extends OrgAction
                 ],
 
                 PalletTabsEnum::STORED_ITEMS->value => $this->tab == PalletTabsEnum::STORED_ITEMS->value ?
-                    fn () => StoredItemResource::make(IndexStoredItems::run($pallet->fulfilmentCustomer))
-                    : Inertia::lazy(fn () => StoredItemResource::make(IndexStoredItems::run($pallet->fulfilmentCustomer))),
+                    fn () => StoredItemResource::collection(IndexStoredItems::run($pallet->fulfilmentCustomer))
+                    : Inertia::lazy(fn () => StoredItemResource::collection(IndexStoredItems::run($pallet->fulfilmentCustomer))),
 
                 PalletTabsEnum::HISTORY->value => $this->tab == PalletTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistory::run($this->pallet))
