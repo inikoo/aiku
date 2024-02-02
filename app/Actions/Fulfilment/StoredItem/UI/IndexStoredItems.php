@@ -10,7 +10,7 @@ namespace App\Actions\Fulfilment\StoredItem\UI;
 use App\Actions\InertiaAction;
 use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Fulfilment\StoredItemResource;
-use App\Models\CRM\Customer;
+use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\StoredItem;
 use App\Models\SysAdmin\Organisation;
 use Closure;
@@ -25,7 +25,7 @@ use App\Services\QueryBuilder;
 
 class IndexStoredItems extends InertiaAction
 {
-    public function handle(Organisation|Customer $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Organisation|FulfilmentCustomer $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -41,8 +41,8 @@ class IndexStoredItems extends InertiaAction
             ->defaultSort('slug')
             ->with('customer')
             ->when($parent, function ($query) use ($parent) {
-                if(class_basename($parent) == "Customer") {
-                    $query->where('customer_id', $parent->id);
+                if(class_basename($parent) == "FulfilmentCustomer") {
+                    $query->where('fulfilment_customer_id', $parent->id);
                 }
             })
             ->allowedSorts(['slug', 'state'])
@@ -87,9 +87,9 @@ class IndexStoredItems extends InertiaAction
     }
 
 
-    public function jsonResponse(LengthAwarePaginator $employees): AnonymousResourceCollection
+    public function jsonResponse(LengthAwarePaginator $storedItems): AnonymousResourceCollection
     {
-        return StoredItemResource::collection($employees);
+        return StoredItemResource::collection($storedItems);
     }
 
 

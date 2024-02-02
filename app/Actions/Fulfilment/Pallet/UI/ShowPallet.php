@@ -8,6 +8,7 @@
 namespace App\Actions\Fulfilment\Pallet\UI;
 
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
+use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItems;
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\OrgAction;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
@@ -116,15 +117,16 @@ class ShowPallet extends OrgAction
                 ],
 
                 PalletTabsEnum::STORED_ITEMS->value => $this->tab == PalletTabsEnum::STORED_ITEMS->value ?
-                    fn () => StoredItemResource::make($pallet->items)
-                    : Inertia::lazy(fn () => StoredItemResource::make($pallet->items)),
+                    fn () => StoredItemResource::make(IndexStoredItems::run($pallet->fulfilmentCustomer))
+                    : Inertia::lazy(fn () => StoredItemResource::make(IndexStoredItems::run($pallet->fulfilmentCustomer))),
 
                 PalletTabsEnum::HISTORY->value => $this->tab == PalletTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistory::run($this->pallet))
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($this->pallet)))
 
             ]
-        )->table(IndexHistory::make()->tableStructure());
+        )->table(IndexHistory::make()->tableStructure())
+            ->table(IndexStoredItems::make()->tableStructure($pallet->items));
     }
 
 

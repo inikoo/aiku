@@ -155,7 +155,7 @@ class Pallet extends Model
 
     public function items(): BelongsToMany
     {
-        return $this->belongsToMany(StoredItem::class)->using(PalletStoredItem::class);
+        return $this->belongsToMany(StoredItem::class, 'pallet_stored_items');
     }
 
     public function palletDeliveries(): BelongsToMany
