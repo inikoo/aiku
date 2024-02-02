@@ -141,7 +141,7 @@ class ShowPalletDelivery extends OrgAction
 
                 'updateRoute' => [
                     'route'   => [
-                        'name'       => 'grp.models.fulfilment-customer.pallet-delivery.update',
+                        'name'       => 'grp.models.fulfilment-customer.pallet-delivery.timeline.update',
                         'parameters' => [
                             'organisation'       => $palletDelivery->organisation->slug,
                             'fulfilment'         => $palletDelivery->fulfilment->slug,
@@ -156,7 +156,7 @@ class ShowPalletDelivery extends OrgAction
                     'navigation' => PalletDeliveryTabsEnum::navigation()
                 ],
 
-                'timeline' => PalletDeliveryResource::make($palletDelivery)->toArray($request)['timeline'],
+                'data' => PalletDeliveryResource::make($palletDelivery),
 
                 PalletDeliveryTabsEnum::PALLETS->value => $this->tab == PalletDeliveryTabsEnum::PALLETS->value ?
                     fn () => PalletResource::collection(IndexPalletsFromDelivery::run($palletDelivery))

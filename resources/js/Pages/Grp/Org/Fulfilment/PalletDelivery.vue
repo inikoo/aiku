@@ -32,10 +32,12 @@ const props = defineProps<{
 
 let currentTab = ref(props.tabs.current);
 const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
+const loading = ref(false)
 
-const form = useForm({ notes: '' })
+const form = useForm({ notes: '', reference: ''})
 
 const handleFormSubmit = (data: object, closedPopover : Function ) => {
+  loading.value = true
   form.post(route(
     data.route.name,
     data.route.parameters
@@ -43,8 +45,13 @@ const handleFormSubmit = (data: object, closedPopover : Function ) => {
     preserveScroll: true,
     onSuccess: () => {
       closedPopover()
-      form.reset('notes')
+      form.reset('notes','reference')
+      loading.value = false
     },
+    onError: (errors) => {
+    loading.value = false
+    console.error('Error during form submission:', errors);
+  },
   })
 }
 
@@ -64,6 +71,7 @@ const updateState = async ( data : object ) => {
             route(props.updateRoute.route.name, props.updateRoute.route?.parameters),
             { state : get(data,'key') }
         );
+      props.data.data =  response.data.data
     } catch (error) {
         console.log('error', error)
     }
@@ -76,7 +84,7 @@ console.log('porps',props)
 <template layout="App">
   <Head :title="capitalize(title)" />
   <PageHeading :data="pageHead">
-    <template #button-create-pallet="{ action: action }">
+    <template #button-add-pallet="{ action: action }">
       <div class="relative">
         <Popover :width="'w-full'" ref="_popover">
           <template #button>
@@ -86,12 +94,33 @@ console.log('porps',props)
           </template>
           <template #content="{ close: closed }">
             <div class="w-[250px]">
-              <PureInput v-model="form.notes" placeholder="Notes"></PureInput>
+              <span class="text-xs px-1 my-2">Reference : </span>
+            <div>
+              <PureInput 
+                 v-model="form.reference" 
+                 placeholder="Reference"
+              >
+              </PureInput>
+              <p v-if="get(form, ['errors','reference'])" class="mt-2 text-sm text-red-600">
+                {{ form.errors.reference }}
+              </p>
+            </div>
+
+            <div class="mt-3">
+            <span class="text-xs px-1 my-2">Notes : </span>
+              <textarea  
+                 class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" 
+                 v-model="form.notes" 
+                 placeholder="Notes"
+              >
+              </textarea>
               <p v-if="get(form, ['errors','notes'])" class="mt-2 text-sm text-red-600">
                 {{ form.errors.notes }}
               </p>
+            </div>
+             
               <div class="flex justify-end mt-3">
-                <Button :style="'save'" :label="'save'" @click="() => handleFormSubmit( action.action, closed )" />
+                <Button :style="'save'" :loading="loading" :label="'save'" @click="() => handleFormSubmit( action.action, closed )" />
               </div>
             </div>
           </template>
@@ -100,7 +129,7 @@ console.log('porps',props)
     </template>
 
   </PageHeading>
-<!--   <Timeline :options="data.data.timeline" :state="data.data.state" @updateButton="updateState"/> -->
+  <Timeline :options="data.data.timeline" :state="data.data.state" @updateButton="updateState"/>
   <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
   <component :is="component" :data="props[currentTab]" :timeline="timeline" :tab="currentTab"></component>
 </template>

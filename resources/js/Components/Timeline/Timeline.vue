@@ -1,5 +1,5 @@
 <script setup lang='ts'>
-import { ref, defineEmits } from 'vue'
+import { ref, defineEmits, computed , onBeforeMount } from 'vue'
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import 'swiper/css'
 import 'swiper/css/navigation'
@@ -24,6 +24,7 @@ const props = defineProps<{
 
 const emits = defineEmits();
 const _swiperRef = ref()
+const finalOptions = ref([])
 
 const isTodayHours = (date: string | Date) => {
     const currentDate = new Date()
@@ -36,10 +37,24 @@ const isTodayHours = (date: string | Date) => {
         currentDate.getHours() === dateValue.getHours()
 }
 
-const finaloptions = () => {
-    props.options.map((data))
+
+const stepsWithIndex = (() => {
+    finalOptions.value = props.options.map((step, index) => ({ ...step, index }));
+});
+
+onBeforeMount(stepsWithIndex)
+
+
+
+const computeSetupState = (step: object) => {
+    const foundState = finalOptions.value.find((item) => item.key === props.state)
+    const set = step.key == props.state || step.index < foundState.index
+    return ( step.timestamp || set )
 }
 
+const data =(s,a)=>{
+    console.log(s,a)
+}
 </script>
 
 <template>
@@ -51,7 +66,7 @@ const finaloptions = () => {
             :pagination="{ clickable: true, }"
             class="w-full h-fit mx-12 px-12"
         >
-            <template v-for="(step, stepIndex) in options">
+            <template v-for="(step, stepIndex) in finalOptions" :key="stepIndex">
                 <SwiperSlide>
                     <div class="w-fit mx-auto capitalize text-sm md:text-xs text-center"
                         :class="step.timestamp || state == step.key ? 'text-gray-500 font-semibold' : 'text-gray-300'" 
@@ -64,7 +79,7 @@ const finaloptions = () => {
                         <div v-if="stepIndex !=  0" 
                             class="px-2 w-full absolute flex align-center items-center align-middle content-center -translate-x-1/2 top-1/2 -translate-y-1/2">
                             <div class="w-full rounded items-center align-middle align-center flex-1">
-                                <div class="w-full py-[2px] rounded" :class="step.timestamp || state == step.key ||  ? 'bg-lime-500' : 'bg-gray-300'" />
+                                <div class="w-full py-[2px] rounded"   :class="computeSetupState(step) ? 'bg-lime-500' : 'bg-gray-300'" />
                             </div>
                         </div>
                         
@@ -72,7 +87,7 @@ const finaloptions = () => {
                         <!-- Step: Head -->
                         <div v-tooltip="step.label" class="border aspect-square mx-auto rounded-full text-lg flex justify-center items-center cursor-pointer" @click="()=>emits('updateButton',step)"
                             :class="[
-                                step.timestamp || ( stepIndex == 0  ) ||  state == step.key ? 'border-lime-500 text-lime-600 bg-lime-300' : 'border-gray-300 text-gray-400 bg-white',
+                                computeSetupState(step) ? 'border-lime-500 text-lime-600 bg-lime-300' : 'border-gray-300 text-gray-400 bg-white',
                                 step.icon ? 'h-9' : 'h-4'
                             ]"
                         >

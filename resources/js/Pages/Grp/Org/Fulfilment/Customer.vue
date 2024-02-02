@@ -155,12 +155,7 @@ const warehouseChange = (value) => {
                                 {{ errorMessage }}
                             </p>
                             <div class="flex justify-end mt-3">
-
-                                <!--   <Link :href="route(action.action.route?.name, action.action.route?.parameters)" method="post"
-                                :as="'button'" :data="{x : get(warehouseValue,'id')}" :canClear="false"> -->
-
                                 <Button :style="'save'" :label="'save'" @click="() => sendWarehouse(action.action)" />
-                                <!--  </Link> -->
                             </div>
 
                         </div>
