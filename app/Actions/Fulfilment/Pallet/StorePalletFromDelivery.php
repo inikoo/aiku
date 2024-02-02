@@ -70,7 +70,7 @@ class StorePalletFromDelivery extends OrgAction
 
 
             ],
-            'notes' => ['required', 'string','max:1024']
+            'notes' => ['sometimes', 'string','max:1024']
         ];
     }
 

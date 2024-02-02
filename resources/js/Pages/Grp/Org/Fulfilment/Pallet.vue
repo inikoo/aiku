@@ -10,6 +10,11 @@
   import TableOrders from "@/Components/Tables/TableOrders.vue";
   import { capitalize } from "@/Composables/capitalize"
   import TableStoredItems from "@/Components/Tables/TableStoredItems.vue";
+  import Tabs from "@/Components/Navigation/Tabs.vue";
+  import { computed, ref } from "vue";
+  import TableHistories from "@/Components/Tables/TableHistories.vue";
+  import ShowcasePallet from '@/Components/Pallet/Showcase.vue'
+  import { useTabChange } from "@/Composables/tab-change";
 
   const props = defineProps<{
       data: object
@@ -17,13 +22,25 @@
       pageHead: object
       stored_items?: object
       history?: object
+      tabs: object
   }>()
 
-  console.log('porps',props)
+let currentTab = ref(props.tabs.current);
+const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
+const component = computed(() => {
+
+const components = {
+    stored_items: TableStoredItems,
+    history: TableHistories
+};
+return components[currentTab.value];
+
+});
   </script>
 
   <template layout="App">
       <Head :title="capitalize(title)"/>
       <PageHeading :data="pageHead"></PageHeading>
-<!--      <TableStoredItems :data="stored_items"/>-->
+      <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
+     <component :is="component" :data="props[currentTab]"  :tab="currentTab"></component>
   </template>
