@@ -112,6 +112,7 @@ class GetShopNavigation
                     "scope" => "websites",
                     "icon"  => ["fal", "fa-globe"],
                     "label" => __("Website"),
+                    "root"  => "grp.org.shops.show.web.websites.",
                     "route" => [
                         "name"       => "grp.org.shops.show.web.websites.index",
                         "parameters" => [$shop->organisation->slug, $shop->slug],
