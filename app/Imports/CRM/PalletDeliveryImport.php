@@ -7,13 +7,14 @@
 
 namespace App\Imports\CRM;
 
-use App\Actions\CRM\Customer\StoreCustomer;
-use App\Actions\CRM\WebUser\StoreWebUser;
+use App\Actions\Fulfilment\PalletDelivery\StorePalletDelivery;
 use App\Imports\WithImport;
+use App\Models\Fulfilment\FulfilmentCustomer;
+use App\Models\Inventory\Warehouse;
 use App\Models\Market\Shop;
-use App\Rules\ValidAddress;
 use Exception;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 use Maatwebsite\Excel\Concerns\SkipsOnFailure;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
@@ -25,28 +26,25 @@ class PalletDeliveryImport implements ToCollection, WithHeadingRow, SkipsOnFailu
 
     public function storeModel($row, $uploadRecord): void
     {
-        $shop = Shop::where('slug', $row->get('shop'))->first();
+        $fulfilmentCustomer = FulfilmentCustomer::where('slug', $row->get('fulfilment_customer_slug'))->first();
+        $warehouse = Warehouse::where('slug', $row->get('warehouse_slug'))->first();
 
-
-        $row->put('company_name', $row->get('company'));
-        $row->put('contact_website', $row->get('website'));
+        $ulid = Str::ulid();
 
         $fields =
             array_merge(
                 array_keys(
                     Arr::except(
                         $this->rules(),
-                        ['shop', 'name', 'website', 'password', 'reset_password']
+                        ['reference']
                     )
-                ),
-                [
-                    'company_name',
-                    'contact_website'
-                ]
+                )
             );
 
-
         $modelData = $row->only($fields)->all();
+
+        $modelData['ulid'] = $ulid;
+        $modelData['warehouse_id'] = $warehouse->id;
 
         data_set($modelData, 'data.bulk_import', [
             'id'   => $this->upload->id,
@@ -54,30 +52,11 @@ class PalletDeliveryImport implements ToCollection, WithHeadingRow, SkipsOnFailu
         ]);
 
         try {
-            $customer = StoreCustomer::make()->action(
-                $shop,
+            StorePalletDelivery::make()->action(
+                $fulfilmentCustomer->organisation,
+                $fulfilmentCustomer,
                 $modelData
             );
-
-            if (Arr::get($row, 'password') and Arr::get($row, 'email')) {
-                StoreWebUser::make()->action(
-                    $customer,
-                    array_merge(
-                        $row->only(['email', 'password', 'reset_password'])->all(),
-                        [
-                            'contact_name' => $customer->contact_name,
-                            'is_root'      => true,
-                            'data'         => [
-                                'bulk_import' => [
-                                    'id'   => $this->upload->id,
-                                    'type' => 'Upload',
-                                ]
-                            ]
-
-                        ]
-                    )
-                );
-            }
 
             $this->setRecordAsCompleted($uploadRecord);
         } catch (Exception $e) {
@@ -91,16 +70,7 @@ class PalletDeliveryImport implements ToCollection, WithHeadingRow, SkipsOnFailu
     public function rules(): array
     {
         return [
-            'shop'            => ['required', 'exists:shops,slug'],
-            'contact_name'    => ['nullable', 'string', 'max:255'],
-            'contact_address' => ['nullable', new ValidAddress()],
-            'company'         => ['nullable', 'string', 'max:255'],
-            'email'           => ['nullable', 'email', 'iunique:customers', 'iunique:users'],
-            'phone'           => ['nullable', 'phone:AUTO'],
-            'website'         => ['nullable'],
-            'password'        => ['sometimes', 'string', 'min:8', 'max:64'],
-            'reset_password'  => ['sometimes', 'boolean'],
-            'data'            => ['sometimes', 'array'],
+            'warehouse_slug' => ['required']
         ];
     }
 }

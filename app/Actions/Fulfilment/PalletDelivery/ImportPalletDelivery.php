@@ -11,6 +11,7 @@ use App\Actions\Helpers\Uploads\ImportUpload;
 use App\Actions\Helpers\Uploads\StoreUploads;
 use App\Actions\Traits\WithImportModel;
 use App\Imports\CRM\CustomerImport;
+use App\Imports\CRM\PalletDeliveryImport;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Helpers\Upload;
 
@@ -25,13 +26,13 @@ class ImportPalletDelivery
         if ($this->isSync) {
             ImportUpload::run(
                 $file,
-                new CustomerImport($upload)
+                new PalletDeliveryImport($upload)
             );
             $upload->refresh();
         } else {
             ImportUpload::dispatch(
                 $this->tmpPath.$upload->filename,
-                new CustomerImport($upload)
+                new PalletDeliveryImport($upload)
             );
         }
 

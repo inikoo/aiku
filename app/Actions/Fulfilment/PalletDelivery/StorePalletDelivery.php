@@ -30,6 +30,10 @@ class StorePalletDelivery extends OrgAction
     use WithAttributes;
 
     public Customer $customer;
+    /**
+     * @var true
+     */
+    private bool $action;
 
     public function handle(FulfilmentCustomer $fulfilmentCustomer, array $modelData): PalletDelivery
     {
@@ -60,6 +64,10 @@ class StorePalletDelivery extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
+        if($this->action) {
+            return true;
+        }
+
         return $request->user()->hasPermissionTo("fulfilments.{$this->fulfilment->id}.edit");
     }
 
@@ -84,6 +92,15 @@ class StorePalletDelivery extends OrgAction
     {
         $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $request);
         return $this->handle($fulfilmentCustomer, $this->validatedData);
+    }
+
+    public function action(Organisation $organisation, FulfilmentCustomer $fulfilmentCustomer, $modelData): PalletDelivery
+    {
+        $this->action = true;
+        $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $modelData);
+        $this->setRawAttributes($modelData);
+
+        return $this->handle($fulfilmentCustomer, $this->validateAttributes());
     }
 
     public function jsonResponse(PalletDelivery $palletDelivery): array
