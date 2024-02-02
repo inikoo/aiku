@@ -11,7 +11,6 @@ use App\Actions\Fulfilment\PalletDelivery\StorePalletDelivery;
 use App\Imports\WithImport;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Inventory\Warehouse;
-use App\Models\Market\Shop;
 use Exception;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
@@ -27,7 +26,7 @@ class PalletDeliveryImport implements ToCollection, WithHeadingRow, SkipsOnFailu
     public function storeModel($row, $uploadRecord): void
     {
         $fulfilmentCustomer = FulfilmentCustomer::where('slug', $row->get('fulfilment_customer_slug'))->first();
-        $warehouse = Warehouse::where('slug', $row->get('warehouse_slug'))->first();
+        $warehouse          = Warehouse::where('slug', $row->get('warehouse_slug'))->first();
 
         $ulid = Str::ulid();
 
@@ -43,7 +42,7 @@ class PalletDeliveryImport implements ToCollection, WithHeadingRow, SkipsOnFailu
 
         $modelData = $row->only($fields)->all();
 
-        $modelData['ulid'] = $ulid;
+        $modelData['ulid']         = $ulid;
         $modelData['warehouse_id'] = $warehouse->id;
 
         data_set($modelData, 'data.bulk_import', [

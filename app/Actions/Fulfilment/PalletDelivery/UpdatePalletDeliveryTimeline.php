@@ -16,13 +16,21 @@ use App\Models\SysAdmin\Organisation;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdatePalletDelivery extends OrgAction
+class UpdatePalletDeliveryTimeline extends OrgAction
 {
     use WithActionUpdate;
 
 
     public function handle(PalletDelivery $palletDelivery, array $modelData): PalletDelivery
     {
+        match ($modelData['state']) {
+            PalletDeliveryStateEnum::IN_PROCESS => $modelData['in_process_at'] = now(),
+            PalletDeliveryStateEnum::READY      => $modelData['ready_at']           = now(),
+            PalletDeliveryStateEnum::RECEIVED   => $modelData['received_at']     = now(),
+            PalletDeliveryStateEnum::DONE       => $modelData['done_at']             = now(),
+            default                             => null
+        };
+
         return $this->update($palletDelivery, $modelData);
     }
 
