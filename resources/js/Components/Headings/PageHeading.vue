@@ -6,11 +6,6 @@
 
 <script setup lang="ts">
 import { Link } from "@inertiajs/vue3"
-
-import { library } from "@fortawesome/fontawesome-svg-core"
-import { } from '@fal'
-import { } from '@far'
-import { } from '@fas'
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { capitalize } from "@/Composables/capitalize"
 import MetaLabel from "@/Components/Headings/MetaLabel.vue"
@@ -25,7 +20,6 @@ interface Icon {
     icon: string[] | string
 }
 
-library.add()
 
 const props = defineProps<{
     data: {

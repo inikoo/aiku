@@ -8,23 +8,24 @@
 namespace App\Actions\Fulfilment\FulfilmentCustomer;
 
 use App\Actions\CRM\Customer\UI\GetCustomerShowcase;
-use App\Actions\Fulfilment\FulfilmentCustomer\UI\IndexFulfilmentCustomers;
-use App\Actions\Fulfilment\FulfilmentOrder\UI\IndexFulfilmentOrders;
+use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
+use App\Actions\Fulfilment\Pallet\UI\IndexPallets;
 use App\Actions\Fulfilment\PalletDelivery\UI\IndexPalletDeliveries;
 use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItems;
 use App\Actions\Mail\DispatchedEmail\IndexDispatchedEmails;
 use App\Actions\OrgAction;
 use App\Enums\UI\CustomerFulfilmentTabsEnum;
 use App\Http\Resources\Fulfilment\PalletDeliveriesResource;
+use App\Http\Resources\Fulfilment\PalletsResource;
 use App\Http\Resources\Fulfilment\StoredItemResource;
 use App\Http\Resources\Inventory\WarehouseResource;
 use App\Http\Resources\Mail\DispatchedEmailResource;
 use App\Http\Resources\Sales\CustomerResource;
-use App\Http\Resources\Sales\OrderResource;
 use App\Models\CRM\Customer;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\SysAdmin\Organisation;
+use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -65,6 +66,10 @@ class ShowFulfilmentCustomer extends OrgAction
                     'next'     => $this->getNext($fulfilmentCustomer, $request),
                 ],
                 'pageHead'    => [
+                    'icon'    => [
+                        'title' => __('customer'),
+                        'icon'  => 'fal fa-user'
+                    ],
                     'title'   => $fulfilmentCustomer->customer->name,
                     'edit'    => $this->canEdit ? [
                         'route' => [
@@ -77,14 +82,14 @@ class ShowFulfilmentCustomer extends OrgAction
                             'type'    => 'button',
                             'style'   => 'create',
                             'tooltip' => __('new delivery'),
-                            'label'   => __('create delivery'),
+                            'label'   => __('new delivery'),
                             'options' => [
-                                'warehouses'=> WarehouseResource::collection($fulfilmentCustomer->fulfilment->warehouses)
+                                'warehouses' => WarehouseResource::collection($fulfilmentCustomer->fulfilment->warehouses)
                             ],
                             'route'   => [
                                 'method'     => 'post',
                                 'name'       => 'grp.models.fulfilment-customer.pallet-delivery.store',
-                                'parameters' => [ $fulfilmentCustomer->id]
+                                'parameters' => [$fulfilmentCustomer->id]
                             ]
                         ],
                     ]
@@ -98,9 +103,10 @@ class ShowFulfilmentCustomer extends OrgAction
                     fn () => GetCustomerShowcase::run($fulfilmentCustomer)
                     : Inertia::lazy(fn () => GetCustomerShowcase::run($fulfilmentCustomer)),
 
-                CustomerFulfilmentTabsEnum::ORDERS->value => $this->tab == CustomerFulfilmentTabsEnum::ORDERS->value ?
-                    fn () => OrderResource::collection(IndexFulfilmentOrders::run($fulfilmentCustomer))
-                    : Inertia::lazy(fn () => OrderResource::collection(IndexFulfilmentOrders::run($fulfilmentCustomer))),
+
+                CustomerFulfilmentTabsEnum::PALLETS->value => $this->tab == CustomerFulfilmentTabsEnum::PALLETS->value ?
+                    fn () => PalletsResource::collection(IndexPallets::run($fulfilmentCustomer))
+                    : Inertia::lazy(fn () => PalletsResource::collection(IndexPallets::run($fulfilmentCustomer))),
 
                 CustomerFulfilmentTabsEnum::STORED_ITEMS->value => $this->tab == CustomerFulfilmentTabsEnum::STORED_ITEMS->value ?
                     fn () => StoredItemResource::collection(IndexStoredItems::run($fulfilmentCustomer))
@@ -118,11 +124,15 @@ class ShowFulfilmentCustomer extends OrgAction
         )->table(IndexStoredItems::make()->tableStructure($fulfilmentCustomer->storedItems))
             ->table(
                 IndexPalletDeliveries::make()->tableStructure(
-                    $fulfilmentCustomer->fulfilment,
+                    $fulfilmentCustomer,
                     prefix: CustomerFulfilmentTabsEnum::PALLET_DELIVERIES->value
                 )
-            )
-            ->table(IndexFulfilmentOrders::make()->tableStructure($fulfilmentCustomer));
+            )->table(
+                IndexPallets::make()->tableStructure(
+                    parent: $fulfilmentCustomer,
+                    prefix: CustomerFulfilmentTabsEnum::PALLETS->value
+                )
+            );
     }
 
 
@@ -133,26 +143,46 @@ class ShowFulfilmentCustomer extends OrgAction
 
     public function getBreadcrumbs(array $routeParameters): array
     {
-        $headCrumb = function (array $routeParameters = []) {
+        $headCrumb = function (FulfilmentCustomer $fulfilmentCustomer, array $routeParameters, string $suffix = '') {
             return [
                 [
-                    'type'   => 'simple',
-                    'simple' => [
-                        'label' => __($routeParameters['parameters']['fulfilmentCustomer'])
+
+                    'type'           => 'modelWithIndex',
+                    'modelWithIndex' => [
+                        'index' => [
+                            'route' => $routeParameters['index'],
+                            'label' => __('customers')
+                        ],
+                        'model' => [
+                            'route' => $routeParameters['model'],
+                            'label' => $fulfilmentCustomer->customer->reference,
+                        ],
+
                     ],
+                    'suffix'         => $suffix
+
                 ],
             ];
         };
 
+        $fulfilmentCustomer = FulfilmentCustomer::where('slug', $routeParameters['fulfilmentCustomer'])->first();
 
         return array_merge(
-            IndexFulfilmentCustomers::make()->getBreadcrumbs(
-                $routeParameters
+            ShowFulfilment::make()->getBreadcrumbs(
+                Arr::only($routeParameters, ['organisation', 'fulfilment'])
             ),
             $headCrumb(
+                $fulfilmentCustomer,
                 [
-                    'name'       => 'grp.org.fulfilments.show.crm.customers.index',
-                    'parameters' => $routeParameters
+
+                    'index' => [
+                        'name'       => 'grp.org.fulfilments.show.crm.customers.index',
+                        'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment'])
+                    ],
+                    'model' => [
+                        'name'       => 'grp.org.fulfilments.show.crm.customers.index',
+                        'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment', 'fulfilmentCustomer'])
+                    ]
                 ]
             )
         );

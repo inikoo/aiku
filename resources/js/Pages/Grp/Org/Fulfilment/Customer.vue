@@ -9,16 +9,9 @@ import { Head, useForm } from '@inertiajs/vue3';
 import PageHeading from "@/Components/Headings/PageHeading.vue";
 import { capitalize } from "@/Composables/capitalize"
 import { library } from "@fortawesome/fontawesome-svg-core";
-import {
-    faCodeCommit,
-    faGlobe,
-    faGraduationCap,
-    faMoneyBill,
-    faPaperclip, faPaperPlane, faStickyNote,
-    faTags, faCube, faCodeBranch, faShoppingCart, faNarwhal, faTruck
-} from '@fal';
+
 import ModelDetails from "@/Components/ModelDetails.vue";
-import TableOrders from "@/Components/Tables/TableOrders.vue";
+import TablePallets from "@/Components/Tables/TablePallets.vue";
 import { useTabChange } from "@/Composables/tab-change";
 import { computed, defineAsyncComponent, ref } from "vue";
 import Tabs from "@/Components/Navigation/Tabs.vue";
@@ -30,23 +23,16 @@ import Multiselect from "@vueform/multiselect"
 import { Link } from "@inertiajs/vue3"
 import { get } from 'lodash';
 import axios from 'axios';
-
 import TableDispatchedEmails from "@/Components/Tables/TableDispatchedEmails.vue";
-
+import {  faStickyNote,faPallet,
+    faUser, faNarwhal, faTruckCouch,faFileInvoiceDollar,faSignOutAlt,
+    faPaperclip,faPaperPlane
+} from '@fal';
 library.add(
-    faStickyNote,
-    faGlobe,
-    faMoneyBill,
-    faGraduationCap,
-    faTags,
-    faCodeCommit,
-    faPaperclip,
-    faPaperPlane,
-    faCube,
-    faCodeBranch,
-    faShoppingCart,
+    faStickyNote,faUser,
     faNarwhal,
-    faTruck
+    faTruckCouch,faPallet,faFileInvoiceDollar,faSignOutAlt,
+    faPaperclip,faPaperPlane
 )
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChangelog.vue'))
@@ -59,7 +45,8 @@ const props = defineProps<{
         navigation: object;
     }
     showcase?: object
-    orders?: object
+    invoices?: object
+    pallets?: object
     stored_items?: object
     dispatched_emails?: object
     pallet_deliveries?: object
@@ -73,7 +60,7 @@ const component = computed(() => {
     const components = {
         showcase: CustomerShowcase,
         stored_items: TableStoredItems,
-        orders: TableOrders,
+        pallets: TablePallets,
         details: ModelDetails,
         history: ModelChangelog,
         dispatched_emails: TableDispatchedEmails,
@@ -165,11 +152,11 @@ const warehouseChange = (value) => {
             <div v-else>
                 <Link
                     :href="route(action.action.route?.name, action.action.route?.parameters) "
-                    :method="'post'" :as="'button'"> 
+                    :method="'post'" :as="'button'">
                 <Button :style="action.action.style" :label="action.action.label" :icon="action.action.icon"
                     :iconRight="action.action.iconRight" :key="`ActionButton${action.action.label}${action.action.style}`"
                     :tooltip="action.action.tooltip" />
-             </Link> 
+             </Link>
             </div>
 
         </template>
