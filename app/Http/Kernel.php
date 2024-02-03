@@ -96,11 +96,6 @@ class Kernel extends HttpKernel
             SubstituteBindings::class,
         ],
 
-        'webhooks-api' => [
-            ForceJsonResponse::class,
-            EnsureFrontendRequestsAreStateful::class,
-            SubstituteBindings::class,
-        ],
         'central-api'  => [
             ForceJsonResponse::class,
             EnsureFrontendRequestsAreStateful::class,
