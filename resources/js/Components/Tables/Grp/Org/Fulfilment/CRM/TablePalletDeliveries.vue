@@ -12,6 +12,7 @@ import { library } from "@fortawesome/fontawesome-svg-core"
 import { faPlus } from "@fas"
 
 import { PalletDelivery } from "@/types/pallet-delivery";
+import Icon from "@/Components/Icon.vue";
 
 library.add(faPlus)
 
@@ -63,6 +64,10 @@ function palletDeliveryRoute(palletDelivery: PalletDelivery) {
         <Link :href="palletDeliveryRoute(palletDelivery)" class="specialUnderline">
             {{ palletDelivery['reference'] }}
         </Link>
+        </template>
+
+        <template #cell(state)="{ item: palletDelivery }">
+            <Icon :data="palletDelivery['state_icon']" class="px-1"/>
         </template>
 
 

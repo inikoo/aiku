@@ -34,7 +34,7 @@ enum PalletDeliveryStateEnum: string
             'in-process' => [
                 'tooltip' => __('In process'),
                 'icon'    => 'fal fa-seedling',
-                'class'   => 'text-indigo-500'
+                'class'   => 'text-emerald-500'
             ],
             'ready' => [
                 'tooltip' => __('Ready'),
