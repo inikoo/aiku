@@ -11,6 +11,7 @@ use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
+use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Http\Resources\Fulfilment\PalletsResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -98,6 +99,13 @@ class IndexPallets extends OrgAction
                 break;
         }
 
+
+        if(!$parent instanceof PalletDelivery) {
+            $query->where('state', '!=', PalletStateEnum::IN_PROCESS);
+        }
+
+
+
         return $query->defaultSort('slug')
             ->allowedSorts(['customer_reference', 'slug'])
             ->allowedFilters([$globalSearch, $isNotLocated, 'customer_reference'])
@@ -115,36 +123,40 @@ class IndexPallets extends OrgAction
             }
 
 
-            $emptyStateData=[
+            $emptyStateData = [
                 'icons' => ['fal fa-pallet'],
                 'title' => '',
                 'count' => 0
             ];
 
 
-
-
-
-            if($parent instanceof Fulfilment) {
-                $emptyStateData['title']=__("There is not pallets in this fulfilment shop");
-            } if($parent instanceof Warehouse) {
-                $emptyStateData['title']=__("There isn't any fulfilment pallet in this warehouse");
-            }if($parent instanceof FulfilmentCustomer) {
-                $emptyStateData['title']=__("This customer don't have any pallets");
+            if ($parent instanceof Fulfilment) {
+                $emptyStateData['title'] = __("There is not pallets in this fulfilment shop");
+            }
+            if ($parent instanceof Warehouse) {
+                $emptyStateData['title'] = __("There isn't any fulfilment pallet in this warehouse");
+            }
+            if ($parent instanceof FulfilmentCustomer) {
+                $emptyStateData['title'] = __("This customer don't have any pallets");
             }
 
             $table->withGlobalSearch()
                 ->withEmptyState($emptyStateData)
-                ->withModelOperations($modelOperations)
-                ->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon')
-                ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'customer_reference', label: __('customer reference'), canBeHidden: false, sortable: true, searchable: true);
+                ->withModelOperations($modelOperations);
 
 
+
+            if (!($parent instanceof PalletDelivery and $parent->state == PalletDeliveryStateEnum::IN_PROCESS)) {
+                $table->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon');
+                $table->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
+            }
+
+
+            $table->column(key: 'customer_reference', label: __('customer reference'), canBeHidden: false, sortable: true, searchable: true);
 
 
             if ($parent instanceof Organisation || $parent instanceof Fulfilment || $parent instanceof Warehouse) {
-                $table->column(key: 'customer_name', label: __('Customer Name'), canBeHidden: false, searchable: true);
+                $table->column(key: 'customer_name', label: __('Customer'), canBeHidden: false, searchable: true);
             }
 
             if ($parent instanceof Organisation || $parent instanceof Fulfilment || $parent instanceof Warehouse) {
@@ -153,6 +165,7 @@ class IndexPallets extends OrgAction
 
 
             $table->column(key: 'notes', label: __('Notes'), canBeHidden: false, searchable: true)
+                ->column(key: 'actions', label: ' ', canBeHidden: false, searchable: true)
                 ->defaultSort('slug');
         };
     }

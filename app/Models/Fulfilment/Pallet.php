@@ -7,7 +7,6 @@
 
 namespace App\Models\Fulfilment;
 
-use App\Actions\Utils\Abbreviate;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
@@ -31,13 +30,15 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $id
  * @property int $group_id
  * @property int $organisation_id
- * @property string $slug
+ * @property string|null $slug
+ * @property string|null $reference
  * @property string|null $customer_reference
  * @property int $fulfilment_id
  * @property int $fulfilment_customer_id
  * @property int $warehouse_id
  * @property int|null $warehouse_area_id
  * @property int|null $location_id
+ * @property int|null $pallet_delivery_id
  * @property PalletStatusEnum $status
  * @property PalletStateEnum $state
  * @property PalletTypeEnum $type
@@ -54,13 +55,13 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $source_id
  * @property-read \App\Models\Fulfilment\Fulfilment $fulfilment
  * @property-read \App\Models\Fulfilment\FulfilmentCustomer $fulfilmentCustomer
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\StoredItem> $items
  * @property-read Location|null $location
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\MovementPallet> $movements
  * @property-read Organisation $organisation
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\PalletDelivery> $palletDeliveries
+ * @property-read \App\Models\Fulfilment\PalletDelivery|null $palletDeliveries
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
  * @property-read Warehouse $warehouse
- * @property-read \App\Models\Fulfilment\StoredItem $items
  * @method static \Database\Factories\Fulfilment\PalletFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder|Pallet locationId($located)
  * @method static \Illuminate\Database\Eloquent\Builder|Pallet newModelQuery()
@@ -100,17 +101,9 @@ class Pallet extends Model
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
-            ->generateSlugsFrom(function () {
-                $slug =$this->fulfilmentCustomer->slug;
-
-                if ($this->customer_reference != '') {
-                    $slug .=' '.$this->customer_reference;
-                } elseif($this->notes) {
-                    $slug .=' '.Abbreviate::run($this->notes);
-                }
-                return $slug;
-            })
+            ->generateSlugsFrom('reference')
             ->doNotGenerateSlugsOnUpdate()
+            ->doNotGenerateSlugsOnCreate()
             ->saveSlugsTo('slug')->slugsShouldBeNoLongerThan(12);
     }
 
@@ -158,8 +151,8 @@ class Pallet extends Model
         return $this->belongsToMany(StoredItem::class, 'pallet_stored_items');
     }
 
-    public function palletDeliveries(): BelongsToMany
+    public function palletDeliveries(): BelongsTo
     {
-        return $this->belongsToMany(PalletDelivery::class, 'pallet_delivery_pallets');
+        return $this->belongsTo(PalletDelivery::class);
     }
 }

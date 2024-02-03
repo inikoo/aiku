@@ -8,17 +8,21 @@
 namespace App\Actions\Fulfilment\Pallet;
 
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydratePallets;
+use App\Actions\Helpers\SerialReference\GetSerialReference;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateFulfilmentCustomers;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
+use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
+use App\Models\Fulfilment\PalletDelivery;
 use App\Models\SysAdmin\Organisation;
 use App\Rules\IUnique;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
@@ -26,19 +30,54 @@ use Lorisleiva\Actions\ActionRequest;
 class StorePallet extends OrgAction
 {
     private FulfilmentCustomer $fulfilmentCustomer;
+    /**
+     * @var \App\Models\Fulfilment\FulfilmentCustomer|\App\Models\Fulfilment\PalletDelivery
+     */
+    private PalletDelivery|FulfilmentCustomer $parent;
 
     public function handle(FulfilmentCustomer $fulfilmentCustomer, array $modelData): Pallet
     {
+        if (Arr::get($modelData, 'notes') === null) {
+            data_set($modelData, 'notes', '');
+        }
+
+
+
+        if(Arr::exists($modelData, 'state') and Arr::get($modelData, 'state')!=PalletStateEnum::IN_PROCESS) {
+            if (!Arr::get($modelData, 'reference')) {
+                data_set(
+                    $modelData,
+                    'reference',
+                    GetSerialReference::run(
+                        container: $fulfilmentCustomer,
+                        modelType: SerialReferenceModelEnum::PALLET
+                    )
+                );
+            }
+        }
+
+
+
+
         data_set($modelData, 'group_id', $fulfilmentCustomer->group_id);
         data_set($modelData, 'organisation_id', $fulfilmentCustomer->organisation_id);
         data_set($modelData, 'fulfilment_id', $fulfilmentCustomer->fulfilment->id);
 
+
         /** @var Pallet $pallet */
         $pallet = $fulfilmentCustomer->pallets()->create($modelData);
+
+        if($pallet->reference) {
+            $pallet->generateSlug();
+            $pallet->save();
+        }
+
+
         FulfilmentCustomerHydratePallets::dispatch($fulfilmentCustomer);
         OrganisationHydrateFulfilmentCustomers::dispatch($fulfilmentCustomer->organisation);
 
         $pallet->refresh();
+
         return $pallet;
     }
 
@@ -82,17 +121,36 @@ class StorePallet extends OrgAction
                 'sometimes',
                 Rule::enum(PalletTypeEnum::class)
             ],
-            'notes'              => ['sometimes', 'string'],
+            'notes'              => ['sometimes', 'nullable', 'string', 'max:1024'],
             'created_at'         => ['sometimes', 'date'],
             'received_at'        => ['sometimes', 'nullable', 'date'],
             'source_id'          => ['sometimes', 'nullable', 'string'],
             'warehouse_id'       => ['required', 'integer', 'exists:warehouses,id'],
             'location_id'        => ['sometimes', 'nullable', 'integer', 'exists:locations,id'],
+            'pallet_delivery_id' => ['sometimes', 'nullable', 'integer', 'exists:pallet_deliveries,id']
         ];
     }
 
-    public function asController(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): Pallet
+
+    public function asController(Organisation $organisation, FulfilmentCustomer $fulfilmentCustomer, PalletDelivery $palletDelivery, ActionRequest $request): Pallet
     {
+        $this->parent             = $palletDelivery;
+        $this->fulfilmentCustomer = $palletDelivery->fulfilmentCustomer;
+        $request->merge(
+            [
+                'pallet_delivery_id' => $palletDelivery->id,
+                'warehouse_id'       => $palletDelivery->warehouse_id
+            ]
+        );
+
+        $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $request);
+
+        return $this->handle($fulfilmentCustomer, $this->validatedData);
+    }
+
+    public function inCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): Pallet
+    {
+        $this->parent             = $fulfilmentCustomer;
         $this->fulfilmentCustomer = $fulfilmentCustomer;
         $this->initialisationFromFulfilment($fulfilment, $request);
 
@@ -101,9 +159,9 @@ class StorePallet extends OrgAction
 
     public function action(FulfilmentCustomer $fulfilmentCustomer, array $modelData, int $hydratorsDelay = 0): Pallet
     {
-        $this->asAction                 = true;
-        $this->hydratorsDelay           = $hydratorsDelay;
-        $this->fulfilmentCustomer       = $fulfilmentCustomer;
+        $this->asAction           = true;
+        $this->hydratorsDelay     = $hydratorsDelay;
+        $this->fulfilmentCustomer = $fulfilmentCustomer;
         $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $modelData);
 
         return $this->handle($fulfilmentCustomer, $this->validatedData);
@@ -112,6 +170,22 @@ class StorePallet extends OrgAction
 
     public function htmlResponse(Pallet $pallet, ActionRequest $request): RedirectResponse
     {
-        return Redirect::route('grp.org.fulfilments.show.pallets.show', $pallet->slug);
+        if($this->parent instanceof PalletDelivery) {
+            return Redirect::route('grp.org.fulfilments.show.crm.customers.show.pallet-deliveries.show', [
+                'organisation'       => $pallet->organisation->slug,
+                'fulfilment'         => $pallet->fulfilment->slug,
+                'fulfilmentCustomer' => $pallet->fulfilmentCustomer->slug,
+                'palletDelivery'     => $this->parent->reference
+            ]);
+        }
+
+        return Redirect::route(
+            'grp.org.fulfilments.show.crm.customers.show',
+            [
+                'organisation'       => $pallet->organisation->slug,
+                'fulfilment'         => $pallet->fulfilment->slug,
+                'fulfilmentCustomer' => $pallet->fulfilmentCustomer->slug,
+            ]
+        );
     }
 }

@@ -7,10 +7,15 @@
 <script setup lang="ts">
 import {Link} from '@inertiajs/vue3';
 import Table from '@/Components/Table/Table.vue';
-import { MarketplaceAgent } from "@/types/marketplace-agent";
 import AddressLocation from "@/Components/Elements/Info/AddressLocation.vue";
-import ProcurementMarketplaceAdoption from "@/Components/Elements/Specialised/ProcurementMarketplaceAdoption.vue";
-
+import Icon from '@/Components/Icon.vue'
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+import { library } from "@fortawesome/fontawesome-svg-core";
+import { faTrashAlt } from '@far';
+import { faSignOutAlt } from '@fal';
+library.add(
+    faTrashAlt,faSignOutAlt
+)
 const props = defineProps<{
     data: object,
     tab?:string
@@ -43,6 +48,13 @@ function customerRoute(pallet: Customer) {
         </template>
         <template #cell(location)="{ item: pallet }">
             <AddressLocation v-if="pallet['location']" :data="pallet['location']"/>
+        </template>
+        <template #cell(state)="{ item: pallet }">
+            <Icon :data="pallet['state_icon']" class="px-1"/>
+        </template>
+
+        <template #cell(actions)="{ item: pallet }">
+            <font-awesome-icon class="text-red-600" :icon="['far', 'trash-alt']" />
         </template>
     </Table>
 </template>
