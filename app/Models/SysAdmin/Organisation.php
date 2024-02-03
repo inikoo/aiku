@@ -47,7 +47,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
-use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\Sluggable\HasSlug;
@@ -117,7 +116,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Shop> $shops
  * @property-read \App\Models\SysAdmin\OrganisationStats|null $stats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Supplier> $suppliers
- * @property-read \App\Models\SysAdmin\SysUser|null $sysUser
  * @property-read Timezone $timezone
  * @property-read \Illuminate\Database\Eloquent\Collection<int, WarehouseArea> $warehouseAreas
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Warehouse> $warehouses
@@ -266,11 +264,6 @@ class Organisation extends Model implements HasMedia
     public function language(): BelongsTo
     {
         return $this->belongsTo(Language::class);
-    }
-
-    public function sysUser(): MorphOne
-    {
-        return $this->morphOne(SysUser::class, 'userable');
     }
 
     public function accountsServiceProvider(): PaymentServiceProvider

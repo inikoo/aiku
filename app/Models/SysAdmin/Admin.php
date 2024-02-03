@@ -11,7 +11,6 @@ use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 
@@ -30,7 +29,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
- * @property-read \App\Models\SysAdmin\SysUser|null $sysUser
  * @method static \Database\Factories\SysAdmin\AdminFactory factory($count = null, $state = [])
  * @method static Builder|Admin newModelQuery()
  * @method static Builder|Admin newQuery()
@@ -69,8 +67,4 @@ class Admin extends Model
         return 'slug';
     }
 
-    public function sysUser(): MorphOne
-    {
-        return $this->morphOne(SysUser::class, 'userable');
-    }
 }

@@ -96,14 +96,6 @@ class Kernel extends HttpKernel
             SubstituteBindings::class,
         ],
 
-        'central-api'  => [
-            ForceJsonResponse::class,
-            EnsureFrontendRequestsAreStateful::class,
-            'throttle:api',
-            SubstituteBindings::class,
-            'auth:api-admin-user'
-        ],
-
         'central-web' => [
             EncryptCookies::class,
             AddQueuedCookiesToResponse::class,

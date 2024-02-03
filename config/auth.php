@@ -1,7 +1,6 @@
 <?php
 
 use App\Models\SysAdmin\ApiTenantUser;
-use App\Models\SysAdmin\SysUser;
 use App\Models\SysAdmin\User;
 use App\Models\SysAdmin\WebUser;
 
@@ -46,11 +45,6 @@ return [
             'provider' => 'users',
         ],
 
-        'api-admin-user' => [
-            'driver'   => 'sanctum',
-            'provider' => 'admin-user',
-            'hash'     => false,
-        ],
         'api-web-users'  => [
             'driver'   => 'sanctum',
             'provider' => 'web-user',
@@ -88,10 +82,6 @@ return [
         'users'      => [
             'driver' => 'user-with-legacy-password',
             'model'  => User::class,
-        ],
-        'admin-user' => [
-            'driver' => 'eloquent',
-            'model'  => SysUser::class,
         ],
         'api-tenant-user' => [
             'driver' => 'eloquent',

@@ -56,12 +56,6 @@ class RouteServiceProvider extends ServiceProvider
 
 
         /*
-        Route::prefix('api')
-            ->domain(config('app.domain'))
-            ->middleware('central-api')
-            ->namespace($this->namespace)
-            ->group(base_path('routes/central/api/api.php'));
-
 
 
         Route::middleware('central-web')
