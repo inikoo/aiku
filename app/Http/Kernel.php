@@ -54,26 +54,15 @@ class Kernel extends HttpKernel
 
     protected $middlewareGroups = [
 
-        'api'      => [
-            ForceJsonResponse::class,
-            EnsureFrontendRequestsAreStateful::class,
-            SubstituteBindings::class,
-        ],
         'webhooks' => [
             ForceJsonResponse::class,
             EnsureFrontendRequestsAreStateful::class,
             SubstituteBindings::class,
         ],
-
-        'public' => [
-            EncryptCookies::class,
-            AddQueuedCookiesToResponse::class,
-            StartSession::class,
-            ShareErrorsFromSession::class,
-            VerifyCsrfToken::class,
+        'api'      => [
+            ForceJsonResponse::class,
+            EnsureFrontendRequestsAreStateful::class,
             SubstituteBindings::class,
-            HandlePublicInertiaRequests::class,
-            AddLinkHeadersForPreloadedAssets::class,
         ],
         'grp'    => [
             EncryptCookies::class,
@@ -86,6 +75,19 @@ class Kernel extends HttpKernel
             HandleInertiaGrpRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
         ],
+        'public' => [
+            EncryptCookies::class,
+            AddQueuedCookiesToResponse::class,
+            StartSession::class,
+            ShareErrorsFromSession::class,
+            VerifyCsrfToken::class,
+            SubstituteBindings::class,
+            HandlePublicInertiaRequests::class,
+            AddLinkHeadersForPreloadedAssets::class,
+        ],
+
+
+        //==== Other Middleware Groups
         'horizon'    => [
             EncryptCookies::class,
             AddQueuedCookiesToResponse::class,
@@ -94,19 +96,6 @@ class Kernel extends HttpKernel
             VerifyCsrfToken::class,
             BindGroupInstance::class,
             SubstituteBindings::class,
-        ],
-
-        'app'         => [
-            EncryptCookies::class,
-            AddQueuedCookiesToResponse::class,
-            StartSession::class,
-            ShareErrorsFromSession::class,
-            VerifyCsrfToken::class,
-            SubstituteBindings::class,
-            // HandleInertiaRequests::class,
-            SetLocale::class,
-            LogUserRequestMiddleware::class,
-
         ],
         // for use in cypress
         'web'         => [
@@ -120,7 +109,6 @@ class Kernel extends HttpKernel
             SetLocale::class,
             LogUserRequestMiddleware::class,
         ],
-
         'broadcast'  => [
             EncryptCookies::class,
             AddQueuedCookiesToResponse::class,
@@ -130,6 +118,7 @@ class Kernel extends HttpKernel
             SubstituteBindings::class,
             'auth:broadcasting'
         ],
+
 
 
     ];
