@@ -96,16 +96,6 @@ class Kernel extends HttpKernel
             SubstituteBindings::class,
         ],
 
-        'central-web' => [
-            EncryptCookies::class,
-            AddQueuedCookiesToResponse::class,
-            StartSession::class,
-            ShareErrorsFromSession::class,
-            VerifyCsrfToken::class,
-            SubstituteBindings::class,
-            HandlePublicInertiaRequests::class,
-            SetLocale::class,
-        ],
         'app'         => [
             EncryptCookies::class,
             AddQueuedCookiesToResponse::class,
