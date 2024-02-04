@@ -22,7 +22,6 @@ class RouteServiceProvider extends ServiceProvider
     {
         $this->configureRateLimiting();
 
-
         Route::prefix('webhooks')
             ->domain(config('app.domain'))
             ->middleware('webhooks')
@@ -44,17 +43,7 @@ class RouteServiceProvider extends ServiceProvider
             ->group(base_path('routes/public/web/app.php'));
 
 
-        /*
-
-
-        Route::namespace($this->namespace)->prefix('api')
-            ->middleware('api-tenant')
-            ->group(base_path('routes/tenant/api.php'));
-        Route::namespace($this->namespace)->group(base_path('routes/tenant/app.php'));
-        */
-
     }
-
 
     protected function configureRateLimiting(): void
     {

@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\SysAdmin\ApiTenantUser;
 use App\Models\SysAdmin\User;
 use App\Models\SysAdmin\WebUser;
 
@@ -50,11 +49,6 @@ return [
             'provider' => 'web-user',
             'hash'     => false,
         ],
-        'api-tenant-user' => [
-            'driver'   => 'sanctum',
-            'provider' => 'api-tenant-user',
-            'hash'     => false,
-        ],
         'broadcasting' => [
             'driver' => 'websockets-auth',
         ],
@@ -82,10 +76,6 @@ return [
         'users'      => [
             'driver' => 'user-with-legacy-password',
             'model'  => User::class,
-        ],
-        'api-tenant-user' => [
-            'driver' => 'eloquent',
-            'model'  => ApiTenantUser::class,
         ],
         'web-user'   => [
             'driver' => 'eloquent',

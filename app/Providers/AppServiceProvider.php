@@ -69,7 +69,6 @@ class AppServiceProvider extends ServiceProvider
                 'Order'           => 'App\Models\OMS\Order',
                 'Agent'           => 'App\Models\SupplyChain\Agent',
                 'TradeUnit'       => 'App\Models\Goods\TradeUnit',
-                'ApiTenantUser'   => 'App\Models\SysAdmin\ApiTenantUser',
                 'Website'         => 'App\Models\Web\Website',
                 'Warehouse'       => 'App\Models\Inventory\Warehouse',
                 'WarehouseArea'   => 'App\Models\Inventory\WarehouseArea',

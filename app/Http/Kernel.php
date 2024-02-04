@@ -121,12 +121,6 @@ class Kernel extends HttpKernel
             LogUserRequestMiddleware::class,
         ],
 
-
-        'api-tenant' => [
-            'throttle:api',
-            SubstituteBindings::class,
-            'auth:api-tenant-user'
-        ],
         'broadcast'  => [
             EncryptCookies::class,
             AddQueuedCookiesToResponse::class,
