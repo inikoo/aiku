@@ -47,7 +47,7 @@ Route::name('fulfilment-customer.')->prefix('fulfilment-customer/{fulfilmentCust
     Route::post('pallet-delivery/{palletDelivery}/submit', SubmitPalletDelivery::class)->name('pallet-delivery.submit');
     Route::patch('pallet-delivery/{palletDelivery}/timeline', UpdatePalletDeliveryTimeline::class)->name('pallet-delivery.timeline.update');
     Route::post('pallet-delivery/{palletDelivery}/pallet', StorePallet::class)->name('pallet-delivery.pallet.store');
-    Route::patch('pallet-delivery/{palletDelivery}/pallet/{pallet}', UpdatePallet::class)->name('pallet.update');
+    Route::patch('pallet-delivery/{palletDelivery}/pallet/{pallet}', UpdatePallet::class)->name('pallet-delivery.pallet.update');
     Route::post('pallet-delivery/{palletDelivery}/multiple-pallet', StoreMultiplePallet::class)->name('pallet-delivery.multiple-pallets.store');
 });
 
