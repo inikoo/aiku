@@ -20,7 +20,6 @@ const props = defineProps<{
 const loading = ref(false)
 
 const handleClick = (action) => {
-    console.log(action)
     const href = action.route?.name ? route(action.route?.name, action.route?.parameters) : action.href?.name ? route(action.href?.name, action.href?.parameters) : '#'
     const method = action.route?.method ?? 'get'
     const data = action.route?.method !== 'get' ? props.dataToSubmit : null

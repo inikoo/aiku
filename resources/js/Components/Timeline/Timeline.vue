@@ -75,7 +75,7 @@ onBeforeMount(stepsWithIndex)
                         
                     
                         <!-- Step: Head -->
-                        <div v-tooltip="step.label" class="border aspect-square mx-auto rounded-full text-lg flex justify-center items-center cursor-pointer" @click="()=>emits('updateButton',step)"
+                        <div v-tooltip="step.label" class="border aspect-square mx-auto rounded-full text-lg flex justify-center items-center cursor-pointer" @click="()=>emits('updateButton',{step : step, options : finalOptions })"
                             :class="[
                                 computeSetupState(step) ? 'border-lime-500 text-lime-600 bg-lime-300' : 'border-gray-300 text-gray-400 bg-white',
                                 step.icon ? 'h-9' : 'h-4'

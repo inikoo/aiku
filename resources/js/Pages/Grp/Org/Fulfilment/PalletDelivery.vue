@@ -76,6 +76,22 @@ const handleFormSubmitAddMultiplePallet = (data: object, closedPopover : Functio
   })
 }
 
+const updateState = async ({step, options }) => {
+  const foundState = options.find((item) => item.key === timeline.value.state)
+  const set = step.key == timeline.state || step.index < foundState.index
+  if(!set){
+    try {
+        const response = await axios.patch(
+            route(props.updateRoute.route.name, props.updateRoute.route?.parameters),
+            { state : get(step,'key') }
+        )
+      timeline.value =  response.data.data
+    } catch (error) {
+        console.log('error', error)
+    }
+  }
+}
+
 const component = computed(() => {
 
   const components = {
@@ -86,17 +102,7 @@ const component = computed(() => {
 
 });
 
-const updateState = async ( data : object ) => {
-  try {
-        const response = await axios.patch(
-            route(props.updateRoute.route.name, props.updateRoute.route?.parameters),
-            { state : get(data,'key') }
-        );
-      timeline.value =  response.data.data
-    } catch (error) {
-        console.log('error', error)
-    }
-}
+
 
 </script>
 
