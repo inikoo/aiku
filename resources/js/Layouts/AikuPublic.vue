@@ -14,16 +14,12 @@ import Header from '@/Layouts/AikuPublic/Header.vue'
 <template>
     <div class="relative">
         <div class="container max-w-7xl mx-auto shadow-xl">
-
             <Header />
 
             <main
                 class="text-gray-700">
                 <slot />
             </main>
-
-
         </div>
     </div>
-
 </template>
