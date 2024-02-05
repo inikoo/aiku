@@ -72,10 +72,12 @@ class PalletDelivery extends Model
 
     protected $guarded = [];
     protected $casts   = [
-        'state'  => PalletDeliveryStateEnum::class,
-        'in_at'  => 'datetime',
-        'out_at' => 'datetime',
-        'data'   => 'array'
+        'state'          => PalletDeliveryStateEnum::class,
+        'in_process_at'  => 'datetime',
+        'ready_at'       => 'datetime',
+        'received_at'    => 'datetime',
+        'done_at'        => 'datetime',
+        'data'           => 'array'
     ];
 
     public function getRouteKeyName(): string
