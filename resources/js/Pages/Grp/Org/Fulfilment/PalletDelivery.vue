@@ -183,5 +183,5 @@ const updateState = async ( data : object ) => {
     <Timeline :options="timeline.timeline" :state="timeline.state" @updateButton="updateState" :slidesPerView="5"/>
   </div>
   <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
-  <component :is="component" :data="props[currentTab]" :timeline="timeline" :tab="currentTab"></component>
+  <component :is="component" :data="props[currentTab]" :state="timeline.state"  :tab="currentTab"></component>
 </template>
