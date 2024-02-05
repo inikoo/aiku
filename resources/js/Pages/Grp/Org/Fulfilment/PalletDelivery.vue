@@ -33,19 +33,40 @@ const props = defineProps<{
 let currentTab = ref(props.tabs.current);
 const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
 const loading = ref(false)
+const timeline = ref({...props.data.data})
 
-const form = useForm({ notes: '', reference: ''})
+const formAddPallet = useForm({ notes: '', reference: ''})
+const formMultiplePallet = useForm({ number_pallets: 1 })
 
-const handleFormSubmit = (data: object, closedPopover : Function ) => {
+const handleFormSubmitAddPallet = (data: object, closedPopover : Function ) => {
   loading.value = true
-  form.post(route(
+  formAddPallet.post(route(
     data.route.name,
     data.route.parameters
   ), {
     preserveScroll: true,
     onSuccess: () => {
       closedPopover()
-      form.reset('notes','reference')
+      formAddPallet.reset('notes','reference')
+      loading.value = false
+    },
+    onError: (errors) => {
+    loading.value = false
+    console.error('Error during form submission:', errors);
+  },
+  })
+}
+
+const handleFormSubmitAddMultiplePallet = (data: object, closedPopover : Function ) => {
+  loading.value = true
+  formMultiplePallet.post(route(
+    data.route.name,
+    data.route.parameters
+  ), {
+    preserveScroll: true,
+    onSuccess: () => {
+      closedPopover()
+      formMultiplePallet.reset('number_pallets')
       loading.value = false
     },
     onError: (errors) => {
@@ -71,14 +92,11 @@ const updateState = async ( data : object ) => {
             route(props.updateRoute.route.name, props.updateRoute.route?.parameters),
             { state : get(data,'key') }
         );
-      props.data.data =  response.data.data
-      console.log(response.data.data)
+      timeline.value =  response.data.data
     } catch (error) {
         console.log('error', error)
     }
 }
-
-console.log('porps',props)
 
 </script>
 
@@ -98,12 +116,12 @@ console.log('porps',props)
               <span class="text-xs px-1 my-2">Reference : </span>
             <div>
               <PureInput
-                 v-model="form.reference"
+                 v-model="formAddPallet.reference"
                  placeholder="Reference"
               >
               </PureInput>
-              <p v-if="get(form, ['errors','reference'])" class="mt-2 text-sm text-red-600">
-                {{ form.errors.reference }}
+              <p v-if="get(formAddPallet, ['errors','reference'])" class="mt-2 text-sm text-red-600">
+                {{ formAddPallet.errors.reference }}
               </p>
             </div>
 
@@ -111,17 +129,48 @@ console.log('porps',props)
             <span class="text-xs px-1 my-2">Notes : </span>
               <textarea
                  class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                 v-model="form.notes"
+                 v-model="formAddPallet.notes"
                  placeholder="Notes"
               >
               </textarea>
-              <p v-if="get(form, ['errors','notes'])" class="mt-2 text-sm text-red-600">
-                {{ form.errors.notes }}
+              <p v-if="get(formAddPallet, ['errors','notes'])" class="mt-2 text-sm text-red-600">
+                {{ formAddPallet.errors.notes }}
               </p>
             </div>
 
               <div class="flex justify-end mt-3">
-                <Button :style="'save'" :loading="loading" :label="'save'" @click="() => handleFormSubmit( action.action, closed )" />
+                <Button :style="'save'" :loading="loading" :label="'save'" @click="() => handleFormSubmitAddPallet( action.action, closed )" />
+              </div>
+            </div>
+          </template>
+        </Popover>
+      </div>
+    </template>
+    <template #button-add-multiple-pallets="{ action: action }">
+      <div class="relative">
+        <Popover :width="'w-full'" ref="_popover">
+          <template #button>
+            <Button :style="action.action.style" :label="action.action.label" :icon="action.action.icon"
+              :iconRight="action.action.iconRight" :key="`ActionButton${action.action.label}${action.action.style}`"
+              :tooltip="action.action.tooltip" />
+          </template>
+          <template #content="{ close: closed }">
+            <div class="w-[250px]">
+              <span class="text-xs px-1 my-2">number of pallets : </span>
+            <div>
+              <PureInput
+                 v-model="formMultiplePallet.number_pallets"
+                 placeholder="number of pallets"
+                 type="number"
+                 :min="1"
+              >
+              </PureInput>
+              <p v-if="get(formMultiplePallet, ['errors','reference'])" class="mt-2 text-sm text-red-600">
+                {{ formMultiplePallet.errors.number_pallets }}
+              </p>
+            </div>
+              <div class="flex justify-end mt-3">
+                <Button :style="'save'" :loading="loading" :label="'save'" @click="() => handleFormSubmitAddMultiplePallet( action.action, closed )" />
               </div>
             </div>
           </template>
@@ -130,7 +179,9 @@ console.log('porps',props)
     </template>
 
   </PageHeading>
-  <Timeline :options="data.data.timeline" :state="data.data.state" @updateButton="updateState"/>
+  <div class="border-b border-gray-200">
+    <Timeline :options="timeline.timeline" :state="timeline.state" @updateButton="updateState" :slidesPerView="5"/>
+  </div>
   <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
-  <component :is="component" :data="props[currentTab]" :timeline="timeline" :tab="currentTab"></component>
+  <component :is="component" :data="props[currentTab]" :state="timeline.state"  :tab="currentTab"></component>
 </template>

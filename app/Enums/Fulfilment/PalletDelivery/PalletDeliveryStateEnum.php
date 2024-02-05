@@ -13,18 +13,20 @@ enum PalletDeliveryStateEnum: string
 {
     use EnumHelperTrait;
 
-    case IN_PROCESS  = 'in-process';
-    case READY       = 'ready';
-    case RECEIVED    = 'received';
-    case DONE        = 'done';
+    case IN_PROCESS      = 'in-process';
+    case SUBMITTED       = 'submitted';
+    case CONFIRMED       = 'confirmed';
+    case RECEIVED        = 'received';
+    case DONE            = 'done';
 
     public function labels(): array
     {
         return [
-            'in-process' => __('In Process'),
-            'ready'      => __('Ready'),
-            'received'   => __('Received'),
-            'done'       => __('Done')
+            'in-process'     => __('In Process'),
+            'submitted'      => __('Submitted'),
+            'confirmed'      => __('Confirmed'),
+            'received'       => __('Received'),
+            'done'           => __('Done')
         ];
     }
 
@@ -36,8 +38,13 @@ enum PalletDeliveryStateEnum: string
                 'icon'    => 'fal fa-seedling',
                 'class'   => 'text-emerald-500'
             ],
-            'ready' => [
-                'tooltip' => __('Ready'),
+            'submitted' => [
+                'tooltip' => __('Submitted'),
+                'icon'    => 'fal fa-spell-check',
+                'class'   => 'text-green-500'
+            ],
+            'confirmed' => [
+                'tooltip' => __('Confirmed'),
                 'icon'    => 'fal fa-spell-check',
                 'class'   => 'text-green-500'
             ],

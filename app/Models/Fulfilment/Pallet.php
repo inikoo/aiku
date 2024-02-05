@@ -92,12 +92,6 @@ class Pallet extends Model
         'notes' => '',
     ];
 
-    public function getRouteKeyName(): string
-    {
-        return 'slug';
-    }
-
-
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()

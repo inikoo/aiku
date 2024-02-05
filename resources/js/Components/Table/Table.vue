@@ -732,7 +732,7 @@ watch(name, () => {
                                             striped ? 'hover:bg-gray-100' : 'hover:bg-gray-50'
                                         ]"
                                 >
-                                    <td v-for="column in queryBuilderProps.columns" v-show="show(column.key)"
+                                    <td v-for="(column,index) in queryBuilderProps.columns" v-show="show(column.key)"
                                         :key="`table-${name}-row-${key}-column-${column.key}`"
                                         class="text-sm py-2 text-gray-700 whitespace-normal h-full"
                                         :class="[
@@ -743,7 +743,7 @@ watch(name, () => {
                                                         : 'px-6',
                                                 { 'first:border-l-4 first:border-gray-700 bg-gray-200/75': selectedRow?.[name]?.includes(item.id) }
                                         ]">
-                                        <slot :name="`cell(${column.key})`" :item="item" :tabName="name" class="">
+                                        <slot :name="`cell(${column.key})`" :item="{ ...item, index : index }" :tabName="name" class="">
                                             <div class="text-gray-500">{{ item[column.key] }}</div>
                                         </slot>
                                     </td>

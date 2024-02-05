@@ -5,7 +5,7 @@
   -->
 
 <script setup lang="ts">
-import TablePallets from "@/Components/Tables/TablePallets.vue";
+import TablePalletsDelivery from "@/Components/Tables/TablePalletDelivery.vue";
 
 const props = defineProps<{
     data: {
@@ -21,5 +21,5 @@ const props = defineProps<{
 </script>
 
 <template>
-        <TablePallets :data="data" :tab="'pallets'"></TablePallets>               
+        <TablePalletsDelivery :data="data" :tab="'pallets'"></TablePalletsDelivery>               
 </template>
