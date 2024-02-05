@@ -1,5 +1,5 @@
 <script setup lang='ts'>
-import { ref, defineEmits, computed , onBeforeMount } from 'vue'
+import { ref, defineEmits, watch , onBeforeMount } from 'vue'
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import 'swiper/css'
 import 'swiper/css/navigation'
@@ -26,25 +26,10 @@ const emits = defineEmits();
 const _swiperRef = ref()
 const finalOptions = ref([])
 
-const isTodayHours = (date: string | Date) => {
-    const currentDate = new Date()
-    const dateValue = new Date(date)
-
-    // Check if the dates are equal
-    return currentDate.getFullYear() === dateValue.getFullYear() &&
-        currentDate.getMonth() === dateValue.getMonth() &&
-        currentDate.getDate() === dateValue.getDate() &&
-        currentDate.getHours() === dateValue.getHours()
-}
-
 
 const stepsWithIndex = (() => {
     finalOptions.value = props.options.map((step, index) => ({ ...step, index }));
 });
-
-onBeforeMount(stepsWithIndex)
-
-
 
 const computeSetupState = (step: object) => {
     const foundState = finalOptions.value.find((item) => item.key === props.state)
@@ -52,9 +37,13 @@ const computeSetupState = (step: object) => {
     return ( step.timestamp || set )
 }
 
-const data =(s,a)=>{
-    console.log(s,a)
-}
+watch(() => props.state, () => {
+  stepsWithIndex()
+})
+
+
+onBeforeMount(stepsWithIndex)
+
 </script>
 
 <template>
