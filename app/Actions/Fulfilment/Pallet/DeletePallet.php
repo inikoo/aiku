@@ -7,6 +7,7 @@
 
 namespace App\Actions\Fulfilment\Pallet;
 
+use App\Actions\Fulfilment\PalletDelivery\Hydrators\HydratePalletDeliveries;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Fulfilment\PalletResource;
@@ -25,7 +26,11 @@ class DeletePallet extends OrgAction
 
     public function handle(Pallet $pallet): bool
     {
-        return $pallet->delete();
+        $pallet->delete();
+
+        HydratePalletDeliveries::dispatch($pallet->palletDelivery);
+
+        return true;
     }
 
     public function authorize(ActionRequest $request): bool
