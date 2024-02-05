@@ -31,10 +31,10 @@ class StoreMultiplePallet extends OrgAction
      */
     private PalletDelivery|FulfilmentCustomer $parent;
 
-    public function handle(FulfilmentCustomer $fulfilmentCustomer, array $modelData): void
+    public function handle(PalletDelivery $palletDelivery, array $modelData): void
     {
-        for ($i = 1; $i < Arr::get($modelData, 'number_pallets'); $i++) {
-            StorePallet::run($fulfilmentCustomer, $modelData);
+        for ($i = 1; $i <= Arr::get($modelData, 'number_pallets'); $i++) {
+            StorePalletFromDelivery::run($palletDelivery, Arr::except($modelData, 'number_pallets'));
         }
     }
 
@@ -84,7 +84,8 @@ class StoreMultiplePallet extends OrgAction
             'source_id'          => ['sometimes', 'nullable', 'string'],
             'warehouse_id'       => ['required', 'integer', 'exists:warehouses,id'],
             'location_id'        => ['sometimes', 'nullable', 'integer', 'exists:locations,id'],
-            'pallet_delivery_id' => ['sometimes', 'nullable', 'integer', 'exists:pallet_deliveries,id']
+            'pallet_delivery_id' => ['sometimes', 'nullable', 'integer', 'exists:pallet_deliveries,id'],
+            'number_pallets'     => ['required', 'integer', 'min:1', 'max:1000'],
         ];
     }
 
@@ -102,7 +103,7 @@ class StoreMultiplePallet extends OrgAction
 
         $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $request);
 
-        $this->handle($fulfilmentCustomer, $this->validatedData);
+        $this->handle($palletDelivery, $this->validatedData);
     }
 
     public function inCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): void
@@ -125,24 +126,13 @@ class StoreMultiplePallet extends OrgAction
     }
 
 
-    public function htmlResponse(Pallet $pallet, ActionRequest $request): RedirectResponse
+    public function htmlResponse(): RedirectResponse
     {
-        if($this->parent instanceof PalletDelivery) {
             return Redirect::route('grp.org.fulfilments.show.crm.customers.show.pallet-deliveries.show', [
-                'organisation'       => $pallet->organisation->slug,
-                'fulfilment'         => $pallet->fulfilment->slug,
-                'fulfilmentCustomer' => $pallet->fulfilmentCustomer->slug,
+                'organisation'       => $this->organisation->slug,
+                'fulfilment'         => $this->fulfilment->slug,
+                'fulfilmentCustomer' => $this->fulfilmentCustomer->slug,
                 'palletDelivery'     => $this->parent->reference
             ]);
-        }
-
-        return Redirect::route(
-            'grp.org.fulfilments.show.crm.customers.show',
-            [
-                'organisation'       => $pallet->organisation->slug,
-                'fulfilment'         => $pallet->fulfilment->slug,
-                'fulfilmentCustomer' => $pallet->fulfilmentCustomer->slug,
-            ]
-        );
     }
 }
