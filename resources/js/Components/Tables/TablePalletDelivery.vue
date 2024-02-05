@@ -32,8 +32,7 @@ const onSave = async (id, value) => {
             route("grp.models.fulfilment-customer.pallet-delivery.pallet.update",
                 {
                     organisation: params.organisation,
-                    fulfilment: params.fulfilment,
-                    fulfilmentCustomer: params.fulfilmentCustomer,
+                    fulfilmentCustomer: 1,
                     palletDelivery: params.palletDelivery,
                     pallet: id
                 }),
@@ -45,7 +44,7 @@ const onSave = async (id, value) => {
 }
 
 </script>
-  
+
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(customer_reference)="{ item: item }">
@@ -66,4 +65,3 @@ const onSave = async (id, value) => {
         </template>
     </Table>
 </template>
-  

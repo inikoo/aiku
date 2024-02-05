@@ -13,8 +13,10 @@ use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
+use App\Http\Resources\Fulfilment\PalletResource;
 use App\Http\Resources\Fulfilment\StoredItemResource;
 use App\Models\Fulfilment\Fulfilment;
+use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\SysAdmin\Organisation;
@@ -60,7 +62,7 @@ class UpdatePallet extends OrgAction
                 new IUnique(
                     table: 'pallets',
                     extraConditions: [
-                        ['column' => 'customer_id', 'value' => $this->pallet->customer->id],
+                        ['column' => 'fulfilment_customer_id', 'value' => $this->pallet->fulfilmentCustomer->id],
                         [
                             'column'   => 'id',
                             'operator' => '!=',
@@ -88,10 +90,10 @@ class UpdatePallet extends OrgAction
         ];
     }
 
-    public function asController(Organisation $organisation, Fulfilment $fulfilment, PalletDelivery $palletDelivery, Pallet $pallet, ActionRequest $request): Pallet
+    public function asController(Organisation $organisation, FulfilmentCustomer $fulfilmentCustomer, PalletDelivery $palletDelivery, Pallet $pallet, ActionRequest $request): Pallet
     {
         $this->pallet = $pallet;
-        $this->initialisationFromFulfilment($fulfilment, $request);
+        $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $request);
 
         return $this->handle($pallet, $this->validateAttributes());
     }
@@ -106,8 +108,8 @@ class UpdatePallet extends OrgAction
         return $this->handle($pallet, $this->validatedData);
     }
 
-    public function jsonResponse(Pallet $pallet): StoredItemResource
+    public function jsonResponse(Pallet $pallet): PalletResource
     {
-        return new StoredItemResource($pallet);
+        return new PalletResource($pallet);
     }
 }
