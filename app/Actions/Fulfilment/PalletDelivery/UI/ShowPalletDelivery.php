@@ -117,7 +117,7 @@ class ShowPalletDelivery extends OrgAction
                             'tooltip' => __('add multiple pallets'),
                             'label'   => __('add multiple pallets'),
                             'route'   => [
-                                'name'       => 'grp.models.fulfilment-customer.pallet-delivery.submit',
+                                'name'       => 'grp.models.fulfilment-customer.pallet-delivery.multiple-pallets.store',
                                 'parameters' => [
                                     'organisation'       => $palletDelivery->organisation->slug,
                                     'fulfilment'         => $palletDelivery->fulfilment->slug,

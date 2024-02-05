@@ -8,6 +8,7 @@
 
 use App\Actions\CRM\Prospect\ImportShopProspects;
 use App\Actions\Fulfilment\Fulfilment\StoreFulfilment;
+use App\Actions\Fulfilment\Pallet\StoreMultiplePallet;
 use App\Actions\Fulfilment\Pallet\StorePallet;
 use App\Actions\Fulfilment\PalletDelivery\StorePalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\SubmitPalletDelivery;
@@ -45,6 +46,7 @@ Route::name('fulfilment-customer.')->prefix('fulfilment-customer/{fulfilmentCust
     Route::post('pallet-delivery/{palletDelivery}/submit', SubmitPalletDelivery::class)->name('pallet-delivery.submit');
     Route::patch('pallet-delivery/{palletDelivery}/timeline', UpdatePalletDeliveryTimeline::class)->name('pallet-delivery.timeline.update');
     Route::post('pallet-delivery/{palletDelivery}/pallet', StorePallet::class)->name('pallet-delivery.pallet.store');
+    Route::post('pallet-delivery/{palletDelivery}/multiple-pallet', StoreMultiplePallet::class)->name('pallet-delivery.multiple-pallets.store');
 });
 
 Route::name('shop.')->prefix('shop/{shop}')->group(function () {

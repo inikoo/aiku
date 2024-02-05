@@ -15,9 +15,9 @@ class HydratePalletDeliveries extends HydrateModel
     public function handle(PalletDelivery $palletDelivery): void
     {
         $palletDelivery->update([
-            'number_pallets' => $palletDelivery->pallets->count(),
+            'number_pallets'             => $palletDelivery->pallets->count(),
             'number_pallet_stored_items' => $palletDelivery->pallets->sum('number_stored_items'),
-            'number_stored_items' => $palletDelivery->pallets->sum('number_stored_items')
+            'number_stored_items'        => $palletDelivery->pallets->sum('number_stored_items')
         ]);
     }
 }
