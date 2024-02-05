@@ -13,8 +13,9 @@ return new class () extends Migration {
     public function up(): void
     {
         Schema::create('serial_references', function (Blueprint $table) {
-            $table->smallIncrements('id');
-            $table->morphs('container');
+            $table->increments('id');
+            $table->string('container_type');
+            $table->unsignedInteger('container_id');
             $table->unsignedSmallInteger('organisation_id')->nullable()->index();
             $table->foreign('organisation_id')->references('id')->on('organisations')->onUpdate('cascade')->onDelete('cascade');
             $table->string('model')->index();
@@ -22,6 +23,8 @@ return new class () extends Migration {
             $table->string('format')->default("%06d");
             $table->jsonb('data');
             $table->timestampsTz();
+            $table->index(['container_type', 'container_id']);
+            $table->index(['container_type', 'container_id','model']);
         });
     }
 

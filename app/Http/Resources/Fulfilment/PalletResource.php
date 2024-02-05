@@ -8,6 +8,7 @@
 namespace App\Http\Resources\Fulfilment;
 
 use App\Http\Resources\Inventory\LocationResource;
+use App\Models\Fulfilment\Pallet;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
@@ -26,10 +27,14 @@ class PalletResource extends JsonResource
 {
     public function toArray($request): array
     {
+        /** @var Pallet $pallet */
+        $pallet=$this;
+
         return [
             'id'                 => $this->id,
-            'customer_reference' => $this->customer_reference,
-            'slug'               => $this->slug,
+            'reference'          => $pallet->reference,
+            'customer_reference' => $pallet->customer_reference,
+            'slug'               => $pallet->slug,
             'customer_name'      => $this->fulfilmentCustomer->customer->contact_name,
             'location'           => LocationResource::make($this->location),
             'state'              => $this->state,

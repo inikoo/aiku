@@ -10,10 +10,13 @@ namespace App\Actions\Fulfilment\Pallet\UI;
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
-use App\Http\Resources\Fulfilment\PalletResource;
+use App\Enums\Fulfilment\Pallet\PalletStateEnum;
+use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
+use App\Http\Resources\Fulfilment\PalletsResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
+use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
@@ -29,9 +32,28 @@ use App\Services\QueryBuilder;
 
 class IndexPallets extends OrgAction
 {
-    private Organisation|FulfilmentCustomer|Location|Fulfilment|Warehouse $parent;
+    private Organisation|FulfilmentCustomer|Location|Fulfilment|Warehouse|PalletDelivery $parent;
 
-    public function handle(Organisation|FulfilmentCustomer|Location|Fulfilment|Warehouse $parent, $prefix = null): LengthAwarePaginator
+    protected function getElementGroups(): array
+    {
+        return [
+            'state' => [
+                'label'    => __('State'),
+                'elements' => array_merge_recursive(
+                    PalletStateEnum::labels(),
+                    PalletStateEnum::count($this->organisation)
+                ),
+
+                'engine' => function ($query, $elements) {
+                    $query->whereIn('state', $elements);
+                }
+
+            ],
+
+        ];
+    }
+
+    public function handle(Organisation|FulfilmentCustomer|Location|Fulfilment|Warehouse|PalletDelivery $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -69,10 +91,20 @@ class IndexPallets extends OrgAction
             case "Warehouse":
                 $query->where('warehouse_id', $parent->id);
                 break;
+            case "PalletDelivery":
+                $query->where('pallet_delivery_id', $parent->id);
+                break;
             default:
                 $query->where('group_id', app('group')->id);
                 break;
         }
+
+
+        if(!$parent instanceof PalletDelivery) {
+            $query->where('state', '!=', PalletStateEnum::IN_PROCESS);
+        }
+
+
 
         return $query->defaultSort('slug')
             ->allowedSorts(['customer_reference', 'slug'])
@@ -81,29 +113,59 @@ class IndexPallets extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure(Organisation|FulfilmentCustomer|Location|Fulfilment|Warehouse $parent, $prefix = null, $modelOperations = []): Closure
+    public function tableStructure(Organisation|FulfilmentCustomer|Location|Fulfilment|Warehouse|PalletDelivery $parent, $prefix = null, $modelOperations = []): Closure
     {
-        return function (InertiaTable $table) use ($prefix, $modelOperations) {
+        return function (InertiaTable $table) use ($prefix, $modelOperations, $parent) {
             if ($prefix) {
                 $table
                     ->name($prefix)
                     ->pageName($prefix.'Page');
             }
 
+
+            $emptyStateData = [
+                'icons' => ['fal fa-pallet'],
+                'title' => '',
+                'count' => 0
+            ];
+
+
+            if ($parent instanceof Fulfilment) {
+                $emptyStateData['title'] = __("There is not pallets in this fulfilment shop");
+            }
+            if ($parent instanceof Warehouse) {
+                $emptyStateData['title'] = __("There isn't any fulfilment pallet in this warehouse");
+            }
+            if ($parent instanceof FulfilmentCustomer) {
+                $emptyStateData['title'] = __("This customer don't have any pallets");
+            }
+
             $table->withGlobalSearch()
-                ->withEmptyState(
-                    [
-                        'title' => __("No pallets found"),
-                        'count' => 0
-                    ]
-                )
-                ->withModelOperations($modelOperations)
-                ->column(key: 'customer_reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'customer_name', label: __('Customer Name'), canBeHidden: false, searchable: true)
-                ->column(key: 'location', label: __('Location'), canBeHidden: false, searchable: true)
-                ->column(key: 'state', label: __('State'), canBeHidden: false, searchable: true)
-                ->column(key: 'status', label: __('Status'), canBeHidden: false, searchable: true)
-                ->column(key: 'notes', label: __('Notes'), canBeHidden: false, searchable: true)
+                ->withEmptyState($emptyStateData)
+                ->withModelOperations($modelOperations);
+
+
+
+            if (!($parent instanceof PalletDelivery and $parent->state == PalletDeliveryStateEnum::IN_PROCESS)) {
+                $table->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon');
+                $table->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
+            }
+
+
+            $table->column(key: 'customer_reference', label: __('customer reference'), canBeHidden: false, sortable: true, searchable: true);
+
+
+            if ($parent instanceof Organisation || $parent instanceof Fulfilment || $parent instanceof Warehouse) {
+                $table->column(key: 'customer_name', label: __('Customer'), canBeHidden: false, searchable: true);
+            }
+
+            if ($parent instanceof Organisation || $parent instanceof Fulfilment || $parent instanceof Warehouse) {
+                $table->column(key: 'location', label: __('Location'), canBeHidden: false, searchable: true);
+            }
+
+
+            $table->column(key: 'notes', label: __('Notes'), canBeHidden: false, searchable: true)
+                ->column(key: 'actions', label: ' ', canBeHidden: false, searchable: true)
                 ->defaultSort('slug');
         };
     }
@@ -112,9 +174,11 @@ class IndexPallets extends OrgAction
     {
         if ($this->parent instanceof Warehouse || $this->parent instanceof Location) {
             $this->canEdit = $request->user()->hasPermissionTo("fulfilment.{$this->warehouse->id}.edit");
+
             return $request->user()->hasPermissionTo("fulfilment.{$this->warehouse->id}.view");
         } elseif ($this->parent instanceof Fulfilment) {
             $this->canEdit = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.stored-items.edit");
+
             return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.stored-items.view");
         }
 
@@ -124,7 +188,7 @@ class IndexPallets extends OrgAction
 
     public function jsonResponse(LengthAwarePaginator $pallets): AnonymousResourceCollection
     {
-        return PalletResource::collection($pallets);
+        return PalletsResource::collection($pallets);
     }
 
 
@@ -141,15 +205,16 @@ class IndexPallets extends OrgAction
                 'pageHead'    => [
                     'title' => __('pallets')
                 ],
-                'data'        => PalletResource::collection($pallets),
+                'data'        => PalletsResource::collection($pallets),
             ]
         )->table($this->tableStructure($this->parent));
     }
 
     public function asController(Organisation $organisation, Warehouse $warehouse, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
     {
-        $this->parent=$fulfilment;
+        $this->parent = $fulfilment;
         $this->initialisationFromFulfilment($fulfilment, $request);
+
         return $this->handle($organisation);
     }
 
@@ -173,14 +238,8 @@ class IndexPallets extends OrgAction
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
-
-
-
-
-
-
         return match ($routeName) {
-            'grp.org.warehouses.show.fulfilment.pallets.index'=>
+            'grp.org.warehouses.show.fulfilment.pallets.index' =>
             array_merge(
                 ShowWarehouse::make()->getBreadcrumbs($routeParameters),
                 [
@@ -202,7 +261,7 @@ class IndexPallets extends OrgAction
                 ]
             ),
 
-            'grp.org.fulfilments.show.operations.pallets.index'=>
+            'grp.org.fulfilments.show.operations.pallets.index' =>
             array_merge(
                 ShowFulfilment::make()->getBreadcrumbs($routeParameters),
                 [
@@ -223,10 +282,6 @@ class IndexPallets extends OrgAction
                     ]
                 ]
             )
-
         };
-
-
-
     }
 }

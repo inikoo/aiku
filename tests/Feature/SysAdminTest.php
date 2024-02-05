@@ -14,8 +14,6 @@ use App\Actions\SysAdmin\Guest\StoreGuest;
 use App\Actions\SysAdmin\Guest\UpdateGuest;
 use App\Actions\SysAdmin\Organisation\StoreOrganisation;
 use App\Actions\SysAdmin\Organisation\UpdateOrganisation;
-use App\Actions\SysAdmin\SysUser\CreateSysUserAccessToken;
-use App\Actions\SysAdmin\SysUser\StoreSysUser;
 use App\Actions\SysAdmin\User\UpdateUser;
 use App\Actions\SysAdmin\User\UpdateUserStatus;
 use App\Actions\SysAdmin\User\UserAddRoles;
@@ -28,7 +26,6 @@ use App\Models\Mail\Mailroom;
 use App\Models\SysAdmin\Admin;
 use App\Models\SysAdmin\Guest;
 use App\Models\SysAdmin\Role;
-use App\Models\SysAdmin\SysUser;
 use App\Models\SysAdmin\User;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash;
@@ -108,21 +105,6 @@ test('create a system admin', function () {
     $this->assertModelExists($admin);
 });
 
-test('create a system admin user', function () {
-    $admin   = StoreAdmin::make()->action(Admin::factory()->definition());
-    $sysUser = StoreSysUser::make()->action($admin, SysUser::factory()->definition());
-    $this->assertModelExists($sysUser);
-    expect($sysUser)->toBeInstanceOf(SysUser::class)
-        ->and($sysUser->userable)->toBeInstanceOf(Admin::class);
-});
-
-test('create a system admin user access token', function () {
-    $admin   = StoreAdmin::make()->action(Admin::factory()->definition());
-    $sysUser = StoreSysUser::make()->action($admin, SysUser::factory()->definition());
-
-    $token = CreateSysUserAccessToken::run($sysUser, 'admin', ['*']);
-    expect($token)->toBeString();
-});
 
 test('create organisation', function (Group $group) {
     $modelData = Organisation::factory()->definition();
@@ -173,19 +155,6 @@ test('set organisation google key', function (Organisation $organisation) {
     ])->assertSuccessful();
 })->depends('create organisation by command');
 
-test('create organisation sys-user', function ($organisation) {
-    $arrayData = [
-        'username' => 'aiku',
-        'password' => 'hello1234',
-        'email'    => 'aiku@email.com'
-    ];
-    $sysUser   = StoreSysUser::make()->action($organisation, $arrayData);
-
-    expect($sysUser->userable)->toBeInstanceOf(Organisation::class)
-        ->and($sysUser->username)->toBe($arrayData['username']);
-
-    return $sysUser;
-})->depends('create organisation');
 
 test('roles are seeded', function () {
     expect(Role::count())->toBe(17);

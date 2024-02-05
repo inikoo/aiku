@@ -136,8 +136,18 @@ class Customer extends Model implements HasMedia
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
-            ->generateSlugsFrom('reference')
+            ->generateSlugsFrom(function () {
+                $slug = $this->company_name;
+                if ($slug == '') {
+                    $slug = $this->contact_name;
+                }
+                if ($slug == '') {
+                    $slug = $this->reference;
+                }
+                return $slug;
+            })
             ->saveSlugsTo('slug')
+            ->slugsShouldBeNoLongerThan(16)
             ->doNotGenerateSlugsOnUpdate();
     }
 

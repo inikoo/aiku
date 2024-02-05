@@ -42,6 +42,7 @@ use Illuminate\Support\Carbon;
  * @property int $number_pallets_type_box
  * @property int $number_pallets_type_oversize
  * @property int $number_pallets_state_in_process
+ * @property int $number_pallets_state_submitted
  * @property int $number_pallets_state_received
  * @property int $number_pallets_state_booked_in
  * @property int $number_pallets_state_settled

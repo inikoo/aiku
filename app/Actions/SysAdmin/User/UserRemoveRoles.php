@@ -29,7 +29,7 @@ class UserRemoveRoles
         foreach ($roles as $role) {
             $user->removeRole($role);
         }
-        UserHydrateAuthorisedModels::dispatch($user);
+        UserHydrateAuthorisedModels::run($user);
         return $user;
     }
 

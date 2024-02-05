@@ -14,7 +14,7 @@ use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -116,8 +116,8 @@ class PalletDelivery extends Model
         return $this->belongsTo(FulfilmentCustomer::class);
     }
 
-    public function pallets(): BelongsToMany
+    public function pallets(): HasMany
     {
-        return $this->belongsToMany(Pallet::class, 'pallet_delivery_pallets');
+        return $this->hasMany(Pallet::class);
     }
 }

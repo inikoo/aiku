@@ -17,12 +17,12 @@ class PalletDeliveriesResource extends JsonResource
         $palletDelivery = $this;
 
         return [
-            'id'                 => $palletDelivery->id,
-            'ulid'               => $palletDelivery->ulid,
             'slug'               => $palletDelivery->slug,
             'reference'          => $palletDelivery->reference,
             'state'              => $palletDelivery->state,
-            'pallets'            => $palletDelivery->pallets()->count(),
+            'state_label'        => $palletDelivery->state->labels()[$palletDelivery->state->value],
+            'state_icon'         => $palletDelivery->state->stateIcon()[$palletDelivery->state->value],
+            'pallets'            => $palletDelivery->number_pallets,
             'customer_reference' => $palletDelivery->customer_reference
         ];
     }

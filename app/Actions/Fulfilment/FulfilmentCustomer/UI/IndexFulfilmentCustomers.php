@@ -57,7 +57,7 @@ class IndexFulfilmentCustomers extends OrgAction
         }
 
         $queryBuilder = QueryBuilder::for(FulfilmentCustomer::class);
-        $queryBuilder->where('customers.shop_id', $fulfilment->shop->id);
+        $queryBuilder->where('fulfilment_customers.fulfilment_id', $fulfilment->id);
 
 
         return $queryBuilder
@@ -67,14 +67,11 @@ class IndexFulfilmentCustomers extends OrgAction
                 'customers.id',
                 'customers.name',
                 'fulfilment_customers.slug',
-                'shops.code as shop_code',
-                'shops.slug as shop_slug',
                 'number_pallets',
                 'number_pallets_status_storing'
             ])
             ->leftJoin('customers', 'customers.id', 'fulfilment_customers.customer_id')
             ->leftJoin('customer_stats', 'customers.id', 'customer_stats.customer_id')
-            ->leftJoin('shops', 'shops.id', 'shop_id')
             ->allowedSorts(['reference', 'name', 'number_pallets', 'slug', 'number_pallets_status_storing'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)

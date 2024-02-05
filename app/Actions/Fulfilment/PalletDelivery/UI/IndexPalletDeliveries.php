@@ -11,7 +11,6 @@ use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
-use App\Http\Resources\Fulfilment\FulfilmentCustomersResource;
 use App\Http\Resources\Fulfilment\PalletDeliveriesResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\Fulfilment;
@@ -136,8 +135,8 @@ class IndexPalletDeliveries extends OrgAction
                         ]
                     ] : null
                 )
+                ->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon')
                 ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'state', label: __('state'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'customer reference', label: __('customer reference'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'pallets', label: __('pallets'), canBeHidden: false, sortable: true, searchable: true);
         };
@@ -174,16 +173,16 @@ class IndexPalletDeliveries extends OrgAction
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
-                'title'       => __('customers'),
+                'title'       => __('pallet deliveries'),
                 'pageHead'    => [
-                    'title'     => __('customers'),
+                    'title'     => __('deliveries'),
                     'container' => $container,
                     'iconRight' => [
-                        'icon'  => ['fal', 'fa-user'],
-                        'title' => __('customer')
+                        'icon'  => ['fal', 'fa-truck-couch'],
+                        'title' => __('delivery')
                     ]
                 ],
-                'data'        => FulfilmentCustomersResource::collection($customers),
+                'data'        => PalletDeliveriesResource::collection($customers),
 
             ]
         )->table($this->tableStructure($this->parent));

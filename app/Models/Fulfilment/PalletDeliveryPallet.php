@@ -14,7 +14,7 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
  * App\Models\Fulfilment\PalletDeliveryPallet
  *
  * @property-read \App\Models\Fulfilment\Pallet $pallet
- * @property-read \App\Models\Fulfilment\PalletDelivery|null $palletDelivery
+ * @property-read \App\Models\Fulfilment\PalletDelivery $palletDelivery
  * @method static \Illuminate\Database\Eloquent\Builder|PalletDeliveryPallet newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|PalletDeliveryPallet newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|PalletDeliveryPallet query()

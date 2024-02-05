@@ -8,13 +8,13 @@
 namespace App\Actions\Fulfilment\PalletDelivery\UI;
 
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
-use App\Actions\Fulfilment\Pallet\UI\IndexPalletsFromDelivery;
+use App\Actions\Fulfilment\Pallet\UI\IndexPallets;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
 use App\Enums\UI\PalletDeliveryTabsEnum;
 use App\Http\Resources\Fulfilment\PalletDeliveriesResource;
 use App\Http\Resources\Fulfilment\PalletDeliveryResource;
-use App\Http\Resources\Fulfilment\PalletResource;
+use App\Http\Resources\Fulfilment\PalletsResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletDelivery;
@@ -159,11 +159,11 @@ class ShowPalletDelivery extends OrgAction
                 'data' => PalletDeliveryResource::make($palletDelivery),
 
                 PalletDeliveryTabsEnum::PALLETS->value => $this->tab == PalletDeliveryTabsEnum::PALLETS->value ?
-                    fn () => PalletResource::collection(IndexPalletsFromDelivery::run($palletDelivery))
-                    : Inertia::lazy(fn () => PalletResource::collection(IndexPalletsFromDelivery::run($palletDelivery))),
+                    fn () => PalletsResource::collection(IndexPallets::run($palletDelivery))
+                    : Inertia::lazy(fn () => PalletsResource::collection(IndexPallets::run($palletDelivery))),
             ]
         )->table(
-            IndexPalletsFromDelivery::make()->tableStructure(
+            IndexPallets::make()->tableStructure(
                 $palletDelivery,
                 prefix: PalletDeliveryTabsEnum::PALLETS->value
             )

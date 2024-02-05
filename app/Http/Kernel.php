@@ -10,6 +10,7 @@ namespace App\Http;
 use App\Http\Middleware\ApiBindGroupInstance;
 use App\Http\Middleware\Authenticate;
 use App\Http\Middleware\BindGroupInstance;
+use App\Http\Middleware\HandleAikuPublicInertiaRequests;
 use App\Http\Middleware\LogUserRequestMiddleware;
 use App\Http\Middleware\EncryptCookies;
 use App\Http\Middleware\ForceJsonResponse;
@@ -54,26 +55,15 @@ class Kernel extends HttpKernel
 
     protected $middlewareGroups = [
 
-        'api'      => [
-            ForceJsonResponse::class,
-            EnsureFrontendRequestsAreStateful::class,
-            SubstituteBindings::class,
-        ],
         'webhooks' => [
             ForceJsonResponse::class,
             EnsureFrontendRequestsAreStateful::class,
             SubstituteBindings::class,
         ],
-
-        'public' => [
-            EncryptCookies::class,
-            AddQueuedCookiesToResponse::class,
-            StartSession::class,
-            ShareErrorsFromSession::class,
-            VerifyCsrfToken::class,
+        'api'      => [
+            ForceJsonResponse::class,
+            EnsureFrontendRequestsAreStateful::class,
             SubstituteBindings::class,
-            HandlePublicInertiaRequests::class,
-            AddLinkHeadersForPreloadedAssets::class,
         ],
         'grp'    => [
             EncryptCookies::class,
@@ -86,39 +76,7 @@ class Kernel extends HttpKernel
             HandleInertiaGrpRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
         ],
-        'horizon'    => [
-            EncryptCookies::class,
-            AddQueuedCookiesToResponse::class,
-            StartSession::class,
-            ShareErrorsFromSession::class,
-            VerifyCsrfToken::class,
-            BindGroupInstance::class,
-            SubstituteBindings::class,
-        ],
 
-        'webhooks-api' => [
-            ForceJsonResponse::class,
-            EnsureFrontendRequestsAreStateful::class,
-            SubstituteBindings::class,
-        ],
-        'central-api'  => [
-            ForceJsonResponse::class,
-            EnsureFrontendRequestsAreStateful::class,
-            'throttle:api',
-            SubstituteBindings::class,
-            'auth:api-admin-user'
-        ],
-
-        'central-web' => [
-            EncryptCookies::class,
-            AddQueuedCookiesToResponse::class,
-            StartSession::class,
-            ShareErrorsFromSession::class,
-            VerifyCsrfToken::class,
-            SubstituteBindings::class,
-            HandlePublicInertiaRequests::class,
-            SetLocale::class,
-        ],
         'app'         => [
             EncryptCookies::class,
             AddQueuedCookiesToResponse::class,
@@ -130,6 +88,39 @@ class Kernel extends HttpKernel
             SetLocale::class,
             LogUserRequestMiddleware::class,
 
+        ],
+
+        'aiku-public' => [
+            EncryptCookies::class,
+            AddQueuedCookiesToResponse::class,
+            StartSession::class,
+            ShareErrorsFromSession::class,
+            VerifyCsrfToken::class,
+            SubstituteBindings::class,
+            HandleAikuPublicInertiaRequests::class,
+            AddLinkHeadersForPreloadedAssets::class,
+        ],
+        'public' => [
+            EncryptCookies::class,
+            AddQueuedCookiesToResponse::class,
+            StartSession::class,
+            ShareErrorsFromSession::class,
+            VerifyCsrfToken::class,
+            SubstituteBindings::class,
+            HandlePublicInertiaRequests::class,
+            AddLinkHeadersForPreloadedAssets::class,
+        ],
+
+
+        //==== Other Middleware Groups
+        'horizon'    => [
+            EncryptCookies::class,
+            AddQueuedCookiesToResponse::class,
+            StartSession::class,
+            ShareErrorsFromSession::class,
+            VerifyCsrfToken::class,
+            BindGroupInstance::class,
+            SubstituteBindings::class,
         ],
         // for use in cypress
         'web'         => [
@@ -143,13 +134,6 @@ class Kernel extends HttpKernel
             SetLocale::class,
             LogUserRequestMiddleware::class,
         ],
-
-
-        'api-tenant' => [
-            'throttle:api',
-            SubstituteBindings::class,
-            'auth:api-tenant-user'
-        ],
         'broadcast'  => [
             EncryptCookies::class,
             AddQueuedCookiesToResponse::class,
@@ -159,6 +143,7 @@ class Kernel extends HttpKernel
             SubstituteBindings::class,
             'auth:broadcasting'
         ],
+
 
 
     ];

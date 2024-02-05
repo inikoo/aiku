@@ -8,6 +8,7 @@
 /public/grp.hot
 /public/grp/assets/
 /public/public/assets/
+/public/aiku-public/assets/
 /public/tenants
 /public/grp/manifest.json
 /public/public/manifest.json
@@ -51,3 +52,5 @@ aurora_migration_base.sh
 aurora_migration_base_tmp.sh
 aurora_migration_crm.sh
 /backup_load.sh
+/public/aiku-public.hot
+/public/aiku-public/manifest.json

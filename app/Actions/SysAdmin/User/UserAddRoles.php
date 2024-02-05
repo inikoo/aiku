@@ -31,7 +31,7 @@ class UserAddRoles
             $user->assignRole($role);
         }
 
-        UserHydrateAuthorisedModels::dispatch($user);
+        UserHydrateAuthorisedModels::run($user);
 
         return $user;
     }

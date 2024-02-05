@@ -15,24 +15,12 @@ use Illuminate\Support\Facades\Route;
 
 class RouteServiceProvider extends ServiceProvider
 {
-    /**
-     * The path to the "home" route for your application.
-     *
-     * Typically, users are redirected here after authentication.
-     *
-     * @var string
-     */
     public const HOME = '/dashboard';
 
-    /**
-     * Define your route model bindings, pattern filters, and other route configuration.
-     *
-     * @return void
-     */
+
     public function boot(): void
     {
         $this->configureRateLimiting();
-
 
         Route::prefix('webhooks')
             ->domain(config('app.domain'))
@@ -42,53 +30,21 @@ class RouteServiceProvider extends ServiceProvider
         Route::prefix('api')
             ->domain(config('app.domain'))
             ->middleware('api')
-            ->group(base_path('routes/grp/api/app.php'));
+            ->group(base_path('routes/grp/api/api.php'));
 
         Route::domain('app.'.config('app.domain'))
             ->middleware('grp')
             ->name('grp.')
             ->group(base_path('routes/grp/web/app.php'));
 
-
-
-        Route::middleware('public')
+        Route::middleware('aiku-public')
             ->domain(config('app.domain'))
-            ->name('public.')
-            ->group(base_path('routes/public/web/app.php'));
+            ->name('aiku-public.')
+            ->group(base_path('routes/aiku-public/web/root.php'));
 
-
-        /*
-        Route::prefix('api')
-            ->domain(config('app.domain'))
-            ->middleware('central-api')
-            ->namespace($this->namespace)
-            ->group(base_path('routes/central/api/api.php'));
-
-        Route::prefix('webhooks')
-            ->domain(config('app.domain'))
-            ->middleware('webhooks-api')
-            ->namespace($this->namespace)
-            ->group(base_path('routes/central/webhooks/webhooks.php'));
-
-        Route::middleware('central-web')
-            ->domain(config('app.domain'))
-            ->namespace($this->namespace)
-            ->name('central.')
-            ->group(base_path('routes/central/web/web.php'));
-
-        Route::namespace($this->namespace)->prefix('api')
-            ->middleware('api-tenant')
-            ->group(base_path('routes/tenant/api.php'));
-        Route::namespace($this->namespace)->group(base_path('routes/tenant/app.php'));
-        */
 
     }
 
-    /**
-     * Configure the rate limiters for the application.
-     *
-     * @return void
-     */
     protected function configureRateLimiting(): void
     {
         RateLimiter::for('api', function (Request $request) {

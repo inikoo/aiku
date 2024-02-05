@@ -17,10 +17,14 @@ enum CustomerFulfilmentTabsEnum: string
 
     case SHOWCASE = 'showcase';
 
+    case PALLETS       = 'pallets';
     case STORED_ITEMS  = 'stored_items';
-    case ORDERS        = 'orders';
+
 
     case PALLET_DELIVERIES        = 'pallet_deliveries';
+
+    case PALLET_RETURNS        = 'pallet_returns';
+    case INVOICES              = 'invoices';
 
     case DATA              = 'data';
     case ATTACHMENTS       = 'attachments';
@@ -30,6 +34,10 @@ enum CustomerFulfilmentTabsEnum: string
     public function blueprint(): array
     {
         return match ($this) {
+            CustomerFulfilmentTabsEnum::PALLETS => [
+                'title' => __('pallets'),
+                'icon'  => 'fal fa-pallet',
+            ],
             CustomerFulfilmentTabsEnum::STORED_ITEMS => [
                 'title' => __('stored items'),
                 'icon'  => 'fal fa-narwhal',
@@ -40,13 +48,17 @@ enum CustomerFulfilmentTabsEnum: string
                 'title' => __('data'),
                 'icon'  => 'fal fa-database',
             ],
-            CustomerFulfilmentTabsEnum::ORDERS => [
-                'title' => __('orders'),
-                'icon'  => 'fal fa-shopping-cart',
+            CustomerFulfilmentTabsEnum::INVOICES => [
+                'title' => __('invoices'),
+                'icon'  => 'fal fa-file-invoice-dollar',
             ],
             CustomerFulfilmentTabsEnum::PALLET_DELIVERIES => [
-                'title' => __('pallet deliveries'),
-                'icon'  => 'fal fa-truck',
+                'title' => __('deliveries'),
+                'icon'  => 'fal fa-truck-couch',
+            ],
+            CustomerFulfilmentTabsEnum::PALLET_RETURNS => [
+                'title' => __('returns'),
+                'icon'  => 'fal fa-sign-out-alt',
             ],
             CustomerFulfilmentTabsEnum::ATTACHMENTS => [
                 'align' => 'right',

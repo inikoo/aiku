@@ -1,12 +1,8 @@
 <script setup lang='ts'>
 import { useLayoutStore } from '@/Stores/layout'
-import { Navigation } from '@/types/Navigation'
 import { Link } from '@inertiajs/vue3'
 import { routeType } from '@/types/route'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import {  } from '@fas'
-import { library } from '@fortawesome/fontawesome-svg-core'
-library.add()
 
 const props = defineProps<{
     navigation: {

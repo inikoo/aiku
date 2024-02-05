@@ -31,7 +31,6 @@ use App\Models\Mail\Outbox;
 use App\Models\Marketing\OfferCampaign;
 use App\Models\OMS\Order;
 use App\Models\Search\UniversalSearch;
-use App\Models\SysAdmin\ApiTenantUser;
 use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\Role;
 use App\Models\Traits\HasAddresses;
@@ -90,7 +89,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $prospects_sender_email_id
  * @property-read \App\Models\Market\ShopAccountingStats|null $accountingStats
  * @property-read Collection<int, Address> $addresses
- * @property-read ApiTenantUser|null $apiTenantUser
  * @property-read Country $country
  * @property-read \App\Models\Market\ShopCRMStats|null $crmStats
  * @property-read Currency $currency
@@ -306,11 +304,6 @@ class Shop extends Model
     public function serialReferences(): MorphMany
     {
         return $this->morphMany(SerialReference::class, 'container');
-    }
-
-    public function apiTenantUser(): MorphOne
-    {
-        return $this->morphOne(ApiTenantUser::class, 'userable');
     }
 
     public function roles(): MorphMany

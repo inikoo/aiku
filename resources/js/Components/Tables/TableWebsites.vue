@@ -41,8 +41,8 @@ function websiteRoute(website: Website) {
             </Link>
         </template>
 
-        <template #cell(state)="{ item: banner }">
-            <Icon :data="banner['state_icon']" class="px-1"/>
+        <template #cell(state)="{ item: website }">
+            <Icon :data="website['state_icon']" class="px-1"/>
         </template>
 
     </Table>
