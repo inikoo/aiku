@@ -141,7 +141,7 @@ class ShowPalletDelivery extends OrgAction
                                 ]
                             ]
                         ],
-                        $palletDelivery->number_pallets > 0 ? [
+                        [
                             'type'    => 'button',
                             'style'   => 'save',
                             'tooltip' => __('submit'),
@@ -156,7 +156,7 @@ class ShowPalletDelivery extends OrgAction
                                     'palletDelivery'     => $palletDelivery->reference
                                 ]
                             ]
-                        ] : []
+                        ]
                     ]
                 ],
 
