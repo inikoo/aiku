@@ -1,10 +1,12 @@
 {
     "private": true,
     "scripts": {
-        "dev": "npm run dev.grp && npm run dev.public",
-        "build": "npm run build.grp && npm run build.public",
+        "dev": "npm run dev.grp && npm run dev.aiku-public && npm run dev.public",
+        "build": "npm run build.grp && npm run build.aiku-public && npm run build.public",
         "dev.grp": "vite --config vite.grp.config.js",
         "build.grp": "vite build --config vite.grp.config.js && vite build --config vite.grp.config.js --ssr",
+        "dev.aiku-public": "vite --config vite.aiku-public.config.js",
+        "build.aiku-public": "vite build --config vite.aiku-public.config.js && vite build --config vite.aiku-public.config.js --ssr",
         "dev.public": "vite --config vite.public.config.js",
         "build.public": "vite build --config vite.public.config.js && vite build --config vite.public.config.js --ssr",
         "test": "cypress open"

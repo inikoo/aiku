@@ -10,6 +10,7 @@ namespace App\Http;
 use App\Http\Middleware\ApiBindGroupInstance;
 use App\Http\Middleware\Authenticate;
 use App\Http\Middleware\BindGroupInstance;
+use App\Http\Middleware\HandleAikuPublicInertiaRequests;
 use App\Http\Middleware\LogUserRequestMiddleware;
 use App\Http\Middleware\EncryptCookies;
 use App\Http\Middleware\ForceJsonResponse;
@@ -73,6 +74,16 @@ class Kernel extends HttpKernel
             BindGroupInstance::class,
             SubstituteBindings::class,
             HandleInertiaGrpRequests::class,
+            AddLinkHeadersForPreloadedAssets::class,
+        ],
+        'aiku-public' => [
+            EncryptCookies::class,
+            AddQueuedCookiesToResponse::class,
+            StartSession::class,
+            ShareErrorsFromSession::class,
+            VerifyCsrfToken::class,
+            SubstituteBindings::class,
+            HandleAikuPublicInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
         ],
         'public' => [

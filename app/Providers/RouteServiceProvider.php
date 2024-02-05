@@ -37,10 +37,10 @@ class RouteServiceProvider extends ServiceProvider
             ->name('grp.')
             ->group(base_path('routes/grp/web/app.php'));
 
-        Route::middleware('public')
+        Route::middleware('aiku-public')
             ->domain(config('app.domain'))
-            ->name('public.')
-            ->group(base_path('routes/public/web/app.php'));
+            ->name('aiku-public.')
+            ->group(base_path('routes/aiku-public/web/root.php'));
 
 
     }
