@@ -7,6 +7,7 @@
 
 namespace App\Actions\Fulfilment\PalletDelivery;
 
+use App\Actions\Fulfilment\PalletDelivery\Hydrators\HydratePalletDeliveries;
 use App\Actions\Helpers\SerialReference\GetSerialReference;
 use App\Actions\OrgAction;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
@@ -60,8 +61,6 @@ class StorePalletDelivery extends OrgAction
 
         /** @var PalletDelivery $palletDelivery */
         $palletDelivery = $fulfilmentCustomer->palletDeliveries()->create($modelData);
-
-
 
         return $palletDelivery;
     }

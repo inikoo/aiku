@@ -126,16 +126,21 @@ class ShowPalletDelivery extends OrgAction
                                 ]
                             ]
                         ],
-                        /*[
+                        $palletDelivery->number_pallets > 0 ? [
                             'type'    => 'button',
                             'style'   => 'create',
-                            'tooltip' => __('upload stored items'),
-                            'label'   => __('upload stored items'),
+                            'tooltip' => __('submit'),
+                            'label'   => __('submit'),
                             'route'   => [
-                                'name'       => 'grp.fulfilment.stored-items.create', // TODO Create Action for upload CSV/XLSX
-                                'parameters' => [$palletDelivery->slug]
+                                'name'       => 'grp.models.fulfilment-customer.pallet-delivery.submit',
+                                'parameters' => [
+                                    'organisation'       => $palletDelivery->organisation->slug,
+                                    'fulfilment'         => $palletDelivery->fulfilment->slug,
+                                    'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->id,
+                                    'palletDelivery'     => $palletDelivery->reference
+                                ]
                             ]
-                        ],*/
+                        ] : [],
                     ]
                 ],
 
