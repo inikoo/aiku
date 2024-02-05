@@ -33,6 +33,7 @@ const props = withDefaults(defineProps<{
 const emits = defineEmits<{
     (e: 'update:modelValue', value: string): void
     (e: 'blur', value: string): void
+    (e: 'onEnter', value: string): void
 }>()
 
 const showPassword = ref(props.type)  // default is type = "text"
@@ -60,6 +61,7 @@ defineExpose({
                 :value="modelValue"
                 @blur ="(event: any) => emits('blur', event.target.value)"
                 @input="(event: any) => emits('update:modelValue', event.target.value)"
+                @keyup.enter="(event: any) => emits('onEnter', event.target.value)"
                 :id="inputName"
                 :name="inputName"
                 :readonly="readonly"

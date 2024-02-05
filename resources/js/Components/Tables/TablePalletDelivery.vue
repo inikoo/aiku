@@ -5,7 +5,6 @@
   -->
 
 <script setup lang="ts">
-import { Link } from '@inertiajs/vue3';
 import Table from '@/Components/Table/Table.vue';
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { library } from "@fortawesome/fontawesome-svg-core";
@@ -14,6 +13,7 @@ import { faSignOutAlt } from '@fal';
 import PureInput from '@/Components/Pure/PureInput.vue';
 import { useLayoutStore } from '@/Stores/layout';
 import axios from 'axios';
+import { notify } from '@kyvg/vue3-notification'
 
 library.add(
     faTrashAlt, faSignOutAlt
@@ -41,6 +41,12 @@ const onSave = async (id, value) => {
         )
     } catch (error: any) {
         console.log(error)
+        if(error.response.data.message)
+        notify({
+            title: 'Failed to update',
+            text: error.response.data.message,
+            type: "error"
+        })
     }
 }
 
@@ -50,14 +56,21 @@ const onSave = async (id, value) => {
     <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(customer_reference)="{ item: item }">
             <div v-if="state == 'in-process'">
-                <PureInput v-model="item.customer_reference"
-                    @blur="(value) => onSave(item.id, { customer_reference: value })" />
+                <PureInput 
+                    v-model="item.customer_reference"
+                    @blur="(value) => onSave(item.id, { customer_reference: value })" 
+                    @onEnter="(value) => onSave(item.id, { notes: value })"
+                />
             </div>
             <div v-else>{{ item.customer_reference }}</div>
         </template>
         <template #cell(notes)="{ item: item }">
             <div v-if="state == 'in-process'">
-                <PureInput v-model="item.notes" @blur="(value) => onSave(item.id, { notes: value })" />
+                <PureInput 
+                    v-model="item.notes" 
+                    @blur="(value) => onSave(item.id, { notes: value })"  
+                    @onEnter="(value) => onSave(item.id, { notes: value })"
+                />
             </div>
             <div v-else>{{ item.notes }}</div>
         </template>
