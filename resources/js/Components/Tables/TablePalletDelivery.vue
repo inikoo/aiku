@@ -31,10 +31,7 @@ const onSave = async (id, value) => {
         await axios.patch(
             route("grp.models.fulfilment-customer.pallet-delivery.pallet.update",
                 {
-                    organisation: params.organisation,
-                    fulfilment: params.fulfilment,
-                    fulfilmentCustomer: params.fulfilmentCustomer,
-                    palletDelivery: params.palletDelivery,
+                   ...params,
                     pallet: id
                 }),
             value,

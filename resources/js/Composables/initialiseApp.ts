@@ -25,7 +25,7 @@ export const initialiseApp = () => {
         echoPersonal.subscribe(usePage().props.auth.user.id)
 
         router.on('navigate', (event) => {
-            layout.currentParams = route().params  // current params
+            layout.currentParams = route().v().params  // current params
             layout.currentRoute = route().current()  // current route
 
             const currentRouteSplit = layout.currentRoute.split('.')  // to handle grp with route grp.xxx.zzz with org with route grp.org.xxx.zzz
