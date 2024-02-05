@@ -28,7 +28,7 @@ class DeletePallet extends OrgAction
     {
         $pallet->delete();
 
-        HydratePalletDeliveries::dispatch($pallet->palletDelivery);
+        HydratePalletDeliveries::run($pallet->palletDelivery);
 
         return true;
     }

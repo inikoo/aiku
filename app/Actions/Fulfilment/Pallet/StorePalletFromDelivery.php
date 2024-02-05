@@ -38,7 +38,7 @@ class StorePalletFromDelivery extends OrgAction
         /** @var Pallet $pallet */
         $pallet = $palletDelivery->pallets()->create($modelData);
 
-        HydratePalletDeliveries::dispatch($palletDelivery);
+        HydratePalletDeliveries::run($palletDelivery);
 
         return $pallet;
     }

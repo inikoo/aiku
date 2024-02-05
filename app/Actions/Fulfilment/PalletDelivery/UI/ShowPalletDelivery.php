@@ -147,7 +147,7 @@ class ShowPalletDelivery extends OrgAction
                             'tooltip' => __('submit'),
                             'label'   => __('submit'),
                             'route'   => [
-                                'method' => 'post',
+                                'method'     => 'post',
                                 'name'       => 'grp.models.fulfilment-customer.pallet-delivery.submit',
                                 'parameters' => [
                                     'organisation'       => $palletDelivery->organisation->slug,

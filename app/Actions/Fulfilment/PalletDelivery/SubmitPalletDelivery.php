@@ -15,7 +15,6 @@ use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
 class SubmitPalletDelivery extends OrgAction
@@ -26,7 +25,7 @@ class SubmitPalletDelivery extends OrgAction
     public function handle(PalletDelivery $palletDelivery, array $modelData): PalletDelivery
     {
         $modelData['submitted_at'] = now();
-        $modelData['state'] = PalletDeliveryStateEnum::SUBMITTED;
+        $modelData['state']        = PalletDeliveryStateEnum::SUBMITTED;
 
         return $this->update($palletDelivery, $modelData);
     }

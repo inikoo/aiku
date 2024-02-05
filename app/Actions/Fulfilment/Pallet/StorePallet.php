@@ -74,7 +74,7 @@ class StorePallet extends OrgAction
         }
 
         if($this->parent instanceof PalletDelivery) {
-            HydratePalletDeliveries::dispatch($this->parent);
+            HydratePalletDeliveries::run($this->parent);
         }
         FulfilmentCustomerHydratePallets::dispatch($fulfilmentCustomer);
         OrganisationHydrateFulfilmentCustomers::dispatch($fulfilmentCustomer->organisation);
