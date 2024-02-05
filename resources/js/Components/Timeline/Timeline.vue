@@ -7,7 +7,6 @@ import 'swiper/css/navigation'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faCalendarAlt, faSparkles, faSpellCheck, faSeedling,  } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { get } from 'lodash'
 import { useFormatTime } from '@/Composables/useFormatTime';
 /* import { useFormatTime } from '@/Composables/useFormatTime'; */
 library.add(faCalendarAlt, faSparkles, faSpellCheck, faSeedling)
@@ -19,6 +18,8 @@ const props = defineProps<{
         timestamp: string
     }[]
     state?:string
+    width?:string | Number
+    slidesPerView?: Number
 }>()
 
 
@@ -34,10 +35,10 @@ const stepsWithIndex = (() => {
 const computeSetupState = (step: object) => {
     const foundState = finalOptions.value.find((item) => item.key === props.state)
     const set = step.key == props.state || step.index < foundState.index
-    return ( step.timestamp || set )
+    return set 
 }
 
-watch(() => props.state, () => {
+watch(() => props.state, (newData) => {
   stepsWithIndex()
 })
 
@@ -47,13 +48,13 @@ onBeforeMount(stepsWithIndex)
 </script>
 
 <template>
-    <div class="w-full py-6 flex flex-col isolate border-b border-gray-200">
+    <div class="w-full py-6 flex flex-col isolate">
         <Swiper ref="_swiperRef"
             :slideToClickedSlide="false"
-            :slidesPerView="4"
+            :slidesPerView="slidesPerView"
             :centerInsufficientSlides="true"
             :pagination="{ clickable: true, }"
-            class="w-full h-fit mx-12 px-12"
+            class="w-full h-fit"
         >
             <template v-for="(step, stepIndex) in finalOptions" :key="stepIndex">
                 <SwiperSlide>
