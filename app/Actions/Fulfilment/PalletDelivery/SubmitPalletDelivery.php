@@ -16,34 +16,20 @@ use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdatePalletDeliveryTimeline extends OrgAction
+class SubmitPalletDelivery extends OrgAction
 {
     use WithActionUpdate;
 
 
     public function handle(PalletDelivery $palletDelivery, array $modelData): PalletDelivery
     {
-        match ($modelData['state']) {
-            PalletDeliveryStateEnum::IN_PROCESS->value     => $modelData['in_process_at']           = now(),
-            PalletDeliveryStateEnum::SUBMITTED->value      => $modelData['submitted_at']            = now(),
-            PalletDeliveryStateEnum::CONFIRMED->value      => $modelData['confirmed_at']            = now(),
-            PalletDeliveryStateEnum::RECEIVED->value       => $modelData['received_at']             = now(),
-            PalletDeliveryStateEnum::DONE->value           => $modelData['done_at']                 = now(),
-            default                                        => null
-        };
+        $modelData['submitted_at'] = now();
+        $modelData['state']        = PalletDeliveryStateEnum::SUBMITTED;
 
         $palletDelivery->pallets()->update([
-            'state' => match ($modelData['state']) {
-                PalletDeliveryStateEnum::IN_PROCESS->value     => PalletStateEnum::IN_PROCESS,
-                PalletDeliveryStateEnum::SUBMITTED->value      => PalletStateEnum::SUBMITTED,
-                PalletDeliveryStateEnum::CONFIRMED->value      => PalletStateEnum::BOOKED_IN,
-                PalletDeliveryStateEnum::RECEIVED->value       => PalletStateEnum::RECEIVED,
-                PalletDeliveryStateEnum::DONE->value           => PalletStateEnum::SETTLED,
-                default                                        => null
-            }
+            'state' => PalletStateEnum::SUBMITTED
         ]);
 
         return $this->update($palletDelivery, $modelData);
@@ -52,13 +38,6 @@ class UpdatePalletDeliveryTimeline extends OrgAction
     public function authorize(ActionRequest $request): bool
     {
         return $request->user()->hasPermissionTo("fulfilments.{$this->fulfilment->id}.edit");
-    }
-
-    public function rules(): array
-    {
-        return [
-            'state' => ['required', Rule::in(PalletDeliveryStateEnum::values())],
-        ];
     }
 
     public function jsonResponse(PalletDelivery $palletDelivery): JsonResource

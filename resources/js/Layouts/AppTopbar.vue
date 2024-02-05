@@ -71,7 +71,7 @@ const label = {
                             class="hidden md:flex flex-nowrap items-center h-full overflow-hidden gap-x-1.5 transition-all duration-200 ease-in-out"
                             :class="[layoutStore.leftSidebar.show ? 'py-1 pl-4' : 'pl-2.5 w-full']"
                         >
-                            <Image :src="layoutStore.organisations.data.find((item) => item.slug == layoutStore.currentParams.organisation)?.logo || layoutStore.group?.logo" class="aspect-square h-5"/>
+                            <Image :src="layoutStore.organisations.data.find((item) => item.slug == (layoutStore.currentParams?.organisation || false))?.logo || layoutStore.group?.logo" class="aspect-square h-5"/>
                             <Transition name="slide-to-left">
                                 <p v-if="layoutStore.leftSidebar.show" class="bg-gradient-to-r from-white to-indigo-100 text-transparent text-lg bg-clip-text font-bold whitespace-nowrap leading-none lg:truncate">
                                     Aiku
@@ -96,9 +96,9 @@ const label = {
                             <!-- Dropdown: Organisations -->
                             <Menu v-if="layoutStore.group || (layoutStore.organisations.data.length > 1 ? true : false)" as="div" class="relative inline-block text-left">
                                 <TopbarSelectButton
-                                    :icon="layoutStore.currentParams.organisation ? 'fal fa-building' : 'fal fa-city'"
-                                    :activeButton="!!(layoutStore.organisations.data.find((item) => item.slug == layoutStore.currentParams.organisation))"
-                                    :label="layoutStore.organisations.data.find((item) => item.slug == layoutStore.currentParams.organisation)?.label ?? label.organisationSelect"
+                                    :icon="layoutStore.currentParams?.organisation ? 'fal fa-building' : 'fal fa-city'"
+                                    :activeButton="!!(layoutStore.organisations.data.find((item) => item.slug == layoutStore.currentParams?.organisation))"
+                                    :label="layoutStore.organisations.data.find((item) => item.slug == layoutStore.currentParams?.organisation)?.label ?? label.organisationSelect"
                                 />
                                 <transition>
                                     <MenuItems
@@ -113,7 +113,7 @@ const label = {
                                                 </div>
                                                 <MenuItem v-slot="{ active }">
                                                     <div @click="() => router.visit(route('grp.dashboard.show'))" :class="[
-                                                        !layoutStore.currentParams.organisation ? 'bg-slate-300 text-slate-600' : active ? 'bg-slate-200/75 text-indigo-600' : 'text-slate-600']"
+                                                        !layoutStore.currentParams?.organisation ? 'bg-slate-300 text-slate-600' : active ? 'bg-slate-200/75 text-indigo-600' : 'text-slate-600']"
                                                         class="group flex w-full gap-x-2 items-center rounded pl-3 pr-2 py-2 text-sm cursor-pointer"
                                                     >
                                                         <FontAwesomeIcon icon='fal fa-city' class='' ariaa-hidden='true' />
@@ -135,7 +135,7 @@ const label = {
                                                 <div class="max-h-52 overflow-y-auto space-y-1.5">
                                                     <MenuItem v-for="(item) in layoutStore.organisations.data" v-slot="{ active }">
                                                         <div @click="() => router.visit(route('grp.org.dashboard.show', { organisation: item.slug }))" :class="[
-                                                            item.slug == layoutStore.currentParams.organisation ? 'bg-slate-300 text-slate-600' : 'text-slate-600 hover:bg-slate-200/75 hover:text-indigo-600',
+                                                            item.slug == layoutStore.currentParams?.organisation ? 'bg-slate-300 text-slate-600' : 'text-slate-600 hover:bg-slate-200/75 hover:text-indigo-600',
                                                             'group flex gap-x-2 w-full justify-start items-center rounded pl-2 pr-4 py-2 text-sm cursor-pointer',
                                                         ]">
                                                             <div class="h-5 aspect-square rounded-full overflow-hidden ring-1 ring-slate-200 bg-slate-50">
@@ -154,7 +154,7 @@ const label = {
                             
                             <!-- {{ layoutStore.isShopPage && layoutStore.organisationsState[layoutStore.currentParams.organisation].currentShop }} -->
                             <!-- Dropdown: Shops and Fulfilment-->
-                            <Menu v-if="layoutStore.isShopPage || layoutStore.isFulfilmentPage"
+                            <Menu v-if="layoutStore.currentParams?.organisation && (layoutStore.isShopPage || layoutStore.isFulfilmentPage)"
                                 as="div" class="relative inline-block text-left"
                                 v-slot="{ close: closeMenu }"
                             >
@@ -185,7 +185,7 @@ const label = {
                             </Menu>
 
                             <!-- Dropdown: Warehouse -->
-                            <Menu v-if="Object.keys(layoutStore.navigation.org[layoutStore.currentParams.organisation]?.warehouses_navigation || []).length > 1 && (route(layoutStore.currentRoute, layoutStore.currentParams)).includes('warehouses')"
+                            <Menu v-if="layoutStore.currentParams?.organisation && Object.keys(layoutStore.navigation.org[layoutStore.currentParams?.organisation]?.warehouses_navigation || []).length > 1 && (route(layoutStore.currentRoute, layoutStore.currentParams)).includes('warehouses')"
                                 as="div" class="relative inline-block text-left"
                                 v-slot="{ close: closeMenu }"
                             >

@@ -7,6 +7,7 @@
 
 namespace App\Actions\Fulfilment\Pallet;
 
+use App\Actions\Fulfilment\PalletDelivery\Hydrators\HydratePalletDeliveries;
 use App\Actions\OrgAction;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
@@ -37,6 +38,7 @@ class StorePalletFromDelivery extends OrgAction
         /** @var Pallet $pallet */
         $pallet = $palletDelivery->pallets()->create($modelData);
 
+        HydratePalletDeliveries::run($palletDelivery);
 
         return $pallet;
     }

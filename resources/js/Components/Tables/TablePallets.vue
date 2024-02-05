@@ -52,9 +52,5 @@ function customerRoute(pallet: Customer) {
         <template #cell(state)="{ item: pallet }">
             <Icon :data="pallet['state_icon']" class="px-1"/>
         </template>
-
-        <template #cell(actions)="{ item: pallet }">
-            <font-awesome-icon class="text-red-600" :icon="['far', 'trash-alt']" />
-        </template>
     </Table>
 </template>

@@ -29,10 +29,11 @@ class PalletDeliveryResource extends JsonResource
         }
 
         return [
-            'id'        => $palletDelivery->id,
-            'reference' => $palletDelivery->reference,
-            'state'     => $palletDelivery->state,
-            'timeline'  => $timeline
+            'id'               => $palletDelivery->id,
+            'reference'        => $palletDelivery->reference,
+            'state'            => $palletDelivery->state,
+            'timeline'         => $timeline,
+            'number_pallets'   => $palletDelivery->number_pallets,
         ];
     }
 }

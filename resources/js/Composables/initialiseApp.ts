@@ -25,32 +25,34 @@ export const initialiseApp = () => {
         echoPersonal.subscribe(usePage().props.auth.user.id)
 
         router.on('navigate', (event) => {
-            layout.currentParams = route().params  // current params
+            layout.currentParams = route().v().params  // current params
             layout.currentRoute = route().current()  // current route
 
             const currentRouteSplit = layout.currentRoute.split('.')  // to handle grp with route grp.xxx.zzz with org with route grp.org.xxx.zzz
             layout.currentModule = currentRouteSplit[1] == 'org' ? layout.currentRoute.split('.')[2] : layout.currentRoute.split('.')[1]  // grp.org.xxx.yyy.zzz to xxx
 
-            // Set current shop, current warehouse, current fulfilment
-            layout.organisationsState = {
-                ...layout.organisationsState,
-                [layout.currentParams.organisation]: {
-                    currentShop: route().params.shop ?? layout.organisationsState?.[layout.currentParams.organisation]?.currentShop,
-                    currentWarehouse: route().params.warehouse ?? layout.organisationsState?.[layout.currentParams.organisation]?.currentWarehouse,
-                    currentFulfilment: route().params.fulfilment ?? layout.organisationsState?.[layout.currentParams.organisation]?.currentFulfilment,
-                    currentType: route().params.shop ? 'shop' : route().params.fulfilment ? 'fulfilment' : layout.organisationsState?.[layout.currentParams.organisation]?.currentType
+            if(layout.currentParams?.organisation) {
+                // Set current shop, current warehouse, current fulfilment
+                layout.organisationsState = {
+                    ...layout.organisationsState,
+                    [layout.currentParams.organisation]: {
+                        currentShop: route().params.shop ?? layout.organisationsState?.[layout.currentParams.organisation]?.currentShop,
+                        currentWarehouse: route().params.warehouse ?? layout.organisationsState?.[layout.currentParams.organisation]?.currentWarehouse,
+                        currentFulfilment: route().params.fulfilment ?? layout.organisationsState?.[layout.currentParams.organisation]?.currentFulfilment,
+                        currentType: route().params.shop ? 'shop' : route().params.fulfilment ? 'fulfilment' : layout.organisationsState?.[layout.currentParams.organisation]?.currentType
+                    }
                 }
-            }
 
-            localStorage.setItem('layout', JSON.stringify({
-                ...storageLayout,
-                [layout.currentParams.organisation]: {
-                    currentShop: layout.organisationsState?.[layout.currentParams.organisation]?.currentShop,
-                    currentWarehouse: layout.organisationsState?.[layout.currentParams.organisation]?.currentWarehouse,
-                    currentFulfilment: layout.organisationsState?.[layout.currentParams.organisation]?.currentFulfilment,
-                    currentType: layout.organisationsState?.[layout.currentParams.organisation]?.currentType
-                }
-            }))
+                localStorage.setItem('layout', JSON.stringify({
+                    ...storageLayout,
+                    [layout.currentParams.organisation]: {
+                        currentShop: layout.organisationsState?.[layout.currentParams.organisation]?.currentShop,
+                        currentWarehouse: layout.organisationsState?.[layout.currentParams.organisation]?.currentWarehouse,
+                        currentFulfilment: layout.organisationsState?.[layout.currentParams.organisation]?.currentFulfilment,
+                        currentType: layout.organisationsState?.[layout.currentParams.organisation]?.currentType
+                    }
+                }))
+            }
 
             // console.log('qq', usePage().props.auth.user)
 

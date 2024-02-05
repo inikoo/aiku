@@ -23,7 +23,8 @@ class PalletDeliveriesResource extends JsonResource
             'state_label'        => $palletDelivery->state->labels()[$palletDelivery->state->value],
             'state_icon'         => $palletDelivery->state->stateIcon()[$palletDelivery->state->value],
             'pallets'            => $palletDelivery->number_pallets,
-            'customer_reference' => $palletDelivery->customer_reference
+            'customer_reference' => $palletDelivery->customer_reference,
+            'number_pallets'     => $palletDelivery->number_pallets
         ];
     }
 }

@@ -18,7 +18,7 @@ const bottomNavigation = computed(() => [
     //     show: layout.group ? true : false,
     //     icon: 'fal fa-city',
     //     label: 'Group',
-    //     activeState: !layout.currentParams.organisation,
+    //     activeState: !layout.currentParams?.organisation,
     //     data: [{
     //         label: layout.group?.label,
     //         route: {
@@ -32,38 +32,38 @@ const bottomNavigation = computed(() => [
         show: layout.organisations.data?.length > 1 ? true : false,
         icon: 'fal fa-building',
         label: 'Organisations',
-        activeState: layout.currentParams.organisation ?? false,
+        activeState: layout.currentParams?.organisation ?? false,
         data: layout.organisations.data,
     },
     {
         // Shops
-        show: (layout.currentParams.organisation && (layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_shops?.length > 1)) ?? false,
+        show: (layout.currentParams?.organisation && (layout.organisations.data.find(organisation => organisation.slug == layout.currentParams?.organisation)?.authorised_shops?.length > 1)) ?? false,
         icon: 'fal fa-store-alt',
         label: 'Shops',
-        activeState: layout.organisationsState?.[layout.currentParams.organisation]?.currentShop,
+        activeState: layout.organisationsState?.[layout.currentParams?.organisation]?.currentShop,
         showAll: {
             label: 'Show all shops',
             route: {
-                name: layout.navigation.org?.[layout.currentParams.organisation]?.shops_index?.route.name,
-                parameters: layout.navigation.org?.[layout.currentParams.organisation]?.shops_index?.route.parameters
+                name: layout.navigation.org?.[layout.currentParams?.organisation]?.shops_index?.route.name,
+                parameters: layout.navigation.org?.[layout.currentParams?.organisation]?.shops_index?.route.parameters
             }
         },
-        data: layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_shops,
+        data: layout.organisations.data.find(organisation => organisation.slug == layout.currentParams?.organisation)?.authorised_shops,
     },
     {
         // Warehouses
-        show: (layout.currentParams.organisation && (layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_warehouses.length > 1)) ?? false,
+        show: (layout.currentParams?.organisation && (layout.organisations.data.find(organisation => organisation.slug == layout.currentParams?.organisation)?.authorised_warehouses.length > 1)) ?? false,
         icon: 'fal fa-warehouse-alt',
         label: 'Warehouses',
         activeState: layout.organisationsState.currentWarehouse,
         showAll: {
             label: 'Show all warehouses',
             route: {
-                name: layout.navigation.org?.[layout.currentParams.organisation]?.warehouses_index?.route?.name,
-                parameters: layout.navigation.org?.[layout.currentParams.organisation]?.warehouses_index?.route?.parameters
+                name: layout.navigation.org?.[layout.currentParams?.organisation]?.warehouses_index?.route?.name,
+                parameters: layout.navigation.org?.[layout.currentParams?.organisation]?.warehouses_index?.route?.parameters
             }
         },
-        data: layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_warehouses,
+        data: layout.organisations.data.find(organisation => organisation.slug == layout.currentParams?.organisation)?.authorised_warehouses,
     }
 ])
 // console.log(layout.group)

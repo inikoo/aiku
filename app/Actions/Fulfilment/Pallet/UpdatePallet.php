@@ -7,15 +7,15 @@
 
 namespace App\Actions\Fulfilment\Pallet;
 
-use App\Actions\Fulfilment\StoredItem\Hydrators\StoredItemHydrateUniversalSearch;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
-use App\Http\Resources\Fulfilment\StoredItemResource;
-use App\Models\Fulfilment\Fulfilment;
+use App\Http\Resources\Fulfilment\PalletResource;
+use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
+use App\Models\Fulfilment\PalletDelivery;
 use App\Models\SysAdmin\Organisation;
 use App\Rules\IUnique;
 use Illuminate\Validation\Rule;
@@ -30,13 +30,8 @@ class UpdatePallet extends OrgAction
 
     public function handle(Pallet $pallet, array $modelData): Pallet
     {
-        $pallet = $this->update($pallet, $modelData, ['data']);
-
-        StoredItemHydrateUniversalSearch::dispatch($pallet);
-
-        return $pallet;
+        return $this->update($pallet, $modelData, ['data']);
     }
-
 
     public function authorize(ActionRequest $request): bool
     {
@@ -59,7 +54,7 @@ class UpdatePallet extends OrgAction
                 new IUnique(
                     table: 'pallets',
                     extraConditions: [
-                        ['column' => 'customer_id', 'value' => $this->pallet->customer->id],
+                        ['column' => 'fulfilment_customer_id', 'value' => $this->pallet->fulfilmentCustomer->id],
                         [
                             'column'   => 'id',
                             'operator' => '!=',
@@ -87,10 +82,10 @@ class UpdatePallet extends OrgAction
         ];
     }
 
-    public function asController(Organisation $organisation, Fulfilment $fulfilment, Pallet $pallet, ActionRequest $request): Pallet
+    public function asController(Organisation $organisation, FulfilmentCustomer $fulfilmentCustomer, PalletDelivery $palletDelivery, Pallet $pallet, ActionRequest $request): Pallet
     {
         $this->pallet = $pallet;
-        $this->initialisationFromFulfilment($fulfilment, $request);
+        $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $request);
 
         return $this->handle($pallet, $this->validateAttributes());
     }
@@ -105,8 +100,8 @@ class UpdatePallet extends OrgAction
         return $this->handle($pallet, $this->validatedData);
     }
 
-    public function jsonResponse(Pallet $pallet): StoredItemResource
+    public function jsonResponse(Pallet $pallet): PalletResource
     {
-        return new StoredItemResource($pallet);
+        return new PalletResource($pallet);
     }
 }

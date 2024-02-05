@@ -8,6 +8,7 @@
 namespace App\Actions\Fulfilment\Pallet;
 
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydratePallets;
+use App\Actions\Fulfilment\PalletDelivery\Hydrators\HydratePalletDeliveries;
 use App\Actions\Helpers\SerialReference\GetSerialReference;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateFulfilmentCustomers;
@@ -72,7 +73,9 @@ class StorePallet extends OrgAction
             $pallet->save();
         }
 
-
+        if($this->parent instanceof PalletDelivery) {
+            HydratePalletDeliveries::run($this->parent);
+        }
         FulfilmentCustomerHydratePallets::dispatch($fulfilmentCustomer);
         OrganisationHydrateFulfilmentCustomers::dispatch($fulfilmentCustomer->organisation);
 

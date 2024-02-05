@@ -126,22 +126,6 @@ const originUrl = location.origin
                     <slot v-if="action.type == 'button'" :name="`button-${kebabCase(action.label)}`" :action="{ action }">
                         <Action v-if="action" :action="action" :dataToSubmit="dataToSubmit"/>
                     </slot>
-                    <slot v-if="action.type == 'buttonGroup'" :name="`button-${kebabCase(action.label)}`" :action="{ action }">
-                        <div class="rounded overflow-hidden ring-1 ring-gray-400 flex">
-                        <div v-for="(button, index) in action.data">            
-                            <slot :name="`button-${kebabCase(action.label)}`" :action="{ button }">
-                                <Link 
-                                    :href="`${route(button.route.name, button.route.parameters)}`" class=""
-                                    :method="button.method ?? 'get'"
-                                >
-                                    <Button :style="button.style" :label="button.label" :icon="button.icon"
-                                        class="capitalize inline-flex items-center h-full rounded-none text-sm border-none font-medium shadow-sm focus:ring-transparent focus:ring-offset-transparent focus:ring-0">
-                                    </Button>
-                                </Link>
-                            </slot>
-                        </div>
-                       </div>
-                    </slot>
                 </div>
                 <slot name="other" :dataPageHead="{ ...props }"/>
             </div>

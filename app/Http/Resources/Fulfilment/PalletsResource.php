@@ -19,6 +19,7 @@ class PalletsResource extends JsonResource
 
         return [
 
+            'id'                 => $pallet->id,
             'reference'          => $pallet->reference,
             'customer_reference' => $pallet->customer_reference,
             'slug'               => $pallet->slug,
@@ -26,6 +27,15 @@ class PalletsResource extends JsonResource
             'state'              => $pallet->state,
             'state_label'        => $pallet->state->labels()[$pallet->state->value],
             'state_icon'         => $pallet->state->stateIcon()[$pallet->state->value],
+            'deleteRoute'        => [
+                'name'   => 'grp.models.fulfilment-customer.pallet-delivery.pallet.delete',
+                'params' => [
+                    'organisation'        => $pallet->fulfilmentCustomer->fulfilment->organisation->slug,
+                    'fulfilmentCustomer'  => $pallet->fulfilmentCustomer->id,
+                    'palletDelivery'      => $pallet->palletDelivery->slug,
+                    'pallet'              => $pallet->id
+                ]
+            ],
         ];
     }
 }
