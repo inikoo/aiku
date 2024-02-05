@@ -7,15 +7,12 @@
 
 namespace App\Actions\Fulfilment\Pallet;
 
-use App\Actions\Fulfilment\StoredItem\Hydrators\StoredItemHydrateUniversalSearch;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use App\Http\Resources\Fulfilment\PalletResource;
-use App\Http\Resources\Fulfilment\StoredItemResource;
-use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
@@ -33,13 +30,8 @@ class UpdatePallet extends OrgAction
 
     public function handle(Pallet $pallet, array $modelData): Pallet
     {
-        $pallet = $this->update($pallet, $modelData, ['data']);
-
-        StoredItemHydrateUniversalSearch::dispatch($pallet);
-
-        return $pallet;
+        return $this->update($pallet, $modelData, ['data']);
     }
-
 
     public function authorize(ActionRequest $request): bool
     {
