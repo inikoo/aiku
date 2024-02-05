@@ -76,6 +76,20 @@ class Kernel extends HttpKernel
             HandleInertiaGrpRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
         ],
+
+        'app'         => [
+            EncryptCookies::class,
+            AddQueuedCookiesToResponse::class,
+            StartSession::class,
+            ShareErrorsFromSession::class,
+            VerifyCsrfToken::class,
+            SubstituteBindings::class,
+            // HandleInertiaRequests::class,
+            SetLocale::class,
+            LogUserRequestMiddleware::class,
+
+        ],
+
         'aiku-public' => [
             EncryptCookies::class,
             AddQueuedCookiesToResponse::class,
