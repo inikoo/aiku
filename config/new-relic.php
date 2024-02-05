@@ -1,9 +1,23 @@
 <?php
-
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Mon, 05 Feb 2024 11:39:45 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
 
 use App\Http\Middleware\NewRelicMiddleware;
 
 return [
+
+
+    'account_id'     => env('NEW_RELIC_ACCOUNT_ID'),
+    'license_key'    => env('NEW_RELIC_LICENSE_KEY'),
+    'application_id' => [
+        'grp'     => env('NEW_RELIC_APP_ID'),
+        'customer'=> env('NEW_RELIC_APP_CUSTOMER_ID'),
+        'public'  => env('NEW_RELIC_APP_PUBLIC_ID'),
+    ],
+
 
     /*
     |--------------------------------------------------------------------------
