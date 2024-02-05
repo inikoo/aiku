@@ -40,6 +40,7 @@ class StorePalletDelivery extends OrgAction
         data_set($modelData, 'group_id', $fulfilmentCustomer->group_id);
         data_set($modelData, 'organisation_id', $fulfilmentCustomer->organisation_id);
         data_set($modelData, 'fulfilment_id', $fulfilmentCustomer->fulfilment_id);
+        data_set($modelData, 'in_process_at', now());
 
         data_set($modelData, 'ulid', Str::ulid());
 

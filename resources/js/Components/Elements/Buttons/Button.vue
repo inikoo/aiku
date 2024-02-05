@@ -155,7 +155,7 @@ const getActionIcon = (icon: any) => {
             <slot name="loading">
                 <FontAwesomeIcon v-if="loading" icon='fad fa-spinner-third' class='animate-spin' fixed-width  aria-hidden="true"/>
             </slot>
-            <slot name="icon">
+            <slot name="icon" v-if="!loading">
                 <FontAwesomeIcon v-if="getActionIcon(icon)" :icon="getActionIcon(icon)" fixed-width class="" aria-hidden="true"/>
             </slot>
             <span v-if="getActionLabel(label)" class="leading-none" :class="{'capitalize': capitalize}">{{ getActionLabel(label) }}</span>

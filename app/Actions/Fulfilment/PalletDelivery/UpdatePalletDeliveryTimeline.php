@@ -26,11 +26,12 @@ class UpdatePalletDeliveryTimeline extends OrgAction
     public function handle(PalletDelivery $palletDelivery, array $modelData): PalletDelivery
     {
         match ($modelData['state']) {
-            PalletDeliveryStateEnum::IN_PROCESS => $modelData['in_process_at']       = now(),
-            PalletDeliveryStateEnum::READY      => $modelData['ready_at']            = now(),
-            PalletDeliveryStateEnum::RECEIVED   => $modelData['received_at']         = now(),
-            PalletDeliveryStateEnum::DONE       => $modelData['done_at']             = now(),
-            default                             => null
+            PalletDeliveryStateEnum::IN_PROCESS->value     => $modelData['in_process_at']           = now(),
+            PalletDeliveryStateEnum::SUBMITTED->value      => $modelData['submitted_at']            = now(),
+            PalletDeliveryStateEnum::CONFIRMED->value      => $modelData['confirmed_at']            = now(),
+            PalletDeliveryStateEnum::RECEIVED->value       => $modelData['received_at']             = now(),
+            PalletDeliveryStateEnum::DONE->value           => $modelData['done_at']                 = now(),
+            default                                        => null
         };
 
         return $this->update($palletDelivery, $modelData);

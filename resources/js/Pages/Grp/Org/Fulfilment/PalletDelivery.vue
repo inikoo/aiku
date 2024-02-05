@@ -34,7 +34,7 @@ let currentTab = ref(props.tabs.current);
 const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
 const loading = ref(false)
 
-const form = useForm({ notes: '', customer_reference: ''})
+const form = useForm({ notes: '', reference: ''})
 
 const handleFormSubmit = (data: object, closedPopover : Function ) => {
   loading.value = true
@@ -45,7 +45,7 @@ const handleFormSubmit = (data: object, closedPopover : Function ) => {
     preserveScroll: true,
     onSuccess: () => {
       closedPopover()
-      form.reset('notes','customer_reference')
+      form.reset('notes','reference')
       loading.value = false
     },
     onError: (errors) => {
@@ -72,6 +72,7 @@ const updateState = async ( data : object ) => {
             { state : get(data,'key') }
         );
       props.data.data =  response.data.data
+      console.log(response.data.data)
     } catch (error) {
         console.log('error', error)
     }
@@ -94,23 +95,23 @@ console.log('porps',props)
           </template>
           <template #content="{ close: closed }">
             <div class="w-[250px]">
-              <span class="text-xs px-1 my-2">Reference : </span><span class=" decoration-sky-500 text-[10px]">(optional)</span>
+              <span class="text-xs px-1 my-2">Reference : </span>
             <div>
-              <PureInput 
-                 v-model="form.customer_reference" 
+              <PureInput
+                 v-model="form.reference"
                  placeholder="Reference"
               >
               </PureInput>
-              <p v-if="get(form, ['errors','customer_reference'])" class="mt-2 text-sm text-red-600">
-                {{ form.errors.customer_reference }}
+              <p v-if="get(form, ['errors','reference'])" class="mt-2 text-sm text-red-600">
+                {{ form.errors.reference }}
               </p>
             </div>
 
             <div class="mt-3">
-            <span class="text-xs px-1 my-2">Notes : </span><span class=" decoration-sky-500 text-[10px]">(optional)</span>
-              <textarea  
-                 class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" 
-                 v-model="form.notes" 
+            <span class="text-xs px-1 my-2">Notes : </span>
+              <textarea
+                 class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                 v-model="form.notes"
                  placeholder="Notes"
               >
               </textarea>
@@ -118,7 +119,7 @@ console.log('porps',props)
                 {{ form.errors.notes }}
               </p>
             </div>
-             
+
               <div class="flex justify-end mt-3">
                 <Button :style="'save'" :loading="loading" :label="'save'" @click="() => handleFormSubmit( action.action, closed )" />
               </div>
