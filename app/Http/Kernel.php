@@ -73,21 +73,10 @@ class Kernel extends HttpKernel
             VerifyCsrfToken::class,
             BindGroupInstance::class,
             SubstituteBindings::class,
-            HandleInertiaGrpRequests::class,
-            AddLinkHeadersForPreloadedAssets::class,
-        ],
-
-        'app'         => [
-            EncryptCookies::class,
-            AddQueuedCookiesToResponse::class,
-            StartSession::class,
-            ShareErrorsFromSession::class,
-            VerifyCsrfToken::class,
-            SubstituteBindings::class,
-            // HandleInertiaRequests::class,
             SetLocale::class,
             LogUserRequestMiddleware::class,
-
+            HandleInertiaGrpRequests::class,
+            AddLinkHeadersForPreloadedAssets::class,
         ],
 
         'aiku-public' => [
