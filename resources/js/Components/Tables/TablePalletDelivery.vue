@@ -51,12 +51,7 @@ const onSave = async (id : object, value : object) => {
 
 function customerRoute(pallet: object) {
             return route(pallet.deleteRoute.name,
-                {      
-                        organisation       :  route().params['organisation'],
-                        fulfilmentCustomer :  route().params['fulfilmentCustomer'],
-                        palletDelivery     :  route().params['palletDelivery'],
-                        pallet             :  pallet.id,
-                }
+                pallet.deleteRoute.params
             );
 }
 
@@ -69,9 +64,9 @@ console.log('props',props)
     <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(customer_reference)="{ item: item }">
             <div v-if="state == 'in-process'">
-                <PureInput 
+                <PureInput
                     v-model="item.customer_reference"
-                    @blur="(value) => onSave(item.id, { customer_reference: value })" 
+                    @blur="(value) => onSave(item.id, { customer_reference: value })"
                     @onEnter="(value) => onSave(item.id, { notes: value })"
                 />
             </div>
@@ -79,9 +74,9 @@ console.log('props',props)
         </template>
         <template #cell(notes)="{ item: item }">
             <div v-if="state == 'in-process'">
-                <PureInput 
-                    v-model="item.notes" 
-                    @blur="(value) => onSave(item.id, { notes: value })"  
+                <PureInput
+                    v-model="item.notes"
+                    @blur="(value) => onSave(item.id, { notes: value })"
                     @onEnter="(value) => onSave(item.id, { notes: value })"
                 />
             </div>
@@ -91,7 +86,7 @@ console.log('props',props)
             <Link :href="customerRoute(pallet)" method="delete">
                 <font-awesome-icon class="text-red-600" :icon="['far', 'trash-alt']" />
             </Link>
-           
+
         </template>
     </Table>
 </template>
