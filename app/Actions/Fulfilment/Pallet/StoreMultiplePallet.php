@@ -13,7 +13,6 @@ use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
-use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\SysAdmin\Organisation;
 use App\Rules\IUnique;
@@ -128,11 +127,11 @@ class StoreMultiplePallet extends OrgAction
 
     public function htmlResponse(): RedirectResponse
     {
-            return Redirect::route('grp.org.fulfilments.show.crm.customers.show.pallet-deliveries.show', [
-                'organisation'       => $this->organisation->slug,
-                'fulfilment'         => $this->fulfilment->slug,
-                'fulfilmentCustomer' => $this->fulfilmentCustomer->slug,
-                'palletDelivery'     => $this->parent->reference
-            ]);
+        return Redirect::route('grp.org.fulfilments.show.crm.customers.show.pallet-deliveries.show', [
+            'organisation'       => $this->organisation->slug,
+            'fulfilment'         => $this->fulfilment->slug,
+            'fulfilmentCustomer' => $this->fulfilmentCustomer->slug,
+            'palletDelivery'     => $this->parent->reference
+        ]);
     }
 }
