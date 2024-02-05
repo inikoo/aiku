@@ -33,7 +33,6 @@ class StorePalletFromDelivery extends OrgAction
         data_set($modelData, 'fulfilment_id', $palletDelivery->fulfilment_id);
         data_set($modelData, 'fulfilment_customer_id', $palletDelivery->fulfilment_customer_id);
         data_set($modelData, 'warehouse_id', $palletDelivery->warehouse_id);
-        data_set($modelData, 'in_process_at', now());
 
         /** @var Pallet $pallet */
         $pallet = $palletDelivery->pallets()->create($modelData);
