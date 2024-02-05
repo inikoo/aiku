@@ -9,11 +9,13 @@ import Table from '@/Components/Table/Table.vue';
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faTrashAlt } from '@far';
-import { faSignOutAlt } from '@fal';
+import { faGameConsoleHandheld, faSignOutAlt } from '@fal';
 import PureInput from '@/Components/Pure/PureInput.vue';
 import { useLayoutStore } from '@/Stores/layout';
 import axios from 'axios';
 import { notify } from '@kyvg/vue3-notification'
+import PalletDelivery from '@/Pages/Grp/Org/Fulfilment/PalletDelivery.vue';
+import {Link} from '@inertiajs/vue3';
 
 library.add(
     faTrashAlt, faSignOutAlt
@@ -25,7 +27,7 @@ const props = defineProps<{
 }>()
 
 
-const onSave = async (id, value) => {
+const onSave = async (id : object, value : object) => {
     const params = useLayoutStore().currentParams
     try {
         await axios.patch(
@@ -46,6 +48,20 @@ const onSave = async (id, value) => {
         })
     }
 }
+
+function customerRoute(pallet: object) {
+            return route(pallet.deleteRoute.name,
+                {      
+                        organisation       :  route().params['organisation'],
+                        fulfilmentCustomer :  route().params['fulfilmentCustomer'],
+                        palletDelivery     :  route().params['palletDelivery'],
+                        pallet             :  pallet.id,
+                }
+            );
+}
+
+
+console.log('props',props)
 
 </script>
 
@@ -72,7 +88,10 @@ const onSave = async (id, value) => {
             <div v-else>{{ item.notes }}</div>
         </template>
         <template #cell(actions)="{ item: pallet }">
-            <font-awesome-icon class="text-red-600" :icon="['far', 'trash-alt']" />
+            <Link :href="customerRoute(pallet)" method="delete">
+                <font-awesome-icon class="text-red-600" :icon="['far', 'trash-alt']" />
+            </Link>
+           
         </template>
     </Table>
 </template>
