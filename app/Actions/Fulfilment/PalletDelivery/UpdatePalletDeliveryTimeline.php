@@ -9,6 +9,7 @@ namespace App\Actions\Fulfilment\PalletDelivery;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
+use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Http\Resources\Fulfilment\PalletDeliveryResource;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -33,6 +34,17 @@ class UpdatePalletDeliveryTimeline extends OrgAction
             PalletDeliveryStateEnum::DONE->value           => $modelData['done_at']                 = now(),
             default                                        => null
         };
+
+        $palletDelivery->pallets()->update([
+            'state' => match ($modelData['state']) {
+                PalletDeliveryStateEnum::IN_PROCESS->value     => PalletStateEnum::IN_PROCESS,
+                PalletDeliveryStateEnum::SUBMITTED->value      => PalletStateEnum::SUBMITTED,
+                PalletDeliveryStateEnum::CONFIRMED->value      => PalletStateEnum::BOOKED_IN,
+                PalletDeliveryStateEnum::RECEIVED->value       => PalletStateEnum::RECEIVED,
+                PalletDeliveryStateEnum::DONE->value           => PalletStateEnum::SETTLED,
+                default                                        => null
+            }
+        ]);
 
         return $this->update($palletDelivery, $modelData);
     }

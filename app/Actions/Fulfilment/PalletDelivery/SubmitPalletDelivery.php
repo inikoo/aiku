@@ -9,6 +9,7 @@ namespace App\Actions\Fulfilment\PalletDelivery;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
+use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Http\Resources\Fulfilment\PalletDeliveryResource;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -26,6 +27,10 @@ class SubmitPalletDelivery extends OrgAction
     {
         $modelData['submitted_at'] = now();
         $modelData['state']        = PalletDeliveryStateEnum::SUBMITTED;
+
+        $palletDelivery->pallets()->update([
+            'state' => PalletStateEnum::SUBMITTED
+        ]);
 
         return $this->update($palletDelivery, $modelData);
     }
