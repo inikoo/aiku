@@ -8,7 +8,7 @@
 import { Link } from "@inertiajs/vue3"
 
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { } from '@fal'
+import { faTruckCouch } from '@fal'
 import { } from '@far'
 import { } from '@fas'
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
@@ -20,12 +20,13 @@ import SubNavigation from "@//Components/Navigation/SubNavigation.vue"
 import { Action as ActionTS } from "@/types/Action"
 import { routeType } from '@/types/route'
 import { kebabCase } from 'lodash'
+import Button from "../Elements/Buttons/Button.vue"
 
 interface Icon {
     icon: string[] | string
 }
 
-library.add()
+library.add(faTruckCouch)
 
 const props = defineProps<{
     data: {
@@ -119,14 +120,30 @@ const originUrl = location.origin
         </div>
 
         <!-- Section: Button and/or ButtonGroup -->
-        <slot name="button" :dataPageHead="{...props }">
+        <slot name="button" :dataPageHead="{ ...props }">
             <div class="flex items-center gap-2">
                 <div v-for="action in data.actions">
-                    <slot :name="`button-${kebabCase(action.label)}`" :action="{ action }">
+                    <slot v-if="action.type == 'button'" :name="`button-${kebabCase(action.label)}`" :action="{ action }">
                         <Action v-if="action" :action="action" :dataToSubmit="dataToSubmit"/>
-                        </slot>
-                    </div>
-                <slot name="other" :dataPageHead="{...props }"/>
+                    </slot>
+                    <slot v-if="action.type == 'buttonGroup'" :name="`button-${kebabCase(action.label)}`" :action="{ action }">
+                        <div class="rounded overflow-hidden ring-1 ring-gray-400 flex">
+                        <div v-for="(button, index) in action.data">            
+                            <slot :name="`button-${kebabCase(action.label)}`" :action="{ button }">
+                                <Link 
+                                    :href="`${route(button.route.name, button.route.parameters)}`" class=""
+                                    :method="button.method ?? 'get'"
+                                >
+                                    <Button :style="button.style" :label="button.label" :icon="button.icon"
+                                        class="capitalize inline-flex items-center h-full rounded-none text-sm border-none font-medium shadow-sm focus:ring-transparent focus:ring-offset-transparent focus:ring-0">
+                                    </Button>
+                                </Link>
+                            </slot>
+                        </div>
+                       </div>
+                    </slot>
+                </div>
+                <slot name="other" :dataPageHead="{ ...props }"/>
             </div>
         </slot>
     </div>
