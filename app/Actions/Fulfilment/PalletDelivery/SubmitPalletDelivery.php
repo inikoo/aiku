@@ -26,6 +26,7 @@ class SubmitPalletDelivery extends OrgAction
     public function handle(PalletDelivery $palletDelivery, array $modelData): PalletDelivery
     {
         $modelData['submitted_at'] = now();
+        $modelData['state'] = PalletDeliveryStateEnum::SUBMITTED;
 
         return $this->update($palletDelivery, $modelData);
     }
@@ -33,13 +34,6 @@ class SubmitPalletDelivery extends OrgAction
     public function authorize(ActionRequest $request): bool
     {
         return $request->user()->hasPermissionTo("fulfilments.{$this->fulfilment->id}.edit");
-    }
-
-    public function rules(): array
-    {
-        return [
-            'state' => ['required', Rule::in(PalletDeliveryStateEnum::values())],
-        ];
     }
 
     public function jsonResponse(PalletDelivery $palletDelivery): JsonResource
