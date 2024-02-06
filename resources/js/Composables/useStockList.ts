@@ -42,3 +42,11 @@ export const useHeadlineText = () => {
         'Market Trends Review.',
     ]
 }
+
+// 0: Leftsidebar, 1: NavigationSimple, 2: Text for LeftSideber, 3: Navigation & underline, 4: Text for Navigation, 5: -
+export const useColorTheme = [
+    ['#4f46e5', '#f3f4f6', '#4f46e5', '#facc15', '#334155', '#64748b'],
+    ['#f59e0b', '#ffffff', '#f59e0b', '#a3e635', '#334155', '#e2e8f0'],
+    ['#334155', '#ffffff', '#334155', '#38bdf8', '#334155', '#cbd5e1'],
+    ['#EEF5DB', '#64748b', '#ffffff', '#FE5F55', '#334155', '#b8d8d8'],
+]
