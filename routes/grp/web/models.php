@@ -27,6 +27,7 @@ use App\Actions\Market\Shop\StoreShop;
 use App\Actions\SysAdmin\Organisation\StoreOrganisation;
 use App\Actions\UI\Profile\GetProfileAppLoginQRCode;
 use App\Actions\UI\Profile\UpdateProfile;
+use App\Actions\Web\Website\StoreWebsite;
 use Illuminate\Support\Facades\Route;
 
 Route::patch('/profile', UpdateProfile::class)->name('profile.update');
@@ -59,8 +60,12 @@ Route::name('fulfilment-customer.')->prefix('fulfilment-customer/{fulfilmentCust
 
 Route::name('shop.')->prefix('shop/{shop}')->group(function () {
     Route::post('prospect/upload', [ImportShopProspects::class, 'inShop'])->name('prospects.upload');
+    Route::post('website', StoreWebsite::class)->name('website.store');
 });
 
+Route::name('fulfilment.')->prefix('fulfilment/{fulfilment}')->group(function () {
+    Route::post('website', [StoreWebsite::class,'inFulfilment'])->name('website.store');
+});
 
 Route::name('warehouse.')->prefix('warehouse/{warehouse:id}')->group(function () {
     Route::post('location', [StoreLocation::class, 'inWarehouse'])->name('location.store');

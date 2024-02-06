@@ -13,6 +13,7 @@ use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWeb;
 use App\Actions\Web\Website\Hydrators\WebsiteHydrateUniversalSearch;
 use App\Enums\Web\Website\WebsiteEngineEnum;
 use App\Enums\Web\Website\WebsiteStateEnum;
+use App\Models\Fulfilment\Fulfilment;
 use App\Models\Market\Shop;
 use App\Models\Web\Website;
 use App\Rules\IUnique;
@@ -25,6 +26,8 @@ use Lorisleiva\Actions\ActionRequest;
 
 class StoreWebsite extends OrgAction
 {
+    private Fulfilment|Shop $parent;
+
     public function handle(Shop $shop, array $modelData): Website
     {
         data_set($modelData, 'group_id', $shop->group_id);
@@ -89,7 +92,12 @@ class StoreWebsite extends OrgAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("shops.edit");
+        if($this->parent instanceof Fulfilment) {
+            return $request->user()->hasPermissionTo("fulfilment-shop.{$this->parent->id}.edit");
+        } elseif ($this->parent instanceof Shop) {
+            return $request->user()->hasPermissionTo("web.{$this->parent->id}.edit");
+        }
+        return false;
     }
 
     public function rules(): array
@@ -162,10 +170,20 @@ class StoreWebsite extends OrgAction
 
     public function asController(Shop $shop, ActionRequest $request): Website
     {
-        $this->shop = $shop;
-        $this->initialisation($shop->organisation, $request);
+        $this->parent=$shop;
+        $this->shop  = $shop;
+        $this->initialisationFromShop($shop, $request);
 
         return $this->handle($shop, $this->validatedData);
+    }
+
+    public function inFulfilment(Fulfilment $fulfilment, ActionRequest $request): Website
+    {
+        $this->parent=$fulfilment;
+        $this->shop  = $fulfilment->shop;
+        $this->initialisationFromFulfilment($fulfilment, $request);
+
+        return $this->handle($fulfilment->shop, $this->validatedData);
     }
 
     public function action(Shop $shop, array $modelData): Website

@@ -7,11 +7,10 @@
 
 namespace App\Actions\Web\Website\UI;
 
-use App\Actions\InertiaAction;
-use App\Actions\Market\Shop\UI\ShowShop;
+use App\Actions\OrgAction;
+use App\Models\Fulfilment\Fulfilment;
 use App\Models\Market\Shop;
 use App\Models\SysAdmin\Organisation;
-use Exception;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Str;
@@ -19,32 +18,30 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class CreateWebsite extends InertiaAction
+class CreateWebsite extends OrgAction
 {
+    private Fulfilment|Shop $parent;
+
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo('shops.edit');
+        if($this->parent instanceof Fulfilment) {
+            return $request->user()->hasPermissionTo("fulfilment-shop.{$this->parent->id}.edit");
+        } elseif ($this->parent instanceof Shop) {
+            return $request->user()->hasPermissionTo("web.{$this->parent->id}.edit");
+        }
+        return false;
     }
 
 
-    /**
-     * @throws \Exception
-     */
-    public function inOrganisation(ActionRequest $request): Response|RedirectResponse
-    {
-        $this->initialisation($request);
 
-        return $this->handle(app('currentTenant'), $request);
-    }
-
-    /**
-     * @throws Exception
-     */
-    public function inShop(Shop $shop, ActionRequest $request): Response|RedirectResponse
+    public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): Response|RedirectResponse
     {
-        $this->initialisation($request);
+        $this->parent= $shop;
+        $this->initialisationFromShop($shop, $request);
         if ($shop->website) {
             return Redirect::route('grp.org.shops.show.web.websites.show', [
+                $organisation->slug,
+                $shop->slug,
                 $shop->website->slug
             ]);
         }
@@ -52,10 +49,25 @@ class CreateWebsite extends InertiaAction
         return $this->handle($shop, $request);
     }
 
-    /**
-     * @throws Exception
-     */
-    public function handle(Organisation|Shop $parent, ActionRequest $request): Response
+
+
+    public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): Response|RedirectResponse
+    {
+        $this->parent= $fulfilment;
+        $this->initialisationFromFulfilment($fulfilment, $request);
+        if ($fulfilment->shop->website) {
+            return Redirect::route('grp.org.fulfilments.show.web.websites.show', [
+                $organisation->slug,
+                $fulfilment->slug,
+                $fulfilment->shop->website->slug
+            ]);
+        }
+
+        return $this->handle($fulfilment, $request);
+    }
+
+
+    public function handle(Fulfilment|Shop $parent, ActionRequest $request): Response
     {
         $scope     = $parent;
         $container = null;
@@ -71,7 +83,6 @@ class CreateWebsite extends InertiaAction
             'CreateModel',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
-                    $scope,
                     routeParameters: $request->route()->originalParameters()
                 ),
                 'title'       => __('new website'),
@@ -132,7 +143,7 @@ class CreateWebsite extends InertiaAction
                                 'name'      => 'grp.models.shop.website.store',
                                 'arguments' => [$parent->slug]
                             ],
-                            'Organisation' => [
+                            'Fulfilment' => [
                                 'name' => 'grp.models.website.store',
                             ],
                         }
@@ -145,11 +156,12 @@ class CreateWebsite extends InertiaAction
     }
 
 
-    public function getBreadcrumbs(Organisation|Shop $scope, $routeParameters): array
+    public function getBreadcrumbs(array $routeParameters): array
     {
-        return match (class_basename($scope)) {
+        return match (class_basename($this->parent)) {
             'Shop' => array_merge(
-                ShowShop::make()->getBreadcrumbs(
+                IndexWebsites::make()->getBreadcrumbs(
+                    'grp.org.shops.show.web.websites.index',
                     $routeParameters
                 ),
                 [
@@ -161,10 +173,10 @@ class CreateWebsite extends InertiaAction
                     ]
                 ]
             ),
-            'Organisation' => array_merge(
+            'Fulfilment' => array_merge(
                 IndexWebsites::make()->getBreadcrumbs(
-                    'grp.org.shops.show.web.websites.index',
-                    []
+                    'grp.org.fulfilments.show.web.websites.index',
+                    $routeParameters
                 ),
                 [
                     [
