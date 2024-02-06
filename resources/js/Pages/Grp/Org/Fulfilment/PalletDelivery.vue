@@ -5,11 +5,11 @@
   -->
 
 <script setup lang="ts">
-import { Head, useForm } from '@inertiajs/vue3';
+import { Head, useForm, router } from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 import { capitalize } from "@/Composables/capitalize"
 import Tabs from "@/Components/Navigation/Tabs.vue";
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 import { useTabChange } from "@/Composables/tab-change";
 import TableHistories from "@/Components/Tables/TableHistories.vue";
 import ShowcasePallet from '@/Components/Pallet/Showcase.vue'
@@ -85,15 +85,32 @@ const updateState = async ({step, options }) => {
             route(props.updateRoute.route.name, props.updateRoute.route?.parameters),
             { state : get(step,'key') }
         )
-      timeline.value =  response.data.data
+        timeline.value =  response.data.data
     } catch (error) {
         console.log('error', error)
     }
   }
 }
 
-const component = computed(() => {
+const handleClick = (action) => {
+    const href = action.route?.name ? route(action.route?.name, action.route?.parameters) : action.href?.name ? route(action.href?.name, action.href?.parameters) : '#'
+    const method = action.route?.method ?? 'get'
+    const data = action.route?.method !== 'get' ? props.dataToSubmit : null
+    router[method](
+        href,
+        data,
+        {
+            onBefore: (visit) => { loading.value = true },
+            onSuccess: (page) => { 
+              console.log(page)
+              if(action.label == 'submit') timeline.value = page.props.data.data
+            },
+            onFinish: (visit) => { loading.value = false },
+        })
+};
 
+
+const component = computed(() => {
   const components = {
     pallets: ShowcasePallet,
     history: TableHistories
@@ -102,7 +119,7 @@ const component = computed(() => {
 
 });
 
-
+console.log('props',props)
 
 </script>
 
@@ -183,6 +200,17 @@ const component = computed(() => {
         </Popover>
       </div>
     </template>
+
+    <template #button-submit="{ action: action }">
+  <div>
+    <div v-if="data.data.state == 'in-process' && data.data.number_pallets != 0">
+      <Button  @click="handleClick(action.action)" :style="action.action.style" :label="action.action.label"
+        :icon="action.action.icon" :iconRight="action.action.iconRight" 
+        :tooltip="action.action.tooltip" :loading="loading" />
+    </div>
+  </div>
+</template>
+
 
   </PageHeading>
   <div class="border-b border-gray-200">
