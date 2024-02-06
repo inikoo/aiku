@@ -3,7 +3,9 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        @include('new-relic', ['appID' => Config::get('new-relic.application_id.public')  ])
+        @env(['staging', 'production'])
+        @include('new-relic', ['appID' => Config::get('new-relic.application_id.public')])
+        @endenv
         <title inertia>{{ config('app.name', 'Aiku') }}</title>
         <link rel="icon" type="image/png" sizes="16x16" href="{{ url('favicons/aiku-favicon-16x16.png') }}">
         <link rel="icon" type="image/png" sizes="32x32" href="{{ url('favicons/aiku-favicon-32x32.png') }}">
