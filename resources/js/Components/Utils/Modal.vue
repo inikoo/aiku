@@ -1,17 +1,23 @@
 <script setup  lang="ts">
 import { TransitionRoot, TransitionChild, Dialog, DialogPanel } from '@headlessui/vue'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { faTimes } from '@fal'
+import { library } from '@fortawesome/fontawesome-svg-core'
+library.add(faTimes)
 
-const props = defineProps({
-  width: {
-    type: String,
-    default: 'w-4/5'
-  },
-  isOpen: Boolean
-});
+const props = withDefaults(defineProps<{
+    width?: string
+    isOpen: boolean
+    closeButton?: boolean
+}>(), {
+    width: 'w-4/5'
+})
+
+
 const emits = defineEmits()
 
 const closeModal = () => {
-    emits('onClose') 
+    emits('onClose')
 }
 
 </script>
@@ -32,6 +38,11 @@ const closeModal = () => {
                         leave-to="opacity-0 scale-95">
                         <DialogPanel
                             :class="`${props.width} transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all`">
+                            <!-- Button: Close -->
+                            <div v-if="closeButton" @click="emits('onClose')" class="group px-2 absolute right-5 top-4 cursor-pointer">
+                                <FontAwesomeIcon icon='fal fa-times' class='text-gray-400 group-hover:text-gray-600'
+                                    aria-hidden='true' />
+                            </div>
                             <slot />
                         </DialogPanel>
                     </TransitionChild>

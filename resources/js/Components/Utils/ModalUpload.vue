@@ -11,7 +11,7 @@ import axios from 'axios'
 import { useFormatTime } from '@/Composables/useFormatTime'
 import { routeType } from '@/types/route'
 import { Link } from "@inertiajs/vue3"
-import { useEchoOrgPersonal as echo } from '@/Stores/echo-org-personal'
+import { useEchoGrpPersonal as echo } from '@/Stores/echo-grp-personal'
 
 library.add(falFile, faTimes, faFileDownload, faDownload)
 
@@ -23,7 +23,7 @@ const props = defineProps<{
         history?: routeType
     }
     propName?: string
-    useEchoOrgPersonal: {
+    useEchoGrpPersonal: {
         isShowProgress: boolean
     }
     // isUploaded: boolean
@@ -53,7 +53,7 @@ const onUploadFile = async (fileUploaded: File) => {
                 headers: { "Content-Type": "multipart/form-data" },
             }
         )
-        props.useEchoOrgPersonal.isShowProgress = true
+        props.useEchoGrpPersonal.isShowProgress = true
 
     } catch (error: any) {
         console.error(error.message)
@@ -62,8 +62,8 @@ const onUploadFile = async (fileUploaded: File) => {
 }
 
 const closeModal = () =>{
- /*    useEchoOrgPersonal().isShowProgress = false */
-    props.useEchoOrgPersonal.isShowProgress = false
+ /*    useEchoGrpPersonal().isShowProgress = false */
+    props.useEchoGrpPersonal.isShowProgress = false
     emits('update:modelValue', false)
 }
 
@@ -153,7 +153,7 @@ watch(() => props.modelValue, async (newVal) => {
             </div>
 
             <!-- Table History -->
-            <div class="order-last flex items-start gap-x-2 gap-y-2 flex-col">
+          <!--   <div class="order-last flex items-start gap-x-2 gap-y-2 flex-col">
                 <div class="text-sm text-gray-600"> {{ trans('Recent uploaded') + ` ${propName}:` }} </div>
                 <div v-if="!isLoadingHistory" class="flex flex-wrap gap-x-2 gap-y-2">
                     <template v-if="[...dataHistoryFileUpload, ...echo().recentlyUploaded].length">
@@ -185,7 +185,7 @@ watch(() => props.modelValue, async (newVal) => {
                 <div v-else class="flex flex-wrap gap-x-2 gap-y-2">
                     <div v-for="(history, index) in 4" :key="index" class="w-36 h-20 skeleton rounded" />
                 </div>
-            </div>
+            </div> -->
         </div>
     </Modal>
 </template>
