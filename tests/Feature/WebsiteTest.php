@@ -108,6 +108,29 @@ test('create fulfilment website', function () {
     return $website;
 });
 
+test('launch fulfilment website from command', function (Website $website) {
+    $this->artisan('website:launch', ['website' => $website->slug])
+         ->expectsOutput('Website launched 🚀')
+         ->assertExitCode(0);
+    $website->refresh();
+
+    expect($website->state)->toBe(WebsiteStateEnum::LIVE);
+    return $website;
+
+})->depends('create fulfilment website');
+
+test('hydrate website from command', function (Website $website) {
+    $this->artisan('website:hydrate', [
+        'organisations' => $this->organisation->slug,
+        '--slugs'       => [$website->slug]
+    ])
+         ->assertExitCode(0);
+    $website->refresh();
+
+    expect($website->webStats->number_webpages)->toBe(4);
+
+})->depends('launch fulfilment website from command');
+
 test('can show list of websites in fulfilment', function () {
     $response = get(
         route(
