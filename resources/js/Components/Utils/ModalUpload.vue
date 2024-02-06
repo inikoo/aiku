@@ -151,9 +151,6 @@ watch(() => props.modelValue, async (newVal) => {
                     </div>
                 </div>
             </div>
-            <div class="order-last flex items-start gap-x-2 gap-y-2 flex-col">
-                {{Object.keys(echo().progressBars?.Upload ?? {}).length > 0 }}
-            </div>
 
             <!-- Table History -->
           <!--   <div class="order-last flex items-start gap-x-2 gap-y-2 flex-col">

@@ -224,7 +224,7 @@ const onUploadOpen=(action)=>{
   <component :is="component" :data="props[currentTab]" :state="timeline.state" :tab="currentTab"></component>
 
   <UploadExcel 
-        :propName="'PalletDeliries'"
+        :propName="'pallet deliveries'"
         description="Adding Pallet Deliveries"
         :routes="{
             upload: get(dataModal,'uploadRoutes',{}),
