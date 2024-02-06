@@ -7,8 +7,9 @@
 
 return [
     'groups' => [
-        'grp'             => ['grp.*'],
-        'public'          => ['public.*'],
-        'aiku-public'     => ['aiku-public.*'],
+        'grp'         => ['grp.*'],
+        'public'      => ['public.*'],
+        'customer'    => ['customer.*'],
+        'aiku-public' => ['aiku-public.*'],
     ],
 ];

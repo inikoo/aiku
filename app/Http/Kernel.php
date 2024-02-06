@@ -10,7 +10,10 @@ namespace App\Http;
 use App\Http\Middleware\ApiBindGroupInstance;
 use App\Http\Middleware\Authenticate;
 use App\Http\Middleware\BindGroupInstance;
+use App\Http\Middleware\CheckWebsiteState;
+use App\Http\Middleware\DetectWebsite;
 use App\Http\Middleware\HandleAikuPublicInertiaRequests;
+use App\Http\Middleware\HandleCustomerInertiaRequests;
 use App\Http\Middleware\LogUserRequestMiddleware;
 use App\Http\Middleware\EncryptCookies;
 use App\Http\Middleware\ForceJsonResponse;
@@ -90,6 +93,8 @@ class Kernel extends HttpKernel
             AddLinkHeadersForPreloadedAssets::class,
         ],
         'public' => [
+            DetectWebsite::class,
+            CheckWebsiteState::class,
             EncryptCookies::class,
             AddQueuedCookiesToResponse::class,
             StartSession::class,
@@ -97,6 +102,18 @@ class Kernel extends HttpKernel
             VerifyCsrfToken::class,
             SubstituteBindings::class,
             HandlePublicInertiaRequests::class,
+            AddLinkHeadersForPreloadedAssets::class,
+        ],
+        'customer' => [
+            DetectWebsite::class,
+            CheckWebsiteState::class,
+            EncryptCookies::class,
+            AddQueuedCookiesToResponse::class,
+            StartSession::class,
+            ShareErrorsFromSession::class,
+            VerifyCsrfToken::class,
+            SubstituteBindings::class,
+            HandleCustomerInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
         ],
 
