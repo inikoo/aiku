@@ -9,7 +9,7 @@ import { Head, useForm, router } from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 import { capitalize } from "@/Composables/capitalize"
 import Tabs from "@/Components/Navigation/Tabs.vue";
-import { computed, ref, watch } from "vue";
+import { computed, ref, reactive } from "vue";
 import { useTabChange } from "@/Composables/tab-change";
 import TableHistories from "@/Components/Tables/TableHistories.vue";
 import ShowcasePallet from '@/Components/Pallet/Showcase.vue'
@@ -35,7 +35,7 @@ let currentTab = ref(props.tabs.current);
 const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
 const loading = ref(false)
 const timeline = ref({ ...props.data.data })
-
+const dataModal = ref({ isModalOpen: false })
 const formAddPallet = useForm({ notes: '', reference: '' })
 const formMultiplePallet = useForm({ number_pallets: 1 })
 
@@ -120,6 +120,10 @@ const component = computed(() => {
 
 });
 
+const onUploadOpen=(action)=>{
+  dataModal.value.isModalOpen = true
+  dataModal.value.uploadRoutes = action.route
+}
 
 </script>
 
@@ -166,9 +170,12 @@ const component = computed(() => {
         </Popover>
       </div>
     </template>
-    <template #button-group-upload="{ action: action }">
-      <Button :style="'upload'"   class="capitalize inline-flex items-center h-full rounded-none text-sm border-none font-medium shadow-sm focus:ring-transparent focus:ring-offset-transparent focus:ring-0">
-      </Button>
+    <template #button-group-upload="{ action : action }">
+      <Button 
+         :style="'upload'"   
+         @click="()=>onUploadOpen(action.button)"  
+         class="capitalize inline-flex items-center h-full rounded-none text-sm border-none font-medium shadow-sm focus:ring-transparent focus:ring-offset-transparent focus:ring-0"
+      />
     </template>
     <template #button-add-multiple-pallets="{ action: action }">
       <div class="relative">
@@ -216,18 +223,12 @@ const component = computed(() => {
   <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
   <component :is="component" :data="props[currentTab]" :state="timeline.state" :tab="currentTab"></component>
 
-<!--   <UploadExcel
-        :propName="'prospects'"
-        description="Adding prospect"
+  <UploadExcel 
+        :propName="'PalletDeliries'"
+        description="Adding Pallet Deliveries"
         :routes="{
-            upload: props.pageHead.actions[0].buttons[0].route,
-            download: uploads.templates.routes,
-            history: props.uploadRoutes.history
+            upload: get(dataModal,'uploadRoutes',{}),
         }"
         :dataModal="dataModal"
-        :dataPusher="{
-            channel: uploads.channel,
-            event: uploads.event
-        }"
-    /> -->
+    />
 </template>
