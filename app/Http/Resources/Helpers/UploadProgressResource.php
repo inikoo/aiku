@@ -9,18 +9,18 @@ namespace App\Http\Resources\Helpers;
 
 use App\Http\Resources\HasSelfCall;
 use App\Models\Helpers\Upload;
-use App\Models\SysAdmin\Organisation;
+use App\Models\SysAdmin\User;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class UploadProgressResource extends JsonResource
 {
     use HasSelfCall;
 
-    public ?Organisation $organisation;
-    public function __construct($resource, ?Organisation $organisation)
+    public ?User $user;
+    public function __construct($resource, ?User $user)
     {
         parent::__construct($resource);
-        $this->organisation = $organisation;
+        $this->user = $user;
     }
 
     public function toArray($request): array

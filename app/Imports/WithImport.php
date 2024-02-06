@@ -122,7 +122,7 @@ trait WithImport
         );
         $this->upload->refresh();
 
-        UploadExcelProgressEvent::dispatch($this->upload, $this->upload->organisation);
+        UploadExcelProgressEvent::dispatch($this->upload, $this->upload->user);
     }
 
     protected function getFieldsFromRules($remove=[], $add=[]): array

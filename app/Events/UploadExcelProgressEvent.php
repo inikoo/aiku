@@ -9,7 +9,7 @@ namespace App\Events;
 
 use App\Http\Resources\Helpers\UploadProgressResource;
 use App\Models\Helpers\Upload;
-use App\Models\SysAdmin\Organisation;
+use App\Models\SysAdmin\User;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
@@ -24,11 +24,11 @@ class UploadExcelProgressEvent implements ShouldBroadcastNow
 
 
     public Upload $data;
-    public ?Organisation $organisation;
+    public ?User $user;
 
-    public function __construct(Upload $upload, ?Organisation $organisation)
+    public function __construct(Upload $upload, ?User $user)
     {
-        $this->organisation = $organisation;
+        $this->user         = $user;
         $this->data         = $upload;
     }
 
@@ -36,13 +36,13 @@ class UploadExcelProgressEvent implements ShouldBroadcastNow
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel('grp.personal.1')
+            new PrivateChannel('grp.personal.' . $this->user->id)
         ];
     }
 
     public function broadcastWith(): array
     {
-        return UploadProgressResource::make($this->data, $this->organisation)->getArray();
+        return UploadProgressResource::make($this->data, $this->user)->getArray();
     }
 
     public function broadcastAs(): string
