@@ -7,6 +7,7 @@
 
 namespace App\Services\Organisation\Aurora;
 
+use App\Enums\SysAdmin\Authorisation\RolesEnum;
 use App\Models\HumanResources\JobPosition;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -142,11 +143,10 @@ class FetchAuroraEmployee extends FetchAurora
         }
     }
 
+    // todo re do this function using Roles from the enum
     private function parseUserRoles(): void
     {
-        $roles = collect(config('blueprint.roles'))->mapWithKeys(function ($item, $key) {
-            return [$key => false];
-        })->all();
+        $roles = RolesEnum::cases();
 
 
         foreach (DB::connection('aurora')->table('User Group User Bridge')->where('User Key', $this->auroraModelData->{'User Key'})->select('User Group Key')->get() as $auRole) {
