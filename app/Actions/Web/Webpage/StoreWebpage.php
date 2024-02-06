@@ -7,6 +7,7 @@
 
 namespace App\Actions\Web\Webpage;
 
+use App\Actions\Helpers\Snapshot\StoreWebpageSnapshot;
 use App\Actions\OrgAction;
 use App\Actions\Web\Webpage\Hydrators\WebpageHydrateUniversalSearch;
 use App\Actions\Web\Website\Hydrators\WebsiteHydrateWebpages;
@@ -39,6 +40,25 @@ class StoreWebpage extends OrgAction
         /** @var Webpage $webpage */
         $webpage = $website->webpages()->create($modelData);
         $webpage->stats()->create();
+
+        $snapshot = StoreWebpageSnapshot::run(
+            $webpage,
+            [
+                'layout' => [
+                    'src'  => null,
+                    'html' => ''
+                ]
+            ],
+        );
+
+        $webpage->update(
+            [
+                'unpublished_snapshot_id' => $snapshot->id,
+                'compiled_layout'         => $snapshot->compiledLayout(),
+
+            ]
+        );
+
 
         WebpageHydrateUniversalSearch::run($webpage);
         WebsiteHydrateWebpages::dispatch($website);

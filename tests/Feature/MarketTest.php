@@ -83,7 +83,7 @@ test('seed shop permissions from command', function () {
 })->depends('create shop by command');
 
 test('create website from command', function (Shop $shop) {
-    $this->artisan('websites:create', [
+    $this->artisan('website:create', [
         'shop'   => $shop->slug,
         'domain' => 'test-hello.com',
         'code'   => 'test',

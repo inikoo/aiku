@@ -10,6 +10,8 @@ namespace App\Models\Web;
 use App\Enums\Web\Webpage\WebpagePurposeEnum;
 use App\Enums\Web\Webpage\WebpageStateEnum;
 use App\Enums\Web\Webpage\WebpageTypeEnum;
+use App\Models\Helpers\Deployment;
+use App\Models\Helpers\Snapshot;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasUniversalSearch;
@@ -19,8 +21,8 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 
@@ -58,12 +60,13 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $deleted_at
  * @property string|null $delete_comment
  * @property string|null $source_id
+ * @property-read Collection<int, Deployment> $deployments
  * @property-read Group $group
- * @property-read \App\Models\Web\WebpageVariant|null $mainVariant
  * @property-read Organisation $organisation
+ * @property-read Collection<int, Snapshot> $snapshots
  * @property-read \App\Models\Web\WebpageStats|null $stats
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
- * @property-read Collection<int, \App\Models\Web\WebpageVariant> $variants
+ * @property-read Snapshot|null $unpublishedSnapshot
  * @property-read \App\Models\Web\Website $website
  * @method static Builder|Webpage newModelQuery()
  * @method static Builder|Webpage newQuery()
@@ -93,6 +96,12 @@ class Webpage extends Model
         'data'            => '{}',
         'settings'        => '{}',
         'compiled_layout' => '{}',
+    ];
+
+    protected array $auditExclude = [
+        'id','slug',
+        'live_snapshot_id','published_checksum',
+        'compiled_layout','unpublished_snapshot_id'
     ];
 
     protected $guarded = [];
@@ -131,13 +140,18 @@ class Webpage extends Model
         return $this->belongsTo(Group::class);
     }
 
-    public function mainVariant(): BelongsTo
+    public function snapshots(): MorphMany
     {
-        return $this->belongsTo(WebpageVariant::class, 'main_variant_id');
+        return $this->morphMany(Snapshot::class, 'parent');
+    }
+    public function unpublishedSnapshot(): BelongsTo
+    {
+        return $this->belongsTo(Snapshot::class, 'unpublished_snapshot_id');
     }
 
-    public function variants(): HasMany
+    public function deployments(): MorphMany
     {
-        return $this->hasMany(WebpageVariant::class);
+        return $this->morphMany(Deployment::class, 'model');
     }
+
 }

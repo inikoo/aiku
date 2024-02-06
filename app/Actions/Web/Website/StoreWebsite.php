@@ -208,7 +208,7 @@ class StoreWebsite extends OrgAction
         return $this->handle($shop, $this->validatedData);
     }
 
-    public string $commandSignature = 'websites:create {shop : shop slug} {domain} {code} {name}';
+    public string $commandSignature = 'website:create {shop : shop slug} {domain} {code} {name}';
 
     public function asCommand(Command $command): int
     {

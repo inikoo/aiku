@@ -101,13 +101,10 @@ class Snapshot extends Model
 
     public function compiledLayout(): array|string
     {
-        switch (class_basename($this->parent)) {
-            case 'Website':
-            case 'Webpage':
-                return Arr::get($this->layout, 'html');
-            default:
-                return [];
-        }
+        return match (class_basename($this->parent)) {
+            'Website', 'Webpage' => Arr::get($this->layout, 'html'),
+            default => [],
+        };
     }
 
 

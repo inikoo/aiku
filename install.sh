@@ -54,7 +54,7 @@ pg_dump -Fc -f "devops/devel/snapshots/guests.dump" ${DB}
 php artisan shop:create awa bali   "bali b2b shop" b2b
 php artisan shop:create awa lomb "Lombok b2c shop" b2c
 php artisan shop:create awa java "Java Fulfilment" fulfilment --warehouses=1
-php artisan websites:create java  fulfilment.test jf 'Fulfilment test website'
+php artisan website:create java  fulfilment.test jf 'Fulfilment test website'
 php artisan shop:create inikoo au   "Au b2b shop" b2b
 pg_dump -Fc -f "devops/devel/snapshots/shops.dump" ${DB}
 

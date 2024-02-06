@@ -5,8 +5,10 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Actions\Web\Website\LaunchWebsite;
 use App\Actions\Web\Website\StoreWebsite;
 use App\Actions\Web\Website\UpdateWebsite;
+use App\Enums\Web\Website\WebsiteStateEnum;
 use App\Enums\Web\Website\WebsiteTypeEnum;
 use App\Models\Web\Webpage;
 use App\Models\Web\Website;
@@ -48,6 +50,13 @@ test('create b2b website', function () {
 
     return $website;
 });
+
+test('launch website', function (Website $website) {
+    $website = LaunchWebsite::make()->action($website);
+    $website->refresh();
+
+    expect($website->state)->toBe(WebsiteStateEnum::LIVE);
+})->depends('create b2b website');
 
 
 test('update website', function (Website $website) {
