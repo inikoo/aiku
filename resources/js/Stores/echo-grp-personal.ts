@@ -31,7 +31,7 @@ export const useEchoGrpPersonal = defineStore("echo-grp-personal", {
     }),
     actions: {
         subscribe(userID: number) {
-            let param = window.Echo.private("grp.personal" + userID).listen(
+            let param = window.Echo.private("grp.personal." + userID).listen(
                 ".action-progress",
                 (eventData) => {
                     // console.log(eventData)
@@ -59,14 +59,14 @@ export const useEchoGrpPersonal = defineStore("echo-grp-personal", {
                     if(eventData.done >= eventData.total){
                         // Add data to recentlyUploaded, to show in history
                         this.recentlyUploaded.push(this.progressBars[eventData.action_type][eventData.action_id])
-                        
+
                         // Delete data in 4 seconds after finish
                         setTimeout(() => {
                             delete this.progressBars[eventData.action_type][eventData.action_id]
 
                             // If no more progress, then hide the bar
                             const uploadCount = Object.values(this.progressBars[eventData.action_type])
-                            if(!uploadCount.length) this.isShowProgress = false 
+                            if(!uploadCount.length) this.isShowProgress = false
                         }, 4000)
                     }
                 }
