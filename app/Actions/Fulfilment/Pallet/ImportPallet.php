@@ -18,6 +18,7 @@ use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Helpers\Upload;
 use App\Models\Inventory\Warehouse;
+use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Facades\Storage;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -45,7 +46,7 @@ class ImportPallet
         return $upload;
     }
 
-    public function inPalletDelivery(PalletDelivery $palletDelivery, ActionRequest $request): Upload
+    public function inPalletDelivery(Organisation $organisation, FulfilmentCustomer $fulfilmentCustomer, PalletDelivery $palletDelivery, ActionRequest $request): Upload
     {
         $file = $request->file('file');
         Storage::disk('local')->put($this->tmpPath, $file);
@@ -63,9 +64,9 @@ class ImportPallet
         if($palletDeliverySlug = $command->argument('palletDelivery')) {
             $palletDelivery = PalletDelivery::where('slug', $palletDeliverySlug)->first();
         } else {
-            $warehouse = Warehouse::where('slug', $command->argument('warehouse'))->first();
+            $warehouse          = Warehouse::where('slug', $command->argument('warehouse'))->first();
             $fulfilmentCustomer = FulfilmentCustomer::where('slug', $command->argument('fulfilmentCustomer'))->first();
-            $palletDelivery = StorePalletDelivery::run($fulfilmentCustomer, [
+            $palletDelivery     = StorePalletDelivery::run($fulfilmentCustomer, [
                 'warehouse_id' => $warehouse->id,
             ]);
         }
