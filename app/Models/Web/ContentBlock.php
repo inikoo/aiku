@@ -13,7 +13,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 use Spatie\Sluggable\HasSlug;
@@ -34,7 +33,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property-read \App\Models\Web\WebBlock $webBlock
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Web\WebpageVariant> $webpageVariants
  * @method static Builder|ContentBlock newModelQuery()
  * @method static Builder|ContentBlock newQuery()
  * @method static Builder|ContentBlock onlyTrashed()
@@ -89,10 +87,5 @@ class ContentBlock extends Model
         return $this->belongsTo(WebBlock::class);
     }
 
-    public function webpageVariants(): BelongsToMany
-    {
-        return $this->belongsToMany(WebpageVariant::class)->using(ContentBlockWebpageVariant::class)
-            ->withTimestamps()->withPivot(['position']);
-    }
 
 }
