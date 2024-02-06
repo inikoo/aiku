@@ -163,7 +163,18 @@ class StoreWebsite extends OrgAction
 
     public function htmlResponse(Website $website): RedirectResponse
     {
-        return Redirect::route('grp.websites.show', [
+
+        if($this->parent instanceof Fulfilment) {
+            return Redirect::route('grp.org.fulfilments.show.web.websites.show', [
+                $this->organisation->slug,
+                $this->parent->slug,
+                $website->slug
+            ]);
+        }
+
+        return Redirect::route('grp.org.shops.show.web.websites.show', [
+            $this->organisation->slug,
+            $this->parent->slug,
             $website->slug
         ]);
     }
