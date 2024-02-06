@@ -127,9 +127,9 @@ class ShowPalletDelivery extends OrgAction
                             ]
                         ],
                         [
-                            'type'  => 'buttonGroup',
-                            'key'   => 'upload-add',
-                            'button'=> [
+                            'type'   => 'buttonGroup',
+                            'key'    => 'upload-add',
+                            'button' => [
                                 [
                                     'type'  => 'button',
                                     'style' => 'primary',
@@ -160,7 +160,7 @@ class ShowPalletDelivery extends OrgAction
                                     ]
                                 ],
                             ]
-                            ],
+                        ],
                         [
                             'type'    => 'button',
                             'style'   => 'save',
@@ -193,8 +193,29 @@ class ShowPalletDelivery extends OrgAction
                 ],
 
                 'upload' => [
-                    'event'     => 'action-progress',
-                    'channel'   => 'grp.personal.'.$this->organisation->id
+                    'event'   => 'action-progress',
+                    'channel' => 'grp.personal.' . $this->organisation->id
+                ],
+
+                'uploadRoutes' => [
+                    'history' => [
+                        'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet-deliveries.pallets.uploads.history',
+                        'parameters' => [
+                            'organisation'       => $palletDelivery->organisation->slug,
+                            'fulfilment'         => $palletDelivery->fulfilment->slug,
+                            'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->slug,
+                            'palletDelivery'     => $palletDelivery->reference
+                        ]
+                    ],
+                    'download' => [
+                        'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet-deliveries.pallets.uploads.templates',
+                        'parameters' => [
+                            'organisation'       => $palletDelivery->organisation->slug,
+                            'fulfilment'         => $palletDelivery->fulfilment->slug,
+                            'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->slug,
+                            'palletDelivery'     => $palletDelivery->reference
+                        ]
+                    ],
                 ],
 
                 'tabs' => [
