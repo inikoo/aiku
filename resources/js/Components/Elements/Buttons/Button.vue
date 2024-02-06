@@ -41,7 +41,7 @@ let styleClass = ''
 let sizeClass = ''
 
 // Styling the Button depends on the 'style' props
-if (props.style == 'primary' || props.style == 'create' || props.style == 'save') {
+if (props.style == 'primary' || props.style == 'create' || props.style == 'save' || props.style == 'upload') {
     styleClass = 'border border-indigo-500 bg-indigo-600 bg-gradient-to-r from-indigo-600 to-indigo-500 text-white hover:bg-none'
 }
 
@@ -131,6 +131,8 @@ const getActionIcon = (icon: any) => {
                 return ["far", "fa-trash-alt"]
             case "withMulti":
                 return ["far", "fa-border-all"]
+            case "upload":
+                return ["fas", "fa-upload"]
             default:
                 return null
         }
