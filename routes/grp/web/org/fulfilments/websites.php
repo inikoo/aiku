@@ -11,16 +11,17 @@ use App\Actions\Web\Webpage\UI\EditWebpage;
 use App\Actions\Web\Webpage\UI\IndexWebpages;
 use App\Actions\Web\Webpage\UI\ShowWebpage;
 use App\Actions\Web\Webpage\UI\ShowWebpageWorkshop;
+use App\Actions\Web\Website\UI\CreateWebsite;
 use App\Actions\Web\Website\UI\EditWebsite;
 use App\Actions\Web\Website\UI\IndexWebsites;
 use App\Actions\Web\Website\UI\ShowWebsite;
 use App\Actions\Web\Website\UI\ShowWebsiteWorkshop;
 
 Route::get('/', [IndexWebsites::class, 'inFulfilment'])->name('index');
-Route::get('/{website}/show', [ShowWebsite::class,'inFulfilment'])->name('show');
+Route::get('/create', [CreateWebsite::class, 'inFulfilment'])->name('create');
 Route::get('/{website}/edit', EditWebsite::class)->name('edit');
 Route::get('/{website}/workshop', ShowWebsiteWorkshop::class)->name('workshop');
-
+Route::get('/{website}', [ShowWebsite::class, 'inFulfilment'])->name('show');
 //Route::get('/{website}/workshop/preview', ShowWebsiteWorkshopPreview::class)->name('preview');
 Route::get('/{website}/blog/article/create', CreateArticle::class)->name('show.blog.article.create');
 
