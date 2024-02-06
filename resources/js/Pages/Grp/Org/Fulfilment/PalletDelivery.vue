@@ -102,7 +102,8 @@ const handleClick = (action) => {
         {
             onBefore: (visit) => { loading.value = true },
             onSuccess: (page) => { 
-              if(action.label == 'submit') timeline.value.state ="submitted"
+              console.log(page)
+              if(action.label == 'submit') timeline.value = page.props.data.data
             },
             onFinish: (visit) => { loading.value = false },
         })
