@@ -28,7 +28,8 @@ class GetLayout
             'navigation'    => [
                 'grp' => GetGroupNavigation::run($user),
                 'org' => GetOrganisationsLayout::run($user),
-            ]
+            ],
+            'app_theme'     => $user->settings['app_theme'] ?? null,
 
 
         ];

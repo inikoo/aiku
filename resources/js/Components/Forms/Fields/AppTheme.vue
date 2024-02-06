@@ -14,12 +14,17 @@ const props = defineProps<{
     }
 }>()
 
+const onClickColor = (colorTheme: string[]) => {
+    layoutStore.app.theme = colorTheme
+    props.form[props.fieldName] = colorTheme
+}
+
 </script>
 
 <template>
     <div class="relative w-full">
         <div class="flex flex-col gap-x-2 gap-y-3">
-            <div v-for="colorTheme in useColorTheme" @click="() => layoutStore.app.theme = colorTheme"
+            <div v-for="colorTheme in useColorTheme" @click="() => onClickColor(colorTheme)"
                 class="flex ring-1 ring-gray-400 hover:ring-indigo-500 shadow rounded overflow-hidden w-fit cursor-pointer"
             >
                 <div class="h-6 aspect-square" :style="{backgroundColor: colorTheme[0]}" />
