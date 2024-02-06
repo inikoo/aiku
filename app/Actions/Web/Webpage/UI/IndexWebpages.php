@@ -32,6 +32,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 class IndexWebpages extends OrgAction
 {
     use HasWebAuthorisation;
+
     private Organisation|Website|Fulfilment|Webpage $parent;
 
 
@@ -92,7 +93,8 @@ class IndexWebpages extends OrgAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->whereStartWith('webpages.code', $value);
+                $query->whereStartWith('webpages.code', $value)
+                    ->orWhereStartWith('webpages.url', $value);
             });
         });
 
@@ -124,7 +126,7 @@ class IndexWebpages extends OrgAction
         return $queryBuilder
             ->defaultSort('webpages.level')
             ->select(['code', 'id', 'type', 'slug', 'level', 'purpose', 'url'])
-            ->allowedSorts(['code', 'type', 'level'])
+            ->allowedSorts(['code', 'type', 'level', 'url'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();

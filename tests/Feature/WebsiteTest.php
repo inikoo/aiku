@@ -169,3 +169,23 @@ test('can show fulfilment website', function (Website $website) {
             ->has('breadcrumbs', 3);
     });
 })->depends('create fulfilment website');
+
+test('can show webpages list in fulfilment website', function (Website $website) {
+    $response = get(
+        route(
+            'grp.org.fulfilments.show.web.websites.show.webpages.index',
+            [
+                $this->organisation->slug,
+                $this->fulfilment->slug,
+                $website->slug
+            ]
+        )
+    );
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Web/Webpages')
+            ->has('title')
+            ->has('breadcrumbs', 4)
+            ->has('data.data', 4);
+    });
+})->depends('create fulfilment website');
