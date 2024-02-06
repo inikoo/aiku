@@ -194,7 +194,7 @@ class IndexProspects extends OrgAction
                                             'label' => 'upload',
                                             'route' => [
                                                 'name'       => 'grp.org.models.shop.prospects.upload',
-                                                'parameters' => $request->route()->originalParameters()
+                                                'parameters' => $this->parent->id
 
                                             ],
                                         ],
