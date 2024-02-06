@@ -22,26 +22,34 @@ class RouteServiceProvider extends ServiceProvider
     {
         $this->configureRateLimiting();
 
-        Route::prefix('webhooks')
-            ->domain(config('app.domain'))
-            ->middleware('webhooks')
-            ->group(base_path('routes/grp/webhooks/webhooks.php'));
-
-        Route::prefix('api')
-            ->domain(config('app.domain'))
-            ->middleware('api')
-            ->group(base_path('routes/grp/api/api.php'));
-
-        Route::domain('app.'.config('app.domain'))
-            ->middleware('grp')
+        Route::middleware('grp')
+            ->domain('app.'.config('app.domain'))
             ->name('grp.')
             ->group(base_path('routes/grp/web/app.php'));
+
+        Route::middleware('webhooks')
+            ->domain(config('app.domain'))
+            ->prefix('webhooks')
+            ->group(base_path('routes/grp/webhooks/webhooks.php'));
+
+        Route::middleware('api')
+            ->domain(config('app.domain'))
+            ->prefix('api')
+            ->group(base_path('routes/grp/api/api.php'));
 
         Route::middleware('aiku-public')
             ->domain(config('app.domain'))
             ->name('aiku-public.')
             ->group(base_path('routes/aiku-public/web/root.php'));
 
+        Route::middleware('customer')
+            ->prefix('app')
+            ->name('customer.')
+            ->group(base_path('routes/customer/app.php'));
+
+        Route::middleware('public')
+            ->name('public.')
+            ->group(base_path('routes/public/web/app.php'));
 
     }
 

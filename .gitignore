@@ -9,7 +9,7 @@
 /public/grp/assets/
 /public/public/assets/
 /public/aiku-public/assets/
-/public/tenants
+/public/customer
 /public/grp/manifest.json
 /public/public/manifest.json
 /storage/*.key
