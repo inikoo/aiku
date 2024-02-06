@@ -47,7 +47,7 @@ class SeedWebsiteFixedWebpages extends OrgAction
             $this->addWebpage($website, $storefront, $file);
         }
 
-        foreach (Storage::disk('datasets')->files('webpages/'.$website->type) as $file) {
+        foreach (Storage::disk('datasets')->files('webpages/'.$website->type->value) as $file) {
             $this->addWebpage($website, $storefront, $file);
         }
 

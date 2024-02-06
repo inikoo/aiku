@@ -10,6 +10,7 @@ namespace App\Models\Web;
 use App\Enums\Web\Website\WebsiteCloudflareStatusEnum;
 use App\Enums\Web\Website\WebsiteEngineEnum;
 use App\Enums\Web\Website\WebsiteStateEnum;
+use App\Enums\Web\Website\WebsiteTypeEnum;
 use App\Models\Helpers\Deployment;
 use App\Models\Helpers\Snapshot;
 use App\Models\Market\Shop;
@@ -47,7 +48,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $group_id
  * @property int $organisation_id
  * @property int $shop_id
- * @property string $type
+ * @property WebsiteTypeEnum $type
  * @property WebsiteEngineEnum $engine
  * @property string $code
  * @property string $name
@@ -115,6 +116,7 @@ class Website extends Model implements Auditable, HasMedia
     use HasLogo;
 
     protected $casts = [
+        'type'              => WebsiteTypeEnum::class,
         'data'              => 'array',
         'settings'          => 'array',
         'structure'         => 'array',
@@ -148,10 +150,13 @@ class Website extends Model implements Auditable, HasMedia
         'slug',
         'storefront_id',
         'live_header_snapshot_id',
-        'live_footer_snapshot_id','storefront_id',
-        'compiled_layout','unpublished_header_snapshot_id',
+        'live_footer_snapshot_id',
+        'storefront_id',
+        'compiled_layout',
+        'unpublished_header_snapshot_id',
         'unpublished_footer_snapshot_id',
-        'published_header_checksum','published_footer_checksum'
+        'published_header_checksum',
+        'published_footer_checksum'
     ];
 
     public function getRouteKeyName(): string
@@ -243,6 +248,7 @@ class Website extends Model implements Auditable, HasMedia
     public function getUrl(): string
     {
         $scheme = app()->environment('production') ? 'https' : 'http';
+
         return $scheme.'://'.$this->domain;
     }
 

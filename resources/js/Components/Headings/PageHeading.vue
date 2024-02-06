@@ -9,8 +9,6 @@ import { Link } from "@inertiajs/vue3"
 
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faTruckCouch } from '@fal'
-import { } from '@far'
-import { } from '@fas'
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { capitalize } from "@/Composables/capitalize"
 import MetaLabel from "@/Components/Headings/MetaLabel.vue"
@@ -122,13 +120,14 @@ const originUrl = location.origin
         <!-- Section: Button and/or ButtonGroup -->
         <slot name="button" :dataPageHead="{ ...props }">
             <div class="flex items-center gap-2">
-                <div v-for="action in data.actions">
+                <div  v-for="action in data.actions">
+                    <template v-if="action">
                     <slot v-if="action.type == 'button'" :name="`button-${kebabCase(action.label)}`" :action="{ action }">
                         <Action v-if="action" :action="action" :dataToSubmit="dataToSubmit"/>
                     </slot>
                     <slot v-if="action.type == 'buttonGroup'" :name="`button-group-${action.key}`" :action="{ action }">
                         <div class="rounded  ring-1 ring-gray-400 flex">
-                        <slot v-for="(button, index) in action.button" :name="'button-group-' + kebabCase(button.label)" :action="{ button }">
+                        <slot v-for="button in action.button" :name="'button-group-' + kebabCase(button.label)" :action="{ button }">
                             <Link
                                 :href="`${route(button.route.name, button.route.parameters)}`" class=""
                                 :method="button.method ?? 'get'"
@@ -140,11 +139,12 @@ const originUrl = location.origin
                         </slot>
                         </div>
                     </slot>
+                    </template>
                 </div>
                 <slot name="other" :dataPageHead="{ ...props }"/>
             </div>
         </slot>
-        
+
     </div>
     <hr class="border-gray-300"/>
 </template>

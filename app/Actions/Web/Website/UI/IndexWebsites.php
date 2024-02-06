@@ -138,7 +138,7 @@ class IndexWebsites extends OrgAction
         return $queryBuilder
             ->defaultSort('websites.code')
             ->select(['websites.code', 'websites.name', 'websites.slug', 'websites.domain', 'status', 'websites.state'])
-            ->allowedSorts(['slug', 'code', 'name'])
+            ->allowedSorts([ 'code', 'name','domain','state'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -180,7 +180,7 @@ class IndexWebsites extends OrgAction
                     ]
                 )
                 ->column(key: 'state', label: ['fal', 'fa-yin-yang'], sortable: true, type: 'icon')
-                ->column(key: 'slug', label: __('code'), sortable: true)
+                ->column(key: 'code', label: __('code'), sortable: true)
                 ->column(key: 'name', label: __('name'), sortable: true)
                 ->column(key: 'domain', label: __('domain'), sortable: true)
                 ->defaultSort('level');
@@ -222,6 +222,7 @@ class IndexWebsites extends OrgAction
             } else {
                 $website = $this->parent->shop->website;
             }
+
             if (!$website) {
                 $createWebsite = [
                     'type'    => 'button',
@@ -242,6 +243,7 @@ class IndexWebsites extends OrgAction
                 ];
             }
         }
+
 
 
         return Inertia::render(
