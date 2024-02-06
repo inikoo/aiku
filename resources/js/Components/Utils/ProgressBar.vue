@@ -37,6 +37,8 @@ watch(
   { deep: true }
 );
 
+console.log(useEchoGrpPersonal().progressBars)
+
 </script>
 
 <template>
