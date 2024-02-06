@@ -31,9 +31,7 @@ use Lorisleiva\Actions\ActionRequest;
 class StorePallet extends OrgAction
 {
     private FulfilmentCustomer $fulfilmentCustomer;
-    /**
-     * @var \App\Models\Fulfilment\FulfilmentCustomer|\App\Models\Fulfilment\PalletDelivery
-     */
+
     private PalletDelivery|FulfilmentCustomer $parent;
 
     public function handle(FulfilmentCustomer $fulfilmentCustomer, array $modelData): Pallet
@@ -43,8 +41,7 @@ class StorePallet extends OrgAction
         }
 
 
-
-        if(Arr::exists($modelData, 'state') and Arr::get($modelData, 'state')!=PalletStateEnum::IN_PROCESS) {
+        if (Arr::exists($modelData, 'state') and Arr::get($modelData, 'state') != PalletStateEnum::IN_PROCESS) {
             if (!Arr::get($modelData, 'reference')) {
                 data_set(
                     $modelData,
@@ -58,8 +55,6 @@ class StorePallet extends OrgAction
         }
 
 
-
-
         data_set($modelData, 'group_id', $fulfilmentCustomer->group_id);
         data_set($modelData, 'organisation_id', $fulfilmentCustomer->organisation_id);
         data_set($modelData, 'fulfilment_id', $fulfilmentCustomer->fulfilment->id);
@@ -68,12 +63,12 @@ class StorePallet extends OrgAction
         /** @var Pallet $pallet */
         $pallet = $fulfilmentCustomer->pallets()->create($modelData);
 
-        if($pallet->reference) {
+        if ($pallet->reference) {
             $pallet->generateSlug();
             $pallet->save();
         }
 
-        if($this->parent instanceof PalletDelivery) {
+        if ($this->parent instanceof PalletDelivery) {
             HydratePalletDeliveries::run($this->parent);
         }
         FulfilmentCustomerHydratePallets::dispatch($fulfilmentCustomer);
@@ -151,6 +146,7 @@ class StorePallet extends OrgAction
         return $this->handle($fulfilmentCustomer, $this->validatedData);
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
     public function inCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): Pallet
     {
         $this->parent             = $fulfilmentCustomer;
@@ -162,6 +158,7 @@ class StorePallet extends OrgAction
 
     public function action(FulfilmentCustomer $fulfilmentCustomer, array $modelData, int $hydratorsDelay = 0): Pallet
     {
+        $this->parent             = $fulfilmentCustomer;
         $this->asAction           = true;
         $this->hydratorsDelay     = $hydratorsDelay;
         $this->fulfilmentCustomer = $fulfilmentCustomer;
@@ -173,7 +170,7 @@ class StorePallet extends OrgAction
 
     public function htmlResponse(Pallet $pallet, ActionRequest $request): RedirectResponse
     {
-        if($this->parent instanceof PalletDelivery) {
+        if ($this->parent instanceof PalletDelivery) {
             return Redirect::route('grp.org.fulfilments.show.crm.customers.show.pallet-deliveries.show', [
                 'organisation'       => $pallet->organisation->slug,
                 'fulfilment'         => $pallet->fulfilment->slug,
