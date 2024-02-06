@@ -136,7 +136,7 @@ class ShowPalletDelivery extends OrgAction
                                     'icon'  => ['fal', 'fa-upload'],
                                     'label' => 'upload',
                                     'route' => [
-                                        'name'       => 'grp.models.fulfilment-customer.pallet-delivery.pallet.store',
+                                        'name'       => 'grp.models.fulfilment-customer.pallet-delivery.pallet.import',
                                         'parameters' => [
                                             'organisation'       => $palletDelivery->organisation->slug,
                                             'fulfilment'         => $palletDelivery->fulfilment->slug,
@@ -190,6 +190,11 @@ class ShowPalletDelivery extends OrgAction
                             'palletDelivery'     => $palletDelivery->reference
                         ]
                     ]
+                ],
+
+                'upload' => [
+                    'event'     => 'action-progress',
+                    'channel'   => 'grp.personal.'.$this->organisation->id
                 ],
 
                 'tabs' => [

@@ -7,14 +7,18 @@
 
 namespace App\Actions\Fulfilment\Pallet;
 
+use App\Actions\Fulfilment\PalletDelivery\StorePalletDelivery;
 use App\Actions\Helpers\Uploads\ImportUpload;
 use App\Actions\Helpers\Uploads\StoreUploads;
 use App\Actions\Traits\WithImportModel;
 use App\Http\Resources\Helpers\UploadsResource;
 use App\Imports\CRM\PalletImport;
+use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Helpers\Upload;
+use App\Models\Inventory\Warehouse;
+use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Facades\Storage;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -42,7 +46,7 @@ class ImportPallet
         return $upload;
     }
 
-    public function inPalletDelivery(PalletDelivery $palletDelivery, ActionRequest $request): Upload
+    public function inPalletDelivery(Organisation $organisation, FulfilmentCustomer $fulfilmentCustomer, PalletDelivery $palletDelivery, ActionRequest $request): Upload
     {
         $file = $request->file('file');
         Storage::disk('local')->put($this->tmpPath, $file);
@@ -57,10 +61,18 @@ class ImportPallet
 
     public function rumImport($file, $command): Upload
     {
-        $palletDelivery = PalletDelivery::where('slug', $command->argument('palletDelivery'))->first();
+        if($palletDeliverySlug = $command->argument('palletDelivery')) {
+            $palletDelivery = PalletDelivery::where('slug', $palletDeliverySlug)->first();
+        } else {
+            $warehouse          = Warehouse::where('slug', $command->argument('warehouse'))->first();
+            $fulfilmentCustomer = FulfilmentCustomer::where('slug', $command->argument('fulfilmentCustomer'))->first();
+            $palletDelivery     = StorePalletDelivery::run($fulfilmentCustomer, [
+                'warehouse_id' => $warehouse->id,
+            ]);
+        }
 
         return $this->handle($palletDelivery, $file);
     }
 
-    public string $commandSignature = 'pallet:import {palletDelivery} {--g|g_drive} {filename}';
+    public string $commandSignature = 'pallet:import {--g|g_drive} {filename} {fulfilmentCustomer?} {warehouse?} {palletDelivery?}';
 }

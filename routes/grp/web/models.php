@@ -53,7 +53,7 @@ Route::name('fulfilment-customer.')->prefix('fulfilment-customer/{fulfilmentCust
     Route::delete('pallet-delivery/{palletDelivery}/pallet/{pallet}', DeletePallet::class)->name('pallet-delivery.pallet.delete');
     Route::post('pallet-delivery/{palletDelivery}/multiple-pallet', StoreMultiplePallets::class)->name('pallet-delivery.multiple-pallets.store');
 
-    Route::post('pallet-delivery/{palletDelivery}/pallet-upload', ImportPallet::class)->name('pallet-delivery.pallet.import');
+    Route::post('pallet-delivery/{palletDelivery}/pallet-upload', [ImportPallet::class, 'inPalletDelivery'])->name('pallet-delivery.pallet.import');
 });
 
 Route::name('shop.')->prefix('shop/{shop}')->group(function () {
