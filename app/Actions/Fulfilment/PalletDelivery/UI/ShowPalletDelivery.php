@@ -127,34 +127,40 @@ class ShowPalletDelivery extends OrgAction
                             ]
                         ],
                         [
-                            'type'  => 'button',
-                            'style' => 'primary',
-                            'icon'  => ['fal', 'fa-upload'],
-                            'label' => 'upload',
-                            'route' => [
-                                'name'       => 'grp.models.fulfilment-customer.pallet-delivery.pallet.store',
-                                'parameters' => [
-                                    'organisation'       => $palletDelivery->organisation->slug,
-                                    'fulfilment'         => $palletDelivery->fulfilment->slug,
-                                    'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->id,
-                                    'palletDelivery'     => $palletDelivery->reference
-                                ]
+                            'type'  => 'buttonGroup',
+                            'key'   => 'upload-add',
+                            'button'=> [
+                                [
+                                    'type'  => 'button',
+                                    'style' => 'primary',
+                                    'icon'  => ['fal', 'fa-upload'],
+                                    'label' => 'upload',
+                                    'route' => [
+                                        'name'       => 'grp.models.fulfilment-customer.pallet-delivery.pallet.store',
+                                        'parameters' => [
+                                            'organisation'       => $palletDelivery->organisation->slug,
+                                            'fulfilment'         => $palletDelivery->fulfilment->slug,
+                                            'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->id,
+                                            'palletDelivery'     => $palletDelivery->reference
+                                        ]
+                                    ]
+                                ],
+                                [
+                                    'type'  => 'button',
+                                    'style' => 'create',
+                                    'label' => __('add pallet'),
+                                    'route' => [
+                                        'name'       => 'grp.models.fulfilment-customer.pallet-delivery.pallet.store',
+                                        'parameters' => [
+                                            'organisation'       => $palletDelivery->organisation->slug,
+                                            'fulfilment'         => $palletDelivery->fulfilment->slug,
+                                            'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->id,
+                                            'palletDelivery'     => $palletDelivery->reference
+                                        ]
+                                    ]
+                                ],
                             ]
-                        ],
-                        [
-                            'type'  => 'button',
-                            'style' => 'create',
-                            'label' => __('add pallet'),
-                            'route' => [
-                                'name'       => 'grp.models.fulfilment-customer.pallet-delivery.pallet.store',
-                                'parameters' => [
-                                    'organisation'       => $palletDelivery->organisation->slug,
-                                    'fulfilment'         => $palletDelivery->fulfilment->slug,
-                                    'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->id,
-                                    'palletDelivery'     => $palletDelivery->reference
-                                ]
-                            ]
-                        ],
+                            ],
                         [
                             'type'    => 'button',
                             'style'   => 'save',

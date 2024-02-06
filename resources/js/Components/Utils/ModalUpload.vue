@@ -1,77 +1,87 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, watch } from 'vue'
 import { trans } from 'laravel-vue-i18n'
 
 import Modal from '@/Components/Utils/Modal.vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faFile as falFile } from '@fal'
-import { faFileDownload } from '@fas'
+import { faFile as falFile, faTimes } from '@fal'
+import { faFileDownload, faDownload } from '@fas'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import axios from 'axios'
 import { useFormatTime } from '@/Composables/useFormatTime'
-import { toRefs } from 'vue'
 import { routeType } from '@/types/route'
+import { Link } from "@inertiajs/vue3"
+import { useEchoOrgPersonal as echo } from '@/Stores/echo-org-personal'
 
-library.add(falFile, faFileDownload)
+library.add(falFile, faTimes, faFileDownload, faDownload)
 
 const props = defineProps<{
     modelValue: boolean
     routes: {
         upload: routeType
-        history?: routeType
         download?: routeType
+        history?: routeType
+    }
+    propName?: string
+    useEchoOrgPersonal: {
+        isShowProgress: boolean
     }
     // isUploaded: boolean
 }>()
 
-const emits = defineEmits(['update:modelValue', 'isShowProgress'])
+
+const emits = defineEmits();
 
 // const { isUploaded } = toRefs(props)
 
 const isLoadingUpload = ref(false)
-const dataHistory: any = ref([])
+const dataHistoryFileUpload: any = ref([])
 const isLoadingHistory = ref(false)
+const isDraggedFile = ref(false)
 
-// Running when file is uploaded
-const onUploadFile = async (fileUploaded: any) => {
+// Running when file is uploaded or dropped
+const onUploadFile = async (fileUploaded: File) => {
+    isDraggedFile.value = false
     isLoadingUpload.value = true
     try {
         await axios.post(
             route(props.routes.upload.name, props.routes.upload.parameters),
             {
-                file: fileUploaded.target.files[0],
+                file: fileUploaded,
             },
             {
                 headers: { "Content-Type": "multipart/form-data" },
             }
         )
-        emits('isShowProgress', true)
+        props.useEchoOrgPersonal.isShowProgress = true
+
     } catch (error: any) {
         console.error(error.message)
     }
     isLoadingUpload.value = false
 }
 
-const compVModel = computed(() => {
-    // to Watch purpose
-    return props.modelValue
-})
+const closeModal = () =>{
+ /*    useEchoOrgPersonal().isShowProgress = false */
+    props.useEchoOrgPersonal.isShowProgress = false
+    emits('update:modelValue', false)
+}
 
 // Fetch data history when Modal is opened
-watch(compVModel, async () => {
-    isLoadingHistory.value = true
-    if (props.routes?.history?.name) {
-        // if(!dataHistory.value.length) { // If dataHistory empty (not fetched yet) then fetch again
+watch(() => props.modelValue, async (newVal) => {
+    if (props.routes.history?.name) {
+        isLoadingHistory.value = true
+        if(newVal && !dataHistoryFileUpload.value.length) {  // to prevent fetch every modal appear
             try {
-                const data = await axios.get(route(props.routes.history?.name, props.routes.history?.parameters))
-                dataHistory.value = data.data.data
+                const data = await axios.get(route(props.routes.history.name, props.routes.history.parameters))
+                dataHistoryFileUpload.value = data.data.data
             } catch (error: any) {
-                dataHistory.value = []
+                dataHistoryFileUpload.value = []
                 console.error(error.message)
             }
-        // }
+        }
     } else {
-        dataHistory.value = []
+        dataHistoryFileUpload.value = []
     }
     isLoadingHistory.value = false
 })
@@ -79,28 +89,54 @@ watch(compVModel, async () => {
 </script>
 
 <template>
-    <Modal :isOpen="modelValue" @onClose="() => emits('update:modelValue', false)">
-        <div class="flex justify-center py-2 text-gray-600 font-medium mb-3">Upload your new website</div>
+    <Modal :isOpen="modelValue" @onClose="() => closeModal()" :closeButton="true">
+        <!-- <div @click="emits('update:modelValue', false)" class="group px-2 absolute right-6 top-4 cursor-pointer">
+            <FontAwesomeIcon icon='fal fa-times' class='text-gray-400 group-hover:text-gray-600' aria-hidden='true' />
+        </div> -->
+
+        <!-- Title -->
+        <div class="flex justify-center py-2 text-gray-600 font-medium mb-3">
+            <div>
+                <div>{{ trans(`Upload your new ${propName}`) }}</div>
+                    <div class="flex justify-center">
+                        <a v-if="routes?.download?.name" :href="route(routes?.download?.name, routes?.download?.parameters)" class="group text-xs text-gray-600 cursor-pointer px-2 w-fit" download>
+                            <span class="text-xs text-gray-400 group-hover:text-gray-600">
+                                <FontAwesomeIcon icon='fas fa-file-download' class='text-gray-400 group-hover:text-gray-600' aria-hidden='true' />
+                                {{ trans(`Download template .xlsx`) }}
+                            </span>
+                        </a>
+                    </div>
+                </div>
+        </div>
+
         <div class="grid grid-cols-2 gap-x-3">
             <!-- Column upload -->
             <div class="space-y-2">
-                <div class="relative flex items-center justify-center rounded-lg border border-dashed border-gray-700/25 px-6 h-48 bg-gray-400/10"
+                <div
+                    @drop="(e: any) => (e.preventDefault(), onUploadFile(e.dataTransfer.files[0]))"
+                    @dragover.prevent
+                    @dragenter.prevent
+                    @dragleave.prevent
+                    class="relative flex items-center justify-center rounded-lg border border-dashed border-gray-700/25 px-6 h-48 bg-gray-400/10"
                     :class="{'hover:bg-gray-400/20': !isLoadingUpload}"
                 >
                     <!-- Section: Upload area -->
                     <div v-if="!isLoadingUpload">
                         <label for="fileInput"
                             class="absolute cursor-pointer rounded-md inset-0 focus-within:outline-none focus-within:ring-0 focus-within:ring-gray-400 focus-within:ring-offset-0">
-                            <input type="file" name="file" id="fileInput" class="sr-only" @change="onUploadFile"
+                            <input type="file" name="file" id="fileInput" class="sr-only" @change="(e: any) => onUploadFile(e.target.files[0])"
                                 ref="fileInput" accept=".xlsx, .xls, .csv"/>
+                            <div v-if="isDraggedFile" class="text-2xl text-gray-500 h-full flex justify-center items-center">
+                                Drop your file here
+                            </div>
                         </label>
-                        <div class="text-center text-gray-500">
+                        <div v-if="!isDraggedFile" class="text-center text-gray-500">
                             <FontAwesomeIcon icon="fal fa-file" class="mx-auto h-12 w-12 text-gray-300" aria-hidden="true" />
                             <div class="mt-2 flex justify-center text-lg font-medium leading-6 ">
                                 <p class="pl-1">{{ trans("Upload file") }}</p>
                             </div>
-                            <div class="flex text-sm leading-6 ">
-                                <p class="pl-1">{{ trans("Click or drag & drop") }}</p>
+                            <div class="flex w-fit mx-auto text-sm leading-6 ">
+                                <p class="">{{ trans("Click here or drag & drop on this zone") }}</p>
                             </div>
                             <p class="text-xs">
                                 {{ trans(".csv, .xls, .xlsx") }}
@@ -114,27 +150,36 @@ watch(compVModel, async () => {
                         <p class="text-gray-500">Uploading..</p>
                     </div>
                 </div>
-
-                <!-- Download template -->
-                <a v-if="routes?.download?.name" :href="route(routes?.download?.name, routes?.download?.parameters)" target="_blank" class="group text-xs text-gray-600 cursor-pointer px-2 w-fit" >
-                    <FontAwesomeIcon icon='fas fa-file-download' class='text-gray-400 group-hover:text-gray-600' aria-hidden='true' />
-                    Download template .xlsx
-                </a>
             </div>
 
             <!-- Table History -->
             <div class="order-last flex items-start gap-x-2 gap-y-2 flex-col">
-                <div class="text-sm text-gray-600">Recent uploaded website:</div>
+                <div class="text-sm text-gray-600"> {{ trans('Recent uploaded') + ` ${propName}:` }} </div>
                 <div v-if="!isLoadingHistory" class="flex flex-wrap gap-x-2 gap-y-2">
-                    <template v-if="dataHistory.length && routes?.history">
-                        <div v-for="(history, index) in dataHistory" :key="index" class="w-36 bg-gray-100 border-t-[3px] border-gray-500 rounded px-2 py-1 flex flex-col justify-start gap-y-1 cursor-pointer hover:bg-gray-200">
-                            <p class="text-lg text-gray-700 font-semibold">{{ history.number_rows }} <span class="text-xs text-gray-500 font-normal">rows</span></p>
-                            <span class="text-gray-600 text-xs leading-none">{{ history.original_filename }}</span>
-                            <span class="text-gray-400 text-xxs">{{ useFormatTime(history.uploaded_at) }}</span>
-                        </div>
+                    <template v-if="[...dataHistoryFileUpload, ...echo().recentlyUploaded].length">
+                        <template v-for="(history, index) in [...dataHistoryFileUpload, ...echo().recentlyUploaded]" :key="index">
+                            <Link
+                                :href="history?.view_route?.name
+                                    ? route(history.view_route.name, history.view_route.parameters)
+                                    : route(dataHistoryFileUpload[0].view_route.name, {...dataHistoryFileUpload[0].view_route.parameters, upload: history.action_id})"
+                            >
+                                <div class="relative w-36 ring-1 ring-gray-300 rounded px-2 pt-2.5 pb-1 flex flex-col justify-start"
+                                    :class="history?.view_route?.name ? 'bg-white hover:bg-gray-100 border-t-[3px] border-gray-500 cursor-pointer' : ' bg-lime-50/50 hover:bg-lime-100/70 border-t-[3px] border-lime-400'"
+                                >
+                                    <p class="text-lg leading-none text-gray-700 font-semibold">
+                                        {{ history.number_rows ?? history.total }} <span class="text-xs text-gray-500 font-normal">rows</span>
+                                    </p>
+                                    <div class="flex gap-x-2">
+                                        <span class="text-lime-600 text-xxs">{{ history.number_success ?? history.data.number_success }} success,</span>
+                                        <span class="text-red-500 text-xxs">{{ history.number_fails ?? history.data.number_fails }} fails</span>
+                                    </div>
+                                    <span class="text-gray-400 text-xxs mt-2">{{ useFormatTime(history.uploaded_at ?? history.start_at, { formatTime: 'hms'}) }}</span>
+                                </div>
+                            </Link>
+                        </template>
                     </template>
                     <div v-else class="text-gray-500 text-xs">
-                        No history found.
+                        {{ trans("No previous uploads") }}
                     </div>
                 </div>
                 <div v-else class="flex flex-wrap gap-x-2 gap-y-2">

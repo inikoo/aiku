@@ -56,7 +56,6 @@ function customerRoute(pallet: object) {
 }
 
 
-console.log('props',props)
 
 </script>
 
