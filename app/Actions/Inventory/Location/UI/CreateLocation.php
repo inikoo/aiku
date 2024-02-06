@@ -1,24 +1,24 @@
 <?php
-
-/** @noinspection PhpUnusedParameterInspection */
-
 /*
- * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
- * Created: Tue, 11 Apr 2023 08:24:46 Central European Summer, Malaga, Spain
- * Copyright (c) 2023, Inikoo LTD
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Tue, 06 Feb 2024 12:39:37 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
 namespace App\Actions\Inventory\Location\UI;
 
-use App\Actions\InertiaAction;
+use App\Actions\OrgAction;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
+use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class CreateLocation extends InertiaAction
+class CreateLocation extends OrgAction
 {
+    private WarehouseArea|Warehouse $parent;
+
     public function handle(ActionRequest $request): Response
     {
         return Inertia::render(
@@ -28,22 +28,23 @@ class CreateLocation extends InertiaAction
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
-                'title'    => __('new location'),
-                'pageHead' => [
-                    'title'        => __('new location'),
-                    'actions'      => [
+                'title'       => __('new location'),
+                'pageHead'    => [
+                    'title'   => __('new location'),
+                    'actions' => [
                         [
                             'type'  => 'button',
                             'style' => 'cancel',
                             'label' => __('cancel'),
                             'route' => [
-                                'name'       => 'grp.org.warehouses.show.infrastructure.locations.index',
-                                'parameters' => array_values($request->route()->originalParameters())
-                            ],
+                                'name'       => preg_replace('/locations.create$/', 'index', $request->route()->getName()),
+                                'parameters' => $request->route()->originalParameters()
+                            ]
+
                         ]
                     ]
                 ],
-                'formData' => [
+                'formData'    => [
                     'blueprint' => [
                         [
                             'title'  => __('id'),
@@ -74,42 +75,20 @@ class CreateLocation extends InertiaAction
                             ]
                         ],
 
-                       /* [
-                            'title'  => __('picking pipelines'),
-                            'fields' => [
-                                'drop_shipping_area' => [
-                                    'type'  => 'input',
-                                    'label' => __('DS'),
-                                    'value' => '',
-                                ],
-                            ]
-                        ],
-                        [
-                            'title'  => __('operations'),
-                            'fields' => [
-                                'delete_at' => [
-                                    'type'  => 'input',
-                                    'label' => __('delete location'),
-                                    'value' => '',
-                                ],
-                            ]
-                        ], */
-
 
                     ],
-                    'route' => match ($request->route()->getName()) {
-                        'grp.org.warehouses.show.infrastructure.locations.create' => [
-                            'name'      => 'grp.models.warehouse.location.store',
-                            'arguments' => [$request->route()->originalParameters()['warehouse']->slug]
-                        ],
-                        default => [
-                            'name'      => 'grp.models.warehouse-area.location.store',
-                            'arguments' => [
-                                $request->route()->originalParameters()['warehouseArea']->slug
+                    'route'     =>
+                        match (class_basename($this->parent::class)) {
+                            'Warehouse' => [
+                                'name'       => 'grp.models.warehouse.location.store',
+                                'parameters' => $this->parent->id
+                            ],
+                            'WarehouseArea' => [
+                                'name'       => 'grp.models.warehouse-area.location.store',
+                                'parameters' => $this->parent->id
                             ]
-                        ]
-                    }
-                ],
+                        }
+                ]
 
             ]
         );
@@ -117,27 +96,23 @@ class CreateLocation extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo('inventory');
+        return $request->user()->hasPermissionTo("inventory.{$this->warehouse->id}.edit");
     }
 
 
-    public function inWarehouse(Warehouse $warehouse, ActionRequest $request): Response
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inWarehouse(Organisation $organisation, Warehouse $warehouse, ActionRequest $request): Response
     {
-        $this->initialisation($request);
+        $this->parent = $warehouse;
+        $this->initialisationFromWarehouse($warehouse, $request);
 
         return $this->handle($request);
     }
 
-    public function inWarehouseArea(WarehouseArea $warehouseArea, ActionRequest $request): Response
+    public function asController(Organisation $organisation, Warehouse $warehouse, WarehouseArea $warehouseArea, ActionRequest $request): Response
     {
-        $this->initialisation($request);
-
-        return $this->handle($request);
-    }
-
-    public function inWarehouseInWarehouseArea(Warehouse $warehouse, WarehouseArea $warehouseArea, ActionRequest $request): Response
-    {
-        $this->initialisation($request);
+        $this->parent = $warehouseArea;
+        $this->initialisationFromWarehouse($warehouse, $request);
 
         return $this->handle($request);
     }

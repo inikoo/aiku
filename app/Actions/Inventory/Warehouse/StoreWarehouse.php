@@ -131,9 +131,9 @@ class StoreWarehouse extends OrgAction
             return 1;
         }
 
-        $shop = $this->handle($organisation, $validatedData);
+        $warehouse = $this->handle($organisation, $validatedData);
 
-        $command->info("Warehouse $shop->code created successfully 🎉");
+        $command->info("Warehouse $warehouse->code created successfully 🎉");
 
         return 0;
     }

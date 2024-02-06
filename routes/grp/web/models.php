@@ -22,6 +22,7 @@ use App\Actions\HumanResources\Employee\UpdateEmployee;
 use App\Actions\HumanResources\Workplace\DeleteWorkplace;
 use App\Actions\HumanResources\Workplace\StoreWorkplace;
 use App\Actions\HumanResources\Workplace\UpdateWorkplace;
+use App\Actions\Inventory\Location\StoreLocation;
 use App\Actions\Market\Shop\StoreShop;
 use App\Actions\SysAdmin\Organisation\StoreOrganisation;
 use App\Actions\UI\Profile\GetProfileAppLoginQRCode;
@@ -58,6 +59,14 @@ Route::name('fulfilment-customer.')->prefix('fulfilment-customer/{fulfilmentCust
 
 Route::name('shop.')->prefix('shop/{shop}')->group(function () {
     Route::post('prospect/upload', [ImportShopProspects::class, 'inShop'])->name('prospects.upload');
+});
+
+
+Route::name('warehouse.')->prefix('warehouse/{warehouse:id}')->group(function () {
+    Route::post('location', [StoreLocation::class, 'inWarehouse'])->name('location.store');
+});
+Route::name('warehouse-area.')->prefix('warehouse-area/{warehouseArea:id}')->group(function () {
+    Route::post('location', [StoreLocation::class, 'inWarehouseArea'])->name('location.store');
 });
 
 Route::post('group/{group:id}/organisation', StoreOrganisation::class)->name('organisation.store');
