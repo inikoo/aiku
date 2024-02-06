@@ -81,7 +81,7 @@ class StoreLocation extends OrgAction
         ];
     }
 
-    public function asController(Warehouse $warehouse, ActionRequest $request): Location
+    public function inWarehouse(Warehouse $warehouse, ActionRequest $request): Location
     {
         $this->warehouse = $warehouse;
         $this->initialisation($warehouse->organisation, $request);
@@ -165,7 +165,7 @@ class StoreLocation extends OrgAction
         if($command->option('area')) {
             try {
                 $warehouseArea = WarehouseArea::where('slug', $command->option('area'))->firstOrFail();
-            } catch (Exception $e) {
+            } catch (Exception) {
                 $command->error("Warehouse area {$command->option('area')} not found");
                 return 1;
             }

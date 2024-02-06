@@ -11,6 +11,7 @@ use App\Actions\Inventory\Location\UI\CreateLocation;
 use App\Actions\Inventory\Location\UI\EditLocation;
 use App\Actions\Inventory\Location\UI\IndexLocations;
 use App\Actions\Inventory\Location\UI\ShowLocation;
+use App\Actions\Inventory\Warehouse\UI\EditWarehouse;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\Inventory\WarehouseArea\UI\CreateWarehouseArea;
 use App\Actions\Inventory\WarehouseArea\UI\EditWarehouseArea;
@@ -18,7 +19,7 @@ use App\Actions\Inventory\WarehouseArea\UI\IndexWarehouseAreas;
 use App\Actions\Inventory\WarehouseArea\UI\ShowWarehouseArea;
 
 Route::get('/', ShowWarehouse::class)->name('dashboard');
-
+Route::get('edit', EditWarehouse::class)->name('edit');
 Route::scopeBindings()->prefix('areas')->name('warehouse-areas.')->group(function () {
     Route::get('', [IndexWarehouseAreas::class, 'inOrganisation'])->name('index');
     Route::get('create', CreateWarehouseArea::class)->name('create');
