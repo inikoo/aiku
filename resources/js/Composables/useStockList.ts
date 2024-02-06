@@ -13,6 +13,22 @@ export const useBannerBackgroundColor = () => {
     ]
 }
 
+export const useSolidColor = [
+    'rgb(147, 51, 234)', // Purple
+    'rgb(239, 68, 68)', // Orange
+
+    'rgb(41, 37, 36)', // Stone
+    'rgb(255, 255, 255)', // White
+    'rgb(245, 158, 11)', // Amber
+    'rgb(20, 184, 166)',  // Teal
+    'rgb(51, 65, 85)',  // Slate700
+    'rgb(132, 204, 22)',  // Lime
+    'rgb(14, 165, 233)',  // Blue
+    'rgb(226, 232, 240)',  // Slate200
+    'rgb(79, 70, 229)',  // Indigo
+    'rgb(219, 39, 119)',  // Pink
+]
+
 export const useHeadlineText = () => {
     return [
         'Hello World!',
@@ -26,3 +42,11 @@ export const useHeadlineText = () => {
         'Market Trends Review.',
     ]
 }
+
+// 0: Leftsidebar, 1: NavigationSimple, 2: Text for LeftSideber, 3: Navigation & underline, 4: Text for Navigation, 5: -
+export const useColorTheme = [
+    ['#4f46e5', '#f3f4f6', '#4f46e5', '#facc15', '#334155', '#64748b'],
+    ['#f59e0b', '#ffffff', '#f59e0b', '#a3e635', '#334155', '#e2e8f0'],
+    ['#334155', '#ffffff', '#334155', '#38bdf8', '#334155', '#cbd5e1'],
+    ['#EEF5DB', '#64748b', '#ffffff', '#FE5F55', '#334155', '#b8d8d8'],
+]

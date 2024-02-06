@@ -109,7 +109,9 @@ class CreateWebsite extends OrgAction
                                     'leftAddOn' => [
                                         'label' => 'https://'
                                     ],
-                                    'required'  => true,
+                                    'placeholder' => 'example.com',
+                                    'required'    => true,
+                                    'value'       => ''
                                 ],
 
 
@@ -120,15 +122,18 @@ class CreateWebsite extends OrgAction
                             'fields' => [
 
                                 'code' => [
-                                    'type'     => 'input',
-                                    'label'    => __('code'),
-                                    'required' => true,
+                                    'type'        => 'input',
+                                    'label'       => __('code'),
+                                    'required'    => true,
+                                    'placeholder' => 'Enter code',
+                                    'value'       => ''
                                 ],
                                 'name' => [
-                                    'type'     => 'input',
-                                    'label'    => __('name'),
-                                    'required' => true,
-                                    'value'    => '',
+                                    'type'        => 'input',
+                                    'label'       => __('name'),
+                                    'placeholder' => 'Enter name',
+                                    'required'    => true,
+                                    'value'       => '',
                                 ],
 
 

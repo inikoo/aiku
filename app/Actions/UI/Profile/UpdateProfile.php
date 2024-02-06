@@ -26,6 +26,18 @@ class UpdateProfile
 
     public function handle(User $user, array $modelData, ?UploadedFile $avatar): User
     {
+        foreach ($modelData as $key => $value) {
+            data_set(
+                $modelData,
+                match ($key) {
+                    'app_theme'     => 'settings.app_theme',
+                    default         => $key
+                },
+                $value
+            );
+        };
+
+        data_forget($modelData, 'app_theme');
 
         if ($avatar) {
             SetUserAvatarFromImage::run(
@@ -38,7 +50,7 @@ class UpdateProfile
 
         $user->refresh();
 
-        return $this->update($user, Arr::except($modelData, SynchronisableUserFieldsEnum::values()), ['profile', 'settings']);
+        return $this->update($user, Arr::except($modelData, SynchronisableUserFieldsEnum::values()), ['profile']);
     }
 
 
@@ -49,6 +61,7 @@ class UpdateProfile
             'email'       => 'sometimes|required|email|unique:App\Models\SysAdmin\GroupUser,email',
             'about'       => 'sometimes|nullable|string|max:255',
             'language_id' => ['sometimes', 'required', 'exists:languages,id'],
+            'app_theme'   => ['sometimes', 'required'],
             'avatar'      => [
                 'sometimes',
                 'nullable',
@@ -66,7 +79,6 @@ class UpdateProfile
         $this->fillFromRequest($request);
 
         $validated = $this->validateAttributes();
-
         return $this->handle($request->user(), Arr::except($validated, 'avatar'), Arr::get($validated, 'avatar'));
     }
 

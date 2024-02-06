@@ -38,8 +38,8 @@ defineEmits<{
     <div class="relative h-full flex z-50 select-none justify-center items-center px-8 cursor-pointer"
         :class="[
             isTabActive == 'language'
-                ? layout.systemName === 'org' ? 'bg-gray-200 text-gray-700' : 'bg-gray-700 text-gray-300'
-                : layout.systemName === 'org' ? 'hover:bg-gray-300' : 'text-gray-300 hover:bg-gray-600',
+                ? layout.app.name === 'org' ? 'bg-gray-200 text-gray-700' : 'bg-gray-700 text-gray-300'
+                : layout.app.name === 'org' ? 'hover:bg-gray-300' : 'text-gray-300 hover:bg-gray-600',
             ,
         ]"
     >

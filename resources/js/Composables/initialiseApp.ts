@@ -93,6 +93,11 @@ export const initialiseApp = () => {
             layout.group = usePage().props.layout.group
         }
 
+        // Set App theme
+        if(usePage().props.layout?.app_theme) {
+            layout.app.theme = usePage().props.layout?.app_theme
+        }
+
         // Set Organisations (for Multiselect in Topbar)
         if (usePage().props.layout?.organisations) {
             layout.organisations = usePage().props.layout.organisations
@@ -114,6 +119,6 @@ export const initialiseApp = () => {
             layout.user = usePage().props.auth.user
         }
 
-        layout.systemName = "Aiku"
+        layout.app.name = "Aiku"
     })
 }

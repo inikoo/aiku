@@ -55,7 +55,7 @@ class GetGroupNavigation
         if ($user->hasPermissionTo('supply-chain.view')) {
             $groupNavigation['organisations'] = [
                 'label'   => __('Organisations'),
-                'icon'    => ['fal', 'fa-user'],
+                'icon'    => ['fal', 'fa-building'],
                 'route'   => [
                     'name' => 'grp.orgs.index'
                 ],
