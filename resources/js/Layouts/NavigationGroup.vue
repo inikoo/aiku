@@ -32,9 +32,12 @@ const isPanelOpen = ref(isCurrentRouteActive.value || props.itemKey == layout.or
     <Disclosure >
         <div class="relative isolate ring-1 ring-white/20 rounded transition-all duration-200 ease-in-out"
             :class="layout.leftSidebar.show ? 'px-1' : 'px-0'"
+            :style="{'box-shadow': `0 0 0 1px ${layout.app.theme[1]}99`}"
         >
             <!-- Label: Icon shops/warehouses and slug -->
-            <DisclosureButton @click="isPanelOpen = !isPanelOpen" class="w-full flex justify-between items-end pt-2 px-2.5 pb-2 text-indigo-100/70">
+            <DisclosureButton @click="isPanelOpen = !isPanelOpen" class="w-full flex justify-between items-end pt-2 px-2.5 pb-2"
+                :style="{color: layout.app.theme[1] + '99'}"
+            >
                 <div class="flex gap-x-1.5 items-center">
                     <FontAwesomeIcon v-if="icon" :icon='icon' class='text-xxs' fixed-width aria-hidden='true' />
                     <template v-if="layout.leftSidebar.show">

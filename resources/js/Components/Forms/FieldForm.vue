@@ -33,6 +33,7 @@ import InputWithAddOn from '@/Components/Forms/Fields/InputWithAddOn.vue'
 import Checkbox from '@/Components/Forms/Fields/Checkbox.vue'
 import EmployeePosition from '@/Components/Forms/Fields/EmployeePosition.vue'
 import AppLogin from '@/Components/Forms/Fields/AppLogin.vue'
+import AppTheme from '@/Components/Forms/Fields/AppTheme.vue'
 
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
@@ -87,6 +88,7 @@ const components: {[key: string]: Component} = {
     'checkbox': Checkbox,
     'employeePosition': EmployeePosition,
     'app_login': AppLogin,
+    'app_theme': AppTheme,
 }
 
 const getComponent = (componentName: string) => {
@@ -169,7 +171,7 @@ const checkVerification = async () => {
                     <button v-if="!fieldData.verification" class="align-bottom" :disabled="form.processing || !form.isDirty" type="submit">
                         <FontAwesomeIcon v-if="form.isDirty" icon="fad fa-save" class="h-8 text-org-600"
                             :style="{
-                                '--fa-secondary-color': [layout.systemName === 'org' ? 'rgb(69, 38, 80)' : 'rgb(0, 255, 4)']
+                                '--fa-secondary-color': [layout.app.name === 'org' ? 'rgb(69, 38, 80)' : 'rgb(0, 255, 4)']
                             }" aria-hidden="true" />
                         <FontAwesomeIcon v-else icon="fal fa-save" class="h-8 text-gray-300" aria-hidden="true" />
                     </button>

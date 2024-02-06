@@ -64,8 +64,13 @@ const label = {
                     </button>
 
                     <!-- App Title: Image and Title -->
-                    <div class="bg-indigo-700 flex flex-1 items-center justify-center md:justify-start transition-all duration-300 ease-in-out"
+                    <div class="flex flex-1 items-center justify-center md:justify-start transition-all duration-300 ease-in-out"
                         :class="[layoutStore.leftSidebar.show ? 'md:w-48 md:pr-4' : 'md:w-12']"
+                        :style="{
+                            'background-color': layoutStore.app.theme[0],
+                            'color': layoutStore.app.theme[1],
+                            'border-bottom': `1px solid ${layoutStore.app.theme[1]}3F`
+                        }"
                     >
                         <Link :href="layoutStore.app?.url ?? '#'"
                             class="hidden md:flex flex-nowrap items-center h-full overflow-hidden gap-x-1.5 transition-all duration-200 ease-in-out"
@@ -73,7 +78,7 @@ const label = {
                         >
                             <Image :src="layoutStore.organisations.data.find((item) => item.slug == (layoutStore.currentParams?.organisation || false))?.logo || layoutStore.group?.logo" class="aspect-square h-5"/>
                             <Transition name="slide-to-left">
-                                <p v-if="layoutStore.leftSidebar.show" class="bg-gradient-to-r from-white to-indigo-100 text-transparent text-lg bg-clip-text font-bold whitespace-nowrap leading-none lg:truncate">
+                                <p v-if="layoutStore.leftSidebar.show" class="text-lg bg-clip-text font-bold whitespace-nowrap leading-none lg:truncate">
                                     Aiku
                                 </p>
                             </Transition>

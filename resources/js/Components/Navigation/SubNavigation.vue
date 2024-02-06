@@ -33,7 +33,7 @@ const originUrl = location.origin
                     <FontAwesomeIcon v-if="item.leftIcon" :icon="item.leftIcon.icon" :title="capitalize(item.leftIcon.tooltip)" aria-hidden="true" class="pr-2" />
                     <MetaLabel :item=item />
                     <div :class="[
-                        $page.url.startsWith((route(item.href.name, item.href.parameters)).replace(new RegExp(originUrl, 'g'), '')) ? `bottomNavigationActive${capitalize(layout.systemName)}` : `bottomNavigation${capitalize(layout.systemName)}`
+                        $page.url.startsWith((route(item.href.name, item.href.parameters)).replace(new RegExp(originUrl, 'g'), '')) ? `bottomNavigationActive${capitalize(layout.app.name)}` : `bottomNavigation${capitalize(layout.app.name)}`
                     ]" />
                 </Link>
                 

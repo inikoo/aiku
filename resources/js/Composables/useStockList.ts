@@ -13,6 +13,22 @@ export const useBannerBackgroundColor = () => {
     ]
 }
 
+export const useSolidColor = [
+    'rgb(147, 51, 234)', // Purple
+    'rgb(239, 68, 68)', // Orange
+
+    'rgb(41, 37, 36)', // Stone
+    'rgb(255, 255, 255)', // White
+    'rgb(245, 158, 11)', // Amber
+    'rgb(20, 184, 166)',  // Teal
+    'rgb(51, 65, 85)',  // Slate700
+    'rgb(132, 204, 22)',  // Lime
+    'rgb(14, 165, 233)',  // Blue
+    'rgb(226, 232, 240)',  // Slate200
+    'rgb(79, 70, 229)',  // Indigo
+    'rgb(219, 39, 119)',  // Pink
+]
+
 export const useHeadlineText = () => {
     return [
         'Hello World!',

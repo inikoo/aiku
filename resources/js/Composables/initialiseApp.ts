@@ -114,6 +114,6 @@ export const initialiseApp = () => {
             layout.user = usePage().props.auth.user
         }
 
-        layout.systemName = "Aiku"
+        layout.app.name = "Aiku"
     })
 }

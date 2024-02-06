@@ -65,7 +65,11 @@ class ShowProfile
                                 "label" => __("photo"),
                                 "value" => $user->avatarImageSources(320, 320)
                             ],
-
+                            "appTheme" => [
+                                "type"  => "app_theme",
+                                "label" => __("theme color"),
+                                // "value" => $user->settings->app_theme,
+                            ],
                         ],
                     ],
                     [

@@ -9,6 +9,7 @@ import { Navigation, grpNavigation, orgNavigation } from "@/types/Navigation"
 import { defineStore } from "pinia"
 import { Image } from "@/types/Image"
 import { routeType } from "@/types/route"
+import { Colors } from "@/types/Color"
 
 interface OrganisationsData {
     id: number
@@ -59,6 +60,11 @@ interface OrganisationState {
 export const useLayoutStore = defineStore("layout", {
     state: () => (
         {
+            app: {
+                name: "",  // For styling navigation depend on which App
+                color: null as unknown | Colors,  // Styling layout color
+                theme: ['#EEF5DB', '#faccdd', '#64748b'] as string[],  // For styling app color
+            },
             currentModule: "",
             currentRoute: "grp.dashboard.show", // Define value to avoid route null at first load
             currentParams: {} as {[key: string]: string},
@@ -85,7 +91,6 @@ export const useLayoutStore = defineStore("layout", {
                     show: false
                 }
             },
-            systemName: "",  // For styling navigation depend on which App
             user: {} as { id: number, avatar_thumbnail: Image, email: string, username: string },
         }
     ),
