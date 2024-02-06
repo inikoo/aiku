@@ -127,19 +127,37 @@ class ShowPalletDelivery extends OrgAction
                             ]
                         ],
                         [
-                            'type'    => 'button',
-                            'style'   => 'create',
-                            'tooltip' => __('add pallet'),
-                            'label'   => __('add pallet'),
-                            'route'   => [
-                                'name'       => 'grp.models.fulfilment-customer.pallet-delivery.pallet.store',
-                                'parameters' => [
-                                    'organisation'       => $palletDelivery->organisation->slug,
-                                    'fulfilment'         => $palletDelivery->fulfilment->slug,
-                                    'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->id,
-                                    'palletDelivery'     => $palletDelivery->reference
+                            'type'    => 'buttonGroup',
+                            'buttons' => [
+                                [
+                                    'style'   => 'primary',
+                                    'icon'    => ['fal', 'fa-upload'],
+                                    'label'   => 'upload',
+                                    'route'   => [
+                                        'name'       => 'grp.models.fulfilment-customer.pallet-delivery.pallet.store',
+                                        'parameters' => [
+                                            'organisation'       => $palletDelivery->organisation->slug,
+                                            'fulfilment'         => $palletDelivery->fulfilment->slug,
+                                            'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->id,
+                                            'palletDelivery'     => $palletDelivery->reference
+                                        ]
+                                    ]
+                                ],
+                                [
+                                    'type'    => 'button',
+                                    'style'   => 'create',
+                                    'label'   => __('add pallet'),
+                                    'route'   => [
+                                        'name'       => 'grp.models.fulfilment-customer.pallet-delivery.pallet.store',
+                                        'parameters' => [
+                                            'organisation'       => $palletDelivery->organisation->slug,
+                                            'fulfilment'         => $palletDelivery->fulfilment->slug,
+                                            'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->id,
+                                            'palletDelivery'     => $palletDelivery->reference
+                                        ]
+                                    ]
                                 ]
-                            ]
+                            ],
                         ],
                         [
                             'type'    => 'button',
@@ -156,7 +174,7 @@ class ShowPalletDelivery extends OrgAction
                                     'palletDelivery'     => $palletDelivery->reference
                                 ]
                             ]
-                        ]
+                        ],
                     ]
                 ],
 
