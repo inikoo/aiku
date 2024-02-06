@@ -75,7 +75,6 @@ onUnmounted(() => {
             <TopbarSubsections
                 v-if="nav.topMenu?.subSections"
                 :subSections="nav.topMenu.subSections"
-                :root="nav.root"
             />
         </Teleport>
     </template>

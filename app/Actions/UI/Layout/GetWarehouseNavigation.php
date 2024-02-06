@@ -71,6 +71,7 @@ class GetWarehouseNavigation
                 "topMenu" => [
                     "subSections" => [
                         [
+                            "root"    => "grp.org.warehouses.show.infrastructure.dashboard",
                             "tooltip" => __("warehouses"),
                             "icon"    => ["fal", "fa-warehouse-alt"],
                             "route"   => [
@@ -80,6 +81,7 @@ class GetWarehouseNavigation
                             "label" => null,
                         ],
                         [
+                            "root"    => "grp.org.warehouses.show.infrastructure.warehouse-areas.",
                             "label"   => __("areas"),
                             "tooltip" => __("Warehouse Areas"),
                             "icon"    => ["fal", "fa-map-signs"],
@@ -90,6 +92,7 @@ class GetWarehouseNavigation
                             ],
                         ],
                         [
+                            "root"    => "grp.org.warehouses.show.infrastructure.locations.",
                             "label"   => __("locations"),
                             "tooltip" => __("Locations"),
                             "icon"    => ["fal", "fa-inventory"],

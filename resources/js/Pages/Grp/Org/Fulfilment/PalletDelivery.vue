@@ -101,6 +101,10 @@ const handleClick = (action) => {
         data,
         {
             onBefore: (visit) => { loading.value = true },
+            onSuccess: (page) => { 
+              console.log(page)
+              if(action.label == 'submit') timeline.value = page.props.data.data
+            },
             onFinish: (visit) => { loading.value = false },
         })
 };

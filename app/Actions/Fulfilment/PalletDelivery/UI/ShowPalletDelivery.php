@@ -93,24 +93,24 @@ class ShowPalletDelivery extends OrgAction
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
-                'navigation'  => [
+                'navigation' => [
                     'previous' => $this->getPrevious($palletDelivery, $request),
                     'next'     => $this->getNext($palletDelivery, $request),
                 ],
-                'pageHead'    => [
+                'pageHead' => [
                     'container' => $container,
                     'title'     => __($palletDelivery->reference),
                     'icon'      => [
                         'icon'  => ['fal', 'fa-truck-couch'],
                         'title' => __($palletDelivery->reference)
                     ],
-                    'edit'      => $this->canEdit ? [
+                    'edit' => $this->canEdit ? [
                         'route' => [
                             'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
                             'parameters' => array_values($request->route()->originalParameters())
                         ]
                     ] : false,
-                    'actions'   => [
+                    'actions' => [
                         [
                             'type'    => 'button',
                             'style'   => 'create',
@@ -127,11 +127,25 @@ class ShowPalletDelivery extends OrgAction
                             ]
                         ],
                         [
-                            'type'    => 'button',
-                            'style'   => 'create',
-                            'tooltip' => __('add pallet'),
-                            'label'   => __('add pallet'),
-                            'route'   => [
+                            'type'  => 'button',
+                            'style' => 'primary',
+                            'icon'  => ['fal', 'fa-upload'],
+                            'label' => 'upload',
+                            'route' => [
+                                'name'       => 'grp.models.fulfilment-customer.pallet-delivery.pallet.store',
+                                'parameters' => [
+                                    'organisation'       => $palletDelivery->organisation->slug,
+                                    'fulfilment'         => $palletDelivery->fulfilment->slug,
+                                    'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->id,
+                                    'palletDelivery'     => $palletDelivery->reference
+                                ]
+                            ]
+                        ],
+                        [
+                            'type'  => 'button',
+                            'style' => 'create',
+                            'label' => __('add pallet'),
+                            'route' => [
                                 'name'       => 'grp.models.fulfilment-customer.pallet-delivery.pallet.store',
                                 'parameters' => [
                                     'organisation'       => $palletDelivery->organisation->slug,
@@ -156,12 +170,12 @@ class ShowPalletDelivery extends OrgAction
                                     'palletDelivery'     => $palletDelivery->reference
                                 ]
                             ]
-                        ]
+                        ],
                     ]
                 ],
 
                 'updateRoute' => [
-                    'route'   => [
+                    'route' => [
                         'name'       => 'grp.models.fulfilment-customer.pallet-delivery.timeline.update',
                         'parameters' => [
                             'organisation'       => $palletDelivery->organisation->slug,
@@ -214,7 +228,7 @@ class ShowPalletDelivery extends OrgAction
                         ],
 
                     ],
-                    'suffix'         => $suffix
+                    'suffix' => $suffix
                 ],
             ];
         };
@@ -303,10 +317,10 @@ class ShowPalletDelivery extends OrgAction
                 'route' => [
                     'name'       => $routeName,
                     'parameters' => [
-                        'organisation'         => $palletDelivery->organisation->slug,
-                        'fulfilment'           => $palletDelivery->fulfilment->slug,
-                        'fulfilmentCustomer'   => $palletDelivery->fulfilmentCustomer->slug,
-                        'palletDelivery'       => $palletDelivery->reference
+                        'organisation'       => $palletDelivery->organisation->slug,
+                        'fulfilment'         => $palletDelivery->fulfilment->slug,
+                        'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->slug,
+                        'palletDelivery'     => $palletDelivery->reference
                     ]
 
                 ]
