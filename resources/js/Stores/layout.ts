@@ -4,6 +4,7 @@
  *  Copyright (c) 2022, Raul A Perusquia F
  */
 import { Navigation, grpNavigation, orgNavigation } from "@/types/Navigation"
+import { useColorTheme } from '@/Composables/useStockList'
 
 
 import { defineStore } from "pinia"
@@ -63,7 +64,7 @@ export const useLayoutStore = defineStore("layout", {
             app: {
                 name: "",  // For styling navigation depend on which App
                 color: null as unknown | Colors,  // Styling layout color
-                theme: ['#EEF5DB', '#faccdd', '#64748b'] as string[],  // For styling app color
+                theme: useColorTheme[0] as string[],  // For styling app color
             },
             currentModule: "",
             currentRoute: "grp.dashboard.show", // Define value to avoid route null at first load
