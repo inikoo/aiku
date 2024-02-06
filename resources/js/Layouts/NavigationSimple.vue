@@ -50,11 +50,17 @@ onUnmounted(() => {
     <!-- <div class="text-xxs">{{ layout.currentRoute }} <br> {{ nav.route.name }}</div> -->
     <Link :href="nav.route?.name ? route(nav.route.name, nav.route.parameters) : '#'"
         class="group flex items-center px-2 text-sm gap-x-2" :class="[
-            isNavigationActive(props.nav.root || 'xx.xx.xx.xx')
+            isNavigationActive(props.nav.root)
                 ? 'navigationActive'
                 : 'navigation',
             layout.leftSidebar.show ? '' : '',
-        ]" :aria-current="navKey === layout.currentModule ? 'page' : undefined"
+        ]"
+        :style="[isNavigationActive(props.nav.root) ? {
+            'background-color': layout.app?.theme[1],
+            'color': layout.app?.theme[2]
+        } : {} ]"
+        
+        :aria-current="navKey === layout.currentModule ? 'page' : undefined"
         v-tooltip="layout.leftSidebar.show ? false : capitalize(nav.label)"
     >
         <FontAwesomeIcon v-if="nav.icon" aria-hidden="true" class="flex-shrink-0 h-4 w-4" fixed-width :icon="nav.icon" />

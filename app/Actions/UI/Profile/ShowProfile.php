@@ -7,6 +7,7 @@
 
 namespace App\Actions\UI\Profile;
 
+use Arr;
 use App\Actions\Assets\Language\UI\GetLanguagesOptions;
 use App\Actions\UI\Dashboard\ShowDashboard;
 use App\Actions\UI\WithInertia;
@@ -65,7 +66,11 @@ class ShowProfile
                                 "label" => __("photo"),
                                 "value" => $user->avatarImageSources(320, 320)
                             ],
-
+                            "app_theme" => [
+                                "type"  => "app_theme",
+                                "label" => __("theme color"),
+                                "value" => Arr::get($user->settings, 'app_theme'),
+                            ],
                         ],
                     ],
                     [
@@ -153,7 +158,7 @@ class ShowProfile
                 ],
                 "args"      => [
                     "updateRoute" => [
-                        "name"       => "models.profile.update"
+                        "name"       => "grp.models.profile.update"
                     ],
                 ],
             ],
