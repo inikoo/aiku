@@ -38,10 +38,11 @@ use Spatie\Sluggable\SlugOptions;
  * @property PalletDeliveryStateEnum $state
  * @property string|null $booked_in_at
  * @property string|null $settled_at
- * @property string|null $in_process_at
- * @property string|null $ready_at
- * @property string|null $received_at
- * @property string|null $done_at
+ * @property \Illuminate\Support\Carbon|null $in_process_at
+ * @property \Illuminate\Support\Carbon|null $submitted_at
+ * @property \Illuminate\Support\Carbon|null $confirmed_at
+ * @property \Illuminate\Support\Carbon|null $received_at
+ * @property \Illuminate\Support\Carbon|null $done_at
  * @property string|null $dispatched_at
  * @property string|null $date
  * @property array|null $data
