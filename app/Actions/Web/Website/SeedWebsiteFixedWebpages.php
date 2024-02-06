@@ -28,9 +28,8 @@ class SeedWebsiteFixedWebpages extends OrgAction
 
     public function handle(Website $website): Website
     {
-        $storefront = StoreWebpage::run($website, [
+        $storefront = StoreWebpage::make()->action($website, [
             'code'     => 'storefront',
-            'url'      => '',
             'type'     => WebpageTypeEnum::STOREFRONT,
             'purpose'  => WebpagePurposeEnum::STOREFRONT,
             'is_fixed' => true,
@@ -44,23 +43,24 @@ class SeedWebsiteFixedWebpages extends OrgAction
         );
 
         foreach (Storage::disk('datasets')->files('webpages/common') as $file) {
-            $this->addWebpage($website, $storefront, $file);
+            $this->addWebpage($storefront, $file);
         }
 
         foreach (Storage::disk('datasets')->files('webpages/'.$website->type->value) as $file) {
-            $this->addWebpage($website, $storefront, $file);
+            $this->addWebpage($storefront, $file);
         }
 
 
         return $website;
     }
 
-    private function addWebpage(Website $website, Webpage $home, $file): void
+    private function addWebpage(Webpage $home, $file): void
     {
         $modelData = json_decode(Storage::disk('datasets')->get($file), true);
-        data_set($modelData, 'parent_id', $home->id, overwrite: false);
-        StoreWebpage::run(
-            $website,
+
+
+        StoreWebpage::make()->action(
+            $home,
             array_merge(
                 $modelData,
                 [

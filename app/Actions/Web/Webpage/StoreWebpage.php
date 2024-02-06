@@ -10,14 +10,15 @@ namespace App\Actions\Web\Webpage;
 use App\Actions\Helpers\Snapshot\StoreWebpageSnapshot;
 use App\Actions\OrgAction;
 use App\Actions\Web\Webpage\Hydrators\WebpageHydrateUniversalSearch;
+use App\Actions\Web\Webpage\Hydrators\WebpageHydrateWebpages;
 use App\Actions\Web\Website\Hydrators\WebsiteHydrateWebpages;
 use App\Enums\Web\Webpage\WebpagePurposeEnum;
 use App\Enums\Web\Webpage\WebpageStateEnum;
 use App\Enums\Web\Webpage\WebpageTypeEnum;
 use App\Models\Web\Website;
 use App\Models\Web\Webpage;
+use App\Rules\AlphaDashSlash;
 use App\Rules\IUnique;
-use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -29,16 +30,25 @@ class StoreWebpage extends OrgAction
 
     private Website $website;
 
-    public function handle(Website $website, array $modelData): Webpage
+    private Webpage|Website $parent;
+
+    public function handle(Website|Webpage $parent, array $modelData): Webpage
     {
+        data_set($modelData, 'url', '', overwrite: false);
 
-        data_set($modelData, 'level', $this->getLevel(Arr::get($modelData, 'parent_id')));
+        if ($parent instanceof Webpage) {
+            data_set($modelData, 'website_id', $parent->website_id);
+            data_set($modelData, 'level', $parent->level + 1);
+        } else {
+            data_set($modelData, 'level', 1);
+        }
 
-        data_set($modelData, 'group_id', $website->group_id);
-        data_set($modelData, 'organisation_id', $website->organisation_id);
+
+        data_set($modelData, 'group_id', $parent->group_id);
+        data_set($modelData, 'organisation_id', $parent->organisation_id);
 
         /** @var Webpage $webpage */
-        $webpage = $website->webpages()->create($modelData);
+        $webpage = $parent->webpages()->create($modelData);
         $webpage->stats()->create();
 
         $snapshot = StoreWebpageSnapshot::run(
@@ -61,7 +71,10 @@ class StoreWebpage extends OrgAction
 
 
         WebpageHydrateUniversalSearch::run($webpage);
-        WebsiteHydrateWebpages::dispatch($website);
+        WebsiteHydrateWebpages::dispatch($webpage->website);
+        if ($webpage->parent_id) {
+            WebpageHydrateWebpages::dispatch($webpage->parent);
+        }
 
         return $webpage;
     }
@@ -77,21 +90,12 @@ class StoreWebpage extends OrgAction
 
     public function rules(): array
     {
-        return [
-            'url'       => [
-                'required','ascii','lowercase','max:255','alpha_dash',
-                new IUnique(
-                    table: 'webpages',
-                    extraConditions: [
-                        [
-                            'column' => 'website_id',
-                            'value'  => $this->website->id
-                        ],
-                    ]
-                ),
-            ],
+        $rules = [
             'code'      => [
-                'required','ascii','max:64','alpha_dash',
+                'required',
+                'ascii',
+                'max:64',
+                'alpha_dash',
                 new IUnique(
                     table: 'webpages',
                     extraConditions: [
@@ -103,26 +107,42 @@ class StoreWebpage extends OrgAction
             'purpose'   => ['required', Rule::enum(WebpagePurposeEnum::class)],
             'type'      => ['required', Rule::enum(WebpageTypeEnum::class)],
             'state'     => ['sometimes', Rule::enum(WebpageStateEnum::class)],
+            'is_fixed'  => ['sometimes', 'boolean'],
+            'ready_at'  => ['sometimes', 'date'],
         ];
-    }
 
-    public function action(Website $website, array $modelData): Webpage
-    {
-        $this->asAction = true;
-        $this->website  = $website;
-        $this->initialisationFromShop($website->shop, $modelData);
-
-        return $this->handle($website, $this->validatedData);
-    }
-
-    public function getLevel($parent_id): int
-    {
-        /** @var Webpage $parent */
-        if ($parent_id && $parent = Webpage::where('id', $parent_id)->first()) {
-            return $parent->level + 1;
+        if ($this->parent instanceof Webpage) {
+            $rules['url'] = [
+                'required',
+                'ascii',
+                'lowercase',
+                'max:255',
+                new AlphaDashSlash(),
+                new IUnique(
+                    table: 'webpages',
+                    extraConditions: [
+                        [
+                            'column' => 'website_id',
+                            'value'  => $this->website->id
+                        ],
+                    ]
+                ),
+            ];
         }
 
-        return 1;
+        return $rules;
     }
+
+
+    public function action(Website|Webpage $parent, array $modelData): Webpage
+    {
+        $this->asAction = true;
+        $this->parent   = $parent;
+        $this->website  = $parent instanceof Website ? $parent : $parent->website;
+        $this->initialisationFromShop($this->website->shop, $modelData);
+
+        return $this->handle($parent, $this->validatedData);
+    }
+
 
 }

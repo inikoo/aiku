@@ -21,6 +21,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -63,10 +64,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, Deployment> $deployments
  * @property-read Group $group
  * @property-read Organisation $organisation
+ * @property-read Webpage|null $parent
  * @property-read Collection<int, Snapshot> $snapshots
  * @property-read \App\Models\Web\WebpageStats|null $stats
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
  * @property-read Snapshot|null $unpublishedSnapshot
+ * @property-read Collection<int, Webpage> $webpages
  * @property-read \App\Models\Web\Website $website
  * @method static Builder|Webpage newModelQuery()
  * @method static Builder|Webpage newQuery()
@@ -153,5 +156,16 @@ class Webpage extends Model
     {
         return $this->morphMany(Deployment::class, 'model');
     }
+
+    public function webpages(): HasMany
+    {
+        return $this->hasMany(Webpage::class, 'parent_id');
+    }
+
+    public function parent(): BelongsTo
+    {
+        return $this->belongsTo(Webpage::class, 'parent_id');
+    }
+
 
 }
