@@ -11,7 +11,9 @@ use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateGuests;
 use App\Actions\SysAdmin\Guest\Hydrators\GuestHydrateUniversalSearch;
 use App\Actions\SysAdmin\User\StoreUser;
 use App\Actions\SysAdmin\User\UserAddRoles;
+use App\Enums\Market\Shop\ShopTypeEnum;
 use App\Enums\SysAdmin\Authorisation\RolesEnum;
+use App\Models\Inventory\Warehouse;
 use App\Models\Market\Shop;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Guest;
@@ -48,7 +50,7 @@ class StoreGuest
         Arr::forget($modelData, 'roles');
 
 
-        /** @var \App\Models\SysAdmin\Guest $guest */
+        /** @var Guest $guest */
         $guest = $group->guests()->create(
             Arr::except($modelData, [
                 'username',
@@ -82,8 +84,19 @@ class StoreGuest
                     ]);
                 }
                 foreach (Shop::all() as $shop) {
+                    if ($shop->type == ShopTypeEnum::FULFILMENT) {
+                        UserAddRoles::run($user, [
+                            Role::where('name', RolesEnum::getRoleName(RolesEnum::FULFILMENT_WAREHOUSE_SUPERVISOR->value, $shop->fulfilment))->first()
+                        ]);
+                    } else {
+                        UserAddRoles::run($user, [
+                            Role::where('name', RolesEnum::getRoleName(RolesEnum::SHOP_ADMIN->value, $shop))->first()
+                        ]);
+                    }
+                }
+                foreach (Warehouse::all() as $warehouse) {
                     UserAddRoles::run($user, [
-                        Role::where('name', RolesEnum::getRoleName(RolesEnum::SHOP_ADMIN->value, $shop))->first()
+                        Role::where('name', RolesEnum::getRoleName(RolesEnum::WAREHOUSE_ADMIN->value, $warehouse))->first()
                     ]);
                 }
             }

@@ -36,10 +36,11 @@ pg_dump -Fc -f "devops/devel/snapshots/group.dump" ${DB}
 
 php artisan org:create aw awa indo@inikoo.com 'Advantage' ID IDR
 php artisan org:create aw inikoo raul@inikoo.com 'Inikoo' GB GBP
-
+pg_dump -Fc -f "devops/devel/snapshots/organisations.dump" ${DB}
 php artisan warehouse:create awa AC 'AWA Warehouse C'
 php artisan warehouse:create inikoo wA 'Warehouse A'
 php artisan warehouse:create inikoo AB 'Warehouse B'
+pg_dump -Fc -f "devops/devel/snapshots/warehouses.dump" ${DB}
 
 php artisan guest:create aw 'Mr Aiku' aiku -e aiku@inikoo.com --roles=super-admin
 php artisan guest:create aw 'Mr Vika' vika -e vika@inikoo.com --roles=super-admin

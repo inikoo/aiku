@@ -38,10 +38,9 @@ class StoreWarehouse extends OrgAction
         $orgAdmins = $organisation->group->users()->with('roles')->get()->filter(
             fn ($user) => $user->roles->where('name', "org-admin-$organisation->id")->toArray()
         );
-
         foreach ($orgAdmins as $orgAdmin) {
             UserAddRoles::run($orgAdmin, [
-                Role::where('name', RolesEnum::getRoleName('warehouse-admin', $warehouse))->first()
+                Role::where('name', RolesEnum::getRoleName(RolesEnum::WAREHOUSE_ADMIN->value, $warehouse))->first()
             ]);
         }
 

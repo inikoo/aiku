@@ -10,7 +10,7 @@ use App\Actions\CRM\Prospect\ImportShopProspects;
 use App\Actions\Fulfilment\Fulfilment\StoreFulfilment;
 use App\Actions\Fulfilment\Pallet\DeletePallet;
 use App\Actions\Fulfilment\Pallet\ImportPallet;
-use App\Actions\Fulfilment\Pallet\StoreMultiplePallet;
+use App\Actions\Fulfilment\Pallet\StoreMultiplePallets;
 use App\Actions\Fulfilment\Pallet\StorePallet;
 use App\Actions\Fulfilment\Pallet\UpdatePallet;
 use App\Actions\Fulfilment\PalletDelivery\StorePalletDelivery;
@@ -51,7 +51,7 @@ Route::name('fulfilment-customer.')->prefix('fulfilment-customer/{fulfilmentCust
     Route::post('pallet-delivery/{palletDelivery}/pallet', StorePallet::class)->name('pallet-delivery.pallet.store');
     Route::patch('pallet-delivery/{palletDelivery}/pallet/{pallet}', UpdatePallet::class)->name('pallet-delivery.pallet.update');
     Route::delete('pallet-delivery/{palletDelivery}/pallet/{pallet}', DeletePallet::class)->name('pallet-delivery.pallet.delete');
-    Route::post('pallet-delivery/{palletDelivery}/multiple-pallet', StoreMultiplePallet::class)->name('pallet-delivery.multiple-pallets.store');
+    Route::post('pallet-delivery/{palletDelivery}/multiple-pallet', StoreMultiplePallets::class)->name('pallet-delivery.multiple-pallets.store');
 
     Route::post('pallet-delivery/{palletDelivery}/pallet-upload', ImportPallet::class)->name('pallet-delivery.pallet.import');
 });
