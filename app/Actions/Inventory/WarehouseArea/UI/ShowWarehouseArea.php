@@ -65,6 +65,18 @@ class ShowWarehouseArea extends OrgAction
                         ],
                     'title'   => $warehouseArea->name,
                     'actions' => [
+                        $this->canEdit ?
+                            [
+                                'type'    => 'button',
+                                'style'   => 'create',
+                                'tooltip' => __('new location'),
+                                'label'   => __('new location'),
+                                'route'   => [
+                                    'name'       => $request->route()->getName().'.locations.create',
+                                    'parameters' => $request->route()->originalParameters()
+                                ]
+                            ]
+                            : null,
                         $this->canDelete ? $this->getDeleteActionIcon($request) : null,
                         $this->canEdit ? $this->getEditActionIcon($request) : null,
                     ],

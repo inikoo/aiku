@@ -10,7 +10,7 @@ use App\Actions\CRM\Prospect\ImportShopProspects;
 use App\Actions\Fulfilment\Fulfilment\StoreFulfilment;
 use App\Actions\Fulfilment\Pallet\DeletePallet;
 use App\Actions\Fulfilment\Pallet\ImportPallet;
-use App\Actions\Fulfilment\Pallet\StoreMultiplePallet;
+use App\Actions\Fulfilment\Pallet\StoreMultiplePallets;
 use App\Actions\Fulfilment\Pallet\StorePallet;
 use App\Actions\Fulfilment\Pallet\UpdatePallet;
 use App\Actions\Fulfilment\PalletDelivery\StorePalletDelivery;
@@ -22,10 +22,12 @@ use App\Actions\HumanResources\Employee\UpdateEmployee;
 use App\Actions\HumanResources\Workplace\DeleteWorkplace;
 use App\Actions\HumanResources\Workplace\StoreWorkplace;
 use App\Actions\HumanResources\Workplace\UpdateWorkplace;
+use App\Actions\Inventory\Location\StoreLocation;
 use App\Actions\Market\Shop\StoreShop;
 use App\Actions\SysAdmin\Organisation\StoreOrganisation;
 use App\Actions\UI\Profile\GetProfileAppLoginQRCode;
 use App\Actions\UI\Profile\UpdateProfile;
+use App\Actions\Web\Website\StoreWebsite;
 use Illuminate\Support\Facades\Route;
 
 Route::patch('/profile', UpdateProfile::class)->name('profile.update');
@@ -51,13 +53,25 @@ Route::name('fulfilment-customer.')->prefix('fulfilment-customer/{fulfilmentCust
     Route::post('pallet-delivery/{palletDelivery}/pallet', StorePallet::class)->name('pallet-delivery.pallet.store');
     Route::patch('pallet-delivery/{palletDelivery}/pallet/{pallet}', UpdatePallet::class)->name('pallet-delivery.pallet.update');
     Route::delete('pallet-delivery/{palletDelivery}/pallet/{pallet}', DeletePallet::class)->name('pallet-delivery.pallet.delete');
-    Route::post('pallet-delivery/{palletDelivery}/multiple-pallet', StoreMultiplePallet::class)->name('pallet-delivery.multiple-pallets.store');
+    Route::post('pallet-delivery/{palletDelivery}/multiple-pallet', StoreMultiplePallets::class)->name('pallet-delivery.multiple-pallets.store');
 
-    Route::post('pallet-delivery/{palletDelivery}/pallet-upload', ImportPallet::class)->name('pallet-delivery.pallet.import');
+    Route::post('pallet-delivery/{palletDelivery}/pallet-upload', [ImportPallet::class, 'inPalletDelivery'])->name('pallet-delivery.pallet.import');
 });
 
 Route::name('shop.')->prefix('shop/{shop}')->group(function () {
     Route::post('prospect/upload', [ImportShopProspects::class, 'inShop'])->name('prospects.upload');
+    Route::post('website', StoreWebsite::class)->name('website.store');
+});
+
+Route::name('fulfilment.')->prefix('fulfilment/{fulfilment}')->group(function () {
+    Route::post('website', [StoreWebsite::class,'inFulfilment'])->name('website.store');
+});
+
+Route::name('warehouse.')->prefix('warehouse/{warehouse:id}')->group(function () {
+    Route::post('location', [StoreLocation::class, 'inWarehouse'])->name('location.store');
+});
+Route::name('warehouse-area.')->prefix('warehouse-area/{warehouseArea:id}')->group(function () {
+    Route::post('location', [StoreLocation::class, 'inWarehouseArea'])->name('location.store');
 });
 
 Route::post('group/{group:id}/organisation', StoreOrganisation::class)->name('organisation.store');

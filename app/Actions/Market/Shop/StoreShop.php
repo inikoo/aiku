@@ -84,7 +84,7 @@ class StoreShop extends OrgAction
 
             foreach ($orgAdmins as $orgAdmin) {
                 UserAddRoles::run($orgAdmin, [
-                    Role::where('name', RolesEnum::getRoleName('shop-admin', $shop))->first()
+                    Role::where('name', RolesEnum::getRoleName(RolesEnum::SHOP_ADMIN->value, $shop))->first()
                 ]);
             }
         }

@@ -19,7 +19,7 @@ trait WithActionButtons
             'icon'    => 'fal fa-trash-alt',
             'style'   => 'negative',
             'route'   => [
-                'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
+                'name'       => preg_replace('/(show|dashboard)$/', 'edit', $request->route()->getName()),
                 'parameters' => array_merge(
                     [
                         '_query' => [
@@ -40,7 +40,7 @@ trait WithActionButtons
             'icon'    => 'fal fa-pencil',
             'style'   => 'secondary',
             'route'   => [
-                'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
+                'name'       => preg_replace('/(show|dashboard)$/', 'edit', $request->route()->getName()),
                 'parameters' => array_merge(
                     [
                         '_query' => [

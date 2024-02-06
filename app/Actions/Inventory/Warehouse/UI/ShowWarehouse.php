@@ -12,6 +12,7 @@ use App\Actions\OrgAction;
 use App\Actions\Inventory\Location\UI\IndexLocations;
 use App\Actions\Inventory\WarehouseArea\UI\IndexWarehouseAreas;
 use App\Actions\SysAdmin\Organisation\UI\ShowOrganisationDashboard;
+use App\Actions\Traits\Actions\WithActionButtons;
 use App\Enums\UI\WarehouseTabsEnum;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\Inventory\LocationResource;
@@ -26,6 +27,8 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowWarehouse extends OrgAction
 {
+    use WithActionButtons;
+
     public function handle(Warehouse $warehouse): Warehouse
     {
         return $warehouse;
@@ -68,15 +71,20 @@ class ShowWarehouse extends OrgAction
                         ],
                     'title'   => $warehouse->name,
                     'actions' => [
-
-                        $this->canEdit ? [
-                            'type'  => 'button',
-                            'style' => 'edit',
-                            'route' => [
-                                'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
-                                'parameters' => array_values($routeParameters)
+                        $this->canEdit ?
+                            [
+                                'type'    => 'button',
+                                'style'   => 'create',
+                                'tooltip' => __('new location'),
+                                'label'   => __('new location'),
+                                'route'   => [
+                                    'name'       => 'grp.org.warehouses.show.infrastructure.locations.create',
+                                    'parameters' => $request->route()->originalParameters()
+                                ]
                             ]
-                        ] : false,
+                            : null,
+                        $this->canDelete ? $this->getDeleteActionIcon($request) : null,
+                        $this->canEdit ? $this->getEditActionIcon($request) : null,
 
                     ],
                     'meta'    => [

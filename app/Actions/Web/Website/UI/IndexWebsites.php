@@ -123,7 +123,7 @@ class IndexWebsites extends OrgAction
         }
 
 
-        if($parent instanceof Group || $parent instanceof Organisation) {
+        if ($parent instanceof Group || $parent instanceof Organisation) {
             foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
                 $queryBuilder->whereElementGroup(
                     key: $key,
@@ -153,7 +153,7 @@ class IndexWebsites extends OrgAction
                     ->pageName($prefix.'Page');
             }
 
-            if($parent instanceof Group || $parent instanceof Organisation) {
+            if ($parent instanceof Group || $parent instanceof Organisation) {
                 foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
                     $table->elementGroup(
                         key: $key,
@@ -213,6 +213,36 @@ class IndexWebsites extends OrgAction
             ];
         }
 
+        $createWebsite = null;
+        if ($this->canEdit
+            && ($this->parent instanceof Shop || $this->parent instanceof Fulfilment)
+        ) {
+            if ($this->parent instanceof Shop) {
+                $website = $this->parent->website;
+            } else {
+                $website = $this->parent->shop->website;
+            }
+            if (!$website) {
+                $createWebsite = [
+                    'type'    => 'button',
+                    'style'   => 'create',
+                    'tooltip' => __("Set up shop's website"),
+                    'label'   => __('set up website'),
+                    'route'   => match (class_basename($this->parent)) {
+                        'Shop' => [
+                            'name'       => 'grp.org.shops.show.web.websites.create',
+                            'parameters' => $request->route()->originalParameters()
+                        ],
+                        'Fulfilment' => [
+                            'name'       => 'grp.org.fulfilments.show.web.websites.create',
+                            'parameters' => $request->route()->originalParameters()
+                        ],
+                        default => null
+                    }
+                ];
+            }
+        }
+
 
         return Inertia::render(
             'Org/Web/Websites',
@@ -231,21 +261,12 @@ class IndexWebsites extends OrgAction
                         'icon'  => 'fal fa-globe'
                     ],
 
-                    /*
+
                     'actions' => [
-                        $this->canEdit ? [
-                            'type'    => 'button',
-                            'style'   => 'create',
-                            'tooltip' => __('Create a no shop connected website'),
-                            'label'   => __('new static website'),
-                            'route'   => [
-                                'name' => 'grp.org.shops.show.web.websites.create',
-                            ]
-                        ] : false,
+                        $createWebsite
 
 
-                ]
-                    */
+                    ]
                 ],
                 'data'     => WebsiteResource::collection($websites),
 

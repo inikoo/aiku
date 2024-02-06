@@ -57,7 +57,7 @@ export const useLiveUsers = defineStore('useLiveUsers', {
         //         }}
         //     )
 
-        //     return xxx 
+        //     return xxx
         // },
         unsubscribe() {
             window.Echo.leave(`grp.live.users`)
@@ -78,7 +78,7 @@ export const useLiveUsers = defineStore('useLiveUsers', {
 
                 .leaving((user: {id: number, alias: string, name: string}) => {
                     console.log('Someone leaved: ', user)
-                    
+
                     // If user 'logout', no need to set the action to 'leave'
                     if (this.liveUsers[user.id].action != 'logout') {
                         this.liveUsers[user.id].action = 'leave'
@@ -89,9 +89,9 @@ export const useLiveUsers = defineStore('useLiveUsers', {
                 .error((error) => {
                     console.log('error', error)
                 })
-                
+
                 .listenForWhisper('otherIsNavigating', (e: LiveUser) => {
-                    // On the first load and on navigating page 
+                    // On the first load and on navigating page
                     // console.log('qwer', e)
                     this.liveUsers[e.id] = e
                     // console.log('qwer', this.liveUsers)
@@ -99,7 +99,7 @@ export const useLiveUsers = defineStore('useLiveUsers', {
 
                 .listenForWhisper(`sendTo${usePage().props.auth.user.id}`, (otherUser: LiveUser) => {
                     // console.log('receive the emit')
-                    // On the first load and on navigating page 
+                    // On the first load and on navigating page
                     this.liveUsers[otherUser.id] = otherUser
                     // console.log('qwer', this.liveUsers)
                 })

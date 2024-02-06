@@ -77,7 +77,7 @@ class WarehouseArea extends Model implements Auditable
             })
             ->saveSlugsTo('slug')
             ->doNotGenerateSlugsOnUpdate()
-            ->slugsShouldBeNoLongerThan(4);
+            ->slugsShouldBeNoLongerThan(32);
     }
 
     public function organisation(): BelongsTo

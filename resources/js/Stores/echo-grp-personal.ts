@@ -31,13 +31,15 @@ export const useEchoGrpPersonal = defineStore("echo-grp-personal", {
     }),
     actions: {
         subscribe(userID: number) {
-            window.Echo.private("grp.personal." + userID).listen(
+            let param = window.Echo.private("grp.personal.1").listen(
                 ".action-progress",
                 (eventData: {}) => {
                     console.log('From echo-grp-personal')
                     console.log(eventData)
                 }
             );
+
+            console.log(param)
         },
     },
 });
