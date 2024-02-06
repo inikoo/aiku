@@ -16,6 +16,8 @@ use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
 use App\Rules\IUnique;
+use Exception;
+use Illuminate\Console\Command;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
@@ -72,8 +74,8 @@ class StoreLocation extends OrgAction
                     ]
                 ),
             ],
-            'max_weight'   => ['nullable', 'numeric', 'min:0.1', 'max:1000000'],
-            'max_volume'   => ['nullable', 'numeric', 'min:0.1', 'max:1000000'],
+            'max_weight'   => ['sometimes', 'nullable', 'numeric', 'min:0.1', 'max:1000000'],
+            'max_volume'   => ['sometimes', 'nullable', 'numeric', 'min:0.1', 'max:1000000'],
             'source_id'    => ['sometimes', 'string'],
             'deleted_at'   => ['sometimes', 'nullable', 'date'],
         ];
@@ -129,5 +131,63 @@ class StoreLocation extends OrgAction
         }
     }
 
+    public string $commandSignature = 'locations:create {warehouse : warehouse slug} {code} {--a|area=} {--w|max_weight=} {--u|max_volume=} ';
+
+    public function asCommand(Command $command): int
+    {
+        $this->asAction = true;
+
+        try {
+            $warehouse = Warehouse::where('slug', $command->argument('warehouse'))->firstOrFail();
+        } catch (Exception $e) {
+            $command->error($e->getMessage());
+
+            return 1;
+        }
+        $this->warehouse = $warehouse;
+        $parent          = $warehouse;
+        $this->setRawAttributes([
+            'code' => $command->argument('code'),
+        ]);
+
+        if($command->option('max_weight')) {
+            $this->fill([
+                'max_weight' => $command->option('max_weight'),
+            ]);
+        }
+        if($command->option('max_volume')) {
+            $this->fill([
+                'max_volume' => $command->option('max_volume'),
+            ]);
+        }
+
+
+        if($command->option('area')) {
+            try {
+                $warehouseArea = WarehouseArea::where('slug', $command->option('area'))->firstOrFail();
+            } catch (Exception $e) {
+                $command->error("Warehouse area {$command->option('area')} not found");
+                return 1;
+            }
+            $this->warehouse = $warehouseArea->warehouse;
+
+            $parent = $warehouseArea;
+        }
+
+
+        try {
+            $validatedData = $this->validateAttributes();
+        } catch (Exception $e) {
+            $command->error($e->getMessage());
+
+            return 1;
+        }
+
+        $location = $this->handle($parent, $validatedData);
+
+        $command->info("Location: $location->code created successfully 🎉");
+
+        return 0;
+    }
 
 }

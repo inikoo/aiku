@@ -15,6 +15,8 @@ use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWarehouse;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
 use App\Rules\IUnique;
+use Exception;
+use Illuminate\Console\Command;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
@@ -47,7 +49,7 @@ class StoreWarehouseArea extends OrgAction
     public function rules(): array
     {
         return [
-            'code' => [
+            'code'      => [
                 'required',
                 'max:16',
                 'alpha_dash',
@@ -58,8 +60,8 @@ class StoreWarehouseArea extends OrgAction
                     ]
                 ),
             ],
-            'name'     => ['required', 'max:250', 'string'],
-            'source_id'=> ['sometimes','string'],
+            'name'      => ['required', 'max:250', 'string'],
+            'source_id' => ['sometimes', 'string'],
         ];
     }
 
@@ -77,12 +79,47 @@ class StoreWarehouseArea extends OrgAction
         $this->asAction  = true;
         $this->warehouse = $warehouse;
         $this->initialisation($warehouse->organisation, $modelData);
+
         return $this->handle($warehouse, $this->validatedData);
     }
 
     public function htmlResponse(WarehouseArea $warehouseArea): RedirectResponse
     {
         return Redirect::route('grp.org.warehouses.show.infrastructure.warehouse-areas.index', $warehouseArea->warehouse->slug);
+    }
+
+    public string $commandSignature = 'warehouse-areas:create {warehouse : warehouse slug} {code} {name}';
+
+    public function asCommand(Command $command): int
+    {
+        $this->asAction = true;
+
+        try {
+            $warehouse = Warehouse::where('slug', $command->argument('warehouse'))->firstOrFail();
+        } catch (Exception $e) {
+            $command->error($e->getMessage());
+
+            return 1;
+        }
+        $this->warehouse = $warehouse;
+        $this->setRawAttributes([
+            'code' => $command->argument('code'),
+            'name' => $command->argument('name'),
+        ]);
+
+        try {
+            $validatedData = $this->validateAttributes();
+        } catch (Exception $e) {
+            $command->error($e->getMessage());
+
+            return 1;
+        }
+
+        $warehouseArea = $this->handle($warehouse, $validatedData);
+
+        $command->info("Warehouse area $warehouseArea->code created successfully 🎉");
+
+        return 0;
     }
 
 }

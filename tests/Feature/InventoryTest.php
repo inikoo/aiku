@@ -122,6 +122,19 @@ test('create warehouse area', function ($warehouse) {
     return $warehouseArea;
 })->depends('create warehouse');
 
+test('create warehouse area by command', function ($warehouse) {
+    $this->artisan('warehouse-areas:create', [
+        'warehouse' => $warehouse->slug,
+        'code'      => 'AA',
+        'name'      => 'testName A',
+    ])->assertExitCode(0);
+
+    $warehouseArea = WarehouseArea::where('code', 'AA')->first();
+
+    expect($warehouseArea)->toBeInstanceOf($warehouseArea::class)
+        ->and($this->organisation->inventoryStats->number_warehouse_areas)->toBe(2);
+})->depends('create warehouse');
+
 test('update warehouse area', function ($warehouseArea) {
     $warehouseArea = UpdateWarehouseArea::make()->action($warehouseArea, ['name' => 'Area 01']);
     expect($warehouseArea->name)->toBe('Area 01');
@@ -139,23 +152,54 @@ test('create location in warehouse', function ($warehouse) {
         ->and($warehouse->stats->number_locations_state_broken)->toBe(0);
 })->depends('create warehouse');
 
+test('create location in warehouse by command', function ($warehouse) {
+    $this->artisan('locations:create', [
+        'warehouse' => $warehouse->slug,
+        'code'      => 'AA',
+    ])->assertExitCode(0);
+
+    $warehouse->refresh();
+    expect($warehouse->stats->number_locations)->toBe(2)
+        ->and($warehouse->stats->number_locations_state_operational)->toBe(2)
+        ->and($warehouse->stats->number_locations_state_broken)->toBe(0);
+})->depends('create warehouse');
+
 test('create location in warehouse area', function ($warehouseArea) {
     $location = StoreLocation::make()->action($warehouseArea, Location::factory()->definition());
     $warehouseArea->refresh();
     $warehouse = $warehouseArea->warehouse;
 
     expect($location)->toBeInstanceOf(Location::class)
-        ->and($this->organisation->inventoryStats->number_locations)->toBe(2)
-        ->and($this->organisation->inventoryStats->number_locations_state_operational)->toBe(2)
+        ->and($this->organisation->inventoryStats->number_locations)->toBe(3)
+        ->and($this->organisation->inventoryStats->number_locations_state_operational)->toBe(3)
         ->and($this->organisation->inventoryStats->number_locations_state_broken)->toBe(0)
-        ->and($warehouse->stats->number_locations)->toBe(2)
-        ->and($warehouse->stats->number_locations_state_operational)->toBe(2)
+        ->and($warehouse->stats->number_locations)->toBe(3)
+        ->and($warehouse->stats->number_locations_state_operational)->toBe(3)
         ->and($warehouse->stats->number_locations_state_broken)->toBe(0)
         ->and($warehouseArea->stats->number_locations)->toBe(1)
         ->and($warehouseArea->stats->number_locations_state_operational)->toBe(1)
         ->and($warehouseArea->stats->number_locations_state_broken)->toBe(0);
 
     return $location;
+})->depends('create warehouse area');
+
+test('create location in warehouse area by command', function ($warehouseArea) {
+    $this->artisan('locations:create', [
+        'warehouse'    => $warehouseArea->warehouse->slug,
+        'code'         => 'AB',
+        '--area'       => $warehouseArea->slug,
+        '--max_weight' => '1000',
+    ])->assertExitCode(0);
+
+    $warehouseArea->refresh();
+    $warehouse = $warehouseArea->warehouse;
+
+    expect($warehouse->stats->number_locations)->toBe(4)
+        ->and($warehouse->stats->number_locations_state_operational)->toBe(4)
+        ->and($warehouse->stats->number_locations_state_broken)->toBe(0)
+        ->and($warehouseArea->stats->number_locations)->toBe(2)
+        ->and($warehouseArea->stats->number_locations_state_operational)->toBe(2)
+        ->and($warehouseArea->stats->number_locations_state_broken)->toBe(0);
 })->depends('create warehouse area');
 
 
