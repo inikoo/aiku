@@ -145,11 +145,12 @@ class CreateWebsite extends OrgAction
                     'route'     =>
                         match (class_basename($scope)) {
                             'Shop' => [
-                                'name'      => 'grp.models.shop.website.store',
-                                'arguments' => [$parent->slug]
+                                'name'       => 'grp.models.shop.website.store',
+                                'parameters' => [$parent->id]
                             ],
                             'Fulfilment' => [
-                                'name' => 'grp.models.website.store',
+                                'name'       => 'grp.models.fulfilment.website.store',
+                                'parameters' => [$parent->id]
                             ],
                         }
 

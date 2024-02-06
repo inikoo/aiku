@@ -14,7 +14,7 @@ const props = defineProps<{
     echo: Object
 }>()
 const emits = defineEmits();
-const piniaData  = {}
+const piniaData  = useEchoGrpPersonal()
 
 const closeModal = ()=>{
     props.echo.isShowProgress = false
@@ -36,6 +36,8 @@ watch(
   },
   { deep: true }
 );
+
+console.log(useEchoGrpPersonal().progressBars)
 
 </script>
 

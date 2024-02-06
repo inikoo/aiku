@@ -58,12 +58,12 @@ Route::name('fulfilment-customer.')->prefix('fulfilment-customer/{fulfilmentCust
     Route::post('pallet-delivery/{palletDelivery}/pallet-upload', [ImportPallet::class, 'inPalletDelivery'])->name('pallet-delivery.pallet.import');
 });
 
-Route::name('shop.')->prefix('shop/{shop}')->group(function () {
+Route::name('shop.')->prefix('shop/{shop:id}')->group(function () {
     Route::post('prospect/upload', [ImportShopProspects::class, 'inShop'])->name('prospects.upload');
     Route::post('website', StoreWebsite::class)->name('website.store');
 });
 
-Route::name('fulfilment.')->prefix('fulfilment/{fulfilment}')->group(function () {
+Route::name('fulfilment.')->prefix('fulfilment/{fulfilment:id}')->group(function () {
     Route::post('website', [StoreWebsite::class,'inFulfilment'])->name('website.store');
 });
 
