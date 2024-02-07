@@ -14,6 +14,9 @@ use App\Imports\Warehouse\WarehouseAreaImport;
 use App\Models\Helpers\Upload;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
+use App\Models\SysAdmin\Organisation;
+use Illuminate\Support\Facades\Storage;
+use Lorisleiva\Actions\ActionRequest;
 
 class ImportWarehouseArea
 {
@@ -46,6 +49,14 @@ class ImportWarehouseArea
         if(!$warehouse) {
             throw new \Exception('Warehouse not found');
         }
+
+        return $this->handle($warehouse, $file);
+    }
+
+    public function inWarehouse(Organisation $organisation, Warehouse $warehouse, ActionRequest $request): Upload
+    {
+        $file = $request->file('file');
+        Storage::disk('local')->put($this->tmpPath, $file);
 
         return $this->handle($warehouse, $file);
     }

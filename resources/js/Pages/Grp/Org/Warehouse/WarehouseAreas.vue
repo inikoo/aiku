@@ -5,19 +5,48 @@
   -->
 <script setup lang="ts">
 import { Head } from "@inertiajs/vue3";
+import { computed, ref, reactive } from "vue";
 import PageHeading from "@/Components/Headings/PageHeading.vue";
 import TableWarehouseAreas from "@/Components/Tables/TableWarehouseAreas.vue";
 import { capitalize } from "@/Composables/capitalize";
+import Button from "@/Components/Elements/Buttons/Button.vue";
+import { get, kebabCase } from 'lodash'
+import UploadExcel from "@/Components/Upload/UploadExcel.vue";
+
 const props = defineProps<{
     data: object
     title: string
     pageHead: object
+    uploadRoutes: object
 }>();
+
+const dataModal = ref({ isModalOpen: false });
+
+const onUploadOpen = (action) => {
+    dataModal.value.isModalOpen = true;
+    dataModal.value.uploadRoutes = action.route;
+};
 </script>
 
 <template layout="App">
     <Head :title="capitalize(title)" />
-    <PageHeading :data="pageHead"></PageHeading>
+    <PageHeading :data="pageHead">
+        <template #button-group-upload="{ action : action }">
+            <Button
+                :style="'upload'"
+                @click="()=>onUploadOpen(action.button)"
+                class="capitalize inline-flex items-center h-full rounded-none text-sm border-none font-medium shadow-sm focus:ring-transparent focus:ring-offset-transparent focus:ring-0"
+            />
+        </template>
+    </PageHeading>
     <TableWarehouseAreas :data="data" />
+
+    <UploadExcel
+        :propName="'warehouse areas'"
+        description="Adding Warehouse Areas"
+        :routes="{
+            upload: get(dataModal,'uploadRoutes',{})
+        }"
+        :dataModal="dataModal" />
 </template>
 

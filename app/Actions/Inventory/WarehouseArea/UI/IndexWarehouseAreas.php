@@ -195,16 +195,34 @@ class IndexWarehouseAreas extends OrgAction
                     ],
                     'actions'   => [
                         $this->canEdit && $request->route()->getName() == 'grp.org.warehouses.show.infrastructure.warehouse-areas.index' ? [
+                            'type'   => 'buttonGroup',
+                            'key'    => 'upload-add',
+                            'button' => [
+                                [
+                                    'type'  => 'button',
+                                    'style' => 'primary',
+                                    'icon'  => ['fal', 'fa-upload'],
+                                    'label' => 'upload',
+                                    'route' => [
+                                        'name'       => 'grp.models.warehouse.warehouse-areas.upload',
+                                        'parameters' => [
+                                            $this->parent->id
+                                        ]
+                                    ]
+                                ],
+                                [
 
-                            'type'  => 'button',
-                            'style' => 'create',
-                            'label' => __('areas'),
-                            'route' => [
-                                'name'       => 'grp.org.warehouses.show.infrastructure.warehouse-areas.create',
-                                'parameters' => $request->route()->originalParameters()
+                                    'type'  => 'button',
+                                    'style' => 'create',
+                                    'label' => __('areas'),
+                                    'route' => [
+                                        'name'       => 'grp.org.warehouses.show.infrastructure.warehouse-areas.create',
+                                        'parameters' => $request->route()->originalParameters()
+                                    ]
+
+                                ]
                             ]
-
-                        ] : false
+                        ] : null,
                     ]
                 ],
                 'data'        => WarehouseAreaResource::collection($warehouseAreas)

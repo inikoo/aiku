@@ -8,7 +8,7 @@
 import { Link } from "@inertiajs/vue3"
 
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faTruckCouch } from '@fal'
+import {faMapSigns, faTruckCouch, faUpload} from '@fal'
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { capitalize } from "@/Composables/capitalize"
 import MetaLabel from "@/Components/Headings/MetaLabel.vue"
@@ -24,7 +24,7 @@ interface Icon {
     icon: string[] | string
 }
 
-library.add(faTruckCouch)
+library.add(faTruckCouch, faUpload, faMapSigns)
 
 const props = defineProps<{
     data: {
