@@ -5,28 +5,28 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Imports\CRM;
+namespace App\Imports\Warehouse;
 
-use App\Actions\Fulfilment\Pallet\StorePalletFromDelivery;
+use App\Actions\Inventory\WarehouseArea\StoreWarehouseArea;
 use App\Imports\WithImport;
-use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Helpers\Upload;
+use App\Models\Inventory\Warehouse;
 use Exception;
 use Maatwebsite\Excel\Concerns\SkipsOnFailure;
 use Maatwebsite\Excel\Concerns\ToCollection;
-use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
 
-class PalletImport implements ToCollection, WithHeadingRow, SkipsOnFailure, WithValidation, WithEvents
+class WarehouseAreaImport implements ToCollection, WithHeadingRow, SkipsOnFailure, WithValidation
 {
     use WithImport;
 
-    protected PalletDelivery $scope;
-    public function __construct(PalletDelivery $palletDelivery, Upload $upload)
+
+    protected Warehouse $scope;
+    public function __construct(Warehouse $warehouse, Upload $upload)
     {
         $this->upload = $upload;
-        $this->scope  = $palletDelivery;
+        $this->scope  = $warehouse;
     }
 
     public function storeModel($row, $uploadRecord): void
@@ -40,14 +40,13 @@ class PalletImport implements ToCollection, WithHeadingRow, SkipsOnFailure, With
 
         $modelData = $row->only($fields)->all();
 
-        data_set($modelData, 'reference', $this->scope->reference);
         data_set($modelData, 'data.bulk_import', [
             'id'   => $this->upload->id,
             'type' => 'Upload',
         ]);
 
         try {
-            StorePalletFromDelivery::run(
+            StoreWarehouseArea::make()->action(
                 $this->scope,
                 $modelData
             );
@@ -60,12 +59,12 @@ class PalletImport implements ToCollection, WithHeadingRow, SkipsOnFailure, With
         }
     }
 
+
     public function rules(): array
     {
         return [
-            'reference'          => ['required'],
-            'customer_reference' => ['nullable'],
-            'notes'              => ['nullable']
+            'code' => ['required'],
+            'name' => ['required']
         ];
     }
 }
