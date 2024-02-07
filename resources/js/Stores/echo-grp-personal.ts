@@ -13,11 +13,11 @@ interface ProgressBar {
         [key: string]: {
             action_id: number
             action_type: string
-            data: {
+            data: { 
                 number_fails: number
                 number_success: number
             },
-            done: number
+            done: number 
             total: number
         }
     }
