@@ -72,6 +72,7 @@ watch(() => props.modelValue, async (newVal) => {
     if (props.routes.history?.name) {
         isLoadingHistory.value = true
         if(newVal && !dataHistoryFileUpload.value.length) {  // to prevent fetch every modal appear
+                console.log(props.routes)
             try {
                 const data = await axios.get(route(props.routes.history.name, props.routes.history.parameters))
                 dataHistoryFileUpload.value = data.data.data
@@ -153,16 +154,16 @@ watch(() => props.modelValue, async (newVal) => {
             </div>
 
             <!-- Table History -->
-          <!--   <div class="order-last flex items-start gap-x-2 gap-y-2 flex-col">
+             <div class="order-last flex items-start gap-x-2 gap-y-2 flex-col">
                 <div class="text-sm text-gray-600"> {{ trans('Recent uploaded') + ` ${propName}:` }} </div>
                 <div v-if="!isLoadingHistory" class="flex flex-wrap gap-x-2 gap-y-2">
                     <template v-if="[...dataHistoryFileUpload, ...echo().recentlyUploaded].length">
                         <template v-for="(history, index) in [...dataHistoryFileUpload, ...echo().recentlyUploaded]" :key="index">
-                            <Link
-                                :href="history?.view_route?.name
-                                    ? route(history.view_route.name, history.view_route.parameters)
-                                    : route(dataHistoryFileUpload[0].view_route.name, {...dataHistoryFileUpload[0].view_route.parameters, upload: history.action_id})"
-                            >
+<!--                            <Link-->
+<!--                                :href="history?.view_route?.name-->
+<!--                                    ? route(history.view_route.name, history.view_route.parameters)-->
+<!--                                    : route(dataHistoryFileUpload[0].view_route.name, {...dataHistoryFileUpload[0].view_route.parameters, upload: history.action_id})"-->
+<!--                            >-->
                                 <div class="relative w-36 ring-1 ring-gray-300 rounded px-2 pt-2.5 pb-1 flex flex-col justify-start"
                                     :class="history?.view_route?.name ? 'bg-white hover:bg-gray-100 border-t-[3px] border-gray-500 cursor-pointer' : ' bg-lime-50/50 hover:bg-lime-100/70 border-t-[3px] border-lime-400'"
                                 >
@@ -175,7 +176,7 @@ watch(() => props.modelValue, async (newVal) => {
                                     </div>
                                     <span class="text-gray-400 text-xxs mt-2">{{ useFormatTime(history.uploaded_at ?? history.start_at, { formatTime: 'hms'}) }}</span>
                                 </div>
-                            </Link>
+<!--                            </Link>-->
                         </template>
                     </template>
                     <div v-else class="text-gray-500 text-xs">
@@ -185,7 +186,7 @@ watch(() => props.modelValue, async (newVal) => {
                 <div v-else class="flex flex-wrap gap-x-2 gap-y-2">
                     <div v-for="(history, index) in 4" :key="index" class="w-36 h-20 skeleton rounded" />
                 </div>
-            </div> -->
+            </div>
         </div>
     </Modal>
 </template>

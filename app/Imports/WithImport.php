@@ -67,33 +67,30 @@ trait WithImport
 
     public function cleanRow(Collection $row): Collection
     {
-
         return $row->filter(function ($value, $key) {
             return !(is_null($value) and is_numeric($key));
         });
-
     }
 
     public function createUploadRecord(Collection $row): UploadRecord
     {
         /** @var UploadRecord $record */
-        $record=$this->upload->records()->create(
+        $record = $this->upload->records()->create(
             [
                 'values' => $row,
                 'status' => UploadRecordStatusEnum::PROCESSING
             ]
         );
         $this->updateStats();
-        return $record;
 
+        return $record;
     }
 
     public function setRecordAsCompleted(UploadRecord $record): void
     {
-
         $record->update(
             [
-                'status'=> UploadRecordStatusEnum::COMPLETE
+                'status' => UploadRecordStatusEnum::COMPLETE
             ]
         );
         $this->updateStats();
@@ -101,15 +98,13 @@ trait WithImport
 
     public function setRecordAsFailed(UploadRecord $record, $errors): void
     {
-
         $record->update(
             [
-                'status'=> UploadRecordStatusEnum::FAILED,
-                'errors'=> $errors
+                'status' => UploadRecordStatusEnum::FAILED,
+                'errors' => $errors
             ]
         );
         $this->updateStats();
-
     }
 
     public function updateStats(): void
@@ -122,10 +117,12 @@ trait WithImport
         );
         $this->upload->refresh();
 
-        UploadExcelProgressEvent::dispatch($this->upload, $this->upload->user);
+        if ($this->upload->user) {
+            UploadExcelProgressEvent::dispatch($this->upload, $this->upload->user);
+        }
     }
 
-    protected function getFieldsFromRules($remove=[], $add=[]): array
+    protected function getFieldsFromRules($remove = [], $add = []): array
     {
         return array_merge(
             Arr::except(

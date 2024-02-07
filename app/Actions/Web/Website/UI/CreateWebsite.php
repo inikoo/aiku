@@ -107,9 +107,11 @@ class CreateWebsite extends OrgAction
                                     'type'      => 'inputWithAddOn',
                                     'label'     => __('domain'),
                                     'leftAddOn' => [
-                                        'label' => 'http://www.'
+                                        'label' => 'https://'
                                     ],
-                                    'required'  => true,
+                                    'placeholder' => 'example.com',
+                                    'required'    => true,
+                                    'value'       => ''
                                 ],
 
 
@@ -120,15 +122,18 @@ class CreateWebsite extends OrgAction
                             'fields' => [
 
                                 'code' => [
-                                    'type'     => 'input',
-                                    'label'    => __('code'),
-                                    'required' => true,
+                                    'type'        => 'input',
+                                    'label'       => __('code'),
+                                    'required'    => true,
+                                    'placeholder' => 'Enter code',
+                                    'value'       => ''
                                 ],
                                 'name' => [
-                                    'type'     => 'input',
-                                    'label'    => __('name'),
-                                    'required' => true,
-                                    'value'    => '',
+                                    'type'        => 'input',
+                                    'label'       => __('name'),
+                                    'placeholder' => 'Enter name',
+                                    'required'    => true,
+                                    'value'       => '',
                                 ],
 
 
@@ -140,11 +145,12 @@ class CreateWebsite extends OrgAction
                     'route'     =>
                         match (class_basename($scope)) {
                             'Shop' => [
-                                'name'      => 'grp.models.shop.website.store',
-                                'arguments' => [$parent->slug]
+                                'name'       => 'grp.models.shop.website.store',
+                                'parameters' => [$parent->id]
                             ],
                             'Fulfilment' => [
-                                'name' => 'grp.models.website.store',
+                                'name'       => 'grp.models.fulfilment.website.store',
+                                'parameters' => [$parent->id]
                             ],
                         }
 

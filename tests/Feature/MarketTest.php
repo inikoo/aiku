@@ -11,6 +11,7 @@ use App\Enums\Market\Shop\ShopTypeEnum;
 use App\Models\Market\Shop;
 use App\Models\SysAdmin\Permission;
 use App\Models\SysAdmin\Role;
+use App\Models\Web\Website;
 
 beforeAll(function () {
     loadDB('test_base_database.dump');
@@ -80,3 +81,14 @@ test('update shop', function (Shop $shop) {
 test('seed shop permissions from command', function () {
     $this->artisan('shop:seed-permissions')->assertExitCode(0);
 })->depends('create shop by command');
+
+test('create website from command', function (Shop $shop) {
+    $this->artisan('website:create', [
+        'shop'   => $shop->slug,
+        'domain' => 'test-hello.com',
+        'code'   => 'test',
+        'name'   => 'Test Website'
+    ])->assertExitCode(0);
+    $shop->refresh();
+    expect($shop->website)->toBeInstanceOf(Website::class);
+})->depends('create shop');

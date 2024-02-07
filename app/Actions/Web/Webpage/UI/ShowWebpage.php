@@ -23,6 +23,7 @@ use App\Models\Market\Shop;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Web\Webpage;
 use App\Models\Web\Website;
+use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -39,12 +40,10 @@ class ShowWebpage extends OrgAction
     private Website $parent;
 
 
-
-
     public function asController(Organisation $organisation, Shop $shop, Website $website, Webpage $webpage, ActionRequest $request): Webpage
     {
-        $this->scope =$shop;
-        $this->parent=$website;
+        $this->scope  = $shop;
+        $this->parent = $website;
         $this->initialisationFromShop($shop, $request)->withTab(WebpageTabsEnum::values());
 
         return $webpage;
@@ -53,8 +52,8 @@ class ShowWebpage extends OrgAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Website $website, Webpage $webpage, ActionRequest $request): Webpage
     {
-        $this->scope =$fulfilment;
-        $this->parent=$website;
+        $this->scope  = $fulfilment;
+        $this->parent = $website;
         $this->initialisationFromFulfilment($fulfilment, $request)->withTab(WebpageTabsEnum::values());
 
         return $webpage;
@@ -132,21 +131,22 @@ class ShowWebpage extends OrgAction
             'Org/Web/Webpage',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
                 'title'       => __('webpage'),
                 'pageHead'    => [
-                    'title'   => $webpage->code,
-                    'icon'    => [
+                    'title'    => $webpage->code,
+                    'icon'     => [
                         'title' => __('webpage'),
                         'icon'  => 'fal fa-browser'
                     ],
-                    'actionsx' => $actions,
+                    'actions' => $actions,
                 ],
 
                 'tabs' => [
                     'current'    => $this->tab,
-                    'navigation' => WebpageTabsEnum::navigation($webpage)
+                    'navigation' => WebpageTabsEnum::navigation()
                 ],
 
                 WebpageTabsEnum::SHOWCASE->value => $this->tab == WebpageTabsEnum::SHOWCASE->value ?
@@ -154,8 +154,8 @@ class ShowWebpage extends OrgAction
                     : Inertia::lazy(fn () => WebpageResource::make($webpage)->getArray()),
 
                 WebpageTabsEnum::SNAPSHOTS->value => $this->tab == WebpageTabsEnum::SNAPSHOTS->value ?
-                    fn () => SnapshotResource::collection(IndexSnapshots::run(parent:$webpage, prefix:'snapshots'))
-                    : Inertia::lazy(fn () => SnapshotResource::collection(IndexSnapshots::run(parent:$webpage, prefix:'snapshots'))),
+                    fn () => SnapshotResource::collection(IndexSnapshots::run(parent: $webpage, prefix: 'snapshots'))
+                    : Inertia::lazy(fn () => SnapshotResource::collection(IndexSnapshots::run(parent: $webpage, prefix: 'snapshots'))),
 
                 WebpageTabsEnum::WEBPAGES->value => $this->tab == WebpageTabsEnum::WEBPAGES->value
                     ?
@@ -186,16 +186,13 @@ class ShowWebpage extends OrgAction
         )->table(
             IndexSnapshots::make()->tableStructure(
                 parent: $webpage,
-                prefix:'snapshots'
+                prefix: 'snapshots'
             )
         );
     }
 
-    public function getBreadcrumbs(array $routeParameters, string $suffix = ''): array
+    public function getBreadcrumbs(string $routeName, array $routeParameters, string $suffix = ''): array
     {
-
-        return [];
-
         $headCrumb = function (Webpage $webpage, array $routeParameters, string $suffix) {
             return [
                 [
@@ -218,32 +215,32 @@ class ShowWebpage extends OrgAction
             ];
         };
 
-        return array_merge(
-            ShowWebsite::make()->getBreadcrumbs(
-                [
-                    'website'=> $routeParameters['website']
-                ]
-            ),
-            $headCrumb(
-                Webpage::where('slug', $routeParameters['webpage'])->first(),
-                [
-                    'index' => [
-                        'name'       => 'org.websites.show.webpages.index',
-                        'parameters' => [
-                            'website' => $routeParameters['website']
 
-                        ]
-                    ],
-                    'model' => [
-                        'name'       => 'org.websites.show.webpages.show',
-                        'parameters' => [
-                            'website' => $routeParameters['website'],
-                            'webpage' => $routeParameters['webpage']
-                        ]
-                    ]
-                ],
-                $suffix
-            ),
-        );
+        $webpage = Webpage::where('slug', $routeParameters['webpage'])->first();
+
+        return
+            match ($routeName) {
+                'grp.org.fulfilments.show.web.websites.show.webpages.show' => array_merge(
+                    ShowWebsite::make()->getBreadcrumbs(
+                        'grp.org.fulfilments.show.web.websites.show',
+                        Arr::only($routeParameters, ['organisation', 'fulfilment', 'website'])
+                    ),
+                    $headCrumb(
+                        $webpage,
+                        [
+                            'index' => [
+                                'name'       => 'grp.org.fulfilments.show.web.websites.show.webpages.index',
+                                'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment', 'website'])
+                            ],
+                            'model' => [
+                                'name'       => 'grp.org.fulfilments.show.web.websites.show.webpages.show',
+                                'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment', 'website', 'webpage'])
+                            ]
+                        ],
+                        $suffix
+                    ),
+                )
+            };
+
     }
 }

@@ -1,4 +1,5 @@
 <script setup>
+import Image from "@/Components/Image.vue"
 import { trans } from "laravel-vue-i18n"
 const props = defineProps(['form', 'fieldName', 'options'])
 const avatarUploaded = (file) => {
@@ -23,7 +24,7 @@ const avatarUploaded = (file) => {
         <div class="mt-1 lg:hidden">
             <div class="flex items-center">
                 <div class="inline-block h-12 w-12 flex-shrink-0 overflow-hidden rounded-full" aria-hidden="true">
-                    <img id="avatar_mobile" class="h-full w-full rounded-full" :src="form.avatar" alt="" />
+                    <Image id="avatar_mobile" class="h-full w-full rounded-full" :src="form.avatar" alt="" />
                 </div>
                 <div class="ml-5 rounded-md shadow-sm">
                     <div
@@ -43,7 +44,7 @@ const avatarUploaded = (file) => {
             </div>
         </div>
         <div class="relative hidden overflow-hidden rounded-full lg:block">
-            <img class="relative h-40 w-40 rounded-full" :src="form.avatar" alt="" />
+            <Image class="relative h-40 w-40 rounded-full" :src="form.avatar" alt="" />
             <label id="desktop-user-photo-mask" for="desktop-user-photo"
                    class="absolute inset-0 flex h-full w-full items-center justify-center bg-black bg-opacity-50 text-sm font-medium text-white opacity-0 hover:opacity-100">
                 <span>{{ trans("Change") }}</span>

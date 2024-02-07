@@ -13,9 +13,11 @@ use App\Actions\CRM\WebUser\ShowWebUser;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\FulfilmentCustomer\UI\CreateFulfilmentCustomer;
 use App\Actions\Fulfilment\FulfilmentCustomer\UI\IndexFulfilmentCustomers;
+use App\Actions\Fulfilment\Pallet\DownloadPalletsTemplate;
 use App\Actions\Fulfilment\Pallet\UI\ShowPallet;
 use App\Actions\Fulfilment\PalletDelivery\UI\IndexPalletDeliveries;
 use App\Actions\Fulfilment\PalletDelivery\UI\ShowPalletDelivery;
+use App\Actions\Helpers\Uploads\HistoryUploads;
 use App\Actions\OMS\Order\UI\ShowOrder;
 
 //Route::get('', ShowFulfilmentCRMDashboard::class)->name('dashboard');
@@ -36,5 +38,8 @@ Route::prefix('{fulfilmentCustomer}')->as('show')->group(function () {
         Route::get('', [IndexPalletDeliveries::class, 'inFulfilmentCustomer'])->name('index');
         Route::get('{palletDelivery}', [ShowPalletDelivery::class, 'inFulfilmentCustomer'])->name('show');
         Route::get('{palletDelivery}/pallets/{pallet}', [ShowPallet::class, 'inFulfilmentCustomer'])->name('pallets.show');
+
+        Route::get('{palletDelivery}/pallets-histories', [HistoryUploads::class, 'inPallet'])->name('pallets.uploads.history');
+        Route::get('{palletDelivery}/pallets-templates', DownloadPalletsTemplate::class)->name('pallets.uploads.templates');
     });
 });

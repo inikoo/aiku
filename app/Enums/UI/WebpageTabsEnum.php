@@ -19,9 +19,8 @@ enum WebpageTabsEnum: string
 
     case WEBPAGES             = 'webpages';
     case ANALYTICS            = 'analytics';
-    case USERS                = 'users';
-    case WORKSHOP             = 'workshop';
-    case SETTINGS             = 'settings';
+
+
 
     case SNAPSHOTS            = 'snapshots';
     case CHANGELOG            = 'changelog';
@@ -43,18 +42,6 @@ enum WebpageTabsEnum: string
             WebpageTabsEnum::ANALYTICS => [
                 'title' => __('analytics'),
                 'icon'  => 'fal fa-analytics',
-            ],
-            WebpageTabsEnum::USERS => [
-                'title' => __('users'),
-                'icon'  => 'fal fa-users-class',
-            ],
-            WebpageTabsEnum::WORKSHOP => [
-                'title' => __('workshop'),
-                'icon'  => 'fal fa-drafting-compass',
-            ],
-            WebpageTabsEnum::SETTINGS => [
-                'title' => __('settings'),
-                'icon'  => 'fal fa-sliders-h',
             ],
             WebpageTabsEnum::SNAPSHOTS => [
                 'title' => __('Snapshots'),

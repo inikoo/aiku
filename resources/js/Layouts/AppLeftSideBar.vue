@@ -27,16 +27,26 @@ const handleToggleLeftbar = () => {
 </script>
 
 <template>
-    <div class="mt-11 pb-10 fixed md:flex md:flex-col md:inset-y-0 lg:mt-10 bg-gradient-to-t to-indigo-600 from-indigo-500 h-full text-gray-400 transition-all duration-200 ease-in-out"
+    <div class="mt-11 pb-10 fixed md:flex md:flex-col md:inset-y-0 lg:mt-10 h-full transition-all duration-200 ease-in-out"
+        :style="{
+            'background-color': layout.app.theme[0],
+            'color': layout.app.theme[1]
+        }"
         :class="[layout.leftSidebar.show ? 'w-8/12 md:w-48' : 'w-8/12 md:w-12']"
         id="leftSidebar"
     >
         <!-- Toggle: collapse-expand LeftSideBar -->
         <div @click="handleToggleLeftbar"
-            class="hidden absolute z-10 right-0 top-2/4 -translate-y-full translate-x-1/2 w-5 aspect-square bg-indigo-500 hover:bg-indigo-600 text-indigo-100 border border-gray-300 rounded-full md:flex md:justify-center md:items-center cursor-pointer"
+            class="hidden absolute z-10 right-0 top-2/4 -translate-y-full translate-x-1/2 w-5 aspect-square border border-gray-300 rounded-full md:flex md:justify-center md:items-center cursor-pointer"
             :title="layout.leftSidebar.show ? 'Collapse the bar' : 'Expand the bar'"
+            :style="{
+                'background-color': layout.app.theme[1],
+                'color': layout.app.theme[2]
+            }"
         >
-            <div class="flex items-center justify-center transition-all duration-300 ease-in-out" :class="{'rotate-180': !layout.leftSidebar.show}">
+            <div class="flex items-center justify-center transition-all duration-300 ease-in-out"
+                :class="{'rotate-180': !layout.leftSidebar.show}"
+            >
                 <FontAwesomeIcon icon='far fa-chevron-left' class='h-[10px] leading-none' aria-hidden='true'
                     :class="layout.leftSidebar.show ? '-translate-x-[1px]' : ''"
                 />

@@ -16,6 +16,7 @@ use App\Enums\Web\Webpage\WebpageTypeEnum;
 use App\Http\Resources\Web\WebpageResource;
 use App\Models\Market\Shop;
 use App\Models\Web\Webpage;
+use App\Rules\AlphaDashSlash;
 use App\Rules\IUnique;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
@@ -42,6 +43,7 @@ class UpdateWebpage extends OrgAction
         if ($this->asAction) {
             return true;
         }
+
         return $request->user()->hasPermissionTo("webpages.edit");
     }
 
@@ -50,9 +52,13 @@ class UpdateWebpage extends OrgAction
     {
         return [
 
-            'url'       => [
+            'url' => [
                 'sometimes',
-                'required','ascii','lowercase','max:255','alpha_dash',
+                'required',
+                'ascii',
+                'lowercase',
+                'max:255',
+                new AlphaDashSlash(),
                 new IUnique(
                     table: 'webpages',
                     extraConditions: [
@@ -69,9 +75,12 @@ class UpdateWebpage extends OrgAction
                 ),
             ],
 
-            'code'   => [
+            'code' => [
                 'sometimes',
-                'required','ascii','max:64','alpha_dash',
+                'required',
+                'ascii',
+                'max:64',
+                'alpha_dash',
                 new IUnique(
                     table: 'shops',
                     extraConditions: [
@@ -87,10 +96,10 @@ class UpdateWebpage extends OrgAction
 
             ],
 
-            'level'     => ['sometimes', 'integer'],
-            'purpose'   => ['sometimes', Rule::enum(WebpagePurposeEnum::class)],
-            'type'      => ['sometimes', Rule::enum(WebpageTypeEnum::class)],
-            'state'     => ['sometimes', Rule::enum(WebpageStateEnum::class)],
+            'level'   => ['sometimes', 'integer'],
+            'purpose' => ['sometimes', Rule::enum(WebpagePurposeEnum::class)],
+            'type'    => ['sometimes', Rule::enum(WebpageTypeEnum::class)],
+            'state'   => ['sometimes', Rule::enum(WebpageStateEnum::class)],
 
 
         ];
@@ -108,7 +117,7 @@ class UpdateWebpage extends OrgAction
 
     public function asController(Webpage $webpage, ActionRequest $request): Webpage
     {
-        $this->webpage  = $webpage;
+        $this->webpage = $webpage;
 
         $this->initialisation($webpage->organisation, $request);
 
@@ -118,7 +127,7 @@ class UpdateWebpage extends OrgAction
 
     public function inShop(Shop $shop, Webpage $webpage, ActionRequest $request): Webpage
     {
-        $this->webpage  = $webpage;
+        $this->webpage = $webpage;
         $this->initialisation($shop->organisation, $request);
 
         return $this->handle($webpage, $this->validatedData);

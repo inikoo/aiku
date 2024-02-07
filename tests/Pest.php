@@ -11,6 +11,8 @@ use App\Actions\Market\Shop\StoreShop;
 use App\Actions\SysAdmin\Group\StoreGroup;
 use App\Actions\SysAdmin\Guest\StoreGuest;
 use App\Actions\SysAdmin\Organisation\StoreOrganisation;
+use App\Enums\Market\Shop\ShopTypeEnum;
+use App\Models\Fulfilment\Fulfilment;
 use App\Models\Inventory\Warehouse;
 use App\Models\Market\Shop;
 use App\Models\SysAdmin\Group;
@@ -102,6 +104,34 @@ function createShop(): array
         $shop
     ];
 }
+
+function createFulfilment(Organisation $organisation): Fulfilment
+{
+    $group = $organisation->group;
+    app()->instance('group', $group);
+    setPermissionsTeamId($group->id);
+    $organisation = createOrganisation();
+
+
+    $fulfilment = Fulfilment::first();
+    if (!$fulfilment) {
+        $shop       = StoreShop::run(
+            $organisation,
+            array_merge(
+                Shop::factory()->definition(),
+                [
+                    'type'       => ShopTypeEnum::FULFILMENT->value,
+                    'warehouses' => [createWarehouse()->id]
+                ]
+            )
+        );
+        $fulfilment = $shop->fulfilment;
+    }
+
+
+    return $fulfilment;
+}
+
 
 function createWarehouse(): Warehouse
 {

@@ -17,12 +17,14 @@ use App\Models\Fulfilment\Fulfilment;
 use App\Models\Market\Shop;
 use App\Models\Web\Website;
 use App\Rules\IUnique;
+use Exception;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\ActionRequest;
+use Illuminate\Console\Command;
 
 class StoreWebsite extends OrgAction
 {
@@ -163,7 +165,18 @@ class StoreWebsite extends OrgAction
 
     public function htmlResponse(Website $website): RedirectResponse
     {
-        return Redirect::route('grp.websites.show', [
+
+        if($this->parent instanceof Fulfilment) {
+            return Redirect::route('grp.org.fulfilments.show.web.websites.show', [
+                $this->organisation->slug,
+                $this->parent->slug,
+                $website->slug
+            ]);
+        }
+
+        return Redirect::route('grp.org.shops.show.web.websites.show', [
+            $this->organisation->slug,
+            $this->parent->slug,
             $website->slug
         ]);
     }
@@ -193,5 +206,48 @@ class StoreWebsite extends OrgAction
         $this->initialisation($shop->organisation, $modelData);
 
         return $this->handle($shop, $this->validatedData);
+    }
+
+    public string $commandSignature = 'website:create {shop : shop slug} {domain} {code} {name}';
+
+    public function asCommand(Command $command): int
+    {
+        $this->asAction = true;
+
+        try {
+            $shop = Shop::where('slug', $command->argument('shop'))->firstOrFail();
+        } catch (Exception) {
+            $command->error('Shop not found');
+
+            return 1;
+        }
+        $this->organisation = $shop->organisation;
+        $this->shop         =$shop;
+        if($shop->type === 'fulfilment') {
+            $this->parent=$shop->fulfilment;
+        } else {
+            $this->parent=$shop;
+        }
+
+
+        $this->setRawAttributes([
+            'domain'      => $command->argument('domain'),
+            'code'        => $command->argument('code'),
+            'name'        => $command->argument('name'),
+        ]);
+
+
+        try {
+            $validatedData = $this->validateAttributes();
+        } catch (Exception $e) {
+            $command->error($e->getMessage());
+            return 1;
+        }
+
+        $website = $this->handle($shop, $validatedData);
+
+        $command->info("Website $website->code [$website->domain] created successfully 🎉");
+
+        return 0;
     }
 }

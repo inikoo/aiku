@@ -41,7 +41,6 @@ enum WebpageStateEnum: string
         };
 
 
-
         return [
             'in-process' => $webStats->number_webpages_state_in_process,
             'ready'      => $webStats->number_webpages_state_ready,

@@ -4,11 +4,13 @@
  *  Copyright (c) 2022, Raul A Perusquia F
  */
 import { Navigation, grpNavigation, orgNavigation } from "@/types/Navigation"
+import { useColorTheme } from '@/Composables/useStockList'
 
 
 import { defineStore } from "pinia"
 import { Image } from "@/types/Image"
 import { routeType } from "@/types/route"
+import { Colors } from "@/types/Color"
 
 interface OrganisationsData {
     id: number
@@ -59,6 +61,11 @@ interface OrganisationState {
 export const useLayoutStore = defineStore("layout", {
     state: () => (
         {
+            app: {
+                name: "",  // For styling navigation depend on which App
+                color: null as unknown | Colors,  // Styling layout color
+                theme: useColorTheme[0] as string[],  // For styling app color
+            },
             currentModule: "",
             currentRoute: "grp.dashboard.show", // Define value to avoid route null at first load
             currentParams: {} as {[key: string]: string},
@@ -85,7 +92,6 @@ export const useLayoutStore = defineStore("layout", {
                     show: false
                 }
             },
-            systemName: "",  // For styling navigation depend on which App
             user: {} as { id: number, avatar_thumbnail: Image, email: string, username: string },
         }
     ),

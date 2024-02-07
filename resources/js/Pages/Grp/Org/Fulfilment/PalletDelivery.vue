@@ -29,8 +29,9 @@ const props = defineProps<{
   history?: object
   pageHead: object
   updateRoute: object
+  uploadRoutes: object
 }>()
-
+console.log(props)
 let currentTab = ref(props.tabs.current);
 const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
 const loading = ref(false)
@@ -171,9 +172,9 @@ const onUploadOpen=(action)=>{
       </div>
     </template>
     <template #button-group-upload="{ action : action }">
-      <Button 
-         :style="'upload'"   
-         @click="()=>onUploadOpen(action.button)"  
+      <Button
+         :style="'upload'"
+         @click="()=>onUploadOpen(action.button)"
          class="capitalize inline-flex items-center h-full rounded-none text-sm border-none font-medium shadow-sm focus:ring-transparent focus:ring-offset-transparent focus:ring-0"
       />
     </template>
@@ -223,11 +224,13 @@ const onUploadOpen=(action)=>{
   <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
   <component :is="component" :data="props[currentTab]" :state="timeline.state" :tab="currentTab"></component>
 
-  <UploadExcel 
+  <UploadExcel
         :propName="'pallet deliveries'"
         description="Adding Pallet Deliveries"
         :routes="{
             upload: get(dataModal,'uploadRoutes',{}),
+            download: props.uploadRoutes.download,
+            history: props.uploadRoutes.history
         }"
         :dataModal="dataModal"
     />

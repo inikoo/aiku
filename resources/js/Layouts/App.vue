@@ -98,4 +98,39 @@ const sidebarOpen = ref(false)
     </notifications>
 </template>
 
+<style lang="scss">
+// * {
+//     --color-primary: v-bind('layout.app.theme[0]');
+// }
 
+/* Navigation: Aiku */
+.navigationActive {
+    @apply rounded py-2 font-semibold transition-all duration-0 ease-out;
+}
+.navigation {
+    @apply hover:bg-gray-300/40 py-2 rounded font-semibold transition-all duration-0 ease-out;
+}
+
+.subNavActive {
+    @apply bg-indigo-200/20 sm:border-l-4 sm:border-indigo-100 text-white font-semibold transition-all duration-0 ease-in-out;
+}
+.subNav {
+    @apply hover:bg-white/80 text-gray-100 hover:text-indigo-500 font-semibold transition-all duration-0 ease-in-out
+}
+
+.navigationSecondActive {
+    @apply transition-all duration-100 ease-in-out;
+}
+.navigationSecond {
+    @apply hover:bg-gray-100 text-gray-400 hover:text-gray-500 transition-all duration-100 ease-in-out
+}
+
+.bottomNavigationActive {
+    @apply w-5/6 absolute h-0.5 rounded-full bottom-0 left-[50%] translate-x-[-50%] mx-auto transition-all duration-200 ease-in-out;
+    background-color: v-bind('layout.app.theme[3]');
+}
+.bottomNavigation {
+    @apply bg-gray-300 w-0 group-hover:w-3/6 absolute h-0.5 rounded-full bottom-0 left-[50%] translate-x-[-50%] mx-auto transition-all duration-200 ease-in-out
+}
+
+</style>

@@ -54,3 +54,4 @@ aurora_migration_crm.sh
 /backup_load.sh
 /public/aiku-public.hot
 /public/aiku-public/manifest.json
+push.sh
