@@ -113,6 +113,7 @@ class ShowWebsite extends OrgAction
                     'navigation' => WebsiteTabsEnum::navigation()
                 ],
 
+                WebsiteTabsEnum::SHOWCASE->value   => $this->tab == WebsiteTabsEnum::SHOWCASE->value ? WebsiteResource::make($website)->getArray() : Inertia::lazy(fn () => WebsiteResource::make($website)->getArray()),
 
                 WebsiteTabsEnum::USERS->value     => $this->tab == WebsiteTabsEnum::USERS->value
                     ?
@@ -168,12 +169,12 @@ class ShowWebsite extends OrgAction
                         ],
                         'model' => [
                             'route' => $routeParameters['model'],
-                            'label' => $website->name,
+                            'label' => $website->code,
                         ],
                     ],
                     'simple'         => [
                         'route' => $routeParameters['model'],
-                        'label' => $website->name
+                        'label' => $website->code
                     ],
                     'suffix'         => $suffix
 

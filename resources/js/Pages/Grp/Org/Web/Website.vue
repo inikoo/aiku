@@ -20,6 +20,7 @@ import Tabs from "@/Components/Navigation/Tabs.vue";
 import TableWebpages from "@/Components/Tables/TableWebpages.vue";
 import { capitalize } from "@/Composables/capitalize";
 import TableHistories from "@/Components/Tables/TableHistories.vue";
+import WebsiteShowcase from "@/Components/Showcases/Org/WebsiteShowcase.vue";
 
 library.add(
   faChartLine,
@@ -41,7 +42,8 @@ const props = defineProps<{
     navigation: object;
   }
   webpages?: string;
-  changelog?: object
+  changelog?: object;
+  showcase?: object;
 }>();
 
 let currentTab = ref(props.tabs.current);
@@ -52,7 +54,8 @@ const component = computed(() => {
   const components = {
     webpages: TableWebpages,
     details: ModelDetails,
-    changelog: TableHistories
+    changelog: TableHistories,
+    showcase: WebsiteShowcase
   };
   return components[currentTab.value];
 
