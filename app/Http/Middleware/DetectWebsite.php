@@ -7,7 +7,7 @@
 
 namespace App\Http\Middleware;
 
-use App\Models\Web\Website;
+use App\Actions\Web\Website\UI\DetectWebsiteFromDomain;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -16,21 +16,19 @@ class DetectWebsite
 {
     public function handle(Request $request, Closure $next): Response
     {
-        $domain = $request->getHost();
-        //todo cache this somehow
 
-
-        if(app()->environment('staging')) {
-            $domain = str_replace('staging.', '', $domain);
-        }
-
-        $website = Website::where('domain', $domain)->firstOrFail();
+        $website = DetectWebsiteFromDomain::run($request->getHost());
 
         $request->merge([
-            'domain'  => $domain,
+            'domain'  => $website->domain,
             'website' => $website
         ]);
 
         return $next($request);
     }
+
+
+
+
+
 }

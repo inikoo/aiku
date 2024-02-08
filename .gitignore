@@ -4,10 +4,10 @@
 /public/hot
 /public/storage
 /public/images
-/public/public.hot
+/public/iris.hot
 /public/grp.hot
 /public/grp/assets/
-/public/public/assets/
+/public/iris/assets/
 /public/aiku-public/assets/
 /public/customer
 /public/grp/manifest.json
@@ -55,3 +55,5 @@ aurora_migration_crm.sh
 /public/aiku-public.hot
 /public/aiku-public/manifest.json
 push.sh
+/public/iris/manifest.json
+/public/public.hot

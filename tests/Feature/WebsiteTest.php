@@ -7,6 +7,7 @@
 
 use App\Actions\Web\Website\LaunchWebsite;
 use App\Actions\Web\Website\StoreWebsite;
+use App\Actions\Web\Website\UI\DetectWebsiteFromDomain;
 use App\Actions\Web\Website\UpdateWebsite;
 use App\Enums\Web\Website\WebsiteStateEnum;
 use App\Enums\Web\Website\WebsiteTypeEnum;
@@ -108,15 +109,38 @@ test('create fulfilment website', function () {
     return $website;
 });
 
+test('visit public website', function (Website $website) {
+    Config::set('inertia.testing.page_paths', [resource_path('js/Pages/Iris')]);
+    DetectWebsiteFromDomain::shouldRun()->with('localhost')->andReturn($website);
+
+
+    $response = get(
+        route(
+            'iris.home'
+        )
+    );
+    $response->assertStatus(307);
+    $response->assertRedirect('disclosure/under-construction');
+
+    $redirect = $this->followRedirects($response);
+    $redirect->assertStatus(200);
+
+
+    $redirect->assertInertia(function (AssertableInertia $page) {
+        $page->component('Disclosure/UnderConstruction');
+    });
+})->depends('create fulfilment website');
+
+
 test('launch fulfilment website from command', function (Website $website) {
     $this->artisan('website:launch', ['website' => $website->slug])
-         ->expectsOutput('Website launched 🚀')
-         ->assertExitCode(0);
+        ->expectsOutput('Website launched 🚀')
+        ->assertExitCode(0);
     $website->refresh();
 
     expect($website->state)->toBe(WebsiteStateEnum::LIVE);
-    return $website;
 
+    return $website;
 })->depends('create fulfilment website');
 
 test('hydrate website from command', function (Website $website) {
@@ -124,11 +148,10 @@ test('hydrate website from command', function (Website $website) {
         'organisations' => $this->organisation->slug,
         '--slugs'       => [$website->slug]
     ])
-         ->assertExitCode(0);
+        ->assertExitCode(0);
     $website->refresh();
 
     expect($website->webStats->number_webpages)->toBe(4);
-
 })->depends('launch fulfilment website from command');
 
 test('can show list of websites in fulfilment', function () {
