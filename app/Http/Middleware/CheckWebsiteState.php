@@ -7,7 +7,7 @@
 
 namespace App\Http\Middleware;
 
-use App\Enums\Organisation\Web\Website\WebsiteStateEnum;
+use App\Enums\Web\Website\WebsiteStateEnum;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;

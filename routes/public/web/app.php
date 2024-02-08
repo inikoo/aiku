@@ -9,6 +9,10 @@
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
+Route::prefix("disclosure")
+    ->name("disclosure.")
+    ->group(__DIR__."/disclosure.php");
+
 Route::get('/', function () {
     return Inertia::render('Welcome');
 })->name('.welcome');
