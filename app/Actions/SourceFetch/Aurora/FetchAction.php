@@ -9,6 +9,7 @@ namespace App\Actions\SourceFetch\Aurora;
 
 use App\Actions\Helpers\Fetch\StoreFetch;
 use App\Actions\Helpers\Fetch\UpdateFetch;
+use App\Actions\Media\Media\UpdateIsAnimatedMedia;
 use App\Actions\SysAdmin\User\UpdateUser;
 use App\Actions\Traits\WithOrganisationsArgument;
 use App\Actions\Traits\WithOrganisationSource;
@@ -276,15 +277,15 @@ class FetchAction
     public function saveImage(Agent|Supplier $model, $imageData, $imageField = 'image_id', $mediaCollection = 'photo'): void
     {
         if (array_key_exists('image_path', $imageData) and file_exists($imageData['image_path'])) {
-            $image_path = $imageData['image_path'];
+            $imagePath  = $imageData['image_path'];
             $filename   = $imageData['filename'];
-            $checksum   = md5_file($image_path);
+            $checksum   = md5_file($imagePath);
 
             if ($model->getMedia($mediaCollection, ['checksum' => $checksum])->count() == 0) {
-                /** @var Media $media */
-                $model->update([$imageField => null]);
 
-                $media = $model->addMedia($image_path)
+                $model->update([$imageField => null]);
+                /** @var Media $media */
+                $media = $model->addMedia($imagePath)
                     ->preservingOriginal()
                     ->withProperties(
                         [
@@ -293,8 +294,12 @@ class FetchAction
                         ]
                     )
                     ->usingName($filename)
-                    ->usingFileName($checksum.".".pathinfo($image_path, PATHINFO_EXTENSION))
+                    ->usingFileName($checksum.".".pathinfo($imagePath, PATHINFO_EXTENSION))
                     ->toMediaCollection($mediaCollection);
+
+                $media->refresh();
+                UpdateIsAnimatedMedia::run($media, $imagePath);
+
                 if (class_basename($model) == 'User') {
                     UpdateUser::run(
                         $model,

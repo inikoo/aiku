@@ -7,6 +7,7 @@
 
 namespace App\Actions\Utils;
 
+use App\Actions\Media\Media\UpdateIsAnimatedMedia;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\CRM\Customer;
 use App\Models\Goods\TradeUnit;
@@ -28,16 +29,16 @@ class StoreImage
      */
     public function handle(
         Employee|Guest|Product|Stock|TradeUnit|Customer|SupplierProduct|Supplier|Agent $subject,
-        string $image_path,
+        string $imagePath,
         string $filename,
         string $collection='photo'
     ): Employee|Guest|Product|Stock|TradeUnit|Customer|SupplierProduct|Supplier|Agent {
-        $checksum = md5_file($image_path);
+        $checksum = md5_file($imagePath);
 
         $media = $subject->media()->where('collection_name', $collection)->where('checksum', $checksum)->first();
 
         if (!$media) {
-            $subject->addMedia($image_path)
+            $media=$subject->addMedia($imagePath)
                 ->preservingOriginal()
                 ->withProperties(
                     [
@@ -46,8 +47,10 @@ class StoreImage
                     ]
                 )
                 ->usingName($filename)
-                ->usingFileName(dechex(crc32($checksum)).".".pathinfo($image_path, PATHINFO_EXTENSION))
+                ->usingFileName(dechex(crc32($checksum)).".".pathinfo($imagePath, PATHINFO_EXTENSION))
                 ->toMediaCollection($collection);
+            $media->refresh();
+            UpdateIsAnimatedMedia::run($media, $imagePath);
         }
         return $subject;
     }

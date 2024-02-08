@@ -7,19 +7,20 @@
 
 namespace App\Actions\Traits;
 
+use App\Actions\Media\Media\UpdateIsAnimatedMedia;
 use App\Models\Mail\EmailTemplate;
 use App\Models\Media\Media;
 use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\User;
 use App\Models\Web\Website;
 
-trait WIthSaveUploadedImage
+trait WithUpdateModelImage
 {
     /**
      * @throws \Spatie\MediaLibrary\MediaCollections\Exceptions\FileIsTooBig
      * @throws \Spatie\MediaLibrary\MediaCollections\Exceptions\FileDoesNotExist
      */
-    public function saveUploadedImage(
+    public function updateModelImage(
         Website|Organisation|User|EmailTemplate $model,
         string $collection,
         string $field,
@@ -48,6 +49,9 @@ trait WIthSaveUploadedImage
                 ->usingName($originalFilename)
                 ->usingFileName($checksum.".".$extension ?? pathinfo($imagePath, PATHINFO_EXTENSION))
                 ->toMediaCollection($collection);
+            $media->refresh();
+            UpdateIsAnimatedMedia::run($media, $imagePath);
+
             $model->update([$field => $media->id]);
         }
 

@@ -8,7 +8,6 @@
 namespace App\Models\Traits;
 
 use App\Actions\Helpers\Images\GetPictureSources;
-use App\Helpers\ImgProxy\Image;
 use App\Models\Media\Media;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
@@ -22,7 +21,7 @@ trait HasLogo
     public function logoImageSources($width = 0, $height = 0)
     {
         if($this->logo) {
-            $logoThumbnail = (new Image())->make($this->logo->getImgProxyFilename())->resize($width, $height);
+            $logoThumbnail = $this->logo->getImage()->resize($width, $height);
             return GetPictureSources::run($logoThumbnail);
         }
         return null;

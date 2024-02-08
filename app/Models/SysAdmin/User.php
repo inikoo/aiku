@@ -9,7 +9,6 @@ namespace App\Models\SysAdmin;
 
 use App\Actions\Helpers\Images\GetPictureSources;
 use App\Enums\SysAdmin\User\UserAuthTypeEnum;
-use App\Helpers\ImgProxy\Image;
 use App\Models\Assets\Language;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Inventory\Warehouse;
@@ -169,7 +168,7 @@ class User extends Authenticatable implements HasMedia, Auditable
     public function avatarImageSources($width = 0, $height = 0)
     {
         if($this->avatar) {
-            $avatarThumbnail = (new Image())->make($this->avatar->getImgProxyFilename())->resize($width, $height);
+            $avatarThumbnail = $this->avatar->getImage()->resize($width, $height);
             return GetPictureSources::run($avatarThumbnail);
         }
         return null;

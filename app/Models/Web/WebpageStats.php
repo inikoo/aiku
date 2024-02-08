@@ -18,6 +18,37 @@ use Illuminate\Support\Carbon;
  *
  * @property int $id
  * @property int $webpage_id
+ * @property int $number_webpages
+ * @property int $number_webpages_state_in_process
+ * @property int $number_webpages_state_ready
+ * @property int $number_webpages_state_live
+ * @property int $number_webpages_state_closed
+ * @property int $number_webpages_type_storefront
+ * @property int $number_webpages_type_shop
+ * @property int $number_webpages_type_checkout
+ * @property int $number_webpages_type_content
+ * @property int $number_webpages_type_small_print
+ * @property int $number_webpages_type_engagement
+ * @property int $number_webpages_type_auth
+ * @property int $number_webpages_type_blog
+ * @property int $number_webpages_purpose_storefront
+ * @property int $number_webpages_purpose_product_overview
+ * @property int $number_webpages_purpose_product_list
+ * @property int $number_webpages_purpose_category_preview
+ * @property int $number_webpages_purpose_shopping_cart
+ * @property int $number_webpages_purpose_info
+ * @property int $number_webpages_purpose_privacy
+ * @property int $number_webpages_purpose_cookies_policy
+ * @property int $number_webpages_purpose_terms_and_conditions
+ * @property int $number_webpages_purpose_appointment
+ * @property int $number_webpages_purpose_contact
+ * @property int $number_webpages_purpose_login
+ * @property int $number_webpages_purpose_register
+ * @property int $number_webpages_purpose_blog
+ * @property int $number_webpages_purpose_article
+ * @property int $number_webpages_purpose_content
+ * @property int $number_webpages_purpose_other_small_print
+ * @property int $number_webpages_purpose_shop
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read \App\Models\Web\Webpage $webpage

@@ -5,7 +5,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-use App\Actions\Media\ShowMedia;
+use App\Actions\Media\Media\ShowMedia;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/{media}', ShowMedia::class)->name('show');
