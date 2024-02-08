@@ -18,7 +18,7 @@ createServer((page) =>
         page,
         render: renderToString,
         title: (title) => `${title} - ${appName}`,
-        resolve: (name) => resolvePageComponent(`./Pages/Customer/${name}.vue`, import.meta.glob('./Pages/Public/**/*.vue')),
+        resolve: (name) => resolvePageComponent(`./Pages/Customer/${name}.vue`, import.meta.glob('./Pages/Customer/**/*.vue')),
         setup({ App, props, plugin }) {
             return createSSRApp({ render: () => h(App, props) })
                 .use(plugin)

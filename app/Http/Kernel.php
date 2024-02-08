@@ -17,7 +17,7 @@ use App\Http\Middleware\HandleCustomerInertiaRequests;
 use App\Http\Middleware\LogUserRequestMiddleware;
 use App\Http\Middleware\EncryptCookies;
 use App\Http\Middleware\ForceJsonResponse;
-use App\Http\Middleware\HandlePublicInertiaRequests;
+use App\Http\Middleware\HandleIrisInertiaRequests;
 use App\Http\Middleware\SetLocale;
 use App\Http\Middleware\HandleInertiaGrpRequests;
 use App\Http\Middleware\PreventRequestsDuringMaintenance;
@@ -92,7 +92,7 @@ class Kernel extends HttpKernel
             HandleAikuPublicInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
         ],
-        'public' => [
+        'iris' => [
             DetectWebsite::class,
             CheckWebsiteState::class,
             EncryptCookies::class,
@@ -101,7 +101,7 @@ class Kernel extends HttpKernel
             ShareErrorsFromSession::class,
             VerifyCsrfToken::class,
             SubstituteBindings::class,
-            HandlePublicInertiaRequests::class,
+            HandleIrisInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
         ],
         'customer' => [

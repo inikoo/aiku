@@ -1,6 +1,6 @@
 <script setup lang='ts'>
 import { Link } from '@inertiajs/vue3'
-import Copyright from '@/Layouts/Public/Copyright.vue'
+import Copyright from '@/Layouts/Iris/Copyright.vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faBuilding, faEnvelope, faBalanceScale, faIndustry, faPhone } from '@fas'
 import { library } from '@fortawesome/fontawesome-svg-core'

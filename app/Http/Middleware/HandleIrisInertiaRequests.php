@@ -11,9 +11,9 @@ use Illuminate\Http\Request;
 use Inertia\Middleware;
 use Tightenco\Ziggy\Ziggy;
 
-class HandlePublicInertiaRequests extends Middleware
+class HandleIrisInertiaRequests extends Middleware
 {
-    protected $rootView = 'app-public';
+    protected $rootView = 'app-iris';
 
 
     public function share(Request $request): array

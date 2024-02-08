@@ -9,9 +9,9 @@
 
 <script setup lang="ts">
 import Notification from '@/Components/Utils/Notification.vue'
-import Header from '@/Layouts/Public/Header.vue'
-import NavigationMenu from '@/Layouts/Public/NavigationMenu.vue'
-import Footer from '@/Layouts/Public/Footer.vue'
+import Header from '@/Layouts/Iris/Header.vue'
+import NavigationMenu from '@/Layouts/Iris/NavigationMenu.vue'
+import Footer from '@/Layouts/Iris/Footer.vue'
 
 </script>
 
@@ -20,7 +20,7 @@ import Footer from '@/Layouts/Public/Footer.vue'
         <div class="container max-w-7xl mx-auto shadow-xl">
             <!-- Section: Top header -->
             <Header />
-            
+
             <!-- Section: Navigation Tab -->
             <NavigationMenu />
             <!-- Main Content -->
@@ -28,7 +28,7 @@ import Footer from '@/Layouts/Public/Footer.vue'
                 class="text-gray-700">
                 <slot />
             </main>
-            
+
             <Footer />
         </div>
     </div>

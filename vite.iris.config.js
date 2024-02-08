@@ -16,10 +16,10 @@ export default defineConfig(
     plugins: [
       inertia(),
       laravel({
-                hotFile       : "public/public.hot",
-                buildDirectory: "public",
-                input         : "resources/js/app-public.js",
-                ssr           : "resources/js/ssr-public.js",
+                hotFile       : "public/iris.hot",
+                buildDirectory: "iris",
+                input         : "resources/js/app-iris.js",
+                ssr           : "resources/js/ssr-iris.js",
                 refresh       : true
               }),
       vue({

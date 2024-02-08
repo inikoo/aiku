@@ -5,7 +5,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\UI\Public\Disclosure;
+namespace App\Actions\UI\Iris\Disclosure;
 
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;

@@ -14,8 +14,8 @@
 
 
         <!-- Scripts -->
-        @routes('public')
-        {{Vite::useHotFile('public.hot')->useBuildDirectory('public')->withEntryPoints(['resources/js/app-public.js'])}}
+        @routes('iris')
+        {{Vite::useHotFile('iris.hot')->useBuildDirectory('iris')->withEntryPoints(['resources/js/app-iris.js'])}}
         @inertiaHead
     </head>
     <body class="font-sans antialiased h-full">

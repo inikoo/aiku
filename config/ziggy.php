@@ -8,7 +8,7 @@
 return [
     'groups' => [
         'grp'         => ['grp.*'],
-        'public'      => ['public.*'],
+        'public'      => ['iris.*'],
         'customer'    => ['customer.*'],
         'aiku-public' => ['aiku-public.*'],
     ],

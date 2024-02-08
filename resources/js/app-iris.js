@@ -19,15 +19,15 @@ import FloatingVue from 'floating-vue'
 import 'floating-vue/dist/style.css'
 
 const appName = window.document.getElementsByTagName('title')[0]?.innerText ||
-    'aiku';
+    'iris';
 
 createInertiaApp(
     {
       title  : (title) => `${title} - ${appName}`,
       resolve: (name) =>
           resolvePageComponent(
-              `./Pages/Public/${name}.vue`,
-              import.meta.glob('./Pages/Public/**/*.vue'),
+              `./Pages/Iris/${name}.vue`,
+              import.meta.glob('./Pages/Iris/**/*.vue'),
           ),
       setup({el, App, props, plugin}) {
         const app = createApp({render: () => h(App, props)});

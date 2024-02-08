@@ -47,9 +47,9 @@ class RouteServiceProvider extends ServiceProvider
             ->name('customer.')
             ->group(base_path('routes/customer/app.php'));
 
-        Route::middleware('public')
-            ->name('public.')
-            ->group(base_path('routes/public/web/app.php'));
+        Route::middleware('iris')
+            ->name('iris.')
+            ->group(base_path('routes/iris/root.php'));
 
     }
 
