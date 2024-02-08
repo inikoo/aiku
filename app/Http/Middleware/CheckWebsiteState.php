@@ -24,6 +24,7 @@ class CheckWebsiteState
         $website = $request->get('website');
 
         $status = $website->status;
+
         if ($status) {
             return $next($request);
         } else {
@@ -32,21 +33,21 @@ class CheckWebsiteState
 
 
             switch ($website->state) {
-                case                     WebsiteStateEnum::LIVE:
+                case WebsiteStateEnum::LIVE:
                     $url = 'disclosure/maintenance';
-                    if ($request->route()->getName() == 'public.disclosure.maintenance') {
+                    if ($request->route()->getName() == 'iris.disclosure.maintenance') {
                         return $next($request);
                     }
                     break;
-                case                     WebsiteStateEnum::IN_PROCESS:
+                case WebsiteStateEnum::IN_PROCESS:
                     $url = 'disclosure/under-construction';
-                    if ($request->route()->getName() == 'public.disclosure.under-construction') {
+                    if ($request->route()->getName() == 'iris.disclosure.under-construction') {
                         return $next($request);
                     }
 
                     break;
-                case                     WebsiteStateEnum::CLOSED:
-                    if ($request->route()->getName() == 'public.disclosure.closed') {
+                case WebsiteStateEnum::CLOSED:
+                    if ($request->route()->getName() == 'iris.disclosure.closed') {
                         return $next($request);
                     }
                     $url    = 'disclosure/closed';
