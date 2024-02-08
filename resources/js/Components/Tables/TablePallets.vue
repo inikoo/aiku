@@ -24,6 +24,8 @@ const props = defineProps<{
 
 function customerRoute(pallet: Customer) {
     switch (route().current()) {
+        case 'grp.org.warehouses.show.fulfilment.pallets.index':
+            break;
         default:
             return route(
                 'grp.org.fulfilments.show.crm.customers.show.pallet-deliveries.pallets.show',
@@ -41,9 +43,9 @@ function customerRoute(pallet: Customer) {
 
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
-        <template #cell(slug)="{ item: pallet }">
+        <template #cell(reference)="{ item: pallet }">
             <Link :href="customerRoute(pallet)" class="specialUnderline">
-                {{ pallet['slug'] }}
+                {{ pallet['reference'] }}
             </Link>
         </template>
         <template #cell(location)="{ item: pallet }">

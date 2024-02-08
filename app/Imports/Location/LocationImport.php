@@ -9,6 +9,7 @@ namespace App\Imports\Location;
 
 use App\Actions\Inventory\Location\StoreLocation;
 use App\Imports\WithImport;
+use App\Models\Helpers\Upload;
 use App\Models\Inventory\Warehouse;
 use Exception;
 use Illuminate\Support\Arr;
@@ -21,6 +22,13 @@ use Maatwebsite\Excel\Concerns\WithValidation;
 class LocationImport implements ToCollection, WithHeadingRow, SkipsOnFailure, WithValidation, WithEvents
 {
     use WithImport;
+
+    protected Warehouse $scope;
+    public function __construct(Warehouse $warehouse, Upload $upload)
+    {
+        $this->upload = $upload;
+        $this->scope  = $warehouse;
+    }
 
     public function storeModel($row, $uploadRecord): void
     {
@@ -35,17 +43,15 @@ class LocationImport implements ToCollection, WithHeadingRow, SkipsOnFailure, Wi
                 []
             );
 
-
         try {
             $modelData     = $row->only($fields)->all();
-            $warehouse     = Warehouse::find($row->get('warehouse_id'));
 
             data_set($modelData, 'data.bulk_import', [
                 'id'   => $this->upload->id,
                 'type' => 'Upload',
             ]);
 
-            StoreLocation::make()->action($warehouse, $modelData);
+            StoreLocation::make()->action($this->scope, $modelData);
             $this->setRecordAsCompleted($uploadRecord);
         } catch (Exception $e) {
             $this->setRecordAsFailed($uploadRecord, [$e->getMessage()]);
@@ -60,7 +66,6 @@ class LocationImport implements ToCollection, WithHeadingRow, SkipsOnFailure, Wi
                 'max:64',
                 'alpha_dash'
             ],
-            'warehouse_id' => ['required', 'exists:warehouses,id'],
             'max_weight'   => ['nullable', 'numeric', 'min:0.1', 'max:1000000'],
             'max_volume'   => ['nullable', 'numeric', 'min:0.1', 'max:1000000']
         ];

@@ -203,20 +203,38 @@ class IndexLocations extends OrgAction
                             $request->route()->getName() == 'grp.org.warehouses.show.infrastructure.warehouse-areas.show.locations.index'
                         )
                             ? [
-                            'type'  => 'button',
-                            'style' => 'create',
-                            'label' => __('location'),
-                            'route' => match ($request->route()->getName()) {
-                                'grp.org.warehouses.show.infrastructure.locations.index' => [
-                                    'name'       => 'grp.org.warehouses.show.infrastructure.locations.create',
-                                    'parameters' => array_values($request->route()->originalParameters())
-                                ],
-                                default => [
-                                    'name'       => 'grp.org.warehouses.show.infrastructure.warehouse-areas.show.locations.create',
-                                    'parameters' => array_values($request->route()->originalParameters())
+                                'type'   => 'buttonGroup',
+                                'key'    => 'upload-add',
+                                'button' => [
+                                    [
+                                        'type'  => 'button',
+                                        'style' => 'primary',
+                                        'icon'  => ['fal', 'fa-upload'],
+                                        'label' => 'upload',
+                                        'route' => [
+                                            'name'       => 'grp.models.warehouse.warehouse-areas.upload',
+                                            'parameters' => [
+                                                $this->parent->id
+                                            ]
+                                        ]
+                                    ],
+                                    [
+                                        'type'  => 'button',
+                                        'style' => 'create',
+                                        'label' => __('location'),
+                                        'route' => match ($request->route()->getName()) {
+                                            'grp.org.warehouses.show.infrastructure.locations.index' => [
+                                                'name'       => 'grp.org.warehouses.show.infrastructure.locations.create',
+                                                'parameters' => array_values($request->route()->originalParameters())
+                                            ],
+                                            default => [
+                                                'name'       => 'grp.org.warehouses.show.infrastructure.warehouse-areas.show.locations.create',
+                                                'parameters' => array_values($request->route()->originalParameters())
+                                            ]
+                                        }
+                                    ]
                                 ]
-                            }
-                        ] : false
+                            ] : null
                     ]
                 ],
                 'data'        => LocationResource::collection($locations),

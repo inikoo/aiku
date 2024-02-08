@@ -56,7 +56,8 @@ class IndexPallets extends OrgAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->whereStartWith('customer_reference', $value);
+                $query->whereStartWith('customer_reference', $value)
+                ->orWhereStartWith('reference', $value);
             });
         });
 
@@ -105,8 +106,8 @@ class IndexPallets extends OrgAction
 
 
 
-        return $query->defaultSort('slug')
-            ->allowedSorts(['customer_reference', 'slug'])
+        return $query->defaultSort('reference')
+            ->allowedSorts(['customer_reference', 'reference'])
             ->allowedFilters([$globalSearch, $isNotLocated, 'customer_reference'])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -162,7 +163,7 @@ class IndexPallets extends OrgAction
 
             $table->column(key: 'notes', label: __('Notes'), canBeHidden: false, searchable: true)
                 ->column(key: 'actions', label: ' ', canBeHidden: false, searchable: true)
-                ->defaultSort('slug');
+                ->defaultSort('reference');
         };
     }
 
@@ -203,7 +204,7 @@ class IndexPallets extends OrgAction
                 ],
                 'data'        => PalletsResource::collection($pallets),
             ]
-        )->table($this->tableStructure($this->parent));
+        )->table($this->tableStructure($this->parent, 'pallets'));
     }
 
     public function asController(Organisation $organisation, Warehouse $warehouse, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
@@ -211,7 +212,7 @@ class IndexPallets extends OrgAction
         $this->parent = $fulfilment;
         $this->initialisationFromFulfilment($fulfilment, $request);
 
-        return $this->handle($organisation);
+        return $this->handle($organisation, 'pallets');
     }
 
     /** @noinspection PhpUnusedParameterInspection */
@@ -220,7 +221,7 @@ class IndexPallets extends OrgAction
         $this->parent = $warehouse;
         $this->initialisationFromWarehouse($warehouse, $request);
 
-        return $this->handle($warehouse);
+        return $this->handle($warehouse, 'pallets');
     }
 
     /** @noinspection PhpUnusedParameterInspection */
