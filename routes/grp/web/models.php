@@ -29,7 +29,9 @@ use App\Actions\Market\Shop\StoreShop;
 use App\Actions\SysAdmin\Organisation\StoreOrganisation;
 use App\Actions\UI\Profile\GetProfileAppLoginQRCode;
 use App\Actions\UI\Profile\UpdateProfile;
+use App\Actions\Web\Website\LaunchWebsite;
 use App\Actions\Web\Website\StoreWebsite;
+use App\Actions\Web\Website\UpdateWebsite;
 use Illuminate\Support\Facades\Route;
 
 Route::patch('/profile', UpdateProfile::class)->name('profile.update');
@@ -82,6 +84,12 @@ Route::name('warehouse-area.')->prefix('warehouse-area/{warehouseArea:id}')->gro
 
 Route::post('group/{group:id}/organisation', StoreOrganisation::class)->name('organisation.store');
 
+
+Route::name('website.')->prefix('website/{website:id}')->group(function () {
+    Route::patch('', UpdateWebsite::class)->name('update');
+    Route::post('launch', LaunchWebsite::class)->name('launch');
+});
+
 /*
 
 
@@ -99,7 +107,6 @@ Route::delete('/shop/{shop}/department/{department}', [DeleteProductCategory::cl
 Route::post('stored-items/customer/{customer}', StoreStoredItem::class)->name('stored-items.store');
 Route::patch('stored-items/{storedItem}', UpdateStoredItem::class)->name('stored-items.update');
 
-Route::patch('/website/{website}', UpdateWebsite::class)->name('website.update');
 Route::delete('/website/{website}', DeleteWebsite::class)->name('website.delete');
 Route::patch('/web-user/{webUser}', UpdateWebUser::class)->name('web-user.update');
 

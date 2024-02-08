@@ -8,9 +8,12 @@
 import { Head } from "@inertiajs/vue3";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import {
-  faAnalytics, faBrowser,
-  faChartLine, faDraftingCompass, faRoad, faSlidersH, faUsersClass, faClock
-} from '@fal';
+    faAnalytics, faBrowser,
+    faChartLine, faDraftingCompass, faRoad, faSlidersH, faUsersClass, faClock, faSeedling,
+    faBroadcastTower,
+    faSkull,
+    faRocket
+} from "@fal";
 
 import PageHeading from "@/Components/Headings/PageHeading.vue";
 import { computed, ref } from "vue";
@@ -23,27 +26,31 @@ import TableHistories from "@/Components/Tables/TableHistories.vue";
 import WebsiteShowcase from "@/Components/Showcases/Org/WebsiteShowcase.vue";
 
 library.add(
-  faChartLine,
-  faClock,
-  faAnalytics,
-  faUsersClass,
-  faDraftingCompass,
-  faSlidersH,
-  faRoad,
-  faBrowser
+    faChartLine,
+    faClock,
+    faAnalytics,
+    faUsersClass,
+    faDraftingCompass,
+    faSlidersH,
+    faRoad,
+    faBrowser,
+    faSeedling,
+    faBroadcastTower,
+    faSkull,
+    faRocket
 );
 
 
 const props = defineProps<{
-  title: string,
-  pageHead: object,
-  tabs: {
-    current: string;
-    navigation: object;
-  }
-  webpages?: string;
-  changelog?: object;
-  showcase?: object;
+    title: string,
+    pageHead: object,
+    tabs: {
+        current: string;
+        navigation: object;
+    }
+    webpages?: string;
+    changelog?: object;
+    showcase?: object;
 }>();
 
 let currentTab = ref(props.tabs.current);
@@ -51,13 +58,13 @@ const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
 
 const component = computed(() => {
 
-  const components = {
-    webpages: TableWebpages,
-    details: ModelDetails,
-    changelog: TableHistories,
-    showcase: WebsiteShowcase
-  };
-  return components[currentTab.value];
+    const components = {
+        webpages: TableWebpages,
+        details: ModelDetails,
+        changelog: TableHistories,
+        showcase: WebsiteShowcase
+    };
+    return components[currentTab.value];
 
 });
 
@@ -65,9 +72,9 @@ const component = computed(() => {
 
 
 <template layout="App">
-  <Head :title="capitalize(title)" />
-  <PageHeading :data="pageHead"></PageHeading>
-  <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
-  <component :is="component" :data="props[currentTab]" :tab="currentTab"></component>
+    <Head :title="capitalize(title)" />
+    <PageHeading :data="pageHead"></PageHeading>
+    <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
+    <component :is="component" :data="props[currentTab]" :tab="currentTab"></component>
 </template>
 

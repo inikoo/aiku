@@ -12,7 +12,9 @@ use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\Market\Shop\UI\ShowShop;
 use App\Actions\OrgAction;
+use App\Actions\Web\HasWorkshopAction;
 use App\Enums\UI\WebsiteTabsEnum;
+use App\Enums\Web\Website\WebsiteStateEnum;
 use App\Http\Resources\CRM\WebUserResource;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\Web\WebsiteResource;
@@ -27,18 +29,20 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowWebsite extends OrgAction
 {
+    use HasWorkshopAction;
+
     private Fulfilment|Shop|Organisation $parent;
 
     public function authorize(ActionRequest $request): bool
     {
         if ($this->parent instanceof Shop) {
-            $this->canEdit   = $request->user()->hasPermissionTo("web.{$this->shop->id}.edit");
-            $this->canDelete = $request->user()->hasPermissionTo("web.{$this->shop->id}.edit");
+            $this->canEdit      = $request->user()->hasPermissionTo("web.{$this->shop->id}.edit");
+            $this->isSupervisor = $request->user()->hasPermissionTo("supervisor-web.{$this->shop->id}");
 
             return $request->user()->hasPermissionTo("web.{$this->shop->id}.view");
         } elseif ($this->parent instanceof Fulfilment) {
-            $this->canEdit   = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
-            $this->canDelete = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+            $this->canEdit      = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+            $this->isSupervisor = $request->user()->hasPermissionTo("supervisor-fulfilment-shop.{$this->fulfilment->id}");
 
             return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
         }
@@ -66,54 +70,53 @@ class ShowWebsite extends OrgAction
 
     public function htmlResponse(Website $website, ActionRequest $request): Response
     {
+
+
         return Inertia::render(
             'Org/Web/Website',
             [
-                'title'                          => __('Website'),
-                'breadcrumbs'                    => $this->getBreadcrumbs(
+                'title'       => __('Website'),
+                'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
-                'navigation'                     => $this->parent instanceof Organisation ? [
+                'navigation'  => $this->parent instanceof Organisation ? [
                     'previous' => $this->getPrevious($website, $request),
                     'next'     => $this->getNext($website, $request),
                 ] : null,
-                'pageHead'                       => [
-                    'title'   => $website->name,
-                    'icon'    => [
+                'pageHead'    => [
+                    'title'     => $website->name,
+                    'icon'      => [
                         'title' => __('website'),
                         'icon'  => 'fal fa-globe'
                     ],
-                    'actions' => [
-                        $this->canEdit ? [
-                            'type'  => 'button',
-                            'style' => 'edit',
-                            'label' => __('settings'),
-                            'icon'  => ["fal", "fa-sliders-h"],
-                            'route' => [
-                                'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
-                                'parameters' => array_values($request->route()->originalParameters())
+                    'iconRight' => $website->state->stateIcon()[$website->state->value],
+                    'actions'   =>
+
+                        array_merge(
+                            $this->workshopActions($request),
+                            [
+                                $this->isSupervisor && $website->state==WebsiteStateEnum::IN_PROCESS ? [
+                                    'type'  => 'button',
+                                    'style' => 'edit',
+                                    'label' => __('launch'),
+                                    'icon'  => ["fal", "fa-rocket"],
+                                    'route' => [
+                                        'method'     => 'post',
+                                        'name'       => 'grp.models.website.launch',
+                                        'parameters' => $website->id
+                                    ]
+                                ] : [],
                             ]
-                        ] : false,
-                        $this->canEdit ? [
-                            'type'  => 'button',
-                            'style' => 'edit',
-                            'label' => __('workshop'),
-                            'icon'  => ["fal", "fa-drafting-compass"],
-                            'route' => [
-                                'name'       => preg_replace('/show$/', 'workshop', $request->route()->getName()),
-                                'parameters' => array_values($request->route()->originalParameters())
-                            ]
-                        ] : false,
-                    ],
+                        ),
 
                 ],
-                'tabs'                           => [
+                'tabs'        => [
                     'current'    => $this->tab,
                     'navigation' => WebsiteTabsEnum::navigation()
                 ],
 
-                WebsiteTabsEnum::SHOWCASE->value   => $this->tab == WebsiteTabsEnum::SHOWCASE->value ? WebsiteResource::make($website)->getArray() : Inertia::lazy(fn () => WebsiteResource::make($website)->getArray()),
+                WebsiteTabsEnum::SHOWCASE->value => $this->tab == WebsiteTabsEnum::SHOWCASE->value ? WebsiteResource::make($website)->getArray() : Inertia::lazy(fn () => WebsiteResource::make($website)->getArray()),
 
                 WebsiteTabsEnum::USERS->value     => $this->tab == WebsiteTabsEnum::USERS->value
                     ?

@@ -10,10 +10,11 @@ namespace App\Actions\Web\Website;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Actions\Web\Webpage\PublishWebpage;
+use App\Enums\Market\Shop\ShopTypeEnum;
 use App\Enums\Web\Webpage\WebpageStateEnum;
 use App\Enums\Web\Website\WebsiteStateEnum;
+use App\Models\Fulfilment\Fulfilment;
 use App\Models\Market\Shop;
-use App\Models\SysAdmin\Organisation;
 use App\Models\Web\Website;
 use Exception;
 use Illuminate\Console\Command;
@@ -22,6 +23,9 @@ use Lorisleiva\Actions\ActionRequest;
 class LaunchWebsite extends OrgAction
 {
     use WithActionUpdate;
+
+
+    private \App\Models\Fulfilment\Fulfilment|Shop|null $parent;
 
     public function handle(Website $website): Website
     {
@@ -53,7 +57,13 @@ class LaunchWebsite extends OrgAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("supervisor.web.{$this->shop->id}");
+        if ($this->parent instanceof Shop) {
+            return $request->user()->hasPermissionTo("supervisor-web.{$this->shop->id}");
+        } elseif ($this->parent instanceof Fulfilment) {
+            return $request->user()->hasPermissionTo("supervisor-fulfilment-shop.{$this->fulfilment->id}");
+        }
+
+        return false;
     }
 
     public function prepareForValidation(ActionRequest $request): void
@@ -76,9 +86,16 @@ class LaunchWebsite extends OrgAction
     }
 
 
-    public function asController(Organisation $organisation, Shop $shop, Website $website, ActionRequest $request): Website
+    public function asController(Website $website, ActionRequest $request): Website
     {
-        $this->initialisationFromShop($shop, $request);
+        if ($website->shop->type == ShopTypeEnum::FULFILMENT) {
+            $this->parent = $website->shop->fulfilment;
+            $this->initialisationFromFulfilment($website->shop->fulfilment, $request);
+        } else {
+            $this->parent = $website->shop;
+            $this->initialisationFromShop($website->shop, $request);
+        }
+
 
         return $this->handle($website);
     }

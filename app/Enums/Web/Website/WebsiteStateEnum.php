@@ -65,7 +65,7 @@ enum WebsiteStateEnum: string
 
                 'tooltip' => __('in process'),
                 'icon'    => 'fal fa-seedling',
-                'class'   => 'text-indigo-500'
+                'class'   => 'text-emerald-500'
 
 
             ],
