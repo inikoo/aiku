@@ -42,10 +42,10 @@ class RouteServiceProvider extends ServiceProvider
             ->name('aiku-public.')
             ->group(base_path('routes/aiku-public/web/root.php'));
 
-        Route::middleware('customer')
+        Route::middleware('retina')
             ->prefix('app')
-            ->name('customer.')
-            ->group(base_path('routes/customer/app.php'));
+            ->name('retina.')
+            ->group(base_path('routes/retina/app.php'));
 
         Route::middleware('iris')
             ->name('iris.')

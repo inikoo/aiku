@@ -19,15 +19,15 @@ import FloatingVue from 'floating-vue'
 import 'floating-vue/dist/style.css'
 
 const appName = window.document.getElementsByTagName('title')[0]?.innerText ||
-    'aiku';
+    'retina';
 
 createInertiaApp(
     {
       title  : (title) => `${title} - ${appName}`,
       resolve: (name) =>
           resolvePageComponent(
-              `./Pages/Customer/${name}.vue`,
-              import.meta.glob('./Pages/Customer/**/*.vue'),
+              `./Pages/Retina/${name}.vue`,
+              import.meta.glob('./Pages/Retina/**/*.vue'),
           ),
       setup({el, App, props, plugin}) {
         const app = createApp({render: () => h(App, props)});

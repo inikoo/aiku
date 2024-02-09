@@ -6,9 +6,11 @@
  *  Version 4.0
  */
 
-use App\Actions\SysAdmin\UI\AuthSession\Login;
-use App\Actions\SysAdmin\UI\AuthSession\Logout;
-use App\Actions\SysAdmin\UI\AuthSession\ShowLogin;
+use App\Actions\SysAdmin\UI\Grp\Login;
+use App\Actions\SysAdmin\UI\Grp\Logout;
+use App\Actions\SysAdmin\UI\Grp\ShowLogin;
+use App\Actions\SysAdmin\User\UI\ShowResetUserPassword;
+use App\Actions\SysAdmin\User\UpdateUserPassword;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function () {

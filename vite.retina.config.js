@@ -16,10 +16,10 @@ export default defineConfig(
     plugins: [
       inertia(),
       laravel({
-                hotFile       : "public/customer.hot",
-                buildDirectory: "customer",
-                input         : "resources/js/app-customer.js",
-                ssr           : "resources/js/ssr-customer.js",
+                hotFile       : "public/retina.hot",
+                buildDirectory: "retina",
+                input         : "resources/js/app-retina.js",
+                ssr           : "resources/js/ssr-retina.js",
                 refresh       : true
               }),
       vue({

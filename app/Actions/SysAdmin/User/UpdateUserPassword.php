@@ -20,8 +20,6 @@ class UpdateUserPassword extends GrpAction
 {
     use WithActionUpdate;
 
-    private bool $asAction = false;
-
     public function handle(User $user, array $modelData): User
     {
         data_set($modelData, 'reset_password', false);

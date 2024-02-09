@@ -57,3 +57,4 @@ aurora_migration_crm.sh
 push.sh
 /public/iris/manifest.json
 /public/public.hot
+/public/retina.hot

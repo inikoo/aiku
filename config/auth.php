@@ -43,11 +43,9 @@ return [
             'driver'   => 'session',
             'provider' => 'users',
         ],
-
-        'api-web-users'  => [
-            'driver'   => 'sanctum',
-            'provider' => 'web-user',
-            'hash'     => false,
+        'retina'     => [
+            'driver'   => 'session',
+            'provider' => 'web-users',
         ],
         'broadcasting' => [
             'driver' => 'websockets-auth',
@@ -77,7 +75,7 @@ return [
             'driver' => 'user-with-legacy-password',
             'model'  => User::class,
         ],
-        'web-user'   => [
+        'web-users'   => [
             'driver' => 'eloquent',
             'model'  => WebUser::class,
         ],
@@ -102,6 +100,12 @@ return [
     'passwords' => [
         'users' => [
             'provider' => 'users',
+            'table'    => 'password_resets',
+            'expire'   => 60,
+            'throttle' => 60,
+        ],
+        'web-users' => [
+            'provider' => 'web-users',
             'table'    => 'password_resets',
             'expire'   => 60,
             'throttle' => 60,

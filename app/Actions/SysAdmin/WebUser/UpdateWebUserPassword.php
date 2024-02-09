@@ -21,7 +21,6 @@ class UpdateWebUserPassword extends OrgAction
 {
     use WithActionUpdate;
 
-    private bool $asAction = false;
 
     public function handle(WebUser $webUser, array $modelData): WebUser
     {

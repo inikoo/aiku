@@ -13,11 +13,13 @@ use App\Http\Middleware\BindGroupInstance;
 use App\Http\Middleware\CheckWebsiteState;
 use App\Http\Middleware\DetectWebsite;
 use App\Http\Middleware\HandleAikuPublicInertiaRequests;
-use App\Http\Middleware\HandleCustomerInertiaRequests;
+use App\Http\Middleware\HandleRetinaInertiaRequests;
 use App\Http\Middleware\LogUserRequestMiddleware;
 use App\Http\Middleware\EncryptCookies;
 use App\Http\Middleware\ForceJsonResponse;
 use App\Http\Middleware\HandleIrisInertiaRequests;
+use App\Http\Middleware\ResetUserPasswordMiddleware;
+use App\Http\Middleware\ResetWebUserPasswordMiddleware;
 use App\Http\Middleware\SetLocale;
 use App\Http\Middleware\HandleInertiaGrpRequests;
 use App\Http\Middleware\PreventRequestsDuringMaintenance;
@@ -104,7 +106,7 @@ class Kernel extends HttpKernel
             HandleIrisInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
         ],
-        'customer' => [
+        'retina'      => [
             DetectWebsite::class,
             CheckWebsiteState::class,
             EncryptCookies::class,
@@ -113,7 +115,7 @@ class Kernel extends HttpKernel
             ShareErrorsFromSession::class,
             VerifyCsrfToken::class,
             SubstituteBindings::class,
-            HandleCustomerInertiaRequests::class,
+            HandleRetinaInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
         ],
 

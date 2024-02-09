@@ -5,7 +5,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\SysAdmin\UI\AuthSession;
+namespace App\Actions\SysAdmin\UI\Grp;
 
 use App\Actions\SysAdmin\User\LogUserFailLogin;
 use App\Actions\SysAdmin\User\LogUserLogin;
