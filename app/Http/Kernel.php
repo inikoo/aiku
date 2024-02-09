@@ -68,7 +68,7 @@ class Kernel extends HttpKernel
             EnsureFrontendRequestsAreStateful::class,
             SubstituteBindings::class,
         ],
-        'grp'    => [
+        'grp'      => [
             EncryptCookies::class,
             AddQueuedCookiesToResponse::class,
             StartSession::class,
@@ -92,7 +92,7 @@ class Kernel extends HttpKernel
             HandleAikuPublicInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
         ],
-        'iris' => [
+        'iris'        => [
             DetectWebsite::class,
             CheckWebsiteState::class,
             EncryptCookies::class,
@@ -119,7 +119,7 @@ class Kernel extends HttpKernel
 
 
         //==== Other Middleware Groups
-        'horizon'    => [
+        'horizon'     => [
             EncryptCookies::class,
             AddQueuedCookiesToResponse::class,
             StartSession::class,
@@ -140,7 +140,7 @@ class Kernel extends HttpKernel
             SetLocale::class,
             LogUserRequestMiddleware::class,
         ],
-        'broadcast'  => [
+        'broadcast'   => [
             EncryptCookies::class,
             AddQueuedCookiesToResponse::class,
             StartSession::class,
@@ -149,7 +149,6 @@ class Kernel extends HttpKernel
             SubstituteBindings::class,
             'auth:broadcasting'
         ],
-
 
 
     ];
@@ -162,18 +161,20 @@ class Kernel extends HttpKernel
      * @var array<string, class-string|string>
      */
     protected $routeMiddleware = [
-        'auth'             => Authenticate::class,
-        'auth.basic'       => AuthenticateWithBasicAuth::class,
-        'auth.session'     => AuthenticateSession::class,
-        'cache.headers'    => SetCacheHeaders::class,
-        'can'              => Authorize::class,
-        'guest'            => RedirectIfAuthenticated::class,
-        'password.confirm' => RequirePassword::class,
-        'signed'           => ValidateSignature::class,
-        'throttle'         => ThrottleRequests::class,
-        'verified'         => EnsureEmailIsVerified::class,
-        'inertia'          => HandleInertiaGrpRequests::class,
-        'bind_group'       => ApiBindGroupInstance::class,
+        'auth'              => Authenticate::class,
+        'auth.basic'        => AuthenticateWithBasicAuth::class,
+        'auth.session'      => AuthenticateSession::class,
+        'cache.headers'     => SetCacheHeaders::class,
+        'can'               => Authorize::class,
+        'guest'             => RedirectIfAuthenticated::class,
+        'password.confirm'  => RequirePassword::class,
+        'signed'            => ValidateSignature::class,
+        'throttle'          => ThrottleRequests::class,
+        'verified'          => EnsureEmailIsVerified::class,
+        'inertia'           => HandleInertiaGrpRequests::class,
+        'bind_group'        => ApiBindGroupInstance::class,
+        'grp-reset-pass'    => ResetUserPasswordMiddleware::class,
+        'retina-reset-pass' => ResetWebUserPasswordMiddleware::class
 
     ];
 }

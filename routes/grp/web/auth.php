@@ -18,4 +18,7 @@ Route::middleware('guest')->group(function () {
 
 Route::middleware('auth')->group(function () {
     Route::post('logout', Logout::class)->name('logout');
+    Route::get('reset/password', ShowResetUserPassword::class)->name('reset-password.edit');
+    Route::patch('reset/password', UpdateUserPassword::class)->name('reset-password.update');
+
 });

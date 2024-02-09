@@ -86,5 +86,10 @@ class WebUser extends Authenticatable
         return $this->belongsTo(Shop::class);
     }
 
+    public function organisation(): BelongsTo
+    {
+        return $this->belongsTo(Organisation::class);
+    }
+
 
 }
