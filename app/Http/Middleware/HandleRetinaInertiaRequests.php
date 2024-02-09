@@ -11,9 +11,9 @@ use Illuminate\Http\Request;
 use Inertia\Middleware;
 use Tightenco\Ziggy\Ziggy;
 
-class HandleCustomerInertiaRequests extends Middleware
+class HandleRetinaInertiaRequests extends Middleware
 {
-    protected $rootView = 'app-customer';
+    protected $rootView = 'app-retina';
 
 
     public function share(Request $request): array

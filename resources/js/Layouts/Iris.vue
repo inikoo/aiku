@@ -5,8 +5,8 @@
   -->
 
 <script setup lang="ts">
-import { usePage } from "@inertiajs/vue3"
-import Header from '@/Layouts/AikuPublic/Header.vue'
+
+import Header from '@/Layouts/Iris/Header.vue'
 
 
 </script>

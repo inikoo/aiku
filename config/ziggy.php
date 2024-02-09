@@ -9,7 +9,7 @@ return [
     'groups' => [
         'grp'         => ['grp.*'],
         'public'      => ['iris.*'],
-        'customer'    => ['customer.*'],
+        'retina'      => ['retina.*'],
         'aiku-public' => ['aiku-public.*'],
     ],
 ];

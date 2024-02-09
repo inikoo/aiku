@@ -45,6 +45,7 @@ use Illuminate\Support\Carbon;
  * @property string|null $source_id
  * @property WebUserTypeEnum $state
  * @property-read Customer $customer
+ * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read Shop|null $shop
  * @property-read Collection<int, \Laravel\Sanctum\PersonalAccessToken> $tokens
  * @method static Builder|WebUser newModelQuery()
@@ -84,6 +85,11 @@ class WebUser extends Authenticatable
     public function shop(): BelongsTo
     {
         return $this->belongsTo(Shop::class);
+    }
+
+    public function organisation(): BelongsTo
+    {
+        return $this->belongsTo(Organisation::class);
     }
 
 
