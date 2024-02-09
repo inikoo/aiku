@@ -12,6 +12,7 @@ use App\Imports\WithImport;
 use App\Models\Helpers\Upload;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
+use App\Models\SysAdmin\Organisation;
 use Exception;
 use Illuminate\Support\Arr;
 use Maatwebsite\Excel\Concerns\SkipsOnFailure;
@@ -24,8 +25,8 @@ class LocationImport implements ToCollection, WithHeadingRow, SkipsOnFailure, Wi
 {
     use WithImport;
 
-    protected Warehouse|WarehouseArea $scope;
-    public function __construct(Warehouse|WarehouseArea $scope, Upload $upload)
+    protected Warehouse|WarehouseArea|Organisation $scope;
+    public function __construct(Warehouse|WarehouseArea|Organisation $scope, Upload $upload)
     {
         $this->upload = $upload;
         $this->scope  = $scope;
@@ -52,6 +53,14 @@ class LocationImport implements ToCollection, WithHeadingRow, SkipsOnFailure, Wi
                 'type' => 'Upload',
             ]);
 
+            if ($this->scope instanceof Organisation) {
+                $this->scope   = Warehouse::where('slug', $modelData['warehouse_slug'])->first();
+                $warehouseArea = WarehouseArea::where('slug', $modelData['warehouse_area_slug'])->first();
+
+                data_set($modelData, 'warehouse_id', $this->scope->id);
+                data_set($modelData, 'warehouse_area_id', $warehouseArea->id);
+            }
+
             StoreLocation::make()->action($this->scope, $modelData);
             $this->setRecordAsCompleted($uploadRecord);
         } catch (Exception $e) {
@@ -67,8 +76,10 @@ class LocationImport implements ToCollection, WithHeadingRow, SkipsOnFailure, Wi
                 'max:64',
                 'alpha_dash'
             ],
-            'max_weight'   => ['nullable', 'numeric', 'min:0.1', 'max:1000000'],
-            'max_volume'   => ['nullable', 'numeric', 'min:0.1', 'max:1000000']
+            'warehouse_slug'      => ['required', 'exists:warehouses,slug'],
+            'warehouse_area_slug' => ['nullable', 'exists:warehouse_areas,slug'],
+            'max_weight'          => ['nullable', 'numeric', 'min:0.1', 'max:1000000'],
+            'max_volume'          => ['nullable', 'numeric', 'min:0.1', 'max:1000000']
         ];
     }
 }

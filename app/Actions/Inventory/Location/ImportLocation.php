@@ -23,7 +23,7 @@ class ImportLocation
 {
     use WithImportModel;
 
-    public function handle(Warehouse|WarehouseArea $parent, $file): Upload
+    public function handle(Warehouse|WarehouseArea|Organisation $parent, $file): Upload
     {
         $upload = StoreUploads::run($file, Location::class);
 
@@ -75,6 +75,14 @@ class ImportLocation
         Storage::disk('local')->put($this->tmpPath, $file);
 
         return $this->handle($warehouseArea, $file);
+    }
+
+    public function asController(Organisation $organisation, ActionRequest $request): Upload
+    {
+        $file = $request->file('file');
+        Storage::disk('local')->put($this->tmpPath, $file);
+
+        return $this->handle($organisation, $file);
     }
 
     public string $commandSignature = 'location:import {warehouse} {--g|g_drive} {filename}';
