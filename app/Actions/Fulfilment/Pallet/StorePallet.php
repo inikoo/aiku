@@ -54,11 +54,9 @@ class StorePallet extends OrgAction
             }
         }
 
-
         data_set($modelData, 'group_id', $fulfilmentCustomer->group_id);
         data_set($modelData, 'organisation_id', $fulfilmentCustomer->organisation_id);
         data_set($modelData, 'fulfilment_id', $fulfilmentCustomer->fulfilment->id);
-
 
         /** @var Pallet $pallet */
         $pallet = $fulfilmentCustomer->pallets()->create($modelData);

@@ -8,7 +8,9 @@
 namespace App\Actions\Fulfilment\Pallet;
 
 use App\Actions\Fulfilment\PalletDelivery\Hydrators\HydratePalletDeliveries;
+use App\Actions\Helpers\SerialReference\GetSerialReference;
 use App\Actions\OrgAction;
+use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
@@ -34,6 +36,15 @@ class StorePalletFromDelivery extends OrgAction
         data_set($modelData, 'fulfilment_id', $palletDelivery->fulfilment_id);
         data_set($modelData, 'fulfilment_customer_id', $palletDelivery->fulfilment_customer_id);
         data_set($modelData, 'warehouse_id', $palletDelivery->warehouse_id);
+
+        data_set(
+            $modelData,
+            'reference',
+            GetSerialReference::run(
+                container: $palletDelivery->fulfilmentCustomer,
+                modelType: SerialReferenceModelEnum::PALLET
+            )
+        );
 
         /** @var Pallet $pallet */
         $pallet = $palletDelivery->pallets()->create($modelData);
