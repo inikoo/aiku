@@ -211,12 +211,21 @@ class IndexLocations extends OrgAction
                                         'style' => 'primary',
                                         'icon'  => ['fal', 'fa-upload'],
                                         'label' => 'upload',
-                                        'route' => [
-                                            'name'       => 'grp.models.warehouse.warehouse-areas.upload',
-                                            'parameters' => [
-                                                $this->parent->id
-                                            ]
-                                        ]
+                                        'route' => match ($this->parent::class) {
+                                            Warehouse::class => [
+                                                'name'       => 'grp.models.warehouse.location.upload',
+                                                'parameters' => [
+                                                    $this->parent->id
+                                                ]
+                                            ],
+                                            WarehouseArea::class => [
+                                                'name'       => 'grp.models.warehouse-area.location.upload',
+                                                'parameters' => [
+                                                    $this->parent->id
+                                                ]
+                                            ],
+                                            default => throw new \Exception('Unexpected match value')
+                                        }
                                     ],
                                     [
                                         'type'  => 'button',

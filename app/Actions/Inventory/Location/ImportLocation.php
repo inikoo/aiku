@@ -69,5 +69,13 @@ class ImportLocation
         return $this->handle($warehouse, $file);
     }
 
+    public function inWarehouseArea(Organisation $organisation, Warehouse $warehouse, WarehouseArea $warehouseArea, ActionRequest $request): Upload
+    {
+        $file = $request->file('file');
+        Storage::disk('local')->put($this->tmpPath, $file);
+
+        return $this->handle($warehouseArea, $file);
+    }
+
     public string $commandSignature = 'location:import {warehouse} {--g|g_drive} {filename}';
 }

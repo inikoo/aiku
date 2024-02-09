@@ -79,6 +79,7 @@ Route::name('warehouse.')->prefix('warehouse/{warehouse:id}')->group(function ()
 });
 
 Route::name('warehouse-area.')->prefix('warehouse-area/{warehouseArea:id}')->group(function () {
+    Route::post('location/upload', [ImportLocation::class, 'inWarehouseArea'])->name('location.upload');
     Route::post('location', [StoreLocation::class, 'inWarehouseArea'])->name('location.store');
 });
 

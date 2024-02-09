@@ -11,6 +11,7 @@ use App\Actions\Inventory\Location\StoreLocation;
 use App\Imports\WithImport;
 use App\Models\Helpers\Upload;
 use App\Models\Inventory\Warehouse;
+use App\Models\Inventory\WarehouseArea;
 use Exception;
 use Illuminate\Support\Arr;
 use Maatwebsite\Excel\Concerns\SkipsOnFailure;
@@ -23,11 +24,11 @@ class LocationImport implements ToCollection, WithHeadingRow, SkipsOnFailure, Wi
 {
     use WithImport;
 
-    protected Warehouse $scope;
-    public function __construct(Warehouse $warehouse, Upload $upload)
+    protected Warehouse|WarehouseArea $scope;
+    public function __construct(Warehouse|WarehouseArea $scope, Upload $upload)
     {
         $this->upload = $upload;
-        $this->scope  = $warehouse;
+        $this->scope  = $scope;
     }
 
     public function storeModel($row, $uploadRecord): void

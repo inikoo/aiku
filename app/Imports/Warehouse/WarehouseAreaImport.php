@@ -14,10 +14,11 @@ use App\Models\Inventory\Warehouse;
 use Exception;
 use Maatwebsite\Excel\Concerns\SkipsOnFailure;
 use Maatwebsite\Excel\Concerns\ToCollection;
+use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
 
-class WarehouseAreaImport implements ToCollection, WithHeadingRow, SkipsOnFailure, WithValidation
+class WarehouseAreaImport implements ToCollection, WithHeadingRow, SkipsOnFailure, WithValidation, WithEvents
 {
     use WithImport;
 
