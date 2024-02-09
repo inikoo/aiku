@@ -37,7 +37,7 @@ const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
 const loading = ref(false)
 const timeline = ref({ ...props.data.data })
 const dataModal = ref({ isModalOpen: false })
-const formAddPallet = useForm({ notes: '', reference: '' })
+const formAddPallet = useForm({ notes: '', customer_reference: '' })
 const formMultiplePallet = useForm({ number_pallets: 1 })
 
 const handleFormSubmitAddPallet = (data: object, closedPopover: Function) => {
@@ -49,7 +49,7 @@ const handleFormSubmitAddPallet = (data: object, closedPopover: Function) => {
     preserveScroll: true,
     onSuccess: () => {
       closedPopover()
-      formAddPallet.reset('notes', 'reference')
+      formAddPallet.reset('notes', 'customer_reference')
       loading.value = false
     },
     onError: (errors) => {
@@ -142,12 +142,12 @@ const onUploadOpen=(action)=>{
           </template>
           <template #content="{ close: closed }">
             <div class="w-[250px]">
-              <span class="text-xs px-1 my-2">Reference : </span>
+              <span class="text-xs px-1 my-2">Customer Reference : </span>
               <div>
-                <PureInput v-model="formAddPallet.reference" placeholder="Reference">
+                <PureInput v-model="formAddPallet.customer_reference" placeholder="Reference">
                 </PureInput>
-                <p v-if="get(formAddPallet, ['errors', 'reference'])" class="mt-2 text-sm text-red-600">
-                  {{ formAddPallet.errors.reference }}
+                <p v-if="get(formAddPallet, ['errors', 'customer_reference'])" class="mt-2 text-sm text-red-600">
+                  {{ formAddPallet.errors.customer_reference }}
                 </p>
               </div>
 
@@ -193,7 +193,7 @@ const onUploadOpen=(action)=>{
                 <PureInput v-model="formMultiplePallet.number_pallets" placeholder="number of pallets" type="number"
                   :min="1">
                 </PureInput>
-                <p v-if="get(formMultiplePallet, ['errors', 'reference'])" class="mt-2 text-sm text-red-600">
+                <p v-if="get(formMultiplePallet, ['errors', 'customer_reference'])" class="mt-2 text-sm text-red-600">
                   {{ formMultiplePallet.errors.number_pallets }}
                 </p>
               </div>

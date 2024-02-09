@@ -8,7 +8,7 @@
 import Table from '@/Components/Table/Table.vue';
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { library } from "@fortawesome/fontawesome-svg-core";
-import { faTrashAlt } from '@far';
+import { faTrashAlt, faPaperPlane } from '@far';
 import { faGameConsoleHandheld, faSignOutAlt } from '@fal';
 import PureInput from '@/Components/Pure/PureInput.vue';
 import { useLayoutStore } from '@/Stores/layout';
@@ -18,7 +18,7 @@ import PalletDelivery from '@/Pages/Grp/Org/Fulfilment/PalletDelivery.vue';
 import {Link} from '@inertiajs/vue3';
 
 library.add(
-    faTrashAlt, faSignOutAlt
+    faTrashAlt, faSignOutAlt, faPaperPlane
 )
 const props = defineProps<{
     data: object,
@@ -26,6 +26,7 @@ const props = defineProps<{
     state?: string
 }>()
 
+console.log("props",props)
 
 const onSave = async (id : object, value : object) => {
     const params = useLayoutStore().currentParams
@@ -82,10 +83,16 @@ function customerRoute(pallet: object) {
             <div v-else>{{ item.notes }}</div>
         </template>
         <template #cell(actions)="{ item: pallet }">
+        <div v-if="props.state == 'in-process'">
             <Link :href="customerRoute(pallet)" method="delete">
                 <font-awesome-icon class="text-red-600" :icon="['far', 'trash-alt']" />
             </Link>
 
+        </div>
+        <div v-else>
+            <font-awesome-icon  :icon="['far', 'paper-plane']" />
+        </div>
+          
         </template>
     </Table>
 </template>
