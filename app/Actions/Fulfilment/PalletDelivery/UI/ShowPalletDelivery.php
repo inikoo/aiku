@@ -11,6 +11,7 @@ use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\Pallet\UI\IndexPallets;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
+use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Enums\UI\PalletDeliveryTabsEnum;
 use App\Http\Resources\Fulfilment\PalletDeliveriesResource;
 use App\Http\Resources\Fulfilment\PalletDeliveryResource;
@@ -110,7 +111,7 @@ class ShowPalletDelivery extends OrgAction
                             'parameters' => array_values($request->route()->originalParameters())
                         ]
                     ] : false,
-                    'actions' => [
+                    'actions' => in_array($palletDelivery->state, [PalletDeliveryStateEnum::IN_PROCESS, PalletDeliveryStateEnum::SUBMITTED]) ? [
                         [
                             'type'    => 'button',
                             'style'   => 'create',
@@ -177,7 +178,7 @@ class ShowPalletDelivery extends OrgAction
                                 ]
                             ]
                         ],
-                    ]
+                    ] : []
                 ],
 
                 'updateRoute' => [
