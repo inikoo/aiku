@@ -7,16 +7,18 @@
 
 namespace App\Actions\Inventory\Location\UI;
 
-use App\Actions\InertiaAction;
+use App\Actions\OrgAction;
 use App\Enums\UI\LocationTabsEnum;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
+use App\Models\SysAdmin\Organisation;
+use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class EditLocation extends InertiaAction
+class EditLocation extends OrgAction
 {
     public function handle(Location $location): Location
     {
@@ -25,8 +27,8 @@ class EditLocation extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo('inventory.locations.edit');
-        return $request->user()->hasPermissionTo("inventory.warehouses.view");
+        $this->canEdit = $request->user()->hasPermissionTo("inventory.{$this->warehouse->id}.edit");
+        return $request->user()->hasPermissionTo("inventory.{$this->warehouse->id}.view");
     }
 
     public function inOrganisation(Location $location, ActionRequest $request): Location
@@ -37,9 +39,9 @@ class EditLocation extends InertiaAction
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inWarehouse(Warehouse $warehouse, Location $location, ActionRequest $request): Location
+    public function inWarehouse(Organisation $organisation, Warehouse $warehouse, Location $location, ActionRequest $request): Location
     {
-        $this->initialisation($request);
+        $this->initialisationFromWarehouse($warehouse, $request);
 
         return $this->handle($location);
     }
@@ -61,6 +63,41 @@ class EditLocation extends InertiaAction
 
     public function htmlResponse(Location $location, ActionRequest $request): Response
     {
+        $sections               = [];
+        $sections['properties'] = [
+            'label'  => __('Properties'),
+            'icon'   => 'fal fa-sliders-h',
+            'fields' => [
+                'code' => [
+                    'type'  => 'input',
+                    'label' => __('code'),
+                    'value' => $location->code
+                ],
+            ],
+        ];
+
+        $sections['capacity'] = [
+            'label'  => __('Capacity'),
+            'icon'   => 'fal fa-sliders-h',
+            'fields' => [
+                'max_weight' => [
+                    'type'  => 'input',
+                    'label' => __('max weight'),
+                    'value' => $location->max_weight
+                ],
+                'max_volume' => [
+                    'type'  => 'input',
+                    'label' => __('max volume'),
+                    'value' => $location->max_volume
+                ],
+            ],
+        ];
+
+        $currentSection = 'properties';
+        if ($request->has('section') and Arr::has($sections, $request->get('section'))) {
+            $currentSection = $request->get('section');
+        }
+
         return Inertia::render(
             'EditModel',
             [
@@ -82,7 +119,7 @@ class EditLocation extends InertiaAction
                     'actions'  => [
                         [
                             'type'  => 'button',
-                            'style' => 'exitEdit',
+                            'style' => 'cancel',
                             'route' => [
                                 'name'       => preg_replace('/edit$/', 'show', $request->route()->getName()),
                                 'parameters' => array_values($request->route()->originalParameters())
@@ -92,40 +129,12 @@ class EditLocation extends InertiaAction
                 ],
 
                 'formData' => [
-                    'blueprint' => [
-                        [
-                            'title'  => __('id'),
-                            'fields' => [
-                                'code' => [
-                                    'type'  => 'input',
-                                    'label' => __('code'),
-                                    'value' => $location->code
-                                ],
-                            ],
-                            [
-                                'title'  => __('capacity'),
-                                'icon'   => 'fa-light fa-phone',
-                                'fields' => [
-                                    'max_weight' => [
-                                        'type'  => 'input',
-                                        'label' => __('max weight (kg)'),
-                                        'value' => '',
-                                    ],
-                                    'max_volume' => [
-                                        'type'  => 'input',
-                                        'label' => __('max volume (m³)'),
-                                        'value' => '',
-                                    ],
-                                ]
-                            ],
-                        ]
-                    ],
-
-                    'args' => [
+                    'current'   => $currentSection,
+                    'blueprint' => $sections,
+                    'args'      => [
                         'updateRoute' => [
                             'name'       => 'grp.models.location.update',
                             'parameters' => $location->slug
-
                         ],
                     ]
                 ]
@@ -211,8 +220,9 @@ class EditLocation extends InertiaAction
                 'route'=> [
                     'name'      => $routeName,
                     'parameters'=> [
-                        'warehouse' => $location->warehouse->slug,
-                        'location'  => $location->slug
+                        'organisation' => $location->organisation->slug,
+                        'warehouse'    => $location->warehouse->slug,
+                        'location'     => $location->slug
                     ]
 
                 ]

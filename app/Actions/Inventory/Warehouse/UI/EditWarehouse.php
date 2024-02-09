@@ -7,13 +7,15 @@
 
 namespace App\Actions\Inventory\Warehouse\UI;
 
-use App\Actions\InertiaAction;
+use App\Actions\OrgAction;
 use App\Models\Inventory\Warehouse;
+use App\Models\SysAdmin\Organisation;
+use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class EditWarehouse extends InertiaAction
+class EditWarehouse extends OrgAction
 {
     public function handle(Warehouse $warehouse): Warehouse
     {
@@ -22,18 +24,41 @@ class EditWarehouse extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("inventory.warehouses.edit");
+        return $request->user()->hasPermissionTo("inventory.{$this->warehouse->id}.edit");
     }
 
-    public function asController(Warehouse $warehouse, ActionRequest $request): Warehouse
+    public function asController(Organisation $organisation, Warehouse $warehouse, ActionRequest $request): Warehouse
     {
-        $this->initialisation($request);
+        $this->initialisationFromWarehouse($warehouse, $request);
 
         return $this->handle($warehouse);
     }
 
     public function htmlResponse(Warehouse $warehouse, ActionRequest $request): Response
     {
+        $sections               = [];
+        $sections['properties'] = [
+            'label'  => __('Properties'),
+            'icon'   => 'fal fa-sliders-h',
+            'fields' => [
+                'code' => [
+                    'type'  => 'input',
+                    'label' => __('code'),
+                    'value' => $warehouse->code
+                ],
+                'name' => [
+                    'type'  => 'input',
+                    'label' => __('name'),
+                    'value' => $warehouse->name
+                ]
+            ]
+        ];
+
+        $currentSection = 'properties';
+        if ($request->has('section') and Arr::has($sections, $request->get('section'))) {
+            $currentSection = $request->get('section');
+        }
+
         return Inertia::render(
             'EditModel',
             [
@@ -48,7 +73,7 @@ class EditWarehouse extends InertiaAction
                     'actions'   => [
                         [
                             'type'  => 'button',
-                            'style' => 'exitEdit',
+                            'style' => 'cancel',
                             'route' => [
                                 'name'       => preg_replace('/edit$/', 'show', $request->route()->getName()),
                                 'parameters' => array_values($request->route()->originalParameters())
@@ -58,29 +83,12 @@ class EditWarehouse extends InertiaAction
                 ],
 
                 'formData' => [
-                    'blueprint' => [
-                        [
-                            'title'  => __('id'),
-                            'fields' => [
-                                'code' => [
-                                    'type'  => 'input',
-                                    'label' => __('code'),
-                                    'value' => $warehouse->code
-                                ],
-                                'name' => [
-                                    'type'  => 'input',
-                                    'label' => __('name'),
-                                    'value' => $warehouse->name
-                                ],
-                            ]
-                        ]
-
-                    ],
-                    'args' => [
+                    'current'   => $currentSection,
+                    'blueprint' => $sections,
+                    'args'      => [
                         'updateRoute' => [
                             'name'      => 'grp.models.warehouse.update',
                             'parameters'=> $warehouse->slug
-
                         ],
                     ]
                 ]
@@ -114,14 +122,14 @@ class EditWarehouse extends InertiaAction
         }
 
         return match ($routeName) {
-            'grp.org.warehouses.edit' => [
+            'grp.org.warehouses.show.infrastructure.edit' => [
                 'label' => $warehouse->name,
                 'route' => [
                     'name'       => $routeName,
                     'parameters' => [
-                        'warehouse' => $warehouse->slug
+                        'organisation' => $warehouse->organisation->slug,
+                        'warehouse'    => $warehouse->slug
                     ]
-
                 ]
             ]
         };
