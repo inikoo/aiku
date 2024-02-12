@@ -28,26 +28,27 @@ const props = defineProps<{
 
 console.log("props",props)
 
-const onSave = async (id : object, value : object) => {
-    const params = useLayoutStore().currentParams
-    try {
-        await axios.patch(
-            route("grp.models.fulfilment-customer.pallet-delivery.pallet.update",
-                {
-                   ...params,
-                    pallet: id
-                }),
-            value,
-        )
-    } catch (error: any) {
-        console.log(error)
-        if(error.response.data.message)
-        notify({
-            title: 'Failed to update',
-            text: error.response.data.message,
-            type: "error"
-        })
-    }
+const onSave = async (id: object, value: object) => {
+        const params = useLayoutStore().currentParams
+        try {
+            await axios.patch(
+                route("grp.models.fulfilment-customer.pallet-delivery.pallet.update",
+                    {
+                        ...params,
+                        pallet: id
+                    }),
+                value,
+            )
+        } catch (error: any) {
+            console.log(error)
+            if (error.response.data.message)
+                notify({
+                    title: 'Failed to update',
+                    text: error.response.data.message,
+                    type: "error"
+                })
+        }
+
 }
 
 function customerRoute(pallet: object) {
@@ -56,7 +57,7 @@ function customerRoute(pallet: object) {
             );
 }
 
-
+console.log('porps',props)
 
 </script>
 
@@ -66,8 +67,8 @@ function customerRoute(pallet: object) {
             <div v-if="state == 'in-process'">
                 <PureInput
                     v-model="item.customer_reference"
-                    @blur="(value) => onSave(item.id, { customer_reference: value })"
-                    @onEnter="(value) => onSave(item.id, { notes: value })"
+                    @blur="(value) =>{ if(value) onSave(item.id, { customer_reference: value })}"
+                    @onEnter="(value) =>{ if(value)  onSave(item.id, { notes: value })}"
                 />
             </div>
             <div v-else>{{ item.customer_reference }}</div>
@@ -76,8 +77,8 @@ function customerRoute(pallet: object) {
             <div v-if="state == 'in-process'">
                 <PureInput
                     v-model="item.notes"
-                    @blur="(value) => onSave(item.id, { notes: value })"
-                    @onEnter="(value) => onSave(item.id, { notes: value })"
+                    @blur="(value) => { if(value) onSave(item.id, { notes: value }) } "
+                    @onEnter="(value) => { if(value) onSave(item.id, { notes: value }) }"
                 />
             </div>
             <div v-else>{{ item.notes }}</div>

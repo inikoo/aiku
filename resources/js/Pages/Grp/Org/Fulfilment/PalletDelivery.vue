@@ -79,6 +79,7 @@ const handleFormSubmitAddMultiplePallet = (data: object, closedPopover: Function
 }
 
 const updateState = async ({ step, options }) => {
+
   const foundState = options.find((item) => item.key === timeline.value.state)
   const set = step.key == timeline.state || step.index < foundState.index
   if (!set) {
@@ -87,6 +88,7 @@ const updateState = async ({ step, options }) => {
         route(props.updateRoute.route.name, props.updateRoute.route?.parameters),
         { state: get(step, 'key') }
       )
+      console.log(response)
       timeline.value = response.data.data
     } catch (error) {
       console.log('error', error)
