@@ -7,8 +7,9 @@
 
 
 use App\Actions\CRM\Customer\UI\EditCustomer;
+use App\Actions\CRM\WebUser\CreateWebUser;
 use App\Actions\CRM\WebUser\EditWebUser;
-use App\Actions\CRM\WebUser\IndexWebUser;
+use App\Actions\CRM\WebUser\IndexWebUsers;
 use App\Actions\CRM\WebUser\ShowWebUser;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\FulfilmentCustomer\UI\CreateFulfilmentCustomer;
@@ -31,9 +32,15 @@ Route::get('{fulfilmentCustomer}/edit', [EditCustomer::class, 'inShop'])->name('
 Route::prefix('{fulfilmentCustomer}')->as('show')->group(function () {
     Route::get('', ShowFulfilmentCustomer::class);
     Route::get('orders/{order}', [ShowOrder::class, 'inCustomerInShop'])->name('.orders.show');
-    Route::get('web-users', [IndexWebUser::class, 'inCustomerInShop'])->name('.web-users.index');
-    Route::get('web-users/{webUser}', [ShowWebUser::class, 'inCustomerInShop'])->name('.web-users.show');
-    Route::get('web-users/{webUser}/edit', [EditWebUser::class, 'inCustomerInShop'])->name('.web-users.edit');
+
+    Route::prefix('web-users')->as('.web-users.')->group(function () {
+        Route::get('', [IndexWebUsers::class, 'inCustomerInShop'])->name('index');
+        Route::get('create', [CreateWebUser::class,'inFulfilmentCustomer'])->name('create');
+        Route::prefix('{webUser}')->group(function () {
+            Route::get('', [ShowWebUser::class, 'inCustomerInShop'])->name('show');
+            Route::get('edit', [EditWebUser::class, 'inCustomerInShop'])->name('edit');
+        });
+    });
 
     Route::prefix('pallets')->as('.pallets.')->group(function () {
         Route::get('', [IndexPallets::class, 'inFulfilmentCustomer'])->name('index');

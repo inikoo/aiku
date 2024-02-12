@@ -7,7 +7,7 @@
 
 namespace App\Actions\Web\Website\UI;
 
-use App\Actions\CRM\WebUser\IndexWebUser;
+use App\Actions\CRM\WebUser\IndexWebUsers;
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\Market\Shop\UI\ShowShop;
@@ -121,13 +121,13 @@ class ShowWebsite extends OrgAction
                 WebsiteTabsEnum::USERS->value     => $this->tab == WebsiteTabsEnum::USERS->value
                     ?
                     WebUserResource::collection(
-                        IndexWebUser::run(
+                        IndexWebUsers::run(
                             parent: $website,
                             prefix: 'web_users'
                         )
                     )
                     : Inertia::lazy(fn () => WebUserResource::collection(
-                        IndexWebUser::run(
+                        IndexWebUsers::run(
                             parent: $website,
                             prefix: 'web_users'
                         )
@@ -137,7 +137,8 @@ class ShowWebsite extends OrgAction
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($website)))
             ]
         )->table(
-            IndexWebUser::make()->tableStructure(
+            IndexWebUsers::make()->tableStructure(
+                parent: $website,
                 modelOperations: [
                     'createLink' => $this->canEdit ? [
                         'route' => [
