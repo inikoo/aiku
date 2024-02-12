@@ -28,15 +28,12 @@ const props = defineProps<{
 
 console.log("props",props)
 
-const onSave = async (id: object, value: object) => {
-        const params = useLayoutStore().currentParams
+const onSave = async (pallet: object, value: object) => {
         try {
             await axios.patch(
-                route("grp.models.fulfilment-customer.pallet-delivery.pallet.update",
-                    {
-                        ...params,
-                        pallet: id
-                    }),
+                route(pallet.updateRoute.name,
+                    pallet.deleteRoute.params
+                ),
                 value,
             )
         } catch (error: any) {
@@ -67,8 +64,8 @@ console.log('porps',props)
             <div v-if="state == 'in-process'">
                 <PureInput
                     v-model="item.customer_reference"
-                    @blur="(value) =>{ if(value) onSave(item.id, { customer_reference: value })}"
-                    @onEnter="(value) =>{ if(value)  onSave(item.id, { notes: value })}"
+                    @blur="(value) =>{ if(value) onSave(item, { customer_reference: value })}"
+                    @onEnter="(value) =>{ if(value)  onSave(item, { notes: value })}"
                 />
             </div>
             <div v-else>{{ item.customer_reference }}</div>
@@ -77,8 +74,8 @@ console.log('porps',props)
             <div v-if="state == 'in-process'">
                 <PureInput
                     v-model="item.notes"
-                    @blur="(value) => { if(value) onSave(item.id, { notes: value }) } "
-                    @onEnter="(value) => { if(value) onSave(item.id, { notes: value }) }"
+                    @blur="(value) => { if(value) onSave(item, { notes: value }) } "
+                    @onEnter="(value) => { if(value) onSave(item, { notes: value }) }"
                 />
             </div>
             <div v-else>{{ item.notes }}</div>
@@ -93,7 +90,7 @@ console.log('porps',props)
         <div v-else>
             <font-awesome-icon  :icon="['far', 'paper-plane']" />
         </div>
-          
+
         </template>
     </Table>
 </template>

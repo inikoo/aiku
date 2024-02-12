@@ -122,7 +122,7 @@ class ShowPalletDelivery extends OrgAction
                                 'parameters' => [
                                     'organisation'       => $palletDelivery->organisation->slug,
                                     'fulfilment'         => $palletDelivery->fulfilment->slug,
-                                    'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->slug,
+                                    'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->id,
                                     'palletDelivery'     => $palletDelivery->reference
                                 ]
                             ]
@@ -141,7 +141,7 @@ class ShowPalletDelivery extends OrgAction
                                         'parameters' => [
                                             'organisation'       => $palletDelivery->organisation->slug,
                                             'fulfilment'         => $palletDelivery->fulfilment->slug,
-                                            'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->slug,
+                                            'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->id,
                                             'palletDelivery'     => $palletDelivery->reference
                                         ]
                                     ]
@@ -155,7 +155,7 @@ class ShowPalletDelivery extends OrgAction
                                         'parameters' => [
                                             'organisation'       => $palletDelivery->organisation->slug,
                                             'fulfilment'         => $palletDelivery->fulfilment->slug,
-                                            'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->slug,
+                                            'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->id,
                                             'palletDelivery'     => $palletDelivery->reference
                                         ]
                                     ]
@@ -174,7 +174,7 @@ class ShowPalletDelivery extends OrgAction
                                 'parameters' => [
                                     'organisation'       => $palletDelivery->organisation->slug,
                                     'fulfilment'         => $palletDelivery->fulfilment->slug,
-                                    'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->slug,
+                                    'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->id,
                                     'palletDelivery'     => $palletDelivery->reference
                                 ]
                             ]
@@ -192,7 +192,7 @@ class ShowPalletDelivery extends OrgAction
                                     'parameters' => [
                                         'organisation'       => $palletDelivery->organisation->slug,
                                         'fulfilment'         => $palletDelivery->fulfilment->slug,
-                                        'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->slug,
+                                        'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->id,
                                         'palletDelivery'     => $palletDelivery->reference
                                     ]
                                 ]
@@ -206,7 +206,7 @@ class ShowPalletDelivery extends OrgAction
                         'parameters' => [
                             'organisation'       => $palletDelivery->organisation->slug,
                             'fulfilment'         => $palletDelivery->fulfilment->slug,
-                            'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->slug,
+                            'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->id,
                             'palletDelivery'     => $palletDelivery->reference
                         ]
                     ]
@@ -223,7 +223,7 @@ class ShowPalletDelivery extends OrgAction
                         'parameters' => [
                             'organisation'       => $palletDelivery->organisation->slug,
                             'fulfilment'         => $palletDelivery->fulfilment->slug,
-                            'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->slug,
+                            'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->id,
                             'palletDelivery'     => $palletDelivery->reference
                         ]
                     ],
@@ -232,7 +232,7 @@ class ShowPalletDelivery extends OrgAction
                         'parameters' => [
                             'organisation'       => $palletDelivery->organisation->slug,
                             'fulfilment'         => $palletDelivery->fulfilment->slug,
-                            'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->slug,
+                            'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->id,
                             'palletDelivery'     => $palletDelivery->reference
                         ]
                     ],

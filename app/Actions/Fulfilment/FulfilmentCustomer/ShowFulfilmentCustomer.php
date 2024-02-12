@@ -89,7 +89,7 @@ class ShowFulfilmentCustomer extends OrgAction
                             'route'   => [
                                 'method'     => 'post',
                                 'name'       => 'grp.models.fulfilment-customer.pallet-delivery.store',
-                                'parameters' => [$fulfilmentCustomer->slug]
+                                'parameters' => [$fulfilmentCustomer->id]
                             ]
                         ],
                     ]

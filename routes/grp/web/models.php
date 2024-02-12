@@ -51,7 +51,7 @@ Route::name('org.')->prefix('org/{organisation}')->group(function () {
     Route::post('/fulfilment/', StoreFulfilment::class)->name('fulfilment.store');
 });
 
-Route::name('fulfilment-customer.')->prefix('fulfilment-customer/{fulfilmentCustomer}')->group(function () {
+Route::name('fulfilment-customer.')->prefix('fulfilment-customer/{fulfilmentCustomer:id}')->group(function () {
     Route::post('pallet-delivery', StorePalletDelivery::class)->name('pallet-delivery.store');
     Route::post('pallet-delivery/{palletDelivery}/submit', SubmitPalletDelivery::class)->name('pallet-delivery.submit');
     Route::post('pallet-delivery/{palletDelivery}/confirm', ConfirmPalletDelivery::class)->name('pallet-delivery.confirm');

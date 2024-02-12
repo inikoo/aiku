@@ -7,7 +7,6 @@
 
 namespace App\Actions\Fulfilment\Pallet\UI;
 
-use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItems;
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\OrgAction;
@@ -33,17 +32,34 @@ use Lorisleiva\Actions\ActionRequest;
 class ShowPallet extends OrgAction
 {
     public Customer|null $customer = null;
+    private Warehouse|Organisation|FulfilmentCustomer|Fulfilment $parent;
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo("fulfilment.{$this->fulfilment->id}.stored-items.edit");
+        if($this->parent instanceof FulfilmentCustomer) {
+            $this->canEdit = $request->user()->hasPermissionTo("fulfilment.{$this->fulfilment->id}.stored-items.edit");
+            return $request->user()->hasPermissionTo("fulfilment.{$this->fulfilment->id}.stored-items.view");
+        } elseif ($this->parent instanceof Warehouse) {
+            $this->canEdit = $request->user()->hasPermissionTo("fulfilment.{$this->warehouse->id}.stored-items.edit");
+            return $request->user()->hasPermissionTo("fulfilment.{$this->warehouse->id}.stored-items.view");
+        }
 
-        return $request->user()->hasPermissionTo("fulfilment.{$this->fulfilment->id}.stored-items.view");
+        $this->canEdit = $request->user()->hasPermissionTo("fulfilment.{$this->organisation->id}.stored-items.edit");
+        return $request->user()->hasPermissionTo("fulfilment.{$this->organisation->id}.stored-items.view");
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inWarehouse(Organisation $organisation, Warehouse $warehouse, Pallet $pallet, ActionRequest $request): Pallet
+    {
+        $this->parent = $warehouse;
+        $this->initialisationFromWarehouse($warehouse, $request)->withTab(PalletTabsEnum::values());
+
+        return $this->handle($pallet);
+    }
 
     public function asController(Organisation $organisation, Warehouse $warehouse, Fulfilment $fulfilment, Pallet $pallet, ActionRequest $request): Pallet
     {
+        $this->parent = $organisation;
         $this->initialisationFromFulfilment($fulfilment, $request)->withTab(PalletTabsEnum::values());
 
         return $this->handle($pallet);
@@ -51,6 +67,7 @@ class ShowPallet extends OrgAction
 
     public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, PalletDelivery $palletDelivery, Pallet $pallet, ActionRequest $request): Pallet
     {
+        $this->parent = $fulfilmentCustomer;
         $this->initialisationFromFulfilment($fulfilment, $request)->withTab(PalletTabsEnum::values());
 
         return $this->handle($pallet);
@@ -137,26 +154,25 @@ class ShowPallet extends OrgAction
 
     public function getBreadcrumbs(Pallet $pallet, $suffix = null): array
     {
-        return [];
-
         return array_merge(
-            ShowFulfilment::make()->getBreadcrumbs(request()->route()->originalParameters()),
+            IndexPallets::make()->getBreadcrumbs(request()->route()->getName(), request()->route()->originalParameters()),
             [
                 [
                     'type'           => 'modelWithIndex',
                     'modelWithIndex' => [
                         'index' => [
                             'route' => [
-                                'name' => 'grp.fulfilment.stored-items.index',
+                                'name'       => 'grp.org.warehouses.show.fulfilment.pallets.index',
+                                'parameters' => array_values(request()->route()->originalParameters())
                             ],
                             'label' => __('stored items')
                         ],
                         'model' => [
                             'route' => [
-                                'name'       => 'grp.fulfilment.stored-items.show',
+                                'name'       => 'grp.org.warehouses.show.fulfilment.pallets.show',
                                 'parameters' => array_values(request()->route()->originalParameters())
                             ],
-                            'label' => $pallet->slug,
+                            'label' => $pallet->reference,
                         ],
                     ],
                     'suffix' => $suffix,

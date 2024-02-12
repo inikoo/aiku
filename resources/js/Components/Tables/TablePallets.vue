@@ -25,6 +25,13 @@ const props = defineProps<{
 function customerRoute(pallet: Customer) {
     switch (route().current()) {
         case  'grp.org.warehouses.show.fulfilment.pallets.index':
+            return route(
+                'grp.org.warehouses.show.fulfilment.pallets.show',
+                [
+                    route().params['organisation'],
+                    route().params['warehouse'],
+                    pallet['id']
+                ]);
             break;
         default:
             return route(
