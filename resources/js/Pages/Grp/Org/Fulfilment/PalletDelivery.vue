@@ -9,7 +9,7 @@ import { Head, useForm, router } from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 import { capitalize } from "@/Composables/capitalize"
 import Tabs from "@/Components/Navigation/Tabs.vue";
-import { computed, ref, reactive } from "vue";
+import { computed, ref, reactive, watch } from "vue";
 import { useTabChange } from "@/Composables/tab-change";
 import TableHistories from "@/Components/Tables/TableHistories.vue";
 import ShowcasePallet from '@/Components/Pallet/Showcase.vue'
@@ -31,7 +31,6 @@ const props = defineProps<{
   updateRoute: object
   uploadRoutes: object
 }>()
-console.log(props)
 let currentTab = ref(props.tabs.current);
 const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
 const loading = ref(false)
@@ -106,8 +105,7 @@ const handleClick = (action) => {
     {
       onBefore: (visit) => { loading.value = true },
       onSuccess: (page) => {
-        console.log(page)
-        if (action.label == 'submit') timeline.value = page.props.data.data
+        timeline.value = page.props.data.data
       },
       onFinish: (visit) => { loading.value = false },
     })
@@ -127,6 +125,10 @@ const onUploadOpen=(action)=>{
   dataModal.value.isModalOpen = true
   dataModal.value.uploadRoutes = action.route
 }
+
+watch(props,(newValue)=>{
+  timeline.value = newValue.data.data 
+},{deep : true})
 
 </script>
 
@@ -208,7 +210,7 @@ const onUploadOpen=(action)=>{
         </Popover>
       </div>
     </template>
-    <template #button-submit="{ action: action }">
+  <!--   <template #button-submit="{ action: action }">
       <div>
         <div v-if="data.data.state == 'in-process' && data.data.number_pallets != 0">
           <Button @click="handleClick(action.action)" :style="action.action.style" :label="action.action.label"
@@ -216,9 +218,7 @@ const onUploadOpen=(action)=>{
             :loading="loading" />
         </div>
       </div>
-    </template>
-
-
+    </template> -->
   </PageHeading>
   <div class="border-b border-gray-200">
     <Timeline :options="timeline.timeline" :state="timeline.state" :slidesPerView="5" />

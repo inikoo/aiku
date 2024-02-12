@@ -16,7 +16,6 @@ const props = defineProps<{
             state: String,
         }
     }
-    timeline: object
 }>()
 </script>
 
