@@ -14,6 +14,7 @@ use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\FulfilmentCustomer\UI\CreateFulfilmentCustomer;
 use App\Actions\Fulfilment\FulfilmentCustomer\UI\IndexFulfilmentCustomers;
 use App\Actions\Fulfilment\Pallet\DownloadPalletsTemplate;
+use App\Actions\Fulfilment\Pallet\UI\IndexPallets;
 use App\Actions\Fulfilment\Pallet\UI\ShowPallet;
 use App\Actions\Fulfilment\PalletDelivery\UI\IndexPalletDeliveries;
 use App\Actions\Fulfilment\PalletDelivery\UI\ShowPalletDelivery;
@@ -33,6 +34,10 @@ Route::prefix('{fulfilmentCustomer}')->as('show')->group(function () {
     Route::get('web-users', [IndexWebUser::class, 'inCustomerInShop'])->name('.web-users.index');
     Route::get('web-users/{webUser}', [ShowWebUser::class, 'inCustomerInShop'])->name('.web-users.show');
     Route::get('web-users/{webUser}/edit', [EditWebUser::class, 'inCustomerInShop'])->name('.web-users.edit');
+
+    Route::prefix('pallets')->as('.pallets.')->group(function () {
+        Route::get('', [IndexPallets::class, 'inFulfilmentCustomer'])->name('index');
+    });
 
     Route::prefix('pallet-deliveries')->as('.pallet-deliveries.')->group(function () {
         Route::get('', [IndexPalletDeliveries::class, 'inFulfilmentCustomer'])->name('index');

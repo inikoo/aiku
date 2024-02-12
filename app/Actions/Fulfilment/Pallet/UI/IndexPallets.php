@@ -215,6 +215,14 @@ class IndexPallets extends OrgAction
         return $this->handle($organisation, 'pallets');
     }
 
+    public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = $fulfilment;
+        $this->initialisationFromFulfilment($fulfilment, $request);
+
+        return $this->handle($fulfilmentCustomer, 'pallets');
+    }
+
     /** @noinspection PhpUnusedParameterInspection */
     public function inWarehouse(Organisation $organisation, Warehouse $warehouse, ActionRequest $request): LengthAwarePaginator
     {

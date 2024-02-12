@@ -27,7 +27,7 @@ class SubmitPalletDelivery extends OrgAction
 
     public function handle(PalletDelivery $palletDelivery, array $modelData): PalletDelivery
     {
-        $modelData[PalletDeliveryStateEnum::CONFIRMED->value.'_at'] = now();
+        $modelData[PalletDeliveryStateEnum::SUBMITTED->value.'_at'] = now();
         $modelData[PalletDeliveryStateEnum::CONFIRMED->value.'_at'] = now();
         $modelData['state']                                         = PalletDeliveryStateEnum::CONFIRMED;
 
