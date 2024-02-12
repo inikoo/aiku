@@ -162,11 +162,12 @@ class ShowPalletDelivery extends OrgAction
                                 ],
                             ]
                         ],
-                        [
+                        $palletDelivery->pallets()->count() > 0 ? [
                             'type'    => 'button',
                             'style'   => 'save',
                             'tooltip' => __('submit'),
                             'label'   => __('submit'),
+                            'key'     => 'action',
                             'route'   => [
                                 'method'     => 'post',
                                 'name'       => 'grp.models.fulfilment-customer.pallet-delivery.submit',
@@ -177,13 +178,14 @@ class ShowPalletDelivery extends OrgAction
                                     'palletDelivery'     => $palletDelivery->reference
                                 ]
                             ]
-                        ],
+                        ] : [],
                     ] : [
                         $palletDelivery->state == PalletDeliveryStateEnum::SUBMITTED ? [
                                 'type'    => 'button',
                                 'style'   => 'save',
                                 'tooltip' => __('confirm'),
                                 'label'   => __('confirm'),
+                                'key'     => 'action',
                                 'route'   => [
                                     'method'     => 'post',
                                     'name'       => 'grp.models.fulfilment-customer.pallet-delivery.confirm',
