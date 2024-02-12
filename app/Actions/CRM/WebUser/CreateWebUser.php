@@ -7,10 +7,12 @@
 
 namespace App\Actions\CRM\WebUser;
 
-use App\Actions\InertiaAction;
 use App\Actions\Market\Shop\UI\ShowShop;
+use App\Actions\OrgAction;
 use App\Enums\CRM\WebUser\WebUserTypeEnum;
 use App\Models\CRM\Customer;
+use App\Models\Fulfilment\Fulfilment;
+use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Market\Shop;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Web\Website;
@@ -18,27 +20,26 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class CreateWebUser extends InertiaAction
+class CreateWebUser extends OrgAction
 {
-    private Customer|Website|Organisation $parent;
-
-    private ?Shop $shop = null;
+    private Customer|FulfilmentCustomer|Website|Organisation $parent;
 
 
     public function authorize(ActionRequest $request): bool
     {
-        return
-            (
-                $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo("crm.{$this->shop->id}.view")
-            );
+
+        if($this->parent instanceof FulfilmentCustomer) {
+            return  $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+        }
+
+        return false;
     }
 
 
-    public function htmlResponse(): Response
+    public function htmlResponse(ActionRequest $request): Response
     {
         return Inertia::render(
-            'Web/StoreWebUser',
+            'CreateModel',
             [
                 'breadcrumbs' => $this->getBreadcrumbs($request->route()->getName(), $this->shop),
                 'title'       => '+ '.__('web user'),
@@ -52,7 +53,7 @@ class CreateWebUser extends InertiaAction
                             WebUserTypeEnum::WEB->value => [
                                 'label' => __('Customer')
                             ],
-                            \App\Enums\CRM\WebUser\WebUserTypeEnum::API->value => [
+                            WebUserTypeEnum::API->value => [
                                 'label' => __('API user')
                             ]
                         ]
@@ -70,24 +71,20 @@ class CreateWebUser extends InertiaAction
     }
 
 
-    public function asController()
+
+
+    public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): ActionRequest
     {
-        $this->parent = app('currentTenant');
-        $this->validateAttributes();
+        $this->parent=$fulfilmentCustomer;
+        $this->initialisationFromFulfilment($fulfilment, $request);
+        return $request;
     }
 
-    public function inShopInCustomer(Shop $shop, Customer $customer)
+    public function asController(Organisation $organisation, Shop $shop, Customer $customer, ActionRequest $request): ActionRequest
     {
-        $this->parent = $customer;
-        $this->shop   = $shop;
-        $this->validateAttributes();
-    }
-
-    public function inCustomer(Customer $customer)
-    {
-        $this->parent = $customer;
-        $this->shop   = $customer->shop;
-        $this->validateAttributes();
+        $this->parent=$customer;
+        $this->initialisationFromShop($shop, $request);
+        return $request;
     }
 
     public function getBreadcrumbs(string $routeName, Shop $shop): array

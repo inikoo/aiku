@@ -1,0 +1,25 @@
+<?php
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Mon, 12 Feb 2024 12:51:58 Malaysia Time, Madrid Spain
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
+
+namespace App\Http\Resources\CRM;
+
+use App\Models\SysAdmin\WebUser;
+use Illuminate\Http\Resources\Json\JsonResource;
+
+class WebUsersResource extends JsonResource
+{
+    public function toArray($request): array
+    {
+        /** @var WebUser $webUser */
+        $webUser=$this;
+        return [
+           'username'=> $webUser->username,
+           'status'  => $webUser->status
+
+        ];
+    }
+}

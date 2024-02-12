@@ -11,8 +11,8 @@ use App\Actions\CRM\Customer\UI\ShowCustomer;
 use App\Actions\OrgAction;
 use App\Actions\Web\Website\UI\ShowWebsite;
 use App\Http\Resources\CRM\WebUserResource;
+use App\Http\Resources\CRM\WebUsersResource;
 use App\Http\Resources\Sales\CustomerResource;
-use App\Http\Resources\SysAdmin\InertiaTableWebUserResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\CRM\Customer;
 use App\Models\SysAdmin\Organisation;
@@ -21,7 +21,6 @@ use App\Models\SysAdmin\WebUser;
 use App\Models\Web\Website;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -29,48 +28,39 @@ use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 use App\Services\QueryBuilder;
 
-class IndexWebUser extends OrgAction
+class IndexWebUsers extends OrgAction
 {
     private Shop|Organisation|Customer|Website $parent;
 
 
-    public function handle($parent, $prefix=null): LengthAwarePaginator
+    public function handle(Shop|Organisation|Customer|Website $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->where('webusers.email', 'LIKE', "%$value%");
+                $query->whereStartWith('webusers.username', $value);
             });
         });
         if ($prefix) {
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        $queryBuilder=QueryBuilder::for(WebUser::class);
-        foreach ($this->elementGroups as $key => $elementGroup) {
+        $queryBuilder = QueryBuilder::for(WebUser::class);
 
-            $queryBuilder->whereElementGroup(
-                key: $key,
-                allowedElements: array_keys($elementGroup['elements']),
-                engine: $elementGroup['engine'],
-                prefix: $prefix
-            );
+        if ($parent instanceof Customer) {
+            $queryBuilder->where('customer_id', $parent->id);
+        } elseif ($parent instanceof Website) {
+            $queryBuilder->where('website_id', $parent->id);
+        } elseif ($parent instanceof Organisation) {
+            $queryBuilder->where('organisation_id', $parent->id);
+        } else {
+            $queryBuilder->where('shop_id', $parent->id);
         }
 
+
         return $queryBuilder
-            ->defaultSort('customers.email')
-            ->select(['email', 'web_users.id'])
-            //->leftJoin('shops', 'shops.id', 'shop_id')
-            ->when($parent, function ($query) use ($parent) {
-                switch (class_basename($parent)) {
-                    case 'Customer':
-                        $query->where('web_users.customer_id', $parent->id);
-                        break;
-                    case 'Website':
-                        $query->where('web_users.website_id', $parent->id);
-                        break;
-                }
-            })
-            ->allowedSorts(['email'])
+            ->defaultSort('customers.username')
+            ->select(['username', 'web_users.id', 'email', 'slug'])
+            ->allowedSorts(['email', 'username'])
             ->allowedFilters([$globalSearch])
             ->paginate($this->perPage ?? config('ui.table.records_per_page'))
             ->withQueryString();
@@ -106,17 +96,17 @@ class IndexWebUser extends OrgAction
                 'pageHead'    => [
                     'title' => __('web users'),
                 ],
-                'customers'   => InertiaTableWebUserResource::collection($webusers),
+                'customers'   => WebUsersResource::collection($webusers),
                 'data'        => WebUserResource::collection($webusers),
 
             ]
-        )->table($this->tableStructure());
+        )->table($this->tableStructure($this->parent));
     }
 
-    public function tableStructure(?array $modelOperations = null, $prefix = null): Closure
+    public function tableStructure(Shop|Organisation|Customer|Website $parent, ?array $modelOperations = null, $prefix = null): Closure
     {
-        return function (InertiaTable $table) use ($modelOperations, $prefix) {
-            if($prefix) {
+        return function (InertiaTable $table) use ($modelOperations, $prefix, $parent) {
+            if ($prefix) {
                 $table
                     ->name($prefix)
                     ->pageName($prefix.'Page');
@@ -124,34 +114,30 @@ class IndexWebUser extends OrgAction
             $table
                 ->withModelOperations($modelOperations)
                 ->withGlobalSearch()
+                ->column(key: 'username', label: __('username'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'email', label: __('email'), canBeHidden: false, sortable: true, searchable: true)
-                ->defaultSort('email');
+                ->defaultSort('username');
         };
     }
 
 
-    public function inOrganisation(Request $request): LengthAwarePaginator
+    public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
-        $this->fillFromRequest($request);
-        $this->parent    = app('currentTenant');
+        $this->parent = $organisation;
+        $this->initialisation($organisation, $request);
 
         return $this->handle($this->parent);
     }
-    public function inWebsite(Website $website, ActionRequest $request): LengthAwarePaginator
-    {
-        $this->initialisation($request);
-        $this->parent = $website;
-        return $this->handle(parent:  $website);
-    }
-
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inCustomerInShop(Shop $shop, Customer $customer, ActionRequest $request): LengthAwarePaginator
+    public function inWebsite(Organisation $organisation, Shop $shop, Website $website, ActionRequest $request): LengthAwarePaginator
     {
-        $this->parent = $customer;
-        $this->initialisation($request);
-        return $this->handle(parent: $customer);
+        $this->initialisationFromShop($shop, $request);
+        $this->parent = $website;
+
+        return $this->handle(parent: $website);
     }
+
 
 
 
@@ -168,6 +154,7 @@ class IndexWebUser extends OrgAction
                 ],
             ];
         };
+
         return match ($routeName) {
             'customers.show.web-users.index' => array_merge(
                 (new ShowCustomer())->getBreadcrumbs('customers.show', $routeParameters),

@@ -12,6 +12,7 @@ use App\Actions\Market\Shop\UI\ShowShop;
 use App\Actions\OMS\Order\UI\IndexOrders;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Actions\WithActionButtons;
+use App\Actions\Traits\WithWebUserMeta;
 use App\Actions\UI\Dashboard\ShowDashboard;
 use App\Enums\UI\CustomerTabsEnum;
 use App\Http\Resources\Mail\DispatchedEmailResource;
@@ -28,6 +29,7 @@ use Lorisleiva\Actions\ActionRequest;
 class ShowCustomer extends OrgAction
 {
     use WithActionButtons;
+    use WithWebUserMeta;
 
     private Organisation|Shop $parent;
 
@@ -75,39 +77,7 @@ class ShowCustomer extends OrgAction
 
     public function htmlResponse(Customer $customer, ActionRequest $request): Response
     {
-        $webUsersMeta = match ($customer->stats->number_web_users) {
-            0 => [
-                'name'                  => 'add web user',
-                'leftIcon'              => [
-                    'icon'    => 'fal fa-globe',
-                    'tooltip' => __('Web user')
-                ],
-                'emptyWithCreateAction' => [
-                    'label' => __('web user')
-                ]
-            ],
-            1 => [
-                'href' => [
-                    $request->route()->getName().'.web-users.show',
-                    array_merge_recursive($request->route()->originalParameters(), ['user' => $customer->webUsers->first()])
-
-                ],
-
-                'name'     => $customer->webUsers->first()->slug,
-                'leftIcon' => [
-                    'icon'    => 'fal fa-globe',
-                    'tooltip' => __('Web user'),
-                ],
-
-            ],
-            default => [
-                'name'     => $customer->webUsers->count(),
-                'leftIcon' => [
-                    'icon'    => 'fal fa-globe',
-                    'tooltip' => __('Web users')
-                ],
-            ]
-        };
+        $webUsersMeta = $this->getWebUserMeta($customer, $request);
 
         $shopMeta = [];
 

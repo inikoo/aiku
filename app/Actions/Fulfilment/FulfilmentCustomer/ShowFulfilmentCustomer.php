@@ -8,13 +8,16 @@
 namespace App\Actions\Fulfilment\FulfilmentCustomer;
 
 use App\Actions\CRM\Customer\UI\GetCustomerShowcase;
+use App\Actions\CRM\WebUser\IndexWebUsers;
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\Pallet\UI\IndexPallets;
 use App\Actions\Fulfilment\PalletDelivery\UI\IndexPalletDeliveries;
 use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItems;
 use App\Actions\Mail\DispatchedEmail\IndexDispatchedEmails;
 use App\Actions\OrgAction;
+use App\Actions\Traits\WithWebUserMeta;
 use App\Enums\UI\CustomerFulfilmentTabsEnum;
+use App\Http\Resources\CRM\WebUsersResource;
 use App\Http\Resources\Fulfilment\PalletDeliveriesResource;
 use App\Http\Resources\Fulfilment\PalletsResource;
 use App\Http\Resources\Fulfilment\StoredItemResource;
@@ -32,6 +35,8 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowFulfilmentCustomer extends OrgAction
 {
+    use WithWebUserMeta;
+
     public function handle(FulfilmentCustomer $fulfilmentCustomer): FulfilmentCustomer
     {
         return $fulfilmentCustomer;
@@ -54,6 +59,9 @@ class ShowFulfilmentCustomer extends OrgAction
 
     public function htmlResponse(FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): Response
     {
+
+        $webUsersMeta = $this->getWebUserMeta($fulfilmentCustomer->customer, $request);
+
         return Inertia::render(
             'Org/Fulfilment/Customer',
             [
@@ -70,6 +78,9 @@ class ShowFulfilmentCustomer extends OrgAction
                         'title' => __('customer'),
                         'icon'  => 'fal fa-user'
                     ],
+                    'meta'    => array_filter([
+                        $webUsersMeta
+                    ]),
                     'title'   => $fulfilmentCustomer->customer->name,
                     'edit'    => $this->canEdit ? [
                         'route' => [
@@ -89,7 +100,7 @@ class ShowFulfilmentCustomer extends OrgAction
                             'route'   => [
                                 'method'     => 'post',
                                 'name'       => 'grp.models.fulfilment-customer.pallet-delivery.store',
-                                'parameters' => [$fulfilmentCustomer->slug]
+                                'parameters' => [$fulfilmentCustomer->id]
                             ]
                         ],
                     ]
@@ -119,6 +130,11 @@ class ShowFulfilmentCustomer extends OrgAction
                 CustomerFulfilmentTabsEnum::DISPATCHED_EMAILS->value => $this->tab == CustomerFulfilmentTabsEnum::DISPATCHED_EMAILS->value ?
                     fn () => DispatchedEmailResource::collection(IndexDispatchedEmails::run($fulfilmentCustomer))
                     : Inertia::lazy(fn () => DispatchedEmailResource::collection(IndexDispatchedEmails::run($fulfilmentCustomer))),
+
+                CustomerFulfilmentTabsEnum::WEB_USERS->value => $this->tab == CustomerFulfilmentTabsEnum::WEB_USERS->value ?
+                    fn () => WebUsersResource::collection(IndexWebUsers::run($fulfilmentCustomer->customer))
+                    : Inertia::lazy(fn () => WebUsersResource::collection(IndexWebUsers::run($fulfilmentCustomer->customer))),
+
 
             ]
         )->table(IndexStoredItems::make()->tableStructure($fulfilmentCustomer->storedItems))
