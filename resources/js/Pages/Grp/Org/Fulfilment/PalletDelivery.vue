@@ -78,7 +78,7 @@ const handleFormSubmitAddMultiplePallet = (data: object, closedPopover: Function
   })
 }
 
-const updateState = async ({ step, options }) => {
+/* const updateState = async ({ step, options }) => {
 
   const foundState = options.find((item) => item.key === timeline.value.state)
   const set = step.key == timeline.state || step.index < foundState.index
@@ -94,7 +94,7 @@ const updateState = async ({ step, options }) => {
       console.log('error', error)
     }
   }
-}
+} */
 
 const handleClick = (action) => {
   const href = action.route?.name ? route(action.route?.name, action.route?.parameters) : action.href?.name ? route(action.href?.name, action.href?.parameters) : '#'
@@ -221,7 +221,7 @@ const onUploadOpen=(action)=>{
 
   </PageHeading>
   <div class="border-b border-gray-200">
-    <Timeline :options="timeline.timeline" :state="timeline.state" @updateButton="updateState" :slidesPerView="5" />
+    <Timeline :options="timeline.timeline" :state="timeline.state" :slidesPerView="5" />
   </div>
   <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
   <component :is="component" :data="props[currentTab]" :state="timeline.state" :tab="currentTab"></component>
