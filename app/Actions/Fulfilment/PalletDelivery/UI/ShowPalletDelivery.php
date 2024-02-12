@@ -111,7 +111,7 @@ class ShowPalletDelivery extends OrgAction
                             'parameters' => array_values($request->route()->originalParameters())
                         ]
                     ] : false,
-                    'actions' => in_array($palletDelivery->state, [PalletDeliveryStateEnum::IN_PROCESS, PalletDeliveryStateEnum::SUBMITTED]) ? [
+                    'actions' => $palletDelivery->state == PalletDeliveryStateEnum::IN_PROCESS ? [
                         [
                             'type'    => 'button',
                             'style'   => 'create',
@@ -122,7 +122,7 @@ class ShowPalletDelivery extends OrgAction
                                 'parameters' => [
                                     'organisation'       => $palletDelivery->organisation->slug,
                                     'fulfilment'         => $palletDelivery->fulfilment->slug,
-                                    'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->id,
+                                    'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->slug,
                                     'palletDelivery'     => $palletDelivery->reference
                                 ]
                             ]
@@ -141,7 +141,7 @@ class ShowPalletDelivery extends OrgAction
                                         'parameters' => [
                                             'organisation'       => $palletDelivery->organisation->slug,
                                             'fulfilment'         => $palletDelivery->fulfilment->slug,
-                                            'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->id,
+                                            'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->slug,
                                             'palletDelivery'     => $palletDelivery->reference
                                         ]
                                     ]
@@ -155,7 +155,7 @@ class ShowPalletDelivery extends OrgAction
                                         'parameters' => [
                                             'organisation'       => $palletDelivery->organisation->slug,
                                             'fulfilment'         => $palletDelivery->fulfilment->slug,
-                                            'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->id,
+                                            'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->slug,
                                             'palletDelivery'     => $palletDelivery->reference
                                         ]
                                     ]
@@ -173,7 +173,7 @@ class ShowPalletDelivery extends OrgAction
                                 'parameters' => [
                                     'organisation'       => $palletDelivery->organisation->slug,
                                     'fulfilment'         => $palletDelivery->fulfilment->slug,
-                                    'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->id,
+                                    'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->slug,
                                     'palletDelivery'     => $palletDelivery->reference
                                 ]
                             ]
@@ -187,7 +187,7 @@ class ShowPalletDelivery extends OrgAction
                         'parameters' => [
                             'organisation'       => $palletDelivery->organisation->slug,
                             'fulfilment'         => $palletDelivery->fulfilment->slug,
-                            'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->id,
+                            'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->slug,
                             'palletDelivery'     => $palletDelivery->reference
                         ]
                     ]
