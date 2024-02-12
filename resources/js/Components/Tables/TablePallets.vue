@@ -23,6 +23,7 @@ const props = defineProps<{
 
 
 function customerRoute(pallet: Customer) {
+    console.log(route().current())
     switch (route().current()) {
         case  'grp.org.warehouses.show.fulfilment.pallets.index':
             return route(
@@ -32,7 +33,17 @@ function customerRoute(pallet: Customer) {
                     route().params['warehouse'],
                     pallet['id']
                 ]);
-            break;
+
+        case  'grp.org.warehouses.show.infrastructure.locations.show':
+            return route(
+                'grp.org.warehouses.show.infrastructure.locations.show.pallets.show',
+                [
+                    route().params['organisation'],
+                    route().params['warehouse'],
+                    route().params['location'],
+                    pallet['id']
+                ]);
+
         default:
             return route(
                 'grp.org.fulfilments.show.crm.customers.show.pallets.show',

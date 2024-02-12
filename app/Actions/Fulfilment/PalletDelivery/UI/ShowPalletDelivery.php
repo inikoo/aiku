@@ -61,6 +61,14 @@ class ShowPalletDelivery extends OrgAction
         return $this->handle($palletDelivery);
     }
 
+    public function inWarehouse(Organisation $organisation, Warehouse $warehouse, PalletDelivery $palletDelivery, ActionRequest $request): PalletDelivery
+    {
+        $this->parent = $warehouse;
+        $this->initialisationFromWarehouse($warehouse, $request)->withTab(PalletDeliveryTabsEnum::values());
+
+        return $this->handle($palletDelivery);
+    }
+
     /** @noinspection PhpUnusedParameterInspection */
     public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, PalletDelivery $palletDelivery, ActionRequest $request): PalletDelivery
     {

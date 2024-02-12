@@ -16,6 +16,7 @@ import TableHistories from "@/Components/Tables/TableHistories.vue";
 import Tabs from "@/Components/Navigation/Tabs.vue";
 import { capitalize } from "@/Composables/capitalize";
 import LocationShowcase from "@/Components/Showcases/Org/LocationShowcase.vue";
+import TablePallets from "@/Components/Tables/TablePallets.vue";
 
 library.add(faInventory, faExchange, faBox, faWarehouse, faMapSigns,faPallet);
 
@@ -41,6 +42,7 @@ const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
 const component = computed(() => {
     const components: Component = {
         showcase: LocationShowcase,
+        pallets: TablePallets,
         details: ModelDetails,
         history: TableHistories
     };

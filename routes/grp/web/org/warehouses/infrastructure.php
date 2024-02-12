@@ -6,6 +6,7 @@
  */
 
 
+use App\Actions\Fulfilment\Pallet\UI\ShowPallet;
 use App\Actions\Inventory\Location\ExportLocations;
 use App\Actions\Inventory\Location\UI\CreateLocation;
 use App\Actions\Inventory\Location\UI\EditLocation;
@@ -54,5 +55,7 @@ Route::scopeBindings()->prefix('locations')->name('locations.')->group(function 
     Route::scopeBindings()->prefix('{location}')->group(function () {
         Route::get('', [ShowLocation::class, 'inWarehouse'])->name('show');
         Route::get('edit', [EditLocation::class, 'inWarehouse'])->name('edit');
+
+        Route::get('pallets/{pallet}', [ShowPallet::class, 'inLocation'])->name('show.pallets.show');
     });
 });

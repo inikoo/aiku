@@ -7,12 +7,15 @@
 
 namespace App\Actions\Inventory\Location\UI;
 
+use App\Actions\Fulfilment\Pallet\UI\IndexPallets;
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\Inventory\WarehouseArea\UI\ShowWarehouseArea;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Actions\WithActionButtons;
 use App\Enums\UI\LocationTabsEnum;
+use App\Enums\UI\PalletDeliveryTabsEnum;
+use App\Http\Resources\Fulfilment\PalletsResource;
 use App\Http\Resources\History\HistoryResource;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
@@ -57,7 +60,7 @@ class ShowLocation extends OrgAction
     public function inWarehouse(Organisation $organisation, Warehouse $warehouse, Location $location, ActionRequest $request): Location
     {
         $this->parent = $warehouse;
-        $this->initialisationFromWarehouse($warehouse, $request);
+        $this->initialisationFromWarehouse($warehouse, $request)->withTab(LocationTabsEnum::values());
 
         return $this->handle($location);
     }
@@ -114,11 +117,20 @@ class ShowLocation extends OrgAction
                     fn () => GetLocationShowcase::run($location)
                     : Inertia::lazy(fn () => GetLocationShowcase::run($location)),
 
+                LocationTabsEnum::PALLETS->value => $this->tab == LocationTabsEnum::PALLETS->value ?
+                    fn () => PalletsResource::collection(IndexPallets::run($location))
+                    : Inertia::lazy(fn () => PalletsResource::collection(IndexPallets::run($location))),
+
                 LocationTabsEnum::HISTORY->value => $this->tab == LocationTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistory::run($location))
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($location)))
             ]
-        )->table(IndexHistory::make()->tableStructure());
+        )->table(IndexHistory::make()->tableStructure())->table(
+            IndexPallets::make()->tableStructure(
+                $location,
+                prefix: PalletDeliveryTabsEnum::PALLETS->value
+            )
+        );
     }
 
 

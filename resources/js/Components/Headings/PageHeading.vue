@@ -19,12 +19,13 @@ import { Action as ActionTS } from "@/types/Action"
 import { routeType } from '@/types/route'
 import { kebabCase } from 'lodash'
 import Button from "../Elements/Buttons/Button.vue"
+import {faNarwhal} from "@fas";
 
 interface Icon {
     icon: string[] | string
 }
 
-library.add(faTruckCouch, faUpload, faMapSigns)
+library.add(faTruckCouch, faUpload, faMapSigns, faNarwhal)
 
 const props = defineProps<{
     data: {

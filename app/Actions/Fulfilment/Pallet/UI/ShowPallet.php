@@ -9,6 +9,7 @@ namespace App\Actions\Fulfilment\Pallet\UI;
 
 use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItems;
 use App\Actions\Helpers\History\IndexHistory;
+use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\UI\PalletTabsEnum;
@@ -20,6 +21,7 @@ use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
+use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
@@ -50,6 +52,15 @@ class ShowPallet extends OrgAction
 
     /** @noinspection PhpUnusedParameterInspection */
     public function inWarehouse(Organisation $organisation, Warehouse $warehouse, Pallet $pallet, ActionRequest $request): Pallet
+    {
+        $this->parent = $warehouse;
+        $this->initialisationFromWarehouse($warehouse, $request)->withTab(PalletTabsEnum::values());
+
+        return $this->handle($pallet);
+    }
+
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inLocation(Organisation $organisation, Warehouse $warehouse, Location $location, Pallet $pallet, ActionRequest $request): Pallet
     {
         $this->parent = $warehouse;
         $this->initialisationFromWarehouse($warehouse, $request)->withTab(PalletTabsEnum::values());
@@ -92,7 +103,7 @@ class ShowPallet extends OrgAction
                             'icon'  => ['fa', 'fa-narwhal'],
                             'title' => __('pallets')
                         ],
-                    'title'  => $this->pallet->slug,
+                    'title'  => $this->pallet->reference,
                     'actions'=> [
                         /*[
                             'type'    => 'button',
@@ -155,7 +166,7 @@ class ShowPallet extends OrgAction
     public function getBreadcrumbs(Pallet $pallet, $suffix = null): array
     {
         return array_merge(
-            IndexPallets::make()->getBreadcrumbs(request()->route()->getName(), request()->route()->originalParameters()),
+            ShowWarehouse::make()->getBreadcrumbs(request()->route()->originalParameters()),
             [
                 [
                     'type'           => 'modelWithIndex',
@@ -165,7 +176,7 @@ class ShowPallet extends OrgAction
                                 'name'       => 'grp.org.warehouses.show.fulfilment.pallets.index',
                                 'parameters' => array_values(request()->route()->originalParameters())
                             ],
-                            'label' => __('stored items')
+                            'label' => __('pallets')
                         ],
                         'model' => [
                             'route' => [

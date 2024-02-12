@@ -8,6 +8,7 @@
 namespace App\Models\Inventory;
 
 use App\Enums\Inventory\Location\LocationStatusEnum;
+use App\Models\Fulfilment\Pallet;
 use App\Models\Search\UniversalSearch;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasHistory;
@@ -124,6 +125,11 @@ class Location extends Model implements Auditable
     public function lostAndFoundStocks(): HasMany
     {
         return $this->hasMany(LostAndFoundStock::class);
+    }
+
+    public function pallets(): HasMany
+    {
+        return $this->hasMany(Pallet::class);
     }
 
     public function getRouteKeyName(): string

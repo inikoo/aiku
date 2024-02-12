@@ -13,8 +13,8 @@
   import Tabs from "@/Components/Navigation/Tabs.vue";
   import { computed, ref } from "vue";
   import TableHistories from "@/Components/Tables/TableHistories.vue";
-  import ShowcasePallet from '@/Components/Pallet/Showcase.vue'
   import { useTabChange } from "@/Composables/tab-change";
+  import PalletShowcase from "@/Components/Showcases/Org/PalletShowcase.vue";
 
   const props = defineProps<{
       data: object
@@ -30,6 +30,7 @@ const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
 const component = computed(() => {
 
 const components = {
+    showcase: PalletShowcase,
     stored_items: TableStoredItems,
     history: TableHistories
 };
