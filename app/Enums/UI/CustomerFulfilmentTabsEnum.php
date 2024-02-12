@@ -20,7 +20,6 @@ enum CustomerFulfilmentTabsEnum: string
     case PALLETS       = 'pallets';
     case STORED_ITEMS  = 'stored_items';
 
-
     case PALLET_DELIVERIES        = 'pallet_deliveries';
 
     case PALLET_RETURNS        = 'pallet_returns';
@@ -29,6 +28,8 @@ enum CustomerFulfilmentTabsEnum: string
     case DATA              = 'data';
     case ATTACHMENTS       = 'attachments';
     case DISPATCHED_EMAILS = 'dispatched_emails';
+
+    case WEB_USERS = 'web_users';
 
 
     public function blueprint(): array
@@ -70,6 +71,12 @@ enum CustomerFulfilmentTabsEnum: string
                 'align' => 'right',
                 'title' => __('dispatched emails'),
                 'icon'  => 'fal fa-paper-plane',
+                'type'  => 'icon',
+            ],
+            CustomerFulfilmentTabsEnum::WEB_USERS => [
+                'align' => 'right',
+                'title' => __('users'),
+                'icon'  => 'fal fa-terminal',
                 'type'  => 'icon',
             ],
             CustomerFulfilmentTabsEnum::SHOWCASE => [

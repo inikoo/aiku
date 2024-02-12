@@ -6,7 +6,7 @@
  */
 
 
-use App\Actions\CRM\WebUser\IndexWebUser;
+use App\Actions\CRM\WebUser\IndexWebUsers;
 use App\Actions\UI\Websites\WebsitesDashboard;
 use App\Actions\Web\Webpage\UI\IndexWebpages;
 use App\Actions\Web\Website\UI\CreateWebsite;
@@ -33,4 +33,4 @@ Route::get('/{website}/delete', RemoveWebsite::class)->name('websites.remove');
 
 
 Route::get('/{website}/webpages', [IndexWebpages::class, 'inWebsite'])->name('websites.show.webpages.index');
-Route::get('/{website}/webusers', [IndexWebUser::class, 'inWebsite'])->name('websites.show.webusers.index');
+Route::get('/{website}/webusers', [IndexWebUsers::class, 'inWebsite'])->name('websites.show.webusers.index');
