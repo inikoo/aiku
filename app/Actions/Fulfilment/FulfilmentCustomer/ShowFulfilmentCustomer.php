@@ -47,7 +47,7 @@ class ShowFulfilmentCustomer extends OrgAction
 
     public function asController(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): FulfilmentCustomer
     {
-        $this->initialisationFromFulfilment($fulfilment, $request);
+        $this->initialisationFromFulfilment($fulfilment, $request)->withTab(CustomerFulfilmentTabsEnum::values());
 
         return $this->handle($fulfilmentCustomer);
     }
@@ -100,8 +100,8 @@ class ShowFulfilmentCustomer extends OrgAction
                 ],
 
                 CustomerFulfilmentTabsEnum::SHOWCASE->value => $this->tab == CustomerFulfilmentTabsEnum::SHOWCASE->value ?
-                    fn () => GetCustomerShowcase::run($fulfilmentCustomer)
-                    : Inertia::lazy(fn () => GetCustomerShowcase::run($fulfilmentCustomer)),
+                    fn () => GetCustomerShowcase::run($fulfilmentCustomer->customer)
+                    : Inertia::lazy(fn () => GetCustomerShowcase::run($fulfilmentCustomer->customer)),
 
 
                 CustomerFulfilmentTabsEnum::PALLETS->value => $this->tab == CustomerFulfilmentTabsEnum::PALLETS->value ?
@@ -113,7 +113,7 @@ class ShowFulfilmentCustomer extends OrgAction
                     : Inertia::lazy(fn () => PalletDeliveriesResource::collection(IndexStoredItems::run($fulfilmentCustomer))),
 
                 CustomerFulfilmentTabsEnum::PALLET_DELIVERIES->value => $this->tab == CustomerFulfilmentTabsEnum::PALLET_DELIVERIES->value ?
-                    fn () => StoredItemResource::collection(IndexPalletDeliveries::run($fulfilmentCustomer->fulfilment))
+                    fn () => PalletDeliveriesResource::collection(IndexPalletDeliveries::run($fulfilmentCustomer->fulfilment))
                     : Inertia::lazy(fn () => PalletDeliveriesResource::collection(IndexPalletDeliveries::run($fulfilmentCustomer->fulfilment))),
 
                 CustomerFulfilmentTabsEnum::DISPATCHED_EMAILS->value => $this->tab == CustomerFulfilmentTabsEnum::DISPATCHED_EMAILS->value ?

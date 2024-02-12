@@ -26,6 +26,10 @@ class UpdatePalletDeliveryTimeline extends OrgAction
 
     public function handle(PalletDelivery $palletDelivery, array $modelData): PalletDelivery
     {
+        if ($palletDelivery->pallets()->count() === 0) {
+            abort(404, 'Pallets not found');
+        }
+
         match ($modelData['state']) {
             PalletDeliveryStateEnum::IN_PROCESS->value     => $modelData['in_process_at']           = now(),
             PalletDeliveryStateEnum::SUBMITTED->value      => $modelData['submitted_at']            = now(),

@@ -178,7 +178,24 @@ class ShowPalletDelivery extends OrgAction
                                 ]
                             ]
                         ],
-                    ] : []
+                    ] : [
+                        $palletDelivery->state == PalletDeliveryStateEnum::SUBMITTED ? [
+                                'type'    => 'button',
+                                'style'   => 'save',
+                                'tooltip' => __('confirm'),
+                                'label'   => __('confirm'),
+                                'route'   => [
+                                    'method'     => 'post',
+                                    'name'       => 'grp.models.fulfilment-customer.pallet-delivery.confirm',
+                                    'parameters' => [
+                                        'organisation'       => $palletDelivery->organisation->slug,
+                                        'fulfilment'         => $palletDelivery->fulfilment->slug,
+                                        'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->slug,
+                                        'palletDelivery'     => $palletDelivery->reference
+                                    ]
+                                ]
+                        ] : [],
+                    ],
                 ],
 
                 'updateRoute' => [
