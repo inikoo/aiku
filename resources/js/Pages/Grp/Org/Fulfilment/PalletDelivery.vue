@@ -127,7 +127,7 @@ const onUploadOpen=(action)=>{
 }
 
 watch(props,(newValue)=>{
-  timeline.value = newValue.data.data 
+  timeline.value = newValue.data.data
 },{deep : true})
 
 </script>
@@ -182,13 +182,14 @@ watch(props,(newValue)=>{
          class="capitalize inline-flex items-center h-full rounded-none text-sm border-none font-medium shadow-sm focus:ring-transparent focus:ring-offset-transparent focus:ring-0"
       />
     </template>
-    <template #button-add-multiple-pallets="{ action: action }">
+    <template #button-group-multiple="{ action: action }">
       <div class="relative">
         <Popover :width="'w-full'" ref="_popover">
           <template #button>
-            <Button :style="action.action.style" :label="action.action.label" :icon="action.action.icon"
-              :iconRight="action.action.iconRight" :key="`ActionButton${action.action.label}${action.action.style}`"
-              :tooltip="action.action.tooltip" />
+            <Button :style="action.button.style" :icon="action.button.icon"
+              :iconRight="action.button.iconRight" :key="`ActionButton${action.button.label}${action.button.style}`"
+              :tooltip="action.button.tooltip"
+              class="capitalize inline-flex items-center h-full rounded-none text-sm border-none font-medium shadow-sm focus:ring-transparent focus:ring-offset-transparent focus:ring-0"/>
           </template>
           <template #content="{ close: closed }">
             <div class="w-[250px]">
@@ -203,7 +204,7 @@ watch(props,(newValue)=>{
               </div>
               <div class="flex justify-end mt-3">
                 <Button :style="'save'" :loading="loading" :label="'save'"
-                  @click="() => handleFormSubmitAddMultiplePallet(action.action, closed)" />
+                  @click="() => handleFormSubmitAddMultiplePallet(action.button, closed)" />
               </div>
             </div>
           </template>

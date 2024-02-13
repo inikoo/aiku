@@ -121,21 +121,6 @@ class ShowPalletDelivery extends OrgAction
                     ] : false,
                     'actions' => $palletDelivery->state == PalletDeliveryStateEnum::IN_PROCESS ? [
                         [
-                            'type'    => 'button',
-                            'style'   => 'create',
-                            'tooltip' => __('add multiple pallets'),
-                            'label'   => __('add multiple pallets'),
-                            'route'   => [
-                                'name'       => 'grp.models.fulfilment-customer.pallet-delivery.multiple-pallets.store',
-                                'parameters' => [
-                                    'organisation'       => $palletDelivery->organisation->slug,
-                                    'fulfilment'         => $palletDelivery->fulfilment->slug,
-                                    'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->id,
-                                    'palletDelivery'     => $palletDelivery->reference
-                                ]
-                            ]
-                        ],
-                        [
                             'type'   => 'buttonGroup',
                             'key'    => 'upload-add',
                             'button' => [
@@ -146,6 +131,21 @@ class ShowPalletDelivery extends OrgAction
                                     'label' => 'upload',
                                     'route' => [
                                         'name'       => 'grp.models.fulfilment-customer.pallet-delivery.pallet.import',
+                                        'parameters' => [
+                                            'organisation'       => $palletDelivery->organisation->slug,
+                                            'fulfilment'         => $palletDelivery->fulfilment->slug,
+                                            'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->id,
+                                            'palletDelivery'     => $palletDelivery->reference
+                                        ]
+                                    ]
+                                ],
+                                [
+                                    'type'    => 'button',
+                                    'style'   => 'primary',
+                                    'icon'    => ['far', 'fa-layer-plus'],
+                                    'label'   => 'multiple',
+                                    'route'   => [
+                                        'name'       => 'grp.models.fulfilment-customer.pallet-delivery.multiple-pallets.store',
                                         'parameters' => [
                                             'organisation'       => $palletDelivery->organisation->slug,
                                             'fulfilment'         => $palletDelivery->fulfilment->slug,

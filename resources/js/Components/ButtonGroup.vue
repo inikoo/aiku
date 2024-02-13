@@ -1,7 +1,7 @@
 <script setup lang='ts'>
 import { Link } from '@inertiajs/vue3'
 import Button from '@/Components/Elements/Buttons/Button.vue'
-    
+
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faUpload } from '@fas'
 import { library } from '@fortawesome/fontawesome-svg-core'
@@ -16,8 +16,8 @@ console.log('button',props)
 
 <template>
     <div class="rounded overflow-hidden ring-1 ring-gray-400 flex">
-        <template v-for="(button, index) in data">            
-            <Link 
+        <template v-for="(button, index) in data">
+            <Link
                 :href="`${route(button.route.name, button.route.parameters)}`" class=""
                 :method="button.method ?? 'get'"
             >
