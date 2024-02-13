@@ -201,7 +201,7 @@ class IndexPallets extends OrgAction
                 'title'       => __('pallets'),
                 'pageHead'    => [
                     'title'   => __('pallets'),
-                    'icon'    => ['fal', 'fa-boxes'],
+                    'icon'    => ['fal', 'fa-pallet'],
                     'actions' => [
                         [
                             'type'  => 'button',

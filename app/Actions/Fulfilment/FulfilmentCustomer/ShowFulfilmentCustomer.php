@@ -12,6 +12,7 @@ use App\Actions\CRM\WebUser\IndexWebUsers;
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\Pallet\UI\IndexPallets;
 use App\Actions\Fulfilment\PalletDelivery\UI\IndexPalletDeliveries;
+use App\Actions\Fulfilment\PalletDelivery\UI\IndexPalletReturns;
 use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItems;
 use App\Actions\Mail\DispatchedEmail\IndexDispatchedEmails;
 use App\Actions\OrgAction;
@@ -127,6 +128,10 @@ class ShowFulfilmentCustomer extends OrgAction
                     fn () => PalletDeliveriesResource::collection(IndexPalletDeliveries::run($fulfilmentCustomer->fulfilment))
                     : Inertia::lazy(fn () => PalletDeliveriesResource::collection(IndexPalletDeliveries::run($fulfilmentCustomer->fulfilment))),
 
+                CustomerFulfilmentTabsEnum::PALLET_RETURNS->value => $this->tab == CustomerFulfilmentTabsEnum::PALLET_RETURNS->value ?
+                    fn () => PalletDeliveriesResource::collection(IndexPalletReturns::run($fulfilmentCustomer->fulfilment, CustomerFulfilmentTabsEnum::PALLET_RETURNS->value))
+                    : Inertia::lazy(fn () => PalletDeliveriesResource::collection(IndexPalletReturns::run($fulfilmentCustomer->fulfilment, CustomerFulfilmentTabsEnum::PALLET_RETURNS->value))),
+
                 CustomerFulfilmentTabsEnum::DISPATCHED_EMAILS->value => $this->tab == CustomerFulfilmentTabsEnum::DISPATCHED_EMAILS->value ?
                     fn () => DispatchedEmailResource::collection(IndexDispatchedEmails::run($fulfilmentCustomer))
                     : Inertia::lazy(fn () => DispatchedEmailResource::collection(IndexDispatchedEmails::run($fulfilmentCustomer))),
@@ -142,6 +147,12 @@ class ShowFulfilmentCustomer extends OrgAction
                 IndexPalletDeliveries::make()->tableStructure(
                     $fulfilmentCustomer,
                     prefix: CustomerFulfilmentTabsEnum::PALLET_DELIVERIES->value
+                )
+            )
+            ->table(
+                IndexPalletReturns::make()->tableStructure(
+                    $fulfilmentCustomer,
+                    prefix: CustomerFulfilmentTabsEnum::PALLET_RETURNS->value
                 )
             )->table(
                 IndexPallets::make()->tableStructure(

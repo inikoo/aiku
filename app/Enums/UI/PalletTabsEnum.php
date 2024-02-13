@@ -23,7 +23,7 @@ enum PalletTabsEnum: string
     {
         return match ($this) {
             PalletTabsEnum::SHOWCASE => [
-                'title' => __('order'),
+                'title' => __('showcase'),
                 'icon'  => 'fas fa-info-circle',
             ],
             PalletTabsEnum::STORED_ITEMS => [
