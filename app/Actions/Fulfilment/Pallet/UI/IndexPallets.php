@@ -200,7 +200,23 @@ class IndexPallets extends OrgAction
                 ),
                 'title'       => __('pallets'),
                 'pageHead'    => [
-                    'title' => __('pallets')
+                    'title'   => __('pallets'),
+                    'icon'    => ['fal', 'fa-boxes'],
+                    'actions' => [
+                        [
+                            'type'  => 'button',
+                            'style' => 'create',
+                            'label' => __('New Delivery'),
+                            'route' => [
+                                'name'       => 'grp.org.warehouses.show.fulfilment.pallets.create',
+                                'parameters' => [
+                                    'organisation' => $request->route('organisation'),
+                                    'warehouse'    => $request->route('warehouse'),
+                                    'fulfilment'   => $request->route('fulfilment')
+                                ]
+                            ]
+                        ]
+                    ]
                 ],
                 'data'        => PalletsResource::collection($pallets),
             ]
