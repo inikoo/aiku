@@ -5,7 +5,7 @@
   -->
 
 <script setup lang="ts">
-import {Link} from '@inertiajs/vue3';
+import {Link,useForm} from '@inertiajs/vue3';
 import Table from '@/Components/Table/Table.vue';
 import AddressLocation from "@/Components/Elements/Info/AddressLocation.vue";
 import Icon from '@/Components/Icon.vue'
@@ -13,17 +13,19 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faTrashAlt } from '@far';
 import { faSignOutAlt } from '@fal';
+import Checkbox from '../Checkbox.vue';
+
 library.add(
     faTrashAlt,faSignOutAlt
 )
 const props = defineProps<{
     data: object,
     tab?:string
+    form: object
 }>()
 
 
 function customerRoute(pallet: Customer) {
-    console.log(route().current())
     switch (route().current()) {
         case  'grp.org.warehouses.show.fulfilment.pallets.index':
             return route(
@@ -70,6 +72,11 @@ function customerRoute(pallet: Customer) {
         </template>
         <template #cell(state)="{ item: pallet }">
             <Icon :data="pallet['state_icon']" class="px-1"/>
+        </template>
+        <template #cell(actions)="{ item: actions }">
+        <div> 
+            <input type="checkbox" :id="actions.id"  :value="actions.id" v-model="form.pallet">
+        </div>
         </template>
     </Table>
 </template>
