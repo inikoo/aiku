@@ -7,6 +7,8 @@
 
 namespace App\Actions\Fulfilment\Pallet\UI;
 
+use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
+use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItems;
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
@@ -100,7 +102,7 @@ class ShowPallet extends OrgAction
                 'pageHead'    => [
                     'icon'          =>
                         [
-                            'icon'  => ['fa', 'fa-narwhal'],
+                            'icon'  => ['fal', 'fa-pallet'],
                             'title' => __('pallets')
                         ],
                     'title'  => $this->pallet->reference,
@@ -165,6 +167,15 @@ class ShowPallet extends OrgAction
 
     public function getBreadcrumbs(Pallet $pallet, $suffix = null): array
     {
+        return match ($this->parent) {
+            Warehouse::class    => $this->getBreadcrumbsFromWarehouse($pallet, $suffix),
+            Organisation::class => $this->getBreadcrumbsFromFulfilment($pallet, $suffix),
+            default             => $this->getBreadcrumbsFromFulfilmentCustomer($pallet, $suffix),
+        };
+    }
+
+    public function getBreadcrumbsFromWarehouse(Pallet $pallet, $suffix = null): array
+    {
         return array_merge(
             ShowWarehouse::make()->getBreadcrumbs(request()->route()->originalParameters()),
             [
@@ -181,6 +192,64 @@ class ShowPallet extends OrgAction
                         'model' => [
                             'route' => [
                                 'name'       => 'grp.org.warehouses.show.fulfilment.pallets.show',
+                                'parameters' => array_values(request()->route()->originalParameters())
+                            ],
+                            'label' => $pallet->reference,
+                        ],
+                    ],
+                    'suffix' => $suffix,
+                ],
+            ]
+        );
+    }
+
+    public function getBreadcrumbsFromFulfilment(Pallet $pallet, $suffix = null): array
+    {
+        return array_merge(
+            ShowFulfilment::make()->getBreadcrumbs(request()->route()->originalParameters()),
+            [
+                [
+                    'type'           => 'modelWithIndex',
+                    'modelWithIndex' => [
+                        'index' => [
+                            'route' => [
+                                'name'       => 'grp.org.warehouses.show.fulfilment.pallets.index',
+                                'parameters' => array_values(request()->route()->originalParameters())
+                            ],
+                            'label' => __('pallets')
+                        ],
+                        'model' => [
+                            'route' => [
+                                'name'       => 'grp.org.warehouses.show.fulfilment.pallets.show',
+                                'parameters' => array_values(request()->route()->originalParameters())
+                            ],
+                            'label' => $pallet->reference,
+                        ],
+                    ],
+                    'suffix' => $suffix,
+                ],
+            ]
+        );
+    }
+
+    public function getBreadcrumbsFromFulfilmentCustomer(Pallet $pallet, $suffix = null): array
+    {
+        return array_merge(
+            ShowFulfilmentCustomer::make()->getBreadcrumbs(request()->route()->originalParameters()),
+            [
+                [
+                    'type'           => 'modelWithIndex',
+                    'modelWithIndex' => [
+                        'index' => [
+                            'route' => [
+                                'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallets.index',
+                                'parameters' => array_values(request()->route()->originalParameters())
+                            ],
+                            'label' => __('pallets')
+                        ],
+                        'model' => [
+                            'route' => [
+                                'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallets.show',
                                 'parameters' => array_values(request()->route()->originalParameters())
                             ],
                             'label' => $pallet->reference,
