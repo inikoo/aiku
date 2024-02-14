@@ -37,6 +37,8 @@ return new class () extends Migration {
             $table->foreign('location_id')->references('id')->on('locations');
             $table->unsignedInteger('pallet_delivery_id')->index()->nullable();
             $table->foreign('pallet_delivery_id')->references('id')->on('pallet_deliveries');
+            $table->unsignedInteger('pallet_return_id')->index()->nullable();
+            $table->foreign('pallet_return_id')->references('id')->on('pallet_returns');
             $table->string('status')->index()->default(PalletStatusEnum::IN_PROCESS->value);
             $table->string('state')->index()->default(PalletStateEnum::IN_PROCESS->value);
             $table->string('type')->index()->default(PalletTypeEnum::PALLET->value);

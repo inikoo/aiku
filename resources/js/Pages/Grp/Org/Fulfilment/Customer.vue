@@ -50,6 +50,7 @@ const props = defineProps<{
     stored_items?: object
     dispatched_emails?: object
     pallet_deliveries?: object
+    pallet_returns?: object
 }>()
 
 let currentTab = ref(props.tabs.current);
@@ -64,7 +65,8 @@ const component = computed(() => {
         details: ModelDetails,
         history: ModelChangelog,
         dispatched_emails: TableDispatchedEmails,
-        pallet_deliveries: TablePalletDeliveries
+        pallet_deliveries: TablePalletDeliveries,
+        pallet_returns: TablePalletDeliveries
 
     };
     return components[currentTab.value];
