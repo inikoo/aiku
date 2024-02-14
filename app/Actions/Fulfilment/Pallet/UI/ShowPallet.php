@@ -143,7 +143,8 @@ class ShowPallet extends OrgAction
                     'current'    => $this->tab,
                     'navigation' => PalletTabsEnum::navigation(),
                 ],
-
+                PalletTabsEnum::SHOWCASE->value => $this->tab == PalletTabsEnum::SHOWCASE->value ?                     
+                fn () => $this->jsonResponse($pallet) : Inertia::lazy(fn () => $this->jsonResponse($pallet)),
                 PalletTabsEnum::STORED_ITEMS->value => $this->tab == PalletTabsEnum::STORED_ITEMS->value ?
                     fn () => StoredItemResource::collection(IndexStoredItems::run($pallet->fulfilmentCustomer))
                     : Inertia::lazy(fn () => StoredItemResource::collection(IndexStoredItems::run($pallet->fulfilmentCustomer))),

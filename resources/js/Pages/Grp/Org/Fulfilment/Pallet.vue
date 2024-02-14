@@ -23,6 +23,7 @@
       stored_items?: object
       history?: object
       tabs: object
+      showcase : object
   }>()
 
 let currentTab = ref(props.tabs.current);
@@ -37,6 +38,7 @@ const components = {
 return components[currentTab.value];
 
 });
+
   </script>
 
   <template layout="App">
