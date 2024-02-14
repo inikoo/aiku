@@ -8,19 +8,26 @@
 namespace App\Actions\CRM\WebUser;
 
 use App\Actions\CRM\Customer\UI\ShowCustomer;
-use App\Actions\InertiaAction;
+use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Market\Shop\UI\ShowShop;
+use App\Actions\OrgAction;
 use App\Http\Resources\CRM\WebUserResource;
 use App\Models\CRM\Customer;
+use App\Models\Fulfilment\Fulfilment;
+use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Market\Shop;
+use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\WebUser;
+use Arr;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class ShowWebUser extends InertiaAction
+class ShowWebUser extends OrgAction
 {
+    private FulfilmentCustomer|Customer $parent;
+
     public function handle(WebUser $webUser): WebUser
     {
         return $webUser;
@@ -29,9 +36,19 @@ class ShowWebUser extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit   = $request->user()->hasPermissionTo("crm.{$this->shop->id}.edit");
-        $this->canDelete = $request->user()->hasPermissionTo("crm.{$this->shop->id}.edit");
-        return $request->user()->hasPermissionTo("crm.customers.view");
+        if ($this->parent instanceof Customer) {
+            $this->canEdit   = $request->user()->hasPermissionTo("crm.{$this->shop->id}.edit");
+            $this->canDelete = $request->user()->hasPermissionTo("crm.{$this->shop->id}.edit");
+
+            return $request->user()->hasPermissionTo("crm.customers.view");
+        } elseif ($this->parent instanceof FulfilmentCustomer) {
+            $this->canEdit   = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+            $this->canDelete = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+
+            return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
+        }
+
+        return false;
     }
 
     public function inOrganisation(WebUser $webUser, ActionRequest $request): WebUser
@@ -50,9 +67,10 @@ class ShowWebUser extends InertiaAction
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inCustomerInTenant(Customer $customer, WebUser $webUser, ActionRequest $request): WebUser
+    public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, WebUser $webUser, ActionRequest $request): WebUser
     {
-        $this->initialisation($request);
+        $this->parent = $fulfilmentCustomer;
+        $this->initialisationFromFulfilment($fulfilment, $request);
 
         return $this->handle($webUser);
     }
@@ -60,23 +78,24 @@ class ShowWebUser extends InertiaAction
 
     public function htmlResponse(WebUser $webUser, ActionRequest $request): Response
     {
-        //dd($request->route()->getName());
-        $scope = match ($request->route()->getName()) {
-            'grp.org.shops.show.crm.customers.show.web-users.show' => $request->route()->originalParameters()()['customer'],
-            default                                                => app('currentTenant')
-        };
-
         $container = null;
-        if (class_basename($scope) == 'Customer') {
+        if (class_basename($this->parent) == 'Customer') {
             $container = [
                 'icon'    => ['fal', 'fa-user'],
                 'tooltip' => __('Customer'),
-                'label'   => Str::possessive($scope->name)
+                'label'   => Str::possessive($this->parent->name)
+            ];
+        } elseif (class_basename($this->parent) == 'FulfilmentCustomer') {
+            $container = [
+                'icon'    => ['fal', 'fa-user'],
+                'tooltip' => __('Customer'),
+                'label'   => Str::possessive($this->parent->customer->name)
             ];
         }
 
+
         return Inertia::render(
-            'Web/WebUser',
+            'Org/Web/WebUser',
             [
                 'title'       => __('Web user'),
                 'breadcrumbs' => $this->getBreadcrumbs(
@@ -91,13 +110,13 @@ class ShowWebUser extends InertiaAction
                             'name' => $webUser->username
                         ]
                     ],
-                    'actions' => [
+                    'actions'   => [
                         $this->canEdit ? [
                             'type'  => 'button',
                             'style' => 'edit',
                             'route' => [
                                 'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
-                                'parameters' => array_values($request->route()->originalParameters())
+                                'parameters' => $request->route()->originalParameters()
                             ]
                         ] : false,
 
@@ -109,13 +128,6 @@ class ShowWebUser extends InertiaAction
         );
     }
 
-    public function prepareForValidation(ActionRequest $request): void
-    {
-        $this->fillFromRequest($request);
-
-        $this->set('canEdit', $request->user()->hasPermissionTo('hr.edit'));
-        $this->set('canViewUsers', $request->user()->hasPermissionTo('users.view'));
-    }
 
     public function jsonResponse(WebUser $webUser): WebUserResource
     {
@@ -133,7 +145,7 @@ class ShowWebUser extends InertiaAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => $routeParameters['index'],
-                            'label' => __('web user')
+                            'label' => __('web users')
                         ],
                         'model' => [
                             'route' => $routeParameters['model'],
@@ -147,7 +159,30 @@ class ShowWebUser extends InertiaAction
             ];
         };
 
+        $webUser=WebUser::where('slug', $routeParameters['webUser'])->first();
+
         return match ($routeName) {
+            'grp.org.fulfilments.show.crm.customers.show.web-users.show' =>
+            array_merge(
+                ShowFulfilmentCustomer::make()->getBreadcrumbs(
+                    Arr::except($routeParameters, 'webUser')
+                ),
+                $headCrumb(
+                    $webUser,
+                    [
+                        'index' => [
+                            'name'       => 'grp.org.fulfilments.show.crm.customers.show.web-users.index',
+                            'parameters' => Arr::except($routeParameters, 'webUser')
+                        ],
+                        'model' => [
+                            'name'       => 'grp.org.fulfilments.show.crm.customers.show.web-users.show',
+                            'parameters' => $routeParameters
+                        ]
+                    ],
+                    $suffix
+                ),
+            ),
+
             'grp.org.shops.show.crm.customers.show.web-users.show' =>
             array_merge(
                 ShowCustomer::make()->getBreadcrumbs(
