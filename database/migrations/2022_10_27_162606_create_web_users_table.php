@@ -25,6 +25,7 @@ return new class () extends Migration {
             $table->unsignedInteger('customer_id')->index();
             $table->foreign('customer_id')->references('id')->on('customers');
             $table->string('slug')->unique()->collation('und_ns');
+            $table->boolean('is_principal')->default(false)->index();
             $table->string('type')->index();
             $table->boolean('status')->default(true)->index();
             $table->string('username')->index();

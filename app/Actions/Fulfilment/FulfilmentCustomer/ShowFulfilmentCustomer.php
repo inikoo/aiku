@@ -63,6 +63,7 @@ class ShowFulfilmentCustomer extends OrgAction
 
         $webUsersMeta = $this->getWebUserMeta($fulfilmentCustomer->customer, $request);
 
+
         return Inertia::render(
             'Org/Fulfilment/Customer',
             [

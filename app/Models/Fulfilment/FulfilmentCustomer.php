@@ -103,7 +103,7 @@ class FulfilmentCustomer extends Model
             })
             ->saveSlugsTo('slug')
             ->doNotGenerateSlugsOnUpdate()
-            ->slugsShouldBeNoLongerThan(6);
+            ->slugsShouldBeNoLongerThan(16);
     }
 
     public function group(): BelongsTo

@@ -259,4 +259,9 @@ class Customer extends Model implements HasMedia
     {
         return $this->hasMany(PalletDelivery::class);
     }
+
+    public function hasUsers(): bool
+    {
+        return (bool)$this->webUsers->count();
+    }
 }

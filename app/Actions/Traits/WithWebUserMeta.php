@@ -29,14 +29,14 @@ trait WithWebUserMeta
             ],
             1 => [
                 'href' => [
-                    $request->route()->getName().'.web-users.show',
-                    array_merge_recursive($request->route()->originalParameters(), ['user' => $customer->webUsers->first()])
+                    'name'      => $request->route()->getName().'.web-users.show',
+                    'parameters'=> array_merge_recursive($request->route()->originalParameters(), ['webUser' => $customer->webUsers->first()->slug])
 
                 ],
 
-                'name'     => $customer->webUsers->first()->slug,
-                'leftIcon' => [
-                    'icon'    => 'fal fa-globe',
+                'label'     => $customer->webUsers->first()->username,
+                'leftIcon'  => [
+                    'icon'    => 'fal fa-terminal',
                     'tooltip' => __('Web user'),
                 ],
 

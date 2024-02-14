@@ -16,6 +16,8 @@ use App\Models\Market\Shop;
 use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\WebUser;
 use App\Rules\IUnique;
+use Exception;
+use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
@@ -24,6 +26,8 @@ use Lorisleiva\Actions\ActionRequest;
 
 class StoreWebUser extends OrgAction
 {
+    private Customer|\Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Model $customer;
+
     public function handle(Customer $customer, array $modelData): Webuser
     {
         data_set($modelData, 'group_id', $customer->group_id);
@@ -62,9 +66,9 @@ class StoreWebUser extends OrgAction
     public function rules(): array
     {
         $rules = [
-            'type'     => ['sometimes', Rule::enum(WebUserTypeEnum::class)],
-            'auth_type'=> ['sometimes', Rule::enum(WebUserAuthTypeEnum::class)],
-            'username' => [
+            'type'      => ['sometimes', Rule::enum(WebUserTypeEnum::class)],
+            'auth_type' => ['sometimes', Rule::enum(WebUserAuthTypeEnum::class)],
+            'username'  => [
                 'required',
                 'string',
                 'max:255',
@@ -76,20 +80,9 @@ class StoreWebUser extends OrgAction
                     ]
                 ),
             ],
-            'email'    => [
-                'nullable',
-                'max:255',
-                new IUnique(
-                    table: 'web_users',
-                    extraConditions: [
-                        ['column' => 'website_id', 'value' => $this->shop->website->id],
-                        ['column' => 'deleted_at', 'value' => null],
-                    ]
-                ),
 
-            ],
 
-            'source_id' => [
+            'source_id'  => [
                 'sometimes',
                 'nullable',
                 'string',
@@ -107,22 +100,25 @@ class StoreWebUser extends OrgAction
 
         ];
 
-        if ($this->strict) {
-            $strictRules = [
-                'email' => [
-                    'nullable',
-                    'email',
-                    new IUnique(
-                        table: 'web_users',
-                        extraConditions: [
-                            ['column' => 'website_id', 'value' => $this->shop->website->id],
-                            ['column' => 'deleted_at', 'value' => null],
-                        ]
-                    ),
-                ],
-            ];
-            $rules       = array_merge($rules, $strictRules);
+        $emailRule = [
+            'email',
+            'max:255',
+            new IUnique(
+                table: 'web_users',
+                extraConditions: [
+                    ['column' => 'website_id', 'value' => $this->shop->website->id],
+                    ['column' => 'deleted_at', 'value' => null],
+                ]
+            ),
+
+        ];
+
+        if ($this->customer->hasUsers()) {
+            $rules['email'] = array_merge(['sometimes', 'nullable'], $emailRule);
+        } else {
+            $rules['email'] = $emailRule;
         }
+
 
         return $rules;
     }
@@ -134,14 +130,57 @@ class StoreWebUser extends OrgAction
         return $this->handle($customer, $this->validatedData);
     }
 
-    public function action(Customer $customer, array $modelData, int $hydratorsDelay = 0, bool $strict = true): Webuser
+    public function action(Customer $customer, array $modelData, int $hydratorsDelay = 0): Webuser
     {
         $this->asAction       = true;
         $this->hydratorsDelay = $hydratorsDelay;
-        $this->strict         = $strict;
         $this->initialisationFromShop($customer->shop, $modelData);
 
         return $this->handle($customer, $this->validatedData);
     }
+
+    public string $commandSignature = 'web-user:create {customer : customer slug} {username} {--e|email=} {--P|password=}';
+
+    public function asCommand(Command $command): int
+    {
+        $this->asAction = true;
+
+        try {
+            $customer = Customer::where('slug', $command->argument('customer'))->firstOrFail();
+        } catch (Exception) {
+            $command->error('Customer not found');
+
+            return 1;
+        }
+
+
+        if ($command->option('password')) {
+            $password = $command->option('password');
+        } else {
+            if (app()->isLocal() || app()->environment('testing')) {
+                $password = 'hello';
+            } else {
+                $password = $command->secret('Enter the password');
+            }
+        }
+
+        $data = [
+            'username' => $command->argument('username'),
+            'password' => $password,
+            'email'    => $command->option('email'),
+            'type'     => WebUserTypeEnum::WEB
+        ];
+
+        $this->customer = $customer;
+        $this->initialisationFromShop($customer->shop, $data);
+
+        $webUser = $this->handle($customer, $this->validatedData);
+
+        $command->line("Web user $webUser->username created successfully 🫡");
+
+
+        return 0;
+    }
+
 
 }
