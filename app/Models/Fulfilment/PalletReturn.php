@@ -7,6 +7,7 @@
 
 namespace App\Models\Fulfilment;
 
+use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Models\CRM\Customer;
 use App\Models\Inventory\Warehouse;
@@ -18,6 +19,53 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
+
+/**
+ * App\Models\Fulfilment\PalletDelivery
+ *
+ * @property int $id
+ * @property int $group_id
+ * @property int $organisation_id
+ * @property string $slug
+ * @property string $ulid
+ * @property int $fulfilment_customer_id
+ * @property int $fulfilment_id
+ * @property int|null $warehouse_id
+ * @property string|null $customer_reference
+ * @property string $reference
+ * @property int $number_pallets
+ * @property int $number_pallet_stored_items
+ * @property int $number_stored_items
+ * @property PalletDeliveryStateEnum $state
+ * @property string|null $booked_in_at
+ * @property string|null $settled_at
+ * @property \Illuminate\Support\Carbon|null $in_process_at
+ * @property \Illuminate\Support\Carbon|null $submitted_at
+ * @property \Illuminate\Support\Carbon|null $confirmed_at
+ * @property \Illuminate\Support\Carbon|null $received_at
+ * @property \Illuminate\Support\Carbon|null $done_at
+ * @property string|null $dispatched_at
+ * @property string|null $date
+ * @property array|null $data
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property string|null $delete_comment
+ * @property-read Customer $customer
+ * @property-read \App\Models\Fulfilment\Fulfilment $fulfilment
+ * @property-read \App\Models\Fulfilment\FulfilmentCustomer $fulfilmentCustomer
+ * @property-read Organisation $organisation
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\Pallet> $pallets
+ * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
+ * @property-read Warehouse|null $warehouse
+ * @method static \Illuminate\Database\Eloquent\Builder|PalletDelivery newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|PalletDelivery newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|PalletDelivery onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|PalletDelivery query()
+ * @method static \Illuminate\Database\Eloquent\Builder|PalletDelivery withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|PalletDelivery withoutTrashed()
+ * @mixin \Eloquent
+ */
 
 class PalletReturn extends Model
 {
@@ -32,6 +80,7 @@ class PalletReturn extends Model
         'submitted_at'       => 'datetime',
         'confirmed_at'       => 'datetime',
         'received_at'        => 'datetime',
+        'in_delivery_at'     => 'datetime',
         'done_at'            => 'datetime',
         'data'               => 'array'
     ];

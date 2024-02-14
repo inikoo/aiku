@@ -12,7 +12,7 @@ use App\Actions\CRM\WebUser\IndexWebUsers;
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\Pallet\UI\IndexPallets;
 use App\Actions\Fulfilment\PalletDelivery\UI\IndexPalletDeliveries;
-use App\Actions\Fulfilment\PalletDelivery\UI\IndexPalletReturns;
+use App\Actions\Fulfilment\PalletReturn\UI\IndexPalletReturns;
 use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItems;
 use App\Actions\Mail\DispatchedEmail\IndexDispatchedEmails;
 use App\Actions\OrgAction;

@@ -1,10 +1,16 @@
 <?php
 
+use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
+use App\Stubs\Migrations\HasGroupOrganisationRelationship;
+use App\Stubs\Migrations\HasSoftDeletes;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
+    use HasGroupOrganisationRelationship;
+    use HasSoftDeletes;
+
     public function up()
     {
         Schema::create('pallet_returns', function (Blueprint $table) {
@@ -23,10 +29,10 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('number_pallets')->default(0);
             $table->unsignedSmallInteger('number_pallet_stored_items')->default(0);
             $table->unsignedSmallInteger('number_stored_items')->default(0);
-            $table->string('state')->default(PalletDeliveryStateEnum::IN_PROCESS->value);
+            $table->string('state')->default(PalletReturnStateEnum::IN_PROCESS->value);
             $table->dateTimeTz('booked_in_at')->nullable();
             $table->dateTimeTz('settled_at')->nullable();
-            foreach (PalletDeliveryStateEnum::cases() as $state) {
+            foreach (PalletReturnStateEnum::cases() as $state) {
                 $table->dateTimeTz("{$state->snake()}_at")->nullable();
             }
             $table->dateTimeTz('dispatched_at')->nullable();

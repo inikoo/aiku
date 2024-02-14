@@ -16,6 +16,7 @@ enum PalletReturnStateEnum: string
     case IN_PROCESS      = 'in-process';
     case SUBMITTED       = 'submitted';
     case CONFIRMED       = 'confirmed';
+    case IN_DELIVERY     = 'in-delivery';
     case RECEIVED        = 'received';
     case DONE            = 'done';
 
@@ -25,6 +26,7 @@ enum PalletReturnStateEnum: string
             'in-process'     => __('In Process'),
             'submitted'      => __('Submitted'),
             'confirmed'      => __('Confirmed'),
+            'in-delivery'    => __('In Delivery'),
             'received'       => __('Received'),
             'done'           => __('Done')
         ];
@@ -46,6 +48,11 @@ enum PalletReturnStateEnum: string
             'confirmed' => [
                 'tooltip' => __('Confirmed'),
                 'icon'    => 'fal fa-spell-check',
+                'class'   => 'text-green-500'
+            ],
+            'in-delivery' => [
+                'tooltip' => __('In Delivery'),
+                'icon'    => 'fal fa-truck',
                 'class'   => 'text-green-500'
             ],
             'received' => [

@@ -141,6 +141,11 @@ class FulfilmentCustomer extends Model
         return $this->hasMany(PalletDelivery::class);
     }
 
+    public function palletReturns(): HasMany
+    {
+        return $this->hasMany(PalletReturn::class);
+    }
+
     public function serialReferences(): MorphMany
     {
         return $this->morphMany(SerialReference::class, 'container');

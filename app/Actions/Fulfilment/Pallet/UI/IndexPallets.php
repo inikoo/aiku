@@ -16,6 +16,7 @@ use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
+use App\Models\Fulfilment\PalletReturn;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
@@ -113,7 +114,7 @@ class IndexPallets extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure(Organisation|FulfilmentCustomer|Location|Fulfilment|Warehouse|PalletDelivery $parent, $prefix = null, $modelOperations = []): Closure
+    public function tableStructure(Organisation|FulfilmentCustomer|Location|Fulfilment|Warehouse|PalletDelivery|PalletReturn $parent, $prefix = null, $modelOperations = []): Closure
     {
         return function (InertiaTable $table) use ($prefix, $modelOperations, $parent) {
             if ($prefix) {
