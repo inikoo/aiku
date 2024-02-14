@@ -75,7 +75,8 @@ function customerRoute(pallet: Customer) {
         </template>
         <template #cell(actions)="{ item: actions }">
         <div> 
-            <input type="checkbox" :id="actions.id"  :value="actions.id" v-model="form.pallet">
+            <input type="checkbox" :id="actions.id"  :value="actions.id" v-model="form.pallet"  
+            class="h-6 w-6 rounded cursor-pointer border-gray-300 hover:border-indigo-500 text-indigo-600 focus:ring-gray-600">
         </div>
         </template>
     </Table>
