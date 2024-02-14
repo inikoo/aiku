@@ -8,13 +8,14 @@
 namespace App\Actions\CRM\WebUser;
 
 use App\Actions\CRM\Customer\UI\ShowCustomer;
+use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\OrgAction;
 use App\Actions\Web\Website\UI\ShowWebsite;
-use App\Http\Resources\CRM\WebUserResource;
 use App\Http\Resources\CRM\WebUsersResource;
-use App\Http\Resources\Sales\CustomerResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\CRM\Customer;
+use App\Models\Fulfilment\Fulfilment;
+use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Market\Shop;
 use App\Models\SysAdmin\WebUser;
@@ -30,14 +31,16 @@ use App\Services\QueryBuilder;
 
 class IndexWebUsers extends OrgAction
 {
-    private Shop|Organisation|Customer|Website $parent;
+    use WithAuthorizeWebUserScope;
+
+    private Shop|Organisation|Customer|FulfilmentCustomer|Website $parent;
 
 
-    public function handle(Shop|Organisation|Customer|Website $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Shop|Organisation|Customer|FulfilmentCustomer|Website $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->whereStartWith('webusers.username', $value);
+                $query->whereStartWith('username', $value);
             });
         });
         if ($prefix) {
@@ -48,6 +51,8 @@ class IndexWebUsers extends OrgAction
 
         if ($parent instanceof Customer) {
             $queryBuilder->where('customer_id', $parent->id);
+        } elseif ($parent instanceof FulfilmentCustomer) {
+            $queryBuilder->where('customer_id', $parent->customer_id);
         } elseif ($parent instanceof Website) {
             $queryBuilder->where('website_id', $parent->id);
         } elseif ($parent instanceof Organisation) {
@@ -58,35 +63,30 @@ class IndexWebUsers extends OrgAction
 
 
         return $queryBuilder
-            ->defaultSort('customers.username')
-            ->select(['username', 'web_users.id', 'email', 'slug'])
+            ->defaultSort('username')
+            ->select(['username', 'web_users.id', 'web_users.email', 'web_users.slug'])
             ->allowedSorts(['email', 'username'])
             ->allowedFilters([$globalSearch])
             ->paginate($this->perPage ?? config('ui.table.records_per_page'))
             ->withQueryString();
     }
 
+
     public function authorize(ActionRequest $request): bool
     {
-        return
-            (
-                $request->user()->tokenCan('root')                 or
-                $request->user()->hasPermissionTo('websites.view') or
-                $request->user()->hasPermissionTo("crm.{$this->shop->id}.view")
-            );
+        return $this->authorizeWebUserScope($request);
     }
-
 
     public function jsonResponse(): AnonymousResourceCollection
     {
-        return CustomerResource::collection($this->handle($this->parent));
+        return WebUsersResource::collection($this->handle($this->parent));
     }
 
 
     public function htmlResponse(LengthAwarePaginator $webusers, ActionRequest $request): Response
     {
         return Inertia::render(
-            'Web/WebUsers',
+            'Org/Shop/CRM/WebUsers',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
@@ -96,14 +96,13 @@ class IndexWebUsers extends OrgAction
                 'pageHead'    => [
                     'title' => __('web users'),
                 ],
-                'customers'   => WebUsersResource::collection($webusers),
-                'data'        => WebUserResource::collection($webusers),
+                'data'        => WebUsersResource::collection($webusers),
 
             ]
         )->table($this->tableStructure($this->parent));
     }
 
-    public function tableStructure(Shop|Organisation|Customer|Website $parent, ?array $modelOperations = null, $prefix = null): Closure
+    public function tableStructure(Shop|Organisation|Customer|FulfilmentCustomer|Website $parent, ?array $modelOperations = null, $prefix = null): Closure
     {
         return function (InertiaTable $table) use ($modelOperations, $prefix, $parent) {
             if ($prefix) {
@@ -132,30 +131,46 @@ class IndexWebUsers extends OrgAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inWebsite(Organisation $organisation, Shop $shop, Website $website, ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisationFromShop($shop, $request);
         $this->parent = $website;
+        $this->initialisationFromShop($shop, $request);
 
         return $this->handle(parent: $website);
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = $fulfilmentCustomer;
+        $this->initialisationFromFulfilment($fulfilment, $request);
 
+        return $this->handle(parent: $fulfilmentCustomer);
+    }
 
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
-        $headCrumb = function (array $routeParameters = []) use ($routeName) {
+        $headCrumb = function (array $routeParameters = []) {
             return [
-                $routeName => [
-                    'route'           => $routeName,
-                    'routeParameters' => $routeParameters,
-                    'modelLabel'      => [
-                        'label' => __('web users')
-                    ]
+                [
+                    'type'   => 'simple',
+                    'simple' => [
+                        'route' => $routeParameters,
+                        'label' => __('web users'),
+                        'icon'  => 'fal fa-bars'
+                    ],
                 ],
             ];
         };
 
         return match ($routeName) {
+            'grp.org.fulfilments.show.crm.customers.show.web-users.index' =>
+            array_merge(
+                ShowFulfilmentCustomer::make()->getBreadcrumbs($routeParameters),
+                $headCrumb(
+                    $routeParameters
+                )
+            ),
+
             'customers.show.web-users.index' => array_merge(
                 (new ShowCustomer())->getBreadcrumbs('customers.show', $routeParameters),
                 $routeParameters

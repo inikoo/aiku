@@ -26,6 +26,8 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowWebUser extends OrgAction
 {
+    use WithAuthorizeWebUserScope;
+
     private FulfilmentCustomer|Customer $parent;
 
     public function handle(WebUser $webUser): WebUser
@@ -36,19 +38,7 @@ class ShowWebUser extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        if ($this->parent instanceof Customer) {
-            $this->canEdit   = $request->user()->hasPermissionTo("crm.{$this->shop->id}.edit");
-            $this->canDelete = $request->user()->hasPermissionTo("crm.{$this->shop->id}.edit");
-
-            return $request->user()->hasPermissionTo("crm.customers.view");
-        } elseif ($this->parent instanceof FulfilmentCustomer) {
-            $this->canEdit   = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
-            $this->canDelete = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
-
-            return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
-        }
-
-        return false;
+        return $this->authorizeWebUserScope($request);
     }
 
     public function inOrganisation(WebUser $webUser, ActionRequest $request): WebUser
@@ -59,9 +49,10 @@ class ShowWebUser extends OrgAction
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inCustomerInShop(Shop $shop, Customer $customer, WebUser $webUser, ActionRequest $request): WebUser
+    public function asController(Organisation $organisation, Shop $shop, Customer $customer, WebUser $webUser, ActionRequest $request): WebUser
     {
-        $this->initialisation($request);
+        $this->parent=$customer;
+        $this->initialisationFromShop($shop, $request);
 
         return $this->handle($webUser);
     }
@@ -95,7 +86,7 @@ class ShowWebUser extends OrgAction
 
 
         return Inertia::render(
-            'Org/Web/WebUser',
+            'Org/Shop/CRM/WebUser',
             [
                 'title'       => __('Web user'),
                 'breadcrumbs' => $this->getBreadcrumbs(

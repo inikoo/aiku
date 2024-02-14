@@ -34,11 +34,11 @@ Route::prefix('{fulfilmentCustomer}')->as('show')->group(function () {
     Route::get('orders/{order}', [ShowOrder::class, 'inCustomerInShop'])->name('.orders.show');
 
     Route::prefix('web-users')->as('.web-users.')->group(function () {
-        Route::get('', [IndexWebUsers::class, 'inCustomerInShop'])->name('index');
+        Route::get('', [IndexWebUsers::class, 'inFulfilmentCustomer'])->name('index');
         Route::get('create', [CreateWebUser::class,'inFulfilmentCustomer'])->name('create');
         Route::prefix('{webUser}')->group(function () {
             Route::get('', [ShowWebUser::class, 'inFulfilmentCustomer'])->name('show');
-            Route::get('edit', [EditWebUser::class, 'inCustomerInShop'])->name('edit');
+            Route::get('edit', [EditWebUser::class, 'inFulfilmentCustomer'])->name('edit');
         });
     });
 

@@ -15,10 +15,14 @@ class WebUsersResource extends JsonResource
     public function toArray($request): array
     {
         /** @var WebUser $webUser */
-        $webUser=$this;
+        $webUser = $this;
+
         return [
-           'username'=> $webUser->username,
-           'status'  => $webUser->status
+            'slug'     => $webUser->slug,
+            'username' => $webUser->username,
+            'status'   => $webUser->status,
+            'email'    => $webUser->email,
+            'is_root'  => $webUser->is_root
 
         ];
     }
