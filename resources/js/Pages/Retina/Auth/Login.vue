@@ -28,7 +28,7 @@ onMounted(async () => {
 
 </script>
 
-<template layout="RetinaLayout">
+<template layout="RetinaAuthLayout">
     <Head title="Login"/>
     <form class="space-y-6" @submit.prevent="submit">
         <div>

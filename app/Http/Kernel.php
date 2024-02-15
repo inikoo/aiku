@@ -20,6 +20,7 @@ use App\Http\Middleware\ForceJsonResponse;
 use App\Http\Middleware\HandleIrisInertiaRequests;
 use App\Http\Middleware\ResetUserPasswordMiddleware;
 use App\Http\Middleware\ResetWebUserPasswordMiddleware;
+use App\Http\Middleware\RetinaAuthenticate;
 use App\Http\Middleware\SetLocale;
 use App\Http\Middleware\HandleInertiaGrpRequests;
 use App\Http\Middleware\PreventRequestsDuringMaintenance;
@@ -155,15 +156,10 @@ class Kernel extends HttpKernel
 
     ];
 
-    /**
-     * The application's route middleware.
-     *
-     * These middleware may be assigned to groups or used individually.
-     *
-     * @var array<string, class-string|string>
-     */
+
     protected $routeMiddleware = [
         'auth'              => Authenticate::class,
+        'retina-auth'       => RetinaAuthenticate::class,
         'auth.basic'        => AuthenticateWithBasicAuth::class,
         'auth.session'      => AuthenticateSession::class,
         'cache.headers'     => SetCacheHeaders::class,

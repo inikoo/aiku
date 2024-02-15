@@ -7,6 +7,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Http\Resources\Web\WebsiteResource;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 use Tightenco\Ziggy\Ziggy;
@@ -23,6 +24,7 @@ class HandleRetinaInertiaRequests extends Middleware
                 'location' => $request->url(),
             ]);
         };
+        data_set($firstLoadOnlyProps, 'website', WebsiteResource::make($request->get('website'))->getArray());
 
 
         return array_merge(

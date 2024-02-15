@@ -5,7 +5,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-Route::middleware(["auth:retina"])->group(function () {
+Route::middleware(["retina-auth:retina"])->group(function () {
     Route::get('/', function () {
         return redirect('/app/dashboard');
     })->name('home');
@@ -15,5 +15,5 @@ Route::middleware(["auth:retina"])->group(function () {
             ->name("dashboard.")
             ->group(__DIR__."/dashboard.php");
     });
-    require __DIR__."/auth.php";
 });
+require __DIR__."/auth.php";

@@ -9,6 +9,7 @@ namespace App\Actions\SysAdmin\WebUser\UI;
 
 use Inertia\Inertia;
 use Inertia\Response;
+use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsController;
 
 class ShowLogin
@@ -16,9 +17,9 @@ class ShowLogin
     use AsController;
 
 
-    public function handle(): Response
+    public function handle(ActionRequest $request): Response
     {
-        return Inertia::render('SysAdmin/Login');
+        return Inertia::render('Auth/Login');
     }
 
 }

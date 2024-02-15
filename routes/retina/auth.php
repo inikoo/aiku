@@ -13,15 +13,15 @@ use App\Actions\SysAdmin\WebUser\UI\ShowResetWebUserPassword;
 use App\Actions\SysAdmin\WebUser\UpdateWebUserPassword;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware('guest:customer')->group(function () {
-    Route::get('login', ShowLogin::class)->name('login');
+Route::middleware('guest:retina')->group(function () {
+    Route::get('login', ShowLogin::class)->name('login.show');
     //Route::post('login', Login::class)->name('login.store');
     //Route::get('register', ShowRegister::class)->name('register');
     //Route::post('register', Register::class);
 
 });
 
-Route::middleware('auth')->group(function () {
+Route::middleware('retina-auth:retina')->group(function () {
     Route::post('logout', Logout::class)->name('logout');
     Route::get('reset/password', ShowResetWebUserPassword::class)->name('reset-password.edit');
     Route::patch('reset/password', UpdateWebUserPassword::class)->name('reset-password.update');
