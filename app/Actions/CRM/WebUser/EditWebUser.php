@@ -9,8 +9,8 @@ namespace App\Actions\CRM\WebUser;
 
 use App\Actions\InertiaAction;
 use App\Models\CRM\Customer;
+use App\Models\CRM\WebUser;
 use App\Models\Market\Shop;
-use App\Models\SysAdmin\WebUser;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;

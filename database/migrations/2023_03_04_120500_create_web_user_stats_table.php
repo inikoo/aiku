@@ -1,8 +1,8 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Sat, 11 Nov 2023 23:23:00 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Thu, 15 Feb 2024 03:53:33 Mex Time, Mexico City, Mexico
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
 use App\Stubs\Migrations\HasUserStats;
@@ -14,10 +14,10 @@ return new class () extends Migration {
     use HasUserStats;
     public function up(): void
     {
-        Schema::create('user_stats', function (Blueprint $table) {
+        Schema::create('web_user_stats', function (Blueprint $table) {
             $table->smallIncrements('id');
-            $table->unsignedSmallInteger('user_id')->index();
-            $table->foreign('user_id')->references('id')->on('users');
+            $table->unsignedSmallInteger('web_user_id')->index();
+            $table->foreign('web_user_id')->references('id')->on('web_users');
             $table=$this->userStats($table);
             $table->timestampsTz();
         });
@@ -25,6 +25,6 @@ return new class () extends Migration {
 
     public function down(): void
     {
-        Schema::dropIfExists('user_stats');
+        Schema::dropIfExists('web_user_stats');
     }
 };

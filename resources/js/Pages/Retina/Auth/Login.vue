@@ -13,7 +13,7 @@ const form = useForm({
                      });
 
 const submit = () => {
-    form.post(route('grp.login.show'), {
+    form.post(route('retina.login.store'), {
         onFinish: () => form.reset('password'),
     });
 };

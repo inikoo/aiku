@@ -1,25 +1,27 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Mon, 04 Dec 2023 16:30:16 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Thu, 15 Feb 2024 17:55:39 Malaysia Time, Mexico City, Mexico
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Models\SysAdmin;
+namespace App\Models\CRM;
 
 use App\Enums\CRM\WebUser\WebUserAuthTypeEnum;
 use App\Enums\CRM\WebUser\WebUserTypeEnum;
-use App\Models\CRM\Customer;
 use App\Models\Market\Shop;
+use App\Models\SysAdmin\IsWebUser;
+use App\Models\SysAdmin\Organisation;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Support\Carbon;
 
 /**
- * App\Models\SysAdmin\WebUser
+ * App\Models\CRM\WebUser
  *
  * @property int $id
  * @property int $group_id
@@ -92,5 +94,9 @@ class WebUser extends Authenticatable
         return $this->belongsTo(Organisation::class);
     }
 
+    public function stats(): HasOne
+    {
+        return $this->hasOne(WebUserStats::class);
+    }
 
 }

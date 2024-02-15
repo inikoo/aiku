@@ -65,7 +65,7 @@ class AppServiceProvider extends ServiceProvider
                 'Product'         => 'App\Models\Market\Product',
                 'HistoricProduct' => 'App\Models\Market\HistoricProduct',
                 'Supplier'        => 'App\Models\SupplyChain\Supplier',
-                'WebUser'         => 'App\Models\SysAdmin\WebUser',
+                'WebUser'         => 'App\Models\CRM\WebUser',
                 'Order'           => 'App\Models\OMS\Order',
                 'Agent'           => 'App\Models\SupplyChain\Agent',
                 'TradeUnit'       => 'App\Models\Goods\TradeUnit',

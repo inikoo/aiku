@@ -61,5 +61,5 @@ pg_dump -Fc -f "devops/devel/snapshots/shops.dump" ${DB}
 php artisan workplace:create awa "Beach bar" hq
 php artisan workplace:create inikoo "Office B" hq
 
-php artisan customer:store java
+php artisan customer:create java --contact_name 'Mr Retina'
 php artisan pallet-delivery:import -g aiku/data-sets/pallet-deliveries

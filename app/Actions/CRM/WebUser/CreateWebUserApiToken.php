@@ -7,8 +7,8 @@
 
 namespace App\Actions\CRM\WebUser;
 
+use App\Models\CRM\WebUser;
 use App\Models\SysAdmin\Organisation;
-use App\Models\SysAdmin\WebUser;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;

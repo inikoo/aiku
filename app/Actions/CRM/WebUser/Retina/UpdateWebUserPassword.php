@@ -1,16 +1,16 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Mon, 16 Oct 2023 15:27:31 Malaysia Time, Office, Bali, Indonesia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Thu, 15 Feb 2024 17:08:57 Malaysia Time, Mexico City, Mexico
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\SysAdmin\WebUser;
+namespace App\Actions\CRM\WebUser\Retina;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
+use App\Models\CRM\WebUser;
 use App\Models\SysAdmin\Organisation;
-use App\Models\SysAdmin\WebUser;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Session;

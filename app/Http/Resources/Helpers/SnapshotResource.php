@@ -11,7 +11,6 @@ use App\Enums\Helpers\Snapshot\SnapshotStateEnum;
 use App\Http\Resources\HasSelfCall;
 use App\Models\Helpers\Snapshot;
 use App\Models\SysAdmin\User;
-use App\Models\SysAdmin\WebUser;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class SnapshotResource extends JsonResource
@@ -35,7 +34,7 @@ class SnapshotResource extends JsonResource
         if ($snapshot->publisher_id) {
             switch ($snapshot->publisher_type) {
                 case 'WebUser':
-                    /** @var WebUser $webUser */
+                    /** @var \App\Models\CRM\WebUser $webUser */
                     $webUser = $snapshot->publisher;
 
                     $publisher       = $webUser->contact_name;

@@ -7,6 +7,10 @@
 
 namespace App\Actions\SysAdmin;
 
+use App\Actions\Elasticsearch\IndexElasticsearchDocument;
+use App\Enums\Elasticsearch\ElasticsearchUserRequestTypeEnum;
+use hisorange\BrowserDetect\Parser as Browser;
+use Illuminate\Support\Carbon;
 use Stevebauman\Location\Facades\Location;
 
 trait WithLogRequest
@@ -75,4 +79,37 @@ trait WithLogRequest
 
         return $parsedUserAgent->platformName();
     }
+
+
+    public function logFail(string $index, Carbon $datetime, string $ip, string $userAgent, string $username, ?int $userID): void
+    {
+        $index = config('elasticsearch.index_prefix').$index;
+
+        $parsedUserAgent = (new Browser())->parse($userAgent);
+
+        $body = [
+            'type'                 => ElasticsearchUserRequestTypeEnum::FAIL_LOGIN->value,
+            'datetime'             => $datetime,
+            'username'             => $username,
+            'organisation_user_id' => $userID,
+            'ip_address'           => $ip,
+            'location'             => json_encode($this->getLocation($ip)), // reference: https://github.com/stevebauman/location
+            'user_agent'           => $userAgent,
+            'device_type'          => json_encode([
+                'title' => $parsedUserAgent->deviceType(),
+                'icon'  => $this->getDeviceIcon($parsedUserAgent->deviceType())
+            ]),
+            'platform'             => json_encode([
+                'title' => $this->detectWindows11($parsedUserAgent),
+                'icon'  => $this->getPlatformIcon($this->detectWindows11($parsedUserAgent))
+            ]),
+            'browser'              => json_encode([
+                'title' => explode(' ', $parsedUserAgent->browserName())[0],
+                'icon'  => $this->getBrowserIcon(strtolower($parsedUserAgent->browserName()))
+            ])
+        ];
+
+        IndexElasticsearchDocument::run(index: $index, body: $body);
+    }
+
 }

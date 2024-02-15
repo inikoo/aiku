@@ -9,6 +9,7 @@ namespace App\Actions\CRM\Customer;
 
 use App\Actions\CRM\Customer\Hydrators\CustomerHydrateUniversalSearch;
 use App\Actions\Fulfilment\FulfilmentCustomer\StoreFulfilmentCustomer;
+use App\Actions\Helpers\Address\ParseCountryID;
 use App\Actions\Helpers\Address\StoreAddressAttachToModel;
 use App\Actions\Helpers\SerialReference\GetSerialReference;
 use App\Actions\Helpers\TaxNumber\StoreTaxNumber;
@@ -25,6 +26,7 @@ use App\Models\Market\Shop;
 use App\Models\SysAdmin\Organisation;
 use App\Rules\IUnique;
 use App\Rules\ValidAddress;
+use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
@@ -39,8 +41,8 @@ class StoreCustomer extends OrgAction
 {
     use AsCommand;
 
-    public string $commandSignature = 'customer:store {shop}';
 
+    private bool $strict;
 
     public function handle(Shop $shop, array $modelData): Customer
     {
@@ -205,33 +207,58 @@ class StoreCustomer extends OrgAction
     public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): Customer
     {
         $this->initialisationFromShop($shop, $request);
+
         return $this->handle($shop, $this->validatedData);
     }
 
-    public function action(Shop $shop, array $modelData, int $hydratorsDelay = 0, bool $strict=true): Customer
+    public function action(Shop $shop, array $modelData, int $hydratorsDelay = 0, bool $strict = true): Customer
     {
         $this->asAction       = true;
         $this->hydratorsDelay = $hydratorsDelay;
         $this->strict         = $strict;
         $this->initialisationFromShop($shop, $modelData);
+
         return $this->handle($shop, $this->validatedData);
     }
+
+    public string $commandSignature = 'customer:create {shop} {--contact_name=} {--company_name=} {--email=} {--phone=}  {--contact_website=} {--country=} ';
 
     public function asCommand(Command $command): int
     {
         $this->asAction = true;
-        $shop           = Shop::where('slug', $command->argument('shop'))->firstOrFail();
+        $this->strict   = true;
 
-        $modelData = Customer::factory()->definition();
+        try {
+            $shop = Shop::where('slug', $command->argument('shop'))->firstOrFail();
+        } catch (Exception) {
+            $command->error('Shop not found');
+
+            return 1;
+        }
+
+        $address = [
+            'country_id' => $shop->country_id
+        ];
+
+        if ($command->option('country')) {
+            $address['country_id'] = ParseCountryID::run($command->option('country'));
+        }
+
+
+        $modelData = [
+            'contact_name'    => $command->option('contact_name'),
+            'company_name'    => $command->option('company_name'),
+            'email'           => $command->option('email'),
+            'phone'           => $command->option('phone'),
+            'contact_website' => $command->option('contact_website'),
+            'contact_address' => $address
+        ];
 
         $this->initialisationFromShop($shop, $modelData);
 
-        $arrayData = array_merge($this->validatedData, [
-            'is_fulfilment' => true,
-        ]);
-        $customer = $this->handle($shop, $arrayData);
+        $customer = $this->handle($shop, $this->validatedData);
 
-        echo "Customer $customer->reference created 🎉" . "\n";
+        echo "Customer $customer->reference created 🎉"."\n";
 
         return 0;
     }

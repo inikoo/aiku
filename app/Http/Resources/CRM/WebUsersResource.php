@@ -7,7 +7,7 @@
 
 namespace App\Http\Resources\CRM;
 
-use App\Models\SysAdmin\WebUser;
+use App\Models\CRM\WebUser;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class WebUsersResource extends JsonResource

@@ -12,9 +12,9 @@ use App\Actions\OrgAction;
 use App\Enums\CRM\WebUser\WebUserAuthTypeEnum;
 use App\Enums\CRM\WebUser\WebUserTypeEnum;
 use App\Models\CRM\Customer;
+use App\Models\CRM\WebUser;
 use App\Models\Market\Shop;
 use App\Models\SysAdmin\Organisation;
-use App\Models\SysAdmin\WebUser;
 use App\Rules\IUnique;
 use Exception;
 use Illuminate\Console\Command;
@@ -26,7 +26,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class StoreWebUser extends OrgAction
 {
-    private Customer|\Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Model $customer;
+    private Customer $customer;
 
     public function handle(Customer $customer, array $modelData): Webuser
     {
@@ -40,7 +40,7 @@ class StoreWebUser extends OrgAction
         if (Arr::exists($modelData, 'password')) {
             $modelData['password'] = Hash::make($modelData['password']);
         }
-        /** @var \App\Models\SysAdmin\WebUser $webUser */
+        /** @var \App\Models\CRM\WebUser $webUser */
         $webUser = $customer->webUsers()->create(
             array_merge(
                 $modelData,
@@ -49,6 +49,7 @@ class StoreWebUser extends OrgAction
                 ]
             )
         );
+        $webUser->stats()->create();
         CustomerHydrateWebUsers::dispatch($customer);
 
         return $webUser;

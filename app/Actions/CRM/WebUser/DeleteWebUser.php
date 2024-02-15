@@ -9,7 +9,7 @@ namespace App\Actions\CRM\WebUser;
 
 use App\Actions\CRM\Customer\Hydrators\CustomerHydrateWebUsers;
 use App\Actions\Traits\WithActionUpdate;
-use App\Models\SysAdmin\WebUser;
+use App\Models\CRM\WebUser;
 use Illuminate\Console\Command;
 
 class DeleteWebUser

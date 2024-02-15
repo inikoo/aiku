@@ -1,7 +1,7 @@
 <?php
 
+use App\Models\CRM\WebUser;
 use App\Models\SysAdmin\User;
-use App\Models\SysAdmin\WebUser;
 
 return [
 

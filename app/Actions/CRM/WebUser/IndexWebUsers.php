@@ -14,12 +14,13 @@ use App\Actions\Web\Website\UI\ShowWebsite;
 use App\Http\Resources\CRM\WebUsersResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\CRM\Customer;
+use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
-use App\Models\SysAdmin\Organisation;
 use App\Models\Market\Shop;
-use App\Models\SysAdmin\WebUser;
+use App\Models\SysAdmin\Organisation;
 use App\Models\Web\Website;
+use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -27,7 +28,6 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
-use App\Services\QueryBuilder;
 
 class IndexWebUsers extends OrgAction
 {

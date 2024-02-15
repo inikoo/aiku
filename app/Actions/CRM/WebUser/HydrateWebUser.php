@@ -8,7 +8,7 @@
 namespace App\Actions\CRM\WebUser;
 
 use App\Actions\HydrateModel;
-use App\Models\SysAdmin\WebUser;
+use App\Models\CRM\WebUser;
 use Illuminate\Support\Collection;
 
 class HydrateWebUser extends HydrateModel
