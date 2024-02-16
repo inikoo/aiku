@@ -11,12 +11,12 @@ use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
-use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStatusEnum;
 use App\Http\Resources\Fulfilment\PalletDeliveriesResource;
+use App\Http\Resources\Fulfilment\PalletReturnsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
-use App\Models\Fulfilment\PalletDelivery;
+use App\Models\Fulfilment\PalletReturn;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
@@ -88,16 +88,14 @@ class IndexPalletReturns extends OrgAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        $queryBuilder = QueryBuilder::for(PalletDelivery::class);
-
-        $queryBuilder->where('status', PalletDeliveryStatusEnum::OUT);
+        $queryBuilder = QueryBuilder::for(PalletReturn::class);
 
         if($parent instanceof Fulfilment) {
-            $queryBuilder->where('pallet_deliveries.fulfilment_id', $parent->id);
+            $queryBuilder->where('pallet_returns.fulfilment_id', $parent->id);
         } elseif($parent instanceof Warehouse) {
-            $queryBuilder->where('pallet_deliveries.warehouse_id', $parent->id);
+            $queryBuilder->where('pallet_returns.warehouse_id', $parent->id);
         } else {
-            $queryBuilder->where('pallet_deliveries.fulfilment_customer_id', $parent->id);
+            $queryBuilder->where('pallet_returns.fulfilment_customer_id', $parent->id);
         }
 
         return $queryBuilder
@@ -170,22 +168,22 @@ class IndexPalletReturns extends OrgAction
         }
 
         return Inertia::render(
-            'Org/Fulfilment/PalletDeliveries',
+            'Org/Fulfilment/PalletReturns',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
-                'title'       => __('pallet deliveries'),
+                'title'       => __('pallet returns'),
                 'pageHead'    => [
-                    'title'     => __('deliveries'),
+                    'title'     => __('returns'),
                     'container' => $container,
                     'iconRight' => [
                         'icon'  => ['fal', 'fa-truck-couch'],
                         'title' => __('delivery')
                     ]
                 ],
-                'data'        => PalletDeliveriesResource::collection($customers),
+                'data'        => PalletReturnsResource::collection($customers),
 
             ]
         )->table($this->tableStructure($this->parent));
@@ -200,7 +198,7 @@ class IndexPalletReturns extends OrgAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => $routeParameters,
-                        'label' => __('deliveries'),
+                        'label' => __('returns'),
                         'icon'  => 'fal fa-bars'
                     ],
                 ],
@@ -210,35 +208,35 @@ class IndexPalletReturns extends OrgAction
 
         return match ($routeName) {
 
-            'grp.org.fulfilments.show.crm.customers.show.pallet-deliveries.index'=> array_merge(
+            'grp.org.fulfilments.show.crm.customers.show.pallet-returns.index'=> array_merge(
                 ShowFulfilmentCustomer::make()->getBreadcrumbs(
                     $routeParameters
                 ),
                 $headCrumb(
                     [
-                        'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet-deliveries.index',
+                        'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet-returns.index',
                         'parameters' => Arr::only($routeParameters, ['organisation','fulfilment','fulfilmentCustomer'])
                     ]
                 )
             ),
-            'grp.org.fulfilments.show.operations.pallet-deliveries.index' => array_merge(
+            'grp.org.fulfilments.show.operations.pallet-returns.index' => array_merge(
                 ShowFulfilment::make()->getBreadcrumbs(
                     $routeParameters
                 ),
                 $headCrumb(
                     [
-                        'name'       => 'grp.org.fulfilments.show.operations.pallet-deliveries.index',
+                        'name'       => 'grp.org.fulfilments.show.operations.pallet-returns.index',
                         'parameters' => Arr::only($routeParameters, ['organisation','fulfilment'])
                     ]
                 )
             ),
-            'grp.org.warehouses.show.fulfilment.pallet-deliveries.index' => array_merge(
+            'grp.org.warehouses.show.fulfilment.pallet-returns.index' => array_merge(
                 ShowWarehouse::make()->getBreadcrumbs(
                     $routeParameters
                 ),
                 $headCrumb(
                     [
-                        'name'       => 'grp.org.warehouses.show.fulfilment.pallet-deliveries.index',
+                        'name'       => 'grp.org.warehouses.show.fulfilment.pallet-returns.index',
                         'parameters' => Arr::only($routeParameters, ['organisation','warehouse'])
                     ]
                 )

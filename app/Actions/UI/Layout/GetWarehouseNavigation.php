@@ -154,6 +154,15 @@ class GetWarehouseNavigation
                                 'parameters' => [$warehouse->organisation->slug, $warehouse->slug]
                             ],
                         ],
+                        [
+                            'label'   => __('Returns'),
+                            'tooltip' => __('returns'),
+                            'icon'    => ['fal', 'fa-truck'],
+                            'route'   => [
+                                'name'       => 'grp.org.warehouses.show.fulfilment.pallet-returns.index',
+                                'parameters' => [$warehouse->organisation->slug, $warehouse->slug]
+                            ],
+                        ],
 
 
                     ]
