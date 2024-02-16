@@ -39,6 +39,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $warehouse_area_id
  * @property int|null $location_id
  * @property int|null $pallet_delivery_id
+ * @property int|null $pallet_return_id
  * @property PalletStatusEnum $status
  * @property PalletStateEnum $state
  * @property PalletTypeEnum $type

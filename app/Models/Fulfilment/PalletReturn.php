@@ -7,7 +7,6 @@
 
 namespace App\Models\Fulfilment;
 
-use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Models\CRM\Customer;
 use App\Models\Inventory\Warehouse;
@@ -36,12 +35,13 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $number_pallets
  * @property int $number_pallet_stored_items
  * @property int $number_stored_items
- * @property PalletDeliveryStateEnum $state
+ * @property PalletReturnStateEnum $state
  * @property string|null $booked_in_at
  * @property string|null $settled_at
  * @property \Illuminate\Support\Carbon|null $in_process_at
  * @property \Illuminate\Support\Carbon|null $submitted_at
  * @property \Illuminate\Support\Carbon|null $confirmed_at
+ * @property \Illuminate\Support\Carbon|null $in_delivery_at
  * @property \Illuminate\Support\Carbon|null $received_at
  * @property \Illuminate\Support\Carbon|null $done_at
  * @property string|null $dispatched_at
@@ -58,12 +58,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\Pallet> $pallets
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
  * @property-read Warehouse|null $warehouse
- * @method static \Illuminate\Database\Eloquent\Builder|PalletDelivery newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|PalletDelivery newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|PalletDelivery onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|PalletDelivery query()
- * @method static \Illuminate\Database\Eloquent\Builder|PalletDelivery withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|PalletDelivery withoutTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|PalletReturn newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|PalletReturn newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|PalletReturn onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|PalletReturn query()
+ * @method static \Illuminate\Database\Eloquent\Builder|PalletReturn withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|PalletReturn withoutTrashed()
  * @mixin \Eloquent
  */
 

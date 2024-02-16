@@ -43,7 +43,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $confirmed_at
  * @property \Illuminate\Support\Carbon|null $received_at
  * @property \Illuminate\Support\Carbon|null $done_at
- * @property string|null $dispatched_at
  * @property string|null $date
  * @property array|null $data
  * @property \Illuminate\Support\Carbon|null $created_at
