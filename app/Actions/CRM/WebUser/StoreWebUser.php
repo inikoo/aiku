@@ -89,6 +89,7 @@ class StoreWebUser extends OrgAction
                 'string',
 
             ],
+            'is_root'    => ['required', 'boolean'],
             'data'       => ['sometimes', 'array'],
             'created_at' => ['sometimes', 'date'],
             'deleted_at' => ['sometimes', 'nullable', 'date'],
@@ -154,6 +155,7 @@ class StoreWebUser extends OrgAction
             return 1;
         }
 
+        $this->customer=$customer;
 
         if ($command->option('password')) {
             $password = $command->option('password');
@@ -169,10 +171,11 @@ class StoreWebUser extends OrgAction
             'username' => $command->argument('username'),
             'password' => $password,
             'email'    => $command->option('email'),
-            'type'     => WebUserTypeEnum::WEB
+            'type'     => WebUserTypeEnum::WEB,
+            'is_root'  => !$this->customer->hasUsers()
         ];
 
-        $this->customer = $customer;
+
         $this->initialisationFromShop($customer->shop, $data);
 
         $webUser = $this->handle($customer, $this->validatedData);
