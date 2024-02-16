@@ -11,7 +11,6 @@ use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
-use App\Http\Resources\Fulfilment\PalletDeliveriesResource;
 use App\Http\Resources\Fulfilment\PalletReturnsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\Fulfilment;
@@ -143,12 +142,12 @@ class IndexPalletReturns extends OrgAction
         };
     }
 
-    public function jsonResponse(LengthAwarePaginator $customers): AnonymousResourceCollection
+    public function jsonResponse(LengthAwarePaginator $palletReturns): AnonymousResourceCollection
     {
-        return PalletDeliveriesResource::collection($customers);
+        return PalletReturnsResource::collection($palletReturns);
     }
 
-    public function htmlResponse(LengthAwarePaginator $customers, ActionRequest $request): Response
+    public function htmlResponse(LengthAwarePaginator $palletReturns, ActionRequest $request): Response
     {
         $container = null;
         if($this->parent instanceof Fulfilment) {
@@ -183,7 +182,7 @@ class IndexPalletReturns extends OrgAction
                         'title' => __('delivery')
                     ]
                 ],
-                'data'        => PalletReturnsResource::collection($customers),
+                'data'        => PalletReturnsResource::collection($palletReturns),
 
             ]
         )->table($this->tableStructure($this->parent));

@@ -1,84 +1,84 @@
 <!--
   - Author: Raul Perusquia <raul@inikoo.com>
-  - Created: Mon, 20 Mar 2023 23:18:59 Malaysia Time, Kuala Lumpur, Malaysia
-  - Copyright (c) 2023, Raul A Perusquia Flores
+  - Created: Thu, 25 Jan 2024 11:46:16 Malaysia Time, Bali Office, Indonesia
+  - Copyright (c) 2024, Raul A Perusquia Flores
   -->
 
-  <script setup lang="ts">
-  import {Link,useForm} from '@inertiajs/vue3';
-  import Table from '@/Components/Table/Table.vue';
-  import AddressLocation from "@/Components/Elements/Info/AddressLocation.vue";
-  import Icon from '@/Components/Icon.vue'
-  import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
-  import { library } from "@fortawesome/fontawesome-svg-core";
-  import { faTrashAlt } from '@far';
-  import { faSignOutAlt } from '@fal';
-  import Checkbox from '../Checkbox.vue';
-  
-  library.add(
-      faTrashAlt,faSignOutAlt
-  )
-  const props = defineProps<{
-      data: object,
-      tab?:string
-      form: object
-  }>()
-  
-  
-  function customerRoute(pallet: Customer) {
-      switch (route().current()) {
-          case  'grp.org.warehouses.show.fulfilment.pallets.index':
-              return route(
-                  'grp.org.warehouses.show.fulfilment.pallets.show',
-                  [
-                      route().params['organisation'],
-                      route().params['warehouse'],
-                      pallet['id']
-                  ]);
-  
-          case  'grp.org.warehouses.show.infrastructure.locations.show':
-              return route(
-                  'grp.org.warehouses.show.infrastructure.locations.show.pallets.show',
-                  [
-                      route().params['organisation'],
-                      route().params['warehouse'],
-                      route().params['location'],
-                      pallet['id']
-                  ]);
-  
-          default:
-              return route(
-                  'grp.org.fulfilments.show.crm.customers.show.pallets.show',
-                  [
-                      route().params['organisation'],
-                      route().params['fulfilment'],
-                      route().params['fulfilmentCustomer'],
-                      pallet['id']
-                  ]);
-      }
-  }
-  
-  </script>
-  
-  <template>
-      <Table :resource="data" :name="tab" class="mt-5">
-          <template #cell(reference)="{ item: pallet }">
-              <Link :href="customerRoute(pallet)" class="specialUnderline">
-                  {{ pallet['reference'] }}
-              </Link>
-          </template>
-          <template #cell(location)="{ item: pallet }">
-              <AddressLocation v-if="pallet['location']" :data="pallet['location']"/>
-          </template>
-          <template #cell(state)="{ item: pallet }">
-              <Icon :data="pallet['state_icon']" class="px-1"/>
-          </template>
-          <template #cell(actions)="{ item: actions }">
-          <div> 
-              <input type="checkbox" :id="actions.id"  :value="actions.id" v-model="form.pallet"  
-              class="h-6 w-6 rounded cursor-pointer border-gray-300 hover:border-indigo-500 text-indigo-600 focus:ring-gray-600">
-          </div>
-          </template>
-      </Table>
-  </template>
-  
+<script setup lang="ts">
+import { Link } from "@inertiajs/vue3"
+import Table from "@/Components/Table/Table.vue"
+import Button from "@/Components/Elements/Buttons/Button.vue"
+import { library } from "@fortawesome/fontawesome-svg-core"
+import { faPlus } from "@fas"
+
+import { PalletReturn } from "@/types/pallet-delivery";
+import Icon from "@/Components/Icon.vue";
+
+library.add(faPlus)
+
+const props = defineProps<{
+    data: object
+    tab?: string
+}>()
+
+function palletReturnRoute(palletReturn: PalletReturn) {
+    switch (route().current()) {
+        case 'grp.org.warehouses.show.fulfilment.pallet-returns.index':
+            return route(
+                'grp.org.warehouses.show.fulfilment.pallet-returns.show',
+                [
+                    route().params['organisation'],
+                    route().params['warehouse'],
+                    palletReturn.slug
+                ]);
+        case 'grp.org.fulfilments.show.operations.pallet-returns.index':
+            return route(
+                'grp.org.fulfilments.show.operations.pallet-returns.show',
+                [
+                    route().params['organisation'],
+                    route().params['fulfilment'],
+                    palletReturn.slug
+                ]);
+        default:
+            return route(
+                'grp.org.fulfilments.show.crm.customers.show.pallet-returns.show',
+                [
+                    route().params['organisation'],
+                    route().params['fulfilment'],
+                    route().params['fulfilmentCustomer'],
+                    palletReturn.slug
+                ]);
+    }
+}
+
+
+
+</script>
+
+<template>
+    <Table :resource="data" :name="tab" class="mt-5">
+        <template #cell(reference)="{ item: palletReturn }">
+            <Link :href="palletReturnRoute(palletReturn)" class="specialUnderline">
+                {{ palletReturn['reference'] }}
+            </Link>
+        </template>
+
+        <template #cell(state)="{ item: palletReturn }">
+            <Icon :data="palletReturn['state_icon']" class="px-1"/>
+        </template>
+
+        <template #buttonreturns="{ linkButton: linkButton }">
+            <Link
+                v-if="linkButton?.route?.name"
+                method="post"
+                :href="route(linkButton?.route?.name, linkButton?.route?.parameters)"
+                class="ring-1 ring-gray-300 overflow-hidden first:rounded-l last:rounded-r">
+                <Button
+                    :style="linkButton.style"
+                    :label="linkButton.label"
+                    class="h-full capitalize inline-flex items-center rounded-none text-sm border-none font-medium shadow-sm focus:ring-transparent focus:ring-offset-transparent focus:ring-0">
+                </Button>
+            </Link>
+        </template>
+    </Table>
+</template>

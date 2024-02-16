@@ -66,7 +66,7 @@ const component = computed(() => {
         history: ModelChangelog,
         dispatched_emails: TableDispatchedEmails,
         pallet_deliveries: TablePalletDeliveries,
-        pallet_returns: TablePalletDeliveries
+        pallet_returns: TablePalletReturn
 
     };
     return components[currentTab.value];
@@ -83,6 +83,7 @@ import {
 import AgentShowcase from "@/Pages/Procurement/AgentShowcase.vue";
 import TableStoredItems from "@/Components/Tables/TableStoredItems.vue";
 import { router } from '@inertiajs/vue3'
+import TablePalletReturn from "@/Components/Tables/TablePalletReturn.vue";
 
 
 const isOpen = ref(false);

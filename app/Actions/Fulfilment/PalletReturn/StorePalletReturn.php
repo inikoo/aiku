@@ -130,11 +130,11 @@ class StorePalletReturn extends OrgAction
         ]));
     }
 
-    public string $commandSignature = 'pallet-returns:create {fulfillment-customer}';
+    public string $commandSignature = 'pallet-returns:create {fulfilment-customer}';
 
     public function asCommand(Command $command): int
     {
-        $this->asAction = true;
+        $this->action = true;
 
         try {
             $fulfilmentCustomer = FulfilmentCustomer::where('slug', $command->argument('fulfilment-customer'))->firstOrFail();
@@ -153,7 +153,7 @@ class StorePalletReturn extends OrgAction
 
         $palletReturn = $this->handle($fulfilmentCustomer, modelData: $this->validatedData);
 
-        $command->info("Pallet delivery $palletReturn->reference created successfully 🎉");
+        $command->info("Pallet return $palletReturn->reference created successfully 🎉");
 
         return 0;
     }

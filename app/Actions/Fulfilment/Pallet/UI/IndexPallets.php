@@ -53,7 +53,7 @@ class IndexPallets extends OrgAction
         ];
     }
 
-    public function handle(Organisation|FulfilmentCustomer|Location|Fulfilment|Warehouse|PalletDelivery $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Organisation|FulfilmentCustomer|Location|Fulfilment|Warehouse|PalletDelivery|PalletReturn $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -94,6 +94,9 @@ class IndexPallets extends OrgAction
                 break;
             case "PalletDelivery":
                 $query->where('pallet_delivery_id', $parent->id);
+                break;
+            case "PalletReturn":
+                $query->where('pallet_return_id', $parent->id);
                 break;
             default:
                 $query->where('group_id', app('group')->id);

@@ -7,6 +7,7 @@
 
 namespace App\Http\Resources\Fulfilment;
 
+use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class PalletReturnResource extends JsonResource
@@ -15,16 +16,23 @@ class PalletReturnResource extends JsonResource
     {
         /** @var \App\Models\Fulfilment\PalletReturn $palletReturn */
         $palletReturn = $this;
+        $timeline     = [];
+        foreach (PalletReturnStateEnum::cases() as $state) {
+            $timeline[] = [
+                'label'   => $state->labels()[$state->value],
+                'tooltip' => $state->labels()[$state->value],
+                'key'     => $state->value,
+               /*  'icon'      => $palletReturn->state->stateIcon()[$state->value]['icon'], */
+                'timestamp' => $palletReturn->{$state->snake() . '_at'} ? $palletReturn->{$state->snake() . '_at'}->toISOString() : null
+            ];
+        }
 
         return [
-            'slug'               => $palletReturn->slug,
-            'reference'          => $palletReturn->reference,
-            'state'              => $palletReturn->state,
-            'state_label'        => $palletReturn->state->labels()[$palletReturn->state->value],
-            'state_icon'         => $palletReturn->state->stateIcon()[$palletReturn->state->value],
-            'pallets'            => $palletReturn->number_pallets,
-            'customer_reference' => $palletReturn->customer_reference,
-            'number_pallets'     => $palletReturn->number_pallets
+            'id'               => $palletReturn->id,
+            'reference'        => $palletReturn->reference,
+            'state'            => $palletReturn->state,
+            'timeline'         => $timeline,
+            'number_pallets'   => $palletReturn->number_pallets,
         ];
     }
 }
