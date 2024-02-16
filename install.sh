@@ -62,4 +62,5 @@ php artisan workplace:create awa "Beach bar" hq
 php artisan workplace:create inikoo "Office B" hq
 
 php artisan customer:create java --contact_name 'Mr Retina'
+php artisan web-user:create mr-retina  aiku  -P hello --email ret@inikoo.com
 php artisan pallet-delivery:import -g aiku/data-sets/pallet-deliveries
