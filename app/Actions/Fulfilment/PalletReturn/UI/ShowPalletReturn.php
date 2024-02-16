@@ -129,7 +129,7 @@ class ShowPalletReturn extends OrgAction
                                     'style' => 'create',
                                     'label' => __('add pallet'),
                                     'route' => [
-                                        'name'       => 'grp.models.fulfilment-customer.pallet-delivery.pallet.store',
+                                        'name'       => 'grp.models.fulfilment-customer.pallet-returns.pallet.store',
                                         'parameters' => [
                                             'organisation'       => $palletReturn->organisation->slug,
                                             'fulfilment'         => $palletReturn->fulfilment->slug,
@@ -195,7 +195,8 @@ class ShowPalletReturn extends OrgAction
                     'navigation' => PalletReturnTabsEnum::navigation()
                 ],
 
-                'data' => PalletReturnResource::make($palletReturn),
+                'data'    => PalletReturnResource::make($palletReturn),
+                'pallets' => PalletsResource::collection(IndexPallets::run($palletReturn)),
 
                 PalletReturnTabsEnum::PALLETS->value => $this->tab == PalletReturnTabsEnum::PALLETS->value ?
                     fn () => PalletsResource::collection(IndexPallets::run($palletReturn))
