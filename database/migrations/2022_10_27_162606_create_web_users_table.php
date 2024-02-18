@@ -37,6 +37,10 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('number_api_tokens')->default(0);
             $table->jsonb('data');
             $table->jsonb('settings');
+            $table->boolean('reset_password')->default(false);
+            $table->unsignedSmallInteger('language_id')->default(68);
+            $table->foreign('language_id')->references('id')->on('languages');
+            $table->unsignedInteger('avatar_id')->nullable();
             $table->timestampsTz();
             $table->softDeletesTz();
             $table->unique(['website_id', 'email']);

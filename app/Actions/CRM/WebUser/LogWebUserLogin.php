@@ -1,25 +1,25 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Wed, 18 Oct 2023 12:26:29 Malaysia Time, Office, Bali, Indonesia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Fri, 16 Feb 2024 10:40:25 CST, Mexico City, Mexico
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\SysAdmin\User;
+namespace App\Actions\CRM\WebUser;
 
 use App\Actions\Traits\WithLogUserableLogin;
 use App\Enums\Elasticsearch\ElasticsearchUserRequestTypeEnum;
-use App\Models\SysAdmin\User;
+use App\Models\CRM\WebUser;
 use Illuminate\Support\Carbon;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class LogUserLogin
+class LogWebUserLogin
 {
     use AsAction;
     use WithLogUserableLogin;
 
 
-    public function handle(User $user, string $ip, string $userAgent, Carbon $datetime): void
+    public function handle(WebUser $webUser, string $ip, string $userAgent, Carbon $datetime): void
     {
         $this->logUserableLogin(
             config('elasticsearch.index_prefix').'web_users_requests',
@@ -27,16 +27,16 @@ class LogUserLogin
             $datetime,
             $ip,
             $userAgent,
-            $user
+            $webUser
         );
 
         $stats = [
             'last_login_at' => $datetime,
             'last_login_ip' => $ip,
-            'number_logins' => $user->stats->number_logins + 1
+            'number_logins' => $webUser->stats->number_logins + 1
         ];
 
-        $user->stats()->update($stats);
+        $webUser->stats()->update($stats);
 
 
     }

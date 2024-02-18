@@ -43,7 +43,7 @@ class StoreUser extends GrpAction
 
         $user->stats()->create();
         $user->refresh();
-        SetUserAvatar::dispatch(user: $user, saveHistory: false);
+        SetUserAvatar::dispatch(userable: $user, saveHistory: false);
         UserHydrateUniversalSearch::dispatch($user);
         GroupHydrateUsers::dispatch($user->group);
 

@@ -30,6 +30,7 @@ class StoreWebUser extends OrgAction
 
     public function handle(Customer $customer, array $modelData): Webuser
     {
+        data_set($modelData, 'language_id', $customer->shop->language_id, overwrite: false);
         data_set($modelData, 'group_id', $customer->group_id);
         data_set($modelData, 'organisation_id', $customer->organisation_id);
         data_set($modelData, 'shop_id', $customer->organisation_id);
@@ -50,6 +51,8 @@ class StoreWebUser extends OrgAction
             )
         );
         $webUser->stats()->create();
+        $webUser->refresh();
+        SetWebUserAvatar::dispatch(userable: $webUser, saveHistory: false);
         CustomerHydrateWebUsers::dispatch($customer);
 
         return $webUser;

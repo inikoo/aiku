@@ -7,30 +7,23 @@
 
 namespace App\Models\SysAdmin;
 
-use App\Actions\Helpers\Images\GetPictureSources;
 use App\Enums\SysAdmin\User\UserAuthTypeEnum;
 use App\Models\Assets\Language;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Inventory\Warehouse;
 use App\Models\Market\Shop;
 use App\Models\Media\Media;
-use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasRoles;
-use App\Models\Traits\HasUniversalSearch;
+use App\Models\Traits\IsUserable;
 use App\Models\Traits\WithPushNotifications;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\MediaLibrary\HasMedia;
-use Spatie\MediaLibrary\InteractsWithMedia;
-use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
 /**
@@ -98,17 +91,10 @@ use Spatie\Sluggable\SlugOptions;
  */
 class User extends Authenticatable implements HasMedia, Auditable
 {
-    use HasApiTokens;
-    use HasFactory;
     use Notifiable;
-    use SoftDeletes;
     use HasRoles;
-    use HasFactory;
-    use HasHistory;
     use WithPushNotifications;
-    use HasUniversalSearch;
-    use InteractsWithMedia;
-    use HasSlug;
+    use IsUserable;
 
     protected $guarded = [
     ];
@@ -149,30 +135,7 @@ class User extends Authenticatable implements HasMedia, Auditable
             ->slugsShouldBeNoLongerThan(16);
     }
 
-    public function registerMediaCollections(): void
-    {
-        $this->addMediaCollection('avatar')
-            ->singleFile();
-    }
 
-    public function avatar(): HasOne
-    {
-        return $this->hasOne(Media::class, 'id', 'avatar_id');
-    }
-
-    public function language(): BelongsTo
-    {
-        return $this->belongsTo(Language::class);
-    }
-
-    public function avatarImageSources($width = 0, $height = 0)
-    {
-        if($this->avatar) {
-            $avatarThumbnail = $this->avatar->getImage()->resize($width, $height);
-            return GetPictureSources::run($avatarThumbnail);
-        }
-        return null;
-    }
 
     public function routeNotificationForFcm(): array
     {
@@ -197,10 +160,6 @@ class User extends Authenticatable implements HasMedia, Auditable
         return $this->hasOne(UserStats::class);
     }
 
-    public function getRouteKeyName(): string
-    {
-        return 'slug';
-    }
 
     public function authorisedOrganisations(): MorphToMany
     {

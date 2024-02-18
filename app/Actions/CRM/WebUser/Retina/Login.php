@@ -7,14 +7,12 @@
 
 namespace App\Actions\CRM\WebUser\Retina;
 
-use App\Actions\SysAdmin\User\LogUserFailLogin;
-use App\Actions\SysAdmin\User\LogUserLogin;
-use App\Models\SysAdmin\Group;
-use App\Models\SysAdmin\User;
+use App\Actions\CRM\WebUser\LogWebUserFailLogin;
+use App\Actions\CRM\WebUser\LogWebUserLogin;
+use App\Models\CRM\WebUser;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
@@ -33,39 +31,41 @@ class Login
      */
     public function handle(ActionRequest $request): RedirectResponse
     {
+
         $this->ensureIsNotRateLimited($request);
 
-        if (!Auth::guard($this->gate)->attempt(
+        if (!Auth::guard('retina')->attempt(
             array_merge($request->validated(), ['status' => true]),
             $request->boolean('remember')
         )) {
             RateLimiter::hit($this->throttleKey($request));
 
-            LogUserFailLogin::dispatch(
+
+            LogWebUserFailLogin::run(
+                $request->get('website'),
                 credentials: $request->validated(),
                 ip: request()->ip(),
                 userAgent: $request->header('User-Agent'),
                 datetime: now()
             );
 
+
+
             throw ValidationException::withMessages([
                 'username' => trans('auth.failed'),
             ]);
         }
 
+
+
+
         RateLimiter::clear($this->throttleKey($request));
 
-        /** @var User $user */
-        $user = auth($this->gate)->user();
+        /** @var WebUser $webUser */
+        $webUser = auth('retina')->user();
 
-        $group = Cache::remember('bound-group', 3600, function () use ($user) {
-            return Group::where('subdomain', $user->group->subdomain)->firstOrFail();
-        });
-
-        app()->instance('group', $group);
-
-        LogUserLogin::dispatch(
-            user: $user,
+        LogWebUserLogin::dispatch(
+            webUser: $webUser,
             ip: request()->ip(),
             userAgent: $request->header('User-Agent'),
             datetime: now()
@@ -76,7 +76,7 @@ class Login
         Session::put('reloadLayout', '1');
 
 
-        $language = $user->language;
+        $language = $webUser->language;
         if ($language) {
             app()->setLocale($language);
         }

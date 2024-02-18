@@ -14,18 +14,20 @@ use Illuminate\Support\Facades\Auth;
 
 class RedirectIfAuthenticated
 {
-    public function handle(Request $request, Closure $next, ...$guards): \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
+    public function handle(Request $request, Closure $next, ...$guards)
     {
+
         $guards = empty($guards) ? [null] : $guards;
 
         foreach ($guards as $guard) {
-            if (Auth::guard($guard)->check()) {
 
+            if (Auth::guard($guard)->check()) {
                 if($guard=='retina') {
                     $redirectTo='/app/dashboard';
                 } else {
                     $redirectTo=RouteServiceProvider::HOME;
                 }
+
                 return redirect($redirectTo);
             }
         }

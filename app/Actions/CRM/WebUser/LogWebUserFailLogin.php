@@ -21,6 +21,7 @@ class LogWebUserFailLogin
 
     public function handle(Website $website, array $credentials, string $ip, string $userAgent, Carbon $datetime): void
     {
+
         $webUser = WebUser::withTrashed()->where('username', Arr::get($credentials, 'username'))->where('website_id', $website->id)->first();
 
         $this->logFail('web_users_requests', $datetime, $ip, $userAgent, Arr::get($credentials, 'username'), $webUser?->id);

@@ -97,7 +97,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, StoredItem> $storedItems
  * @property-read TaxNumber|null $taxNumber
  * @property-read UniversalSearch|null $universalSearch
- * @property-read Collection<int, WebUser> $webUsers
+ * @property-read Collection<int, \App\Models\CRM\WebUser> $webUsers
  * @method static \Database\Factories\CRM\CustomerFactory factory($count = null, $state = [])
  * @method static Builder|Customer newModelQuery()
  * @method static Builder|Customer newQuery()

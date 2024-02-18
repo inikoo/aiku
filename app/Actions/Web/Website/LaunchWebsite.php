@@ -25,7 +25,7 @@ class LaunchWebsite extends OrgAction
     use WithActionUpdate;
 
 
-    private \App\Models\Fulfilment\Fulfilment|Shop|null $parent;
+    private Fulfilment|Shop|null $parent;
 
     public function handle(Website $website): Website
     {

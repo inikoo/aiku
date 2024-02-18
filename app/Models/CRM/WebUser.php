@@ -10,8 +10,8 @@ namespace App\Models\CRM;
 use App\Enums\CRM\WebUser\WebUserAuthTypeEnum;
 use App\Enums\CRM\WebUser\WebUserTypeEnum;
 use App\Models\Market\Shop;
-use App\Models\SysAdmin\IsWebUser;
 use App\Models\SysAdmin\Organisation;
+use App\Models\Traits\IsUserable;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -19,6 +19,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Support\Carbon;
+use OwenIt\Auditing\Contracts\Auditable;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\Sluggable\SlugOptions;
 
 /**
  * App\Models\CRM\WebUser
@@ -30,6 +33,7 @@ use Illuminate\Support\Carbon;
  * @property int $website_id
  * @property int $customer_id
  * @property string $slug
+ * @property bool $is_root
  * @property string $type
  * @property bool $status
  * @property string $username
@@ -41,15 +45,24 @@ use Illuminate\Support\Carbon;
  * @property int $number_api_tokens
  * @property array $data
  * @property array $settings
+ * @property bool $reset_password
+ * @property int $language_id
+ * @property int|null $avatar_id
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  * @property string|null $source_id
  * @property WebUserTypeEnum $state
- * @property-read Customer $customer
- * @property-read \App\Models\SysAdmin\Organisation $organisation
+ * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
+ * @property-read \App\Models\Media\Media|null $avatar
+ * @property-read \App\Models\CRM\Customer $customer
+ * @property-read \App\Models\Assets\Language $language
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Media\Media> $media
+ * @property-read Organisation $organisation
  * @property-read Shop|null $shop
+ * @property-read \App\Models\CRM\WebUserStats|null $stats
  * @property-read Collection<int, \Laravel\Sanctum\PersonalAccessToken> $tokens
+ * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
  * @method static Builder|WebUser newModelQuery()
  * @method static Builder|WebUser newQuery()
  * @method static Builder|WebUser onlyTrashed()
@@ -58,10 +71,30 @@ use Illuminate\Support\Carbon;
  * @method static Builder|WebUser withoutTrashed()
  * @mixin Eloquent
  */
-class WebUser extends Authenticatable
+class WebUser extends Authenticatable implements HasMedia, Auditable
 {
-    use IsWebUser;
+    use IsUserable;
 
+
+    public function getSlugOptions(): SlugOptions
+    {
+        return SlugOptions::create()
+            ->generateSlugsFrom(function () {
+                $slug = $this->username;
+                if (filter_var($this->username, FILTER_VALIDATE_EMAIL)) {
+                    $slug = strstr($this->username, '@', true);
+                }
+
+                return $slug;
+            })
+            ->doNotGenerateSlugsOnUpdate()
+            ->saveSlugsTo('slug')->slugsShouldBeNoLongerThan(12);
+    }
+
+    public function customer(): BelongsTo
+    {
+        return $this->belongsTo(Customer::class);
+    }
 
     protected $guarded = [
     ];
