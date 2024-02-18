@@ -13,7 +13,7 @@ use App\Actions\OMS\Order\UI\IndexOrders;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Actions\WithActionButtons;
 use App\Actions\Traits\WithWebUserMeta;
-use App\Actions\UI\Dashboard\ShowDashboard;
+use App\Actions\UI\Grp\Dashboard\ShowDashboard;
 use App\Enums\UI\CustomerTabsEnum;
 use App\Http\Resources\Mail\DispatchedEmailResource;
 use App\Http\Resources\Sales\CustomerResource;

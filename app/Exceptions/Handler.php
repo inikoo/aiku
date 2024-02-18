@@ -2,7 +2,7 @@
 
 namespace App\Exceptions;
 
-use App\Actions\UI\GetFirstLoadProps;
+use App\Actions\UI\Grp\GetFirstLoadProps;
 use App\Http\Resources\UI\LoggedUserResource;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Http\JsonResponse;

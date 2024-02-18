@@ -8,7 +8,7 @@
 namespace App\Actions\Fulfilment\Fulfilment\UI;
 
 use App\Actions\OrgAction;
-use App\Actions\UI\Dashboard\ShowDashboard;
+use App\Actions\UI\Grp\Dashboard\ShowDashboard;
 use App\Actions\UI\WithInertia;
 use App\Enums\Market\Shop\ShopTypeEnum;
 use App\Enums\UI\FulfilmentTabsEnum;

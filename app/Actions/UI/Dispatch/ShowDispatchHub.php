@@ -8,7 +8,7 @@
 namespace App\Actions\UI\Dispatch;
 
 use App\Actions\Market\Shop\UI\ShowShop;
-use App\Actions\UI\Dashboard\ShowDashboard;
+use App\Actions\UI\Grp\Dashboard\ShowDashboard;
 use App\Actions\UI\WithInertia;
 use App\Models\Market\Shop;
 use App\Models\SysAdmin\Organisation;

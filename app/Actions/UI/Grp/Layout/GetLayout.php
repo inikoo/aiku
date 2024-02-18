@@ -5,7 +5,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\UI\Layout;
+namespace App\Actions\UI\Grp\Layout;
 
 use App\Http\Resources\SysAdmin\Group\GroupResource;
 use App\Http\Resources\SysAdmin\Organisation\UserOrganisationResource;

@@ -8,7 +8,7 @@
 
 namespace App\Http\Middleware;
 
-use App\Actions\UI\GetFirstLoadProps;
+use App\Actions\UI\Grp\GetFirstLoadProps;
 use App\Http\Resources\UI\LoggedUserResource;
 use App\Models\SysAdmin\User;
 use Illuminate\Http\Request;

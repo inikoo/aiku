@@ -7,7 +7,7 @@
 
 namespace App\Actions\UI\BusinessIntelligence;
 
-use App\Actions\UI\Dashboard\ShowDashboard;
+use App\Actions\UI\Grp\Dashboard\ShowDashboard;
 use App\Actions\UI\WithInertia;
 use App\Models\Market\Shop;
 use App\Models\SysAdmin\Organisation;

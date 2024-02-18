@@ -17,7 +17,7 @@ use App\Actions\SysAdmin\User\UI\CreateUser;
 use App\Actions\SysAdmin\User\UI\EditUser;
 use App\Actions\SysAdmin\User\UI\IndexUsers;
 use App\Actions\SysAdmin\User\UI\ShowUser;
-use App\Actions\UI\Dashboard\ShowDashTV;
+use App\Actions\UI\Grp\Dashboard\ShowDashTV;
 use App\Actions\UI\SysAdmin\EditSystemSettings;
 use App\Actions\UI\SysAdmin\ShowSysAdminDashboard;
 use Illuminate\Support\Facades\Route;

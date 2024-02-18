@@ -12,7 +12,7 @@ use App\Actions\Accounting\Payment\UI\IndexPayments;
 use App\Actions\Dispatch\DeliveryNote\IndexDeliveryNotes;
 use App\Actions\InertiaAction;
 use App\Actions\Market\Shop\UI\ShowShop;
-use App\Actions\UI\Dashboard\ShowDashboard;
+use App\Actions\UI\Grp\Dashboard\ShowDashboard;
 use App\Enums\UI\OrderTabsEnum;
 use App\Http\Resources\Accounting\InvoiceResource;
 use App\Http\Resources\Accounting\PaymentResource;

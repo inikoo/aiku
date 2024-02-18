@@ -6,8 +6,8 @@
  */
 
 
-use App\Actions\UI\Dashboard\ShowDashboard;
-use App\Actions\UI\Dashboard\ShowDashTV;
+use App\Actions\UI\Grp\Dashboard\ShowDashboard;
+use App\Actions\UI\Grp\Dashboard\ShowDashTV;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/tv', ShowDashTV::class)->name('tv');

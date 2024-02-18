@@ -8,7 +8,7 @@
 namespace App\Actions\UI\SysAdmin;
 
 use App\Actions\Google\Drive\Traits\WithTokenPath;
-use App\Actions\UI\Dashboard\ShowDashboard;
+use App\Actions\UI\Grp\Dashboard\ShowDashboard;
 use App\Actions\UI\WithInertia;
 use Illuminate\Support\Arr;
 use Inertia\Inertia;

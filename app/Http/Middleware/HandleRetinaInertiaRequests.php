@@ -7,8 +7,12 @@
 
 namespace App\Http\Middleware;
 
-use App\Http\Resources\Web\WebsiteResource;
+use App\Actions\UI\Retina\GetFirstLoadProps;
+use App\Http\Resources\UI\LoggedUserResource;
+use App\Http\Resources\Web\WebsiteIrisResource;
+use App\Models\CRM\WebUser;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Session;
 use Inertia\Middleware;
 use Tightenco\Ziggy\Ziggy;
 
@@ -19,16 +23,35 @@ class HandleRetinaInertiaRequests extends Middleware
 
     public function share(Request $request): array
     {
-        $firstLoadOnlyProps['ziggy'] = function () use ($request) {
-            return array_merge((new Ziggy())->toArray(), [
-                'location' => $request->url(),
-            ]);
-        };
-        data_set($firstLoadOnlyProps, 'website', WebsiteResource::make($request->get('website'))->getArray());
+        /** @var WebUser $webUser */
+        $webUser = $request->user();
 
+        $firstLoadOnlyProps = [];
+
+        if (!$request->inertia() or Session::get('reloadLayout')) {
+            $firstLoadOnlyProps          = GetFirstLoadProps::run($request, $webUser);
+            $firstLoadOnlyProps['ziggy'] = function () use ($request) {
+                return array_merge((new Ziggy())->toArray(), [
+                    'location' => $request->url(),
+                ]);
+            };
+        }
 
         return array_merge(
             $firstLoadOnlyProps,
+            [
+                'auth'  => [
+                    'user' => $request->user() ? LoggedUserResource::make($request->user())->getArray() : null,
+                ],
+                'flash' => [
+                    'notification' => fn () => $request->session()->get('notification')
+                ],
+                'ziggy' => [
+                    'location' => $request->url(),
+                ],
+                'iris'=> WebsiteIrisResource::make($request->get('website'))->getArray()
+
+            ],
             parent::share($request),
         );
 

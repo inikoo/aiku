@@ -7,7 +7,6 @@
 
 namespace App\Actions\UI\Retina\Dashboard;
 
-use App\Models\CRM\Customer;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -18,31 +17,10 @@ class ShowDashboard
     use AsAction;
 
 
-    protected bool $canEditBanners = false;
-
-
-    public function handle(Customer $customer, ActionRequest $request): array
-    {
-
-
-        return [];
-    }
-
-    public function authorize(ActionRequest $request): bool
-    {
-        $this->canEditBanners = $request->user()->hasPermissionTo('portfolio.banners.edit');
-        return $request->user()->hasPermissionTo('portfolio.banners.view');
-
-    }
-
-
     public function asController(ActionRequest $request): Response
     {
-        $request->validate();
-        $customer = $request->get('customer');
-        $data     = $this->handle($customer, $request);
 
-        return Inertia::render('Dashboard', $data);
+        return Inertia::render('Dashboard/Dashboard');
     }
 
     public function getBreadcrumbs($label = null): array

@@ -7,11 +7,11 @@
 
 namespace App\Actions\Market\Shop\UI;
 
-use App\Actions\OrgAction;
 use App\Actions\Market\Product\UI\IndexProducts;
 use App\Actions\Market\ProductCategory\UI\IndexDepartments;
 use App\Actions\Market\ProductCategory\UI\IndexFamilies;
-use App\Actions\UI\Dashboard\ShowDashboard;
+use App\Actions\OrgAction;
+use App\Actions\UI\Grp\Dashboard\ShowDashboard;
 use App\Enums\Market\Shop\ShopTypeEnum;
 use App\Enums\UI\ShopsTabsEnum;
 use App\Http\Resources\Market\DepartmentResource;
@@ -22,6 +22,7 @@ use App\InertiaTable\InertiaTable;
 use App\Models\Market\Shop;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
+use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -29,7 +30,6 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
-use App\Services\QueryBuilder;
 
 class IndexShops extends OrgAction
 {

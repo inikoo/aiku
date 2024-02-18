@@ -9,7 +9,7 @@ namespace App\Actions\OMS\Order\UI;
 
 use App\Actions\InertiaAction;
 use App\Actions\Market\Shop\UI\ShowShop;
-use App\Actions\UI\Dashboard\ShowDashboard;
+use App\Actions\UI\Grp\Dashboard\ShowDashboard;
 use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Sales\OrderResource;
 use App\InertiaTable\InertiaTable;
@@ -17,13 +17,13 @@ use App\Models\CRM\Customer;
 use App\Models\Market\Shop;
 use App\Models\OMS\Order;
 use App\Models\SysAdmin\Organisation;
+use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
-use App\Services\QueryBuilder;
 
 class IndexOrders extends InertiaAction
 {

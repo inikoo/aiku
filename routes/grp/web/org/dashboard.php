@@ -7,7 +7,7 @@
 
 
 use App\Actions\SysAdmin\Organisation\UI\ShowOrganisationDashboard;
-use App\Actions\UI\Dashboard\ShowDashTV;
+use App\Actions\UI\Grp\Dashboard\ShowDashTV;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/tv', ShowDashTV::class)->name('tv');

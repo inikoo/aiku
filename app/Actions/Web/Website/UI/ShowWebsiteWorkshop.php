@@ -8,7 +8,7 @@
 namespace App\Actions\Web\Website\UI;
 
 use App\Actions\InertiaAction;
-use App\Actions\UI\Dashboard\ShowDashboard;
+use App\Actions\UI\Grp\Dashboard\ShowDashboard;
 use App\Actions\Web\Website\GetWebsiteWorkshopCategory;
 use App\Actions\Web\Website\GetWebsiteWorkshopColorScheme;
 use App\Actions\Web\Website\GetWebsiteWorkshopFooter;

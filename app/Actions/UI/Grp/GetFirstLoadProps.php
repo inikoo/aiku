@@ -1,14 +1,14 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Fri, 12 May 2023 10:34:26 Malaysia Time, Pantai Lembeng, Bali, Indonesia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Sun, 18 Feb 2024 07:08:53 Central Standard Time, Mexico City, Mexico
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\UI;
+namespace App\Actions\UI\Grp;
 
 use App\Actions\Assets\Language\UI\GetLanguagesOptions;
-use App\Actions\UI\Layout\GetLayout;
+use App\Actions\UI\Grp\Layout\GetLayout;
 use App\Http\Resources\Assets\LanguageResource;
 use App\Models\Assets\Language;
 use App\Models\SysAdmin\User;

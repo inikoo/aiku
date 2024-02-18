@@ -8,7 +8,7 @@
 namespace App\Actions\UI\Marketing;
 
 use App\Actions\InertiaAction;
-use App\Actions\UI\Dashboard\ShowDashboard;
+use App\Actions\UI\Grp\Dashboard\ShowDashboard;
 use App\Models\Mail\Outbox;
 use App\Models\Market\Shop;
 use Inertia\Inertia;

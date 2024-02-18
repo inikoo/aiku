@@ -8,7 +8,7 @@
 namespace App\Actions\UI\SupplyChain;
 
 use App\Actions\GrpAction;
-use App\Actions\UI\Dashboard\ShowDashboard;
+use App\Actions\UI\Grp\Dashboard\ShowDashboard;
 use App\Actions\UI\WithInertia;
 use Inertia\Inertia;
 use Inertia\Response;

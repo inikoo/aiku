@@ -11,22 +11,22 @@ use App\Actions\InertiaAction;
 use App\Actions\Mail\DispatchedEmail\IndexDispatchedEmails;
 use App\Actions\Mail\Mailshot\IndexMailshots;
 use App\Actions\Mail\Outbox\IndexOutboxes;
-use App\Actions\UI\Dashboard\ShowDashboard;
+use App\Actions\UI\Grp\Dashboard\ShowDashboard;
 use App\Enums\UI\MailroomsTabsEnum;
 use App\Http\Resources\Mail\DispatchedEmailResource;
 use App\Http\Resources\Mail\MailroomResource;
 use App\Http\Resources\Mail\MailshotResource;
 use App\Http\Resources\Mail\OutboxResource;
+use App\InertiaTable\InertiaTable;
 use App\Models\Mail\Mailroom;
+use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
-use App\InertiaTable\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
-use App\Services\QueryBuilder;
 
 class IndexMailrooms extends InertiaAction
 {
