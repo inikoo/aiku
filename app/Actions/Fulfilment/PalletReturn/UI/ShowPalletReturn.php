@@ -210,7 +210,7 @@ class ShowPalletReturn extends OrgAction
                         'parameters' => [
                             'organisation'       => $palletReturn->organisation->slug,
                             'fulfilment'         => $palletReturn->fulfilment->slug,
-                            'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id,
+                            'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->slug,
                             'palletDelivery'     => $palletReturn->reference
                         ]
                     ],
@@ -221,7 +221,7 @@ class ShowPalletReturn extends OrgAction
                     'parameters' => [
                         'organisation'       => $palletReturn->organisation->slug,
                         'fulfilment'         => $palletReturn->fulfilment->slug,
-                        'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id
+                        'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->slug
                     ]
                 ],
 
