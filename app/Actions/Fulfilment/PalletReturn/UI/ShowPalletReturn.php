@@ -216,6 +216,15 @@ class ShowPalletReturn extends OrgAction
                     ],
                 ],
 
+                'palletRoute' => [
+                    'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallets.index',
+                    'parameters' => [
+                        'organisation'       => $palletReturn->organisation->slug,
+                        'fulfilment'         => $palletReturn->fulfilment->slug,
+                        'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id
+                    ]
+                ],
+
                 'tabs' => [
                     'current'    => $this->tab,
                     'navigation' => PalletReturnTabsEnum::navigation()

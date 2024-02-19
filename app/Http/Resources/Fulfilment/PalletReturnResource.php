@@ -33,8 +33,7 @@ class PalletReturnResource extends JsonResource
             'reference'        => $palletReturn->reference,
             'state'            => $palletReturn->state,
             'timeline'         => $timeline,
-            'number_pallets'   => $palletReturn->number_pallets,
-            'pallets'          => $palletReturn->fulfilmentCustomer->pallets()->whereNull('pallet_return_id')->get(),
+            'number_pallets'   => $palletReturn->number_pallets
         ];
     }
 }
