@@ -22,7 +22,6 @@ const props = defineProps<{
 }>()
 
 function palletDeliveryRoute(palletDelivery: PalletDelivery) {
-    console.log(route().current())
     switch (route().current()) {
         case 'grp.org.warehouses.show.fulfilment.pallet-deliveries.index':
             return route(

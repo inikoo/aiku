@@ -19,6 +19,8 @@ use App\Actions\Fulfilment\Pallet\UI\IndexPallets;
 use App\Actions\Fulfilment\Pallet\UI\ShowPallet;
 use App\Actions\Fulfilment\PalletDelivery\UI\IndexPalletDeliveries;
 use App\Actions\Fulfilment\PalletDelivery\UI\ShowPalletDelivery;
+use App\Actions\Fulfilment\PalletReturn\UI\IndexPalletReturns;
+use App\Actions\Fulfilment\PalletReturn\UI\ShowPalletReturn;
 use App\Actions\Helpers\Uploads\HistoryUploads;
 use App\Actions\OMS\Order\UI\ShowOrder;
 
@@ -54,5 +56,11 @@ Route::prefix('{fulfilmentCustomer}')->as('show')->group(function () {
 
         Route::get('{palletDelivery}/pallets-histories', [HistoryUploads::class, 'inPallet'])->name('pallets.uploads.history');
         Route::get('{palletDelivery}/pallets-templates', DownloadPalletsTemplate::class)->name('pallets.uploads.templates');
+    });
+
+    Route::prefix('pallet-returns')->as('.pallet-returns.')->group(function () {
+        Route::get('', [IndexPalletReturns::class, 'inFulfilmentCustomer'])->name('index');
+        Route::get('{palletReturn}', [ShowPalletReturn::class, 'inFulfilmentCustomer'])->name('show');
+        Route::get('{palletReturn}/pallets/{pallet}', [ShowPallet::class, 'inFulfilmentCustomer'])->name('pallets.show');
     });
 });

@@ -20,6 +20,7 @@ use App\Actions\Traits\WithWebUserMeta;
 use App\Enums\UI\CustomerFulfilmentTabsEnum;
 use App\Http\Resources\CRM\WebUsersResource;
 use App\Http\Resources\Fulfilment\PalletDeliveriesResource;
+use App\Http\Resources\Fulfilment\PalletReturnsResource;
 use App\Http\Resources\Fulfilment\PalletsResource;
 use App\Http\Resources\Fulfilment\StoredItemResource;
 use App\Http\Resources\Inventory\WarehouseResource;
@@ -130,8 +131,8 @@ class ShowFulfilmentCustomer extends OrgAction
                     : Inertia::lazy(fn () => PalletDeliveriesResource::collection(IndexPalletDeliveries::run($fulfilmentCustomer->fulfilment))),
 
                 CustomerFulfilmentTabsEnum::PALLET_RETURNS->value => $this->tab == CustomerFulfilmentTabsEnum::PALLET_RETURNS->value ?
-                    fn () => PalletDeliveriesResource::collection(IndexPalletReturns::run($fulfilmentCustomer->fulfilment, CustomerFulfilmentTabsEnum::PALLET_RETURNS->value))
-                    : Inertia::lazy(fn () => PalletDeliveriesResource::collection(IndexPalletReturns::run($fulfilmentCustomer->fulfilment, CustomerFulfilmentTabsEnum::PALLET_RETURNS->value))),
+                    fn () => PalletReturnsResource::collection(IndexPalletReturns::run($fulfilmentCustomer->fulfilment, CustomerFulfilmentTabsEnum::PALLET_RETURNS->value))
+                    : Inertia::lazy(fn () => PalletReturnsResource::collection(IndexPalletReturns::run($fulfilmentCustomer->fulfilment, CustomerFulfilmentTabsEnum::PALLET_RETURNS->value))),
 
                 CustomerFulfilmentTabsEnum::DISPATCHED_EMAILS->value => $this->tab == CustomerFulfilmentTabsEnum::DISPATCHED_EMAILS->value ?
                     fn () => DispatchedEmailResource::collection(IndexDispatchedEmails::run($fulfilmentCustomer))
