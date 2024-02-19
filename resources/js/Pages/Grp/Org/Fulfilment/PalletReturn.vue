@@ -23,7 +23,7 @@
   import UploadExcel from '@/Components/Upload/UploadExcel.vue'
   import TablePalletReturn from '@/Components/PalletReturn/tablePalletReturn.vue';
   import TablePalletReturns from '@/Components/Tables/TablePalletReturns.vue';
-  
+
   const props = defineProps<{
     title: string
     tabs: object
@@ -42,7 +42,7 @@
   const formAddPallet = useForm({ notes: '', customer_reference: '' })
   const formMultiplePallet = useForm({ number_pallets: 1 })
   const openModal = ref(false)
-  
+
   const handleFormSubmitAddPallet = (data: object, closedPopover: Function) => {
     loading.value = true
     formAddPallet.post(route(
@@ -61,7 +61,7 @@
       },
     })
   }
-  
+
   const handleFormSubmitAddMultiplePallet = (data: object, closedPopover: Function) => {
     loading.value = true
     formMultiplePallet.post(route(
@@ -80,9 +80,9 @@
       },
     })
   }
-  
+
   /* const updateState = async ({ step, options }) => {
-  
+
     const foundState = options.find((item) => item.key === timeline.value.state)
     const set = step.key == timeline.state || step.index < foundState.index
     if (!set) {
@@ -98,7 +98,7 @@
       }
     }
   } */
-  
+
   const handleClick = (action) => {
     const href = action.route?.name ? route(action.route?.name, action.route?.parameters) : action.href?.name ? route(action.href?.name, action.href?.parameters) : '#'
     const method = action.route?.method ?? 'get'
@@ -114,35 +114,36 @@
         onFinish: (visit) => { loading.value = false },
       })
   };
-  
-  
+
+  console.log(props.data)
+
   const component = computed(() => {
     const components = {
       pallets: TablePalletReturns,
       history: TableHistories
     };
     return components[currentTab.value];
-  
+
   });
-  
+
   const onUploadOpen=(action)=>{
     dataModal.value.isModalOpen = true
     dataModal.value.uploadRoutes = action.route
   }
-  
+
   watch(props,(newValue)=>{
     timeline.value = newValue.data.data
   },{deep : true})
-  
-  
-  
+
+
+
   </script>
-  
+
   <template layout="App">
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead">
       <template #button-group-add-pallet="{ action: action }">
-         
+
               <Button :style="action.button.style" :label="action.button.label" :icon="action.button.icon"
                 :iconRight="action.button.iconRight" :key="`ActionButton${action.button.label}${action.button.style}`"
                 :tooltip="action.button.tooltip" @click="()=>openModal = true"
@@ -154,11 +155,10 @@
     </div>
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
     <component :is="component" :data="props[currentTab]" :state="timeline.state" :tab="currentTab"></component>
-  
+
     <Modal :isOpen="openModal" @onClose="openModal = false">
           <div class="h-96 overflow-y-auto">
             <TablePalletReturn />
           </div>
       </Modal>
   </template>
-  
