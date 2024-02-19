@@ -22,7 +22,7 @@ import { get, kebabCase } from "lodash"
 import axios from "axios"
 import UploadExcel from "@/Components/Upload/UploadExcel.vue"
 import TablePalletReturn from "@/Components/PalletReturn/tablePalletReturn.vue"
-import TablePalletReturns from "@/Components/Tables/TablePalletReturns.vue"
+import TablePalletRetrunsDelivery from "@/Components/Tables/TablePalletRetrunsDelivery.vue"
 
 const props = defineProps<{
 	title: string
@@ -119,7 +119,7 @@ const handleClick = (action) => {
 
 const component = computed(() => {
 	const components = {
-		pallets: TablePalletReturns,
+		pallets: TablePalletRetrunsDelivery,
 		history: TableHistories,
 	}
 	return components[currentTab.value]

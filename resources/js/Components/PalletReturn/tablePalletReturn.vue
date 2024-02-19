@@ -24,7 +24,6 @@ const getData = async () => {
 };
 
 onMounted(getData)
-console.log('sdfsfd',props)
 </script>
 
 

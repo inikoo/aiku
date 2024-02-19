@@ -21,7 +21,7 @@
       tab?: string
   }>()
   
-  function palletReturnRoute(palletReturn: PalletDelivery) {
+ /*  function palletReturnRoute(palletReturn: PalletDelivery) {
       switch (route().current()) {
           case 'grp.org.warehouses.show.fulfilment.pallet-returns.index':
               return route(
@@ -50,14 +50,14 @@
                   ]);
       }
   }
-  
+   */
   
   
   </script>
   
   <template>
       <Table :resource="data" :name="tab" class="mt-5">
-          <template #cell(reference)="{ item: palletReturn }">
+        <!--   <template #cell(reference)="{ item: palletReturn }">
               <Link :href="palletReturnRoute(palletReturn)" class="specialUnderline">
                   {{ palletReturn['reference'] }}
               </Link>
@@ -80,7 +80,7 @@
                       class="h-full capitalize inline-flex items-center rounded-none text-sm border-none font-medium shadow-sm focus:ring-transparent focus:ring-offset-transparent focus:ring-0">
                   </Button>
               </Link>
-          </template>
+          </template> -->
       </Table>
   </template>
   
