@@ -7,10 +7,7 @@
 
 namespace App\Actions\Fulfilment\Pallet;
 
-use App\Actions\Helpers\SerialReference\GetSerialReference;
 use App\Actions\OrgAction;
-use App\Enums\Fulfilment\Pallet\PalletStateEnum;
-use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletReturn;
@@ -30,33 +27,17 @@ class StorePalletToReturn extends OrgAction
 
     private PalletReturn $parent;
 
-    public function handle(PalletReturn $palletReturn, array $modelData): Pallet
+    public function handle(PalletReturn $palletReturn, array $modelData): PalletReturn
     {
-        data_set($modelData, 'group_id', $palletReturn->group_id);
-        data_set($modelData, 'organisation_id', $palletReturn->organisation_id);
-        data_set($modelData, 'fulfilment_id', $palletReturn->fulfilment_id);
-        data_set($modelData, 'fulfilment_customer_id', $palletReturn->fulfilment_customer_id);
-        data_set($modelData, 'warehouse_id', $palletReturn->warehouse_id);
-
-        if (Arr::exists($modelData, 'state') and Arr::get($modelData, 'state') != PalletStateEnum::IN_PROCESS) {
-            if (!Arr::get($modelData, 'reference')) {
-                data_set(
-                    $modelData,
-                    'reference',
-                    GetSerialReference::run(
-                        container: $palletReturn->fulfilmentCustomer,
-                        modelType: SerialReferenceModelEnum::PALLET
-                    )
-                );
-            }
+        foreach (Arr::get($modelData, 'pallets') as $pallet) {
+            $pallet->update([
+                'pallet_return_id' => $palletReturn->id
+            ]);
         }
-
-        /** @var Pallet $pallet */
-        $pallet = $palletReturn->pallets()->create($modelData);
 
         // HydratePalletDeliveries::run($palletReturn);
 
-        return $pallet;
+        return $palletReturn;
     }
 
     public function authorize(ActionRequest $request): bool
@@ -76,7 +57,7 @@ class StorePalletToReturn extends OrgAction
         ];
     }
 
-    public function asController(Organisation $organisation, FulfilmentCustomer $fulfilmentCustomer, PalletReturn $palletReturn, ActionRequest $request): Pallet
+    public function asController(Organisation $organisation, FulfilmentCustomer $fulfilmentCustomer, PalletReturn $palletReturn, ActionRequest $request): PalletReturn
     {
         $this->parent = $palletReturn;
         $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $request);
@@ -84,7 +65,7 @@ class StorePalletToReturn extends OrgAction
         return $this->handle($palletReturn, $this->validatedData);
     }
 
-    public function action(PalletReturn $palletReturn, array $modelData, int $hydratorsDelay = 0): Pallet
+    public function action(PalletReturn $palletReturn, array $modelData, int $hydratorsDelay = 0): PalletReturn
     {
         $this->asAction       = true;
         $this->hydratorsDelay = $hydratorsDelay;
