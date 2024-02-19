@@ -12,6 +12,7 @@ use App\Actions\Fulfilment\Pallet\DeletePallet;
 use App\Actions\Fulfilment\Pallet\ImportPallet;
 use App\Actions\Fulfilment\Pallet\StoreMultiplePallets;
 use App\Actions\Fulfilment\Pallet\StorePalletFromDelivery;
+use App\Actions\Fulfilment\Pallet\StorePalletToReturn;
 use App\Actions\Fulfilment\Pallet\UpdatePallet;
 use App\Actions\Fulfilment\PalletDelivery\ConfirmPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\StorePalletDelivery;
@@ -62,6 +63,7 @@ Route::name('fulfilment-customer.')->prefix('fulfilment-customer/{fulfilmentCust
     Route::post('pallet-delivery/{palletDelivery}/multiple-pallet', StoreMultiplePallets::class)->name('pallet-delivery.multiple-pallets.store');
 
     Route::post('pallet-delivery/{palletDelivery}/pallet-upload', [ImportPallet::class, 'inPalletDelivery'])->name('pallet-delivery.pallet.import');
+    Route::post('pallet-return/{palletReturn}/pallet', StorePalletToReturn::class)->name('pallet-return.pallet.store');
 });
 
 Route::name('shop.')->prefix('shop/{shop:id}')->group(function () {

@@ -32,7 +32,7 @@ use App\Services\QueryBuilder;
 
 class IndexPallets extends OrgAction
 {
-    private Organisation|FulfilmentCustomer|Location|Fulfilment|Warehouse|PalletDelivery $parent;
+    private Organisation|FulfilmentCustomer|Location|Fulfilment|Warehouse|PalletDelivery|PalletReturn $parent;
 
     protected function getElementGroups(): array
     {
@@ -53,7 +53,7 @@ class IndexPallets extends OrgAction
         ];
     }
 
-    public function handle(Organisation|FulfilmentCustomer|Location|Fulfilment|Warehouse|PalletDelivery $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Organisation|FulfilmentCustomer|Location|Fulfilment|Warehouse|PalletDelivery|PalletReturn $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {

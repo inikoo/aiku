@@ -1,0 +1,126 @@
+<?php
+/*
+ * Author: Artha <artha@aw-advantage.com>
+ * Created: Wed, 24 Jan 2024 16:14:16 Central Indonesia Time, Sanur, Bali, Indonesia
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
+
+namespace App\Actions\Fulfilment\Pallet;
+
+use App\Actions\Helpers\SerialReference\GetSerialReference;
+use App\Actions\OrgAction;
+use App\Enums\Fulfilment\Pallet\PalletStateEnum;
+use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
+use App\Models\Fulfilment\FulfilmentCustomer;
+use App\Models\Fulfilment\Pallet;
+use App\Models\Fulfilment\PalletReturn;
+use App\Models\SysAdmin\Organisation;
+use Illuminate\Console\Command;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Redirect;
+use Lorisleiva\Actions\ActionRequest;
+use Lorisleiva\Actions\Concerns\AsCommand;
+
+class StorePalletToReturn extends OrgAction
+{
+    use AsCommand;
+
+    public $commandSignature = 'pallet:store-to-return {palletReturn}';
+
+    private PalletReturn $parent;
+
+    public function handle(PalletReturn $palletReturn, array $modelData): Pallet
+    {
+        data_set($modelData, 'group_id', $palletReturn->group_id);
+        data_set($modelData, 'organisation_id', $palletReturn->organisation_id);
+        data_set($modelData, 'fulfilment_id', $palletReturn->fulfilment_id);
+        data_set($modelData, 'fulfilment_customer_id', $palletReturn->fulfilment_customer_id);
+        data_set($modelData, 'warehouse_id', $palletReturn->warehouse_id);
+
+        if (Arr::exists($modelData, 'state') and Arr::get($modelData, 'state') != PalletStateEnum::IN_PROCESS) {
+            if (!Arr::get($modelData, 'reference')) {
+                data_set(
+                    $modelData,
+                    'reference',
+                    GetSerialReference::run(
+                        container: $palletReturn->fulfilmentCustomer,
+                        modelType: SerialReferenceModelEnum::PALLET
+                    )
+                );
+            }
+        }
+
+        /** @var Pallet $pallet */
+        $pallet = $palletReturn->pallets()->create($modelData);
+
+        // HydratePalletDeliveries::run($palletReturn);
+
+        return $pallet;
+    }
+
+    public function authorize(ActionRequest $request): bool
+    {
+        if ($this->asAction) {
+            return true;
+        }
+
+        return $request->user()->hasPermissionTo("fulfilment.{$this->fulfilment->id}.edit");
+    }
+
+    public function rules(): array
+    {
+        return [
+            'customer_reference' => ['required'],
+            'notes'              => ['required', 'string','max:1024']
+        ];
+    }
+
+    public function asController(Organisation $organisation, FulfilmentCustomer $fulfilmentCustomer, PalletReturn $palletReturn, ActionRequest $request): Pallet
+    {
+        $this->parent = $palletReturn;
+        $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $request);
+
+        return $this->handle($palletReturn, $this->validatedData);
+    }
+
+    public function action(PalletReturn $palletReturn, array $modelData, int $hydratorsDelay = 0): Pallet
+    {
+        $this->asAction       = true;
+        $this->hydratorsDelay = $hydratorsDelay;
+        $this->parent         = $palletReturn;
+        $this->initialisationFromFulfilment($palletReturn->fulfilment, $modelData);
+
+        return $this->handle($palletReturn, $this->validatedData);
+    }
+
+
+    public function asCommand(Command $command): int
+    {
+        $palletReturn = PalletReturn::where('reference', $command->argument('palletDelivery'))->firstOrFail();
+
+        $this->handle($palletReturn, [
+            'group_id'               => $palletReturn->group_id,
+            'organisation_id'        => $palletReturn->organisation_id,
+            'fulfilment_id'          => $palletReturn->fulfilment_id,
+            'fulfilment_customer_id' => $palletReturn->fulfilment_customer_id,
+            'warehouse_id'           => $palletReturn->warehouse_id,
+            'slug'                   => now()->timestamp
+        ]);
+
+        echo "Pallet created from delivery: $palletReturn->reference\n";
+
+        return 0;
+    }
+
+
+    public function htmlResponse(Pallet $pallet, ActionRequest $request): RedirectResponse
+    {
+        return Redirect::route('grp.org.fulfilments.show.crm.customers.show.pallet-deliveries.show', [
+            'organisation'           => $pallet->organisation->slug,
+            'fulfilment'             => $pallet->fulfilment->slug,
+            'fulfilmentCustomer'     => $pallet->fulfilmentCustomer->slug,
+            'palletDelivery'         => $this->parent->reference
+        ]);
+    }
+}
