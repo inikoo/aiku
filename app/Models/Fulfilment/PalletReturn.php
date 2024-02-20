@@ -125,6 +125,6 @@ class PalletReturn extends Model
 
     public function pallets(): HasMany
     {
-        return $this->hasMany(Pallet::class);
+        return $this->hasMany(Pallet::class, 'pallet_return_id');
     }
 }

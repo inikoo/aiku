@@ -11,12 +11,11 @@ use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
-use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStatusEnum;
 use App\Http\Resources\Fulfilment\PalletDeliveriesResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
-use App\Models\Fulfilment\PalletDelivery;
+use App\Models\Fulfilment\PalletReturn;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
@@ -88,16 +87,14 @@ class IndexPalletReturns extends OrgAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        $queryBuilder = QueryBuilder::for(PalletDelivery::class);
-
-        $queryBuilder->where('status', PalletDeliveryStatusEnum::OUT);
+        $queryBuilder = QueryBuilder::for(PalletReturn::class);
 
         if($parent instanceof Fulfilment) {
-            $queryBuilder->where('pallet_deliveries.fulfilment_id', $parent->id);
+            $queryBuilder->where('pallet_returns.fulfilment_id', $parent->id);
         } elseif($parent instanceof Warehouse) {
-            $queryBuilder->where('pallet_deliveries.warehouse_id', $parent->id);
+            $queryBuilder->where('pallet_returns.warehouse_id', $parent->id);
         } else {
-            $queryBuilder->where('pallet_deliveries.fulfilment_customer_id', $parent->id);
+            $queryBuilder->where('pallet_returns.fulfilment_customer_id', $parent->id);
         }
 
         return $queryBuilder

@@ -13,8 +13,8 @@ use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Enums\UI\PalletReturnTabsEnum;
-use App\Http\Resources\Fulfilment\PalletDeliveriesResource;
 use App\Http\Resources\Fulfilment\PalletReturnResource;
+use App\Http\Resources\Fulfilment\PalletReturnsResource;
 use App\Http\Resources\Fulfilment\PalletsResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -126,45 +126,15 @@ class ShowPalletReturn extends OrgAction
                             'button' => [
                                 [
                                     'type'  => 'button',
-                                    'style' => 'primary',
-                                    'icon'  => ['fal', 'fa-upload'],
-                                    'label' => 'upload',
-                                    'route' => [
-                                        'name'       => 'grp.models.fulfilment-customer.pallet-delivery.pallet.import',
-                                        'parameters' => [
-                                            'organisation'       => $palletReturn->organisation->slug,
-                                            'fulfilment'         => $palletReturn->fulfilment->slug,
-                                            'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id,
-                                            'palletDelivery'     => $palletReturn->reference
-                                        ]
-                                    ]
-                                ],
-                                [
-                                    'type'    => 'button',
-                                    'style'   => 'primary',
-                                    'icon'    => ['far', 'fa-layer-plus'],
-                                    'label'   => 'multiple',
-                                    'route'   => [
-                                        'name'       => 'grp.models.fulfilment-customer.pallet-delivery.multiple-pallets.store',
-                                        'parameters' => [
-                                            'organisation'       => $palletReturn->organisation->slug,
-                                            'fulfilment'         => $palletReturn->fulfilment->slug,
-                                            'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id,
-                                            'palletDelivery'     => $palletReturn->reference
-                                        ]
-                                    ]
-                                ],
-                                [
-                                    'type'  => 'button',
                                     'style' => 'create',
                                     'label' => __('add pallet'),
                                     'route' => [
-                                        'name'       => 'grp.models.fulfilment-customer.pallet-delivery.pallet.store',
+                                        'name'       => 'grp.models.fulfilment-customer.pallet-return.pallet.store',
                                         'parameters' => [
                                             'organisation'       => $palletReturn->organisation->slug,
                                             'fulfilment'         => $palletReturn->fulfilment->slug,
                                             'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id,
-                                            'palletDelivery'     => $palletReturn->reference
+                                            'palletReturn'       => $palletReturn->reference
                                         ]
                                     ]
                                 ],
@@ -178,7 +148,7 @@ class ShowPalletReturn extends OrgAction
                             'key'     => 'action',
                             'route'   => [
                                 'method'     => 'post',
-                                'name'       => 'grp.models.fulfilment-customer.pallet-delivery.submit',
+                                'name'       => 'grp.models.fulfilment-customer.pallet-return.submit',
                                 'parameters' => [
                                     'organisation'       => $palletReturn->organisation->slug,
                                     'fulfilment'         => $palletReturn->fulfilment->slug,
@@ -196,7 +166,7 @@ class ShowPalletReturn extends OrgAction
                                 'key'     => 'action',
                                 'route'   => [
                                     'method'     => 'post',
-                                    'name'       => 'grp.models.fulfilment-customer.pallet-delivery.confirm',
+                                    'name'       => 'grp.models.fulfilment-customer.pallet-return.confirm',
                                     'parameters' => [
                                         'organisation'       => $palletReturn->organisation->slug,
                                         'fulfilment'         => $palletReturn->fulfilment->slug,
@@ -210,7 +180,7 @@ class ShowPalletReturn extends OrgAction
 
                 'updateRoute' => [
                     'route' => [
-                        'name'       => 'grp.models.fulfilment-customer.pallet-delivery.timeline.update',
+                        'name'       => 'grp.models.fulfilment-customer.pallet-return.timeline.update',
                         'parameters' => [
                             'organisation'       => $palletReturn->organisation->slug,
                             'fulfilment'         => $palletReturn->fulfilment->slug,
@@ -227,7 +197,7 @@ class ShowPalletReturn extends OrgAction
 
                 'uploadRoutes' => [
                     'history' => [
-                        'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet-deliveries.pallets.uploads.history',
+                        'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet-returns.pallets.uploads.history',
                         'parameters' => [
                             'organisation'       => $palletReturn->organisation->slug,
                             'fulfilment'         => $palletReturn->fulfilment->slug,
@@ -236,14 +206,23 @@ class ShowPalletReturn extends OrgAction
                         ]
                     ],
                     'download' => [
-                        'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet-deliveries.pallets.uploads.templates',
+                        'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet-returns.pallets.uploads.templates',
                         'parameters' => [
                             'organisation'       => $palletReturn->organisation->slug,
                             'fulfilment'         => $palletReturn->fulfilment->slug,
-                            'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id,
+                            'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->slug,
                             'palletDelivery'     => $palletReturn->reference
                         ]
                     ],
+                ],
+
+                'palletRoute' => [
+                    'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallets.index',
+                    'parameters' => [
+                        'organisation'       => $palletReturn->organisation->slug,
+                        'fulfilment'         => $palletReturn->fulfilment->slug,
+                        'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->slug
+                    ]
                 ],
 
                 'tabs' => [
@@ -266,9 +245,9 @@ class ShowPalletReturn extends OrgAction
     }
 
 
-    public function jsonResponse(PalletReturn $palletReturn): PalletDeliveriesResource
+    public function jsonResponse(PalletReturn $palletReturn): PalletReturnsResource
     {
-        return new PalletDeliveriesResource($palletReturn);
+        return new PalletReturnsResource($palletReturn);
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters, $suffix = ''): array
@@ -280,7 +259,7 @@ class ShowPalletReturn extends OrgAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => $routeParameters['index'],
-                            'label' => __('pallet deliveries')
+                            'label' => __('pallet returns')
                         ],
                         'model' => [
                             'route' => $routeParameters['model'],
@@ -293,28 +272,27 @@ class ShowPalletReturn extends OrgAction
             ];
         };
 
-        $palletReturn = PalletReturn::where('reference', $routeParameters['palletDelivery'])->first();
-
+        $palletReturn = PalletReturn::where('reference', $routeParameters['palletReturn'])->first();
 
         return match ($routeName) {
-            'grp.org.fulfilments.show.crm.customers.show.pallet-deliveries.show' => array_merge(
+            'grp.org.fulfilments.show.crm.customers.show.pallet-returns.show' => array_merge(
                 ShowFulfilmentCustomer::make()->getBreadcrumbs(Arr::only($routeParameters, ['organisation', 'fulfilment', 'fulfilmentCustomer'])),
                 $headCrumb(
                     $palletReturn,
                     [
                         'index' => [
-                            'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet-deliveries.index',
+                            'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet-returns.index',
                             'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment', 'fulfilmentCustomer'])
                         ],
                         'model' => [
-                            'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet-deliveries.show',
-                            'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment', 'fulfilmentCustomer', 'palletDelivery'])
+                            'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet-returns.show',
+                            'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment', 'fulfilmentCustomer', 'palletReturn'])
                         ]
                     ],
                     $suffix
                 )
             ),
-            'grp.org.warehouses.show.fulfilment.pallet-deliveries.show' => array_merge(
+            'grp.org.warehouses.show.fulfilment.pallet-returns.show' => array_merge(
                 ShowWarehouse::make()->getBreadcrumbs(
                     Arr::only($routeParameters, ['organisation', 'warehouse'])
                 ),
@@ -322,12 +300,12 @@ class ShowPalletReturn extends OrgAction
                     $palletReturn,
                     [
                         'index' => [
-                            'name'       => 'grp.org.warehouses.show.fulfilment.pallet-deliveries.index',
+                            'name'       => 'grp.org.warehouses.show.fulfilment.pallet-returns.index',
                             'parameters' => Arr::only($routeParameters, ['organisation', 'warehouse'])
                         ],
                         'model' => [
-                            'name'       => 'grp.org.warehouses.show.fulfilment.pallet-deliveries.show',
-                            'parameters' => Arr::only($routeParameters, ['organisation', 'warehouse', 'palletDelivery'])
+                            'name'       => 'grp.org.warehouses.show.fulfilment.pallet-returns.show',
+                            'parameters' => Arr::only($routeParameters, ['organisation', 'warehouse', 'palletReturn'])
                         ]
                     ],
                     $suffix
