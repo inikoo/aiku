@@ -6,7 +6,7 @@
 
 <script setup lang="ts">
 import { useLocaleStore } from "@/Stores/locale"
-import { useLayoutStore } from "@/Stores/layout"
+import { useLayoutStore } from "@/Stores/retinaLayout"
 import { useLiveUsers } from '@/Stores/active-users'
 import { onMounted } from 'vue'
 

@@ -6,53 +6,54 @@
 
 <script setup lang="ts">
 import { ref, Ref } from 'vue'
-import FooterActiveUsers from '@/Layouts/Retina/FooterActiveUsers.vue'
+import RetinaFooterActiveUsers from '@/Layouts/Retina/RetinaFooterActiveUsers.vue'
 import FooterLanguage from '@/Components/Footer/FooterLanguage.vue'
-import {usePage} from "@inertiajs/vue3";
-import Image from "@/Components/Image.vue";
-import {faHeart,faComputerClassic} from '@fas'
+import { usePage } from "@inertiajs/vue3"
+import Image from "@/Components/Image.vue"
+import { faHeart, faComputerClassic } from '@fas'
 import { faDiscord } from '@fortawesome/free-brands-svg-icons'
-import {library} from "@fortawesome/fontawesome-svg-core";
-import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
+import { library } from "@fortawesome/fontawesome-svg-core"
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
+import { trans } from "laravel-vue-i18n"
 
 const isTabActive: Ref<boolean | string> = ref(false)
-const logoSrc=usePage().props.art.footer_logo;
-import {trans} from "laravel-vue-i18n";
+const logoSrc = usePage().props.art?.footer_logo
 
-library.add(faHeart,faComputerClassic,faDiscord)
+library.add(faHeart, faComputerClassic, faDiscord)
 
 </script>
 
 <template>
     <footer class="z-20 fixed w-screen bottom-0 right-0  text-white bg-black">
         <!-- Helper: Outer background (close popup purpose) -->
-        <div class="fixed z-40 right-0 top-0 bg-transparent w-screen h-screen"
-            @click="isTabActive = !isTabActive"
+        <div class="fixed z-40 right-0 top-0 bg-transparent w-screen h-screen" @click="isTabActive = !isTabActive"
             :class="[isTabActive ? '' : 'hidden']" />
 
         <div class="flex justify-between">
             <!-- Left: Logo Section -->
             <div class="pl-4 flex items-center gap-x-1.5 py-1">
-                <Image class="h-4 select-none hidden lg:inline"  :src="logoSrc" alt="T-Wowsbar" />
+                <Image class="h-4 select-none hidden lg:inline" :src="logoSrc" alt="T-Wowsbar" />
                 <span class="text-slate-400	text-xs hidden lg:inline">
-                    {{trans('Made with')}}
-                    <FontAwesomeIcon icon='fas fa-heart' class="text-red-500 mx-1" aria-hidden='true'/>
-                    {{trans('and')}} <FontAwesomeIcon icon='fas fa-computer-classic' class="mx-1" aria-hidden='true'/> {{'in Bali'}}
+                    {{ trans('Made with') }}
+                    <FontAwesomeIcon icon='fas fa-heart' class="text-red-500 mx-1" aria-hidden='true' />
+                    {{ trans('and') }}
+                    <FontAwesomeIcon icon='fas fa-computer-classic' class="mx-1" aria-hidden='true' /> {{ 'in Bali' }}
                 </span>
             </div>
 
             <div class="pl-4 flex items-center gap-x-1.5">
                 <a href="https://discord.gg/C7bCmMaTxP" target="_blank">
                     <span class="text-slate-400	 text-xs">
-                        <FontAwesomeIcon :icon="['fab', 'discord']" class="text-white mx-1" aria-hidden='true'/>
-                        <span class="hidden sm:inline">{{trans("Join our community")}}</span> <span class="hidden lg:inline">{{trans('announcements/feedback/wishlists')}}</span>
+                        <FontAwesomeIcon :icon="['fab', 'discord']" class="text-white mx-1" aria-hidden='true' />
+                        <span class="hidden sm:inline">{{ trans("Join our community") }}</span> <span
+                            class="hidden lg:inline">{{ trans('announcements/feedback/wishlists') }}</span>
                     </span>
                 </a>
             </div>
 
             <!-- Right: Tab Section -->
             <div class="flex items-end flex-row-reverse text-sm">
-                <FooterActiveUsers :isTabActive="isTabActive" @isTabActive="(value: any) => isTabActive = value" />
+                <RetinaFooterActiveUsers :isTabActive="isTabActive" @isTabActive="(value: any) => isTabActive = value" />
                 <FooterLanguage :isTabActive="isTabActive" @isTabActive="(value: any) => isTabActive = value" />
             </div>
         </div>

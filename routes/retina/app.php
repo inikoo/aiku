@@ -18,6 +18,9 @@ Route::middleware(["retina-auth:retina"])->group(function () {
         Route::prefix("dashboard")
             ->name("dashboard.")
             ->group(__DIR__."/dashboard.php");
+        Route::prefix("profile")
+            ->name("profile.")
+            ->group(__DIR__."/profile.php");
     });
 });
 require __DIR__."/auth.php";

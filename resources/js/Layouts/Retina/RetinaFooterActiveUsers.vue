@@ -6,7 +6,7 @@
 
 <script setup lang="ts">
 import { trans } from 'laravel-vue-i18n'
-import { useLayoutStore } from "@/Stores/layout"
+import { useLayoutStore } from "@/Stores/retinaLayout"
 import FooterTab from '@/Components/Footer/FooterTab.vue'
 import { faBriefcase } from '@fal'
 import { library } from "@fortawesome/fontawesome-svg-core"

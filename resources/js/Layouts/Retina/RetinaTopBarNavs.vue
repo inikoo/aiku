@@ -16,7 +16,7 @@ import {
     faSign,faChartNetwork,faThumbsUp
 
 } from '@fal'
-import { useLayoutStore } from "@/Stores/layout"
+import { useLayoutStore } from "@/Stores/retinaLayout"
 
 
 library.add(
