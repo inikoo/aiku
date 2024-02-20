@@ -73,11 +73,11 @@ function customerRoute(pallet: Customer) {
         <template #cell(state)="{ item: pallet }">
             <Icon :data="pallet['state_icon']" class="px-1"/>
         </template>
-        <template #cell(actions)="{ item: actions }">
+    <!--     <template #cell(actions)="{ item: actions }">
         <div> 
             <input type="checkbox" :id="actions.id"  :value="actions.id" v-model="form.pallet"  
             class="h-6 w-6 rounded cursor-pointer border-gray-300 hover:border-indigo-500 text-indigo-600 focus:ring-gray-600">
         </div>
-        </template>
+        </template> -->
     </Table>
 </template>
