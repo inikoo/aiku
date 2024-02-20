@@ -37,6 +37,7 @@ return new class () extends Migration {
             $table->boolean('is_fulfilment')->index()->default(false);
             $table->boolean('is_dropshipping')->index()->default(false);
             $table->jsonb('data');
+            $table->jsonb('settings');
             $table->timestampsTz();
             $table = $this->softDeletes($table);
             $table->string('source_id')->nullable()->unique();
