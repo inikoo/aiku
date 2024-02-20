@@ -3,58 +3,62 @@
  *  Created: Thu, 25 Aug 2022 00:33:39 Malaysia Time, Kuala Lumpur, Malaysia
  *  Copyright (c) 2022, Raul A Perusquia F
  */
-import { Navigation, grpNavigation, orgNavigation } from "@/types/Navigation"
+// import { Navigation, grpNavigation, orgNavigation } from "@/types/Navigation"
 import { useColorTheme } from '@/Composables/useStockList'
 
 import { defineStore } from "pinia"
 import { Image } from "@/types/Image"
-import { routeType } from "@/types/route"
+// import { routeType } from "@/types/route"
 import { Colors } from "@/types/Color"
 
-interface OrganisationsData {
-    id: number
-    slug: string
-    code: string
-    label: string
-    logo: Image
-    route: routeType
-    authorised_shops: {
-        id: number
-        slug: string
-        code: string
-        label: string
-        state: string
-        type: string
-        route: routeType
-    }[]
-    authorised_warehouses: {
-        id: number
-        slug: string
-        code: string
-        label: string
-        state: string
-        route: routeType
-    }[]
-    authorised_fulfilments: {
-        id: number
-        slug: string
-        code: string
-        label: string
-        state: string
-        type: string
-        route: routeType
-    }[]
-}
+// interface OrganisationsData {
+//     id: number
+//     slug: string
+//     code: string
+//     label: string
+//     logo: Image
+//     route: routeType
+//     authorised_shops: {
+//         id: number
+//         slug: string
+//         code: string
+//         label: string
+//         state: string
+//         type: string
+//         route: routeType
+//     }[]
+//     authorised_warehouses: {
+//         id: number
+//         slug: string
+//         code: string
+//         label: string
+//         state: string
+//         route: routeType
+//     }[]
+//     authorised_fulfilments: {
+//         id: number
+//         slug: string
+//         code: string
+//         label: string
+//         state: string
+//         type: string
+//         route: routeType
+//     }[]
+// }
 
-interface Group {
-    logo: Image
-    slug: string
-    label: string
-}
+// interface Group {
+//     logo: Image
+//     slug: string
+//     label: string
+// }
 
 // Each organisation have their own state
-interface OrganisationState {
-    [key: string] : string  // 'currentShop' | 'currentWarehouse' | 'currentFulfilment'
+// interface OrganisationState {
+//     [key: string] : string  // 'currentShop' | 'currentWarehouse' | 'currentFulfilment'
+// }
+
+interface LiveUsers {
+    enabled?: boolean
 }
 
 export const useLayoutStore = defineStore("retinaLayout", {
@@ -64,6 +68,7 @@ export const useLayoutStore = defineStore("retinaLayout", {
                 name: "",  // For styling navigation depend on which App
                 color: null as unknown | Colors,  // Styling layout color
                 theme: useColorTheme[1] as string[],  // For styling app color
+                url: '#', // Homepage links
             },
             currentModule: "",
             currentRoute: "grp.dashboard.show", // Define value to avoid route null at first load
@@ -72,6 +77,9 @@ export const useLayoutStore = defineStore("retinaLayout", {
             leftSidebar: {
                 show: true,
             },
+            liveUsers: {
+                enabled: false as boolean
+            } as LiveUsers | null,
             navigation: {
                 // grp: {} as grpNavigation,
                 // org: {} as { [key: string]: orgNavigation } | { [key: string]: Navigation } | Navigation

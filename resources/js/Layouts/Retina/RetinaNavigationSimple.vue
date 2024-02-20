@@ -4,13 +4,12 @@ import { Navigation } from '@/types/Navigation'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faRoute } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { Link, usePage, router } from '@inertiajs/vue3'
-// import SubNavigation from '@/Layouts/SubNavigation.vue'
+import { Link } from '@inertiajs/vue3'
 import { capitalize } from "@/Composables/capitalize"
 import { isNavigationActive } from '@/Composables/useUrl'
-import { onMounted, ref, onUnmounted, computed } from 'vue'
-import TopbarSubsections from '@/Layouts/TopbarSubsections.vue'
-import {faHandHoldingBox} from '@fal';
+import { onMounted, ref, onUnmounted } from 'vue'
+import RetinaTopbarSubsections from '@/Layouts/Retina/RetinaTopbarSubsections.vue'
+import {faHandHoldingBox} from '@fal'
 library.add(faRoute, faHandHoldingBox)
 
 const props = defineProps<{
@@ -75,10 +74,10 @@ onUnmounted(() => {
         </Transition>
     </Link>
 
-    <!-- If this Navigation is active, then teleport the SubSections to #TopbarSubsections in <AppTopBar> -->
+    <!-- If this Navigation is active, then teleport the SubSections to #RetinaTopbarSubsections in <AppTopBar> -->
     <template v-if="isNavigationActive(props.nav.root || 'xx.xx.xx.xx')">
-        <Teleport to="#TopbarSubsections" :disabled="!isNavigationActive(props.nav.root || 'xx.xx.xx.xx')">
-            <TopbarSubsections
+        <Teleport to="#RetinaTopbarSubsections" :disabled="!isNavigationActive(props.nav.root || 'xx.xx.xx.xx')">
+            <RetinaTopbarSubsections
                 v-if="nav.topMenu?.subSections"
                 :subSections="nav.topMenu.subSections"
             />

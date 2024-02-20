@@ -75,8 +75,10 @@ const label = {
                         >
                             <Image :src="undefined" class="aspect-square h-5"/>
                             <Transition name="slide-to-left">
-                                <p v-if="layoutStore.leftSidebar.show" class="text-lg bg-clip-text font-bold whitespace-nowrap leading-none lg:truncate">
-                                    Aiku
+                                <p v-if="layoutStore.leftSidebar.show" class="capitalize text-lg bg-clip-text font-bold whitespace-nowrap leading-none lg:truncate"
+                                    :style="{color: layoutStore.app.theme[1]}"
+                                >
+                                    {{ layoutStore.app?.name }}
                                 </p>
                             </Transition>
                         </Link>
@@ -217,7 +219,7 @@ const label = {
                         </div>
 
                         <!-- Section: Subsections (Something will teleport to this section) -->
-                        <div class="flex h-full" id="TopbarSubsections">
+                        <div class="flex h-full" id="RetinaTopbarSubsections">
                         </div>
                         
                     </div>
