@@ -24,7 +24,7 @@ const form = useForm({ pallet : []})
 
 </script>
 
-<template layout="App">
+<template layout="Grp">
     <Head :title="capitalize(title)"/>
     <PageHeading :data="pageHead">
     <template #button-new-delivery="{ action: action }">
@@ -32,7 +32,7 @@ const form = useForm({ pallet : []})
       <Action v-if="action.action" :action="action.action"/>
     </div>
     <div v-else></div>
-      
+
     </template>
     </PageHeading>
     <TablePallets :data="data" :tab="'pallets'" :form="form" :dataToSubmit="form.data()" />

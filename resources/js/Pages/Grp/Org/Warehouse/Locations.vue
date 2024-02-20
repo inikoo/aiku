@@ -30,7 +30,7 @@ const onUploadOpen=(action)=>{
 }
 </script>
 
-<template layout="App">
+<template layout="Grp">
     <Head :title="capitalize(title)"/>
     <PageHeading :data="pageHead">
         <template #button-group-upload="{ action : action }">

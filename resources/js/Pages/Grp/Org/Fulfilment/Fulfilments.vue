@@ -49,7 +49,7 @@ const component = computed(() => {
 
 </script>
 
-<template layout="App">
+<template layout="Grp">
     <!--suppress HtmlRequiredTitleElement -->
     <Head :title="capitalize(title)"/>
     <PageHeading :data="pageHead"></PageHeading>

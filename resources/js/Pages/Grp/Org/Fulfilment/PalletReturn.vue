@@ -12,15 +12,9 @@ import Tabs from "@/Components/Navigation/Tabs.vue"
 import { computed, ref, reactive, watch } from "vue"
 import { useTabChange } from "@/Composables/tab-change"
 import TableHistories from "@/Components/Tables/TableHistories.vue"
-import ShowcasePallet from "@/Components/Pallet/Showcase.vue"
 import Timeline from "@/Components/Timeline/Timeline.vue"
-import Popover from "@/Components/Popover.vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
-import PureInput from "@/Components/Pure/PureInput.vue"
 import Modal from "@/Components/Utils/Modal.vue"
-import { get, kebabCase } from "lodash"
-import axios from "axios"
-import UploadExcel from "@/Components/Upload/UploadExcel.vue"
 import TablePalletReturn from "@/Components/PalletReturn/tablePalletReturn.vue"
 import TablePalletRetrunsDelivery from "@/Components/Tables/TablePalletRetrunsDelivery.vue"
 
@@ -141,7 +135,7 @@ watch(
 console.log('ddd',props.data)
 </script>
 
-<template layout="App">
+<template layout="Grp">
 	<Head :title="capitalize(title)" />
 	<PageHeading :data="pageHead">
 		<template #button-group-add-pallet="{ action: action }">

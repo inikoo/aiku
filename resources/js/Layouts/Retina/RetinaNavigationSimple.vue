@@ -8,7 +8,7 @@ import { Link } from '@inertiajs/vue3'
 import { capitalize } from "@/Composables/capitalize"
 import { isNavigationActive } from '@/Composables/useUrl'
 import { onMounted, ref, onUnmounted } from 'vue'
-import RetinaTopbarSubsections from '@/Layouts/Retina/RetinaTopbarSubsections.vue'
+import RetinaTopBarSubsections from '@/Layouts/Retina/RetinaTopBarSubsections.vue'
 import {faHandHoldingBox} from '@fal'
 library.add(faRoute, faHandHoldingBox)
 
@@ -58,7 +58,7 @@ onUnmounted(() => {
             'background-color': layout.app?.theme[1],
             'color': layout.app?.theme[2]
         } : {} ]"
-        
+
         :aria-current="navKey === layout.currentModule ? 'page' : undefined"
         v-tooltip="layout.leftSidebar.show ? false : capitalize(nav.label)"
     >
@@ -74,10 +74,10 @@ onUnmounted(() => {
         </Transition>
     </Link>
 
-    <!-- If this Navigation is active, then teleport the SubSections to #RetinaTopbarSubsections in <AppTopBar> -->
+    <!-- If this Navigation is active, then teleport the SubSections to #RetinaTopBarSubsections in <AppTopBar> -->
     <template v-if="isNavigationActive(props.nav.root || 'xx.xx.xx.xx')">
-        <Teleport to="#RetinaTopbarSubsections" :disabled="!isNavigationActive(props.nav.root || 'xx.xx.xx.xx')">
-            <RetinaTopbarSubsections
+        <Teleport to="#RetinaTopBarSubsections" :disabled="!isNavigationActive(props.nav.root || 'xx.xx.xx.xx')">
+            <RetinaTopBarSubsections
                 v-if="nav.topMenu?.subSections"
                 :subSections="nav.topMenu.subSections"
             />

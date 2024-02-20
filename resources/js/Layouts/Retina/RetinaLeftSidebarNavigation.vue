@@ -5,13 +5,12 @@
   -->
 
 <script setup lang="ts">
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import { Link, usePage } from "@inertiajs/vue3"
-import { ref, onMounted } from "vue"
+
+import { onMounted } from "vue"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faBoxUsd, faUsersCog, faLightbulb, faUserHardHat, faUser, faInventory, faConveyorBeltAlt, faChevronDown, faPalletAlt } from "@fal"
 import { useLayoutStore } from "@/Stores/retinaLayout.js"
-// import NavigationExpandable from '@//Layouts/NavigationExpandable.vue'
+
 import RetinaNavigationSimple from '@/Layouts/Retina/RetinaNavigationSimple.vue'
 import { generateNavigationName, generateCurrentString } from '@/Composables/useConvertString'
 
@@ -88,7 +87,7 @@ const iconList: { [key: string]: string } = {
                                 :icon="iconList[generateNavigationName(itemKey)] || ''"
                             />
                         </template>
-                        
+
                         <template v-else-if="layout.organisationsState?.[layout.currentParams.organisation]?.[generateNavigationName(generateCurrentString(itemKey))]">
                             <RetinaNavigationGroup
                                 :orgNav="orgNav"
@@ -97,7 +96,7 @@ const iconList: { [key: string]: string } = {
                             />
                         </template>
                     </template>
-                    
+
                     <template v-if="itemKey == 'warehouses_navigation' && layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_warehouses.length">
                         <!-- If: Warehouses length is 1 -->
                         <!-- <RetinaNavigationSimple v-if="layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_warehouses.length === 1"
@@ -126,11 +125,11 @@ const iconList: { [key: string]: string } = {
                             />
                         </template>
                     </template>
-                    
+
                     <template v-if="
                         itemKey == 'fulfilments_navigation' && (layout.organisationsState?.[layout.currentParams.organisation]?.currentType == 'fulfilment')
                         && layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_fulfilments.length
-                        
+
                     ">
                         <!-- If Fulfilment length is 1 -->
                         <template v-if="layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_fulfilments.length === 1">

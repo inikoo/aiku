@@ -1,5 +1,10 @@
+<!--
+  - Author: Raul Perusquia <raul@inikoo.com>
+  - Created: Tue, 20 Feb 2024 07:58:14 Central Standard Time, Mexico City, Mexico
+  - Copyright (c) 2024, Raul A Perusquia Flores
+  -->
+
 <script setup lang="ts">
-import { useLocaleStore } from "@/Stores/locale"
 import { useLayoutStore } from "@/Stores/layout"
 import { useLiveUsers } from '@/Stores/active-users'
 import { onMounted } from 'vue'
@@ -9,7 +14,7 @@ import { faTimes, faPencil } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { useTruncate } from '@/Composables/useTruncate'
 import { Link } from '@inertiajs/vue3'
-import { useIsFutureIsAPast } from '../Composables/useFormatTime'
+import { useIsFutureIsAPast } from '@/Composables/useFormatTime'
 library.add(faTimes, faPencil)
 
 const layout = useLayoutStore()
@@ -69,7 +74,7 @@ const onClickRemoveBar = (tabName: 'activeUsers') => {
                 </template>
             </li>
         </TransitionGroup>
-        
+
         <!-- Add new here -->
     </div>
 </template>

@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { DatePicker } from 'v-calendar'
 import 'v-calendar/style.css'
-import { ref } from 'vue'
 
 const props = defineProps<{
     data: Object
@@ -53,7 +52,7 @@ const isDateSameDay = (date1: Date, date2: Date) => {
 </script>
 
 
-<template  layout="App">
+<template  layout="Grp">
     <div class="w-full mx-auto mt-5">
         <DatePicker expanded :attributes="attrs">
             <template #day-content="{ day, attributes }">

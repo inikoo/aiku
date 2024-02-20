@@ -5,7 +5,7 @@
   -->
 
 <script setup>
-import {Head, usePage} from '@inertiajs/vue3';
+import {Head} from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 import Stats from '@/Components/DataDisplay/Stats.vue';
 import { capitalize } from "@/Composables/capitalize"
@@ -15,12 +15,12 @@ defineProps(['title', 'pageHead', 'stats']);
 
 </script>
 
-<template layout="App">
+<template layout="Grp">
     <Head :title="capitalize(title)"/>
     <PageHeading :data="pageHead"></PageHeading>
     <stats class="m-4" :stats="stats"/>
     <div class="px-2 bg-amber-500 w-fit">resources/js/Pages/Grp/SysAdmin/SysAdminDashboard.vue</div>
-    <!-- <br>Usepage:
+    <!-- <br>UsePage:
     <pre>{{ usePage().props.layout.organisations }}</pre>
 <div class="mt-10"></div> -->
     <br>UseLayoutStore:<pre>{{ useLayoutStore().group }}</pre>

@@ -23,7 +23,7 @@ const props = defineProps(['title', 'pageHead', 'delivery_note']);
 </script>
 
 
-<template layout="App">
+<template layout="Grp">
     <Head :title="capitalize(title)"/>
     <PageHeading :data="pageHead"></PageHeading>
 </template>

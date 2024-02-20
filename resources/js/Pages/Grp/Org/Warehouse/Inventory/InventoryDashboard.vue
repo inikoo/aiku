@@ -17,7 +17,7 @@ library.add(faInventory, faWarehouse, faMapSigns, faBox, faBoxesAlt, faBars);
 </script>
 
 <!--suppress HtmlUnknownAttribute -->
-<template layout="App">
+<template layout="Grp">
     <!--suppress HtmlRequiredTitleElement -->
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead"></PageHeading>

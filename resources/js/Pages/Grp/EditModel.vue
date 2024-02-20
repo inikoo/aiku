@@ -5,7 +5,7 @@
   -->
 
 <script setup lang="ts">
-import {ref, onMounted, onBeforeUnmount, Ref} from 'vue'
+import {ref, onMounted, onBeforeUnmount} from 'vue'
 import Action from '@/Components/Forms/Fields/Action.vue'
 import FieldForm from '@/Components/Forms/FieldForm.vue'
 import { get as getLodash } from 'lodash'
@@ -124,7 +124,7 @@ onBeforeUnmount(() => {
 </script>
 
 
-<template layout="App">
+<template layout="Grp">
     <Head :title="capitalize(title)"/>
     <PageHeading :data="pageHead"></PageHeading>
 

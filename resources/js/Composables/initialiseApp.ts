@@ -98,7 +98,7 @@ export const initialiseApp = () => {
             layout.app.theme = usePage().props.layout?.app_theme
         }
 
-        // Set Organisations (for Multiselect in Topbar)
+        // Set Organisations (for Multiselect in TopBar)
         if (usePage().props.layout?.organisations) {
             layout.organisations = usePage().props.layout.organisations
         }

@@ -68,7 +68,7 @@ const component = computed(() => {
 
 </script>
 
-<template layout="App">
+<template layout="Grp">
     <Head :title="capitalize(title)" />
     <!-- {{ showcase }} -->
     <PageHeading :data="pageHead"></PageHeading>

@@ -8,7 +8,6 @@
 import {Head} from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 import { capitalize } from "@/Composables/capitalize"
-import TableCustomers from "@/Components/Tables/TableCustomers.vue";
 import Tabs from "@/Components/Navigation/Tabs.vue";
 import {computed, ref} from "vue";
 import {useTabChange} from "@/Composables/tab-change";
@@ -40,7 +39,7 @@ const component = computed(() => {
 
 </script>
 
-<template layout="App">
+<template layout="Grp">
     <Head :title="capitalize(title)"/>
     <PageHeading :data="pageHead"></PageHeading>
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate"/>

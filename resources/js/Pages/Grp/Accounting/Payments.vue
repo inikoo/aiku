@@ -15,7 +15,7 @@ defineProps(['data', 'title', 'pageHead']);
 
 </script>
 
-<template layout="App">
+<template layout="Grp">
     <Head :title="capitalize(title)"/>
     <PageHeading :data="pageHead"></PageHeading>
     <TablePayments :data="data" />

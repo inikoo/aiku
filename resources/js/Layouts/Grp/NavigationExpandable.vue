@@ -1,3 +1,9 @@
+<!--
+  - Author: Raul Perusquia <raul@inikoo.com>
+  - Created: Tue, 20 Feb 2024 08:28:47 Central Standard Time, Mexico City, Mexico
+  - Copyright (c) 2024, Raul A Perusquia Flores
+  -->
+
 <script setup lang='ts'>
 import { useLayoutStore } from '@/Stores/layout'
 import { Navigation } from '@/types/Navigation'
@@ -5,7 +11,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faStoreAlt, faWarehouseAlt } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { Link } from '@inertiajs/vue3'
-import SubNavigation from '@/Layouts/SubNavigation.vue'
+import SubNavigation from '@/Layouts/Grp/SubNavigation.vue'
 import {
     Disclosure, DisclosureButton, DisclosurePanel,
     Popover, PopoverButton, PopoverPanel
@@ -36,7 +42,7 @@ const navigationName = props.navKey.split('_')[0].slice(0, -1)  // shops_navigat
             <div class="leading-none capitalize text-white font-bold pb-1 select-none flex items-center gap-x-1" :class="layout.leftSidebar.show ? '' : 'mx-auto'">
                 <FontAwesomeIcon v-if="navKey == 'shops_navigation'" icon='fal fa-store-alt' class='text-sm opacity-65' aria-hidden='true' />
                 <FontAwesomeIcon v-if="navKey == 'warehouses_navigation'" icon='fal fa-warehouse-alt' class='text-sm opacity-65' aria-hidden='true' />
-                
+
                 <span v-if="layout.leftSidebar.show">
                     <template v-if="layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.[`authorised_${navigationName}s`].length === 1">
                         {{ layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.[`authorised_${navigationName}s`][0].name }}
@@ -95,7 +101,7 @@ const navigationName = props.navKey.split('_')[0].slice(0, -1)  // shops_navigat
                                             <FontAwesomeIcon v-if="layout.leftSidebar.show" icon='fal fa-chevron-down' class='text-white text-xxs transition-all duration-200 ease-in-out' :class="[subOpen ? 'rotate-180' : '']" aria-hidden='true' />
                                         </div>
                                     </DisclosureButton>
-                                    
+
                                     <DisclosurePanel>
                                         <div class="pl-2">
                                             <SubNavigation v-for="(shopNavigation, navigationIndex) in subNav[navigationShopWarehouse.slug]"
@@ -104,11 +110,11 @@ const navigationName = props.navKey.split('_')[0].slice(0, -1)  // shops_navigat
                                         </div>
                                     </DisclosurePanel>
                                 </Disclosure>
-                                
+
                             </div>
                         </template>
                     </template>
-                    
+
                     <!-- If shop selected, show only selected shop -->
                     <template v-else>
                         <div class="group flex flex-col justify-center text-sm py-0.5 gap-y-1"
@@ -117,7 +123,7 @@ const navigationName = props.navKey.split('_')[0].slice(0, -1)  // shops_navigat
                             ]"
                             :aria-current="layout.currentParams[navigationName] === layout.currentModule ? 'page' : undefined">
                             <!-- <p class="bg-indigo-300 py-0.5 pl-1 capitalize text-slate-700 font-bold">{{ layout.currentParams[navigationName] }}</p> -->
-                            
+
                             <!-- Looping: Navigation in Shop -->
                             <SubNavigation v-for="(shopNavigation, navigationIndex) in subNav[layout.currentParams[navigationName]]"
                                 :navigation="shopNavigation" :indexNav="navigationIndex">

@@ -9,7 +9,7 @@ import { Head, useForm, router } from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 import { capitalize } from "@/Composables/capitalize"
 import Tabs from "@/Components/Navigation/Tabs.vue";
-import { computed, ref, reactive, watch } from "vue";
+import { computed, ref, watch } from "vue";
 import { useTabChange } from "@/Composables/tab-change";
 import TableHistories from "@/Components/Tables/TableHistories.vue";
 import ShowcasePallet from '@/Components/Pallet/Showcase.vue'
@@ -17,8 +17,7 @@ import Timeline from '@/Components/Timeline/Timeline.vue'
 import Popover from '@/Components/Popover.vue';
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import PureInput from '@/Components/Pure/PureInput.vue';
-import { get, kebabCase } from 'lodash'
-import axios from 'axios';
+import { get } from 'lodash'
 import UploadExcel from '@/Components/Upload/UploadExcel.vue'
 
 const props = defineProps<{
@@ -132,7 +131,7 @@ watch(props,(newValue)=>{
 
 </script>
 
-<template layout="App">
+<template layout="Grp">
   <Head :title="capitalize(title)" />
   <PageHeading :data="pageHead">
     <template #button-group-add-pallet="{ action: action }">

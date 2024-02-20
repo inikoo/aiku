@@ -28,7 +28,7 @@ onMounted(async () => {
 
 </script>
 
-<template layout="GuestLayout">
+<template layout="GrpAuth">
     <Head title="Login"/>
     <form class="space-y-6" @submit.prevent="submit">
         <div>

@@ -7,7 +7,6 @@
 <script setup lang="ts">
 
 import RetinaLeftSidebarNavigation from "@/Layouts/Retina/RetinaLeftSidebarNavigation.vue"
-// import LeftSidebarBottomNav from "@/Layouts/LeftSidebarBottomNav.vue"
 import { useLayoutStore } from "@/Stores/retinaLayout"
 
 import { library } from "@fortawesome/fontawesome-svg-core"
@@ -18,7 +17,7 @@ library.add(faChevronLeft)
 const layout = useLayoutStore()
 
 // Set LeftSidebar value to local storage
-const handleToggleLeftbar = () => {
+const handleToggleLeftBar = () => {
     localStorage.setItem('leftSideBar', (!layout.leftSidebar.show).toString())
     layout.leftSidebar.show = !layout.leftSidebar.show
 }
@@ -31,7 +30,7 @@ const handleToggleLeftbar = () => {
             'color': layout.app.theme[1]
         }" :class="[layout.leftSidebar.show ? 'w-8/12 md:w-48' : 'w-8/12 md:w-16']" id="leftSidebar">
             <!-- Toggle: collapse-expand LeftSideBar -->
-            <div @click="handleToggleLeftbar"
+            <div @click="handleToggleLeftBar"
                 class="hidden absolute z-10 right-0 top-2/4 -translate-y-full translate-x-1/4 w-5 aspect-square border border-gray-300 rounded-full md:flex md:justify-center md:items-center cursor-pointer"
                 :title="layout.leftSidebar.show ? 'Collapse the bar' : 'Expand the bar'" :style="{
                     'background-color': layout.app.theme[1],

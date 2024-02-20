@@ -29,7 +29,7 @@ watchEffect(() => {
 })
 </script>
 
-<template layout="Guest">
+<template layout="RetinaAuth">
 
     <div class="space-y-4 text-gray-600">
 

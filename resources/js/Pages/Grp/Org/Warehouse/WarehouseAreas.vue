@@ -5,12 +5,12 @@
   -->
 <script setup lang="ts">
 import { Head } from "@inertiajs/vue3";
-import { computed, ref, reactive } from "vue";
+import { ref } from "vue";
 import PageHeading from "@/Components/Headings/PageHeading.vue";
 import TableWarehouseAreas from "@/Components/Tables/TableWarehouseAreas.vue";
 import { capitalize } from "@/Composables/capitalize";
 import Button from "@/Components/Elements/Buttons/Button.vue";
-import { get, kebabCase } from 'lodash'
+import { get } from 'lodash'
 import UploadExcel from "@/Components/Upload/UploadExcel.vue";
 
 const props = defineProps<{
@@ -28,7 +28,7 @@ const onUploadOpen = (action) => {
 };
 </script>
 
-<template layout="App">
+<template layout="Grp">
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead">
         <template #button-group-upload="{ action : action }">

@@ -18,7 +18,7 @@ const props = defineProps <{
 console.log(props.pageHead)
 </script>
 
-<template layout="App">
+<template layout="Grp">
     <Head :title="capitalize(title)"/>
     <PageHeading :data="pageHead"></PageHeading>
     <TableWebsites :data="data" />

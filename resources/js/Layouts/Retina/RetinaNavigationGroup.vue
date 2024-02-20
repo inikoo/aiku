@@ -1,10 +1,9 @@
 <script setup lang='ts'>
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { useLayoutStore } from '@/Stores/retinaLayout'
-import NavigationSimple from '@/Layouts/NavigationSimple.vue'
+import NavigationSimple from '@/Layouts/Grp/NavigationSimple.vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { Navigation } from '@/types/Navigation'
-import { usePage } from '@inertiajs/vue3'
 import { isNavigationActive } from '@/Composables/useUrl'
 import { generateCurrentString } from '@/Composables/useConvertString'
 import { ref, computed } from 'vue'
@@ -65,7 +64,7 @@ const isPanelOpen = ref(isCurrentRouteActive.value || props.itemKey == layout.or
                         />
                     </template>
                 </DisclosurePanel>
-                
+
                 <!-- If Shops/Warehouses length is more than 1 and current warehouse is exist -->
                 <DisclosurePanel static v-else-if="layout.organisationsState?.[layout.currentParams.organisation]?.[generateCurrentString(itemKey)]"
                     class="flex flex-col gap-y-1 mb-1">
@@ -75,14 +74,14 @@ const isPanelOpen = ref(isCurrentRouteActive.value || props.itemKey == layout.or
                             :nav="nav"
                             :navKey="navIndex"
                         />
-                
+
                         <!-- <div v-if="(nav.route?.name ? isRouteSameAsCurrentUrl(route(nav.route.name, nav.route.parameters)) : false)"
                             class="absolute inset-0 bg-black/20 rounded -z-10"
                         /> -->
                     </template>
                 </DisclosurePanel>
             </div>
-        
+
             <div v-if="isCurrentRouteActive"
                 class="absolute inset-0 bg-black/20 rounded -z-10"
             />

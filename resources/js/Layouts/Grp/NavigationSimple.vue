@@ -1,15 +1,20 @@
+<!--
+  - Author: Raul Perusquia <raul@inikoo.com>
+  - Created: Tue, 20 Feb 2024 08:28:30 Central Standard Time, Mexico City, Mexico
+  - Copyright (c) 2024, Raul A Perusquia Flores
+  -->
+
 <script setup lang='ts'>
 import { useLayoutStore } from '@/Stores/layout'
 import { Navigation } from '@/types/Navigation'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faRoute } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { Link, usePage, router } from '@inertiajs/vue3'
-// import SubNavigation from '@/Layouts/SubNavigation.vue'
+import { Link } from '@inertiajs/vue3'
 import { capitalize } from "@/Composables/capitalize"
 import { isNavigationActive } from '@/Composables/useUrl'
-import { onMounted, ref, onUnmounted, computed } from 'vue'
-import TopbarSubsections from '@/Layouts/TopbarSubsections.vue'
+import { onMounted, ref, onUnmounted } from 'vue'
+import TopBarSubsections from '@/Layouts/Grp/TopBarSubsections.vue'
 import {faHandHoldingBox} from '@fal';
 library.add(faRoute, faHandHoldingBox)
 
@@ -59,7 +64,7 @@ onUnmounted(() => {
             'background-color': layout.app?.theme[1],
             'color': layout.app?.theme[2]
         } : {} ]"
-        
+
         :aria-current="navKey === layout.currentModule ? 'page' : undefined"
         v-tooltip="layout.leftSidebar.show ? false : capitalize(nav.label)"
     >
@@ -75,10 +80,10 @@ onUnmounted(() => {
         </Transition>
     </Link>
 
-    <!-- If this Navigation is active, then teleport the SubSections to #TopbarSubsections in <AppTopBar> -->
+    <!-- If this Navigation is active, then teleport the SubSections to #TopBarSubsections in <AppTopBar> -->
     <template v-if="isNavigationActive(props.nav.root || 'xx.xx.xx.xx')">
-        <Teleport to="#TopbarSubsections" :disabled="!isNavigationActive(props.nav.root || 'xx.xx.xx.xx')">
-            <TopbarSubsections
+        <Teleport to="#TopBarSubsections" :disabled="!isNavigationActive(props.nav.root || 'xx.xx.xx.xx')">
+            <TopBarSubsections
                 v-if="nav.topMenu?.subSections"
                 :subSections="nav.topMenu.subSections"
             />

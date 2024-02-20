@@ -5,7 +5,6 @@ import PageHeading from "@/Components/Headings/PageHeading.vue"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faTruckCouch } from "@fal"
 import { capitalize } from "@/Composables/capitalize"
-import Stats from '@/Components/DataDisplay/Stats.vue'
 import StatsDoughnut from "@/Components/Stats/StatsDoughnut.vue"
 import { useTruncate } from '@/Composables/useTruncate'
 import { useRangeFromNow } from '@/Composables/useFormatTime'
@@ -180,7 +179,7 @@ const options = {
 </script>
 
 
-<template layout="App">
+<template layout="Grp">
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead"></PageHeading>
 
@@ -224,7 +223,7 @@ const options = {
                     <div class="w-full h-auto aspect-[4/1] flex items-center justify-start gap-x-4 border-b border-gray-700/5 bg-gray-200 overflow-hidden">
                         <Image :src="{original: lastEditedBanner.image}" :alt="lastEditedBanner?.name" />
                     </div>
-                    
+
                     <dl class="divide-y divide-transparent px-4 pt-1 pb-3 text-sm">
                         <!-- Title Banner -->
                         <div class="flex justify-between items-center gap-x-4">

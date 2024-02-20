@@ -1,18 +1,16 @@
 <!--
   - Author: Raul Perusquia <raul@inikoo.com>
-  - Created: Fri, 03 Mar 2023 13:49:56 Malaysia Time, Kuala Lumpur, Malaysia
-  - Copyright (c) 2023, Raul A Perusquia Flores
+  - Created: Tue, 20 Feb 2024 08:02:30 Central Standard Time, Mexico City, Mexico
+  - Copyright (c) 2024, Raul A Perusquia Flores
   -->
 
 <script setup lang="ts">
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import { Link } from "@inertiajs/vue3"
-import { ref, onMounted } from "vue"
+import { onMounted } from "vue"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faBoxUsd, faUsersCog, faLightbulb, faUserHardHat, faUser, faInventory, faConveyorBeltAlt, faChevronDown, faPalletAlt } from "@fal"
 import { useLayoutStore } from "@/Stores/layout.js"
 // import NavigationExpandable from '@//Layouts/NavigationExpandable.vue'
-import NavigationSimple from '@/Layouts/NavigationSimple.vue'
+import NavigationSimple from '@/Layouts/Grp/NavigationSimple.vue'
 import { generateNavigationName, generateCurrentString } from '@/Composables/useConvertString'
 
 import { get } from "lodash"
@@ -44,7 +42,7 @@ const iconList: { [key: string]: string } = {
             <template v-for="(orgNav, itemKey) in layout.navigation.org[layout.currentParams.organisation]" :key="itemKey" >
                 <!-- shops_index, warehouses_index, fulfilments_index -->
                 <template v-if="itemKey == 'shops_index' || itemKey == 'warehouses_index' || itemKey == 'fulfilments_index'">
-                    <!-- Shops index (if the shop lenght more than 1) -->
+                    <!-- Shops index (if the shop length more than 1) -->
                     <template v-if="itemKey == 'shops_index' && (layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_shops.length || 0) > 1">
                         <NavigationSimple v-if="!layout.organisationsState[layout.currentParams.organisation].currentShop"
                             :nav="orgNav"
@@ -52,7 +50,7 @@ const iconList: { [key: string]: string } = {
                         />
                     </template>
 
-                    <!-- Warehouses index (if the warehouse lenght more than 1) -->
+                    <!-- Warehouses index (if the warehouse length more than 1) -->
                     <template v-if="itemKey == 'warehouses_index' && (layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_warehouses.length || 0) > 1">
                         <NavigationSimple v-if="!layout.organisationsState?.[layout.currentParams.organisation]?.currentWarehouse"
                             :nav="orgNav"
@@ -60,7 +58,7 @@ const iconList: { [key: string]: string } = {
                         />
                     </template>
 
-                    <!-- Fulfilments index (if the fulfilment lenght more than 1) -->
+                    <!-- Fulfilments index (if the fulfilment length more than 1) -->
                     <template v-if="itemKey == 'fulfilments_index' && (layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_fulfilments.length || 0) > 1">
                         <NavigationSimple v-if="!layout.organisationsState?.[layout.currentParams.organisation]?.currentFulfilment"
                             :nav="orgNav"
@@ -89,7 +87,7 @@ const iconList: { [key: string]: string } = {
                                 :icon="iconList[generateNavigationName(itemKey)] || ''"
                             />
                         </template>
-                        
+
                         <template v-else-if="layout.organisationsState?.[layout.currentParams.organisation]?.[generateNavigationName(generateCurrentString(itemKey))]">
                             <NavigationGroup
                                 :orgNav="orgNav"
@@ -98,7 +96,7 @@ const iconList: { [key: string]: string } = {
                             />
                         </template>
                     </template>
-                    
+
                     <template v-if="itemKey == 'warehouses_navigation' && layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_warehouses.length">
                         <!-- If: Warehouses length is 1 -->
                         <!-- <NavigationSimple v-if="layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_warehouses.length === 1"
@@ -127,11 +125,11 @@ const iconList: { [key: string]: string } = {
                             />
                         </template>
                     </template>
-                    
+
                     <template v-if="
                         itemKey == 'fulfilments_navigation' && (layout.organisationsState?.[layout.currentParams.organisation]?.currentType == 'fulfilment')
                         && layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_fulfilments.length
-                        
+
                     ">
                         <!-- If Fulfilment length is 1 -->
                         <template v-if="layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_fulfilments.length === 1">

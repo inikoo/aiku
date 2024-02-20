@@ -5,12 +5,11 @@
   -->
 
 <script setup lang="ts">
-import { usePage } from '@inertiajs/vue3'
 import { useLayoutStore } from '@/Stores/layout'
 
 </script>
 
-<template layout="App">
+<template layout="Grp">
     <div>
         resources/js/Pages/Grp/Dashboard/Dashboard.vue
         <!-- <pre>{{ route().v()?.params?.organisation }}</pre> -->

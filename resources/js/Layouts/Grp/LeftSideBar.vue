@@ -6,10 +6,8 @@
 
 <script setup lang="ts">
 
-import { ref } from "vue"
-
-import LeftSidebarNavigation from "@/Layouts/LeftSidebarNavigation.vue"
-import LeftSidebarBottomNav from "@/Layouts/LeftSidebarBottomNav.vue"
+import LeftSidebarNavigation from "@/Layouts/Grp/LeftSidebarNavigation.vue"
+import LeftSidebarBottomNav from "@/Layouts/Grp/LeftSidebarBottomNav.vue"
 import { useLayoutStore } from "@/Stores/layout"
 
 import { library } from "@fortawesome/fontawesome-svg-core"
@@ -20,7 +18,7 @@ library.add(faChevronLeft)
 const layout = useLayoutStore()
 
 // Set LeftSidebar value to local storage
-const handleToggleLeftbar = () => {
+const handleToggleLeftBar = () => {
     localStorage.setItem('leftSideBar', (!layout.leftSidebar.show).toString())
     layout.leftSidebar.show = !layout.leftSidebar.show
 }
@@ -36,7 +34,7 @@ const handleToggleLeftbar = () => {
         id="leftSidebar"
     >
         <!-- Toggle: collapse-expand LeftSideBar -->
-        <div @click="handleToggleLeftbar"
+        <div @click="handleToggleLeftBar"
             class="hidden absolute z-10 right-0 top-2/4 -translate-y-full translate-x-1/2 w-5 aspect-square border border-gray-300 rounded-full md:flex md:justify-center md:items-center cursor-pointer"
             :title="layout.leftSidebar.show ? 'Collapse the bar' : 'Expand the bar'"
             :style="{

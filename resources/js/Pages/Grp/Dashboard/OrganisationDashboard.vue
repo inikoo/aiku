@@ -7,14 +7,13 @@
   -->
 
 <script setup lang="ts">
-import { usePage } from '@inertiajs/vue3'
 import { useLayoutStore } from '@/Stores/layout'
 
 const layout = useLayoutStore()
 
 </script>
 
-<template layout="App">
+<template layout="Grp">
     <div>
         resources/js/Pages/Grp/Dashboard/OrganisationDashboard.vue
         <pre>{{ layout.navigation }}</pre>
