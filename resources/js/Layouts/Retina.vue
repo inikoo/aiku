@@ -48,6 +48,8 @@ const sidebarOpen = ref(false)
 </script>
 
 <template>
+    <div class="absolute inset-0 bg-slate-50" />
+
     <div class="relative min-h-full transition-all duration-200 ease-in-out"
         :class="[Object.values(layout.rightSidebar).some(value => value.show) ? 'mr-44' : 'mr-0']">
 
@@ -62,16 +64,14 @@ const sidebarOpen = ref(false)
         <!-- Sidebar: Left -->
         <div class="">
             <!-- Mobile Helper: background to close hamburger -->
-            <div class="bg-gray-200/80 fixed top-0 w-screen h-screen z-10 md:hidden" v-if="sidebarOpen"
-                @click="sidebarOpen = !sidebarOpen" />
+            <div @click="sidebarOpen = !sidebarOpen" class="bg-gray-200/80 fixed top-0 w-screen h-screen z-10 md:hidden" v-if="sidebarOpen" />
             <RetinaLeftSideBar class="-left-2/3 transition-all duration-300 ease-in-out z-20 block md:left-[0]"
                 :class="{ 'left-[0]': sidebarOpen }" @click="sidebarOpen = !sidebarOpen" />
         </div>
 
         <!-- Main Content -->
-        <main
-            class="h-full relative flex flex-col pt-20 md:pt-16 pb-6 text-gray-700 transition-all duration-200 ease-in-out"
-            :class="[layout.leftSidebar.show ? 'ml-0 md:ml-48' : 'ml-0 md:ml-12']">
+        <main class="bg-white shadow rounded h-full relative flex flex-col mt-20 md:mt-12 md:mr-2 pb-6 text-gray-700 transition-all duration-200 ease-in-out"
+            :class="[layout.leftSidebar.show ? 'ml-0 md:ml-48' : 'ml-0 md:ml-16']">
             <slot />
         </main>
 
@@ -97,3 +97,40 @@ const sidebarOpen = ref(false)
         </template>
     </notifications>
 </template>
+
+<style lang="scss">
+// * {
+//     --color-primary: v-bind('layout.app.theme[0]');
+// }
+
+/* Navigation: Aiku */
+.navigationActive {
+    @apply rounded py-2 font-semibold transition-all duration-0 ease-out;
+}
+.navigation {
+    @apply hover:bg-gray-300/40 py-2 rounded font-semibold transition-all duration-0 ease-out;
+}
+
+.subNavActive {
+    @apply bg-indigo-200/20 sm:border-l-4 sm:border-indigo-100 text-white font-semibold transition-all duration-0 ease-in-out;
+}
+.subNav {
+    @apply hover:bg-white/80 text-gray-100 hover:text-indigo-500 font-semibold transition-all duration-0 ease-in-out
+}
+
+.navigationSecondActive {
+    @apply transition-all duration-100 ease-in-out;
+}
+.navigationSecond {
+    @apply hover:bg-gray-100 text-gray-400 hover:text-gray-500 transition-all duration-100 ease-in-out
+}
+
+.bottomNavigationActive {
+    @apply w-5/6 absolute h-0.5 rounded-full bottom-0 left-[50%] translate-x-[-50%] mx-auto transition-all duration-200 ease-in-out;
+    background-color: v-bind('layout.app.theme[3]');
+}
+.bottomNavigation {
+    @apply bg-gray-300 w-0 group-hover:w-3/6 absolute h-0.5 rounded-full bottom-0 left-[50%] translate-x-[-50%] mx-auto transition-all duration-200 ease-in-out
+}
+
+</style>

@@ -67,7 +67,7 @@ export const useLayoutStore = defineStore("retinaLayout", {
             app: {
                 name: "",  // For styling navigation depend on which App
                 color: null as unknown | Colors,  // Styling layout color
-                theme: useColorTheme[1] as string[],  // For styling app color
+                theme: useColorTheme[4] as string[],  // For styling app color
                 url: '#', // Homepage links
             },
             currentModule: "",
