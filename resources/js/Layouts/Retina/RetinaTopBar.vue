@@ -12,11 +12,11 @@ import { trans } from "laravel-vue-i18n"
 import Image from "@/Components/Image.vue"
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faChevronDown } from '@far'
-import {  } from '@fal'
+import { faDotCircle } from '@fas'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { useTruncate } from '@/Composables/useTruncate'
 import MenuTopRight from '@/Layouts/MenuTopRight.vue'
-library.add(faChevronDown)
+library.add(faChevronDown, faDotCircle)
 
 const props = defineProps<{
     sidebarOpen: boolean
@@ -49,7 +49,7 @@ const label = {
             'color': layoutStore.app.theme[1]
         }" 
     >
-        <div class="flex h-11 lg:h-10 flex-shrink-0">
+        <div class="mt-1 flex h-11 lg:h-10 flex-shrink-0 gap-x-2">
             <div class="flex">
                 <!-- Mobile: Hamburger -->
                 <button class="block md:hidden w-10 h-10 relative focus:outline-none" @click="$emit('sidebarOpen', !sidebarOpen)">
@@ -64,7 +64,7 @@ const label = {
                 </button>
 
                 <!-- App Title: Image and Title -->
-                <div class="ml-3 mt-1 flex flex-1 items-center justify-center md:justify-start transition-all duration-300 ease-in-out"
+                <div class="ml-3 w-44 mt-1 flex flex-1 items-center justify-center md:justify-start transition-all duration-300 ease-in-out"
                     :class="[
                         // layoutStore.leftSidebar.show ? 'md:w-44 md:pr-4' : 'md:w-12'
                     ]"
@@ -95,10 +95,10 @@ const label = {
             <div class="flex items-center w-full justify-between pr-6 space-x-3">
 
                 <!-- Section: Dropdown + subsections -->
-                <div class="flex items-center gap-x-2 pl-2">
+                <div class="flex items-center gap-x-2">
                     <!-- Section: Dropdown -->
                     <div v-if="false"
-                    class="flex border border-gray-300 rounded-md">
+                        class="flex border border-gray-300 rounded-md">
                         <!-- Dropdown: Organisations -->
                         <Menu v-if="layoutStore.group || (layoutStore.organisations.data.length > 1 ? true : false)" as="div" class="relative inline-block text-left">
                             <TopbarSelectButton
@@ -227,6 +227,18 @@ const label = {
 
                     <!-- Section: Subsections (Something will teleport to this section) -->
                     <div class="flex h-full" id="RetinaTopbarSubsections">
+                        <!-- <div class="group relative text-gray-700 group text-sm flex justify-end items-center cursor-pointer py-3 gap-x-2 px-4 md:px-4 lg:px-4">
+                            <FontAwesomeIcon icon="fas fa-dot-circle" fixed-width class="h-5" aria-hidden="true" />
+                            <span class="hidden lg:inline capitalize whitespace-nowrap">dsadsadsa</span>
+                        </div>
+                        <div class="group relative text-gray-700 group text-sm flex justify-end items-center cursor-pointer py-3 gap-x-2 px-4 md:px-4 lg:px-4">
+                            <FontAwesomeIcon icon="fas fa-dot-circle" fixed-width class="h-5" aria-hidden="true" />
+                            <span class="hidden lg:inline capitalize whitespace-nowrap">dsadsadsa</span>
+                        </div>
+                        <div class="group relative text-gray-700 group text-sm flex justify-end items-center cursor-pointer py-3 gap-x-2 px-4 md:px-4 lg:px-4">
+                            <FontAwesomeIcon icon="fas fa-dot-circle" fixed-width class="h-5" aria-hidden="true" />
+                            <span class="hidden lg:inline capitalize whitespace-nowrap">dsadsadsa</span>
+                        </div> -->
                     </div>
                     
                 </div>

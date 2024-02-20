@@ -19,6 +19,14 @@ import { Link, usePage } from '@inertiajs/vue3'
 import { router } from "@inertiajs/vue3";
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
+const props = defineProps<{
+    isOpen: boolean
+}>()
+
+const emits = defineEmits<{
+    (e: 'close', data: boolean): void
+}>()
+
 const searchResults = ref('')
 
 const open = ref(true)
@@ -52,7 +60,7 @@ const fetchApi = async (query: string) => {
             .catch(err => console.log(err))
     }
     else {
-        comboValue.value = 'Select Users'
+        // comboValue.value = 'Select Users'
     }
 }
 
@@ -63,8 +71,8 @@ function handleKeyDown() {
 </script>
 
 <template>
-    <TransitionRoot :show="open" as="template" @after-leave="query = ''" appear>
-        <Dialog as="div" class="relative z-[19]" @close="open = false">
+    <TransitionRoot :show="isOpen" as="template" @after-leave="query = ''" appear>
+        <Dialog as="div" class="relative z-[19]" @close="emits('close', false)">
             <TransitionChild as="template" enter="ease-out duration-300" enter-from="opacity-0" enter-to="opacity-100"
                 leave="ease-in duration-200" leave-from="opacity-100" leave-to="opacity-0">
                 <div class="fixed inset-0 bg-gray-500 bg-opacity-25 transition-opacity" />
@@ -75,7 +83,7 @@ function handleKeyDown() {
                     leave-to="opacity-0 scale-95">
                     <DialogPanel
                         class="mx-auto max-w-3xl transform divide-y divide-gray-100 overflow-hidden rounded-xl bg-white shadow-2xl ring-1 ring-black ring-opacity-5 transition-all">
-                        <Combobox v-slot="{ activeOption }" @update:modelValue="onSelect">
+                        <Combobox v-slot="{ activeOption }" @update:modelValue="() => console.log('ww')">
                             <div class="relative">
                                 <FontAwesomeIcon class="pointer-events-none absolute top-3.5 left-4 h-5 w-5 text-gray-400"
                                     aria-hidden="true" icon="fa-regular fa-search" size="lg" />

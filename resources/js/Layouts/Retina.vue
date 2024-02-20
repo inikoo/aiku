@@ -44,20 +44,19 @@ const layout = initialiseRetinaApp()
 const layoutState = useLayoutStore()
 const sidebarOpen = ref(false)
 
-
 </script>
 
 <template>
-    <div class="absolute inset-0 bg-slate-50" />
+    <div class="fixed inset-0 bg-slate-50" />
 
-    <div class="relative min-h-full transition-all duration-200 ease-in-out"
+    <div class="isolate relative min-h-full transition-all"
         :class="[Object.values(layout.rightSidebar).some(value => value.show) ? 'mr-44' : 'mr-0']">
 
         <RetinaTopBar @sidebarOpen="(value: boolean) => sidebarOpen = value" :sidebarOpen="sidebarOpen"
             logoRoute="retina.dashboard.show" urlPrefix="retina." />
 
         <!-- Section: Breadcrumbs -->
-        <Breadcrumbs class="fixed top-11 lg:top-10 z-[19] w-full transition-all duration-200 ease-in-out"
+        <Breadcrumbs class="fixed top-11 lg:top-10 z-[19] w-full transition-all"
             :class="[layout.leftSidebar.show ? 'left-0 md:left-48' : 'left-0 md:left-12']"
             :breadcrumbs="usePage().props.breadcrumbs ?? []" :navigation="usePage().props.navigation ?? []" />
 
@@ -65,18 +64,21 @@ const sidebarOpen = ref(false)
         <div class="">
             <!-- Mobile Helper: background to close hamburger -->
             <div @click="sidebarOpen = !sidebarOpen" class="bg-gray-200/80 fixed top-0 w-screen h-screen z-10 md:hidden" v-if="sidebarOpen" />
-            <RetinaLeftSideBar class="-left-2/3 transition-all duration-300 ease-in-out z-20 block md:left-[0]"
+            <RetinaLeftSideBar class="-left-2/3 transition-all z-20 block md:left-[0]"
                 :class="{ 'left-[0]': sidebarOpen }" @click="sidebarOpen = !sidebarOpen" />
         </div>
 
         <!-- Main Content -->
-        <main class="bg-white shadow rounded h-full relative flex flex-col mt-20 md:mt-12 md:mr-2 pb-6 text-gray-700 transition-all duration-200 ease-in-out"
-            :class="[layout.leftSidebar.show ? 'ml-0 md:ml-48' : 'ml-0 md:ml-16']">
-            <slot />
+        <main class="h-screen pb-10 pt-20 md:pt-[52px] transition-all "
+            :class="[layout.leftSidebar.show ? 'ml-0 md:ml-48' : 'ml-0 md:ml-16']"
+        >
+            <div class="bg-white shadow rounded h-full overflow-y-auto relative flex flex-col md:mr-2 pb-6 text-gray-700">
+                <slot />
+            </div>
         </main>
 
         <!-- Sidebar: Right -->
-        <RetinaRightSideBar class="fixed top-16 w-44 transition-all duration-200 ease-in-out"
+        <RetinaRightSideBar class="fixed top-16 w-44 transition-all"
             :class="[Object.values(layout.rightSidebar).some(value => value.show) ? 'right-0' : '-right-44']" />
 
     </div>
@@ -126,11 +128,11 @@ const sidebarOpen = ref(false)
 }
 
 .bottomNavigationActive {
-    @apply w-5/6 absolute h-0.5 rounded-full bottom-0 left-[50%] translate-x-[-50%] mx-auto transition-all duration-200 ease-in-out;
+    @apply w-5/6 absolute h-0.5 rounded-full bottom-0 left-[50%] translate-x-[-50%] mx-auto transition-all;
     background-color: v-bind('layout.app.theme[3]');
 }
 .bottomNavigation {
-    @apply bg-gray-300 w-0 group-hover:w-3/6 absolute h-0.5 rounded-full bottom-0 left-[50%] translate-x-[-50%] mx-auto transition-all duration-200 ease-in-out
+    @apply bg-gray-300 w-0 group-hover:w-3/6 absolute h-0.5 rounded-full bottom-0 left-[50%] translate-x-[-50%] mx-auto transition-all
 }
 
 </style>

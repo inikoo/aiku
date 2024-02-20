@@ -5,9 +5,10 @@
   -->
 
 <script setup lang="ts">
+import { useLayoutStore } from '@/Stores/retinaLayout'
 
 </script>
 
 <template layout="Retina">
-
+    <pre>{{ useLayoutStore().navigation }}</pre>
 </template>
