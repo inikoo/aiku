@@ -7,7 +7,7 @@
 
 namespace App\Actions\Web\Website\UI;
 
-use App\Actions\InertiaAction;
+use App\Actions\OrgAction;
 use App\Actions\UI\Grp\Dashboard\ShowDashboard;
 use App\Actions\Web\Website\GetWebsiteWorkshopCategory;
 use App\Actions\Web\Website\GetWebsiteWorkshopColorScheme;
@@ -21,20 +21,24 @@ use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
+use App\Models\Fulfilment\Fulfilment;
+use App\Models\Fulfilment\FulfilmentCustomer;
+use App\Models\SysAdmin\Organisation;
+use App\Enums\UI\CustomerFulfilmentTabsEnum;
 
-class ShowWebsiteWorkshop extends InertiaAction
+class ShowWebsiteWorkshop extends OrgAction
 {
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit   = $request->user()->hasPermissionTo('websites.edit');
-        $this->canDelete = $request->user()->hasPermissionTo('websites.edit');
+        $this->canEdit = $request->user()->hasPermissionTo("fulfilments.{$this->fulfilment->id}.edit");
 
-        return $request->user()->hasPermissionTo("websites.view");
+        return $request->user()->hasPermissionTo("fulfilments.{$this->fulfilment->id}.view");
+
     }
 
-    public function asController(Website $website, ActionRequest $request): Website
+    public function asController(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, Website $website, ActionRequest $request): Website
     {
-        $this->initialisation($request)->withTab(WebsiteWorkshopTabsEnum::values());
+        $this->initialisationFromFulfilment($fulfilment, $request)->withTab(CustomerFulfilmentTabsEnum::values());
 
         return $website;
     }
@@ -44,7 +48,7 @@ class ShowWebsiteWorkshop extends InertiaAction
     {
 
         return Inertia::render(
-            'Web/WebsiteWorkshop',
+            'Org/Web/WebsiteWorkshop',
             [
                 'title'       => __("Website's workshop"),
                 'breadcrumbs' => $this->getBreadcrumbs(
