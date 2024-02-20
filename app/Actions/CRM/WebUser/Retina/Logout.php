@@ -25,7 +25,7 @@ class Logout
         $request->session()->regenerateToken();
         Session::put('reloadLayout', '1');
 
-        return redirect('/login');
+        return redirect('/app/login');
     }
 
 }

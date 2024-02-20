@@ -81,9 +81,8 @@ class Login
             app()->setLocale($language);
         }
 
-        //return back();
 
-        return redirect()->intended('dashboard');
+        return redirect()->intended('app/dashboard');
     }
 
     public function rules(): array
