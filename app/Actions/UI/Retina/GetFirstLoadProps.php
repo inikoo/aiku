@@ -40,11 +40,8 @@ class GetFirstLoadProps
                     'languageOptions' => GetLanguagesOptions::make()->translated(),
                 ],
 
-            'layout' => GetLayout::run($request, $webUser)
-
-
-
-
+            'layout'   => GetLayout::run($request, $webUser),
+            'liveUsers'=> true
         ];
     }
 }
