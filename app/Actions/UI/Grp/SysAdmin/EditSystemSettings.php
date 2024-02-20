@@ -1,11 +1,11 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 06 Jun 2023 14:48:48 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Mon, 19 Feb 2024 20:34:57 Central Standard Time, Mexico City, Mexico
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\UI\SysAdmin;
+namespace App\Actions\UI\Grp\SysAdmin;
 
 use App\Actions\Google\Drive\Traits\WithTokenPath;
 use App\Actions\UI\Grp\Dashboard\ShowDashboard;

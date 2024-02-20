@@ -8,11 +8,12 @@
 namespace App\Actions\SysAdmin\Guest\UI;
 
 use App\Actions\InertiaAction;
-use App\Actions\UI\SysAdmin\ShowSysAdminDashboard;
+use App\Actions\UI\Grp\SysAdmin\ShowSysAdminDashboard;
 use App\Http\Resources\SysAdmin\GuestResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Guest;
+use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -20,7 +21,6 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
-use App\Services\QueryBuilder;
 
 class IndexGuest extends InertiaAction
 {
