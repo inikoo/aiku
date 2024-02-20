@@ -15,6 +15,9 @@ import { faDiscord } from '@fortawesome/free-brands-svg-icons'
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { trans } from "laravel-vue-i18n"
+import { useLayoutStore } from '@/Stores/retinaLayout'
+
+const layout = useLayoutStore()
 
 const isTabActive: Ref<boolean | string> = ref(false)
 const logoSrc = usePage().props.art?.footer_logo
@@ -32,8 +35,8 @@ library.add(faHeart, faComputerClassic, faDiscord)
         <div class="flex justify-between">
             <!-- Left: Logo Section -->
             <div class="pl-4 flex items-center gap-x-1.5 py-1">
-                <Image class="h-4 select-none hidden lg:inline" :src="logoSrc" alt="T-Wowsbar" />
-                <span class="text-slate-400	text-xs hidden lg:inline">
+                <Image class="h-4 select-none hidden md:inline" :src="logoSrc" alt="T-Wowsbar" />
+                <span class="text-slate-400	text-xs hidden md:inline">
                     {{ trans('Made with') }}
                     <FontAwesomeIcon icon='fas fa-heart' class="text-red-500 mx-1" aria-hidden='true' />
                     {{ trans('and') }}
@@ -41,7 +44,7 @@ library.add(faHeart, faComputerClassic, faDiscord)
                 </span>
             </div>
 
-            <div class="pl-4 flex items-center gap-x-1.5">
+            <!-- <div class="pl-4 flex items-center gap-x-1.5">
                 <a href="https://discord.gg/C7bCmMaTxP" target="_blank">
                     <span class="text-slate-400	 text-xs">
                         <FontAwesomeIcon :icon="['fab', 'discord']" class="text-white mx-1" aria-hidden='true' />
@@ -49,11 +52,11 @@ library.add(faHeart, faComputerClassic, faDiscord)
                             class="hidden lg:inline">{{ trans('announcements/feedback/wishlists') }}</span>
                     </span>
                 </a>
-            </div>
+            </div> -->
 
             <!-- Right: Tab Section -->
             <div class="flex items-end flex-row-reverse text-sm">
-                <RetinaFooterActiveUsers :isTabActive="isTabActive" @isTabActive="(value: any) => isTabActive = value" />
+                <RetinaFooterActiveUsers v-if="layout.liveUsers.enabled" :isTabActive="isTabActive" @isTabActive="(value: any) => isTabActive = value" />
                 <FooterLanguage :isTabActive="isTabActive" @isTabActive="(value: any) => isTabActive = value" />
             </div>
         </div>
