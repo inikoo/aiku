@@ -10,6 +10,10 @@ Route::middleware(["retina-auth:retina"])->group(function () {
         return redirect('/app/dashboard');
     })->name('home');
 
+    Route::prefix("sysadmin")
+        ->name("sysadmin.")
+        ->group(__DIR__."/sysadmin.php");
+
     Route::middleware(["retina-reset-pass"])->group(function () {
         Route::prefix("dashboard")
             ->name("dashboard.")

@@ -20,9 +20,13 @@ class GetLayout
         if (!$webUser) {
             return [];
         }
+
         return [
             'website'         => GroupResource::make($request->get('website'))->getArray(),
-            'navigation'      => [],
+            'navigation'      => match ($request->get('website')->type->value) {
+                'fulfilment' => GetFulfilmentNavigation::run($webUser),
+                default      => []
+            },
         ];
     }
 }

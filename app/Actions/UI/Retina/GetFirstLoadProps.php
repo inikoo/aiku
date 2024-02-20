@@ -31,6 +31,7 @@ class GetFirstLoadProps
             $language = Language::where('code', 'en')->first();
         }
 
+
         return
             [
             'localeData' =>
