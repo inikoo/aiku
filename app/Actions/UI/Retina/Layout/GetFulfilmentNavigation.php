@@ -35,7 +35,7 @@ class GetFulfilmentNavigation
                             'icon'  => ['fal', 'fa-terminal'],
                             'root'  => 'retina.sysadmin.users.',
                             'route' => [
-                                'name' => 'retina.sysadmin.users.index',
+                                'name' => 'retina.sysadmin.web-users.index',
 
                             ]
                         ],

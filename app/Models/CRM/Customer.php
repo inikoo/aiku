@@ -73,6 +73,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property bool $is_fulfilment
  * @property bool $is_dropshipping
  * @property array $data
+ * @property mixed $settings
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
@@ -117,17 +118,19 @@ class Customer extends Model implements HasMedia
     use HasFactory;
 
     protected $casts = [
-        'data'            => 'array',
-        'location'        => 'array',
-        'state'           => CustomerStateEnum::class,
-        'status'          => CustomerStatusEnum::class,
-        'trade_state'     => CustomerTradeStateEnum::class
+        'data'        => 'array',
+        'settings'    => 'settings',
+        'location'    => 'array',
+        'state'       => CustomerStateEnum::class,
+        'status'      => CustomerStatusEnum::class,
+        'trade_state' => CustomerTradeStateEnum::class
 
     ];
 
     protected $attributes = [
-        'data'            => '{}',
-        'location'        => '{}',
+        'data'     => '{}',
+        'settings' => '{}',
+        'location' => '{}',
     ];
 
     protected $guarded = [];
@@ -143,6 +146,7 @@ class Customer extends Model implements HasMedia
                 if ($slug == '') {
                     $slug = $this->reference;
                 }
+
                 return $slug;
             })
             ->saveSlugsTo('slug')
@@ -170,7 +174,7 @@ class Customer extends Model implements HasMedia
             if ($customer->wasChanged(['contact_name', 'company_name'])) {
                 $customer->updateQuietly(
                     [
-                        'name'=> $customer->company_name == '' ? $customer->contact_name : $customer->company_name
+                        'name' => $customer->company_name == '' ? $customer->contact_name : $customer->company_name
                     ]
                 );
             }

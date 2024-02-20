@@ -45,7 +45,7 @@ class RouteServiceProvider extends ServiceProvider
         Route::middleware('retina')
             ->prefix('app')
             ->name('retina.')
-            ->group(base_path('routes/retina/app.php'));
+            ->group(base_path('routes/retina/web/app.php'));
 
         Route::middleware('iris')
             ->name('iris.')
