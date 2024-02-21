@@ -7,15 +7,16 @@ import Button from "@/Components/Elements/Buttons/Button.vue"
 import { notify } from "@kyvg/vue3-notification"
 import PureInput from "@/Components/Pure/PureInput.vue"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import { faSpinnerThird } from "@fad"
+import { faSpinnerThird, faSearch } from "@fad"
 import { library } from "@fortawesome/fontawesome-svg-core"
 
-library.add(faSpinnerThird)
+library.add(faSpinnerThird, faSearch)
 
 const props = defineProps<{
 	palletRoute: object
 }>()
 
+const emits = defineEmits()
 const dataList = ref([])
 const loading = ref(false)
 const form = useForm({ pallets: [] })
@@ -24,12 +25,17 @@ const tableFilter = useForm({
 	search: null,
 })
 
+
+const closeModal = () => {
+    emits('onClose')
+}
+
 const getData = async () => {
 	loading.value = true
 	try {
 		const response = await axios.get(
-			route(props.palletRoute.name, props.palletRoute.parameters),
-			{ params: { search: tableFilter.filter } } // Changed from { search: tableFilter.filter }
+			route(props.palletRoute.index.name, props.palletRoute.index.parameters),
+			{ params: { search: tableFilter.search } } // Changed from { search: tableFilter.filter }
 		)
 		dataList.value = response.data.data
 		loading.value = false
@@ -62,15 +68,17 @@ const onChecked = (value) => {
 }
 
 const onSubmitPallet = () => {
-	form.post("/waitForArtha", {
+	form.post(route(props.palletRoute.store.name, props.palletRoute.store.parameters), {
 		preserveScroll: true,
 		onBefore: () => {
 			loading.value = true
 		},
 		onSuccess: () => {
 			form.reset("pallets")
-      checkedAll.value = false
+      		checkedAll.value = false
 			loading.value = false
+			getData()
+			closeModal()
 		},
 	})
 }
@@ -84,10 +92,19 @@ onMounted(getData)
 			<div class="sm:flex-auto">
 				<div class="w-1/4 pt-2">
 					<PureInput
-						:modelValue="tableFilter.search"
+						v-model="tableFilter.search"
 						placeholder="Serach"
 						:loading="loading"
-           />
+						:copy-button="true"
+           >
+		   <template #copyButton>
+			<div class="flex justify-center items-center px-2 absolute inset-y-0 right-0 gap-x-1 cursor-pointer opacity-20 hover:opacity-75 active:opacity-100" @click="()=>getData()">
+                <FontAwesomeIcon icon="fad fa-search"
+                    class="text-lg leading-none"
+                    aria-hidden="true" />
+            </div>
+		   </template>
+		</PureInput>
 				</div>
 			</div>
 			<div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
@@ -97,10 +114,9 @@ onMounted(getData)
 		<div class="mt-8 flow-root">
 			<div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
 				<div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
-					<div
-						class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg">
-						<table class="min-w-full divide-y divide-gray-300">
-							<thead class="bg-gray-50">
+					<div class=" shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg h-[290px] table-wrp block ">
+						<table class=" divide-y divide-gray-300  w-full">
+							<thead class="bg-gray-50 sticky top-0">
 								<tr>
 									<th
 										scope="col"
@@ -128,7 +144,7 @@ onMounted(getData)
 									</th>
 								</tr>
 							</thead>
-							<tbody class="divide-y divide-gray-200 bg-white">
+							<tbody class="divide-y divide-gray-200 bg-white h-[290px] overflow-y-auto">
 								<tr v-for="pallet in dataList" :key="pallet.id">
 									<td
 										class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
@@ -159,6 +175,11 @@ onMounted(getData)
 									icon="fad fa-spinner-third"
 									class="animate-spin w-6"
 									aria-hidden="true" />
+							</div>
+						</div>
+						<div v-if="dataList.length == 0 && !loading" class="flex justify-center items-center w-full h-full p-12">
+							<div>
+								No Data
 							</div>
 						</div>
 					</div>

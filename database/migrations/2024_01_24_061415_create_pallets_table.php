@@ -19,39 +19,41 @@ return new class () extends Migration {
     use HasSoftDeletes;
     public function up(): void
     {
-        Schema::create('pallets', function (Blueprint $table) {
-            $table->increments('id');
-            $table = $this->groupOrgRelationship($table);
-            $table->string('slug')->nullable()->unique()->collation('und_ns');
-            $table->string('reference')->nullable()->index()->collation('und_ci');
-            $table->string('customer_reference')->nullable()->index()->collation('und_ci');
-            $table->unsignedInteger('fulfilment_id')->index();
-            $table->foreign('fulfilment_id')->references('id')->on('fulfilments');
-            $table->unsignedInteger('fulfilment_customer_id')->index();
-            $table->foreign('fulfilment_customer_id')->references('id')->on('fulfilment_customers');
-            $table->unsignedInteger('warehouse_id')->index();
-            $table->foreign('warehouse_id')->references('id')->on('warehouses');
-            $table->unsignedInteger('warehouse_area_id')->nullable()->index();
-            $table->foreign('warehouse_area_id')->references('id')->on('warehouse_areas');
-            $table->unsignedInteger('location_id')->index()->nullable();
-            $table->foreign('location_id')->references('id')->on('locations');
-            $table->unsignedInteger('pallet_delivery_id')->index()->nullable();
-            $table->foreign('pallet_delivery_id')->references('id')->on('pallet_deliveries');
-            $table->unsignedInteger('pallet_return_id')->index()->nullable();
-            $table->foreign('pallet_return_id')->references('id')->on('pallet_returns');
-            $table->string('status')->index()->default(PalletStatusEnum::IN_PROCESS->value);
-            $table->string('state')->index()->default(PalletStateEnum::IN_PROCESS->value);
-            $table->string('type')->index()->default(PalletTypeEnum::PALLET->value);
-            $table->string('notes', 1024);
-            $table->unsignedSmallInteger('number_stored_items')->default(0);
-            $table->dateTimeTz('received_at')->nullable();
-            $table->dateTimeTz('booked_in_at')->nullable();
-            $table->dateTimeTz('settled_at')->nullable();
-            $table->jsonb('data');
-            $table->timestampsTz();
-            $table = $this->softDeletes($table);
-            $table->string('source_id')->nullable()->unique();
-        });
+        if(!Schema::hasTable('pallets')) {
+            Schema::create('pallets', function (Blueprint $table) {
+                $table->increments('id');
+                $table = $this->groupOrgRelationship($table);
+                $table->string('slug')->nullable()->unique()->collation('und_ns');
+                $table->string('reference')->nullable()->index()->collation('und_ci');
+                $table->string('customer_reference')->nullable()->index()->collation('und_ci');
+                $table->unsignedInteger('fulfilment_id')->index();
+                $table->foreign('fulfilment_id')->references('id')->on('fulfilments');
+                $table->unsignedInteger('fulfilment_customer_id')->index();
+                $table->foreign('fulfilment_customer_id')->references('id')->on('fulfilment_customers');
+                $table->unsignedInteger('warehouse_id')->index();
+                $table->foreign('warehouse_id')->references('id')->on('warehouses');
+                $table->unsignedInteger('warehouse_area_id')->nullable()->index();
+                $table->foreign('warehouse_area_id')->references('id')->on('warehouse_areas');
+                $table->unsignedInteger('location_id')->index()->nullable();
+                $table->foreign('location_id')->references('id')->on('locations');
+                $table->unsignedInteger('pallet_delivery_id')->index()->nullable();
+                $table->foreign('pallet_delivery_id')->references('id')->on('pallet_deliveries');
+                $table->unsignedInteger('pallet_return_id')->index()->nullable();
+                $table->foreign('pallet_return_id')->references('id')->on('pallet_returns');
+                $table->string('status')->index()->default(PalletStatusEnum::IN_PROCESS->value);
+                $table->string('state')->index()->default(PalletStateEnum::IN_PROCESS->value);
+                $table->string('type')->index()->default(PalletTypeEnum::PALLET->value);
+                $table->string('notes', 1024);
+                $table->unsignedSmallInteger('number_stored_items')->default(0);
+                $table->dateTimeTz('received_at')->nullable();
+                $table->dateTimeTz('booked_in_at')->nullable();
+                $table->dateTimeTz('settled_at')->nullable();
+                $table->jsonb('data');
+                $table->timestampsTz();
+                $table = $this->softDeletes($table);
+                $table->string('source_id')->nullable()->unique();
+            });
+        }
     }
 
 

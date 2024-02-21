@@ -53,7 +53,6 @@ class StorePalletReturn extends OrgAction
                     modelType: SerialReferenceModelEnum::PALLET_RETURN
                 )
             );
-
         }
 
 
@@ -93,6 +92,7 @@ class StorePalletReturn extends OrgAction
     public function asController(Organisation $organisation, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): PalletReturn
     {
         $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $request);
+
         return $this->handle($fulfilmentCustomer, $this->validatedData);
     }
 
@@ -109,12 +109,12 @@ class StorePalletReturn extends OrgAction
     {
         return [
             'route' => [
-                'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet-deliveries.show',
+                'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet-returns.show',
                 'parameters' => [
                     'organisation'           => $palletReturn->organisation->slug,
                     'fulfilment'             => $palletReturn->fulfilment->slug,
                     'fulfilmentCustomer'     => $palletReturn->fulfilmentCustomer->slug,
-                    'palletDelivery'         => $palletReturn->reference
+                    'palletReturn'           => $palletReturn->reference
                 ]
             ]
         ];
@@ -122,11 +122,11 @@ class StorePalletReturn extends OrgAction
 
     public function htmlResponse(PalletReturn $palletReturn, ActionRequest $request): Response
     {
-        return Inertia::location(route('grp.org.fulfilments.show.crm.customers.show.pallet-deliveries.show', [
+        return Inertia::location(route('grp.org.fulfilments.show.crm.customers.show.pallet-returns.show', [
             'organisation'           => $palletReturn->organisation->slug,
             'fulfilment'             => $palletReturn->fulfilment->slug,
             'fulfilmentCustomer'     => $palletReturn->fulfilmentCustomer->slug,
-            'palletDelivery'         => $palletReturn->reference
+            'palletReturn'           => $palletReturn->reference
         ]));
     }
 

@@ -20,21 +20,23 @@ return new class () extends Migration {
 
     public function up(): void
     {
-        Schema::create('pallet_returns', function (Blueprint $table) {
-            $table->increments('id');
-            $table = $this->delivery($table);
-            $table->string('state')->default(PalletReturnStateEnum::IN_PROCESS->value);
-            $table->dateTimeTz('booked_in_at')->nullable();
-            $table->dateTimeTz('settled_at')->nullable();
-            foreach (PalletReturnStateEnum::cases() as $state) {
-                $table->dateTimeTz("{$state->snake()}_at")->nullable();
-            }
-            $table->dateTimeTz('dispatched_at')->nullable();
-            $table->dateTimeTz('date')->nullable();
-            $table->jsonb('data')->nullable();
-            $table->timestampsTz();
-            $this->softDeletes($table);
-        });
+        if(!Schema::hasTable('pallet_returns')) {
+            Schema::create('pallet_returns', function (Blueprint $table) {
+                $table->increments('id');
+                $table = $this->delivery($table);
+                $table->string('state')->default(PalletReturnStateEnum::IN_PROCESS->value);
+                $table->dateTimeTz('booked_in_at')->nullable();
+                $table->dateTimeTz('settled_at')->nullable();
+                foreach (PalletReturnStateEnum::cases() as $state) {
+                    $table->dateTimeTz("{$state->snake()}_at")->nullable();
+                }
+                $table->dateTimeTz('dispatched_at')->nullable();
+                $table->dateTimeTz('date')->nullable();
+                $table->jsonb('data')->nullable();
+                $table->timestampsTz();
+                $this->softDeletes($table);
+            });
+        }
     }
 
 

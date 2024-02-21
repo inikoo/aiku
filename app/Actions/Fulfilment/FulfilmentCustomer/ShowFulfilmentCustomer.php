@@ -106,6 +106,17 @@ class ShowFulfilmentCustomer extends OrgAction
                                 'parameters' => [$fulfilmentCustomer->id]
                             ]
                         ],
+                        [
+                            'type'    => 'button',
+                            'style'   => 'create',
+                            'tooltip' => __('new return'),
+                            'label'   => __('new return'),
+                            'route'   => [
+                                'method'     => 'post',
+                                'name'       => 'grp.models.fulfilment-customer.pallet-return.store',
+                                'parameters' => [$fulfilmentCustomer->id]
+                            ]
+                        ],
                     ]
                 ],
                 'tabs'        => [
@@ -127,12 +138,12 @@ class ShowFulfilmentCustomer extends OrgAction
                     : Inertia::lazy(fn () => PalletDeliveriesResource::collection(IndexStoredItems::run($fulfilmentCustomer))),
 
                 CustomerFulfilmentTabsEnum::PALLET_DELIVERIES->value => $this->tab == CustomerFulfilmentTabsEnum::PALLET_DELIVERIES->value ?
-                    fn () => PalletDeliveriesResource::collection(IndexPalletDeliveries::run($fulfilmentCustomer->fulfilment))
-                    : Inertia::lazy(fn () => PalletDeliveriesResource::collection(IndexPalletDeliveries::run($fulfilmentCustomer->fulfilment))),
+                    fn () => PalletDeliveriesResource::collection(IndexPalletDeliveries::run($fulfilmentCustomer))
+                    : Inertia::lazy(fn () => PalletDeliveriesResource::collection(IndexPalletDeliveries::run($fulfilmentCustomer))),
 
                 CustomerFulfilmentTabsEnum::PALLET_RETURNS->value => $this->tab == CustomerFulfilmentTabsEnum::PALLET_RETURNS->value ?
-                    fn () => PalletReturnsResource::collection(IndexPalletReturns::run($fulfilmentCustomer->fulfilment, CustomerFulfilmentTabsEnum::PALLET_RETURNS->value))
-                    : Inertia::lazy(fn () => PalletReturnsResource::collection(IndexPalletReturns::run($fulfilmentCustomer->fulfilment, CustomerFulfilmentTabsEnum::PALLET_RETURNS->value))),
+                    fn () => PalletReturnsResource::collection(IndexPalletReturns::run($fulfilmentCustomer, CustomerFulfilmentTabsEnum::PALLET_RETURNS->value))
+                    : Inertia::lazy(fn () => PalletReturnsResource::collection(IndexPalletReturns::run($fulfilmentCustomer, CustomerFulfilmentTabsEnum::PALLET_RETURNS->value))),
 
                 CustomerFulfilmentTabsEnum::DISPATCHED_EMAILS->value => $this->tab == CustomerFulfilmentTabsEnum::DISPATCHED_EMAILS->value ?
                     fn () => DispatchedEmailResource::collection(IndexDispatchedEmails::run($fulfilmentCustomer))

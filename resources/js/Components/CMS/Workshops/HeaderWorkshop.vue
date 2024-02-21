@@ -16,6 +16,7 @@ import { get } from 'lodash'
 import ColorPicker from '@/Components/CMS/Fields/ColorPicker.vue'
 import FontSize from '@/Components/CMS/Fields/Fontsize.vue'
 import FontDecorator from '@/Components/CMS/Fields/FontDecorator.vue'
+import Layout from '../Header/Layout.vue';
 library.add(faHandPointer, faHandRock, faPlus)
 
 const Dummy = {
@@ -110,8 +111,6 @@ const Uploadimage = () => {
 
 <template>
     <div class="bg-white">
-        <div class="pb-16 pt-6 sm:pb-24">
-            <div class="mt-8 px-4 sm:px-6 lg:px-8">
                 <div class="flex" @click="layerActive = null">
                     <!-- tools -->
                     <div class="w-1/4 p-6 overflow-y-auto overflow-x-hidden"
@@ -206,8 +205,6 @@ const Uploadimage = () => {
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
 </template>
 
 

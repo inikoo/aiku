@@ -30,6 +30,8 @@ class StorePalletToReturn extends OrgAction
     public function handle(PalletReturn $palletReturn, array $modelData): PalletReturn
     {
         foreach (Arr::get($modelData, 'pallets') as $pallet) {
+            $pallet = Pallet::find($pallet);
+
             $pallet->update([
                 'pallet_return_id' => $palletReturn->id
             ]);
@@ -52,8 +54,7 @@ class StorePalletToReturn extends OrgAction
     public function rules(): array
     {
         return [
-            'customer_reference' => ['required'],
-            'notes'              => ['required', 'string','max:1024']
+            'pallets' => ['required', 'array']
         ];
     }
 
@@ -95,13 +96,13 @@ class StorePalletToReturn extends OrgAction
     }
 
 
-    public function htmlResponse(Pallet $pallet, ActionRequest $request): RedirectResponse
+    public function htmlResponse(PalletReturn $palletReturn, ActionRequest $request): RedirectResponse
     {
-        return Redirect::route('grp.org.fulfilments.show.crm.customers.show.pallet-deliveries.show', [
-            'organisation'           => $pallet->organisation->slug,
-            'fulfilment'             => $pallet->fulfilment->slug,
-            'fulfilmentCustomer'     => $pallet->fulfilmentCustomer->slug,
-            'palletDelivery'         => $this->parent->reference
+        return Redirect::route('grp.org.fulfilments.show.crm.customers.show.pallet-returns.show', [
+            'organisation'           => $palletReturn->organisation->slug,
+            'fulfilment'             => $palletReturn->fulfilment->slug,
+            'fulfilmentCustomer'     => $palletReturn->fulfilmentCustomer->slug,
+            'palletReturn'           => $palletReturn->reference
         ]);
     }
 }

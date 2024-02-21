@@ -15,9 +15,17 @@ use App\Actions\Fulfilment\Pallet\StorePalletFromDelivery;
 use App\Actions\Fulfilment\Pallet\StorePalletToReturn;
 use App\Actions\Fulfilment\Pallet\UpdatePallet;
 use App\Actions\Fulfilment\PalletDelivery\ConfirmPalletDelivery;
+use App\Actions\Fulfilment\PalletDelivery\DonePalletDelivery;
+use App\Actions\Fulfilment\PalletDelivery\ReceivedPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\StorePalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\SubmitPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\UpdatePalletDeliveryTimeline;
+use App\Actions\Fulfilment\PalletReturn\ConfirmPalletReturn;
+use App\Actions\Fulfilment\PalletReturn\DonePalletReturn;
+use App\Actions\Fulfilment\PalletReturn\InDeliveryPalletReturn;
+use App\Actions\Fulfilment\PalletReturn\ReceivedPalletReturn;
+use App\Actions\Fulfilment\PalletReturn\StorePalletReturn;
+use App\Actions\Fulfilment\PalletReturn\SubmitPalletReturn;
 use App\Actions\HumanResources\Employee\DeleteEmployee;
 use App\Actions\HumanResources\Employee\StoreEmployee;
 use App\Actions\HumanResources\Employee\UpdateEmployee;
@@ -54,8 +62,12 @@ Route::name('org.')->prefix('org/{organisation}')->group(function () {
 
 Route::name('fulfilment-customer.')->prefix('fulfilment-customer/{fulfilmentCustomer:id}')->group(function () {
     Route::post('pallet-delivery', StorePalletDelivery::class)->name('pallet-delivery.store');
+
     Route::post('pallet-delivery/{palletDelivery}/submit', SubmitPalletDelivery::class)->name('pallet-delivery.submit');
     Route::post('pallet-delivery/{palletDelivery}/confirm', ConfirmPalletDelivery::class)->name('pallet-delivery.confirm');
+    Route::post('pallet-delivery/{palletDelivery}/received', ReceivedPalletDelivery::class)->name('pallet-delivery.received');
+    Route::post('pallet-delivery/{palletDelivery}/done', DonePalletDelivery::class)->name('pallet-delivery.done');
+
     Route::patch('pallet-delivery/{palletDelivery}/timeline', UpdatePalletDeliveryTimeline::class)->name('pallet-delivery.timeline.update');
     Route::post('pallet-delivery/{palletDelivery}/pallet', StorePalletFromDelivery::class)->name('pallet-delivery.pallet.store');
     Route::patch('pallet-delivery/{palletDelivery}/pallet/{pallet}', UpdatePallet::class)->name('pallet-delivery.pallet.update');
@@ -63,7 +75,14 @@ Route::name('fulfilment-customer.')->prefix('fulfilment-customer/{fulfilmentCust
     Route::post('pallet-delivery/{palletDelivery}/multiple-pallet', StoreMultiplePallets::class)->name('pallet-delivery.multiple-pallets.store');
 
     Route::post('pallet-delivery/{palletDelivery}/pallet-upload', [ImportPallet::class, 'inPalletDelivery'])->name('pallet-delivery.pallet.import');
+
+    Route::post('pallet-return', StorePalletReturn::class)->name('pallet-return.store');
     Route::post('pallet-return/{palletReturn}/pallet', StorePalletToReturn::class)->name('pallet-return.pallet.store');
+    Route::post('pallet-return/{palletReturn}/submit', SubmitPalletReturn::class)->name('pallet-return.submit');
+    Route::post('pallet-return/{palletReturn}/delivery', InDeliveryPalletReturn::class)->name('pallet-return.delivery');
+    Route::post('pallet-return/{palletReturn}/confirm', ConfirmPalletReturn::class)->name('pallet-return.confirm');
+    Route::post('pallet-return/{palletReturn}/received', ReceivedPalletReturn::class)->name('pallet-return.received');
+    Route::post('pallet-return/{palletReturn}/done', DonePalletReturn::class)->name('pallet-return.done');
 });
 
 Route::name('shop.')->prefix('shop/{shop:id}')->group(function () {
