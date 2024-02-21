@@ -1,49 +1,60 @@
-<script setup>
+<script setup lang="ts">
 import { Popover, PopoverButton, PopoverPanel } from '@headlessui/vue'
 import { ColorPicker } from 'vue-color-kit'
 import 'vue-color-kit/dist/vue-color-kit.css'
-import { ref } from 'vue'
-const props = defineProps({
-  color: {
-    type: String,
-    default: 'rgba(0, 0, 0, 0)'
-  },
-  changeColor: {
-    type: Function,
-  },
-});
 
-
-const changeColor = (set) => {
-  const { r, g, b, a } = set.rgba
-  props.changeColor(`rgba(${r}, ${g}, ${b}, ${a})`)
+interface RGBA {
+    r: number
+    g: number
+    b: number
+    a: number
 }
+
+interface HSV {
+    h: number
+    s: number
+    v: number
+}
+
+interface Color {
+    rgba: RGBA
+    hsv: HSV
+    hex: string
+}
+
+// To avoid the class (from parent) is inherit to first element
+defineOptions({
+    inheritAttrs: false
+})
+
+const props = withDefaults(defineProps<{
+    color: string
+}>(), {
+    color: 'rgba(0, 0, 0, 0)'
+})
+
+const emits = defineEmits<{
+    (e: 'changeColor', value: Color): void
+}>()
+
 </script>
 
 
 <template>
-  <div>
     <Popover v-slot="{ open }" class="relative">
-      <PopoverButton>
-        <div
-          class="h-8 w-8 rounded-full border border-black bg-color-red border-opacity-10 flex items-center justify-center"
-          :style="`background-color: ${color}`" />
-      </PopoverButton>
-
-      <transition enter-active-class="transition duration-200 ease-out" enter-from-class="translate-y-1 opacity-0"
-        enter-to-class="translate-y-0 opacity-100" leave-active-class="transition duration-150 ease-in"
-        leave-from-class="translate-y-0 opacity-100" leave-to-class="translate-y-1 opacity-0">
-        <PopoverPanel class="relative left-1/2 z-10 mt-3  -translate-x-1/2 transform px-4 sm:px-0 ">
-          <div class="overflow-hidden rounded-lg shadow-lg ring-1 ring-black ring-opacity-5">
-            <div class="relative  bg-white p-2.5">
-              <ColorPicker style="width: 220px;" theme="light" :color="color" :sucker-hide="true" @changeColor="changeColor" />
+        <PopoverButton>
+            <div :class="$attrs.class" :style="`background-color: ${color}`">
+                <slot />
             </div>
-          </div>
+        </PopoverButton>
+
+        <PopoverPanel class="absolute left-8 top-0 z-10 mt-3">
+            <div class="overflow-hidden rounded-lg shadow-lg ring-1 ring-black ring-opacity-5">
+                <div class="relative  bg-white p-2.5">
+                    <ColorPicker style="width: 220px;" theme="dark" :color="color" :sucker-hide="true"
+                        @changeColor="(e) => emits('changeColor', e)" />
+                </div>
+            </div>
         </PopoverPanel>
-      </transition>
     </Popover>
-  </div>
 </template>
-  
-  
-  
