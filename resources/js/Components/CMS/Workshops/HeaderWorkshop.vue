@@ -16,6 +16,7 @@ import { get } from 'lodash'
 import ColorPicker from '@/Components/CMS/Fields/ColorPicker.vue'
 import FontSize from '@/Components/CMS/Fields/Fontsize.vue'
 import FontDecorator from '@/Components/CMS/Fields/FontDecorator.vue'
+import Layout from '../Header/Layout.vue';
 library.add(faHandPointer, faHandRock, faPlus)
 
 const Dummy = {
