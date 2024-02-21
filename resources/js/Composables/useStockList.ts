@@ -44,10 +44,13 @@ export const useHeadlineText = () => {
 }
 
 // 0: Leftsidebar, 1: NavigationSimple, 2: Text for LeftSideber, 3: Navigation & underline, 4: Text for Navigation, 5: -
+// 0-1: Main Layout
+// 2-3: Navigation and box
+// 4-5: Button and mini-box
 export const useColorTheme = [
-    ['#4f46e5', '#f3f4f6', '#4f46e5', '#facc15', '#334155', '#64748b'],
-    ['#f59e0b', '#ffffff', '#f59e0b', '#a3e635', '#334155', '#e2e8f0'],
-    ['#334155', '#ffffff', '#334155', '#38bdf8', '#334155', '#cbd5e1'],
-    ['#EEF5DB', '#64748b', '#ffffff', '#FE5F55', '#334155', '#b8d8d8'],
-    ['#FFF', '#09090b', '#FFF', '#0F1626', '#FFF', '#000'],
+    ['#4f46e5', '#f3f4f6', '#facc15', '#f3f4f6', '#334155', '#64748b'],
+    ['#f59e0b', '#ffffff', '#ffffff', '#f59e0b', '#a3e635', '#334155', '#e2e8f0'],
+    ['#334155', '#ffffff', '#ffffff', '#334155', '#38bdf8', '#334155', '#cbd5e1'],
+    ['#EEF5DB', '#64748b', '#64748b', '#ffffff', '#FE5F55', '#334155', '#b8d8d8'],
+    ['#0F1626', '#FFF', '#1e293b', '#f1f5f9', '#0f172a', '#e2e8f0'],
 ]

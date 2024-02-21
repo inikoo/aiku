@@ -12,6 +12,7 @@ import Tabs from "@/Components/Navigation/Tabs.vue";
 import WorkshopHeader from "@/Components/CMS/Workshops/HeaderWorkshop.vue";
 import WorkshopMenu from "@/Components/CMS/Workshops/MenuWorkshop.vue";
 import WorkshopFooter from "@/Components/CMS/Workshops/FooterWorkshop.vue";
+import ColorSchemeWorkshop from "@/Components/CMS/Workshops/ColorSchemeWorkshop.vue";
 import { capitalize } from "@/Composables/capitalize"
 
 library.add(
@@ -47,7 +48,7 @@ const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
 const component = computed(() => {
 
     const components = {
-
+        color_scheme: ColorSchemeWorkshop,
         header: WorkshopHeader,
         menu: WorkshopMenu,
         footer: WorkshopFooter,
@@ -63,6 +64,6 @@ const component = computed(() => {
     <Head :title="capitalize(title)"/>
     <PageHeading :data="pageHead"></PageHeading>
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate"/>
-    <component :is="component" :data="props[currentTab]" :tab="currentTab"></component>
+    <component :is="component" :data="props[currentTab]"></component>
 </template>
 

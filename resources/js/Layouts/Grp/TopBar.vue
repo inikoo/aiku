@@ -71,7 +71,7 @@ const label = {
                         :style="{
                             'background-color': layoutStore.app.theme[0],
                             'color': layoutStore.app.theme[1],
-                            'border-bottom': `1px solid ${layoutStore.app.theme[1]}3F`
+                            'border-bottom': `1px solid ${layoutStore.app.theme[2]}3F`
                         }"
                     >
                         <Link :href="layoutStore.app?.url ?? '#'"

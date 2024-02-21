@@ -114,7 +114,7 @@ const sidebarOpen = ref(false)
 
 .bottomNavigationActive {
     @apply w-5/6 absolute h-0.5 rounded-full bottom-0 left-[50%] translate-x-[-50%] mx-auto transition-all duration-200 ease-in-out;
-    background-color: v-bind('layout.app.theme[3]');
+    background-color: v-bind('layout.app.theme[4]');
 }
 .bottomNavigation {
     @apply bg-gray-300 w-0 group-hover:w-3/6 absolute h-0.5 rounded-full bottom-0 left-[50%] translate-x-[-50%] mx-auto transition-all duration-200 ease-in-out
