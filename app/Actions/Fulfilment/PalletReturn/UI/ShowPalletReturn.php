@@ -153,11 +153,63 @@ class ShowPalletReturn extends OrgAction
                                     'organisation'       => $palletReturn->organisation->slug,
                                     'fulfilment'         => $palletReturn->fulfilment->slug,
                                     'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id,
-                                    'palletDelivery'     => $palletReturn->reference
+                                    'palletReturn'       => $palletReturn->reference
                                 ]
                             ]
                         ] : [],
-                    ] : [],
+                    ] : [
+                        $palletReturn->state == PalletReturnStateEnum::SUBMITTED ? [
+                            'type'    => 'button',
+                            'style'   => 'save',
+                            'tooltip' => __('confirm'),
+                            'label'   => __('confirm'),
+                            'key'     => 'action',
+                            'route'   => [
+                                'method'     => 'post',
+                                'name'       => 'grp.models.fulfilment-customer.pallet-return.confirm',
+                                'parameters' => [
+                                    'organisation'       => $palletReturn->organisation->slug,
+                                    'fulfilment'         => $palletReturn->fulfilment->slug,
+                                    'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id,
+                                    'palletReturn'       => $palletReturn->reference
+                                ]
+                            ]
+                        ] : [],
+                        $palletReturn->state == PalletReturnStateEnum::CONFIRMED ? [
+                            'type'    => 'button',
+                            'style'   => 'save',
+                            'tooltip' => __('received'),
+                            'label'   => __('received'),
+                            'key'     => 'action',
+                            'route'   => [
+                                'method'     => 'post',
+                                'name'       => 'grp.models.fulfilment-customer.pallet-return.received',
+                                'parameters' => [
+                                    'organisation'       => $palletReturn->organisation->slug,
+                                    'fulfilment'         => $palletReturn->fulfilment->slug,
+                                    'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id,
+                                    'palletReturn'       => $palletReturn->reference
+                                ]
+                            ]
+                        ] : [],
+                        $palletReturn->state == PalletReturnStateEnum::RECEIVED ? [
+                            'type'    => 'button',
+                            'style'   => 'save',
+                            'tooltip' => __('done'),
+                            'label'   => __('done'),
+                            'key'     => 'action',
+                            'route'   => [
+                                'method'     => 'post',
+                                'name'       => 'grp.models.fulfilment-customer.pallet-return.done',
+                                'parameters' => [
+                                    'organisation'       => $palletReturn->organisation->slug,
+                                    'fulfilment'         => $palletReturn->fulfilment->slug,
+                                    'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id,
+                                    'palletReturn'       => $palletReturn->reference
+                                ]
+                            ]
+                        ] : [],
+                    ],
                 ],
 
                 'updateRoute' => [
@@ -167,7 +219,7 @@ class ShowPalletReturn extends OrgAction
                             'organisation'       => $palletReturn->organisation->slug,
                             'fulfilment'         => $palletReturn->fulfilment->slug,
                             'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id,
-                            'palletDelivery'     => $palletReturn->reference
+                            'palletReturn'       => $palletReturn->reference
                         ]
                     ]
                 ],
@@ -184,7 +236,7 @@ class ShowPalletReturn extends OrgAction
                             'organisation'       => $palletReturn->organisation->slug,
                             'fulfilment'         => $palletReturn->fulfilment->slug,
                             'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id,
-                            'palletDelivery'     => $palletReturn->reference
+                            'palletReturn'       => $palletReturn->reference
                         ]
                     ],
                     'download' => [
@@ -193,7 +245,7 @@ class ShowPalletReturn extends OrgAction
                             'organisation'       => $palletReturn->organisation->slug,
                             'fulfilment'         => $palletReturn->fulfilment->slug,
                             'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->slug,
-                            'palletDelivery'     => $palletReturn->reference
+                            'palletReturn'       => $palletReturn->reference
                         ]
                     ],
                 ],
@@ -338,7 +390,7 @@ class ShowPalletReturn extends OrgAction
                     'parameters' => [
                         'organisation'   => $palletReturn->organisation->slug,
                         'warehouse'      => $palletReturn->warehouse->slug,
-                        'palletDelivery' => $palletReturn->reference
+                        'palletReturn'   => $palletReturn->reference
                     ]
 
                 ]
@@ -351,7 +403,7 @@ class ShowPalletReturn extends OrgAction
                         'organisation'       => $palletReturn->organisation->slug,
                         'fulfilment'         => $palletReturn->fulfilment->slug,
                         'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->slug,
-                        'palletDelivery'     => $palletReturn->reference
+                        'palletReturn'       => $palletReturn->reference
                     ]
 
                 ]

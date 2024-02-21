@@ -106,6 +106,20 @@ class ShowFulfilmentCustomer extends OrgAction
                                 'parameters' => [$fulfilmentCustomer->id]
                             ]
                         ],
+                        [
+                            'type'    => 'button',
+                            'style'   => 'create',
+                            'tooltip' => __('new return'),
+                            'label'   => __('new return'),
+                            'options' => [
+                                'warehouses' => WarehouseResource::collection($fulfilmentCustomer->fulfilment->warehouses)
+                            ],
+                            'route'   => [
+                                'method'     => 'post',
+                                'name'       => 'grp.models.fulfilment-customer.pallet-return.store',
+                                'parameters' => [$fulfilmentCustomer->id]
+                            ]
+                        ],
                     ]
                 ],
                 'tabs'        => [
