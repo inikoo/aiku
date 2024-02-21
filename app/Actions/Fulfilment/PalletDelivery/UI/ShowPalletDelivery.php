@@ -205,6 +205,57 @@ class ShowPalletDelivery extends OrgAction
                                     ]
                                 ]
                         ] : [],
+                        $palletDelivery->state == PalletDeliveryStateEnum::SUBMITTED ? [
+                            'type'    => 'button',
+                            'style'   => 'save',
+                            'tooltip' => __('confirm'),
+                            'label'   => __('confirm'),
+                            'key'     => 'action',
+                            'route'   => [
+                                'method'     => 'post',
+                                'name'       => 'grp.models.fulfilment-customer.pallet-delivery.confirm',
+                                'parameters' => [
+                                    'organisation'       => $palletDelivery->organisation->slug,
+                                    'fulfilment'         => $palletDelivery->fulfilment->slug,
+                                    'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->id,
+                                    'palletDelivery'     => $palletDelivery->reference
+                                ]
+                            ]
+                        ] : [],
+                        $palletDelivery->state == PalletDeliveryStateEnum::CONFIRMED ? [
+                            'type'    => 'button',
+                            'style'   => 'save',
+                            'tooltip' => __('received'),
+                            'label'   => __('received'),
+                            'key'     => 'action',
+                            'route'   => [
+                                'method'     => 'post',
+                                'name'       => 'grp.models.fulfilment-customer.pallet-delivery.received',
+                                'parameters' => [
+                                    'organisation'       => $palletDelivery->organisation->slug,
+                                    'fulfilment'         => $palletDelivery->fulfilment->slug,
+                                    'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->id,
+                                    'palletDelivery'     => $palletDelivery->reference
+                                ]
+                            ]
+                        ] : [],
+                        $palletDelivery->state == PalletDeliveryStateEnum::RECEIVED ? [
+                            'type'    => 'button',
+                            'style'   => 'save',
+                            'tooltip' => __('done'),
+                            'label'   => __('done'),
+                            'key'     => 'action',
+                            'route'   => [
+                                'method'     => 'post',
+                                'name'       => 'grp.models.fulfilment-customer.pallet-delivery.done',
+                                'parameters' => [
+                                    'organisation'       => $palletDelivery->organisation->slug,
+                                    'fulfilment'         => $palletDelivery->fulfilment->slug,
+                                    'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->id,
+                                    'palletDelivery'     => $palletDelivery->reference
+                                ]
+                            ]
+                        ] : [],
                     ],
                 ],
 

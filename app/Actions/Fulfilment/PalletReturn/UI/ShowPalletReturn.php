@@ -157,25 +157,7 @@ class ShowPalletReturn extends OrgAction
                                 ]
                             ]
                         ] : [],
-                    ] : [
-                        $palletReturn->state == PalletReturnStateEnum::SUBMITTED ? [
-                                'type'    => 'button',
-                                'style'   => 'save',
-                                'tooltip' => __('confirm'),
-                                'label'   => __('confirm'),
-                                'key'     => 'action',
-                                'route'   => [
-                                    'method'     => 'post',
-                                    'name'       => 'grp.models.fulfilment-customer.pallet-return.confirm',
-                                    'parameters' => [
-                                        'organisation'       => $palletReturn->organisation->slug,
-                                        'fulfilment'         => $palletReturn->fulfilment->slug,
-                                        'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id,
-                                        'palletDelivery'     => $palletReturn->reference
-                                    ]
-                                ]
-                        ] : [],
-                    ],
+                    ] : [],
                 ],
 
                 'updateRoute' => [
