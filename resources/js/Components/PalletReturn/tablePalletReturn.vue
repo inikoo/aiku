@@ -145,7 +145,7 @@ onMounted(getData)
 									</th>
 								</tr>
 							</thead>
-							<tbody class="divide-y divide-gray-200 bg-white h-[290px] overflow-y-auto">
+							<tbody class="divide-y divide-gray-200 bg-white  overflow-y-auto">
 								<tr v-for="pallet in dataList" :key="pallet.id">
 									<td
 										class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">

@@ -5,82 +5,44 @@
   -->
 
   <script setup lang="ts">
-  import { Link } from "@inertiajs/vue3"
-  import Table from "@/Components/Table/Table.vue"
-  import Button from "@/Components/Elements/Buttons/Button.vue"
-  import { library } from "@fortawesome/fontawesome-svg-core"
-  import { faPlus } from "@fas"
+import Table from '@/Components/Table/Table.vue';
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+import { library } from "@fortawesome/fontawesome-svg-core";
+import { faTrashAlt, faPaperPlane } from '@far';
+import { faGameConsoleHandheld, faSignOutAlt } from '@fal';
+import {Link} from '@inertiajs/vue3';
+
+library.add(
+    faTrashAlt, faSignOutAlt, faPaperPlane
+)
+const props = defineProps<{
+    data: object,
+    tab?: string
+    state?: string
+}>()
+
   
-  import { PalletDelivery } from "@/types/pallet-delivery";
-  import Icon from "@/Components/Icon.vue";
-  
-  library.add(faPlus)
-  
-  const props = defineProps<{
-      data: object
-      tab?: string
-  }>()
-  
- /*  function palletReturnRoute(palletReturn: PalletDelivery) {
-      switch (route().current()) {
-          case 'grp.org.warehouses.show.fulfilment.pallet-returns.index':
-              return route(
-                  'grp.org.warehouses.show.fulfilment.pallet-returns.show',
-                  [
-                      route().params['organisation'],
-                      route().params['warehouse'],
-                      palletReturn.slug
-                  ]);
-          case 'grp.org.fulfilments.show.operations.pallet-returns.index':
-              return route(
-                  'grp.org.fulfilments.show.operations.pallet-returns.show',
-                  [
-                      route().params['organisation'],
-                      route().params['fulfilment'],
-                      palletReturn.slug
-                  ]);
-          default:
-              return route(
-                  'grp.org.fulfilments.show.crm.customers.show.pallet-returns.show',
-                  [
-                      route().params['organisation'],
-                      route().params['fulfilment'],
-                      route().params['fulfilmentCustomer'],
-                      palletReturn.slug
-                  ]);
-      }
-  }
-   */
+  function customerRoute(pallet: object) {
+            return route(pallet.deleteRoute.name,pallet.deleteRoute.params);
+}
   
   
   </script>
   
   <template>
       <Table :resource="data" :name="tab" class="mt-5">
-        <!--   <template #cell(reference)="{ item: palletReturn }">
-              <Link :href="palletReturnRoute(palletReturn)" class="specialUnderline">
-                  {{ palletReturn['reference'] }}
-              </Link>
-          </template>
-  
-          <template #cell(state)="{ item: palletReturn }">
-              <Icon :data="palletReturn['state_icon']" class="px-1"/>
-          </template>
-  
-  
-          <template #buttonreturns="{ linkButton: linkButton }">
-              <Link
-                  v-if="linkButton?.route?.name"
-                  method="post"
-                  :href="route(linkButton?.route?.name, linkButton?.route?.parameters)"
-                  class="ring-1 ring-gray-300 overflow-hidden first:rounded-l last:rounded-r">
-                  <Button
-                      :style="linkButton.style"
-                      :label="linkButton.label"
-                      class="h-full capitalize inline-flex items-center rounded-none text-sm border-none font-medium shadow-sm focus:ring-transparent focus:ring-offset-transparent focus:ring-0">
-                  </Button>
-              </Link>
-          </template> -->
+          <template #cell(actions)="{ item: pallet }">
+        <div v-if="props.state == 'in-process'">
+            <Link :href="customerRoute(pallet)" method="delete">
+                <font-awesome-icon class="text-red-600" :icon="['far', 'trash-alt']" />
+            </Link>
+
+        </div>
+        <div v-else>
+            <font-awesome-icon  :icon="['far', 'paper-plane']" />
+        </div>
+
+        </template>
       </Table>
   </template>
   
