@@ -24,7 +24,6 @@ use Lorisleiva\Actions\ActionRequest;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\SysAdmin\Organisation;
-use App\Enums\UI\CustomerFulfilmentTabsEnum;
 
 class ShowWebsiteWorkshop extends OrgAction
 {
@@ -38,7 +37,7 @@ class ShowWebsiteWorkshop extends OrgAction
 
     public function asController(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, Website $website, ActionRequest $request): Website
     {
-        $this->initialisationFromFulfilment($fulfilment, $request)->withTab(CustomerFulfilmentTabsEnum::values());
+        $this->initialisationFromFulfilment($fulfilment, $request)->withTab(WebsiteWorkshopTabsEnum::values());
 
         return $website;
     }
