@@ -23,6 +23,7 @@ class GetGroupNavigation
             $groupNavigation['supply-chain'] = [
                 'label'   => __('Supply Chain'),
                 'icon'    => ['fal', 'fa-box-usd'],
+                'root'    => 'grp.supply-chain.',
                 'route'   => [
                     'name' => 'grp.supply-chain.dashboard'
                 ],
@@ -56,6 +57,7 @@ class GetGroupNavigation
             $groupNavigation['organisations'] = [
                 'label'   => __('Organisations'),
                 'icon'    => ['fal', 'fa-building'],
+                'root'    => 'grp.orgs.',
                 'route'   => [
                     'name' => 'grp.orgs.index'
                 ],
@@ -67,6 +69,7 @@ class GetGroupNavigation
             $groupNavigation['sysadmin'] = [
                 'label'   => __('sysadmin'),
                 'icon'    => ['fal', 'fa-users-cog'],
+                'root'    => 'grp.sysadmin.',
                 'route'   => [
                     'name' => 'grp.sysadmin.dashboard'
                 ],

@@ -11,7 +11,7 @@ use App\Actions\Assets\Language\UI\GetLanguagesOptions;
 use App\Actions\UI\Retina\Dashboard\ShowDashboard;
 use App\Actions\UI\WithInertia;
 use App\Http\Resources\Auth\UserResource;
-use App\Models\Auth\User;
+use App\Models\CRM\WebUser;
 use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -23,17 +23,17 @@ class ShowProfile
     use AsAction;
     use WithInertia;
 
-    public function asController(ActionRequest $request): User
+    public function asController(ActionRequest $request): WebUser
     {
         return $request->user();
     }
 
-    public function jsonResponse(User $user): UserResource
+    public function jsonResponse(WebUser $webuser): UserResource
     {
-        return new UserResource($user);
+        return new UserResource($webuser);
     }
 
-    public function htmlResponse(User $user, ActionRequest $request): Response
+    public function htmlResponse(WebUser $webuser, ActionRequest $request): Response
     {
         $sections["properties"] = [
             "label"  => __("Profile"),
@@ -42,18 +42,18 @@ class ShowProfile
                 "email" => [
                     "type"  => "input",
                     "label" => __("email"),
-                    "value" => $user->email,
+                    "value" => $webuser->email,
                 ],
                 "about" => [
                     "type"  => "textarea",
                     "label" => __("about"),
-                    "value" => $user->about,
+                    "value" => $webuser->about,
                 ],
                 "avatar" => [
                     "type"  => "avatar",
                     "label" => __("avatar"),
-                    "value" => !blank($user->avatar_id)
-                        ? $user->avatarImageSources(320, 320)
+                    "value" => !blank($webuser->avatar_id)
+                        ? $webuser->avatarImageSources(320, 320)
                         : null,
                 ],
             ],
@@ -78,7 +78,7 @@ class ShowProfile
                 "language_id" => [
                     "type"     => "language",
                     "label"    => __("language"),
-                    "value"    => $user->language_id,
+                    "value"    => $webuser->language_id,
                     "options"  => GetLanguagesOptions::make()->translated(),
                     "canClear" => false,
                 ],
@@ -102,7 +102,7 @@ class ShowProfile
                 "blueprint" => $sections,
                 "args"      => [
                     "updateRoute" => [
-                        "name" => "customer.models.profile.update",
+                        "name" => "retina.models.profile.update",
                     ],
                 ],
             ],
@@ -116,7 +116,7 @@ class ShowProfile
                 "type"   => "simple",
                 "simple" => [
                     "route" => [
-                        "name" => "retine.profile.show",
+                        "name" => "retina.profile.show",
                     ],
                     "label" => __("my profile"),
                 ],

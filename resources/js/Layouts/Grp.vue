@@ -93,9 +93,12 @@ const sidebarOpen = ref(false)
 /* Navigation: Aiku */
 .navigationActive {
     @apply rounded py-2 font-semibold transition-all duration-0 ease-out;
+    background-color: v-bind('layout?.app?.theme[2]');
+    color: v-bind('layout?.app?.theme[3]')
 }
 .navigation {
     @apply hover:bg-gray-300/40 py-2 rounded font-semibold transition-all duration-0 ease-out;
+    color: v-bind('layout?.app?.theme[1]')
 }
 
 .subNavActive {
@@ -114,7 +117,7 @@ const sidebarOpen = ref(false)
 
 .bottomNavigationActive {
     @apply w-5/6 absolute h-0.5 rounded-full bottom-0 left-[50%] translate-x-[-50%] mx-auto transition-all duration-200 ease-in-out;
-    background-color: v-bind('layout.app.theme[3]');
+    background-color: v-bind('layout.app.theme[4]');
 }
 .bottomNavigation {
     @apply bg-gray-300 w-0 group-hover:w-3/6 absolute h-0.5 rounded-full bottom-0 left-[50%] translate-x-[-50%] mx-auto transition-all duration-200 ease-in-out

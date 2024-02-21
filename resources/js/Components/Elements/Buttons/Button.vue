@@ -150,6 +150,10 @@ const getActionIcon = (icon: any) => {
             styleClass,
             sizeClass
         ]"
+        :style="{
+            backgroundColor: layout?.app?.theme[4],
+            color: layout?.app?.theme[5]
+        }"
         :disabled="style == 'disabled'"
         v-tooltip="tooltip ?? undefined"    
     >

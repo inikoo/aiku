@@ -40,7 +40,7 @@ const label = {
 <template>
     <Disclosure as="nav" class="fixed top-0 z-[21] w-full " v-slot="{ open }"
                 :style="{
-            'color': layoutStore.app.theme[1]
+            'color': layoutStore.app.theme[2]
         }"
     >
         <div class="mt-1 flex h-11 lg:h-10 flex-shrink-0 gap-x-2">
@@ -64,7 +64,7 @@ const label = {
                     ]"
                      :style="{
                         // 'background-color': layoutStore.app.theme[0],
-                        'color': layoutStore.app.theme[1],
+                        'color': layoutStore.app.theme[2],
                         // 'border-bottom': `1px solid ${layoutStore.app.theme[1]}3F`
                     }"
                 >
@@ -77,7 +77,7 @@ const label = {
                         <Image :src="undefined" class="aspect-square h-6" />
                         <Transition name="slide-to-left">
                             <p v-if="layoutStore.leftSidebar.show || true" class="capitalize text-lg bg-clip-text font-bold whitespace-nowrap leading-none lg:truncate"
-                               :style="{color: layoutStore.app.theme[1]}"
+                               :style="{color: layoutStore.app.theme[2]}"
                             >
                                 {{ layoutStore.app?.name }}
                             </p>
