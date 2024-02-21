@@ -345,8 +345,6 @@ const EditItemLinkInTools = (value, type) => {
 
 <template>
     <div class="bg-white">
-        <div class="pb-16 pt-6 sm:pb-24">
-            <div class="mt-8  px-4 sm:px-6 lg:px-8">
                 <div class="flex">
                     <!-- tools -->
                     <div class="w-1/10 p-6  overflow-y-auto overflow-x-hidden" style="border : 1px solid #bfbfbf; height:46rem;">
@@ -523,6 +521,4 @@ const EditItemLinkInTools = (value, type) => {
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
 </div></template>

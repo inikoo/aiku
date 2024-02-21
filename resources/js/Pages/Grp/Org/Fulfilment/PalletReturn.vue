@@ -162,7 +162,7 @@ console.log('ddd',props.data)
 
 	<Modal :isOpen="openModal" @onClose="openModal = false">
 		<div class="h-96 overflow-y-auto">
-			<TablePalletReturn :palletRoute="palletRoute"/>
+			<TablePalletReturn :palletRoute="palletRoute" @onClose="()=>openModal = false"/>
 		</div>
 	</Modal>
 </template>

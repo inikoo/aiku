@@ -85,14 +85,17 @@ defineExpose({
                     clear && modelValue.length ? 'pl-3 pr-7' : 'px-3'
                 ]"
             />
-            <div v-if="copyButton"
+            <slot v-if="copyButton" name="copyButton">
+            <div 
                 class="flex justify-center items-center px-2 absolute inset-y-0 right-0 gap-x-1 cursor-pointer opacity-20 hover:opacity-75 active:opacity-100"
                 @click="useCopyText(modelValue)"
             >
+         
                 <FontAwesomeIcon icon="fal fa-copy"
                     class="text-lg leading-none"
                     aria-hidden="true" />
             </div>
+        </slot>
             <div v-if="clear && modelValue.length"
                 class="flex justify-center items-center px-2 absolute inset-y-0 right-0 gap-x-1 cursor-pointer opacity-20 hover:opacity-75 active:opacity-100"
                 @click="clearValue()"
