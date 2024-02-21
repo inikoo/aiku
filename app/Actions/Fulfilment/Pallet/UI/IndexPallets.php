@@ -80,6 +80,7 @@ class IndexPallets extends OrgAction
             case "FulfilmentCustomer":
                 $query->where('fulfilment_customer_id', $parent->id);
                 $query->where('state', PalletStateEnum::SETTLED);
+                $query->whereNull('pallet_return_id');
                 break;
             case "Location":
                 $query->where('location_id', $parent->id);
@@ -95,6 +96,9 @@ class IndexPallets extends OrgAction
                 break;
             case "PalletDelivery":
                 $query->where('pallet_delivery_id', $parent->id);
+                break;
+            case "PalletReturn":
+                $query->where('pallet_return_id', $parent->id);
                 break;
             default:
                 $query->where('group_id', app('group')->id);

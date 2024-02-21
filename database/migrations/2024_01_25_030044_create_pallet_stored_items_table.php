@@ -7,15 +7,17 @@ use Illuminate\Support\Facades\Schema;
 return new class () extends Migration {
     public function up()
     {
-        Schema::create('pallet_stored_items', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('pallet_id');
-            $table->foreign('pallet_id')->references('id')->on('pallets');
-            $table->unsignedBigInteger('stored_item_id');
-            $table->foreign('stored_item_id')->references('id')->on('stored_items');
-            $table->decimal('quantity')->default(0);
-            $table->timestampsTz();
-        });
+        if(!Schema::hasTable('pallet_stored_items')) {
+            Schema::create('pallet_stored_items', function (Blueprint $table) {
+                $table->id();
+                $table->unsignedBigInteger('pallet_id');
+                $table->foreign('pallet_id')->references('id')->on('pallets');
+                $table->unsignedBigInteger('stored_item_id');
+                $table->foreign('stored_item_id')->references('id')->on('stored_items');
+                $table->decimal('quantity')->default(0);
+                $table->timestampsTz();
+            });
+        }
     }
 
 

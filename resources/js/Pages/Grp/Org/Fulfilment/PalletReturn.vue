@@ -27,7 +27,7 @@ const props = defineProps<{
 	pageHead: object
 	updateRoute: object
 	uploadRoutes: object
-  palletRoute : object
+    palletRoute : object
 }>()
 let currentTab = ref(props.tabs.current)
 const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab)
@@ -162,7 +162,7 @@ console.log('ddd',props.data)
 
 	<Modal :isOpen="openModal" @onClose="openModal = false">
 		<div class="h-96 overflow-y-auto">
-			<TablePalletReturn  :palletRoute="palletRoute"/>
+			<TablePalletReturn :palletRoute="palletRoute"/>
 		</div>
 	</Modal>
 </template>

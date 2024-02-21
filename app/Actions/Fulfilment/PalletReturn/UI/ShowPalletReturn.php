@@ -217,11 +217,22 @@ class ShowPalletReturn extends OrgAction
                 ],
 
                 'palletRoute' => [
-                    'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallets.index',
-                    'parameters' => [
-                        'organisation'       => $palletReturn->organisation->slug,
-                        'fulfilment'         => $palletReturn->fulfilment->slug,
-                        'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->slug
+                    'index' => [
+                        'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallets.index',
+                        'parameters' => [
+                            'organisation'       => $palletReturn->organisation->slug,
+                            'fulfilment'         => $palletReturn->fulfilment->slug,
+                            'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->slug
+                        ]
+                    ],
+                    'store' => [
+                        'name'       => 'grp.models.fulfilment-customer.pallet-return.pallet.store',
+                        'parameters' => [
+                            'organisation'       => $palletReturn->organisation->slug,
+                            'fulfilment'         => $palletReturn->fulfilment->slug,
+                            'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id,
+                            'palletReturn'       => $palletReturn->slug
+                        ]
                     ]
                 ],
 

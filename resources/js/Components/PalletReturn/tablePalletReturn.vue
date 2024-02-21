@@ -28,7 +28,7 @@ const getData = async () => {
 	loading.value = true
 	try {
 		const response = await axios.get(
-			route(props.palletRoute.name, props.palletRoute.parameters),
+			route(props.palletRoute.index.name, props.palletRoute.index.parameters),
 			{ params: { search: tableFilter.filter } } // Changed from { search: tableFilter.filter }
 		)
 		dataList.value = response.data.data
@@ -62,7 +62,7 @@ const onChecked = (value) => {
 }
 
 const onSubmitPallet = () => {
-	form.post("/waitForArtha", {
+	form.post(route(props.palletRoute.store.name, props.palletRoute.store.parameters), {
 		preserveScroll: true,
 		onBefore: () => {
 			loading.value = true
