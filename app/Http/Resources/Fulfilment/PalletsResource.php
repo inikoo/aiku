@@ -30,24 +30,46 @@ class PalletsResource extends JsonResource
             'location'               => $pallet->location?->slug,
             'state_label'            => $pallet->state->labels()[$pallet->state->value],
             'state_icon'             => $pallet->state->stateIcon()[$pallet->state->value],
-            'updateRoute'            => [
-                'name'   => 'grp.models.fulfilment-customer.pallet-delivery.pallet.update',
-                'params' => [
-                    'organisation'        => $pallet->fulfilmentCustomer->fulfilment->organisation->slug,
-                    'fulfilmentCustomer'  => $pallet->fulfilmentCustomer->id,
-                    'palletDelivery'      => $pallet->palletDelivery->slug,
-                    'pallet'              => $pallet->id
-                ]
-            ],
-            'deleteRoute'        => [
-                'name'   => 'grp.models.fulfilment-customer.pallet-delivery.pallet.delete',
-                'params' => [
-                    'organisation'        => $pallet->fulfilmentCustomer->fulfilment->organisation->slug,
-                    'fulfilmentCustomer'  => $pallet->fulfilmentCustomer->id,
-                    'palletDelivery'      => $pallet->palletDelivery->slug,
-                    'pallet'              => $pallet->id
-                ]
-            ],
+            'updateRoute'            => match (request()->route()->getName()) {
+                'grp.org.fulfilments.show.crm.customers.show.pallet-returns.show' => [
+                    'name'   => 'grp.models.fulfilment-customer.pallet-return.pallet.update',
+                    'params' => [
+                        'organisation'       => $pallet->fulfilmentCustomer->fulfilment->organisation->slug,
+                        'fulfilmentCustomer' => $pallet->fulfilmentCustomer->id,
+                        'palletReturn'       => $pallet->palletReturn->slug,
+                        'pallet'             => $pallet->id
+                    ]
+                ],
+                default => [
+                    'name'   => 'grp.models.fulfilment-customer.pallet-delivery.pallet.update',
+                    'params' => [
+                        'organisation'         => $pallet->fulfilmentCustomer->fulfilment->organisation->slug,
+                        'fulfilmentCustomer'   => $pallet->fulfilmentCustomer->id,
+                        'palletDelivery'       => $pallet->palletDelivery->slug,
+                        'pallet'               => $pallet->id
+                    ]
+                ],
+            },
+            'deleteRoute'        => match (request()->route()->getName()) {
+                'grp.org.fulfilments.show.crm.customers.show.pallet-returns.show' => [
+                    'name'   => 'grp.models.fulfilment-customer.pallet-return.pallet.delete',
+                    'params' => [
+                        'organisation'       => $pallet->fulfilmentCustomer->fulfilment->organisation->slug,
+                        'fulfilmentCustomer' => $pallet->fulfilmentCustomer->id,
+                        'palletReturn'       => $pallet->palletReturn->slug,
+                        'pallet'             => $pallet->id
+                    ]
+                ],
+                default => [
+                    'name'   => 'grp.models.fulfilment-customer.pallet-delivery.pallet.delete',
+                    'params' => [
+                        'organisation'       => $pallet->fulfilmentCustomer->fulfilment->organisation->slug,
+                        'fulfilmentCustomer' => $pallet->fulfilmentCustomer->id,
+                        'palletDelivery'     => $pallet->palletDelivery->slug,
+                        'pallet'             => $pallet->id
+                    ]
+                ],
+            }
         ];
     }
 }

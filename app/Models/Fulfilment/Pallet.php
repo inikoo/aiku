@@ -61,6 +61,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\MovementPallet> $movements
  * @property-read Organisation $organisation
  * @property-read \App\Models\Fulfilment\PalletDelivery|null $palletDelivery
+ * @property-read \App\Models\Fulfilment\PalletReturn|null $palletReturn
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
  * @property-read Warehouse $warehouse
  * @method static \Database\Factories\Fulfilment\PalletFactory factory($count = null, $state = [])
@@ -149,5 +150,10 @@ class Pallet extends Model
     public function palletDelivery(): BelongsTo
     {
         return $this->belongsTo(PalletDelivery::class);
+    }
+
+    public function palletReturn(): BelongsTo
+    {
+        return $this->belongsTo(PalletReturn::class);
     }
 }
