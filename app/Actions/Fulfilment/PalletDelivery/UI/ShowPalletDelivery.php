@@ -119,7 +119,7 @@ class ShowPalletDelivery extends OrgAction
                             'parameters' => array_values($request->route()->originalParameters())
                         ]
                     ] : false,
-                    'actions' => $palletDelivery->state == PalletDeliveryStateEnum::IN_PROCESS ? [
+                    'actions' => $palletDelivery->state == PalletDeliveryStateEnum::IN_PROCESS && $this->canEdit ? [
                         [
                             'type'   => 'buttonGroup',
                             'key'    => 'upload-add',
@@ -170,7 +170,7 @@ class ShowPalletDelivery extends OrgAction
                                 ],
                             ]
                         ],
-                        $palletDelivery->pallets()->count() > 0 ? [
+                        ($palletDelivery->pallets()->count() > 0) && $this->canEdit ? [
                             'type'    => 'button',
                             'style'   => 'save',
                             'tooltip' => __('submit'),
@@ -188,7 +188,7 @@ class ShowPalletDelivery extends OrgAction
                             ]
                         ] : [],
                     ] : [
-                        $palletDelivery->state == PalletDeliveryStateEnum::SUBMITTED ? [
+                        $palletDelivery->state == PalletDeliveryStateEnum::SUBMITTED && $this->canEdit ? [
                                 'type'    => 'button',
                                 'style'   => 'save',
                                 'tooltip' => __('confirm'),
@@ -205,7 +205,7 @@ class ShowPalletDelivery extends OrgAction
                                     ]
                                 ]
                         ] : [],
-                        $palletDelivery->state == PalletDeliveryStateEnum::SUBMITTED ? [
+                        $palletDelivery->state == PalletDeliveryStateEnum::SUBMITTED && $this->canEdit ? [
                             'type'    => 'button',
                             'style'   => 'save',
                             'tooltip' => __('confirm'),
@@ -222,7 +222,7 @@ class ShowPalletDelivery extends OrgAction
                                 ]
                             ]
                         ] : [],
-                        $palletDelivery->state == PalletDeliveryStateEnum::CONFIRMED ? [
+                        $palletDelivery->state == PalletDeliveryStateEnum::CONFIRMED && $this->canEdit ? [
                             'type'    => 'button',
                             'style'   => 'save',
                             'tooltip' => __('received'),
@@ -239,7 +239,7 @@ class ShowPalletDelivery extends OrgAction
                                 ]
                             ]
                         ] : [],
-                        $palletDelivery->state == PalletDeliveryStateEnum::RECEIVED ? [
+                        $palletDelivery->state == PalletDeliveryStateEnum::RECEIVED && $this->canEdit ? [
                             'type'    => 'button',
                             'style'   => 'save',
                             'tooltip' => __('done'),

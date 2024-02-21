@@ -83,6 +83,8 @@ Route::name('fulfilment-customer.')->prefix('fulfilment-customer/{fulfilmentCust
     Route::post('pallet-return/{palletReturn}/confirm', ConfirmPalletReturn::class)->name('pallet-return.confirm');
     Route::post('pallet-return/{palletReturn}/received', ReceivedPalletReturn::class)->name('pallet-return.received');
     Route::post('pallet-return/{palletReturn}/done', DonePalletReturn::class)->name('pallet-return.done');
+    Route::delete('pallet-return/{palletReturn}/pallet/{pallet}', DeletePallet::class)->name('pallet-return.pallet.delete');
+
 });
 
 Route::name('shop.')->prefix('shop/{shop:id}')->group(function () {

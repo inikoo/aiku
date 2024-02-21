@@ -29,6 +29,7 @@ use App\Http\Resources\Sales\CustomerResource;
 use App\Models\CRM\Customer;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
+use App\Models\Fulfilment\Pallet;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Arr;
 use Inertia\Inertia;
@@ -205,8 +206,14 @@ class ShowFulfilmentCustomer extends OrgAction
             ];
         };
 
-        $fulfilmentCustomer = FulfilmentCustomer::where('slug', $routeParameters['fulfilmentCustomer'])->first();
+        if(Arr::get($routeParameters, 'pallet')) {
+            $pallet             = Pallet::where('id', $routeParameters['pallet'])->first();
+            $fulfilmentCustomer = $pallet->fulfilmentCustomer->slug;
+        } else {
+            $fulfilmentCustomer = $routeParameters['fulfilmentCustomer'];
+        }
 
+        $fulfilmentCustomer = FulfilmentCustomer::where('slug', $fulfilmentCustomer)->first();
         return array_merge(
             ShowFulfilment::make()->getBreadcrumbs(
                 Arr::only($routeParameters, ['organisation', 'fulfilment'])

@@ -27,6 +27,7 @@ class PalletsResource extends JsonResource
             'slug'                   => $pallet->slug,
             'notes'                  => $pallet->notes,
             'state'                  => $pallet->state,
+            'location'               => $pallet->location?->slug,
             'state_label'            => $pallet->state->labels()[$pallet->state->value],
             'state_icon'             => $pallet->state->stateIcon()[$pallet->state->value],
             'updateRoute'            => [

@@ -14,6 +14,7 @@ use App\Http\Resources\Fulfilment\PalletResource;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
+use App\Models\Fulfilment\PalletReturn;
 use App\Models\SysAdmin\Organisation;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -42,7 +43,7 @@ class DeletePallet extends OrgAction
         return $request->user()->hasPermissionTo("fulfilment.{$this->fulfilment->id}.edit");
     }
 
-    public function asController(Organisation $organisation, FulfilmentCustomer $fulfilmentCustomer, PalletDelivery $palletDelivery, Pallet $pallet, ActionRequest $request): bool
+    public function asController(Organisation $organisation, FulfilmentCustomer $fulfilmentCustomer, PalletDelivery|PalletReturn $palletDelivery, Pallet $pallet, ActionRequest $request): bool
     {
         $this->pallet = $pallet;
         $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $request);
