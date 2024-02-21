@@ -91,5 +91,4 @@ const tabIconClass = function (current, type, align, extraClass) {
         </div>
     </div>
 
-    <!-- Backup purpose for FontAwesomeIcon on Right Section = :class="tabIconClass(tabSlug === currentTab, tab.type, tab.align, tab.iconClass??'')" -->
 </template>
