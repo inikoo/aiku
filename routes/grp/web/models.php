@@ -22,6 +22,7 @@ use App\Actions\Fulfilment\PalletDelivery\SubmitPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\UpdatePalletDeliveryTimeline;
 use App\Actions\Fulfilment\PalletReturn\ConfirmPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\DonePalletReturn;
+use App\Actions\Fulfilment\PalletReturn\InDeliveryPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\ReceivedPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\StorePalletReturn;
 use App\Actions\Fulfilment\PalletReturn\SubmitPalletReturn;
@@ -78,6 +79,7 @@ Route::name('fulfilment-customer.')->prefix('fulfilment-customer/{fulfilmentCust
     Route::post('pallet-return', StorePalletReturn::class)->name('pallet-return.store');
     Route::post('pallet-return/{palletReturn}/pallet', StorePalletToReturn::class)->name('pallet-return.pallet.store');
     Route::post('pallet-return/{palletReturn}/submit', SubmitPalletReturn::class)->name('pallet-return.submit');
+    Route::post('pallet-return/{palletReturn}/delivery', InDeliveryPalletReturn::class)->name('pallet-return.delivery');
     Route::post('pallet-return/{palletReturn}/confirm', ConfirmPalletReturn::class)->name('pallet-return.confirm');
     Route::post('pallet-return/{palletReturn}/received', ReceivedPalletReturn::class)->name('pallet-return.received');
     Route::post('pallet-return/{palletReturn}/done', DonePalletReturn::class)->name('pallet-return.done');

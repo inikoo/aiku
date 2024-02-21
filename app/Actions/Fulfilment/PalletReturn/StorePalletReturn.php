@@ -53,7 +53,6 @@ class StorePalletReturn extends OrgAction
                     modelType: SerialReferenceModelEnum::PALLET_RETURN
                 )
             );
-
         }
 
 
@@ -93,6 +92,7 @@ class StorePalletReturn extends OrgAction
     public function asController(Organisation $organisation, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): PalletReturn
     {
         $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $request);
+
         return $this->handle($fulfilmentCustomer, $this->validatedData);
     }
 
