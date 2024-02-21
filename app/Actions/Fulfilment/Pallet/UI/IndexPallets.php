@@ -57,8 +57,8 @@ class IndexPallets extends OrgAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->whereStartWith('customer_reference', $value)
-                ->orWhereStartWith('reference', $value);
+                $query->whereAnyWordStartWith('pallets.customer_reference', $value)
+                    ->orWhereWith('pallets.reference', $value);
             });
         });
 
@@ -114,7 +114,7 @@ class IndexPallets extends OrgAction
 
         return $query->defaultSort('reference')
             ->allowedSorts(['customer_reference', 'reference'])
-            ->allowedFilters([$globalSearch, $isNotLocated, 'customer_reference'])
+            ->allowedFilters([$globalSearch, 'customer_reference'])
             ->withPaginator($prefix)
             ->withQueryString();
     }
