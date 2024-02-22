@@ -11,8 +11,8 @@ import CharacterCount from '@tiptap/extension-character-count'
 
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faBold, faItalic, faUnderline, faStrikethrough, faAlignLeft, faAlignCenter, faAlignRight, faAlignJustify, faSubscript, faSuperscript, faTrashAlt, faListUl, faListOl, faUndoAlt, faRedoAlt, } from '@fal'
-library.add(faBold, faItalic, faUnderline, faStrikethrough, faAlignLeft, faAlignCenter, faAlignRight, faAlignJustify, faSubscript, faSuperscript, faTrashAlt, faListUl, faListOl, faUndoAlt, faRedoAlt)
+import { faBold, faItalic, faUnderline, faStrikethrough, faAlignLeft, faAlignCenter, faAlignRight, faAlignJustify, faSubscript, faSuperscript, faEraser, faListUl, faListOl, faUndoAlt, faRedoAlt, } from '@fal'
+library.add(faBold, faItalic, faUnderline, faStrikethrough, faAlignLeft, faAlignCenter, faAlignRight, faAlignJustify, faSubscript, faSuperscript, faEraser, faListUl, faListOl, faUndoAlt, faRedoAlt)
 
 const editor = ref(false)
 
@@ -27,21 +27,21 @@ const props = defineProps<{
 
 const editorInstance = ref(null)
 const textActions = [
-    { slug: 'bold', icon: 'fal fa-bold', active: 'bold' },
-    { slug: 'italic', icon: 'fal fa-italic', active: 'italic' },
-    { slug: 'underline', icon: 'fal fa-underline', active: 'underline' },
-    { slug: 'strike', icon: 'fal fa-strikethrough', active: 'strike' },
-    { slug: 'align', option: 'left', icon: 'fal fa-align-left', active: { textAlign: 'left' } },
-    { slug: 'align', option: 'center', icon: 'fal fa-align-center', active: { textAlign: 'center' } },
-    { slug: 'align', option: 'right', icon: 'fal fa-align-right', active: { textAlign: 'right' } },
-    { slug: 'align', option: 'justify', icon: 'fal fa-align-justify', active: { textAlign: 'justify' } },
-    { slug: 'bulletList', icon: 'fal fa-list-ul', active: 'bulletList' },
-    { slug: 'orderedList', icon: 'fal fa-list-ol', active: 'orderedList' },
-    { slug: 'subscript', icon: 'fal fa-subscript', active: 'subscript' },
-    { slug: 'superscript', icon: 'fal fa-superscript', active: 'superscript' },
-    { slug: 'undo', icon: 'fal fa-undo-alt', active: 'undo' },
-    { slug: 'redo', icon: 'fal fa-redo-alt', active: 'redo' },
-    { slug: 'clear', icon: 'fal fa-trash-alt', active: 'clear' },
+    { slug: 'bold', icon: 'fal fa-bold', active: 'bold', label: 'Bold' },
+    { slug: 'italic', icon: 'fal fa-italic', active: 'italic', label: 'Italic' },
+    { slug: 'underline', icon: 'fal fa-underline', active: 'underline', label: 'Underline' },
+    { slug: 'strike', icon: 'fal fa-strikethrough', active: 'strike', label: 'Strikethrough' },
+    { slug: 'align', option: 'left', icon: 'fal fa-align-left', active: { textAlign: 'left' }, label: 'Align left' },
+    { slug: 'align', option: 'center', icon: 'fal fa-align-center', active: { textAlign: 'center' }, label: 'Align center' },
+    { slug: 'align', option: 'right', icon: 'fal fa-align-right', active: { textAlign: 'right' }, label: 'Align right' },
+    { slug: 'align', option: 'justify', icon: 'fal fa-align-justify', active: { textAlign: 'justify' }, label: 'Justify' },
+    { slug: 'bulletList', icon: 'fal fa-list-ul', active: 'bulletList', label: 'Unordered list' },
+    { slug: 'orderedList', icon: 'fal fa-list-ol', active: 'orderedList', label: 'Ordered list' },
+    { slug: 'subscript', icon: 'fal fa-subscript', active: 'subscript', label: 'Subscript' },
+    { slug: 'superscript', icon: 'fal fa-superscript', active: 'superscript', label: 'Superscript' },
+    { slug: 'undo', icon: 'fal fa-undo-alt', active: 'undo', label: 'Undo' },
+    { slug: 'redo', icon: 'fal fa-redo-alt', active: 'redo', label: 'Redo' },
+    { slug: 'clear', icon: 'fal fa-eraser', active: 'clear', label: 'Clear style on selected text', class: 'text-red-500' },
 ]
 
 const charactersCount = computed<number>(() => {
@@ -148,16 +148,17 @@ onBeforeUnmount(() => {
                 </div>
             </div>
 
-            <div v-for="{ slug, option, active, icon }, index in textActions"
-                @click="onActionClick(slug, option)"
+            <div v-for="action in textActions"
+                v-tooltip="action.label"
+                @click="onActionClick(action.slug, action.option)"
                 class="appearance-none flex items-center justify-center w-6 aspect-square rounded cursor-pointer hover:border hover:border-gray-700"
-                :class="{ 'bg-slate-700 text-white': editorInstance.isActive(active) }"
+                :class="[action.class, { 'bg-slate-700 text-white': editorInstance.isActive(action.active) }]"
             >
-                <FontAwesomeIcon :icon='icon' class='text-sm' fixed-width aria-hidden='true' />
+                <FontAwesomeIcon :icon='action.icon' class='text-sm' fixed-width aria-hidden='true' />
             </div>
         </div>
 
-        <EditorContent v-model="form[fieldName]" :editor="editorInstance" />
+        <EditorContent :editor="editorInstance" />
 
         <!-- Counter: Characters and Words -->
         <div v-if="editorInstance && fieldData?.maxLength" class="text-gray-500 text-sm text-right p-1.5">
