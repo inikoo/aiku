@@ -1,31 +1,32 @@
 <script setup lang="ts">
-import { Link } from "@inertiajs/vue3";
-import { useLayoutStore } from "@/Stores/retinaLayout";
-import { Disclosure } from "@headlessui/vue";
-import Button from "@/Components/Elements/Buttons/Button.vue";
-import { trans } from "laravel-vue-i18n";
-import Image from "@/Components/Image.vue";
+import { Link } from "@inertiajs/vue3"
+import { useLayoutStore } from "@/Stores/retinaLayout"
+import { Disclosure } from "@headlessui/vue"
+import Button from "@/Components/Elements/Buttons/Button.vue"
+import { trans } from "laravel-vue-i18n"
+import Image from "@/Components/Image.vue"
 
-import { faChevronDown } from "@far";
-import { faDotCircle } from "@fas";
-import { library } from "@fortawesome/fontawesome-svg-core";
+import { faChevronDown } from "@far"
+import { faDotCircle } from "@fas"
+import { faTerminal, faCog } from "@fal"
+import { library } from "@fortawesome/fontawesome-svg-core"
 
-import MenuTopRight from "@/Layouts/Retina/MenuTopRight.vue";
+import MenuTopRight from "@/Layouts/Retina/MenuTopRight.vue"
 
-library.add(faChevronDown, faDotCircle);
+library.add(faChevronDown, faDotCircle, faTerminal, faCog)
 
 const props = defineProps<{
     sidebarOpen: boolean
     logoRoute: string
     urlPrefix: string
-}>();
+}>()
 
 defineEmits<{
     (e: "sidebarOpen", value: boolean): void
-}>();
+}>()
 
 
-const layoutStore = useLayoutStore();
+const layoutStore = useLayoutStore()
 
 // For label
 const label = {
@@ -33,7 +34,7 @@ const label = {
     shopSelect: trans("Go to shop"),
     warehouseSelect: trans("Select warehouses"),
     fulfilmentSelect: trans("Select fulfilments")
-};
+}
 
 </script>
 
@@ -90,12 +91,6 @@ const label = {
 
                 <!-- Section: Dropdown + subsections -->
                 <div class="flex items-center gap-x-2">
-                    <!-- Section: Dropdown -->
-                    <div v-if="false"
-                         class="flex border border-gray-300 rounded-md">
-
-
-                    </div>
 
                     <!-- Section: Subsections (Something will teleport to this section) -->
                     <div class="flex h-full" id="RetinaTopBarSubsections">

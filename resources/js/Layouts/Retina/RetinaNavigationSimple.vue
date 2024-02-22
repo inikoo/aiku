@@ -43,24 +43,24 @@ onUnmounted(() => {
     <!-- {{ layout.currentRoute }} -->
     <!-- <div class="text-xxs">{{ layout.currentRoute }} <br> {{ nav.route.name }}</div> -->
     <Link :href="nav.route?.name ? route(nav.route.name, nav.route.parameters) : '#'"
-          class="group flex items-center px-2 text-sm gap-x-2" :class="[
-            isNavigationActive(props.nav.root)
+        class="group flex items-center px-2 text-sm gap-x-2" :class="[
+            isNavigationActive(layout.currentRoute, props.nav.root)
                 ? 'navigationActive'
                 : 'navigation',
             layout.leftSidebar.show ? '' : '',
         ]"
-          :style="[isNavigationActive(props.nav.root) ? {
+        :style="[isNavigationActive(layout.currentRoute, props.nav.root) ? {
             'background-color': layout.app?.theme[1],
             'color': layout.app?.theme[2]
         } : {} ]"
 
-          :aria-current="navKey === layout.currentModule ? 'page' : undefined"
-          v-tooltip="layout.leftSidebar.show ? false : capitalize(nav.label)"
+        :aria-current="navKey === layout.currentModule ? 'page' : undefined"
+        v-tooltip="layout.leftSidebar.show ? false : capitalize(nav.label)"
     >
         <FontAwesomeIcon v-if="nav.icon" aria-hidden="true" class="flex-shrink-0 h-4 w-4" fixed-width :icon="nav.icon" />
         <Transition name="slide-to-left">
             <span v-if="layout.leftSidebar.show" class="capitalize leading-none whitespace-nowrap block md:block"
-                  :class="[layout.leftSidebar.show ? '' : 'block md:hidden']">
+                :class="[layout.leftSidebar.show ? '' : 'block md:hidden']">
                 {{ nav.label }}
             </span>
             <span v-else class="capitalize leading-none whitespace-nowrap block md:hidden">
@@ -70,8 +70,8 @@ onUnmounted(() => {
     </Link>
 
     <!-- If this Navigation is active, then teleport the SubSections to #RetinaTopBarSubsections in <AppTopBar> -->
-    <template v-if="isNavigationActive(props.nav.root || 'xx.xx.xx.xx')">
-        <Teleport to="#RetinaTopBarSubsections" :disabled="!isNavigationActive(props.nav.root || 'xx.xx.xx.xx')">
+    <template v-if="isTopMenuActive && isNavigationActive(layout.currentRoute, props.nav.root || 'xx.xx.xx.xx')">
+        <Teleport to="#RetinaTopBarSubsections" :disabled="!isNavigationActive(layout.currentRoute, props.nav.root || 'xx.xx.xx.xx')">
             <RetinaTopBarSubsections
                 v-if="nav.topMenu?.subSections"
                 :subSections="nav.topMenu.subSections"
