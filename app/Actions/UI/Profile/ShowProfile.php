@@ -57,9 +57,10 @@ class ShowProfile
                                 "value" => $user->email,
                             ],
                             "about"  => [
-                                "type"  => "textEditor",
-                                "label" => __("about"),
-                                "value" => $user->about,
+                                "type"      => "textEditor",
+                                "label"     => __("about"),
+                                "value"     => $user->about,
+                                "maxLength" => 500
                             ],
                             "avatar" => [
                                 "type"  => "avatar",

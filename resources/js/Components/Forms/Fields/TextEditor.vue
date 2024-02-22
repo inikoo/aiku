@@ -22,7 +22,6 @@ const props = defineProps<{
     options?: any
     fieldData?: {
         maxLength?: number
-        maxLimit?: number
     }
 }>()
 
@@ -54,12 +53,12 @@ const wordsCount = computed(() => {
 })
 
 const limitWarning = computed(() => {
-    if (!props.fieldData?.maxLimit) return ''
+    if (!props.fieldData?.maxLength) return ''
 
-    const isCloseToMax = (charactersCount.value >= (props.fieldData?.maxLimit - 20))
-    const isMax = charactersCount.value === props.fieldData?.maxLimit
+    const isCloseToMax = (charactersCount.value >= (props.fieldData?.maxLength - 20))
+    const isMax = charactersCount.value === props.fieldData?.maxLength
 
-    if (isCloseToMax && !isMax) return 'text-orange-500'
+    if (isCloseToMax && !isMax) return 'text-yellow-500'
     if (isMax) return 'text-red-500'
 
     return ''
@@ -71,7 +70,7 @@ const limitWarning = computed(() => {
 //     editorInstance.value.commands.setContent(props.modelValue, false)
 // })
 
-
+// Action: Bold, Italic, Undo, etc..
 const onActionClick = (slug: string, option: string | null = null) => {
     const vm = editorInstance.value.chain().focus()
     const actionTriggers: { [key: string]: Function } = {
@@ -95,6 +94,7 @@ const onActionClick = (slug: string, option: string | null = null) => {
     actionTriggers[slug]()
 }
 
+// Method: on click select Heading
 const onHeadingClick = (index: number) => {
     const vm = editorInstance.value.chain().focus()
     vm.toggleHeading({ level: index }).run()
@@ -109,7 +109,7 @@ onMounted(() => {
             Subscript,
             Superscript,
             CharacterCount.configure({
-                limit: props.fieldData?.maxLimit,
+                limit: props.fieldData?.maxLength,
             }),
             TextAlign.configure({
                 types: ['heading', 'paragraph'],
@@ -129,8 +129,8 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-    <div id="text-editor" class="qwezxc">
-        <div class="px-1 py-2 flex items-center gap-x-1 flex-wrap border-b border-gray-500" v-if="editorInstance">
+    <div id="text-editor" class="w-full border border-gray-400 rounded">
+        <div class="px-1 py-2 flex items-center gap-x-1 gap-y-1.5 flex-wrap border-b border-gray-500" v-if="editorInstance">
             <div class="group relative inline-block">
                 <div class="text-xs min-w-16 p-1 appearance-none rounded cursor-pointer border border-gray-500"
                     :class="{'bg-slate-700 text-white font-bold': editorInstance.isActive('heading')}"
@@ -149,42 +149,37 @@ onBeforeUnmount(() => {
             </div>
 
             <div v-for="{ slug, option, active, icon }, index in textActions"
-                class="appearance-none flex items-center justify-center w-6 aspect-square rounded"
-                :class="{ 'bg-slate-700 text-white': editorInstance.isActive(active) }" @click="onActionClick(slug, option)">
+                @click="onActionClick(slug, option)"
+                class="appearance-none flex items-center justify-center w-6 aspect-square rounded cursor-pointer hover:border hover:border-gray-700"
+                :class="{ 'bg-slate-700 text-white': editorInstance.isActive(active) }"
+            >
                 <FontAwesomeIcon :icon='icon' class='text-sm' fixed-width aria-hidden='true' />
             </div>
         </div>
 
-        <EditorContent :editor="editorInstance" />
+        <EditorContent v-model="form[fieldName]" :editor="editorInstance" />
 
-        <div v-if="editor" class="text-gray-500 text-sm text-right p-1.5">
-            <span :class="fieldData?.maxLimit ? limitWarning : ''">
-                {{ charactersCount }} {{ fieldData?.maxLimit ? `/ ${fieldData?.maxLimit} characters` : 'characters' }}
+        <!-- Counter: Characters and Words -->
+        <div v-if="editorInstance && fieldData?.maxLength" class="text-gray-500 text-sm text-right p-1.5">
+            <span :class="fieldData?.maxLength ? limitWarning : ''">
+                {{ charactersCount }} {{ fieldData?.maxLength ? `/ ${fieldData?.maxLength} characters` : 'characters' }}
             </span>
             |
             <span>
-                {{ wordsCount }} words
+                {{ wordsCount }} {{ wordsCount > 1 ? 'words' : 'word'}}
             </span>
         </div>
     </div>
 
-    {{ form[fieldName] }}fff
+    {{ form[fieldName] }}
 </template>
 
 <style lang="scss">
 #text-editor {
 
-
-    .align-dropdown {
-        position: relative;
-        display: inline-block;
-        margin: 0.5em 8px;
-
-
-    }
-
     .ProseMirror {
         height: 300px;
+        width: 100%;
         overflow-y: auto;
         padding-left: 0.5em;
         padding-right: 0.5em;

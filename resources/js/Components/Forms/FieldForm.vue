@@ -153,7 +153,7 @@ const checkVerification = async () => {
             </dt>
 
             <dd :class="props.fieldData.full ? 'sm:col-span-3' : fieldData.noTitle ? 'sm:col-span-3' : 'sm:col-span-2'" class="flex items-start text-sm text-gray-700 sm:mt-0">
-                <div class="relative flex-grow">
+                <div class="relative w-full">
                     <component :is="getComponent(fieldData.type)" :form="form" :fieldName="field"
                         :options="fieldData.options" :fieldData="fieldData">
                     </component>
