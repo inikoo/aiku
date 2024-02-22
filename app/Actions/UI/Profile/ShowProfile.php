@@ -57,7 +57,7 @@ class ShowProfile
                                 "value" => $user->email,
                             ],
                             "about"  => [
-                                "type"  => "textarea",
+                                "type"  => "textEditor",
                                 "label" => __("about"),
                                 "value" => $user->about,
                             ],
