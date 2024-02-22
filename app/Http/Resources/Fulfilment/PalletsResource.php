@@ -40,7 +40,7 @@ class PalletsResource extends JsonResource
                         'pallet'             => $pallet->id
                     ]
                 ],
-                default => [
+                'grp.org.fulfilments.show.crm.customers.show.pallet-deliveries.show' => [
                     'name'   => 'grp.models.fulfilment-customer.pallet-delivery.pallet.update',
                     'params' => [
                         'organisation'         => $pallet->fulfilmentCustomer->fulfilment->organisation->slug,
@@ -49,6 +49,7 @@ class PalletsResource extends JsonResource
                         'pallet'               => $pallet->id
                     ]
                 ],
+                default => [],
             },
             'deleteRoute'        => match (request()->route()->getName()) {
                 'grp.org.fulfilments.show.crm.customers.show.pallet-returns.show' => [
@@ -60,7 +61,7 @@ class PalletsResource extends JsonResource
                         'pallet'             => $pallet->id
                     ]
                 ],
-                default => [
+                'grp.org.fulfilments.show.crm.customers.show.pallet-deliveries.show' => [
                     'name'   => 'grp.models.fulfilment-customer.pallet-delivery.pallet.delete',
                     'params' => [
                         'organisation'       => $pallet->fulfilmentCustomer->fulfilment->organisation->slug,
@@ -69,6 +70,7 @@ class PalletsResource extends JsonResource
                         'pallet'             => $pallet->id
                     ]
                 ],
+                default => [],
             }
         ];
     }
