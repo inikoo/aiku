@@ -24,7 +24,7 @@ class GetLayout
         return [
             'website'         => GroupResource::make($request->get('website'))->getArray(),
             'navigation'      => match ($request->get('website')->type->value) {
-                'fulfilment' => GetFulfilmentNavigation::run($webUser),
+                'fulfilment' => GetRetinaFulfilmentNavigation::run($webUser),
                 default      => []
             },
         ];
