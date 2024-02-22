@@ -60,10 +60,6 @@ onUnmounted(() => {
                 : 'navigation',
             layout.leftSidebar.show ? '' : '',
         ]"
-        :style="[isNavigationActive(props.nav.root) ? {
-            'background-color': layout.app?.theme[1],
-            'color': layout.app?.theme[2]
-        } : {} ]"
 
         :aria-current="navKey === layout.currentModule ? 'page' : undefined"
         v-tooltip="layout.leftSidebar.show ? false : capitalize(nav.label)"

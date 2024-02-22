@@ -93,9 +93,12 @@ const sidebarOpen = ref(false)
 /* Navigation: Aiku */
 .navigationActive {
     @apply rounded py-2 font-semibold transition-all duration-0 ease-out;
+    background-color: v-bind('layout?.app?.theme[2]');
+    color: v-bind('layout?.app?.theme[3]')
 }
 .navigation {
     @apply hover:bg-gray-300/40 py-2 rounded font-semibold transition-all duration-0 ease-out;
+    color: v-bind('layout?.app?.theme[1]')
 }
 
 .subNavActive {

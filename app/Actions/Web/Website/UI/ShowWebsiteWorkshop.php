@@ -75,7 +75,7 @@ class ShowWebsiteWorkshop extends OrgAction
                     'actions' => [
                         [
                             'type'       => 'button',
-                            'style'      => 'exitEdit',
+                            'style'      => 'exit',
                             'label'      => __('Exit workshop'),
                             'route'      => [
                                 'name'       => preg_replace('/workshop$/', 'show', $request->route()->getName()),

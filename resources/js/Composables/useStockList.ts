@@ -44,11 +44,11 @@ export const useHeadlineText = () => {
 }
 
 // 0: Leftsidebar, 1: NavigationSimple, 2: Text for LeftSideber, 3: Navigation & underline, 4: Text for Navigation, 5: -
-// 0-1: Main Layout
-// 2-3: Navigation and box
-// 4-5: Button and mini-box
+// 0-1: Main Layout (bg & text color)
+// 2-3: Navigation and box (bg & text color)
+// 4-5: Button and mini-box (bg & text color)
 export const useColorTheme = [
-    ['#4f46e5', '#f3f4f6', '#facc15', '#f3f4f6', '#334155', '#64748b'],
+    ['#4f46e5', '#f3f4f6', '#facc15', '#f3f4f6', '#334155', '#e2e8f0'],
     ['#f59e0b', '#ffffff', '#ffffff', '#f59e0b', '#a3e635', '#334155', '#e2e8f0'],
     ['#334155', '#ffffff', '#ffffff', '#334155', '#38bdf8', '#334155', '#cbd5e1'],
     ['#EEF5DB', '#64748b', '#64748b', '#ffffff', '#FE5F55', '#334155', '#b8d8d8'],
