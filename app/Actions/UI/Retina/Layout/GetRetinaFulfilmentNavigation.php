@@ -21,11 +21,32 @@ class GetRetinaFulfilmentNavigation
         $groupNavigation['dashboard'] = [
             'label'   => __('Dashboard'),
             'icon'    => ['fal', 'fa-tachometer-alt'],
+            'root'    => 'retina.dashboard.show',
             'route'   => [
                 'name' => 'retina.dashboard.show'
             ],
             'topMenu' => [
+                'subSections' => [
+                    [
+                        'label' => __('users'),
+                        'icon'  => ['fal', 'fa-terminal'],
+                        'root'  => 'retina.sysadmin.users.',
+                        'route' => [
+                            'name' => 'retina.sysadmin.web-users.index',
 
+                        ]
+                    ],
+
+                    [
+                        'label' => __('system settings'),
+                        'icon'  => ['fal', 'fa-cog'],
+                        'root'  => 'retina.sysadmin.settings.',
+                        'route' => [
+                            'name' => 'retina.sysadmin.settings.edit',
+
+                        ]
+                    ],
+                ]
             ]
         ];
 

@@ -19,7 +19,7 @@ const props = defineProps<{
 }>()
 
 const isCurrentRouteActive = computed(() => {
-    return Object.values(props.orgNav[Object.keys(props.orgNav)[0]]).some(nav => (isNavigationActive(nav.root)))
+    return Object.values(props.orgNav[Object.keys(props.orgNav)[0]]).some(nav => (isNavigationActive(layout.currentRoute, nav.root)))
 })
 
 const layout = useLayoutStore()

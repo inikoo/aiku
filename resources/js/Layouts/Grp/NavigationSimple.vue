@@ -55,7 +55,7 @@ onUnmounted(() => {
     <!-- <div class="text-xxs">{{ layout.currentRoute }} <br> {{ nav.route.name }}</div> -->
     <Link :href="nav.route?.name ? route(nav.route.name, nav.route.parameters) : '#'"
         class="group flex items-center px-2 text-sm gap-x-2" :class="[
-            isNavigationActive(props.nav.root)
+            isNavigationActive(layout.currentRoute, props.nav.root)
                 ? 'navigationActive'
                 : 'navigation',
             layout.leftSidebar.show ? '' : '',
@@ -77,8 +77,8 @@ onUnmounted(() => {
     </Link>
 
     <!-- If this Navigation is active, then teleport the SubSections to #TopBarSubsections in <AppTopBar> -->
-    <template v-if="isNavigationActive(props.nav.root || 'xx.xx.xx.xx')">
-        <Teleport to="#TopBarSubsections" :disabled="!isNavigationActive(props.nav.root || 'xx.xx.xx.xx')">
+    <template v-if="isNavigationActive(layout.currentRoute, props.nav.root || 'xx.xx.xx.xx')">
+        <Teleport to="#TopBarSubsections" :disabled="!isNavigationActive(layout.currentRoute, props.nav.root || 'xx.xx.xx.xx')">
             <TopBarSubsections
                 v-if="nav.topMenu?.subSections"
                 :subSections="nav.topMenu.subSections"
