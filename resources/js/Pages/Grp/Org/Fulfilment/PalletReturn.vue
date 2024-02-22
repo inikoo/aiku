@@ -132,7 +132,6 @@ watch(
 	{ deep: true }
 )
 
-console.log('ddd',props.data)
 </script>
 
 <template layout="Grp">

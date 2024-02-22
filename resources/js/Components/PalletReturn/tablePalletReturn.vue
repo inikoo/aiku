@@ -35,7 +35,7 @@ const getData = async () => {
 	try {
 		const response = await axios.get(
 			route(props.palletRoute.index.name, props.palletRoute.index.parameters),
-			{ params: { search: tableFilter.search } } // Changed from { search: tableFilter.filter }
+			{ params: { ['pallets_filter[global]']: tableFilter.search } } // Changed from { search: tableFilter.filter }
 		)
 		dataList.value = response.data.data
 		loading.value = false
@@ -96,6 +96,7 @@ onMounted(getData)
 						placeholder="Serach"
 						:loading="loading"
 						:copy-button="true"
+                        @keyup.enter.native="getData"
            >
 		   <template #copyButton>
 			<div class="flex justify-center items-center px-2 absolute inset-y-0 right-0 gap-x-1 cursor-pointer opacity-20 hover:opacity-75 active:opacity-100" @click="()=>getData()">
@@ -144,7 +145,7 @@ onMounted(getData)
 									</th>
 								</tr>
 							</thead>
-							<tbody class="divide-y divide-gray-200 bg-white h-[290px] overflow-y-auto">
+							<tbody class="divide-y divide-gray-200 bg-white  overflow-y-auto">
 								<tr v-for="pallet in dataList" :key="pallet.id">
 									<td
 										class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">

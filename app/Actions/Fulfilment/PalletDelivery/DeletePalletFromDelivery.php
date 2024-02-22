@@ -5,7 +5,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Fulfilment\Pallet;
+namespace App\Actions\Fulfilment\PalletDelivery;
 
 use App\Actions\Fulfilment\PalletDelivery\Hydrators\HydratePalletDeliveries;
 use App\Actions\OrgAction;
@@ -14,22 +14,21 @@ use App\Http\Resources\Fulfilment\PalletResource;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
-use App\Models\Fulfilment\PalletReturn;
 use App\Models\SysAdmin\Organisation;
 use Lorisleiva\Actions\ActionRequest;
 
-class DeletePallet extends OrgAction
+class DeletePalletFromDelivery extends OrgAction
 {
     use WithActionUpdate;
 
 
     private Pallet $pallet;
 
-    public function handle(Pallet $pallet): bool
+    public function handle(PalletDelivery $palletDelivery, Pallet $pallet): bool
     {
-        $pallet->delete();
+        $this->update($pallet, ['pallet_delivery_id' => null]);
 
-        HydratePalletDeliveries::run($pallet->palletDelivery);
+        HydratePalletDeliveries::run($palletDelivery);
 
         return true;
     }
@@ -43,12 +42,12 @@ class DeletePallet extends OrgAction
         return $request->user()->hasPermissionTo("fulfilment.{$this->fulfilment->id}.edit");
     }
 
-    public function asController(Organisation $organisation, FulfilmentCustomer $fulfilmentCustomer, PalletDelivery|PalletReturn $palletDelivery, Pallet $pallet, ActionRequest $request): bool
+    public function asController(Organisation $organisation, FulfilmentCustomer $fulfilmentCustomer, PalletDelivery $palletDelivery, Pallet $pallet, ActionRequest $request): bool
     {
         $this->pallet = $pallet;
         $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $request);
 
-        return $this->handle($pallet);
+        return $this->handle($palletDelivery, $pallet);
     }
 
     public function action(Pallet $pallet, array $modelData, int $hydratorsDelay = 0): bool
@@ -58,7 +57,7 @@ class DeletePallet extends OrgAction
         $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisationFromFulfilment($pallet->fulfilment, $modelData);
 
-        return $this->handle($pallet);
+        return $this->handle($pallet->palletDelivery, $pallet);
     }
 
     public function jsonResponse(Pallet $pallet): PalletResource
