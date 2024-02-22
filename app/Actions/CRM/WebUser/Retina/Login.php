@@ -100,7 +100,7 @@ class Login
     {
         $this->handle($request);
 
-        return redirect()->intended('/dashboard');
+        return redirect()->intended('/app/dashboard');
     }
 
 

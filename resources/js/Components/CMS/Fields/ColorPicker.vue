@@ -43,7 +43,7 @@ const emits = defineEmits<{
 <template>
     <Popover v-slot="{ open }" class="relative">
         <PopoverButton>
-            <div :class="$attrs.class" :style="`background-color: ${color}`">
+            <div v-bind="$attrs">
                 <slot />
             </div>
         </PopoverButton>
