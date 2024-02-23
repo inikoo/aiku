@@ -7,6 +7,7 @@ import { onMounted, ref, nextTick, watch } from 'vue'
 import Button from '@/Components/Elements/Buttons/Button.vue'
 
 const form = useForm({
+    contact_name: '',
     username: '',
     password: '',
     password_confirmation: '',
@@ -18,13 +19,14 @@ const isPasswordRepeated = ref(true)
 
 const submit = () => {
     isLoading.value = true
-    form.post(route('retina.login.store'), {
+    form.post(route('retina.register.store'), {
         onError: () => isLoading.value = false,
         onFinish: () => form.reset('password'),
     })
 }
 
 const inputUsername = ref(null)
+const inputContactName = ref(null)
 
 onMounted(async () => {
     await nextTick()
@@ -45,6 +47,15 @@ watch(() => form.password_confirmation, () => {
     <Head title="Login" />
     <h1 class="text-center text-2xl font-bold text-slate-800">Register</h1>
     <form class="space-y-6 mt-7">
+        <div>
+            <label for="login" class="block text-sm font-medium text-gray-700">{{ trans('Contact Name') }}</label>
+            <div class="mt-1">
+                <input v-model="form.contact_name" ref="inputContactName" id="contact_name" name="contact_name" :autofocus="true"
+                       autocomplete="contact_name" required
+                       class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
+            </div>
+        </div>
+
         <div>
             <label for="login" class="block text-sm font-medium text-gray-700">{{ trans('Username') }}</label>
             <div class="mt-1">
@@ -77,7 +88,7 @@ watch(() => form.password_confirmation, () => {
                 <label for="remember-me" class="ml-2 block text-sm text-gray-900"> {{ trans('Remember me') }} </label>
             </div>
         </div> -->
-        
+
         <div class="space-y-2">
             <Button full @click.prevent="submit" :loading="isLoading" label="Register"> </Button>
             <p class="text-gray-600">Already have an account? <Link as="span" :href="route('retina.login.show')" class="cursor-pointer font-bold hover:underline">Login</Link></p>
