@@ -84,9 +84,9 @@ class IndexPallets extends RetinaAction
         }
 
 
-        if(!$parent instanceof PalletDelivery) {
-            $query->where('state', '!=', PalletStateEnum::IN_PROCESS);
-        }
+        /*        if(!$parent instanceof PalletDelivery) {
+                    $query->where('state', '!=', PalletStateEnum::IN_PROCESS);
+                }*/
 
 
 

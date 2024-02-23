@@ -18,6 +18,10 @@ Route::middleware(["retina-auth:retina"])->group(function () {
         ->name("storage.")
         ->group(__DIR__."/storage.php");
 
+    Route::prefix("models")
+        ->name("models.")
+        ->group(__DIR__."/models.php");
+
     Route::middleware(["retina-reset-pass"])->group(function () {
         Route::prefix("dashboard")
             ->name("dashboard.")
