@@ -1,19 +1,24 @@
 <script setup>
 import {Head, useForm} from '@inertiajs/vue3';
-import Password from '@/Components/Auth/LoginPassword.vue';
+import LoginPassword from '@/Components/Auth/LoginPassword.vue';
 import Checkbox from '@/Components/Checkbox.vue';
 import ValidationErrors from '@/Components/ValidationErrors.vue';
 import {trans} from 'laravel-vue-i18n';
 import { onMounted, ref, nextTick } from 'vue'
+import Button from '@/Components/Elements/Buttons/Button.vue'
 
 const form = useForm({
-                         username: '',
-                         password: '',
-                         remember: false,
-                     });
+    username: '',
+    password: '',
+    remember: false,
+});
+
+const isLoading = ref(false)
 
 const submit = () => {
+    isLoading.value = true
     form.post(route('grp.login.show'), {
+        onError: () => isLoading.value = false,
         onFinish: () => form.reset('password'),
     });
 };
@@ -41,8 +46,8 @@ onMounted(async () => {
 
         <div>
             <label for="password" class="block text-sm font-medium text-gray-700"> {{ trans('Password') }} </label>
-            <div class="mt-1 flex rounded-md shadow-sm">
-                <Password id="password" name="password" v-model="form.password"/>
+            <div class="mt-1 flex flex-col rounded-md shadow-sm">
+                <LoginPassword :showProcessing="false" id="password" name="password" :form=form fieldName='password'/>
             </div>
         </div>
 
@@ -55,11 +60,8 @@ onMounted(async () => {
 
         </div>
 
-        <div>
-            <button type="submit"
-                    class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                {{ trans('Sign in') }}
-            </button>
+        <div class="space-y-2">
+            <Button full @click.prevent="submit" :loading="isLoading" label="Sign in" />
         </div>
     </form>
 

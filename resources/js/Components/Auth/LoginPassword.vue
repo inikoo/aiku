@@ -1,38 +1,59 @@
 <!--
-  -  Author: Raul Perusquia <raul@inikoo.com>
-  -  Created: Tue, 08 Nov 2022 22:50:49 Malaysia Time, Sheffield, UK
-  -  Copyright (c) 2022, Raul A Perusquia Flores
+  - Author: Raul Perusquia <raul@inikoo.com>
+  - Created: Tue, 14 Mar 2023 23:44:10 Malaysia Time, Kuala Lumpur, Malaysia
+  - Copyright (c) 2023, Raul A Perusquia Flores
   -->
-<script setup>
-import {onMounted, ref} from 'vue';
-import {library} from '@fortawesome/fontawesome-svg-core';
-import {faEye, faEyeSlash} from '@far';
-import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome';
 
-library.add(faEye, faEyeSlash);
 
-defineProps(['modelValue', 'id', 'name', 'showPassword']);
+<script setup lang="ts">
+import { ref } from 'vue'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { faExclamationCircle, faCheckCircle, faEye, faEyeSlash } from '@fas'
+import { faSpinnerThird } from '@fad'
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { trans } from 'laravel-vue-i18n'
+library.add(faExclamationCircle, faCheckCircle, faEye, faEyeSlash, faSpinnerThird)
 
-defineEmits(['update:modelValue']);
+const props = withDefaults(defineProps<{
+    'form': any
+    'fieldName': string
+    'showProcessing'?: boolean
+    'placeholder'?: string
+    'options'?: {} | []
+    'fieldData'?: {} | []
+}>(), {
+    showProcessing: true
+})
 
-const input = ref(null);
-
-onMounted(() => {
-    if (input.value.hasAttribute('autofocus')) {
-        input.value.focus();
+const handleChange = (form) => {
+    if (form.fieldType === 'edit') {
+        form.clearErrors()
     }
-});
+}
+
+const showPassword = ref(true);
+
 </script>
 
 <template>
-    <div class="relative flex items-stretch flex-grow focus-within:z-10">
+    <div class="w-full relative rounded-md shadow-sm">
+        <div class="flex">
+            <input v-bind="$attrs" @input="handleChange(form)" v-model="form[fieldName]" :type="showPassword ? 'password' : 'text'"  autocomplete="off"
+                :placeholder="(props.placeholder ? trans(props.placeholder) : '')" class="text-gray-700 placeholder-gray-400 shadow-sm focus:ring-gray-500 focus:border-gray-500 w-full border-gray-300 rounded-l-md" />
+            <button type="button" @click="showPassword = !showPassword" :id="'show-password-' +  fieldName"
+                class="w-min px-3 py-2 border border-gray-300 text-sm font-medium rounded-r-md text-gray-700 bg-gray-50 hover:bg-gray-100 focus:outline-none focus:ring-1 focus:ring-gray-500 focus:border-gray-500">
+                <FontAwesomeIcon aria-hidden="true" class="h-5 w-5 text-gray-400" :icon="showPassword ? 'fas fa-eye' : 'fas fa-eye-slash' " />
+            </button>
+        </div>
 
-        <input :value="modelValue" @input="$emit('update:modelValue', $event.target.value)" ref="input" :id="id" :name="name" :type="showPassword ? 'text' : 'password'" autocomplete="current-password" required=""
-               class="focus:ring-indigo-500 focus:border-indigo-500 block w-full rounded-none rounded-l-md border-gray-300"/>
+        <!-- Icon: Error, Success, Loading -->
+        <div class="absolute inset-y-0 right-11 pr-3 flex items-center pointer-events-none">
+            <FontAwesomeIcon v-if="form.errors[fieldName]" icon="fas fa-exclamation-circle" class="h-5 w-5 text-red-500" aria-hidden="true" />
+            <FontAwesomeIcon v-if="form.recentlySuccessful" icon="fas fa-check-circle" class="h-5 w-5 text-green-500" aria-hidden="true" />
+            <FontAwesomeIcon v-if="form.processing && showProcessing" icon="fad fa-spinner-third" class="h-5 w-5 animate-spin"/>
+        </div>
     </div>
-    <button @click="showPassword=!showPassword" type="button"
-            class="-ml-px relative inline-flex items-center  px-4 py-2 border border-gray-300 text-sm font-medium rounded-r-md text-gray-700 bg-gray-50 hover:bg-gray-100 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500">
-        <font-awesome-icon v-show=showPassword aria-hidden="true" class="h-5 w-5 text-gray-400" icon="fa-regular fa-eye"/>
-        <font-awesome-icon v-show=!showPassword aria-hidden="true" class="h-5 w-5 text-gray-400" icon="fa-regular fa-eye-slash"/>
-    </button>
+    <p v-if="form.errors[fieldName]" class="mt-2 text-sm text-red-600" id="email-error">{{ form.errors[fieldName] }}</p>
 </template>
+
+
