@@ -21,6 +21,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\MediaLibrary\HasMedia;
+use Spatie\Permission\Traits\HasPermissions;
 use Spatie\Sluggable\SlugOptions;
 
 /**
@@ -74,6 +75,7 @@ use Spatie\Sluggable\SlugOptions;
 class WebUser extends Authenticatable implements HasMedia, Auditable
 {
     use IsUserable;
+    use HasPermissions;
 
 
     public function getSlugOptions(): SlugOptions

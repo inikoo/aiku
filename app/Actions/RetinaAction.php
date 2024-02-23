@@ -32,10 +32,10 @@ class RetinaAction
 
     public function initialisation(ActionRequest $request): static
     {
-        $this->fillFromRequest($request);
-        $this->validatedData = $this->validateAttributes();
         $this->customer      =$request->user()->customer;
         $this->website       =$request->get('website');
+        $this->fillFromRequest($request);
+        $this->validatedData = $this->validateAttributes();
 
         return $this;
     }

@@ -14,6 +14,10 @@ Route::middleware(["retina-auth:retina"])->group(function () {
         ->name("sysadmin.")
         ->group(__DIR__."/sysadmin.php");
 
+    Route::prefix("storage")
+        ->name("storage.")
+        ->group(__DIR__."/storage.php");
+
     Route::middleware(["retina-reset-pass"])->group(function () {
         Route::prefix("dashboard")
             ->name("dashboard.")
