@@ -21,7 +21,7 @@ class GetRetinaFulfilmentNavigation
         $groupNavigation['dashboard'] = [
             'label'   => __('Dashboard'),
             'icon'    => ['fal', 'fa-tachometer-alt'],
-            'root'    => 'retina.dashboard.show',
+            'root'    => 'retina.dashboard.',
             'route'   => [
                 'name' => 'retina.dashboard.show'
             ],
@@ -53,7 +53,7 @@ class GetRetinaFulfilmentNavigation
         $groupNavigation['storage'] = [
             'label'   => __('Storage'),
             'icon'    => ['fal', 'fa-pallet'],
-            'root'    => 'retina.storage.dashboard',
+            'root'    => 'retina.storage.',
             'route'   => [
                 'name' => 'retina.storage.dashboard'
             ],
