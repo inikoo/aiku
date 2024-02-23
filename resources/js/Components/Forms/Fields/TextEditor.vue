@@ -6,6 +6,7 @@ import { Editor as EditorType } from '@tiptap/core/dist/packages/core/src/Editor
 import StarterKit from '@tiptap/starter-kit'
 import TextAlign from '@tiptap/extension-text-align'
 import TextStyle from '@tiptap/extension-text-style'
+import FontSize from 'tiptap-extension-font-size'
 import Underline from '@tiptap/extension-underline'
 import Subscript from '@tiptap/extension-subscript'
 import Superscript from '@tiptap/extension-superscript'
@@ -16,9 +17,9 @@ import { Color } from '@tiptap/extension-color'
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faText, faUndoAlt, faRedoAlt } from '@far'
-import { faBold, faItalic, faUnderline, faStrikethrough, faAlignLeft, faAlignCenter, faAlignRight, faAlignJustify, faSubscript, faSuperscript, faEraser, faListUl, faListOl, faPaintBrushAlt } from '@fal'
+import { faBold, faItalic, faUnderline, faStrikethrough, faAlignLeft, faAlignCenter, faAlignRight, faAlignJustify, faSubscript, faSuperscript, faEraser, faListUl, faListOl, faPaintBrushAlt, faTextHeight } from '@fal'
 import ColorPicker from '@/Components/CMS/Fields/ColorPicker.vue'
-library.add(faBold, faItalic, faUnderline, faStrikethrough, faAlignLeft, faAlignCenter, faAlignRight, faAlignJustify, faSubscript, faSuperscript, faEraser, faListUl, faListOl, faUndoAlt, faRedoAlt, faPaintBrushAlt, faText)
+library.add(faBold, faItalic, faUnderline, faStrikethrough, faAlignLeft, faAlignCenter, faAlignRight, faAlignJustify, faSubscript, faSuperscript, faEraser, faListUl, faListOl, faUndoAlt, faRedoAlt, faPaintBrushAlt, faTextHeight, faText)
 
 const props = defineProps<{
     form: any
@@ -48,6 +49,7 @@ const textActions = [
     { slug: 'undo', icon: 'far fa-undo-alt', active: 'undo', label: 'Undo' },
     { slug: 'redo', icon: 'far fa-redo-alt', active: 'redo', label: 'Redo' },
     { slug: 'clear', icon: 'fal fa-eraser', active: 'clear', label: 'Clear style on selected text', class: 'text-red-500' },
+    { slug: 'fontsize', icon: 'fal fa-text-height', active: 'fontsize', label: 'Font size' },
 ]
 
 // Comp: Characters count
@@ -94,6 +96,7 @@ const onActionClick = (slug: string, option: string = '') => {
         superscript: () => vm?.toggleSuperscript().run(),
         undo: () => vm?.undo().run(),
         redo: () => vm?.redo().run(),
+        // fontsize: () => vm?.setFontSize('36pt').run(),
         clear: () => {
             vm?.clearNodes().run()
             vm?.unsetAllMarks().run()
@@ -127,6 +130,9 @@ onMounted(() => {
             Color.configure({
                 types: ['textStyle'],
             }),
+            FontSize.configure({
+                types: ['textStyle'],
+            }),
             Highlight.configure({
                 HTMLAttributes: {
                     class: 'highlight-prosemirror',
@@ -154,6 +160,7 @@ onBeforeUnmount(() => {
 <template>
     <div id="text-editor" class="w-full border border-gray-400 rounded">
         <div class="p-2 flex items-center gap-x-1 gap-y-1.5 flex-wrap border-b border-gray-500" v-if="editorInstance">
+            <!-- Action: Heading -->
             <div class="group relative inline-block">
                 <div class="text-xs min-w-16 p-1 appearance-none rounded cursor-pointer border border-gray-500"
                     :class="{'bg-slate-700 text-white font-bold': editorInstance.isActive('heading')}"
@@ -172,7 +179,7 @@ onBeforeUnmount(() => {
             </div>
 
             <template v-for="action in textActions" :key="action.slug">
-                <!-- Color: Text -->
+                <!-- Action: color text -->
                 <ColorPicker v-if="action.slug === 'textcolor'"
                     :color="editorInstance?.getAttributes('textStyle').color"
                     @changeColor="(color) => editorInstance?.chain().setColor(color.hex).run()"
@@ -182,7 +189,7 @@ onBeforeUnmount(() => {
                     <FontAwesomeIcon icon='far fa-text' fixed-width aria-hidden='true' :style="{color: editorInstance?.getAttributes('textStyle').color || '#010101'}" />
                 </ColorPicker>
 
-                <!-- Color: Highlight -->
+                <!-- Action: color highlight -->
                 <ColorPicker
                     v-else-if="action.slug === 'highlightcolor'"
                     :color="editorInstance?.getAttributes('highlight').color"
@@ -192,14 +199,39 @@ onBeforeUnmount(() => {
                 >
                     <FontAwesomeIcon icon='fal fa-paint-brush-alt' class='text-gray-500' fixed-width aria-hidden='true' />
                 </ColorPicker>
-                    
+
+                <!-- Action: font size -->
+                <div v-else-if="action.slug === 'fontsize'" class="group relative inline-block">
+                    <div class="flex items-center text-xs min-w-10 py-1 pl-1.5 pr-0 appearance-none rounded cursor-pointer border border-gray-500"
+                        :class="{'bg-slate-700 text-white font-bold': editorInstance?.getAttributes('textStyle').fontSize}"
+                    >
+                        <div id="tiptapfontsize" class="pr-1.5">
+                            <span class="hidden last:inline">Text size</span>
+                        </div>
+                        <div v-if="editorInstance?.getAttributes('textStyle').fontSize" @click="editorInstance?.chain().focus().unsetFontSize().run()" class="px-1">
+                            <FontAwesomeIcon icon='fal fa-times' class='' fixed-width aria-hidden='true' />
+                        </div>
+                    </div>
+                    <div class="w-min cursor-pointer overflow-hidden hidden group-hover:block absolute left-0 right-0 border border-gray-500 rounded bg-white z-[1]">
+                        <div v-for="fontsize in ['8', '9', '12', '14', '16', '20', '24', '28', '36', '44', '52', '64']"
+                            class="w-full block py-1.5 px-3 leading-none text-left cursor-pointer hover:bg-gray-300"
+                            :class="{ 'bg-slate-700 text-white hover:bg-slate-700': parseInt(editorInstance?.getAttributes('textStyle').fontSize, 10) == fontsize }"
+                            :style="{ fontSize: fontsize + 'px'}"
+                            @click="editorInstance?.chain().focus().setFontSize(fontsize+'px').run()" role="button">
+                            <Teleport v-if="parseInt(editorInstance?.getAttributes('textStyle').fontSize, 10) == fontsize" to="#tiptapfontsize"><span>{{ fontsize }}</span></Teleport>
+                            {{ fontsize }}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Action: bold, italic, align, etc -->
                 <div v-else
                     v-tooltip="action.label"
                     @click="onActionClick(action.slug, action.option)"
                     class="flex items-center justify-center w-6 aspect-square rounded cursor-pointer hover:border hover:border-gray-700"
                     :class="[action.class, { 'bg-slate-700 text-white': editorInstance.isActive(action.active) }]"
                 >
-                    <FontAwesomeIcon :icon='action.icon' class='text-sm' fixed-width aria-hidden='true' />
+                    <FontAwesomeIcon v-if="action.icon" :icon='action.icon' class='text-sm' fixed-width aria-hidden='true' />
                 </div>
             </template>
         </div>
