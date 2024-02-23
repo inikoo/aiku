@@ -53,28 +53,34 @@ class GetRetinaFulfilmentNavigation
         $groupNavigation['storage'] = [
             'label'   => __('Storage'),
             'icon'    => ['fal', 'fa-pallet'],
+            'root'    => 'retina.storage.dashboard',
             'route'   => [
-                'name' => 'retina.sysadmin.dashboard'
+                'name' => 'retina.storage.dashboard'
             ],
             'topMenu' => [
                 'subSections' => [
                     [
-                        'label' => __('users'),
-                        'icon'  => ['fal', 'fa-terminal'],
-                        'root'  => 'retina.sysadmin.users.',
+                        'label' => __('pallets'),
+                        'icon'  => ['fal', 'fa-pallet'],
+                        'root'  => 'retina.storage.pallets.',
                         'route' => [
-                            'name' => 'retina.sysadmin.web-users.index',
-
+                            'name'       => 'retina.storage.pallets.index'
                         ]
                     ],
-
                     [
-                        'label' => __('system settings'),
-                        'icon'  => ['fal', 'fa-cog'],
-                        'root'  => 'retina.sysadmin.settings.',
+                        'label' => __('pallet delivery'),
+                        'icon'  => ['fal', 'fa-truck'],
+                        'root'  => 'retina.storage.pallet-deliveries.',
                         'route' => [
-                            'name' => 'retina.sysadmin.settings.edit',
-
+                            'name'       => 'retina.storage.pallet-deliveries.index'
+                        ]
+                    ],
+                    [
+                        'label' => __('pallet return'),
+                        'icon'  => ['fal', 'fa-truck-ramp'],
+                        'root'  => 'retina.storage.pallet-returns.',
+                        'route' => [
+                            'name'       => 'retina.storage.pallet-returns.index'
                         ]
                     ],
                 ]
