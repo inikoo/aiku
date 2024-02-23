@@ -8,6 +8,7 @@
 namespace App\Models\SysAdmin;
 
 use App\Models\Assets\Currency;
+use App\Models\CRM\WebUser;
 use App\Models\Goods\TradeUnit;
 use App\Models\HumanResources\Employee;
 use App\Models\HumanResources\JobPosition;
@@ -180,6 +181,11 @@ class Group extends Model implements HasMedia
     public function users(): HasMany
     {
         return $this->hasMany(User::class);
+    }
+
+    public function webUsers(): HasMany
+    {
+        return $this->hasMany(WebUser::class);
     }
 
     public function guests(): HasMany

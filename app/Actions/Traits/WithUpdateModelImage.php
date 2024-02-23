@@ -8,6 +8,7 @@
 namespace App\Actions\Traits;
 
 use App\Actions\Media\Media\UpdateIsAnimatedMedia;
+use App\Models\CRM\WebUser;
 use App\Models\Mail\EmailTemplate;
 use App\Models\Media\Media;
 use App\Models\SysAdmin\Organisation;
@@ -21,14 +22,14 @@ trait WithUpdateModelImage
      * @throws \Spatie\MediaLibrary\MediaCollections\Exceptions\FileDoesNotExist
      */
     public function updateModelImage(
-        Website|Organisation|User|EmailTemplate $model,
+        Website|Organisation|User|EmailTemplate|WebUser $model,
         string $collection,
         string $field,
         string $imagePath,
         string $originalFilename,
         string $extension = null,
         array $properties = []
-    ): Website|Organisation|User|EmailTemplate {
+    ): Website|Organisation|User|EmailTemplate|WebUser {
         $checksum = md5_file($imagePath);
 
 

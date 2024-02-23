@@ -6,7 +6,7 @@
  */
 
 use App\Actions\CRM\Customer\UpdateCustomerSettings;
-use App\Actions\UI\Profile\UpdateProfile;
+use App\Actions\UI\Retina\Profile\UpdateProfile;
 use Illuminate\Support\Facades\Route;
 
 Route::patch('/profile', UpdateProfile::class)->name('profile.update');

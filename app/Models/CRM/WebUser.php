@@ -10,6 +10,7 @@ namespace App\Models\CRM;
 use App\Enums\CRM\WebUser\WebUserAuthTypeEnum;
 use App\Enums\CRM\WebUser\WebUserTypeEnum;
 use App\Models\Market\Shop;
+use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\IsUserable;
 use Eloquent;
@@ -60,6 +61,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Assets\Language $language
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Media\Media> $media
  * @property-read Organisation $organisation
+ * @property-read Group $group
  * @property-read Shop|null $shop
  * @property-read \App\Models\CRM\WebUserStats|null $stats
  * @property-read Collection<int, \Laravel\Sanctum\PersonalAccessToken> $tokens
@@ -132,6 +134,11 @@ class WebUser extends Authenticatable implements HasMedia, Auditable
     public function stats(): HasOne
     {
         return $this->hasOne(WebUserStats::class);
+    }
+
+    public function group(): BelongsTo
+    {
+        return $this->belongsTo(Group::class);
     }
 
 }

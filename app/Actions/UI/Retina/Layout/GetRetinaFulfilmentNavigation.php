@@ -53,7 +53,7 @@ class GetRetinaFulfilmentNavigation
         $groupNavigation['storage'] = [
             'label'   => __('Storage'),
             'icon'    => ['fal', 'fa-pallet'],
-            'root'    => 'retina.storage.dashboard',
+            'root'    => 'retina.storage.',
             'route'   => [
                 'name' => 'retina.storage.dashboard'
             ],
