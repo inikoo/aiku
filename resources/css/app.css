@@ -1,6 +1,7 @@
 @import url("navigation.css");
 @import url("transition.css");
 @import url("fonts.css");
+@import url("@vueform/multiselect/themes/default.css");
 
 @tailwind base;
 @tailwind components;
@@ -88,4 +89,21 @@
     &.error {
         @apply bg-red-400 border-l-8 border border-red-600 text-white
     }
+}
+
+/* For Multiselect */
+.multiselect-option.is-selected,
+.multiselect-option.is-selected.is-pointed {
+	@apply bg-gray-500 text-white;
+}
+
+.multiselect-option.is-selected.is-disabled {
+	@apply bg-gray-200 text-white;
+}
+
+.multiselect.is-active {
+	border: var(--ms-border-width-active, var(--ms-border-width, 1px)) solid
+		var(--ms-border-color-active, var(--ms-border-color, #787878)) !important;
+	box-shadow: 0 0 0 var(--ms-ring-width, 3px) var(--ms-ring-color, rgba(42, 42, 42, 0.188)) !important;
+	/* box-shadow: 4px 0 0 0 calc(4px + 4px) rgba(42, 42, 42, 1); */
 }
