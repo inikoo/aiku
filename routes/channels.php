@@ -36,3 +36,10 @@ Broadcast::channel('retina.{customerID}.customer', function (Webuser $webUser, i
 Broadcast::channel('retina.personal.{webUserID}', function (Webuser $webUser, int $webUserID) {
     return $webUserID === $webUser->id;
 });
+
+Broadcast::channel('retina.active.users', function (Webuser $webUser) {
+    return [
+        'id'    => $webUser->id,
+        'alias' => $webUser->slug,
+    ];
+});

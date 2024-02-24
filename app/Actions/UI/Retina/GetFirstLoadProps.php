@@ -42,7 +42,7 @@ class GetFirstLoadProps
 
             'layout'   => GetLayout::run($request, $webUser),
             'liveUsers'=> [
-                'enabled'   => false,
+                'enabled'   => true,
             ],
         ];
     }

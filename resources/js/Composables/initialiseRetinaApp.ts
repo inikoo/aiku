@@ -12,7 +12,7 @@ import { watchEffect } from "vue";
 import { useEchoRetinaPersonal } from "@/Stores/echo-retina-personal.js";
 import { useEchoRetinaWebsite } from "@/Stores/echo-retina-website.js";
 import { useEchoRetinaCustomer } from "@/Stores/echo-retina-customer.js";
-import { useLiveUsers } from "@/Stores/active-users";
+import { useLiveUsers } from "@/Stores/echo-retina-active-users.js";
 
 
 export const initialiseRetinaApp = () => {
