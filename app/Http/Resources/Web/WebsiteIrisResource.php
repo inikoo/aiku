@@ -14,16 +14,19 @@ use Illuminate\Http\Resources\Json\JsonResource;
 class WebsiteIrisResource extends JsonResource
 {
     use HasSelfCall;
+
     public function toArray($request): array
     {
         /** @var Website $website */
         $website = $this;
+
         return [
-            'slug'               => $website->slug,
-            'code'               => $website->code,
-            'name'               => $website->name,
-            'domain'             => $website->domain,
-            'url'                => app()->environment('local') ? 'http://'.$website->domain : 'https://'.$website->domain,
+            'id'     => $website->id,
+            'slug'   => $website->slug,
+            'code'   => $website->code,
+            'name'   => $website->name,
+            'domain' => $website->domain,
+            'url'    => app()->environment('local') ? 'http://'.$website->domain : 'https://'.$website->domain,
         ];
     }
 }

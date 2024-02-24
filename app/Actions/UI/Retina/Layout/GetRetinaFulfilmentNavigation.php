@@ -26,27 +26,7 @@ class GetRetinaFulfilmentNavigation
                 'name' => 'retina.dashboard.show'
             ],
             'topMenu' => [
-                'subSections' => [
-                    [
-                        'label' => __('users'),
-                        'icon'  => ['fal', 'fa-terminal'],
-                        'root'  => 'retina.sysadmin.users.',
-                        'route' => [
-                            'name' => 'retina.sysadmin.web-users.index',
 
-                        ]
-                    ],
-
-                    [
-                        'label' => __('system settings'),
-                        'icon'  => ['fal', 'fa-cog'],
-                        'root'  => 'retina.sysadmin.settings.',
-                        'route' => [
-                            'name' => 'retina.sysadmin.settings.edit',
-
-                        ]
-                    ],
-                ]
             ]
         ];
 

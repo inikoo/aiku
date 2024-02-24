@@ -8,7 +8,7 @@
 namespace App\Http\Middleware;
 
 use App\Actions\UI\Retina\GetFirstLoadProps;
-use App\Http\Resources\UI\LoggedUserResource;
+use App\Http\Resources\UI\LoggedWebUserResource;
 use App\Http\Resources\Web\WebsiteIrisResource;
 use App\Models\CRM\WebUser;
 use Illuminate\Http\Request;
@@ -42,7 +42,7 @@ class HandleRetinaInertiaRequests extends Middleware
             $firstLoadOnlyProps,
             [
                 'auth'  => [
-                    'user' => $request->user() ? LoggedUserResource::make($request->user())->getArray() : null,
+                    'user' => $request->user() ? LoggedWebUserResource::make($request->user())->getArray() : null,
                 ],
                 'flash' => [
                     'notification' => fn () => $request->session()->get('notification')

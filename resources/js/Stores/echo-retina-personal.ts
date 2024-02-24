@@ -13,11 +13,11 @@ interface ProgressBar {
         [key: string]: {
             action_id: number
             action_type: string
-            data: { 
+            data: {
                 number_fails: number
                 number_success: number
             },
-            done: number 
+            done: number
             total: number
         }
     }
@@ -30,8 +30,8 @@ export const useEchoRetinaPersonal = defineStore("echo-retina-personal", {
         recentlyUploaded: []
     }),
     actions: {
-        subscribe(userID: number) {
-            let param = window.Echo.private("retina.personal." + userID).listen(
+        subscribe(webUserID: number) {
+             window.Echo.private("retina.personal." + webUserID).listen(
                 ".action-progress",
                 (eventData) => {
                     // console.log(eventData)
