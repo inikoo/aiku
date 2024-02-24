@@ -11,8 +11,6 @@ import Popover from '@/Components/Popover.vue'
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import Multiselect from "@vueform/multiselect"
 import { Link } from "@inertiajs/vue3"
-import { get } from 'lodash'
-import axios from 'axios'
 import {
     faStickyNote, faPallet,
     faUser, faNarwhal, faTruckCouch, faFileInvoiceDollar, faSignOutAlt,
@@ -38,7 +36,6 @@ import {
     TransitionChild,
     TransitionRoot,
 } from "@headlessui/vue"
-import { router } from '@inertiajs/vue3'
 
 
 const isOpen = ref(false)
@@ -176,5 +173,5 @@ const warehouseChange = (value) => {
         </div>
         </template> -->
     </Table>
-    <pre>{{ data }}</pre>
+
 </template>

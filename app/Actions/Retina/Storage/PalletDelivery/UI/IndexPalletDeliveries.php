@@ -7,20 +7,15 @@
 
 namespace App\Actions\Retina\Storage\PalletDelivery\UI;
 
-use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
-use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
-use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\RetinaAction;
+use App\Actions\UI\Retina\Storage\ShowStorageDashboard;
 use App\Http\Resources\Fulfilment\PalletDeliveriesResource;
 use App\InertiaTable\InertiaTable;
-use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletDelivery;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -30,11 +25,6 @@ use App\Services\QueryBuilder;
 class IndexPalletDeliveries extends RetinaAction
 {
     private FulfilmentCustomer $parent;
-
-    /*    public function authorize(ActionRequest $request): bool
-        {
-            return $request->user()->hasPermissionTo("fulfilment.{$this->customer->fulfilmentCustomer->id}.view");
-        }*/
 
     public function asController(ActionRequest $request): LengthAwarePaginator
     {
@@ -62,7 +52,7 @@ class IndexPalletDeliveries extends RetinaAction
 
         return $queryBuilder
             ->defaultSort('reference')
-            ->allowedSorts(['reference'])
+            ->allowedSorts(['reference','customer_reference','number_pallets'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -81,27 +71,10 @@ class IndexPalletDeliveries extends RetinaAction
             $table
                 ->withModelOperations($modelOperations)
                 ->withGlobalSearch()
-                ->withEmptyState(
-                    $parent instanceof Fulfilment ? [
-                        'title'       => __("You don't have any customer yet") . ' 😭',
-                        'description' => __("Dont worry soon you will be pretty busy"),
-                        'count'       => $parent->shop->crmStats->number_customers,
-                        'action'      => [
-                            'type'    => 'button',
-                            'style'   => 'create',
-                            'tooltip' => __('new customer'),
-                            'label'   => __('customer'),
-                            'route'   => [
-                                'name'       => 'grp.org.fulfilments.show.customers.create',
-                                'parameters' => [$parent->organisation->slug, $parent->slug]
-                            ]
-                        ]
-                    ] : null
-                )
                 ->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon')
-                ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'customer reference', label: __('customer reference'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'pallets', label: __('pallets'), canBeHidden: false, sortable: true, searchable: true);
+                ->column(key: 'reference', label: __('our reference'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'customer_reference', label: __("yours reference"), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'number_pallets', label: __('pallets'), canBeHidden: false, sortable: true, searchable: true);
         };
     }
 
@@ -112,23 +85,16 @@ class IndexPalletDeliveries extends RetinaAction
 
     public function htmlResponse(LengthAwarePaginator $customers, ActionRequest $request): Response
     {
-        $container = [
-            'icon'    => ['fal', 'fa-pallet-alt'],
-            'tooltip' => __('Customer Fulfilment'),
-            'label'   => Str::possessive($this->customer->fulfilmentCustomer)
-        ];
 
         return Inertia::render(
             'Storage/PalletDeliveries',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
-                    $request->route()->originalParameters()
                 ),
                 'title'    => __('pallet deliveries'),
                 'pageHead' => [
                     'title'     => __('deliveries'),
-                    'container' => $container,
                     'iconRight' => [
                         'icon'  => ['fal', 'fa-truck-couch'],
                         'title' => __('delivery')
@@ -140,61 +106,26 @@ class IndexPalletDeliveries extends RetinaAction
         )->table($this->tableStructure($this->parent));
     }
 
-    public function getBreadcrumbs(string $routeName, array $routeParameters): array
+    public function getBreadcrumbs(string $routeName): array
     {
-        return [];
-
-        $headCrumb = function (array $routeParameters = []) {
-            return [
-                [
-                    'type'   => 'simple',
-                    'simple' => [
-                        'route' => $routeParameters,
-                        'label' => __('deliveries'),
-                        'icon'  => 'fal fa-bars'
-                    ],
-                ],
-            ];
-        };
-
-
         return match ($routeName) {
+            'retina.storage.pallet-deliveries.index' =>
+            array_merge(
+                ShowStorageDashboard::make()->getBreadcrumbs(),
+                [
+                    [
+                        'type'   => 'simple',
+                        'simple' => [
+                            'route' => [
+                                'name'       => 'retina.storage.pallet-deliveries.index',
+                            ],
+                            'label' => __('deliveries'),
+                            'icon'  => 'fal fa-bars',
+                        ],
 
-            'grp.org.fulfilments.show.crm.customers.show.pallet-deliveries.index' => array_merge(
-                ShowFulfilmentCustomer::make()->getBreadcrumbs(
-                    $routeParameters
-                ),
-                $headCrumb(
-                    [
-                        'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet-deliveries.index',
-                        'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment', 'fulfilmentCustomer'])
                     ]
-                )
-            ),
-            'grp.org.fulfilments.show.operations.pallet-deliveries.index' => array_merge(
-                ShowFulfilment::make()->getBreadcrumbs(
-                    $routeParameters
-                ),
-                $headCrumb(
-                    [
-                        'name'       => 'grp.org.fulfilments.show.operations.pallet-deliveries.index',
-                        'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment'])
-                    ]
-                )
-            ),
-            'grp.org.warehouses.show.fulfilment.pallet-deliveries.index' => array_merge(
-                ShowWarehouse::make()->getBreadcrumbs(
-                    $routeParameters
-                ),
-                $headCrumb(
-                    [
-                        'name'       => 'grp.org.warehouses.show.fulfilment.pallet-deliveries.index',
-                        'parameters' => Arr::only($routeParameters, ['organisation', 'warehouse'])
-                    ]
-                )
+                ]
             ),
         };
-
-
     }
 }

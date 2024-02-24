@@ -47,7 +47,7 @@ enum PalletStateEnum: string
             ],
             'submitted'  => [
                 'tooltip' => __('submitted'),
-                'icon'    => 'fal fa-check',
+                'icon'    => 'fal fa-spell-check',
                 'class'   => 'text-green-500'
             ],
             'received'   => [
@@ -70,11 +70,18 @@ enum PalletStateEnum: string
 
     public static function count(Organisation|FulfilmentCustomer|Location|Fulfilment|Warehouse|PalletDelivery $parent): array
     {
-        $stats=$parent->humanResourcesStats;
+        if ($parent instanceof FulfilmentCustomer) {
+            $stats = $parent;
+        } else {
+            $stats = $parent->stats;
+        }
+
         return [
-            'hired'         => $stats->number_employees_state_hired,
-            'working'       => $stats->number_employees_state_working,
-            'left'          => $stats->number_employees_state_left,
+            'in-process' => $stats->number_pallets_state_in_process,
+            'submitted'  => $stats->number_pallets_state_submitted,
+            'received'   => $stats->number_pallets_state_received,
+            'booked-in'  => $stats->number_pallets_state_booked_in,
+            'settled'    => $stats->number_pallets_state_settled
         ];
     }
 

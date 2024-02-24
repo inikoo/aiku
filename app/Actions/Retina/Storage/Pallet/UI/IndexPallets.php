@@ -7,9 +7,8 @@
 
 namespace App\Actions\Retina\Storage\Pallet\UI;
 
-use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
-use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\RetinaAction;
+use App\Actions\UI\Retina\Storage\ShowStorageDashboard;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Http\Resources\Fulfilment\PalletsResource;
 use App\Models\Fulfilment\Fulfilment;
@@ -53,7 +52,7 @@ class IndexPallets extends RetinaAction
         ];
     }
 
-    public function handle(Organisation|FulfilmentCustomer|Location|Fulfilment|Warehouse|PalletDelivery|PalletReturn $parent, $prefix = null): LengthAwarePaginator
+    public function handle(FulfilmentCustomer|Location|PalletDelivery|PalletReturn $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -83,11 +82,15 @@ class IndexPallets extends RetinaAction
                 break;
         }
 
+        foreach ($this->getElementGroups() as $key => $elementGroup) {
 
-        /*        if(!$parent instanceof PalletDelivery) {
-                    $query->where('state', '!=', PalletStateEnum::IN_PROCESS);
-                }*/
-
+            $query->whereElementGroup(
+                key: $key,
+                allowedElements: array_keys($elementGroup['elements']),
+                engine: $elementGroup['engine'],
+                prefix: $prefix
+            );
+        }
 
 
         return $query->defaultSort('reference')
@@ -114,7 +117,7 @@ class IndexPallets extends RetinaAction
             ];
 
             if ($parent instanceof FulfilmentCustomer) {
-                $emptyStateData['title'] = __("This customer don't have any pallets");
+                $emptyStateData['description'] = __("You don't have any stored pallets");
             }
 
             $table->withGlobalSearch()
@@ -124,19 +127,13 @@ class IndexPallets extends RetinaAction
 
             $table->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon');
             $table->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
-
             $table->column(key: 'customer_reference', label: __('customer reference'), canBeHidden: false, sortable: true, searchable: true);
-
             $table->column(key: 'notes', label: __('Notes'), canBeHidden: false, searchable: true)
                 ->column(key: 'actions', label: ' ', canBeHidden: false, searchable: true)
                 ->defaultSort('reference');
         };
     }
 
-    /*    public function authorize(ActionRequest $request): bool
-        {
-            return $request->user()->hasPermissionTo("fulfilment-shop.{$this->customer->fulfilmentCustomer->id}.view");
-        }*/
 
     public function jsonResponse(LengthAwarePaginator $pallets): AnonymousResourceCollection
     {
@@ -150,7 +147,6 @@ class IndexPallets extends RetinaAction
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
-                    $request->route()->originalParameters()
                 ),
                 'title'       => __('pallets'),
                 'pageHead'    => [
@@ -162,7 +158,7 @@ class IndexPallets extends RetinaAction
                             'style' => 'create',
                             'label' => __('New Delivery'),
                             'route' => [
-                                'name'       => 'retina.storage.pallets.create'
+                                'name' => 'retina.storage.pallets.create'
                             ]
                         ]
                     ]
@@ -180,25 +176,18 @@ class IndexPallets extends RetinaAction
         return $this->handle($this->customer->fulfilmentCustomer, 'pallets');
     }
 
-    public function getBreadcrumbs(string $routeName, array $routeParameters): array
+    public function getBreadcrumbs(string $routeName): array
     {
-
-        return [];
-
         return match ($routeName) {
-            'grp.org.warehouses.show.fulfilment.pallets.index', 'grp.org.warehouses.show.fulfilment.pallets.show' =>
+            'retina.storage.pallets.index' =>
             array_merge(
-                ShowWarehouse::make()->getBreadcrumbs($routeParameters),
+                ShowStorageDashboard::make()->getBreadcrumbs(),
                 [
                     [
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name'       => 'grp.org.warehouses.show.fulfilment.pallets.index',
-                                'parameters' => [
-                                    'organisation' => $routeParameters['organisation'],
-                                    'warehouse'    => $routeParameters['warehouse'],
-                                ]
+                                'name'       => 'retina.storage.pallets.index',
                             ],
                             'label' => __('pallets'),
                             'icon'  => 'fal fa-bars',
@@ -207,28 +196,6 @@ class IndexPallets extends RetinaAction
                     ]
                 ]
             ),
-
-            'grp.org.fulfilments.show.operations.pallets.index' =>
-            array_merge(
-                ShowFulfilment::make()->getBreadcrumbs($routeParameters),
-                [
-                    [
-                        'type'   => 'simple',
-                        'simple' => [
-                            'route' => [
-                                'name'       => 'grp.org.fulfilments.show.operations.pallets.index',
-                                'parameters' => [
-                                    'organisation' => $routeParameters['organisation'],
-                                    'fulfilment'   => $routeParameters['fulfilment'],
-                                ]
-                            ],
-                            'label' => __('pallets'),
-                            'icon'  => 'fal fa-bars',
-                        ],
-
-                    ]
-                ]
-            )
         };
     }
 }

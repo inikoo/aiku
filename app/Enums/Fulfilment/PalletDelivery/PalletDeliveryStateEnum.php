@@ -50,8 +50,8 @@ enum PalletDeliveryStateEnum: string
             ],
             'received' => [
                 'tooltip' => __('Received'),
-                'icon'    => 'fal fa-spell-check',
-                'class'   => 'text-green-500'
+                'icon'    => 'fal fa-truck-loading',
+                'class'   => 'text-blue-500'
             ],
             'done' => [
                 'tooltip' => __('Done'),

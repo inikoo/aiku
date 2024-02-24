@@ -48,7 +48,7 @@ class GetRetinaFulfilmentNavigation
                         ]
                     ],
                     [
-                        'label' => __('pallet delivery'),
+                        'label' => __('pallet deliveries'),
                         'icon'  => ['fal', 'fa-truck'],
                         'root'  => 'retina.storage.pallet-deliveries.',
                         'route' => [
