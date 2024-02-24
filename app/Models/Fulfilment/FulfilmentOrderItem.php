@@ -35,7 +35,7 @@ use Illuminate\Support\Carbon;
  * @property-read \App\Models\Fulfilment\FulfilmentOrder $FulfilmentOrder
  * @property-read Customer $customer
  * @property-read Shop $shop
- * @property-read Stock $stock
+ * @property-read Stock|null $stock
  * @method static Builder|FulfilmentOrderItem newModelQuery()
  * @method static Builder|FulfilmentOrderItem newQuery()
  * @method static Builder|FulfilmentOrderItem query()

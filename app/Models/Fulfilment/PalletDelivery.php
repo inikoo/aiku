@@ -49,7 +49,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $delete_comment
- * @property-read Customer $customer
+ * @property-read Customer|null $customer
  * @property-read \App\Models\Fulfilment\Fulfilment $fulfilment
  * @property-read \App\Models\Fulfilment\FulfilmentCustomer $fulfilmentCustomer
  * @property-read Organisation $organisation

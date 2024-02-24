@@ -75,6 +75,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\GroupSysAdminStats|null $sysadminStats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, TradeUnit> $tradeUnits
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\User> $users
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, WebUser> $webUsers
  * @method static \Database\Factories\SysAdmin\GroupFactory factory($count = null, $state = [])
  * @method static Builder|Group newModelQuery()
  * @method static Builder|Group newQuery()

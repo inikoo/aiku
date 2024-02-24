@@ -25,7 +25,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * App\Models\Dispatch\Event
  *
  * @property-read Collection<int, Issue> $issues
- * @property-read \App\Models\Dispatch\Shipment $shipment
+ * @property-read \App\Models\Dispatch\Shipment|null $shipment
  * @method static Builder|Event newModelQuery()
  * @method static Builder|Event newQuery()
  * @method static Builder|Event onlyTrashed()

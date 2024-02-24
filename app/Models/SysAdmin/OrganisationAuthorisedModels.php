@@ -21,7 +21,7 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read Model|\Eloquent $model
- * @property-read \App\Models\SysAdmin\Organisation $organisation
+ * @property-read \App\Models\SysAdmin\Organisation|null $organisation
  * @property-read \App\Models\SysAdmin\User|null $user
  * @method static \Illuminate\Database\Eloquent\Builder|OrganisationAuthorisedModels newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|OrganisationAuthorisedModels newQuery()

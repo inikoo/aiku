@@ -23,7 +23,7 @@ use Illuminate\Support\Carbon;
  * @property int $number_dispatches
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read \App\Models\Mail\Mailshot $mailshot
+ * @property-read \App\Models\Mail\Mailshot|null $mailshot
  * @method static Builder|EmailAddress newModelQuery()
  * @method static Builder|EmailAddress newQuery()
  * @method static Builder|EmailAddress query()

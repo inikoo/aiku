@@ -64,7 +64,7 @@ use Illuminate\Support\Carbon;
  * @property int $number_customers_with_stored_items_status_returned
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read \App\Models\Inventory\WarehouseArea $warehouse
+ * @property-read \App\Models\Inventory\WarehouseArea|null $warehouse
  * @method static Builder|WarehouseAreaStats newModelQuery()
  * @method static Builder|WarehouseAreaStats newQuery()
  * @method static Builder|WarehouseAreaStats query()

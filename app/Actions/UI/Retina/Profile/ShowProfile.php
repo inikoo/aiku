@@ -1,8 +1,8 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Mon, 14 Aug 2023 08:45:47 Malaysia Time, Sanur, Bali
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Sat, 24 Feb 2024 11:17:33 Central Standard Time, Mexico City, Mexico
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
 namespace App\Actions\UI\Retina\Profile;
@@ -10,7 +10,7 @@ namespace App\Actions\UI\Retina\Profile;
 use App\Actions\Assets\Language\UI\GetLanguagesOptions;
 use App\Actions\UI\Retina\Dashboard\ShowDashboard;
 use App\Actions\UI\WithInertia;
-use App\Http\Resources\Auth\UserResource;
+use App\Http\Resources\CRM\WebUserResource;
 use App\Models\CRM\WebUser;
 use Illuminate\Support\Arr;
 use Inertia\Inertia;
@@ -28,12 +28,12 @@ class ShowProfile
         return $request->user();
     }
 
-    public function jsonResponse(WebUser $webuser): UserResource
+    public function jsonResponse(WebUser $webUser): WebUserResource
     {
-        return new UserResource($webuser);
+        return new WebUserResource($webUser);
     }
 
-    public function htmlResponse(WebUser $webuser, ActionRequest $request): Response
+    public function htmlResponse(WebUser $webUser, ActionRequest $request): Response
     {
         $sections["properties"] = [
             "label"  => __("Profile"),
@@ -42,18 +42,18 @@ class ShowProfile
                 "email" => [
                     "type"  => "input",
                     "label" => __("email"),
-                    "value" => $webuser->email,
+                    "value" => $webUser->email,
                 ],
                 "about" => [
                     "type"  => "textarea",
                     "label" => __("about"),
-                    "value" => $webuser->about,
+                    "value" => $webUser->about,
                 ],
                 "avatar" => [
                     "type"  => "avatar",
                     "label" => __("avatar"),
-                    "value" => !blank($webuser->avatar_id)
-                        ? $webuser->avatarImageSources(320, 320)
+                    "value" => !blank($webUser->avatar_id)
+                        ? $webUser->avatarImageSources(320, 320)
                         : null,
                 ],
             ],
@@ -78,7 +78,7 @@ class ShowProfile
                 "language_id" => [
                     "type"     => "language",
                     "label"    => __("language"),
-                    "value"    => $webuser->language_id,
+                    "value"    => $webUser->language_id,
                     "options"  => GetLanguagesOptions::make()->translated(),
                     "canClear" => false,
                 ],

@@ -81,6 +81,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $source_id
  * @property int|null $storefront_id
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
+ * @property-read mixed $condition
  * @property-read Collection<int, Deployment> $deployments
  * @property-read Group $group
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, Media> $images

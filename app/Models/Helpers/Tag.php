@@ -28,6 +28,7 @@ use Spatie\Tags\Tag as BaseTag;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Helpers\TagCrmStats|null $crmStats
+ * @property-read mixed $translations
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
  * @method static Builder|Tag containing(string $name, $locale = null)
  * @method static \Illuminate\Database\Eloquent\Builder|Tag newModelQuery()

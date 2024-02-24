@@ -63,8 +63,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property SupplierProductQuantityStatusEnum $quantity_status
  * @property-read \App\Models\SupplyChain\Agent|null $agent
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
+ * @property-read mixed $gross_weight
  * @property-read Group $group
  * @property-read Collection<int, HistoricSupplierProduct> $historicRecords
+ * @property-read mixed $net_weight
  * @property-read \App\Models\SupplyChain\SupplierProductStats|null $stats
  * @property-read \App\Models\SupplyChain\Supplier|null $supplier
  * @property-read Collection<int, TradeUnit> $tradeUnits

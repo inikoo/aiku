@@ -45,6 +45,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property WebUserAuthTypeEnum $auth_type
  * @property string|null $remember_token
  * @property int $number_api_tokens
+ * @property string|null $about
  * @property array $data
  * @property array $settings
  * @property bool $reset_password
@@ -58,10 +59,11 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read \App\Models\Media\Media|null $avatar
  * @property-read \App\Models\CRM\Customer $customer
+ * @property-read Group $group
  * @property-read \App\Models\Assets\Language $language
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Media\Media> $media
  * @property-read Organisation $organisation
- * @property-read Group $group
+ * @property-read Collection<int, \Spatie\Permission\Models\Permission> $permissions
  * @property-read Shop|null $shop
  * @property-read \App\Models\CRM\WebUserStats|null $stats
  * @property-read Collection<int, \Laravel\Sanctum\PersonalAccessToken> $tokens
@@ -69,8 +71,10 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|WebUser newModelQuery()
  * @method static Builder|WebUser newQuery()
  * @method static Builder|WebUser onlyTrashed()
+ * @method static Builder|WebUser permission($permissions, $without = false)
  * @method static Builder|WebUser query()
  * @method static Builder|WebUser withTrashed()
+ * @method static Builder|WebUser withoutPermission($permissions)
  * @method static Builder|WebUser withoutTrashed()
  * @mixin Eloquent
  */

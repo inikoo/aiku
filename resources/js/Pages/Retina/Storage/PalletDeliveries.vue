@@ -1,6 +1,6 @@
 <!--
   - Author: Raul Perusquia <raul@inikoo.com>
-  - Created: Sat, 27 Jan 2024 15:13:18 Malaysia Time, Sanur, Bali, Indonesia
+  - Created: Fri, 23 Feb 2024 09:56:34 Central Standard Time, Mexico City, Mexico
   - Copyright (c) 2024, Raul A Perusquia Flores
   -->
 
@@ -18,7 +18,7 @@ const props = defineProps<{
 
 </script>
 
-<template layout="Grp">
+<template layout="Retina">
     <Head :title="capitalize(title)"/>
     <PageHeading :data="pageHead"></PageHeading>
     <TablePalletDeliveries :data="data" />
