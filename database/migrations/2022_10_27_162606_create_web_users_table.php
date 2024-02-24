@@ -35,6 +35,7 @@ return new class () extends Migration {
             $table->string('auth_type')->default(WebUserAuthTypeEnum::DEFAULT->value);
             $table->rememberToken();
             $table->unsignedSmallInteger('number_api_tokens')->default(0);
+            $table->text('about')->nullable();
             $table->jsonb('data');
             $table->jsonb('settings');
             $table->boolean('reset_password')->default(false);
