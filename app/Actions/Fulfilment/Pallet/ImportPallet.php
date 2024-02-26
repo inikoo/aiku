@@ -13,18 +13,19 @@ use App\Actions\Helpers\Uploads\StoreUploads;
 use App\Actions\Traits\WithImportModel;
 use App\Http\Resources\Helpers\UploadsResource;
 use App\Imports\CRM\PalletImport;
+use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Helpers\Upload;
 use App\Models\Inventory\Warehouse;
-use App\Models\SysAdmin\Organisation;
-use Illuminate\Support\Facades\Storage;
 use Lorisleiva\Actions\ActionRequest;
 
 class ImportPallet
 {
     use WithImportModel;
+
+    private string $origin = 'grp';
 
     public function handle(PalletDelivery $palletDelivery, $file): Upload
     {
@@ -46,13 +47,30 @@ class ImportPallet
         return $upload;
     }
 
-    public function inPalletDelivery(Organisation $organisation, FulfilmentCustomer $fulfilmentCustomer, PalletDelivery $palletDelivery, ActionRequest $request): Upload
+    public function authorize(ActionRequest $request): bool
     {
-        $file = $request->file('file');
-        Storage::disk('local')->put($this->tmpPath, $file);
+        $userable=$request->user();
+        if($userable instanceof WebUser) {
 
-        return $this->handle($palletDelivery, $file);
+        }
+
+
+        return true;
     }
+
+    public function fromRetina(PalletDelivery $palletDelivery, ActionRequest $request): Upload
+    {
+        $this->origin = 'retina';
+
+        return $this->asController($palletDelivery, $request);
+    }
+
+
+    public function fromGrp(PalletDelivery $palletDelivery, ActionRequest $request): Upload
+    {
+        return $this->asController($palletDelivery, $request);
+    }
+
 
     public function jsonResponse(Upload $upload): array
     {
@@ -61,7 +79,7 @@ class ImportPallet
 
     public function rumImport($file, $command): Upload
     {
-        if($palletDeliverySlug = $command->argument('palletDelivery')) {
+        if ($palletDeliverySlug = $command->argument('palletDelivery')) {
             $palletDelivery = PalletDelivery::where('slug', $palletDeliverySlug)->first();
         } else {
             $warehouse          = Warehouse::where('slug', $command->argument('warehouse'))->first();

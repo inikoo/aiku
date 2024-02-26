@@ -30,13 +30,12 @@ trait WithImportModel
 
     }
 
-    public function asController(ActionRequest $request): void
+    public function asController($parent, ActionRequest $request): Upload
     {
         $request->validate();
-
         $file = $request->file('file');
         Storage::disk('local')->put($this->tmpPath, $file);
-        $this->handle($file);
+        return $this->handle($parent, $file);
     }
 
     public function rules(): array
@@ -46,6 +45,9 @@ trait WithImportModel
         ];
     }
 
+    /**
+     * @throws \Exception
+     */
     public function asCommand(Command $command): int
     {
         $this->isSync=true;

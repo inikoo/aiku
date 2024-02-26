@@ -61,6 +61,28 @@ Route::name('org.')->prefix('org/{organisation}')->group(function () {
     Route::post('/fulfilment/', StoreFulfilment::class)->name('fulfilment.store');
 });
 
+Route::name('pallet-delivery.')->prefix('pallet-delivery/{palletDelivery:id}')->group(function () {
+
+    Route::post('submit', SubmitPalletDelivery::class)->name('submit');
+    Route::post('confirm', ConfirmPalletDelivery::class)->name('confirm');
+    Route::post('received', ReceivedPalletDelivery::class)->name('received');
+    Route::post('done', DonePalletDelivery::class)->name('done');
+
+
+    Route::post('pallet-upload', [ImportPallet::class,'fromGrp'])->name('pallet.import');
+
+});
+
+Route::name('pallet.')->prefix('pallet/{pallet:id}')->group(function () {
+    Route::delete('', DeletePallet::class)->name('delete');
+    Route::patch('', UpdatePallet::class)->name('update');
+
+});
+
+
+
+
+
 Route::name('fulfilment-customer.')->prefix('fulfilment-customer/{fulfilmentCustomer:id}')->group(function () {
     Route::post('pallet-delivery', StorePalletDelivery::class)->name('pallet-delivery.store');
 
@@ -69,7 +91,6 @@ Route::name('fulfilment-customer.')->prefix('fulfilment-customer/{fulfilmentCust
     Route::post('pallet-delivery/{palletDelivery}/pallet', StorePalletFromDelivery::class)->name('pallet-delivery.pallet.store');
     Route::post('pallet-delivery/{palletDelivery}/multiple-pallet', StoreMultiplePallets::class)->name('pallet-delivery.multiple-pallets.store');
 
-    Route::post('pallet-delivery/{palletDelivery}/pallet-upload', [ImportPallet::class, 'inPalletDelivery'])->name('pallet-delivery.pallet.import');
 
     Route::delete('pallet-return/{palletReturn}/pallet/{pallet}', DeletePalletFromReturn::class)->name('pallet-return.pallet.delete');
     Route::post('pallet-return', StorePalletReturn::class)->name('pallet-return.store');
