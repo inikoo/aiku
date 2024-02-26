@@ -28,8 +28,8 @@ watchEffect(() => {
 <template>
     <ButtonWithDropdown dusk="table-download-dropdown" class="w-auto">
         <template #button>
-            <div class="h-5 w-5 flex justify-center items-center" :title="trans('Export Table')">
-                <FontAwesomeIcon icon="fas fa-download" class="h-4 w-4 text-gray-400" aria-hidden="true" />
+            <div class="h-auto aspect-square flex justify-center items-center" :title="trans('Export Table')">
+                <FontAwesomeIcon icon="fas fa-download" class="text-xs text-gray-400" aria-hidden="true" />
             </div>
         </template>
 

@@ -1,5 +1,5 @@
 <template>
-    <nav
+    <nav v-if="!hasData || pagination.total < 1 || exportLinks?.export?.route || hasPagination && meta?.total > 15"
         class="bg-white px-4 py-3 flex items-center space-x-2 justify-between border-t border-gray-200 sm:px-4">
         <p v-if="!hasData || pagination.total < 1">
             {{ translations.no_results_found }}
@@ -7,7 +7,7 @@
 
         <!-- Button: Download Table -->
          <slot name="tableDownload" class="">
-            <TableDownload v-if="exportLinks" :exportLinks="exportLinks" />
+            <TableDownload v-if="exportLinks?.export?.route" :exportLinks="exportLinks" />
         </slot>
 
         <template v-if="hasPagination && meta?.total > 15">
@@ -114,6 +114,7 @@ import PerPageSelector from "./PerPageSelector.vue"
 import { computed } from "vue"
 import TableDownload from '@/Components/Table/TableDownload.vue'
 import { getTranslations } from "./translations.js"
+import { routeType } from "@/types/route"
 
 const translations = getTranslations()
 
@@ -133,7 +134,11 @@ const props = withDefaults(defineProps<{
         from: number
         per_page: number
     }
-    exportLinks?: {}
+    exportLinks?: {
+        export: {
+            route: routeType
+        }
+    }
 }>(), {
     perPageOptions: () => [10, 25, 50, 100, 250],
     onPerPageChange: () => {}
