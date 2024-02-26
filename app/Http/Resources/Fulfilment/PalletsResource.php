@@ -30,20 +30,32 @@ class PalletsResource extends JsonResource
             'location'               => $pallet->location?->slug,
             'state_label'            => $pallet->state->labels()[$pallet->state->value],
             'state_icon'             => $pallet->state->stateIcon()[$pallet->state->value],
-            'updateRoute'            => [
-                'name'       => 'grp.models.pallet.update',
+            'updateRoute'            => match (request()->routeIs('retina.*')) {
+                true => [
+                    'name'       => 'retina.models.pallet.update',
+                    'parameters' => $pallet->id
+                ],
+                default => [
+                    'name'       => 'grp.models.pallet.update',
+                    'parameters' => $pallet->id
+                ]
+            },
+            'deleteRoute' => match (request()->routeIs('retina.*')) {
+                true => [
+                    'name'       => 'retina.models.pallet.delete',
+                    'parameters' => $pallet->id
+                ],
+                default => [
+                    'name'       => 'grp.models.pallet.delete',
+                    'parameters' => $pallet->id
+                ]
+            },
+            'notReceivedRoute' => [
+                'name'       => 'grp.models.pallet.not-received',
                 'parameters' => $pallet->id
             ],
-            'deleteRoute'            => [
-                'name'       => 'grp.models.pallet.delete',
-                'parameters' => $pallet->id
-            ],
-            'notReceivedRoute'            => [
-                'name'       => 'grp.models.pallet.delete',
-                'parameters' => $pallet->id
-            ],
-            'bookInRoute'            => [
-                'name'       => 'grp.models.pallet.delete',
+            'bookInRoute' => [
+                'name'       => 'grp.models.pallet.booked-in',
                 'parameters' => $pallet->id
             ]
         ];

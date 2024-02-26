@@ -67,7 +67,7 @@ class ShowPalletDelivery extends RetinaAction
                             'parameters' => array_values($request->route()->originalParameters())
                         ]
                     ] : false,
-                    'actions' => $palletDelivery->state == PalletDeliveryStateEnum::IN_PROCESS && $this->canEdit ? [
+                    'actions' => $palletDelivery->state == PalletDeliveryStateEnum::IN_PROCESS ? [
                         [
                             'type'   => 'buttonGroup',
                             'key'    => 'upload-add',
@@ -80,7 +80,7 @@ class ShowPalletDelivery extends RetinaAction
                                     'route' => [
                                         'name'       => 'retina.models.pallet-delivery.pallet.import',
                                         'parameters' => [
-                                            'palletDelivery'     => $palletDelivery->id
+                                            'palletDelivery' => $palletDelivery->id
                                         ]
                                     ]
                                 ],
@@ -90,12 +90,9 @@ class ShowPalletDelivery extends RetinaAction
                                     'icon'    => ['far', 'fa-layer-plus'],
                                     'label'   => 'multiple',
                                     'route'   => [
-                                        'name'       => 'grp.models.fulfilment-customer.pallet-delivery.multiple-pallets.store',
+                                        'name'       => 'retina.models.pallet-delivery.multiple-pallets.store',
                                         'parameters' => [
-                                            'organisation'       => $palletDelivery->organisation->slug,
-                                            'fulfilment'         => $palletDelivery->fulfilment->slug,
-                                            'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->id,
-                                            'palletDelivery'     => $palletDelivery->reference
+                                            'palletDelivery' => $palletDelivery->id
                                         ]
                                     ]
                                 ],
@@ -104,18 +101,15 @@ class ShowPalletDelivery extends RetinaAction
                                     'style' => 'create',
                                     'label' => __('add pallet'),
                                     'route' => [
-                                        'name'       => 'grp.models.fulfilment-customer.pallet-delivery.pallet.store',
+                                        'name'       => 'retina.models.pallet-delivery.pallet.store',
                                         'parameters' => [
-                                            'organisation'       => $palletDelivery->organisation->slug,
-                                            'fulfilment'         => $palletDelivery->fulfilment->slug,
-                                            'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->id,
-                                            'palletDelivery'     => $palletDelivery->reference
+                                            'palletDelivery' => $palletDelivery->id
                                         ]
                                     ]
                                 ],
                             ]
                         ],
-                        ($palletDelivery->pallets()->count() > 0) && $this->canEdit ? [
+                        ($palletDelivery->pallets()->count() > 0) ? [
                             'type'    => 'button',
                             'style'   => 'save',
                             'tooltip' => __('submit'),
@@ -123,85 +117,13 @@ class ShowPalletDelivery extends RetinaAction
                             'key'     => 'action',
                             'route'   => [
                                 'method'     => 'post',
-                                'name'       => 'grp.models.fulfilment-customer.pallet-delivery.submit',
+                                'name'       => 'retina.models.pallet-delivery.submit',
                                 'parameters' => [
-                                    'organisation'       => $palletDelivery->organisation->slug,
-                                    'fulfilment'         => $palletDelivery->fulfilment->slug,
-                                    'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->id,
-                                    'palletDelivery'     => $palletDelivery->reference
+                                    'palletDelivery' => $palletDelivery->id
                                 ]
                             ]
                         ] : [],
-                    ] : [
-                        $palletDelivery->state == PalletDeliveryStateEnum::SUBMITTED && $this->canEdit ? [
-                                'type'    => 'button',
-                                'style'   => 'save',
-                                'tooltip' => __('confirm'),
-                                'label'   => __('confirm'),
-                                'key'     => 'action',
-                                'route'   => [
-                                    'method'     => 'post',
-                                    'name'       => 'grp.models.fulfilment-customer.pallet-delivery.confirm',
-                                    'parameters' => [
-                                        'organisation'       => $palletDelivery->organisation->slug,
-                                        'fulfilment'         => $palletDelivery->fulfilment->slug,
-                                        'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->id,
-                                        'palletDelivery'     => $palletDelivery->reference
-                                    ]
-                                ]
-                        ] : [],
-                        $palletDelivery->state == PalletDeliveryStateEnum::SUBMITTED && $this->canEdit ? [
-                            'type'    => 'button',
-                            'style'   => 'save',
-                            'tooltip' => __('confirm'),
-                            'label'   => __('confirm'),
-                            'key'     => 'action',
-                            'route'   => [
-                                'method'     => 'post',
-                                'name'       => 'grp.models.fulfilment-customer.pallet-delivery.confirm',
-                                'parameters' => [
-                                    'organisation'       => $palletDelivery->organisation->slug,
-                                    'fulfilment'         => $palletDelivery->fulfilment->slug,
-                                    'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->id,
-                                    'palletDelivery'     => $palletDelivery->reference
-                                ]
-                            ]
-                        ] : [],
-                        $palletDelivery->state == PalletDeliveryStateEnum::CONFIRMED && $this->canEdit ? [
-                            'type'    => 'button',
-                            'style'   => 'save',
-                            'tooltip' => __('received'),
-                            'label'   => __('received'),
-                            'key'     => 'action',
-                            'route'   => [
-                                'method'     => 'post',
-                                'name'       => 'grp.models.fulfilment-customer.pallet-delivery.received',
-                                'parameters' => [
-                                    'organisation'       => $palletDelivery->organisation->slug,
-                                    'fulfilment'         => $palletDelivery->fulfilment->slug,
-                                    'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->id,
-                                    'palletDelivery'     => $palletDelivery->reference
-                                ]
-                            ]
-                        ] : [],
-                        $palletDelivery->state == PalletDeliveryStateEnum::RECEIVED && $this->canEdit ? [
-                            'type'    => 'button',
-                            'style'   => 'save',
-                            'tooltip' => __('done'),
-                            'label'   => __('done'),
-                            'key'     => 'action',
-                            'route'   => [
-                                'method'     => 'post',
-                                'name'       => 'grp.models.fulfilment-customer.pallet-delivery.done',
-                                'parameters' => [
-                                    'organisation'       => $palletDelivery->organisation->slug,
-                                    'fulfilment'         => $palletDelivery->fulfilment->slug,
-                                    'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->id,
-                                    'palletDelivery'     => $palletDelivery->reference
-                                ]
-                            ]
-                        ] : [],
-                    ],
+                    ] : []
                 ],
 
                 'updateRoute' => [

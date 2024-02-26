@@ -12,6 +12,8 @@ use App\Actions\Helpers\SerialReference\GetSerialReference;
 use App\Actions\OrgAction;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
+use App\Models\CRM\WebUser;
+use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
 use Illuminate\Console\Command;
@@ -64,15 +66,37 @@ class StorePalletFromDelivery extends OrgAction
             return true;
         }
 
+        if ($request->user() instanceof WebUser) {
+            // TODO: Raul please do the permission for the web user
+            return true;
+        }
+
         return $request->user()->hasPermissionTo("fulfilment.{$this->fulfilment->id}.edit");
+    }
+
+    public function prepareForValidation(ActionRequest $request): void
+    {
+        if($this->fulfilment->warehouses()->count()==1) {
+            $this->fill(['warehouse_id' =>$this->fulfilment->warehouses()->first()->id]);
+        }
     }
 
     public function rules(): array
     {
         return [
-            'customer_reference' => ['required'],
-            'notes'              => ['required', 'string','max:1024']
+            'customer_reference' => ['nullable'],
+            'notes'              => ['nullable', 'string','max:1024']
         ];
+    }
+
+    public function fromRetina(PalletDelivery $palletDelivery, ActionRequest $request): Pallet
+    {
+        /** @var FulfilmentCustomer $fulfilmentCustomer */
+        $fulfilmentCustomer = $request->user()->customer->fulfilmentCustomer;
+        $this->fulfilment   = $fulfilmentCustomer->fulfilment;
+
+        $this->initialisation($request->get('website')->organisation, $request);
+        return $this->handle($palletDelivery, $this->validatedData);
     }
 
     public function asController(PalletDelivery $palletDelivery, ActionRequest $request): Pallet
@@ -115,11 +139,18 @@ class StorePalletFromDelivery extends OrgAction
 
     public function htmlResponse(Pallet $pallet, ActionRequest $request): RedirectResponse
     {
-        return Redirect::route('grp.org.fulfilments.show.crm.customers.show.pallet-deliveries.show', [
-            'organisation'           => $pallet->organisation->slug,
-            'fulfilment'             => $pallet->fulfilment->slug,
-            'fulfilmentCustomer'     => $pallet->fulfilmentCustomer->slug,
-            'palletDelivery'         => $this->parent->reference
-        ]);
+        $routeName = $request->route()->getName();
+
+        return match ($routeName) {
+            'grp.models.pallet-delivery.pallet.store' => Redirect::route('grp.org.fulfilments.show.crm.customers.show.pallet-deliveries.show', [
+                'organisation'           => $pallet->organisation->slug,
+                'fulfilment'             => $pallet->fulfilment->slug,
+                'fulfilmentCustomer'     => $pallet->fulfilmentCustomer->slug,
+                'palletDelivery'         => $this->parent->reference
+            ]),
+            default => Redirect::route('retina.storage.pallet-deliveries.show', [
+                'palletDelivery'     => $this->parent->reference
+            ])
+        };
     }
 }

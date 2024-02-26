@@ -11,6 +11,7 @@ use App\Actions\Helpers\SerialReference\GetSerialReference;
 use App\Actions\OrgAction;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Models\CRM\Customer;
+use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\SysAdmin\Organisation;
@@ -70,6 +71,11 @@ class StorePalletDelivery extends OrgAction
             return true;
         }
 
+        if ($request->user() instanceof WebUser) {
+            // TODO: Raul please do the permission for the web user
+            return true;
+        }
+
         return $request->user()->hasPermissionTo("fulfilments.{$this->fulfilment->id}.edit");
     }
 
@@ -87,6 +93,17 @@ class StorePalletDelivery extends OrgAction
         return [
             'warehouse_id'=> ['required','integer','exists:warehouses,id'],
         ];
+    }
+
+
+    public function fromRetina(ActionRequest $request): PalletDelivery
+    {
+        /** @var FulfilmentCustomer $fulfilmentCustomer */
+        $fulfilmentCustomer = $request->user()->customer->fulfilmentCustomer;
+        $this->fulfilment   = $fulfilmentCustomer->fulfilment;
+
+        $this->initialisation($request->get('website')->organisation, $request);
+        return $this->handle($fulfilmentCustomer, $this->validatedData);
     }
 
 
@@ -122,12 +139,19 @@ class StorePalletDelivery extends OrgAction
 
     public function htmlResponse(PalletDelivery $palletDelivery, ActionRequest $request): Response
     {
-        return Inertia::location(route('grp.org.fulfilments.show.crm.customers.show.pallet-deliveries.show', [
-            'organisation'           => $palletDelivery->organisation->slug,
-            'fulfilment'             => $palletDelivery->fulfilment->slug,
-            'fulfilmentCustomer'     => $palletDelivery->fulfilmentCustomer->slug,
-            'palletDelivery'         => $palletDelivery->reference
-        ]));
+        $routeName = $request->route()->getName();
+
+        return match ($routeName) {
+            'grp.models.fulfilment-customer.pallet-delivery.store' => Inertia::location(route('grp.org.fulfilments.show.crm.customers.show.pallet-deliveries.show', [
+                'organisation'           => $palletDelivery->organisation->slug,
+                'fulfilment'             => $palletDelivery->fulfilment->slug,
+                'fulfilmentCustomer'     => $palletDelivery->fulfilmentCustomer->slug,
+                'palletDelivery'         => $palletDelivery->reference
+            ])),
+            default => Inertia::location(route('retina.storage.pallet-deliveries.show', [
+                'palletDelivery'         => $palletDelivery->reference
+            ]))
+        };
     }
 
     public string $commandSignature = 'pallet-deliveries:create {fulfillment-customer}';

@@ -14,6 +14,8 @@ use App\Actions\Fulfilment\Pallet\StoreMultiplePallets;
 use App\Actions\Fulfilment\Pallet\StorePalletFromDelivery;
 use App\Actions\Fulfilment\Pallet\StorePalletToReturn;
 use App\Actions\Fulfilment\Pallet\UpdatePallet;
+use App\Actions\Fulfilment\Pallet\UpdatePalletBookedIn;
+use App\Actions\Fulfilment\Pallet\UpdatePalletNotReceived;
 use App\Actions\Fulfilment\PalletDelivery\ConfirmPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\BookInPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\ReceivedPalletDelivery;
@@ -79,7 +81,8 @@ Route::name('pallet-delivery.')->prefix('pallet-delivery/{palletDelivery:id}')->
 Route::name('pallet.')->prefix('pallet/{pallet:id}')->group(function () {
     Route::delete('', DeletePallet::class)->name('delete');
     Route::patch('', UpdatePallet::class)->name('update');
-
+    Route::patch('not-received', UpdatePalletNotReceived::class)->name('not-received');
+    Route::patch('booked-in', UpdatePalletBookedIn::class)->name('booked-in');
 });
 
 
