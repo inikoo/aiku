@@ -139,7 +139,91 @@ watch(props, (newValue) => {
 <template layout="Grp">
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead">
-        
+        <template #button-group-add-pallet="{ action: action }">
+      <div class="relative">
+        <Popover :width="'w-full'" ref="_popover">
+          <template #button>
+            <Button :style="action.button.style" :label="action.button.label" :icon="action.button.icon"
+              :iconRight="action.button.iconRight" :key="`ActionButton${action.button.label}${action.button.style}`"
+              :tooltip="action.button.tooltip"
+              class="capitalize inline-flex items-center h-full rounded-none text-sm border-none font-medium shadow-sm focus:ring-transparent focus:ring-offset-transparent focus:ring-0" />
+          </template>
+          <template #content="{ close: closed }">
+            <div class="w-[250px]">
+              <span class="text-xs px-1 my-2">{{trans('Notes')}}: </span>
+              <div>
+                <PureInput v-model="formAddPallet.customer_reference" placeholder="Reference">
+                </PureInput>
+                <p v-if="get(formAddPallet, ['errors', 'customer_reference'])" class="mt-2 text-sm text-red-600">
+                  {{ formAddPallet.errors.customer_reference }}
+                </p>
+              </div>
+
+              <div class="mt-3">
+                <span class="text-xs px-1 my-2">{{trans('Notes')}}: </span>
+                <textarea
+                  class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                  v-model="formAddPallet.notes" placeholder="Notes">
+              </textarea>
+                <p v-if="get(formAddPallet, ['errors', 'notes'])" class="mt-2 text-sm text-red-600">
+                  {{ formAddPallet.errors.notes }}
+                </p>
+              </div>
+
+              <div class="flex justify-end mt-3">
+                <Button :style="'save'" :loading="loading" :label="'save'"
+                  @click="() => handleFormSubmitAddPallet(action.button, closed)" />
+              </div>
+            </div>
+          </template>
+        </Popover>
+      </div>
+    </template>
+    <template #button-group-upload="{ action : action }">
+      <Button
+         :style="'upload'"
+         @click="()=>onUploadOpen(action.button)"
+         class="capitalize inline-flex items-center h-full rounded-none text-sm border-none font-medium shadow-sm focus:ring-transparent focus:ring-offset-transparent focus:ring-0"
+      />
+    </template>
+    <template #button-group-multiple="{ action: action }">
+      <div class="relative">
+        <Popover :width="'w-full'" ref="_popover">
+          <template #button>
+            <Button :style="action.button.style" :icon="action.button.icon"
+              :iconRight="action.button.iconRight" :key="`ActionButton${action.button.label}${action.button.style}`"
+              :tooltip="action.button.tooltip"
+              class="capitalize inline-flex items-center h-full rounded-none text-sm border-none font-medium shadow-sm focus:ring-transparent focus:ring-offset-transparent focus:ring-0"/>
+          </template>
+          <template #content="{ close: closed }">
+            <div class="w-[250px]">
+              <span class="text-xs px-1 my-2">number of pallets : </span>
+              <div>
+                <PureInput v-model="formMultiplePallet.number_pallets" placeholder="number of pallets" type="number"
+                  :min="1">
+                </PureInput>
+                <p v-if="get(formMultiplePallet, ['errors', 'customer_reference'])" class="mt-2 text-sm text-red-600">
+                  {{ formMultiplePallet.errors.number_pallets }}
+                </p>
+              </div>
+              <div class="flex justify-end mt-3">
+                <Button :style="'save'" :loading="loading" :label="'save'"
+                  @click="() => handleFormSubmitAddMultiplePallet(action.button, closed)" />
+              </div>
+            </div>
+          </template>
+        </Popover>
+      </div>
+    </template>
+  <!--   <template #button-submit="{ action: action }">
+      <div>
+        <div v-if="data.data.state == 'in-process' && data.data.number_pallets != 0">
+          <Button @click="handleClick(action.action)" :style="action.action.style" :label="action.action.label"
+            :icon="action.action.icon" :iconRight="action.action.iconRight" :tooltip="action.action.tooltip"
+            :loading="loading" />
+        </div>
+      </div>
+    </template> -->
     </PageHeading>
     <div class="border-b border-gray-200">
         <Timeline :options="timeline.timeline" :state="timeline.state" :slidesPerView="5" />
