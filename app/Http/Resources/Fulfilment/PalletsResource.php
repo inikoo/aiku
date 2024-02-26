@@ -37,6 +37,14 @@ class PalletsResource extends JsonResource
             'deleteRoute'            => [
                 'name'       => 'grp.models.pallet.delete',
                 'parameters' => $pallet->id
+            ],
+            'notReceivedRoute'            => [
+                'name'       => 'grp.models.pallet.delete',
+                'parameters' => $pallet->id
+            ],
+            'bookInRoute'            => [
+                'name'       => 'grp.models.pallet.delete',
+                'parameters' => $pallet->id
             ]
         ];
     }

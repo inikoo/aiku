@@ -15,7 +15,7 @@ use App\Actions\Fulfilment\Pallet\StorePalletFromDelivery;
 use App\Actions\Fulfilment\Pallet\StorePalletToReturn;
 use App\Actions\Fulfilment\Pallet\UpdatePallet;
 use App\Actions\Fulfilment\PalletDelivery\ConfirmPalletDelivery;
-use App\Actions\Fulfilment\PalletDelivery\DonePalletDelivery;
+use App\Actions\Fulfilment\PalletDelivery\BookInPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\ReceivedPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\StorePalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\SubmitPalletDelivery;
@@ -66,7 +66,7 @@ Route::name('pallet-delivery.')->prefix('pallet-delivery/{palletDelivery:id}')->
     Route::post('submit', SubmitPalletDelivery::class)->name('submit');
     Route::post('confirm', ConfirmPalletDelivery::class)->name('confirm');
     Route::post('received', ReceivedPalletDelivery::class)->name('received');
-    Route::post('done', DonePalletDelivery::class)->name('done');
+    Route::post('done', BookInPalletDelivery::class)->name('done');
 
 
     Route::post('pallet-upload', [ImportPallet::class,'fromGrp'])->name('pallet.import');
