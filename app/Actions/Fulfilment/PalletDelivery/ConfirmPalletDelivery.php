@@ -14,9 +14,7 @@ use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Http\Resources\Fulfilment\PalletDeliveryResource;
-use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletDelivery;
-use App\Models\SysAdmin\Organisation;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -29,6 +27,10 @@ class ConfirmPalletDelivery extends OrgAction
     {
         $modelData[PalletDeliveryStateEnum::CONFIRMED->value.'_at'] = now();
         $modelData['state']                                         = PalletDeliveryStateEnum::CONFIRMED;
+
+        if(!$palletDelivery->{PalletDeliveryStateEnum::SUBMITTED->value.'_at'}) {
+            $modelData[PalletDeliveryStateEnum::SUBMITTED->value.'_at'] = now();
+        }
 
         foreach ($palletDelivery->pallets as $pallet) {
             $pallet->update([
@@ -53,9 +55,9 @@ class ConfirmPalletDelivery extends OrgAction
         return new PalletDeliveryResource($palletDelivery);
     }
 
-    public function asController(Organisation $organisation, FulfilmentCustomer $fulfilmentCustomer, PalletDelivery $palletDelivery, ActionRequest $request): PalletDelivery
+    public function asController(PalletDelivery $palletDelivery, ActionRequest $request): PalletDelivery
     {
-        $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $request);
+        $this->initialisationFromFulfilment($palletDelivery->fulfilment, $request);
 
         return $this->handle($palletDelivery, $this->validatedData);
     }
