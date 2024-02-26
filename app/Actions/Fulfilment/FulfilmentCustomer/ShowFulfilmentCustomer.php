@@ -99,7 +99,7 @@ class ShowFulfilmentCustomer extends OrgAction
                             'tooltip' => __('new delivery'),
                             'label'   => __('new delivery'),
                             'options' => [
-                                'warehouses' => WarehouseResource::collection($SHowfulfilmentCustomer->fulfilment->warehouses)
+                                'warehouses' => WarehouseResource::collection($fulfilmentCustomer->fulfilment->warehouses)
                             ],
                             'route'   => [
                                 'method'     => 'post',

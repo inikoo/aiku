@@ -12,6 +12,7 @@ use App\Actions\Fulfilment\Pallet\StoreMultiplePallets;
 use App\Actions\Fulfilment\Pallet\StorePalletFromDelivery;
 use App\Actions\Fulfilment\Pallet\UpdatePallet;
 use App\Actions\Fulfilment\PalletDelivery\StorePalletDelivery;
+use App\Actions\Fulfilment\PalletDelivery\SubmitPalletDelivery;
 use App\Actions\UI\Retina\Profile\UpdateProfile;
 use Illuminate\Support\Facades\Route;
 
@@ -23,6 +24,8 @@ Route::name('pallet-delivery.')->prefix('pallet-delivery/{palletDelivery:id}')->
     Route::post('pallet-upload', [ImportPallet::class,'fromRetina'])->name('pallet.import');
     Route::post('pallet', [StorePalletFromDelivery::class, 'fromRetina'])->name('pallet.store');
     Route::post('multiple-pallet', [StoreMultiplePallets::class, 'fromRetina'])->name('multiple-pallets.store');
+
+    Route::post('submit', SubmitPalletDelivery::class)->name('submit');
 });
 
 Route::name('pallet.')->prefix('pallet/{pallet:id}')->group(function () {

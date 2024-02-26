@@ -119,10 +119,7 @@ class ShowPalletDelivery extends RetinaAction
                                 'method'     => 'post',
                                 'name'       => 'retina.models.pallet-delivery.submit',
                                 'parameters' => [
-                                    'organisation'       => $palletDelivery->organisation->slug,
-                                    'fulfilment'         => $palletDelivery->fulfilment->slug,
-                                    'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->id,
-                                    'palletDelivery'     => $palletDelivery->reference
+                                    'palletDelivery' => $palletDelivery->id
                                 ]
                             ]
                         ] : [],
