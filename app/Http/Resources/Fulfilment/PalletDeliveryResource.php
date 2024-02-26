@@ -8,13 +8,14 @@
 namespace App\Http\Resources\Fulfilment;
 
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
+use App\Models\Fulfilment\PalletDelivery;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class PalletDeliveryResource extends JsonResource
 {
     public function toArray($request): array
     {
-        /** @var \App\Models\Fulfilment\PalletDelivery $palletDelivery */
+        /** @var PalletDelivery $palletDelivery */
         $palletDelivery = $this;
 
         $timeline = [];
@@ -31,7 +32,7 @@ class PalletDeliveryResource extends JsonResource
         return [
             'id'               => $palletDelivery->id,
             'reference'        => $palletDelivery->reference,
-            'state'            => $palletDelivery->state,
+            'state'            => $palletDelivery->state->value,
             'timeline'         => $timeline,
             'number_pallets'   => $palletDelivery->number_pallets,
         ];

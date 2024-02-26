@@ -15,7 +15,7 @@ import TablePallets from "@/Components/Tables/TablePallets.vue";
 import { useTabChange } from "@/Composables/tab-change";
 import { computed, defineAsyncComponent, ref } from "vue";
 import Tabs from "@/Components/Navigation/Tabs.vue";
-import TablePalletDeliveries from '@/Components/Tables/Grp/Org/Fulfilment/CRM/TablePalletDeliveries.vue';
+import TablePalletDeliveries from '@/Components/Tables/Grp/Org/Fulfilment/TablePalletDeliveries.vue';
 import Popover from '@/Components/Popover.vue';
 import CustomerShowcase from "@/Components/Showcases/Grp/CustomerShowcase.vue";
 import Button from '@/Components/Elements/Buttons/Button.vue'
@@ -80,10 +80,8 @@ import {
     TransitionChild,
     TransitionRoot,
 } from "@headlessui/vue";
-import AgentShowcase from "@/Pages/Procurement/AgentShowcase.vue";
 import TableStoredItems from "@/Components/Tables/TableStoredItems.vue";
 import { router } from '@inertiajs/vue3'
-import TablePalletReturn from "@/Components/Tables/TablePalletReturn.vue";
 import TablePalletReturns from "@/Components/Tables/TablePalletReturns.vue";
 
 

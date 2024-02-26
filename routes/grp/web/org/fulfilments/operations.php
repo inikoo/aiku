@@ -8,12 +8,14 @@
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\Pallet\UI\CreatePallet;
 use App\Actions\Fulfilment\Pallet\UI\IndexPallets;
+use App\Actions\Fulfilment\Pallet\UI\ShowPallet;
 use App\Actions\Fulfilment\PalletDelivery\UI\IndexPalletDeliveries;
 use App\Actions\Fulfilment\PalletDelivery\UI\ShowPalletDelivery;
 
 Route::get('', ShowFulfilment::class)->name('dashboard');
 
 Route::get('/pallets', IndexPallets::class)->name('pallets.index');
+Route::get('/pallets/{pallet}', ShowPallet::class)->name('pallets.show');
 Route::get('/pallets/create', CreatePallet::class)->name('pallets.create');
 Route::get('deliveries', IndexPalletDeliveries::class)->name('pallet-deliveries.index');
 Route::get('deliveries/{palletDelivery}', ShowPalletDelivery::class)->name('pallet-deliveries.show');

@@ -7,13 +7,14 @@
 
 namespace App\Actions\Fulfilment\PalletDelivery\UI;
 
+use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\Pallet\UI\IndexPallets;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Enums\UI\PalletDeliveryTabsEnum;
-use App\Http\Resources\Fulfilment\PalletDeliveriesResource;
 use App\Http\Resources\Fulfilment\PalletDeliveryResource;
 use App\Http\Resources\Fulfilment\PalletsResource;
 use App\Models\Fulfilment\Fulfilment;
@@ -29,38 +30,25 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowPalletDelivery extends OrgAction
 {
-    private Warehouse|FulfilmentCustomer $parent;
+    use HasFulfilmentAssetsAuthorisation;
+
+    private Warehouse|FulfilmentCustomer|Fulfilment $parent;
 
     public function handle(PalletDelivery $palletDelivery): PalletDelivery
     {
         return $palletDelivery;
     }
 
-    public function authorize(ActionRequest $request): bool
+
+    public function asController(Organisation $organisation, Fulfilment $fulfilment, PalletDelivery $palletDelivery, ActionRequest $request): PalletDelivery
     {
-        if ($this->parent instanceof FulfilmentCustomer) {
-            $this->canEdit = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
-
-            return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
-        }
-        if ($this->parent instanceof Warehouse) {
-            $this->canEdit = $request->user()->hasPermissionTo("fulfilment.{$this->warehouse->id}.edit");
-
-            return $request->user()->hasPermissionTo("fulfilment.{$this->warehouse->id}.view");
-        }
-
-
-        return false;
-    }
-
-    public function asController(Organisation $organisation, Warehouse $warehouse, PalletDelivery $palletDelivery, ActionRequest $request): PalletDelivery
-    {
-        $this->parent = $warehouse;
-        $this->initialisationFromWarehouse($warehouse, $request)->withTab(PalletDeliveryTabsEnum::values());
+        $this->parent = $fulfilment;
+        $this->initialisationFromFulfilment($fulfilment, $request)->withTab(PalletDeliveryTabsEnum::values());
 
         return $this->handle($palletDelivery);
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
     public function inWarehouse(Organisation $organisation, Warehouse $warehouse, PalletDelivery $palletDelivery, ActionRequest $request): PalletDelivery
     {
         $this->parent = $warehouse;
@@ -80,19 +68,135 @@ class ShowPalletDelivery extends OrgAction
 
     public function htmlResponse(PalletDelivery $palletDelivery, ActionRequest $request): Response
     {
+        $container = null;
         if ($this->parent instanceof Warehouse) {
             $container = [
                 'icon'    => ['fal', 'fa-warehouse'],
                 'tooltip' => __('Warehouse'),
                 'label'   => Str::possessive($this->parent->code)
             ];
-        } else {
+        } elseif ($this->parent instanceof FulfilmentCustomer) {
             $container = [
                 'icon'    => ['fal', 'fa-user'],
                 'tooltip' => __('Customer'),
                 'label'   => Str::possessive($this->parent->customer->reference)
             ];
         }
+
+        $actions = [];
+        if ($this->canEdit) {
+            $actions = match ($palletDelivery->state) {
+                PalletDeliveryStateEnum::IN_PROCESS => [
+                    [
+                        'type'   => 'buttonGroup',
+                        'key'    => 'upload-add',
+                        'button' => [
+                            [
+                                'type'  => 'button',
+                                'style' => 'primary',
+                                'icon'  => ['fal', 'fa-upload'],
+                                'label' => 'upload',
+                                'route' => [
+                                    'name'       => 'grp.models.pallet-delivery.pallet.import',
+                                    'parameters' => [
+                                        'palletDelivery' => $palletDelivery->id
+                                    ]
+                                ]
+                            ],
+                            [
+                                'type'  => 'button',
+                                'style' => 'primary',
+                                'icon'  => ['far', 'fa-layer-plus'],
+                                'label' => 'multiple',
+                                'route' => [
+                                    'name'       => 'grp.models.fulfilment-customer.pallet-delivery.multiple-pallets.store',
+                                    'parameters' => [
+                                        'organisation'       => $palletDelivery->organisation->slug,
+                                        'fulfilment'         => $palletDelivery->fulfilment->slug,
+                                        'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->id,
+                                        'palletDelivery'     => $palletDelivery->reference
+                                    ]
+                                ]
+                            ],
+                            [
+                                'type'  => 'button',
+                                'style' => 'create',
+                                'label' => __('add pallet'),
+                                'route' => [
+                                    'name'       => 'grp.models.fulfilment-customer.pallet-delivery.pallet.store',
+                                    'parameters' => [
+                                        'organisation'       => $palletDelivery->organisation->slug,
+                                        'fulfilment'         => $palletDelivery->fulfilment->slug,
+                                        'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->id,
+                                        'palletDelivery'     => $palletDelivery->reference
+                                    ]
+                                ]
+                            ],
+                        ]
+                    ],
+                    ($palletDelivery->pallets()->count() > 0) ?
+                        [
+                            'type'    => 'button',
+                            'style'   => 'save',
+                            'tooltip' => __('confirm'),
+                            'label'   => __('confirm'),
+                            'key'     => 'action',
+                            'route'   => [
+                                'method'     => 'post',
+                                'name'       => 'grp.models.pallet-delivery.confirm',
+                                'parameters' => [
+                                    'palletDelivery'     => $palletDelivery->id
+                                ]
+                            ]
+                        ] : [],
+                ],
+                PalletDeliveryStateEnum::SUBMITTED => [
+                    'type'    => 'button',
+                    'style'   => 'save',
+                    'tooltip' => __('confirm'),
+                    'label'   => __('confirm'),
+                    'key'     => 'action',
+                    'route'   => [
+                        'method'     => 'post',
+                        'name'       => 'grp.models.pallet-delivery.confirm',
+                        'parameters' => [
+                            'palletDelivery'     => $palletDelivery->id
+                        ]
+                    ]
+                ],
+                PalletDeliveryStateEnum::CONFIRMED => [
+                    'type'    => 'button',
+                    'style'   => 'save',
+                    'tooltip' => __('received'),
+                    'label'   => __('received'),
+                    'key'     => 'action',
+                    'route'   => [
+                        'method'     => 'post',
+                        'name'       => 'grp.models.pallet-delivery.received',
+                        'parameters' => [
+                            'palletDelivery'     => $palletDelivery->id
+                        ]
+                    ]
+                ],
+                PalletDeliveryStateEnum::RECEIVED =>
+                [
+                    'type'    => 'button',
+                    'style'   => 'save',
+                    'tooltip' => __('done'),
+                    'label'   => __('done'),
+                    'key'     => 'action',
+                    'route'   => [
+                        'method'     => 'post',
+                        'name'       => 'grp.models..pallet-delivery.done',
+                        'parameters' => [
+                            'palletDelivery'     => $palletDelivery->id
+                        ]
+                    ]
+                ],
+                default => []
+            };
+        }
+
 
         return Inertia::render(
             'Org/Fulfilment/PalletDelivery',
@@ -102,161 +206,28 @@ class ShowPalletDelivery extends OrgAction
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
-                'navigation' => [
+                'navigation'  => [
                     'previous' => $this->getPrevious($palletDelivery, $request),
                     'next'     => $this->getNext($palletDelivery, $request),
                 ],
-                'pageHead' => [
+                'pageHead'    => [
                     'container' => $container,
                     'title'     => __($palletDelivery->reference),
                     'icon'      => [
                         'icon'  => ['fal', 'fa-truck-couch'],
                         'title' => __($palletDelivery->reference)
                     ],
-                    'edit' => $this->canEdit ? [
+                    'edit'      => $this->canEdit ? [
                         'route' => [
                             'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
                             'parameters' => array_values($request->route()->originalParameters())
                         ]
                     ] : false,
-                    'actions' => $palletDelivery->state == PalletDeliveryStateEnum::IN_PROCESS && $this->canEdit ? [
-                        [
-                            'type'   => 'buttonGroup',
-                            'key'    => 'upload-add',
-                            'button' => [
-                                [
-                                    'type'  => 'button',
-                                    'style' => 'primary',
-                                    'icon'  => ['fal', 'fa-upload'],
-                                    'label' => 'upload',
-                                    'route' => [
-                                        'name'       => 'grp.models.fulfilment-customer.pallet-delivery.pallet.import',
-                                        'parameters' => [
-                                            'organisation'       => $palletDelivery->organisation->slug,
-                                            'fulfilment'         => $palletDelivery->fulfilment->slug,
-                                            'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->id,
-                                            'palletDelivery'     => $palletDelivery->reference
-                                        ]
-                                    ]
-                                ],
-                                [
-                                    'type'    => 'button',
-                                    'style'   => 'primary',
-                                    'icon'    => ['far', 'fa-layer-plus'],
-                                    'label'   => 'multiple',
-                                    'route'   => [
-                                        'name'       => 'grp.models.fulfilment-customer.pallet-delivery.multiple-pallets.store',
-                                        'parameters' => [
-                                            'organisation'       => $palletDelivery->organisation->slug,
-                                            'fulfilment'         => $palletDelivery->fulfilment->slug,
-                                            'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->id,
-                                            'palletDelivery'     => $palletDelivery->reference
-                                        ]
-                                    ]
-                                ],
-                                [
-                                    'type'  => 'button',
-                                    'style' => 'create',
-                                    'label' => __('add pallet'),
-                                    'route' => [
-                                        'name'       => 'grp.models.fulfilment-customer.pallet-delivery.pallet.store',
-                                        'parameters' => [
-                                            'organisation'       => $palletDelivery->organisation->slug,
-                                            'fulfilment'         => $palletDelivery->fulfilment->slug,
-                                            'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->id,
-                                            'palletDelivery'     => $palletDelivery->reference
-                                        ]
-                                    ]
-                                ],
-                            ]
-                        ],
-                        ($palletDelivery->pallets()->count() > 0) && $this->canEdit ? [
-                            'type'    => 'button',
-                            'style'   => 'save',
-                            'tooltip' => __('submit'),
-                            'label'   => __('submit'),
-                            'key'     => 'action',
-                            'route'   => [
-                                'method'     => 'post',
-                                'name'       => 'grp.models.fulfilment-customer.pallet-delivery.submit',
-                                'parameters' => [
-                                    'organisation'       => $palletDelivery->organisation->slug,
-                                    'fulfilment'         => $palletDelivery->fulfilment->slug,
-                                    'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->id,
-                                    'palletDelivery'     => $palletDelivery->reference
-                                ]
-                            ]
-                        ] : [],
-                    ] : [
-                        $palletDelivery->state == PalletDeliveryStateEnum::SUBMITTED && $this->canEdit ? [
-                                'type'    => 'button',
-                                'style'   => 'save',
-                                'tooltip' => __('confirm'),
-                                'label'   => __('confirm'),
-                                'key'     => 'action',
-                                'route'   => [
-                                    'method'     => 'post',
-                                    'name'       => 'grp.models.fulfilment-customer.pallet-delivery.confirm',
-                                    'parameters' => [
-                                        'organisation'       => $palletDelivery->organisation->slug,
-                                        'fulfilment'         => $palletDelivery->fulfilment->slug,
-                                        'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->id,
-                                        'palletDelivery'     => $palletDelivery->reference
-                                    ]
-                                ]
-                        ] : [],
-                        $palletDelivery->state == PalletDeliveryStateEnum::SUBMITTED && $this->canEdit ? [
-                            'type'    => 'button',
-                            'style'   => 'save',
-                            'tooltip' => __('confirm'),
-                            'label'   => __('confirm'),
-                            'key'     => 'action',
-                            'route'   => [
-                                'method'     => 'post',
-                                'name'       => 'grp.models.fulfilment-customer.pallet-delivery.confirm',
-                                'parameters' => [
-                                    'organisation'       => $palletDelivery->organisation->slug,
-                                    'fulfilment'         => $palletDelivery->fulfilment->slug,
-                                    'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->id,
-                                    'palletDelivery'     => $palletDelivery->reference
-                                ]
-                            ]
-                        ] : [],
-                        $palletDelivery->state == PalletDeliveryStateEnum::CONFIRMED && $this->canEdit ? [
-                            'type'    => 'button',
-                            'style'   => 'save',
-                            'tooltip' => __('received'),
-                            'label'   => __('received'),
-                            'key'     => 'action',
-                            'route'   => [
-                                'method'     => 'post',
-                                'name'       => 'grp.models.fulfilment-customer.pallet-delivery.received',
-                                'parameters' => [
-                                    'organisation'       => $palletDelivery->organisation->slug,
-                                    'fulfilment'         => $palletDelivery->fulfilment->slug,
-                                    'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->id,
-                                    'palletDelivery'     => $palletDelivery->reference
-                                ]
-                            ]
-                        ] : [],
-                        $palletDelivery->state == PalletDeliveryStateEnum::RECEIVED && $this->canEdit ? [
-                            'type'    => 'button',
-                            'style'   => 'save',
-                            'tooltip' => __('done'),
-                            'label'   => __('done'),
-                            'key'     => 'action',
-                            'route'   => [
-                                'method'     => 'post',
-                                'name'       => 'grp.models.fulfilment-customer.pallet-delivery.done',
-                                'parameters' => [
-                                    'organisation'       => $palletDelivery->organisation->slug,
-                                    'fulfilment'         => $palletDelivery->fulfilment->slug,
-                                    'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->id,
-                                    'palletDelivery'     => $palletDelivery->reference
-                                ]
-                            ]
-                        ] : [],
-                    ],
+
+
+                    'actions' => $actions,
+
+
                 ],
 
                 'updateRoute' => [
@@ -273,11 +244,11 @@ class ShowPalletDelivery extends OrgAction
 
                 'upload' => [
                     'event'   => 'action-progress',
-                    'channel' => 'grp.personal.' . $this->organisation->id
+                    'channel' => 'grp.personal.'.$this->organisation->id
                 ],
 
                 'uploadRoutes' => [
-                    'history' => [
+                    'history'  => [
                         'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet-deliveries.pallets.uploads.history',
                         'parameters' => [
                             'organisation'       => $palletDelivery->organisation->slug,
@@ -339,16 +310,34 @@ class ShowPalletDelivery extends OrgAction
                         ],
 
                     ],
-                    'suffix' => $suffix
+                    'suffix'         => $suffix
                 ],
             ];
         };
 
         $palletDelivery = PalletDelivery::where('reference', $routeParameters['palletDelivery'])->first();
 
-
         return match ($routeName) {
-            'grp.org.fulfilments.show.crm.customers.show.pallet-deliveries.show' => array_merge(
+            'grp.org.fulfilments.show.operations.pallet-deliveries.show' =>
+            array_merge(
+                ShowFulfilment::make()->getBreadcrumbs(Arr::only($routeParameters, ['organisation', 'fulfilment'])),
+                $headCrumb(
+                    $palletDelivery,
+                    [
+                        'index' => [
+                            'name'       => 'grp.org.fulfilments.show.operations.pallet-deliveries.index',
+                            'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment'])
+                        ],
+                        'model' => [
+                            'name'       => 'grp.org.fulfilments.show.operations.pallet-deliveries.show',
+                            'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment', 'palletDelivery'])
+                        ]
+                    ],
+                    $suffix
+                )
+            ),
+            'grp.org.fulfilments.show.crm.customers.show.pallet-deliveries.show' =>
+            array_merge(
                 ShowFulfilmentCustomer::make()->getBreadcrumbs(Arr::only($routeParameters, ['organisation', 'fulfilment', 'fulfilmentCustomer'])),
                 $headCrumb(
                     $palletDelivery,
@@ -365,7 +354,8 @@ class ShowPalletDelivery extends OrgAction
                     $suffix
                 )
             ),
-            'grp.org.warehouses.show.fulfilment.pallet-deliveries.show' => array_merge(
+            'grp.org.warehouses.show.fulfilment.pallet-deliveries.show' =>
+            array_merge(
                 ShowWarehouse::make()->getBreadcrumbs(
                     Arr::only($routeParameters, ['organisation', 'warehouse'])
                 ),
