@@ -42,7 +42,7 @@ const isPanelOpen = ref(isCurrentRouteActive.value || props.itemKey == layout.or
         >
             <!-- Label: Icon shops/warehouses and slug -->
             <DisclosureButton @click="isPanelOpen = !isPanelOpen" class="w-full flex justify-between items-end pt-2 px-2.5 pb-2"
-                :style="{color: layout.app.theme[2] + '99'}"
+                :style="{color: layout.app.theme[1] + '99'}"
             >
                 <div class="flex gap-x-1.5 items-center">
                     <FontAwesomeIcon v-if="icon" :icon='icon' class='text-xxs' fixed-width aria-hidden='true' />

@@ -8,7 +8,6 @@
 import { Head } from '@inertiajs/vue3'
 import PageHeading from '@/Components/Headings/PageHeading.vue'
 import { capitalize } from "@/Composables/capitalize"
-import TablePalletDeliveries from "@/Components/Tables/Retina/Storage/TablePalletDeliveries.vue"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faPlus } from "@fas"
 import { Link } from "@inertiajs/vue3"
@@ -16,8 +15,7 @@ import Button from "@/Components/Elements/Buttons/Button.vue"
 import Table from "@/Components/Table/Table.vue"
 
 import { PalletDelivery } from "@/types/pallet-delivery"
-import Icon from "@/Components/Icon.vue"
-import Tag from '@/Components/Tag.vue'
+import TagPallete from '@/Components/TagPallete.vue'
 
 library.add(faPlus)
 
@@ -39,19 +37,6 @@ function palletDeliveryRoute(palletDelivery: PalletDelivery) {
     }
 }
 
-// Select Tag's theme depends on enum delivery
-const getTagTheme = (tagLabel: string) => {
-    switch (tagLabel) {
-        case 'In process': return 6
-        case 'Submitted': return 4
-        case 'Confirmed': return 5
-        case 'Received': return 2
-        case 'Done': return 3
-        default: return 99
-    }
-}
-
-
 </script>
 
 <template layout="Retina">
@@ -66,9 +51,7 @@ const getTagTheme = (tagLabel: string) => {
         </template>
 
         <template #cell(state)="{ item: palletDelivery }">
-            <Tag :label="palletDelivery.state_icon.tooltip" :theme="getTagTheme(palletDelivery.state_icon.tooltip)" />
-            <!-- {{ palletDelivery['state_icon'].tooltip }} -->
-            <!-- <Icon :data="palletDelivery['state_icon']" class="px-1" /> -->
+            <TagPallete :label="palletDelivery.state_icon.tooltip" :icon="palletDelivery.state_icon.icon" />
         </template>
 
 
