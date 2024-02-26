@@ -12,25 +12,23 @@ use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Http\Resources\Fulfilment\PalletDeliveryResource;
-use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletDelivery;
-use App\Models\SysAdmin\Organisation;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Lorisleiva\Actions\ActionRequest;
 
-class DonePalletDelivery extends OrgAction
+class BookInPalletDelivery extends OrgAction
 {
     use WithActionUpdate;
 
 
     public function handle(PalletDelivery $palletDelivery, array $modelData): PalletDelivery
     {
-        $modelData[PalletDeliveryStateEnum::DONE->value.'_at']     = now();
-        $modelData['state']                                        = PalletDeliveryStateEnum::DONE;
+        $modelData['booked_in_at']                                 = now();
+        $modelData['state']                                        = PalletDeliveryStateEnum::BOOKED_IN;
 
         foreach ($palletDelivery->pallets as $pallet) {
             $pallet->update([
-                'state' => PalletStateEnum::SETTLED
+                'state' => PalletStateEnum::BOOKED_IN
             ]);
         }
 
@@ -47,9 +45,9 @@ class DonePalletDelivery extends OrgAction
         return new PalletDeliveryResource($palletDelivery);
     }
 
-    public function asController(Organisation $organisation, FulfilmentCustomer $fulfilmentCustomer, PalletDelivery $palletDelivery, ActionRequest $request): PalletDelivery
+    public function asController(PalletDelivery $palletDelivery, ActionRequest $request): PalletDelivery
     {
-        $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $request);
+        $this->initialisationFromFulfilment($palletDelivery->fulfilment, $request);
 
         return $this->handle($palletDelivery, $this->validatedData);
     }
