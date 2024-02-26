@@ -150,7 +150,7 @@ watch(props, (newValue) => {
           </template>
           <template #content="{ close: closed }">
             <div class="w-[250px]">
-              <span class="text-xs px-1 my-2">{{trans('Notes')}}: </span>
+              <span class="text-xs px-1 my-2">{{trans('Reference')}}: </span>
               <div>
                 <PureInput v-model="formAddPallet.customer_reference" placeholder="Reference">
                 </PureInput>

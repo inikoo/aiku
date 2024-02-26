@@ -36,8 +36,8 @@ enum PalletDeliveryStateEnum: string
             'in-process' => [
                 'tooltip' => __('In process'),
                 'icon'    => 'fal fa-seedling',
-                'class'   => 'text-emerald-500',  // Color for normal icon (Aiku)
-                'color'   => 'emerald'  // Color for box (Retina)
+                'class'   => 'text-lime-500',  // Color for normal icon (Aiku)
+                'color'   => 'lime'  // Color for box (Retina)
             ],
             'submitted'  => [
                 'tooltip' => __('Submitted'),
@@ -48,20 +48,20 @@ enum PalletDeliveryStateEnum: string
             'confirmed'  => [
                 'tooltip' => __('Confirmed'),
                 'icon'    => 'fal fa-spell-check',
-                'class'   => 'text-green-500',
-                'color'   => 'green'
+                'class'   => 'text-emerald-500',
+                'color'   => 'emerald'
             ],
             'received'   => [
                 'tooltip' => __('Received'),
                 'icon'    => 'fal fa-check',
-                'class'   => 'text-gray-500',
+                'class'   => 'text-slate-500',
                 'color'   => 'slate'
             ],
             'booked-in'  => [
                 'tooltip' => __('Booked in'),
                 'icon'    => 'fal fa-check-double',
-                'class'   => 'text-green-500',
-                'color'   => 'amber'
+                'class'   => 'text-pink-500',
+                'color'   => 'pink'
             ],
         ];
     }
