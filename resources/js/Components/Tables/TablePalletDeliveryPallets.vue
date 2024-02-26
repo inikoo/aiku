@@ -17,6 +17,7 @@ import Icon from "@/Components/Icon.vue";
 import { faTimesSquare } from "@fas";
 import { faTrashAlt, faPaperPlane, faInventory } from "@far";
 import { faSignOutAlt, faTruckLoading } from "@fal";
+import {useLayoutStore} from "@/Stores/retinaLayout";
 
 library.add(
     faTrashAlt, faSignOutAlt, faPaperPlane, faInventory, faTruckLoading,faTimesSquare
@@ -47,7 +48,7 @@ const onSave = async (pallet: object, value: object) => {
     }
 
 };
-
+const layout = useLayoutStore();
 
 </script>
 
@@ -82,7 +83,7 @@ const onSave = async (pallet: object, value: object) => {
                     <font-awesome-icon class="text-red-600" :icon="['far', 'trash-alt']" />
                 </Link>
             </div>
-            <div v-else-if="props.state == 'received'">
+            <div v-else-if="props.state == 'received' && !layout.currentRoute.includes('retina.')">
 
                 <Link :href="route(pallet.notReceivedRoute.name,pallet.notReceivedRoute.parameters)" method="patch" as="button">
                     <font-awesome-icon class="text-red-600 mr-6" :icon="['fas', 'times-square']" />
