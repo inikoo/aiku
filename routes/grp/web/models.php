@@ -70,6 +70,9 @@ Route::name('pallet-delivery.')->prefix('pallet-delivery/{palletDelivery:id}')->
 
 
     Route::post('pallet-upload', [ImportPallet::class,'fromGrp'])->name('pallet.import');
+    Route::post('pallet', StorePalletFromDelivery::class)->name('pallet.store');
+    Route::post('multiple-pallet', StoreMultiplePallets::class)->name('multiple-pallets.store');
+
 
 });
 
@@ -88,8 +91,6 @@ Route::name('fulfilment-customer.')->prefix('fulfilment-customer/{fulfilmentCust
 
 
     Route::patch('pallet-delivery/{palletDelivery}/timeline', UpdatePalletDeliveryTimeline::class)->name('pallet-delivery.timeline.update');
-    Route::post('pallet-delivery/{palletDelivery}/pallet', StorePalletFromDelivery::class)->name('pallet-delivery.pallet.store');
-    Route::post('pallet-delivery/{palletDelivery}/multiple-pallet', StoreMultiplePallets::class)->name('pallet-delivery.multiple-pallets.store');
 
 
     Route::delete('pallet-return/{palletReturn}/pallet/{pallet}', DeletePalletFromReturn::class)->name('pallet-return.pallet.delete');
