@@ -88,7 +88,7 @@ const onSave = async (pallet: object, value: object) => {
                     <font-awesome-icon class="text-red-600 mr-6" :icon="['fas', 'times-square']" />
                 </Link>
 
-                <Link :href="route(pallet.bookinRoute.name,pallet.bookinRoute.parameters)" method="patch" as="button">
+                <Link :href="route(pallet.bookInRoute.name,pallet.bookInRoute.parameters)" method="patch" as="button">
                     <font-awesome-icon :icon="['far', 'inventory']" />
                 </Link>
             </div>
