@@ -44,7 +44,7 @@ class ShowPalletDelivery extends RetinaAction
 
 
         return Inertia::render(
-            'Org/Fulfilment/PalletDelivery',
+            'Storage/PalletDelivery',
             [
                 'title'       => __('pallet delivery'),
                 'breadcrumbs' => $this->getBreadcrumbs(
