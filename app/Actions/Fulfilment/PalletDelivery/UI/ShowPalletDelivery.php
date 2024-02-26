@@ -182,23 +182,6 @@ class ShowPalletDelivery extends OrgAction
                         ]
                     ],
                 ],
-                PalletDeliveryStateEnum::RECEIVED =>
-                [
-                    [
-                        'type'    => 'button',
-                        'style'   => 'save',
-                        'tooltip' => __('mark as booked'),
-                        'label'   => __('booked in'),
-                        'key'     => 'action',
-                        'route'   => [
-                            'method'     => 'post',
-                            'name'       => 'grp.models.pallet-delivery.done',
-                            'parameters' => [
-                                'palletDelivery' => $palletDelivery->id
-                            ]
-                        ]
-                    ]
-                ],
                 default => []
             };
         }

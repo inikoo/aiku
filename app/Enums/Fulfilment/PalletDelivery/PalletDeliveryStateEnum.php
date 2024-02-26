@@ -41,7 +41,7 @@ enum PalletDeliveryStateEnum: string
             'submitted'  => [
                 'tooltip' => __('Submitted'),
                 'icon'    => 'fal fa-share',
-                'class'   => 'text-indigo-500'
+                'class'   => 'text-indigo-300'
             ],
             'confirmed'  => [
                 'tooltip' => __('Confirmed'),
