@@ -32,7 +32,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_pallets_type_oversize
  * @property int $number_pallets_state_in_process
  * @property int $number_pallets_state_submitted
+ * @property int $number_pallets_state_confirmed
  * @property int $number_pallets_state_received
+ * @property int $number_pallets_state_not_received
  * @property int $number_pallets_state_booked_in
  * @property int $number_pallets_state_settled
  * @property int $number_pallets_status_in_process

@@ -25,8 +25,7 @@ return new class () extends Migration {
                 $table->increments('id');
                 $table = $this->delivery($table);
                 $table->string('state')->default(PalletReturnStateEnum::IN_PROCESS->value);
-                $table->dateTimeTz('booked_in_at')->nullable();
-                $table->dateTimeTz('settled_at')->nullable();
+
                 foreach (PalletReturnStateEnum::cases() as $state) {
                     $table->dateTimeTz("{$state->snake()}_at")->nullable();
                 }
