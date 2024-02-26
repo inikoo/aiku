@@ -18,7 +18,6 @@ library.add(
 const props = defineProps<{
     data: object,
     tab?:string
-    form: object
 }>()
 
 
@@ -78,6 +77,5 @@ function palletRoute(pallet: Pallet) {
         <template #cell(state)="{ item: pallet }">
             <Icon :data="pallet['state_icon']" class="px-1"/>
         </template>
-
     </Table>
 </template>
