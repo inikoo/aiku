@@ -739,7 +739,7 @@ watch(name, () => {
                                                 column.type === 'avatar' || column.type === 'icon'
                                                     ? 'text-center min-w-fit'  // if type = icon
                                                     : typeof item[column.key] == 'number'
-                                                        ? 'text-right pr-3'  // if the value is number
+                                                        ? 'text-right pr-11'  // if the value is number
                                                         : 'px-6',
                                                 { 'first:border-l-4 first:border-gray-700 bg-gray-200/75': selectedRow?.[name]?.includes(item.id) }
                                         ]">
