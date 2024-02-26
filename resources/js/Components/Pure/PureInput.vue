@@ -5,8 +5,9 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faCopy } from '@fal'
 import {faEye, faEyeSlash} from '@far'
 import {faTimesCircle,} from '@fas'
+import { faSpinnerThird } from '@fad'
 import { library } from '@fortawesome/fontawesome-svg-core'
-library.add(faCopy, faEye, faEyeSlash,faTimesCircle)
+library.add(faCopy, faEye, faEyeSlash,faTimesCircle,faSpinnerThird)
 
 const props = withDefaults(defineProps<{
     modelValue: string | number
@@ -25,6 +26,7 @@ const props = withDefaults(defineProps<{
     caret?: boolean
     pattern?: string 
     clear?:boolean
+    suffix?:Boolean
 }>(), {
     caret: true,
     type: 'text'
@@ -45,6 +47,12 @@ const clearValue=()=>{
     emits('update:modelValue', '')
 }
 
+const onChange=(event: any)=>{
+    console.log('sdfsdf',event.target.value)
+    emits('update:modelValue', event.target.value)
+    emits('input', event.target.value)
+}
+
 const inputRef = ref(null)
 
 defineExpose({
@@ -60,7 +68,7 @@ defineExpose({
                 ref="inputRef"
                 :value="modelValue"
                 @blur ="(event: any) => emits('blur', event.target.value)"
-                @input="(event: any) => emits('update:modelValue', event.target.value)"
+                @input="onChange"
                 @keyup.enter="(event: any) => emits('onEnter', event.target.value)"
                 :id="inputName"
                 :name="inputName"
@@ -96,6 +104,17 @@ defineExpose({
                     aria-hidden="true" />
             </div>
         </slot>
+
+        <slot v-if="suffix" name="suffix">
+            <div 
+                class="flex justify-center items-center px-2 absolute inset-y-0 right-0 gap-x-1 cursor-pointer opacity-20 hover:opacity-75 active:opacity-100"
+                @click="useCopyText(modelValue)"
+            >
+               suffix
+            </div>
+        </slot>
+
+
             <div v-if="clear && modelValue.length"
                 class="flex justify-center items-center px-2 absolute inset-y-0 right-0 gap-x-1 cursor-pointer opacity-20 hover:opacity-75 active:opacity-100"
                 @click="clearValue()"

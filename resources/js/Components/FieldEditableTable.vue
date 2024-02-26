@@ -1,0 +1,60 @@
+<!--
+  - Author: Raul Perusquia <raul@inikoo.com>
+  - Created: Mon, 20 Mar 2023 23:18:59 Malaysia Time, Kuala Lumpur, Malaysia
+  - Copyright (c) 2023, Raul A Perusquia Flores
+  -->
+
+<script setup lang="ts">
+import Table from "@/Components/Table/Table.vue";
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+import { library } from "@fortawesome/fontawesome-svg-core";
+import { ref } from "vue";
+import PureInput from "@/Components/Pure/PureInput.vue";
+import axios from "axios";
+import { notify } from "@kyvg/vue3-notification";
+import { Link, useForm } from "@inertiajs/vue3";
+import Icon from "@/Components/Icon.vue";
+import { faTimesSquare, faCheckCircle } from "@fas";
+import { faTrashAlt, faPaperPlane, faInventory } from "@far";
+import { faSignOutAlt, faTruckLoading } from "@fal";
+import { get } from 'lodash'
+import { faSpinnerThird } from '@fad'
+import { cloneDeep } from "lodash";
+
+library.add(
+    faTrashAlt, faSignOutAlt, faPaperPlane, faInventory, faTruckLoading, faTimesSquare, faSpinnerThird, faCheckCircle
+);
+const props = defineProps<{
+    data: object,
+    fieldName?: string
+    onSave?: string
+}>();
+
+
+
+</script>
+  
+<template>
+    <PureInput v-model="item.form.customer_reference" @blur="(value) => { if (value) onSave(item, 'customer_reference') }"
+        @onEnter="(value) => { if (value) onSave(item, 'customer_reference') }" :suffix="true">
+        <template #suffix>
+            <div class="flex justify-center items-center px-2 absolute inset-y-0 right-0 gap-x-1 cursor-pointer">
+                <span v-if="get(item, ['form', 'processing'], false)">
+                    <FontAwesomeIcon icon='fad fa-spinner-third' class='animate-spin' fixed-width aria-hidden="true" />
+                </span>
+                <span
+                    v-if="get(item, ['form', 'wasSuccessful'], true) && !get(item, ['form', 'processing'], false) && !get(item, ['form', 'hasErrors'], true)">
+                    <font-awesome-icon :icon="['fas', 'check-circle']" fixed-width class="text-green-500"
+                        aria-hidden="true" />
+                </span>
+                <span
+                    v-if="get(item, ['form', 'hasErrors'], true) && !get(item, ['form', 'processing'], false) && !get(item, ['form', 'wasSuccessful'], true)">
+                    <font-awesome-icon :icon="['fas', 'times-circle']" fixed-width class="text-red-500"
+                        aria-hidden="true" />
+                </span>
+            </div>
+        </template>
+
+    </PureInput>
+</template>
+  

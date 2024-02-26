@@ -225,7 +225,7 @@ watch(props, (newValue) => {
       </div>
     </template> -->
     </PageHeading>
-    <div class="border-b border-gray-200">
+    <div v-if="timeline.state != 'in-process'" class="border-b border-gray-200">
         <Timeline :options="timeline.timeline" :state="timeline.state" :slidesPerView="5" />
     </div>
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />

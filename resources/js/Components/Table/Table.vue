@@ -12,10 +12,10 @@ import TableWrapper from '@/Components/Table/TableWrapper.vue';
 // import SearchReset from '@/Components/Table/SearchReset.vue';
 import Button from '@/Components/Elements/Buttons/Button.vue';
 import EmptyState from '@/Components/Utils/EmptyState.vue'
-import {Link} from "@inertiajs/vue3"
+import {Link, useForm} from "@inertiajs/vue3"
 import {trans} from 'laravel-vue-i18n'
 
-import {computed, getCurrentInstance, onMounted, onUnmounted, ref, toRefs, Transition, watch} from 'vue';
+import {computed, getCurrentInstance, onMounted, onUnmounted, ref, toRefs, Transition, watch, onBeforeMount } from 'vue';
 import qs from 'qs';
 import clone from 'lodash-es/clone';
 import filter from 'lodash-es/filter';
@@ -26,6 +26,7 @@ import map from 'lodash-es/map';
 // import { library } from "@fortawesome/fontawesome-svg-core";
 import {useLocaleStore} from '@/Stores/locale';
 import CountUp from 'vue-countup-v3';
+import { cloneDeep } from 'lodash';
 
 const locale = useLocaleStore();
 
@@ -122,6 +123,11 @@ const props = defineProps(
         },
         exportLinks: {
             type: Object
+        },
+        useForm : {
+            type: Boolean,
+            default: false,
+            required: false,
         }
     });
 const app = getCurrentInstance();
@@ -184,7 +190,6 @@ const compResourceData = computed(() => {
     if ('data' in props.resource) {
         return props.resource.data;
     }
-
     return props.resource;
 });
 
@@ -531,7 +536,12 @@ onUnmounted(() => {
     document.removeEventListener('inertia:success', inertiaListener);
 });
 
-//
+/* onBeforeMount(() => {
+    if ('data' in props.resource) {
+        if (props.useForm) props.resource.data.forEach((item) => item.form = useForm({...item}));
+    }
+}); */
+
 
 function sortBy(column) {
     if (queryBuilderData.value.sort === column) {
@@ -743,7 +753,7 @@ watch(name, () => {
                                                         : 'px-6',
                                                 { 'first:border-l-4 first:border-gray-700 bg-gray-200/75': selectedRow?.[name]?.includes(item.id) }
                                         ]">
-                                        <slot :name="`cell(${column.key})`" :item="{ ...item, index : index }" :tabName="name" class="">
+                                        <slot :name="`cell(${column.key})`" :item="{ ...item, index : index, editingIndicator: { loading : false , isSucces : false, isFailed : false } }" :tabName="name" class="">
                                             <div class="text-gray-500">{{ item[column.key] }}</div>
                                         </slot>
                                     </td>
