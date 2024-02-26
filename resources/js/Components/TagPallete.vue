@@ -6,8 +6,11 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 library.add(faSeedling, faShare, faSpellCheck, faCheck, faCheckDouble)
     
 const props = defineProps<{
-    label: string
-    icon: string | string[]
+    stateIcon: {
+        tooltip: string
+        icon: string | string[]
+        color: string
+    }
 }>()
 
 
@@ -22,13 +25,18 @@ const getTagTheme = (tagLabel: string) => {
         default: return 99
     }
 }
+
+const getClass = (colorName: string) => {
+    return `bg-${colorName}-100 border border-${colorName}-200 text-${colorName}-500`
+}
+
 </script>
 
 <template>
-    <Tag :label="label" :theme="getTagTheme(label)">
+    <Tag :label="stateIcon.tooltip" :class="getClass(stateIcon.color)">
         <template #label>
-            <FontAwesomeIcon :icon='icon' class='' fixed-width aria-hidden='true' />
-            {{ label }}
+            <FontAwesomeIcon :icon='stateIcon.icon' class='' fixed-width aria-hidden='true' />
+            {{ stateIcon.tooltip }}
         </template>
     </Tag>
 </template>
