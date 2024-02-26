@@ -11,11 +11,7 @@ use App\Actions\Fulfilment\PalletDelivery\Hydrators\HydratePalletDeliveries;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Fulfilment\PalletResource;
-use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
-use App\Models\Fulfilment\PalletDelivery;
-use App\Models\Fulfilment\PalletReturn;
-use App\Models\SysAdmin\Organisation;
 use Lorisleiva\Actions\ActionRequest;
 
 class DeletePallet extends OrgAction
@@ -23,15 +19,14 @@ class DeletePallet extends OrgAction
     use WithActionUpdate;
 
 
-    private Pallet $pallet;
 
-    public function handle(Pallet $pallet): bool
+    public function handle(Pallet $pallet): Pallet
     {
         $pallet->delete();
 
         HydratePalletDeliveries::run($pallet->palletDelivery);
 
-        return true;
+        return $pallet;
     }
 
     public function authorize(ActionRequest $request): bool
@@ -39,21 +34,18 @@ class DeletePallet extends OrgAction
         if ($this->asAction) {
             return true;
         }
-
         return $request->user()->hasPermissionTo("fulfilment.{$this->fulfilment->id}.edit");
     }
 
-    public function asController(Organisation $organisation, FulfilmentCustomer $fulfilmentCustomer, PalletDelivery|PalletReturn $palletDelivery, Pallet $pallet, ActionRequest $request): bool
+    public function asController(Pallet $pallet, ActionRequest $request): Pallet
     {
-        $this->pallet = $pallet;
-        $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $request);
+        $this->initialisationFromFulfilment($pallet->fulfilment, $request);
 
         return $this->handle($pallet);
     }
 
-    public function action(Pallet $pallet, array $modelData, int $hydratorsDelay = 0): bool
+    public function action(Pallet $pallet, array $modelData, int $hydratorsDelay = 0): Pallet
     {
-        $this->pallet         = $pallet;
         $this->asAction       = true;
         $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisationFromFulfilment($pallet->fulfilment, $modelData);

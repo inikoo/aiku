@@ -8,7 +8,7 @@
 import {Head} from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 import { capitalize } from "@/Composables/capitalize"
-import TablePalletDeliveries from "@/Components/Tables/Grp/Org/Fulfilment/CRM/TablePalletDeliveries.vue";
+import TablePalletDeliveries from "@/Components/Tables/Grp/Org/Fulfilment/TablePalletDeliveries.vue";
 
 const props = defineProps<{
     data: object

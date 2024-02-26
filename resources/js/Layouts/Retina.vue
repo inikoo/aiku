@@ -47,7 +47,7 @@ const sidebarOpen = ref(false)
 </script>
 
 <template>
-    <div class="fixed inset-0 bg-slate-50" />
+    <div class="fixed inset-0 bg-slate-100" />
 
     <div class="isolate relative min-h-full transition-all"
         :class="[Object.values(layout.rightSidebar).some(value => value.show) ? 'mr-44' : 'mr-0']">
@@ -55,11 +55,7 @@ const sidebarOpen = ref(false)
         <RetinaTopBar @sidebarOpen="(value: boolean) => sidebarOpen = value" :sidebarOpen="sidebarOpen"
             logoRoute="retina.dashboard.show" urlPrefix="retina." />
 
-        <!-- Section: Breadcrumbs -->
-        <Breadcrumbs class="fixed top-11 lg:top-10 z-[19] w-full transition-all"
-            :class="[layout.leftSidebar.show ? 'left-0 md:left-48' : 'left-0 md:left-12']"
-            :breadcrumbs="usePage().props.breadcrumbs ?? []" :navigation="usePage().props.navigation ?? []" />
-
+        
         <!-- Sidebar: Left -->
         <div class="">
             <!-- Mobile Helper: background to close hamburger -->
@@ -69,10 +65,14 @@ const sidebarOpen = ref(false)
         </div>
 
         <!-- Main Content -->
-        <main class="h-screen pb-10 pt-20 md:pt-[52px] transition-all "
+        <main class="h-screen pb-10 pt-20 md:pt-[52px] transition-all pl-2 md:pl-0 pr-2 "
             :class="[layout.leftSidebar.show ? 'ml-0 md:ml-48' : 'ml-0 md:ml-16']"
         >
-            <div class="bg-white shadow rounded h-full overflow-y-auto relative flex flex-col md:mr-2 pb-6 text-gray-700">
+            <div class="bg-white shadow-lg rounded h-full overflow-y-auto relative flex flex-col pb-6 text-gray-700">
+                <!-- Section: Breadcrumbs -->
+                <Breadcrumbs v-if="usePage().props.breadcrumbs && usePage().props.breadcrumbs?.length > 0"
+                    :breadcrumbs="usePage().props.breadcrumbs ?? []"
+                    :navigation="usePage().props.navigation ?? []" />
                 <slot />
             </div>
         </main>

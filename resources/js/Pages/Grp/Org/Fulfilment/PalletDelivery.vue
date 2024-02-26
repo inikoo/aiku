@@ -19,6 +19,7 @@ import Button from '@/Components/Elements/Buttons/Button.vue'
 import PureInput from '@/Components/Pure/PureInput.vue';
 import { get } from 'lodash'
 import UploadExcel from '@/Components/Upload/UploadExcel.vue'
+import { trans } from "laravel-vue-i18n";
 
 const props = defineProps<{
   title: string
@@ -145,7 +146,7 @@ watch(props,(newValue)=>{
           </template>
           <template #content="{ close: closed }">
             <div class="w-[250px]">
-              <span class="text-xs px-1 my-2">Customer Reference : </span>
+              <span class="text-xs px-1 my-2">{{trans('Notes')}}: </span>
               <div>
                 <PureInput v-model="formAddPallet.customer_reference" placeholder="Reference">
                 </PureInput>
@@ -155,7 +156,7 @@ watch(props,(newValue)=>{
               </div>
 
               <div class="mt-3">
-                <span class="text-xs px-1 my-2">Notes : </span>
+                <span class="text-xs px-1 my-2">{{trans('Notes')}}: </span>
                 <textarea
                   class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                   v-model="formAddPallet.notes" placeholder="Notes">
