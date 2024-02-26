@@ -10,11 +10,12 @@ import Table from "@/Components/Table/Table.vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faPlus } from "@fas"
+import { faCheckDouble } from "@fal"
 
 import { PalletDelivery } from "@/types/pallet-delivery";
 import Icon from "@/Components/Icon.vue";
 
-library.add(faPlus)
+library.add(faPlus, faCheckDouble)
 
 const props = defineProps<{
 	data: object

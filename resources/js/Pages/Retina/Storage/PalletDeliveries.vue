@@ -51,7 +51,7 @@ function palletDeliveryRoute(palletDelivery: PalletDelivery) {
         </template>
 
         <template #cell(state)="{ item: palletDelivery }">
-            <TagPallete :label="palletDelivery.state_icon.tooltip" :icon="palletDelivery.state_icon.icon" />
+            <TagPallete :stateIcon="palletDelivery.state_icon" />
         </template>
 
 
