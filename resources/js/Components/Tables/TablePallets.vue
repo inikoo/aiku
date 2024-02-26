@@ -50,8 +50,7 @@ function palletRoute(pallet: Pallet) {
                     route().params['location'],
                     pallet['slug']
                 ]);
-
-        default:
+        case 'grp.org.fulfilments.show.crm.customers.show':
             return route(
                 'grp.org.fulfilments.show.crm.customers.show.pallets.show',
                 [
@@ -60,6 +59,9 @@ function palletRoute(pallet: Pallet) {
                     route().params['fulfilmentCustomer'],
                     pallet['slug']
                 ]);
+
+        default:
+            return [];
     }
 }
 
@@ -67,6 +69,11 @@ function palletRoute(pallet: Pallet) {
 
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
+
+        <template #cell(state)="{ item: palletDelivery }">
+            <Icon :data="palletDelivery['state_icon']" class="px-1"/>
+        </template>
+
         <template #cell(referencex)="{ item: pallet }">
             <Link :href="palletRoute(pallet)" class="specialUnderline">
                 {{ pallet['reference'] }}

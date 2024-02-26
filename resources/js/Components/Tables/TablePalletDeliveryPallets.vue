@@ -14,6 +14,7 @@ import PureInput from "@/Components/Pure/PureInput.vue";
 import axios from "axios";
 import { notify } from "@kyvg/vue3-notification";
 import { Link } from "@inertiajs/vue3";
+import Icon from "@/Components/Icon.vue";
 
 library.add(
     faTrashAlt, faSignOutAlt, faPaperPlane
@@ -24,7 +25,6 @@ const props = defineProps<{
     state?: string
 }>();
 
-console.log("props", props);
 
 const onSave = async (pallet: object, value: object) => {
     try {
@@ -51,6 +51,9 @@ const onSave = async (pallet: object, value: object) => {
 
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
+        <template #cell(state)="{ item: palletDelivery }">
+            <Icon :data="palletDelivery['state_icon']" class="px-1"/>
+        </template>
         <template #cell(customer_reference)="{ item: item }">
             <div v-if="state == 'in-process'">
                 <PureInput
@@ -78,9 +81,7 @@ const onSave = async (pallet: object, value: object) => {
             </Link>
 
             </div>
-            <div v-else>
-                <font-awesome-icon :icon="['far', 'paper-plane']" />
-            </div>
+
         </template>
     </Table>
 </template>

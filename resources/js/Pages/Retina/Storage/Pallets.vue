@@ -36,6 +36,7 @@ import {
     TransitionChild,
     TransitionRoot,
 } from "@headlessui/vue"
+import TablePallets from "@/Components/Tables/TablePallets.vue";
 
 
 const isOpen = ref(false)
@@ -154,24 +155,6 @@ const warehouseChange = (value) => {
             </div>
         </Dialog>
     </TransitionRoot>
-    <Table :resource="data" :name="'pallets'" class="mt-5">
-        <template #cell(reference)="{ item: pallet }">
-            <!-- <Link :href="customerRoute(pallet)" class="specialUnderline"> -->
-                {{ pallet['reference'] }}
-            <!-- </Link> -->
-        </template>
-        <template #cell(location)="{ item: pallet }">
-<!--            <AddressLocation v-if="pallet['location']" :data="pallet['location']"/>-->
-        </template>
-        <template #cell(state)="{ item: pallet }">
-            <Icon :data="pallet['state_icon']" class="px-1"/>
-        </template>
-    <!--     <template #cell(actions)="{ item: actions }">
-        <div>
-            <input type="checkbox" :id="actions.id"  :value="actions.id" v-model="form.pallet"
-            class="h-6 w-6 rounded cursor-pointer border-gray-300 hover:border-indigo-500 text-indigo-600 focus:ring-gray-600">
-        </div>
-        </template> -->
-    </Table>
+    <TablePallets :data="data" tab="pallets" />
 
 </template>

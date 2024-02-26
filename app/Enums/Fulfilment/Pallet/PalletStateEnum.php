@@ -21,6 +21,7 @@ enum PalletStateEnum: string
 
     case IN_PROCESS = 'in-process';
     case SUBMITTED  = 'submitted';
+    case CONFIRMED  = 'confirmed';
     case RECEIVED   = 'received';
     case BOOKED_IN  = 'booked-in';
     case SETTLED    = 'settled';
@@ -31,6 +32,7 @@ enum PalletStateEnum: string
         return [
             'in-process' => __('In process'),
             'submitted'  => __('Submitted'),
+            'confirmed'  => __('Confirmed'),
             'received'   => __('Received'),
             'booked-in'  => __('Booked in'),
             'settled'    => __('Settled'),
@@ -47,6 +49,11 @@ enum PalletStateEnum: string
             ],
             'submitted'  => [
                 'tooltip' => __('submitted'),
+                'icon'    => 'fal fa-spell-check',
+                'class'   => 'text-green-500'
+            ],
+            'confirmed'  => [
+                'tooltip' => __('confirmed'),
                 'icon'    => 'fal fa-spell-check',
                 'class'   => 'text-green-500'
             ],
@@ -79,6 +86,7 @@ enum PalletStateEnum: string
         return [
             'in-process' => $stats->number_pallets_state_in_process,
             'submitted'  => $stats->number_pallets_state_submitted,
+            'confirmed'  => $stats->number_pallets_state_confirmed,
             'received'   => $stats->number_pallets_state_received,
             'booked-in'  => $stats->number_pallets_state_booked_in,
             'settled'    => $stats->number_pallets_state_settled

@@ -12,7 +12,7 @@ import Tabs from "@/Components/Navigation/Tabs.vue";
 import { computed, ref, watch } from "vue";
 import { useTabChange } from "@/Composables/tab-change";
 import TableHistories from "@/Components/Tables/TableHistories.vue";
-import ShowcasePallet from '@/Components/Pallet/Showcase.vue'
+import TablePalletDeliveryPallets from '@/Components/Tables/TablePalletDeliveryPallets.vue'
 import Timeline from '@/Components/Timeline/Timeline.vue'
 import Popover from '@/Components/Popover.vue';
 import Button from '@/Components/Elements/Buttons/Button.vue'
@@ -20,6 +20,10 @@ import PureInput from '@/Components/Pure/PureInput.vue';
 import { get } from 'lodash'
 import UploadExcel from '@/Components/Upload/UploadExcel.vue'
 import { trans } from "laravel-vue-i18n";
+import { library } from "@fortawesome/fontawesome-svg-core";
+import { faSeedling,faShare,faSpellCheck,faCheck,faCheckDouble } from '@fal';
+library.add(faSeedling,faShare,faSpellCheck,faCheck,faCheckDouble)
+
 
 const props = defineProps<{
   title: string
@@ -114,7 +118,7 @@ const handleClick = (action) => {
 
 const component = computed(() => {
   const components = {
-    pallets: ShowcasePallet,
+    pallets: TablePalletDeliveryPallets,
     history: TableHistories
   };
   return components[currentTab.value];
