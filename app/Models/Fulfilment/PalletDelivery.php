@@ -75,7 +75,7 @@ class PalletDelivery extends Model
         'submitted_at'       => 'datetime',
         'confirmed_at'       => 'datetime',
         'received_at'        => 'datetime',
-        'done_at'            => 'datetime',
+        'booked_in_at'       => 'datetime',
         'data'               => 'array'
     ];
 
