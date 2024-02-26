@@ -23,11 +23,10 @@ class SubmitPalletDelivery extends OrgAction
     use WithActionUpdate;
 
 
-    public function handle(PalletDelivery $palletDelivery, array $modelData): PalletDelivery
+    public function handle(PalletDelivery $palletDelivery): PalletDelivery
     {
-        $modelData[PalletDeliveryStateEnum::SUBMITTED->value.'_at'] = now();
-        $modelData[PalletDeliveryStateEnum::CONFIRMED->value.'_at'] = now();
-        $modelData['state']                                         = PalletDeliveryStateEnum::CONFIRMED;
+        $modelData['submitted_at'] = now();
+        $modelData['state']        = PalletDeliveryStateEnum::SUBMITTED;
 
         foreach ($palletDelivery->pallets as $pallet) {
             $pallet->update([
@@ -35,7 +34,7 @@ class SubmitPalletDelivery extends OrgAction
                     container: $palletDelivery->fulfilmentCustomer,
                     modelType: SerialReferenceModelEnum::PALLET
                 ),
-                'state' => PalletStateEnum::SUBMITTED
+                'state'     => PalletStateEnum::SUBMITTED
             ]);
         }
 
@@ -56,6 +55,6 @@ class SubmitPalletDelivery extends OrgAction
     {
         $this->initialisationFromFulfilment($palletDelivery->fulfilment, $request);
 
-        return $this->handle($palletDelivery, $this->validatedData);
+        return $this->handle($palletDelivery);
     }
 }

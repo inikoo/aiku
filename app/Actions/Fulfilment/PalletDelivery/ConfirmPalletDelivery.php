@@ -7,16 +7,12 @@
 
 namespace App\Actions\Fulfilment\PalletDelivery;
 
-use App\Actions\Helpers\SerialReference\GetSerialReference;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
-use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Http\Resources\Fulfilment\PalletDeliveryResource;
-use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletDelivery;
-use App\Models\SysAdmin\Organisation;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -25,18 +21,18 @@ class ConfirmPalletDelivery extends OrgAction
     use WithActionUpdate;
 
 
-    public function handle(PalletDelivery $palletDelivery, array $modelData): PalletDelivery
+    public function handle(PalletDelivery $palletDelivery): PalletDelivery
     {
-        $modelData[PalletDeliveryStateEnum::CONFIRMED->value.'_at'] = now();
-        $modelData['state']                                         = PalletDeliveryStateEnum::CONFIRMED;
+        if ($palletDelivery->state == PalletDeliveryStateEnum::IN_PROCESS) {
+            SubmitPalletDelivery::run($palletDelivery);
+        }
+
+        $modelData['confirmed_at'] = now();
+        $modelData['state']        = PalletDeliveryStateEnum::CONFIRMED;
 
         foreach ($palletDelivery->pallets as $pallet) {
             $pallet->update([
-                'reference' => GetSerialReference::run(
-                    container: $palletDelivery->fulfilmentCustomer,
-                    modelType: SerialReferenceModelEnum::PALLET
-                ),
-                'state' => PalletStateEnum::SUBMITTED
+                'state'     => PalletStateEnum::CONFIRMED
             ]);
         }
 
@@ -53,10 +49,10 @@ class ConfirmPalletDelivery extends OrgAction
         return new PalletDeliveryResource($palletDelivery);
     }
 
-    public function asController(Organisation $organisation, FulfilmentCustomer $fulfilmentCustomer, PalletDelivery $palletDelivery, ActionRequest $request): PalletDelivery
+    public function asController(PalletDelivery $palletDelivery, ActionRequest $request): PalletDelivery
     {
-        $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $request);
+        $this->initialisationFromFulfilment($palletDelivery->fulfilment, $request);
 
-        return $this->handle($palletDelivery, $this->validatedData);
+        return $this->handle($palletDelivery);
     }
 }
