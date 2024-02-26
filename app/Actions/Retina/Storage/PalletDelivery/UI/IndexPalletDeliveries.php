@@ -98,6 +98,18 @@ class IndexPalletDeliveries extends RetinaAction
                     'iconRight' => [
                         'icon'  => ['fal', 'fa-truck-couch'],
                         'title' => __('delivery')
+                    ],
+                    'actions' => [
+                        [
+                            'type'    => 'button',
+                            'style'   => 'create',
+                            'label'   => __('New Delivery'),
+                            'route'   => [
+                                'method'     => 'post',
+                                'name'       => 'retina.models.pallet-delivery.store',
+                                'parameters' => []
+                            ]
+                        ]
                     ]
                 ],
                 'data' => PalletDeliveriesResource::collection($customers),

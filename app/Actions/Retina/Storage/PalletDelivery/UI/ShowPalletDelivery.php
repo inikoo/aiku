@@ -216,11 +216,6 @@ class ShowPalletDelivery extends RetinaAction
                     ]
                 ],
 
-                'upload' => [
-                    'event'   => 'action-progress',
-                    'channel' => 'grp.personal.' . $this->organisation->id
-                ],
-
                 'uploadRoutes' => [
                     'history' => [
                         'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet-deliveries.pallets.uploads.history',
