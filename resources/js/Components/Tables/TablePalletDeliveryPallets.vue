@@ -8,15 +8,18 @@
 import Table from "@/Components/Table/Table.vue";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { library } from "@fortawesome/fontawesome-svg-core";
-import { faTrashAlt, faPaperPlane } from "@far";
-import { faSignOutAlt } from "@fal";
+
 import PureInput from "@/Components/Pure/PureInput.vue";
 import axios from "axios";
 import { notify } from "@kyvg/vue3-notification";
 import { Link } from "@inertiajs/vue3";
+import Icon from "@/Components/Icon.vue";
+import { faTimesSquare } from "@fas";
+import { faTrashAlt, faPaperPlane, faInventory } from "@far";
+import { faSignOutAlt, faTruckLoading } from "@fal";
 
 library.add(
-    faTrashAlt, faSignOutAlt, faPaperPlane
+    faTrashAlt, faSignOutAlt, faPaperPlane, faInventory, faTruckLoading,faTimesSquare
 );
 const props = defineProps<{
     data: object,
@@ -24,7 +27,6 @@ const props = defineProps<{
     state?: string
 }>();
 
-console.log("props", props);
 
 const onSave = async (pallet: object, value: object) => {
     try {
@@ -51,6 +53,9 @@ const onSave = async (pallet: object, value: object) => {
 
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
+        <template #cell(state)="{ item: palletDelivery }">
+            <Icon :data="palletDelivery['state_icon']" class="px-1" />
+        </template>
         <template #cell(customer_reference)="{ item: item }">
             <div v-if="state == 'in-process'">
                 <PureInput
@@ -59,7 +64,7 @@ const onSave = async (pallet: object, value: object) => {
                     @onEnter="(value) =>{ if(value)  onSave(item, { customer_reference: value })}"
                 />
             </div>
-            <div v-else>{{ item['customer_reference'] }}</div>
+            <div v-else>{{ item["customer_reference"] }}</div>
         </template>
         <template #cell(notes)="{ item: item }">
             <div v-if="state == 'in-process'">
@@ -69,18 +74,25 @@ const onSave = async (pallet: object, value: object) => {
                     @onEnter="(value) => { if(value) onSave(item, { notes: value }) }"
                 />
             </div>
-            <div v-else>{{ item['notes'] }}</div>
+            <div v-else>{{ item["notes"] }}</div>
         </template>
         <template #cell(actions)="{ item: pallet }">
-        <div v-if="props.state == 'in-process'">
-            <Link :href="route(pallet.deleteRoute.name,pallet.deleteRoute.parameters)" method="delete" as="button">
-                <font-awesome-icon class="text-red-600" :icon="['far', 'trash-alt']" />
-            </Link>
+            <div v-if="props.state == 'in-process'">
+                <Link :href="route(pallet.deleteRoute.name,pallet.deleteRoute.parameters)" method="delete" as="button">
+                    <font-awesome-icon class="text-red-600" :icon="['far', 'trash-alt']" />
+                </Link>
+            </div>
+            <div v-else-if="props.state == 'received'">
 
+                <Link :href="route(pallet.notReceivedRoute.name,pallet.notReceivedRoute.parameters)" method="patch" as="button">
+                    <font-awesome-icon class="text-red-600 mr-6" :icon="['fas', 'times-square']" />
+                </Link>
+
+                <Link :href="route(pallet.bookInRoute.name,pallet.bookInRoute.parameters)" method="patch" as="button">
+                    <font-awesome-icon :icon="['far', 'inventory']" />
+                </Link>
             </div>
-            <div v-else>
-                <font-awesome-icon :icon="['far', 'paper-plane']" />
-            </div>
+
         </template>
     </Table>
 </template>

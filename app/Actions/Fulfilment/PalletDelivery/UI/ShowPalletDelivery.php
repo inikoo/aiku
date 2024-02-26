@@ -145,57 +145,47 @@ class ShowPalletDelivery extends OrgAction
                                 'method'     => 'post',
                                 'name'       => 'grp.models.pallet-delivery.confirm',
                                 'parameters' => [
-                                    'palletDelivery'     => $palletDelivery->id
+                                    'palletDelivery' => $palletDelivery->id
                                 ]
                             ]
                         ] : [],
                 ],
                 PalletDeliveryStateEnum::SUBMITTED => [
-                    'type'    => 'button',
-                    'style'   => 'save',
-                    'tooltip' => __('confirm'),
-                    'label'   => __('confirm'),
-                    'key'     => 'action',
-                    'route'   => [
-                        'method'     => 'post',
-                        'name'       => 'grp.models.pallet-delivery.confirm',
-                        'parameters' => [
-                            'palletDelivery'     => $palletDelivery->id
+                    [
+                        'type'    => 'button',
+                        'style'   => 'save',
+                        'tooltip' => __('confirm'),
+                        'label'   => __('confirm'),
+                        'key'     => 'action',
+                        'route'   => [
+                            'method'     => 'post',
+                            'name'       => 'grp.models.pallet-delivery.confirm',
+                            'parameters' => [
+                                'palletDelivery' => $palletDelivery->id
+                            ]
                         ]
                     ]
                 ],
                 PalletDeliveryStateEnum::CONFIRMED => [
-                    'type'    => 'button',
-                    'style'   => 'save',
-                    'tooltip' => __('received'),
-                    'label'   => __('received'),
-                    'key'     => 'action',
-                    'route'   => [
-                        'method'     => 'post',
-                        'name'       => 'grp.models.pallet-delivery.received',
-                        'parameters' => [
-                            'palletDelivery'     => $palletDelivery->id
+                    [
+                        'type'    => 'button',
+                        'style'   => 'save',
+                        'tooltip' => __('mark as received'),
+                        'label'   => __('receive'),
+                        'key'     => 'action',
+                        'route'   => [
+                            'method'     => 'post',
+                            'name'       => 'grp.models.pallet-delivery.received',
+                            'parameters' => [
+                                'palletDelivery' => $palletDelivery->id
+                            ]
                         ]
-                    ]
-                ],
-                PalletDeliveryStateEnum::RECEIVED =>
-                [
-                    'type'    => 'button',
-                    'style'   => 'save',
-                    'tooltip' => __('done'),
-                    'label'   => __('done'),
-                    'key'     => 'action',
-                    'route'   => [
-                        'method'     => 'post',
-                        'name'       => 'grp.models..pallet-delivery.done',
-                        'parameters' => [
-                            'palletDelivery'     => $palletDelivery->id
-                        ]
-                    ]
+                    ],
                 ],
                 default => []
             };
         }
+
 
         return Inertia::render(
             'Org/Fulfilment/PalletDelivery',
@@ -216,6 +206,7 @@ class ShowPalletDelivery extends OrgAction
                         'icon'  => ['fal', 'fa-truck-couch'],
                         'title' => $palletDelivery->reference
                     ],
+                    'iconRight' => $palletDelivery->state->stateIcon()[$palletDelivery->state->value],
                     'edit'      => $this->canEdit ? [
                         'route' => [
                             'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),

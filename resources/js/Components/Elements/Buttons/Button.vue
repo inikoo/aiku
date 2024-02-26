@@ -42,7 +42,7 @@ let sizeClass = ''
 
 // Styling the Button depends on the 'style' props
 if (props.style == 'primary' || props.style == 'create' || props.style == 'save' || props.style == 'upload') {
-    styleClass = 'border border-indigo-500 bg-indigo-600 bg-gradient-to-r from-indigo-600 to-indigo-500 text-white hover:bg-none'
+    styleClass = `border border-indigo-500 buttonPrimary`
 }
 
 else if (props.style == 'secondary' || props.style == 'edit') {
@@ -151,7 +151,6 @@ const getActionIcon = (icon: any) => {
             sizeClass
         ]"
         :style="{
-            backgroundColor: layout?.app?.theme[4],
             color: layout?.app?.theme[5]
         }"
         :disabled="style == 'disabled'"
@@ -171,3 +170,14 @@ const getActionIcon = (icon: any) => {
         </slot>
     </button>
 </template>
+
+<style lang="scss">
+
+.buttonPrimary {
+    background-color: v-bind('layout?.app?.theme[4]');
+
+    &:hover {
+        filter: invert(15%);
+    }
+}
+</style>

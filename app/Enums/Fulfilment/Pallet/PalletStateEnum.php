@@ -19,55 +19,62 @@ enum PalletStateEnum: string
 {
     use EnumHelperTrait;
 
-    case IN_PROCESS = 'in-process';
-    case SUBMITTED  = 'submitted';
-    case CONFIRMED  = 'confirmed';
-    case RECEIVED   = 'received';
-    case BOOKED_IN  = 'booked-in';
-    case SETTLED    = 'settled';
+    case IN_PROCESS   = 'in-process';
+    case SUBMITTED    = 'submitted';
+    case CONFIRMED    = 'confirmed';
+    case RECEIVED     = 'received';
+    case NOT_RECEIVED = 'not-received';
+    case BOOKED_IN    = 'booked-in';
+    case SETTLED      = 'settled';
 
 
     public static function labels(): array
     {
         return [
-            'in-process' => __('In process'),
-            'submitted'  => __('Submitted'),
-            'confirmed'  => __('Confirmed'),
-            'received'   => __('Received'),
-            'booked-in'  => __('Booked in'),
-            'settled'    => __('Settled'),
+            'in-process'   => __('In process'),
+            'submitted'    => __('Submitted'),
+            'confirmed'    => __('Confirmed'),
+            'received'     => __('Received'),
+            'booked-in'    => __('Booked in'),
+            'not-received' => __('Not Received'),
+            'settled'      => __('Settled'),
         ];
     }
 
     public static function stateIcon(): array
     {
         return [
-            'in-process' => [
+            'in-process'   => [
                 'tooltip' => __('in process'),
                 'icon'    => 'fal fa-seedling',
                 'class'   => 'text-emerald-500'
             ],
-            'submitted'  => [
+            'submitted'    => [
                 'tooltip' => __('submitted'),
-                'icon'    => 'fal fa-spell-check',
-                'class'   => 'text-green-500'
+                'icon'    => 'fal fa-share',
+                'class'   => 'text-indigo-300'
             ],
-            'confirmed'  => [
+            'confirmed'    => [
                 'tooltip' => __('confirmed'),
                 'icon'    => 'fal fa-spell-check',
                 'class'   => 'text-green-500'
             ],
-            'received'   => [
+            'received'     => [
                 'tooltip' => __('received'),
-                'icon'    => 'fal fa-truck-loading',
-                'class'   => 'text-blue-500'
+                'icon'    => 'fal fa-check',
+                'class'   => 'text-gray-500'
             ],
-            'booked-in'  => [
+            'not-received' => [
+                'tooltip' => __('not received'),
+                'icon'    => 'fas fa-time-square',
+                'class'   => 'text-red-500'
+            ],
+            'booked-in'    => [
                 'tooltip' => __('booked in'),
-                'icon'    => 'fal fa-clipboard-check',
-                'class'   => 'text-yellow-500'
+                'icon'    => 'fal fa-check-double',
+                'class'   => 'text-green-500'
             ],
-            'settled'    => [
+            'settled'      => [
                 'tooltip' => __('settled'),
                 'icon'    => 'fal fa-sign-out-alt',
                 'class'   => 'text-grey-400'
@@ -84,12 +91,13 @@ enum PalletStateEnum: string
         }
 
         return [
-            'in-process' => $stats->number_pallets_state_in_process,
-            'submitted'  => $stats->number_pallets_state_submitted,
-            'confirmed'  => $stats->number_pallets_state_confirmed,
-            'received'   => $stats->number_pallets_state_received,
-            'booked-in'  => $stats->number_pallets_state_booked_in,
-            'settled'    => $stats->number_pallets_state_settled
+            'in-process'   => $stats->number_pallets_state_in_process,
+            'submitted'    => $stats->number_pallets_state_submitted,
+            'confirmed'    => $stats->number_pallets_state_confirmed,
+            'not-received' => $stats->number_pallets_state_not_received,
+            'received'     => $stats->number_pallets_state_received,
+            'booked-in'    => $stats->number_pallets_state_booked_in,
+            'settled'      => $stats->number_pallets_state_settled
         ];
     }
 
