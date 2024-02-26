@@ -151,45 +151,51 @@ class ShowPalletDelivery extends OrgAction
                         ] : [],
                 ],
                 PalletDeliveryStateEnum::SUBMITTED => [
-                    'type'    => 'button',
-                    'style'   => 'save',
-                    'tooltip' => __('confirm'),
-                    'label'   => __('confirm'),
-                    'key'     => 'action',
-                    'route'   => [
-                        'method'     => 'post',
-                        'name'       => 'grp.models.pallet-delivery.confirm',
-                        'parameters' => [
-                            'palletDelivery' => $palletDelivery->id
+                    [
+                        'type'    => 'button',
+                        'style'   => 'save',
+                        'tooltip' => __('confirm'),
+                        'label'   => __('confirm'),
+                        'key'     => 'action',
+                        'route'   => [
+                            'method'     => 'post',
+                            'name'       => 'grp.models.pallet-delivery.confirm',
+                            'parameters' => [
+                                'palletDelivery' => $palletDelivery->id
+                            ]
                         ]
                     ]
                 ],
                 PalletDeliveryStateEnum::CONFIRMED => [
-                    'type'    => 'button',
-                    'style'   => 'save',
-                    'tooltip' => __('received'),
-                    'label'   => __('received'),
-                    'key'     => 'action',
-                    'route'   => [
-                        'method'     => 'post',
-                        'name'       => 'grp.models.pallet-delivery.received',
-                        'parameters' => [
-                            'palletDelivery' => $palletDelivery->id
+                    [
+                        'type'    => 'button',
+                        'style'   => 'save',
+                        'tooltip' => __('mark as received'),
+                        'label'   => __('receive'),
+                        'key'     => 'action',
+                        'route'   => [
+                            'method'     => 'post',
+                            'name'       => 'grp.models.pallet-delivery.received',
+                            'parameters' => [
+                                'palletDelivery' => $palletDelivery->id
+                            ]
                         ]
-                    ]
+                    ],
                 ],
                 PalletDeliveryStateEnum::RECEIVED =>
                 [
-                    'type'    => 'button',
-                    'style'   => 'save',
-                    'tooltip' => __('done'),
-                    'label'   => __('done'),
-                    'key'     => 'action',
-                    'route'   => [
-                        'method'     => 'post',
-                        'name'       => 'grp.models..pallet-delivery.done',
-                        'parameters' => [
-                            'palletDelivery' => $palletDelivery->id
+                    [
+                        'type'    => 'button',
+                        'style'   => 'save',
+                        'tooltip' => __('mark as booked'),
+                        'label'   => __('booked in'),
+                        'key'     => 'action',
+                        'route'   => [
+                            'method'     => 'post',
+                            'name'       => 'grp.models.pallet-delivery.done',
+                            'parameters' => [
+                                'palletDelivery' => $palletDelivery->id
+                            ]
                         ]
                     ]
                 ],

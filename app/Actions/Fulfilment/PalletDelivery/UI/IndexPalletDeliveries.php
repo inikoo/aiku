@@ -12,6 +12,7 @@ use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
+use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Http\Resources\Fulfilment\PalletDeliveriesResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\Fulfilment;
@@ -82,6 +83,7 @@ class IndexPalletDeliveries extends OrgAction
             $queryBuilder->where('pallet_deliveries.fulfilment_id', $parent->id);
         } elseif ($parent instanceof Warehouse) {
             $queryBuilder->where('pallet_deliveries.warehouse_id', $parent->id);
+            $queryBuilder->whereNotIn('pallet_deliveries.state', [PalletDeliveryStateEnum::IN_PROCESS, PalletDeliveryStateEnum::SUBMITTED]);
         } else {
             $queryBuilder->where('pallet_deliveries.fulfilment_customer_id', $parent->id);
         }
