@@ -41,6 +41,7 @@ import {
     TransitionChild,
     TransitionRoot,
 } from "@headlessui/vue"
+import TablePalletReturns from "@/Components/Tables/TablePalletReturns.vue";
 
 
 const isOpen = ref(false)
@@ -189,32 +190,7 @@ function palletReturnRoute(palletReturn: PalletDelivery) {
         </Dialog>
     </TransitionRoot>
 
-    <Table :resource="data" name="pallet_returns" class="mt-5">
-        <template #cell(reference)="{ item: palletReturn }">
-            <Link :href="palletReturnRoute(palletReturn)" class="specialUnderline">
-                {{ palletReturn['reference'] }}
-            </Link>
-        </template>
-
-        <template #cell(state)="{ item: palletReturn }">
-            <Icon :data="palletReturn['state_icon']" class="px-1"/>
-        </template>
-
-
-        <template #buttonreturns="{ linkButton: linkButton }">
-            <Link
-                v-if="linkButton?.route?.name"
-                method="post"
-                :href="route(linkButton?.route?.name, linkButton?.route?.parameters)"
-                class="ring-1 ring-gray-300 overflow-hidden first:rounded-l last:rounded-r">
-                <Button
-                    :style="linkButton.style"
-                    :label="linkButton.label"
-                    class="h-full capitalize inline-flex items-center rounded-none text-sm border-none font-medium shadow-sm focus:ring-transparent focus:ring-offset-transparent focus:ring-0">
-                </Button>
-            </Link>
-        </template>
-    </Table>
+    <TablePalletReturns :data="data" tab="pallet_returns" />
 </template>
 
 
