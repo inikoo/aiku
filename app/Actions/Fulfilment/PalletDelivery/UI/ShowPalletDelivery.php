@@ -109,12 +109,9 @@ class ShowPalletDelivery extends OrgAction
                                 'icon'  => ['far', 'fa-layer-plus'],
                                 'label' => 'multiple',
                                 'route' => [
-                                    'name'       => 'grp.models.fulfilment-customer.pallet-delivery.multiple-pallets.store',
+                                    'name'       => 'grp.models.pallet-delivery.multiple-pallets.store',
                                     'parameters' => [
-                                        'organisation'       => $palletDelivery->organisation->slug,
-                                        'fulfilment'         => $palletDelivery->fulfilment->slug,
-                                        'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->id,
-                                        'palletDelivery'     => $palletDelivery->reference
+                                        'palletDelivery'     => $palletDelivery->id
                                     ]
                                 ]
                             ],
@@ -123,12 +120,9 @@ class ShowPalletDelivery extends OrgAction
                                 'style' => 'create',
                                 'label' => __('add pallet'),
                                 'route' => [
-                                    'name'       => 'grp.models.fulfilment-customer.pallet-delivery.pallet.store',
+                                    'name'       => 'grp.models.pallet-delivery.pallet.store',
                                     'parameters' => [
-                                        'organisation'       => $palletDelivery->organisation->slug,
-                                        'fulfilment'         => $palletDelivery->fulfilment->slug,
-                                        'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->id,
-                                        'palletDelivery'     => $palletDelivery->reference
+                                        'palletDelivery'     => $palletDelivery->id
                                     ]
                                 ]
                             ],
