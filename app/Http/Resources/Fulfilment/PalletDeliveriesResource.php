@@ -7,13 +7,18 @@
 
 namespace App\Http\Resources\Fulfilment;
 
+use App\Models\Fulfilment\PalletDelivery;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/**
+ * @property string $customer_name
+ * @property string $customer_slug
+ */
 class PalletDeliveriesResource extends JsonResource
 {
     public function toArray($request): array
     {
-        /** @var \App\Models\Fulfilment\PalletDelivery $palletDelivery */
+        /** @var PalletDelivery $palletDelivery */
         $palletDelivery = $this;
 
         return [
@@ -24,7 +29,9 @@ class PalletDeliveriesResource extends JsonResource
             'state_icon'         => $palletDelivery->state->stateIcon()[$palletDelivery->state->value],
             'pallets'            => $palletDelivery->number_pallets,
             'customer_reference' => $palletDelivery->customer_reference,
-            'number_pallets'     => $palletDelivery->number_pallets
+            'number_pallets'     => $palletDelivery->number_pallets,
+            'customer_name'      => $this->customer_name,
+            'customer_slug'      => $this->customer_slug
         ];
     }
 }

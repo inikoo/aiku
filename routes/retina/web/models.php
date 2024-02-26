@@ -6,8 +6,13 @@
  */
 
 use App\Actions\CRM\Customer\UpdateCustomerSettings;
+use App\Actions\Fulfilment\Pallet\ImportPallet;
 use App\Actions\UI\Retina\Profile\UpdateProfile;
 use Illuminate\Support\Facades\Route;
 
 Route::patch('/profile', UpdateProfile::class)->name('profile.update');
 Route::patch('/settings', UpdateCustomerSettings::class)->name('settings.update');
+
+Route::name('pallet-delivery.')->prefix('pallet-delivery/{palletDelivery:id}')->group(function () {
+    Route::post('pallet-upload', [ImportPallet::class,'fromRetina'])->name('pallet.import');
+});

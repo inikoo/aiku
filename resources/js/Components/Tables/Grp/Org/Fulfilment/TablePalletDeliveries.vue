@@ -1,6 +1,6 @@
 <!--
   - Author: Raul Perusquia <raul@inikoo.com>
-  - Created: Thu, 25 Jan 2024 11:46:16 Malaysia Time, Bali Office, Indonesia
+  - Created: Sun, 25 Feb 2024 10:30:47 Central Standard Time, Mexico City, Mexico
   - Copyright (c) 2024, Raul A Perusquia Flores
   -->
 
@@ -51,6 +51,19 @@ function palletDeliveryRoute(palletDelivery: PalletDelivery) {
     }
 }
 
+function customerRoute(palletDelivery: PalletDelivery) {
+    switch (route().current()) {
+        case 'grp.org.fulfilments.show.operations.pallet-deliveries.index':
+            return route(
+                'grp.org.fulfilments.show.crm.customers.show',
+                [
+                    route().params['organisation'],
+                    route().params['fulfilment'],
+                    palletDelivery.customer_slug
+                ]);
+    }
+}
+
 
 
 </script>
@@ -63,6 +76,12 @@ function palletDeliveryRoute(palletDelivery: PalletDelivery) {
         <Link :href="palletDeliveryRoute(palletDelivery)" class="specialUnderline">
             {{ palletDelivery['reference'] }}
         </Link>
+        </template>
+
+        <template #cell(customer_name)="{ item: palletDelivery }">
+            <Link :href="customerRoute(palletDelivery)" class="specialUnderline">
+                {{ palletDelivery['customer_name'] }}
+            </Link>
         </template>
 
         <template #cell(state)="{ item: palletDelivery }">

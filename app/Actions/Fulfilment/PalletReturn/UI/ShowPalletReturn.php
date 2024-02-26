@@ -11,6 +11,7 @@ use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\Pallet\UI\IndexPallets;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Enums\UI\PalletReturnTabsEnum;
 use App\Http\Resources\Fulfilment\PalletReturnResource;
@@ -29,6 +30,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowPalletReturn extends OrgAction
 {
+    use HasFulfilmentAssetsAuthorisation;
     private Warehouse|FulfilmentCustomer $parent;
 
     public function handle(PalletReturn $palletReturn): PalletReturn
@@ -36,22 +38,6 @@ class ShowPalletReturn extends OrgAction
         return $palletReturn;
     }
 
-    public function authorize(ActionRequest $request): bool
-    {
-        if ($this->parent instanceof FulfilmentCustomer) {
-            $this->canEdit = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
-
-            return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
-        }
-        if ($this->parent instanceof Warehouse) {
-            $this->canEdit = $request->user()->hasPermissionTo("fulfilment.{$this->warehouse->id}.edit");
-
-            return $request->user()->hasPermissionTo("fulfilment.{$this->warehouse->id}.view");
-        }
-
-
-        return false;
-    }
 
     public function asController(Organisation $organisation, Warehouse $warehouse, PalletReturn $palletReturn, ActionRequest $request): PalletReturn
     {

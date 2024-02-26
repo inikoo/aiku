@@ -5,56 +5,47 @@
   -->
 
 <script setup lang="ts">
-import Table from '@/Components/Table/Table.vue';
+import Table from "@/Components/Table/Table.vue";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { library } from "@fortawesome/fontawesome-svg-core";
-import { faTrashAlt, faPaperPlane } from '@far';
-import { faGameConsoleHandheld, faSignOutAlt } from '@fal';
-import PureInput from '@/Components/Pure/PureInput.vue';
-import { useLayoutStore } from '@/Stores/layout';
-import axios from 'axios';
-import { notify } from '@kyvg/vue3-notification'
-import PalletDelivery from '@/Pages/Grp/Org/Fulfilment/PalletDelivery.vue';
-import {Link} from '@inertiajs/vue3';
+import { faTrashAlt, faPaperPlane } from "@far";
+import { faSignOutAlt } from "@fal";
+import PureInput from "@/Components/Pure/PureInput.vue";
+import axios from "axios";
+import { notify } from "@kyvg/vue3-notification";
+import { Link } from "@inertiajs/vue3";
 
 library.add(
     faTrashAlt, faSignOutAlt, faPaperPlane
-)
+);
 const props = defineProps<{
     data: object,
     tab?: string
     state?: string
-}>()
+}>();
 
-console.log("props",props)
+console.log("props", props);
 
 const onSave = async (pallet: object, value: object) => {
-        try {
-            await axios.patch(
-                route(pallet.updateRoute.name,
-                    pallet.deleteRoute.params
-                ),
-                value,
-            )
-        } catch (error: any) {
-            console.log(error)
-            if (error.response.data.message)
-                notify({
-                    title: 'Failed to update',
-                    text: error.response.data.message,
-                    type: "error"
-                })
-        }
+    try {
+        await axios.patch(
+            route(pallet.updateRoute.name,
+                pallet.deleteRoute.parameters
+            ),
+            value
+        );
+    } catch (error: any) {
+        console.log(error);
+        if (error.response.data.message)
+            notify({
+                title: "Failed to update",
+                text: error.response.data.message,
+                type: "error"
+            });
+    }
 
-}
+};
 
-function customerRoute(pallet: object) {
-            return route(pallet.deleteRoute.name,
-                pallet.deleteRoute.params
-            );
-}
-
-console.log('porps',props)
 
 </script>
 
@@ -65,10 +56,10 @@ console.log('porps',props)
                 <PureInput
                     v-model="item.customer_reference"
                     @blur="(value) =>{ if(value) onSave(item, { customer_reference: value })}"
-                    @onEnter="(value) =>{ if(value)  onSave(item, { notes: value })}"
+                    @onEnter="(value) =>{ if(value)  onSave(item, { customer_reference: value })}"
                 />
             </div>
-            <div v-else>{{ item.customer_reference }}</div>
+            <div v-else>{{ item['customer_reference'] }}</div>
         </template>
         <template #cell(notes)="{ item: item }">
             <div v-if="state == 'in-process'">
@@ -78,19 +69,18 @@ console.log('porps',props)
                     @onEnter="(value) => { if(value) onSave(item, { notes: value }) }"
                 />
             </div>
-            <div v-else>{{ item.notes }}</div>
+            <div v-else>{{ item['notes'] }}</div>
         </template>
         <template #cell(actions)="{ item: pallet }">
         <div v-if="props.state == 'in-process'">
-            <Link :href="customerRoute(pallet)" method="delete">
+            <Link :href="route(pallet.deleteRoute.name,pallet.deleteRoute.parameters)" method="delete" as="button">
                 <font-awesome-icon class="text-red-600" :icon="['far', 'trash-alt']" />
             </Link>
 
-        </div>
-        <div v-else>
-            <font-awesome-icon  :icon="['far', 'paper-plane']" />
-        </div>
-
+            </div>
+            <div v-else>
+                <font-awesome-icon :icon="['far', 'paper-plane']" />
+            </div>
         </template>
     </Table>
 </template>

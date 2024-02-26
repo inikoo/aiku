@@ -10,7 +10,9 @@ namespace App\Actions\Fulfilment\Pallet\UI;
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
+use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Http\Resources\Fulfilment\PalletsResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -32,6 +34,7 @@ use App\Services\QueryBuilder;
 
 class IndexPallets extends OrgAction
 {
+    use HasFulfilmentAssetsAuthorisation;
     private Organisation|FulfilmentCustomer|Location|Fulfilment|Warehouse|PalletDelivery|PalletReturn $parent;
 
     protected function getElementGroups(): array
@@ -137,13 +140,13 @@ class IndexPallets extends OrgAction
 
 
             if ($parent instanceof Fulfilment) {
-                $emptyStateData['title'] = __("There is not pallets in this fulfilment shop");
+                $emptyStateData['description'] = __("There is not pallets in this fulfilment shop");
             }
             if ($parent instanceof Warehouse) {
-                $emptyStateData['title'] = __("There isn't any fulfilment pallet in this warehouse");
+                $emptyStateData['description'] = __("There isn't any fulfilment pallet in this warehouse");
             }
             if ($parent instanceof FulfilmentCustomer) {
-                $emptyStateData['title'] = __("This customer don't have any pallets");
+                $emptyStateData['description'] = __("This customer don't have any pallets");
             }
 
             $table->withGlobalSearch()
@@ -151,8 +154,15 @@ class IndexPallets extends OrgAction
                 ->withModelOperations($modelOperations);
 
 
-            $table->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon');
-            $table->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
+
+
+
+            if(!($parent instanceof PalletDelivery  and $parent->state == PalletDeliveryStateEnum::IN_PROCESS)) {
+                $table->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon');
+                $table->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
+            }
+
+
 
 
             $table->column(key: 'customer_reference', label: __('customer reference'), canBeHidden: false, sortable: true, searchable: true);
@@ -173,20 +183,6 @@ class IndexPallets extends OrgAction
         };
     }
 
-    public function authorize(ActionRequest $request): bool
-    {
-        if ($this->parent instanceof Warehouse || $this->parent instanceof Location) {
-            $this->canEdit = $request->user()->hasPermissionTo("fulfilment.{$this->warehouse->id}.edit");
-
-            return $request->user()->hasPermissionTo("fulfilment.{$this->warehouse->id}.view");
-        } elseif ($this->parent instanceof Fulfilment) {
-            $this->canEdit = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.stored-items.edit");
-
-            return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.stored-items.view");
-        }
-
-        return false;
-    }
 
 
     public function jsonResponse(LengthAwarePaginator $pallets): AnonymousResourceCollection
