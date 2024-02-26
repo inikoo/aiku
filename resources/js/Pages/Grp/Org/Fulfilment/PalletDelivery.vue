@@ -137,8 +137,6 @@ watch(props, (newValue) => {
 </script>
 
 <template layout="Grp">
-    <pre>{{ pageHead.actions }}</pre>
-
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead">
         
