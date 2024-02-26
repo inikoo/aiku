@@ -13,20 +13,20 @@ enum PalletDeliveryStateEnum: string
 {
     use EnumHelperTrait;
 
-    case IN_PROCESS      = 'in-process';
-    case SUBMITTED       = 'submitted';
-    case CONFIRMED       = 'confirmed';
-    case RECEIVED        = 'received';
-    case DONE            = 'done';
+    case IN_PROCESS = 'in-process';
+    case SUBMITTED  = 'submitted';
+    case CONFIRMED  = 'confirmed';
+    case RECEIVED   = 'received';
+    case BOOKED_IN  = 'booked-in';
 
     public function labels(): array
     {
         return [
-            'in-process'     => __('In Process'),
-            'submitted'      => __('Submitted'),
-            'confirmed'      => __('Confirmed'),
-            'received'       => __('Received'),
-            'done'           => __('Done')
+            'in-process' => __('In Process'),
+            'submitted'  => __('Submitted'),
+            'confirmed'  => __('Confirmed'),
+            'received'   => __('Received'),
+            'booked-in'  => __('Done')
         ];
     }
 
@@ -38,24 +38,24 @@ enum PalletDeliveryStateEnum: string
                 'icon'    => 'fal fa-seedling',
                 'class'   => 'text-emerald-500'
             ],
-            'submitted' => [
+            'submitted'  => [
                 'tooltip' => __('Submitted'),
-                'icon'    => 'fal fa-spell-check',
-                'class'   => 'text-green-500'
+                'icon'    => 'fal fa-share',
+                'class'   => 'text-indigo-500'
             ],
-            'confirmed' => [
+            'confirmed'  => [
                 'tooltip' => __('Confirmed'),
                 'icon'    => 'fal fa-spell-check',
                 'class'   => 'text-green-500'
             ],
-            'received' => [
+            'received'   => [
                 'tooltip' => __('Received'),
-                'icon'    => 'fal fa-truck-loading',
-                'class'   => 'text-blue-500'
+                'icon'    => 'fal fa-check',
+                'class'   => 'text-gray-500'
             ],
-            'done' => [
-                'tooltip' => __('Done'),
-                'icon'    => 'fal fa-spell-check',
+            'booked-in'  => [
+                'tooltip' => __('Booked in'),
+                'icon'    => 'fal fa-check-double',
                 'class'   => 'text-green-500'
             ],
         ];

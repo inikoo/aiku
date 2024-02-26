@@ -24,7 +24,6 @@ const props = defineProps<{
     state?: string
 }>();
 
-console.log("props", props);
 
 const onSave = async (pallet: object, value: object) => {
     try {

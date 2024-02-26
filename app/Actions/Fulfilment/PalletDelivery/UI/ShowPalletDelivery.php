@@ -145,7 +145,7 @@ class ShowPalletDelivery extends OrgAction
                                 'method'     => 'post',
                                 'name'       => 'grp.models.pallet-delivery.confirm',
                                 'parameters' => [
-                                    'palletDelivery'     => $palletDelivery->id
+                                    'palletDelivery' => $palletDelivery->id
                                 ]
                             ]
                         ] : [],
@@ -160,7 +160,7 @@ class ShowPalletDelivery extends OrgAction
                         'method'     => 'post',
                         'name'       => 'grp.models.pallet-delivery.confirm',
                         'parameters' => [
-                            'palletDelivery'     => $palletDelivery->id
+                            'palletDelivery' => $palletDelivery->id
                         ]
                     ]
                 ],
@@ -174,7 +174,7 @@ class ShowPalletDelivery extends OrgAction
                         'method'     => 'post',
                         'name'       => 'grp.models.pallet-delivery.received',
                         'parameters' => [
-                            'palletDelivery'     => $palletDelivery->id
+                            'palletDelivery' => $palletDelivery->id
                         ]
                     ]
                 ],
@@ -189,7 +189,7 @@ class ShowPalletDelivery extends OrgAction
                         'method'     => 'post',
                         'name'       => 'grp.models..pallet-delivery.done',
                         'parameters' => [
-                            'palletDelivery'     => $palletDelivery->id
+                            'palletDelivery' => $palletDelivery->id
                         ]
                     ]
                 ],
@@ -216,6 +216,7 @@ class ShowPalletDelivery extends OrgAction
                         'icon'  => ['fal', 'fa-truck-couch'],
                         'title' => $palletDelivery->reference
                     ],
+                    'iconRight' => $palletDelivery->state->stateIcon()[$palletDelivery->state->value],
                     'edit'      => $this->canEdit ? [
                         'route' => [
                             'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
