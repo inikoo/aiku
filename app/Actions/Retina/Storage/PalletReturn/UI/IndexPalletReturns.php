@@ -115,7 +115,7 @@ class IndexPalletReturns extends RetinaAction
         $container = [
             'icon'    => ['fal', 'fa-pallet-alt'],
             'tooltip' => __('Customer Fulfilment'),
-            'label'   => Str::possessive($this->customer->fulfilmentCustomer)
+            'label'   => Str::possessive($this->customer->fulfilmentCustomer->slug)
         ];
 
         return Inertia::render(
@@ -128,7 +128,7 @@ class IndexPalletReturns extends RetinaAction
                 'title'    => __('pallet returns'),
                 'pageHead' => [
                     'title'     => __('returns'),
-                    'container' => $container,
+                    // 'container' => $container,
                     'iconRight' => [
                         'icon'  => ['fal', 'fa-truck-couch'],
                         'title' => __('return')
