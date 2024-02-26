@@ -8,6 +8,7 @@
 namespace App\Actions\Fulfilment\Pallet;
 
 use App\Actions\OrgAction;
+use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletDelivery;
 use Illuminate\Http\RedirectResponse;
@@ -34,20 +35,39 @@ class StoreMultiplePallets extends OrgAction
             return true;
         }
 
+        if ($request->user() instanceof WebUser) {
+            // TODO: Raul please do the permission for the web user
+            return true;
+        }
+
         return $request->user()->hasPermissionTo("fulfilment.{$this->fulfilment->id}.edit");
     }
 
+    public function prepareForValidation(ActionRequest $request): void
+    {
+        if ($this->fulfilment->warehouses()->count() == 1) {
+            $this->fill(['warehouse_id' => $this->fulfilment->warehouses()->first()->id]);
+        }
+    }
 
     public function rules(): array
     {
         return [
-
-
-            'warehouse_id'       => ['required', 'integer', 'exists:warehouses,id'],
-            'number_pallets'     => ['required', 'integer', 'min:1', 'max:1000'],
+            'warehouse_id'   => ['required', 'integer', 'exists:warehouses,id'],
+            'number_pallets' => ['required', 'integer', 'min:1', 'max:1000'],
         ];
     }
 
+    public function fromRetina(PalletDelivery $palletDelivery, ActionRequest $request): void
+    {
+        /** @var FulfilmentCustomer $fulfilmentCustomer */
+        $fulfilmentCustomer = $request->user()->customer->fulfilmentCustomer;
+        $this->fulfilment   = $fulfilmentCustomer->fulfilment;
+        $this->parent       = $palletDelivery;
+
+        $this->initialisation($request->get('website')->organisation, $request);
+        $this->handle($palletDelivery, $this->validatedData);
+    }
 
     public function asController(PalletDelivery $palletDelivery, ActionRequest $request): void
     {
@@ -55,7 +75,7 @@ class StoreMultiplePallets extends OrgAction
         $this->fulfilmentCustomer = $palletDelivery->fulfilmentCustomer;
         $request->merge(
             [
-                'warehouse_id'       => $palletDelivery->warehouse_id
+                'warehouse_id' => $palletDelivery->warehouse_id
             ]
         );
 
@@ -78,11 +98,18 @@ class StoreMultiplePallets extends OrgAction
 
     public function htmlResponse(): RedirectResponse
     {
-        return Redirect::route('grp.org.fulfilments.show.crm.customers.show.pallet-deliveries.show', [
-            'organisation'       => $this->organisation->slug,
-            'fulfilment'         => $this->fulfilment->slug,
-            'fulfilmentCustomer' => $this->fulfilmentCustomer->slug,
-            'palletDelivery'     => $this->parent->reference
-        ]);
+        $routeName = request()->route()->getName();
+
+        return match ($routeName) {
+            'retina.models.pallet-delivery.multiple-pallets.store' => Redirect::route('retina.storage.pallet-deliveries.show', [
+                'palletDelivery' => $this->parent->reference
+            ]),
+            default => Redirect::route('grp.org.fulfilments.show.crm.customers.show.pallet-deliveries.show', [
+                'organisation'       => $this->organisation->slug,
+                'fulfilment'         => $this->fulfilment->slug,
+                'fulfilmentCustomer' => $this->fulfilmentCustomer->slug,
+                'palletDelivery'     => $this->parent->reference
+            ]),
+        };
     }
 }

@@ -11,6 +11,8 @@ use App\Actions\Fulfilment\PalletDelivery\Hydrators\HydratePalletDeliveries;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Fulfilment\PalletResource;
+use App\Models\CRM\WebUser;
+use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -34,7 +36,23 @@ class DeletePallet extends OrgAction
         if ($this->asAction) {
             return true;
         }
+
+        if ($request->user() instanceof WebUser) {
+            // TODO: Raul please do the permission for the web user
+            return true;
+        }
+
         return $request->user()->hasPermissionTo("fulfilment.{$this->fulfilment->id}.edit");
+    }
+
+    public function fromRetina(Pallet $pallet, ActionRequest $request): Pallet
+    {
+        /** @var FulfilmentCustomer $fulfilmentCustomer */
+        $fulfilmentCustomer = $request->user()->customer->fulfilmentCustomer;
+        $this->fulfilment   = $fulfilmentCustomer->fulfilment;
+
+        $this->initialisation($request->get('website')->organisation, $request);
+        return $this->handle($pallet);
     }
 
     public function asController(Pallet $pallet, ActionRequest $request): Pallet

@@ -13,6 +13,8 @@ use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use App\Http\Resources\Fulfilment\PalletResource;
+use App\Models\CRM\WebUser;
+use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
 use App\Rules\IUnique;
 use Illuminate\Validation\Rule;
@@ -33,6 +35,11 @@ class UpdatePallet extends OrgAction
     public function authorize(ActionRequest $request): bool
     {
         if ($this->asAction) {
+            return true;
+        }
+
+        if ($request->user() instanceof WebUser) {
+            // TODO: Raul please do the permission for the web user
             return true;
         }
 
@@ -74,9 +81,20 @@ class UpdatePallet extends OrgAction
                 'sometimes',
                 Rule::enum(PalletTypeEnum::class)
             ],
-            'notes'              => ['sometimes', 'string'],
-            'received_at'        => ['sometimes', 'nullable', 'date'],
+            'notes'              => ['nullable', 'string'],
+            'received_at'        => ['nullable', 'nullable', 'date'],
         ];
+    }
+
+    public function fromRetina(Pallet $pallet, ActionRequest $request): Pallet
+    {
+        /** @var FulfilmentCustomer $fulfilmentCustomer */
+        $fulfilmentCustomer = $request->user()->customer->fulfilmentCustomer;
+        $this->fulfilment   = $fulfilmentCustomer->fulfilment;
+        $this->pallet       = $pallet;
+
+        $this->initialisation($request->get('website')->organisation, $request);
+        return $this->handle($pallet, $this->validateAttributes());
     }
 
     public function asController(Pallet $pallet, ActionRequest $request): Pallet
