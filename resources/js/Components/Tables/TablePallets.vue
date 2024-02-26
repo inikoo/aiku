@@ -45,8 +45,7 @@ function customerRoute(pallet: Customer) {
                     route().params['location'],
                     pallet['id']
                 ]);
-
-        default:
+        case 'grp.org.fulfilments.show.crm.customers.show':
             return route(
                 'grp.org.fulfilments.show.crm.customers.show.pallets.show',
                 [
@@ -55,6 +54,9 @@ function customerRoute(pallet: Customer) {
                     route().params['fulfilmentCustomer'],
                     pallet['id']
                 ]);
+
+        default:
+            return [];
     }
 }
 
