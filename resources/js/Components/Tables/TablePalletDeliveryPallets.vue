@@ -17,11 +17,11 @@ import Icon from "@/Components/Icon.vue";
 import { faTimesSquare } from "@fas";
 import { faTrashAlt, faPaperPlane, faInventory } from "@far";
 import { faSignOutAlt, faTruckLoading } from "@fal";
-import {useLayoutStore} from "@/Stores/retinaLayout";
+import { useLayoutStore } from "@/Stores/retinaLayout";
 import Flied from '@/Components/FieldEditableTable.vue'
 
 library.add(
-    faTrashAlt, faSignOutAlt, faPaperPlane, faInventory, faTruckLoading,faTimesSquare
+    faTrashAlt, faSignOutAlt, faPaperPlane, faInventory, faTruckLoading, faTimesSquare
 );
 const props = defineProps<{
     data: object,
@@ -31,7 +31,7 @@ const props = defineProps<{
 
 
 const onSave = async (pallet: object, fieldName: string) => {
-    console.log('inii',pallet,fieldName)
+    console.log('inii', pallet, fieldName)
     pallet.form.processing = true;
     try {
         await axios.patch(
@@ -43,6 +43,7 @@ const onSave = async (pallet: object, fieldName: string) => {
         pallet.form.processing = false;
         pallet.form.wasSuccessful = true;
         pallet.form.hasErrors = false;
+        pallet.form.clearErrors();
     } catch (error: any) {
         pallet.form.processing = false;
         pallet.form.wasSuccessful = false;
@@ -81,7 +82,7 @@ const layout = useLayoutStore();
         </template>
         <template #cell(customer_reference)="{ item: item }">
             <div v-if="state == 'in-process'">
-               <Flied :data="item" @onSave="onSave" fieldName="customer_reference" />
+                <Flied :data="item" @onSave="onSave" fieldName="customer_reference" />
             </div>
             <div v-else>{{ item["customer_reference"] }}</div>
         </template>
@@ -93,18 +94,19 @@ const layout = useLayoutStore();
         </template>
         <template #cell(actions)="{ item: pallet }">
             <div v-if="props.state == 'in-process'">
-                <Link :href="route(pallet.deleteRoute.name,pallet.deleteRoute.parameters)" method="delete" as="button">
-                    <font-awesome-icon class="text-red-600" :icon="['far', 'trash-alt']" />
+                <Link :href="route(pallet.deleteRoute.name, pallet.deleteRoute.parameters)" method="delete" as="button">
+                <font-awesome-icon class="text-red-600" :icon="['far', 'trash-alt']" />
                 </Link>
             </div>
             <div v-else-if="props.state == 'received' && !layout.currentRoute.includes('retina.')">
 
-                <Link :href="route(pallet.notReceivedRoute.name,pallet.notReceivedRoute.parameters)" method="patch" as="button">
-                    <font-awesome-icon class="text-red-600 mr-6" :icon="['fas', 'times-square']" />
+                <Link :href="route(pallet.notReceivedRoute.name, pallet.notReceivedRoute.parameters)" method="patch"
+                    as="button">
+                <font-awesome-icon class="text-red-600 mr-6" :icon="['fas', 'times-square']" />
                 </Link>
 
-                <Link :href="route(pallet.bookInRoute.name,pallet.bookInRoute.parameters)" method="patch" as="button">
-                    <font-awesome-icon :icon="['far', 'inventory']" />
+                <Link :href="route(pallet.bookInRoute.name, pallet.bookInRoute.parameters)" method="patch" as="button">
+                <font-awesome-icon :icon="['far', 'inventory']" />
                 </Link>
             </div>
 
