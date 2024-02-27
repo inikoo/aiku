@@ -38,6 +38,7 @@ class GetFulfilmentNavigation
                             'label'   => __('pallets'),
                             'tooltip' => __('Pallets'),
                             'icon'    => ['fal', 'fa-pallet'],
+                            'root'    => 'grp.org.fulfilments.show.operations.pallets.',
                             'route'   => [
                                 'name'       => 'grp.org.fulfilments.show.operations.pallets.index',
                                 'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug]
@@ -48,6 +49,7 @@ class GetFulfilmentNavigation
                             'label'   => __('deliveries'),
                             'tooltip' => __('Deliveries'),
                             'icon'    => ['fal', 'fa-truck-couch'],
+                            'root'    => 'grp.org.fulfilments.show.operations.pallet-deliveries.',
                             'route'   => [
                                 'name'       => 'grp.org.fulfilments.show.operations.pallet-deliveries.index',
                                 'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug]
@@ -94,6 +96,7 @@ class GetFulfilmentNavigation
                             'label'   => __('webpages'),
                             'tooltip' => __('Webpages'),
                             'icon'    => ['fal', 'fa-browser'],
+                            'root'    => 'grp.org.fulfilments.show.web.websites.show.webpages.',
                             'route'   => [
                                 'name'       => 'grp.org.fulfilments.show.web.websites.show.webpages.index',
                                 'parameters' => [
