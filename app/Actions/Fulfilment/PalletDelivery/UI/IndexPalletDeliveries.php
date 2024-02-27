@@ -124,6 +124,24 @@ class IndexPalletDeliveries extends OrgAction
             $table
                 ->withModelOperations($modelOperations)
                 ->withGlobalSearch()
+                ->withEmptyState(
+                    match (class_basename($parent)) {
+                        'Fulfilment' => [
+                            'title'       => __('No pallet deliveries found for this shop'),
+                            'count'       => $parent->stats->number_pallet_deliveries
+                        ],
+                        'Warehouse' => [
+                            'title'       => __('No pallet deliveries found for this warehouse'),
+                            'description' => __('This warehouse has not received any pallet deliveries yet'),
+                            'count'       => $parent->stats->number_pallet_deliveries
+                        ],
+                        'FulfilmentCustomer' => [
+                            'title'       => __('No pallet deliveries found for this customer'),
+                            'description' => __('This customer has not received any pallet deliveries yet'),
+                            'count'       => $parent->number_pallet_deliveries
+                        ]
+                    }
+                )
                 ->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon');
 
             if ($parent instanceof Fulfilment) {
