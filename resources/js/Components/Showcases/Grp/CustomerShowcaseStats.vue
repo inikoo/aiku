@@ -33,7 +33,7 @@ const options = {
     }
 }
 
-const xxxddd = [
+const dummyPieValue = [
     {
         "label": "Item 1",
         "count": 35,
@@ -73,7 +73,7 @@ const xxxddd = [
 
 <template>
     <div class="grid grid-cols-2 gap-y-2 gap-x-2 text-gray-600">
-        <div v-for="prospectState in xxxddd" class="flex  justify-between px-4 py-5 sm:p-6 rounded-lg bg-white border border-gray-100 shadow tabular-nums">
+        <div v-for="prospectState in dummyPieValue" class="flex  justify-between px-4 py-5 sm:p-6 rounded-lg bg-white border border-gray-100 shadow tabular-nums">
             <div class="">
                 <dt class="text-base font-medium text-gray-400 capitalize">{{ prospectState.label }}</dt>
                 <dd class="mt-2 flex justify-between gap-x-2">
