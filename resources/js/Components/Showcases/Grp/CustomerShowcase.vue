@@ -5,13 +5,19 @@
   -->
 
 <script setup lang="ts">
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { useLayoutStore } from "@/Stores/layout"
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js'
 import { Line } from 'vue-chartjs'
 import PureRadio from '@/Components/Pure/PureRadio.vue'
 import { ref } from 'vue'
-import { useFormatTime } from '@/Composables/useFormatTime copy'
+import { useFormatTime } from '@/Composables/useFormatTime'
+import CustomerShowcaseStats from '@/Components/Showcases/Grp/CustomerShowcaseStats.vue'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { faCheckCircle } from '@fas'
+import { faCircle } from '@fal'
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { slice } from "lodash"
+library.add(faCheckCircle, faCircle)
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend)
 
@@ -43,78 +49,63 @@ const props = defineProps<{
     tab: string
 }>()
 
-const customerStats = [
-    {
-        title: 'Pallets',
-        value: props.data.fulfilment_customer.number_pallets,
-        icon: 'fal fa-pallet'
-    },
-    {
-        title: 'Pallets been received',
-        value: props.data.fulfilment_customer.number_pallets_state_received,
-        icon: 'fal fa-pallet'
-    },
-    {
-        title: 'Stored items',
-        value: props.data.fulfilment_customer.number_stored_items,
-        icon: 'fal fa-narwhal'
-    },
-    {
-        title: 'Deliveries',
-        value: props.data.fulfilment_customer.number_pallets_deliveries,
-        icon: 'fal fa-truck-couch'
-    },
-    {
-        title: 'Return',
-        value: props.data.fulfilment_customer.number_pallets_returns,
-        icon: 'fal fa-sign-out-alt '
-    },
-]
-
-const labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul']
-// const dataChart = {
-//     labels: labels,
-//     datasets: [{
-//         label: 'Bills',
-//         data: [65, 78, 50, 71, 60, 85, 40],
-//         fill: false,
-//         borderColor: useLayoutStore().app.theme[2],
-//         tension: 0.4
-//     }]
-// }
-
-const abcdef = ref()
+const radioValue = ref<string[]>(['palletstorage'])
 const optionRadio = [
     {
         value: 'palletstorage',
-        name: 'Pallet Storage'
+        label: 'Pallet Storage'
     },
     {
         value: 'itemsstorage',
-        name: 'Items Storage'
+        label: 'Items Storage'
     },
     {
         value: 'dropshopping',
-        name: 'Dropshopping'
+        label: 'Dropshopping'
     },
 ]
+
+const onClickRadio = (value: string) => {
+    // If value already selected
+    if (radioValue.value.includes(value)) {
+        // If value is more than 1 then delete
+        if (radioValue.value.length > 1) {
+            const index = radioValue.value.indexOf(value)
+            radioValue.value.splice(index, 1)
+        }
+    } else {
+        radioValue.value.push(value)
+    }
+}
+
 </script>
 
 <template>
-    <div class="px-8 mt-4">
-        <PureRadio v-model="abcdef" :options="optionRadio" mode="compact" />
+
+    <!-- Section: Radio -->
+    <div class="px-8 mt-4 flex gap-x-2">
+        <div v-for="radio in optionRadio"
+            @click="() => onClickRadio(radio.value)"
+            class="rounded w-fit px-3 py-2 select-none cursor-pointer border"
+            :class="[radioValue.includes(radio.value) ? 'bg-slate-700 text-white border-transparent' : 'text-slate-700 border-slate-500']"    
+        >
+            <FontAwesomeIcon v-if="radioValue.includes(radio.value)" icon='fas fa-check-circle' class='text-lime-400' fixed-width aria-hidden='true' />
+            <FontAwesomeIcon v-else icon='fal fa-circle' class='text-lime-600' fixed-width aria-hidden='true' />
+            {{ radio.label }}
+        </div>
     </div>
 
     <div class="px-4 py-5 md:px-6 lg:px-8 grid grid-cols-2 gap-x-3">
         <!-- Section: Profile box -->
-        <div class="bg-gradient-to-tr from-slate-800 to-slate-700 text-white p-6 flex flex-col justify-between rounded-md overflow-hidden">
+        <div
+            class="bg-gradient-to-tr from-slate-800 to-slate-700 text-white p-6 flex flex-col justify-between rounded-md overflow-hidden">
             <div class="w-full">
                 <h2 class="text-3xl font-bold">{{ data.customer.name }}</h2>
                 <div class="text-lg">
-                    {{ data.customer.shop }}<span class="text-gray-400">({{ data.customer.number_active_clients || 0 }} clients)</span>
+                    {{ data.customer.shop }}<span class="text-gray-400">({{ data.customer.number_active_clients || 0 }}
+                        clients)</span>
                 </div>
             </div>
-
             <div class="space-y-3 text-sm text-gray-100">
                 <div class="border-l-2 border-gray-500 pl-4">
                     <h3 class="font-bold">Phone</h3>
@@ -138,25 +129,7 @@ const optionRadio = [
         </div>
 
         <!-- Section: Stats box -->
-        <div class="grid grid-cols-2 gap-y-2 gap-x-2 text-gray-600">
-            <div v-for="stat in customerStats" class="border border-gray-50 rounded p-3" :style="{
-                border: `1px solid ${useLayoutStore().app.theme[4] + '22'}`
-            }">
-                <div class="flex justify-between mb-1">
-                    <div>
-                        <span class="block text-gray-400 font-medium mb-2">{{ stat.title }}</span>
-                        <div class="font-bold text-2xl">{{ stat.value || 0 }}</div>
-                    </div>
-                    <div class="h-10 aspect-square flex items-center justify-center rounded" :style="{
-                        backgroundColor: useLayoutStore().app?.theme[2] + '22',
-                        color: useLayoutStore().app.theme[2]
-                    }">
-                        <FontAwesomeIcon :icon='stat.icon' class='' fixed-width aria-hidden='true' />
-                    </div>
-                </div>
-            </div>
-        </div>
+        <CustomerShowcaseStats />
     </div>
-
 </template>
 
