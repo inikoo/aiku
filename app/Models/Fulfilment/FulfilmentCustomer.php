@@ -28,6 +28,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $slug
  * @property int $customer_id
  * @property int $fulfilment_id
+ * @property bool $pallets_storage
+ * @property bool $items_storage
+ * @property bool $dropshipping
  * @property int $number_pallets
  * @property int $number_pallets_type_pallet
  * @property int $number_pallets_type_box
