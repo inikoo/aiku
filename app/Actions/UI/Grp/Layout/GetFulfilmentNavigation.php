@@ -55,6 +55,16 @@ class GetFulfilmentNavigation
                                 'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug]
                             ],
                         ],
+                        [
+                            'label'   => __('returns'),
+                            'tooltip' => __('Returns'),
+                            'icon'    => ['fal', 'fa-sign-out'],
+                            'root'    => 'grp.org.fulfilments.show.operations.pallet-returns.',
+                            'route'   => [
+                                'name'       => 'grp.org.fulfilments.show.operations.pallet-returns.index',
+                                'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug]
+                            ],
+                        ],
 
                     ]
                 ]
