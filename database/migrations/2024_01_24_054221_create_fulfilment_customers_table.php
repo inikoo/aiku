@@ -27,6 +27,9 @@ return new class () extends Migration {
                 $table->foreign('customer_id')->references('id')->on('customers');
                 $table->unsignedInteger('fulfilment_id');
                 $table->foreign('fulfilment_id')->references('id')->on('fulfilments');
+                $table->boolean('pallets_storage')->default(true);
+                $table->boolean('items_storage')->default(false);
+                $table->boolean('dropshipping')->default(false);
                 $table = $this->fulfilmentStats($table);
                 $table->jsonb('data');
                 $table->timestampsTz();
