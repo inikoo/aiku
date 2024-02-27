@@ -29,7 +29,7 @@ library.add(faSeedling, faShare, faSpellCheck, faCheck, faCheckDouble, faUser, f
 
 const props = defineProps<{
     title: string
-    tabs: object
+    tabs: {}
     pallets?: {
         data: {
             customer_name: string
@@ -43,12 +43,13 @@ const props = defineProps<{
             state: string
         }
     }
-    history?: object
-    pageHead: object
-    updateRoute: object
-    uploadRoutes: object
+    history?: {}
+    pageHead: {}
+    updateRoute: {}
+    uploadRoutes: {}
 }>()
-let currentTab = ref(props.tabs.current)
+
+const currentTab = ref(props.tabs.current)
 const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab)
 const loading = ref(false)
 const timeline = ref({ ...props.data.data })
@@ -115,7 +116,7 @@ const handleFormSubmitAddMultiplePallet = (data: object, closedPopover: Function
 const tableKey = ref(1)  // To re-render Table after click Confirm (so the Table retrieve the new props)
 
 // Button: Confirm
-const handleClickConfirm = async (action: {method: any, name: string, parameters: {palletDelivery: number}}) => {
+const handleClickConfirm = async (action: { method: any, name: string, parameters: { palletDelivery: number } }) => {
     loading.value = true
     router.post(route(action.name, action.parameters), {}, {
         onError: (e) => {
@@ -160,82 +161,84 @@ watch(props, (newValue) => {
 <template>
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead">
+        <!-- Button: add pallet (single) -->
         <template #button-group-add-pallet="{ action: action }">
-      <div class="relative">
-        <Popover :width="'w-full'" ref="_popover">
-          <template #button>
-            <Button :style="action.button.style" :label="action.button.label" :icon="action.button.icon"
-              :iconRight="action.button.iconRight" :key="`ActionButton${action.button.label}${action.button.style}`"
-              :tooltip="action.button.tooltip"
-              class="capitalize inline-flex items-center h-full rounded-none text-sm border-none font-medium shadow-sm focus:ring-transparent focus:ring-offset-transparent focus:ring-0" />
-          </template>
-          <template #content="{ close: closed }">
-            <div class="w-[250px]">
-              <span class="text-xs px-1 my-2">{{trans('Reference')}}: </span>
-              <div>
-                <PureInput v-model="formAddPallet.customer_reference" placeholder="Reference">
-                </PureInput>
-                <p v-if="get(formAddPallet, ['errors', 'customer_reference'])" class="mt-2 text-sm text-red-600">
-                  {{ formAddPallet.errors.customer_reference }}
-                </p>
-              </div>
+            <div class="relative">
+                <Popover width="w-full">
+                    <template #button>
+                        <Button :style="'primary'" :label="action.button.label" :icon="action.button.icon"
+                            :iconRight="action.button.iconRight"
+                            :key="`ActionButton${action.button.label}${action.button.style}`"
+                            :tooltip="action.button.tooltip"
+                            class="rounded-l-none rounded-r " />
+                    </template>
+                    
+                    <template #content="{ close: closed }">
+                        <div class="w-[250px]">
+                            <span class="text-xs px-1 my-2">{{ trans('Reference') }}: </span>
+                            <div>
+                                <PureInput v-model="formAddPallet.customer_reference" placeholder="Reference" />
+                                <p v-if="get(formAddPallet, ['errors', 'customer_reference'])"
+                                    class="mt-2 text-sm text-red-600">
+                                    {{ formAddPallet.errors.customer_reference }}
+                                </p>
+                            </div>
 
-              <div class="mt-3">
-                <span class="text-xs px-1 my-2">{{trans('Notes')}}: </span>
-                <textarea
-                  class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                  v-model="formAddPallet.notes" placeholder="Notes">
-              </textarea>
-                <p v-if="get(formAddPallet, ['errors', 'notes'])" class="mt-2 text-sm text-red-600">
-                  {{ formAddPallet.errors.notes }}
-                </p>
-              </div>
+                            <div class="mt-3">
+                                <span class="text-xs px-1 my-2">{{ trans('Notes') }}: </span>
+                                <textarea
+                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                    v-model="formAddPallet.notes" placeholder="Notes">
+                                </textarea>
+                                <p v-if="get(formAddPallet, ['errors', 'notes'])" class="mt-2 text-sm text-red-600">
+                                    {{ formAddPallet.errors.notes }}
+                                </p>
+                            </div>
 
-              <div class="flex justify-end mt-3">
-                <Button :style="'save'" :loading="loading" :label="'save'"
-                  @click="() => handleFormSubmitAddPallet(action.button, closed)" />
-              </div>
+                            <div class="flex justify-end mt-3">
+                                <Button :style="'save'" :loading="loading" :label="'save'" @click="() => handleFormSubmitAddPallet(action.button, closed)" />
+                            </div>
+                        </div>
+                    </template>
+                </Popover>
             </div>
-          </template>
-        </Popover>
-      </div>
-    </template>
-    <template #button-group-upload="{ action : action }">
-      <Button
-         :style="'upload'"
-         @click="()=>onUploadOpen(action.button)"
-         class="capitalize inline-flex items-center h-full rounded-none text-sm border-none font-medium shadow-sm focus:ring-transparent focus:ring-offset-transparent focus:ring-0"
-      />
-    </template>
-    <template #button-group-multiple="{ action: action }">
-      <div class="relative">
-        <Popover :width="'w-full'" ref="_popover">
-          <template #button>
-            <Button :style="action.button.style" :icon="action.button.icon"
-              :iconRight="action.button.iconRight" :key="`ActionButton${action.button.label}${action.button.style}`"
-              :tooltip="action.button.tooltip"
-              class="capitalize inline-flex items-center h-full rounded-none text-sm border-none font-medium shadow-sm focus:ring-transparent focus:ring-offset-transparent focus:ring-0"/>
-          </template>
-          <template #content="{ close: closed }">
-            <div class="w-[250px]">
-              <span class="text-xs px-1 my-2">number of pallets : </span>
-              <div>
-                <PureInput v-model="formMultiplePallet.number_pallets" placeholder="number of pallets" type="number"
-                  :min="1">
-                </PureInput>
-                <p v-if="get(formMultiplePallet, ['errors', 'customer_reference'])" class="mt-2 text-sm text-red-600">
-                  {{ formMultiplePallet.errors.number_pallets }}
-                </p>
-              </div>
-              <div class="flex justify-end mt-3">
-                <Button :style="'save'" :loading="loading" :label="'save'"
-                  @click="() => handleFormSubmitAddMultiplePallet(action.button, closed)" />
-              </div>
+        </template>
+
+        <!-- Button: Upload -->
+        <template #button-group-upload="{ action }">
+            <Button @click="() => onUploadOpen(action.button)" :style="'secondary'" icon="fal fa-upload" v-tooltip="'Upload pallet via file'" class="inline-flex items-center h-full rounded-l rounded-r-none border-none" />
+        </template>
+
+        <!-- Button: Add many pallete -->
+        <template #button-group-multiple="{ action }">
+            <div class="relative">
+                <Popover width="w-full">
+                    <template #button>
+                        <Button :style="action.button.style" :icon="action.button.icon" :iconRight="action.button.iconRight"
+                            :key="`ActionButton${action.button.label}${action.button.style}`"
+                            :tooltip="'Add multiple pallet'"
+                            class="rounded-none border-none" />
+                    </template>
+                    <template #content="{ close: closed }">
+                        <div class="w-[250px]">
+                            <span class="text-xs px-1 my-2">Number of pallets : </span>
+                            <div>
+                                <PureInput v-model="formMultiplePallet.number_pallets" placeholder="number of pallets" type="number" :min="1" />
+                                <p v-if="get(formMultiplePallet, ['errors', 'customer_reference'])" class="mt-2 text-sm text-red-600">
+                                    {{ formMultiplePallet.errors.number_pallets }}
+                                </p>
+                            </div>
+                            <div class="flex justify-end mt-3">
+                                <Button :style="'save'" :loading="loading" :label="'save'"
+                                    @click="() => handleFormSubmitAddMultiplePallet(action.button, closed)" />
+                            </div>
+                        </div>
+                    </template>
+                </Popover>
             </div>
-          </template>
-        </Popover>
-      </div>
-    </template>
+        </template>
+
+        <!-- Button: Confirm -->
         <template #button-confirm="{ action: action }">
             <div>
                 <!-- <Link as="Button" :style="action.action.style"
@@ -243,10 +246,8 @@ watch(props, (newValue) => {
                     :loading="loading" :href="route(action.action.route.name, action.action.route.parameters)" method="post">
                     <font-awesome-icon class="text-red-600" :icon="['far', 'trash-alt']" />
                 </Link> -->
-                <Button @click="handleClickConfirm(action.action.route)"
-                    :style="action.action.style"
-                    :label="action.action.label"
-                    :loading="loading" />
+                <Button @click="handleClickConfirm(action.action.route)" :style="action.action.style"
+                    :label="action.action.label" :loading="loading" />
             </div>
         </template>
     </PageHeading>
@@ -257,24 +258,30 @@ watch(props, (newValue) => {
 
     <div class="h-16 grid grid-cols-4 gap-x-2 px-6 my-4">
         <!-- Stats: User name -->
-        <div v-tooltip="'Customer name'" class="relative flex flex-col justify-center p-4 rounded-md bg-slate-200 border border-slate-300 overflow-hidden">
+        <div v-tooltip="'Customer name'"
+            class="relative flex flex-col justify-center p-4 rounded-md bg-slate-200 border border-slate-300 overflow-hidden">
             <!-- <div class="text-zinc-500">User name</div> -->
             <div class="text-2xl font-bold">{{ pallets?.data[0]?.customer_name }}</div>
-            <FontAwesomeIcon icon='fal fa-user' class='text-zinc-800/30 absolute text-[40px] right-2' fixed-width aria-hidden='true' />
+            <FontAwesomeIcon icon='fal fa-user' class='text-zinc-800/30 absolute text-[40px] right-2' fixed-width
+                aria-hidden='true' />
         </div>
 
         <!-- Stats: Delivery Status -->
-        <div v-tooltip="'Delivery status'" class="relative flex flex-col justify-center px-4 rounded-md bg-slate-200 border border-slate-300 overflow-hidden">
+        <div v-tooltip="'Delivery status'"
+            class="relative flex flex-col justify-center px-4 rounded-md bg-slate-200 border border-slate-300 overflow-hidden">
             <!-- <div class="text-gray-500">Delivery status</div> -->
             <div class="text-2xl font-bold capitalize leading-none">{{ data?.data.state }}</div>
-            <FontAwesomeIcon icon='fal fa-truck-couch' class='text-zinc-800/30 absolute text-[40px] right-2' fixed-width aria-hidden='true' />
+            <FontAwesomeIcon icon='fal fa-truck-couch' class='text-zinc-800/30 absolute text-[40px] right-2' fixed-width
+                aria-hidden='true' />
         </div>
 
         <!-- Stats: Pallet count -->
-        <div v-tooltip="'Total pallet'" class="relative flex flex-col justify-center p-4 rounded-md bg-slate-200 border border-slate-300 overflow-hidden">
+        <div v-tooltip="'Total pallet'"
+            class="relative flex flex-col justify-center p-4 rounded-md bg-slate-200 border border-slate-300 overflow-hidden">
             <!-- <div class="text-gray-500">Number of pallets</div> -->
             <div class="text-2xl font-bold capitalize">{{ pallets?.meta.total }}</div>
-            <FontAwesomeIcon icon='fal fa-pallet' class='text-zinc-800/30 absolute text-[40px] right-2' fixed-width aria-hidden='true' />
+            <FontAwesomeIcon icon='fal fa-pallet' class='text-zinc-800/30 absolute text-[40px] right-2' fixed-width
+                aria-hidden='true' />
         </div>
 
         <!-- <div class="relative flex flex-col justify-between p-4 rounded-md bg-fuchsia-200/70 border border-fuchsia-300 overflow-hidden">

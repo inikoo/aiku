@@ -42,11 +42,11 @@ let sizeClass = ''
 
 // Styling the Button depends on the 'style' props
 if (props.style == 'primary' || props.style == 'create' || props.style == 'save' || props.style == 'upload') {
-    styleClass = `border border-indigo-500 buttonPrimary`
+    styleClass = `buttonPrimary`
 }
 
 else if (props.style == 'secondary' || props.style == 'edit') {
-    styleClass = 'border border-indigo-500 text-gray-600 hover:bg-indigo-500/30 focus:bg-indigo-500 focus:text-white'
+    styleClass = 'buttonSecondary h-full text-gray-600 hover:bg-indigo-500/30 focus:bg-indigo-500 focus:text-white'
 }
 
 else if (props.style == 'tertiary') styleClass = 'bg-transparent border border-gray-300 text-gray-700 hover:bg-gray-200/70'
@@ -150,9 +150,6 @@ const getActionIcon = (icon: any) => {
             styleClass,
             sizeClass
         ]"
-        :style="{
-            color: layout?.app?.theme[5]
-        }"
         :disabled="style == 'disabled'"
         v-tooltip="tooltip ?? undefined"    
     >
@@ -174,10 +171,20 @@ const getActionIcon = (icon: any) => {
 <style lang="scss">
 
 .buttonPrimary {
-    background-color: v-bind('layout?.app?.theme[4]');
+    background-color: v-bind('layout?.app?.theme[4]') !important;
+    color: v-bind('layout?.app?.theme[5]') !important;
 
     &:hover {
-        filter: invert(15%);
+        background-color: v-bind('layout?.app?.theme[4] + "DD"') !important;
+    }
+}
+
+.buttonSecondary {
+    background-color: v-bind('layout?.app?.theme[4] + "22"') !important;
+    color: v-bind('layout?.app?.theme[4]') !important;
+
+    &:hover {
+        background-color: v-bind('layout?.app?.theme[4] + "19"') !important;
     }
 }
 </style>

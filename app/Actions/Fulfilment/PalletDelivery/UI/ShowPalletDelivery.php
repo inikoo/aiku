@@ -93,7 +93,7 @@ class ShowPalletDelivery extends OrgAction
                         'button' => [
                             [
                                 'type'  => 'button',
-                                'style' => 'primary',
+                                'style' => 'secondary',
                                 'icon'  => ['fal', 'fa-upload'],
                                 'label' => 'upload',
                                 'route' => [
@@ -105,7 +105,7 @@ class ShowPalletDelivery extends OrgAction
                             ],
                             [
                                 'type'  => 'button',
-                                'style' => 'primary',
+                                'style' => 'secondary',
                                 'icon'  => ['far', 'fa-layer-plus'],
                                 'label' => 'multiple',
                                 'route' => [
@@ -116,10 +116,11 @@ class ShowPalletDelivery extends OrgAction
                                 ]
                             ],
                             [
-                                'type'  => 'button',
-                                'style' => 'create',
-                                'label' => __('add pallet'),
-                                'route' => [
+                                'type'      => 'button',
+                                'style'     => 'create',
+                                'label'     => __('add pallet'),
+                                'tooltip'   => __('Add single pallet'),
+                                'route'     => [
                                     'name'       => 'grp.models.pallet-delivery.pallet.store',
                                     'parameters' => [
                                         'palletDelivery'     => $palletDelivery->id
