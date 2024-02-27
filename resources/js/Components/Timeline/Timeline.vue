@@ -19,7 +19,7 @@ const props = defineProps<{
     }[]
     state?:string
     width?:string | Number
-    slidesPerView?: Number
+    slidesPerView?: number
 }>()
 
 
@@ -48,7 +48,7 @@ onBeforeMount(stepsWithIndex)
 </script>
 
 <template>
-    <div class="w-full py-6 flex flex-col isolate">
+    <div class="w-full py-2 flex flex-col isolate">
         <Swiper ref="_swiperRef"
             :slideToClickedSlide="false"
             :slidesPerView="slidesPerView"
@@ -69,15 +69,15 @@ onBeforeMount(stepsWithIndex)
                         <div v-if="stepIndex !=  0" 
                             class="px-2 w-full absolute flex align-center items-center align-middle content-center -translate-x-1/2 top-1/2 -translate-y-1/2">
                             <div class="w-full rounded items-center align-middle align-center flex-1">
-                                <div class="w-full py-[2px] rounded"   :class="computeSetupState(step) ? 'bg-lime-500' : 'bg-gray-300'" />
+                                <div class="w-full py-[2px] rounded"   :class="computeSetupState(step) ? 'bg-green-500' : 'bg-gray-300'" />
                             </div>
                         </div>
                         
                     
                         <!-- Step: Head -->
-                        <div v-tooltip="step.label" class="border aspect-square mx-auto rounded-full text-lg flex justify-center items-center cursor-pointer" @click="()=>emits('updateButton',{step : step, options : finalOptions })"
+                        <div v-tooltip="step.label" class="border aspect-square mx-auto rounded-full text-lg flex justify-center items-center" @click="()=>emits('updateButton',{step : step, options : finalOptions })"
                             :class="[
-                                computeSetupState(step) ? 'border-lime-500 text-lime-600 bg-lime-300' : 'border-gray-300 text-gray-400 bg-white',
+                                computeSetupState(step) ? 'border-green-500 text-green-600 bg-green-300' : 'border-gray-300 text-gray-400 bg-white',
                                 step.icon ? 'h-9' : 'h-4'
                             ]"
                         >
@@ -86,12 +86,11 @@ onBeforeMount(stepsWithIndex)
                     </div>
 
                     <!-- Step: Description -->
-                    <div class="text-xs md:text-xs font-thin text-gray-500 text-center">
-                        {{ useFormatTime(step.timestamp, { formatTime: 'hms' }) }}
+                    <div v-tooltip="useFormatTime(step.timestamp, { formatTime: 'hms' })" class="text-xs md:text-xs font-thin text-gray-500 text-center select-none">
+                        {{ useFormatTime(step.timestamp) }}
                     </div>
                 </SwiperSlide>
             </template>
-            
         </Swiper>
     </div>
 </template>
