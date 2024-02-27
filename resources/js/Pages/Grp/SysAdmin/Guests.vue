@@ -16,7 +16,7 @@ const props = defineProps <{
 }>()
 
 </script>
-<template layout="Grp">
+<template>
     <Head :title="capitalize(title)"/>
     <PageHeading :data="pageHead"></PageHeading>
     <TableGuests :data="data" />

@@ -124,7 +124,7 @@ onBeforeUnmount(() => {
 </script>
 
 
-<template layout="Retina">
+<template>
     <Head :title="capitalize(title)"/>
     <PageHeading :data="pageHead"></PageHeading>
 

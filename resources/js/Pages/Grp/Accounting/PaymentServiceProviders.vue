@@ -14,7 +14,7 @@ defineProps(['payment_service_providers', 'title', 'pageHead']);
 
 </script>
 
-<template layout="Grp">
+<template>
     <!--suppress HtmlRequiredTitleElement -->
     <Head :title="capitalize(title)"/>
     <PageHeading :data="pageHead"></PageHeading>

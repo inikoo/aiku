@@ -5,7 +5,9 @@ import ValidationErrors from '@/Components/ValidationErrors.vue'
 import { trans } from 'laravel-vue-i18n'
 import { onMounted, ref, nextTick, watch } from 'vue'
 import Button from '@/Components/Elements/Buttons/Button.vue'
+import Layout from '@/Layouts/RetinaAuth.vue'
 
+defineOptions({ layout: Layout })
 const form = useForm({
     contact_name: '',
     username: '',
@@ -43,7 +45,7 @@ watch(() => form.password_confirmation, () => {
 
 </script>
 
-<template layout="RetinaAuth">
+<template>
     <Head title="Login" />
     <h1 class="text-center text-2xl font-bold text-slate-800">Register</h1>
     <form class="space-y-6 mt-7">

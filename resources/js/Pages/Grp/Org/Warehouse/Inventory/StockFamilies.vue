@@ -20,7 +20,7 @@ const props = defineProps<{
 
 </script>
 
-<template layout="Grp">
+<template>
     <!--suppress HtmlRequiredTitleElement -->
     <Head :title="capitalize(title)"/>
     <PageHeading :data="pageHead"></PageHeading>

@@ -28,7 +28,7 @@ const contactAddress = {
 }
 </script>
 
-<template layout="Public">
+<template>
     <div class="relative isolate bg-white">
         <div class="h-full mx-auto grid grid-cols-1 lg:grid-cols-2 py-24">
             <div class=" static flex">
@@ -58,7 +58,7 @@ const contactAddress = {
                     </p>
                 </div>
             </div>
-            
+
             <div class="px-6 self-center ">
                 <!-- Contact Section -->
                 <div class="pl-6 pt-0.5 flex flex-col text-lg pb-2 space-y-3 text-gray-500">

@@ -7,11 +7,14 @@
 <script setup lang="ts">
 import { useLayoutStore } from '@/Stores/layout'
 
+import Layout from '@/Layouts/Grp.vue'
+
+defineOptions({ layout: Layout })
+
 </script>
 
-<template layout="Grp">
+<template>
     <div>
-        resources/js/Pages/Grp/Dashboard/Dashboard.vue
         <!-- <pre>{{ route().v()?.params?.organisation }}</pre> -->
         <!-- <pre>{{ usePage().props }}</pre> -->
         <!-- <pre>{{ route(useLayoutStore().currentRoute, useLayoutStore().currentParams) }}</pre> -->

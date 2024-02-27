@@ -5,7 +5,7 @@
   -->
 
 <script setup lang="ts">
-import { Head, useForm, router, Link } from '@inertiajs/vue3'
+import { Head, useForm, router } from '@inertiajs/vue3'
 import PageHeading from '@/Components/Headings/PageHeading.vue'
 import { capitalize } from "@/Composables/capitalize"
 import Tabs from "@/Components/Navigation/Tabs.vue"
@@ -153,7 +153,7 @@ watch(props, (newValue) => {
 
 </script>
 
-<template layout="Grp">
+<template>
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead">
         <template #button-group-add-pallet="{ action: action }">
@@ -272,9 +272,9 @@ watch(props, (newValue) => {
             <div class="text-2xl font-bold capitalize">{{ pallets?.meta.total }}</div>
             <FontAwesomeIcon icon='fal fa-pallet' class='text-zinc-800/30 absolute text-[40px] right-2' fixed-width aria-hidden='true' />
         </div>
-        
+
         <!-- <div class="relative flex flex-col justify-between p-4 rounded-md bg-fuchsia-200/70 border border-fuchsia-300 overflow-hidden">
-        
+
         </div> -->
     </div>
 

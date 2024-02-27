@@ -19,7 +19,7 @@ library.add(faPeopleArrows, faBoxUsd, faPersonDolly, faTruckContainer, faClipboa
 
 </script>
 
-<template layout="Grp">
+<template>
     <Head :title="capitalize(title)"/>
     <PageHeading :data="pageHead"></PageHeading>
     <FlatTreeMap class="mx-4" v-for="(treeMap,idx) in flatTreeMaps" :key="idx" :nodes="treeMap"/>

@@ -49,7 +49,7 @@ const textRandom = `<div id="blackboard_1" style="position: relative; height: 46
 
 </script>
 
-<template layout="Public">
+<template>
     <Head :title="$t('Welcome to aiku')" />
     <div class="bg-white shadow-lg mx-auto max-w-7xl w-full">
 

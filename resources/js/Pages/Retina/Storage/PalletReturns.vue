@@ -9,9 +9,6 @@ import { Head, router, useForm } from '@inertiajs/vue3'
 import PageHeading from "@/Components/Headings/PageHeading.vue"
 import { capitalize } from "@/Composables/capitalize"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import Icon from "@/Components/Icon.vue"
-import Table from "@/Components/Table/Table.vue"
-
 import { ref } from "vue"
 import Popover from '@/Components/Popover.vue'
 import Button from '@/Components/Elements/Buttons/Button.vue'
@@ -110,7 +107,7 @@ function palletReturnRoute(palletReturn: PalletDelivery) {
 }
 </script>
 
-<template layout="Retina">
+<template>
     <Head :title="capitalize(title)" />
     <!-- <pre>{{ usePage().props.data }}</pre> -->
     <PageHeading :data="pageHead">

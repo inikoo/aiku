@@ -14,7 +14,6 @@ import { faRoad, faTerminal } from '@fal';
 import TableUserRequestLogs from "@/Components/Tables/TableUserRequestLogs.vue";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { capitalize } from "@/Composables/capitalize";
-import PageHeading from "@/Components/Headings/PageHeading.vue";
 
 library.add(faRoad, faTerminal);
 const props = defineProps<{
@@ -44,7 +43,7 @@ const component = computed(() => {
 
 </script>
 
-<template layout="Grp">
+<template>
     <Head :title="capitalize(title)" />
     <!-- <PageHeading :data="pageHead"></PageHeading> -->
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />

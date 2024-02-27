@@ -18,7 +18,7 @@ const props = defineProps({
 
 </script>
 
-<template layout="Grp">
+<template>
    <Error :status="status"  :title="capitalize(title)"  :description="description" ></Error>
 </template>
 

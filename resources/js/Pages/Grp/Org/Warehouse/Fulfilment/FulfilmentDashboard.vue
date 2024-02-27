@@ -179,7 +179,7 @@ const options = {
 </script>
 
 
-<template layout="Grp">
+<template>
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead"></PageHeading>
 

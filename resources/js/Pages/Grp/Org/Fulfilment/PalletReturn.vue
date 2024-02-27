@@ -9,14 +9,14 @@ import { Head, useForm, router } from "@inertiajs/vue3"
 import PageHeading from "@/Components/Headings/PageHeading.vue"
 import { capitalize } from "@/Composables/capitalize"
 import Tabs from "@/Components/Navigation/Tabs.vue"
-import { computed, ref, reactive, watch } from "vue"
+import { computed, ref, watch } from "vue"
 import { useTabChange } from "@/Composables/tab-change"
 import TableHistories from "@/Components/Tables/TableHistories.vue"
 import Timeline from "@/Components/Timeline/Timeline.vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import Modal from "@/Components/Utils/Modal.vue"
 import TablePalletReturn from "@/Components/PalletReturn/tablePalletReturn.vue"
-import TablePalletRetrunsDelivery from "@/Components/Tables/TablePalletRetrunsDelivery.vue"
+import TablePalletReturnsDelivery from "@/Components/Tables/TablePalletReturnsDelivery.vue"
 
 const props = defineProps<{
 	title: string
@@ -113,7 +113,7 @@ const handleClick = (action) => {
 
 const component = computed(() => {
 	const components = {
-		pallets: TablePalletRetrunsDelivery,
+		pallets: TablePalletReturnsDelivery,
 		history: TableHistories,
 	}
 	return components[currentTab.value]
@@ -134,7 +134,7 @@ watch(
 
 </script>
 
-<template layout="Grp">
+<template>
 	<Head :title="capitalize(title)" />
 	<PageHeading :data="pageHead">
 		<template #button-group-add-pallet="{ action: action }">

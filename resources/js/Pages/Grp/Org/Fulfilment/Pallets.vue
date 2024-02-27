@@ -24,7 +24,7 @@ const form = useForm({ pallet : []})
 
 </script>
 
-<template layout="Grp">
+<template>
     <Head :title="capitalize(title)"/>
     <PageHeading :data="pageHead">
     <template #button-new-delivery="{ action: action }">

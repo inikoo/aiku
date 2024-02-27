@@ -43,7 +43,7 @@ const textPickpack = `<h1 class="font-bold text-3xl mt-3 mb-1">Pick &amp; Pack</
 </div>`
 </script>
 
-<template layout="Public">
+<template>
     <div class="py-10 max-w-5xl mx-auto">
         <div class="h-fit w-fit mx-auto rounded-md overflow-hidden">
             <img src="https://www.aw-fulfilment.co.uk/wi.php?id=1830554" class="h-auto aspect-auto" alt="">

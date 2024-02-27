@@ -9,7 +9,6 @@ import '../css/app.css';
 
 import {createApp, h} from 'vue';
 import {createInertiaApp} from '@inertiajs/vue3';
-import {resolvePageComponent} from 'laravel-vite-plugin/inertia-helpers';
 import {ZiggyVue} from '../../vendor/tightenco/ziggy/dist/vue.m';
 import {i18nVue} from 'laravel-vue-i18n';
 import Notifications from '@kyvg/vue3-notification';
@@ -17,6 +16,7 @@ import {createPinia} from 'pinia';
 import * as Sentry from '@sentry/vue';
 import FloatingVue from 'floating-vue'
 import 'floating-vue/dist/style.css'
+import Layout from '@/Layouts/Public.vue'
 
 const appName = window.document.getElementsByTagName('title')[0]?.innerText ||
     'iris';
@@ -24,11 +24,12 @@ const appName = window.document.getElementsByTagName('title')[0]?.innerText ||
 createInertiaApp(
     {
       title  : (title) => `${title} - ${appName}`,
-      resolve: (name) =>
-          resolvePageComponent(
-              `./Pages/Iris/${name}.vue`,
-              import.meta.glob('./Pages/Iris/**/*.vue'),
-          ),
+        resolve: name => {
+            const pages = import.meta.glob('./Pages/Iris/**/*.vue', { eager: true })
+            let page = pages[`./Pages/Iris/${name}.vue`]
+            page.default.layout = page.default.layout || Layout
+            return page
+        },
       setup({el, App, props, plugin}) {
         const app = createApp({render: () => h(App, props)});
         if (import.meta.env.VITE_SENTRY_CUST_DSN) {

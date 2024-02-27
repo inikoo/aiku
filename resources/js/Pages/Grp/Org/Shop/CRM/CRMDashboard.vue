@@ -34,7 +34,7 @@ const props = defineProps<{
 </script>
 
 
-<template layout="Grp">
+<template>
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead"></PageHeading>
     <stats class="p-4" :stats="stats"/>
