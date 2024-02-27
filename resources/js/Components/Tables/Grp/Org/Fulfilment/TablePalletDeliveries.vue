@@ -74,9 +74,9 @@ function customerRoute(palletDelivery: PalletDelivery) {
 
 
         <template #cell(reference)="{ item: palletDelivery }">
-        <Link :href="palletDeliveryRoute(palletDelivery)" class="specialUnderline">
-            {{ palletDelivery['reference'] }}
-        </Link>
+            <Link :href="palletDeliveryRoute(palletDelivery)" class="specialUnderlineSecondary">
+                {{ palletDelivery['reference'] }}
+            </Link>
         </template>
 
         <template #cell(customer_name)="{ item: palletDelivery }">

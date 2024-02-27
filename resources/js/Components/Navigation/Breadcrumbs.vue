@@ -15,6 +15,7 @@ import { faBars } from '@fal'
 import { faSparkles, faArrowFromLeft, faArrowLeft, faArrowRight } from '@fas'
 import { capitalize } from "@/Composables/capitalize"
 import { routeType } from '@/types/route'
+import { useLayoutStore } from '@/Stores/layout'
 
 library.add(faSparkles, faArrowFromLeft, faArrowLeft, faArrowRight, faChevronRight, faBars)
 
@@ -79,7 +80,9 @@ router.on('navigate', (event) => {
 </script>
 
 <template>
-    <nav class="py-4 md:py-0 flex text-gray-600 border-b h-6 border-gray-200 text-sm" aria-label="Breadcrumb">
+    <nav class="py-4 md:py-0 flex text-gray-600 border-b h-6 border-gray-200 text-sm" aria-label="Breadcrumb"
+        :class="[useLayoutStore().leftSidebar.show ? 'pr-0 md:pr-48' : 'pr-0 md:pr-12']"
+    >
         <!-- Breadcrumb -->
         <ol role="list" class="w-full mx-auto px-4 flex">
             <li v-for="(breadcrumb, breadcrumbIdx) in breadcrumbs" :key="breadcrumbIdx"
