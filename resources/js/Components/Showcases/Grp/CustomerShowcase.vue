@@ -11,7 +11,8 @@ import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement
 import { Line } from 'vue-chartjs'
 import PureRadio from '@/Components/Pure/PureRadio.vue'
 import { ref } from 'vue'
-import { useFormatTime } from '@/Composables/useFormatTime copy'
+import { useFormatTime } from '@/Composables/useFormatTime'
+import CustomerShowcaseStats from '@/Components/Showcases/Grp/CustomerShowcaseStats.vue'
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend)
 
@@ -47,11 +48,6 @@ const customerStats = [
     {
         title: 'Pallets',
         value: props.data.fulfilment_customer.number_pallets,
-        icon: 'fal fa-pallet'
-    },
-    {
-        title: 'Pallets been received',
-        value: props.data.fulfilment_customer.number_pallets_state_received,
         icon: 'fal fa-pallet'
     },
     {
@@ -114,7 +110,6 @@ const optionRadio = [
                     {{ data.customer.shop }}<span class="text-gray-400">({{ data.customer.number_active_clients || 0 }} clients)</span>
                 </div>
             </div>
-
             <div class="space-y-3 text-sm text-gray-100">
                 <div class="border-l-2 border-gray-500 pl-4">
                     <h3 class="font-bold">Phone</h3>
@@ -138,24 +133,7 @@ const optionRadio = [
         </div>
 
         <!-- Section: Stats box -->
-        <div class="grid grid-cols-2 gap-y-2 gap-x-2 text-gray-600">
-            <div v-for="stat in customerStats" class="border border-gray-50 rounded p-3" :style="{
-                border: `1px solid ${useLayoutStore().app.theme[4] + '22'}`
-            }">
-                <div class="flex justify-between mb-1">
-                    <div>
-                        <span class="block text-gray-400 font-medium mb-2">{{ stat.title }}</span>
-                        <div class="font-bold text-2xl">{{ stat.value || 0 }}</div>
-                    </div>
-                    <div class="h-10 aspect-square flex items-center justify-center rounded" :style="{
-                        backgroundColor: useLayoutStore().app?.theme[2] + '22',
-                        color: useLayoutStore().app.theme[2]
-                    }">
-                        <FontAwesomeIcon :icon='stat.icon' class='' fixed-width aria-hidden='true' />
-                    </div>
-                </div>
-            </div>
-        </div>
+        <CustomerShowcaseStats />
     </div>
 
 </template>
