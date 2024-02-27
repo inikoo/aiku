@@ -12,42 +12,59 @@ import inertia from "./resources/scripts/vite/inertia-layout";
 import { fileURLToPath, URL } from "node:url";
 
 export default defineConfig(
-  {
-    plugins: [
-      inertia(),
-      laravel({
-                hotFile       : "public/retina.hot",
-                buildDirectory: "retina",
-                input         : "resources/js/app-retina.js",
-                ssr           : "resources/js/ssr-retina.js",
-                refresh       : true
-              }),
-      vue({
-            template: {
-              transformAssetUrls: {
-                base           : null,
-                includeAbsolute: false
-              }
+    {
+        plugins: [
+            inertia(),
+            laravel({
+                        hotFile       : "public/retina.hot",
+                        buildDirectory: "retina",
+                        input         : "resources/js/app-retina.js",
+                        ssr           : "resources/js/ssr-retina.js",
+                        refresh       : true
+                    }),
+            vue({
+                    template: {
+                        transformAssetUrls: {
+                            base           : null,
+                            includeAbsolute: false
+                        }
+                    }
+                }),
+            i18n()
+        ],
+        ssr    : {
+            noExternal: ["@inertiajs/server"]
+        },
+        resolve: {
+            alias: {
+                "@fad": fileURLToPath(
+                    new URL("./private/fa/pro-duotone-svg-icons",
+                            import.meta.url)),
+                "@fal": fileURLToPath(
+                    new URL("./private/fa/pro-light-svg-icons",
+                            import.meta.url)),
+                "@far": fileURLToPath(
+                    new URL("./private/fa/pro-regular-svg-icons",
+                            import.meta.url)),
+                "@fas": fileURLToPath(
+                    new URL("./private/fa/pro-solid-svg-icons",
+                            import.meta.url))
             }
-          }),
-      i18n()
-    ],
-    ssr    : {
-      noExternal: ["@inertiajs/server"]
-    },
-    resolve: {
-      alias: {
-        "@fad": fileURLToPath(
-          new URL("./private/fa/pro-duotone-svg-icons", import.meta.url)),
-        "@fal": fileURLToPath(
-          new URL("./private/fa/pro-light-svg-icons", import.meta.url)),
-        "@far": fileURLToPath(
-          new URL("./private/fa/pro-regular-svg-icons", import.meta.url)),
-        "@fas": fileURLToPath(
-          new URL("./private/fa/pro-solid-svg-icons", import.meta.url))
-      }
-    },
-    build  : {
-      sourcemap: true
-    }
-  });
+        },
+        build  : {
+            sourcemap    : true,
+            devSourcemap : true,
+            rollupOptions: {
+                output: {
+                    manualChunks(id) {
+                        if (id.includes("node_modules") &&
+                            !id.includes("sentry")) {
+                            return id.toString().
+                                split("node_modules/")[1].split(
+                                "/")[0].toString();
+                        }
+                    }
+                }
+            }
+        }
+    });
