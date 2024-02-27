@@ -43,7 +43,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property PalletStatusEnum $status
  * @property PalletStateEnum $state
  * @property PalletTypeEnum $type
- * @property string $notes
+ * @property string|null $notes
  * @property int $number_stored_items
  * @property string|null $received_at
  * @property string|null $booked_in_at

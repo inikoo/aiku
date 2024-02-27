@@ -53,6 +53,19 @@ use Illuminate\Support\Carbon;
  * @property int $number_stored_items_status_damaged
  * @property int $number_stored_items_status_lost
  * @property int $number_stored_items_status_returned
+ * @property int $number_pallet_deliveries
+ * @property int $number_pallet_deliveries_state_in_process
+ * @property int $number_pallet_deliveries_state_submitted
+ * @property int $number_pallet_deliveries_state_confirmed
+ * @property int $number_pallet_deliveries_state_received
+ * @property int $number_pallet_deliveries_state_booked_in
+ * @property int $number_pallet_returns
+ * @property int $number_pallet_returns_state_in_process
+ * @property int $number_pallet_returns_state_submitted
+ * @property int $number_pallet_returns_state_confirmed
+ * @property int $number_pallet_returns_state_in_delivery
+ * @property int $number_pallet_returns_state_received
+ * @property int $number_pallet_returns_state_done
  * @property int $number_customers_with_stored_items
  * @property int $number_customers_with_pallets
  * @property int $number_customers_with_stored_items_state_in_process

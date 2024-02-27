@@ -10,6 +10,8 @@ namespace App\Stubs\Migrations;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
+use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
+use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Enums\Fulfilment\StoredItem\StoredItemStateEnum;
 use App\Enums\Fulfilment\StoredItem\StoredItemStatusEnum;
 use App\Enums\Fulfilment\StoredItem\StoredItemTypeEnum;
@@ -44,6 +46,19 @@ trait HasFulfilmentStats
         foreach (StoredItemStatusEnum::cases() as $status) {
             $table->unsignedInteger("number_stored_items_status_{$status->snake()}")->default(0);
         }
+
+        $table->unsignedInteger('number_pallet_deliveries')->default(0);
+
+        foreach (PalletDeliveryStateEnum::cases() as $case) {
+            $table->unsignedInteger("number_pallet_deliveries_state_{$case->snake()}")->default(0);
+        }
+
+        $table->unsignedInteger('number_pallet_returns')->default(0);
+
+        foreach (PalletReturnStateEnum::cases() as $case) {
+            $table->unsignedInteger("number_pallet_returns_state_{$case->snake()}")->default(0);
+        }
+
 
         return $table;
     }

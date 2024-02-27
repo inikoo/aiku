@@ -7,6 +7,7 @@
 
 namespace App\Http\Resources\Sales;
 
+use App\Http\Resources\HasSelfCall;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
@@ -25,6 +26,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  */
 class CustomerResource extends JsonResource
 {
+    use HasSelfCall;
     public function toArray($request): array
     {
         return [
