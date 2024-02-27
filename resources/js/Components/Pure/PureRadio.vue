@@ -1,6 +1,4 @@
 <script setup lang="ts">
-// T3
-import { ref } from 'vue'
 import { RadioGroup, RadioGroupLabel, RadioGroupOption, RadioGroupDescription } from '@headlessui/vue'
 // import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 // import { faCheck } from '@far'

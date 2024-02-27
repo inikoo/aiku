@@ -5,34 +5,45 @@
   -->
 
 <script setup lang="ts">
-import { Head, useForm } from '@inertiajs/vue3';
-import PageHeading from "@/Components/Headings/PageHeading.vue";
+import { Head, useForm } from '@inertiajs/vue3'
+import PageHeading from "@/Components/Headings/PageHeading.vue"
 import { capitalize } from "@/Composables/capitalize"
-import { library } from "@fortawesome/fontawesome-svg-core";
+import { library } from "@fortawesome/fontawesome-svg-core"
+import {
+    Dialog,
+    DialogPanel,
+    DialogTitle,
+    TransitionChild,
+    TransitionRoot,
+} from "@headlessui/vue"
+import TableStoredItems from "@/Components/Tables/TableStoredItems.vue"
+import { router } from '@inertiajs/vue3'
+import TablePalletReturns from "@/Components/Tables/TablePalletReturns.vue"
 
-import ModelDetails from "@/Components/ModelDetails.vue";
-import TablePallets from "@/Components/Tables/TablePallets.vue";
-import { useTabChange } from "@/Composables/tab-change";
-import { computed, defineAsyncComponent, ref } from "vue";
-import Tabs from "@/Components/Navigation/Tabs.vue";
-import TablePalletDeliveries from '@/Components/Tables/Grp/Org/Fulfilment/TablePalletDeliveries.vue';
-import Popover from '@/Components/Popover.vue';
-import CustomerShowcase from "@/Components/Showcases/Grp/CustomerShowcase.vue";
+import ModelDetails from "@/Components/ModelDetails.vue"
+import TablePallets from "@/Components/Tables/TablePallets.vue"
+import { useTabChange } from "@/Composables/tab-change"
+import { computed, defineAsyncComponent, ref } from "vue"
+import Tabs from "@/Components/Navigation/Tabs.vue"
+import TablePalletDeliveries from '@/Components/Tables/Grp/Org/Fulfilment/TablePalletDeliveries.vue'
+import Popover from '@/Components/Popover.vue'
+import CustomerShowcase from "@/Components/Showcases/Grp/CustomerShowcase.vue"
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import Multiselect from "@vueform/multiselect"
 import { Link } from "@inertiajs/vue3"
-import { get } from 'lodash';
-import axios from 'axios';
-import TableDispatchedEmails from "@/Components/Tables/TableDispatchedEmails.vue";
-import {  faStickyNote,faPallet,
-    faUser, faNarwhal, faTruckCouch,faFileInvoiceDollar,faSignOutAlt,
-    faPaperclip,faPaperPlane
-} from '@fal';
+import { get } from 'lodash'
+import axios from 'axios'
+import TableDispatchedEmails from "@/Components/Tables/TableDispatchedEmails.vue"
+import {
+    faStickyNote, faPallet,
+    faUser, faNarwhal, faTruckCouch, faFileInvoiceDollar, faSignOutAlt,
+    faPaperclip, faPaperPlane
+} from '@fal'
 library.add(
-    faStickyNote,faUser,
+    faStickyNote, faUser,
     faNarwhal,
-    faTruckCouch,faPallet,faFileInvoiceDollar,faSignOutAlt,
-    faPaperclip,faPaperPlane
+    faTruckCouch, faPallet, faFileInvoiceDollar, faSignOutAlt,
+    faPaperclip, faPaperPlane
 )
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChangelog.vue'))
@@ -41,8 +52,8 @@ const props = defineProps<{
     title: string,
     pageHead: object,
     tabs: {
-        current: string;
-        navigation: object;
+        current: string
+        navigation: object
     }
     showcase?: object
     invoices?: object
@@ -53,8 +64,8 @@ const props = defineProps<{
     pallet_returns?: object
 }>()
 
-let currentTab = ref(props.tabs.current);
-const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
+let currentTab = ref(props.tabs.current)
+const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab)
 
 const component = computed(() => {
 
@@ -68,36 +79,26 @@ const component = computed(() => {
         pallet_deliveries: TablePalletDeliveries,
         pallet_returns: TablePalletReturns
 
-    };
-    return components[currentTab.value];
+    }
+    return components[currentTab.value]
 
-});
-
-import {
-    Dialog,
-    DialogPanel,
-    DialogTitle,
-    TransitionChild,
-    TransitionRoot,
-} from "@headlessui/vue";
-import TableStoredItems from "@/Components/Tables/TableStoredItems.vue";
-import { router } from '@inertiajs/vue3'
-import TablePalletReturns from "@/Components/Tables/TablePalletReturns.vue";
+})
 
 
-const isOpen = ref(false);
+
+const isOpen = ref(false)
 const warehouseValue = ref(null)
 const errorMessage = ref(null)
 
 function setIsOpen(value) {
-    isOpen.value = value;
+    isOpen.value = value
 }
 
 const webUserForm = useForm({
     // username: props["customer"].email,
     username: null,
     password: null,
-});
+})
 
 
 const sendWarehouse = async (data: object) => {
@@ -105,8 +106,8 @@ const sendWarehouse = async (data: object) => {
         const response = await axios.post(
             route(data.route?.name, data.route?.parameters),
             { warehouse_id: get(warehouseValue.value, 'id') }
-        );
-        router.visit(route(response.data.route.name,response.data.route.parameters))
+        )
+        router.visit(route(response.data.route.name, response.data.route.parameters))
     } catch (error) {
         console.log('error', error)
         errorMessage.value = error.response.data.message
@@ -152,13 +153,12 @@ const warehouseChange = (value) => {
                 </Popover>
             </div>
             <div v-else>
-                <Link
-                    :href="route(action.action.route?.name, action.action.route?.parameters) "
-                    :method="'post'" :as="'button'">
+                <Link :href="route(action.action.route?.name, action.action.route?.parameters)" :method="'post'"
+                    :as="'button'">
                 <Button :style="action.action.style" :label="action.action.label" :icon="action.action.icon"
                     :iconRight="action.action.iconRight" :key="`ActionButton${action.action.label}${action.action.style}`"
                     :tooltip="action.action.tooltip" />
-             </Link>
+                </Link>
             </div>
 
         </template>
@@ -204,6 +204,7 @@ const warehouseChange = (value) => {
     </TransitionRoot>
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
     <component :is="component" :data="props[currentTab]" :tab="currentTab"></component>
+
 </template>
 
 
