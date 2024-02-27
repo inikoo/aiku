@@ -22,6 +22,10 @@ class GetFulfilmentCustomerShowcase
 
             'customer'            => CustomerResource::make($fulfilmentCustomer->customer)->getArray(),
             'fulfilment_customer' => FulfilmentCustomerResource::make($fulfilmentCustomer)->getArray(),
+            'updateRoute'         => [
+                'name'       => 'grp.models.fulfilment-customer.update',
+                'parameters' => [$fulfilmentCustomer->id]
+            ]
 
 
         ];
