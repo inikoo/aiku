@@ -22,6 +22,8 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property string $shop_slug
  * @property string $slug
  * @property int $number_pallets
+ * @property int $id
+ * @property int $number_pallets_status_storing
  */
 class FulfilmentCustomersResource extends JsonResource
 {

@@ -40,7 +40,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $submitted_at
  * @property \Illuminate\Support\Carbon|null $confirmed_at
  * @property \Illuminate\Support\Carbon|null $received_at
- * @property string|null $booked_in_at
+ * @property \Illuminate\Support\Carbon|null $booked_in_at
  * @property string|null $date
  * @property array|null $data
  * @property \Illuminate\Support\Carbon|null $created_at

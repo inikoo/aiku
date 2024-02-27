@@ -7,9 +7,9 @@
 
 namespace App\Actions\Fulfilment\FulfilmentCustomer;
 
-use App\Actions\CRM\Customer\UI\GetCustomerShowcase;
 use App\Actions\CRM\WebUser\IndexWebUsers;
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
+use App\Actions\Fulfilment\FulfilmentCustomer\UI\GetFulfilmentCustomerShowcase;
 use App\Actions\Fulfilment\Pallet\UI\IndexPallets;
 use App\Actions\Fulfilment\PalletDelivery\UI\IndexPalletDeliveries;
 use App\Actions\Fulfilment\PalletReturn\UI\IndexPalletReturns;
@@ -126,8 +126,8 @@ class ShowFulfilmentCustomer extends OrgAction
                 ],
 
                 CustomerFulfilmentTabsEnum::SHOWCASE->value => $this->tab == CustomerFulfilmentTabsEnum::SHOWCASE->value ?
-                    fn () => GetCustomerShowcase::run($fulfilmentCustomer->customer)
-                    : Inertia::lazy(fn () => GetCustomerShowcase::run($fulfilmentCustomer->customer)),
+                    fn () => GetFulfilmentCustomerShowcase::run($fulfilmentCustomer)
+                    : Inertia::lazy(fn () => GetFulfilmentCustomerShowcase::run($fulfilmentCustomer)),
 
 
                 CustomerFulfilmentTabsEnum::PALLETS->value => $this->tab == CustomerFulfilmentTabsEnum::PALLETS->value ?
