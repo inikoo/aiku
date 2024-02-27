@@ -20,16 +20,29 @@ import PureInput from '@/Components/Pure/PureInput.vue'
 import { get } from 'lodash'
 import UploadExcel from '@/Components/Upload/UploadExcel.vue'
 import { trans } from "laravel-vue-i18n"
+
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faSeedling, faShare, faSpellCheck, faCheck, faCheckDouble } from '@fal'
-library.add(faSeedling, faShare, faSpellCheck, faCheck, faCheckDouble)
+import { faSeedling, faShare, faSpellCheck, faCheck, faCheckDouble, faUser, faTruckCouch, faPallet } from '@fal'
+library.add(faSeedling, faShare, faSpellCheck, faCheck, faCheckDouble, faUser, faTruckCouch, faPallet)
 
 
 const props = defineProps<{
     title: string
     tabs: object
-    pallets?: object
-    data?: object
+    pallets?: {
+        data: {
+            customer_name: string
+        }[]
+        meta: {
+            total: number
+        }
+    }
+    data?: {
+        data: {
+            state: string
+        }
+    }
     history?: object
     pageHead: object
     updateRoute: object
@@ -225,9 +238,37 @@ watch(props, (newValue) => {
       </div>
     </template> -->
     </PageHeading>
+
     <div v-if="timeline.state != 'in-process'" class="border-b border-gray-200">
         <Timeline :options="timeline.timeline" :state="timeline.state" :slidesPerView="5" />
     </div>
+
+    <div class="h-36 grid grid-cols-4 gap-x-2 px-6 my-4">
+        <!-- Stats: User name -->
+        <div class="relative flex flex-col justify-between p-4 rounded-md bg-indigo-200/70 border border-indigo-300 overflow-hidden">
+            <div class="text-zinc-500">User name</div>
+            <div class="text-2xl font-bold">{{ pallets?.data[0]?.customer_name }}</div>
+            <FontAwesomeIcon icon='fal fa-user' class='text-zinc-800/10 absolute text-[150px] right-0 bottom-0 translate-x-1/4 translate-y-1/4' fixed-width aria-hidden='true' />
+        </div>
+
+        <!-- Stats: Delivery Status -->
+        <div class="relative flex flex-col justify-between p-4 rounded-md bg-slate-200/70 border border-slate-300 overflow-hidden">
+            <div class="text-gray-500">Delivery status</div>
+            <div class="text-2xl font-bold capitalize">{{ data?.data.state }}</div>
+            <FontAwesomeIcon icon='fal fa-pallet' class='text-zinc-800/10 absolute text-[150px] right-0 bottom-0 translate-x-1/4 translate-y-1/4' fixed-width aria-hidden='true' />
+        </div>
+
+        <div class="relative flex flex-col justify-between p-4 rounded-md bg-sky-200/70 border border-sky-300 overflow-hidden">
+            <div class="text-gray-500">Number of pallets</div>
+            <div class="text-2xl font-bold capitalize">{{ pallets?.meta.total }}</div>
+            <FontAwesomeIcon icon='fal fa-truck-couch' class='text-zinc-800/10 absolute text-[150px] right-0 bottom-0 translate-x-1/4 translate-y-1/4' fixed-width aria-hidden='true' />
+        </div>
+        
+        <div class="relative flex flex-col justify-between p-4 rounded-md bg-fuchsia-200/70 border border-fuchsia-300 overflow-hidden">
+        
+        </div>
+    </div>
+
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
     <component :is="component" :data="props[currentTab]" :state="timeline.state" :tab="currentTab"></component>
 
@@ -236,4 +277,6 @@ watch(props, (newValue) => {
         download: props.uploadRoutes.download,
         history: props.uploadRoutes.history
     }" :dataModal="dataModal" />
+<!-- 
+    <pre>{{ props.pallets.meta.total }}</pre> -->
 </template>
