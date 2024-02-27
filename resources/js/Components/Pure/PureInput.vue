@@ -48,7 +48,6 @@ const clearValue=()=>{
 }
 
 const onChange=(event: any)=>{
-    console.log('sdfsdf',event.target.value)
     emits('update:modelValue', event.target.value)
     emits('input', event.target.value)
 }

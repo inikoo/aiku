@@ -18,6 +18,7 @@ import { faTimesSquare } from "@fas";
 import { faTrashAlt, faPaperPlane, faInventory } from "@far";
 import { faSignOutAlt, faTruckLoading } from "@fal";
 import {useLayoutStore} from "@/Stores/retinaLayout";
+import Flied from '@/Components/FieldEditableTable.vue'
 
 library.add(
     faTrashAlt, faSignOutAlt, faPaperPlane, faInventory, faTruckLoading,faTimesSquare
@@ -29,25 +30,46 @@ const props = defineProps<{
 }>();
 
 
-const onSave = async (pallet: object, value: object) => {
+const onSave = async (pallet: object, fieldName: string) => {
+    console.log('inii',pallet,fieldName)
+    pallet.form.processing = true;
     try {
         await axios.patch(
             route(pallet.updateRoute.name,
                 pallet.deleteRoute.parameters
             ),
-            value
+            { [fieldName]: pallet.form.data()[fieldName] }
         );
+        pallet.form.processing = false;
+        pallet.form.wasSuccessful = true;
+        pallet.form.hasErrors = false;
     } catch (error: any) {
-        console.log(error);
-        if (error.response.data.message)
-            notify({
-                title: "Failed to update",
-                text: error.response.data.message,
-                type: "error"
-            });
+        pallet.form.processing = false;
+        pallet.form.wasSuccessful = false;
+        pallet.form.hasErrors = true;
+        if (error.response && error.response.data && error.response.data.errors) {
+            const errors = error.response.data.errors;
+            const setErrors = {};
+            for (const er in errors) {
+                setErrors[er] = errors[er][0];
+            }
+            pallet.form.setError(setErrors);
+        } else {
+            if (error.response.data.message)
+                notify({
+                    title: "Failed to update",
+                    text: error.response.data.message,
+                    type: "error"
+                });
+        }
     }
 
+    // Setelah 5 detik, back to  normal
+    setTimeout(() => {
+        pallet.form.wasSuccessful = false;
+    }, 3000);
 };
+
 const layout = useLayoutStore();
 
 </script>
@@ -59,21 +81,13 @@ const layout = useLayoutStore();
         </template>
         <template #cell(customer_reference)="{ item: item }">
             <div v-if="state == 'in-process'">
-                <PureInput
-                    v-model="item.customer_reference"
-                    @blur="(value) =>{ if(value) onSave(item, { customer_reference: value })}"
-                    @onEnter="(value) =>{ if(value)  onSave(item, { customer_reference: value })}"
-                />
+               <Flied :data="item" @onSave="onSave" fieldName="customer_reference" />
             </div>
             <div v-else>{{ item["customer_reference"] }}</div>
         </template>
         <template #cell(notes)="{ item: item }">
             <div v-if="state == 'in-process'">
-                <PureInput
-                    v-model="item.notes"
-                    @blur="(value) => { if(value) onSave(item, { notes: value }) } "
-                    @onEnter="(value) => { if(value) onSave(item, { notes: value }) }"
-                />
+                <Flied :data="item" @onSave="onSave" fieldName="note" />
             </div>
             <div v-else>{{ item["notes"] }}</div>
         </template>
