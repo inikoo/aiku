@@ -7,7 +7,7 @@ import { computed, ref, watch } from "vue"
 import { useTabChange } from "@/Composables/tab-change"
 import TableHistories from "@/Components/Tables/TableHistories.vue"
 import TablePalletDeliveryPallets from '@/Components/Tables/TablePalletDeliveryPallets.vue'
-import Timeline from '@/Components/Timeline/Timeline.vue'
+import Timeline from '@/Components/Utils/Timeline.vue'
 import Popover from '@/Components/Popover.vue'
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import PureInput from '@/Components/Pure/PureInput.vue'
