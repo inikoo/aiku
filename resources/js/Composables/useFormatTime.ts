@@ -2,9 +2,9 @@ import { format, formatDuration, intervalToDuration, addSeconds, formatDistanceT
 import formatDistanceToNow from 'date-fns/formatDistanceToNow'
 import { zhCN, enUS, fr, de, id, ja, sk, es } from 'date-fns/locale'
 
-const localesCode: any = { zhCN, enUS, fr, de, id, ja, sk, es }
+export const localesCode: any = { zhCN, enUS, fr, de, id, ja, sk, es }
 
-interface OptionsTime {
+export interface OptionsTime {
     formatTime?: string
     localeCode?: string
 }
