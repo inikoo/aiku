@@ -5,7 +5,7 @@
 -->
 
 <script setup lang="ts">
-import { defineProps, withDefaults, ref } from "vue"
+import { defineProps, withDefaults, ref, defineEmits} from "vue"
 import { useLayoutStore } from "@/Stores/retinaLayout"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import { router } from "@inertiajs/vue3"
@@ -32,7 +32,7 @@ const props = withDefaults(
 )
 
 const loadingState = ref(false)
-
+const emits = defineEmits()
 const handleClick = (action) => {
     router[action.method](
         action.route,
@@ -40,6 +40,7 @@ const handleClick = (action) => {
         {
             onStart: () => { loadingState.value = true },
             onFinish: () => { loadingState.value = false },
+            onSuccess: () => { console.log('asdsad'),emits('onSuccess')},
         })
 }
 

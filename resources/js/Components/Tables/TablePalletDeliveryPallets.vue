@@ -113,23 +113,25 @@ const layout = useLayoutStore();
 
             <ButtonEditTable 
                 class="mx-2"
-                :style="pallet.state == 'not-received' ? 'negative' : 'tertiary'" 
+                :type="pallet.state == 'not-received' ? 'negative' : 'tertiary'" 
                 :icon="['fal', 'times']" 
                 :tooltip="'Not Recived'" 
                 :size="'xs'"
                 :key="pallet.index"
                 routeName="notReceivedRoute"
                 :data="pallet"
+                @onSuccess="() => emits('renderTableKey')"
             />
 
             <ButtonEditTable 
-                :style="pallet.state == 'Booked in' ? 'primary' : 'tertiary'"  
+                :type="pallet.state == 'booked-in' ? 'primary' : 'tertiary'"  
                 :icon="['fal', 'inventory']" 
                 :tooltip="'Booked In'"
                 :key="pallet.index"
                 :size="'xs'" 
                 routeName="bookInRoute"
                 :data="pallet"
+                @onSuccess="() => emits('renderTableKey')"
             />
             </div>
             </template>
