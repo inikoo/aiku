@@ -40,7 +40,7 @@ const loading = ref({
     loadingNotReceivedRoute : false
 })
 
-const onSave = async (pallet: object, fieldName: string) => {
+const onSaved = async (pallet: object, fieldName: string) => {
     if (pallet[fieldName] != pallet.form.data()[fieldName]) {
         pallet.form.processing = true
         try {
@@ -93,13 +93,13 @@ const layout = useLayoutStore();
         </template>
         <template #cell(customer_reference)="{ item: item }">
             <div v-if="state == 'in-process'">
-                <Flied :data="item" @onSave="onSave" fieldName="customer_reference" />
+                <Flied :data="item" @onSave="onSaved" fieldName="customer_reference" />
             </div>
             <div v-else>{{ item["customer_reference"] }}</div>
         </template>
         <template #cell(notes)="{ item: item }">
             <div v-if="state == 'in-process'">
-                <Flied :data="item" @onSave="onSave" fieldName="note" />
+                <Flied :data="item" @onSave="onSaved" fieldName="notes" />
             </div>
             <div v-else>{{ item["notes"] }}</div>
         </template>
@@ -109,8 +109,8 @@ const layout = useLayoutStore();
                 <font-awesome-icon class="text-red-600" :icon="['far', 'trash-alt']" />
                 </Link>
             </div>
-            <div v-else-if="props.state == 'received' && !layout.currentRoute.includes('retina.')">
-
+            <div v-else-if="pallet.state == 'received'">
+                <pre>{{  pallet }}</pre>
             <ButtonEditTable 
                 class="mx-2"
                 :type="pallet.state == 'not-received' ? 'negative' : 'tertiary'" 

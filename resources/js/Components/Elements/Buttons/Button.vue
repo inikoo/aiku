@@ -18,7 +18,7 @@ import { faSpinnerThird } from '@fad'
 const layout = useLayoutStore()
 
 const props = withDefaults(defineProps<{
-    style?: string
+    style?: string | object
     size?: string
     icon?: string | string[]
     iconRight?: string | string[]
@@ -32,6 +32,7 @@ const props = withDefaults(defineProps<{
 }>(), {
     style: 'primary',
     size: 'm',
+    type:'primary',
     capitalize: true,
     loading:false
 })
@@ -41,17 +42,18 @@ library.add(faPlus, faSave, fadSave, faUpload, faDownload, faArrowLeft, faPencil
 let styleClass = ''
 let sizeClass = ''
 
+console.log(props)
 // Styling the Button depends on the 'style' props
-if (props.style == 'primary' || props.style == 'create' || props.style == 'save' || props.style == 'upload' || props.type == 'primary' || props.type == 'create' || props.type == 'save' || props.type == 'upload') {
+if ( props.type == 'primary' || props.type == 'create' || props.type == 'save' || props.type == 'upload' || props.style == 'primary' || props.style == 'create' || props.style == 'save' || props.style == 'upload' ) {
     styleClass = `buttonPrimary`
 }
 
-else if (props.style == 'secondary' || props.style == 'edit' || props.type == 'secondary' || props.type == 'edit') {
+else if ( props.type == 'secondary' || props.type == 'edit' || props.style == 'secondary' || props.style == 'edit' ) {
     styleClass = 'buttonSecondary h-full text-gray-600 hover:bg-indigo-500/30 focus:bg-indigo-500 focus:text-white'
 }
 
-else if (props.style == 'tertiary' || props.type == 'tertiary') styleClass = 'bg-transparent border border-gray-300 text-gray-700 hover:bg-gray-200/70'
-else if (props.style == 'rainbow' || props.type == 'rainbow') styleClass = 'bg-indigo-500 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2'
+else if (props.type == 'tertiary' || props.style == 'tertiary' ) styleClass = 'bg-transparent border border-gray-300 text-gray-700 hover:bg-gray-200/70'
+else if (props.type == 'rainbow' || props.style == 'rainbow' ) styleClass = 'bg-indigo-500 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2'
 
 else if (props.style == 'delete' || props.style == 'negative' || props.style == 'cancel' || props.type == 'delete' || props.type == 'negative' || props.type == 'cancel') styleClass = 'border border-red-400 text-red-500 hover:text-red-800 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2'
 else if (props.style == 'positive' || props.type == 'positive') styleClass = 'border border-lime-500 text-lime-600 hover:text-lime-800 hover:bg-lime-50 focus:outline-none focus:ring-2 focus:ring-lime-600 focus:ring-offset-2'
