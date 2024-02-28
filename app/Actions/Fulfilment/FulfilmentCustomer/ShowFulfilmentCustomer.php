@@ -96,8 +96,8 @@ class ShowFulfilmentCustomer extends OrgAction
                         [
                             'type'    => 'button',
                             'style'   => 'create',
-                            'tooltip' => __('new delivery'),
-                            'label'   => __('new delivery'),
+                            'tooltip' => __('New delivery'),
+                            'label'   => __('New Delivery'),
                             'options' => [
                                 'warehouses' => WarehouseResource::collection($fulfilmentCustomer->fulfilment->warehouses)
                             ],
