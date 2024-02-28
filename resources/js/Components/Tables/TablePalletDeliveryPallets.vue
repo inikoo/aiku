@@ -32,7 +32,7 @@ const props = defineProps<{
 
 
 const onSave = async (pallet: object, fieldName: string) => {
-    console.log('inii', pallet, fieldName)
+    // console.log('inii', pallet, fieldName)
     pallet.form.processing = true
     try {
         await axios.patch(
@@ -96,18 +96,18 @@ const layout = useLayoutStore();
         <template #cell(actions)="{ item: pallet }">
             <div v-if="props.state == 'in-process'">
                 <Link :href="route(pallet.deleteRoute.name, pallet.deleteRoute.parameters)" method="delete" as="button">
-                <font-awesome-icon class="text-red-600" :icon="['far', 'trash-alt']" />
+                    <font-awesome-icon class="text-red-600" :icon="['far', 'trash-alt']" />
                 </Link>
             </div>
             <div v-else-if="props.state == 'received' && !layout.currentRoute.includes('retina.')">
 
                 <Link :href="route(pallet.notReceivedRoute.name, pallet.notReceivedRoute.parameters)" method="patch"
                     as="button">
-                <font-awesome-icon class="text-red-600 mr-6" :icon="['fas', 'times-square']" />
+                    <font-awesome-icon class="text-red-600 mr-6" :icon="['fas', 'times-square']" />
                 </Link>
 
                 <Link :href="route(pallet.bookInRoute.name, pallet.bookInRoute.parameters)" method="patch" as="button">
-                <font-awesome-icon :icon="['far', 'inventory']" />
+                    <font-awesome-icon :icon="['far', 'inventory']" />
                 </Link>
             </div>
 

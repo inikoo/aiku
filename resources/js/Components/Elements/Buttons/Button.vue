@@ -46,7 +46,7 @@ if (props.style == 'primary' || props.style == 'create' || props.style == 'save'
 }
 
 else if (props.style == 'secondary' || props.style == 'edit') {
-    styleClass = 'border border-indigo-500 text-gray-600 hover:bg-indigo-500/30 focus:bg-indigo-500 focus:text-white'
+    styleClass = 'border border-indigo-500 buttonSecondary text-gray-600 hover:bg-indigo-500/30 focus:bg-indigo-500 focus:text-white'
 }
 
 else if (props.style == 'tertiary') styleClass = 'bg-transparent border border-gray-300 text-gray-700 hover:bg-gray-200/70'
@@ -150,9 +150,6 @@ const getActionIcon = (icon: any) => {
             styleClass,
             sizeClass
         ]"
-        :style="{
-            color: layout?.app?.theme[5]
-        }"
         :disabled="style == 'disabled'"
         v-tooltip="tooltip ?? undefined"    
     >
@@ -175,9 +172,19 @@ const getActionIcon = (icon: any) => {
 
 .buttonPrimary {
     background-color: v-bind('layout?.app?.theme[4]');
+    color: v-bind('layout?.app?.theme[5]');
 
     &:hover {
-        filter: invert(15%);
+        background-color: v-bind('layout?.app?.theme[4] + "DD"');
+    }
+}
+
+.buttonSecondary {
+    background-color: v-bind('layout?.app?.theme[4] + "22"');
+    color: v-bind('layout?.app?.theme[4]');
+
+    &:hover {
+        background-color: v-bind('layout?.app?.theme[4] + "19"');
     }
 }
 </style>
