@@ -21,9 +21,11 @@ class FulfilmentCustomerResource extends JsonResource
         $fulfilmentCustomer = $this;
 
         return [
-            'pallets_storage'               => $fulfilmentCustomer->pallets_storage,
-            'items_storage'                 => $fulfilmentCustomer->items_storage,
-            'dropshipping'                  => $fulfilmentCustomer->dropshipping,
+            'radioTabs'                     => [
+                'pallets_storage'  => $fulfilmentCustomer->pallets_storage,
+                'items_storage'    => $fulfilmentCustomer->items_storage,
+                'dropshipping'     => $fulfilmentCustomer->dropshipping,
+            ],
             'number_pallets'                => $fulfilmentCustomer->number_pallets,
             'number_pallets_state_received' => $fulfilmentCustomer->number_pallets_state_received,
             'number_stored_items'           => $fulfilmentCustomer->number_stored_items,

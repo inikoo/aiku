@@ -96,7 +96,7 @@ class ShowFulfilmentCustomer extends OrgAction
                         [
                             'type'    => 'button',
                             'style'   => 'create',
-                            'tooltip' => __('New delivery'),
+                            'tooltip' => __('Create new delivery order'),
                             'label'   => __('New Delivery'),
                             'options' => [
                                 'warehouses' => WarehouseResource::collection($fulfilmentCustomer->fulfilment->warehouses)
@@ -110,7 +110,7 @@ class ShowFulfilmentCustomer extends OrgAction
                         [
                             'type'    => 'button',
                             'style'   => 'create',
-                            'tooltip' => __('new return'),
+                            'tooltip' => __('Create new return order'),
                             'label'   => __('new return'),
                             'route'   => [
                                 'method'     => 'post',

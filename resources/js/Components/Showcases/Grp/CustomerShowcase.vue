@@ -5,11 +5,9 @@
   -->
 
 <script setup lang="ts">
-import { useLayoutStore } from "@/Stores/layout"
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js'
-import { Line } from 'vue-chartjs'
-import PureRadio from '@/Components/Pure/PureRadio.vue'
-import { ref } from 'vue'
+
+import { ref, reactive } from 'vue'
 import { useFormatTime } from '@/Composables/useFormatTime'
 import CustomerShowcaseStats from '@/Components/Showcases/Grp/CustomerShowcaseStats.vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
@@ -39,6 +37,9 @@ const props = defineProps<{
             number_active_clients?: number
         }
         fulfilment_customer: {
+            radioTabs: {
+                [key: string]: boolean
+            }
             number_pallets?: number
             number_pallets_state_received?: number
             number_stored_items?: number
@@ -50,7 +51,11 @@ const props = defineProps<{
     tab: string
 }>()
 
-const radioValue = ref<string[]>(['pallets_storage'])
+
+// Tabs radio: v-model
+const radioValue = ref<string[]>(Object.keys(props.data.fulfilment_customer.radioTabs).filter(key => props.data.fulfilment_customer.radioTabs[key]))
+
+// Tabs radio: options
 const optionRadio = [
     {
         value: 'pallets_storage',
@@ -66,33 +71,43 @@ const optionRadio = [
     },
 ]
 
-// Radio: Interest
-const onClickRadio = (value: string) => {
-    console.log('qqq', route(props.data.updateRoute.name, props.data.updateRoute.parameters))
+// Tabs radio: loading state
+const radioLoading = reactive<{[key: string]: boolean}>({
+    pallets_storage: false,
+    items_storage: false,
+    dropshipping: false
+})
+
+// Tabs radio: on click radio
+const onClickRadio = async (value: string) => {
+    radioLoading[value] = true
+
     // If value already selected
     if (radioValue.value.includes(value)) {
-        router.patch(route(props.data.updateRoute.name, props.data.updateRoute.parameters),
-            {
-                data: radioValue.value
-            }, {
-                onSuccess: (e) => console.log('on Success', e),
-                // onFinish: () => console.log('on Finish')
-            })
-        // If value is more than 1 then delete
+        // If value is more than 1 then able to delete
         if (radioValue.value.length > 1) {
+            router.patch(route(props.data.updateRoute.name, props.data.updateRoute.parameters), {
+                [value]: false
+            }, {
+                // onSuccess: (e) => console.log('on Success', e),
+                onFinish: () => radioLoading[value] = false
+            })
+
             const index = radioValue.value.indexOf(value)
             radioValue.value.splice(index, 1)
         }
     } else {
-        router.patch(route(props.data.updateRoute.name, props.data.updateRoute.parameters),
-            {
-                data: radioValue.value
-            }, {
-                onSuccess: (e) => console.log('on Success', e),
-                onFinish: () => console.log('on Finish')
+        // If value didn't selected
+        router.patch(route(props.data.updateRoute.name, props.data.updateRoute.parameters), {
+            [value]: true
+        }, {
+            // onSuccess: (e) => console.log('on Success', e),
+            onFinish: () => radioLoading[value] = false
         })
+
         radioValue.value.push(value)
     }
+    
 }
 
 </script>
@@ -101,14 +116,16 @@ const onClickRadio = (value: string) => {
 
     <!-- Section: Radio -->
     <div class="px-8 mt-4 flex gap-x-2">
-        <div v-for="radio in optionRadio"
-            @click="(e) => onClickRadio(radio.value)"
-            class="rounded-lg w-fit px-3 py-2 select-none cursor-pointer border"    
+        <button v-for="radio in optionRadio"
+            @click.prevent="(e) => onClickRadio(radio.value)"
+            class="rounded-lg w-fit px-3 py-2 select-none cursor-pointer border disabled:bg-gray-300 disabled:cursor-default"
+            :disabled="radioLoading[radio.value]"  
         >
-            <FontAwesomeIcon v-if="radioValue.includes(radio.value)" icon='fas fa-check-circle' class='text-lime-500' fixed-width aria-hidden='true' />
+            <FontAwesomeIcon v-if="radioLoading[radio.value]" icon='fad fa-spinner-third' class='animate-spin text-gray-700' fixed-width aria-hidden='true' />
+            <FontAwesomeIcon v-else-if="radioValue.includes(radio.value)" icon='fas fa-check-circle' class='text-lime-500' fixed-width aria-hidden='true' />
             <FontAwesomeIcon v-else icon='fal fa-circle' class='text-lime-600' fixed-width aria-hidden='true' />
             {{ radio.label }}
-        </div>
+        </button>
     </div>
 
     <div class="px-4 py-5 md:px-6 lg:px-8 grid grid-cols-2 gap-x-3">

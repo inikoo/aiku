@@ -169,8 +169,9 @@ watch(() => props.data, (newValue) => {
             <div class="relative">
                 <Popover width="w-full">
                     <template #button>
-                        <Button :style="'primary'" :label="action.button.label" :icon="action.button.icon"
-                            :iconRight="action.button.iconRight"
+                        <Button :style="action.button.style"
+                            :label="action.button.label"
+                            :icon="action.button.icon"
                             :key="`ActionButton${action.button.label}${action.button.style}`"
                             :tooltip="action.button.tooltip"
                             class="rounded-l-none rounded-r " />
