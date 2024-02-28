@@ -609,7 +609,7 @@ watch(() => props.name, () => {
                                         }"/>
                                     </span>
                                     <!-- {{ locale.number(compResourceMeta.total) }} -->
-                                    <span class="font-thin">{{
+                                    <span class="font-light">{{
                                             compResourceMeta.total > 1 ? trans('records') : trans('record')
                                         }}</span>
                                 </div>

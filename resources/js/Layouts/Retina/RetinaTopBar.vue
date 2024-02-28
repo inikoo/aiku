@@ -59,7 +59,7 @@ const label = {
                 </button>
 
                 <!-- App Title: Image and Title -->
-                <div class="ml-3 w-44 mt-1 flex flex-1 items-center justify-center md:justify-start transition-all duration-300 ease-in-out"
+                <div class="ml-3 w-0 md:w-44 mt-1 flex flex-1 items-center justify-center md:justify-start transition-all duration-300 ease-in-out"
                      :class="[
                         // layoutStore.leftSidebar.show ? 'md:w-44 md:pr-4' : 'md:w-12'
                     ]"
