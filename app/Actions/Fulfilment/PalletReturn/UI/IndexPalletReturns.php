@@ -12,6 +12,7 @@ use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
 use App\Http\Resources\Fulfilment\PalletDeliveriesResource;
+use App\Http\Resources\Fulfilment\PalletReturnsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -118,23 +119,6 @@ class IndexPalletReturns extends OrgAction
             $table
                 ->withModelOperations($modelOperations)
                 ->withGlobalSearch()
-                ->withEmptyState(
-                    $parent instanceof Fulfilment ? [
-                        'title'       => __("You don't have any customer yet").' 😭',
-                        'description' => __("Dont worry soon you will be pretty busy"),
-                        'count'       => $parent->shop->crmStats->number_customers,
-                        'action'      => [
-                            'type'    => 'button',
-                            'style'   => 'create',
-                            'tooltip' => __('new customer'),
-                            'label'   => __('customer'),
-                            'route'   => [
-                                'name'       => 'grp.org.fulfilments.show.customers.create',
-                                'parameters' => [$parent->organisation->slug, $parent->slug]
-                            ]
-                        ]
-                    ] : null
-                )
                 ->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon')
                 ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'customer reference', label: __('customer reference'), canBeHidden: false, sortable: true, searchable: true)
@@ -144,7 +128,7 @@ class IndexPalletReturns extends OrgAction
 
     public function jsonResponse(LengthAwarePaginator $customers): AnonymousResourceCollection
     {
-        return PalletDeliveriesResource::collection($customers);
+        return PalletReturnsResource::collection($customers);
     }
 
     public function htmlResponse(LengthAwarePaginator $customers, ActionRequest $request): Response
@@ -173,13 +157,13 @@ class IndexPalletReturns extends OrgAction
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
-                'title'       => __('pallet deliveries'),
+                'title'       => __('pallet returns'),
                 'pageHead'    => [
-                    'title'     => __('deliveries'),
+                    'title'     => __('returns'),
                     'container' => $container,
                     'iconRight' => [
-                        'icon'  => ['fal', 'fa-truck-couch'],
-                        'title' => __('delivery')
+                        'icon'  => ['fal', 'fa-sign-out'],
+                        'title' => __('returns')
                     ]
                 ],
                 'data'        => PalletDeliveriesResource::collection($customers),
@@ -197,49 +181,50 @@ class IndexPalletReturns extends OrgAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => $routeParameters,
-                        'label' => __('deliveries'),
+                        'label' => __('returns'),
                         'icon'  => 'fal fa-bars'
                     ],
                 ],
             ];
         };
 
-
         return match ($routeName) {
 
-            'grp.org.fulfilments.show.crm.customers.show.pallet-deliveries.index'=> array_merge(
-                ShowFulfilmentCustomer::make()->getBreadcrumbs(
-                    $routeParameters
-                ),
-                $headCrumb(
-                    [
-                        'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet-deliveries.index',
-                        'parameters' => Arr::only($routeParameters, ['organisation','fulfilment','fulfilmentCustomer'])
-                    ]
-                )
-            ),
-            'grp.org.fulfilments.show.operations.pallet-deliveries.index' => array_merge(
-                ShowFulfilment::make()->getBreadcrumbs(
-                    $routeParameters
-                ),
-                $headCrumb(
-                    [
-                        'name'       => 'grp.org.fulfilments.show.operations.pallet-deliveries.index',
-                        'parameters' => Arr::only($routeParameters, ['organisation','fulfilment'])
-                    ]
-                )
-            ),
-            'grp.org.warehouses.show.fulfilment.pallet-deliveries.index' => array_merge(
+            'grp.org.warehouses.show.fulfilment.pallet-returns.index'=> array_merge(
                 ShowWarehouse::make()->getBreadcrumbs(
                     $routeParameters
                 ),
                 $headCrumb(
                     [
-                        'name'       => 'grp.org.warehouses.show.fulfilment.pallet-deliveries.index',
+                        'name'       => 'grp.org.warehouses.show.fulfilment.pallet-returns.index',
                         'parameters' => Arr::only($routeParameters, ['organisation','warehouse'])
                     ]
                 )
             ),
+
+            'grp.org.fulfilments.show.crm.customers.show.pallet-returns.index'=> array_merge(
+                ShowFulfilmentCustomer::make()->getBreadcrumbs(
+                    $routeParameters
+                ),
+                $headCrumb(
+                    [
+                        'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet-returns.index',
+                        'parameters' => Arr::only($routeParameters, ['organisation','fulfilment','fulfilmentCustomer'])
+                    ]
+                )
+            ),
+            'grp.org.fulfilments.show.operations.pallet-returns.index' => array_merge(
+                ShowFulfilment::make()->getBreadcrumbs(
+                    $routeParameters
+                ),
+                $headCrumb(
+                    [
+                        'name'       => 'grp.org.fulfilments.show.operations.pallet-returns.index',
+                        'parameters' => Arr::only($routeParameters, ['organisation','fulfilment'])
+                    ]
+                )
+            ),
+
         };
 
 
