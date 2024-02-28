@@ -65,6 +65,12 @@ trait HasFulfilmentStats
 
     public function containerFulfilmentStats(Blueprint $table): Blueprint
     {
+
+        $table->unsignedInteger('number_customers_interest_pallets_storage')->default(0);
+        $table->unsignedInteger('number_customers_interest_items_storage')->default(0);
+        $table->unsignedInteger('number_customers_interest_dropshipping')->default(0);
+
+
         $table->unsignedInteger('number_customers_with_stored_items')->default(0);
         $table->unsignedInteger('number_customers_with_pallets')->default(0);
 
