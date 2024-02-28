@@ -166,11 +166,11 @@ watch(props, (newValue) => {
             <div class="relative">
                 <Popover width="w-full">
                     <template #button>
-                        <Button :style="action.button.style" :label="action.button.label" :icon="action.button.icon"
+                        <Button :style="'primary'" :label="action.button.label" :icon="action.button.icon"
                             :iconRight="action.button.iconRight"
                             :key="`ActionButton${action.button.label}${action.button.style}`"
                             :tooltip="action.button.tooltip"
-                            class="capitalize inline-flex items-center h-full rounded-l-none rounded-r text-sm border-none font-medium shadow-sm focus:ring-transparent focus:ring-offset-transparent focus:ring-0" />
+                            class="rounded-l-none rounded-r " />
                     </template>
                     
                     <template #content="{ close: closed }">
