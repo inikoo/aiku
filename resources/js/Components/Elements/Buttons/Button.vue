@@ -42,7 +42,6 @@ library.add(faPlus, faSave, fadSave, faUpload, faDownload, faArrowLeft, faPencil
 let styleClass = ''
 let sizeClass = ''
 
-console.log(props)
 // Styling the Button depends on the 'style' props
 if ( props.type == 'primary' || props.type == 'create' || props.type == 'save' || props.type == 'upload' || props.style == 'primary' || props.style == 'create' || props.style == 'save' || props.style == 'upload' ) {
     styleClass = `buttonPrimary`
