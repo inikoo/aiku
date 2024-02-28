@@ -5,78 +5,79 @@
   -->
 
 <script setup lang="ts">
-import Table from "@/Components/Table/Table.vue";
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
-import { library } from "@fortawesome/fontawesome-svg-core";
+import Table from "@/Components/Table/Table.vue"
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
+import { library } from "@fortawesome/fontawesome-svg-core"
 
-import PureInput from "@/Components/Pure/PureInput.vue";
-import axios from "axios";
-import { notify } from "@kyvg/vue3-notification";
-import { Link } from "@inertiajs/vue3";
-import Icon from "@/Components/Icon.vue";
-import { faTimesSquare } from "@fas";
-import { faTrashAlt, faPaperPlane, faInventory } from "@far";
-import { faSignOutAlt, faTruckLoading } from "@fal";
-import { useLayoutStore } from "@/Stores/retinaLayout";
+// import PureInput from "@/Components/Pure/PureInput.vue"
+import axios from "axios"
+import { notify } from "@kyvg/vue3-notification"
+import { Link } from "@inertiajs/vue3"
+import Icon from "@/Components/Icon.vue"
+import { faTimesSquare } from "@fas"
+import { faTrashAlt, faPaperPlane, faInventory } from "@far"
+import { faSignOutAlt, faTruckLoading } from "@fal"
+import { useLayoutStore } from "@/Stores/retinaLayout"
 import Flied from '@/Components/FieldEditableTable.vue'
 
 library.add(
     faTrashAlt, faSignOutAlt, faPaperPlane, faInventory, faTruckLoading, faTimesSquare
-);
+)
 const props = defineProps<{
     data: object,
     tab?: string
     state?: string
-}>();
+    tableKey: number
+}>()
 
 
 const onSave = async (pallet: object, fieldName: string) => {
     console.log('inii', pallet, fieldName)
-    pallet.form.processing = true;
+    pallet.form.processing = true
     try {
         await axios.patch(
             route(pallet.updateRoute.name,
                 pallet.deleteRoute.parameters
             ),
             { [fieldName]: pallet.form.data()[fieldName] }
-        );
-        pallet.form.processing = false;
-        pallet.form.wasSuccessful = true;
-        pallet.form.hasErrors = false;
-        pallet.form.clearErrors();
+        )
+        pallet.form.processing = false
+        pallet.form.wasSuccessful = true
+        pallet.form.hasErrors = false
+        pallet.form.clearErrors()
     } catch (error: any) {
-        pallet.form.processing = false;
-        pallet.form.wasSuccessful = false;
-        pallet.form.hasErrors = true;
+        pallet.form.processing = false
+        pallet.form.wasSuccessful = false
+        pallet.form.hasErrors = true
         if (error.response && error.response.data && error.response.data.errors) {
-            const errors = error.response.data.errors;
-            const setErrors = {};
+            const errors = error.response.data.errors
+            const setErrors = {}
             for (const er in errors) {
-                setErrors[er] = errors[er][0];
+                setErrors[er] = errors[er][0]
             }
-            pallet.form.setError(setErrors);
+            pallet.form.setError(setErrors)
         } else {
             if (error.response.data.message)
                 notify({
                     title: "Failed to update",
                     text: error.response.data.message,
                     type: "error"
-                });
+                })
         }
     }
 
     // Setelah 5 detik, back to  normal
     setTimeout(() => {
-        pallet.form.wasSuccessful = false;
-    }, 3000);
-};
+        pallet.form.wasSuccessful = false
+    }, 3000)
+}
 
 const layout = useLayoutStore();
 
 </script>
 
 <template>
-    <Table :resource="data" :name="tab" class="mt-5">
+    <Table :resource="data" :name="tab" class="mt-5" :key="tableKey">
         <template #cell(state)="{ item: palletDelivery }">
             <Icon :data="palletDelivery['state_icon']" class="px-1" />
         </template>

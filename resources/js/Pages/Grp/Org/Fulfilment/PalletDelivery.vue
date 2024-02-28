@@ -5,7 +5,7 @@
   -->
 
 <script setup lang="ts">
-import { Head, useForm, router } from '@inertiajs/vue3'
+import { Head, useForm, router, Link } from '@inertiajs/vue3'
 import PageHeading from '@/Components/Headings/PageHeading.vue'
 import { capitalize } from "@/Composables/capitalize"
 import Tabs from "@/Components/Navigation/Tabs.vue"
@@ -112,20 +112,24 @@ const handleFormSubmitAddMultiplePallet = (data: object, closedPopover: Function
   }
 } */
 
-const handleClick = (action) => {
-    const href = action.route?.name ? route(action.route?.name, action.route?.parameters) : action.href?.name ? route(action.href?.name, action.href?.parameters) : '#'
-    const method = action.route?.method ?? 'get'
-    const data = action.route?.method !== 'get' ? props.dataToSubmit : null
-    router[method](
-        href,
-        data,
-        {
-            onBefore: (visit) => { loading.value = true },
-            onSuccess: (page) => {
-                timeline.value = page.props.data.data
-            },
-            onFinish: (visit) => { loading.value = false },
-        })
+const tableKey = ref(1)  // To re-render Table after click Confirm (so the Table retrieve the new props)
+
+// Button: Confirm
+const handleClickConfirm = async (action: {method: any, name: string, parameters: {palletDelivery: number}}) => {
+    loading.value = true
+    router.post(route(action.name, action.parameters), {}, {
+        onError: (e) => {
+            console.warn('Error on confirm', e)
+        },
+        onSuccess: (e) => {
+            // console.log('on success', e)
+            tableKey.value = tableKey.value + 1
+        },
+        onFinish: (e) => {
+            // console.log('11111', e)
+            loading.value = false
+        }
+    })
 }
 
 
@@ -228,15 +232,19 @@ watch(props, (newValue) => {
         </Popover>
       </div>
     </template>
-  <!--   <template #button-submit="{ action: action }">
-      <div>
-        <div v-if="data.data.state == 'in-process' && data.data.number_pallets != 0">
-          <Button @click="handleClick(action.action)" :style="action.action.style" :label="action.action.label"
-            :icon="action.action.icon" :iconRight="action.action.iconRight" :tooltip="action.action.tooltip"
-            :loading="loading" />
-        </div>
-      </div>
-    </template> -->
+        <template #button-confirm="{ action: action }">
+            <div>
+                <!-- <Link as="Button" :style="action.action.style"
+                    :label="action.action.label"
+                    :loading="loading" :href="route(action.action.route.name, action.action.route.parameters)" method="post">
+                    <font-awesome-icon class="text-red-600" :icon="['far', 'trash-alt']" />
+                </Link> -->
+                <Button @click="handleClickConfirm(action.action.route)"
+                    :style="action.action.style"
+                    :label="action.action.label"
+                    :loading="loading" />
+            </div>
+        </template>
     </PageHeading>
 
     <div v-if="timeline.state != 'in-process'" class="border-b border-gray-200">
@@ -271,7 +279,7 @@ watch(props, (newValue) => {
     </div>
 
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
-    <component :is="component" :data="props[currentTab]" :state="timeline.state" :tab="currentTab"></component>
+    <component :is="component" :data="props[currentTab]" :state="timeline.state" :tab="currentTab" :tableKey="tableKey"></component>
 
     <UploadExcel :propName="'pallet deliveries'" description="Adding Pallet Deliveries" :routes="{
         upload: get(dataModal, 'uploadRoutes', {}),
@@ -279,5 +287,6 @@ watch(props, (newValue) => {
         history: props.uploadRoutes.history
     }" :dataModal="dataModal" />
 
-    <!-- <pre>{{ pallets?.data[0] }}</pre> -->
+    <!-- <pre>{{ props.pallets.data?.[0]?.reference }}</pre>
+    <pre>{{ $inertia.page.props.queryBuilderProps.pallets.columns }}</pre> -->
 </template>

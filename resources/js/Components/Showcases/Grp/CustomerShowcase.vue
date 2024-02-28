@@ -86,7 +86,7 @@ const onClickRadio = (value: string) => {
     <div class="px-8 mt-4 flex gap-x-2">
         <div v-for="radio in optionRadio"
             @click="() => onClickRadio(radio.value)"
-            class="rounded w-fit px-3 py-2 select-none cursor-pointer border"
+            class="rounded-lg w-fit px-3 py-2 select-none cursor-pointer border"
             :class="[radioValue.includes(radio.value) ? 'bg-slate-700 text-white border-transparent' : 'text-slate-700 border-slate-500']"    
         >
             <FontAwesomeIcon v-if="radioValue.includes(radio.value)" icon='fas fa-check-circle' class='text-lime-400' fixed-width aria-hidden='true' />

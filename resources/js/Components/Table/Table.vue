@@ -1,5 +1,5 @@
 <!--suppress JSUnresolvedReference, JSIncompatibleTypesComparison -->
-<script setup>
+<script setup lang="ts">
 import Pagination from '@/Components/Table/Pagination.vue';
 import HeaderCell from '@/Components/Table/HeaderCell.vue';
 import TableFilterSearch from '@/Components/Table/TableFilterSearch.vue';
@@ -26,7 +26,7 @@ import map from 'lodash-es/map';
 // import { library } from "@fortawesome/fontawesome-svg-core";
 import {useLocaleStore} from '@/Stores/locale';
 import CountUp from 'vue-countup-v3';
-import { cloneDeep } from 'lodash';
+// import { cloneDeep } from 'lodash';
 
 const locale = useLocaleStore();
 
@@ -134,8 +134,7 @@ const app = getCurrentInstance();
 const $inertia = app ? app.appContext.config.globalProperties.$inertia : props.inertia;
 const updates = ref(0);
 
-let queryBuilderProps;
-queryBuilderProps = computed(() => {
+const queryBuilderProps = computed(() => {
     let data = $inertia.page.props.queryBuilderProps
         ? $inertia.page.props.queryBuilderProps[props.name] || {}
         : {};
@@ -230,48 +229,48 @@ const hasData = computed(() => {
 
 //
 
-function disableSearchInput(key) {
-    forcedVisibleSearchInputs.value = forcedVisibleSearchInputs.value.filter(
-        (search) => search !== key,
-    );
+// function disableSearchInput(key) {
+//     forcedVisibleSearchInputs.value = forcedVisibleSearchInputs.value.filter(
+//         (search) => search !== key,
+//     );
 
-    changeSearchInputValue(key, null);
-}
+//     changeSearchInputValue(key, null);
+// }
 
-function showSearchInput(key) {
-    forcedVisibleSearchInputs.value.push(key);
-}
+// function showSearchInput(key) {
+//     forcedVisibleSearchInputs.value.push(key);
+// }
 
-const canBeReset = computed(() => {
-    if (forcedVisibleSearchInputs.value.length > 0) {
-        return true;
-    }
+// const canBeReset = computed(() => {
+//     if (forcedVisibleSearchInputs.value.length > 0) {
+//         return true;
+//     }
 
-    const queryStringData = qs.parse(location.search.substring(1));
+//     const queryStringData = qs.parse(location.search.substring(1));
 
-    const page = queryStringData[pageName.value];
+//     const page = queryStringData[pageName.value];
 
-    if (page > 1) {
-        return true;
-    }
+//     if (page > 1) {
+//         return true;
+//     }
 
-    const prefix = props.name === 'default' ? '' : props.name + '_';
-    let dirty = false;
+//     const prefix = props.name === 'default' ? '' : props.name + '_';
+//     let dirty = false;
 
-    forEach(['filter', 'columns', 'cursor', 'sort', 'elementGroups'], (key) => {
-        const value = queryStringData[prefix + key];
+//     forEach(['filter', 'columns', 'cursor', 'sort', 'elementGroups'], (key) => {
+//         const value = queryStringData[prefix + key];
 
-        if (key === 'sort' && value === queryBuilderProps.value.defaultSort) {
-            return;
-        }
+//         if (key === 'sort' && value === queryBuilderProps.value.defaultSort) {
+//             return;
+//         }
 
-        if (value !== undefined) {
-            dirty = true;
-        }
-    });
+//         if (value !== undefined) {
+//             dirty = true;
+//         }
+//     });
 
-    return dirty;
-});
+//     return dirty;
+// });
 
 function resetQuery() {
     forcedVisibleSearchInputs.value = [];
@@ -320,13 +319,13 @@ function changeGlobalSearchValue(value) {
     changeSearchInputValue('global', value);
 }
 
-function changeFilterValue(key, value) {
-    const intKey = findDataKey('filters', key);
+// function changeFilterValue(key, value) {
+//     const intKey = findDataKey('filters', key);
 
-    queryBuilderData.value.filters[intKey].value = value;
-    queryBuilderData.value.cursor = null;
-    queryBuilderData.value.page = 1;
-}
+//     queryBuilderData.value.filters[intKey].value = value;
+//     queryBuilderData.value.cursor = null;
+//     queryBuilderData.value.page = 1;
+// }
 
 function onPerPageChange(value) {
     queryBuilderData.value.cursor = null
@@ -340,11 +339,11 @@ function findDataKey(dataKey, key) {
     });
 }
 
-function changeColumnStatus(key, visible) {
-    const intKey = findDataKey('columns', key);
+// function changeColumnStatus(key, visible) {
+//     const intKey = findDataKey('columns', key);
 
-    queryBuilderData.value.columns[intKey].hidden = !visible;
-}
+//     queryBuilderData.value.columns[intKey].hidden = !visible;
+// }
 
 function getFilterForQuery() {
     let filtersWithValue = {};
@@ -573,9 +572,9 @@ const handleElementsChange = (data) => {
     queryBuilderData.value.elementFilter = data
 }
 
-const {name} = toRefs(props)
+// const {name} = toRefs(props)
 
-watch(name, () => {
+watch(() => props.name, () => {
     // To reset the 'sort' on change Tabs
     queryBuilderData.value.sort = null
     resetQuery()
@@ -749,7 +748,7 @@ watch(name, () => {
                                                 column.type === 'avatar' || column.type === 'icon'
                                                     ? 'text-center min-w-fit'  // if type = icon
                                                     : typeof item[column.key] == 'number'
-                                                        ? 'text-right pr-11 tabular-nums'  // if the value is number
+                                                        ? 'text-right pr-11 num'  // if the value is number
                                                         : 'px-6',
                                                 { 'first:border-l-4 first:border-gray-700 bg-gray-200/75': selectedRow?.[name]?.includes(item.id) }
                                         ]">
