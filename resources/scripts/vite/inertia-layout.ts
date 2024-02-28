@@ -29,6 +29,8 @@ export default (layouts: string = '@/Layouts/'): Plugin => ({
 			</script>
 			<template>
 		`)
+
+
     },
 })
 
