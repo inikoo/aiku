@@ -10,7 +10,7 @@ import { faSave as fadSave } from '@fad'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { faDownload } from '@fal'
 import { faArrowLeft, faPencil, faTrashAlt } from '@far'
-import { faPlus, faSave, faUpload } from '@fas'
+import { faPlus, faSave, faUpload, faTrashUndoAlt } from '@fas'
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { useLayoutStore } from '@/Stores/layout'
 import { faSpinnerThird } from '@fad'
@@ -37,12 +37,11 @@ const props = withDefaults(defineProps<{
     loading:false
 })
 
-library.add(faPlus, faSave, fadSave, faUpload, faDownload, faArrowLeft, faPencil, faTrashAlt, faSpinnerThird)
+library.add(faPlus, faSave, fadSave, faUpload, faDownload, faArrowLeft, faPencil, faTrashAlt, faSpinnerThird, faTrashUndoAlt)
 
 let styleClass = ''
 let sizeClass = ''
 
-console.log(props)
 // Styling the Button depends on the 'style' props
 if ( props.type == 'primary' || props.type == 'create' || props.type == 'save' || props.type == 'upload' || props.style == 'primary' || props.style == 'create' || props.style == 'save' || props.style == 'upload' ) {
     styleClass = `buttonPrimary`
