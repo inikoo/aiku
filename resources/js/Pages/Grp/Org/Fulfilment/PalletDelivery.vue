@@ -123,13 +123,17 @@ const handleClickConfirm = async (action: {method: any, name: string, parameters
         },
         onSuccess: (e) => {
             // console.log('on success', e)
-            tableKey.value = tableKey.value + 1
+            changeTableKey()
         },
         onFinish: (e) => {
             // console.log('11111', e)
             loading.value = false
         }
     })
+}
+
+const changeTableKey = () => {
+  tableKey.value = tableKey.value + 1
 }
 
 
@@ -279,7 +283,7 @@ watch(props, (newValue) => {
     </div>
 
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
-    <component :is="component" :data="props[currentTab]" :state="timeline.state" :tab="currentTab" :tableKey="tableKey"></component>
+    <component :is="component" :data="props[currentTab]" :state="timeline.state" :tab="currentTab" :tableKey="tableKey" @renderTableKey="changeTableKey"></component>
 
     <UploadExcel :propName="'pallet deliveries'" description="Adding Pallet Deliveries" :routes="{
         upload: get(dataModal, 'uploadRoutes', {}),
