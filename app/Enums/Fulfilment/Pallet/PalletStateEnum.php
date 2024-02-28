@@ -66,7 +66,7 @@ enum PalletStateEnum: string
             ],
             'not-received' => [
                 'tooltip' => __('not received'),
-                'icon'    => 'fas fa-time-square',
+                'icon'    => 'fal fa-times',
                 'class'   => 'text-red-500'
             ],
             'booked-in'    => [
