@@ -223,7 +223,7 @@ watch(props, (newValue) => {
                         <div class="w-[250px]">
                             <span class="text-xs px-1 my-2">Number of pallets : </span>
                             <div>
-                                <PureInput v-model="formMultiplePallet.number_pallets" placeholder="number of pallets" type="number" :min="1" />
+                                <PureInput v-model="formMultiplePallet.number_pallets" placeholder="number of pallets" type="number" :minValue="1" />
                                 <p v-if="get(formMultiplePallet, ['errors', 'customer_reference'])" class="mt-2 text-sm text-red-600">
                                     {{ formMultiplePallet.errors.number_pallets }}
                                 </p>
