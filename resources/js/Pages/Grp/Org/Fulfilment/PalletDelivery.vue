@@ -20,6 +20,7 @@ import PureInput from '@/Components/Pure/PureInput.vue'
 import { get } from 'lodash'
 import UploadExcel from '@/Components/Upload/UploadExcel.vue'
 import { trans } from "laravel-vue-i18n"
+import { routeType } from '@/types/route'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from "@fortawesome/fontawesome-svg-core"
@@ -45,7 +46,9 @@ const props = defineProps<{
     }
     history?: {}
     pageHead: {}
-    updateRoute: {}
+    updateRoute: {
+        route: routeType
+    }
     uploadRoutes: {}
 }>()
 
@@ -152,8 +155,8 @@ const onUploadOpen = (action) => {
     dataModal.value.uploadRoutes = action.route
 }
 
-watch(props, (newValue) => {
-    timeline.value = newValue.data.data
+watch(() => props.data, (newValue) => {
+    timeline.value = newValue.data
 }, { deep: true })
 
 </script>
@@ -166,8 +169,9 @@ watch(props, (newValue) => {
             <div class="relative">
                 <Popover width="w-full">
                     <template #button>
-                        <Button :style="'primary'" :label="action.button.label" :icon="action.button.icon"
-                            :iconRight="action.button.iconRight"
+                        <Button :style="action.button.style"
+                            :label="action.button.label"
+                            :icon="action.button.icon"
                             :key="`ActionButton${action.button.label}${action.button.style}`"
                             :tooltip="action.button.tooltip"
                             class="rounded-l-none rounded-r " />

@@ -6,12 +6,7 @@ import { ref, computed, watch, onMounted} from 'vue';
 import { router } from '@inertiajs/vue3'
 import { useEchoGrpPersonal } from '@/Stores/echo-grp-personal'
 import { cloneDeep } from 'lodash';
-
-export interface routeType {
-    name: string
-    parameters?: string[]
-    method?: string
-}
+import { routeType } from '@/types/route'
 
 const props = defineProps<{
     routes: {
