@@ -40,7 +40,7 @@ const handleClick = (action) => {
         {
             onStart: () => { loadingState.value = true },
             onFinish: () => { loadingState.value = false },
-            onSuccess: () => { console.log('asdsad'),emits('onSuccess')},
+            onSuccess: () => { emits('onSuccess')},
         })
 }
 
