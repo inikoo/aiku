@@ -102,7 +102,6 @@ class IndexPallets extends OrgAction
                 break;
             case "PalletDelivery":
                 $query->where('pallet_delivery_id', $parent->id);
-                $query->leftJoin('pallet_deliveries', 'pallets.pallet_delivery_id', '=', 'pallet_deliveries.id');
                 break;
             case "PalletReturn":
                 $query->where('pallet_return_id', $parent->id);

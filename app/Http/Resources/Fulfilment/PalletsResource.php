@@ -40,7 +40,7 @@ class PalletsResource extends JsonResource
                     'parameters' => $pallet->id
                 ]
             },
-            'deleteRoute' => match (request()->routeIs('retina.*')) {
+            'deleteRoute'            => match (request()->routeIs('retina.*')) {
                 true => [
                     'name'       => 'retina.models.pallet.delete',
                     'parameters' => $pallet->id
@@ -50,13 +50,13 @@ class PalletsResource extends JsonResource
                     'parameters' => $pallet->id
                 ]
             },
-            'notReceivedRoute' => [
-                'name'       => 'grp.models.pallet.not-received',
-                'parameters' => $pallet->id
+            'notReceivedRoute'       => [
+                'name'       => 'grp.models.warehouse.pallet.not-received',
+                'parameters' => [$pallet->warehouse_id, $pallet->id]
             ],
-            'bookInRoute' => [
+            'bookInRoute'            => [
                 'name'       => ' grp.models.warehouse.pallet.booked-in',
-                'parameters' => $pallet->warehouse_id,$pallet->id
+                'parameters' => [$pallet->warehouse_id, $pallet->id]
             ]
         ];
     }

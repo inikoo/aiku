@@ -11,10 +11,8 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Http\Resources\Fulfilment\PalletResource;
-use App\Models\CRM\WebUser;
-use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
-use Illuminate\Validation\Rule;
+use App\Models\Inventory\Warehouse;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdatePalletNotReceived extends OrgAction
@@ -24,7 +22,7 @@ class UpdatePalletNotReceived extends OrgAction
 
     private Pallet $pallet;
 
-    public function handle(Pallet $pallet, array $modelData): Pallet
+    public function handle(Pallet $pallet): Pallet
     {
         $modelData['state'] = PalletStateEnum::NOT_RECEIVED;
 
@@ -37,51 +35,25 @@ class UpdatePalletNotReceived extends OrgAction
             return true;
         }
 
-        if ($request->user() instanceof WebUser) {
-            // TODO: Raul please do the permission for the web user
-            return true;
-        }
-
-        return $request->user()->hasPermissionTo("fulfilment.{$this->fulfilment->id}.edit");
+        return $request->user()->hasPermissionTo("fulfilment.{$this->warehouse->id}.edit");
     }
 
-    public function rules(): array
+
+
+    public function asController(Warehouse $warehouse, Pallet $pallet, ActionRequest $request): Pallet
     {
-        return [
-            'state'              => [
-                'sometimes',
-                Rule::enum(PalletStateEnum::class)
-            ],
-        ];
+        $this->initialisationFromWarehouse($warehouse, $request);
+
+        return $this->handle($pallet);
     }
 
-    public function fromRetina(Pallet $pallet, ActionRequest $request): Pallet
+    public function action(Warehouse $warehouse, Pallet $pallet, array $modelData, int $hydratorsDelay = 0): Pallet
     {
-        /** @var FulfilmentCustomer $fulfilmentCustomer */
-        $fulfilmentCustomer = $request->user()->customer->fulfilmentCustomer;
-        $this->fulfilment   = $fulfilmentCustomer->fulfilment;
-        $this->pallet       = $pallet;
-
-        $this->initialisation($request->get('website')->organisation, $request);
-        return $this->handle($pallet, $this->validateAttributes());
-    }
-
-    public function asController(Pallet $pallet, ActionRequest $request): Pallet
-    {
-        $this->pallet = $pallet;
-        $this->initialisationFromFulfilment($pallet->fulfilment, $request);
-
-        return $this->handle($pallet, $this->validateAttributes());
-    }
-
-    public function action(Pallet $pallet, array $modelData, int $hydratorsDelay = 0): Pallet
-    {
-        $this->pallet         = $pallet;
         $this->asAction       = true;
         $this->hydratorsDelay = $hydratorsDelay;
-        $this->initialisationFromFulfilment($pallet->fulfilment, $modelData);
+        $this->initialisationFromWarehouse($warehouse, $modelData);
 
-        return $this->handle($pallet, $this->validatedData);
+        return $this->handle($pallet);
     }
 
     public function jsonResponse(Pallet $pallet): PalletResource
