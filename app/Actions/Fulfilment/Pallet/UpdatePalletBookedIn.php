@@ -12,9 +12,8 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Http\Resources\Fulfilment\PalletResource;
-use App\Models\CRM\WebUser;
-use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
+use App\Models\Inventory\Warehouse;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -34,55 +33,40 @@ class UpdatePalletBookedIn extends OrgAction
         return $this->update($pallet, $modelData, ['data']);
     }
 
+    public function rules(): array
+    {
+        return [
+            'location_id' => [
+                'required',
+                Rule::exists('locations', 'id')
+                    ->where('warehouse_id', $this->warehouse->id),
+            ],
+        ];
+    }
+
     public function authorize(ActionRequest $request): bool
     {
         if ($this->asAction) {
             return true;
         }
 
-        if ($request->user() instanceof WebUser) {
-            // TODO: Raul please do the permission for the web user
-            return true;
-        }
-
-        return $request->user()->hasPermissionTo("fulfilment.{$this->fulfilment->id}.edit");
+        return $request->user()->hasPermissionTo("fulfilment.{$this->warehouse->id}.edit");
     }
 
-    public function rules(): array
-    {
-        return [
-            'state'              => [
-                'sometimes',
-                Rule::enum(PalletStateEnum::class)
-            ],
-        ];
-    }
 
-    public function fromRetina(Pallet $pallet, ActionRequest $request): Pallet
-    {
-        /** @var FulfilmentCustomer $fulfilmentCustomer */
-        $fulfilmentCustomer = $request->user()->customer->fulfilmentCustomer;
-        $this->fulfilment   = $fulfilmentCustomer->fulfilment;
-        $this->pallet       = $pallet;
 
-        $this->initialisation($request->get('website')->organisation, $request);
-        return $this->handle($pallet, $this->validateAttributes());
-    }
-
-    public function asController(Pallet $pallet, ActionRequest $request): Pallet
+    public function asController(Warehouse $warehouse, Pallet $pallet, ActionRequest $request): Pallet
     {
-        $this->pallet = $pallet;
-        $this->initialisationFromFulfilment($pallet->fulfilment, $request);
+        $this->initialisationFromWarehouse($warehouse, $request);
 
         return $this->handle($pallet, $this->validateAttributes());
     }
 
-    public function action(Pallet $pallet, array $modelData, int $hydratorsDelay = 0): Pallet
+    public function action(Warehouse $warehouse, Pallet $pallet, array $modelData, int $hydratorsDelay = 0): Pallet
     {
-        $this->pallet         = $pallet;
         $this->asAction       = true;
         $this->hydratorsDelay = $hydratorsDelay;
-        $this->initialisationFromFulfilment($pallet->fulfilment, $modelData);
+        $this->initialisationFromWarehouse($warehouse, $modelData);
 
         return $this->handle($pallet, $this->validatedData);
     }
