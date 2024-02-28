@@ -110,7 +110,7 @@ const layout = useLayoutStore();
                 </Link>
             </div>
             <div v-else-if="pallet.state == 'received'">
-                    <pre>{{ pallet }}</pre>
+                <!--     <pre>{{ pallet }}</pre> -->
 
                 <div v-if="pallet.state == 'not-received'">
                     <ButtonEditTable 
