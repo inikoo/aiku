@@ -3,9 +3,6 @@ import { Head, useForm } from '@inertiajs/vue3'
 import PageHeading from "@/Components/Headings/PageHeading.vue"
 import { capitalize } from "@/Composables/capitalize"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import Table from '@/Components/Table/Table.vue'
-
-import Icon from '@/Components/Icon.vue'
 import { ref } from "vue"
 import Popover from '@/Components/Popover.vue'
 import Button from '@/Components/Elements/Buttons/Button.vue'
@@ -76,7 +73,7 @@ const warehouseChange = (value) => {
 
 </script>
 
-<template layout="Retina">
+<template>
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead">
         <template #button-create-delivery="{ action: action }">

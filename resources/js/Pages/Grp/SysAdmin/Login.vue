@@ -1,4 +1,5 @@
 <script setup>
+import Layout from '@/Layouts/GrpAuth.vue';
 import {Head, useForm} from '@inertiajs/vue3';
 import LoginPassword from '@/Components/Auth/LoginPassword.vue';
 import Checkbox from '@/Components/Checkbox.vue';
@@ -6,6 +7,8 @@ import ValidationErrors from '@/Components/ValidationErrors.vue';
 import {trans} from 'laravel-vue-i18n';
 import { onMounted, ref, nextTick } from 'vue'
 import Button from '@/Components/Elements/Buttons/Button.vue'
+
+defineOptions({ layout: Layout })
 
 const form = useForm({
     username: '',
@@ -33,7 +36,8 @@ onMounted(async () => {
 
 </script>
 
-<template layout="GrpAuth">
+<template>
+
     <Head title="Login"/>
     <form class="space-y-6" @submit.prevent="submit">
         <div>

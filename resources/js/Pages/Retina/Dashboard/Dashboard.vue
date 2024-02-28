@@ -5,11 +5,10 @@
   -->
 
 <script setup lang="ts">
-import { useLayoutStore } from '@/Stores/retinaLayout'
 import { usePage } from '@inertiajs/vue3'
 
 </script>
 
-<template layout="Retina">
+<template>
     <pre>{{ usePage() }}</pre>
 </template>

@@ -5,7 +5,7 @@
   -->
 
 <script setup lang="ts">
-import { Head, useForm, router, Link } from '@inertiajs/vue3'
+import { Head, useForm, router } from '@inertiajs/vue3'
 import PageHeading from '@/Components/Headings/PageHeading.vue'
 import { capitalize } from "@/Composables/capitalize"
 import Tabs from "@/Components/Navigation/Tabs.vue"
@@ -124,7 +124,7 @@ const handleClickConfirm = async (action: { method: any, name: string, parameter
         },
         onSuccess: (e) => {
             // console.log('on success', e)
-            tableKey.value = tableKey.value + 1
+            changeTableKey()
         },
         onFinish: (e) => {
             // console.log('11111', e)
@@ -132,6 +132,11 @@ const handleClickConfirm = async (action: { method: any, name: string, parameter
         }
     })
 }
+
+const changeTableKey = () => {
+  tableKey.value = tableKey.value + 1
+}
+
 
 const component = computed(() => {
     const components = {
@@ -153,7 +158,7 @@ watch(props, (newValue) => {
 
 </script>
 
-<template layout="Grp">
+<template>
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead">
         <!-- Button: add pallet (single) -->
@@ -280,13 +285,12 @@ watch(props, (newValue) => {
         </div>
 
         <!-- <div class="relative flex flex-col justify-between p-4 rounded-md bg-fuchsia-200/70 border border-fuchsia-300 overflow-hidden">
-        
+
         </div> -->
     </div>
 
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
-    <component :is="component" :data="props[currentTab]" :state="timeline.state" :tab="currentTab" :tableKey="tableKey">
-    </component>
+    <component :is="component" :data="props[currentTab]" :state="timeline.state" :tab="currentTab" :tableKey="tableKey" @renderTableKey="changeTableKey"></component>
 
     <UploadExcel :propName="'pallet deliveries'" description="Adding Pallet Deliveries" :routes="{
         upload: get(dataModal, 'uploadRoutes', {}),

@@ -94,7 +94,7 @@ const getErrors = () => {
 
 </script>
 
-<template layout="Grp">
+<template>
     <!--suppress HtmlRequiredTitleElement -->
     <Head :title="capitalize(title)" />
     <!-- {{ typeof props.errors.purchase_orders }} -->

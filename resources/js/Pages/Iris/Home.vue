@@ -10,6 +10,9 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faCheck, faPlus, faMinus } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { Head } from '@inertiajs/vue3'
+import Layout from '@/Layouts/Iris.vue'
+
+defineOptions({ layout: Layout })
 library.add(faCheck, faPlus, faMinus)
 
 const features = [
@@ -80,7 +83,7 @@ const faqs = [
 
 </script>
 
-<template layout="Iris">
+<template>
     <Head title="Warehouse Solution" />
     <div class="bg-white">
         <!-- Hero section -->

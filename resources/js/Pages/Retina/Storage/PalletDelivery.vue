@@ -82,7 +82,7 @@ const handleFormSubmitAddMultiplePallet = (data: object, closedPopover: Function
 }
 
 /* const updateState = async ({ step, options }) => {
- 
+
   const foundState = options.find((item) => item.key === timeline.value.state)
   const set = step.key == timeline.state || step.index < foundState.index
   if (!set) {
@@ -135,8 +135,8 @@ watch(props, (newValue) => {
 }, { deep: true })
 
 </script>
-  
-<template layout="Retina">
+
+<template>
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead">
         <template #button-group-add-pallet="{ action: action }">
@@ -229,7 +229,7 @@ watch(props, (newValue) => {
     <div class="border-b border-gray-200">
         <Timeline :options="timeline.timeline" :state="timeline.state" :slidesPerView="5" />
     </div>
-    
+
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
     <component :is="component" :data="props[currentTab]" :state="timeline.state" :tab="currentTab"></component>
 
@@ -239,4 +239,3 @@ watch(props, (newValue) => {
         history: props.uploadRoutes.history
     }" :dataModal="dataModal" />
 </template>
-  

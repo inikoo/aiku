@@ -58,7 +58,7 @@ const component = computed(() => {
 });
 </script>
 
-<template layout="Grp">
+<template>
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead"></PageHeading>
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate"/>

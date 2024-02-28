@@ -98,7 +98,7 @@ const getErrors = () => {
 
 </script>
 
-<template layout="Grp">
+<template>
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead"></PageHeading>
     <div v-if="props.errors.purchase_order">{{ getErrors() }}</div>

@@ -3,7 +3,7 @@ import {Head} from '@inertiajs/vue3';
 import {library} from '@fortawesome/fontawesome-svg-core';
 import { faArrowAltToTop, faArrowAltToBottom, faBars,faBrowser,faCube,faPalette,faCookieBite } from '@fal';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
-import { computed, defineAsyncComponent, ref } from "vue";
+import { computed, ref } from "vue";
 import { useTabChange } from "@/Composables/tab-change";
 import Tabs from "@/Components/Navigation/Tabs.vue";
 import WorkshopHeader from "@/Components/CMS/Workshops/HeaderWorkshop.vue";
@@ -55,7 +55,7 @@ const component = computed(() => {
 </script>
 
 
-<template layout="Grp">
+<template>
     <Head :title="capitalize(title)"/>
     <PageHeading :data="pageHead"></PageHeading>
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate"/>

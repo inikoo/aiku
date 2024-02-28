@@ -11,6 +11,9 @@ import {trans} from 'laravel-vue-i18n'
 import ValidationErrors from '@/Components/ValidationErrors.vue'
 import PureInput from '@/Components/Pure/PureInput.vue'
 import Button from '@/Components/Elements/Buttons/Button.vue'
+import Layout from '@/Layouts/RetinaAuth.vue'
+
+defineOptions({ layout: Layout })
 
 const isPasswordSame = ref(false)
 const repeatPassword = ref('')
@@ -29,7 +32,7 @@ watchEffect(() => {
 })
 </script>
 
-<template layout="RetinaAuth">
+<template>
 
     <div class="space-y-4 text-gray-600">
 

@@ -123,7 +123,7 @@ const warehouseChange = (value) => {
 
 </script>
 
-<template layout="Grp">
+<template>
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead">
         <template #button-create-delivery="{ action: action }">

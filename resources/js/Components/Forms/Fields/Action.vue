@@ -28,7 +28,8 @@ const handleClick = (action) => {
         data,
         {
             onBefore: (visit) => { loading.value = true },
-            onFinish: (visit) => { loading.value = false },
+            onerror: ()=>{loading.value = false}
+        /*     onFinish: (visit) => { loading.value = false }, */
         })
 };
 

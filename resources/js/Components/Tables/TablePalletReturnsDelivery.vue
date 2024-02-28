@@ -9,7 +9,7 @@ import Table from '@/Components/Table/Table.vue';
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faTrashAlt, faPaperPlane } from '@far';
-import { faGameConsoleHandheld, faSignOutAlt } from '@fal';
+import { faSignOutAlt } from '@fal';
 import {Link} from '@inertiajs/vue3';
 
 library.add(
@@ -21,14 +21,14 @@ const props = defineProps<{
     state?: string
 }>()
 
-  
+
   function customerRoute(pallet: object) {
             return route(pallet.deleteRoute.name,pallet.deleteRoute.params);
 }
-  
-  
+
+
   </script>
-  
+
   <template>
       <Table :resource="data" :name="tab" class="mt-5">
           <template #cell(actions)="{ item: pallet }">
@@ -45,4 +45,3 @@ const props = defineProps<{
         </template>
       </Table>
   </template>
-  

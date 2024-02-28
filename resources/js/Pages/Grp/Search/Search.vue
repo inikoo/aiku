@@ -55,7 +55,7 @@ function handleKeyDown() {
 
 </script>
 
-<template layout="Grp">
+<template>
 
     <!--
 

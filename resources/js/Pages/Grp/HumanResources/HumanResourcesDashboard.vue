@@ -13,7 +13,7 @@ defineProps(['title','pageHead','stats'])
 
 </script>
 
-<template layout="Grp">
+<template>
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead"></PageHeading>
 

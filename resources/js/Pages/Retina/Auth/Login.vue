@@ -6,7 +6,9 @@ import ValidationErrors from '@/Components/ValidationErrors.vue'
 import { trans } from 'laravel-vue-i18n'
 import { onMounted, ref, nextTick } from 'vue'
 import Button from '@/Components/Elements/Buttons/Button.vue'
+import Layout from '@/Layouts/RetinaAuth.vue'
 
+defineOptions({ layout: Layout })
 const form = useForm({
     username: '',
     password: '',
@@ -33,7 +35,7 @@ onMounted(async () => {
 
 </script>
 
-<template layout="RetinaAuth">
+<template>
     <Head title="Login" />
     <h1 class="text-center text-2xl font-bold text-slate-800">Login</h1>
     <form class="space-y-6 mt-7">
@@ -59,7 +61,7 @@ onMounted(async () => {
                 <label for="remember-me" class="ml-2 block text-sm text-gray-900"> {{ trans('Remember me') }} </label>
             </div>
         </div>
-        
+
         <div class="space-y-2">
             <Button full @click.prevent="submit" :loading="isLoading" label="Sign in"> </Button>
             <p class="text-gray-600">Don't have account yet? <Link as="span" :href="route('retina.register')" class="cursor-pointer font-bold hover:underline">Sign up</Link></p>

@@ -1,5 +1,4 @@
 <script setup>
-import { ref } from 'vue'
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faCheck, faPlus, faMinus } from '@fal'
@@ -75,13 +74,13 @@ const faqs = [
 
 </script>
 
-<template layout="AikuPublic">
+<template>
     <Head title="Warehouse Solution" />
     <div class="bg-white">
         <!-- Hero section -->
         <div class="relative isolate overflow-hidden bg-gray-900 pb-16 pt-14 sm:pb-20">
             <img src="https://wallpapers.com/images/hd/warehouse-background-pzkv8y7kvdmmnyej.jpg" alt="" class="absolute inset-0 -z-10 h-full w-full object-cover"
-                style="filter: brightness(0.4) blur(5px)" />   
+                style="filter: brightness(0.4) blur(5px)" />
             />
             <div class="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80"
                 aria-hidden="true">
