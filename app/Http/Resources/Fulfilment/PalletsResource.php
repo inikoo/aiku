@@ -54,6 +54,10 @@ class PalletsResource extends JsonResource
                 'name'       => 'grp.models.warehouse.pallet.not-received',
                 'parameters' => [$pallet->warehouse_id, $pallet->id]
             ],
+            'undoNotReceivedRoute'       => [
+                'name'       => 'grp.models.warehouse.pallet.undo-not-received',
+                'parameters' => [$pallet->warehouse_id, $pallet->id]
+            ],
             'bookInRoute'            => [
                 'name'       => ' grp.models.warehouse.pallet.booked-in',
                 'parameters' => [$pallet->warehouse_id, $pallet->id]

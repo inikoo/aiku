@@ -122,6 +122,7 @@ Route::name('warehouse.')->prefix('warehouse/{warehouse:id}')->group(function ()
     Route::post('location', [StoreLocation::class, 'inWarehouse'])->name('location.store');
     Route::patch('pallet/{pallet:id}/booked-in', UpdatePalletBookedIn::class)->name('pallet.booked-in')->withoutScopedBindings();
     Route::patch('pallet/{pallet:id}/not-received', UpdatePalletNotReceived::class)->name('pallet.not-received')->withoutScopedBindings();
+    Route::patch('pallet/{pallet:id}/undo-not-received', [UpdatePalletNotReceived::class,'undo'])->name('pallet.undo-not-received')->withoutScopedBindings();
 
 });
 

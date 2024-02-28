@@ -22,9 +22,9 @@ class UpdatePalletNotReceived extends OrgAction
 
     private Pallet $pallet;
 
-    public function handle(Pallet $pallet): Pallet
+    public function handle(Pallet $pallet, $state): Pallet
     {
-        $modelData['state'] = PalletStateEnum::NOT_RECEIVED;
+        $modelData['state'] = $state;
 
         return $this->update($pallet, $modelData, ['data']);
     }
@@ -39,21 +39,27 @@ class UpdatePalletNotReceived extends OrgAction
     }
 
 
-
     public function asController(Warehouse $warehouse, Pallet $pallet, ActionRequest $request): Pallet
     {
         $this->initialisationFromWarehouse($warehouse, $request);
 
-        return $this->handle($pallet);
+        return $this->handle($pallet, PalletStateEnum::NOT_RECEIVED);
     }
 
-    public function action(Warehouse $warehouse, Pallet $pallet, array $modelData, int $hydratorsDelay = 0): Pallet
+    public function undo(Warehouse $warehouse, Pallet $pallet, ActionRequest $request): Pallet
+    {
+        $this->initialisationFromWarehouse($warehouse, $request);
+
+        return $this->handle($pallet, PalletStateEnum::RECEIVED);
+    }
+
+    public function action(Warehouse $warehouse, Pallet $pallet, $state, int $hydratorsDelay = 0): Pallet
     {
         $this->asAction       = true;
         $this->hydratorsDelay = $hydratorsDelay;
-        $this->initialisationFromWarehouse($warehouse, $modelData);
+        $this->initialisationFromWarehouse($warehouse, []);
 
-        return $this->handle($pallet);
+        return $this->handle($pallet, $state);
     }
 
     public function jsonResponse(Pallet $pallet): PalletResource
