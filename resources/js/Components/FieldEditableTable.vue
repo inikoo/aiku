@@ -17,7 +17,7 @@ import Icon from "@/Components/Icon.vue";
 import { faTimesSquare, faCheckCircle, faTimesCircle } from "@fas";
 import { faTrashAlt, faPaperPlane, faInventory } from "@far";
 import { faSignOutAlt, faTruckLoading } from "@fal";
-import { get } from 'lodash'
+import { get, isNull } from 'lodash'
 import { faSpinnerThird } from '@fad'
 import { cloneDeep } from "lodash";
 
@@ -30,10 +30,20 @@ const props = defineProps<{
     fieldName?: string
 }>();
 
-const emits = defineEmits()
+const emits = defineEmits<{
+    (e: 'onSave', data: object, fieldName : string): void
+}>()
 
-const pallet = ref(cloneDeep({ ...props.data, form: useForm({ ...props.data }) }));
 
+const pallet = ref(
+    cloneDeep(
+        { ...props.data, 
+            form: useForm({ ...props.data, [`${props.fieldName}`] : isNull(props.data[props.fieldName]) ? "" : props.data[props.fieldName]  }) 
+        }
+    )
+);
+
+console.log(pallet,props.fieldName)
 
 
 </script>

@@ -65,6 +65,8 @@ class IndexPallets extends OrgAction
             });
         });
 
+        /*
+
         $isNotLocated = AllowedFilter::callback('located', function ($query, $value) {
             $query->where(function ($query) use ($value) {
                 if ($value) {
@@ -72,6 +74,7 @@ class IndexPallets extends OrgAction
                 }
             });
         });
+        */
 
         if ($prefix) {
             InertiaTable::updateQueryBuilderParameters($prefix);
@@ -99,6 +102,7 @@ class IndexPallets extends OrgAction
                 break;
             case "PalletDelivery":
                 $query->where('pallet_delivery_id', $parent->id);
+                $query->leftJoin('pallet_deliveries', 'pallets.pallet_delivery_id', '=', 'pallet_deliveries.id');
                 break;
             case "PalletReturn":
                 $query->where('pallet_return_id', $parent->id);
@@ -115,8 +119,8 @@ class IndexPallets extends OrgAction
 
 
 
-        return $query->defaultSort('reference')
-            ->allowedSorts(['customer_reference', 'reference'])
+        return $query->defaultSort('pallets.reference')
+            ->allowedSorts(['customer_reference', 'pallets.reference'])
             ->allowedFilters([$globalSearch, 'customer_reference'])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -134,7 +138,7 @@ class IndexPallets extends OrgAction
 
             $emptyStateData = [
                 'icons' => ['fal fa-pallet'],
-                'title' => '',
+                'title' => 'In this delivery, there are no pallets included',
                 'count' => 0
             ];
 
@@ -233,6 +237,7 @@ class IndexPallets extends OrgAction
         return $this->handle($organisation, 'pallets');
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
     public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $fulfilment;

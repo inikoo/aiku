@@ -83,7 +83,6 @@ Route::name('pallet.')->prefix('pallet/{pallet:id}')->group(function () {
     Route::delete('', DeletePallet::class)->name('delete');
     Route::patch('', UpdatePallet::class)->name('update');
     Route::patch('not-received', UpdatePalletNotReceived::class)->name('not-received');
-    Route::patch('booked-in', UpdatePalletBookedIn::class)->name('booked-in');
 });
 
 
@@ -122,6 +121,8 @@ Route::name('warehouse.')->prefix('warehouse/{warehouse:id}')->group(function ()
 
     Route::post('location/upload', [ImportLocation::class, 'inWarehouse'])->name('location.upload');
     Route::post('location', [StoreLocation::class, 'inWarehouse'])->name('location.store');
+    Route::patch('pallet/{pallet:id}/booked-in', UpdatePalletBookedIn::class)->name('pallet.booked-in');
+
 });
 
 Route::name('warehouse-area.')->prefix('warehouse-area/{warehouseArea:id}')->group(function () {

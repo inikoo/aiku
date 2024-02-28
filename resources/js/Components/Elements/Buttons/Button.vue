@@ -18,7 +18,7 @@ import { faSpinnerThird } from '@fad'
 const layout = useLayoutStore()
 
 const props = withDefaults(defineProps<{
-    style?: string
+    style?: string | object
     size?: string
     icon?: string | string[]
     iconRight?: string | string[]
@@ -28,9 +28,11 @@ const props = withDefaults(defineProps<{
     capitalize?: boolean
     tooltip?: string
     loading?:boolean
+    type?:string
 }>(), {
     style: 'primary',
     size: 'm',
+    type:'primary',
     capitalize: true,
     loading:false
 })
@@ -40,28 +42,29 @@ library.add(faPlus, faSave, fadSave, faUpload, faDownload, faArrowLeft, faPencil
 let styleClass = ''
 let sizeClass = ''
 
+console.log(props)
 // Styling the Button depends on the 'style' props
-if (props.style == 'primary' || props.style == 'create' || props.style == 'save' || props.style == 'upload') {
+if ( props.type == 'primary' || props.type == 'create' || props.type == 'save' || props.type == 'upload' || props.style == 'primary' || props.style == 'create' || props.style == 'save' || props.style == 'upload' ) {
     styleClass = `buttonPrimary`
 }
 
-else if (props.style == 'secondary' || props.style == 'edit') {
+else if ( props.type == 'secondary' || props.type == 'edit' || props.style == 'secondary' || props.style == 'edit' ) {
     styleClass = 'buttonSecondary'
 }
 
-else if (props.style == 'tertiary') styleClass = 'bg-transparent border border-gray-300 text-gray-700 hover:bg-gray-200/70'
-else if (props.style == 'rainbow') styleClass = 'bg-indigo-500 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2'
+else if (props.type == 'tertiary' || props.style == 'tertiary' ) styleClass = 'bg-transparent border border-gray-300 text-gray-700 hover:bg-gray-200/70'
+else if (props.type == 'rainbow' || props.style == 'rainbow' ) styleClass = 'bg-indigo-500 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2'
 
-else if (props.style == 'delete' || props.style == 'negative' || props.style == 'cancel') styleClass = 'border border-red-400 text-red-500 hover:text-red-800 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2'
-else if (props.style == 'positive') styleClass = 'border border-lime-500 text-lime-600 hover:text-lime-800 hover:bg-lime-50 focus:outline-none focus:ring-2 focus:ring-lime-600 focus:ring-offset-2'
+else if (props.style == 'delete' || props.style == 'negative' || props.style == 'cancel' || props.type == 'delete' || props.type == 'negative' || props.type == 'cancel') styleClass = 'border border-red-400 text-red-500 hover:text-red-800 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2'
+else if (props.style == 'positive' || props.type == 'positive') styleClass = 'border border-lime-500 text-lime-600 hover:text-lime-800 hover:bg-lime-50 focus:outline-none focus:ring-2 focus:ring-lime-600 focus:ring-offset-2'
 
-else if (props.style == 'white') styleClass = 'bg-white text-gray-600'
-else if (props.style == 'red') styleClass = 'bg-red-500 hover:bg-red-600 text-white focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2'
-else if (props.style == 'green') styleClass = 'bg-lime-400 hover:bg-lime-500 text-white focus:outline-none focus:ring-2 focus:ring-lime-400 focus:ring-offset-2'
-else if (props.style == 'gray') styleClass = 'bg-gray-200 hover:bg-gray-300 border border-gray-400 text-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2'
+else if (props.style == 'white' || props.type == 'white' ) styleClass = 'bg-white text-gray-600'
+else if (props.style == 'red' || props.type == 'red') styleClass = 'bg-red-500 hover:bg-red-600 text-white focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2'
+else if (props.style == 'green' || props.type == 'green') styleClass = 'bg-lime-400 hover:bg-lime-500 text-white focus:outline-none focus:ring-2 focus:ring-lime-400 focus:ring-offset-2'
+else if (props.style == 'gray' || props.type == 'gray') styleClass = 'bg-gray-200 hover:bg-gray-300 border border-gray-400 text-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2'
 
 // else if (props.style == 'negative' || props.style == 'cancel') styleClass = 'border border-red-400 text-red-600 hover:text-red-800 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2'
-else if (props.style == 'disabled') styleClass = 'cursor-not-allowed border border-gray-300 bg-transparent text-gray-700 hover:bg-gray-200/70 disabled:cursor-not-allowed disabled:opacity-70'
+else if (props.style == 'disabled' || props.type == 'disabled') styleClass = 'cursor-not-allowed border border-gray-300 bg-transparent text-gray-700 hover:bg-gray-200/70 disabled:cursor-not-allowed disabled:opacity-70'
 else styleClass = 'border border-gray-300 bg-transparent text-gray-700 hover:bg-gray-200/70'
 
 // Styling depends on the 'size' props
