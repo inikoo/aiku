@@ -46,7 +46,7 @@ if (props.style == 'primary' || props.style == 'create' || props.style == 'save'
 }
 
 else if (props.style == 'secondary' || props.style == 'edit') {
-    styleClass = 'buttonSecondary h-full text-gray-600 hover:bg-indigo-500/30 focus:bg-indigo-500 focus:text-white'
+    styleClass = 'buttonSecondary'
 }
 
 else if (props.style == 'tertiary') styleClass = 'bg-transparent border border-gray-300 text-gray-700 hover:bg-gray-200/70'
@@ -177,14 +177,23 @@ const getActionIcon = (icon: any) => {
     &:hover {
         background-color: v-bind('layout?.app?.theme[4] + "DD"') !important;
     }
+
+    &:focus {
+        box-shadow: 0 0 0 2px v-bind('layout?.app?.theme[4]') !important;
+    }
 }
 
 .buttonSecondary {
+    // Primary but less opacity
     background-color: v-bind('layout?.app?.theme[4] + "22"') !important;
     color: v-bind('layout?.app?.theme[4]') !important;
 
     &:hover {
         background-color: v-bind('layout?.app?.theme[4] + "19"') !important;
+    }
+
+    &:focus {
+        box-shadow: 0 0 0 2px v-bind('layout?.app?.theme[4]') !important;
     }
 }
 </style>

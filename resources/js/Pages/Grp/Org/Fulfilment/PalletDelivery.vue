@@ -210,7 +210,7 @@ watch(() => props.data, (newValue) => {
 
         <!-- Button: Upload -->
         <template #button-group-upload="{ action }">
-            <Button @click="() => onUploadOpen(action.button)" :style="'secondary'" icon="fal fa-upload" v-tooltip="'Upload pallet via file'" class="inline-flex items-center h-full rounded-l rounded-r-none border-none" />
+            <Button @click="() => onUploadOpen(action.button)" :style="action.button.style" :icon="action.button.icon" v-tooltip="action.button.tooltip" class="rounded-l rounded-r-none" />
         </template>
 
         <!-- Button: Add many pallete -->
