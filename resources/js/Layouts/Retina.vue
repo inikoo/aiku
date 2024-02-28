@@ -70,7 +70,7 @@ const sidebarOpen = ref(false)
         >
             <div class="bg-white shadow-lg rounded h-full overflow-y-auto relative flex flex-col pb-6 text-gray-700">
                 <!-- Section: Breadcrumbs -->
-                <Breadcrumbs v-if="usePage().props.breadcrumbs && usePage().props.breadcrumbs?.length > 0"
+                <Breadcrumbs v-if="usePage().props.breadcrumbs?.length > 0"
                     :breadcrumbs="usePage().props.breadcrumbs ?? []"
                     :navigation="usePage().props.navigation ?? []" />
                 <slot />

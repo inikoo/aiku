@@ -8,33 +8,16 @@ import Popover from '@/Components/Popover.vue'
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import Multiselect from "@vueform/multiselect"
 import { Link } from "@inertiajs/vue3"
-import {
-    faStickyNote, faPallet,
-    faUser, faNarwhal, faTruckCouch, faFileInvoiceDollar, faSignOutAlt,
-    faPaperclip, faPaperPlane
-} from '@fal'
-library.add(
-    faStickyNote, faUser,
-    faNarwhal,
-    faTruckCouch, faPallet, faFileInvoiceDollar, faSignOutAlt,
-    faPaperclip, faPaperPlane
-)
+import RetinaTablePallets from "@/Components/Tables/RetinaTablePallets.vue"
+import { Dialog, DialogPanel, DialogTitle, TransitionChild, TransitionRoot, } from "@headlessui/vue"
+import { faStickyNote, faPallet, faUser, faNarwhal, faTruckCouch, faFileInvoiceDollar, faSignOutAlt, faPaperclip, faPaperPlane } from '@fal'
+library.add( faStickyNote, faUser, faNarwhal, faTruckCouch, faPallet, faFileInvoiceDollar, faSignOutAlt, faPaperclip, faPaperPlane )
 
 const props = defineProps<{
     title: string,
     pageHead: {},
     data: {}
 }>()
-
-import {
-    Dialog,
-    DialogPanel,
-    DialogTitle,
-    TransitionChild,
-    TransitionRoot,
-} from "@headlessui/vue"
-import TablePallets from "@/Components/Tables/TablePallets.vue";
-
 
 const isOpen = ref(false)
 const warehouseValue = ref(null)
@@ -113,9 +96,6 @@ const warehouseChange = (value) => {
 
         </template>
     </PageHeading>
-    <!--
-      Todo: modal forms for quick creation of models
-      -->
 
     <TransitionRoot as="template" :show="isOpen">
         <Dialog :open="isOpen" @close="setIsOpen" as="div" class="relative z-10">
@@ -152,6 +132,6 @@ const warehouseChange = (value) => {
             </div>
         </Dialog>
     </TransitionRoot>
-    <TablePallets :data="data" tab="pallets" />
-
+    
+    <RetinaTablePallets :data="data" tab="pallets" />
 </template>
