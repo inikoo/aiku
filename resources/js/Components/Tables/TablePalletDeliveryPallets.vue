@@ -109,31 +109,28 @@ const layout = useLayoutStore();
                     <font-awesome-icon class="text-red-600" :icon="['far', 'trash-alt']" />
                 </Link>
             </div>
-            <div v-else-if="pallet.state == 'received'">
-                <!--     <pre>{{ pallet }}</pre> -->
-
-                <div v-if="pallet.state == 'not-received'">
-                    <ButtonEditTable 
+            <div v-if="pallet.state == 'not-received'">
+                <ButtonEditTable
                     class="mx-2"
-                    :type="'red'" 
+                    :type="'red'"
                     :icon="['fas', 'trash-undo-alt']"
-                    :tooltip="'Undo Pallet'" 
+                    :tooltip="'Undo Pallet'"
                     :size="'xs'"
                     :key="pallet.index"
                     routeName="undoNotReceivedRoute"
                     :data="pallet"
                     @onSuccess="() => emits('renderTableKey')"
-                    />
-                </div>
+                />
+            </div>
+            <div v-else-if="pallet.state == 'received'">
+                <!--     <pre>{{ pallet }}</pre> -->
 
-
-
-                <div v-else >
-                    <ButtonEditTable 
+                <div>
+                    <ButtonEditTable
                     class="mx-2"
-                    :type="pallet.state == 'not-received' ? 'negative' : 'tertiary'" 
-                    :icon="['fal', 'times']" 
-                    :tooltip="'Not Recived'" 
+                    :type="pallet.state == 'not-received' ? 'negative' : 'tertiary'"
+                    :icon="['fal', 'times']"
+                    :tooltip="'Not Recived'"
                     :size="'xs'"
                     :key="pallet.index"
                     routeName="notReceivedRoute"
@@ -152,7 +149,7 @@ const layout = useLayoutStore();
                         @onSuccess="() => emits('renderTableKey')"
                         />
                 </div>
-           
+
                 </div>
         </template>
     </Table>
