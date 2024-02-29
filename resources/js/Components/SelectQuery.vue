@@ -58,7 +58,7 @@ const getOptions = async () => {
         loading.value = false
         notify({
             title: "Failed",
-            text: "Error while fetching prospects",
+            text: "Error while fetching data",
             type: "error"
         });
     }

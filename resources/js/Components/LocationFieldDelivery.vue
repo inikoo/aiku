@@ -28,11 +28,17 @@ const props = defineProps<{
 
 const emits = defineEmits()
 const location = useForm({ ...props.pallet })
+const error = ref({})
 
-
-const onSaveSuccess = (closed)=>{
+const onSaveSuccess = (closed : any)=>{
     closed()
     emits('renderTableKey')
+    error.value = {}
+}
+
+
+const onSaveError = (errorValue : any) => {
+ error.value = errorValue
 }
 
 </script>
@@ -51,11 +57,12 @@ const onSaveSuccess = (closed)=>{
                         <SelectQuery :route="route(locationRoute.name, locationRoute.parameters)" :value="location"
                             :placeholder="'select location'" :required="true" :trackBy="'code'" :label="'code'"
                             :valueProp="'id'" :closeOnSelect="true" :clearOnSearch="false" :fieldName="'location_id'" />
+                            <p v-if="error.location_id" class="mt-2 text-sm text-red-600" >{{ error.location_id }}</p>
                     </div>
                     <div class="flex justify-end mt-2">
                         <ButtonEditTable :type="'primary'" @onSuccess="onSaveSuccess(closed)"
-                            :icon="['fas', 'save']" :tooltip="'Booked In'" :key="pallet.index" :size="'xs'"
-                            :dataToSubmit="{location_id :location.data().location_id}" routeName="bookInRoute" :data="pallet"
+                            :icon="['fas', 'save']" :tooltip="'Booked In'" :key="pallet.index" :size="'xs'" @onError="onSaveError"
+                            :dataToSubmit="{location_id:location.data().location_id}" routeName="bookInRoute" :data="pallet"
                         />
                     </div>
                 </div>
