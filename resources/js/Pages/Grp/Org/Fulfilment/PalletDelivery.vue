@@ -24,8 +24,8 @@ import { routeType } from '@/types/route'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faSeedling, faShare, faSpellCheck, faCheck, faCheckDouble, faUser, faTruckCouch, faPallet } from '@fal'
-library.add(faSeedling, faShare, faSpellCheck, faCheck, faCheckDouble, faUser, faTruckCouch, faPallet)
+import { faSeedling, faShare, faSpellCheck, faCheck, faCheckDouble, faUser, faTruckCouch, faPallet, faPlus } from '@fal'
+library.add(faSeedling, faShare, faSpellCheck, faCheck, faCheckDouble, faUser, faTruckCouch, faPallet, faPlus)
 
 
 const props = defineProps<{
