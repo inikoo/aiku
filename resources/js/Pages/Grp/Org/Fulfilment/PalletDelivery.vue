@@ -49,7 +49,8 @@ const props = defineProps<{
     updateRoute: {
         route: routeType
     }
-    uploadRoutes: {}
+    uploadRoutes: {},
+    locationRoute : {}
 }>()
 
 const currentTab = ref(props.tabs.current)
@@ -294,7 +295,7 @@ watch(() => props.data, (newValue) => {
     </div>
 
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
-    <component :is="component" :data="props[currentTab]" :state="timeline.state" :tab="currentTab" :tableKey="tableKey" @renderTableKey="changeTableKey"></component>
+    <component :is="component" :data="props[currentTab]" :state="timeline.state" :tab="currentTab" :tableKey="tableKey" @renderTableKey="changeTableKey" :locationRoute="locationRoute"></component>
 
     <UploadExcel :propName="'pallet deliveries'" description="Adding Pallet Deliveries" :routes="{
         upload: get(dataModal, 'uploadRoutes', {}),
