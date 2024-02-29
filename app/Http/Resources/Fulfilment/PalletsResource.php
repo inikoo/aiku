@@ -28,6 +28,7 @@ class PalletsResource extends JsonResource
             'notes'                  => $pallet->notes,
             'state'                  => $pallet->state,
             'location'               => $pallet->location?->slug,
+            'location_id'            => $pallet->location?->id,
             'state_label'            => $pallet->state->labels()[$pallet->state->value],
             'state_icon'             => $pallet->state->stateIcon()[$pallet->state->value],
             'updateRoute'            => match (request()->routeIs('retina.*')) {

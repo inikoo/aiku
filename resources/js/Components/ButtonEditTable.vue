@@ -9,6 +9,7 @@ import { defineProps, withDefaults, ref, defineEmits} from "vue"
 import { useLayoutStore } from "@/Stores/retinaLayout"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import { router } from "@inertiajs/vue3"
+import { notify } from "@kyvg/vue3-notification"
 
 const props = withDefaults(
     defineProps<{
@@ -43,6 +44,14 @@ const handleClick = (action) => {
             onStart: () => { loadingState.value = true },
             onFinish: () => { loadingState.value = false },
             onSuccess: () => { emits('onSuccess')},
+            onError: errors => { 
+                emits('onError',errors )
+                notify({
+                    title: "Failed",
+                    text: "Error while fetching data",
+                    type: "error"
+                });
+            },
         })
 }
 </script>

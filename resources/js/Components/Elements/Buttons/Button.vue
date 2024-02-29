@@ -93,7 +93,7 @@ const getActionLabel = (label: string | undefined) => {
     if (label) {
         return trans(label)
     } else {
-        switch (props.style) {
+        switch (props.style || props.type ) {
             case "edit":
                 return trans("edit")
             case "save":
@@ -119,7 +119,7 @@ const getActionIcon = (icon: any) => {
     if (icon) {
         return icon
     } else {
-        switch (props.style) {
+        switch (props.style || props.type) {
             case "edit":
                 return ["far", "fa-pencil"]
             case "save":
