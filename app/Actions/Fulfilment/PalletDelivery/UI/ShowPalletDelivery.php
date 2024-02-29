@@ -118,7 +118,8 @@ class ShowPalletDelivery extends OrgAction
                             ],
                             [
                                 'type'      => 'button',
-                                'style'     => 'create',
+                                'style'     => 'secondary',
+                                'icon'      => 'fal fa-plus',
                                 'label'     => __('add pallet'),
                                 'tooltip'   => __('Add single pallet'),
                                 'route'     => [

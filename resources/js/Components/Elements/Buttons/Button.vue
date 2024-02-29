@@ -30,9 +30,9 @@ const props = withDefaults(defineProps<{
     loading?:boolean
     type?:string
 }>(), {
-    style: 'primary',
+    // style: 'primary',
     size: 'm',
-    type:'primary',
+    // type:'primary',
     capitalize: true,
     loading:false
 })
@@ -64,7 +64,7 @@ else if (props.style == 'gray' || props.type == 'gray') styleClass = 'bg-gray-20
 
 // else if (props.style == 'negative' || props.style == 'cancel') styleClass = 'border border-red-400 text-red-600 hover:text-red-800 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2'
 else if (props.style == 'disabled' || props.type == 'disabled') styleClass = 'cursor-not-allowed border border-gray-300 bg-transparent text-gray-700 hover:bg-gray-200/70 disabled:cursor-not-allowed disabled:opacity-70'
-else styleClass = 'border border-gray-300 bg-transparent text-gray-700 hover:bg-gray-200/70'
+else styleClass = `buttonPrimary`
 
 // Styling depends on the 'size' props
 switch (props.size) {
@@ -178,6 +178,8 @@ const getActionIcon = (icon: any) => {
 
     &:hover {
         background-color: v-bind('layout?.app?.theme[4] + "DD"') !important;
+        // background-color: v-bind('`darken(${layout?.app?.theme[4]}, 50%)`') !important;
+        
     }
 
     &:focus {
@@ -191,7 +193,7 @@ const getActionIcon = (icon: any) => {
     color: v-bind('layout?.app?.theme[4]') !important;
 
     &:hover {
-        background-color: v-bind('layout?.app?.theme[4] + "19"') !important;
+        background-color: v-bind('layout?.app?.theme[4] + "33"') !important;
     }
 
     &:focus {

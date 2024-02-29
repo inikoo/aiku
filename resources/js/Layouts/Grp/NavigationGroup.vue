@@ -36,7 +36,7 @@ const isPanelOpen = ref(isCurrentRouteActive.value || props.itemKey == layout.or
 
 <template>
     <Disclosure >
-        <div class="relative isolate ring-1 ring-white/20 rounded transition-all duration-200 ease-in-out"
+        <div class="relative isolate ring-1 ring-white/20 rounded transition-all duration-200 ease-in-out mb-1"
             :class="layout.leftSidebar.show ? 'px-1' : 'px-0'"
             :style="{'box-shadow': `0 0 0 1px ${layout.app.theme[1]}55`}"
         >
