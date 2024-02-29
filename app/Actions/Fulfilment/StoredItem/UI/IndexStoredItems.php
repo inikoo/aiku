@@ -61,8 +61,9 @@ class IndexStoredItems extends InertiaAction
                 ->withGlobalSearch()
                 ->withEmptyState(
                     [
-                        'title' => __("No stored items found"),
-                        'count' => $parent->count()
+                        'title'         => __("No stored items found"),
+                        'count'         => $parent->count(),
+                        'description'   => __("No items stored in any pallets")
                     ]
                 )
                 ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true)
