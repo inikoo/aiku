@@ -23,11 +23,13 @@ const props = withDefaults(
         full?: boolean
         capitalize?: boolean
         tooltip?: string
+        dataToSubmit?:object
     }>(),
     {
         style: "primary",
         size: "m",
         capitalize: true,
+        dataToSubmit: {}
     }
 )
 
@@ -36,14 +38,13 @@ const emits = defineEmits()
 const handleClick = (action) => {
     router[action.method](
         action.route,
-        {},
+        props.dataToSubmit,
         {
             onStart: () => { loadingState.value = true },
             onFinish: () => { loadingState.value = false },
             onSuccess: () => { emits('onSuccess')},
         })
 }
-
 </script>
 
 <template>

@@ -6,8 +6,7 @@
  */
 
 
-use App\Actions\Inventory\Location\GetLocations;
+use App\Actions\Inventory\Location\UI\IndexLocations;
 use Illuminate\Support\Facades\Route;
 
-//todo use IndexLocations instead of GetLocations
-Route::get('/locations', GetLocations::class)->name('locations');
+Route::get('/locations', IndexLocations::class)->name('locations');

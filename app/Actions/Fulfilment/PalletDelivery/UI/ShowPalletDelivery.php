@@ -254,6 +254,14 @@ class ShowPalletDelivery extends OrgAction
                     ],
                 ],
 
+                'locationRoute' => [
+                    'name'       => 'grp.org.warehouses.show.infrastructure.locations.index',
+                    'parameters' => [
+                        'organisation'       => $palletDelivery->organisation->slug,
+                        'warehouse'          => $palletDelivery->warehouse->slug
+                    ]
+                ],
+
                 'tabs' => [
                     'current'    => $this->tab,
                     'navigation' => PalletDeliveryTabsEnum::navigation()

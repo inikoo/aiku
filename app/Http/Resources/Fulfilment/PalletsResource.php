@@ -59,7 +59,7 @@ class PalletsResource extends JsonResource
                 'parameters' => [$pallet->warehouse_id, $pallet->id]
             ],
             'bookInRoute'            => [
-                'name'       => ' grp.models.warehouse.pallet.booked-in',
+                'name'       => 'grp.models.warehouse.pallet.booked-in',
                 'parameters' => [$pallet->warehouse_id, $pallet->id]
             ]
         ];

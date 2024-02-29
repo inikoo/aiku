@@ -159,6 +159,14 @@ class ShowPalletDelivery extends RetinaAction
                     ],
                 ],
 
+                'locationRoute' => [
+                    'name'       => 'grp.org.warehouses.show.infrastructure.locations.index',
+                    'parameters' => [
+                        'organisation'       => $palletDelivery->organisation->slug,
+                        'warehouse'          => $palletDelivery->warehouse->slug
+                    ]
+                ],
+
                 'tabs' => [
                     'current'    => $this->tab,
                     'navigation' => PalletDeliveryTabsEnum::navigation()

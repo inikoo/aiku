@@ -85,8 +85,6 @@ class IndexPallets extends OrgAction
         switch (class_basename($parent)) {
             case "FulfilmentCustomer":
                 $query->where('fulfilment_customer_id', $parent->id);
-                $query->where('state', PalletStateEnum::SETTLED);
-                $query->whereNull('pallet_return_id');
                 break;
             case "Location":
                 $query->where('location_id', $parent->id);
@@ -175,7 +173,7 @@ class IndexPallets extends OrgAction
                 $table->column(key: 'customer_name', label: __('Customer'), canBeHidden: false, searchable: true);
             }
 
-            if ($parent instanceof Organisation || $parent instanceof Fulfilment || $parent instanceof Warehouse) {
+            if ($parent instanceof Organisation || $parent instanceof Fulfilment || $parent instanceof Warehouse || $parent instanceof PalletDelivery) {
                 $table->column(key: 'location', label: __('Location'), canBeHidden: false, searchable: true);
             }
 
