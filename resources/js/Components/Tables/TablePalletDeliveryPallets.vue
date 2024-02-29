@@ -36,7 +36,7 @@ const props = defineProps<{
 }>();
 
 const emits = defineEmits();
-const location = useForm({ location : null })
+const location = useForm({ location_id : null })
 
 
 const onSaved = async (pallet: object, fieldName: string) => {
@@ -142,15 +142,15 @@ const onSaved = async (pallet: object, fieldName: string) => {
                                 <div class="w-[250px]">
                                     <span class="text-xs px-1 my-2">Location : </span>
                                     <div>
-                                      <SelectQuery 
-                                        :route="route(locationRoute.name,locationRoute.parameters)" 
-                                        :value="location.location"
+                                      <SelectQuery
+                                        :route="route(locationRoute.name,locationRoute.parameters)"
+                                        :value="location.location_id"
                                         :placeholder="'select location'"
                                         :required="true"
                                         :trackBy="'code'"
                                         :label="'code'"
                                         :valueProp="'id'"
-                                        :closeOnSelect="false"
+                                        :closeOnSelect="true"
                                         :clearOnSearch="false"
                                      />
                                     </div>

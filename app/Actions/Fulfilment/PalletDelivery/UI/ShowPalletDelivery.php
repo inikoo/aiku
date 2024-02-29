@@ -259,7 +259,6 @@ class ShowPalletDelivery extends OrgAction
                     'parameters' => [
                         'organisation'       => $palletDelivery->organisation->slug,
                         'warehouse'          => $palletDelivery->warehouse->slug
-                        'warehouse'         => $palletDelivery->warehouse->slug
                     ]
                 ],
 
