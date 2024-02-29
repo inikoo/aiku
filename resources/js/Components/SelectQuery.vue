@@ -36,7 +36,8 @@ const props = withDefaults(defineProps<{
     closeOnSelect:false,
     clearOnSearch:true,
     object:false,
-    value:null
+    value:null,
+    fieldName:''
 })
 
 const emits = defineEmits();
@@ -64,16 +65,12 @@ const getOptions = async () => {
 }
 
 const onGetOptionsSuccess = (response : any) => {
+    console.log(response)
     const data = Object.values(response.data.data);
     optionData.value = [ ...data];
-    if (isNull(props.value)) optionData.value = [ ...data];
-    else{
-        const result = [...data].filter(item => !props.value.includes(item[props.valueProp]));
-        optionData.value =  result
-    }
+    if (isNull(props.value[props.fieldName])) optionData.value = [ ...data];
 }
 
-const valueModel = ref(cloneDeep(props.value));
 
 const SearchChange = (value : any) => {
     q.value = value
@@ -84,20 +81,21 @@ const SearchChange = (value : any) => {
     }, 500)
 }
 
-const onMultiselectChange = (data : any) => {
-    console.log(data)
-}
+/* const onMultiselectChange = (data : any) => {
+    emits('update:value', data); // Emit event to update value prop
+} */
 
-/* onMounted(() => {
-    // Fetch options when component is mounted
+ onMounted(() => {
     getOptions();
-}) */;
+}) 
+
+
 
 </script>
 
 <template> 
     <Multiselect 
-        v-model="valueModel"
+        v-model="value[fieldName]"
         :placeholder="props.placeholder"  
         :trackBy="props.trackBy" 
         :label="props.label" 
@@ -111,7 +109,6 @@ const onMultiselectChange = (data : any) => {
         :noResultsText="loading ? 'loading...' : 'No Result'" 
         @open="getOptions()" 
         @search-change="SearchChange"
-        @input="onMultiselectChange"
         >
     </Multiselect>
 </template>
