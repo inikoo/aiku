@@ -137,7 +137,7 @@ class IndexPallets extends OrgAction
 
             $emptyStateData = [
                 'icons' => ['fal fa-pallet'],
-                'title' => 'In this delivery, there are no pallets included',
+                'title' => __("No pallets exist"),
                 'count' => 0
             ];
 
