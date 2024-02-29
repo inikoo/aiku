@@ -143,7 +143,7 @@ class IndexPallets extends RetinaAction
     public function htmlResponse(LengthAwarePaginator $pallets, ActionRequest $request): Response
     {
         return Inertia::render(
-            'Storage/Pallets',
+            'Storage/RetinaPallets',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),

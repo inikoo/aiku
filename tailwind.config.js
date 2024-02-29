@@ -28,6 +28,11 @@ module.exports = {
                     },
                 },
             },
+            colors: {
+                retina: {
+                    700: 'rgb(15, 22, 38)',
+                }
+            },
             animation: {
                 skeleton: 'shimmer 1.3s ease-in-out infinite',
                 shimmer: 'shimmer 2.5s ease-in-out infinite',

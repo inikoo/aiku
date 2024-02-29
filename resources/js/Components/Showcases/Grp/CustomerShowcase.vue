@@ -5,8 +5,6 @@
   -->
 
 <script setup lang="ts">
-import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js'
-
 import { ref, reactive } from 'vue'
 import { useFormatTime } from '@/Composables/useFormatTime'
 import CustomerShowcaseStats from '@/Components/Showcases/Grp/CustomerShowcaseStats.vue'
@@ -16,26 +14,14 @@ import { faCircle } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { router } from "@inertiajs/vue3"
 import { routeType } from '@/types/route'
+import { PalletCustomer } from '@/types/Pallet'
+
 library.add(faCheckCircle, faCircle)
 
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend)
 
 const props = defineProps<{
     data: {
-        customer: {
-            slug: string
-            reference: string
-            name: string
-            contact_name: string
-            company_name?: string
-            email?: string
-            phone?: string
-            created_at: Date
-            updated_at: Date
-            shop?: string
-            shop_slug?: string
-            number_active_clients?: number
-        }
+        customer: PalletCustomer
         fulfilment_customer: {
             radioTabs: {
                 [key: string]: boolean

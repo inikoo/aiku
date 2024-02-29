@@ -119,7 +119,7 @@ class IndexPalletReturns extends RetinaAction
         ];
 
         return Inertia::render(
-            'Storage/PalletReturns',
+            'Storage/RetinaPalletReturns',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),

@@ -9,7 +9,7 @@ export interface OptionsTime {
     localeCode?: string
 }
 
-export const useFormatTime = (dateIso: string | Date, OptionsTime?: OptionsTime) => {
+export const useFormatTime = (dateIso: string | Date | undefined, OptionsTime?: OptionsTime) => {
     if (!dateIso) return '-'  // If the provided data date is null
 
     let tempLocaleCode = OptionsTime?.localeCode === 'zh-Hans' ? 'zhCN' : OptionsTime?.localeCode ?? 'enUS'

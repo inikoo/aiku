@@ -20,7 +20,7 @@ class ShowStorageDashboard
     public function asController(ActionRequest $request): Response
     {
 
-        return Inertia::render('Pallet/Dashboard');
+        return Inertia::render('Storage/StorageDashboard');
     }
 
     public function getBreadcrumbs($label = null): array
