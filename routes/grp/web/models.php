@@ -96,8 +96,8 @@ Route::name('fulfilment-customer.')->prefix('fulfilment-customer/{fulfilmentCust
     Route::patch('pallet-delivery/{palletDelivery}/timeline', UpdatePalletDeliveryTimeline::class)->name('pallet-delivery.timeline.update');
 
 
-    Route::delete('pallet-return/{palletReturn}/pallet/{pallet}', DeletePalletFromReturn::class)->name('pallet-return.pallet.delete');
     Route::post('pallet-return', StorePalletReturn::class)->name('pallet-return.store');
+    Route::delete('pallet-return/{palletReturn}/pallet/{pallet}', DeletePalletFromReturn::class)->name('pallet-return.pallet.delete');
     Route::post('pallet-return/{palletReturn}/pallet', StorePalletToReturn::class)->name('pallet-return.pallet.store');
     Route::post('pallet-return/{palletReturn}/submit', SubmitPalletReturn::class)->name('pallet-return.submit');
     Route::post('pallet-return/{palletReturn}/delivery', InDeliveryPalletReturn::class)->name('pallet-return.delivery');

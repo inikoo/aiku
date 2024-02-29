@@ -23,8 +23,8 @@ const props = defineProps<{
 
 
   function customerRoute(pallet: object) {
-            return route(pallet.deleteRoute.name,pallet.deleteRoute.params);
-}
+    return route(pallet.deleteRoute.name, pallet.deleteRoute.parameters);
+  }
 
 
   </script>
