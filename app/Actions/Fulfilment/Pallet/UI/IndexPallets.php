@@ -85,8 +85,6 @@ class IndexPallets extends OrgAction
         switch (class_basename($parent)) {
             case "FulfilmentCustomer":
                 $query->where('fulfilment_customer_id', $parent->id);
-                $query->where('state', PalletStateEnum::SETTLED);
-                $query->whereNull('pallet_return_id');
                 break;
             case "Location":
                 $query->where('location_id', $parent->id);

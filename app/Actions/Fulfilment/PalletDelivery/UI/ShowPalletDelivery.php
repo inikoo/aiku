@@ -258,6 +258,7 @@ class ShowPalletDelivery extends OrgAction
                     'name'       => 'grp.org.warehouses.show.infrastructure.locations.index',
                     'parameters' => [
                         'organisation'       => $palletDelivery->organisation->slug,
+                        'warehouse'          => $palletDelivery->warehouse->slug
                         'warehouse'         => $palletDelivery->warehouse->slug
                     ]
                 ],

@@ -163,7 +163,7 @@ class ShowPalletDelivery extends RetinaAction
                     'name'       => 'grp.org.warehouses.show.infrastructure.locations.index',
                     'parameters' => [
                         'organisation'       => $palletDelivery->organisation->slug,
-                        'fulfilment'         => $palletDelivery->warehouse->slug
+                        'warehouse'          => $palletDelivery->warehouse->slug
                     ]
                 ],
 
