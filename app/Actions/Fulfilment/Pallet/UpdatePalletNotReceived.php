@@ -24,7 +24,8 @@ class UpdatePalletNotReceived extends OrgAction
 
     public function handle(Pallet $pallet, $state): Pallet
     {
-        $modelData['state'] = $state;
+        $modelData['state']       = $state;
+        $modelData['location_id'] = null;
 
         return $this->update($pallet, $modelData, ['data']);
     }
