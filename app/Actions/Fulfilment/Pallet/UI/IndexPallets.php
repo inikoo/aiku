@@ -175,7 +175,7 @@ class IndexPallets extends OrgAction
                 $table->column(key: 'customer_name', label: __('Customer'), canBeHidden: false, searchable: true);
             }
 
-            if ($parent instanceof Organisation || $parent instanceof Fulfilment || $parent instanceof Warehouse) {
+            if ($parent instanceof Organisation || $parent instanceof Fulfilment || $parent instanceof Warehouse || $parent instanceof PalletDelivery) {
                 $table->column(key: 'location', label: __('Location'), canBeHidden: false, searchable: true);
             }
 
