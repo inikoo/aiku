@@ -5,42 +5,41 @@
   -->
 
 <script setup lang="ts">
-import {Link} from '@inertiajs/vue3';
-import Table from '@/Components/Table/Table.vue';
+import { Link } from '@inertiajs/vue3'
+import Table from '@/Components/Table/Table.vue'
 import Icon from '@/Components/Icon.vue'
-import { library } from "@fortawesome/fontawesome-svg-core";
-import { faTrashAlt } from '@far';
-import { faSignOutAlt } from '@fal';
+import { library } from "@fortawesome/fontawesome-svg-core"
 
-library.add(
-    faTrashAlt,faSignOutAlt
-)
+import { faTimes } from '@fal'
+
+library.add( faTimes )
+
 const props = defineProps<{
     data: object,
-    tab?:string
+    tab?: string
 }>()
 
 
 function palletRoute(pallet: Pallet) {
     switch (route().current()) {
-        case  'grp.org.fulfilments.show.operations.pallets.index':
+        case 'grp.org.fulfilments.show.operations.pallets.index':
             return route(
                 'grp.org.fulfilments.show.operations.pallets.show',
                 [
                     route().params['organisation'],
                     route().params['fulfilment'],
                     pallet['slug']
-                ]);
-        case  'grp.org.warehouses.show.fulfilment.pallets.index':
+                ])
+        case 'grp.org.warehouses.show.fulfilment.pallets.index':
             return route(
                 'grp.org.warehouses.show.fulfilment.pallets.show',
                 [
                     route().params['organisation'],
                     route().params['warehouse'],
                     pallet['slug']
-                ]);
+                ])
 
-        case  'grp.org.warehouses.show.infrastructure.locations.show':
+        case 'grp.org.warehouses.show.infrastructure.locations.show':
             return route(
                 'grp.org.warehouses.show.infrastructure.locations.show.pallets.show',
                 [
@@ -48,7 +47,7 @@ function palletRoute(pallet: Pallet) {
                     route().params['warehouse'],
                     route().params['location'],
                     pallet['slug']
-                ]);
+                ])
         case 'grp.org.fulfilments.show.crm.customers.show':
             return route(
                 'grp.org.fulfilments.show.crm.customers.show.pallets.show',
@@ -57,10 +56,10 @@ function palletRoute(pallet: Pallet) {
                     route().params['fulfilment'],
                     route().params['fulfilmentCustomer'],
                     pallet['slug']
-                ]);
+                ])
 
         default:
-            return [];
+            return []
     }
 }
 
@@ -75,7 +74,7 @@ function palletRoute(pallet: Pallet) {
         </template>
 
         <template #cell(state)="{ item: pallet }">
-            <Icon :data="pallet['state_icon']" class="px-1"/>
+            <Icon v-if="pallet['state_icon']" :data="pallet['state_icon']" class="px-1" />
         </template>
     </Table>
 </template>

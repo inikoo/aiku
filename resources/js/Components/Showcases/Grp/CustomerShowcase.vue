@@ -80,16 +80,15 @@ const radioLoading = reactive<{[key: string]: boolean}>({
 
 // Tabs radio: on click radio
 const onClickRadio = async (value: string) => {
-    radioLoading[value] = true
 
     // If value already selected
     if (radioValue.value.includes(value)) {
         // If value is more than 1 then able to delete
         if (radioValue.value.length > 1) {
+            radioLoading[value] = true
             router.patch(route(props.data.updateRoute.name, props.data.updateRoute.parameters), {
                 [value]: false
             }, {
-                // onSuccess: (e) => console.log('on Success', e),
                 onFinish: () => radioLoading[value] = false
             })
 
@@ -97,11 +96,11 @@ const onClickRadio = async (value: string) => {
             radioValue.value.splice(index, 1)
         }
     } else {
+        radioLoading[value] = true
         // If value didn't selected
         router.patch(route(props.data.updateRoute.name, props.data.updateRoute.parameters), {
             [value]: true
         }, {
-            // onSuccess: (e) => console.log('on Success', e),
             onFinish: () => radioLoading[value] = false
         })
 
