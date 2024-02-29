@@ -131,6 +131,7 @@ class GetWarehouseNavigation
                         [
                             "tooltip" => __("fulfilment"),
                             "icon"    => ["fal", "fa-chart-network"],
+                            "root"    => "grp.org.warehouses.show.fulfilment.dashboard",
                             "route"   => [
                                 "name"       => "grp.org.warehouses.show.fulfilment.dashboard",
                                 "parameters" => [$warehouse->organisation->slug, $warehouse->slug],
@@ -140,6 +141,7 @@ class GetWarehouseNavigation
                             "label"   => __("Pallets"),
                             "tooltip" => __("pallets"),
                             "icon"    => ["fal", "fa-pallet"],
+                            "root"    => "grp.org.warehouses.show.fulfilment.pallets.",
                             "route"   => [
                                 "name"       => "grp.org.warehouses.show.fulfilment.pallets.index",
                                 "parameters" => [$warehouse->organisation->slug, $warehouse->slug],
@@ -149,6 +151,7 @@ class GetWarehouseNavigation
                             'label'   => __('Deliveries'),
                             'tooltip' => __('deliveries'),
                             'icon'    => ['fal', 'fa-truck-couch'],
+                            "root"    => "grp.org.warehouses.show.fulfilment.pallet-deliveries.",
                             'route'   => [
                                 'name'       => 'grp.org.warehouses.show.fulfilment.pallet-deliveries.index',
                                 'parameters' => [$warehouse->organisation->slug, $warehouse->slug]
@@ -158,6 +161,7 @@ class GetWarehouseNavigation
                             'label'   => __('Returns'),
                             'tooltip' => __('returns'),
                             'icon'    => ['fal', 'fa-sign-out'],
+                            "root"    => "grp.org.warehouses.show.fulfilment.pallet-returns.",
                             'route'   => [
                                 'name'       => 'grp.org.warehouses.show.fulfilment.pallet-returns.index',
                                 'parameters' => [$warehouse->organisation->slug, $warehouse->slug]
