@@ -26,7 +26,7 @@ const props = defineProps<{
         customer: PalletCustomer
     }
 }>()
-
+console.log('props', props)
 const locale = useLocaleStore()
 
 const options = {
@@ -127,7 +127,7 @@ const dummyPieValue = [
                     </div>
                 </div>
             </div>
-            
+
             <!-- Section: Stats box -->
             <div class="grid grid-cols-2 gap-y-3 gap-x-2 text-gray-600">
                 <div v-for="prospectState in dummyPieValue" class="bg-slate-50 flex justify-between px-4 py-5 sm:p-6 rounded-lg border border-gray-100 shadow tabular-nums">
