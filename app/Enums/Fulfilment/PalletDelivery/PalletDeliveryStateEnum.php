@@ -8,6 +8,12 @@
 namespace App\Enums\Fulfilment\PalletDelivery;
 
 use App\Enums\EnumHelperTrait;
+use App\Models\Fulfilment\Fulfilment;
+use App\Models\Fulfilment\FulfilmentCustomer;
+use App\Models\Fulfilment\PalletDelivery;
+use App\Models\Inventory\Location;
+use App\Models\Inventory\Warehouse;
+use App\Models\SysAdmin\Organisation;
 
 enum PalletDeliveryStateEnum: string
 {
@@ -19,7 +25,7 @@ enum PalletDeliveryStateEnum: string
     case RECEIVED   = 'received';
     case BOOKED_IN  = 'booked-in';
 
-    public function labels(): array
+    public static function labels(): array
     {
         return [
             'in-process' => __('In Process'),
@@ -63,6 +69,23 @@ enum PalletDeliveryStateEnum: string
                 'class'   => 'text-pink-500',
                 'color'   => 'pink'
             ],
+        ];
+    }
+
+    public static function count(Organisation|FulfilmentCustomer|Location|Fulfilment|Warehouse|PalletDelivery $parent): array
+    {
+        if ($parent instanceof FulfilmentCustomer) {
+            $stats = $parent;
+        } else {
+            $stats = $parent->stats;
+        }
+
+        return [
+            'in-process'   => $stats->number_pallet_deliveries_state_in_process,
+            'submitted'    => $stats->number_pallet_deliveries_state_submitted,
+            'confirmed'    => $stats->number_pallet_deliveries_state_confirmed,
+            'received'     => $stats->number_pallet_deliveries_state_received,
+            'booked-in'    => $stats->number_pallet_deliveries_state_booked_in
         ];
     }
 }

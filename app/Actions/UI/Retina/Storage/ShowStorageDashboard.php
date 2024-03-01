@@ -10,12 +10,7 @@ namespace App\Actions\UI\Retina\Storage;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
-use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
-use App\Models\Fulfilment\PalletDelivery;
-use App\Models\Fulfilment\PalletReturn;
-use App\Models\Inventory\Warehouse;
-use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -28,16 +23,18 @@ class ShowStorageDashboard
 
     public function asController(ActionRequest $request): Response
     {
-        return Inertia::render('Storage/StorageDashboard');
+        return Inertia::render('Storage/StorageDashboard', [
+            'customer' => $this->getDashboardData($request->user()->customer->fulfilmentCustomer),
+        ]);
     }
 
-    public function getDashboardData(Organisation|PalletDelivery|PalletReturn|FulfilmentCustomer|Fulfilment|Warehouse $parent): array
+    public function getDashboardData(FulfilmentCustomer $parent): array
     {
         $stats = [];
 
         $stats['pallets'] = [
             'label' => __('Pallet'),
-            'count' => $parent->stats->number_pallets
+            'count' => $parent->fulfilment->stats->number_pallets
         ];
 
         foreach (PalletStateEnum::cases() as $case) {
@@ -49,12 +46,12 @@ class ShowStorageDashboard
             ];
         }
 
-        $stats['contacted'] = [
-            'label' => __('Contacted'),
-            'count' => $parent->crmStats->number_prospects_state_contacted
+        $stats['pallet_delivery'] = [
+            'label' => __('Pallet Delivery'),
+            'count' => $parent->fulfilment->stats->number_pallet_deliveries
         ];
         foreach (PalletDeliveryStateEnum::cases() as $case) {
-            $stats['contacted']['cases'][$case->value] = [
+            $stats['pallet_delivery']['cases'][$case->value] = [
                 'value' => $case->value,
                 'icon'  => PalletDeliveryStateEnum::stateIcon()[$case->value],
                 'count' => PalletDeliveryStateEnum::count($parent)[$case->value],
@@ -62,14 +59,14 @@ class ShowStorageDashboard
             ];
         }
 
-        $stats['fail'] = [
-            'label' => __('Failed'),
-            'count' => $parent->crmStats->number_prospects_state_fail
+        $stats['pallet_return'] = [
+            'label' => __('Pallet Return'),
+            'count' => $parent->fulfilment->stats->number_pallet_returns
         ];
         foreach (PalletReturnStateEnum::cases() as $case) {
-            $stats['fail']['cases'][$case->value] = [
+            $stats['pallet_return']['cases'][$case->value] = [
                 'value' => $case->value,
-                'icon'  => PalletReturnStateEnum::statusIcon()[$case->value],
+                'icon'  => PalletReturnStateEnum::stateIcon()[$case->value],
                 'count' => PalletReturnStateEnum::count($parent)[$case->value],
                 'label' => PalletReturnStateEnum::labels()[$case->value]
             ];
