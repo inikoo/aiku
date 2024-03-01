@@ -19,6 +19,7 @@ use App\Actions\Fulfilment\Pallet\UI\IndexPallets;
 use App\Actions\Fulfilment\Pallet\UI\ShowPallet;
 use App\Actions\Fulfilment\PalletDelivery\UI\IndexPalletDeliveries;
 use App\Actions\Fulfilment\PalletDelivery\UI\ShowPalletDelivery;
+use App\Actions\Fulfilment\PalletReturn\IndexStoredPallets;
 use App\Actions\Fulfilment\PalletReturn\UI\IndexPalletReturns;
 use App\Actions\Fulfilment\PalletReturn\UI\ShowPalletReturn;
 use App\Actions\Helpers\Uploads\HistoryUploads;
@@ -43,6 +44,8 @@ Route::prefix('{fulfilmentCustomer}')->as('show')->group(function () {
             Route::get('edit', [EditWebUser::class, 'inFulfilmentCustomer'])->name('edit');
         });
     });
+
+    Route::get('pallets/stored', [IndexStoredPallets::class, 'inFulfilmentCustomer'])->name('.stored-pallets.index');
 
     Route::prefix('pallets')->as('.pallets.')->group(function () {
         Route::get('', [IndexPallets::class, 'inFulfilmentCustomer'])->name('index');

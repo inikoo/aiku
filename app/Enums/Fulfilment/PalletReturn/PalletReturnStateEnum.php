@@ -8,6 +8,12 @@
 namespace App\Enums\Fulfilment\PalletReturn;
 
 use App\Enums\EnumHelperTrait;
+use App\Models\Fulfilment\Fulfilment;
+use App\Models\Fulfilment\FulfilmentCustomer;
+use App\Models\Fulfilment\PalletDelivery;
+use App\Models\Inventory\Location;
+use App\Models\Inventory\Warehouse;
+use App\Models\SysAdmin\Organisation;
 
 enum PalletReturnStateEnum: string
 {
@@ -20,7 +26,7 @@ enum PalletReturnStateEnum: string
     case RECEIVED        = 'received';
     case DONE            = 'done';
 
-    public function labels(): array
+    public static function labels(): array
     {
         return [
             'in-process'     => __('In Process'),
@@ -65,6 +71,24 @@ enum PalletReturnStateEnum: string
                 'icon'    => 'fal fa-spell-check',
                 'class'   => 'text-green-500'
             ],
+        ];
+    }
+
+    public static function count(Organisation|FulfilmentCustomer|Location|Fulfilment|Warehouse|PalletDelivery $parent): array
+    {
+        if ($parent instanceof FulfilmentCustomer) {
+            $stats = $parent;
+        } else {
+            $stats = $parent->stats;
+        }
+
+        return [
+            'in-process'   => $stats->number_pallet_returns_state_in_process,
+            'submitted'    => $stats->number_pallet_returns_state_submitted,
+            'confirmed'    => $stats->number_pallet_returns_state_confirmed,
+            'in-delivery'  => $stats->number_pallet_returns_state_in_delivery,
+            'received'     => $stats->number_pallet_returns_state_received,
+            'done'         => $stats->number_pallet_returns_state_done
         ];
     }
 }
