@@ -48,7 +48,7 @@ enum PalletDeliveryStateEnum: string
             'submitted'  => [
                 'tooltip' => __('Submitted'),
                 'icon'    => 'fal fa-share',
-                'class'   => 'text-indigo-300',
+                'class'   => 'text-indigo-400',
                 'color'   => 'indigo'
             ],
             'confirmed'  => [
@@ -66,8 +66,8 @@ enum PalletDeliveryStateEnum: string
             'booked-in'  => [
                 'tooltip' => __('Booked in'),
                 'icon'    => 'fal fa-check-double',
-                'class'   => 'text-pink-500',
-                'color'   => 'pink'
+                'class'   => 'text-purple-500',
+                'color'   => 'purple'
             ],
         ];
     }
