@@ -145,7 +145,7 @@ const getActionIcon = (icon: any) => {
 
 <template>
     <button type="button"
-        class="leading-4 inline-flex items-center gap-x-2 font-medium shadow-sm focus:outline-none"
+        class="leading-4 inline-flex items-center gap-x-2 font-medium focus:outline-none"
         :class="[
             // icon ? 'px-2 sm:px-4' : 'px-3 sm:px-5 ',
             full ? 'w-full justify-center' : 'min-w-max',
@@ -189,7 +189,7 @@ const getActionIcon = (icon: any) => {
 .buttonSecondary {
     // Primary but less opacity
     background-color: v-bind('layout?.app?.theme[4] + "22"') !important;
-    border: v-bind('`1px solid ${layout?.app?.theme[4] + "88"}`') !important;
+    border: v-bind('`1px solid ${layout?.app?.theme[4] + "88"}`');
     color: v-bind('layout?.app?.theme[4]') !important;
 
     &:hover {
