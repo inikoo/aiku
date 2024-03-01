@@ -5,13 +5,14 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Fulfilment\Pallet\UI;
+namespace App\Actions\Fulfilment\PalletReturn;
 
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
+use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Http\Resources\Fulfilment\PalletsResource;
 use App\Models\Fulfilment\Fulfilment;
@@ -32,14 +33,10 @@ use App\InertiaTable\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use App\Services\QueryBuilder;
 
-class IndexPallets extends OrgAction
+class IndexStoredPallets extends OrgAction
 {
     use HasFulfilmentAssetsAuthorisation;
     private Organisation|FulfilmentCustomer|Location|Fulfilment|Warehouse|PalletDelivery|PalletReturn $parent;
-    /**
-     * @var true
-     */
-    private bool $selectStoredPallets = false;
 
     protected function getElementGroups(): array
     {
@@ -86,43 +83,9 @@ class IndexPallets extends OrgAction
 
         $query = QueryBuilder::for(Pallet::class);
 
-        switch (class_basename($parent)) {
-            case "FulfilmentCustomer":
-                $query->where('fulfilment_customer_id', $parent->id);
-                break;
-            case "Location":
-                $query->where('location_id', $parent->id);
-                break;
-            case "Organisation":
-                $query->where('organisation_id', $parent->id);
-                break;
-            case "Fulfilment":
-                $query->where('fulfilment_id', $parent->id);
-                break;
-            case "Warehouse":
-                $query->where('warehouse_id', $parent->id);
-                break;
-            case "PalletDelivery":
-                $query->where('pallet_delivery_id', $parent->id);
-                break;
-            case "PalletReturn":
-                $query->where('pallet_return_id', $parent->id);
-                break;
-            default:
-                $query->where('group_id', app('group')->id);
-                break;
-        }
-
-        if($this->selectStoredPallets) {
-            $query->where('state', PalletStateEnum::BOOKED_IN);
-        }
-
-
-        if(!$parent instanceof PalletDelivery) {
-            $query->where('state', '!=', PalletStateEnum::IN_PROCESS);
-        }
-
-
+        $query->where('fulfilment_customer_id', $parent->id);
+        $query->where('state', PalletStateEnum::BOOKED_IN);
+        $query->where('status', '!=', PalletStatusEnum::RETURNED);
 
         return $query->defaultSort('pallets.reference')
             ->allowedSorts(['customer_reference', 'pallets.reference'])

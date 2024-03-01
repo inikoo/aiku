@@ -8,6 +8,7 @@
 namespace App\Actions\Fulfilment\Pallet;
 
 use App\Actions\OrgAction;
+use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletReturn;
@@ -33,7 +34,8 @@ class StorePalletToReturn extends OrgAction
             $pallet = Pallet::find($pallet);
 
             $pallet->update([
-                'pallet_return_id' => $palletReturn->id
+                'pallet_return_id' => $palletReturn->id,
+                'status'           => PalletStatusEnum::RETURNED
             ]);
         }
 

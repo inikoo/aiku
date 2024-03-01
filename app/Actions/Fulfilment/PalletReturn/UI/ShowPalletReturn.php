@@ -255,7 +255,7 @@ class ShowPalletReturn extends OrgAction
 
                 'palletRoute' => [
                     'index' => [
-                        'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallets.index',
+                        'name'       => 'grp.org.fulfilments.show.crm.customers.show.stored-pallets.index',
                         'parameters' => [
                             'organisation'       => $palletReturn->organisation->slug,
                             'fulfilment'         => $palletReturn->fulfilment->slug,
