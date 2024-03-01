@@ -46,7 +46,7 @@ const pallet = ref(
 // On blur and press enter in Input
 const onSaveInput = (value: string) => {
     console.log('value', value, props.data[props.fieldName])
-    if (value && value != props.data[props.fieldName]) {
+    if (value != props.data[props.fieldName]) {
         emits('onSave', pallet.value, props.fieldName)
     }
 }

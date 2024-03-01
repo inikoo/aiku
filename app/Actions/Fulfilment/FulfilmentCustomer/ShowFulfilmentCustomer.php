@@ -65,6 +65,19 @@ class ShowFulfilmentCustomer extends OrgAction
 
         $webUsersMeta = $this->getWebUserMeta($fulfilmentCustomer->customer, $request);
 
+        $navigation = CustomerFulfilmentTabsEnum::navigation();
+
+        if (!$fulfilmentCustomer->pallets_storage) {
+            unset($navigation[CustomerFulfilmentTabsEnum::PALLETS->value]);
+        }
+        if (!$fulfilmentCustomer->items_storage) {
+            unset($navigation[CustomerFulfilmentTabsEnum::STORED_ITEMS->value]);
+        }
+        if (!$fulfilmentCustomer->dropshipping) {
+            unset($navigation[CustomerFulfilmentTabsEnum::PALLET_DELIVERIES->value]);
+            unset($navigation[CustomerFulfilmentTabsEnum::PALLET_RETURNS->value]);
+            unset($navigation[CustomerFulfilmentTabsEnum::INVOICES->value]);
+        }
 
         return Inertia::render(
             'Org/Fulfilment/Customer',
@@ -120,9 +133,10 @@ class ShowFulfilmentCustomer extends OrgAction
                         ],
                     ]
                 ],
+
                 'tabs'        => [
                     'current'    => $this->tab,
-                    'navigation' => CustomerFulfilmentTabsEnum::navigation()
+                    'navigation' => $navigation
                 ],
 
                 CustomerFulfilmentTabsEnum::SHOWCASE->value => $this->tab == CustomerFulfilmentTabsEnum::SHOWCASE->value ?
