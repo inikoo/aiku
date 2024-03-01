@@ -93,6 +93,8 @@ const dummyPieValue = [
         ]
     },
 ]
+
+console.log(props.pieData)
 </script>
 
 <template>
@@ -104,8 +106,8 @@ const dummyPieValue = [
             <!-- Section: Profile box -->
             <div class="bg-slate-50 border border-slate-200 text-retina-600 p-6 flex flex-col justify-between rounded-lg shadow overflow-hidden">
                 <div class="w-full">
-                    <h2 class="text-3xl font-bold">{{ customer?.name }}</h2>
-                    <h2 class="text-3xl font-light italic brightness-75">{{ trans('No name') }}</h2>
+                    <h2 v-if="customer?.name" class="text-3xl font-bold">{{ customer?.name }}</h2>
+                    <h2 v-else class="text-3xl font-light italic brightness-75">{{ trans('No name') }}</h2>
                     <div class="text-lg">
                         {{ customer?.shop }}
                         <span class="text-gray-400">
@@ -137,7 +139,9 @@ const dummyPieValue = [
 
             <!-- Section: Stats box -->
             <div class="grid grid-cols-2 gap-y-3 gap-x-2 text-gray-600">
-                <div v-for="prospectState in pieData" class="bg-slate-50 flex justify-between px-4 py-5 sm:p-6 rounded-lg border border-gray-100 shadow tabular-nums">
+                <div v-for="(prospectState, keyObject) in pieData" class="bg-slate-50 flex justify-between px-4 py-5 sm:p-6 rounded-lg border border-gray-100 shadow tabular-nums"
+                    :class="keyObject === 'pallets' ? 'col-span-2' : ''"
+                >
                     <div class="">
                         <dt class="text-base font-medium text-gray-400 capitalize">{{ prospectState.label }}</dt>
                         <dd class="mt-2 flex justify-between gap-x-2">
@@ -160,7 +164,8 @@ const dummyPieValue = [
                             </div>
                         </dd>
                     </div>
-                    <!-- Donut -->
+
+                    <!-- Pie -->
                     <div class="w-20">
                         <Pie :data="{
                             labels: Object.entries(prospectState.cases).map(([, value]) => value.label),
