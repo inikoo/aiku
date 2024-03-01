@@ -39,6 +39,12 @@ function palletReturnRoute(palletReturn: PalletDelivery) {
                     route().params['fulfilment'],
                     palletReturn.slug
                 ]);
+        case 'retina.storage.pallet-returns.index':
+            return route(
+                'retina.storage.pallet-returns.show',
+                [
+                    palletReturn.slug
+                ]);
         default:
             return route(
                 'grp.org.fulfilments.show.crm.customers.show.pallet-returns.show',
@@ -66,7 +72,6 @@ function palletReturnRoute(palletReturn: PalletDelivery) {
         <template #cell(state)="{ item: palletReturn }">
             <Icon :data="palletReturn['state_icon']" class="px-1"/>
         </template>
-
 
         <template #buttonreturns="{ linkButton: linkButton }">
             <Link
