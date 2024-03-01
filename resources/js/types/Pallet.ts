@@ -12,3 +12,18 @@ export interface PalletCustomer {
     shop_slug?: string
     number_active_clients?: number
 }
+
+export interface PieCustomer {
+    label: string
+    count: number
+    cases: {
+        value: string
+        count: number
+        label: string
+        icon: {
+            icon: string
+            tooltip: string
+            class: string
+        }
+    }[]
+}
