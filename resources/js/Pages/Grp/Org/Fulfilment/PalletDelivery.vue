@@ -165,7 +165,43 @@ watch(() => props.data, (newValue) => {
 <template>
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead">
-        <!-- Button: add pallet (single) -->
+        <!-- Button: Upload -->
+        <template #button-group-upload="{ action }">
+            <Button @click="() => onUploadOpen(action.button)"
+                :style="action.button.style"
+                :icon="action.button.icon"
+                v-tooltip="action.button.tooltip"
+                class="rounded-l rounded-r-none border-none" />
+        </template>
+
+        <!-- Button: Add many pallete -->
+        <template #button-group-multiple="{ action }">
+            <Popover width="w-full" class="h-full">
+                <template #button>
+                    <Button :style="action.button.style" :icon="action.button.icon" :iconRight="action.button.iconRight"
+                        :key="`ActionButton${action.button.label}${action.button.style}`"
+                        :tooltip="'Add multiple pallet'"
+                        class="rounded-none border-none" />
+                </template>
+                <template #content="{ close: closed }">
+                    <div class="w-[250px]">
+                        <span class="text-xs px-1 my-2">Number of pallets : </span>
+                        <div>
+                            <PureInput v-model="formMultiplePallet.number_pallets" placeholder="number of pallets" type="number" :minValue="1" />
+                            <p v-if="get(formMultiplePallet, ['errors', 'customer_reference'])" class="mt-2 text-sm text-red-600">
+                                {{ formMultiplePallet.errors.number_pallets }}
+                            </p>
+                        </div>
+                        <div class="flex justify-end mt-3">
+                            <Button :style="'save'" :loading="loading" :label="'save'"
+                                @click="() => handleFormSubmitAddMultiplePallet(action.button, closed)" />
+                        </div>
+                    </div>
+                </template>
+            </Popover>
+        </template>
+        
+        <!-- Button: Add pallet (single) -->
         <template #button-group-add-pallet="{ action: action }">
             <div class="relative">
                 <Popover width="w-full">
@@ -175,7 +211,7 @@ watch(() => props.data, (newValue) => {
                             :icon="action.button.icon"
                             :key="`ActionButton${action.button.label}${action.button.style}`"
                             :tooltip="action.button.tooltip"
-                            class="rounded-l-none rounded-r " />
+                            class="rounded-l-none rounded-r border-none " />
                     </template>
                     
                     <template #content="{ close: closed }">
@@ -209,40 +245,6 @@ watch(() => props.data, (newValue) => {
             </div>
         </template>
 
-        <!-- Button: Upload -->
-        <template #button-group-upload="{ action }">
-            <Button @click="() => onUploadOpen(action.button)" :style="action.button.style" :icon="action.button.icon" v-tooltip="action.button.tooltip" class="rounded-l rounded-r-none" />
-        </template>
-
-        <!-- Button: Add many pallete -->
-        <template #button-group-multiple="{ action }">
-            <div class="relative">
-                <Popover width="w-full">
-                    <template #button>
-                        <Button :style="action.button.style" :icon="action.button.icon" :iconRight="action.button.iconRight"
-                            :key="`ActionButton${action.button.label}${action.button.style}`"
-                            :tooltip="'Add multiple pallet'"
-                            class="rounded-none border-none" />
-                    </template>
-                    <template #content="{ close: closed }">
-                        <div class="w-[250px]">
-                            <span class="text-xs px-1 my-2">Number of pallets : </span>
-                            <div>
-                                <PureInput v-model="formMultiplePallet.number_pallets" placeholder="number of pallets" type="number" :minValue="1" />
-                                <p v-if="get(formMultiplePallet, ['errors', 'customer_reference'])" class="mt-2 text-sm text-red-600">
-                                    {{ formMultiplePallet.errors.number_pallets }}
-                                </p>
-                            </div>
-                            <div class="flex justify-end mt-3">
-                                <Button :style="'save'" :loading="loading" :label="'save'"
-                                    @click="() => handleFormSubmitAddMultiplePallet(action.button, closed)" />
-                            </div>
-                        </div>
-                    </template>
-                </Popover>
-            </div>
-        </template>
-
         <!-- Button: Confirm -->
         <template #button-confirm="{ action: action }">
             <div>
@@ -261,10 +263,11 @@ watch(() => props.data, (newValue) => {
         <Timeline :options="timeline.timeline" :state="timeline.state" :slidesPerView="5" />
     </div>
 
+    <!-- Box -->
     <div class="h-16 grid grid-cols-4 gap-x-2 px-6 my-4">
         <!-- Stats: User name -->
         <div v-tooltip="'Customer name'"
-            class="relative flex flex-col justify-center p-4 rounded-md bg-slate-200 border border-slate-300 overflow-hidden">
+            class="relative flex flex-col justify-center p-4 rounded-md bg-slate-100 border border-slate-300 overflow-hidden">
             <!-- <div class="text-zinc-500">User name</div> -->
             <div class="text-2xl font-bold">{{ pallets?.data[0]?.customer_name }}</div>
             <FontAwesomeIcon icon='fal fa-user' class='text-zinc-800/30 absolute text-[40px] right-2' fixed-width
@@ -273,7 +276,7 @@ watch(() => props.data, (newValue) => {
 
         <!-- Stats: Delivery Status -->
         <div v-tooltip="'Delivery status'"
-            class="relative flex flex-col justify-center px-4 rounded-md bg-slate-200 border border-slate-300 overflow-hidden">
+            class="relative flex flex-col justify-center px-4 rounded-md bg-slate-100 border border-slate-300 overflow-hidden">
             <!-- <div class="text-gray-500">Delivery status</div> -->
             <div class="text-2xl font-bold capitalize leading-none">{{ data?.data.state }}</div>
             <FontAwesomeIcon icon='fal fa-truck-couch' class='text-zinc-800/30 absolute text-[40px] right-2' fixed-width
@@ -282,7 +285,7 @@ watch(() => props.data, (newValue) => {
 
         <!-- Stats: Pallet count -->
         <div v-tooltip="'Total pallet'"
-            class="relative flex flex-col justify-center p-4 rounded-md bg-slate-200 border border-slate-300 overflow-hidden">
+            class="relative flex flex-col justify-center p-4 rounded-md bg-slate-100 border border-slate-300 overflow-hidden">
             <!-- <div class="text-gray-500">Number of pallets</div> -->
             <div class="text-2xl font-bold capitalize">{{ pallets?.meta.total }}</div>
             <FontAwesomeIcon icon='fal fa-pallet' class='text-zinc-800/30 absolute text-[40px] right-2' fixed-width
