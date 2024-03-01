@@ -10,6 +10,7 @@ namespace App\Actions\UI\Retina\Storage;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
+use App\Http\Resources\Sales\CustomerResource;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -25,7 +26,10 @@ class ShowStorageDashboard
     {
         return Inertia::render('Storage/StorageDashboard', [
             'data' => [
-                'customer' => $this->getDashboardData($request->user()->customer->fulfilmentCustomer)
+                'customer' => array_merge(
+                    $this->getDashboardData($request->user()->customer->fulfilmentCustomer),
+                    CustomerResource::make($request->user()->customer)->resolve()
+                ),
             ],
         ]);
     }
