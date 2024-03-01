@@ -26,7 +26,7 @@ const props = defineProps<{
         customer: PalletCustomer
     }
 }>()
-console.log('props', props)
+
 const locale = useLocaleStore()
 
 const options = {
