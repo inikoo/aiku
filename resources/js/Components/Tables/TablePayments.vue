@@ -5,9 +5,9 @@
   -->
 
 <script setup lang="ts">
-import {Link} from '@inertiajs/vue3';
-import Table from '@/Components/Table/Table.vue';
-import {Pallet} from "@/types/pallet";
+import { Link } from '@inertiajs/vue3'
+import Table from '@/Components/Table/Table.vue'
+import { PalletCustomer } from '@/types/Pallet'
 
 const props = defineProps<{
     data: object,
@@ -15,13 +15,13 @@ const props = defineProps<{
 }>()
 
 
-function palletsRoute(pallet: Pallet) {
+function palletsRoute(pallet: PalletCustomer) {
     switch (route().current()) {
 
         default:
             return route(
                 'grp.accounting.pallets.index',
-                [pallet.slug]);
+                [pallet.slug])
     }
 
 }

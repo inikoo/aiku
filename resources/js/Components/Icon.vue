@@ -7,9 +7,20 @@
 <script setup lang="ts">
 import {capitalize} from '@/Composables/capitalize.js';
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
-import {faSeedling, faBroadcastTower, faImage, faSparkles, faRocket, faDoNotEnter, faClipboardCheck, faCheck, faSpellCheck} from '@fal'
+import {
+    faSeedling,
+    faBroadcastTower,
+    faImage,
+    faSparkles,
+    faRocket,
+    faDoNotEnter,
+    faClipboardCheck,
+    faCheck,
+    faSpellCheck,
+    faCheckDouble
+} from '@fal'
 import { library } from "@fortawesome/fontawesome-svg-core"
-library.add(faSeedling, faBroadcastTower, faImage, faSparkles, faRocket, faDoNotEnter, faClipboardCheck, faCheck, faSpellCheck)
+library.add(faSeedling, faBroadcastTower, faImage, faSparkles, faRocket, faDoNotEnter, faClipboardCheck, faCheck, faSpellCheck, faCheckDouble)
 
 const props = defineProps<{
     data: {

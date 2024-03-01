@@ -17,14 +17,14 @@ import { faTimesSquare } from "@fas"
 import { faTrashAlt, faPaperPlane, faInventory } from "@far"
 import { faSignOutAlt, faTruckLoading, faTimes } from "@fal"
 import { useLayoutStore } from "@/Stores/retinaLayout"
-import Flied from "@/Components/FieldEditableTable.vue"
+import FieldEditableTable from "@/Components/FieldEditableTable.vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import { ref, watch, defineEmits } from "vue"
 import ButtonEditTable from "@/Components/ButtonEditTable.vue"
 import Popover from "@/Components/Popover.vue"
 import SelectQuery from "@/Components/SelectQuery.vue"
 import { cloneDeep } from "lodash"
-import Location from "@/Components/LocationFieldDelivery.vue"
+import LocationFieldDelivery from "@/Components/LocationFieldDelivery.vue"
 
 library.add(
 	faTrashAlt,
@@ -56,6 +56,7 @@ const onSaved = async (pallet: object, fieldName: string) => {
 			pallet.form.wasSuccessful = true
 			pallet.form.hasErrors = false
 			pallet.form.clearErrors()
+			pallet[fieldName] = pallet.form.data()[fieldName]
 		} catch (error: any) {
 			pallet.form.processing = false
 			pallet.form.wasSuccessful = false
@@ -90,47 +91,59 @@ const onSaved = async (pallet: object, fieldName: string) => {
 		<template #cell(state)="{ item: palletDelivery }">
 			<Icon :data="palletDelivery['state_icon']" class="px-1" />
 		</template>
+
+        <!-- Column: Customer Reference -->
 		<template #cell(customer_reference)="{ item: item }">
-			<div v-if="state == 'in-process'">
-				<Flied :data="item" @onSave="onSaved" fieldName="customer_reference" />
+			<div v-if="state == 'in-process'" class="w-full">
+				<FieldEditableTable :data="item" @onSave="onSaved" fieldName="customer_reference" placeholder="Enter customer reference" />
 			</div>
 			<div v-else>{{ item["customer_reference"] }}</div>
 		</template>
+
+        <!-- Column: Notes -->
 		<template #cell(notes)="{ item: item }">
-			<div v-if="state == 'in-process'">
-				<Flied :data="item" @onSave="onSaved" fieldName="notes" />
+			<div v-if="state == 'in-process'" class="">
+				<FieldEditableTable :data="item" @onSave="onSaved" fieldName="notes" placeholder="Enter pallet notes"/>
 			</div>
 			<div v-else>{{ item["notes"] }}</div>
 		</template>
+
+        <!-- Column: Actions -->
 		<template #cell(actions)="{ item: pallet }">
 			<div v-if="props.state == 'in-process'">
 				<Link
 					:href="route(pallet.deleteRoute.name, pallet.deleteRoute.parameters)"
 					method="delete"
-					as="button"
-					:onSuccess="() => emits('renderTableKey')">
-					<font-awesome-icon class="text-red-600" :icon="['far', 'trash-alt']" />
+					as="div"
+					:onSuccess="() => emits('renderTableKey')"
+                    v-tooltip="'Delete this pallet'"
+                    class="w-fit"    
+                >
+                    <Button icon="far fa-trash-alt" type="negative" />
 				</Link>
 			</div>
+
 			<div v-else-if="pallet.state == 'not-received'">
 				<ButtonEditTable
 					class="mx-2"
-					:type="'red'"
-					:icon="['fas', 'trash-undo-alt']"
-					:tooltip="'Undo Pallet'"
+					type="secondary"
+                    label="Set as received"
+					tooltip="Set as received"
+                    :capitalize="false"
 					:size="'xs'"
 					:key="pallet.index"
 					routeName="undoNotReceivedRoute"
 					:data="pallet"
 					@onSuccess="() => emits('renderTableKey')" />
 			</div>
+            
 			<div v-else>
 				<div class="flex">
 					<ButtonEditTable
 						class="mx-2"
-						:type="pallet.state == 'not-received' ? 'negative' : 'tertiary'"
+						:type="pallet.state == 'not-received' ? 'secondary' : 'negative'"
 						:icon="['fal', 'times']"
-						:tooltip="'Not Recived'"
+						tooltip="Set as not received"
 						:size="'xs'"
 						:key="pallet.index"
 						routeName="notReceivedRoute"
@@ -147,7 +160,7 @@ const onSaved = async (pallet: object, fieldName: string) => {
                         :data="pallet"
                         @onSuccess="() => emits('renderTableKey')"
                         /> -->
-					<Location
+					<LocationFieldDelivery
 						:pallet="pallet"
 						@renderTableKey="() => emits('renderTableKey')"
 						:locationRoute="locationRoute" />
