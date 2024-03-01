@@ -56,6 +56,7 @@ const onSaved = async (pallet: object, fieldName: string) => {
 			pallet.form.wasSuccessful = true
 			pallet.form.hasErrors = false
 			pallet.form.clearErrors()
+			pallet[fieldName] = pallet.form.data()[fieldName]
 		} catch (error: any) {
 			pallet.form.processing = false
 			pallet.form.wasSuccessful = false
