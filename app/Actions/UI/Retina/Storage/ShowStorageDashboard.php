@@ -24,7 +24,8 @@ class ShowStorageDashboard
     public function asController(ActionRequest $request): Response
     {
         return Inertia::render('Storage/StorageDashboard', [
-            'pieData' => $this->getDashboardData($request->user()->customer->fulfilmentCustomer)
+            'pieData'   => $this->getDashboardData($request->user()->customer->fulfilmentCustomer),
+            'customer'  => [],
         ]);
     }
 

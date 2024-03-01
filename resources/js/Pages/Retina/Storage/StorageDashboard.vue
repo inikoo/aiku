@@ -173,6 +173,6 @@ const dummyPieValue = [
                 </div>
             </div>
         </div>
-        <pre>{{ props }}</pre>
+        <!-- <pre>{{ props }}</pre> -->
     </div>
 </template>
