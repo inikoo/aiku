@@ -24,7 +24,7 @@ import ButtonEditTable from "@/Components/ButtonEditTable.vue"
 import Popover from "@/Components/Popover.vue"
 import SelectQuery from "@/Components/SelectQuery.vue"
 import { cloneDeep } from "lodash"
-import Location from "@/Components/LocationFieldDelivery.vue"
+import LocationFieldDelivery from "@/Components/LocationFieldDelivery.vue"
 
 library.add(
 	faTrashAlt,
@@ -96,12 +96,14 @@ const onSaved = async (pallet: object, fieldName: string) => {
 			</div>
 			<div v-else>{{ item["customer_reference"] }}</div>
 		</template>
+
 		<template #cell(notes)="{ item: item }">
 			<div v-if="state == 'in-process'">
 				<Flied :data="item" @onSave="onSaved" fieldName="notes" />
 			</div>
 			<div v-else>{{ item["notes"] }}</div>
 		</template>
+
 		<template #cell(actions)="{ item: pallet }">
 			<div v-if="props.state == 'in-process'">
 				<Link
@@ -112,25 +114,28 @@ const onSaved = async (pallet: object, fieldName: string) => {
 					<font-awesome-icon class="text-red-600" :icon="['far', 'trash-alt']" />
 				</Link>
 			</div>
+
 			<div v-else-if="pallet.state == 'not-received'">
 				<ButtonEditTable
 					class="mx-2"
-					:type="'red'"
-					:icon="['fas', 'trash-undo-alt']"
-					:tooltip="'Undo Pallet'"
+					type="secondary"
+                    label="Set as received"
+					tooltip="Set as received"
+                    :capitalize="false"
 					:size="'xs'"
 					:key="pallet.index"
 					routeName="undoNotReceivedRoute"
 					:data="pallet"
 					@onSuccess="() => emits('renderTableKey')" />
 			</div>
+            
 			<div v-else>
 				<div class="flex">
 					<ButtonEditTable
 						class="mx-2"
-						:type="pallet.state == 'not-received' ? 'negative' : 'tertiary'"
+						:type="pallet.state == 'not-received' ? 'secondary' : 'negative'"
 						:icon="['fal', 'times']"
-						:tooltip="'Not Recived'"
+						tooltip="Set as not received"
 						:size="'xs'"
 						:key="pallet.index"
 						routeName="notReceivedRoute"
@@ -147,7 +152,7 @@ const onSaved = async (pallet: object, fieldName: string) => {
                         :data="pallet"
                         @onSuccess="() => emits('renderTableKey')"
                         /> -->
-					<Location
+					<LocationFieldDelivery
 						:pallet="pallet"
 						@renderTableKey="() => emits('renderTableKey')"
 						:locationRoute="locationRoute" />

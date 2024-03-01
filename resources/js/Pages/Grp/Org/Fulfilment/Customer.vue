@@ -37,13 +37,13 @@ import TableDispatchedEmails from "@/Components/Tables/TableDispatchedEmails.vue
 import {
     faStickyNote, faPallet,
     faUser, faNarwhal, faTruckCouch, faFileInvoiceDollar, faSignOutAlt,
-    faPaperclip, faPaperPlane
+    faPaperclip, faPaperPlane, faCheckDouble
 } from '@fal'
 library.add(
     faStickyNote, faUser,
     faNarwhal,
     faTruckCouch, faPallet, faFileInvoiceDollar, faSignOutAlt,
-    faPaperclip, faPaperPlane
+    faPaperclip, faPaperPlane, faCheckDouble
 )
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChangelog.vue'))

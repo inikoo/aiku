@@ -48,20 +48,21 @@ const onSaveError = (errorValue : any) => {
         <Popover width="w-full">
             <template #button>
                 <Button :type="pallet.state == 'booked-in' ? 'primary' : 'tertiary'" :icon="['fal', 'inventory']"
-                    :tooltip="'Booked In'" :key="pallet.index" :size="'xs'" />
+                    tooltip="Set location for pallet" :key="pallet.index" :size="'xs'" />
             </template>
+
             <template #content="{ close: closed }">
                 <div class="w-[250px]">
-                    <span class="text-xs px-1 my-2">Location : </span>
+                    <span class="text-xs px-1 my-2">Location: </span>
                     <div>
                         <SelectQuery :route="route(locationRoute.name, locationRoute.parameters)" :value="location"
-                            :placeholder="'select location'" :required="true" :trackBy="'code'" :label="'code'"
+                            :placeholder="'Select location'" :required="true" :trackBy="'code'" :label="'code'"
                             :valueProp="'id'" :closeOnSelect="true" :clearOnSearch="false" :fieldName="'location_id'" />
                             <p v-if="error.location_id" class="mt-2 text-sm text-red-600" >{{ error.location_id }}</p>
                     </div>
                     <div class="flex justify-end mt-2">
                         <ButtonEditTable :type="'primary'" @onSuccess="onSaveSuccess(closed)"
-                            :icon="['fas', 'save']" :tooltip="'Booked In'" :key="pallet.index" :size="'xs'" @onError="onSaveError"
+                            :icon="['fas', 'save']" tooltip="Save location" :key="pallet.index" :size="'xs'" @onError="onSaveError"
                             :dataToSubmit="{location_id:location.data().location_id}" routeName="bookInRoute" :data="pallet"
                         />
                     </div>
