@@ -28,7 +28,7 @@ const props = defineProps<{
         [key: string]: PieCustomer
     }
 }>()
-console.log('props', props)
+
 const locale = useLocaleStore()
 
 const options = {

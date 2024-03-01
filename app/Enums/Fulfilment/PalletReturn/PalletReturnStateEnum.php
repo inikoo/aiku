@@ -48,8 +48,8 @@ enum PalletReturnStateEnum: string
             ],
             'submitted' => [
                 'tooltip' => __('Submitted'),
-                'icon'    => 'fal fa-spell-check',
-                'class'   => 'text-green-500'
+                'icon'    => 'fal fa-share',
+                'class'   => 'text-indigo-500'
             ],
             'confirmed' => [
                 'tooltip' => __('Confirmed'),
@@ -63,13 +63,13 @@ enum PalletReturnStateEnum: string
             ],
             'received' => [
                 'tooltip' => __('Received'),
-                'icon'    => 'fal fa-spell-check',
-                'class'   => 'text-green-500'
+                'icon'    => 'fal fa-check',
+                'class'   => 'text-slate-500'
             ],
             'done' => [
                 'tooltip' => __('Done'),
-                'icon'    => 'fal fa-spell-check',
-                'class'   => 'text-green-500'
+                'icon'    => 'fal fa-check-double',
+                'class'   => 'text-purple-500'
             ],
         ];
     }
