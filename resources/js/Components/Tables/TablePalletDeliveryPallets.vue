@@ -17,7 +17,7 @@ import { faTimesSquare } from "@fas"
 import { faTrashAlt, faPaperPlane, faInventory } from "@far"
 import { faSignOutAlt, faTruckLoading, faTimes } from "@fal"
 import { useLayoutStore } from "@/Stores/retinaLayout"
-import Flied from "@/Components/FieldEditableTable.vue"
+import FieldEditableTable from "@/Components/FieldEditableTable.vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import { ref, watch, defineEmits } from "vue"
 import ButtonEditTable from "@/Components/ButtonEditTable.vue"
@@ -90,28 +90,35 @@ const onSaved = async (pallet: object, fieldName: string) => {
 		<template #cell(state)="{ item: palletDelivery }">
 			<Icon :data="palletDelivery['state_icon']" class="px-1" />
 		</template>
+
+        <!-- Column: Customer Reference -->
 		<template #cell(customer_reference)="{ item: item }">
-			<div v-if="state == 'in-process'">
-				<Flied :data="item" @onSave="onSaved" fieldName="customer_reference" />
+			<div v-if="state == 'in-process'" class="w-full">
+				<FieldEditableTable :data="item" @onSave="onSaved" fieldName="customer_reference" placeholder="Enter customer reference" />
 			</div>
 			<div v-else>{{ item["customer_reference"] }}</div>
 		</template>
 
+        <!-- Column: Notes -->
 		<template #cell(notes)="{ item: item }">
-			<div v-if="state == 'in-process'">
-				<Flied :data="item" @onSave="onSaved" fieldName="notes" />
+			<div v-if="state == 'in-process'" class="">
+				<FieldEditableTable :data="item" @onSave="onSaved" fieldName="notes" placeholder="Enter pallet notes"/>
 			</div>
 			<div v-else>{{ item["notes"] }}</div>
 		</template>
 
+        <!-- Column: Actions -->
 		<template #cell(actions)="{ item: pallet }">
 			<div v-if="props.state == 'in-process'">
 				<Link
 					:href="route(pallet.deleteRoute.name, pallet.deleteRoute.parameters)"
 					method="delete"
-					as="button"
-					:onSuccess="() => emits('renderTableKey')">
-					<font-awesome-icon class="text-red-600" :icon="['far', 'trash-alt']" />
+					as="div"
+					:onSuccess="() => emits('renderTableKey')"
+                    v-tooltip="'Delete this pallet'"
+                    class="w-fit"    
+                >
+                    <Button icon="far fa-trash-alt" type="negative" />
 				</Link>
 			</div>
 

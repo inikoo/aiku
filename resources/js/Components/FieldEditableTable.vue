@@ -5,52 +5,62 @@
   -->
 
 <script setup lang="ts">
-import Table from "@/Components/Table/Table.vue";
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
-import { library } from "@fortawesome/fontawesome-svg-core";
-import { ref } from "vue";
-import PureInput from "@/Components/Pure/PureInput.vue";
-import axios from "axios";
-import { notify } from "@kyvg/vue3-notification";
-import { Link, useForm } from "@inertiajs/vue3";
-import Icon from "@/Components/Icon.vue";
-import { faTimesSquare, faCheckCircle, faTimesCircle } from "@fas";
-import { faTrashAlt, faPaperPlane, faInventory } from "@far";
-import { faSignOutAlt, faTruckLoading } from "@fal";
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
+import { library } from "@fortawesome/fontawesome-svg-core"
+import { ref } from "vue"
+import PureInput from "@/Components/Pure/PureInput.vue"
+import { useForm } from "@inertiajs/vue3"
+import { faCheckCircle, faTimesCircle } from "@fas"
+import { faTrashAlt } from "@far"
+import { faSignOutAlt } from "@fal"
 import { get, isNull } from 'lodash'
 import { faSpinnerThird } from '@fad'
-import { cloneDeep } from "lodash";
+import { cloneDeep } from "lodash"
 
-library.add(
-    faTrashAlt, faSignOutAlt, faPaperPlane, faInventory, faTruckLoading, faTimesCircle, faSpinnerThird, faCheckCircle
-);
+library.add( faTrashAlt, faSignOutAlt, faTimesCircle, faSpinnerThird, faCheckCircle )
 
 const props = defineProps<{
-    data: object,
-    fieldName?: string
-}>();
+    data: {
+        [key: string]: string
+    }
+    fieldName: string
+    placeholder?: string
+}>()
 
 const emits = defineEmits<{
-    (e: 'onSave', data: object, fieldName : string): void
+    (e: 'onSave', data: {}, fieldName: string): void
 }>()
 
 
 const pallet = ref(
     cloneDeep(
-        { ...props.data, 
-            form: useForm({ ...props.data, [`${props.fieldName}`] : isNull(props.data[props.fieldName]) ? "" : props.data[props.fieldName]  }) 
+        {
+            ...props.data,
+            form: useForm({ ...props.data, [`${props.fieldName}`]: isNull(props.data[props.fieldName]) ? "" : props.data[props.fieldName] })
         }
     )
-);
+)
 
-console.log(pallet,props.fieldName)
+// console.log(pallet, props.fieldName)
 
+// On blur and press enter in Input
+const onSaveInput = (value: string) => {
+    console.log('value', value, props.data[props.fieldName])
+    if (value && value != props.data[props.fieldName]) {
+        emits('onSave', pallet.value, props.fieldName)
+    }
+}
 
 </script>
-  
+
 <template>
-    <PureInput v-model="pallet.form[fieldName]" @blur="(value) => { if (value != data[fieldName] ) emits('onSave', pallet, fieldName) }"
-        @onEnter="(value) => { if (value && value != data[fieldName]) emits('onSave', pallet, fieldName) }" :suffix="true">
+    <PureInput v-model="pallet.form[fieldName]"
+        @blur="(value) => onSaveInput(value)"
+        @onEnter="(value) => onSaveInput(value)"
+        @input="() => pallet.form.errors[fieldName] = ''"
+        :suffix="true"
+        :placeholder="placeholder"
+    >
         <template #suffix>
             <div class="flex justify-center items-center px-2 absolute inset-y-0 right-0 gap-x-1 cursor-pointer">
                 <span v-if="get(pallet, ['form', 'processing'], false)">
@@ -68,8 +78,9 @@ console.log(pallet,props.fieldName)
             </div>
         </template>
     </PureInput>
-    <p v-if="get(pallet, ['form', 'errors', `${fieldName}`])" class="mt-2 text-sm text-red-600">
+
+    <div v-if="get(pallet, ['form', 'errors', `${fieldName}`])" class="mt-1 mb-1 w-fit italic text-sm text-red-500">
         {{ get(pallet, ['form', 'errors', `${fieldName}`]) }}
-    </p>
+    </div>
+    <!-- <pre>{{ pallet.form.errors[fieldName] }}</pre> -->
 </template>
-  
