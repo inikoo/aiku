@@ -36,6 +36,7 @@ const emits = defineEmits<{
     (e: 'update:modelValue', value: string): void
     (e: 'blur', value: string): void
     (e: 'onEnter', value: string): void
+    (e: 'input', value: string): void
 }>()
 
 const showPassword = ref(props.type)  // default is type = "text"

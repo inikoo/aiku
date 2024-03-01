@@ -124,7 +124,7 @@ class IndexPallets extends OrgAction
 
 
 
-        return $query->defaultSort('pallets.reference')
+        return $query->defaultSort('pallets.id')
             ->allowedSorts(['customer_reference', 'pallets.reference'])
             ->allowedFilters([$globalSearch, 'customer_reference'])
             ->withPaginator($prefix)
