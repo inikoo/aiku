@@ -35,7 +35,7 @@ class StoredItemResource extends JsonResource
             'state'         => $storedItem->state,
             'notes'         => $storedItem->notes ?? '-',
             'status'        => $storedItem->status,
-            'quantity'      => $storedItem->pivot_quantity,
+            'quantity'      => (float) $storedItem->pivot->quantity,
         ];
     }
 }
