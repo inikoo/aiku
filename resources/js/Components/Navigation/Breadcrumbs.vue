@@ -15,7 +15,7 @@ import { faBars } from '@fal'
 import { faSparkles, faArrowFromLeft, faArrowLeft, faArrowRight } from '@fas'
 import { capitalize } from "@/Composables/capitalize"
 import { routeType } from '@/types/route'
-import { useLayoutStore } from '@/Stores/layout'
+// import { useLayoutStore } from '@/Stores/layout'
 
 library.add(faSparkles, faArrowFromLeft, faArrowLeft, faArrowRight, faChevronRight, faBars)
 
@@ -62,6 +62,7 @@ const props = defineProps<{
             route?: routeType
         }
     }
+    layout?: any  // useLayoutStore
 }>()
 
 // Get parameter for Prev & Next button to stay on same tab
@@ -81,7 +82,7 @@ router.on('navigate', (event) => {
 
 <template>
     <nav class="py-4 md:py-0 flex text-gray-600 border-b h-6 border-gray-200 text-sm" aria-label="Breadcrumb"
-        :class="[useLayoutStore().leftSidebar.show ? 'pr-0 md:pr-48' : 'pr-0 md:pr-12']"
+        :class="[layout ? layout.leftSidebar.show ? 'pr-0 md:pr-48' : 'pr-0 md:pr-12' : '']"
     >
         <!-- Breadcrumb -->
         <ol role="list" class="w-full mx-auto px-4 flex">

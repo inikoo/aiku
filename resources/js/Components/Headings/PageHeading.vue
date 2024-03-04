@@ -122,28 +122,28 @@ const originUrl = location.origin
         <!-- Section: Button and/or ButtonGroup -->
         <slot name="button" :dataPageHead="{ ...props }">
             <div class="flex items-center gap-2">
-                <div v-for="action in data.actions">
+                <template v-for="action in data.actions">
                     <template v-if="action">
                         <slot v-if="action.type == 'button'" :name="`button-${kebabCase(action.label)}`" :action="{ action }">
                             <Action v-if="action" :action="action" :dataToSubmit="dataToSubmit"/>
                         </slot>
                         
                         <slot v-if="action.type == 'buttonGroup'" :name="`button-group-${action.key}`" :action="{ action }">
-                            <div class="rounded  ring-1 ring-gray-400 flex">
-                            <slot v-for="button in action.button" :name="'button-group-' + kebabCase(button.label)" :action="{ button }">
-                                <Link
-                                    :href="`${route(button.route.name, button.route.parameters)}`" class=""
-                                    :method="button.method ?? 'get'"
-                                >
-                                    <Button :style="button.style" :label="button.label" :icon="button.icon"  :iconRight="action.iconRight" :key="`ActionButton${button.label}${button.style}`" :tooltip="button.tooltip"
-                                        class="capitalize inline-flex items-center h-full rounded-none text-sm border-none font-medium shadow-sm focus:ring-transparent focus:ring-offset-transparent focus:ring-0">
-                                    </Button>
-                                </Link>
-                            </slot>
+                            <div class="rounded ring-1 ring-gray-400 flex">
+                                <slot v-for="button in action.button" :name="'button-group-' + kebabCase(button.label)" :action="{ button }">
+                                    <Link
+                                        :href="`${route(button.route.name, button.route.parameters)}`" class=""
+                                        :method="button.method ?? 'get'"
+                                    >
+                                        <Button :style="button.style" :label="button.label" :icon="button.icon"  :iconRight="action.iconRight" :key="`ActionButton${button.label}${button.style}`" :tooltip="button.tooltip"
+                                            class="capitalize inline-flex items-center h-full rounded-none text-sm border-none font-medium shadow-sm focus:ring-transparent focus:ring-offset-transparent focus:ring-0">
+                                        </Button>
+                                    </Link>
+                                </slot>
                             </div>
                         </slot>
                     </template>
-                </div>
+                </template>
                 <slot name="other" :dataPageHead="{ ...props }"/>
             </div>
         </slot>

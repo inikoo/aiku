@@ -19,6 +19,7 @@ import FieldEditableTable from "@/Components/FieldEditableTable.vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import ButtonEditTable from "@/Components/ButtonEditTable.vue"
 import LocationFieldDelivery from "@/Components/LocationFieldDelivery.vue"
+import { routeType } from "@/types/route"
 
 library.add(
 	faTrashAlt,
@@ -34,7 +35,7 @@ const props = defineProps<{
 	tab?: string
 	state?: string
 	tableKey: number
-	locationRoute: {}
+	locationRoute: routeType
 }>()
 
 const emits = defineEmits<{

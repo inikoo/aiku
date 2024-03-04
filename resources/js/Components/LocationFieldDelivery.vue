@@ -5,44 +5,45 @@
   -->
 
 <script setup lang="ts">
-import { library } from "@fortawesome/fontawesome-svg-core";
-import { faTimesSquare } from "@fas";
-import { faTrashAlt, faPaperPlane, faInventory } from "@far";
-import { faSignOutAlt, faTruckLoading, faTimes } from "@fal";
-import Flied from "@/Components/FieldEditableTable.vue";
-import Button from "@/Components/Elements/Buttons/Button.vue";
-import { ref, watch, defineEmits } from "vue";
-import ButtonEditTable from "@/Components/ButtonEditTable.vue";
+import { library } from "@fortawesome/fontawesome-svg-core"
+import { faTimesSquare } from "@fas"
+import { faTrashAlt, faPaperPlane, faInventory } from "@far"
+import { faSignOutAlt, faTruckLoading, faTimes } from "@fal"
+import Button from "@/Components/Elements/Buttons/Button.vue"
+import { ref, defineEmits } from "vue"
+import ButtonEditTable from "@/Components/ButtonEditTable.vue"
 import Popover from '@/Components/Popover.vue'
 import SelectQuery from '@/Components/SelectQuery.vue'
-import { cloneDeep } from "lodash";
-import { Link, router, useForm } from "@inertiajs/vue3";
+import { useForm } from "@inertiajs/vue3"
+import { routeType } from "@/types/route"
 
 library.add(
     faTrashAlt, faSignOutAlt, faPaperPlane, faInventory, faTruckLoading, faTimesSquare, faTimes
-);
+)
 const props = defineProps<{
     pallet: object,
-    locationRoute:object
-}>();
+    locationRoute: routeType
+}>()
 
-const emits = defineEmits()
+const emits = defineEmits<{
+    (e: 'renderTableKey'): void
+}>()
 const location = useForm({ ...props.pallet })
 const error = ref({})
 
-const onSaveSuccess = (closed : any)=>{
+const onSaveSuccess = (closed: Function) => {
     closed()
     emits('renderTableKey')
     error.value = {}
 }
 
 
-const onSaveError = (errorValue : any) => {
- error.value = errorValue
+const onSaveError = (errorValue: any) => {
+    error.value = errorValue
 }
 
 </script>
-  
+
 <template>
     <div class="relative">
         <Popover width="w-full">
@@ -58,17 +59,16 @@ const onSaveError = (errorValue : any) => {
                         <SelectQuery :route="route(locationRoute.name, locationRoute.parameters)" :value="location"
                             :placeholder="'Select location'" :required="true" :trackBy="'code'" :label="'code'"
                             :valueProp="'id'" :closeOnSelect="true" :clearOnSearch="false" :fieldName="'location_id'" />
-                            <p v-if="error.location_id" class="mt-2 text-sm text-red-600" >{{ error.location_id }}</p>
+                        <p v-if="error.location_id" class="mt-2 text-sm text-red-600">{{ error.location_id }}</p>
                     </div>
                     <div class="flex justify-end mt-2">
-                        <ButtonEditTable :type="'primary'" @onSuccess="onSaveSuccess(closed)"
-                            :icon="['fas', 'save']" tooltip="Save location" :key="pallet.index" :size="'xs'" @onError="onSaveError"
-                            :dataToSubmit="{location_id:location.data().location_id}" routeName="bookInRoute" :data="pallet"
-                        />
+                        <ButtonEditTable :type="'primary'" @onSuccess="onSaveSuccess(closed)" :icon="['fas', 'save']"
+                            tooltip="Save location" :key="pallet.index" :size="'xs'" @onError="onSaveError"
+                            :dataToSubmit="{ location_id: location.data().location_id }" routeName="bookInRoute"
+                            :data="pallet" />
                     </div>
                 </div>
             </template>
         </Popover>
     </div>
 </template>
-  
