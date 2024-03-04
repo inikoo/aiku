@@ -1,0 +1,60 @@
+<!--
+  - Author: Raul Perusquia <raul@inikoo.com>
+  - Created: Mon, 20 Mar 2023 23:18:59 Malaysia Time, Kuala Lumpur, Malaysia
+  - Copyright (c) 2023, Raul A Perusquia Flores
+  -->
+
+<script setup lang="ts">
+import { library } from "@fortawesome/fontawesome-svg-core"
+import { faPlus } from "@fas"
+import Button from "@/Components/Elements/Buttons/Button.vue"
+import { ref, defineEmits } from "vue"
+import SelectQuery from "@/Components/SelectQuery.vue"
+import { useForm } from "@inertiajs/vue3"
+import Modal from "@/Components/Utils/Modal.vue"
+
+library.add(faPlus)
+const props = defineProps<{
+    pallet: object
+    locationRoute: object
+}>()
+
+const emits = defineEmits()
+const location = useForm({ ...props.pallet })
+const isModalOpen = ref(false)
+
+const form = useForm = {}
+</script>
+  
+<template>
+    <div>
+        <label for="login" class="block text-sm font-medium text-gray-700">{{ trans('Username') }}</label>
+        <div class="mt-1">
+            <input v-model="form.username" ref="inputUsername" id="username" name="username" :autofocus="true"
+                autocomplete="username" required=""
+                class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
+        </div>
+    </div>
+
+    <div>
+        <label for="password" class="block text-sm font-medium text-gray-700"> {{ trans('Password') }} </label>
+        <div class="mt-1 flex flex-col rounded-md shadow-sm">
+            <LoginPassword :showProcessing="false" id="password" name="password" :form="form" fieldName="password" />
+        </div>
+    </div>
+
+    <div class="flex items-center justify-between">
+        <div class="flex items-center">
+            <Checkbox name="remember-me" id="remember-me" v-model:checked="form.remember" />
+            <label for="remember-me" class="ml-2 block text-sm text-gray-900"> {{ trans('Remember me') }} </label>
+        </div>
+    </div>
+
+    <div class="space-y-2">
+        <Button full @click.prevent="submit" :loading="isLoading" label="Sign in"> </Button>
+        <p class="text-gray-600">Don't have account yet?
+            <Link as="span" :href="route('retina.register')" class="cursor-pointer font-bold hover:underline">Sign up</Link>
+        </p>
+    </div>
+</template>
+  

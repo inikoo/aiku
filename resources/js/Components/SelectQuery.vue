@@ -25,6 +25,8 @@ const props = withDefaults(defineProps<{
     clearOnSearch?:boolean
     object?:boolean
     value: any
+    createOption?: boolean
+    onCreate?:Any
 }>(), {
     placeholder: 'select',
     required: false,
@@ -37,7 +39,9 @@ const props = withDefaults(defineProps<{
     clearOnSearch:true,
     object:false,
     value:null,
-    fieldName:''
+    fieldName:'',
+    createOption: false,
+
 })
 
 const emits = defineEmits();
@@ -65,7 +69,6 @@ const getOptions = async () => {
 }
 
 const onGetOptionsSuccess = (response : any) => {
-    console.log(response)
     const data = Object.values(response.data.data);
     optionData.value = [ ...data];
     if (isNull(props.value[props.fieldName])) optionData.value = [ ...data];
@@ -105,7 +108,10 @@ const SearchChange = (value : any) => {
         :close-on-select="props.closeOnSelect" 
         :searchable="props.searchable" 
         :caret="props.caret" 
-        :options="optionData" 
+        :options="optionData"
+        :mode="props.mode"
+        :on-create="props.onCreate"
+        :create-option="props.createOption"
         :noResultsText="loading ? 'loading...' : 'No Result'" 
         @open="getOptions()" 
         @search-change="SearchChange"
@@ -113,8 +119,10 @@ const SearchChange = (value : any) => {
     </Multiselect>
 </template>
 
+<style src="@vueform/multiselect/themes/default.css"></style>
+
 <style lang="scss">
-.multiselect-search {
+.multiselect-tags-search {
     @apply focus:outline-none focus:ring-0
 }
 
@@ -122,6 +130,9 @@ const SearchChange = (value : any) => {
     @apply shadow-none
 }
 
+// .multiselect-tag {
+//     @apply bg-gradient-to-r from-lime-300 to-lime-200 hover:bg-lime-400 ring-1 ring-lime-500 text-lime-600
+// }
 
 .multiselect-tags {
     @apply m-0.5

@@ -51,6 +51,7 @@ const props = defineProps<{
     }
     uploadRoutes: {},
     locationRoute : {}
+    storedItemsRoute : {}
 }>()
 
 const currentTab = ref(props.tabs.current)
@@ -160,6 +161,7 @@ watch(() => props.data, (newValue) => {
     timeline.value = newValue.data
 }, { deep: true })
 
+console.log('stored_itemsRoutes',props.storedItemsRoute)
 </script>
 
 <template>
@@ -298,7 +300,16 @@ watch(() => props.data, (newValue) => {
     </div>
 
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
-    <component :is="component" :data="props[currentTab]" :state="timeline.state" :tab="currentTab" :tableKey="tableKey" @renderTableKey="changeTableKey" :locationRoute="locationRoute"></component>
+    <component 
+       :is="component" 
+       :data="props[currentTab]" 
+       :state="timeline.state" 
+       :tab="currentTab" 
+       :tableKey="tableKey" 
+       @renderTableKey="changeTableKey" 
+       :locationRoute="locationRoute" 
+       :storedItemsRoute="storedItemsRoute"
+    ></component>
 
     <UploadExcel :propName="'pallet deliveries'" description="Adding Pallet Deliveries" :routes="{
         upload: get(dataModal, 'uploadRoutes', {}),
