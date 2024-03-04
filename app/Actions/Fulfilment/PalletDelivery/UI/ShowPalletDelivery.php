@@ -263,7 +263,7 @@ class ShowPalletDelivery extends OrgAction
                     ]
                 ],
                 'storedItemsRoute' => [
-                    'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet-deliveries.stored-items.index',
+                    'name'       => 'grp.org.fulfilments.show.crm.customers.show.stored-items.index',
                     'parameters' => [
                         'organisation'       => $palletDelivery->organisation->slug,
                         'fulfilment'         => $palletDelivery->fulfilment->slug,

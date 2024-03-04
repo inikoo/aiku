@@ -12,7 +12,6 @@ use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Fulfilment\StoredItemResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
-use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Fulfilment\StoredItem;
 use App\Models\SysAdmin\Organisation;
 use Closure;
@@ -27,7 +26,7 @@ use App\Services\QueryBuilder;
 
 class IndexStoredItems extends OrgAction
 {
-    public function handle(Organisation|FulfilmentCustomer|PalletDelivery $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Organisation|FulfilmentCustomer $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -45,9 +44,6 @@ class IndexStoredItems extends OrgAction
             ->when($parent, function ($query) use ($parent) {
                 if(class_basename($parent) == "FulfilmentCustomer") {
                     $query->where('fulfilment_customer_id', $parent->id);
-                }
-                if(class_basename($parent) == "PalletDelivery") {
-                    $query->where('pallet_delivery_id', $parent->id);
                 }
             })
             ->allowedSorts(['slug', 'state'])
@@ -83,12 +79,12 @@ class IndexStoredItems extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo('fulfilment.edit');
+        $this->canEdit = $request->user()->hasPermissionTo("fulfilments.{$this->fulfilment->id}.edit");
 
         return
             (
                 $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo('hr.view')
+                $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.view")
             );
     }
 
@@ -130,11 +126,11 @@ class IndexStoredItems extends OrgAction
         return $this->handle(app('currentTenant'));
     }
 
-    public function inPalletDelivery(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, PalletDelivery $palletDelivery, ActionRequest $request): LengthAwarePaginator
+    public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisationFromFulfilment($fulfilment, $request);
 
-        return $this->handle($palletDelivery, 'pallets');
+        return $this->handle($fulfilmentCustomer, 'pallets');
     }
 
 

@@ -47,6 +47,7 @@ Route::prefix('{fulfilmentCustomer}')->as('show')->group(function () {
     });
 
     Route::get('pallets/stored', [IndexStoredPallets::class, 'inFulfilmentCustomer'])->name('.stored-pallets.index');
+    Route::get('stored-items', [IndexStoredItems::class, 'inFulfilmentCustomer'])->name('.stored-items.index');
 
     Route::prefix('pallets')->as('.pallets.')->group(function () {
         Route::get('', [IndexPallets::class, 'inFulfilmentCustomer'])->name('index');
@@ -60,8 +61,6 @@ Route::prefix('{fulfilmentCustomer}')->as('show')->group(function () {
 
         Route::get('{palletDelivery}/pallets-histories', [HistoryUploads::class, 'inPallet'])->name('pallets.uploads.history');
         Route::get('{palletDelivery}/pallets-templates', DownloadPalletsTemplate::class)->name('pallets.uploads.templates');
-
-        Route::get('stored-items', [IndexStoredItems::class, 'inPalletDelivery'])->name('stored-items.index');
     });
 
     Route::prefix('pallet-returns')->as('.pallet-returns.')->group(function () {
