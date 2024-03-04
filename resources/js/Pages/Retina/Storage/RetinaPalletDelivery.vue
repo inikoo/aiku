@@ -54,7 +54,9 @@ const dataModal = ref({ isModalOpen: false })
 const formAddPallet = useForm({ notes: '', customer_reference: '' })
 const formMultiplePallet = useForm({ number_pallets: 1 })
 
-const handleFormSubmitAddPallet = (data: object, closedPopover: Function) => {
+
+// Method: Add single pallet
+const onAddPallet = (data: {}, closedPopover: Function) => {
     loading.value = true
     formAddPallet.post(route(
         data.route.name,
@@ -73,7 +75,8 @@ const handleFormSubmitAddPallet = (data: object, closedPopover: Function) => {
     })
 }
 
-const handleFormSubmitAddMultiplePallet = (data: object, closedPopover: Function) => {
+// Method: Add multiple pallet
+const onAddMultiplePallet = (data: {}, closedPopover: Function) => {
     loading.value = true
     formMultiplePallet.post(route(
         data.route.name,
@@ -92,35 +95,15 @@ const handleFormSubmitAddMultiplePallet = (data: object, closedPopover: Function
     })
 }
 
-/* const updateState = async ({ step, options }) => {
-
-  const foundState = options.find((item) => item.key === timeline.value.state)
-  const set = step.key == timeline.state || step.index < foundState.index
-  if (!set) {
-    try {
-      const response = await axios.patch(
-        route(props.updateRoute.route.name, props.updateRoute.route?.parameters),
-        { state: get(step, 'key') }
-      )
-      console.log(response)
-      timeline.value = response.data.data
-    } catch (error) {
-      console.log('error', error)
-    }
-  }
-} */
-
-const tableKey = ref(1)  // To re-render Table after click Confirm (so the Table retrieve the new props)
-
-// Button: Confirm
-const handleClickConfirm = async (action: { method: any, name: string, parameters: { palletDelivery: number } }) => {
+// Method: Submit pallet
+const onSubmitPallet = async (action: { method: any, name: string, parameters: { palletDelivery: number } }) => {
     loading.value = true
     router.post(route(action.name, action.parameters), {}, {
         onError: (e) => {
-            console.warn('Error on confirm', e)
+            console.warn('Error on Submit', e)
         },
         onSuccess: (e) => {
-            // console.log('on success', e)
+            console.log('on success', e)
             changeTableKey()
         },
         onFinish: (e) => {
@@ -130,8 +113,10 @@ const handleClickConfirm = async (action: { method: any, name: string, parameter
     })
 }
 
+// To re-render Table after click Submit (so the Table retrieve the new props)
+const tableKey = ref(1)
 const changeTableKey = () => {
-  tableKey.value = tableKey.value + 1
+    tableKey.value = tableKey.value + 1
 }
 
 
@@ -144,6 +129,7 @@ const component = computed(() => {
 
 })
 
+// Method: Open modal upload
 const onUploadOpen = (action) => {
     dataModal.value.isModalOpen = true
     dataModal.value.uploadRoutes = action.route
@@ -158,7 +144,44 @@ watch(() => props.data, (newValue) => {
 <template>
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead">
-        <!-- Button: add pallet (single) -->
+        <!-- Button: Upload -->
+        <template #button-group-upload="{ action }">
+            <Button @click="() => onUploadOpen(action.button)"
+                :style="action.button.style"
+                :icon="action.button.icon"
+                v-tooltip="action.button.tooltip"
+                class="rounded-l rounded-r-none border-none" />
+        </template>
+
+        <!-- Button: Add many pallete -->
+        <template #button-group-multiple="{ action }">
+            <Popover width="w-full" class="h-full">
+                <template #button>
+                    <Button :style="action.button.style" :icon="action.button.icon" :iconRight="action.button.iconRight"
+                        :key="`ActionButton${action.button.label}${action.button.style}`"
+                        :tooltip="'Add multiple pallet'"
+                        class="rounded-none border-none" />
+                </template>
+
+                <template #content="{ close: closed }">
+                    <div class="w-[250px]">
+                        <span class="text-xs px-1 my-2">Number of pallets : </span>
+                        <div>
+                            <PureInput v-model="formMultiplePallet.number_pallets" placeholder="1" type="number" :minValue="1" autofocus />
+                            <p v-if="get(formMultiplePallet, ['errors', 'customer_reference'])" class="mt-2 text-sm text-red-600">
+                                {{ formMultiplePallet.errors.number_pallets }}
+                            </p>
+                        </div>
+                        <div class="flex justify-end mt-3">
+                            <Button :style="'save'" :loading="loading" :label="'save'"
+                                @click="() => onAddMultiplePallet(action.button, closed)" />
+                        </div>
+                    </div>
+                </template>
+            </Popover>
+        </template>
+        
+        <!-- Button: Add pallet (single) -->
         <template #button-group-add-pallet="{ action: action }">
             <div class="relative">
                 <Popover width="w-full">
@@ -168,14 +191,14 @@ watch(() => props.data, (newValue) => {
                             :icon="action.button.icon"
                             :key="`ActionButton${action.button.label}${action.button.style}`"
                             :tooltip="action.button.tooltip"
-                            class="rounded-l-none rounded-r " />
+                            class="rounded-l-none rounded-r border-none " />
                     </template>
                     
                     <template #content="{ close: closed }">
                         <div class="w-[250px]">
                             <span class="text-xs px-1 my-2">{{ trans('Reference') }}: </span>
                             <div>
-                                <PureInput v-model="formAddPallet.customer_reference" placeholder="Reference" />
+                                <PureInput v-model="formAddPallet.customer_reference" placeholder="Reference" autofocus />
                                 <p v-if="get(formAddPallet, ['errors', 'customer_reference'])"
                                     class="mt-2 text-sm text-red-600">
                                     {{ formAddPallet.errors.customer_reference }}
@@ -185,16 +208,17 @@ watch(() => props.data, (newValue) => {
                             <div class="mt-3">
                                 <span class="text-xs px-1 my-2">{{ trans('Notes') }}: </span>
                                 <textarea
-                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                                    v-model="formAddPallet.notes" placeholder="Notes">
-                                </textarea>
+                                    v-model="formAddPallet.notes"
+                                    placeholder="Notes"
+                                    class="block w-full rounded-md border-gray-300 shadow-sm placeholder:text-gray-400 focus:border-gray-500 focus:ring-gray-500 sm:text-sm"
+                                />
                                 <p v-if="get(formAddPallet, ['errors', 'notes'])" class="mt-2 text-sm text-red-600">
                                     {{ formAddPallet.errors.notes }}
                                 </p>
                             </div>
 
                             <div class="flex justify-end mt-3">
-                                <Button :style="'save'" :loading="loading" :label="'save'" @click="() => handleFormSubmitAddPallet(action.button, closed)" />
+                                <Button :style="'save'" :loading="loading" :label="'save'" @click="() => onAddPallet(action.button, closed)" />
                             </div>
                         </div>
                     </template>
@@ -202,51 +226,10 @@ watch(() => props.data, (newValue) => {
             </div>
         </template>
 
-        <!-- Button: Upload -->
-        <template #button-group-upload="{ action }">
-            <Button @click="() => onUploadOpen(action.button)" :style="action.button.style" :icon="action.button.icon" v-tooltip="action.button.tooltip" class="rounded-l rounded-r-none" />
-        </template>
-
-        <!-- Button: Add many pallete -->
-        <template #button-group-multiple="{ action }">
-            <div class="relative">
-                <Popover width="w-full">
-                    <template #button>
-                        <Button :style="action.button.style" :icon="action.button.icon" :iconRight="action.button.iconRight"
-                            :key="`ActionButton${action.button.label}${action.button.style}`"
-                            :tooltip="'Add multiple pallet'"
-                            class="rounded-none border-none" />
-                    </template>
-                    <template #content="{ close: closed }">
-                        <div class="w-[250px]">
-                            <span class="text-xs px-1 my-2">Number of pallets : </span>
-                            <div>
-                                <PureInput v-model="formMultiplePallet.number_pallets" placeholder="number of pallets" type="number" :minValue="1" />
-                                <p v-if="get(formMultiplePallet, ['errors', 'customer_reference'])" class="mt-2 text-sm text-red-600">
-                                    {{ formMultiplePallet.errors.number_pallets }}
-                                </p>
-                            </div>
-                            <div class="flex justify-end mt-3">
-                                <Button :style="'save'" :loading="loading" :label="'save'"
-                                    @click="() => handleFormSubmitAddMultiplePallet(action.button, closed)" />
-                            </div>
-                        </div>
-                    </template>
-                </Popover>
-            </div>
-        </template>
-
-        <!-- Button: Confirm -->
-        <template #button-confirm="{ action: action }">
-            <div>
-                <!-- <Link as="Button" :style="action.action.style"
-                    :label="action.action.label"
-                    :loading="loading" :href="route(action.action.route.name, action.action.route.parameters)" method="post">
-                    <font-awesome-icon class="text-red-600" :icon="['far', 'trash-alt']" />
-                </Link> -->
-                <Button @click="handleClickConfirm(action.action.route)" :style="action.action.style"
-                    :label="action.action.label" :loading="loading" />
-            </div>
+        <!-- Button: Submit -->
+        <template #button-submit="{ action: action }">
+            <Button @click="onSubmitPallet(action.action.route)" :style="action.action.style"
+                :label="action.action.label" :loading="loading" />
         </template>
     </PageHeading>
 
@@ -254,16 +237,8 @@ watch(() => props.data, (newValue) => {
         <Timeline :options="timeline.timeline" :state="timeline.state" :slidesPerView="5" />
     </div>
 
+    <!-- Box: Stats -->
     <div class="h-16 grid grid-cols-4 gap-x-2 px-6 my-4">
-        <!-- Stats: User name -->
-        <div v-tooltip="'Customer name'"
-            class="relative flex flex-col justify-center p-4 rounded-md bg-slate-200 border border-slate-300 overflow-hidden">
-            <!-- <div class="text-zinc-500">User name</div> -->
-            <div class="text-2xl font-bold">{{ pallets?.data[0]?.customer_name }}</div>
-            <FontAwesomeIcon icon='fal fa-user' class='text-zinc-800/30 absolute text-[40px] right-2' fixed-width
-                aria-hidden='true' />
-        </div>
-
         <!-- Stats: Delivery Status -->
         <div v-tooltip="'Delivery status'"
             class="relative flex flex-col justify-center px-4 rounded-md bg-slate-200 border border-slate-300 overflow-hidden">
@@ -288,7 +263,15 @@ watch(() => props.data, (newValue) => {
     </div>
 
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
-    <component :is="component" :data="props[currentTab]" :state="timeline.state" :tab="currentTab" :tableKey="tableKey" @renderTableKey="changeTableKey"></component>
+    <component
+        :is="component"
+        :data="props[currentTab]"
+        :state="timeline.state"
+        :tab="currentTab"
+        :tableKey="tableKey"
+        @renderTableKey="() => (console.log('emit render', changeTableKey()))" 
+        :locationRoute="locationRoute"
+    />
 
     <UploadExcel :propName="'pallet deliveries'" description="Adding Pallet Deliveries" :routes="{
         upload: get(dataModal, 'uploadRoutes', {}),
@@ -296,6 +279,6 @@ watch(() => props.data, (newValue) => {
         history: props.uploadRoutes.history
     }" :dataModal="dataModal" />
 
-    <!-- <pre>{{ props.pallets.data?.[0]?.reference }}</pre>
-    <pre>{{ $inertia.page.props.queryBuilderProps.pallets.columns }}</pre> -->
+    <!-- <pre>{{ props.pallets }}</pre> -->
+    <!-- <pre>{{ $inertia.page.props.queryBuilderProps.pallets.columns }}</pre> -->
 </template>

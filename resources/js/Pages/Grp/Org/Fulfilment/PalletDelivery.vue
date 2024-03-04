@@ -139,9 +139,8 @@ const handleClickConfirm = async (action: { method: any, name: string, parameter
 }
 
 const changeTableKey = () => {
-  tableKey.value = tableKey.value + 1
+    tableKey.value = tableKey.value + 1
 }
-
 
 const component = computed(() => {
     const components = {
@@ -300,16 +299,16 @@ console.log('stored_itemsRoutes',props.storedItemsRoute)
     </div>
 
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
-    <component 
-       :is="component" 
-       :data="props[currentTab]" 
-       :state="timeline.state" 
-       :tab="currentTab" 
-       :tableKey="tableKey" 
-       @renderTableKey="changeTableKey" 
-       :locationRoute="locationRoute" 
-       :storedItemsRoute="storedItemsRoute"
-    ></component>
+    <component
+        :is="component"
+        :data="props[currentTab]"
+        :state="timeline.state"
+        :tab="currentTab"
+        :tableKey="tableKey"
+        @renderTableKey="changeTableKey"
+        :locationRoute="locationRoute" 
+        :storedItemsRoute="storedItemsRoute"
+    />
 
     <UploadExcel :propName="'pallet deliveries'" description="Adding Pallet Deliveries" :routes="{
         upload: get(dataModal, 'uploadRoutes', {}),

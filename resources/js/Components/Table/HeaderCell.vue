@@ -13,7 +13,7 @@ import { library } from "@fortawesome/fontawesome-svg-core";
 const props = defineProps<{
     cell: {
         key: string
-        type?: string //For width of the column
+        type?: string  // For width of the column
         label: string | {
             type: string,
             tooltip: string,
@@ -43,7 +43,7 @@ const isCellNumber = computed(() => {
 
 <template>
     <th v-show="!cell.hidden" class="font-normal">
-        <component :is="cell.sortable ? 'button' : 'div'" class="py-1 w-full" :class="[cell.type == 'avatar' || cell.type == 'icon' ? 'px-2 flex justify-center' : 'px-6']" :dusk="cell.sortable ? `sort-${cell.key}` : null" @click.prevent="onClick">
+        <component :is="cell.sortable ? 'button' : 'div'" class="py-1" :class="[cell.type == 'avatar' || cell.type == 'icon' ? 'px-2 flex justify-center w-fit mx-auto' : 'px-6 w-full']" :dusk="cell.sortable ? `sort-${cell.key}` : null" @click.prevent="onClick">
             <slot name="pagehead" :data="{isCellNumber : isCellNumber, cell}">
                 <span class="flex flex-row items-center" :class="{'justify-center': cell.type == 'avatar' || cell.type == 'icon', 'justify-end': isCellNumber}">
                     <div v-if="typeof cell.label === 'object'">

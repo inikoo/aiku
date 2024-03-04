@@ -1,5 +1,5 @@
 <script setup lang='ts'>
-import { ref, defineExpose } from 'vue'
+import { ref, defineExpose, onMounted } from 'vue'
 import { useCopyText } from '@/Composables/useCopyText'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faCopy } from '@fal'
@@ -53,10 +53,17 @@ const onChange=(event: any)=>{
     emits('input', event.target.value)
 }
 
-const inputRef = ref(null)
+const _inputRef = ref<HTMLInputElement | null>(null)
+
+// Auto focus on mounted
+onMounted(() => {
+    if(props.autofocus) {
+        _inputRef.value?.focus()
+    }
+})
 
 defineExpose({
-    inputRef
+    _inputRef
 })
 
 </script>
@@ -65,7 +72,7 @@ defineExpose({
     <div class="bg-white w-full flex group relative ring-1 ring-gray-300 focus-within:ring-2 focus-within:ring-gray-500 rounded-md overflow-hidden">
         <div class="relative w-full">
             <input
-                ref="inputRef"
+                ref="_inputRef"
                 :value="modelValue"
                 @blur ="(event: any) => emits('blur', event.target.value)"
                 @input="onChange"

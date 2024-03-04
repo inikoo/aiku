@@ -722,42 +722,42 @@ watch(() => props.name, () => {
                     <slot name="table">
                         <table class="divide-y divide-gray-200 bg-white w-full">
                             <thead class="bg-gray-50">
-                            <tr class="border-t border-gray-200">
-                                <HeaderCell v-for="column in queryBuilderProps.columns"
-                                            :key="`table-${name}-header-${column.key}`" :cell="header(column.key)"
-                                            :type="columnsType[column.key]" :column="column"
-                                            :resource="compResourceData">
-                                </HeaderCell>
-                            </tr>
+                                <tr class="border-t border-gray-200">
+                                    <HeaderCell v-for="column in queryBuilderProps.columns"
+                                        :key="`table-${name}-header-${column.key}`" :cell="header(column.key)"
+                                        :type="columnsType[column.key]" :column="column"
+                                        :resource="compResourceData">
+                                    </HeaderCell>
+                                </tr>
                             </thead>
 
                             <tbody class="bg-white divide-y divide-gray-200">
-                            <slot name="body" :show="show">
-                                <tr v-for="(item, key) in compResourceData" :key="`table-${name}-row-${key}`"
-                                    class=""
-                                    :class="[{
-                                            'bg-gray-50': striped && key % 2,
-                                        },
-                                            striped ? 'hover:bg-gray-100' : 'hover:bg-gray-50'
-                                        ]"
-                                >
-                                    <td v-for="(column,index) in queryBuilderProps.columns" v-show="show(column.key)"
-                                        :key="`table-${name}-row-${key}-column-${column.key}`"
-                                        class="text-sm py-2 text-gray-700 whitespace-normal h-full"
-                                        :class="[
-                                                column.type === 'avatar' || column.type === 'icon'
-                                                    ? 'text-center min-w-fit'  // if type = icon
-                                                    : typeof item[column.key] == 'number'
-                                                        ? 'text-right pr-11 num'  // if the value is number
-                                                        : 'px-6',
-                                                { 'first:border-l-4 first:border-gray-700 bg-gray-200/75': selectedRow?.[name]?.includes(item.id) }
-                                        ]">
-                                        <slot :name="`cell(${column.key})`" :item="{ ...item, index : index, editingIndicator: { loading : false , isSucces : false, isFailed : false } }" :tabName="name" class="">
-                                            <div class="text-gray-500">{{ item[column.key] }}</div>
-                                        </slot>
-                                    </td>
-                                </tr>
-                            </slot>
+                                <slot name="body" :show="show">
+                                    <tr v-for="(item, key) in compResourceData" :key="`table-${name}-row-${key}`"
+                                        class=""
+                                        :class="[{
+                                                'bg-gray-50': striped && key % 2,
+                                            },
+                                                striped ? 'hover:bg-gray-100' : 'hover:bg-gray-50'
+                                            ]"
+                                    >
+                                        <td v-for="(column,index) in queryBuilderProps.columns" v-show="show(column.key)"
+                                            :key="`table-${name}-row-${key}-column-${column.key}`"
+                                            class="text-sm py-2 text-gray-700 whitespace-normal h-full"
+                                            :class="[
+                                                    column.type === 'avatar' || column.type === 'icon'
+                                                        ? 'text-center min-w-fit'  // if type = icon
+                                                        : typeof item[column.key] == 'number'
+                                                            ? 'text-right pr-11 tabular-nums'  // if the value is number
+                                                            : 'px-6',
+                                                    { 'first:border-l-4 first:border-gray-700 bg-gray-200/75': selectedRow?.[name]?.includes(item.id) }
+                                            ]">
+                                            <slot :name="`cell(${column.key})`" :item="{ ...item, index : index, editingIndicator: { loading : false , isSucces : false, isFailed : false } }" :tabName="name" class="">
+                                                <div class="text-gray-500">{{ item[column.key] }}</div>
+                                            </slot>
+                                        </td>
+                                    </tr>
+                                </slot>
                             </tbody>
                         </table>
                     </slot>

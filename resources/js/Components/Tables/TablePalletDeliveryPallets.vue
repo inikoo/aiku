@@ -45,7 +45,9 @@ const props = defineProps<{
 	storedItemsRoute:{}
 }>()
 
-const emits = defineEmits()
+const emits = defineEmits<{
+    (e: 'renderTableKey'): void
+}>()
 
 const onSaved = async (pallet: object, fieldName: string) => {
 	if (pallet[fieldName] != pallet.form.data()[fieldName]) {

@@ -75,7 +75,7 @@ class ShowPalletDelivery extends RetinaAction
                             'button' => [
                                 [
                                     'type'  => 'button',
-                                    'style' => 'primary',
+                                    'style' => 'secondary',
                                     'icon'  => ['fal', 'fa-upload'],
                                     'label' => 'upload',
                                     'route' => [
@@ -87,7 +87,7 @@ class ShowPalletDelivery extends RetinaAction
                                 ],
                                 [
                                     'type'    => 'button',
-                                    'style'   => 'primary',
+                                    'style'   => 'secondary',
                                     'icon'    => ['far', 'fa-layer-plus'],
                                     'label'   => 'multiple',
                                     'route'   => [
@@ -99,7 +99,8 @@ class ShowPalletDelivery extends RetinaAction
                                 ],
                                 [
                                     'type'  => 'button',
-                                    'style' => 'create',
+                                    'style' => 'secondary',
+                                    'icon'  => 'fal fa-plus',
                                     'label' => __('add pallet'),
                                     'route' => [
                                         'name'       => 'retina.models.pallet-delivery.pallet.store',
