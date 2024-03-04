@@ -6,120 +6,162 @@
 
 <script setup lang="ts">
 import Table from "@/Components/Table/Table.vue"
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
 
 import axios from "axios"
 import { notify } from "@kyvg/vue3-notification"
-import { Link, router } from "@inertiajs/vue3"
+import { Link } from "@inertiajs/vue3"
 import Icon from "@/Components/Icon.vue"
 import { faTimesSquare } from "@fas"
 import { faTrashAlt, faPaperPlane, faInventory } from "@far"
-import { faSignOutAlt, faTruckLoading } from "@fal"
-import { useLayoutStore } from "@/Stores/retinaLayout"
-import Flied from '@/Components/FieldEditableTable.vue'
+import { faSignOutAlt, faTruckLoading, faTimes } from "@fal"
+import FieldEditableTable from "@/Components/FieldEditableTable.vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
-import { method } from "lodash"
-import { ref, watch, defineEmits } from "vue"
 import ButtonEditTable from "@/Components/ButtonEditTable.vue"
+import LocationFieldDelivery from "@/Components/LocationFieldDelivery.vue"
 
 library.add(
-    faTrashAlt, faSignOutAlt, faPaperPlane, faInventory, faTruckLoading, faTimesSquare
+	faTrashAlt,
+	faSignOutAlt,
+	faPaperPlane,
+	faInventory,
+	faTruckLoading,
+	faTimesSquare,
+	faTimes
 )
 const props = defineProps<{
-    data: object,
-    tab?: string
-    state?: string
-    tableKey: number
+	data: object
+	tab?: string
+	state?: string
+	tableKey: number
+	locationRoute: {}
 }>()
 
-const emits = defineEmits()
+const emits = defineEmits<{
+    (e: 'renderTableKey'): void
+}>()
 
-const loading = ref({
-    loadingBookIn: false,
-    loadingNotReceivedRoute: false
-})
+const onSaved = async (pallet: object, fieldName: string) => {
+	if (pallet[fieldName] != pallet.form.data()[fieldName]) {
+		pallet.form.processing = true
+		try {
+			await axios.patch(route(pallet.updateRoute.name, pallet.deleteRoute.parameters), {
+				[fieldName]: pallet.form.data()[fieldName],
+			})
+			pallet.form.processing = false
+			pallet.form.wasSuccessful = true
+			pallet.form.hasErrors = false
+			pallet.form.clearErrors()
+			pallet[fieldName] = pallet.form.data()[fieldName]
+		} catch (error: any) {
+			pallet.form.processing = false
+			pallet.form.wasSuccessful = false
+			pallet.form.hasErrors = true
+			if (error.response && error.response.data && error.response.data.errors) {
+				const errors = error.response.data.errors
+				const setErrors = {}
+				for (const er in errors) {
+					setErrors[er] = errors[er][0]
+				}
+				pallet.form.setError(setErrors)
+			} else {
+				if (error.response.data.message)
+					notify({
+						title: "Failed to update",
+						text: error.response.data.message,
+						type: "error",
+					})
+			}
+		}
 
-const onSave = async (pallet: object, fieldName: string) => {
-    if (pallet[fieldName] != pallet.form.data()[fieldName]) {
-        pallet.form.processing = true
-        try {
-            await axios.patch(
-                route(pallet.updateRoute.name,
-                    pallet.deleteRoute.parameters
-                ),
-                { [fieldName]: pallet.form.data()[fieldName] }
-            )
-            pallet.form.processing = false
-            pallet.form.wasSuccessful = true
-            pallet.form.hasErrors = false
-            pallet.form.clearErrors()
-        } catch (error: any) {
-            pallet.form.processing = false
-            pallet.form.wasSuccessful = false
-            pallet.form.hasErrors = true
-            if (error.response && error.response.data && error.response.data.errors) {
-                const errors = error.response.data.errors
-                const setErrors = {}
-                for (const er in errors) {
-                    setErrors[er] = errors[er][0]
-                }
-                pallet.form.setError(setErrors)
-            } else {
-                if (error.response.data.message)
-                    notify({
-                        title: "Failed to update",
-                        text: error.response.data.message,
-                        type: "error"
-                    })
-            }
-        }
-
-        // Setelah 5 detik, back to  normal
-        setTimeout(() => {
-            pallet.form.wasSuccessful = false
-        }, 3000)
-    }
-
+		// Setelah 5 detik, back to  normal
+		setTimeout(() => {
+			pallet.form.wasSuccessful = false
+		}, 3000)
+	}
 }
-const layout = useLayoutStore()
-
-console.log('RetinaTablePalletDeliveryPallets')
 </script>
 
 <template>
-    <Table :resource="data" :name="tab" class="mt-5" :key="tableKey">
-        <template #cell(state)="{ item: palletDelivery }">
-            <Icon :data="palletDelivery['state_icon']" class="px-1" />
-        </template>
-        <template #cell(customer_reference)="{ item: item }">
-            <div v-if="state == 'in-process'">
-                <Flied :data="item" @onSave="onSave" fieldName="customer_reference" />
-            </div>
-            <div v-else>{{ item["customer_reference"] }}</div>
-        </template>
-        <template #cell(notes)="{ item: item }">
-            <div v-if="state == 'in-process'">
-                <Flied :data="item" @onSave="onSave" fieldName="note" />
-            </div>
-            <div v-else>{{ item["notes"] }}</div>
-        </template>
-        <template #cell(actions)="{ item: pallet }">
-            <div v-if="props.state == 'in-process'">
-                <Link :href="route(pallet.deleteRoute.name, pallet.deleteRoute.parameters)" method="delete" as="button"
-                    :onSuccess="() => emits('renderTableKey')">
-                <font-awesome-icon class="text-red-600" :icon="['far', 'trash-alt']" />
-                </Link>
-            </div>
-            <div v-else-if="props.state == 'received' && !layout.currentRoute.includes('retina.')">
+	<Table :resource="data" :name="tab" class="mt-5" :key="tableKey">
+		<template #cell(state)="{ item: palletDelivery }">
+			<Icon :data="palletDelivery['state_icon']" class="px-1" />
+		</template>
 
-                <ButtonEditTable class="mx-2" :style="pallet.state == 'not-received' ? 'negative' : 'tertiary'"
-                    :icon="['fal', 'times']" :tooltip="'Not Recived'" :size="'xs'" :key="pallet.index"
-                    routeName="notReceivedRoute" :data="pallet" />
+        <!-- Column: Customer Reference -->
+		<template #cell(customer_reference)="{ item }">
+			<div v-if="state == 'in-process'" class="w-full">
+				<FieldEditableTable :data="item" @onSave="onSaved" fieldName="customer_reference" placeholder="Enter customer reference" />
+			</div>
+			<div v-else>{{ item.customer_reference }}</div>
+		</template>
 
-                <ButtonEditTable :style="pallet.state == 'Booked in' ? 'primary' : 'tertiary'" :icon="['fal', 'inventory']"
-                    :tooltip="'Booked In'" :key="pallet.index" :size="'xs'" routeName="bookInRoute" :data="pallet" />
-            </div>
-        </template>
-    </Table>
+        <!-- Column: Notes -->
+		<template #cell(notes)="{ item }">
+			<div v-if="state == 'in-process'" class="">
+				<FieldEditableTable :data="item" @onSave="onSaved" fieldName="notes" placeholder="Enter pallet notes"/>
+			</div>
+			<div v-else>{{ item.notes }}</div>
+		</template>
+
+        <!-- Column: Actions -->
+		<template #cell(actions)="{ item: pallet }">
+			<div v-if="props.state == 'in-process'">
+				<Link
+					:href="route(pallet.deleteRoute.name, pallet.deleteRoute.parameters)"
+					method="delete"
+					as="div"
+					:onSuccess="() => emits('renderTableKey')"
+                    v-tooltip="'Delete this pallet'"
+                    class="w-fit"    
+                >
+                    <Button icon="far fa-trash-alt" type="negative" />
+				</Link>
+			</div>
+
+			<div v-else-if="pallet.state == 'not-received'">
+				<ButtonEditTable
+					class="mx-2"
+					type="secondary"
+                    label="Set as received"
+					tooltip="Set as received"
+                    :capitalize="false"
+					:size="'xs'"
+					:key="pallet.index"
+					routeName="undoNotReceivedRoute"
+					:data="pallet"
+					@onSuccess="() => emits('renderTableKey')" />
+			</div>
+            
+			<div v-else>
+				<div class="flex">
+					<ButtonEditTable
+						class="mx-2"
+						:type="pallet.state == 'not-received' ? 'secondary' : 'negative'"
+						:icon="['fal', 'times']"
+						tooltip="Set as not received"
+						:size="'xs'"
+						:key="pallet.index"
+						routeName="notReceivedRoute"
+						:data="pallet"
+						@onSuccess="() => emits('renderTableKey')" />
+
+					<!-- <ButtonEditTable
+                        :type="pallet.state == 'booked-in' ? 'primary' : 'tertiary'"
+                        :icon="['fal', 'inventory']"
+                        :tooltip="'Booked In'"
+                        :key="pallet.index"
+                        :size="'xs'"
+                        routeName="bookInRoute"
+                        :data="pallet"
+                        @onSuccess="() => emits('renderTableKey')"
+                        /> -->
+					<LocationFieldDelivery
+						:pallet="pallet"
+						@renderTableKey="() => emits('renderTableKey')"
+						:locationRoute="locationRoute" />
+				</div>
+			</div>
+		</template>
+	</Table>
 </template>

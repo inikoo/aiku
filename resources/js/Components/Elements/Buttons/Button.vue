@@ -203,5 +203,9 @@ const getActionIcon = (icon: any) => {
     &:focus {
         box-shadow: 0 0 0 2px v-bind('layout?.app?.theme[4]') !important;
     }
+    
+    &:disabled {
+        background-color: v-bind('`color-mix(in srgb, ${layout?.app?.theme[4] + "22"} 70%, black)`') !important;
+    }
 }
 </style>
