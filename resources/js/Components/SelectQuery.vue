@@ -6,6 +6,7 @@ import axios from "axios"
 import { notify } from "@kyvg/vue3-notification"
 import { get, set, isArray, isNull, cloneDeep} from 'lodash'
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
+import Tag from '@/Components/Tag.vue'
 
 library.add(faTimes)
 
@@ -27,6 +28,7 @@ const props = withDefaults(defineProps<{
     value: any
     createOption?: boolean
     onCreate?:Any
+    onChange?:Function
 }>(), {
     placeholder: 'select',
     required: false,
@@ -41,6 +43,7 @@ const props = withDefaults(defineProps<{
     value:null,
     fieldName:'',
     createOption: false,
+    onChange:()=>null
 
 })
 
@@ -84,9 +87,6 @@ const SearchChange = (value : any) => {
     }, 500)
 }
 
-/* const onMultiselectChange = (data : any) => {
-    emits('update:value', data); // Emit event to update value prop
-} */
 
  onMounted(() => {
     getOptions();
@@ -115,7 +115,20 @@ const SearchChange = (value : any) => {
         :noResultsText="loading ? 'loading...' : 'No Result'" 
         @open="getOptions()" 
         @search-change="SearchChange"
+        @change="props.onChange"
         >
+        <template #tag="{ option, handleTagRemove, disabled }: {option: tag, handleTagRemove: Function, disabled: boolean}">
+            <div class="px-0.5 py-[3px]">
+                <Tag
+                    :theme="option[valueProp]"
+                    :label="option[label]"
+                    :closeButton="true"
+                    :stringToColor="true"
+                    size="sm"
+                    @onClose="(event) => handleTagRemove(option, event)"
+                />
+            </div>
+        </template>
     </Multiselect>
 </template>
 
