@@ -35,6 +35,8 @@ const createPallet = async (option, select) => {
             { headers: {"Content-Type": "multipart/form-data"}}
         )
     errors.value.createStoredItem = null
+    storedItem.stored_items.push(response.data.id)
+    SaveChange(storedItem.stored_items)
     return response.data
     } catch (error: any) {
         errors.value.createStoredItem = error.response.data.message
@@ -56,7 +58,6 @@ const SaveChange = async (option,select) => {
     try {
         const response: any = await axios.post(route(props.pallet.storeStoredItemRoute.name,props.pallet.storeStoredItemRoute.parameters),
             {stored_item_ids : storedItem.data().stored_items},
-            { headers: {"Content-Type": "multipart/form-data"}}
         )
     return response.data
     errors.value.createStoredItem = null
@@ -78,7 +79,7 @@ const SaveChange = async (option,select) => {
 <template>
     <div class="flex">
         <div class="max-w-80 min-w-64">
-            <SelectQuery :route="route(storedItemsRoute.index.name, storedItemsRoute.index.parameters)" :value="storedItem"
+            <SelectQuery :route="route(storedItemsRoute.index.name, storedItemsRoute.index.parameters)" :value="storedItem"  
                 :placeholder="'Select Stored Items'" :required="true" :trackBy="'code'" :label="'reference'" :valueProp="'id'" :onChange="SaveChange"
                 :closeOnSelect="true" :clearOnSearch="false" :fieldName="'stored_items'" mode="tags" :createOption="true" :onCreate="createPallet"/>
         </div>
