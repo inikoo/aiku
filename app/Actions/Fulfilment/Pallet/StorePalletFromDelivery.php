@@ -92,6 +92,7 @@ class StorePalletFromDelivery extends OrgAction
     public function fromRetina(PalletDelivery $palletDelivery, ActionRequest $request): Pallet
     {
         /** @var FulfilmentCustomer $fulfilmentCustomer */
+        $this->parent       = $palletDelivery;
         $fulfilmentCustomer = $request->user()->customer->fulfilmentCustomer;
         $this->fulfilment   = $fulfilmentCustomer->fulfilment;
 
