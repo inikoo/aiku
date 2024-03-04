@@ -16,28 +16,12 @@ import { initialiseRetinaApp } from "@/Composables/initialiseRetinaApp"
 import { useLayoutStore } from "@/Stores/retinaLayout"
 import Notification from '@/Components/Utils/Notification.vue'
 
-import {
-    faHome,
-    faBars,
-    faUsersCog,
-    faTachometerAltFast,
-    faUser,
-    faLanguage
-} from '@fal'
+import { faHome, faBars, faUsersCog, faTachometerAltFast, faUser, faLanguage } from '@fal'
 import { faSearch, faBell } from '@far'
 import { ref } from 'vue'
 
 
-library.add(
-    faHome,
-    faBars,
-    faUsersCog,
-    faTachometerAltFast,
-    faUser,
-    faLanguage,
-    faSearch,
-    faBell
-)
+library.add( faHome, faBars, faUsersCog, faTachometerAltFast, faUser, faLanguage, faSearch, faBell )
 
 initialiseRetinaApp()
 
@@ -73,7 +57,10 @@ const sidebarOpen = ref(false)
                 <div class="mt-1">
                     <Breadcrumbs v-if="usePage().props.breadcrumbs?.length > 0"
                         :breadcrumbs="usePage().props.breadcrumbs ?? []"
-                        :navigation="usePage().props.navigation ?? []" />
+                        :navigation="usePage().props.navigation ?? []" 
+                        :layout="layout"
+                        class="md:pr-0"
+                    />
                 </div>
                 <slot />
             </div>

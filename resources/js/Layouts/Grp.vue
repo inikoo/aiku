@@ -44,7 +44,9 @@ const sidebarOpen = ref(false)
         <!-- Section: Breadcrumbs -->
         <Breadcrumbs class="bg-white fixed top-11 lg:top-10 z-[19] w-full transition-all duration-200 ease-in-out"
             :class="[layout.leftSidebar.show ? 'left-0 md:left-48' : 'left-0 md:left-12']"
-            :breadcrumbs="usePage().props.breadcrumbs ?? []" :navigation="usePage().props.navigation ?? []" />
+            :breadcrumbs="usePage().props.breadcrumbs ?? []" :navigation="usePage().props.navigation ?? []"
+            :layout="layout"    
+        />
 
         <!-- Sidebar: Left -->
         <div class="">
