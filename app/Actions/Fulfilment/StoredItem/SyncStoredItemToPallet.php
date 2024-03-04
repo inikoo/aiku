@@ -7,7 +7,6 @@
 
 namespace App\Actions\Fulfilment\StoredItem;
 
-use App\Enums\Fulfilment\StoredItem\StoredItemTypeEnum;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
@@ -29,10 +28,7 @@ class SyncStoredItemToPallet
 
     public function handle(Pallet $pallet, array $modelData): array
     {
-        $storedItem = $pallet->items()->syncWithPivotValues(Arr::get($modelData, 'stored_item_ids', []), [
-            'reference' => Arr::get($modelData, 'reference'),
-            'type'      => StoredItemTypeEnum::PALLET,
-        ]);
+        $storedItem = $pallet->items()->syncWithoutDetaching(Arr::get($modelData, 'stored_item_ids', []));
 
         // hydrate stored items goes here
 

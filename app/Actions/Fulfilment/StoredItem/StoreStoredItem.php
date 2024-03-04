@@ -64,10 +64,7 @@ class StoreStoredItem
         $this->fulfilmentCustomer = $fulfilmentCustomer;
         $this->fulfilment         = $fulfilmentCustomer->fulfilment;
 
-        $mergedArray              = array_merge($request->all(), [
-            'location_id' => $request->input('location')['id']
-        ]);
-        $this->setRawAttributes($mergedArray);
+        $this->setRawAttributes($request->all());
 
         return $this->handle($fulfilmentCustomer, $this->validateAttributes());
     }
