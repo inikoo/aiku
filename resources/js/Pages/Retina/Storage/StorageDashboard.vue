@@ -12,7 +12,6 @@ import { Chart as ChartJS, ArcElement, Tooltip, Legend, Colors } from 'chart.js'
 import { useLocaleStore } from "@/Stores/locale"
 import { PalletCustomer, PieCustomer } from '@/types/Pallet'
 
-
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faCheckCircle, faInfoCircle, faExclamationTriangle } from '@fal'
 import { faSeedling, faShare, faSpellCheck, faCheck, faTimes, faSignOutAlt, faTruck, faCheckDouble } from '@fal'
@@ -57,44 +56,6 @@ const options = {
     }
 }
 
-const dummyPieValue = [
-    {
-        "label": "Item 1",
-        "count": 35,
-        "cases": [
-            { "value": "Case 1", "count": 83, "label": "Case 1 Label", "icon": { "name": "fal fa-check-circle", "tooltip": "Tooltip for Case 1", "class": "case-1" } },
-            { "value": "Case 2", "count": 12, "label": "Case 2 Label", "icon": { "name": "fal fa-info-circle", "tooltip": "Tooltip for Case 2", "class": "case-2" } }
-        ]
-    },
-    {
-        "label": "Item 2",
-        "count": 91,
-        "cases": [
-            { "value": "Case 1", "count": 41, "label": "Case 1 Label", "icon": { "name": "fal fa-exclamation-triangle", "tooltip": "Tooltip for Case 1", "class": "case-1" } },
-            { "value": "Case 2", "count": 75, "label": "Case 2 Label", "icon": { "name": "fal fa-info-circle", "tooltip": "Tooltip for Case 2", "class": "case-2" } },
-            { "value": "Case 3", "count": 18, "label": "Case 3 Label", "icon": { "name": "fal fa-check-circle", "tooltip": "Tooltip for Case 3", "class": "case-3" } }
-        ]
-    },
-    {
-        "label": "Item 3",
-        "count": 23,
-        "cases": [
-            { "value": "Case 1", "count": 13, "label": "Case 1 Label", "icon": { "name": "fal fa-check-circle", "tooltip": "Tooltip for Case 1", "class": "case-1" } },
-            { "value": "Case 2", "count": 10, "label": "Case 2 Label", "icon": { "name": "fal fa-info-circle", "tooltip": "Tooltip for Case 2", "class": "case-2" } }
-        ]
-    },
-    {
-        "label": "Item 4",
-        "count": 57,
-        "cases": [
-            { "value": "Case 1", "count": 37, "label": "Case 1 Label", "icon": { "name": "fal fa-exclamation-triangle", "tooltip": "Tooltip for Case 1", "class": "case-1" } },
-            { "value": "Case 2", "count": 15, "label": "Case 2 Label", "icon": { "name": "fal fa-info-circle", "tooltip": "Tooltip for Case 2", "class": "case-2" } },
-            { "value": "Case 3", "count": 5, "label": "Case 3 Label", "icon": { "name": "fal fa-check-circle", "tooltip": "Tooltip for Case 3", "class": "case-3" } }
-        ]
-    },
-]
-
-console.log(props.pieData)
 </script>
 
 <template>
