@@ -73,18 +73,18 @@ class ShowPalletDelivery extends RetinaAction
                             'type'   => 'buttonGroup',
                             'key'    => 'upload-add',
                             'button' => [
-                                [
-                                    'type'  => 'button',
-                                    'style' => 'secondary',
-                                    'icon'  => ['fal', 'fa-upload'],
-                                    'label' => 'upload',
-                                    'route' => [
-                                        'name'       => 'retina.models.pallet-delivery.pallet.import',
-                                        'parameters' => [
-                                            'palletDelivery' => $palletDelivery->id
-                                        ]
-                                    ]
-                                ],
+                                // [
+                                //     'type'  => 'button',
+                                //     'style' => 'secondary',
+                                //     'icon'  => ['fal', 'fa-upload'],
+                                //     'label' => 'upload',
+                                //     'route' => [
+                                //         'name'       => 'retina.models.pallet-delivery.pallet.import',
+                                //         'parameters' => [
+                                //             'palletDelivery' => $palletDelivery->id
+                                //         ]
+                                //     ]
+                                // ],
                                 [
                                     'type'    => 'button',
                                     'style'   => 'secondary',

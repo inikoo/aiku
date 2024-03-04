@@ -57,9 +57,7 @@ const sidebarOpen = ref(false)
                 <div class="mt-1">
                     <Breadcrumbs v-if="usePage().props.breadcrumbs?.length > 0"
                         :breadcrumbs="usePage().props.breadcrumbs ?? []"
-                        :navigation="usePage().props.navigation ?? []" 
-                        :layout="layout"
-                        class="md:pr-0"
+                        :navigation="usePage().props.navigation ?? []"
                     />
                 </div>
                         <slot />

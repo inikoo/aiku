@@ -25,7 +25,7 @@ class PalletsResource extends JsonResource
             'customer_name'          => $pallet->fulfilmentCustomer->customer->name,
             'fulfilment_customer_id' => $pallet->fulfilmentCustomer->id,
             'slug'                   => $pallet->slug,
-            'notes'                  => $pallet->notes,
+            'notes'                  => (string) $pallet->notes,
             'state'                  => $pallet->state,
             'location'               => $pallet->location?->slug,
             'location_id'            => $pallet->location?->id,
