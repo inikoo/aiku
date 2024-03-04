@@ -30,9 +30,10 @@ class StoreStoredItem
 
     public function handle(FulfilmentCustomer|Pallet $parent, array $modelData): StoredItem
     {
-        if($parent instanceof Pallet) {
-            $modelData['type'] = StoredItemTypeEnum::PALLET;
-        }
+        data_set($modelData, 'group_id', $parent->group_id);
+        data_set($modelData, 'organisation_id', $parent->organisation_id);
+
+        $modelData['type'] = StoredItemTypeEnum::PALLET;
 
         /** @var StoredItem $storedItem */
         $storedItem = $parent->items()->create($modelData);

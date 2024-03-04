@@ -52,7 +52,7 @@ const createPallet = async (option, select) => {
     <div class="flex">
         <div class="w-full">
             <SelectQuery :route="route(storedItemsRoute.index.name, storedItemsRoute.index.parameters)" :value="location"
-                :placeholder="'Select Stored Items'" :required="true" :trackBy="'code'" :label="'name'" :valueProp="'id'"
+                :placeholder="'Select Stored Items'" :required="true" :trackBy="'code'" :label="'reference'" :valueProp="'id'"
                 :closeOnSelect="true" :clearOnSearch="false" :fieldName="'location_id'" mode="tags" :createOption="true" :onCreate="createPallet"/>
         </div>
        <!--  <div class="my-auto mx-auto p-1">
