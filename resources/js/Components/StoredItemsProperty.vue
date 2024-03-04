@@ -8,7 +8,7 @@
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faPlus } from "@fas"
 import Button from "@/Components/Elements/Buttons/Button.vue"
-import { ref, defineEmits } from "vue"
+import {ref, defineEmits, onBeforeMount} from "vue"
 import SelectQuery from "@/Components/SelectQuery.vue"
 import { useForm } from "@inertiajs/vue3"
 import Modal from "@/Components/Utils/Modal.vue"
@@ -47,12 +47,15 @@ const createPallet = async (option, select) => {
     }
 }
 
+onBeforeMount(() => {
+    storedItem.stored_items = props.pallet.stored_items.map((item: any) => item.id)
+})
 
 const SaveChange = async (option,select) => {
     storedItem.stored_items = option
     try {
         const response: any = await axios.post(route(props.pallet.storeStoredItemRoute.name,props.pallet.storeStoredItemRoute.parameters),
-            {stored_item : storedItem.data().stored_items},
+            {stored_item_ids : storedItem.data().stored_items},
             { headers: {"Content-Type": "multipart/form-data"}}
         )
     return response.data
@@ -79,7 +82,7 @@ const SaveChange = async (option,select) => {
                 :placeholder="'Select Stored Items'" :required="true" :trackBy="'code'" :label="'reference'" :valueProp="'id'" :onChange="SaveChange"
                 :closeOnSelect="true" :clearOnSearch="false" :fieldName="'stored_items'" mode="tags" :createOption="true" :onCreate="createPallet"/>
         </div>
-      
+
        <!--  <div class="my-auto mx-auto p-1">
             <Button :icon="['fas', 'plus']" @click="() => (isModalOpen = true)" :type="'tertiary'" size="xs"></Button>
         </div>
