@@ -262,13 +262,22 @@ class ShowPalletDelivery extends OrgAction
                         'warehouse'          => $palletDelivery->warehouse->slug
                     ]
                 ],
+                'storedItemsRoute' => [
+                    'name'       => 'grp.org.fulfilments.show.crm.customers.show.stored-items.index',
+                    'parameters' => [
+                        'organisation'       => $palletDelivery->organisation->slug,
+                        'fulfilment'         => $palletDelivery->fulfilment->slug,
+                        'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->slug,
+                        'palletDelivery'     => $palletDelivery->reference
+                    ]
+                ],
 
                 'tabs' => [
                     'current'    => $this->tab,
                     'navigation' => PalletDeliveryTabsEnum::navigation()
                 ],
 
-                'data' => PalletDeliveryResource::make($palletDelivery),
+                'data'             => PalletDeliveryResource::make($palletDelivery),
 
                 PalletDeliveryTabsEnum::PALLETS->value => $this->tab == PalletDeliveryTabsEnum::PALLETS->value ?
                     fn () => PalletsResource::collection(IndexPallets::run($palletDelivery))

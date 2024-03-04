@@ -7,9 +7,10 @@
 
 namespace App\Actions\Fulfilment\StoredItem\UI;
 
-use App\Actions\InertiaAction;
+use App\Actions\OrgAction;
 use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Fulfilment\StoredItemResource;
+use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\StoredItem;
 use App\Models\SysAdmin\Organisation;
@@ -23,7 +24,7 @@ use App\InertiaTable\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use App\Services\QueryBuilder;
 
-class IndexStoredItems extends InertiaAction
+class IndexStoredItems extends OrgAction
 {
     public function handle(Organisation|FulfilmentCustomer $parent, $prefix = null): LengthAwarePaginator
     {
@@ -78,12 +79,12 @@ class IndexStoredItems extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo('fulfilment.edit');
+        $this->canEdit = $request->user()->hasPermissionTo("fulfilments.{$this->fulfilment->id}.edit");
 
         return
             (
                 $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo('hr.view')
+                $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.view")
             );
     }
 
@@ -123,6 +124,13 @@ class IndexStoredItems extends InertiaAction
         $this->initialisation($request);
 
         return $this->handle(app('currentTenant'));
+    }
+
+    public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->initialisationFromFulfilment($fulfilment, $request);
+
+        return $this->handle($fulfilmentCustomer, 'pallets');
     }
 
 

@@ -7,20 +7,19 @@
 
 namespace App\Actions\Fulfilment\StoredItem;
 
-use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydrateStoredItems;
 use App\Enums\Fulfilment\StoredItem\StoredItemTypeEnum;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\StoredItem;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Redirect;
-use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class StoreStoredItem
+class SyncStoredItemToPallet
 {
     use AsAction;
     use WithAttributes;
@@ -28,18 +27,14 @@ class StoreStoredItem
     public FulfilmentCustomer $fulfilmentCustomer;
     private Fulfilment $fulfilment;
 
-    public function handle(FulfilmentCustomer|Pallet $parent, array $modelData): StoredItem
+    public function handle(Pallet $pallet, array $modelData): array
     {
-        if($parent instanceof Pallet) {
-            $modelData['type'] = StoredItemTypeEnum::PALLET;
-        }
+        $storedItem = $pallet->items()->syncWithPivotValues(Arr::get($modelData, 'stored_item_ids', []), [
+            'reference' => Arr::get($modelData, 'reference'),
+            'type'      => StoredItemTypeEnum::PALLET,
+        ]);
 
-        /** @var StoredItem $storedItem */
-        $storedItem = $parent->items()->create($modelData);
-
-        if($parent instanceof FulfilmentCustomer) {
-            FulfilmentCustomerHydrateStoredItems::dispatch($parent);
-        }
+        // hydrate stored items goes here
 
         return $storedItem;
     }
@@ -49,30 +44,15 @@ class StoreStoredItem
         return $request->user()->hasPermissionTo("fulfilments.{$this->fulfilment->id}.edit");
     }
 
-
     public function rules(): array
     {
         return [
-            'reference'   => ['required', 'unique:stored_items', 'between:2,9', 'alpha'],
-            'type'        => ['sometimes', Rule::in(StoredItemTypeEnum::values())],
-            'location_id' => ['sometimes', 'exists:locations,id']
+            'reference'       => ['sometimes', 'unique:stored_items', 'between:2,9', 'alpha'],
+            'stored_item_ids' => ['sometimes', 'array']
         ];
     }
 
-    public function asController(FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): StoredItem
-    {
-        $this->fulfilmentCustomer = $fulfilmentCustomer;
-        $this->fulfilment         = $fulfilmentCustomer->fulfilment;
-
-        $mergedArray              = array_merge($request->all(), [
-            'location_id' => $request->input('location')['id']
-        ]);
-        $this->setRawAttributes($mergedArray);
-
-        return $this->handle($fulfilmentCustomer, $this->validateAttributes());
-    }
-
-    public function inPallet(Pallet $pallet, ActionRequest $request): StoredItem
+    public function asController(Pallet $pallet, ActionRequest $request): array
     {
         $this->fulfilmentCustomer = $pallet->fulfilmentCustomer;
         $this->fulfilment         = $pallet->fulfilment;

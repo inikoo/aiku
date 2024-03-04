@@ -25,6 +25,7 @@ import Popover from "@/Components/Popover.vue"
 import SelectQuery from "@/Components/SelectQuery.vue"
 import { cloneDeep } from "lodash"
 import LocationFieldDelivery from "@/Components/LocationFieldDelivery.vue"
+import StoredItemProperty from '@/Components/StoredItemsProperty.vue'
 
 library.add(
 	faTrashAlt,
@@ -41,6 +42,7 @@ const props = defineProps<{
 	state?: string
 	tableKey: number
 	locationRoute: {}
+	storedItemsRoute:{}
 }>()
 
 const emits = defineEmits<{
@@ -86,6 +88,7 @@ const onSaved = async (pallet: object, fieldName: string) => {
 		}, 3000)
 	}
 }
+
 </script>
 
 <template>
@@ -108,6 +111,17 @@ const onSaved = async (pallet: object, fieldName: string) => {
 				<FieldEditableTable :data="item" @onSave="onSaved" fieldName="notes" placeholder="Enter pallet notes"/>
 			</div>
 			<div v-else>{{ item["notes"] }}</div>
+		</template>
+
+    	<!-- Column: stored items -->
+		<template #cell(stored_items)="{ item: item }">
+			<div>
+				<StoredItemProperty
+					:pallet="item"
+					@renderTableKey="() => emits('renderTableKey')"
+					:storedItemsRoute="storedItemsRoute" 
+				/>
+			</div>
 		</template>
 
         <!-- Column: Actions -->

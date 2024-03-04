@@ -138,6 +138,7 @@ class StoreWebUser extends OrgAction
     public function action(Customer $customer, array $modelData, int $hydratorsDelay = 0): Webuser
     {
         $this->asAction       = true;
+        $this->customer       = $customer;
         $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisationFromShop($customer->shop, $modelData);
 
@@ -158,7 +159,7 @@ class StoreWebUser extends OrgAction
             return 1;
         }
 
-        $this->customer=$customer;
+        $this->customer = $customer;
 
         if ($command->option('password')) {
             $password = $command->option('password');

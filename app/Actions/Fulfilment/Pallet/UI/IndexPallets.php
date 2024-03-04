@@ -187,6 +187,7 @@ class IndexPallets extends OrgAction
 
 
             $table->column(key: 'notes', label: __('Notes'), canBeHidden: false, searchable: true)
+                ->column(key: 'stored_items', label: 'stored items', canBeHidden: false, searchable: true)
                 ->column(key: 'actions', label: ' ', canBeHidden: false, searchable: true)
                 ->defaultSort('reference');
         };

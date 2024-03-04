@@ -51,6 +51,7 @@ const props = defineProps<{
     }
     uploadRoutes: {},
     locationRoute : {}
+    storedItemsRoute : {}
 }>()
 
 const currentTab = ref(props.tabs.current)
@@ -159,6 +160,7 @@ watch(() => props.data, (newValue) => {
     timeline.value = newValue.data
 }, { deep: true })
 
+console.log('stored_itemsRoutes',props.storedItemsRoute)
 </script>
 
 <template>
@@ -304,7 +306,8 @@ watch(() => props.data, (newValue) => {
         :tab="currentTab"
         :tableKey="tableKey"
         @renderTableKey="changeTableKey"
-        :locationRoute="locationRoute"
+        :locationRoute="locationRoute" 
+        :storedItemsRoute="storedItemsRoute"
     />
 
     <UploadExcel :propName="'pallet deliveries'" description="Adding Pallet Deliveries" :routes="{
