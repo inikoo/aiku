@@ -8,7 +8,7 @@
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faPlus } from "@fas"
 import Button from "@/Components/Elements/Buttons/Button.vue"
-import { ref, defineEmits } from "vue"
+import {ref, defineEmits, onBeforeMount} from "vue"
 import SelectQuery from "@/Components/SelectQuery.vue"
 import { useForm } from "@inertiajs/vue3"
 import Modal from "@/Components/Utils/Modal.vue"
@@ -35,6 +35,8 @@ const createPallet = async (option, select) => {
             { headers: {"Content-Type": "multipart/form-data"}}
         )
     errors.value.createStoredItem = null
+    storedItem.stored_items.push(response.data.id)
+    SaveChange(storedItem.stored_items)
     return response.data
     } catch (error: any) {
         errors.value.createStoredItem = error.response.data.message
@@ -47,13 +49,15 @@ const createPallet = async (option, select) => {
     }
 }
 
+onBeforeMount(() => {
+    storedItem.stored_items = props.pallet.stored_items.map((item: any) => item.id)
+})
 
 const SaveChange = async (option,select) => {
     storedItem.stored_items = option
     try {
         const response: any = await axios.post(route(props.pallet.storeStoredItemRoute.name,props.pallet.storeStoredItemRoute.parameters),
-            {stored_item : storedItem.data().stored_items},
-            { headers: {"Content-Type": "multipart/form-data"}}
+            {stored_item_ids : storedItem.data().stored_items},
         )
     return response.data
     errors.value.createStoredItem = null
@@ -75,11 +79,11 @@ const SaveChange = async (option,select) => {
 <template>
     <div class="flex">
         <div class="max-w-80 min-w-64">
-            <SelectQuery :route="route(storedItemsRoute.index.name, storedItemsRoute.index.parameters)" :value="storedItem"
+            <SelectQuery :route="route(storedItemsRoute.index.name, storedItemsRoute.index.parameters)" :value="storedItem"  
                 :placeholder="'Select Stored Items'" :required="true" :trackBy="'code'" :label="'reference'" :valueProp="'id'" :onChange="SaveChange"
                 :closeOnSelect="true" :clearOnSearch="false" :fieldName="'stored_items'" mode="tags" :createOption="true" :onCreate="createPallet"/>
         </div>
-      
+
        <!--  <div class="my-auto mx-auto p-1">
             <Button :icon="['fas', 'plus']" @click="() => (isModalOpen = true)" :type="'tertiary'" size="xs"></Button>
         </div>

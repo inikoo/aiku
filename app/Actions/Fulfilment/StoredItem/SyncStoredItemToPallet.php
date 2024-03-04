@@ -28,7 +28,9 @@ class SyncStoredItemToPallet
 
     public function handle(Pallet $pallet, array $modelData): array
     {
-        $storedItem = $pallet->items()->syncWithoutDetaching(Arr::get($modelData, 'stored_item_ids', []));
+        $storedItem = $pallet->storedItems()->syncWithPivotValues(Arr::get($modelData, 'stored_item_ids', []), [
+            'quantity' => Arr::get($modelData, 'quantity', 1),
+        ]);
 
         // hydrate stored items goes here
 
@@ -43,7 +45,6 @@ class SyncStoredItemToPallet
     public function rules(): array
     {
         return [
-            'reference'       => ['sometimes', 'unique:stored_items', 'between:2,9', 'alpha'],
             'stored_item_ids' => ['sometimes', 'array']
         ];
     }

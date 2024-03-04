@@ -14,16 +14,16 @@ const props = defineProps<{
 }>()
 
 function storedItemRoute(storedItem) {
-    switch (route().current()) {
-        case 'grp.fulfilment.stored-items.index':
-            return route(
-                'grp.fulfilment.stored-items.show',
-                [storedItem.slug]);
-        default:
-            return route(
-                'grp.fulfilment.stored-items.show',
-                [storedItem.slug]);
-    }
+    // switch (route().current()) {
+    //     case 'grp.fulfilment.stored-items.index':
+    //         return route(
+    //             'grp.fulfilment.stored-items.show',
+    //             [storedItem.slug]);
+    //     default:
+    //         return route(
+    //             'grp.fulfilment.stored-items.show',
+    //             [storedItem.slug]);
+    // }
 }
 
 </script>
