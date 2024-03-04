@@ -17,6 +17,8 @@ import { faCheckCircle, faInfoCircle, faExclamationTriangle } from '@fal'
 import { faSeedling, faShare, faSpellCheck, faCheck, faTimes, faSignOutAlt, faTruck, faCheckDouble } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { useFormatTime } from '@/Composables/useFormatTime'
+import CountUp from 'vue-countup-v3'
+
 library.add(faCheckCircle, faInfoCircle, faExclamationTriangle, faSeedling, faShare, faSpellCheck, faCheck, faTimes, faSignOutAlt, faTruck, faCheckDouble)
 
 ChartJS.register(ArcElement, Tooltip, Legend, Colors)
@@ -109,7 +111,9 @@ const options = {
                             <div class="flex flex-col gap-x-2 gap-y-3 leading-none items-baseline text-2xl font-semibold text-org-500">
                                 <!-- In Total -->
                                 <div class="flex gap-x-2 items-end">
-                                    {{ locale.number(prospectState.count) }}
+                                    <CountUp :endVal="prospectState.count" :duration="1.5" :scrollSpyOnce="true" :options="{
+                                        formattingFn: (value: number) => locale.number(value)
+                                    }" />
                                     <span class="text-sm font-medium leading-4 text-gray-500 ">{{ trans('in total') }}</span>
                                 </div>
                                 <!-- Statistic -->

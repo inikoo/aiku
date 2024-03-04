@@ -62,7 +62,11 @@ const sidebarOpen = ref(false)
                         class="md:pr-0"
                     />
                 </div>
-                <slot />
+                        <slot />
+                <!-- <transition name="slide-to-right" mode="out-in" appear>
+                    <div :key="$page.url">
+                    </div>
+                </transition> -->
             </div>
         </main>
 

@@ -238,7 +238,7 @@ watch(() => props.data, (newValue) => {
     </div>
 
     <!-- Box: Stats -->
-    <div class="h-16 grid grid-cols-4 gap-x-2 px-6 my-4">
+    <div class="h-16 grid grid-cols-4 gap-x-2 px-4 my-4">
         <!-- Stats: Delivery Status -->
         <div v-tooltip="'Delivery status'"
             class="relative flex flex-col justify-center px-4 rounded-md bg-slate-200 border border-slate-300 overflow-hidden">
