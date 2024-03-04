@@ -35,7 +35,7 @@ class StoreStoredItem
         }
 
         /** @var StoredItem $storedItem */
-        $storedItem = $parent->storedItems()->create($modelData);
+        $storedItem = $parent->items()->create($modelData);
 
         if($parent instanceof FulfilmentCustomer) {
             FulfilmentCustomerHydrateStoredItems::dispatch($parent);

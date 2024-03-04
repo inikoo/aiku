@@ -11,6 +11,7 @@ use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\Pallet\UI\IndexPallets;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\RetinaAction;
+use App\Actions\UI\Retina\Storage\ShowStorageDashboard;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Enums\UI\PalletDeliveryTabsEnum;
 use App\Http\Resources\Fulfilment\PalletDeliveryResource;
@@ -249,6 +250,23 @@ class ShowPalletDelivery extends RetinaAction
                         'model' => [
                             'name'       => 'grp.org.warehouses.show.fulfilment.pallet-deliveries.show',
                             'parameters' => Arr::only($routeParameters, ['organisation', 'warehouse', 'palletDelivery'])
+                        ]
+                    ],
+                    $suffix
+                ),
+            ),
+            'retina.storage.pallet-deliveries.show' => array_merge(
+                ShowStorageDashboard::make()->getBreadcrumbs(),
+                $headCrumb(
+                    $palletDelivery,
+                    [
+                        'index' => [
+                            'name'       => 'retina.storage.pallet-deliveries.index',
+                            'parameters' => []
+                        ],
+                        'model' => [
+                            'name'       => 'retina.storage.pallet-deliveries.show',
+                            'parameters' => [$palletDelivery->reference]
                         ]
                     ],
                     $suffix
