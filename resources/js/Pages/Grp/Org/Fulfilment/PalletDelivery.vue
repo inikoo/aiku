@@ -50,8 +50,8 @@ const props = defineProps<{
         route: routeType
     }
     uploadRoutes: {},
-    locationRoute : {}
-    storedItemsRoute : {}
+    locationRoute : {},
+    storedItemsRoute : {},
 }>()
 
 const currentTab = ref(props.tabs.current)

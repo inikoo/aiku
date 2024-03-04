@@ -26,16 +26,17 @@ console.log('asdasd',props.storedItemsRoute)
 const emits = defineEmits()
 const location = useForm({ ...props.pallet })
 /* const isModalOpen = ref(false) */
-
+console.log('sss',props.storedItemsRoute)
 
 const createPallet = async (option, select) => {
     console.log(option)
     try {
-        const response: any = await axios.post(route(props.pallet.storeStoredItemRoute.name, props.pallet.storeStoredItemRoute.parameters),
-            {reference : option.name},
+        const response: any = await axios.post(route(props.storedItemsRoute.store.name,props.storedItemsRoute.store.parameters),
+            {reference : option.id},
             { headers: {"Content-Type": "multipart/form-data"}}
         )
     } catch (error: any) {
+        console.log(error)
         notify({
             title: "Failed to add new stored items",
             text: error,
@@ -50,8 +51,8 @@ const createPallet = async (option, select) => {
 <template>
     <div class="flex">
         <div class="w-full">
-            <SelectQuery :route="route(storedItemsRoute.name, storedItemsRoute.parameters)" :value="location"
-                :placeholder="'Select Stored Items'" :required="true" :trackBy="'code'" :label="'code'" :valueProp="'id'"
+            <SelectQuery :route="route(storedItemsRoute.index.name, storedItemsRoute.index.parameters)" :value="location"
+                :placeholder="'Select Stored Items'" :required="true" :trackBy="'code'" :label="'name'" :valueProp="'id'"
                 :closeOnSelect="true" :clearOnSearch="false" :fieldName="'location_id'" mode="tags" :createOption="true" :onCreate="createPallet"/>
         </div>
        <!--  <div class="my-auto mx-auto p-1">

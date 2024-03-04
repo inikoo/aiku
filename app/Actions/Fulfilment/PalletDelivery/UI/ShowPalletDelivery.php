@@ -275,7 +275,7 @@ class ShowPalletDelivery extends OrgAction
                     'store' => [
                         'name'       => 'grp.models.fulfilment-customer.stored-items.store',
                         'parameters' => [
-                            'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->slug
+                            'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->id
                         ]
                     ]
                 ],
