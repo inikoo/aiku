@@ -28,9 +28,7 @@ class SyncStoredItemToPallet
 
     public function handle(Pallet $pallet, array $modelData): array
     {
-        $storedItem = $pallet->storedItems()->syncWithPivotValues(Arr::get($modelData, 'stored_item_ids', []), [
-            'quantity' => Arr::get($modelData, 'quantity', 1),
-        ]);
+        $storedItem = $pallet->storedItems()->sync(Arr::get($modelData, 'stored_item_ids', []));
 
         // hydrate stored items goes here
 
