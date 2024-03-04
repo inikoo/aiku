@@ -8,9 +8,10 @@
 namespace App\Actions\Fulfilment\StoredItem;
 
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydrateStoredItems;
-use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateFulfilmentCustomers;
 use App\Enums\Fulfilment\StoredItem\StoredItemTypeEnum;
-use App\Models\CRM\Customer;
+use App\Models\Fulfilment\Fulfilment;
+use App\Models\Fulfilment\FulfilmentCustomer;
+use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\StoredItem;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
@@ -24,21 +25,24 @@ class StoreStoredItem
     use AsAction;
     use WithAttributes;
 
-    public Customer $customer;
+    public FulfilmentCustomer $fulfilmentCustomer;
+    private Fulfilment $fulfilment;
 
-    public function handle(Customer $customer, array $modelData): StoredItem
+    public function handle(FulfilmentCustomer|Pallet $parent, array $modelData): StoredItem
     {
         /** @var StoredItem $storedItem */
-        $storedItem = $customer->storedItems()->create($modelData);
-        FulfilmentCustomerHydrateStoredItems::dispatch($customer);
-        OrganisationHydrateFulfilmentCustomers::dispatch(app('currentTenant'));
+        $storedItem = $parent->storedItems()->create($modelData);
+
+        if($parent instanceof FulfilmentCustomer) {
+            FulfilmentCustomerHydrateStoredItems::dispatch($parent);
+        }
 
         return $storedItem;
     }
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("fulfilment.edit");
+        return $request->user()->hasPermissionTo("fulfilments.{$this->fulfilment->id}.edit");
     }
 
 
@@ -51,15 +55,30 @@ class StoreStoredItem
         ];
     }
 
-    public function asController(Customer $customer, ActionRequest $request): StoredItem
+    public function asController(FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): StoredItem
     {
-        $this->customer = $customer;
-        $mergedArray    = array_merge($request->all(), [
+        $this->fulfilmentCustomer = $fulfilmentCustomer;
+        $this->fulfilment         = $fulfilmentCustomer->fulfilment;
+
+        $mergedArray              = array_merge($request->all(), [
             'location_id' => $request->input('location')['id']
         ]);
         $this->setRawAttributes($mergedArray);
 
-        return $this->handle($customer, $this->validateAttributes());
+        return $this->handle($fulfilmentCustomer, $this->validateAttributes());
+    }
+
+    public function inPallet(Pallet $pallet, ActionRequest $request): StoredItem
+    {
+        $this->fulfilmentCustomer = $pallet->fulfilmentCustomer;
+        $this->fulfilment         = $pallet->fulfilment;
+
+        $mergedArray              = array_merge($request->all(), [
+            'location_id' => $request->input('location')['id']
+        ]);
+        $this->setRawAttributes($mergedArray);
+
+        return $this->handle($pallet, $this->validateAttributes());
     }
 
     public function htmlResponse(StoredItem $storedItem, ActionRequest $request): RedirectResponse

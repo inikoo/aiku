@@ -62,7 +62,11 @@ class PalletsResource extends JsonResource
             'bookInRoute'            => [
                 'name'       => 'grp.models.warehouse.pallet.booked-in',
                 'parameters' => [$pallet->warehouse_id, $pallet->id]
-            ]
+            ],
+            'storeStoredItemRoute'   => [
+                'name'       => 'grp.models.pallet.stored-items.store',
+                'parameters' => [$pallet->id]
+            ],
         ];
     }
 }

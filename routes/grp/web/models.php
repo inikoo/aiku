@@ -30,6 +30,7 @@ use App\Actions\Fulfilment\PalletReturn\InDeliveryPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\ReceivedPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\StorePalletReturn;
 use App\Actions\Fulfilment\PalletReturn\SubmitPalletReturn;
+use App\Actions\Fulfilment\StoredItem\StoreStoredItem;
 use App\Actions\HumanResources\Employee\DeleteEmployee;
 use App\Actions\HumanResources\Employee\StoreEmployee;
 use App\Actions\HumanResources\Employee\UpdateEmployee;
@@ -82,6 +83,8 @@ Route::name('pallet-delivery.')->prefix('pallet-delivery/{palletDelivery:id}')->
 Route::name('pallet.')->prefix('pallet/{pallet:id}')->group(function () {
     Route::delete('', DeletePallet::class)->name('delete');
     Route::patch('', UpdatePallet::class)->name('update');
+
+    Route::post('stored-items', [StoreStoredItem::class, 'inPallet'])->name('stored-items.store');
 });
 
 
