@@ -40,7 +40,6 @@ class IndexStoredItems extends OrgAction
 
         return QueryBuilder::for(StoredItem::class)
             ->defaultSort('slug')
-            ->with('customer')
             ->when($parent, function ($query) use ($parent) {
                 if(class_basename($parent) == "FulfilmentCustomer") {
                     $query->where('fulfilment_customer_id', $parent->id);

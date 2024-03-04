@@ -85,7 +85,7 @@ Route::name('pallet.')->prefix('pallet/{pallet:id}')->group(function () {
     Route::delete('', DeletePallet::class)->name('delete');
     Route::patch('', UpdatePallet::class)->name('update');
 
-    Route::post('stored-items', SyncStoredItemToPallet::class)->name('stored-items.store');
+    Route::post('stored-items', SyncStoredItemToPallet::class)->name('stored-items.update');
 });
 
 
@@ -93,6 +93,8 @@ Route::name('pallet.')->prefix('pallet/{pallet:id}')->group(function () {
 
 
 Route::name('fulfilment-customer.')->prefix('fulfilment-customer/{fulfilmentCustomer:id}')->group(function () {
+    Route::post('stored-items', StoreStoredItem::class)->name('stored-items.store');
+
     Route::patch('', UpdateFulfilmentCustomer::class)->name('update');
     Route::post('pallet-delivery', StorePalletDelivery::class)->name('pallet-delivery.store');
 

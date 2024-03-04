@@ -7,6 +7,7 @@
 
 namespace App\Actions\Fulfilment\PalletReturn;
 
+use App\Actions\Fulfilment\FulfilmentCustomer\HydrateFulfilmentCustomer;
 use App\Actions\Helpers\SerialReference\GetSerialReference;
 use App\Actions\OrgAction;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
@@ -55,7 +56,7 @@ class StorePalletReturn extends OrgAction
             );
         }
 
-
+        HydrateFulfilmentCustomer::dispatch($fulfilmentCustomer);
 
         /** @var PalletReturn $palletReturn */
         $palletReturn = $fulfilmentCustomer->palletReturns()->create($modelData);

@@ -23,15 +23,18 @@ class StoredItemResource extends JsonResource
 {
     public function toArray($request): array
     {
+        /** @var \App\Models\Fulfilment\StoredItem $storedItem */
+        $storedItem = $this;
+
         return [
-            'id'            => $this->id,
-            'reference'     => $this->reference,
-            'slug'          => $this->slug,
-            'customer_name' => $this->customer['name'],
-            'location'      => $this->location ? $this->location['slug'] : '-',
-            'state'         => $this->state,
-            'notes'         => $this->notes ?? '-',
-            'status'        => $this->status
+            'id'            => $storedItem->id,
+            'reference'     => $storedItem->reference,
+            'slug'          => $storedItem->slug,
+            'customer_name' => $storedItem->fulfilmentCustomer?->customer['name'],
+            'location'      => $storedItem->location ? $storedItem->location['slug'] : '-',
+            'state'         => $storedItem->state,
+            'notes'         => $storedItem->notes ?? '-',
+            'status'        => $storedItem->status
         ];
     }
 }

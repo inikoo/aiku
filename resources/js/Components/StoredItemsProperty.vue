@@ -21,21 +21,23 @@ const props = defineProps<{
     storedItemsRoute: object
 }>()
 
-console.log('asdasd',props.storedItemsRoute)
 
 const emits = defineEmits()
-const location = useForm({ ...props.pallet })
-/* const isModalOpen = ref(false) */
-
-
+const storedItem = useForm({ ...props.pallet })
+const errors = ref({
+    createStoredItem : null,
+    storeStoredItem  : null
+})
 const createPallet = async (option, select) => {
-    console.log(option)
     try {
-        const response: any = await axios.post(route(props.pallet.storeStoredItemRoute.name, props.pallet.storeStoredItemRoute.parameters),
-            {reference : option.name},
+        const response: any = await axios.post(route(props.storedItemsRoute.store.name,props.storedItemsRoute.store.parameters),
+            {reference : option.id},
             { headers: {"Content-Type": "multipart/form-data"}}
         )
+    errors.value.createStoredItem = null
+    return response.data
     } catch (error: any) {
+        errors.value.createStoredItem = error.response.data.message
         notify({
             title: "Failed to add new stored items",
             text: error,
@@ -45,15 +47,39 @@ const createPallet = async (option, select) => {
     }
 }
 
+
+const SaveChange = async (option,select) => {
+    storedItem.stored_items = option
+    try {
+        const response: any = await axios.post(route(props.pallet.storeStoredItemRoute.name,props.pallet.storeStoredItemRoute.parameters),
+            {stored_item : storedItem.data().stored_items},
+            { headers: {"Content-Type": "multipart/form-data"}}
+        )
+    return response.data
+    errors.value.createStoredItem = null
+    } catch (error: any) {
+        errors.value.createStoredItem = null
+        errors.value.storeStoredItem = error.response.data.message
+        notify({
+            title: "Failed to add new stored items",
+            text: error,
+            type: "error"
+        })
+        return false
+    }
+}
+
+
 </script>
 
 <template>
     <div class="flex">
-        <div class="w-full">
-            <SelectQuery :route="route(storedItemsRoute.name, storedItemsRoute.parameters)" :value="location"
-                :placeholder="'Select Stored Items'" :required="true" :trackBy="'code'" :label="'code'" :valueProp="'id'"
-                :closeOnSelect="true" :clearOnSearch="false" :fieldName="'location_id'" mode="tags" :createOption="true" :onCreate="createPallet"/>
+        <div class="max-w-80 min-w-64">
+            <SelectQuery :route="route(storedItemsRoute.index.name, storedItemsRoute.index.parameters)" :value="storedItem"
+                :placeholder="'Select Stored Items'" :required="true" :trackBy="'code'" :label="'reference'" :valueProp="'id'" :onChange="SaveChange"
+                :closeOnSelect="true" :clearOnSearch="false" :fieldName="'stored_items'" mode="tags" :createOption="true" :onCreate="createPallet"/>
         </div>
+      
        <!--  <div class="my-auto mx-auto p-1">
             <Button :icon="['fas', 'plus']" @click="() => (isModalOpen = true)" :type="'tertiary'" size="xs"></Button>
         </div>
@@ -66,4 +92,6 @@ const createPallet = async (option, select) => {
             </div>
         </Modal> -->
     </div>
+    <p v-if="errors.createStoredItem" class="mt-2 text-xs text-red-600 max-w-80 min-w-64" id="email-error">{{ errors.createStoredItem }}</p>
+    <p v-if="errors.storeStoredItem" class="mt-2 text-xs text-red-600 max-w-80 min-w-64" id="email-error">{{ errors.storeStoredItem }}</p>
 </template>

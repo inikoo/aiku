@@ -30,12 +30,13 @@ class StoreStoredItem
 
     public function handle(FulfilmentCustomer|Pallet $parent, array $modelData): StoredItem
     {
-        if($parent instanceof Pallet) {
-            $modelData['type'] = StoredItemTypeEnum::PALLET;
-        }
+        data_set($modelData, 'group_id', $parent->group_id);
+        data_set($modelData, 'organisation_id', $parent->organisation_id);
+
+        $modelData['type'] = StoredItemTypeEnum::PALLET;
 
         /** @var StoredItem $storedItem */
-        $storedItem = $parent->items()->create($modelData);
+        $storedItem = $parent->storedItems()->create($modelData);
 
         if($parent instanceof FulfilmentCustomer) {
             FulfilmentCustomerHydrateStoredItems::dispatch($parent);
@@ -64,10 +65,7 @@ class StoreStoredItem
         $this->fulfilmentCustomer = $fulfilmentCustomer;
         $this->fulfilment         = $fulfilmentCustomer->fulfilment;
 
-        $mergedArray              = array_merge($request->all(), [
-            'location_id' => $request->input('location')['id']
-        ]);
-        $this->setRawAttributes($mergedArray);
+        $this->setRawAttributes($request->all());
 
         return $this->handle($fulfilmentCustomer, $this->validateAttributes());
     }

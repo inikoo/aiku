@@ -187,6 +187,10 @@ class ShowFulfilmentCustomer extends OrgAction
                     parent: $fulfilmentCustomer,
                     prefix: CustomerFulfilmentTabsEnum::PALLETS->value
                 )
+            )->table(
+                IndexStoredItems::make()->tableStructure(
+                    parent: $fulfilmentCustomer->storedItems
+                )
             );
     }
 
