@@ -10,7 +10,6 @@ namespace App\Actions\Fulfilment\PalletDelivery\UI;
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\Pallet\UI\IndexPallets;
-use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItems;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
@@ -18,7 +17,6 @@ use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Enums\UI\PalletDeliveryTabsEnum;
 use App\Http\Resources\Fulfilment\PalletDeliveryResource;
 use App\Http\Resources\Fulfilment\PalletsResource;
-use App\Http\Resources\Fulfilment\StoredItemResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletDelivery;
@@ -264,14 +262,22 @@ class ShowPalletDelivery extends OrgAction
                         'warehouse'          => $palletDelivery->warehouse->slug
                     ]
                 ],
+                'storedItemsRoute' => [
+                    'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet-deliveries.stored-items.index',
+                    'parameters' => [
+                        'organisation'       => $palletDelivery->organisation->slug,
+                        'fulfilment'         => $palletDelivery->fulfilment->slug,
+                        'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->slug,
+                        'palletDelivery'     => $palletDelivery->reference
+                    ]
+                ],
 
                 'tabs' => [
                     'current'    => $this->tab,
                     'navigation' => PalletDeliveryTabsEnum::navigation()
                 ],
 
-                'data'         => PalletDeliveryResource::make($palletDelivery),
-                'stored_items' => StoredItemResource::collection(IndexStoredItems::run($palletDelivery->fulfilmentCustomer)),
+                'data'             => PalletDeliveryResource::make($palletDelivery),
 
                 PalletDeliveryTabsEnum::PALLETS->value => $this->tab == PalletDeliveryTabsEnum::PALLETS->value ?
                     fn () => PalletsResource::collection(IndexPallets::run($palletDelivery))
