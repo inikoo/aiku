@@ -150,7 +150,7 @@ class Pallet extends Model
 
     public function storedItems(): BelongsToMany
     {
-        return $this->belongsToMany(StoredItem::class, 'pallet_stored_items');
+        return $this->belongsToMany(StoredItem::class, 'pallet_stored_items')->withPivot('quantity');
     }
 
     public function palletDelivery(): BelongsTo
