@@ -30,6 +30,10 @@ class StoreStoredItem
 
     public function handle(FulfilmentCustomer|Pallet $parent, array $modelData): StoredItem
     {
+        if($parent instanceof Pallet) {
+            $modelData['type'] = StoredItemTypeEnum::PALLET;
+        }
+
         /** @var StoredItem $storedItem */
         $storedItem = $parent->storedItems()->create($modelData);
 
@@ -50,8 +54,8 @@ class StoreStoredItem
     {
         return [
             'reference'   => ['required', 'unique:stored_items', 'between:2,9', 'alpha'],
-            'type'        => ['required', Rule::in(StoredItemTypeEnum::values())],
-            'location_id' => ['required', 'exists:locations,id']
+            'type'        => ['sometimes', Rule::in(StoredItemTypeEnum::values())],
+            'location_id' => ['sometimes', 'exists:locations,id']
         ];
     }
 
@@ -73,10 +77,7 @@ class StoreStoredItem
         $this->fulfilmentCustomer = $pallet->fulfilmentCustomer;
         $this->fulfilment         = $pallet->fulfilment;
 
-        $mergedArray              = array_merge($request->all(), [
-            'location_id' => $request->input('location')['id']
-        ]);
-        $this->setRawAttributes($mergedArray);
+        $this->setRawAttributes($request->all());
 
         return $this->handle($pallet, $this->validateAttributes());
     }
