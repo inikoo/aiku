@@ -7,6 +7,7 @@
 
 namespace App\Actions\Fulfilment\PalletDelivery;
 
+use App\Actions\Fulfilment\FulfilmentCustomer\HydrateFulfilmentCustomer;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
@@ -39,6 +40,9 @@ class ConfirmPalletDelivery extends OrgAction
                 'state'     => PalletStateEnum::CONFIRMED
             ]);
         }
+
+        HydrateFulfilmentCustomer::dispatch($palletDelivery->fulfilmentCustomer);
+
 
         return $this->update($palletDelivery, $modelData);
     }

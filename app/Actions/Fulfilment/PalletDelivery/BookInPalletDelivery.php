@@ -7,6 +7,7 @@
 
 namespace App\Actions\Fulfilment\PalletDelivery;
 
+use App\Actions\Fulfilment\FulfilmentCustomer\HydrateFulfilmentCustomer;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
@@ -29,6 +30,8 @@ class BookInPalletDelivery extends OrgAction
                 'state' => PalletStateEnum::BOOKED_IN
             ]);
         }
+
+        HydrateFulfilmentCustomer::dispatch($palletDelivery->fulfilmentCustomer);
 
         return $this->update($palletDelivery, $modelData);
     }

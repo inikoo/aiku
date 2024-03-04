@@ -7,6 +7,7 @@
 
 namespace App\Actions\Fulfilment\PalletDelivery;
 
+use App\Actions\Fulfilment\FulfilmentCustomer\HydrateFulfilmentCustomer;
 use App\Actions\Helpers\SerialReference\GetSerialReference;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
@@ -38,6 +39,8 @@ class SubmitPalletDelivery extends OrgAction
                 'state'     => PalletStateEnum::SUBMITTED
             ]);
         }
+
+        HydrateFulfilmentCustomer::dispatch($palletDelivery->fulfilmentCustomer);
 
         return $this->update($palletDelivery, $modelData);
     }

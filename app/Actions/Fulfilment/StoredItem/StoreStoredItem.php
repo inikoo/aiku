@@ -36,7 +36,7 @@ class StoreStoredItem
         $modelData['type'] = StoredItemTypeEnum::PALLET;
 
         /** @var StoredItem $storedItem */
-        $storedItem = $parent->items()->create($modelData);
+        $storedItem = $parent->storedItems()->create($modelData);
 
         if($parent instanceof FulfilmentCustomer) {
             FulfilmentCustomerHydrateStoredItems::dispatch($parent);

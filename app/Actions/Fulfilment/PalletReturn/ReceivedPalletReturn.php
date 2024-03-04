@@ -7,6 +7,7 @@
 
 namespace App\Actions\Fulfilment\PalletReturn;
 
+use App\Actions\Fulfilment\FulfilmentCustomer\HydrateFulfilmentCustomer;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
@@ -33,6 +34,8 @@ class ReceivedPalletReturn extends OrgAction
                 'state' => PalletStateEnum::RECEIVED
             ]);
         }
+
+        HydrateFulfilmentCustomer::dispatch($palletReturn->fulfilmentCustomer);
 
         return $this->update($palletReturn, $modelData);
     }

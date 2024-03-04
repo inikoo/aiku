@@ -7,6 +7,7 @@
 
 namespace App\Actions\Fulfilment\Pallet;
 
+use App\Actions\Fulfilment\FulfilmentCustomer\HydrateFulfilmentCustomer;
 use App\Actions\Fulfilment\PalletDelivery\Hydrators\HydratePalletDeliveries;
 use App\Actions\Helpers\SerialReference\GetSerialReference;
 use App\Actions\OrgAction;
@@ -55,7 +56,8 @@ class StorePalletFromDelivery extends OrgAction
         /** @var Pallet $pallet */
         $pallet = $palletDelivery->pallets()->create($modelData);
 
-        HydratePalletDeliveries::run($palletDelivery);
+        HydratePalletDeliveries::dispatch($palletDelivery);
+        HydrateFulfilmentCustomer::dispatch($palletDelivery->fulfilmentCustomer);
 
         return $pallet;
     }

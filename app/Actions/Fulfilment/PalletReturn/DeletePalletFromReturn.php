@@ -7,7 +7,7 @@
 
 namespace App\Actions\Fulfilment\PalletReturn;
 
-use App\Actions\Fulfilment\PalletDelivery\Hydrators\HydratePalletDeliveries;
+use App\Actions\Fulfilment\FulfilmentCustomer\HydrateFulfilmentCustomer;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Fulfilment\PalletResource;
@@ -28,7 +28,7 @@ class DeletePalletFromReturn extends OrgAction
     {
         $this->update($pallet, ['pallet_return_id' => null]);
 
-        // HydratePalletDeliveries::run($palletDelivery);
+        HydrateFulfilmentCustomer::dispatch($palletReturn->fulfilmentCustomer);
 
         return true;
     }

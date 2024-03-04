@@ -7,6 +7,8 @@
 
 namespace App\Actions\Fulfilment\Pallet;
 
+use App\Actions\Fulfilment\FulfilmentCustomer\HydrateFulfilmentCustomer;
+use App\Actions\Fulfilment\PalletDelivery\Hydrators\HydratePalletDeliveries;
 use App\Actions\OrgAction;
 use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -27,6 +29,9 @@ class StoreMultiplePallets extends OrgAction
         for ($i = 1; $i <= Arr::get($modelData, 'number_pallets'); $i++) {
             StorePalletFromDelivery::run($palletDelivery, Arr::except($modelData, 'number_pallets'));
         }
+
+        HydratePalletDeliveries::dispatch($palletDelivery);
+        HydrateFulfilmentCustomer::dispatch($palletDelivery->fulfilmentCustomer);
     }
 
     public function authorize(ActionRequest $request): bool
