@@ -11,7 +11,6 @@ import Button from "@/Components/Elements/Buttons/Button.vue"
 import { ref, defineEmits, onBeforeMount } from "vue"
 import { useForm, router } from "@inertiajs/vue3"
 import Modal from "@/Components/Utils/Modal.vue"
-import axios from "axios"
 import { notify } from "@kyvg/vue3-notification"
 import CreateStoredItems from "./CreateStoredItems.vue"
 import Tag from '@/Components/Tag.vue'

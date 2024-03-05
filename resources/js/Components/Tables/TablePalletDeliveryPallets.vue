@@ -21,9 +21,6 @@ import FieldEditableTable from "@/Components/FieldEditableTable.vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import { ref, watch, defineEmits } from "vue"
 import ButtonEditTable from "@/Components/ButtonEditTable.vue"
-import Popover from "@/Components/Popover.vue"
-import SelectQuery from "@/Components/SelectQuery.vue"
-import { cloneDeep } from "lodash"
 import LocationFieldDelivery from "@/Components/LocationFieldDelivery.vue"
 import StoredItemProperty from '@/Components/StoredItemsProperty.vue'
 

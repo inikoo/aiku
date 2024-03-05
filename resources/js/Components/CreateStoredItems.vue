@@ -21,11 +21,12 @@ library.add(faPlus)
 const props = defineProps<{
 	storedItemsRoute: object
 	form: object
-	onSave: Function
 	stored_items: Array
 }>()
 
-const emits = defineEmits()
+const emits = defineEmits<{
+    (e: 'onSave', event: any): void
+}>()
 
 const createPallet = async (option, select) => {
 	try {
@@ -75,7 +76,7 @@ const onSaved = async () => {
 		<label class="block text-sm font-medium text-gray-700">{{ trans("Reference") }}</label>
 		<div class="mt-1">
 			<SelectQuery
-				:route="route(storedItemsRoute.index.name, storedItemsRoute.index.parameters)"
+				:urlRoute="route(storedItemsRoute.index.name, storedItemsRoute.index.parameters)"
 				:value="form"
 				:placeholder="'Select Stored Items'"
 				:required="true"

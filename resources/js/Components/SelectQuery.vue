@@ -13,7 +13,7 @@ library.add(faTimes)
 const props = withDefaults(defineProps<{
     fieldName?: string
     options?: string[] | object
-    route:string
+    urlRoute:string
     placeholder?: string
     required?: boolean
     mode?: string
@@ -57,7 +57,7 @@ const loading = ref(false)
 const getOptions = async () => {
     loading.value = true
     try {
-        const response = await axios.get(props.route)
+        const response = await axios.get(props.urlRoute)
         onGetOptionsSuccess(response)
         loading.value = false
     } catch (error) {
