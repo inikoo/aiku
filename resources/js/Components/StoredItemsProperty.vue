@@ -15,6 +15,7 @@ import axios from "axios"
 import { notify } from "@kyvg/vue3-notification"
 import CreateStoredItems from "./CreateStoredItems.vue"
 import Tag from '@/Components/Tag.vue'
+import { fromPairs, get } from "lodash"
 
 library.add(faPlus)
 const props = defineProps<{
@@ -27,7 +28,7 @@ const emits = defineEmits<{
     (e: 'renderTable'): void
 }>()
 const isModalOpen = ref(false)
-const form = useForm({ id : null, quantity: 0, oldData : null })
+const form = useForm({ id : null, quantity: 1, oldData : null })
 
 
 const setFormOnEdit=(data)=>{
@@ -61,8 +62,28 @@ const onDelete=(data)=>{
 
 const sendToServer=async(data)=>{
     router.post(route(props.pallet.storeStoredItemRoute.name, props.pallet.storeStoredItemRoute.parameters),  {stored_item_ids: data}, {
-        onError: (e) => {console.log('Error on confirm', e)},
-        onSuccess: (e) => { emits('renderTable')},
+        onError: (e) => {
+            form.errors = {
+                quantity : get(e,[`stored_item_ids.${form.data().id}.quantity`]),
+                id: get(e,[`stored_item_ids.${form.data().id}`])
+            }
+        notify({
+            title: "Failed to add new stored items",
+            text: "failed to update the stored items",
+            type: "error"
+        })
+        },
+        onSuccess: (e) => { 
+            emits('renderTable')
+            isModalOpen.value = false
+            fromPairs.errors = {}
+        },
+        onBefore: () => {
+            form.processing = true
+        },
+        onFinish: () => {
+            form.processing = false
+        }
     })
 }
 
@@ -92,7 +113,7 @@ const sendToServer=async(data)=>{
 
 
 
-        <Modal :isOpen="isModalOpen" @onClose="isModalOpen = false" width="w-fit">
+        <Modal :isOpen="isModalOpen" @onClose="isModalOpen = false" width="w-1/2">
             <Button class="sr-only" />
             <div class="space-y-4">
                 <CreateStoredItems 
