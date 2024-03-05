@@ -66,7 +66,7 @@ class PalletsResource extends JsonResource
             ],
             'storeStoredItemRoute'   => match (request()->routeIs('retina.*')) {
                 true => [
-                    'name'       => 'retina.models.pallet.store-stored-item',
+                    'name'       => 'retina.models.pallet.stored-items.update',
                     'parameters' => [$pallet->id]
                 ],
                 default => [

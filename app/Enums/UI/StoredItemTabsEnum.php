@@ -16,6 +16,7 @@ enum StoredItemTabsEnum: string
     use HasTabs;
 
     case SHOWCASE = 'showcase';
+    case PALLETS  = 'pallets';
 
     case DATA    = 'data';
     case HISTORY = 'history';
