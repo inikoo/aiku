@@ -12,6 +12,7 @@ use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
 use Illuminate\Support\Arr;
+use Illuminate\Validation\ValidationException;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
@@ -26,6 +27,12 @@ class SyncStoredItemToPallet
 
     public function handle(Pallet $pallet, array $modelData): void
     {
+        Arr::mapWithKeys(Arr::get($modelData, 'stored_item_ids'), function (array $item, int|null $key) {
+            if(is_null($key)) {
+                throw ValidationException::withMessages(['stored_item_ids' => __('The stored item is required')]);
+            }
+        });
+
         $pallet->storedItems()->sync(Arr::get($modelData, 'stored_item_ids', []));
 
         // hydrate stored items goes here
@@ -49,7 +56,6 @@ class SyncStoredItemToPallet
     public function getValidationMessages(): array
     {
         return [
-            'stored_item_ids.*'                   => __('The stored item is required'),
             'stored_item_ids.*.quantity.required' => __('The quantity is required'),
             'stored_item_ids.*.quantity.integer'  => __('The quantity must be an integer'),
             'stored_item_ids.*.quantity.min'      => __('The quantity must be at least 1'),
