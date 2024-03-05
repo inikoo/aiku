@@ -92,6 +92,7 @@ const onSaved = async (pallet: object, fieldName: string) => {
 </script>
 
 <template>
+	{{ tableKey }}
 	<Table :resource="data" :name="tab" class="mt-5" :key="tableKey">
 		<template #cell(state)="{ item: palletDelivery }">
 			<Icon :data="palletDelivery['state_icon']" class="px-1" />
@@ -118,8 +119,8 @@ const onSaved = async (pallet: object, fieldName: string) => {
 			<div>
 				<StoredItemProperty
 					:pallet="item"
-					@renderTableKey="() => emits('renderTableKey')"
-					:storedItemsRoute="storedItemsRoute" 
+					@renderTable="() => emits('renderTableKey')"
+					:storedItemsRoute="storedItemsRoute"
 				/>
 			</div>
 		</template>

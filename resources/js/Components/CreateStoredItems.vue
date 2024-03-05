@@ -9,52 +9,70 @@ import { library } from "@fortawesome/fontawesome-svg-core"
 import { faPlus } from "@fas"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import { ref, defineEmits } from "vue"
-import SelectQuery from "@/Components/SelectQuery.vue"
 import { useForm } from "@inertiajs/vue3"
 import Modal from "@/Components/Utils/Modal.vue"
+import { trans } from 'laravel-vue-i18n'
+import SelectQuery from "@/Components/SelectQuery.vue"
+import { notify } from "@kyvg/vue3-notification"
+import axios from "axios"
 
 library.add(faPlus)
 const props = defineProps<{
     pallet: object
-    locationRoute: object
+    storedItemsRoute: object
+    form:object
+    onSave:Function
 }>()
 
 const emits = defineEmits()
-const location = useForm({ ...props.pallet })
-const isModalOpen = ref(false)
 
-const form = useForm = {}
+
+const createPallet = async (option, select) => {
+    try {
+        const response: any = await axios.post(route(props.storedItemsRoute.store.name,props.storedItemsRoute.store.parameters),
+            {reference : option.id},
+            { headers: {"Content-Type": "multipart/form-data"}}
+        )
+    errors.value.createStoredItem = null
+    return response.data
+    } catch (error: any) {
+        errors.value.createStoredItem = error.response.data.message
+        notify({
+            title: "Failed to add new stored items",
+            text: error,
+            type: "error"
+        })
+        return false
+    }
+}
+
+
+
+
 </script>
   
 <template>
     <div>
-        <label for="login" class="block text-sm font-medium text-gray-700">{{ trans('Username') }}</label>
+        <label  class="block text-sm font-medium text-gray-700">{{ trans('Reference') }}</label>
         <div class="mt-1">
-            <input v-model="form.username" ref="inputUsername" id="username" name="username" :autofocus="true"
-                autocomplete="username" required=""
+            <SelectQuery :route="route(storedItemsRoute.index.name, storedItemsRoute.index.parameters)" :value="form"  
+                :placeholder="'Select Stored Items'" :required="true" :trackBy="'reference'" :label="'reference'" :valueProp="'id'"
+                :closeOnSelect="true" :clearOnSearch="false" :fieldName="'id'" :createOption="true" :onCreate="createPallet"/>
+        </div>
+    </div>
+
+
+    <div>
+        <label class="block text-sm font-medium text-gray-700">{{ trans('Quantity') }}</label>
+        <div class="mt-1">
+            <input v-model="form.quantity"  id="quantity" name="quantity" :autofocus="true" type="number"
+                autocomplete="quantity" :required="true"
                 class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
         </div>
     </div>
 
-    <div>
-        <label for="password" class="block text-sm font-medium text-gray-700"> {{ trans('Password') }} </label>
-        <div class="mt-1 flex flex-col rounded-md shadow-sm">
-            <LoginPassword :showProcessing="false" id="password" name="password" :form="form" fieldName="password" />
-        </div>
-    </div>
-
-    <div class="flex items-center justify-between">
-        <div class="flex items-center">
-            <Checkbox name="remember-me" id="remember-me" v-model:checked="form.remember" />
-            <label for="remember-me" class="ml-2 block text-sm text-gray-900"> {{ trans('Remember me') }} </label>
-        </div>
-    </div>
-
     <div class="space-y-2">
-        <Button full @click.prevent="submit" :loading="isLoading" label="Sign in"> </Button>
-        <p class="text-gray-600">Don't have account yet?
-            <Link as="span" :href="route('retina.register')" class="cursor-pointer font-bold hover:underline">Sign up</Link>
-        </p>
+        <Button full @click="onSave"  label="Submit"> </Button>
     </div>
 </template>
   

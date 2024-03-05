@@ -69,7 +69,7 @@ const compTheme = computed(() => {
 
         <!-- Button: Close (X icon) -->
         <div v-if="closeButton"
-            @click="(event) => emits('onClose', event)"
+            @click="(event) => {emits('onClose', event)}"
             class="bg-white/60 hover:bg-black/10 px-1 rounded-sm">
             <FontAwesomeIcon icon='fal fa-times' class='' aria-hidden='true' />
         </div>

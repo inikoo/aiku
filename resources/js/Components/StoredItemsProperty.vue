@@ -8,12 +8,13 @@
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faPlus } from "@fas"
 import Button from "@/Components/Elements/Buttons/Button.vue"
-import {ref, defineEmits, onBeforeMount} from "vue"
-import SelectQuery from "@/Components/SelectQuery.vue"
-import { useForm } from "@inertiajs/vue3"
+import { ref, defineEmits, onBeforeMount } from "vue"
+import { useForm, router } from "@inertiajs/vue3"
 import Modal from "@/Components/Utils/Modal.vue"
 import axios from "axios"
 import { notify } from "@kyvg/vue3-notification"
+import CreateStoredItems from "./CreateStoredItems.vue"
+import Tag from '@/Components/Tag.vue'
 
 library.add(faPlus)
 const props = defineProps<{
@@ -22,80 +23,84 @@ const props = defineProps<{
 }>()
 
 
-const emits = defineEmits()
-const storedItem = useForm({ ...props.pallet })
-const errors = ref({
-    createStoredItem : null,
-    storeStoredItem  : null
-})
-const createPallet = async (option, select) => {
-    try {
-        const response: any = await axios.post(route(props.storedItemsRoute.store.name,props.storedItemsRoute.store.parameters),
-            {reference : option.id},
-            { headers: {"Content-Type": "multipart/form-data"}}
-        )
-    errors.value.createStoredItem = null
-    storedItem.stored_items.push(response.data.id)
-    SaveChange(storedItem.stored_items)
-    return response.data
-    } catch (error: any) {
-        errors.value.createStoredItem = error.response.data.message
-        notify({
-            title: "Failed to add new stored items",
-            text: error,
-            type: "error"
-        })
-        return false
-    }
+const emits = defineEmits<{
+    (e: 'renderTable'): void
+}>()
+const isModalOpen = ref(false)
+const form = useForm({ id : null, quantity: 0 })
+
+
+const setFormOnEdit=(data)=>{
+    form.id = data.id
+    form.quantity = data.quantity
+    isModalOpen.value = true
 }
 
-onBeforeMount(() => {
-    storedItem.stored_items = props.pallet.stored_items.map((item: any) => item.id)
-})
 
-const SaveChange = async (option,select) => {
-    storedItem.stored_items = option
-    try {
-        const response: any = await axios.post(route(props.pallet.storeStoredItemRoute.name,props.pallet.storeStoredItemRoute.parameters),
-            {stored_item_ids : storedItem.data().stored_items},
-        )
-    return response.data
-    errors.value.createStoredItem = null
-    } catch (error: any) {
-        errors.value.createStoredItem = null
-        errors.value.storeStoredItem = error.response.data.message
-        notify({
-            title: "Failed to add new stored items",
-            text: error,
-            type: "error"
-        })
-        return false
-    }
+const setFormOnCreate=(data)=>{
+    form.reset()
+    isModalOpen.value = true
 }
 
+const onSave = async () => {
+    const stored_items = [...props.pallet.stored_items, {...form.data()}]
+    const finalData = {}; // Change to object
+    for(const d of stored_items) finalData[d.id] = {quantity : d.quantity}; // Assign each id as key
+    sendToServer(finalData)
+}
+
+
+const onDelete=(data)=>{
+    const stored_items = [...props.pallet.stored_items].filter((item)=>item.id != data.id)
+    const finalData = {}; // Change to object
+    for(const d of stored_items) finalData[d.id] = {quantity : d.quantity};
+    sendToServer(finalData)
+}
+
+
+const sendToServer=async(data)=>{
+    router.post(route(props.pallet.storeStoredItemRoute.name, props.pallet.storeStoredItemRoute.parameters),  {stored_item_ids: data}, {
+        onError: (e) => {console.log('Error on confirm', e)},
+        onSuccess: (e) => { emits('renderTable')},
+    })
+}
 
 </script>
 
 <template>
     <div class="flex">
         <div class="max-w-80 min-w-64">
-            <SelectQuery :route="route(storedItemsRoute.index.name, storedItemsRoute.index.parameters)" :value="storedItem"  
-                :placeholder="'Select Stored Items'" :required="true" :trackBy="'code'" :label="'reference'" :valueProp="'id'" :onChange="SaveChange"
-                :closeOnSelect="true" :clearOnSearch="false" :fieldName="'stored_items'" mode="tags" :createOption="true" :onCreate="createPallet"/>
+            <div class="flex">
+                <div v-for="item of pallet.stored_items">
+                    <div class="w-fit p-[3px]">
+                        <Tag  
+                        @onClose="(event)=>{event.stopPropagation(),onDelete(item)}" 
+                        :theme="item.id" :label="`${item.reference}(${item.quantity})`" 
+                        :closeButton="true" :stringToColor="true" size="sm" 
+                        @click="setFormOnEdit(item)"
+                        />
+                    </div>
+
+                </div>
+                <div class="p-1">
+                    <Button :icon="['fas', 'plus']" @click="setFormOnCreate" :type="'tertiary'"
+                        size="xs"></Button>
+                </div>
+            </div>
         </div>
 
-       <!--  <div class="my-auto mx-auto p-1">
-            <Button :icon="['fas', 'plus']" @click="() => (isModalOpen = true)" :type="'tertiary'" size="xs"></Button>
-        </div>
 
 
         <Modal :isOpen="isModalOpen" @onClose="isModalOpen = false" width="w-fit">
             <Button class="sr-only" />
             <div class="space-y-4">
-                <div class="flex justify-center gap-x-3">dsfsdf</div>
+                <CreateStoredItems 
+                :pallet="pallet" 
+                :storedItemsRoute="storedItemsRoute" 
+                :form="form"
+                :onSave="onSave"
+                />
             </div>
-        </Modal> -->
+        </Modal>
     </div>
-    <p v-if="errors.createStoredItem" class="mt-2 text-xs text-red-600 max-w-80 min-w-64" id="email-error">{{ errors.createStoredItem }}</p>
-    <p v-if="errors.storeStoredItem" class="mt-2 text-xs text-red-600 max-w-80 min-w-64" id="email-error">{{ errors.storeStoredItem }}</p>
 </template>
