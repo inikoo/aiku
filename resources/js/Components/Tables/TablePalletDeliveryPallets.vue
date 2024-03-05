@@ -118,6 +118,7 @@ const onSaved = async (pallet: object, fieldName: string) => {
 					:pallet="item"
 					@renderTable="() => emits('renderTableKey')"
 					:storedItemsRoute="storedItemsRoute"
+					:state="props.state"
 				/>
 			</div>
 		</template>
