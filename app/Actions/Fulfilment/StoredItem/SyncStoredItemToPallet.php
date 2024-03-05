@@ -45,6 +45,15 @@ class SyncStoredItemToPallet
         ];
     }
 
+    public function getValidationMessages(): array
+    {
+        return [
+            'stored_item_ids.*.quantity.required' => __('The quantity is required'),
+            'stored_item_ids.*.quantity.integer'  => __('The quantity must be an integer'),
+            'stored_item_ids.*.quantity.min'      => __('The quantity must be at least 1'),
+        ];
+    }
+
     public function asController(Pallet $pallet, ActionRequest $request): void
     {
         $this->fulfilmentCustomer = $pallet->fulfilmentCustomer;
