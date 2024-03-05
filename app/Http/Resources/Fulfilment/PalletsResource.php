@@ -70,7 +70,7 @@ class PalletsResource extends JsonResource
                     'parameters' => [$pallet->id]
                 ],
                 default => [
-                    'name'       => 'retina.models.pallet.stored-items.update',
+                    'name'       => 'grp.models.pallet.stored-items.update',
                     'parameters' => [$pallet->id]
                 ]
             },
