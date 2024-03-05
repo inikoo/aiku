@@ -8,11 +8,11 @@
 import {ref} from "vue";
 import {capitalize} from "@/Composables/capitalize"
 import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome'
-import {faInfoCircle} from '@fas'
+import {faInfoCircle, faPallet} from '@fas'
  import {faRoad, faClock, faDatabase} from '@fal'
  import {library} from '@fortawesome/fontawesome-svg-core'
 
- library.add(faInfoCircle, faRoad, faClock, faDatabase)
+ library.add(faInfoCircle, faRoad, faClock, faDatabase, faPallet)
 
 
 const props = defineProps<{
@@ -82,7 +82,7 @@ const tabIconClass = function (current, type, align, extraClass) {
                             :class="[tabSlug === currentTab ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
                                 'group inline-flex justify-center items-center py-2 px-2 border-b-2 font-medium text-sm']"
                             :aria-current="tabSlug === currentTab ? 'page' : undefined"
-                            v-tooltip="capitalize(tab.title)"    
+                            v-tooltip="capitalize(tab.title)"
                         >
                             <FontAwesomeIcon v-if="tab.icon" :icon="tab.icon" class="h-5 w-5" aria-hidden="true"/>
                             <span v-if="tab.type!=='icon'" class="capitalize">{{ tab.title }}</span>

@@ -8,7 +8,6 @@
 namespace App\Actions\Fulfilment\StoredItem\UI;
 
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
-use App\Actions\Fulfilment\Pallet\UI\IndexPallets;
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\OrgAction;
 use App\Enums\Fulfilment\StoredItem\StoredItemStatusEnum;
@@ -64,7 +63,7 @@ class ShowStoredItem extends OrgAction
     public function htmlResponse(StoredItem $storedItem, ActionRequest $request): Response
     {
         return Inertia::render(
-            'Fulfilment/StoredItem',
+            'Org/Fulfilment/StoredItem',
             [
                 'title'       => __('stored item'),
                 'breadcrumbs' => $this->getBreadcrumbs($storedItem),
@@ -116,15 +115,16 @@ class ShowStoredItem extends OrgAction
                 ],
 
                 StoredItemTabsEnum::PALLETS->value => $this->tab == StoredItemTabsEnum::PALLETS->value ?
-                    fn () => PalletsResource::collection(IndexPallets::run($storedItem))
-                    : Inertia::lazy(fn () => PalletsResource::collection(IndexPallets::run($storedItem))),
+                    fn () => PalletsResource::collection(IndexStoredItemPallets::run($storedItem))
+                    : Inertia::lazy(fn () => PalletsResource::collection(IndexStoredItemPallets::run($storedItem))),
 
                 StoredItemTabsEnum::HISTORY->value => $this->tab == StoredItemTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistory::run($storedItem))
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($storedItem)))
 
             ]
-        )->table(IndexHistory::make()->tableStructure());
+        )->table(IndexHistory::make()->tableStructure())
+            ->table(IndexStoredItemPallets::make()->tableStructure($storedItem, 'pallets'));
     }
 
 
