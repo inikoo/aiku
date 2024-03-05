@@ -7,14 +7,20 @@
 
 namespace App\Actions\Fulfilment\StoredItem\UI;
 
+use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
+use App\Actions\Fulfilment\Pallet\UI\IndexPallets;
 use App\Actions\Helpers\History\IndexHistory;
-use App\Actions\InertiaAction;
+use App\Actions\OrgAction;
 use App\Enums\Fulfilment\StoredItem\StoredItemStatusEnum;
 use App\Enums\UI\StoredItemTabsEnum;
+use App\Http\Resources\Fulfilment\PalletsResource;
 use App\Http\Resources\Fulfilment\StoredItemResource;
 use App\Http\Resources\History\HistoryResource;
-use App\Models\CRM\Customer;
+use App\Models\Fulfilment\Fulfilment;
+use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\StoredItem;
+use App\Models\Inventory\Warehouse;
+use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -22,50 +28,64 @@ use Lorisleiva\Actions\ActionRequest;
 /**
  * @property StoredItem $storedItem
  */
-class ShowStoredItem extends InertiaAction
+class ShowStoredItem extends OrgAction
 {
-    public Customer|null $customer = null;
-
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo('fulfilment.edit');
+        $this->canEdit = $request->user()->hasPermissionTo("fulfilments.{$this->fulfilment->id}.edit");
 
-        return $request->user()->hasPermissionTo("fulfilment.view");
+        return
+            (
+                $request->user()->tokenCan('root') or
+                $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.view")
+            );
     }
 
-    public function asController(Customer $customer, StoredItem $storedItem, ActionRequest $request): void
+    public function asController(Organisation $organisation, Warehouse $warehouse, Fulfilment $fulfilment, StoredItem $storedItem, ActionRequest $request): StoredItem
     {
-        $this->customer = $customer;
-        $this->initialisation($request)->withTab(StoredItemTabsEnum::values());
-        $this->storedItem = $storedItem;
+        $this->initialisationFromFulfilment($fulfilment, $request);
+
+        return $this->handle($storedItem);
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, StoredItem $storedItem, ActionRequest $request): StoredItem
+    {
+        $this->initialisationFromFulfilment($fulfilment, $request);
 
-    public function htmlResponse(ActionRequest $request): Response
+        return $this->handle($storedItem);
+    }
+
+    public function handle(StoredItem $storedItem): StoredItem
+    {
+        return $storedItem;
+    }
+
+    public function htmlResponse(StoredItem $storedItem, ActionRequest $request): Response
     {
         return Inertia::render(
             'Fulfilment/StoredItem',
             [
                 'title'       => __('stored item'),
-                'breadcrumbs' => $this->getBreadcrumbs($this->storedItem),
+                'breadcrumbs' => $this->getBreadcrumbs($storedItem),
                 'pageHead'    => [
                     'icon'          =>
                         [
                             'icon'  => ['fa', 'fa-narwhal'],
                             'title' => __('stored item')
                         ],
-                    'title'  => $this->storedItem->slug,
+                    'title'  => $storedItem->slug,
                     'actions'=> [
                         [
                             'type'    => 'button',
                             'style'   => 'cancel',
                             'tooltip' => __('return to customer'),
-                            'label'   => __($this->storedItem->status == StoredItemStatusEnum::RETURNED ? 'returned' : 'return to customer'),
+                            'label'   => __($storedItem->status == StoredItemStatusEnum::RETURNED ? 'returned' : 'return to customer'),
                             'route'   => [
                                 'name'       => 'grp.fulfilment.stored-items.setReturn',
                                 'parameters' => array_values($request->route()->originalParameters())
                             ],
-                            'disabled' => $this->storedItem->status == StoredItemStatusEnum::RETURNED
+                            'disabled' => $storedItem->status == StoredItemStatusEnum::RETURNED
                         ],
                         [
                             'type'    => 'button',
@@ -81,12 +101,12 @@ class ShowStoredItem extends InertiaAction
                             'type'    => 'button',
                             'style'   => 'delete',
                             'tooltip' => __('set as damaged'),
-                            'label'   => __($this->storedItem->status == StoredItemStatusEnum::DAMAGED ? 'damaged' : 'set as damaged'),
+                            'label'   => __($storedItem->status == StoredItemStatusEnum::DAMAGED ? 'damaged' : 'set as damaged'),
                             'route'   => [
                                 'name'       => 'grp.fulfilment.stored-items.setDamaged',
                                 'parameters' => array_values($request->route()->originalParameters())
                             ],
-                            'disabled' => $this->storedItem->status == StoredItemStatusEnum::DAMAGED
+                            'disabled' => $storedItem->status == StoredItemStatusEnum::DAMAGED
                         ],
                     ],
                 ],
@@ -95,24 +115,29 @@ class ShowStoredItem extends InertiaAction
                     'navigation' => StoredItemTabsEnum::navigation(),
                 ],
 
+                StoredItemTabsEnum::PALLETS->value => $this->tab == StoredItemTabsEnum::PALLETS->value ?
+                    fn () => PalletsResource::collection(IndexPallets::run($storedItem))
+                    : Inertia::lazy(fn () => PalletsResource::collection(IndexPallets::run($storedItem))),
+
                 StoredItemTabsEnum::HISTORY->value => $this->tab == StoredItemTabsEnum::HISTORY->value ?
-                    fn () => HistoryResource::collection(IndexHistory::run($this->storedItem))
-                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($this->storedItem)))
+                    fn () => HistoryResource::collection(IndexHistory::run($storedItem))
+                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($storedItem)))
 
             ]
         )->table(IndexHistory::make()->tableStructure());
     }
 
 
-    public function jsonResponse(): StoredItemResource
+    public function jsonResponse(StoredItem $storedItem): StoredItemResource
     {
-        return new StoredItemResource($this->storedItem);
+        return new StoredItemResource($storedItem);
     }
 
     public function getBreadcrumbs(StoredItem $storedItem, $suffix = null): array
     {
+        return [];
         return array_merge(
-            ShowFulfilment::make()->getBreadcrumbs(),
+            ShowFulfilmentCustomer::make()->getBreadcrumbs(request()->route()->originalParameters()),
             [
                 [
                     'type'           => 'modelWithIndex',
@@ -126,7 +151,7 @@ class ShowStoredItem extends InertiaAction
                         'model' => [
                             'route' => [
                                 'name'       => 'grp.fulfilment.stored-items.show',
-                                'parameters' => array_values($request->route()->originalParameters())
+                                'parameters' => array_values(request()->route()->originalParameters())
                             ],
                             'label' => $storedItem->slug,
                         ],
