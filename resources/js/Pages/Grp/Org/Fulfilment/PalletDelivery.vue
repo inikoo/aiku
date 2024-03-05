@@ -160,7 +160,7 @@ watch(() => props.data, (newValue) => {
     timeline.value = newValue.data
 }, { deep: true })
 
-console.log('stored_itemsRoutes',props.storedItemsRoute)
+
 </script>
 
 <template>

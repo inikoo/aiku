@@ -23,6 +23,7 @@ import { ref, watch, defineEmits } from "vue"
 import ButtonEditTable from "@/Components/ButtonEditTable.vue"
 import LocationFieldDelivery from "@/Components/LocationFieldDelivery.vue"
 import StoredItemProperty from '@/Components/StoredItemsProperty.vue'
+import { routeType } from "@/types/route"
 
 library.add(
 	faTrashAlt,
@@ -34,19 +35,26 @@ library.add(
 	faTimes
 )
 const props = defineProps<{
-	data: object
+	data: {
+		data : []
+		links : object
+		meta : object
+	}
 	tab?: string
 	state?: string
 	tableKey: number
-	locationRoute: {}
-	storedItemsRoute:{}
+	locationRoute: routeType
+	storedItemsRoute:{
+		index : routeType
+		store : routeType
+	}
 }>()
 
 const emits = defineEmits<{
     (e: 'renderTableKey'): void
 }>()
 
-const onSaved = async (pallet: object, fieldName: string) => {
+const onSaved = async (pallet: { form : {}}, fieldName: string) => {
 	if (pallet[fieldName] != pallet.form.data()[fieldName]) {
 		pallet.form.processing = true
 		try {
@@ -89,7 +97,6 @@ const onSaved = async (pallet: object, fieldName: string) => {
 </script>
 
 <template>
-	{{ tableKey }}
 	<Table :resource="data" :name="tab" class="mt-5" :key="tableKey">
 		<template #cell(state)="{ item: palletDelivery }">
 			<Icon :data="palletDelivery['state_icon']" class="px-1" />
