@@ -70,6 +70,17 @@ class StoreStoredItem
         return $this->handle($fulfilmentCustomer, $this->validateAttributes());
     }
 
+    public function fromRetina(ActionRequest $request): StoredItem
+    {
+        /** @var FulfilmentCustomer $fulfilmentCustomer */
+        $fulfilmentCustomer = $request->user()->customer->fulfilmentCustomer;
+
+        $this->fulfilment         = $fulfilmentCustomer->fulfilment;
+        $this->fulfilmentCustomer = $fulfilmentCustomer;
+
+        return $this->handle($fulfilmentCustomer, $this->validateAttributes());
+    }
+
     public function inPallet(Pallet $pallet, ActionRequest $request): StoredItem
     {
         $this->fulfilmentCustomer = $pallet->fulfilmentCustomer;

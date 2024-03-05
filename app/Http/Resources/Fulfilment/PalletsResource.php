@@ -64,10 +64,16 @@ class PalletsResource extends JsonResource
                 'name'       => 'grp.models.warehouse.pallet.booked-in',
                 'parameters' => [$pallet->warehouse_id, $pallet->id]
             ],
-            'storeStoredItemRoute'   => [
-                'name'       => 'grp.models.pallet.stored-items.update',
-                'parameters' => [$pallet->id]
-            ],
+            'storeStoredItemRoute'   => match (request()->routeIs('retina.*')) {
+                true => [
+                    'name'       => 'retina.models.pallet.store-stored-item',
+                    'parameters' => [$pallet->id]
+                ],
+                default => [
+                    'name'       => 'retina.models.pallet.stored-items.update',
+                    'parameters' => [$pallet->id]
+                ]
+            },
         ];
     }
 }

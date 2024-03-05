@@ -169,6 +169,17 @@ class ShowPalletDelivery extends RetinaAction
                     ]
                 ],
 
+                'storedItemsRoute' => [
+                    'index' => [
+                        'name'       => 'retina.storage.stored-items.index',
+                        'parameters' => []
+                    ],
+                    'store' => [
+                        'name'       => 'retina.models.stored-items.store',
+                        'parameters' => []
+                    ]
+                ],
+
                 'tabs' => [
                     'current'    => $this->tab,
                     'navigation' => PalletDeliveryTabsEnum::navigation()
