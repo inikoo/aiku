@@ -90,8 +90,11 @@ const SearchChange = (value: any) => {
 
 
 onMounted(() => {
-    _multiselectRef.value?.open()
-    document.querySelector('.multiselect-search')?.focus()
+    // If not selected yet, then auto focus the Multiselect
+    if(!props.value.id) {
+        _multiselectRef.value?.open()
+        document.querySelector('.multiselect-search')?.focus()
+    }
     getOptions()
 
 })
