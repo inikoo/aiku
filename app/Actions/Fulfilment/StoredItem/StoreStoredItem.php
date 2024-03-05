@@ -9,6 +9,7 @@ namespace App\Actions\Fulfilment\StoredItem;
 
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydrateStoredItems;
 use App\Enums\Fulfilment\StoredItem\StoredItemTypeEnum;
+use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
@@ -47,6 +48,11 @@ class StoreStoredItem
 
     public function authorize(ActionRequest $request): bool
     {
+        if ($request->user() instanceof WebUser) {
+            // TODO: Raul please do the permission for the web user
+            return true;
+        }
+
         return $request->user()->hasPermissionTo("fulfilments.{$this->fulfilment->id}.edit");
     }
 
