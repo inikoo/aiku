@@ -7,13 +7,11 @@
 
 namespace App\Actions\Fulfilment\StoredItem;
 
+use App\Http\Resources\Fulfilment\PalletResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
-use App\Models\Fulfilment\StoredItem;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
@@ -26,13 +24,12 @@ class SyncStoredItemToPallet
     public FulfilmentCustomer $fulfilmentCustomer;
     private Fulfilment $fulfilment;
 
-    public function handle(Pallet $pallet, array $modelData): array
+    public function handle(Pallet $pallet, array $modelData): void
     {
-        $storedItem = $pallet->storedItems()->sync(Arr::get($modelData, 'stored_item_ids', []));
+        $pallet->storedItems()->sync(Arr::get($modelData, 'stored_item_ids', []));
 
         // hydrate stored items goes here
 
-        return $storedItem;
     }
 
     public function authorize(ActionRequest $request): bool
@@ -43,22 +40,23 @@ class SyncStoredItemToPallet
     public function rules(): array
     {
         return [
-            'stored_item_ids' => ['sometimes', 'array']
+            'stored_item_ids'            => ['sometimes', 'array'],
+            'stored_item_ids.*.quantity' => ['required', 'integer', 'min:1'],
         ];
     }
 
-    public function asController(Pallet $pallet, ActionRequest $request): array
+    public function asController(Pallet $pallet, ActionRequest $request): void
     {
         $this->fulfilmentCustomer = $pallet->fulfilmentCustomer;
         $this->fulfilment         = $pallet->fulfilment;
 
         $this->setRawAttributes($request->all());
 
-        return $this->handle($pallet, $this->validateAttributes());
+        $this->handle($pallet, $this->validateAttributes());
     }
 
-    public function htmlResponse(StoredItem $storedItem, ActionRequest $request): RedirectResponse
+    public function jsonResponse(Pallet $pallet): PalletResource
     {
-        return Redirect::route('grp.fulfilment.stored-items.show', $storedItem->slug);
+        return new PalletResource($pallet);
     }
 }
