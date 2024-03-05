@@ -41,7 +41,7 @@ class SyncStoredItemToPallet
     {
         return [
             'stored_item_ids'            => ['sometimes', 'array'],
-            'stored_item_ids.*'          => ['required', 'array'],
+            'stored_item_ids.*'          => ['required', 'exists:stored_items,id', 'integer'],
             'stored_item_ids.*.quantity' => ['required', 'integer', 'min:1'],
         ];
     }
