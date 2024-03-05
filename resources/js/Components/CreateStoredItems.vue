@@ -18,10 +18,10 @@ import axios from "axios"
 
 library.add(faPlus)
 const props = defineProps<{
-    pallet: object
     storedItemsRoute: object
     form:object
     onSave:Function
+    stored_items:Array
 }>()
 
 const emits = defineEmits()
@@ -46,6 +46,27 @@ const createPallet = async (option, select) => {
     }
 }
 
+const onSaved = async () => {
+    let newData = [];
+    
+    if (props.form.oldData) {
+        const index = props.stored_items.findIndex(item => item.id === props.form.oldData.id);
+        if (index !== -1) {
+            const updatedStoredItems = [...props.stored_items];
+            updatedStoredItems.splice(index, 1, props.form.data());
+            newData = updatedStoredItems;
+        }
+    } else {
+        newData = [...props.stored_items, { ...props.form.data() }];
+    }
+
+    const finalData = {};
+    newData.forEach(d => {
+        finalData[d.id] = { quantity: d.quantity };
+    });
+
+    emits('onSave',finalData);
+}
 
 
 
@@ -72,7 +93,7 @@ const createPallet = async (option, select) => {
     </div>
 
     <div class="space-y-2">
-        <Button full @click="onSave"  label="Submit"> </Button>
+        <Button full @click="onSaved"  label="Submit"> </Button>
     </div>
 </template>
   

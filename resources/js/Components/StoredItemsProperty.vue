@@ -27,12 +27,13 @@ const emits = defineEmits<{
     (e: 'renderTable'): void
 }>()
 const isModalOpen = ref(false)
-const form = useForm({ id : null, quantity: 0 })
+const form = useForm({ id : null, quantity: 0, oldData : null })
 
 
 const setFormOnEdit=(data)=>{
     form.id = data.id
     form.quantity = data.quantity
+    form.oldData = data
     isModalOpen.value = true
 }
 
@@ -42,12 +43,12 @@ const setFormOnCreate=(data)=>{
     isModalOpen.value = true
 }
 
-const onSave = async () => {
+/* const onSave = async () => {
     const stored_items = [...props.pallet.stored_items, {...form.data()}]
     const finalData = {}; // Change to object
     for(const d of stored_items) finalData[d.id] = {quantity : d.quantity}; // Assign each id as key
     sendToServer(finalData)
-}
+} */
 
 
 const onDelete=(data)=>{
@@ -74,10 +75,10 @@ const sendToServer=async(data)=>{
                 <div v-for="item of pallet.stored_items">
                     <div class="w-fit p-[3px]">
                         <Tag  
-                        @onClose="(event)=>{event.stopPropagation(),onDelete(item)}" 
-                        :theme="item.id" :label="`${item.reference}(${item.quantity})`" 
-                        :closeButton="true" :stringToColor="true" size="sm" 
-                        @click="setFormOnEdit(item)"
+                            @onClose="(event)=>{event.stopPropagation(),onDelete(item)}" 
+                            :theme="item.id" :label="`${item.reference}(${item.quantity})`" 
+                            :closeButton="true" :stringToColor="true" size="sm" 
+                            @click="setFormOnEdit(item)"    
                         />
                     </div>
 
@@ -95,10 +96,10 @@ const sendToServer=async(data)=>{
             <Button class="sr-only" />
             <div class="space-y-4">
                 <CreateStoredItems 
-                :pallet="pallet" 
-                :storedItemsRoute="storedItemsRoute" 
-                :form="form"
-                :onSave="onSave"
+                    :storedItemsRoute="storedItemsRoute" 
+                    :form="form"
+                    @onSave="sendToServer"
+                    :stored_items="pallet.stored_items"
                 />
             </div>
         </Modal>
