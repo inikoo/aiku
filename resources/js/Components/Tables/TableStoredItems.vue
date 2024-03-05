@@ -31,8 +31,8 @@ function storedItemRoute(storedItem) {
 <template>
     <Table :resource="data" :name="'stored_items'" class="mt-5">
         <template #cell(reference)="{ item: value }">
-            <Link :href="storedItemRoute(value)">
-                {{ value['reference'] }}
+            <Link :href="storedItemRoute(value)" class="specialUnderline">
+                {{ value.reference }}
             </Link>
         </template>
     </Table>

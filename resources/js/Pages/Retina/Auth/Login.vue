@@ -44,14 +44,16 @@ onMounted(async () => {
             <div class="mt-1">
                 <input v-model="form.username" ref="inputUsername" id="username" name="username" :autofocus="true"
                     autocomplete="username" required=""
-                    class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
+                    class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    @keydown.enter="submit"
+                />
             </div>
         </div>
 
         <div>
             <label for="password" class="block text-sm font-medium text-gray-700"> {{ trans('Password') }} </label>
             <div class="mt-1 flex flex-col rounded-md shadow-sm">
-                <LoginPassword :showProcessing="false" id="password" name="password" :form="form" fieldName="password" />
+                <LoginPassword :showProcessing="false" id="password" name="password" :form="form" fieldName="password" @keydown.enter="submit" />
             </div>
         </div>
 
