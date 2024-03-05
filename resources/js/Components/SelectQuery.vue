@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import Multiselect from "@vueform/multiselect"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { ref, onMounted, watch, onUnmounted, defineProps, defineEmits } from 'vue'
+import { ref, onMounted, defineProps, defineEmits } from 'vue'
 import axios from "axios"
 import { notify } from "@kyvg/vue3-notification"
-import { get, set, isArray, isNull, cloneDeep} from 'lodash'
+import { isNull} from 'lodash'
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
 import Tag from '@/Components/Tag.vue'
 
@@ -13,7 +13,7 @@ library.add(faTimes)
 const props = withDefaults(defineProps<{
     fieldName?: string
     options?: string[] | object
-    route:string
+    urlRoute:string
     placeholder?: string
     required?: boolean
     mode?: string
@@ -57,7 +57,7 @@ const loading = ref(false)
 const getOptions = async () => {
     loading.value = true
     try {
-        const response = await axios.get(props.route)
+        const response = await axios.get(props.urlRoute)
         onGetOptionsSuccess(response)
         loading.value = false
     } catch (error) {
@@ -153,5 +153,9 @@ const SearchChange = (value : any) => {
 
 .multiselect-tag-remove-icon {
     @apply text-lime-800
+}
+
+.multiselect-dropdown {
+    height: 120px;
 }
 </style>
