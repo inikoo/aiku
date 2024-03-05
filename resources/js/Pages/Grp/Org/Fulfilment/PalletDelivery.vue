@@ -21,6 +21,7 @@ import { get } from 'lodash'
 import UploadExcel from '@/Components/Upload/UploadExcel.vue'
 import { trans } from "laravel-vue-i18n"
 import { routeType } from '@/types/route'
+import { PageHeading as PageHeadingTypes } from  '@/types/PageHeading'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from "@fortawesome/fontawesome-svg-core"
@@ -30,7 +31,6 @@ import { Table } from '@/types/Table'
 import { Tabs as TSTabs } from '@/types/Tabs'
 library.add(faSeedling, faShare, faSpellCheck, faCheck, faCheckDouble, faUser, faTruckCouch, faPallet, faPlus)
 
-
 const props = defineProps<{
     title: string
     tabs: TSTabs
@@ -39,7 +39,7 @@ const props = defineProps<{
         data: PalletDelivery
     }
     history?: {}
-    pageHead: {}
+    pageHead: PageHeadingTypes
     updateRoute: {
         route: routeType
     }

@@ -13,6 +13,8 @@ use App\Actions\Fulfilment\Pallet\StorePalletFromDelivery;
 use App\Actions\Fulfilment\Pallet\UpdatePallet;
 use App\Actions\Fulfilment\PalletDelivery\StorePalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\SubmitPalletDelivery;
+use App\Actions\Fulfilment\StoredItem\StoreStoredItem;
+use App\Actions\Fulfilment\StoredItem\SyncStoredItemToPallet;
 use App\Actions\UI\Retina\Profile\UpdateProfile;
 use Illuminate\Support\Facades\Route;
 
@@ -29,6 +31,10 @@ Route::name('pallet-delivery.')->prefix('pallet-delivery/{palletDelivery:id}')->
 });
 
 Route::name('pallet.')->prefix('pallet/{pallet:id}')->group(function () {
+    Route::post('stored-items', SyncStoredItemToPallet::class)->name('stored-items.update');
+
     Route::delete('', [DeletePallet::class, 'fromRetina'])->name('delete');
     Route::patch('', [UpdatePallet::class, 'fromRetina'])->name('update');
 });
+
+Route::post('stored-items', [StoreStoredItem::class, 'fromRetina'])->name('stored-items.store');
