@@ -28,6 +28,10 @@ enum StoredItemTabsEnum: string
                 'title' => __('stored item'),
                 'icon'  => 'fas fa-info-circle',
             ],
+            StoredItemTabsEnum::PALLETS => [
+                'title' => __('pallets'),
+                'icon'  => 'fas fa-pallet',
+            ],
             StoredItemTabsEnum::DATA => [
                 'align' => 'right',
                 'type'  => 'icon',
