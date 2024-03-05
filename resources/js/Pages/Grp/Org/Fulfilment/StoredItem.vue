@@ -12,6 +12,7 @@ import Tabs from "@/Components/Navigation/Tabs.vue";
 import {computed, ref} from "vue";
 import {useTabChange} from "@/Composables/tab-change";
 import TableHistories from "@/Components/Tables/TableHistories.vue";
+import TablePallets from "@/Components/Tables/TablePallets.vue";
 
 const props = defineProps<{
     title: string
@@ -19,6 +20,7 @@ const props = defineProps<{
         current: string;
         navigation: object;
     }
+    pallets?:object
     showcase?:object
     history?:object
     pageHead: object
@@ -31,6 +33,7 @@ const component = computed(() => {
 
     const components = {
         showcase: null,
+        pallets: TablePallets,
         history: TableHistories
     };
     return components[currentTab.value];

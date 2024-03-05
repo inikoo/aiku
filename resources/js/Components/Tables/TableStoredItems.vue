@@ -14,16 +14,16 @@ const props = defineProps<{
 }>()
 
 function storedItemRoute(storedItem) {
-    // switch (route().current()) {
-    //     case 'grp.fulfilment.stored-items.index':
-    //         return route(
-    //             'grp.fulfilment.stored-items.show',
-    //             [storedItem.slug]);
-    //     default:
-    //         return route(
-    //             'grp.fulfilment.stored-items.show',
-    //             [storedItem.slug]);
-    // }
+    switch (route().current()) {
+        case 'grp.org.fulfilments.show.crm.customers.show':
+            return route(
+                'grp.org.fulfilments.show.crm.customers.show.stored-items.show',
+                [route().params['organisation'], route().params['fulfilment'], route().params['fulfilmentCustomer'], storedItem.slug]);
+        default:
+            return route(
+                'grp.fulfilment.stored-items.show',
+                [storedItem.slug]);
+    }
 }
 
 </script>
