@@ -37,7 +37,7 @@ watch(
   { deep: true }
 );
 
-console.log(useEchoGrpPersonal().progressBars)
+// console.log(useEchoGrpPersonal().progressBars)
 
 </script>
 

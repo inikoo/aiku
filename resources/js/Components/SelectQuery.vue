@@ -4,8 +4,8 @@ import { library } from "@fortawesome/fontawesome-svg-core"
 import { ref, onMounted, defineProps, defineEmits } from 'vue'
 import axios from "axios"
 import { notify } from "@kyvg/vue3-notification"
-import { isNull} from 'lodash'
-import { faTimes } from '@fortawesome/free-solid-svg-icons';
+import { isNull } from 'lodash'
+import { faTimes } from '@fortawesome/free-solid-svg-icons'
 import Tag from '@/Components/Tag.vue'
 
 library.add(faTimes)
@@ -13,46 +13,47 @@ library.add(faTimes)
 const props = withDefaults(defineProps<{
     fieldName?: string
     options?: string[] | object
-    urlRoute:string
+    urlRoute: string
     placeholder?: string
     required?: boolean
     mode?: string
     searchable?: boolean
-    caret?:boolean
-    trackBy?:string
-    label?:string
-    valueProp?:string
-    closeOnSelect?:boolean
-    clearOnSearch?:boolean
-    object?:boolean
+    caret?: boolean
+    trackBy?: string
+    label?: string
+    valueProp?: string
+    closeOnSelect?: boolean
+    clearOnSearch?: boolean
+    object?: boolean
     value: any
     createOption?: boolean
-    onCreate?:Any
-    onChange?:Function
+    onCreate?: Any
+    onChange?: Function
 }>(), {
     placeholder: 'select',
     required: false,
     mode: 'single',
     searchable: true,
-    caret:true,
-    valueProp:'id',
-    label:'name',
-    closeOnSelect:false,
-    clearOnSearch:true,
-    object:false,
-    value:null,
-    fieldName:'',
+    caret: true,
+    valueProp: 'id',
+    label: 'name',
+    closeOnSelect: false,
+    clearOnSearch: true,
+    object: false,
+    value: null,
+    fieldName: '',
     createOption: false,
-    onChange:()=>null
+    onChange: () => null
 
 })
 
-const emits = defineEmits();
+const emits = defineEmits()
 let timeoutId: any
 const optionData = ref([])
 const q = ref('')
 const page = ref(1)
 const loading = ref(false)
+const _multiselectRef = ref(null)
 
 const getOptions = async () => {
     loading.value = true
@@ -67,18 +68,18 @@ const getOptions = async () => {
             title: "Failed",
             text: "Error while fetching data",
             type: "error"
-        });
+        })
     }
 }
 
-const onGetOptionsSuccess = (response : any) => {
-    const data = Object.values(response.data.data);
-    optionData.value = [ ...data];
-    if (isNull(props.value[props.fieldName])) optionData.value = [ ...data];
+const onGetOptionsSuccess = (response: any) => {
+    const data = Object.values(response.data.data)
+    optionData.value = [...data]
+    if (isNull(props.value[props.fieldName])) optionData.value = [...data]
 }
 
 
-const SearchChange = (value : any) => {
+const SearchChange = (value: any) => {
     q.value = value
     page.value = 1
     clearTimeout(timeoutId)
@@ -88,45 +89,29 @@ const SearchChange = (value : any) => {
 }
 
 
- onMounted(() => {
-    getOptions();
-}) 
+onMounted(() => {
+    _multiselectRef.value?.open()
+    document.querySelector('.multiselect-search')?.focus()
+    getOptions()
+
+})
 
 
 
 </script>
 
-<template> 
-    <Multiselect 
-        v-model="value[fieldName]"
-        :placeholder="props.placeholder"  
-        :trackBy="props.trackBy" 
-        :label="props.label" 
-        :valueProp="props.valueProp" 
-        :object="props.object" 
-        :clearOnSearch="props.clearOnSearch"
-        :close-on-select="props.closeOnSelect" 
-        :searchable="props.searchable" 
-        :caret="props.caret" 
-        :options="optionData"
-        :mode="props.mode"
-        :on-create="props.onCreate"
-        :create-option="props.createOption"
-        :noResultsText="loading ? 'loading...' : 'No Result'" 
-        @open="getOptions()" 
-        @search-change="SearchChange"
-        @change="props.onChange"
-        >
-        <template #tag="{ option, handleTagRemove, disabled }: {option: tag, handleTagRemove: Function, disabled: boolean}">
+<template>
+    <Multiselect ref="_multiselectRef" v-model="value[fieldName]" :placeholder="props.placeholder"
+        :trackBy="props.trackBy" :label="props.label" :valueProp="props.valueProp" :object="props.object"
+        :clearOnSearch="props.clearOnSearch" :close-on-select="props.closeOnSelect" :searchable="props.searchable"
+        :caret="props.caret" :canClear="false" :options="optionData" :mode="props.mode" :on-create="props.onCreate"
+        :create-option="props.createOption" :noResultsText="loading ? 'loading...' : 'No Result'" @open="getOptions()"
+        @search-change="SearchChange" @change="props.onChange">
+        <template
+            #tag="{ option, handleTagRemove, disabled }: { option: tag, handleTagRemove: Function, disabled: boolean }">
             <div class="px-0.5 py-[3px]">
-                <Tag
-                    :theme="option[valueProp]"
-                    :label="option[label]"
-                    :closeButton="true"
-                    :stringToColor="true"
-                    size="sm"
-                    @onClose="(event) => handleTagRemove(option, event)"
-                />
+                <Tag :theme="option[valueProp]" :label="option[label]" :closeButton="true" :stringToColor="true"
+                    size="sm" @onClose="(event) => handleTagRemove(option, event)" />
             </div>
         </template>
     </Multiselect>
@@ -156,6 +141,7 @@ const SearchChange = (value : any) => {
 }
 
 .multiselect-dropdown {
-    height: 120px;
+    min-height: fit-content;
+    max-height: 120px !important;
 }
 </style>

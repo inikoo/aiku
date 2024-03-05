@@ -20,29 +20,28 @@ import Button from "@/Components/Elements/Buttons/Button.vue"
 import ButtonEditTable from "@/Components/ButtonEditTable.vue"
 import LocationFieldDelivery from "@/Components/LocationFieldDelivery.vue"
 import { routeType } from "@/types/route"
+import { Table as TSTable } from '@/types/Table'
+import StoredItemProperty from '@/Components/StoredItemsProperty.vue'
 
-library.add(
-	faTrashAlt,
-	faSignOutAlt,
-	faPaperPlane,
-	faInventory,
-	faTruckLoading,
-	faTimesSquare,
-	faTimes
-)
+library.add( faTrashAlt, faSignOutAlt, faPaperPlane, faInventory, faTruckLoading, faTimesSquare, faTimes )
 const props = defineProps<{
-	data: object
+	data: TSTable
 	tab?: string
-	state?: string
+	state: string
 	tableKey: number
-	locationRoute: routeType
+    storedItemsRoute: {
+		index : routeType
+		store : routeType
+	}
 }>()
 
+console.log('RetinaPalletDelivery', props)
 const emits = defineEmits<{
     (e: 'renderTableKey'): void
 }>()
 
-const onSaved = async (pallet: object, fieldName: string) => {
+// Method: Field save
+const onSaveField = async (pallet: any, fieldName: string) => {
 	if (pallet[fieldName] != pallet.form.data()[fieldName]) {
 		pallet.form.processing = true
 		try {
@@ -60,7 +59,7 @@ const onSaved = async (pallet: object, fieldName: string) => {
 			pallet.form.hasErrors = true
 			if (error.response && error.response.data && error.response.data.errors) {
 				const errors = error.response.data.errors
-				const setErrors = {}
+				const setErrors: any = {}
 				for (const er in errors) {
 					setErrors[er] = errors[er][0]
 				}
@@ -91,18 +90,26 @@ const onSaved = async (pallet: object, fieldName: string) => {
 
         <!-- Column: Customer Reference -->
 		<template #cell(customer_reference)="{ item }">
-			<div v-if="state == 'in-process'" class="w-full">
-				<FieldEditableTable :data="item" @onSave="onSaved" fieldName="customer_reference" placeholder="Enter customer reference" />
-			</div>
+            <FieldEditableTable v-if="state == 'in-process'" :data="item" @onSave="onSaveField" fieldName="customer_reference" placeholder="Enter customer reference" />
 			<div v-else>{{ item.customer_reference }}</div>
 		</template>
 
         <!-- Column: Notes -->
 		<template #cell(notes)="{ item }">
 			<div v-if="state == 'in-process'" class="">
-				<FieldEditableTable :data="item" @onSave="onSaved" fieldName="notes" placeholder="Enter pallet notes"/>
+				<FieldEditableTable :data="item" @onSave="onSaveField" fieldName="notes" placeholder="Enter pallet notes"/>
 			</div>
 			<div v-else>{{ item.notes }}</div>
+		</template>
+
+        <!-- Column: Stored Items -->
+		<template #cell(stored_items)="{ item: item }">
+            <StoredItemProperty
+                :pallet="item"
+                @renderTable="() => emits('renderTableKey')"
+                :storedItemsRoute="storedItemsRoute"
+                :state="props.state"
+            />
 		</template>
 
         <!-- Column: Actions -->
@@ -147,20 +154,10 @@ const onSaved = async (pallet: object, fieldName: string) => {
 						:data="pallet"
 						@onSuccess="() => emits('renderTableKey')" />
 
-					<!-- <ButtonEditTable
-                        :type="pallet.state == 'booked-in' ? 'primary' : 'tertiary'"
-                        :icon="['fal', 'inventory']"
-                        :tooltip="'Booked In'"
-                        :key="pallet.index"
-                        :size="'xs'"
-                        routeName="bookInRoute"
-                        :data="pallet"
-                        @onSuccess="() => emits('renderTableKey')"
-                        /> -->
 					<LocationFieldDelivery
 						:pallet="pallet"
 						@renderTableKey="() => emits('renderTableKey')"
-						:locationRoute="locationRoute" />
+					/>
 				</div>
 			</div>
 		</template>

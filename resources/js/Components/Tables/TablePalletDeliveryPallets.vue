@@ -24,27 +24,17 @@ import ButtonEditTable from "@/Components/ButtonEditTable.vue"
 import LocationFieldDelivery from "@/Components/LocationFieldDelivery.vue"
 import StoredItemProperty from '@/Components/StoredItemsProperty.vue'
 import { routeType } from "@/types/route"
+import { Table as TSTable } from "@/types/Table"
 
-library.add(
-	faTrashAlt,
-	faSignOutAlt,
-	faPaperPlane,
-	faInventory,
-	faTruckLoading,
-	faTimesSquare,
-	faTimes
-)
+library.add( faTrashAlt, faSignOutAlt, faPaperPlane, faInventory, faTruckLoading, faTimesSquare, faTimes )
+
 const props = defineProps<{
-	data: {
-		data : []
-		links : object
-		meta : object
-	}
+	data: TSTable
 	tab?: string
 	state?: string
 	tableKey: number
 	locationRoute: routeType
-	storedItemsRoute:{
+	storedItemsRoute: {
 		index : routeType
 		store : routeType
 	}
@@ -118,16 +108,14 @@ const onSaved = async (pallet: { form : {}}, fieldName: string) => {
 			<div v-else>{{ item["notes"] }}</div>
 		</template>
 
-    	<!-- Column: stored items -->
+        <!-- Column: Stored Items -->
 		<template #cell(stored_items)="{ item: item }">
-			<div>
-				<StoredItemProperty
-					:pallet="item"
-					@renderTable="() => emits('renderTableKey')"
-					:storedItemsRoute="storedItemsRoute"
-					:state="props.state"
-				/>
-			</div>
+            <StoredItemProperty
+                :pallet="item"
+                @renderTable="() => emits('renderTableKey')"
+                :storedItemsRoute="storedItemsRoute"
+                :state="props.state"
+            />
 		</template>
 
         <!-- Column: Actions -->

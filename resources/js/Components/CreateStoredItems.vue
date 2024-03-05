@@ -8,21 +8,25 @@
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faPlus } from "@fas"
 import Button from "@/Components/Elements/Buttons/Button.vue"
-import { ref, defineEmits } from "vue"
-import { useForm } from "@inertiajs/vue3"
-import Modal from "@/Components/Utils/Modal.vue"
+import { defineEmits } from "vue"
 import { trans } from "laravel-vue-i18n"
 import SelectQuery from "@/Components/SelectQuery.vue"
 import { notify } from "@kyvg/vue3-notification"
 import axios from "axios"
 import { get } from "lodash"
+import { routeType } from "@/types/route"
 
 library.add(faPlus)
 const props = defineProps<{
-	storedItemsRoute: object
-	form: object
-	stored_items: Array
+	storedItemsRoute: {
+        store: routeType
+        index: routeType
+    }
+	form: {}
+	stored_items: {}[]
 }>()
+
+console.log('ooooo', props)
 
 const emits = defineEmits<{
     (e: 'onSave', event: any): void
@@ -78,7 +82,7 @@ const onSaved = async () => {
 			<SelectQuery
 				:urlRoute="route(storedItemsRoute.index.name, storedItemsRoute.index.parameters)"
 				:value="form"
-				:placeholder="'Select Stored Items'"
+				:placeholder="'Select items'"
 				:required="true"
 				:trackBy="'reference'"
 				:label="'reference'"
