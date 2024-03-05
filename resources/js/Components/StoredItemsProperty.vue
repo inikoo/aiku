@@ -64,7 +64,7 @@ const sendToServer=async(data)=>{
         onError: (e) => {
             form.errors = {
                 quantity : get(e,[`stored_item_ids.${form.data().id}.quantity`]),
-                id: get(e,[`stored_item_ids.${form.data().id}`])
+                id: get(e,[`stored_item_ids`])
             }
         notify({
             title: "Failed to add new stored items",
@@ -72,7 +72,7 @@ const sendToServer=async(data)=>{
             type: "error"
         })
         },
-        onSuccess: (e) => { 
+        onSuccess: (e) => {
             emits('renderTable')
             isModalOpen.value = false
             fromPairs.errors = {}
@@ -94,11 +94,11 @@ const sendToServer=async(data)=>{
             <div class="flex">
                 <div v-for="item of pallet.stored_items">
                     <div class="w-fit p-[3px]">
-                        <Tag  
-                            @onClose="(event)=>{event.stopPropagation(),onDelete(item)}" 
-                            :theme="item.id" :label="`${item.reference}(${item.quantity})`" 
-                            :closeButton="true" :stringToColor="true" size="sm" 
-                            @click="setFormOnEdit(item)"    
+                        <Tag
+                            @onClose="(event)=>{event.stopPropagation(),onDelete(item)}"
+                            :theme="item.id" :label="`${item.reference}(${item.quantity})`"
+                            :closeButton="true" :stringToColor="true" size="sm"
+                            @click="setFormOnEdit(item)"
                         />
                     </div>
 
@@ -115,8 +115,8 @@ const sendToServer=async(data)=>{
         <Modal :isOpen="isModalOpen" @onClose="isModalOpen = false" width="w-1/2">
             <Button class="sr-only" />
             <div class="space-y-4">
-                <CreateStoredItems 
-                    :storedItemsRoute="storedItemsRoute" 
+                <CreateStoredItems
+                    :storedItemsRoute="storedItemsRoute"
                     :form="form"
                     @onSave="sendToServer"
                     :stored_items="pallet.stored_items"

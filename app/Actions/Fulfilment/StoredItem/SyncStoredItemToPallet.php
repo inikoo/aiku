@@ -27,8 +27,8 @@ class SyncStoredItemToPallet
 
     public function handle(Pallet $pallet, array $modelData): void
     {
-        Arr::mapWithKeys(Arr::get($modelData, 'stored_item_ids'), function (array $item, int|null $key) {
-            if(is_null($key)) {
+        Arr::map(Arr::get($modelData, 'stored_item_ids'), function (array $item, int|string $key) {
+            if($key == 'null') {
                 throw ValidationException::withMessages(['stored_item_ids' => __('The stored item is required')]);
             }
         });
@@ -48,7 +48,6 @@ class SyncStoredItemToPallet
     {
         return [
             'stored_item_ids'            => ['sometimes', 'array'],
-            'stored_item_ids.*'          => ['required', 'exists:stored_items,id', 'integer'],
             'stored_item_ids.*.quantity' => ['required', 'integer', 'min:1'],
         ];
     }
