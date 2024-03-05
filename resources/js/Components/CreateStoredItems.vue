@@ -11,89 +11,108 @@ import Button from "@/Components/Elements/Buttons/Button.vue"
 import { ref, defineEmits } from "vue"
 import { useForm } from "@inertiajs/vue3"
 import Modal from "@/Components/Utils/Modal.vue"
-import { trans } from 'laravel-vue-i18n'
+import { trans } from "laravel-vue-i18n"
 import SelectQuery from "@/Components/SelectQuery.vue"
 import { notify } from "@kyvg/vue3-notification"
 import axios from "axios"
+import { get } from "lodash"
 
 library.add(faPlus)
 const props = defineProps<{
-    storedItemsRoute: object
-    form:object
-    onSave:Function
-    stored_items:Array
+	storedItemsRoute: object
+	form: object
+	onSave: Function
+	stored_items: Array
 }>()
 
 const emits = defineEmits()
 
-
 const createPallet = async (option, select) => {
-    try {
-        const response: any = await axios.post(route(props.storedItemsRoute.store.name,props.storedItemsRoute.store.parameters),
-            {reference : option.id},
-            { headers: {"Content-Type": "multipart/form-data"}}
-        )
-    errors.value.createStoredItem = null
-    return response.data
-    } catch (error: any) {
-        errors.value.createStoredItem = error.response.data.message
-        notify({
-            title: "Failed to add new stored items",
-            text: error,
-            type: "error"
-        })
-        return false
-    }
+	try {
+		const response: any = await axios.post(
+			route(props.storedItemsRoute.store.name, props.storedItemsRoute.store.parameters),
+			{ reference: option.id },
+			{ headers: { "Content-Type": "multipart/form-data" } }
+		)
+		errors.value.createStoredItem = null
+		return response.data
+	} catch (error: any) {
+		errors.value.createStoredItem = error.response.data.message
+		notify({
+			title: "Failed to add new stored items",
+			text: error,
+			type: "error",
+		})
+		return false
+	}
 }
 
 const onSaved = async () => {
-    let newData = [];
-    
-    if (props.form.oldData) {
-        const index = props.stored_items.findIndex(item => item.id === props.form.oldData.id);
-        if (index !== -1) {
-            const updatedStoredItems = [...props.stored_items];
-            updatedStoredItems.splice(index, 1, props.form.data());
-            newData = updatedStoredItems;
-        }
-    } else {
-        newData = [...props.stored_items, { ...props.form.data() }];
-    }
+	let newData = []
 
-    const finalData = {};
-    newData.forEach(d => {
-        finalData[d.id] = { quantity: d.quantity };
-    });
+	if (props.form.oldData) {
+		const index = props.stored_items.findIndex((item) => item.id === props.form.oldData.id)
+		if (index !== -1) {
+			const updatedStoredItems = [...props.stored_items]
+			updatedStoredItems.splice(index, 1, props.form.data())
+			newData = updatedStoredItems
+		}
+	} else {
+		newData = [...props.stored_items, { ...props.form.data() }]
+	}
 
-    emits('onSave',finalData);
+	const finalData = {}
+	newData.forEach((d) => {
+		finalData[d.id] = { quantity: d.quantity }
+	})
+
+	emits("onSave", finalData)
 }
-
-
-
 </script>
-  
+
 <template>
-    <div>
-        <label  class="block text-sm font-medium text-gray-700">{{ trans('Reference') }}</label>
-        <div class="mt-1">
-            <SelectQuery :route="route(storedItemsRoute.index.name, storedItemsRoute.index.parameters)" :value="form"  
-                :placeholder="'Select Stored Items'" :required="true" :trackBy="'reference'" :label="'reference'" :valueProp="'id'"
-                :closeOnSelect="true" :clearOnSearch="false" :fieldName="'id'" :createOption="true" :onCreate="createPallet"/>
-        </div>
-    </div>
+	<div>
+		<label class="block text-sm font-medium text-gray-700">{{ trans("Reference") }}</label>
+		<div class="mt-1">
+			<SelectQuery
+				:route="route(storedItemsRoute.index.name, storedItemsRoute.index.parameters)"
+				:value="form"
+				:placeholder="'Select Stored Items'"
+				:required="true"
+				:trackBy="'reference'"
+				:label="'reference'"
+				:valueProp="'id'"
+				:closeOnSelect="true"
+				:clearOnSearch="false"
+				:fieldName="'id'"
+				:createOption="true"
+				:onCreate="createPallet" />
+		</div>
+		<p v-if="get(form, ['errors', 'id'])" class="mt-2 text-sm text-red-600">
+			{{ form.errors.id }}
+		</p>
+	</div>
 
+	<div>
+		<label class="block text-sm font-medium text-gray-700">{{ trans("Quantity") }}</label>
+		<div class="mt-1">
+			<input
+				v-model="form.quantity"
+				id="quantity"
+				name="quantity"
+				:autofocus="true"
+				type="number"
+				autocomplete="quantity"
+				:required="true"
+				:min="0"
+				class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
+		</div>
+		<p v-if="get(form, ['errors', 'quantity'])" class="mt-2 text-sm text-red-600">
+			{{ form.errors.quantity }}
+		</p>
+	</div>
 
-    <div>
-        <label class="block text-sm font-medium text-gray-700">{{ trans('Quantity') }}</label>
-        <div class="mt-1">
-            <input v-model="form.quantity"  id="quantity" name="quantity" :autofocus="true" type="number"
-                autocomplete="quantity" :required="true"
-                class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
-        </div>
-    </div>
-
-    <div class="space-y-2">
-        <Button full @click="onSaved"  label="Submit"> </Button>
-    </div>
+	<div class="space-y-2">
+		<Button full @click="onSaved" label="Submit" :loading="props.form.processing"> </Button>
+	</div>
 </template>
-  
