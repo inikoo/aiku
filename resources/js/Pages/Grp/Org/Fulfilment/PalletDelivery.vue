@@ -25,34 +25,36 @@ import { routeType } from '@/types/route'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faSeedling, faShare, faSpellCheck, faCheck, faCheckDouble, faUser, faTruckCouch, faPallet, faPlus } from '@fal'
+import { PalletDelivery } from '@/types/Pallet'
+import { Table } from '@/types/Table'
+import { Tabs as TSTabs } from '@/types/Tabs'
 library.add(faSeedling, faShare, faSpellCheck, faCheck, faCheckDouble, faUser, faTruckCouch, faPallet, faPlus)
 
 
 const props = defineProps<{
     title: string
-    tabs: {}
-    pallets?: {
-        data: {
-            customer_name: string
-        }[]
-        meta: {
-            total: number
-        }
-    }
+    tabs: TSTabs
+    pallets?: Table
     data?: {
-        data: {
-            state: string
-        }
+        data: PalletDelivery
     }
     history?: {}
     pageHead: {}
     updateRoute: {
         route: routeType
     }
-    uploadRoutes: {},
-    locationRoute : {},
-    storedItemsRoute : {},
+    uploadRoutes: {
+        download: routeType
+        history: routeType
+    },
+    locationRoute : routeType
+    storedItemsRoute : {
+        index: routeType
+        store: routeType
+    },
 }>()
+
+console.log('props', props)
 
 const currentTab = ref(props.tabs.current)
 const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab)
@@ -143,7 +145,7 @@ const changeTableKey = () => {
 }
 
 const component = computed(() => {
-    const components = {
+    const components: {[key: string]: string} = {
         pallets: TablePalletDeliveryPallets,
         history: TableHistories
     }

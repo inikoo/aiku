@@ -20,6 +20,7 @@ import Button from "@/Components/Elements/Buttons/Button.vue"
 import ButtonEditTable from "@/Components/ButtonEditTable.vue"
 import LocationFieldDelivery from "@/Components/LocationFieldDelivery.vue"
 import { routeType } from "@/types/route"
+import StoredItemProperty from '@/Components/StoredItemsProperty.vue'
 
 library.add(
 	faTrashAlt,
@@ -33,9 +34,10 @@ library.add(
 const props = defineProps<{
 	data: object
 	tab?: string
-	state?: string
+	state: string
 	tableKey: number
 	locationRoute: routeType
+    storedItemsRoute: {}
 }>()
 
 const emits = defineEmits<{
@@ -105,6 +107,16 @@ const onSaved = async (pallet: object, fieldName: string) => {
 			<div v-else>{{ item.notes }}</div>
 		</template>
 
+        <!-- Column: Stored Items -->
+		<template #cell(stored_items)="{ item: item }">
+            <StoredItemProperty
+                :pallet="item"
+                @renderTable="() => emits('renderTableKey')"
+                :storedItemsRoute="storedItemsRoute"
+                :state="props.state"
+            />
+		</template>
+
         <!-- Column: Actions -->
 		<template #cell(actions)="{ item: pallet }">
 			<div v-if="props.state == 'in-process'">
@@ -147,16 +159,6 @@ const onSaved = async (pallet: object, fieldName: string) => {
 						:data="pallet"
 						@onSuccess="() => emits('renderTableKey')" />
 
-					<!-- <ButtonEditTable
-                        :type="pallet.state == 'booked-in' ? 'primary' : 'tertiary'"
-                        :icon="['fal', 'inventory']"
-                        :tooltip="'Booked In'"
-                        :key="pallet.index"
-                        :size="'xs'"
-                        routeName="bookInRoute"
-                        :data="pallet"
-                        @onSuccess="() => emits('renderTableKey')"
-                        /> -->
 					<LocationFieldDelivery
 						:pallet="pallet"
 						@renderTableKey="() => emits('renderTableKey')"
