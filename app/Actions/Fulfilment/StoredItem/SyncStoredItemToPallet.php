@@ -41,6 +41,7 @@ class SyncStoredItemToPallet
     {
         return [
             'stored_item_ids'            => ['sometimes', 'array'],
+            'stored_item_ids.*'          => ['required', 'array'],
             'stored_item_ids.*.quantity' => ['required', 'integer', 'min:1'],
         ];
     }
@@ -48,6 +49,7 @@ class SyncStoredItemToPallet
     public function getValidationMessages(): array
     {
         return [
+            'stored_item_ids.*'                   => __('The stored item is required'),
             'stored_item_ids.*.quantity.required' => __('The quantity is required'),
             'stored_item_ids.*.quantity.integer'  => __('The quantity must be an integer'),
             'stored_item_ids.*.quantity.min'      => __('The quantity must be at least 1'),
