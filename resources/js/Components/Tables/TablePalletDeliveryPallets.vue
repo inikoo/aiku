@@ -24,20 +24,17 @@ import ButtonEditTable from "@/Components/ButtonEditTable.vue"
 import LocationFieldDelivery from "@/Components/LocationFieldDelivery.vue"
 import StoredItemProperty from '@/Components/StoredItemsProperty.vue'
 import { routeType } from "@/types/route"
+import { Table as TSTable } from "@/types/Table"
 
 library.add( faTrashAlt, faSignOutAlt, faPaperPlane, faInventory, faTruckLoading, faTimesSquare, faTimes )
 
 const props = defineProps<{
-	data: {
-		data : []
-		links : object
-		meta : object
-	}
+	data: TSTable
 	tab?: string
 	state?: string
 	tableKey: number
 	locationRoute: routeType
-	storedItemsRoute:{
+	storedItemsRoute: {
 		index : routeType
 		store : routeType
 	}

@@ -15,39 +15,40 @@ import { get } from 'lodash'
 import UploadExcel from '@/Components/Upload/UploadExcel.vue'
 import { trans } from "laravel-vue-i18n"
 import { routeType } from '@/types/route'
+import { Table } from '@/types/Table'
+import { PalletDelivery } from '@/types/Pallet'
+import { Tabs as TSTabs } from '@/types/Tabs'
+import { PageHeading as PageHeadingTypes } from  '@/types/PageHeading'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faSeedling, faShare, faSpellCheck, faCheck, faCheckDouble, faUser, faTruckCouch, faPallet } from '@fal'
 library.add(faSeedling, faShare, faSpellCheck, faCheck, faCheckDouble, faUser, faTruckCouch, faPallet)
 
-
 const props = defineProps<{
     title: string
-    tabs: {}
-    pallets?: {
-        data: {
-            customer_name: string
-        }[]
-        meta: {
-            total: number
-        }
-    }
-    data?: {
-        data: {
-            state: string
-        }
+    tabs: TSTabs
+    pallets?: Table
+    data: {
+        data: PalletDelivery
     }
     history?: {}
-    pageHead: {}
+    pageHead: PageHeadingTypes
     updateRoute: {
         route: routeType
     }
-    uploadRoutes: {}
+    uploadRoutes: {
+        download: routeType
+        history: routeType
+    }
+    storedItemsRoute: {
+        index: routeType
+        store: routeType
+    }
 }>()
 
 const currentTab = ref(props.tabs.current)
-const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab)
+const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 const loading = ref(false)
 const timeline = ref({ ...props.data.data })
 const dataModal = ref({ isModalOpen: false })
@@ -142,33 +143,33 @@ watch(() => props.data, (newValue) => {
 </script>
 
 <template>
+
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead">
         <!-- Button: Upload -->
         <template #button-group-upload="{ action }">
-            <Button @click="() => onUploadOpen(action.button)"
-                :style="action.button.style"
-                :icon="action.button.icon"
-                v-tooltip="action.button.tooltip"
-                class="rounded-l rounded-r-none border-none" />
+            <Button @click="() => onUploadOpen(action.button)" :style="action.button.style" :icon="action.button.icon"
+                v-tooltip="action.button.tooltip" class="rounded-l rounded-r-none border-none" />
         </template>
 
         <!-- Button: Add many pallete -->
+
         <template #button-group-multiple="{ action }">
             <Popover width="w-full" class="h-full">
                 <template #button>
                     <Button :style="action.button.style" :icon="action.button.icon" :iconRight="action.button.iconRight"
                         :key="`ActionButton${action.button.label}${action.button.style}`"
-                        :tooltip="'Add multiple pallet'"
-                        class="rounded-none border-none" />
+                        :tooltip="'Add multiple pallet'" class="rounded-none border-none" />
                 </template>
 
                 <template #content="{ close: closed }">
                     <div class="w-[250px]">
                         <span class="text-xs px-1 my-2">Number of pallets : </span>
                         <div>
-                            <PureInput v-model="formMultiplePallet.number_pallets" placeholder="1" type="number" :minValue="1" autofocus />
-                            <p v-if="get(formMultiplePallet, ['errors', 'customer_reference'])" class="mt-2 text-sm text-red-600">
+                            <PureInput v-model="formMultiplePallet.number_pallets" placeholder="1" type="number"
+                                :minValue="1" autofocus />
+                            <p v-if="get(formMultiplePallet, ['errors', 'customer_reference'])"
+                                class="mt-2 text-sm text-red-600">
                                 {{ formMultiplePallet.errors.number_pallets }}
                             </p>
                         </div>
@@ -180,25 +181,24 @@ watch(() => props.data, (newValue) => {
                 </template>
             </Popover>
         </template>
-        
+
         <!-- Button: Add pallet (single) -->
+
         <template #button-group-add-pallet="{ action: action }">
             <div class="relative">
                 <Popover width="w-full">
                     <template #button>
-                        <Button :style="action.button.style"
-                            :label="action.button.label"
-                            :icon="action.button.icon"
+                        <Button :style="action.button.style" :label="action.button.label" :icon="action.button.icon"
                             :key="`ActionButton${action.button.label}${action.button.style}`"
-                            :tooltip="action.button.tooltip"
-                            class="rounded-l-none rounded-r border-none " />
+                            :tooltip="action.button.tooltip" class="rounded-l-none rounded-r border-none " />
                     </template>
-                    
+
                     <template #content="{ close: closed }">
                         <div class="w-[250px]">
                             <span class="text-xs px-1 my-2">{{ trans('Reference') }}: </span>
                             <div>
-                                <PureInput v-model="formAddPallet.customer_reference" placeholder="Reference" autofocus />
+                                <PureInput v-model="formAddPallet.customer_reference" placeholder="Reference"
+                                    autofocus />
                                 <p v-if="get(formAddPallet, ['errors', 'customer_reference'])"
                                     class="mt-2 text-sm text-red-600">
                                     {{ formAddPallet.errors.customer_reference }}
@@ -207,18 +207,16 @@ watch(() => props.data, (newValue) => {
 
                             <div class="mt-3">
                                 <span class="text-xs px-1 my-2">{{ trans('Notes') }}: </span>
-                                <textarea
-                                    v-model="formAddPallet.notes"
-                                    placeholder="Notes"
-                                    class="block w-full rounded-md border-gray-300 shadow-sm placeholder:text-gray-400 focus:border-gray-500 focus:ring-gray-500 sm:text-sm"
-                                />
+                                <textarea v-model="formAddPallet.notes" placeholder="Notes"
+                                    class="block w-full rounded-md border-gray-300 shadow-sm placeholder:text-gray-400 focus:border-gray-500 focus:ring-gray-500 sm:text-sm" />
                                 <p v-if="get(formAddPallet, ['errors', 'notes'])" class="mt-2 text-sm text-red-600">
                                     {{ formAddPallet.errors.notes }}
                                 </p>
                             </div>
 
                             <div class="flex justify-end mt-3">
-                                <Button :style="'save'" :loading="loading" :label="'save'" @click="() => onAddPallet(action.button, closed)" />
+                                <Button :style="'save'" :loading="loading" :label="'save'"
+                                    @click="() => onAddPallet(action.button, closed)" />
                             </div>
                         </div>
                     </template>
@@ -227,6 +225,7 @@ watch(() => props.data, (newValue) => {
         </template>
 
         <!-- Button: Submit -->
+
         <template #button-submit="{ action: action }">
             <Button @click="onSubmitPallet(action.action.route)" :style="action.action.style"
                 :label="action.action.label" :loading="loading" />
@@ -263,15 +262,8 @@ watch(() => props.data, (newValue) => {
     </div>
 
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
-    <component
-        :is="component"
-        :data="props[currentTab]"
-        :state="timeline.state"
-        :tab="currentTab"
-        :tableKey="tableKey"
-        @renderTableKey="() => (console.log('emit render', changeTableKey()))" 
-        :locationRoute="locationRoute"
-    />
+    <component :is="component" :data="props[currentTab]" :state="timeline.state" :tab="currentTab" :tableKey="tableKey"
+        :storedItemsRoute="storedItemsRoute" @renderTableKey="() => (console.log('emit render', changeTableKey()))" />
 
     <UploadExcel :propName="'pallet deliveries'" description="Adding Pallet Deliveries" :routes="{
         upload: get(dataModal, 'uploadRoutes', {}),

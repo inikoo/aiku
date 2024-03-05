@@ -22,7 +22,7 @@ library.add(
 )
 const props = defineProps<{
     pallet: object,
-    locationRoute: routeType
+    locationRoute?: routeType
 }>()
 
 const emits = defineEmits<{
@@ -56,7 +56,7 @@ const onSaveError = (errorValue: any) => {
                 <div class="w-[250px]">
                     <span class="text-xs px-1 my-2">Location: </span>
                     <div>
-                        <SelectQuery :urlRoute="route(locationRoute.name, locationRoute.parameters)" :value="location"
+                        <SelectQuery :urlRoute="route(locationRoute?.name, locationRoute?.parameters)" :value="location"
                             :placeholder="'Select location'" :required="true" :trackBy="'code'" :label="'code'"
                             :valueProp="'id'" :closeOnSelect="true" :clearOnSearch="false" :fieldName="'location_id'" />
                         <p v-if="error.location_id" class="mt-2 text-sm text-red-600">{{ error.location_id }}</p>

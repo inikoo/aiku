@@ -94,17 +94,22 @@ const sendToServer = async (data) => {
 <template>
     <div class="flex">
         <div class="max-w-80 min-w-64">
-            <div class="flex">
+            <div class="flex gap-x-1 gap-y-1.5 flex-wrap">
                 <div v-for="item of pallet.stored_items">
-                    <div class="w-fit p-[3px]">
-                        <Tag @onClose="(event) => { event.stopPropagation(), onDelete(item) }" :theme="item.id"
-                            :label="`${item.reference} (${item.quantity})`"
-                            :closeButton="state == 'in-process' ? true : false" :stringToColor="true" size="sm"
-                            @click="() => state == 'in-process' ? setFormOnEdit(item) : null" />
-                    </div>
+                    <Tag @onClose="(event) => { event.stopPropagation(), onDelete(item) }" :theme="item.id"
+                        :label="`${item.reference} (${item.quantity})`"
+                        :closeButton="state == 'in-process' ? true : false" :stringToColor="true"
+                        @click="() => state == 'in-process' ? setFormOnEdit(item) : null"
+                    >
+                        <template #label>
+                            <div class="whitespace-nowrap text-xs">
+                                {{ item.reference }} (<span class="font-light">{{ item.quantity }}</span>)
+                            </div>
+                        </template>
+                    </Tag>
 
                 </div>
-                <Button v-if="state == 'in-process'" icon="fal fa-plus" @click="setFormOnCreate" :type="'dashed'" />
+                <Button v-if="state == 'in-process'" icon="fal fa-plus" @click="setFormOnCreate" :type="'dashed'" :size="'xs'"/>
             </div>
         </div>
 
