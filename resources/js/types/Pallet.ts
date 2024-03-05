@@ -1,3 +1,5 @@
+import { Timeline } from "@/types/Timeline"
+
 export interface PalletCustomer {
     slug: string
     reference: string
@@ -26,4 +28,12 @@ export interface PieCustomer {
             class: string
         }
     }[]
+}
+
+export interface PalletDelivery {
+    id: number
+    number_pallets: number
+    reference: string
+    state: string
+    timeline: Timeline[]
 }
