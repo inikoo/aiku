@@ -20,6 +20,7 @@ library.add(faPlus)
 const props = defineProps<{
     pallet: object
     storedItemsRoute: object
+    state:string
 }>()
 
 
@@ -97,13 +98,13 @@ const sendToServer=async(data)=>{
                         <Tag
                             @onClose="(event)=>{event.stopPropagation(),onDelete(item)}"
                             :theme="item.id" :label="`${item.reference}(${item.quantity})`"
-                            :closeButton="true" :stringToColor="true" size="sm"
-                            @click="setFormOnEdit(item)"
+                            :closeButton="state == 'in-process' ?  true : false" :stringToColor="true" size="sm"
+                            @click="()=>state == 'in-process' ?  setFormOnEdit(item) : null"
                         />
                     </div>
 
                 </div>
-                <div class="p-1">
+                <div class="p-1" v-if="state == 'in-process'">
                     <Button :icon="['fas', 'plus']" @click="setFormOnCreate" :type="'tertiary'"
                         size="xs"></Button>
                 </div>

@@ -21,12 +21,12 @@ import { get } from 'lodash'
 import UploadExcel from '@/Components/Upload/UploadExcel.vue'
 import { trans } from "laravel-vue-i18n"
 import { routeType } from '@/types/route'
+import { PageHeading as PageHeadingTypes } from  '@/types/PageHeading'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faSeedling, faShare, faSpellCheck, faCheck, faCheckDouble, faUser, faTruckCouch, faPallet, faPlus } from '@fal'
 library.add(faSeedling, faShare, faSpellCheck, faCheck, faCheckDouble, faUser, faTruckCouch, faPallet, faPlus)
-
 
 const props = defineProps<{
     title: string
@@ -44,14 +44,13 @@ const props = defineProps<{
             state: string
         }
     }
-    history?: {}
-    pageHead: {}
-    updateRoute: {
-        route: routeType
-    }
-    uploadRoutes: {},
-    locationRoute : {},
-    storedItemsRoute : {},
+    pageHead: PageHeadingTypes
+    uploadRoutes: routeType,
+    locationRoute: routeType
+	storedItemsRoute:{
+		index : routeType
+		store : routeType
+	}
 }>()
 
 const currentTab = ref(props.tabs.current)
@@ -160,7 +159,7 @@ watch(() => props.data, (newValue) => {
     timeline.value = newValue.data
 }, { deep: true })
 
-console.log('stored_itemsRoutes',props.storedItemsRoute)
+
 </script>
 
 <template>
