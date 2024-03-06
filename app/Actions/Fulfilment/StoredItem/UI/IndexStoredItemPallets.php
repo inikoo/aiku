@@ -160,6 +160,28 @@ class IndexStoredItemPallets extends OrgAction
                         ]
                     ]
                 ],
+
+                'palletRoute' => [
+                    'index' => [
+                        'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallets.index',
+                        'parameters' => [
+                            'organisation'         => $request->route('organisation'),
+                            'fulfilment'           => $request->route('fulfilment'),
+                            'fulfilmentCustomer'   => $request->route('fulfilmentCustomer')
+                        ]
+                    ]
+                ],
+
+                'locationRoute' => [
+                    'index' => [
+                        'name'       => 'grp.org.warehouses.show.infrastructure.locations.index',
+                        'parameters' => [
+                            'organisation' => $request->route('organisation'),
+                            'warehouse'    => $request->route('warehouse'),
+                        ]
+                    ]
+                ],
+
                 'data'        => PalletsResource::collection($pallets),
             ]
         )->table($this->tableStructure($this->parent, 'pallets'));
