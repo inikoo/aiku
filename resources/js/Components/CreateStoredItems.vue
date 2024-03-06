@@ -17,6 +17,7 @@ import { get } from "lodash"
 import { routeType } from "@/types/route"
 
 library.add(faPlus)
+
 const props = defineProps<{
 	storedItemsRoute: {
         store: routeType
@@ -26,7 +27,6 @@ const props = defineProps<{
 	stored_items: {}[]
 }>()
 
-console.log('ooooo', props)
 
 const emits = defineEmits<{
     (e: 'onSave', event: any): void

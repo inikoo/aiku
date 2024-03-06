@@ -8,7 +8,7 @@
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faPlus } from "@fas"
 import Button from "@/Components/Elements/Buttons/Button.vue"
-import { ref, defineEmits, onBeforeMount } from "vue"
+import { ref, defineEmits } from "vue"
 import { useForm, router } from "@inertiajs/vue3"
 import Modal from "@/Components/Utils/Modal.vue"
 import { notify } from "@kyvg/vue3-notification"
@@ -95,7 +95,7 @@ const sendToServer = async (data) => {
     <div class="flex">
         <div class="max-w-80 min-w-64">
             <div class="flex gap-x-1 gap-y-1.5 flex-wrap">
-                <div v-for="item of pallet.stored_items">
+                <div v-for="item of pallet.stored_items" class="cursor-pointer">
                     <Tag @onClose="(event) => { event.stopPropagation(), onDelete(item) }" :theme="item.id"
                         :label="`${item.reference} (${item.quantity})`"
                         :closeButton="state == 'in-process' ? true : false" :stringToColor="true"
