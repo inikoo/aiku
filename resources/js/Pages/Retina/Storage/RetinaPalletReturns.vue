@@ -188,7 +188,7 @@ function palletReturnRoute(palletReturn: PalletDelivery) {
         </Dialog>
     </TransitionRoot>
 
-    <TablePalletReturns :data="data" tab="pallet_returns" />
+    <TablePalletReturns :data="data" tab="pallet_returns" app="retina" />
 </template>
 
 
