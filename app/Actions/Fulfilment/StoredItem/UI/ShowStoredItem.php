@@ -130,7 +130,7 @@ class ShowStoredItem extends OrgAction
                         'name'       => 'grp.org.warehouses.show.infrastructure.locations.index',
                         'parameters' => [
                             'organisation' => $request->route('organisation'),
-                            'warehouse'    => $request->route('warehouse'),
+                            'warehouse'    => $storedItem->fulfilmentCustomer->fulfilment->w,
                         ]
                     ]
                 ],

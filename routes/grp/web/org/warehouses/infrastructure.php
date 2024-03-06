@@ -21,6 +21,7 @@ use App\Actions\Inventory\WarehouseArea\UI\ShowWarehouseArea;
 
 Route::get('/', ShowWarehouse::class)->name('dashboard');
 Route::get('edit', EditWarehouse::class)->name('edit');
+
 Route::scopeBindings()->prefix('areas')->name('warehouse-areas.')->group(function () {
     Route::get('', [IndexWarehouseAreas::class, 'inOrganisation'])->name('index');
     Route::get('create', CreateWarehouseArea::class)->name('create');

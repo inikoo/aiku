@@ -155,7 +155,7 @@ class IndexPalletReturns extends RetinaAction
 
         return match ($routeName) {
 
-            'retina.storage.pallet-returns.index' => array_merge(
+            'retina.storage.pallet-returns.index', 'retina.storage.pallet-returns.show' => array_merge(
                 ShowStorageDashboard::make()->getBreadcrumbs(),
                 $headCrumb(
                     [
