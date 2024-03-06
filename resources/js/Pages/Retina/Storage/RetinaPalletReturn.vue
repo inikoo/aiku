@@ -17,20 +17,26 @@ import Button from "@/Components/Elements/Buttons/Button.vue"
 import Modal from "@/Components/Utils/Modal.vue"
 import TablePalletReturn from "@/Components/PalletReturn/tablePalletReturn.vue"
 import TablePalletReturnsDelivery from "@/Components/Tables/TablePalletReturnsDelivery.vue"
+import { routeType } from '@/types/route'
+import { PageHeading as PageHeadingTypes } from  '@/types/PageHeading'
 
 const props = defineProps<{
 	title: string
-	tabs: object
-	pallets?: object
-	data?: object
-	history?: object
-	pageHead: object
-	updateRoute: object
-	uploadRoutes: object
-    palletRoute : object
+	tabs: {}
+	pallets?: {}
+	data?: {}
+	history?: {}
+	pageHead: PageHeadingTypes
+	updateRoute: routeType
+	uploadRoutes: routeType
+    palletRoute : {
+		index : routeType,
+		store : routeType
+	}
 }>()
-let currentTab = ref(props.tabs.current)
-const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab)
+
+const currentTab = ref(props.tabs.current)
+const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 const timeline = ref({ ...props.data.data })
 const openModal = ref(false)
 
@@ -67,15 +73,20 @@ watch(
 				class="capitalize inline-flex items-center h-full rounded-none text-sm border-none font-medium shadow-sm focus:ring-transparent focus:ring-offset-transparent focus:ring-0" />
 		</template>
 	</PageHeading>
+
 	<div class="border-b border-gray-200">
 		<Timeline :options="timeline.timeline" :state="timeline.state" :slidesPerView="6" />
 	</div>
+
 	<Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
+    
 	<component
 		:is="component"
 		:data="props[currentTab]"
 		:state="timeline.state"
-		:tab="currentTab"></component>
+		:tab="currentTab"
+        app="retina"
+    />
 
 	<Modal :isOpen="openModal" @onClose="openModal = false">
 		<div class="h-96 overflow-y-auto">

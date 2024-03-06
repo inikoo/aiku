@@ -10,15 +10,17 @@ import Table from "@/Components/Table/Table.vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faPlus } from "@fas"
+import TagPallete from '@/Components/TagPallete.vue'
 
-import { PalletDelivery } from "@/types/pallet-delivery";
-import Icon from "@/Components/Icon.vue";
+import { PalletDelivery } from "@/types/pallet-delivery"
+import Icon from "@/Components/Icon.vue"
 
 library.add(faPlus)
 
 const props = defineProps<{
-    data: object
+    data: {}
     tab?: string
+    app: string  // 'retina'
 }>()
 
 function palletReturnRoute(palletReturn: PalletDelivery) {
@@ -70,7 +72,8 @@ function palletReturnRoute(palletReturn: PalletDelivery) {
         </template>
 
         <template #cell(state)="{ item: palletReturn }">
-            <Icon :data="palletReturn['state_icon']" class="px-1"/>
+            <TagPallete v-if="app == 'retina'" :stateIcon="palletReturn.state_icon" />
+            <Icon v-else :data="palletReturn['state_icon']" class="px-1"/>
         </template>
 
         <template #buttonreturns="{ linkButton: linkButton }">
