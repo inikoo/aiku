@@ -10,7 +10,18 @@ import { ref } from "vue";
 import { useForm } from "@inertiajs/vue3";
 import Modal from "@/Components/Utils/Modal.vue";
 import StoredItemMovementForm from './StoredItemMovementForm.vue'
+import { routeType } from '@/types/route';
 
+
+const props = defineProps<{
+	locationRoute: {
+		index : routeType
+	}
+	palletRoute: {
+		index: routeType
+	}
+  pallet : {}
+}>()
 
 const isModalOpen = ref(false);
 const form = useForm({  quantity: 1, pallet: null, location: null, type: 'pallet'});
@@ -24,7 +35,7 @@ const form = useForm({  quantity: 1, pallet: null, location: null, type: 'pallet
   <Modal :isOpen="isModalOpen" @onClose="isModalOpen = false" width="w-1/2">
     <Button class="sr-only" />
     <div class="space-y-4">
-     <StoredItemMovementForm :form="form"/>
+     <StoredItemMovementForm :form="form" :palletRoute="palletRoute" :locationRoute="locationRoute" :pallet="pallet"/>
     </div>
   </Modal>
 </template>

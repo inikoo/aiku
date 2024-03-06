@@ -12,6 +12,7 @@
   import { faTrashAlt } from '@far';
   import { faSignOutAlt } from '@fal';
   import StoredItemMovement from '@/Components/StoredItemMovement/StoredItemMovement.vue'
+  import { routeType } from '@/types/route';
   
   library.add(
       faTrashAlt,faSignOutAlt
@@ -19,10 +20,16 @@
   const props = defineProps<{
       data: object,
       tab?:string
+      palletRoute:{
+        index : routeType
+    }
+      locationRoute:{
+        index : routeType
+    }
   }>()
+
   
-  
-  function palletRoute(pallet: Pallet) {
+  function palletRoutes(pallet: Pallet) {
       switch (route().current()) {
           case  'grp.org.fulfilments.show.operations.pallets.index':
               return route(
@@ -70,7 +77,7 @@
   <template>
       <Table :resource="data" :name="tab" class="mt-5">
           <template #cell(referencex)="{ item: pallet }">
-              <Link :href="palletRoute(pallet)" class="specialUnderline">
+              <Link :href="palletRoutes(pallet)" class="specialUnderline">
                   {{ pallet['reference'] }}
               </Link>
           </template>
@@ -82,7 +89,7 @@
 
           <template #cell(actions)="{ item: pallet }">
 			<div>
-                <StoredItemMovement />
+                <StoredItemMovement :palletRoute="palletRoute" :locationRoute="locationRoute" :pallet="pallet"/>
 			</div>
 		</template>
       </Table>
