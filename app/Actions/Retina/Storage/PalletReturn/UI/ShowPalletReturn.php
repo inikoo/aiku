@@ -61,23 +61,18 @@ class ShowPalletReturn extends RetinaAction
                     ],
                     'actions' => $palletReturn->state == PalletReturnStateEnum::IN_PROCESS ? [
                         [
-                            'type'   => 'buttonGroup',
-                            'key'    => 'upload-add',
-                            'button' => [
-                                [
-                                    'type'  => 'button',
-                                    'style' => 'create',
-                                    'label' => __('add pallet'),
-                                    'route' => [
-                                        'name'       => 'grp.models.fulfilment-customer.pallet-return.pallet.store',
-                                        'parameters' => [
-                                            'organisation'       => $palletReturn->organisation->slug,
-                                            'fulfilment'         => $palletReturn->fulfilment->slug,
-                                            'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id,
-                                            'palletReturn'       => $palletReturn->reference
-                                        ]
-                                    ]
-                                ],
+                            'type'  => 'button',
+                            'style' => 'secondary',
+                            'icon'  => 'fal fa-plus',
+                            'label' => __('add pallet'),
+                            'route' => [
+                                'name'       => 'grp.models.fulfilment-customer.pallet-return.pallet.store',
+                                'parameters' => [
+                                    'organisation'       => $palletReturn->organisation->slug,
+                                    'fulfilment'         => $palletReturn->fulfilment->slug,
+                                    'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id,
+                                    'palletReturn'       => $palletReturn->reference
+                                ]
                             ]
                         ],
                         $palletReturn->pallets()->count() > 0 ? [
@@ -118,8 +113,8 @@ class ShowPalletReturn extends RetinaAction
                         $palletReturn->state == PalletReturnStateEnum::CONFIRMED ? [
                             'type'    => 'button',
                             'style'   => 'save',
-                            'tooltip' => __('in delivery'),
-                            'label'   => __('in delivery'),
+                            'tooltip' => __('Set as delivered'),
+                            'label'   => __('Set as "in delivery"'),
                             'key'     => 'action',
                             'route'   => [
                                 'method'     => 'post',
