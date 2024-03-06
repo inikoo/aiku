@@ -9,13 +9,13 @@ import { trans } from 'laravel-vue-i18n'
 import { faSave as fadSave } from '@fad'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { faDownload, faPlus as falPlus } from '@fal'
-import { faArrowLeft, faPencil, faTrashAlt } from '@far'
+import { faArrowLeft, faPencil, faTrashAlt, faPersonDolly } from '@far'
 import { faPlus, faSave, faUpload, faTrashUndoAlt } from '@fas'
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { useLayoutStore } from '@/Stores/layout'
 import { faSpinnerThird } from '@fad'
 
-library.add(faPlus, faSave, fadSave, faUpload, faDownload, falPlus, faArrowLeft, faPencil, faTrashAlt, faSpinnerThird, faTrashUndoAlt)
+library.add(faPlus, faSave, fadSave, faUpload, faDownload, falPlus, faArrowLeft, faPencil, faTrashAlt, faSpinnerThird, faTrashUndoAlt, faPersonDolly)
 
 const layout = useLayoutStore()
 

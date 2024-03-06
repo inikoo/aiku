@@ -27,7 +27,6 @@ const props = defineProps<{
 	stored_items: {}[]
 }>()
 
-// console.log('ooooo', props)
 
 const emits = defineEmits<{
     (e: 'onSave', event: any): void
