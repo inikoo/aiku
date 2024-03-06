@@ -30,6 +30,7 @@ use App\Actions\Fulfilment\PalletReturn\InDeliveryPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\ReceivedPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\StorePalletReturn;
 use App\Actions\Fulfilment\PalletReturn\SubmitPalletReturn;
+use App\Actions\Fulfilment\StoredItem\MoveStoredItemWithinPallet;
 use App\Actions\Fulfilment\StoredItem\StoreStoredItem;
 use App\Actions\Fulfilment\StoredItem\SyncStoredItemToPallet;
 use App\Actions\HumanResources\Employee\DeleteEmployee;
@@ -88,9 +89,7 @@ Route::name('pallet.')->prefix('pallet/{pallet:id}')->group(function () {
     Route::post('stored-items', SyncStoredItemToPallet::class)->name('stored-items.update');
 });
 
-
-
-
+Route::patch('{storedItem}/stored-items', MoveStoredItemWithinPallet::class)->name('stored-items.move');
 
 Route::name('fulfilment-customer.')->prefix('fulfilment-customer/{fulfilmentCustomer:id}')->group(function () {
     Route::post('stored-items', StoreStoredItem::class)->name('stored-items.store');

@@ -122,6 +122,12 @@ class ShowStoredItem extends OrgAction
                             'fulfilment'           => $request->route('fulfilment'),
                             'fulfilmentCustomer'   => $request->route('fulfilmentCustomer')
                         ]
+                    ],
+                    'update' => [
+                        'name'       => 'grp.models.stored-items.move',
+                        'parameters' => [
+                            'storedItem'         => $storedItem->slug
+                        ]
                     ]
                 ],
 
@@ -132,6 +138,12 @@ class ShowStoredItem extends OrgAction
                             'organisation'         => $request->route('organisation'),
                             'fulfilment'           => $request->route('fulfilment'),
                             'fulfilmentCustomer'   => $request->route('fulfilmentCustomer')
+                        ]
+                    ],
+                    'update' => [
+                        'name'       => 'grp.models.stored-items.move',
+                        'parameters' => [
+                            'storedItem'         => $storedItem->slug
                         ]
                     ]
                 ],
