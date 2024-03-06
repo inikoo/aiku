@@ -288,8 +288,8 @@ class ShowPalletDelivery extends OrgAction
                 'data'             => PalletDeliveryResource::make($palletDelivery),
 
                 PalletDeliveryTabsEnum::PALLETS->value => $this->tab == PalletDeliveryTabsEnum::PALLETS->value ?
-                    fn () => PalletsResource::collection(IndexPallets::run($palletDelivery))
-                    : Inertia::lazy(fn () => PalletsResource::collection(IndexPallets::run($palletDelivery))),
+                    fn () => PalletsResource::collection(IndexPallets::run($palletDelivery, 'pallets'))
+                    : Inertia::lazy(fn () => PalletsResource::collection(IndexPallets::run($palletDelivery, 'pallets'))),
             ]
         )->table(
             IndexPallets::make()->tableStructure(

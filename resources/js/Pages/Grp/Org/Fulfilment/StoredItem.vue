@@ -32,11 +32,11 @@ const props = defineProps<{
     locationRoute:{
         index : routeType
     }
+    update : routeType
 }>()
 
 let currentTab = ref(props.tabs.current);
 const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
-
 const component = computed(() => {
 
     const components = {
@@ -54,5 +54,5 @@ const component = computed(() => {
     <Head :title="capitalize(title)"/>
     <PageHeading :data="pageHead"></PageHeading>
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate"/>
-    <component :is="component" :data="props[currentTab]" :tab="currentTab" :palletRoute="palletRoute" :locationRoute="locationRoute"></component>
+    <component :is="component" :data="props[currentTab]" :tab="currentTab" :palletRoute="palletRoute" :locationRoute="locationRoute" :updateRoute="update"></component>
 </template>
