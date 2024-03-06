@@ -20,32 +20,20 @@ import PureRadio from "@/Components/Pure/PureRadio.vue"
 library.add(faPlus)
 const props = defineProps<{
 	form: {}
+	locationRoute: {
+		index : routeType
+	}
+	palletRoute: {
+		index: routeType
+	}
+	pallet : {}
 }>()
+console.log(props)
+
 </script>
 
-<template>
-	<!--   <div>
-          <label class="block text-sm font-medium text-gray-700">{{ trans("Reference") }}</label>
-          <div class="mt-1">
-              <SelectQuery
-                  :urlRoute="route(storedItemsRoute.index.name, storedItemsRoute.index.parameters)"
-                  :value="form"
-                  :placeholder="'Select items'"
-                  :required="true"
-                  :trackBy="'reference'"
-                  :label="'reference'"
-                  :valueProp="'id'"
-                  :closeOnSelect="true"
-                  :clearOnSearch="false"
-                  :fieldName="'id'"
-                  :createOption="true"
-                  :onCreate="createPallet" />
-          </div>
-          <p v-if="get(form, ['errors', 'id'])" class="mt-2 text-sm text-red-600">
-              {{ form.errors.id }}
-          </p>
-      </div> -->
 
+<template>
 	<div>
 		<label class="block text-sm font-medium text-gray-700">{{ trans("Type") }}</label>
 		<div
@@ -82,26 +70,34 @@ const props = defineProps<{
 	<div v-if="form.type == 'pallet'">
 		<label class="block text-sm font-medium text-gray-700">{{ trans("Pallet") }}</label>
 		<div class="mt-1">
-			<input
-				v-model="form.pallet"
-				ref="pallet"
-				id="pallet"
-				name="pallet"
-				:autofocus="true"
-				class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
+			<SelectQuery
+				:urlRoute="route(palletRoute.index.name, palletRoute.index.parameters)"
+				:value="form"
+				:placeholder="'Select items'"
+				:required="true"
+				:trackBy="'reference'"
+				:label="'reference'"
+				:valueProp="'id'"
+				:closeOnSelect="true"
+				:clearOnSearch="false"
+				:fieldName="'pallet'" />
 		</div>
 	</div>
 
 	<div v-else-if="form.type == 'location'">
 		<label class="block text-sm font-medium text-gray-700">{{ trans("Location") }}</label>
 		<div class="mt-1">
-			<input
-				v-model="form.location"
-				ref="location"
-				id="location"
-				name="location"
-				:autofocus="true"
-				class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
+			<SelectQuery
+				:urlRoute="route(locationRoute.index.name,{ ...locationRoute.index.parameters, pallet : pallet.reference })"
+				:value="form"
+				:placeholder="'Select items'"
+				:required="true"
+				:trackBy="'reference'"
+				:label="'reference'"
+				:valueProp="'id'"
+				:closeOnSelect="true"
+				:clearOnSearch="false"
+				:fieldName="'location'" />
 		</div>
 	</div>
 

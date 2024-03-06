@@ -14,6 +14,7 @@ import {useTabChange} from "@/Composables/tab-change";
 import TableHistories from "@/Components/Tables/TableHistories.vue";
 import TablePalletStoredItem from '@/Components/Tables/TablePalletStoredItem.vue'
 import TablePallets from '@/Components/Tables/TablePallets.vue';
+import { routeType } from '@/types/route';
 
 const props = defineProps<{
     title: string
@@ -25,6 +26,12 @@ const props = defineProps<{
     showcase?:object
     history?:object
     pageHead: object
+    palletRoute:{
+        index : routeType
+    }
+    locationRoute:{
+        index : routeType
+    }
 }>()
 
 let currentTab = ref(props.tabs.current);
@@ -47,5 +54,5 @@ const component = computed(() => {
     <Head :title="capitalize(title)"/>
     <PageHeading :data="pageHead"></PageHeading>
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate"/>
-    <component :is="component" :data="props[currentTab]" :tab="currentTab"></component>
+    <component :is="component" :data="props[currentTab]" :tab="currentTab" :palletRoute="palletRoute" :locationRoute="locationRoute"></component>
 </template>
