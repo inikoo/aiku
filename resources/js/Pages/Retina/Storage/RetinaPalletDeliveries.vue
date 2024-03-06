@@ -20,9 +20,9 @@ import TagPallete from '@/Components/TagPallete.vue'
 library.add(faPlus)
 
 const props = defineProps<{
-    data: object
+    data: {}
     title: string
-    pageHead: object
+    pageHead: {}
 }>()
 
 function palletDeliveryRoute(palletDelivery: PalletDelivery) {

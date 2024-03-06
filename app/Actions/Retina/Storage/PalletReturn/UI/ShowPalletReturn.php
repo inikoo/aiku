@@ -7,10 +7,9 @@
 
 namespace App\Actions\Retina\Storage\PalletReturn\UI;
 
-use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\Pallet\UI\IndexPallets;
-use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\RetinaAction;
+use App\Actions\UI\Retina\Storage\ShowStorageDashboard;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Enums\UI\PalletReturnTabsEnum;
 use App\Http\Resources\Fulfilment\PalletReturnResource;
@@ -18,7 +17,6 @@ use App\Http\Resources\Fulfilment\PalletReturnsResource;
 use App\Http\Resources\Fulfilment\PalletsResource;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletReturn;
-use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -257,41 +255,22 @@ class ShowPalletReturn extends RetinaAction
         $palletReturn = PalletReturn::where('reference', $routeParameters['palletReturn'])->first();
 
         return match ($routeName) {
-            'grp.org.fulfilments.show.crm.customers.show.pallet-returns.show' => array_merge(
-                ShowFulfilmentCustomer::make()->getBreadcrumbs(Arr::only($routeParameters, ['organisation', 'fulfilment', 'fulfilmentCustomer'])),
+            'retina.storage.pallet-returns.show' => array_merge(
+                ShowStorageDashboard::make()->getBreadcrumbs(),
                 $headCrumb(
                     $palletReturn,
                     [
                         'index' => [
-                            'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet-returns.index',
-                            'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment', 'fulfilmentCustomer'])
+                            'name'       => 'retina.storage.pallet-returns.index',
+                            'parameters' => []
                         ],
                         'model' => [
-                            'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet-returns.show',
-                            'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment', 'fulfilmentCustomer', 'palletReturn'])
+                            'name'       => 'retina.storage.pallet-returns.show',
+                            'parameters' => $routeParameters
                         ]
                     ],
                     $suffix
                 )
-            ),
-            'grp.org.warehouses.show.fulfilment.pallet-returns.show' => array_merge(
-                ShowWarehouse::make()->getBreadcrumbs(
-                    Arr::only($routeParameters, ['organisation', 'warehouse'])
-                ),
-                $headCrumb(
-                    $palletReturn,
-                    [
-                        'index' => [
-                            'name'       => 'grp.org.warehouses.show.fulfilment.pallet-returns.index',
-                            'parameters' => Arr::only($routeParameters, ['organisation', 'warehouse'])
-                        ],
-                        'model' => [
-                            'name'       => 'grp.org.warehouses.show.fulfilment.pallet-returns.show',
-                            'parameters' => Arr::only($routeParameters, ['organisation', 'warehouse', 'palletReturn'])
-                        ]
-                    ],
-                    $suffix
-                ),
             ),
 
             default => []

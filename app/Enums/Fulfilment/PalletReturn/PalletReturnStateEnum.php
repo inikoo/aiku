@@ -44,32 +44,38 @@ enum PalletReturnStateEnum: string
             'in-process' => [
                 'tooltip' => __('In process'),
                 'icon'    => 'fal fa-seedling',
-                'class'   => 'text-emerald-500'
+                'class'   => 'text-emerald-500',
+                'color'   => 'lime'  // Color for box (Retina)
             ],
             'submitted' => [
                 'tooltip' => __('Submitted'),
                 'icon'    => 'fal fa-share',
-                'class'   => 'text-indigo-500'
+                'class'   => 'text-indigo-500',
+                'color'   => 'indigo'
             ],
             'confirmed' => [
                 'tooltip' => __('Confirmed'),
                 'icon'    => 'fal fa-spell-check',
-                'class'   => 'text-green-500'
+                'class'   => 'text-green-500',
+                'color'   => 'emerald'
             ],
             'in-delivery' => [
                 'tooltip' => __('In Delivery'),
                 'icon'    => 'fal fa-truck',
-                'class'   => 'text-green-500'
+                'class'   => 'text-green-500',
+                'color'   => 'slate'
             ],
             'received' => [
                 'tooltip' => __('Received'),
                 'icon'    => 'fal fa-check',
-                'class'   => 'text-slate-500'
+                'class'   => 'text-slate-500',
+                'color'   => 'slate'
             ],
             'done' => [
                 'tooltip' => __('Done'),
                 'icon'    => 'fal fa-check-double',
-                'class'   => 'text-purple-500'
+                'class'   => 'text-purple-500',
+                'color'   => 'purple'
             ],
         ];
     }
