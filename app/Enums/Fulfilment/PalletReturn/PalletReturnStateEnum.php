@@ -44,26 +44,26 @@ enum PalletReturnStateEnum: string
             'in-process' => [
                 'tooltip' => __('In process'),
                 'icon'    => 'fal fa-seedling',
-                'class'   => 'text-emerald-500',
+                'class'   => 'text-lime-500',  // Color for normal icon (Aiku)
                 'color'   => 'lime'  // Color for box (Retina)
             ],
             'submitted' => [
                 'tooltip' => __('Submitted'),
                 'icon'    => 'fal fa-share',
-                'class'   => 'text-indigo-500',
+                'class'   => 'text-indigo-400',
                 'color'   => 'indigo'
             ],
-            'confirmed' => [
+            'confirmed'  => [
                 'tooltip' => __('Confirmed'),
                 'icon'    => 'fal fa-spell-check',
-                'class'   => 'text-green-500',
+                'class'   => 'text-emerald-500',
                 'color'   => 'emerald'
             ],
             'in-delivery' => [
                 'tooltip' => __('In Delivery'),
                 'icon'    => 'fal fa-truck',
-                'class'   => 'text-green-500',
-                'color'   => 'slate'
+                'class'   => 'text-orange-500',
+                'color'   => 'orange'
             ],
             'received' => [
                 'tooltip' => __('Received'),
