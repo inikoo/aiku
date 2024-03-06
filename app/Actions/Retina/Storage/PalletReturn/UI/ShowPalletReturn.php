@@ -44,7 +44,7 @@ class ShowPalletReturn extends RetinaAction
     public function htmlResponse(PalletReturn $palletReturn, ActionRequest $request): Response
     {
         return Inertia::render(
-            'Storage/PalletReturn',
+            'Storage/RetinaPalletReturn',
             [
                 'title'       => __('pallet return'),
                 'breadcrumbs' => $this->getBreadcrumbs(
