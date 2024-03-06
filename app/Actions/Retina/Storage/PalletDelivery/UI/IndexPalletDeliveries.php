@@ -131,7 +131,7 @@ class IndexPalletDeliveries extends RetinaAction
                             'route' => [
                                 'name'       => 'retina.storage.pallet-deliveries.index',
                             ],
-                            'label' => __('deliveries'),
+                            'label' => __('pallet deliveries'),
                             'icon'  => 'fal fa-bars',
                         ],
 
