@@ -7,11 +7,11 @@
 
 
 use App\Actions\Fulfilment\Pallet\UI\ShowPallet;
-use App\Actions\Fulfilment\PalletReturn\UI\ShowPalletReturn;
 use App\Actions\Retina\Storage\Pallet\UI\IndexPallets;
 use App\Actions\Retina\Storage\PalletDelivery\UI\IndexPalletDeliveries;
 use App\Actions\Retina\Storage\PalletDelivery\UI\ShowPalletDelivery;
 use App\Actions\Retina\Storage\PalletReturn\UI\IndexPalletReturns;
+use App\Actions\Retina\Storage\PalletReturn\UI\ShowPalletReturn;
 use App\Actions\Retina\Storage\StoredItems\UI\IndexStoredItems;
 use App\Actions\UI\Retina\Storage\ShowStorageDashboard;
 
@@ -25,7 +25,7 @@ Route::prefix('pallet-deliveries')->as('pallet-deliveries.')->group(function () 
 
 Route::prefix('pallet-returns')->as('pallet-returns.')->group(function () {
     Route::get('', IndexPalletReturns::class)->name('index');
-    Route::get('{palletReturn}', [ShowPalletReturn::class, 'inFulfilmentCustomer'])->name('show');
+    Route::get('{palletReturn}', ShowPalletReturn::class)->name('show');
     Route::get('{palletReturn}/pallets/{pallet}', [ShowPallet::class, 'inFulfilmentCustomer'])->name('pallets.show');
 });
 

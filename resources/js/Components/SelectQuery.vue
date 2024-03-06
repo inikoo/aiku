@@ -29,6 +29,7 @@ const props = withDefaults(defineProps<{
     createOption?: boolean
     onCreate?: Any
     onChange?: Function
+    canClear?:Boolean
 }>(), {
     placeholder: 'select',
     required: false,
@@ -43,7 +44,8 @@ const props = withDefaults(defineProps<{
     value: null,
     fieldName: '',
     createOption: false,
-    onChange: () => null
+    onChange: () => null,
+    canClear:false
 
 })
 
@@ -107,7 +109,7 @@ onMounted(() => {
     <Multiselect ref="_multiselectRef" v-model="value[fieldName]" :placeholder="props.placeholder"
         :trackBy="props.trackBy" :label="props.label" :valueProp="props.valueProp" :object="props.object"
         :clearOnSearch="props.clearOnSearch" :close-on-select="props.closeOnSelect" :searchable="props.searchable"
-        :caret="props.caret" :canClear="false" :options="optionData" :mode="props.mode" :on-create="props.onCreate"
+        :caret="props.caret" :canClear="props.canClear" :options="optionData" :mode="props.mode" :on-create="props.onCreate"
         :create-option="props.createOption" :noResultsText="loading ? 'loading...' : 'No Result'" @open="getOptions()"
         @search-change="SearchChange" @change="props.onChange">
         <template
