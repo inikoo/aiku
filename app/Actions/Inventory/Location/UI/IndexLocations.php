@@ -13,6 +13,9 @@ use App\Actions\OrgAction;
 use App\Enums\UI\WarehouseAreaTabsEnum;
 use App\Enums\UI\WarehouseTabsEnum;
 use App\Http\Resources\Inventory\LocationResource;
+use App\Models\Fulfilment\Fulfilment;
+use App\Models\Fulfilment\FulfilmentCustomer;
+use App\Models\Fulfilment\Pallet;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
@@ -60,6 +63,14 @@ class IndexLocations extends OrgAction
         $this->initialisation($organisation, $request)->withTab(WarehouseAreaTabsEnum::values());
 
         return $this->handle(parent: $warehouseArea);
+    }
+
+    public function fromPallet(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, Pallet $pallet, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = $pallet->warehouse;
+        $this->initialisation($organisation, $request)->withTab(WarehouseAreaTabsEnum::values());
+
+        return $this->handle(parent: $this->parent);
     }
 
 

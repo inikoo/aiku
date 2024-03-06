@@ -127,10 +127,11 @@ class ShowStoredItem extends OrgAction
 
                 'locationRoute' => [
                     'index' => [
-                        'name'       => 'grp.org.warehouses.show.infrastructure.locations.index',
+                        'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallets.locations.index',
                         'parameters' => [
-                            'organisation' => $request->route('organisation'),
-                            'warehouse'    => $storedItem->fulfilmentCustomer->fulfilment->w,
+                            'organisation'         => $request->route('organisation'),
+                            'fulfilment'           => $request->route('fulfilment'),
+                            'fulfilmentCustomer'   => $request->route('fulfilmentCustomer')
                         ]
                     ]
                 ],
