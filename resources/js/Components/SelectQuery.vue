@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import Multiselect from "@vueform/multiselect"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { ref, onMounted, defineProps, defineEmits } from 'vue'
+import { ref, onMounted, defineProps, defineEmits, onUnmounted } from 'vue'
 import axios from "axios"
 import { notify } from "@kyvg/vue3-notification"
 import { isNull } from 'lodash'
@@ -58,26 +58,33 @@ const loading = ref(false)
 const _multiselectRef = ref(null)
 
 const getOptions = async () => {
-    loading.value = true
+    loading.value = true;
     try {
-        const response = await axios.get(props.urlRoute)
-        onGetOptionsSuccess(response)
-        loading.value = false
+        const response = await axios.get(props.urlRoute, {
+            params: {
+                [`filter[global]`]: q.value,
+                page: page.value,
+                perPage: 10,
+            }
+        });
+        onGetOptionsSuccess(response);
+        loading.value = false;
     } catch (error) {
-        console.log(error)
-        loading.value = false
+        console.log(error);
+        loading.value = false;
         notify({
             title: "Failed",
             text: "Error while fetching data",
             type: "error"
-        })
+        });
     }
-}
+};
+
 
 const onGetOptionsSuccess = (response: any) => {
     const data = Object.values(response.data.data)
-    optionData.value = [...data]
-    if (isNull(props.value[props.fieldName])) optionData.value = [...data]
+    if(q.value && q.value != '') optionData.value = [...optionData.value,...data]
+    else optionData.value = [...data]
 }
 
 
@@ -91,14 +98,40 @@ const SearchChange = (value: any) => {
 }
 
 
+const handleScroll = () => {
+    const dropdown = document.querySelector('.multiselect-dropdown')
+    if (!dropdown) return
+
+    // Detect when user has scrolled to the bottom of the dropdown
+    const bottomReached = dropdown.scrollTop + dropdown.clientHeight >= dropdown.scrollHeight
+    if (bottomReached) {
+        // Load more data when bottom is reached
+        page.value++
+        getOptions()
+    }
+}
+
+
 onMounted(() => {
     // If not selected yet, then auto focus the Multiselect
-    if(!props.value.id) {
+   /*  if(!props.value.id) {
         _multiselectRef.value?.open()
         document.querySelector('.multiselect-search')?.focus()
+    } */
+    const dropdown = document.querySelector('.multiselect-dropdown')
+    if (dropdown) {
+        dropdown.addEventListener('scroll', handleScroll)
     }
     getOptions()
 
+})
+
+
+onUnmounted(() => {
+    const dropdown = document.querySelector('.multiselect-dropdown')
+    if (dropdown) {
+        dropdown.removeEventListener('scroll', handleScroll)
+    }
 })
 
 

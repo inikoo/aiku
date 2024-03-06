@@ -28,7 +28,18 @@ const props = defineProps<{
 	}
 	pallet : {}
 }>()
-console.log(props)
+
+const emits = defineEmits<{
+    (e: 'onSave'): void
+}>()
+
+
+const onSubmit=()=>{
+	const data = props.form.data()
+	console.log('data',data)
+	const finalData = data.type != 'location' ? { pallet_id: data.pallet_id, quantity : data.quantity } : { location_id : data.location_id, quantity : data.quantity }
+	emits('onSave',finalData)
+}
 
 </script>
 
@@ -73,32 +84,34 @@ console.log(props)
 			<SelectQuery
 				:urlRoute="route(palletRoute.index.name, palletRoute.index.parameters)"
 				:value="form"
-				:placeholder="'Select items'"
+				:placeholder="'Select Pallet'"
 				:required="true"
 				:trackBy="'reference'"
 				:label="'reference'"
 				:valueProp="'id'"
 				:closeOnSelect="true"
 				:clearOnSearch="false"
-				:fieldName="'pallet'" />
+				:fieldName="'pallet_id'" />
 		</div>
+		<p v-if="get(form, ['errors', 'pallet_id'])" class="mt-2 text-sm text-red-600">{{ form.errors.pallet_id }}</p>
 	</div>
 
 	<div v-else-if="form.type == 'location'">
 		<label class="block text-sm font-medium text-gray-700">{{ trans("Location") }}</label>
 		<div class="mt-1">
 			<SelectQuery
-				:urlRoute="route(locationRoute.index.name,{ ...locationRoute.index.parameters, pallet : pallet.reference })"
+				:urlRoute="route(locationRoute.index.name,{ ...locationRoute.index.parameters, pallet : pallet.id })"
 				:value="form"
-				:placeholder="'Select items'"
+				:placeholder="'Select Locations'"
 				:required="true"
-				:trackBy="'reference'"
-				:label="'reference'"
+				:trackBy="'code'"
+				:label="'code'"
 				:valueProp="'id'"
 				:closeOnSelect="true"
 				:clearOnSearch="false"
-				:fieldName="'location'" />
+				:fieldName="'location_id'" />
 		</div>
+		<p v-if="get(form, ['errors', 'location_id'])" class="mt-2 text-sm text-red-600">{{ form.errors.location_id }}</p>
 	</div>
 
 	<div>
@@ -115,13 +128,11 @@ console.log(props)
 				:min="1"
 				class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
 		</div>
-		<p v-if="get(form, ['errors', 'quantity'])" class="mt-2 text-sm text-red-600">
-			{{ form.errors.quantity }}
-		</p>
+		<p v-if="get(form, ['errors', 'quantity'])" class="mt-2 text-sm text-red-600">{{ form.errors.quantity }}</p>
 	</div>
 
 	<div class="space-y-2">
-		<Button full @click="onSaved" label="Submit" :loading="props.form.processing"> </Button>
+		<Button full  label="Submit" :loading="props.form.processing" @click="onSubmit"> </Button>
 	</div>
 </template>
 

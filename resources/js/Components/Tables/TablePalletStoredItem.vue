@@ -26,8 +26,8 @@
       locationRoute:{
         index : routeType
     }
+    updateRoute: routeType
   }>()
-
   
   function palletRoutes(pallet: Pallet) {
       switch (route().current()) {
@@ -89,7 +89,7 @@
 
           <template #cell(actions)="{ item: pallet }">
 			<div>
-                <StoredItemMovement :palletRoute="palletRoute" :locationRoute="locationRoute" :pallet="pallet"/>
+                <StoredItemMovement :palletRoute="palletRoute" :locationRoute="locationRoute" :pallet="pallet" :updateRoute="updateRoute"/>
 			</div>
 		</template>
       </Table>
