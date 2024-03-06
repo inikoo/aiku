@@ -86,14 +86,14 @@ const onSubmitPallet = () => {
 onMounted(getData)
 </script>
 
-<template>
+<template>   
 	<div class="px-4 sm:px-6 lg:px-8">
 		<div class="sm:flex sm:items-center">
 			<div class="sm:flex-auto">
 				<div class="w-1/4 pt-2">
 					<PureInput
 						v-model="tableFilter.search"
-						placeholder="Serach"
+						placeholder="Search"
 						:loading="loading"
 						:copy-button="true"
                         @keyup.enter.native="getData"

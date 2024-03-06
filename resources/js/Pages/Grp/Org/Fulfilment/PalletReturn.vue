@@ -71,7 +71,7 @@ watch(
 				:key="`ActionButton${action.button.label}${action.button.style}`"
 				:tooltip="action.button.tooltip"
 				@click="() => (openModal = true)"
-				class="capitalize inline-flex items-center h-full rounded-none text-sm border-none font-medium shadow-sm focus:ring-transparent focus:ring-offset-transparent focus:ring-0" />
+			/>
 		</template>
 	</PageHeading>
 	<div class="border-b border-gray-200">
