@@ -6,6 +6,7 @@ import Modal from '@/Components/Utils/Modal.vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faFile as falFile, faTimes } from '@fal'
 import { faFileDownload, faDownload } from '@fas'
+import { faInfoCircle } from '@fad'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import axios from 'axios'
 import { useFormatTime } from '@/Composables/useFormatTime'
@@ -13,7 +14,7 @@ import { routeType } from '@/types/route'
 import { Link } from "@inertiajs/vue3"
 import { useEchoGrpPersonal as echo } from '@/Stores/echo-grp-personal'
 
-library.add(falFile, faTimes, faFileDownload, faDownload)
+library.add(falFile, faTimes, faFileDownload, faDownload, faInfoCircle)
 
 const props = defineProps<{
     modelValue: boolean
@@ -22,6 +23,7 @@ const props = defineProps<{
         download?: routeType
         history?: routeType
     }
+    information?: string
     propName?: string
     useEchoGrpPersonal: {
         isShowProgress: boolean
@@ -98,16 +100,28 @@ watch(() => props.modelValue, async (newVal) => {
         <!-- Title -->
         <div class="flex justify-center py-2 text-gray-600 font-medium mb-3">
             <div>
-                <div>{{ trans(`Upload your new ${propName}`) }}</div>
-                    <div class="flex justify-center">
-                        <a v-if="routes?.download?.name" :href="route(routes?.download?.name, routes?.download?.parameters)" class="group text-xs text-gray-600 cursor-pointer px-2 w-fit" download>
-                            <span class="text-xs text-gray-400 group-hover:text-gray-600">
-                                <FontAwesomeIcon icon='fas fa-file-download' class='text-gray-400 group-hover:text-gray-600' aria-hidden='true' />
-                                {{ trans(`Download template .xlsx`) }}
-                            </span>
-                        </a>
-                    </div>
+                <div class="flex gap-x-0.5">
+                    {{ trans(`Upload your new ${propName}`) }}
+                    <VTooltip v-if="information" class="w-fit">
+                        <FontAwesomeIcon icon='fad fa-info-circle' size="xs" class='text-gray-500' fixed-width aria-hidden='true' />
+
+                        <template #popper>
+                            <div class="min-w-20 w-fit max-w-52 text-xs">
+                                {{ information }}
+                            </div>
+                        </template>
+                    </VTooltip>
                 </div>
+                
+                <div class="flex justify-center">
+                    <a v-if="routes?.download?.name" :href="route(routes?.download?.name, routes?.download?.parameters)" class="group text-xs text-gray-600 cursor-pointer px-2 w-fit" download>
+                        <span class="text-xs text-gray-400 group-hover:text-gray-600">
+                            <FontAwesomeIcon icon='fas fa-file-download' class='text-gray-400 group-hover:text-gray-600' aria-hidden='true' />
+                            {{ trans(`Download template .xlsx`) }}
+                        </span>
+                    </a>
+                </div>
+            </div>
         </div>
 
         <div class="grid grid-cols-2 gap-x-3">

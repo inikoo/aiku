@@ -9,6 +9,7 @@ import { cloneDeep } from 'lodash';
 import { routeType } from '@/types/route'
 
 const props = defineProps<{
+    information: string
     routes: {
         upload: routeType
         download?: routeType
@@ -37,6 +38,7 @@ const echo = ref(cloneDeep(useEchoGrpPersonal()))
         <ModalUpload
             v-model="dataModal.isModalOpen"
             :routes="routes"
+            :information="information"
             :propName="propName"
             :useEchoGrpPersonal="echo"
         />

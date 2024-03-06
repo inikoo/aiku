@@ -181,7 +181,7 @@ watch(() => props.data, (newValue) => {
 
         <!-- Button: Add many pallete -->
         <template #button-group-multiple="{ action }">
-            <Popover width="w-full" class="h-full">
+            <Popover width="w-full" class="relative h-full">
                 <template #button>
                     <Button :style="action.button.style" :icon="action.button.icon" :iconRight="action.button.iconRight"
                         :key="`ActionButton${action.button.label}${action.button.style}`"
@@ -288,7 +288,9 @@ watch(() => props.data, (newValue) => {
         :storedItemsRoute="storedItemsRoute"
     />
 
-    <UploadExcel :propName="'pallet deliveries'" description="Adding Pallet Deliveries" :routes="{
+    <UploadExcel
+        information="The list of column file: customer_reference, notes, stored_items"
+        :propName="'pallet deliveries'" description="Adding Pallet Deliveries" :routes="{
         upload: get(dataModal, 'uploadRoutes', {}),
         download: props.uploadRoutes.download,
         history: props.uploadRoutes.history

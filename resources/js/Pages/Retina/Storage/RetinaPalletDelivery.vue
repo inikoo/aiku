@@ -155,9 +155,8 @@ watch(() => props.data, (newValue) => {
         </template>
 
         <!-- Button: Add many pallete -->
-
         <template #button-group-multiple="{ action }">
-            <Popover width="w-full" class="h-full">
+            <Popover width="w-full" class="relative h-full">
                 <template #button>
                     <Button :style="action.button.style" :icon="action.button.icon" :iconRight="action.button.iconRight"
                         :key="`ActionButton${action.button.label}${action.button.style}`"
@@ -185,7 +184,6 @@ watch(() => props.data, (newValue) => {
         </template>
 
         <!-- Button: Add pallet (single) -->
-
         <template #button-group-add-pallet="{ action: action }">
             <div class="relative">
                 <Popover width="w-full">
@@ -227,7 +225,6 @@ watch(() => props.data, (newValue) => {
         </template>
 
         <!-- Button: Submit -->
-
         <template #button-submit="{ action: action }">
             <Button @click="onSubmitPallet(action.action.route)" :style="action.action.style"
                 :label="action.action.label" :loading="loading" />
