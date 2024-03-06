@@ -62,7 +62,7 @@ const getOptions = async () => {
     try {
         const response = await axios.get(props.urlRoute, {
             params: {
-                [`filter[global]`]: q.value,
+                [`pallets_filter[global]`]: q.value,
                 page: page.value,
                 perPage: 10,
             }

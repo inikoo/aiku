@@ -125,8 +125,8 @@ class IndexPallets extends OrgAction
 
 
         return $query->defaultSort('pallets.id')
-            ->allowedSorts(['customer_reference', 'pallets.reference'])
-            ->allowedFilters([$globalSearch, 'customer_reference'])
+            ->allowedSorts(['customer_reference', 'reference'])
+            ->allowedFilters([$globalSearch, 'customer_reference', 'reference'])
             ->withPaginator($prefix)
             ->withQueryString();
     }
@@ -240,7 +240,7 @@ class IndexPallets extends OrgAction
         $this->parent = $fulfilment;
         $this->initialisationFromFulfilment($fulfilment, $request);
 
-        return $this->handle($organisation, 'pallets');
+        return $this->handle($organisation);
     }
 
     /** @noinspection PhpUnusedParameterInspection */
@@ -249,7 +249,7 @@ class IndexPallets extends OrgAction
         $this->parent = $fulfilment;
         $this->initialisationFromFulfilment($fulfilment, $request);
 
-        return $this->handle($fulfilmentCustomer, 'pallets');
+        return $this->handle($fulfilmentCustomer);
     }
 
     /** @noinspection PhpUnusedParameterInspection */
@@ -258,7 +258,7 @@ class IndexPallets extends OrgAction
         $this->parent = $warehouse;
         $this->initialisationFromWarehouse($warehouse, $request);
 
-        return $this->handle($warehouse, 'pallets');
+        return $this->handle($warehouse);
     }
 
     /** @noinspection PhpUnusedParameterInspection */
