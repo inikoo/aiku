@@ -114,6 +114,27 @@ class ShowStoredItem extends OrgAction
                     'navigation' => StoredItemTabsEnum::navigation(),
                 ],
 
+                'palletRoute' => [
+                    'index' => [
+                        'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallets.index',
+                        'parameters' => [
+                            'organisation'         => $request->route('organisation'),
+                            'fulfilment'           => $request->route('fulfilment'),
+                            'fulfilmentCustomer'   => $request->route('fulfilmentCustomer')
+                        ]
+                    ]
+                ],
+
+                'locationRoute' => [
+                    'index' => [
+                        'name'       => 'grp.org.warehouses.show.infrastructure.locations.index',
+                        'parameters' => [
+                            'organisation' => $request->route('organisation'),
+                            'warehouse'    => $request->route('warehouse'),
+                        ]
+                    ]
+                ],
+
                 StoredItemTabsEnum::PALLETS->value => $this->tab == StoredItemTabsEnum::PALLETS->value ?
                     fn () => PalletsResource::collection(IndexStoredItemPallets::run($storedItem))
                     : Inertia::lazy(fn () => PalletsResource::collection(IndexStoredItemPallets::run($storedItem))),
