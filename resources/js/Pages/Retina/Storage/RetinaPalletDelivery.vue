@@ -19,6 +19,8 @@ import { Table } from '@/types/Table'
 import { PalletDelivery } from '@/types/Pallet'
 import { Tabs as TSTabs } from '@/types/Tabs'
 import { PageHeading as PageHeadingTypes } from  '@/types/PageHeading'
+import BoxStatsPalletDelivery from "@/Components/Pallet/BoxStatsPalletDelivery.vue"
+import { useLayoutStore } from '@/Stores/retinaLayout'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from "@fortawesome/fontawesome-svg-core"
@@ -238,23 +240,8 @@ watch(() => props.data, (newValue) => {
 
     <!-- Box: Stats -->
     <div class="h-16 grid grid-cols-4 gap-x-2 px-4 my-4">
-        <!-- Stats: Delivery Status -->
-        <div v-tooltip="'Delivery status'"
-            class="relative flex flex-col justify-center px-4 rounded-md bg-slate-200 border border-slate-300 overflow-hidden">
-            <!-- <div class="text-gray-500">Delivery status</div> -->
-            <div class="text-2xl font-bold capitalize leading-none">{{ data?.data.state }}</div>
-            <FontAwesomeIcon icon='fal fa-truck-couch' class='text-zinc-800/30 absolute text-[40px] right-2' fixed-width
-                aria-hidden='true' />
-        </div>
-
-        <!-- Stats: Pallet count -->
-        <div v-tooltip="'Total pallet'"
-            class="relative flex flex-col justify-center p-4 rounded-md bg-slate-200 border border-slate-300 overflow-hidden">
-            <!-- <div class="text-gray-500">Number of pallets</div> -->
-            <div class="text-2xl font-bold capitalize">{{ pallets?.meta.total }}</div>
-            <FontAwesomeIcon icon='fal fa-pallet' class='text-zinc-800/30 absolute text-[40px] right-2' fixed-width
-                aria-hidden='true' />
-        </div>
+        <BoxStatsPalletDelivery :layout="useLayoutStore()" tooltip="Delivery status" :label="data?.data.state" icon="fal fa-truck-couch" />
+        <BoxStatsPalletDelivery :layout="useLayoutStore()" tooltip="Total pallet" :label="pallets?.meta.total" icon="fal fa-pallet" />
 
         <!-- <div class="relative flex flex-col justify-between p-4 rounded-md bg-fuchsia-200/70 border border-fuchsia-300 overflow-hidden">
 
