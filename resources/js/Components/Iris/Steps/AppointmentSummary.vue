@@ -86,7 +86,7 @@ const onClickMakeAppointment = async () => {
             <div class="inline-flex items-center gap-x-1">
                 <FontAwesomeIcon fixed-width icon='fal fa-user' class='h-4 md:h-5 aspect-square text-gray-400 '
                     aria-hidden='true' />
-                <div class="text-sm md:text-base leading-none">{{ usePage().props.auth.user?.name }}</div>
+                <div class="text-sm md:text-base leading-none">{{ usePage().props.auth?.user?.name }}</div>
             </div>
 
             <!-- Date: Calendar -->
