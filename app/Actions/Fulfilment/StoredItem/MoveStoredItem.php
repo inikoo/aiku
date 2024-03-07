@@ -11,13 +11,14 @@ use App\Http\Resources\Fulfilment\StoredItemResource;
 use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
+use App\Models\Fulfilment\PalletStoredItem;
 use App\Models\Fulfilment\StoredItem;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class MoveStoredItemWithinPallet
+class MoveStoredItem
 {
     use AsAction;
     use WithAttributes;
@@ -28,7 +29,19 @@ class MoveStoredItemWithinPallet
     public function handle(StoredItem $storedItem, array $modelData): void
     {
         if (Arr::exists($modelData, 'pallet_id')) {
-            $storedItem->pallets()->syncWithoutDetaching([$modelData['pallet_id'] => ['quantity' => $modelData['quantity']]]);
+            $currentQuantity         = PalletStoredItem::where('pallet_id', $modelData['from_pallet_id'])->where('stored_item_id', $storedItem->id)->value('quantity') ?? 0;
+            $toPalletCurrentQuantity = PalletStoredItem::where('pallet_id', $modelData['pallet_id'])->where('stored_item_id', $storedItem->id)->value('quantity')      ?? 0;
+
+            $quantity = Arr::get($modelData, 'quantity', 1);
+
+            $storedItem->pallets()->syncWithoutDetaching([
+                $modelData['pallet_id'] => [
+                    'quantity' => $quantity + $toPalletCurrentQuantity,
+                ],
+                $modelData['from_pallet_id'] => [
+                    'quantity' => $currentQuantity - $quantity
+                ]
+            ]);
         }
 
         if (Arr::exists($modelData, 'location_id')) {
@@ -50,9 +63,10 @@ class MoveStoredItemWithinPallet
     public function rules(): array
     {
         return [
-            'location_id' => ['sometimes', 'exists:locations,id'],
-            'pallet_id'   => ['sometimes', 'exists:pallets,id'],
-            'quantity'    => ['required', 'integer', 'min:1'],
+            'location_id'      => ['sometimes', 'exists:locations,id'],
+            'pallet_id'        => ['sometimes', 'exists:pallets,id'],
+            'from_pallet_id'   => ['sometimes', 'exists:pallets,id'],
+            'quantity'         => ['required', 'integer', 'min:1'],
         ];
     }
 

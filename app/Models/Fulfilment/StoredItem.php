@@ -109,7 +109,8 @@ class StoredItem extends Model implements Auditable
 
     public function pallets(): BelongsToMany
     {
-        return $this->belongsToMany(Pallet::class, 'pallet_stored_items');
+        return $this->belongsToMany(Pallet::class, 'pallet_stored_items')->withPivot('quantity');
+        ;
     }
 
 }
