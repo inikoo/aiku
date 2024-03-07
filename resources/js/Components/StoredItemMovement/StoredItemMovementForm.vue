@@ -16,6 +16,7 @@ import axios from "axios"
 import { get } from "lodash"
 import { routeType } from "@/types/route"
 import { useLayoutStore } from '@/Stores/layout'
+import Pallet from "@/Pages/Grp/Org/Fulfilment/Pallet.vue"
 
 library.add(faPlus)
 const props = defineProps<{
@@ -39,8 +40,8 @@ const layout = useLayoutStore()
 
 const onSubmit=()=>{
 	const data = props.form.data()
-	console.log('data',data)
-	const finalData = data.type != 'location' ? { pallet_id: data.pallet_id, quantity : data.quantity } : { location_id : data.location_id, quantity : data.quantity }
+	const finalData = data.type != 'location' ? { pallet_id: data.pallet_id, quantity : data.quantity, from_pallet_id : props.pallet.id } : { location_id : data.location_id, quantity : data.quantity, from_pallet_id : props.pallet.id }
+	console.log('data',finalData)
 	emits('onSave',finalData)
 }
 
@@ -54,7 +55,7 @@ const onSubmit=()=>{
 			class="flex flex-auto justify-evenly border rounded-md w-full dark:border-gray-600/60 dark:text-white mt-1">
 			<button
 				class="border-none px-2 py-1 rounded-md w-full"
-				:class="{ 'bg-color-theme text-white': form.type === 'pallet' }">
+				:class="form.type == 'pallet' ? 'bg-color-theme text-white' : null ">
 				<input type="radio" class="hidden" id="pallet" value="pallet" v-model="form.type" />
 				<label
 					for="pallet"
@@ -65,7 +66,7 @@ const onSubmit=()=>{
 
 			<button
 				class="border-none px-2 py-1 rounded-md w-full"
-				:class="{ 'bg-color-theme text-white': form.type === 'location' }">
+				:class="form.type == 'location' ? 'bg-color-theme text-white' : null ">
 				<input
 					type="radio"
 					class="hidden"
