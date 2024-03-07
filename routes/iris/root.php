@@ -6,6 +6,7 @@
  */
 
 
+use Inertia\Inertia;
 use App\Actions\UI\Iris\ShowHome;
 use Illuminate\Support\Facades\Route;
 
@@ -16,12 +17,11 @@ Route::prefix("disclosure")
     ->name("disclosure.")
     ->group(__DIR__."/disclosure.php");
 
+Route::get('/appointment', function () {
+    return Inertia::render('Appointment');
+})->name('.appointment');
 
 /*
-
-Route::get('/', function () {
-    return Inertia::render('Welcome');
-})->name('.welcome');
 
 Route::get('/contact', function () {
     return Inertia::render('Contact');

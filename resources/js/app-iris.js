@@ -18,8 +18,7 @@ import FloatingVue from 'floating-vue'
 import 'floating-vue/dist/style.css'
 import Layout from '@/Layouts/Public.vue'
 
-const appName = window.document.getElementsByTagName('title')[0]?.innerText ||
-    'iris';
+const appName = 'Iris';
 
 createInertiaApp(
     {
