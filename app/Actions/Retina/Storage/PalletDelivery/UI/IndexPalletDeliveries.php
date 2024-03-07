@@ -72,9 +72,9 @@ class IndexPalletDeliveries extends RetinaAction
                 ->withModelOperations($modelOperations)
                 ->withGlobalSearch()
                 ->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon')
-                ->column(key: 'reference', label: __('our reference'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'customer_reference', label: __("yours reference"), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'number_pallets', label: __('pallets'), canBeHidden: false, sortable: true, searchable: true);
+                ->column(key: 'reference', label: __('system reference'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'customer_reference', label: __("reference"), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'number_pallets', label: __('total pallets'), canBeHidden: false, sortable: true, searchable: true);
         };
     }
 
