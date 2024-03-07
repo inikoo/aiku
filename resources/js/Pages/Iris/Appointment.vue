@@ -112,32 +112,23 @@ const stepsOptions = [
 
 <template>
     <div class="py-8 px-6">
-        <!-- Section: Blog -->
-        <div class="mx-auto flex justify-center flex-col max-w-lg">
+        <div class="mx-auto justify-center grid grid-cols-2">
+            <!-- Section: Content -->
+            <img src="https://kelas-work.s3.ap-southeast-1.amazonaws.com/bucket-prod-98123hsandknaknd1u3/upload/files/img/blog_cover/blogcover-zph64e5c4c8538dc.webp" alt="" class="mx-auto mb-3 shadow-sm">
             <section class="">
-                <img src="https://dummyimage.com/230x80" alt="" class="mx-auto mb-3 shadow-sm">
-                <h5 class="text-xl font-bold text-center">Request an appointment with us</h5>
-                <!-- <div class="mb-2">
-                    <div class="flex items-center">
-                        <FontAwesomeIcon icon='fal fa-clock' class='' fixed-width aria-hidden='true' />
-                        <div class="leading-none px-2 py-1">30 min</div>
-                    </div>
-                </div> -->
-                <p class="text-xs mt-2 text-justify">
+                <h5 class="text-2xl font-bold ">Request an appointment with us</h5>
+                <p class="text-xs mt-2 mb-8 text-justify max-w-lg">
                     Ready to take the next step? Schedule an appointment with one of our experienced professionals
                     today! We offer personalized consultations to address your specific needs and answer any questions
-                    you may have. <br>
+                    you may have. <br><br>
                     Our convenient online booking system makes scheduling a breeze. Simply choose a time that works best
                     for you and confirm your details. We look forward to connecting with you soon!
                 </p>
+            
+                <Button @click="isModalSteps = true" :style="'rainbow'" label="Click here" />
             </section>
 
-            <!-- Section: Calendar -->
-            <div class="py-4 text-center h-full flex justify-center items-center">
-                <Button @click="isModalSteps = true" :style="'rainbow'" label="Click here" />
-            </div>
         </div>
-
     </div>
 
     <Modal :isOpen="isModalSteps" @onClose="isModalSteps = false">
