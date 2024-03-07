@@ -7,6 +7,7 @@
 
 namespace App\Actions\Fulfilment\Pallet;
 
+use App\Actions\Fulfilment\PalletReturn\Hydrators\HydratePalletReturns;
 use App\Actions\OrgAction;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -39,7 +40,7 @@ class StorePalletToReturn extends OrgAction
             ]);
         }
 
-        // HydratePalletDeliveries::run($palletReturn);
+        HydratePalletReturns::run($palletReturn);
 
         return $palletReturn;
     }
