@@ -21,6 +21,11 @@ Route::get('/appointment', function () {
     return Inertia::render('Appointment');
 })->name('.appointment');
 
+Route::prefix("crm")
+    ->name("crm.")
+    ->group(__DIR__."/crm.php");
+
+
 /*
 
 Route::get('/contact', function () {
