@@ -44,40 +44,47 @@ enum PalletStateEnum: string
     public static function stateIcon(): array
     {
         return [
-            'in-process'   => [
-                'tooltip' => __('in process'),
+            'in-process' => [
+                'tooltip' => __('In process'),
                 'icon'    => 'fal fa-seedling',
-                'class'   => 'text-emerald-500'
+                'class'   => 'text-lime-500',  // Color for normal icon (Aiku)
+                'color'   => 'lime'  // Color for box (Retina)
             ],
-            'submitted'    => [
-                'tooltip' => __('submitted'),
+            'submitted'  => [
+                'tooltip' => __('Submitted'),
                 'icon'    => 'fal fa-share',
-                'class'   => 'text-indigo-300'
+                'class'   => 'text-indigo-400',
+                'color'   => 'indigo'
             ],
-            'confirmed'    => [
-                'tooltip' => __('confirmed'),
+            'confirmed'  => [
+                'tooltip' => __('Confirmed'),
                 'icon'    => 'fal fa-spell-check',
-                'class'   => 'text-green-500'
+                'class'   => 'text-emerald-500',
+                'color'   => 'emerald'
             ],
-            'received'     => [
-                'tooltip' => __('received'),
+            'received'   => [
+                'tooltip' => __('Received'),
                 'icon'    => 'fal fa-check',
-                'class'   => 'text-gray-500'
+                'class'   => 'text-slate-500',
+                'color'   => 'slate'
             ],
             'not-received' => [
                 'tooltip' => __('not received'),
                 'icon'    => 'fal fa-times',
-                'class'   => 'text-red-500'
+                'class'   => 'text-red-500',
+                'color'   => 'red'
             ],
-            'booked-in'    => [
-                'tooltip' => __('booked in'),
+            'booked-in'  => [
+                'tooltip' => __('Booked in'),
                 'icon'    => 'fal fa-check-double',
-                'class'   => 'text-green-500'
+                'class'   => 'text-purple-500',
+                'color'   => 'purple'
             ],
             'settled'      => [
-                'tooltip' => __('settled'),
+                'tooltip' => __('Settled'),
                 'icon'    => 'fal fa-sign-out-alt',
-                'class'   => 'text-grey-400'
+                'class'   => 'text-gray-400',
+                'color'   => 'gray'
             ]
         ];
     }
