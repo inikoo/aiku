@@ -8,7 +8,6 @@
 namespace App\Actions\UI\Iris\Appointment;
 
 use App\Models\CRM\Appointment;
-use App\Models\Web\Webpage;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -32,16 +31,6 @@ class ShowPublicAppointment
 
     public function htmlResponse(array $calendars): Response
     {
-        $webpage = Webpage::where('slug', 'appointment')->first();
-        return Inertia::render(
-            'Webpage',
-            [
-
-                'content' => $webpage->compiled_layout,
-
-            ]
-        );
+        return Inertia::render('Appointment');
     }
-
-
 }

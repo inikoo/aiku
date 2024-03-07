@@ -7,7 +7,6 @@
 
 namespace App\Actions\CRM\Appointment;
 
-use App\Models\Auth\OrganisationUser;
 use App\Models\CRM\Appointment;
 use App\Models\HumanResources\Employee;
 use App\Models\Market\Shop;
@@ -49,11 +48,7 @@ class GetBookedScheduleAppointment
                 return $query->where('code', 'cus-c');
             })->pluck('id');
 
-            $organisationUser = OrganisationUser::whereIn('parent_id', $employees)
-                ->where('parent_type', class_basename(Employee::class))->pluck('id');
-
             $appointment = Appointment::whereDate('schedule_at', $date)
-                ->whereNotIn('organisation_user_id', $organisationUser)
                 ->pluck('schedule_at');
 
             if($employees->count() != 0) {

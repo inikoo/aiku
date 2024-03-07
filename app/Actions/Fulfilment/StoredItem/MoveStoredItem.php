@@ -14,6 +14,7 @@ use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletStoredItem;
 use App\Models\Fulfilment\StoredItem;
 use Illuminate\Support\Arr;
+use Illuminate\Validation\ValidationException;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
@@ -33,6 +34,10 @@ class MoveStoredItem
             $toPalletCurrentQuantity = PalletStoredItem::where('pallet_id', $modelData['pallet_id'])->where('stored_item_id', $storedItem->id)->value('quantity')      ?? 0;
 
             $quantity = Arr::get($modelData, 'quantity', 1);
+
+            if($currentQuantity < $quantity) {
+                throw ValidationException::withMessages(['quantity' => 'The quantity to move is greater than the current quantity']);
+            }
 
             $storedItem->pallets()->syncWithoutDetaching([
                 $modelData['pallet_id'] => [
