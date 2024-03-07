@@ -7,6 +7,7 @@
 
 namespace App\Actions\CRM\Appointment;
 
+use App\Actions\CRM\Customer\StoreCustomer;
 use App\Enums\CRM\Appointment\AppointmentEventEnum;
 use App\Enums\CRM\Appointment\AppointmentTypeEnum;
 use App\Models\CRM\Customer;
@@ -47,7 +48,7 @@ class StoreAppointment
         }
 
         /** @var \App\Models\CRM\Appointment $appointment */
-        $appointment = $parent->appointment()->create($modelData);
+        $appointment = $parent->appointments()->create($modelData);
 
         match($appointment->event) {
             AppointmentEventEnum::CALLBACK  => CreateMeetingUsingZoom::run($appointment),
@@ -110,7 +111,7 @@ class StoreAppointment
         $this->fillFromRequest($request);
         $request->validate();
 
-        $customer = $request->user('customer')->customerUsers()->first()->customer;
+        $customer = StoreCustomer::run($request->only('contact_name', 'company_name', 'email'));
 
         return $this->handle($customer, $request->validated());
     }

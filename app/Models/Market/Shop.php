@@ -19,6 +19,7 @@ use App\Models\Accounting\PaymentServiceProviderShop;
 use App\Models\Assets\Country;
 use App\Models\Assets\Currency;
 use App\Models\Assets\Timezone;
+use App\Models\CRM\Appointment;
 use App\Models\CRM\Customer;
 use App\Models\CRM\Prospect;
 use App\Models\Fulfilment\Fulfilment;
@@ -314,6 +315,11 @@ class Shop extends Model
     public function fulfilment(): HasOne
     {
         return $this->hasOne(Fulfilment::class);
+    }
+
+    public function appointments(): HasMany
+    {
+        return $this->hasMany(Appointment::class);
     }
 
 

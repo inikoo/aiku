@@ -6,6 +6,7 @@
  */
 
 
+use App\Actions\UI\Iris\Appointment\ShowPublicAppointment;
 use Inertia\Inertia;
 use App\Actions\UI\Iris\ShowHome;
 use Illuminate\Support\Facades\Route;
@@ -17,9 +18,7 @@ Route::prefix("disclosure")
     ->name("disclosure.")
     ->group(__DIR__."/disclosure.php");
 
-Route::get('/appointment', function () {
-    return Inertia::render('Appointment');
-})->name('.appointment');
+Route::get('/appointment', ShowPublicAppointment::class)->name('.appointment');
 
 Route::prefix("crm")
     ->name("crm.")

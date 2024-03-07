@@ -263,6 +263,11 @@ class Customer extends Model implements HasMedia
         return $this->hasMany(PalletDelivery::class);
     }
 
+    public function appointments(): HasMany
+    {
+        return $this->hasMany(Appointment::class);
+    }
+
     public function hasUsers(): bool
     {
         return (bool)$this->webUsers->count();
