@@ -11,6 +11,8 @@ use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydrat
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydratePalletReturns;
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydratePallets;
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydrateStoredItems;
+use App\Actions\Fulfilment\PalletDelivery\Hydrators\HydratePalletDeliveries;
+use App\Actions\Fulfilment\PalletReturn\Hydrators\HydratePalletReturns;
 use App\Actions\HydrateModel;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use Illuminate\Support\Collection;
@@ -26,6 +28,14 @@ class HydrateFulfilmentCustomer extends HydrateModel
         FulfilmentCustomerHydratePalletDeliveries::run($fulfilmentCustomer);
         FulfilmentCustomerHydratePallets::run($fulfilmentCustomer);
         FulfilmentCustomerHydrateStoredItems::run($fulfilmentCustomer);
+
+        foreach ($fulfilmentCustomer->palletDeliveries as $palletDelivery) {
+            HydratePalletDeliveries::run($palletDelivery);
+        }
+
+        foreach ($fulfilmentCustomer->palletReturns as $palletReturn) {
+            HydratePalletReturns::run($palletReturn);
+        }
     }
 
     protected function getModel(string $slug): FulfilmentCustomer

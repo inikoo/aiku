@@ -9,13 +9,7 @@ import { Head, useForm } from '@inertiajs/vue3'
 import PageHeading from "@/Components/Headings/PageHeading.vue"
 import { capitalize } from "@/Composables/capitalize"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import {
-    Dialog,
-    DialogPanel,
-    DialogTitle,
-    TransitionChild,
-    TransitionRoot,
-} from "@headlessui/vue"
+import { Dialog, DialogPanel, DialogTitle, TransitionChild, TransitionRoot, } from "@headlessui/vue"
 import TableStoredItems from "@/Components/Tables/TableStoredItems.vue"
 import { router } from '@inertiajs/vue3'
 import TablePalletReturns from "@/Components/Tables/TablePalletReturns.vue"
@@ -34,17 +28,9 @@ import { Link } from "@inertiajs/vue3"
 import { get } from 'lodash'
 import axios from 'axios'
 import TableDispatchedEmails from "@/Components/Tables/TableDispatchedEmails.vue"
-import {
-    faStickyNote, faPallet,
-    faUser, faNarwhal, faTruckCouch, faFileInvoiceDollar, faSignOutAlt,
-    faPaperclip, faPaperPlane, faCheckDouble
-} from '@fal'
-library.add(
-    faStickyNote, faUser,
-    faNarwhal,
-    faTruckCouch, faPallet, faFileInvoiceDollar, faSignOutAlt,
-    faPaperclip, faPaperPlane, faCheckDouble
-)
+
+import { faStickyNote, faPallet, faUser, faNarwhal, faTruckCouch, faFileInvoiceDollar, faSignOutAlt, faPaperclip, faPaperPlane, faCheckDouble, faShare } from '@fal'
+library.add( faStickyNote, faUser, faNarwhal, faTruckCouch, faPallet, faFileInvoiceDollar, faSignOutAlt, faPaperclip, faPaperPlane, faCheckDouble, faShare )
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChangelog.vue'))
 
@@ -78,8 +64,8 @@ const component = computed(() => {
         dispatched_emails: TableDispatchedEmails,
         pallet_deliveries: TablePalletDeliveries,
         pallet_returns: TablePalletReturns
-
     }
+    
     return components[currentTab.value]
 
 })
