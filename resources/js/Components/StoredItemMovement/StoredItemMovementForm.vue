@@ -15,7 +15,7 @@ import { notify } from "@kyvg/vue3-notification"
 import axios from "axios"
 import { get } from "lodash"
 import { routeType } from "@/types/route"
-import PureRadio from "@/Components/Pure/PureRadio.vue"
+import { useLayoutStore } from '@/Stores/layout'
 
 library.add(faPlus)
 const props = defineProps<{
@@ -32,6 +32,9 @@ const props = defineProps<{
 const emits = defineEmits<{
     (e: 'onSave'): void
 }>()
+
+
+const layout = useLayoutStore()
 
 
 const onSubmit=()=>{
@@ -51,18 +54,18 @@ const onSubmit=()=>{
 			class="flex flex-auto justify-evenly border rounded-md w-full dark:border-gray-600/60 dark:text-white mt-1">
 			<button
 				class="border-none px-2 py-1 rounded-md w-full"
-				:class="{ 'bg-blue-500 text-white': form.type === 'pallet' }">
+				:class="{ 'bg-color-theme text-white': form.type === 'pallet' }">
 				<input type="radio" class="hidden" id="pallet" value="pallet" v-model="form.type" />
 				<label
 					for="pallet"
-					class="cursor-pointer transition-colors duration-300 ease-in-out px-2 py-1 rounded-md"
+					class="cursor-pointer transition-colors duration-300 ease-in-out px-2 py-1 rounded-md flex justify-center"
 					>Pallet</label
 				>
 			</button>
 
 			<button
 				class="border-none px-2 py-1 rounded-md w-full"
-				:class="{ 'bg-blue-500 text-white': form.type === 'location' }">
+				:class="{ 'bg-color-theme text-white': form.type === 'location' }">
 				<input
 					type="radio"
 					class="hidden"
@@ -71,7 +74,7 @@ const onSubmit=()=>{
 					v-model="form.type" />
 				<label
 					for="location"
-					class="cursor-pointer transition-colors duration-300 ease-in-out px-2 py-1 rounded-md"
+					class="cursor-pointer transition-colors duration-300 ease-in-out px-2 py-1 rounded-md flex justify-center"
 					>Location</label
 				>
 			</button>
@@ -136,4 +139,10 @@ const onSubmit=()=>{
 	</div>
 </template>
 
-<style></style>
+<style lang="scss">
+
+.bg-color-theme {
+    background-color: v-bind('layout?.app?.theme[4]') !important;
+}
+
+</style>

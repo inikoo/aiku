@@ -56,6 +56,7 @@ const q = ref('')
 const page = ref(1)
 const loading = ref(false)
 const _multiselectRef = ref(null)
+const lastPage = ref(2)
 
 const getOptions = async () => {
     loading.value = true;
@@ -82,10 +83,14 @@ const getOptions = async () => {
 
 
 const onGetOptionsSuccess = (response: any) => {
-    const data = Object.values(response.data.data)
-    if(q.value && q.value != '') optionData.value = [...optionData.value,...data]
-    else optionData.value = [...data]
-}
+    lastPage.value = response?.data?.meta?.last_page ?? lastPage.value;
+    const data = [...optionData.value];
+    const newData = response?.data?.data ?? [];
+
+    if (q.value && q.value !== '')  optionData.value = [...newData];
+    else if(page.value > 1) optionData.value = [ ...optionData.value,...newData ];
+    else optionData.value = [...newData];
+};
 
 
 const SearchChange = (value: any) => {
@@ -107,6 +112,7 @@ const handleScroll = () => {
     if (bottomReached) {
         // Load more data when bottom is reached
         page.value++
+        if(page.value < lastPage.value)
         getOptions()
     }
 }
