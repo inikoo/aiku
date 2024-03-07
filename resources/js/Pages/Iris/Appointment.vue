@@ -7,6 +7,7 @@ import Modal from '@/Components/Utils/Modal.vue'
 import Steps from '@/Components/Utils/Steps.vue'
 import AppointmentSummary from '@/Components/Iris/Steps/AppointmentSummary.vue'
 import SelectAppointmentDate from '@/Components/Iris/Steps/SelectAppointmentDate.vue'
+import { DataToSubmit } from '@/types/Iris/Appointment'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faArrowAltRight } from '@fas'
@@ -17,37 +18,29 @@ import PureInput from '@/Components/Pure/PureInput.vue'
 library.add(faArrowAltRight, faClock)
 
 const availableSchedulesOnMonth = ref<{ [key: string]: { [key: string]: string[] }[] }>({})  // {2023-6: {2023-11-25 ['09:00, '10:00', ...]} }
-const selectedDate: any = ref(new Date())  // on select date in DatePicker
+// const selectedDate: any = ref(new Date())  // on select date in DatePicker
 const isLoading = ref(false)  // Loading on fetch
 const isModalSteps = ref(false)
 const currentStep = ref(0)
 
-const meetEvent = reactive({
-    value: null,
-    options: [
-        {
-            name: 'callback',
-            label: 'Callback'
-        },
-        {
-            name: 'in-person',
-            label: 'In person'
-        }
-    ]
-})
+const defaultData = {
+    selectedDateHour: new Date(),
+    meetType: '',
+    contact_name: '',
+    company_name: '',
+    email: '',
+    url: 'http://fulfilment.test'
+}
 
-const dataInputDetail = reactive({
-    name: '',
-    business: '',
-    email: ''
-})
+// Data from all steps
+const dataAppointmentToSubmit = reactive<DataToSubmit>(defaultData)
 
 // On click button available hour
 const onSelectHour = (time: string) => {
     const timeSplit = time.split(':')
-    selectedDate.value = new Date(selectedDate.value)
-    selectedDate.value.setHours(timeSplit[0])
-    selectedDate.value.setMinutes(timeSplit[1])
+    dataAppointmentToSubmit.selectedDateHour = new Date(dataAppointmentToSubmit.selectedDateHour)
+    dataAppointmentToSubmit.selectedDateHour.setHours(parseInt(timeSplit[0]))
+    dataAppointmentToSubmit.selectedDateHour.setMinutes(parseInt(timeSplit[1]))
 }
 
 
@@ -79,13 +72,14 @@ const fetchAvailableOnMonth = async (year: number, month: number) => {
 
 
 onMounted(() => {
+    // Fetch available hour for today
     const today = new Date()
     fetchAvailableOnMonth(today.getFullYear(), today.getMonth() + 1)
 })
 
-watch(selectedDate, () => {
-    if (!availableSchedulesOnMonth.value[`${selectedDate.value?.getFullYear()}-${selectedDate.value?.getMonth() + 1}`]) {
-        fetchAvailableOnMonth(selectedDate.value?.getFullYear(), selectedDate.value?.getMonth() + 1)
+watch(() => dataAppointmentToSubmit.selectedDateHour, () => {
+    if (!availableSchedulesOnMonth.value[`${dataAppointmentToSubmit.selectedDateHour?.getFullYear()}-${dataAppointmentToSubmit.selectedDateHour?.getMonth() + 1}`]) {
+        fetchAvailableOnMonth(dataAppointmentToSubmit.selectedDateHour?.getFullYear(), dataAppointmentToSubmit.selectedDateHour?.getMonth() + 1)
     }
 })
 
@@ -127,37 +121,37 @@ const stepsOptions = [
     <!-- Modal: Select calendar -->
     <Modal :isOpen="isModalSteps" @onClose="isModalSteps = false">
         <div class="h-[450px] overflow-y-auto">
-
             <Steps :options="stepsOptions" :currentStep="currentStep" @previousStep="currentStep--"
                 @nextStep="currentStep++" />
 
             <transition name="slide-to-left" mode="out-in">
                 <!-- Second Step: Select date -->
                 <div v-if="currentStep === 0" class="">
-                    <SelectAppointmentDate v-model="selectedDate" :isLoading="isLoading"
-                        :availableSchedulesOnMonth="availableSchedulesOnMonth" :meetEvent="meetEvent"
+                    <SelectAppointmentDate v-model="dataAppointmentToSubmit.selectedDateHour" :isLoading="isLoading"
+                        :availableSchedulesOnMonth="availableSchedulesOnMonth" :dataAppointmentToSubmit="dataAppointmentToSubmit"
                         @onFinish="currentStep++" @onSelectHour="(newValue) => onSelectHour(newValue)" />
                 </div>
                 
                 <!-- Second Step: Select date -->
-                <div v-else-if="currentStep === 1" class="space-y-4">
+                <div v-else-if="currentStep === 1" class="space-y-4 max-w-lg mx-auto">
+                    <!-- <div></div> -->
                     <div class="text-center text-xl font-semibold text-gray-700">How we can contact you?</div>
-                    <div class="flex flex-col max-w-lg mx-auto gap-x-2 gap-y-4 pl-0.5 text-gray-600">
+                    <div class="flex flex-col mx-auto gap-x-2 gap-y-4 pl-0.5 text-gray-600">
                         <div>
-                            <label for="fieldName">Name:</label>
-                            <PureInput v-model="dataInputDetail.name" inputName="fieldName" placeholder="John Doe" />
-                        </div>
-                        <div>
-                            <label for="fieldBusiness">Business name:</label>
-                            <PureInput v-model="dataInputDetail.business" inputName="fieldBusiness" placeholder="Flower's Shop" />
+                            <label for="fieldName"><span class="text-red-500">*</span>Name:</label>
+                            <PureInput v-model="dataAppointmentToSubmit.contact_name" inputName="fieldName" placeholder="John Doe" />
                         </div>
                         <div>
                             <label for="fieldEmail"><span class="text-red-500">*</span>Email:</label>
-                            <PureInput v-model="dataInputDetail.email" inputName="fieldEmail" placeholder="johndoe@email.com" type="email" />
+                            <PureInput v-model="dataAppointmentToSubmit.email" inputName="fieldEmail" placeholder="johndoe@email.com" type="email" />
+                        </div>
+                        <div>
+                            <label for="fieldCompany">Company name:</label>
+                            <PureInput v-model="dataAppointmentToSubmit.company_name" inputName="fieldBusiness" placeholder="Flower's Shop" />
                         </div>
 
-                        <div class="mx-auto mt-4">
-                            <Button label="Confirm" size="xl" />
+                        <div v-if="dataAppointmentToSubmit.email" class="mx-auto mt-4">
+                            <Button @click="() => currentStep++" label="Confirm" size="xl" />
                         </div>
                         
                         
@@ -166,12 +160,12 @@ const stepsOptions = [
 
                 <!-- Third Step: Summary review -->
                 <div v-else class="max-w-2xl mx-auto py-4">
-                    <AppointmentSummary :selectedDate="selectedDate" @onFinish="isModalSteps = false"
-                        :meetEvent="meetEvent.value" />
+                    <AppointmentSummary :dataAppointmentToSubmit="dataAppointmentToSubmit"
+                        @onFinish="() => (isModalSteps = false, dataAppointmentToSubmit = defaultData)"
+                        @decreaseStep="currentStep--"
+                    />
                 </div>
             </transition>
-
-            <Button @click="currentStep++" />
         </div>
     </Modal>
 </template>
