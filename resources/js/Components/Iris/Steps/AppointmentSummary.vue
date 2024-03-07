@@ -5,34 +5,41 @@ import { notify } from '@kyvg/vue3-notification'
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import CopyButton from '@/Components/Utils/CopyButton.vue'
 import axios from 'axios'
+import { DataToSubmit } from '@/types/Iris/Appointment'
+
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faClock, faCalendarAlt, faMapMarkerAlt, faLink, faUser } from '@fal'
+import { faClock, faCalendarAlt, faMapMarkerAlt, faLink, faUser, faEnvelope, faStoreAlt } from '@fal'
 import { faArrowAltRight, faPaperPlane } from '@fas'
 import { library } from '@fortawesome/fontawesome-svg-core'
-library.add(faClock, faCalendarAlt, faMapMarkerAlt, faLink, faUser, faArrowAltRight, faPaperPlane)
+import { onMounted, ref } from 'vue'
+library.add(faClock, faCalendarAlt, faMapMarkerAlt, faLink, faUser, faEnvelope, faStoreAlt, faArrowAltRight, faPaperPlane)
 
 const props = defineProps<{
-    selectedDate: Date
-    meetEvent: {
-        name: string
-        label: string
-    } | null
+    dataAppointmentToSubmit: DataToSubmit
 }>()
 
 const emits = defineEmits<{
     (e: 'onFinish'): void
+    (e: 'decreaseStep'): void
 }>()
+
+const isLoading = ref(false)
 
 // When submit Appointment
 const onClickMakeAppointment = async () => {
+    isLoading.value = true
     try {
-        const response = axios.post(route('public.appointment.store'), {
-            schedule_at: props.selectedDate,
-            type: 'lead',
-            event: props.meetEvent?.name,
-            event_address: 'Zoom',
+        const response = await axios.post(route('iris.crm.appointment.store'), {
+            schedule_at: props.dataAppointmentToSubmit.selectedDateHour,
+            event: props.dataAppointmentToSubmit.meetType,
+            company_name: props.dataAppointmentToSubmit.company_name || undefined,
+            contact_name: props.dataAppointmentToSubmit.contact_name,
+            email: props.dataAppointmentToSubmit.email,
+            event_address: 'zoom',
+            type: 'lead'
         })
+        console.log('response', response)
 
         notify({
             title: "Appointment successfuly created.",
@@ -48,7 +55,15 @@ const onClickMakeAppointment = async () => {
         })
         console.error(error)
     }
+
+    isLoading.value = false
 }
+
+onMounted(() => {
+    if(!props.dataAppointmentToSubmit.email || !props.dataAppointmentToSubmit.contact_name) {
+        emits('decreaseStep')
+    }
+})
 
 </script>
 
@@ -60,7 +75,7 @@ const onClickMakeAppointment = async () => {
 
         <div class="col-span-2 grid grid-cols-2">
             <div class="text-4xl font-semibold">
-                {{ meetEvent?.label }}
+                {{ dataAppointmentToSubmit.meetType }}
             </div>
             <div class="place-self-end">
                 <img src="https://seeklogo.com/images/Z/zoom-fondo-blanco-vertical-logo-F819E1C283-seeklogo.com.png"
@@ -69,12 +84,12 @@ const onClickMakeAppointment = async () => {
         </div>
 
         <div class="md:mt-4 flex flex-col gap-y-2 text-gray-500 order-3 col-span-2">
-            <!-- Date: Link -->
+            <!-- Section: Link -->
             <div class="inline-flex items-center gap-x-1">
                 <FontAwesomeIcon fixed-width icon='fal fa-link' class='h-4 aspect-square text-gray-400 '
                     aria-hidden='true' />
-                <div class="text-sm md:text-base leading-none italic">https://wowsbar.com</div>
-                <CopyButton text="https://wowsbar.com" />
+                <div class="text-sm md:text-base leading-none italic">{{ dataAppointmentToSubmit.url }}</div>
+                <CopyButton :text="dataAppointmentToSubmit.url" />
             </div>
             <!-- <div class="inline-flex items-center gap-x-1">
                 <FontAwesomeIcon fixed-width icon='fal fa-map-marker-alt' class='h-4 md:h-5 aspect-square text-gray-400 '
@@ -82,35 +97,50 @@ const onClickMakeAppointment = async () => {
                 <div class="text-sm md:text-base leading-none">Zoom</div>
             </div> -->
 
-            <!-- Date: Name -->
+            <!-- Section: Name -->
             <div class="inline-flex items-center gap-x-1">
                 <FontAwesomeIcon fixed-width icon='fal fa-user' class='h-4 md:h-5 aspect-square text-gray-400 '
                     aria-hidden='true' />
-                <div class="text-sm md:text-base leading-none">{{ usePage().props.auth?.user?.name }}</div>
+                <div class="text-sm md:text-base leading-none">{{ dataAppointmentToSubmit.contact_name || '-' }}</div>
             </div>
 
-            <!-- Date: Calendar -->
+            <!-- Section: Email -->
+            <div v-if="dataAppointmentToSubmit.email" class="inline-flex items-center gap-x-1">
+                <FontAwesomeIcon fixed-width icon='fal fa-envelope' class='h-4 md:h-5 aspect-square text-gray-400 '
+                    aria-hidden='true' />
+                <div class="text-sm md:text-base leading-none">{{ dataAppointmentToSubmit.email }}</div>
+            </div>
+
+            <!-- Section: Company name -->
+            <div class="inline-flex items-center gap-x-1">
+                <FontAwesomeIcon fixed-width icon='fal fa-store-alt' class='h-4 md:h-5 aspect-square text-gray-400 '
+                    aria-hidden='true' />
+                <div class="text-sm md:text-base leading-none">{{ dataAppointmentToSubmit.company_name || '-' }}</div>
+            </div>
+
+            <!-- Section: Calendar -->
             <div class="inline-flex items-center gap-x-1">
                 <FontAwesomeIcon fixed-width icon='fal fa-calendar-alt' class='h-4 md:h-5 aspect-square text-gray-400 '
                     aria-hidden='true' />
-                <div class="text-sm md:text-base leading-none">{{ useFormatTime(selectedDate) }}</div>
+                <div class="text-sm md:text-base leading-none">{{ useFormatTime(dataAppointmentToSubmit.selectedDateHour) }}</div>
             </div>
 
-            <!-- Date: Hours -->
+            <!-- Section: Hours -->
             <div class="inline-flex items-center gap-x-1">
                 <FontAwesomeIcon fixed-width icon='fal fa-clock' class='h-4 md:h-5 aspect-square text-gray-400 '
                     aria-hidden='true' />
                 <div class="flex items-center space-x-1">
                     <span class="tabular-nums text-sm md:text-base leading-none">
-                        {{ (selectedDate.getHours()).toString().padStart(2, '0') + ':' +
-                            (selectedDate.getMinutes()).toString().padStart(2, '0') }}
+                        {{ (dataAppointmentToSubmit.selectedDateHour.getHours()).toString().padStart(2, '0') + ':' +
+                            (dataAppointmentToSubmit.selectedDateHour.getMinutes()).toString().padStart(2, '0') }}
                     </span>
                     <span class="text-xs md:text-sm text-gray-500 ">
-                        {{ selectedDate.getHours() > 11 ? 'PM' : 'AM' }}
+                        {{ dataAppointmentToSubmit.selectedDateHour.getHours() > 11 ? 'PM' : 'AM' }}
                     </span>
                 </div>
             </div>
         </div>
     </div>
-    <Button @click="onClickMakeAppointment()" label="Make appointment" iconRight="fas fa-paper-plane" full />
+    
+    <Button @click="onClickMakeAppointment()" label="Make appointment" iconRight="fas fa-paper-plane" full :disabled="isLoading" />
 </template>
