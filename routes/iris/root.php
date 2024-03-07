@@ -17,6 +17,11 @@ Route::prefix("disclosure")
     ->group(__DIR__."/disclosure.php");
 
 
+Route::prefix("crm")
+    ->name("crm.")
+    ->group(__DIR__."/crm.php");
+
+
 /*
 
 Route::get('/', function () {
