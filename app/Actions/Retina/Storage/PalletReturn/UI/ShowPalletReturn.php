@@ -179,19 +179,12 @@ class ShowPalletReturn extends RetinaAction
 
                 'palletRoute' => [
                     'index' => [
-                        'name'       => 'grp.org.fulfilments.show.crm.customers.show.stored-pallets.index',
-                        'parameters' => [
-                            'organisation'       => $palletReturn->organisation->slug,
-                            'fulfilment'         => $palletReturn->fulfilment->slug,
-                            'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->slug
-                        ]
+                        'name'       => 'retina.storage.stored-pallets.index',
+                        'parameters' => []
                     ],
                     'store' => [
-                        'name'       => 'grp.models.fulfilment-customer.pallet-return.pallet.store',
+                        'name'       => 'retina.models.pallet-return.pallet.store',
                         'parameters' => [
-                            'organisation'       => $palletReturn->organisation->slug,
-                            'fulfilment'         => $palletReturn->fulfilment->slug,
-                            'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id,
                             'palletReturn'       => $palletReturn->slug
                         ]
                     ]
