@@ -31,6 +31,7 @@ class PalletDeliveryResource extends JsonResource
 
         return [
             'id'               => $palletDelivery->id,
+            'customer_name'    => $palletDelivery->fulfilmentCustomer->customer->name,
             'reference'        => $palletDelivery->reference,
             'state'            => $palletDelivery->state->value,
             'timeline'         => $timeline,
