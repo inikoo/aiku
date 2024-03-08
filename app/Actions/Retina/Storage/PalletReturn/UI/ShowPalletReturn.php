@@ -66,11 +66,8 @@ class ShowPalletReturn extends RetinaAction
                             'icon'  => 'fal fa-plus',
                             'label' => __('add pallet'),
                             'route' => [
-                                'name'       => 'grp.models.fulfilment-customer.pallet-return.pallet.store',
+                                'name'       => 'retina.models.pallet-return.pallet.store',
                                 'parameters' => [
-                                    'organisation'       => $palletReturn->organisation->slug,
-                                    'fulfilment'         => $palletReturn->fulfilment->slug,
-                                    'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id,
                                     'palletReturn'       => $palletReturn->reference
                                 ]
                             ]

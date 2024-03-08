@@ -10,9 +10,11 @@ use App\Actions\Fulfilment\Pallet\DeletePallet;
 use App\Actions\Fulfilment\Pallet\ImportPallet;
 use App\Actions\Fulfilment\Pallet\StoreMultiplePallets;
 use App\Actions\Fulfilment\Pallet\StorePalletFromDelivery;
+use App\Actions\Fulfilment\Pallet\StorePalletToReturn;
 use App\Actions\Fulfilment\Pallet\UpdatePallet;
 use App\Actions\Fulfilment\PalletDelivery\StorePalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\SubmitPalletDelivery;
+use App\Actions\Fulfilment\PalletReturn\StorePalletReturn;
 use App\Actions\Fulfilment\StoredItem\StoreStoredItem;
 use App\Actions\Fulfilment\StoredItem\SyncStoredItemToPallet;
 use App\Actions\UI\Retina\Profile\UpdateProfile;
@@ -20,6 +22,11 @@ use Illuminate\Support\Facades\Route;
 
 Route::patch('/profile', UpdateProfile::class)->name('profile.update');
 Route::patch('/settings', UpdateCustomerSettings::class)->name('settings.update');
+
+Route::post('pallet-return', [StorePalletReturn::class, 'fromRetina'])->name('pallet-return.store');
+Route::name('pallet-return.')->prefix('pallet-return/{palletReturn:id}')->group(function () {
+    Route::post('pallet', [StorePalletToReturn::class, 'fromRetina'])->name('pallet.store');
+});
 
 Route::post('pallet-delivery', [StorePalletDelivery::class, 'fromRetina'])->name('pallet-delivery.store');
 Route::name('pallet-delivery.')->prefix('pallet-delivery/{palletDelivery:id}')->group(function () {

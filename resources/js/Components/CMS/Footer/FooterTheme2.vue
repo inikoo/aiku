@@ -21,6 +21,9 @@ import TextArea from "../Fields/TextArea.vue"
 import HyperLink from "../Fields/Hyperlink.vue"
 import IconPicker from "../Fields/IconPicker/IconPicker.vue"
 import SocialMediaPicker from "../Fields/SocialMediaTools.vue"
+import TextEditor from "@/Components/Forms/Fields/TextEditor.vue"
+import BubleTextEditor from "@/Components/Forms/Fields/BubleTextEditor/BubleTextEditor.vue"
+
 library.add(
 	faFacebook,
 	faInstagram,
