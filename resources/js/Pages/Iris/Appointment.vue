@@ -33,7 +33,7 @@ const defaultData = {
 }
 
 // Data from all steps
-const dataAppointmentToSubmit = reactive<DataToSubmit>(defaultData)
+const dataAppointmentToSubmit = reactive<DataToSubmit>({...defaultData})
 
 // On click button available hour
 const onSelectHour = (time: string) => {
@@ -58,7 +58,7 @@ const fetchAvailableOnMonth = async (year: number, month: number) => {
                 }
             }
         )
-        console.log(response.data)
+        // console.log(response.data)
         availableSchedulesOnMonth.value = {
             [`${year}-${month}`]: response.data.availableSchedules,
             ...availableSchedulesOnMonth.value
@@ -97,6 +97,19 @@ const stepsOptions = [
         // icon: 'fal fa-check'
     },
 ]
+
+const onSubmitAppointment = () => {
+    isModalSteps.value = false
+    setTimeout(() => {
+        currentStep.value = 0
+        dataAppointmentToSubmit.selectedDateHour = defaultData.selectedDateHour
+        dataAppointmentToSubmit.meetType = defaultData.meetType
+        dataAppointmentToSubmit.contact_name = defaultData.contact_name
+        dataAppointmentToSubmit.company_name = defaultData.company_name
+        dataAppointmentToSubmit.email = defaultData.email
+        dataAppointmentToSubmit.url = defaultData.url
+    }, 700)
+}
 </script>
 
 <template>
@@ -161,7 +174,7 @@ const stepsOptions = [
                 <!-- Third Step: Summary review -->
                 <div v-else class="max-w-2xl mx-auto py-4">
                     <AppointmentSummary :dataAppointmentToSubmit="dataAppointmentToSubmit"
-                        @onFinish="() => (isModalSteps = false, dataAppointmentToSubmit = defaultData)"
+                        @onFinish="() => onSubmitAppointment()"
                         @decreaseStep="currentStep--"
                     />
                 </div>

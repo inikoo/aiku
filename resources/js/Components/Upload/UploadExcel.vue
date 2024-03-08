@@ -9,7 +9,7 @@ import { cloneDeep } from 'lodash';
 import { routeType } from '@/types/route'
 
 const props = defineProps<{
-    information: string
+    information?: string
     routes: {
         upload: routeType
         download?: routeType

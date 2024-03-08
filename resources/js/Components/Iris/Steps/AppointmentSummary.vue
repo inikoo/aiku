@@ -39,7 +39,7 @@ const onClickMakeAppointment = async () => {
             event_address: 'zoom',
             type: 'lead'
         })
-        console.log('response', response)
+        // console.log('response', response)
 
         notify({
             title: "Appointment successfuly created.",
@@ -142,5 +142,5 @@ onMounted(() => {
         </div>
     </div>
     
-    <Button @click="onClickMakeAppointment()" label="Make appointment" iconRight="fas fa-paper-plane" full :disabled="isLoading" />
+    <Button @click="onClickMakeAppointment()" label="Make appointment" iconRight="fas fa-paper-plane" full :loading="isLoading" :disabled="isLoading" />
 </template>
