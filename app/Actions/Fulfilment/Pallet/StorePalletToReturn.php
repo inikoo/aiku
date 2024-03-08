@@ -118,11 +118,18 @@ class StorePalletToReturn extends OrgAction
 
     public function htmlResponse(PalletReturn $palletReturn, ActionRequest $request): RedirectResponse
     {
-        return Redirect::route('grp.org.fulfilments.show.crm.customers.show.pallet-returns.show', [
-            'organisation'           => $palletReturn->organisation->slug,
-            'fulfilment'             => $palletReturn->fulfilment->slug,
-            'fulfilmentCustomer'     => $palletReturn->fulfilmentCustomer->slug,
-            'palletReturn'           => $palletReturn->reference
-        ]);
+        $routeName = $request->route()->getName();
+
+        return match ($routeName) {
+            'grp.models.pallet-return.pallet.store' => Redirect::route('grp.org.fulfilments.show.crm.customers.show.pallet-returns.show', [
+                'organisation'           => $palletReturn->organisation->slug,
+                'fulfilment'             => $palletReturn->fulfilment->slug,
+                'fulfilmentCustomer'     => $palletReturn->fulfilmentCustomer->slug,
+                'palletReturn'           => $palletReturn->reference
+            ]),
+            default => Redirect::route('retina.storage.pallet-returns.show', [
+                'palletReturn'     => $palletReturn->reference
+            ])
+        };
     }
 }
