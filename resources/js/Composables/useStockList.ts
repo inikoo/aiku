@@ -52,11 +52,14 @@ export const useColorTheme = [
     ['#FFFFFF', '#333333', '#F28B00', '#333333', '#D6C7E2', '#333333'],  // Modern Brights 
     ['#F8F8F8', '#000000', '#2F4F4F', '#F8F8F8', '#424242', '#000000'],  // Classic Sophistication 
     ['#D1EBF2', '#2F4F4F', '#F8F8F8', '#2F4F4F', '#F28B00', '#2F4F4F'],  // Limitless Sky 
+
     ['#f43f5e', '#F5F5F5', '#E3B7C8', '#000000', '#D6C7E2', '#000000'],  // Rosewater Blush 
     ['#000000', '#f2f2f2', '#424242', '#f2f2f2', '#8e44ad', '#ffffff'],  // Amoled
     ['#f59e0b', '#000000', '#2F2F2F', '#cccccc', '#2F4F4F', '#FFFFFF'],  // Citrus Afterglow 
     ['#1F2937', '#cccccc', '#3F007E', '#cccccc', '#A9D1E4', '#000000'],  // Starlight Sonata 
     ['#84CC16 ', '#000000', '#333333', '#cccccc', '#20C997', '#000000'],  // Tropical Oasis 
+
     ['#333333', '#cccccc', '#2F4F4F', '#cccccc', '#007bff', '#ffffff'],  // Midnight
+    ['#0F1626', '#FFFFFF', '#1e293b', '#f1f5f9', '#0f172a', '#e2e8f0'],  // Black and White (Retina)
     // ['#xxxxxx', '#xxxxxx', '#xxxxxx', '#xxxxxx', '#xxxxxx', '#xxxxxx'],
 ]
