@@ -147,7 +147,7 @@ const onSaved = async (pallet: { form : {}}, fieldName: string) => {
 					@onSuccess="() => emits('renderTableKey')" />
 			</div>
             
-			<div v-else>
+			<div v-else-if="props.state == 'received'">
 				<div class="flex">
 					<ButtonEditTable
 						class="mx-2"
