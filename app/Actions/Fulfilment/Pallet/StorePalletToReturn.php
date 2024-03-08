@@ -10,6 +10,7 @@ namespace App\Actions\Fulfilment\Pallet;
 use App\Actions\Fulfilment\PalletReturn\Hydrators\HydratePalletReturns;
 use App\Actions\OrgAction;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
+use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletReturn;
@@ -51,6 +52,11 @@ class StorePalletToReturn extends OrgAction
             return true;
         }
 
+        if ($request->user() instanceof WebUser) {
+            // TODO: Raul please do the permission for the web user
+            return true;
+        }
+
         return $request->user()->hasPermissionTo("fulfilment.{$this->fulfilment->id}.edit");
     }
 
@@ -66,6 +72,17 @@ class StorePalletToReturn extends OrgAction
         $this->parent = $palletReturn;
         $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $request);
 
+        return $this->handle($palletReturn, $this->validatedData);
+    }
+
+    public function fromRetina(PalletReturn $palletReturn, ActionRequest $request): PalletReturn
+    {
+        /** @var FulfilmentCustomer $fulfilmentCustomer */
+        $this->parent       = $palletReturn;
+        $fulfilmentCustomer = $request->user()->customer->fulfilmentCustomer;
+        $this->fulfilment   = $fulfilmentCustomer->fulfilment;
+
+        $this->initialisation($request->get('website')->organisation, $request);
         return $this->handle($palletReturn, $this->validatedData);
     }
 

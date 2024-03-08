@@ -129,6 +129,18 @@ class IndexPalletReturns extends RetinaAction
                     'iconRight' => [
                         'icon'  => ['fal', 'fa-truck-couch'],
                         'title' => __('return')
+                    ],
+                    'actions' => [
+                        [
+                            'type'    => 'button',
+                            'style'   => 'create',
+                            'label'   => __('New Return'),
+                            'route'   => [
+                                'method'     => 'post',
+                                'name'       => 'retina.models.pallet-return.store',
+                                'parameters' => []
+                            ]
+                        ]
                     ]
                 ],
                 'data' => PalletReturnsResource::collection($customers),
