@@ -43,14 +43,20 @@ export const useHeadlineText = () => {
     ]
 }
 
-// 0: Leftsidebar, 1: NavigationSimple, 2: Text for LeftSideber, 3: Navigation & underline, 4: Text for Navigation, 5: -
 // 0-1: Main Layout (bg & text color)
 // 2-3: Navigation and box (bg & text color)
 // 4-5: Button and mini-box (bg & text color)
 export const useColorTheme = [
-    ['#4f46e5', '#f3f4f6', '#facc15', '#f3f4f6', '#334155', '#e2e8f0'],
-    ['#f59e0b', '#ffffff', '#ffffff', '#f59e0b', '#a3e635', '#334155', '#e2e8f0'],
-    ['#334155', '#ffffff', '#ffffff', '#334155', '#38bdf8', '#334155', '#cbd5e1'],
-    ['#EEF5DB', '#64748b', '#64748b', '#ffffff', '#FE5F55', '#334155', '#b8d8d8'],
-    ['#0F1626', '#FFF', '#1e293b', '#f1f5f9', '#0f172a', '#e2e8f0'],
+    ['#4f46e5', '#f3f4f6', '#A9D1E4', '#4f46e5', '#FFD700', '#000000'],  // Deep Sea Serenity 
+    ['#E5F2F0', '#332925', '#38674F', '#E5F2F0', '#F5D9B9', '#332925'],  // Nature's Embrace
+    ['#FFFFFF', '#333333', '#F28B00', '#333333', '#D6C7E2', '#333333'],  // Modern Brights 
+    ['#F8F8F8', '#000000', '#2F4F4F', '#F8F8F8', '#424242', '#000000'],  // Classic Sophistication 
+    ['#D1EBF2', '#2F4F4F', '#F8F8F8', '#2F4F4F', '#F28B00', '#2F4F4F'],  // Limitless Sky 
+    ['#f43f5e', '#F5F5F5', '#E3B7C8', '#000000', '#D6C7E2', '#000000'],  // Rosewater Blush 
+    ['#000000', '#f2f2f2', '#424242', '#f2f2f2', '#8e44ad', '#ffffff'],  // Amoled
+    ['#f59e0b', '#000000', '#2F2F2F', '#cccccc', '#2F4F4F', '#FFFFFF'],  // Citrus Afterglow 
+    ['#1F2937', '#cccccc', '#3F007E', '#cccccc', '#A9D1E4', '#000000'],  // Starlight Sonata 
+    ['#84CC16 ', '#000000', '#333333', '#cccccc', '#20C997', '#000000'],  // Tropical Oasis 
+    ['#333333', '#cccccc', '#2F4F4F', '#cccccc', '#007bff', '#ffffff'],  // Midnight
+    // ['#xxxxxx', '#xxxxxx', '#xxxxxx', '#xxxxxx', '#xxxxxx', '#xxxxxx'],
 ]
