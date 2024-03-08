@@ -271,9 +271,9 @@ watch(() => props.data, (newValue) => {
     <!-- Box -->
     <div class="h-16 grid grid-cols-4 gap-x-2 px-6 my-4">
         <!-- Stats: User name -->
-        <BoxStatsPalletDelivery :layout="useLayoutStore()" tooltip="Customer name" :label="pallets?.data[0]?.customer_name" icon="fal fa-user" />
+        <BoxStatsPalletDelivery :layout="useLayoutStore()" tooltip="Customer name" :label="data?.data.customer_name" icon="fal fa-user" />
         <BoxStatsPalletDelivery :layout="useLayoutStore()" tooltip="Delivery status" :label="capitalize(data?.data.state)" icon="fal fa-truck-couch" />
-        <BoxStatsPalletDelivery :layout="useLayoutStore()" tooltip="Total pallet" :label="pallets?.meta.total" icon="fal fa-pallet" />
+        <BoxStatsPalletDelivery :layout="useLayoutStore()" tooltip="Total pallet" :label="data?.data.number_pallets" icon="fal fa-pallet" />
     </div>
 
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />

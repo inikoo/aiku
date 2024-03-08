@@ -32,6 +32,7 @@ export interface PieCustomer {
 
 export interface PalletDelivery {
     id: number
+    customer_name: string
     number_pallets: number
     reference: string
     state: string

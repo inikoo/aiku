@@ -5,7 +5,7 @@ import { trans } from 'laravel-vue-i18n'
 const props = defineProps<{
     layout: any
     tooltip: string
-    label: string
+    label?: string | number
     icon: string | string[]
 }>()
 </script>
@@ -22,7 +22,7 @@ const props = defineProps<{
         >
             {{ trans(tooltip) }}
         </div>
-        <div class="text-2xl font-bold">{{ label }}</div>
+        <div class="text-2xl font-bold">{{ label || '-' }}</div>
         <FontAwesomeIcon :icon="icon" class='text-zinc-800/30 absolute text-[40px] right-2' fixed-width aria-hidden='true' />
     </div>
 </template>
