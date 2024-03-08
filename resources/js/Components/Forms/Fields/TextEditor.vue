@@ -13,6 +13,8 @@ import Superscript from '@tiptap/extension-superscript'
 import CharacterCount from '@tiptap/extension-character-count'
 import Highlight from '@tiptap/extension-highlight'
 import { Color } from '@tiptap/extension-color'
+import BulletList from '@tiptap/extension-bullet-list'
+import ListItem from '@tiptap/extension-list-item'
 
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
@@ -75,12 +77,6 @@ const limitWarning = computed(() => {
     return ''
 })
 
-
-// watch(() => props.modelValue, (newVal) => {
-//     if (editorInstance.value?.getHTML() === newVal) return
-//     editorInstance.value?.commands.setContent(props.modelValue, false)
-// })
-
 // Action: Bold, Italic, Undo, etc..
 const onActionClick = (slug: string, option: string = '') => {
     const vm = editorInstance.value?.chain().focus()
@@ -124,6 +120,8 @@ onMounted(() => {
             Subscript,
             Superscript,
             TextStyle,
+            BulletList,
+            ListItem,
             CharacterCount.configure({
                 limit: props.fieldData?.maxLength,
             }),
@@ -282,6 +280,19 @@ onBeforeUnmount(() => {
                 margin-top: 0.5em;
             }
         }
+    }
+
+    ul,
+    ol {
+        padding: 0 1rem;
+    }
+
+    ul {
+        list-style: disc
+    }
+
+    ol {
+        list-style: decimal
     }
 }
 </style>
