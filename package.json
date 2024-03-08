@@ -47,6 +47,7 @@
         "@revolist/revo-dropdown": "^2.0.1",
         "@revolist/vue3-datagrid": "^3.2.17",
         "@sentry/vue": "^7.84.0",
+        "@tiptap/extension-bubble-menu": "^2.2.4",
         "@tiptap/extension-character-count": "^2.0.3",
         "@tiptap/extension-color": "^2.2.3",
         "@tiptap/extension-highlight": "^2.2.3",

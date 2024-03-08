@@ -61,14 +61,14 @@ watch(
 <template>
 	<Head :title="capitalize(title)" />
 	<PageHeading :data="pageHead">
-		<template #button-group-add-pallet="{ action: action }">
+		<template #button-add-pallet="{ action: action }">
 			<Button
-				:style="action.button.style"
-				:label="action.button.label"
-				:icon="action.button.icon"
-				:iconRight="action.button.iconRight"
-				:key="`ActionButton${action.button.label}${action.button.style}`"
-				:tooltip="action.button.tooltip"
+				:style="action.action.style"
+				:label="action.action.label"
+				:icon="action.action.icon"
+				:iconRight="action.action.iconRight"
+				:key="`ActionButton${action.action.label}${action.action.style}`"
+				:tooltip="action.action.tooltip"
 				@click="() => (openModal = true)"
 			/>
 		</template>
