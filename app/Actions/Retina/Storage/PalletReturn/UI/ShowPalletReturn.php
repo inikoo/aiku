@@ -185,7 +185,7 @@ class ShowPalletReturn extends RetinaAction
                     'store' => [
                         'name'       => 'retina.models.pallet-return.pallet.store',
                         'parameters' => [
-                            'palletReturn'       => $palletReturn->slug
+                            'palletReturn'       => $palletReturn->id
                         ]
                     ]
                 ],
