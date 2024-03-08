@@ -146,9 +146,9 @@ onBeforeUnmount(() => {
                                 'cursor-pointer group px-3 py-2 flex items-center text-sm font-medium',
                             ]"
                             :style="[key == currentTab ? {
-                                'border-left': `4px solid ${layout.app?.theme[3]}`,
-                                'background-color': `${layout.app?.theme[3]}20`,
-                                'color': layout.app?.theme[4],
+                                'border-left': `4px solid ${layout.app?.theme[2]}`,
+                                'background-color': `color-mix(in srgb, ${layout?.app?.theme[2]} 20%, white)`,
+                                'color': `color-mix(in srgb, ${layout?.app?.theme[3]} 50%, black)`,
                             } : {}]"
                         >
                             <FontAwesomeIcon v-if="sectionData.icon" aria-hidden="true" class="flex-shrink-0 -ml-1 mr-2 h-4 w-4"

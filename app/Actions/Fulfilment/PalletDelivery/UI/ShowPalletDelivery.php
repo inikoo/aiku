@@ -167,7 +167,7 @@ class ShowPalletDelivery extends OrgAction
                     [
                         'type'    => 'button',
                         'style'   => 'save',
-                        'tooltip' => __('mark as received'),
+                        'tooltip' => __('Mark as received'),
                         'label'   => __('receive'),
                         'key'     => 'action',
                         'route'   => [

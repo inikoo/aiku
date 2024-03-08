@@ -39,7 +39,7 @@ const handleToggleLeftBar = () => {
             :title="layout.leftSidebar.show ? 'Collapse the bar' : 'Expand the bar'"
             :style="{
                 'background-color': layout.app.theme[2],
-                'color': layout.app.theme[0]
+                'color': layout.app.theme[3]
             }"
         >
             <div class="flex items-center justify-center transition-all duration-300 ease-in-out"
