@@ -80,68 +80,13 @@ class ShowPalletReturn extends RetinaAction
                             'key'     => 'action',
                             'route'   => [
                                 'method'     => 'post',
-                                'name'       => 'grp.models.fulfilment-customer.pallet-return.submit',
+                                'name'       => 'retina.models.pallet-return.submit',
                                 'parameters' => [
-                                    'organisation'       => $palletReturn->organisation->slug,
-                                    'fulfilment'         => $palletReturn->fulfilment->slug,
-                                    'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id,
-                                    'palletReturn'       => $palletReturn->reference
+                                    'palletReturn'       => $palletReturn->id
                                 ]
                             ]
                         ] : [],
-                    ] : [
-                        $palletReturn->state == PalletReturnStateEnum::SUBMITTED ? [
-                            'type'    => 'button',
-                            'style'   => 'save',
-                            'tooltip' => __('confirm'),
-                            'label'   => __('confirm'),
-                            'key'     => 'action',
-                            'route'   => [
-                                'method'     => 'post',
-                                'name'       => 'grp.models.fulfilment-customer.pallet-return.confirm',
-                                'parameters' => [
-                                    'organisation'       => $palletReturn->organisation->slug,
-                                    'fulfilment'         => $palletReturn->fulfilment->slug,
-                                    'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id,
-                                    'palletReturn'       => $palletReturn->reference
-                                ]
-                            ]
-                        ] : [],
-                        $palletReturn->state == PalletReturnStateEnum::CONFIRMED ? [
-                            'type'    => 'button',
-                            'style'   => 'save',
-                            'tooltip' => __('Set as delivered'),
-                            'label'   => __('Set as "in delivery"'),
-                            'key'     => 'action',
-                            'route'   => [
-                                'method'     => 'post',
-                                'name'       => 'grp.models.fulfilment-customer.pallet-return.delivery',
-                                'parameters' => [
-                                    'organisation'       => $palletReturn->organisation->slug,
-                                    'fulfilment'         => $palletReturn->fulfilment->slug,
-                                    'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id,
-                                    'palletReturn'       => $palletReturn->reference
-                                ]
-                            ]
-                        ] : [],
-                        $palletReturn->state == PalletReturnStateEnum::IN_DELIVERY ? [
-                            'type'    => 'button',
-                            'style'   => 'save',
-                            'tooltip' => __('received'),
-                            'label'   => __('received'),
-                            'key'     => 'action',
-                            'route'   => [
-                                'method'     => 'post',
-                                'name'       => 'grp.models.fulfilment-customer.pallet-return.received',
-                                'parameters' => [
-                                    'organisation'       => $palletReturn->organisation->slug,
-                                    'fulfilment'         => $palletReturn->fulfilment->slug,
-                                    'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id,
-                                    'palletReturn'       => $palletReturn->reference
-                                ]
-                            ]
-                        ] : [],
-                    ],
+                    ] : [],
                 ],
 
                 'updateRoute' => [

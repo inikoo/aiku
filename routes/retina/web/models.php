@@ -15,6 +15,7 @@ use App\Actions\Fulfilment\Pallet\UpdatePallet;
 use App\Actions\Fulfilment\PalletDelivery\StorePalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\SubmitPalletDelivery;
 use App\Actions\Fulfilment\PalletReturn\StorePalletReturn;
+use App\Actions\Fulfilment\PalletReturn\SubmitPalletReturn;
 use App\Actions\Fulfilment\StoredItem\StoreStoredItem;
 use App\Actions\Fulfilment\StoredItem\SyncStoredItemToPallet;
 use App\Actions\UI\Retina\Profile\UpdateProfile;
@@ -26,6 +27,7 @@ Route::patch('/settings', UpdateCustomerSettings::class)->name('settings.update'
 Route::post('pallet-return', [StorePalletReturn::class, 'fromRetina'])->name('pallet-return.store');
 Route::name('pallet-return.')->prefix('pallet-return/{palletReturn:id}')->group(function () {
     Route::post('pallet', [StorePalletToReturn::class, 'fromRetina'])->name('pallet.store');
+    Route::post('submit', [SubmitPalletReturn::class, 'fromRetina'])->name('submit');
 });
 
 Route::post('pallet-delivery', [StorePalletDelivery::class, 'fromRetina'])->name('pallet-delivery.store');
