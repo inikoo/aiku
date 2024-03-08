@@ -16,6 +16,7 @@ use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -33,27 +34,16 @@ class StoreAppointment
 
     public Customer|Shop $parent;
 
-    /**
-     * @throws \Exception
-     */
-    public function handle(Customer|Shop $parent, array $modelData): Model
+    public function handle(Shop $shop, array $modelData): Model
     {
-        $this->parent = $parent;
-
-        if(class_basename($parent) == 'Shop') {
-            data_set($modelData, 'customer_id', $modelData['customer_id']);
-        } elseif(class_basename($parent) == 'Customer') {
-            data_set($modelData, 'shop_id', $parent->shop_id);
-            data_set($modelData, 'name', $parent->name);
-        }
+        $customer = StoreCustomer::run($shop, Arr::only($modelData, ['contact_name', 'company_name', 'email']));
 
         /** @var \App\Models\CRM\Appointment $appointment */
-        $appointment = $parent->appointments()->create($modelData);
+        $appointment = $customer->appointments()->create($modelData);
 
         match($appointment->event) {
             AppointmentEventEnum::CALLBACK  => CreateMeetingUsingZoom::run($appointment),
-            AppointmentEventEnum::IN_PERSON => $appointment->update(['event_address' => 'https://maps.app.goo.gl/Gr6RQbgkx2gkXuae7']),
-            default                         => throw new Exception(__('Invalid appointment event'))
+            AppointmentEventEnum::IN_PERSON => $appointment->update(['event_address' => 'https://maps.app.goo.gl/Gr6RQbgkx2gkXuae7'])
         };
 
         return $appointment;
@@ -95,7 +85,7 @@ class StoreAppointment
         $this->fillFromRequest($request);
         $request->validate();
 
-        return $this->handle($customer, $request->validated());
+        return $this->handle($customer->shop, $request->validated());
     }
 
     public function inShop(Shop $shop, ActionRequest $request): Model
@@ -110,10 +100,9 @@ class StoreAppointment
     {
         $this->fillFromRequest($request);
         $request->validate();
+        $shop = $request->get('website')->shop;
 
-        $customer = StoreCustomer::run($request->only('contact_name', 'company_name', 'email'));
-
-        return $this->handle($customer, $request->validated());
+        return $this->handle($shop, $request->validated());
     }
 
     public string $commandSignature = 'appointment:book {shop} {hour} {minute}';
