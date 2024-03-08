@@ -8,7 +8,7 @@
 
 
 <script setup lang="ts">
-import { ref } from "vue"
+import { ref, provide } from "vue"
 import { initialiseApp } from "@/Composables/initialiseApp"
 import { usePage } from "@inertiajs/vue3"
 import Footer from "@/Components/Footer/Footer.vue"
@@ -25,6 +25,7 @@ import { faTachometerAltFast, faGlobe } from '@fal'
 import { faSearch, faBell } from '@far'
 import { library } from '@fortawesome/fontawesome-svg-core'
 library.add(faSearch, faBell, faTachometerAltFast, faGlobe)
+provide('layout', useLayoutStore())
 
 
 initialiseApp()

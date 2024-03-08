@@ -2,9 +2,12 @@
 // import { ColorPicker } from 'vue-color-kit'
 // import 'vue-color-kit/dist/vue-color-kit.css'
 import { useColorTheme } from '@/Composables/useStockList'
-import { useLayoutStore } from '@/Stores/layout'
+// import { useLayoutStore } from '@/Stores/layout'
+import { inject } from 'vue'
 
-const layoutStore = useLayoutStore()
+const layout: any = inject('layout')
+
+// const layoutStore = useLayoutStore()
 
 const props = defineProps<{
     form: any
@@ -15,7 +18,7 @@ const props = defineProps<{
 }>()
 
 const onClickColor = (colorTheme: string[]) => {
-    layoutStore.app.theme = colorTheme
+    layout.app.theme = colorTheme
     props.form[props.fieldName] = colorTheme
 }
 
