@@ -36,10 +36,15 @@ class StoreAppointment
 
     public function handle(Shop $shop, array $modelData): Model
     {
+        data_set($modelData, 'group_id', $shop->group_id);
+        data_set($modelData, 'organisation_id', $shop->organisation_id);
+        data_set($modelData, 'name', $modelData['contact_name']);
+        data_set($modelData, 'shop_id', $shop->id);
+
         $customer = StoreCustomer::run($shop, Arr::only($modelData, ['contact_name', 'company_name', 'email']));
 
         /** @var \App\Models\CRM\Appointment $appointment */
-        $appointment = $customer->appointments()->create($modelData);
+        $appointment = $customer->appointments()->create(Arr::except($modelData, ['contact_name', 'company_name', 'email']));
 
         match($appointment->event) {
             AppointmentEventEnum::CALLBACK  => CreateMeetingUsingZoom::run($appointment),
@@ -68,7 +73,9 @@ class StoreAppointment
     {
         return [
             'customer_id'              => ['sometimes'],
-            'name'                     => ['sometimes', 'string'],
+            'contact_name'             => ['sometimes', 'string'],
+            'company_name'             => ['sometimes', 'string'],
+            'email'                    => ['sometimes', 'email'],
             'schedule_at'              => ['required'],
             'description'              => ['nullable', 'string', 'max:255'],
             'type'                     => ['required', Rule::in(AppointmentTypeEnum::values())],
