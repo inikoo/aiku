@@ -81,6 +81,8 @@ class StoreStoredItem
         /** @var FulfilmentCustomer $fulfilmentCustomer */
         $fulfilmentCustomer = $request->user()->customer->fulfilmentCustomer;
 
+        $this->setRawAttributes($request->all());
+
         $this->fulfilment         = $fulfilmentCustomer->fulfilment;
         $this->fulfilmentCustomer = $fulfilmentCustomer;
 

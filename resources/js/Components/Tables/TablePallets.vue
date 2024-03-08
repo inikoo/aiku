@@ -11,6 +11,7 @@ import Icon from '@/Components/Icon.vue'
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faTrashAlt } from '@far';
 import { faSignOutAlt } from '@fal';
+import Tag from "@/Components/Tag.vue"
 
 library.add(
     faTrashAlt,faSignOutAlt
@@ -76,6 +77,22 @@ function palletRoute(pallet: Pallet) {
 
         <template #cell(state)="{ item: pallet }">
             <Icon :data="pallet['state_icon']" class="px-1"/>
+        </template>
+        <template #cell(stored_items)="{ item: pallet }">
+            <div v-if="pallet.stored_items.length" class="flex flex-wrap gap-x-1 gap-y-1.5">
+                <Tag v-for="item of pallet.stored_items" :theme="item.id" :label="`${item.reference} (${item.quantity})`" :closeButton="false"
+                    :stringToColor="true">
+                    <template #label>
+                        <div class="whitespace-nowrap text-xs">
+                            {{ item.reference }} (<span class="font-light">{{ item.quantity }}</span>)
+                        </div>
+                    </template>
+                </Tag>
+            </div>
+            <div v-else class="text-gray-400 text-xs italic">
+                No items in this pallet
+            </div>
+
         </template>
     </Table>
 </template>
