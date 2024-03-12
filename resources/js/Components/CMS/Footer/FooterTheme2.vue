@@ -44,6 +44,7 @@ const emits = defineEmits()
 console.log("theme1", props)
 
 const handleChangeActiveColumn = (id: string) => {
+	toolbar.
     emits('changeActiveColumn', id)
   }
 
@@ -60,7 +61,7 @@ const handleChangeActiveColumn = (id: string) => {
 					:disabled="tool.hand !== 'grab'"
 					:class="['flex gap-8 xl:col-span-2', tool.hand !== 'grab' ? 'cursor-pointer' : 'cursor-grab']">
 					<template #item="{ element, index }">
-						<div :class="['space-y-3 w-1/3', activeColumn == element.column_id ? 'border' : null]" @click="() => handleChangeActiveColumn(element.column_id)">
+						<div :class="['space-y-3 w-1/3', activeColumn == element.column_id ? 'outline-dashed' : null]" @click="() => handleChangeActiveColumn(element.column_id)">
 							<BubleTextEditor :form="element" field-name="title" />
 							<div v-if="element.type == 'list'">
 								<draggable

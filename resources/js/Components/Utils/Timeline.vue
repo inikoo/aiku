@@ -48,8 +48,10 @@ const stepsWithIndex = (() => {
 
 const setupState = (step: Step) => {
     const foundState = finalOptions.value.find((item) => item.key === props.state)
-    const set = step.key == props.state || step.index < foundState.index
-    return set
+    if(foundState){
+        const set = step.key == props.state || step.index < foundState.index
+        return set
+    }else return
 }
 
 watch(() => props.state, (newData) => {
