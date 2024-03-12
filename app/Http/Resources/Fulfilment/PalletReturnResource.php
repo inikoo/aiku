@@ -29,7 +29,12 @@ class PalletReturnResource extends JsonResource
             ];
         }
 
-        $finalTimeline = Arr::except($timeline, [PalletReturnStateEnum::CANCEL->value]);
+        $finalTimeline = Arr::except(
+            $timeline,
+            [$palletReturn->state->value == PalletReturnStateEnum::CANCEL->value
+                ? ''
+                : PalletReturnStateEnum::CANCEL->value]
+        );
 
         return [
             'id'               => $palletReturn->id,

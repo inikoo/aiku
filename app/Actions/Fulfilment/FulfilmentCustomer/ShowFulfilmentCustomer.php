@@ -123,7 +123,7 @@ class ShowFulfilmentCustomer extends OrgAction
                         [
                             'type'    => 'button',
                             'style'   => 'create',
-                            'tooltip' => __('Create new return order'),
+                            'tooltip' => __('Create new return'),
                             'label'   => __('new return'),
                             'route'   => [
                                 'method'     => 'post',

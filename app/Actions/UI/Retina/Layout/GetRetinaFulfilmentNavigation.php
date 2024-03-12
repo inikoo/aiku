@@ -63,6 +63,14 @@ class GetRetinaFulfilmentNavigation
                             'name'       => 'retina.storage.pallet-returns.index'
                         ]
                     ],
+                    [
+                        'label' => __('stored item return'),
+                        'icon'  => ['fal', 'fa-truck-couch'],
+                        'root'  => 'retina.storage.stored-item-returns.',
+                        'route' => [
+                            'name'       => 'retina.storage.stored-item-returns.index'
+                        ]
+                    ],
                 ]
             ]
         ];

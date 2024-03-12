@@ -6,9 +6,9 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faDotCircle } from "@fas"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { SubSection } from "@/types/Navigation"
-import {faPallet, faTruck, faTruckRamp} from "@fal";
+import {faPallet, faTruck, faTruckCouch, faTruckRamp} from "@fal";
 
-library.add(faDotCircle, faTruck, faPallet, faTruckRamp)
+library.add(faDotCircle, faTruck, faPallet, faTruckRamp, faTruckCouch)
 
 const layoutStore = useLayoutStore()
 
