@@ -27,6 +27,7 @@ createInertiaApp(
         resolve: name => {
             const pages = import.meta.glob('./Pages/AikuPublic/**/*.vue', { eager: true })
             let page = pages[`./Pages/AikuPublic/${name}.vue`]
+            if(!page) console.warn('File', name, 'is not exist')
             page.default.layout = page.default.layout || Layout
             return page
         },

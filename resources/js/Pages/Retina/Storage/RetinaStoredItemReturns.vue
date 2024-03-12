@@ -18,7 +18,7 @@ import { get } from 'lodash'
 import axios from 'axios'
 import { PalletDelivery } from "@/types/pallet-delivery"
 import { } from '@fal'
-library.add( )
+library.add()
 
 
 const props = defineProps<{
@@ -32,14 +32,8 @@ const props = defineProps<{
 }>()
 
 
-import {
-    Dialog,
-    DialogPanel,
-    DialogTitle,
-    TransitionChild,
-    TransitionRoot,
-} from "@headlessui/vue"
-import TablePalletReturns from "@/Components/Tables/TablePalletReturns.vue";
+import { Dialog, DialogPanel, DialogTitle, TransitionChild, TransitionRoot, } from "@headlessui/vue"
+import TablePalletReturns from "@/Components/Tables/TablePalletReturns.vue"
 
 
 const isOpen = ref(false)
@@ -85,7 +79,7 @@ function palletReturnRoute(palletReturn: PalletDelivery) {
                     route().params['organisation'],
                     route().params['warehouse'],
                     palletReturn.slug
-                ]);
+                ])
         case 'grp.org.fulfilments.show.operations.pallet-returns.index':
             return route(
                 'grp.org.fulfilments.show.operations.pallet-returns.show',
@@ -93,7 +87,7 @@ function palletReturnRoute(palletReturn: PalletDelivery) {
                     route().params['organisation'],
                     route().params['fulfilment'],
                     palletReturn.slug
-                ]);
+                ])
         default:
             return route(
                 'grp.org.fulfilments.show.crm.customers.show.pallet-returns.show',
@@ -102,12 +96,13 @@ function palletReturnRoute(palletReturn: PalletDelivery) {
                     route().params['fulfilment'],
                     route().params['fulfilmentCustomer'],
                     palletReturn.slug
-                ]);
+                ])
     }
 }
 </script>
 
 <template>
+
     <Head :title="capitalize(title)" />
     <!-- <pre>{{ usePage().props.data }}</pre> -->
     <PageHeading :data="pageHead">
@@ -141,16 +136,14 @@ function palletReturnRoute(palletReturn: PalletDelivery) {
                 <Link :href="route(action.action.route?.name, action.action.route?.parameters)" :method="'post'"
                     :as="'button'">
                 <Button :style="action.action.style" :label="action.action.label" :icon="action.action.icon"
-                    :iconRight="action.action.iconRight" :key="`ActionButton${action.action.label}${action.action.style}`"
+                    :iconRight="action.action.iconRight"
+                    :key="`ActionButton${action.action.label}${action.action.style}`"
                     :tooltip="action.action.tooltip" />
                 </Link>
             </div>
 
         </template>
     </PageHeading>
-    <!--
-      Todo: modal forms for quick creation of models
-      -->
 
     <TransitionRoot as="template" :show="isOpen">
         <Dialog :open="isOpen" @close="setIsOpen" as="div" class="relative z-10">
@@ -173,7 +166,8 @@ function palletReturnRoute(palletReturn: PalletDelivery) {
 
                             <div class="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
                                 <div class="sm:col-span-4">
-                                    <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
+                                    <label for="username"
+                                        class="block text-sm font-medium text-gray-700">Username</label>
                                     <div class="mt-1">
                                         <input v-model="webUserForm.username" id="username" name="username" type="text"
                                             autocomplete="email"

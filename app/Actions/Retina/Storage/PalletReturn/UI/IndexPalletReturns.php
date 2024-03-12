@@ -124,7 +124,7 @@ class IndexPalletReturns extends RetinaAction
                 ),
                 'title'    => __('pallet returns'),
                 'pageHead' => [
-                    'title'     => __('returns'),
+                    'title'     => __('pallet returns'),
                     // 'container' => $container,
                     'iconRight' => [
                         'icon'  => ['fal', 'fa-truck-couch'],

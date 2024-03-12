@@ -105,7 +105,7 @@ class IndexStoredItemReturns extends RetinaAction
                 ),
                 'title'    => __('stored item returns'),
                 'pageHead' => [
-                    'title'     => __('returns'),
+                    'title'     => __('stored item returns'),
                     // 'container' => $container,
                     'iconRight' => [
                         'icon'  => ['fal', 'fa-truck-couch'],
