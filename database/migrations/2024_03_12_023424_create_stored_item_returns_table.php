@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\Fulfilment\StoredItemReturn\StoredItemReturnStateEnum;
 use App\Stubs\Migrations\HasFulfilmentDelivery;
 use App\Stubs\Migrations\HasGroupOrganisationRelationship;
 use App\Stubs\Migrations\HasSoftDeletes;
@@ -15,20 +16,17 @@ return new class () extends Migration {
     public function up()
     {
         Schema::create('stored_item_returns', function (Blueprint $table) {
-            Schema::create('pallet_returns', function (Blueprint $table) {
-                $table->increments('id');
-                $table = $this->delivery($table);
-                $table->string('state')->default(PalletReturnStateEnum::IN_PROCESS->value);
+            $table->increments('id');
+            $table = $this->delivery($table);
+            $table->string('state')->default(StoredItemReturnStateEnum::IN_PROCESS->value);
 
-                foreach (PalletReturnStateEnum::cases() as $state) {
-                    $table->dateTimeTz("{$state->snake()}_at")->nullable();
-                }
-                $table->dateTimeTz('dispatched_at')->nullable();
-                $table->dateTimeTz('date')->nullable();
-                $table->jsonb('data')->nullable();
-                $table->timestampsTz();
-                $this->softDeletes($table);
-            });
+            foreach (StoredItemReturnStateEnum::cases() as $state) {
+                $table->dateTimeTz("{$state->snake()}_at")->nullable();
+            }
+            $table->dateTimeTz('date')->nullable();
+            $table->jsonb('data')->nullable();
+            $table->timestampsTz();
+            $this->softDeletes($table);
         });
     }
 
