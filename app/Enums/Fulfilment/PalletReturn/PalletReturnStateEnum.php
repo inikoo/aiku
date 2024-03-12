@@ -22,19 +22,20 @@ enum PalletReturnStateEnum: string
     case IN_PROCESS      = 'in-process';
     case SUBMITTED       = 'submitted';
     case CONFIRMED       = 'confirmed';
-    case IN_DELIVERY     = 'in-delivery';
-    case RECEIVED        = 'received';
-    case DONE            = 'done';
+    case PICKING         = 'picking';
+    case PICKED          = 'picked';
+    case DISPATCHED      = 'dispatched';
 
     public static function labels(): array
     {
         return [
-            'in-process'     => __('In Process'),
-            'submitted'      => __('Submitted'),
-            'confirmed'      => __('Confirmed'),
-            'in-delivery'    => __('In Delivery'),
-            'received'       => __('Received'),
-            'done'           => __('Done')
+            'in-process'           => __('In Process'),
+            'submitted'            => __('Submitted'),
+            'confirmed'            => __('Confirmed'),
+            'picking'              => __('Picking'),
+            'picked'               => __('Picked'),
+            'dispatched'           => __('Dispatched'),
+            'cancel'               => __('Cancel')
         ];
     }
 
@@ -59,20 +60,20 @@ enum PalletReturnStateEnum: string
                 'class'   => 'text-emerald-500',
                 'color'   => 'emerald'
             ],
-            'in-delivery' => [
-                'tooltip' => __('In Delivery'),
+            'picking' => [
+                'tooltip' => __('Picking'),
                 'icon'    => 'fal fa-truck',
                 'class'   => 'text-orange-500',
                 'color'   => 'orange'
             ],
-            'received' => [
-                'tooltip' => __('Received'),
+            'picked' => [
+                'tooltip' => __('Picked'),
                 'icon'    => 'fal fa-check',
                 'class'   => 'text-slate-500',
                 'color'   => 'slate'
             ],
-            'done' => [
-                'tooltip' => __('Done'),
+            'dispatched' => [
+                'tooltip' => __('Dispatched'),
                 'icon'    => 'fal fa-check-double',
                 'class'   => 'text-purple-500',
                 'color'   => 'purple'
