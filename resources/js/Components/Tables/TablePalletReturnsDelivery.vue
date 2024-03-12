@@ -26,7 +26,7 @@ const props = defineProps<{
 }>()
 
 function customerRoute(pallet: object) {
-    return route(pallet.deleteRoute.name, pallet.deleteRoute.parameters)
+    return route(pallet.deleteFromReturnRoute.name, pallet.deleteFromReturnRoute.parameters)
 }
 </script>
 
@@ -52,7 +52,7 @@ function customerRoute(pallet: object) {
                     </template>
                 </Tag>
             </div>
-            
+
             <div v-else class="text-gray-400 text-xs italic">
                 No items in this pallet
             </div>

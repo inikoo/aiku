@@ -60,7 +60,7 @@ class PalletsResource extends JsonResource
                 ],
                 default => [
                     'name'       => 'grp.models.fulfilment-customer.pallet-delivery.pallet.delete',
-                    'parameters' => [$pallet->fulfilmentCustomer->id, $pallet->palletDelivery?->slug, $pallet->slug]
+                    'parameters' => [$pallet->fulfilmentCustomer->id, $pallet->palletDelivery?->slug, $pallet->id]
                 ]
             },
             'deleteFromReturnRoute' => match (request()->routeIs('retina.*')) {
@@ -70,7 +70,7 @@ class PalletsResource extends JsonResource
                 ],
                 default => [
                     'name'       => 'grp.models.fulfilment-customer.pallet-return.pallet.delete',
-                    'parameters' => [$pallet->fulfilmentCustomer->id, $pallet->palletReturn?->slug, $pallet->slug]
+                    'parameters' => [$pallet->fulfilmentCustomer->id, $pallet->palletReturn?->slug, $pallet->id]
                 ]
             },
             'notReceivedRoute'       => [
