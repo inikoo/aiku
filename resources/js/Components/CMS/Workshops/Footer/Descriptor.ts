@@ -115,7 +115,7 @@ const footerDataTools = {
 	theme: [
 		{ name: "Light Theme", value: "light-theme" },
 		{ name: "Dark Theme", value: "dark-theme" },
-		{ name: "Simple Theme", value: "simple-theme" },
+	/* 	{ name: "Simple Theme", value: "simple-theme" }, */
 	],
 	columnsType: [
 		{ name: "Description", value: "description" },
