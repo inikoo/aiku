@@ -12,12 +12,15 @@ import { faDownload, faPlus as falPlus } from '@fal'
 import { faArrowLeft, faPencil, faTrashAlt, faPersonDolly } from '@far'
 import { faPlus, faSave, faUpload, faTrashUndoAlt } from '@fas'
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import { useLayoutStore } from '@/Stores/layout'
+// import { useLayoutStore } from '@/Stores/layout'
 import { faSpinnerThird } from '@fad'
+import { inject } from 'vue'
+
+// const layout = useLayoutStore()
+const layout: any = inject('layout')
 
 library.add(faPlus, faSave, fadSave, faUpload, faDownload, falPlus, faArrowLeft, faPencil, faTrashAlt, faSpinnerThird, faTrashUndoAlt, faPersonDolly)
 
-const layout = useLayoutStore()
 
 const props = withDefaults(defineProps<{
     style?: string | object
@@ -52,7 +55,7 @@ else if ( props.type == 'secondary' || props.type == 'edit' || props.style == 's
     styleClass = 'buttonSecondary'
 }
 
-else if (props.type == 'tertiary' || props.style == 'tertiary' ) styleClass = 'bg-transparent border border-gray-300 text-gray-700 hover:bg-gray-200/70'
+else if (props.type == 'tertiary' || props.style == 'tertiary' || props.type == 'exit' || props.style == 'exit' ) styleClass = 'bg-transparent border border-gray-300 text-gray-700 hover:bg-gray-200/70'
 else if (props.type == 'dashed' || props.style == 'dashed' ) styleClass = 'bg-transparent border border-dashed border-gray-300 text-gray-700 hover:bg-gray-200/70'
 else if (props.type == 'rainbow' || props.style == 'rainbow' ) styleClass = 'bg-indigo-500 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2'
 
@@ -195,10 +198,10 @@ const getActionIcon = (icon: any) => {
     // Primary but less opacity
     background-color: v-bind('layout?.app?.theme[4] + "22"') !important;
     border: v-bind('`1px solid ${layout?.app?.theme[4] + "88"}`');
-    color: v-bind('layout?.app?.theme[4]') !important;
+    color: v-bind('`color-mix(in srgb, ${layout?.app?.theme[4]} 80%, black)`') !important;
 
     &:hover {
-        background-color: v-bind('`color-mix(in srgb, ${layout?.app?.theme[4] + "22"} 80%, black)`') !important;
+        background-color: v-bind('`color-mix(in srgb, ${layout?.app?.theme[4] + "22"} 85%, black)`') !important;
     }
 
     &:focus {

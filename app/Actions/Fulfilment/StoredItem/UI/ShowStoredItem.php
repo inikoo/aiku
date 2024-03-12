@@ -77,7 +77,7 @@ class ShowStoredItem extends OrgAction
                     'actions'=> [
                         [
                             'type'    => 'button',
-                            'style'   => 'cancel',
+                            'style'   => 'exit',
                             'tooltip' => __('return to customer'),
                             'label'   => __($storedItem->status == StoredItemStatusEnum::RETURNED ? 'returned' : 'return to customer'),
                             'route'   => [
@@ -88,24 +88,26 @@ class ShowStoredItem extends OrgAction
                         ],
                         [
                             'type'    => 'button',
-                            'style'   => 'edit',
-                            'tooltip' => __('edit stored items'),
-                            'label'   => __('stored items'),
-                            'route'   => [
-                                'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
-                                'parameters' => array_values($request->route()->originalParameters())
-                            ]
-                        ],
-                        [
-                            'type'    => 'button',
-                            'style'   => 'delete',
-                            'tooltip' => __('set as damaged'),
+                            'style'   => 'negative',
+                            'icon'    => 'fal fa-fragile',
+                            'tooltip' => __('Set as damaged'),
                             'label'   => __($storedItem->status == StoredItemStatusEnum::DAMAGED ? 'damaged' : 'set as damaged'),
                             'route'   => [
                                 'name'       => 'grp.fulfilment.stored-items.setDamaged',
                                 'parameters' => array_values($request->route()->originalParameters())
                             ],
                             'disabled' => $storedItem->status == StoredItemStatusEnum::DAMAGED
+                        ],
+                        [
+                            'type'    => 'button',
+                            'style'   => 'secondary',
+                            'icon'    => 'fal fa-pencil',
+                            'tooltip' => __('Edit stored items'),
+                            'label'   => __('stored items'),
+                            'route'   => [
+                                'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
+                                'parameters' => array_values($request->route()->originalParameters())
+                            ]
                         ],
                     ],
                 ],

@@ -30,7 +30,7 @@ enum StoredItemTabsEnum: string
             ],
             StoredItemTabsEnum::PALLETS => [
                 'title' => __('pallets'),
-                'icon'  => 'fas fa-pallet',
+                'icon'  => 'fal fa-pallet',
             ],
             StoredItemTabsEnum::DATA => [
                 'align' => 'right',

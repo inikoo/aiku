@@ -4,12 +4,11 @@
   -  Copyright (c) 2022, Raul A Perusquia Flores
   -->
 
-<script setup  lang="ts">
-import {Head} from '@inertiajs/vue3';
-import PageHeading from '@/Components/Headings/PageHeading.vue';
+<script setup lang="ts">
+import { Head } from '@inertiajs/vue3'
+import PageHeading from '@/Components/Headings/PageHeading.vue'
 import { capitalize } from "@/Composables/capitalize"
-import TableStoredItems from "@/Components/Tables/TableStoredItems.vue";
-
+import TableStoredItems from "@/Components/Tables/TableStoredItems.vue"
 const props = defineProps<{
     data: object
     title: string
@@ -19,7 +18,7 @@ const props = defineProps<{
 </script>
 
 <template>
-    <Head :title="capitalize(title)"/>
+    <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead"></PageHeading>
     <TableStoredItems :data="data" />
 </template>
