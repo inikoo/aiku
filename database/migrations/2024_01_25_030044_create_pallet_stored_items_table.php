@@ -15,6 +15,7 @@ return new class () extends Migration {
                 $table->unsignedBigInteger('stored_item_id');
                 $table->foreign('stored_item_id')->references('id')->on('stored_items');
                 $table->decimal('quantity')->default(0);
+                $table->decimal('damaged_quantity')->default(0);
                 $table->timestampsTz();
             });
         }
