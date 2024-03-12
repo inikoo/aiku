@@ -18,8 +18,9 @@ import Notification from '@/Components/Utils/Notification.vue'
 
 import { faHome, faBars, faUsersCog, faTachometerAltFast, faUser, faLanguage } from '@fal'
 import { faSearch, faBell } from '@far'
-import { ref } from 'vue'
+import { ref, provide } from 'vue'
 
+provide('layout', useLayoutStore())
 
 library.add( faHome, faBars, faUsersCog, faTachometerAltFast, faUser, faLanguage, faSearch, faBell )
 
