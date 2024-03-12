@@ -10,6 +10,7 @@ namespace App\Http\Resources\Fulfilment;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Models\Fulfilment\PalletDelivery;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Arr;
 
 class PalletDeliveryResource extends JsonResource
 {
@@ -20,7 +21,7 @@ class PalletDeliveryResource extends JsonResource
 
         $timeline = [];
         foreach (PalletDeliveryStateEnum::cases() as $state) {
-            $timeline[] = [
+            $timeline[$state->value] = [
                 'label'   => $state->labels()[$state->value],
                 'tooltip' => $state->labels()[$state->value],
                 'key'     => $state->value,
@@ -29,12 +30,19 @@ class PalletDeliveryResource extends JsonResource
             ];
         }
 
+        $finalTimeline = Arr::except(
+            $timeline,
+            [$palletDelivery->state->value == PalletDeliveryStateEnum::BOOKED_IN->value
+                ? PalletDeliveryStateEnum::NOT_RECEIVED->value
+                : PalletDeliveryStateEnum::BOOKED_IN->value]
+        );
+
         return [
             'id'               => $palletDelivery->id,
             'customer_name'    => $palletDelivery->fulfilmentCustomer->customer->name,
             'reference'        => $palletDelivery->reference,
             'state'            => $palletDelivery->state->value,
-            'timeline'         => $timeline,
+            'timeline'         => $finalTimeline,
             'number_pallets'   => $palletDelivery->number_pallets,
         ];
     }

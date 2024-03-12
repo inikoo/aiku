@@ -19,7 +19,7 @@ class PalletReturnResource extends JsonResource
 
         $timeline = [];
         foreach (PalletReturnStateEnum::cases() as $state) {
-            $timeline[] = [
+            $timeline[$state->value] = [
                 'label'   => $state->labels()[$state->value],
                 'tooltip' => $state->labels()[$state->value],
                 'key'     => $state->value,
