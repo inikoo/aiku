@@ -14,6 +14,7 @@ library.add(faSpinnerThird, faSearch)
 
 const props = defineProps<{
 	palletRoute: object
+	descriptor : object
 }>()
 
 const emits = defineEmits()
@@ -84,6 +85,7 @@ const onSubmitPallet = () => {
 }
 
 onMounted(getData)
+console.log('inii',props)
 </script>
 
 <template>   
