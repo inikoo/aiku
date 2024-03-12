@@ -7,6 +7,7 @@
 
 namespace App\Http\Resources\Fulfilment;
 
+use App\Http\Resources\HasSelfCall;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
@@ -21,6 +22,8 @@ use Illuminate\Http\Resources\Json\JsonResource;
  */
 class StoredItemResource extends JsonResource
 {
+    use HasSelfCall;
+
     public function toArray($request): array
     {
         /** @var \App\Models\Fulfilment\StoredItem $storedItem */
