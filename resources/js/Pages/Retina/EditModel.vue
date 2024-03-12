@@ -10,13 +10,13 @@ import Action from '@/Components/Forms/Fields/Action.vue'
 import FieldForm from '@/Components/Forms/FieldForm.vue'
 import { get as getLodash } from 'lodash'
 import { capitalize } from "@/Composables/capitalize"
-import { useLayoutStore } from '@/Stores/layout'
+// import { useLayoutStore } from '@/Stores/retinaLayout'
 import {library} from "@fortawesome/fontawesome-svg-core"
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome"
 import {faGoogle} from "@fortawesome/free-brands-svg-icons"
 import { routeType } from '@/types/route'
 import PageHeading from '@/Components/Headings/PageHeading.vue';
-
+import { inject } from 'vue'
 import { faUserLock, faBell, faCopyright, faUserCircle, faMobileAndroidAlt, faKey, faClone, faPaintBrush, faMoonStars, faLightbulbOn, faCheck, faPhone, faIdCard, faFingerprint, faLanguage, faAddressBook, faTrashAlt, faSlidersH } from '@fal'
 import { Head } from '@inertiajs/vue3'
 
@@ -69,7 +69,8 @@ const props = defineProps<{
     }
 }>()
 
-const layout = useLayoutStore()
+// const layout = useLayoutStore()
+const layout: any = inject('layout')
 const currentTab = ref<string|number>(props.formData?.current || parseInt(Object.keys(props.formData?.blueprint)[0]))  // if formData.current not exist, take first navigation
 const buttonRefs = ref([])  // For click linked to Navigation
 const isMobile = ref(false)
@@ -146,9 +147,9 @@ onBeforeUnmount(() => {
                                 'cursor-pointer group px-3 py-2 flex items-center text-sm font-medium',
                             ]"
                             :style="[key == currentTab ? {
-                                'border-left': `4px solid ${layout.app?.theme[3]}`,
-                                'background-color': `${layout.app?.theme[3]}20`,
-                                'color': layout.app?.theme[4],
+                                'border-left': `4px solid ${layout.app?.theme[2]}`,
+                                'background-color': `color-mix(in srgb, ${layout?.app?.theme[2]} 20%, white)`,
+                                'color': `color-mix(in srgb, ${layout?.app?.theme[3]} 40%, black)`,
                             } : {}]"
                         >
                             <FontAwesomeIcon v-if="sectionData.icon" aria-hidden="true" class="flex-shrink-0 -ml-1 mr-2 h-4 w-4"

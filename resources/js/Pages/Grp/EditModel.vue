@@ -16,6 +16,7 @@ import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome"
 import {faGoogle} from "@fortawesome/free-brands-svg-icons"
 import { routeType } from '@/types/route'
 import PageHeading from '@/Components/Headings/PageHeading.vue';
+import { inject } from 'vue'
 
 import { faUserLock, faBell, faCopyright, faUserCircle, faMobileAndroidAlt, faKey, faClone, faPaintBrush, faMoonStars, faLightbulbOn, faCheck, faPhone, faIdCard, faFingerprint, faLanguage, faAddressBook, faTrashAlt, faSlidersH } from '@fal'
 import { Head } from '@inertiajs/vue3'
@@ -69,7 +70,8 @@ const props = defineProps<{
     }
 }>()
 
-const layout = useLayoutStore()
+// const layout = useLayoutStore()
+const layout: any = inject('layout')
 const currentTab = ref<string|number>(props.formData?.current || parseInt(Object.keys(props.formData?.blueprint)[0]))  // if formData.current not exist, take first navigation
 const buttonRefs = ref([])  // For click linked to Navigation
 const isMobile = ref(false)

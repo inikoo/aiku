@@ -126,4 +126,48 @@ const sidebarOpen = ref(false)
     @apply bg-gray-300 w-0 group-hover:w-3/6 absolute h-0.5 rounded-full bottom-0 left-[50%] translate-x-[-50%] mx-auto transition-all duration-200 ease-in-out
 }
 
+.specialUnderline {
+    background: v-bind('`linear-gradient(to top, ${layout.app.theme[2]}, ${layout.app.theme[2] + "AA"})`');
+    &:hover, &:focus {
+        color: v-bind('`${layout.app.theme[3]}`');
+    }
+
+    @apply focus:ring-0 focus:outline-none focus:border-none
+    bg-no-repeat [background-position:0%_100%]
+    [background-size:100%_0.2em]
+    motion-safe:transition-all motion-safe:duration-200
+    hover:[background-size:100%_100%]
+    focus:[background-size:100%_100%] px-1
+}
+
+.specialUnderlineSecondary {
+    background: v-bind('`linear-gradient(to top, ${layout.app.theme[4]}, ${layout.app.theme[4] + "AA"})`');
+
+    @apply focus:ring-0 focus:outline-none focus:border-none
+    bg-no-repeat [background-position:0%_100%]
+    [background-size:100%_0.2em]
+    motion-safe:transition-all motion-safe:duration-200
+    hover:[background-size:100%_100%]
+    focus:[background-size:100%_100%] px-1;
+}
+
+// For icon box in FlatTreemap
+.specialBox {
+    background: v-bind('`linear-gradient(to top, ${layout.app.theme[0]}, ${layout.app.theme[0] + "AA"})`');
+    color: v-bind('`${layout.app.theme[0]}`');
+    border: v-bind('`4px solid ${layout.app.theme[0]}`');
+
+    &:hover, &:focus {
+        color: v-bind('`${layout.app.theme[1]}`');
+    }
+
+    @apply border-indigo-300 border-2 rounded-md
+    cursor-pointer
+    focus:ring-0 focus:outline-none focus:border-none
+    bg-no-repeat [background-position:0%_100%]
+    [background-size:100%_0em]
+    motion-safe:transition-all motion-safe:duration-100
+    hover:[background-size:100%_100%]
+    focus:[background-size:100%_100%] px-1;
+}
 </style>
