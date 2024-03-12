@@ -108,7 +108,7 @@ const footerDataTools = {
 	columnsType: [
 		{ name: "Description", value: "description" },
 		{ name: "List", value: "list" },
-		{ name: "Info", value: "info" },
+	/* 	{ name: "Info", value: "info" }, */
 	],
 	columnsToolsLink: [{ name: "Add Item", value: "add" }],
 	columnsToolsInfo: [{ name: "Add Item", value: "add" }],
