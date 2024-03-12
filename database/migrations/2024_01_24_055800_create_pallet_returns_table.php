@@ -29,7 +29,6 @@ return new class () extends Migration {
                 foreach (PalletReturnStateEnum::cases() as $state) {
                     $table->dateTimeTz("{$state->snake()}_at")->nullable();
                 }
-                $table->dateTimeTz('dispatched_at')->nullable();
                 $table->dateTimeTz('date')->nullable();
                 $table->jsonb('data')->nullable();
                 $table->timestampsTz();
