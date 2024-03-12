@@ -4,11 +4,12 @@
 import FooterTheme1 from './FooterTheme1.vue'
 import FooterTheme2 from './FooterTheme2.vue'
 import FooterTheme3 from './FooterTheme3.vue'
-import { ref } from 'vue';
+import { ref, watch, defineEmits } from "vue"
 
 const props = defineProps<{
  tools : Object,
  footerDataLayout : object
+ activeColumn:string
 }>()
 
 const component = {
@@ -17,9 +18,7 @@ const component = {
     'simple-theme': FooterTheme3,
 }
 
-const activeColumn = ref(null)
-
-
+const emits = defineEmits()
 
 </script>
 
@@ -30,7 +29,7 @@ const activeColumn = ref(null)
             :footerDataLayout="footerDataLayout"
             :tool="tools"
             :activeColumn="activeColumn"
-            @changeActiveColumn="(e : string )=> activeColumn = e"
+            @changeActiveColumn="(e : string )=>  emits('changeActiveColumn', e)"
         />
     </div>
 </template>
