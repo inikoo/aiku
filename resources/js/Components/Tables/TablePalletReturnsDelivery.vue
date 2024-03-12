@@ -40,16 +40,6 @@ function customerRoute(pallet: object) {
 			<Icon v-else :data="palletDelivery['state_icon']" class="px-1" />
 		</template>
 
-        <!-- Column: Actions -->
-        <template #cell(actions)="{ item: pallet }" v-if="props.state == 'in-process'">
-            <div>
-                <Link :href="customerRoute(pallet)" method="delete">
-                    <!-- <font-awesome-icon class="text-red-600" :icon="['far', 'trash-alt']" /> -->
-                    <Button icon="fal fa-trash-alt" type="negative" />
-                </Link>
-            </div>
-        </template>
-
         <!-- Column: Stored Items -->
         <template #cell(stored_items)="{ item: pallet }">
             <div v-if="pallet.stored_items.length" class="flex flex-wrap gap-x-1 gap-y-1.5">
@@ -62,10 +52,20 @@ function customerRoute(pallet: object) {
                     </template>
                 </Tag>
             </div>
+            
             <div v-else class="text-gray-400 text-xs italic">
                 No items in this pallet
             </div>
+        </template>
 
+        <!-- Column: Actions -->
+        <template #cell(actions)="{ item: pallet }" v-if="props.state == 'in-process'">
+            <div>
+                <Link :href="customerRoute(pallet)" method="delete">
+                    <!-- <font-awesome-icon class="text-red-600" :icon="['far', 'trash-alt']" /> -->
+                    <Button icon="fal fa-trash-alt" type="negative" />
+                </Link>
+            </div>
         </template>
     </Table>
 </template>

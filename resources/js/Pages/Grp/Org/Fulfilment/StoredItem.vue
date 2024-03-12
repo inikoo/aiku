@@ -15,6 +15,7 @@ import TableHistories from "@/Components/Tables/TableHistories.vue"
 import TablePalletStoredItem from '@/Components/Tables/TablePalletStoredItem.vue'
 import TablePallets from '@/Components/Tables/TablePallets.vue'
 import { routeType } from '@/types/route'
+import StoredItemShowcase from '@/Components/Showcases/Grp/StoredItemShowcase.vue'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faFragile } from '@fal'
@@ -42,11 +43,11 @@ const props = defineProps<{
 }>()
 
 let currentTab = ref(props.tabs.current)
-const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab)
+const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 const component = computed(() => {
 
     const components = {
-        showcase: null,
+        showcase: StoredItemShowcase,
         pallets: TablePalletStoredItem,
         history: TableHistories
     }
@@ -62,5 +63,5 @@ const component = computed(() => {
     <PageHeading :data="pageHead"></PageHeading>
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
     <component :is="component" :data="props[currentTab]" :tab="currentTab" :palletRoute="palletRoute"
-        :locationRoute="locationRoute" :updateRoute="update"></component>
+        :locationRoute="locationRoute" :updateRoute="update" />
 </template>
