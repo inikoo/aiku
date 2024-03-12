@@ -178,7 +178,7 @@ class ShowPalletReturn extends OrgAction
                                 ]
                             ]
                         ] : [],
-                        $palletReturn->state == PalletReturnStateEnum::IN_DELIVERY ? [
+                        $palletReturn->state == PalletReturnStateEnum::PICKING ? [
                             'type'    => 'button',
                             'style'   => 'save',
                             'tooltip' => __('received'),
