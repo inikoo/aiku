@@ -32,9 +32,9 @@ class PalletDeliveryResource extends JsonResource
 
         $finalTimeline = Arr::except(
             $timeline,
-            [$palletDelivery->state->value == PalletDeliveryStateEnum::BOOKED_IN->value
-                ? PalletDeliveryStateEnum::NOT_RECEIVED->value
-                : PalletDeliveryStateEnum::BOOKED_IN->value]
+            [$palletDelivery->state->value == PalletDeliveryStateEnum::NOT_RECEIVED->value
+                ? PalletDeliveryStateEnum::BOOKED_IN->value
+                : PalletDeliveryStateEnum::NOT_RECEIVED->value]
         );
 
         return [
