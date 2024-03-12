@@ -30,6 +30,7 @@ const activeColumn = ref(null)
             :footerDataLayout="footerDataLayout"
             :tool="tools"
             :activeColumn="activeColumn"
+            @changeActiveColumn="(e : string )=> activeColumn = e"
         />
     </div>
 </template>
