@@ -53,6 +53,26 @@ class PalletsResource extends JsonResource
                     'parameters' => $pallet->id
                 ]
             },
+            'deleteFromDeliveryRoute' => match (request()->routeIs('retina.*')) {
+                true => [
+                    'name'       => 'retina.models.pallet-delivery.pallet.delete',
+                    'parameters' => [$pallet->palletDelivery?->id, $pallet->id]
+                ],
+                default => [
+                    'name'       => 'grp.models.pallet-delivery.pallet.delete',
+                    'parameters' => [$pallet->palletDelivery?->id, $pallet->id]
+                ]
+            },
+            'deleteFromReturnRoute' => match (request()->routeIs('retina.*')) {
+                true => [
+                    'name'       => 'retina.models.pallet-return.pallet.delete',
+                    'parameters' => [$pallet->palletReturn?->id, $pallet->id]
+                ],
+                default => [
+                    'name'       => 'grp.models.pallet-return.pallet.delete',
+                    'parameters' => [$pallet->palletReturn?->id, $pallet->id]
+                ]
+            },
             'notReceivedRoute'       => [
                 'name'       => 'grp.models.warehouse.pallet.not-received',
                 'parameters' => [$pallet->warehouse_id, $pallet->id]
