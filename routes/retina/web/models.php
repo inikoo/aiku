@@ -14,6 +14,7 @@ use App\Actions\Fulfilment\Pallet\StorePalletToReturn;
 use App\Actions\Fulfilment\Pallet\UpdatePallet;
 use App\Actions\Fulfilment\PalletDelivery\StorePalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\SubmitPalletDelivery;
+use App\Actions\Fulfilment\PalletReturn\CancelPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\StorePalletReturn;
 use App\Actions\Fulfilment\PalletReturn\SubmitPalletReturn;
 use App\Actions\Fulfilment\StoredItem\StoreStoredItem;
@@ -28,6 +29,7 @@ Route::post('pallet-return', [StorePalletReturn::class, 'fromRetina'])->name('pa
 Route::name('pallet-return.')->prefix('pallet-return/{palletReturn:id}')->group(function () {
     Route::post('pallet', [StorePalletToReturn::class, 'fromRetina'])->name('pallet.store');
     Route::post('submit', [SubmitPalletReturn::class, 'fromRetina'])->name('submit');
+    Route::post('cancel', [CancelPalletReturn::class, 'fromRetina'])->name('cancel');
 });
 
 Route::post('pallet-delivery', [StorePalletDelivery::class, 'fromRetina'])->name('pallet-delivery.store');

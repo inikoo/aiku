@@ -86,6 +86,20 @@ class ShowPalletReturn extends RetinaAction
                                 ]
                             ]
                         ] : [],
+                        $palletReturn->state != PalletReturnStateEnum::DISPATCHED ? [
+                            'type'    => 'button',
+                            'style'   => 'cancel',
+                            'tooltip' => __('cancel'),
+                            'label'   => __('cancel'),
+                            'key'     => 'action',
+                            'route'   => [
+                                'method'     => 'post',
+                                'name'       => 'retina.models.pallet-return.cancel',
+                                'parameters' => [
+                                    'palletReturn'       => $palletReturn->id
+                                ]
+                            ]
+                        ] : []
                     ] : [],
                 ],
 
