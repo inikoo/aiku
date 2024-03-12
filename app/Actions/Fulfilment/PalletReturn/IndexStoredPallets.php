@@ -205,6 +205,16 @@ class IndexStoredPallets extends OrgAction
         return $this->handle($organisation, 'pallets');
     }
 
+    public function fromRetina(ActionRequest $request): LengthAwarePaginator
+    {
+        /** @var FulfilmentCustomer $fulfilmentCustomer */
+        $fulfilmentCustomer = $request->user()->customer->fulfilmentCustomer;
+        $this->fulfilment   = $fulfilmentCustomer->fulfilment;
+
+        $this->initialisation($request->get('website')->organisation, $request);
+        return $this->handle($fulfilmentCustomer, 'pallets');
+    }
+
     /** @noinspection PhpUnusedParameterInspection */
     public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): LengthAwarePaginator
     {

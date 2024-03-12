@@ -15,6 +15,7 @@ use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Http\Resources\Fulfilment\PalletReturnResource;
+use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletReturn;
 use App\Models\SysAdmin\Organisation;
@@ -29,8 +30,13 @@ class SubmitPalletReturn extends OrgAction
     public function handle(PalletReturn $palletReturn, array $modelData): PalletReturn
     {
         $modelData[PalletReturnStateEnum::SUBMITTED->value.'_at'] = now();
-        $modelData[PalletReturnStateEnum::CONFIRMED->value.'_at'] = now();
-        $modelData['state']                                       = PalletReturnStateEnum::CONFIRMED;
+
+        if(!request()->user() instanceof WebUser) {
+            $modelData[PalletReturnStateEnum::CONFIRMED->value.'_at'] = now();
+            $modelData['state']                                       = PalletReturnStateEnum::CONFIRMED;
+        } else {
+            $modelData['state'] = PalletReturnStateEnum::SUBMITTED;
+        }
 
         foreach ($palletReturn->pallets as $pallet) {
             $pallet->update([
@@ -49,6 +55,11 @@ class SubmitPalletReturn extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
+        if ($request->user() instanceof WebUser) {
+            // TODO: Raul please do the permission for the web user
+            return true;
+        }
+
         return $request->user()->hasPermissionTo("fulfilments.{$this->fulfilment->id}.edit");
     }
 
@@ -61,6 +72,16 @@ class SubmitPalletReturn extends OrgAction
     {
         $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $request);
 
+        return $this->handle($palletReturn, $this->validatedData);
+    }
+
+    public function fromRetina(PalletReturn $palletReturn, ActionRequest $request): PalletReturn
+    {
+        /** @var FulfilmentCustomer $fulfilmentCustomer */
+        $fulfilmentCustomer = $request->user()->customer->fulfilmentCustomer;
+        $this->fulfilment   = $fulfilmentCustomer->fulfilment;
+
+        $this->initialisation($request->get('website')->organisation, $request);
         return $this->handle($palletReturn, $this->validatedData);
     }
 }
