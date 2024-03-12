@@ -77,9 +77,10 @@ class PalletReturn extends Model
         'in_process_at'      => 'datetime',
         'submitted_at'       => 'datetime',
         'confirmed_at'       => 'datetime',
-        'received_at'        => 'datetime',
-        'in_delivery_at'     => 'datetime',
-        'done_at'            => 'datetime',
+        'picking_at'         => 'datetime',
+        'picked_at'          => 'datetime',
+        'dispatched_at'      => 'datetime',
+        'cancel_at'          => 'datetime',
         'data'               => 'array'
     ];
 
