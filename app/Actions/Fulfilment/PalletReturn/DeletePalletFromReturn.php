@@ -11,6 +11,7 @@ use App\Actions\Fulfilment\FulfilmentCustomer\HydrateFulfilmentCustomer;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Fulfilment\PalletResource;
+use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletReturn;
@@ -39,6 +40,11 @@ class DeletePalletFromReturn extends OrgAction
             return true;
         }
 
+        if ($request->user() instanceof WebUser) {
+            // TODO: Raul please do the permission for the web user
+            return true;
+        }
+
         return $request->user()->hasPermissionTo("fulfilment.{$this->fulfilment->id}.edit");
     }
 
@@ -47,6 +53,17 @@ class DeletePalletFromReturn extends OrgAction
         $this->pallet = $pallet;
         $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $request);
 
+        return $this->handle($palletReturn, $pallet);
+    }
+
+    public function fromRetina(PalletReturn $palletReturn, Pallet $pallet, ActionRequest $request): bool
+    {
+        /** @var FulfilmentCustomer $fulfilmentCustomer */
+        $this->pallet       = $pallet;
+        $fulfilmentCustomer = $request->user()->customer->fulfilmentCustomer;
+        $this->fulfilment   = $fulfilmentCustomer->fulfilment;
+
+        $this->initialisation($request->get('website')->organisation, $request);
         return $this->handle($palletReturn, $pallet);
     }
 
