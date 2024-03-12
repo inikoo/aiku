@@ -19,6 +19,7 @@ use App\Actions\Fulfilment\Pallet\UpdatePalletBookedIn;
 use App\Actions\Fulfilment\Pallet\UpdatePalletNotReceived;
 use App\Actions\Fulfilment\PalletDelivery\ConfirmPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\BookInPalletDelivery;
+use App\Actions\Fulfilment\PalletDelivery\DeletePalletFromDelivery;
 use App\Actions\Fulfilment\PalletDelivery\ReceivedPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\StorePalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\SubmitPalletDelivery;
@@ -96,6 +97,7 @@ Route::name('fulfilment-customer.')->prefix('fulfilment-customer/{fulfilmentCust
 
     Route::patch('', UpdateFulfilmentCustomer::class)->name('update');
     Route::post('pallet-delivery', StorePalletDelivery::class)->name('pallet-delivery.store');
+    Route::delete('pallet-delivery/{palletDelivery}/pallet/{pallet}', DeletePalletFromDelivery::class)->name('pallet-delivery.pallet.delete');
 
 
     Route::patch('pallet-delivery/{palletDelivery}/timeline', UpdatePalletDeliveryTimeline::class)->name('pallet-delivery.timeline.update');
