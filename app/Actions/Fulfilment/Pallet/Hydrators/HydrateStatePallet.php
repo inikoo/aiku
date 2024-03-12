@@ -8,6 +8,7 @@
 namespace App\Actions\Fulfilment\Pallet\Hydrators;
 
 use App\Actions\Fulfilment\PalletDelivery\BookInPalletDelivery;
+use App\Actions\Fulfilment\PalletDelivery\NotReceivedPalletDelivery;
 use App\Actions\HydrateModel;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
@@ -24,6 +25,8 @@ class HydrateStatePallet extends HydrateModel
 
         if($palletCount == $palletBookedInCount) {
             BookInPalletDelivery::run($palletDelivery);
+        } else {
+            NotReceivedPalletDelivery::run($palletDelivery);
         }
     }
 }

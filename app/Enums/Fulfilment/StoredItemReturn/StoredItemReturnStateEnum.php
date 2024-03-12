@@ -5,7 +5,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Enums\Fulfilment\PalletReturn;
+namespace App\Enums\Fulfilment\StoredItemReturn;
 
 use App\Enums\EnumHelperTrait;
 use App\Models\Fulfilment\Fulfilment;
@@ -15,7 +15,7 @@ use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
 
-enum PalletReturnStateEnum: string
+enum StoredItemReturnStateEnum: string
 {
     use EnumHelperTrait;
 
@@ -97,13 +97,13 @@ enum PalletReturnStateEnum: string
         }
 
         return [
-            'in-process'   => $stats->number_pallet_returns_state_in_process,
-            'submitted'    => $stats->number_pallet_returns_state_submitted,
-            'confirmed'    => $stats->number_pallet_returns_state_confirmed,
-            'picking'      => $stats->number_pallet_returns_state_picking,
-            'picked'       => $stats->number_pallet_returns_state_picked,
-            'dispatched'   => $stats->number_pallet_returns_state_dispatched,
-            'cancel'       => $stats->number_pallet_returns_state_cancel
+            'in-process'   => $stats->number_stored_item_returns_state_in_process,
+            'submitted'    => $stats->number_stored_item_returns_state_submitted,
+            'confirmed'    => $stats->number_stored_item_returns_state_confirmed,
+            'picking'      => $stats->number_stored_item_returns_state_picking,
+            'picked'       => $stats->number_stored_item_returns_state_picked,
+            'dispatched'   => $stats->number_stored_item_returns_state_dispatched,
+            'cancel'       => $stats->number_stored_item_returns_state_cancel,
         ];
     }
 }

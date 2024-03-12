@@ -93,7 +93,8 @@ enum PalletDeliveryStateEnum: string
             'submitted'    => $stats->number_pallet_deliveries_state_submitted,
             'confirmed'    => $stats->number_pallet_deliveries_state_confirmed,
             'received'     => $stats->number_pallet_deliveries_state_received,
-            'booked-in'    => $stats->number_pallet_deliveries_state_booked_in
+            'not-received' => $stats->number_pallet_deliveries_state_not_received,
+            'booked-in'    => $stats->number_pallet_deliveries_state_booked_in,
         ];
     }
 }
