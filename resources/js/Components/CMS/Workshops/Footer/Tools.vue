@@ -10,6 +10,7 @@ import { RadioGroup, RadioGroupLabel, RadioGroupOption } from "@headlessui/vue"
 import { faHandPointer, faHandRock, faPlus } from "@fas"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import PureMultiselect from "@/Components/Pure/PureMultiselect.vue"
+import { ref, watch, defineEmits } from "vue"
 
 library.add(faHandPointer, faHandRock, faPlus)
 
@@ -17,7 +18,7 @@ const props = defineProps<{
     toolsBluprint: Array
     modelValue : Object
 }>()
-console.log('halo',props.modelValue)
+const emits = defineEmits()
 </script>
 
 <template>
@@ -65,12 +66,13 @@ console.log('halo',props.modelValue)
         </RadioGroup>
 
 
-        <RadioGroup class="px-4" v-model="modelValue.columnType">
+        <RadioGroup class="px-4" v-model="modelValue.columnType"  @update:modelValue="(e)=>emits('changeColumnType',e)" >
             <div class="grid grid-cols-3 gap-3 sm:grid-cols-3">
                 <RadioGroupOption 
                     as="template" 
                     v-for="option in toolsBluprint.columnsType" 
                     :key="option.value"
+                    
                     :value="option.value" v-slot="{ active, checked }">
                     <div :class="{
                         'border-transparent bg-indigo-600 text-white hover:bg-indigo-700': checked,

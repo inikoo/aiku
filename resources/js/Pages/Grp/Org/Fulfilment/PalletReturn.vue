@@ -35,7 +35,6 @@ const props = defineProps<{
         store: routeType
     }
 }>()
-console.log(props)
 let currentTab = ref(props.tabs.current)
 const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab)
 const timeline = ref({ ...props.data.data })
@@ -71,8 +70,8 @@ watch(
         </template>
     </PageHeading>
 
-    <div class="border-b border-gray-200">
-        <Timeline :options="timeline.timeline" :state="timeline.state" :slidesPerView="timeline.timeline.length" />
+    <div class="border-b border-gray-200"> 
+        <Timeline :options="timeline.timeline" :state="timeline.state" :slidesPerView="Object.entries(timeline.timeline).length" />
     </div>
 
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />

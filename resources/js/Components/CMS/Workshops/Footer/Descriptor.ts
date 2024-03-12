@@ -1,68 +1,80 @@
 import { v4 as uuidv4 } from "uuid"
 
-const menuTypeList = {
-	title: "Menu list 1",
-	type: "list",
-	column_id: uuidv4(),
-	data: [
-		{ content: "dummy", menu_id: uuidv4() },
-		{ content: "dummy2", menu_id: uuidv4() },
-	],
+const menuItem = () => {
+	return {
+		content: "dummy", menu_id: uuidv4() 
+	}
 }
 
-const menuTypeDescription = {
-	title: "Description",
-	type: "description",
-	column_id: uuidv4(),
-	content:
-		"Lorem Ipsum is simply dummy te printernto electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
+const menuTypeList = () => {
+	return {
+		title: "Menu list 1",
+		type: "list",
+		column_id: uuidv4(),
+		data: [
+			menuItem(),
+			menuItem()
+		],
+	}
 }
 
-const menuTypeInfo = {
-	title: "add info",
-	type: "info",
-	id: uuidv4(),
-	data: [
-		{
-			value: "Ancient Wisdom s.r.o.",
-			icon: "fas fa-map-marker-alt",
-			id: uuidv4(),
-		},
-		{
-			title: "billingAddress",
-			value: "Billin",
-			icon: "fas fa-map",
-			id: uuidv4(),
-		},
-		{
-			title: "vat",
-			value: "VAT: SK2120525440",
-			icon: "fas fa-balance-scale",
-			id: uuidv4(),
-		},
-		{
-			title: "building",
-			value: "Reg: 50920600",
-			icon: "fas fa-building",
-			id: uuidv4(),
-		},
-		{
-			title: "phone",
-			value: "+421 (0)33 558 60 71",
-			icon: "fas fa-phone",
-			id: uuidv4(),
-		},
-		{
-			title: "email",
-			value: "<a href=mailto:contact@awgifts.eu>contact@awgifts.eu</a>",
-			icon: "fas fa-envelope",
-			id: uuidv4(),
-		},
-	],
+const menuTypeDescription = () => {
+	return {
+		title: "Description",
+		type: "description",
+		column_id: uuidv4(),
+		content:
+			"Lorem Ipsum is simply dummy te printernto electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
+	}
+}
+
+const menuTypeInfo = () => {
+	return {
+		title: "add info",
+		type: "info",
+		id: uuidv4(),
+		data: [
+			{
+				value: "Ancient Wisdom s.r.o.",
+				icon: "fas fa-map-marker-alt",
+				id: uuidv4(),
+			},
+			{
+				title: "billingAddress",
+				value: "Billin",
+				icon: "fas fa-map",
+				id: uuidv4(),
+			},
+			{
+				title: "vat",
+				value: "VAT: SK2120525440",
+				icon: "fas fa-balance-scale",
+				id: uuidv4(),
+			},
+			{
+				title: "building",
+				value: "Reg: 50920600",
+				icon: "fas fa-building",
+				id: uuidv4(),
+			},
+			{
+				title: "phone",
+				value: "+421 (0)33 558 60 71",
+				icon: "fas fa-phone",
+				id: uuidv4(),
+			},
+			{
+				title: "email",
+				value: "<a href=mailto:contact@awgifts.eu>contact@awgifts.eu</a>",
+				icon: "fas fa-envelope",
+				id: uuidv4(),
+			},
+		],
+	}
 }
 
 const footerDataLayout = {
-	initialColumns: [menuTypeList, menuTypeDescription, { ...menuTypeList, column_id: uuidv4() }],
+	initialColumns: [menuTypeList(), menuTypeDescription(), menuTypeList()],
 	socials: [
 		{
 			label: "Facebook",
@@ -108,10 +120,10 @@ const footerDataTools = {
 	columnsType: [
 		{ name: "Description", value: "description" },
 		{ name: "List", value: "list" },
-	/* 	{ name: "Info", value: "info" }, */
+		/* 	{ name: "Info", value: "info" }, */
 	],
 	columnsToolsLink: [{ name: "Add Item", value: "add" }],
 	columnsToolsInfo: [{ name: "Add Item", value: "add" }],
 }
 
-export { menuTypeList, menuTypeDescription, menuTypeInfo, footerDataLayout, footerDataTools }
+export { menuTypeList, menuTypeDescription, menuTypeInfo, footerDataLayout, footerDataTools, menuItem }
