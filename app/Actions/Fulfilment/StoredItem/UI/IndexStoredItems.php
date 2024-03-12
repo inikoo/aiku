@@ -7,6 +7,7 @@
 
 namespace App\Actions\Fulfilment\StoredItem\UI;
 
+use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\OrgAction;
 use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Fulfilment\StoredItemResource;
@@ -96,7 +97,7 @@ class IndexStoredItems extends OrgAction
     public function htmlResponse(LengthAwarePaginator $storedItems): Response
     {
         return Inertia::render(
-            'Fulfilment/StoredItems',
+            'Org/Fulfilment/StoredItems',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(),
                 'title'       => __('stored items'),
@@ -106,7 +107,7 @@ class IndexStoredItems extends OrgAction
                         'buttons' => [
                             'route' => [
                                 'name'       => 'grp.org.hr.employees.create',
-                                'parameters' => array_values($request->route()->originalParameters())
+                                'parameters' => array_values(request()->route()->originalParameters())
                             ],
                             'label' => __('stored items')
                         ]
@@ -135,13 +136,14 @@ class IndexStoredItems extends OrgAction
     public function getBreadcrumbs(): array
     {
         return array_merge(
-            ShowFulfilment::make()->getBreadcrumbs(),
+            ShowFulfilmentCustomer::make()->getBreadcrumbs(request()->route()->originalParameters()),
             [
                 [
                     'type'   => 'simple',
                     'simple' => [
                         'route' => [
-                            'name' => 'grp.fulfilment.stored-items.index'
+                            'name'       => 'grp.org.fulfilments.show.crm.customers.show.stored-items.index',
+                            'parameters' => request()->route()->originalParameters()
                         ],
                         'label' => __('stored items'),
                         'icon'  => 'fal fa-bars',

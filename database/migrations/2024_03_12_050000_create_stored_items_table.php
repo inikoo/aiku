@@ -34,7 +34,7 @@ return new class () extends Migration {
                 $table->decimal('quantity')->default(0);
                 $table->decimal('damaged_quantity')->default(0);
                 $table->string('notes');
-                $table->unsignedInteger('stored_item_return_id')->index();
+                $table->unsignedInteger('stored_item_return_id')->index()->nullable();
                 $table->foreign('stored_item_return_id')->references('id')->on('stored_item_returns');
                 $table->boolean('return_requested')->default(false);
                 $table->dateTimeTz('received_at')->nullable();

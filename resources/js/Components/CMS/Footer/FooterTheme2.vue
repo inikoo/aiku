@@ -18,6 +18,8 @@ import { library } from "@fortawesome/fontawesome-svg-core"
 import draggable from "vuedraggable"
 import BubleTextEditor from "@/Components/Forms/Fields/BubleTextEditor/BubleTextEditor.vue"
 import { ref, watch, defineEmits } from "vue"
+import Button from "@/Components/Elements/Buttons/Button.vue"
+import { menuItem } from '@/Components/CMS/Workshops/Footer/Descriptor.ts'
 
 library.add(
 	faFacebook,
@@ -41,12 +43,14 @@ const props = defineProps<{
 
 const emits = defineEmits()
 
-console.log("theme1", props)
-
-const handleChangeActiveColumn = (id: string) => {
-	toolbar.
-    emits('changeActiveColumn', id)
+const handleChangeActiveColumn = (data: string) => {
+	props.tool.columnType = data.type
+    emits('changeActiveColumn', data.column_id)
   }
+
+const addMenu = (data,index) => {
+	data.push(menuItem())
+}
 
 </script>
 
@@ -61,7 +65,7 @@ const handleChangeActiveColumn = (id: string) => {
 					:disabled="tool.hand !== 'grab'"
 					:class="['flex gap-8 xl:col-span-2', tool.hand !== 'grab' ? 'cursor-pointer' : 'cursor-grab']">
 					<template #item="{ element, index }">
-						<div :class="['space-y-3 w-1/3', activeColumn == element.column_id ? 'outline-dashed' : null]" @click="() => handleChangeActiveColumn(element.column_id)">
+						<div :class="['space-y-3 w-1/3', activeColumn == element.column_id ? 'outline-dashed' : null]" @click="() => handleChangeActiveColumn(element)">
 							<BubleTextEditor :form="element" field-name="title" />
 							<div v-if="element.type == 'list'">
 								<draggable
@@ -77,6 +81,7 @@ const handleChangeActiveColumn = (id: string) => {
 										</ul>
 									</template>
 								</draggable>
+								<Button size="xxs" :icon="'fal fa-plus'" type="dashed" class="m-2" @click="()=>addMenu(element.data,childIndex)"></Button>
 							</div>
 
 							<div v-if="element.type == 'description'">
