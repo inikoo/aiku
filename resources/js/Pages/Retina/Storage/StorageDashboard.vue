@@ -18,12 +18,14 @@ import { faSeedling, faShare, faSpellCheck, faCheck, faTimes, faSignOutAlt, faTr
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { useFormatTime } from '@/Composables/useFormatTime'
 import CountUp from 'vue-countup-v3'
+import { Head } from '@inertiajs/vue3'
 
 library.add(faCheckCircle, faInfoCircle, faExclamationTriangle, faSeedling, faShare, faSpellCheck, faCheck, faTimes, faSignOutAlt, faTruck, faCheckDouble)
 
 ChartJS.register(ArcElement, Tooltip, Legend, Colors)
 
 const props = defineProps<{
+    title: string
     customer: PalletCustomer
     pieData: {
         [key: string]: PieCustomer
@@ -61,6 +63,7 @@ const options = {
 </script>
 
 <template>
+    <Head :title="title" />
     <div class="px-4 py-5 md:px-6 lg:px-8 ">
         <h1 class="text-2xl font-bold">Storage Dashboard</h1>
         <hr class="border-slate-200 rounded-full mb-5 mt-2">

@@ -18,21 +18,21 @@ import Modal from "@/Components/Utils/Modal.vue"
 import TablePalletReturn from "@/Components/PalletReturn/tablePalletReturn.vue"
 import TablePalletReturnsDelivery from "@/Components/Tables/TablePalletReturnsDelivery.vue"
 import { routeType } from '@/types/route'
-import { PageHeading as PageHeadingTypes } from  '@/types/PageHeading'
+import { PageHeading as PageHeadingTypes } from '@/types/PageHeading'
 
 const props = defineProps<{
-	title: string
-	tabs: object
-	pallets?: object
-	data?: object
-	history?: object
-	pageHead: PageHeadingTypes
-	updateRoute: routeType
-	uploadRoutes: routeType
-    palletRoute : {
-		index : routeType,
-		store : routeType
-	}
+    title: string
+    tabs: object
+    pallets?: object
+    data?: object
+    history?: object
+    pageHead: PageHeadingTypes
+    updateRoute: routeType
+    uploadRoutes: routeType
+    palletRoute: {
+        index: routeType,
+        store: routeType
+    }
 }>()
 console.log(props)
 let currentTab = ref(props.tabs.current)
@@ -41,52 +41,45 @@ const timeline = ref({ ...props.data.data })
 const openModal = ref(false)
 
 const component = computed(() => {
-	const components = {
-		pallets: TablePalletReturnsDelivery,
-		history: TableHistories,
-	}
-	return components[currentTab.value]
+    const components = {
+        pallets: TablePalletReturnsDelivery,
+        history: TableHistories,
+    }
+    return components[currentTab.value]
 })
 
 
 watch(
-	props,
-	(newValue) => {
-		timeline.value = newValue.data.data
-	},
-	{ deep: true }
+    props,
+    (newValue) => {
+        timeline.value = newValue.data.data
+    },
+    { deep: true }
 )
 
 </script>
 
 <template>
-	<Head :title="capitalize(title)" />
-	<PageHeading :data="pageHead">
-		<template #button-group-add-pallet="{ action: action }">
-			<Button
-				:style="action.button.style"
-				:label="action.button.label"
-				:icon="action.button.icon"
-				:iconRight="action.button.iconRight"
-				:key="`ActionButton${action.button.label}${action.button.style}`"
-				:tooltip="action.button.tooltip"
-				@click="() => (openModal = true)"
-			/>
-		</template>
-	</PageHeading>
-	<div class="border-b border-gray-200">
-		<Timeline :options="timeline.timeline" :state="timeline.state" :slidesPerView="6" />
-	</div>
-	<Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
-	<component
-		:is="component"
-		:data="props[currentTab]"
-		:state="timeline.state"
-		:tab="currentTab"></component>
 
-	<Modal :isOpen="openModal" @onClose="openModal = false">
-		<div class="h-96 overflow-y-auto">
-			<TablePalletReturn :palletRoute="palletRoute" @onClose="()=>openModal = false"/>
-		</div>
-	</Modal>
+    <Head :title="capitalize(title)" />
+    <PageHeading :data="pageHead">
+        <template #button-group-add-pallet="{ action: action }">
+            <Button :style="action.button.style" :label="action.button.label" :icon="action.button.icon"
+                :iconRight="action.button.iconRight" :key="`ActionButton${action.button.label}${action.button.style}`"
+                :tooltip="action.button.tooltip" @click="() => (openModal = true)" />
+        </template>
+    </PageHeading>
+
+    <div class="border-b border-gray-200">
+        <Timeline :options="timeline.timeline" :state="timeline.state" :slidesPerView="6" />
+    </div>
+
+    <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
+    <component :is="component" :data="props[currentTab]" :state="timeline.state" :tab="currentTab" />
+
+    <Modal :isOpen="openModal" @onClose="openModal = false">
+        <div class="h-96 overflow-y-auto">
+            <TablePalletReturn :palletRoute="palletRoute" @onClose="() => openModal = false" />
+        </div>
+    </Modal>
 </template>
