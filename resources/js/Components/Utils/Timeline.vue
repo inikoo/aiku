@@ -26,7 +26,7 @@ const props = defineProps<{
     width?: string | Number
     slidesPerView?: number
 }>()
-
+console.log('ssss',props)
 const emits = defineEmits<{
     (e: 'updateButton', value: {step: Step, options: Step[]}): void
 }>()
@@ -36,8 +36,15 @@ const finalOptions = ref<Step[]>([])
 
 
 const stepsWithIndex = (() => {
-    finalOptions.value = props.options.map((step, index) => ({ ...step, index }))
-})
+    const finalData = []
+    Object.entries(props.options).forEach(([key, value], index) => {
+        finalData.push({ ...value, index });
+    });
+
+    // Do something with finalData array
+    finalOptions.value = finalData
+    console.log(finalData)
+});
 
 const setupState = (step: Step) => {
     const foundState = finalOptions.value.find((item) => item.key === props.state)
