@@ -180,9 +180,10 @@ const getActionIcon = (icon: any) => {
 .buttonPrimary {
     background-color: v-bind('layout?.app?.theme[4]') !important;
     color: v-bind('layout?.app?.theme[5]') !important;
+    border: v-bind('`2px solid color-mix(in srgb, ${layout?.app?.theme[4]} 80%, black)`');
 
     &:hover {
-        background-color: v-bind('`color-mix(in srgb, ${layout?.app?.theme[4]} 80%, black)`') !important;
+        background-color: v-bind('`color-mix(in srgb, ${layout?.app?.theme[4]} 85%, black)`') !important;
     }
 
     &:focus {

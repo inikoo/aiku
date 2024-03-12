@@ -67,7 +67,7 @@ function palletRoute(pallet: Pallet) {
 
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
-        <template #cell(referencex)="{ item: pallet }">
+        <template #cell(reference)="{ item: pallet }">
             <Link :href="palletRoute(pallet)" class="specialUnderline">
                 {{ pallet['reference'] }}
             </Link>

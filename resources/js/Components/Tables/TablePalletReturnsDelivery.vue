@@ -19,7 +19,7 @@ import Button from '@/Components/Elements/Buttons/Button.vue'
 
 library.add(faTrashAlt, faSignOutAlt, faPaperPlane)
 const props = defineProps<{
-    data: object
+    data: {}
     tab?: string
     state?: string
     app: string // 'retina'

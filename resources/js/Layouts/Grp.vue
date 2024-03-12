@@ -137,7 +137,7 @@ const sidebarOpen = ref(false)
     [background-size:100%_0.2em]
     motion-safe:transition-all motion-safe:duration-200
     hover:[background-size:100%_100%]
-    focus:[background-size:100%_100%] px-1
+    focus:[background-size:100%_100%] px-1 py-0.5
 }
 
 .specialUnderlineSecondary {
@@ -148,7 +148,7 @@ const sidebarOpen = ref(false)
     [background-size:100%_0.2em]
     motion-safe:transition-all motion-safe:duration-200
     hover:[background-size:100%_100%]
-    focus:[background-size:100%_100%] px-1;
+    focus:[background-size:100%_100%] px-1 py-0.5
 }
 
 // For icon box in FlatTreemap

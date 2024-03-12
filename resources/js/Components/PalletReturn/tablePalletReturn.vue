@@ -10,6 +10,8 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faSpinnerThird, faSearch } from "@fad"
 import { library } from "@fortawesome/fontawesome-svg-core"
 
+// Modal: on Add Pallet
+
 library.add(faSpinnerThird, faSearch)
 
 const props = defineProps<{
@@ -74,10 +76,12 @@ const onSubmitPallet = () => {
 		onBefore: () => {
 			loading.value = true
 		},
+        onFinish: () => {
+			loading.value = false
+        },
 		onSuccess: () => {
 			form.reset("pallets")
       		checkedAll.value = false
-			loading.value = false
 			getData()
 			closeModal()
 		},
@@ -90,6 +94,7 @@ console.log('inii',props)
 
 <template>   
 	<div class="px-4 sm:px-6 lg:px-8">
+    <!-- {{ form.pallets }} -->
 		<div class="sm:flex sm:items-center">
 			<div class="sm:flex-auto">
 				<div class="w-1/4 pt-2">
@@ -111,7 +116,7 @@ console.log('inii',props)
 				</div>
 			</div>
 			<div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
-				<Button :style="'create'" label="Add Pallet" @click="onSubmitPallet"></Button>
+				<Button :style="'create'" label="Add Pallet" :disabled="!form.pallets.length" :key="form.pallets.length" @click="onSubmitPallet"></Button>
 			</div>
 		</div>
 		<div class="mt-8 flow-root">

@@ -10,12 +10,12 @@ import Table from "@/Components/Table/Table.vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faPlus } from "@fas"
-import { faCheckDouble, faShare } from "@fal"
+import { faCheckDouble, faShare, faCross } from "@fal"
 
 import { PalletDelivery } from "@/types/pallet-delivery"
 import Icon from "@/Components/Icon.vue"
 
-library.add(faPlus, faCheckDouble, faShare)
+library.add(faPlus, faCheckDouble, faShare, faCross)
 
 const props = defineProps<{
     data: {}
