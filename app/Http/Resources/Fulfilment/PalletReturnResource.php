@@ -9,6 +9,7 @@ namespace App\Http\Resources\Fulfilment;
 
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Arr;
 
 class PalletReturnResource extends JsonResource
 {
@@ -19,7 +20,7 @@ class PalletReturnResource extends JsonResource
 
         $timeline = [];
         foreach (PalletReturnStateEnum::cases() as $state) {
-            $timeline[] = [
+            $timeline[$state->value] = [
                 'label'   => $state->labels()[$state->value],
                 'tooltip' => $state->labels()[$state->value],
                 'key'     => $state->value,
@@ -28,11 +29,13 @@ class PalletReturnResource extends JsonResource
             ];
         }
 
+        $finalTimeline = Arr::except($timeline, [PalletReturnStateEnum::CANCEL->value]);
+
         return [
             'id'               => $palletReturn->id,
             'reference'        => $palletReturn->reference,
             'state'            => $palletReturn->state,
-            'timeline'         => $timeline,
+            'timeline'         => $finalTimeline,
             'number_pallets'   => $palletReturn->number_pallets
         ];
     }
