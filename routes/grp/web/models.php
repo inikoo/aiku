@@ -26,9 +26,9 @@ use App\Actions\Fulfilment\PalletDelivery\SubmitPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\UpdatePalletDeliveryTimeline;
 use App\Actions\Fulfilment\PalletReturn\ConfirmPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\DeletePalletFromReturn;
-use App\Actions\Fulfilment\PalletReturn\DonePalletReturn;
-use App\Actions\Fulfilment\PalletReturn\InDeliveryPalletReturn;
-use App\Actions\Fulfilment\PalletReturn\ReceivedPalletReturn;
+use App\Actions\Fulfilment\PalletReturn\DispatchedPalletReturn;
+use App\Actions\Fulfilment\PalletReturn\PickingPalletReturn;
+use App\Actions\Fulfilment\PalletReturn\PickedPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\StorePalletReturn;
 use App\Actions\Fulfilment\PalletReturn\SubmitPalletReturn;
 use App\Actions\Fulfilment\StoredItem\MoveStoredItem;
@@ -107,10 +107,10 @@ Route::name('fulfilment-customer.')->prefix('fulfilment-customer/{fulfilmentCust
     Route::delete('pallet-return/{palletReturn}/pallet/{pallet}', DeletePalletFromReturn::class)->name('pallet-return.pallet.delete');
     Route::post('pallet-return/{palletReturn}/pallet', StorePalletToReturn::class)->name('pallet-return.pallet.store');
     Route::post('pallet-return/{palletReturn}/submit', SubmitPalletReturn::class)->name('pallet-return.submit');
-    Route::post('pallet-return/{palletReturn}/delivery', InDeliveryPalletReturn::class)->name('pallet-return.delivery');
+    Route::post('pallet-return/{palletReturn}/delivery', PickingPalletReturn::class)->name('pallet-return.picking');
     Route::post('pallet-return/{palletReturn}/confirm', ConfirmPalletReturn::class)->name('pallet-return.confirm');
-    Route::post('pallet-return/{palletReturn}/received', ReceivedPalletReturn::class)->name('pallet-return.received');
-    Route::post('pallet-return/{palletReturn}/done', DonePalletReturn::class)->name('pallet-return.done');
+    Route::post('pallet-return/{palletReturn}/received', PickedPalletReturn::class)->name('pallet-return.picked');
+    Route::post('pallet-return/{palletReturn}/dispatched', DispatchedPalletReturn::class)->name('pallet-return.dispatched');
 });
 
 Route::name('shop.')->prefix('shop/{shop:id}')->group(function () {

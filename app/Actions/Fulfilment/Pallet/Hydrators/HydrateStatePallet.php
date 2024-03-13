@@ -20,12 +20,13 @@ class HydrateStatePallet extends HydrateModel
 
     public function handle(PalletDelivery $palletDelivery): void
     {
-        $palletCount         = $palletDelivery->pallets()->count();
-        $palletBookedInCount = $palletDelivery->pallets()->where('state', PalletStateEnum::BOOKED_IN)->count();
+        $palletCount            = $palletDelivery->pallets()->count();
+        $palletBookedInCount    = $palletDelivery->pallets()->where('state', PalletStateEnum::BOOKED_IN)->count();
+        $palletNotReceivedCount = $palletDelivery->pallets()->where('state', PalletStateEnum::NOT_RECEIVED)->count();
 
         if($palletCount == $palletBookedInCount) {
             BookInPalletDelivery::run($palletDelivery);
-        } else {
+        } elseif($palletNotReceivedCount != 0) {
             NotReceivedPalletDelivery::run($palletDelivery);
         }
     }

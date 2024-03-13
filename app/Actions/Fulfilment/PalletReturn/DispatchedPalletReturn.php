@@ -11,6 +11,7 @@ use App\Actions\Fulfilment\FulfilmentCustomer\HydrateFulfilmentCustomer;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
+use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Http\Resources\Fulfilment\PalletReturnResource;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -19,19 +20,20 @@ use App\Models\SysAdmin\Organisation;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Lorisleiva\Actions\ActionRequest;
 
-class DonePalletReturn extends OrgAction
+class DispatchedPalletReturn extends OrgAction
 {
     use WithActionUpdate;
 
 
     public function handle(PalletReturn $palletReturn, array $modelData): PalletReturn
     {
-        $modelData[PalletReturnStateEnum::DONE->value.'_at'] = now();
-        $modelData['state']                                  = PalletReturnStateEnum::DONE;
+        $modelData[PalletReturnStateEnum::DISPATCHED->value.'_at'] = now();
+        $modelData['state']                                        = PalletReturnStateEnum::DISPATCHED;
 
         foreach ($palletReturn->pallets as $pallet) {
             $pallet->update([
-                'state' => PalletStateEnum::SETTLED
+                'state'  => PalletStateEnum::SETTLED,
+                'status' => PalletStatusEnum::RETURNED
             ]);
         }
 

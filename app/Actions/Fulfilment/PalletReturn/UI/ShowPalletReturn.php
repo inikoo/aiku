@@ -164,12 +164,12 @@ class ShowPalletReturn extends OrgAction
                         $palletReturn->state == PalletReturnStateEnum::CONFIRMED ? [
                             'type'    => 'button',
                             'style'   => 'save',
-                            'tooltip' => __('in delivery'),
-                            'label'   => __('in delivery'),
+                            'tooltip' => __('picking'),
+                            'label'   => __('picking'),
                             'key'     => 'action',
                             'route'   => [
                                 'method'     => 'post',
-                                'name'       => 'grp.models.fulfilment-customer.pallet-return.delivery',
+                                'name'       => 'grp.models.fulfilment-customer.pallet-return.picking',
                                 'parameters' => [
                                     'organisation'       => $palletReturn->organisation->slug,
                                     'fulfilment'         => $palletReturn->fulfilment->slug,
@@ -181,12 +181,29 @@ class ShowPalletReturn extends OrgAction
                         $palletReturn->state == PalletReturnStateEnum::PICKING ? [
                             'type'    => 'button',
                             'style'   => 'save',
-                            'tooltip' => __('received'),
-                            'label'   => __('received'),
+                            'tooltip' => __('picked'),
+                            'label'   => __('picked'),
                             'key'     => 'action',
                             'route'   => [
                                 'method'     => 'post',
-                                'name'       => 'grp.models.fulfilment-customer.pallet-return.received',
+                                'name'       => 'grp.models.fulfilment-customer.pallet-return.picked',
+                                'parameters' => [
+                                    'organisation'       => $palletReturn->organisation->slug,
+                                    'fulfilment'         => $palletReturn->fulfilment->slug,
+                                    'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id,
+                                    'palletReturn'       => $palletReturn->reference
+                                ]
+                            ]
+                        ] : [],
+                        $palletReturn->state == PalletReturnStateEnum::PICKED ? [
+                            'type'    => 'button',
+                            'style'   => 'save',
+                            'tooltip' => __('dispatched'),
+                            'label'   => __('dispatched'),
+                            'key'     => 'action',
+                            'route'   => [
+                                'method'     => 'post',
+                                'name'       => 'grp.models.fulfilment-customer.pallet-return.dispatched',
                                 'parameters' => [
                                     'organisation'       => $palletReturn->organisation->slug,
                                     'fulfilment'         => $palletReturn->fulfilment->slug,
