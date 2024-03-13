@@ -12,10 +12,12 @@ const props = defineProps({
         default: null,
     },
     id: {
+        type: string,
         default: null,
     },
     name: {
-         default: null,
+        type: string,
+        default: null,
     },
 });
 
