@@ -76,7 +76,7 @@ watch(
 	</PageHeading>
 
 	<div class="border-b border-gray-200">
-		<Timeline :options="timeline.timeline" :state="timeline.state" :slidesPerView="6" />
+		<Timeline :options="timeline.timeline" :state="timeline.state" :slidesPerView="Object.entries(timeline.timeline).length" />
 	</div>
 
 	<Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
