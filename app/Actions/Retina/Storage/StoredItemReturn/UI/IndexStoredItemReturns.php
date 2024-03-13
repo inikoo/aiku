@@ -9,7 +9,7 @@ namespace App\Actions\Retina\Storage\StoredItemReturn\UI;
 
 use App\Actions\RetinaAction;
 use App\Actions\UI\Retina\Storage\ShowStorageDashboard;
-use App\Http\Resources\Fulfilment\PalletReturnsResource;
+use App\Http\Resources\Fulfilment\StoredItemReturnsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\StoredItemReturn;
@@ -85,7 +85,7 @@ class IndexStoredItemReturns extends RetinaAction
 
     public function jsonResponse(LengthAwarePaginator $customers): AnonymousResourceCollection
     {
-        return PalletReturnsResource::collection($customers);
+        return StoredItemReturnsResource::collection($customers);
     }
 
     public function htmlResponse(LengthAwarePaginator $customers, ActionRequest $request): Response
@@ -124,7 +124,7 @@ class IndexStoredItemReturns extends RetinaAction
                         ]
                     ]
                 ],
-                'data' => PalletReturnsResource::collection($customers),
+                'data' => StoredItemReturnsResource::collection($customers),
 
             ]
         )->table($this->tableStructure($this->parent, prefix: 'stored_item_returns'));
