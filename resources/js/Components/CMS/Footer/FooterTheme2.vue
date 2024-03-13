@@ -56,7 +56,7 @@ const addMenu = (data, index) => {
 
 <template>
 	<footer class="bg-gray-50 px-6">
-		<div class="mx-auto max-w-7xl px-6 pb-8 pt-20 sm:pt-24 lg:px-8 lg:pt-12">
+		<div class="mx-auto w-[1300px] px-6 pb-8 pt-20 sm:pt-24 lg:px-8 lg:pt-12">
 			<div class="xl:grid xl:gap-x-24 xl:px-6">
 				<draggable :list="footerDataLayout.initialColumns" group="column" itemKey="column_id"
 					:disabled="tool.hand !== 'grab'"
@@ -83,7 +83,8 @@ const addMenu = (data, index) => {
 							</div>
 
 							<div v-if="element.type == 'description'">
-								<BubleTextEditor :form="element" field-name="content" />
+								<BubleTextEditor v-if="tool.hand !== 'grab'" :form="element" field-name="content" />
+								<div v-else v-html="element.content" class="m-2"></div>
 							</div>
 						</div>
 					</template>
