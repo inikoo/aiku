@@ -9,14 +9,16 @@ import PureInput from "@/Components/Pure/PureInput.vue"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faSpinnerThird, faSearch } from "@fad"
 import { library } from "@fortawesome/fontawesome-svg-core"
+import { routeType } from "@/types/route"
 
 // Modal: on Add Pallet
 
 library.add(faSpinnerThird, faSearch)
 
 const props = defineProps<{
-	palletRoute: object
-	descriptor : object
+	dataRoute: routeType
+	saveRoute: routeType
+	descriptor: object
 }>()
 
 const emits = defineEmits()
@@ -30,16 +32,17 @@ const tableFilter = useForm({
 
 
 const closeModal = () => {
-    emits('onClose')
+	emits('onClose')
 }
 
 const getData = async () => {
 	loading.value = true
 	try {
 		const response = await axios.get(
-			route(props.palletRoute.index.name, props.palletRoute.index.parameters),
+			route(props.dataRoute.name, props.dataRoute.parameters),
 			{ params: { ['pallets_filter[global]']: tableFilter.search } } // Changed from { search: tableFilter.filter }
 		)
+		console.log(response.data.data)
 		dataList.value = response.data.data
 		loading.value = false
 	} catch (error) {
@@ -71,17 +74,17 @@ const onChecked = (value) => {
 }
 
 const onSubmitPallet = () => {
-	form.post(route(props.palletRoute.store.name, props.palletRoute.store.parameters), {
+	form.post(route(props.dataRoute.name, props.dataRoute.parameters), {
 		preserveScroll: true,
 		onBefore: () => {
 			loading.value = true
 		},
-        onFinish: () => {
+		onFinish: () => {
 			loading.value = false
-        },
+		},
 		onSuccess: () => {
 			form.reset("pallets")
-      		checkedAll.value = false
+			checkedAll.value = false
 			getData()
 			closeModal()
 		},
@@ -89,34 +92,27 @@ const onSubmitPallet = () => {
 }
 
 onMounted(getData)
-console.log('inii',props)
 </script>
 
-<template>   
+<template>
 	<div class="px-4 sm:px-6 lg:px-8">
-    <!-- {{ form.pallets }} -->
 		<div class="sm:flex sm:items-center">
 			<div class="sm:flex-auto">
 				<div class="w-1/4 pt-2">
-					<PureInput
-						v-model="tableFilter.search"
-						placeholder="Search"
-						:loading="loading"
-						:copy-button="true"
-                        @keyup.enter.native="getData"
-           >
-		   <template #copyButton>
-			<div class="flex justify-center items-center px-2 absolute inset-y-0 right-0 gap-x-1 cursor-pointer opacity-20 hover:opacity-75 active:opacity-100" @click="()=>getData()">
-                <FontAwesomeIcon icon="fad fa-search"
-                    class="text-lg leading-none"
-                    aria-hidden="true" />
-            </div>
-		   </template>
-		</PureInput>
+					<PureInput v-model="tableFilter.search" placeholder="Search" :loading="loading" :copy-button="true"
+						@keyup.enter.native="getData">
+						<template #copyButton>
+							<div class="flex justify-center items-center px-2 absolute inset-y-0 right-0 gap-x-1 cursor-pointer opacity-20 hover:opacity-75 active:opacity-100"
+								@click="() => getData()">
+								<FontAwesomeIcon icon="fad fa-search" class="text-lg leading-none" aria-hidden="true" />
+							</div>
+						</template>
+					</PureInput>
 				</div>
 			</div>
 			<div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
-				<Button :style="'create'" label="Add Pallet" :disabled="!form.pallets.length" :key="form.pallets.length" @click="onSubmitPallet"></Button>
+				<Button :style="'create'" label="Add Pallet" :disabled="!form.pallets.length" :key="form.pallets.length"
+					@click="onSubmitPallet"></Button>
 			</div>
 		</div>
 		<div class="mt-8 flow-root">
@@ -126,29 +122,15 @@ console.log('inii',props)
 						<table class=" divide-y divide-gray-300  w-full">
 							<thead class="bg-gray-50 sticky top-0">
 								<tr>
-									<th
-										scope="col"
+									<th scope="col"
 										class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">
-										<input
-											type="checkbox"
-											:checked="checkedAll"
-											@change="selectAll"
+										<input type="checkbox" :checked="checkedAll" @change="selectAll"
 											class="h-6 w-6 rounded cursor-pointer border-gray-300 hover:border-indigo-500 text-indigo-600 focus:ring-gray-600" />
 									</th>
-									<th
+									<th v-for="(item, index) in descriptor.column" :key="`header-${item.key}`"
 										scope="col"
 										class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">
-										Reference
-									</th>
-									<th
-										scope="col"
-										class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-										Customer Reference
-									</th>
-									<th
-										scope="col"
-										class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-										Note
+										{{ item.label }}
 									</th>
 								</tr>
 							</thead>
@@ -156,36 +138,27 @@ console.log('inii',props)
 								<tr v-for="pallet in dataList" :key="pallet.id">
 									<td
 										class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
-										<input
-											type="checkbox"
-											:id="pallet.id"
-											:value="pallet.id"
-											v-model="form.pallets"
+										<input type="checkbox" :id="pallet.id" :value="pallet.id" v-model="form.pallets"
 											@change="onChecked"
 											class="h-6 w-6 rounded cursor-pointer border-gray-300 hover:border-indigo-500 text-indigo-600 focus:ring-gray-600" />
 									</td>
-									<td
+									<td v-for="(item, index) in descriptor.column" :key="`header-${item.key}`"
 										class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
-										{{ defaultTo(get(pallet, ["reference"]), "-") }}
-									</td>
-									<td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-										{{ defaultTo(get(pallet, ["customer_reference"]), "-") }}
-									</td>
-									<td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-										{{ defaultTo(get(pallet, ["note"]), "-") }}
+										{{ defaultTo(get(pallet, [item.key]), "-") }}
 									</td>
 								</tr>
 							</tbody>
 						</table>
+
+
 						<div v-if="loading" class="flex justify-center items-center w-full h-full p-12">
 							<div>
-								<FontAwesomeIcon
-									icon="fad fa-spinner-third"
-									class="animate-spin w-6"
+								<FontAwesomeIcon icon="fad fa-spinner-third" class="animate-spin w-6"
 									aria-hidden="true" />
 							</div>
 						</div>
-						<div v-if="dataList.length == 0 && !loading" class="flex justify-center items-center w-full h-full p-12">
+						<div v-if="dataList.length == 0 && !loading"
+							class="flex justify-center items-center w-full h-full p-12">
 							<div>
 								No Data
 							</div>

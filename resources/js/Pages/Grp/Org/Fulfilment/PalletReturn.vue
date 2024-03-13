@@ -80,7 +80,8 @@ watch(
     <Modal :isOpen="openModal" @onClose="openModal = false">
         <div class="h-96 overflow-y-auto">
             <TablePalletReturn 
-				:palletRoute="palletRoute" 
+				:dataRoute="palletRoute.index"
+                :saveRoute="palletRoute.store"
 				@onClose="() => openModal = false" 
 				:descriptor="palletReturnDescriptor"
 			/>
