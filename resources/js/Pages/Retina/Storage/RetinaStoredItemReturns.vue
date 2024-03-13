@@ -34,7 +34,7 @@ console.log(props)
 <template>
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead" />
-    <Table :resource="data" tab="stored_item_returns">
+    <Table :resource="data" name="stored_item_returns">
     </Table>
 <!--     <TablePallets :data="data"  tab="stored_item_returns" /> -->
 </template>
