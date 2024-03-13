@@ -28,9 +28,11 @@ class UpdatePalletBookedIn extends OrgAction
     {
         $modelData['state'] = PalletStateEnum::BOOKED_IN;
 
-        HydrateStatePallet::dispatch($pallet->palletDelivery);
+        $pallet = $this->update($pallet, $modelData, ['data']);
 
-        return $this->update($pallet, $modelData, ['data']);
+        HydrateStatePallet::run($pallet->palletDelivery);
+
+        return $pallet;
     }
 
     public function rules(): array
