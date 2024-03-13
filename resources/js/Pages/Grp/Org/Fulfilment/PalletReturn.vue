@@ -78,7 +78,7 @@ watch(
     <component :is="component" :data="props[currentTab]" :state="timeline.state" :tab="currentTab" />
 
     <Modal :isOpen="openModal" @onClose="openModal = false">
-        <div class="h-96 overflow-y-auto">
+        <div class="min-h-72 max-h-96 px-2 overflow-auto">
             <TablePalletReturn 
 				:dataRoute="palletRoute.index"
                 :saveRoute="palletRoute.store"

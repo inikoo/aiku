@@ -7,6 +7,7 @@
 
 namespace App\Actions\Fulfilment\Pallet;
 
+use App\Actions\Fulfilment\Pallet\Hydrators\HydrateStatePallet;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
@@ -27,7 +28,11 @@ class UpdatePalletNotReceived extends OrgAction
         $modelData['state']       = $state;
         $modelData['location_id'] = null;
 
-        return $this->update($pallet, $modelData, ['data']);
+        $pallet = $this->update($pallet, $modelData, ['data']);
+
+        HydrateStatePallet::run($pallet->palletDelivery);
+
+        return $pallet;
     }
 
     public function authorize(ActionRequest $request): bool

@@ -7,7 +7,7 @@ import { computed, ref } from "vue";
 import { useTabChange } from "@/Composables/tab-change";
 import Tabs from "@/Components/Navigation/Tabs.vue";
 import WorkshopHeader from "@/Components/CMS/Workshops/HeaderWorkshop.vue";
-import WorkshopMenu from "@/Components/CMS/Workshops/MenuWorkshop.vue";
+import WorkshopMenu from "@/Components/CMS/Workshops/Menu/MenuWorkshop.vue";
 import WorkshopFooter from "@/Components/CMS/Workshops/Footer/FooterWorkshop.vue";
 import ColorSchemeWorkshop from "@/Components/CMS/Workshops/ColorSchemeWorkshop.vue";
 import { capitalize } from "@/Composables/capitalize"

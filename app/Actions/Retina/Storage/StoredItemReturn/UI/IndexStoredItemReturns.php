@@ -12,7 +12,7 @@ use App\Actions\UI\Retina\Storage\ShowStorageDashboard;
 use App\Http\Resources\Fulfilment\PalletReturnsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\FulfilmentCustomer;
-use App\Models\StoredItemReturn;
+use App\Models\Fulfilment\StoredItemReturn;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Str;

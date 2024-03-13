@@ -14,7 +14,6 @@ use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Http\Resources\Fulfilment\PalletsResource;
-use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
@@ -190,9 +189,7 @@ class IndexPallets extends OrgAction
             $table->column(key: 'notes', label: __('Notes'), canBeHidden: false, searchable: true)
                 ->column(key: 'stored_items', label: 'stored items', canBeHidden: false, searchable: true);
 
-            if(! request()->user() instanceof WebUser) {
-                $table->column(key: 'actions', label: ' ', canBeHidden: false, searchable: true);
-            }
+            $table->column(key: 'actions', label: ' ', canBeHidden: false, searchable: true);
 
             $table->defaultSort('reference');
         };

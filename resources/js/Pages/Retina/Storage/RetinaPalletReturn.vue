@@ -19,6 +19,7 @@ import TablePalletReturn from "@/Components/PalletReturn/tablePalletReturn.vue"
 import TablePalletReturnsDelivery from "@/Components/Tables/TablePalletReturnsDelivery.vue"
 import { routeType } from '@/types/route'
 import { PageHeading as PageHeadingTypes } from  '@/types/PageHeading'
+import palletReturnDescriptor from "@/Components/PalletReturn/Descriptor/PalletReturn.ts"
 
 const props = defineProps<{
 	title: string
@@ -75,7 +76,7 @@ watch(
 	</PageHeading>
 
 	<div class="border-b border-gray-200">
-		<Timeline :options="timeline.timeline" :state="timeline.state" :slidesPerView="6" />
+		<Timeline :options="timeline.timeline" :state="timeline.state" :slidesPerView="Object.entries(timeline.timeline).length" />
 	</div>
 
 	<Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
@@ -89,8 +90,13 @@ watch(
     />
 
 	<Modal :isOpen="openModal" @onClose="openModal = false">
-		<div class="h-96 overflow-y-auto">
-			<TablePalletReturn :palletRoute="palletRoute" @onClose="()=>openModal = false"/>
+		<div class="min-h-72 max-h-96 px-2 overflow-auto">
+			<TablePalletReturn 
+				:dataRoute="palletRoute.index"
+                :saveRoute="palletRoute.store" 
+				@onClose="()=>openModal = false" 	
+				:descriptor="palletReturnDescriptor"
+			/>
 		</div>
 	</Modal>
 </template>
