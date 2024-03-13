@@ -16,17 +16,19 @@ interface Step {
     index?: number
     label: string
     icon?: string | string[]
-    timestamp: string
+    tooltip?: string
+    timestamp: string | null
     key?: string
 }
 
 const props = defineProps<{
-    options: Step[]
+    options: Step[] | {[key: string]: Step}
     state?: string
     width?: string | Number
     slidesPerView?: number
 }>()
-console.log('ssss',props)
+
+// console.log('ssss',props)
 const emits = defineEmits<{
     (e: 'updateButton', value: {step: Step, options: Step[]}): void
 }>()
@@ -43,7 +45,7 @@ const stepsWithIndex = (() => {
 
     // Do something with finalData array
     finalOptions.value = finalData
-    console.log(finalData)
+    // console.log(finalData)
 });
 
 const setupState = (step: Step) => {

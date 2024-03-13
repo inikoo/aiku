@@ -20,7 +20,7 @@ library.add(faPlus)
 const props = defineProps<{
     data: {}
     tab?: string
-    app: string  // 'retina'
+    app?: string  // 'retina'
 }>()
 
 function palletReturnRoute(palletReturn: PalletDelivery) {
@@ -59,21 +59,29 @@ function palletReturnRoute(palletReturn: PalletDelivery) {
     }
 }
 
-
-
 </script>
 
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
+        <!-- Column: Reference -->
         <template #cell(reference)="{ item: palletReturn }">
             <Link :href="palletReturnRoute(palletReturn)" class="specialUnderline">
                 {{ palletReturn['reference'] }}
             </Link>
         </template>
 
+        <!-- Column: State -->
         <template #cell(state)="{ item: palletReturn }">
             <TagPallete v-if="app == 'retina'" :stateIcon="palletReturn.state_icon" />
             <Icon v-else :data="palletReturn['state_icon']" class="px-1"/>
+        </template>
+
+        <!-- Column: Pallets -->
+        <template #cell(pallets)="{ item: palletReturn }">
+            <div class="tabular-nums">
+                {{ palletReturn.number_pallets }}
+            </div>
+        
         </template>
 
         <template #buttonreturns="{ linkButton: linkButton }">
