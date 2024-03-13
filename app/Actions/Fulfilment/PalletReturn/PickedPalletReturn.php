@@ -17,18 +17,17 @@ use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletReturn;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Str;
 use Lorisleiva\Actions\ActionRequest;
 
-class InDeliveryPalletReturn extends OrgAction
+class PickedPalletReturn extends OrgAction
 {
     use WithActionUpdate;
 
 
     public function handle(PalletReturn $palletReturn, array $modelData): PalletReturn
     {
-        $modelData[Str::replace('-', '_', PalletReturnStateEnum::IN_DELIVERY->value).'_at'] = now();
-        $modelData['state']                                                                 = PalletReturnStateEnum::IN_DELIVERY;
+        $modelData[PalletReturnStateEnum::PICKED->value.'_at']   = now();
+        $modelData['state']                                      = PalletReturnStateEnum::PICKED;
 
         foreach ($palletReturn->pallets as $pallet) {
             $pallet->update([
