@@ -56,15 +56,34 @@ const onSaveError = (errorValue: any) => {
                 <div class="w-[250px]">
                     <span class="text-xs px-1 my-2">Location: </span>
                     <div>
-                        <SelectQuery :urlRoute="route(locationRoute?.name, locationRoute?.parameters)" :value="location"
-                            :placeholder="'Select location'" :required="true" :trackBy="'code'" :label="'code'"
-                            :valueProp="'id'" :closeOnSelect="true" :clearOnSearch="false" :fieldName="'location_id'" />
+                    {{ location.location_id }}
+                        <SelectQuery
+                            :urlRoute="route(locationRoute?.name, locationRoute?.parameters)"
+                            :value="location"
+                            :placeholder="'Select location'"
+                            :required="true"
+                            :trackBy="'code'"
+                            :label="'code'"
+                            :valueProp="'id'"
+                            :closeOnSelect="true"
+                            :clearOnSearch="false"
+                            :fieldName="'location_id'"
+                            @updateVModel="() => error.location_id = ''"
+                        />
                         <p v-if="error.location_id" class="mt-2 text-sm text-red-600">{{ error.location_id }}</p>
                     </div>
                     <div class="flex justify-end mt-2">
-                        <ButtonEditTable :type="'primary'" @onSuccess="onSaveSuccess(closed)" :icon="['fas', 'save']"
-                            tooltip="Save location" :key="pallet.index" :size="'xs'" @onError="onSaveError"
-                            :dataToSubmit="{ location_id: location.data().location_id }" routeName="bookInRoute"
+                        <ButtonEditTable
+                            type="primary"
+                            @onSuccess="onSaveSuccess(closed)"
+                            :icon="['fas', 'save']"
+                            tooltip="Save location"
+                            :key="pallet.index"
+                            :size="'xs'"
+                            :disabled="!location.location_id"
+                            @onError="onSaveError"
+                            :dataToSubmit="{ location_id: location.data().location_id }"
+                            routeName="bookInRoute"
                             :data="pallet" />
                     </div>
                 </div>

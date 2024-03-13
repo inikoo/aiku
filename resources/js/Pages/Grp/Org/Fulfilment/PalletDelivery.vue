@@ -23,14 +23,14 @@ import { trans } from "laravel-vue-i18n"
 import { routeType } from '@/types/route'
 import { PageHeading as PageHeadingTypes } from  '@/types/PageHeading'
 import BoxStatsPalletDelivery from "@/Components/Pallet/BoxStatsPalletDelivery.vue"
-
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { library } from "@fortawesome/fontawesome-svg-core"
-import { faSeedling, faShare, faSpellCheck, faCheck, faCheckDouble, faUser, faTruckCouch, faPallet, faPlus } from '@fal'
 import { PalletDelivery } from '@/types/Pallet'
 import { Table } from '@/types/Table'
 import { Tabs as TSTabs } from '@/types/Tabs'
 import { useLayoutStore } from '@/Stores/layout'
+
+// import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { library } from "@fortawesome/fontawesome-svg-core"
+import { faSeedling, faShare, faSpellCheck, faCheck, faCheckDouble, faUser, faTruckCouch, faPallet, faPlus } from '@fal'
 library.add(faSeedling, faShare, faSpellCheck, faCheck, faCheckDouble, faUser, faTruckCouch, faPallet, faPlus)
 
 const props = defineProps<{
@@ -56,17 +56,18 @@ const props = defineProps<{
     },
 }>()
 
-console.log('props', props)
+// console.log('props', props)
 
 const currentTab = ref(props.tabs.current)
-const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab)
+const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 const loading = ref(false)
 const timeline = ref({ ...props.data.data })
 const dataModal = ref({ isModalOpen: false })
 const formAddPallet = useForm({ notes: '', customer_reference: '' })
 const formMultiplePallet = useForm({ number_pallets: 1 })
 
-const handleFormSubmitAddPallet = (data: object, closedPopover: Function) => {
+// Method: Add single pallete
+const handleFormSubmitAddPallet = (data: {}, closedPopover: Function) => {
     loading.value = true
     formAddPallet.post(route(
         data.route.name,
@@ -85,7 +86,8 @@ const handleFormSubmitAddPallet = (data: object, closedPopover: Function) => {
     })
 }
 
-const handleFormSubmitAddMultiplePallet = (data: object, closedPopover: Function) => {
+// Method: Add many pallete
+const handleFormSubmitAddMultiplePallet = (data: {}, closedPopover: Function) => {
     loading.value = true
     formMultiplePallet.post(route(
         data.route.name,
@@ -122,7 +124,6 @@ const handleFormSubmitAddMultiplePallet = (data: object, closedPopover: Function
   }
 } */
 
-const tableKey = ref(1)  // To re-render Table after click Confirm (so the Table retrieve the new props)
 
 // Button: Confirm
 const handleClickConfirm = async (action: { method: any, name: string, parameters: { palletDelivery: number } }) => {
@@ -142,6 +143,7 @@ const handleClickConfirm = async (action: { method: any, name: string, parameter
     })
 }
 
+const tableKey = ref(1)  // To re-render Table after click Confirm (so the Table retrieve the new props)
 const changeTableKey = () => {
     tableKey.value = tableKey.value + 1
 }
@@ -155,6 +157,7 @@ const component = computed(() => {
 
 })
 
+// Method: open modal Upload
 const onUploadOpen = (action) => {
     dataModal.value.isModalOpen = true
     dataModal.value.uploadRoutes = action.route
@@ -168,6 +171,7 @@ watch(() => props.data, (newValue) => {
 </script>
 
 <template>
+    <!-- <pre>{{ data.data }}</pre> -->
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead">
         <!-- Button: Upload -->
@@ -188,17 +192,31 @@ watch(() => props.data, (newValue) => {
                         :tooltip="'Add multiple pallet'"
                         class="rounded-none border-none" />
                 </template>
+
                 <template #content="{ close: closed }">
                     <div class="w-[250px]">
-                        <span class="text-xs px-1 my-2">Number of pallets : </span>
+                        <span class="text-xs px-1 my-2">Number of pallets: </span>
                         <div>
-                            <PureInput v-model="formMultiplePallet.number_pallets" placeholder="number of pallets" type="number" :minValue="1" />
-                            <p v-if="get(formMultiplePallet, ['errors', 'customer_reference'])" class="mt-2 text-sm text-red-600">
+                            <PureInput
+                                v-model="formMultiplePallet.number_pallets"
+                                autofocus
+                                placeholder="1-1000"
+                                type="number"
+                                :minValue="1"
+                                @update:modelValue="() => formMultiplePallet.errors.number_pallets = ''"
+                                @keydown.enter="() => formMultiplePallet.number_pallets ? handleFormSubmitAddMultiplePallet(action.button, closed) : ''"    
+                            />
+                            <p v-if="get(formMultiplePallet, ['errors', 'number_pallets'])" class="mt-2 text-xxs italic text-red-600">
                                 {{ formMultiplePallet.errors.number_pallets }}
                             </p>
                         </div>
+                        
                         <div class="flex justify-end mt-3">
-                            <Button :style="'save'" :loading="loading" :label="'save'"
+                            <Button
+                                :style="'save'"
+                                :loading="loading"
+                                :disabled="!formMultiplePallet.number_pallets"
+                                :key="formMultiplePallet.number_pallets"
                                 @click="() => handleFormSubmitAddMultiplePallet(action.button, closed)" />
                         </div>
                     </div>
@@ -223,7 +241,10 @@ watch(() => props.data, (newValue) => {
                         <div class="w-[250px]">
                             <span class="text-xs px-1 my-2">{{ trans('Reference') }}: </span>
                             <div>
-                                <PureInput v-model="formAddPallet.customer_reference" placeholder="Reference" />
+                                <PureInput v-model="formAddPallet.customer_reference"
+                                    placeholder="Reference"
+                                    @keydown.enter="() => handleFormSubmitAddPallet(action.button, closed)"    
+                                />
                                 <p v-if="get(formAddPallet, ['errors', 'customer_reference'])"
                                     class="mt-2 text-sm text-red-600">
                                     {{ formAddPallet.errors.customer_reference }}
@@ -233,7 +254,7 @@ watch(() => props.data, (newValue) => {
                             <div class="mt-3">
                                 <span class="text-xs px-1 my-2">{{ trans('Notes') }}: </span>
                                 <textarea
-                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                    class="placeholder:text-gray-400 block w-full rounded-md border-gray-300 shadow-sm focus:border-gray-500 focus:ring-gray-500 sm:text-sm"
                                     v-model="formAddPallet.notes" placeholder="Notes">
                                 </textarea>
                                 <p v-if="get(formAddPallet, ['errors', 'notes'])" class="mt-2 text-sm text-red-600">
@@ -279,6 +300,7 @@ watch(() => props.data, (newValue) => {
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
     <component
         :is="component"
+        :key="timeline.state"
         :data="props[currentTab]"
         :state="timeline.state"
         :tab="currentTab"
