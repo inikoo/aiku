@@ -14,11 +14,12 @@ enum SerialReferenceModelEnum: string
     use EnumHelperTrait;
 
 
-    case CUSTOMER        = 'customer';
-    case ORDER           = 'order';
-    case PURCHASE_ORDER  = 'purchase_order';
-    case PALLET_DELIVERY = 'pallet_delivery';
-    case PALLET_RETURN   = 'pallet_return';
+    case CUSTOMER             = 'customer';
+    case ORDER                = 'order';
+    case PURCHASE_ORDER       = 'purchase_order';
+    case PALLET_DELIVERY      = 'pallet_delivery';
+    case PALLET_RETURN        = 'pallet_return';
+    case STORED_ITEM_RETURN   = 'stored_item_return';
 
     case PALLET = 'pallet';
 }

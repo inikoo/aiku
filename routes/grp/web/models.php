@@ -34,6 +34,7 @@ use App\Actions\Fulfilment\PalletReturn\SubmitPalletReturn;
 use App\Actions\Fulfilment\StoredItem\MoveStoredItem;
 use App\Actions\Fulfilment\StoredItem\StoreStoredItem;
 use App\Actions\Fulfilment\StoredItem\SyncStoredItemToPallet;
+use App\Actions\Fulfilment\StoredItemReturn\StoreStoredItemReturn;
 use App\Actions\HumanResources\Employee\DeleteEmployee;
 use App\Actions\HumanResources\Employee\StoreEmployee;
 use App\Actions\HumanResources\Employee\UpdateEmployee;
@@ -93,6 +94,7 @@ Route::name('pallet.')->prefix('pallet/{pallet:id}')->group(function () {
 Route::patch('{storedItem}/stored-items', MoveStoredItem::class)->name('stored-items.move');
 
 Route::name('fulfilment-customer.')->prefix('fulfilment-customer/{fulfilmentCustomer:id}')->group(function () {
+    Route::post('stored-item-return', StoreStoredItemReturn::class)->name('stored-item-return.store');
     Route::post('stored-items', StoreStoredItem::class)->name('stored-items.store');
 
     Route::patch('', UpdateFulfilmentCustomer::class)->name('update');

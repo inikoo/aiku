@@ -43,6 +43,14 @@ class StoreFulfilmentCustomer extends OrgAction
 
         $customerFulfilment->serialReferences()->create(
             [
+                'model'           => SerialReferenceModelEnum::STORED_ITEM_RETURN,
+                'organisation_id' => $customerFulfilment->organisation->id,
+                'format'          => $customerFulfilment->slug.'-%03d-stored-item-return'
+            ]
+        );
+
+        $customerFulfilment->serialReferences()->create(
+            [
                 'model'           => SerialReferenceModelEnum::PALLET,
                 'organisation_id' => $customerFulfilment->organisation->id,
                 'format'          => $customerFulfilment->slug.'-%04d-pallet'

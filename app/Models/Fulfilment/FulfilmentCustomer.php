@@ -82,6 +82,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Fulfilment\Fulfilment $fulfilment
  * @property-read Group $group
  * @property-read Organisation $organisation
+ * @property-read \App\Models\Fulfilment\StoredItemReturn $storedItemReturn
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\PalletDelivery> $palletDeliveries
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\PalletReturn> $palletReturns
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\Pallet> $pallets
@@ -163,6 +164,11 @@ class FulfilmentCustomer extends Model
     public function palletReturns(): HasMany
     {
         return $this->hasMany(PalletReturn::class);
+    }
+
+    public function storedItemReturns(): HasMany
+    {
+        return $this->hasMany(StoredItemReturn::class);
     }
 
     public function serialReferences(): MorphMany

@@ -5,6 +5,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+namespace App\Actions\Fulfilment\StoredItemReturn\UI;
 
 use App\Actions\OrgAction;
 use App\Actions\UI\Retina\Storage\ShowStorageDashboard;

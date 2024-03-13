@@ -45,6 +45,7 @@ const props = defineProps<{
     invoices?: object
     pallets?: object
     stored_items?: object
+    stored_item_returns?: object
     dispatched_emails?: object
     pallet_deliveries?: object
     pallet_returns?: object
@@ -58,6 +59,7 @@ const component = computed(() => {
     const components = {
         showcase: CustomerShowcase,
         stored_items: TableStoredItems,
+        stored_item_returns: TableStoredItems,
         pallets: TablePallets,
         details: ModelDetails,
         history: ModelChangelog,
@@ -65,7 +67,7 @@ const component = computed(() => {
         pallet_deliveries: TablePalletDeliveries,
         pallet_returns: TablePalletReturns
     }
-    
+
     return components[currentTab.value]
 
 })

@@ -26,7 +26,7 @@ class CancelPalletReturn extends OrgAction
 
     public function handle(PalletReturn $palletReturn, array $modelData): PalletReturn
     {
-        $modelData[PalletReturnStateEnum::SUBMITTED->value.'_at'] = now();
+        $modelData[PalletReturnStateEnum::CANCEL->value.'_at']    = now();
         $modelData['state']                                       = PalletReturnStateEnum::CANCEL;
 
         HydrateFulfilmentCustomer::dispatch($palletReturn->fulfilmentCustomer);

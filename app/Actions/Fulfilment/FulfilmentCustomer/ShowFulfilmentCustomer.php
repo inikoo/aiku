@@ -14,6 +14,7 @@ use App\Actions\Fulfilment\Pallet\UI\IndexPallets;
 use App\Actions\Fulfilment\PalletDelivery\UI\IndexPalletDeliveries;
 use App\Actions\Fulfilment\PalletReturn\UI\IndexPalletReturns;
 use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItems;
+use App\Actions\Fulfilment\StoredItemReturn\UI\IndexStoredItemReturns;
 use App\Actions\Mail\DispatchedEmail\IndexDispatchedEmails;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithWebUserMeta;
@@ -23,6 +24,7 @@ use App\Http\Resources\Fulfilment\PalletDeliveriesResource;
 use App\Http\Resources\Fulfilment\PalletReturnsResource;
 use App\Http\Resources\Fulfilment\PalletsResource;
 use App\Http\Resources\Fulfilment\StoredItemResource;
+use App\Http\Resources\Fulfilment\StoredItemReturnsResource;
 use App\Http\Resources\Inventory\WarehouseResource;
 use App\Http\Resources\Mail\DispatchedEmailResource;
 use App\Http\Resources\Sales\CustomerResource;
@@ -110,6 +112,17 @@ class ShowFulfilmentCustomer extends OrgAction
                         [
                             'type'    => 'button',
                             'style'   => 'create',
+                            'tooltip' => __('Create new stored item return'),
+                            'label'   => __('New Stored Item Return'),
+                            'route'   => [
+                                'method'     => 'post',
+                                'name'       => 'grp.models.fulfilment-customer.stored-item-return.store',
+                                'parameters' => [$fulfilmentCustomer->id]
+                            ]
+                        ],
+                        [
+                            'type'    => 'button',
+                            'style'   => 'create',
                             'tooltip' => __('Create new delivery order'),
                             'label'   => __('New Delivery'),
                             'options' => [
@@ -151,7 +164,11 @@ class ShowFulfilmentCustomer extends OrgAction
 
                 CustomerFulfilmentTabsEnum::STORED_ITEMS->value => $this->tab == CustomerFulfilmentTabsEnum::STORED_ITEMS->value ?
                     fn () => StoredItemResource::collection(IndexStoredItems::run($fulfilmentCustomer))
-                    : Inertia::lazy(fn () => PalletDeliveriesResource::collection(IndexStoredItems::run($fulfilmentCustomer))),
+                    : Inertia::lazy(fn () => StoredItemResource::collection(IndexStoredItems::run($fulfilmentCustomer))),
+
+                CustomerFulfilmentTabsEnum::STORED_ITEM_RETURNS->value => $this->tab == CustomerFulfilmentTabsEnum::STORED_ITEM_RETURNS->value ?
+                    fn () => StoredItemReturnsResource::collection(IndexStoredItemReturns::run($fulfilmentCustomer))
+                    : Inertia::lazy(fn () => StoredItemReturnsResource::collection(IndexStoredItemReturns::run($fulfilmentCustomer))),
 
                 CustomerFulfilmentTabsEnum::PALLET_DELIVERIES->value => $this->tab == CustomerFulfilmentTabsEnum::PALLET_DELIVERIES->value ?
                     fn () => PalletDeliveriesResource::collection(IndexPalletDeliveries::run($fulfilmentCustomer))
@@ -191,6 +208,10 @@ class ShowFulfilmentCustomer extends OrgAction
             )->table(
                 IndexStoredItems::make()->tableStructure(
                     parent: $fulfilmentCustomer->storedItems
+                )
+            )->table(
+                IndexStoredItemReturns::make()->tableStructure(
+                    parent: $fulfilmentCustomer
                 )
             );
     }
