@@ -28,7 +28,7 @@ if (usePage().props.language) {
 
         <div class="mt-8 mx-auto md:w-full max-w-md">
             <div class="bg-white/65 py-8 px-4 shadow rounded-lg md:px-10">
-                <slot></slot>
+                <slot />
             </div>
         </div>
     </div>
