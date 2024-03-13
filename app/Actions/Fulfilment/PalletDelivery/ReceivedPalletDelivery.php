@@ -10,7 +10,6 @@ namespace App\Actions\Fulfilment\PalletDelivery;
 use App\Actions\Fulfilment\FulfilmentCustomer\HydrateFulfilmentCustomer;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
-use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Http\Resources\Fulfilment\PalletDeliveryResource;
 use App\Models\Fulfilment\PalletDelivery;
@@ -22,16 +21,10 @@ class ReceivedPalletDelivery extends OrgAction
     use WithActionUpdate;
 
 
-    public function handle(PalletDelivery $palletDelivery, array $modelData): PalletDelivery
+    public function handle(PalletDelivery $palletDelivery, array $modelData = []): PalletDelivery
     {
         $modelData['received_at'] = now();
         $modelData['state']       = PalletDeliveryStateEnum::RECEIVED;
-
-        foreach ($palletDelivery->pallets as $pallet) {
-            $pallet->update([
-                'state' => PalletStateEnum::RECEIVED
-            ]);
-        }
 
         HydrateFulfilmentCustomer::dispatch($palletDelivery->fulfilmentCustomer);
 

@@ -38,7 +38,6 @@ class StoredItemResource extends JsonResource
             'state'         => $storedItem->state,
             'notes'         => $storedItem->notes ?? '-',
             'status'        => $storedItem->status,
-            'quantity'      => (int) $storedItem->pivot?->quantity,
             'total_quantity'=> $storedItem->pallets?->sum('pivot.quantity'),
 
 
