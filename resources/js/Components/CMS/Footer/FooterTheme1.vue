@@ -103,7 +103,4 @@ const addMenu = (data, index) => {
 </template>
 
 <style>
-.arya {
-	width: 100%;
-}
 </style>
