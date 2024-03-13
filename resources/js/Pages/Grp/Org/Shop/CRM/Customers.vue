@@ -11,9 +11,9 @@ import TableCustomers from '@/Components/Tables/TableCustomers.vue';
 import { capitalize } from "@/Composables/capitalize"
 
 const props = defineProps<{
-    data: object
+    data: {}
     title: string
-    pageHead: object
+    pageHead: {}
 }>()
 
 </script>

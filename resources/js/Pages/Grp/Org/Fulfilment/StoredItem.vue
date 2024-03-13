@@ -27,12 +27,12 @@ const props = defineProps<{
     title: string
     tabs: {
         current: string
-        navigation: object
+        navigation: {}
     }
-    pallets?: object
-    showcase?: object
-    history?: object
-    pageHead: object
+    pallets?: {}
+    showcase?: {}
+    history?: {}
+    pageHead: {}
     palletRoute: {
         index: routeType
     }
@@ -58,7 +58,7 @@ const component = computed(() => {
 </script>
 
 <template>
-
+    {{ showcase }}
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead"></PageHeading>
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />

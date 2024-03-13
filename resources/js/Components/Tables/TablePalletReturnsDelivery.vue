@@ -22,7 +22,7 @@ const props = defineProps<{
     data: {}
     tab?: string
     state?: string
-    app: string // 'retina'
+    app?: string // 'retina'
 }>()
 
 function customerRoute(pallet: object) {
@@ -61,7 +61,7 @@ function customerRoute(pallet: object) {
         <!-- Column: Actions -->
         <template #cell(actions)="{ item: pallet }" v-if="props.state == 'in-process'">
             <div>
-                <Link :href="customerRoute(pallet)" method="delete">
+                <Link as="div" :href="customerRoute(pallet)" method="delete">
                     <!-- <font-awesome-icon class="text-red-600" :icon="['far', 'trash-alt']" /> -->
                     <Button icon="fal fa-trash-alt" type="negative" />
                 </Link>
