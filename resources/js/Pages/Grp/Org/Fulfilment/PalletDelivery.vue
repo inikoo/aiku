@@ -59,14 +59,14 @@ const props = defineProps<{
 console.log('props', props)
 
 const currentTab = ref(props.tabs.current)
-const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab)
+const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 const loading = ref(false)
 const timeline = ref({ ...props.data.data })
 const dataModal = ref({ isModalOpen: false })
 const formAddPallet = useForm({ notes: '', customer_reference: '' })
 const formMultiplePallet = useForm({ number_pallets: 1 })
 
-const handleFormSubmitAddPallet = (data: object, closedPopover: Function) => {
+const handleFormSubmitAddPallet = (data: {}, closedPopover: Function) => {
     loading.value = true
     formAddPallet.post(route(
         data.route.name,
@@ -85,7 +85,7 @@ const handleFormSubmitAddPallet = (data: object, closedPopover: Function) => {
     })
 }
 
-const handleFormSubmitAddMultiplePallet = (data: object, closedPopover: Function) => {
+const handleFormSubmitAddMultiplePallet = (data: {}, closedPopover: Function) => {
     loading.value = true
     formMultiplePallet.post(route(
         data.route.name,
@@ -279,6 +279,7 @@ watch(() => props.data, (newValue) => {
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
     <component
         :is="component"
+        :key="timeline.state"
         :data="props[currentTab]"
         :state="timeline.state"
         :tab="currentTab"
