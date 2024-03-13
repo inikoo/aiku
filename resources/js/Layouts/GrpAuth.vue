@@ -4,13 +4,15 @@
   - Copyright (c) 2023, Raul A Perusquia Flores
   -->
 
-<script setup>
-
+<script setup lang="ts">
+import { provide } from "vue"
+import { useLayoutStore } from "@/Stores/layout"
 
 import { usePage } from '@inertiajs/vue3'
 import { loadLanguageAsync } from 'laravel-vue-i18n'
-import { breakpointType } from '@/Composables/useWindowSize.ts'
+import { breakpointType } from '@/Composables/useWindowSize'
 
+provide('layout', useLayoutStore())
 
 if (usePage().props.language) {
     loadLanguageAsync(usePage().props.language)
@@ -29,7 +31,7 @@ if (usePage().props.language) {
 
         <div class="mt-8 mx-auto md:w-full max-w-md">
             <div class="bg-white/65 py-8 px-4 shadow rounded-lg md:px-10">
-                <slot></slot>
+                <slot />
             </div>
         </div>
     </div>
