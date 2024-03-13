@@ -9,7 +9,7 @@ const menuItem = () => {
 
 const menuTypeList = () => {
 	return {
-		title: "Menu 1",
+		content: "Menu 1",
 		type: "group",
 		column_id: uuidv4(),
 		group: [
@@ -21,7 +21,7 @@ const menuTypeList = () => {
 
 const menuTypeDescription = () => {
     return {
-		title: "Menu 2",
+		content: "Menu 2",
 		type: "single",
 		column_id: uuidv4(),
 	}

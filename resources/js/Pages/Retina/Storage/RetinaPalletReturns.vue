@@ -105,6 +105,7 @@ function palletReturnRoute(palletReturn: PalletDelivery) {
                 ]);
     }
 }
+console.log(props)
 </script>
 
 <template>

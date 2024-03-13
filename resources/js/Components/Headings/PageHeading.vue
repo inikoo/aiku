@@ -135,7 +135,7 @@ const originUrl = location.origin
                                 <slot v-for="button in action.button" :name="'button-group-' + kebabCase(button.label)" :action="{ button }">
                                     <Link
                                         :href="`${route(button.route.name, button.route.parameters)}`" class=""
-                                        :method="button.method ?? 'get'"
+                                        :method="button.route.method ?? 'get'"
                                     >
                                         <Button :style="button.style" :label="button.label" :icon="button.icon"  :iconRight="action.iconRight" :key="`ActionButton${button.label}${button.style}`" :tooltip="button.tooltip"
                                             class="capitalize inline-flex items-center h-full rounded-none text-sm border-none font-medium shadow-sm focus:ring-transparent focus:ring-offset-transparent focus:ring-0">

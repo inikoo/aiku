@@ -50,7 +50,7 @@
               <Menu
                   :tools="toolsValue"
                   :activeColumn="activeColumn"
-                  :menuDataLayoutForm="menuDataLayoutForm"
+                  :menuDataLayout="menuDataLayoutForm"
                   @changeActiveColumn="(e : string )=> activeColumn = e" />
           </div>
       </div>

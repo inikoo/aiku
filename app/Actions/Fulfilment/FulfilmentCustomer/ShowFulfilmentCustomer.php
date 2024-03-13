@@ -110,28 +110,35 @@ class ShowFulfilmentCustomer extends OrgAction
                     ] : false,
                     'actions' => [
                         [
-                            'type'    => 'button',
-                            'style'   => 'create',
-                            'tooltip' => __('Create new stored item return'),
-                            'label'   => __('New Stored Item Return'),
-                            'route'   => [
-                                'method'     => 'post',
-                                'name'       => 'grp.models.fulfilment-customer.stored-item-return.store',
-                                'parameters' => [$fulfilmentCustomer->id]
-                            ]
-                        ],
-                        [
-                            'type'    => 'button',
-                            'style'   => 'create',
-                            'tooltip' => __('Create new delivery order'),
-                            'label'   => __('New Delivery'),
-                            'options' => [
-                                'warehouses' => WarehouseResource::collection($fulfilmentCustomer->fulfilment->warehouses)
-                            ],
-                            'route'   => [
-                                'method'     => 'post',
-                                'name'       => 'grp.models.fulfilment-customer.pallet-delivery.store',
-                                'parameters' => [$fulfilmentCustomer->id]
+                            'type'   => 'buttonGroup',
+                            'key'    => 'upload-add',
+                            'button' => [
+                                [
+                                    'type'    => 'button',
+                                    'style'   => 'primary',
+                                    'tooltip' => __('Create new delivery order'),
+                                    'label'   => __('Return Delivery Pallet'),
+                                    'options' => [
+                                        'warehouses' => WarehouseResource::collection($fulfilmentCustomer->fulfilment->warehouses)
+                                    ],
+                                    'route'   => [
+                                        'method'     => 'post',
+                                        'name'       => 'grp.models.fulfilment-customer.pallet-delivery.store',
+                                        'parameters' => [$fulfilmentCustomer->id]
+                                    ]
+                                ],
+                                [
+                                    'type'    => 'button',
+                                    'style'   => 'primary',
+                                    'tooltip' => __('Return new stored item return'),
+                                    'label'   => __('New Stored Item Return'),
+                                    'route'   => [
+                                        'method'     => 'post',
+                                        'name'       => 'grp.models.fulfilment-customer.stored-item-return.store',
+                                        'parameters' => [$fulfilmentCustomer->id]
+                                    ]
+                                ],
+                              
                             ]
                         ],
                         [

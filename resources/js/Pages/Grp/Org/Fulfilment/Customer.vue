@@ -16,6 +16,7 @@ import TablePalletReturns from "@/Components/Tables/TablePalletReturns.vue"
 
 import ModelDetails from "@/Components/ModelDetails.vue"
 import TablePallets from "@/Components/Tables/TablePallets.vue"
+import TableStoredItemReturn from "@/Components/Tables/TableStoredItemReturn.vue"
 import { useTabChange } from "@/Composables/tab-change"
 import { computed, defineAsyncComponent, ref } from "vue"
 import Tabs from "@/Components/Navigation/Tabs.vue"
@@ -59,7 +60,7 @@ const component = computed(() => {
     const components = {
         showcase: CustomerShowcase,
         stored_items: TableStoredItems,
-        stored_item_returns: TableStoredItems,
+        stored_item_returns: TableStoredItemReturn,
         pallets: TablePallets,
         details: ModelDetails,
         history: ModelChangelog,

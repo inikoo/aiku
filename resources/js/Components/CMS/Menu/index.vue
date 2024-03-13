@@ -5,7 +5,7 @@ import Menu2 from './Navbar2/Menu2.vue'
 
 const props = defineProps<{
  tools : Object,
- footerDataLayout : object
+ menuDataLayout : object
  activeColumn:string
 }>()
 
@@ -15,14 +15,14 @@ const component = {
 }
 
 const emits = defineEmits()
-
+console.log('sfdf',props)
 </script>
 
 <template>
     <div>
         <component 
             :is="component[tools.theme]"
-            :footerDataLayout="footerDataLayout"
+            :menuDataLayout="menuDataLayout"
             :tool="tools"
             :activeColumn="activeColumn"
             @changeActiveColumn="(e : string )=>  emits('changeActiveColumn', e)"

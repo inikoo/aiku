@@ -26,6 +26,7 @@ import map from 'lodash-es/map';
 // import { library } from "@fortawesome/fontawesome-svg-core";
 import {useLocaleStore} from '@/Stores/locale';
 import CountUp from 'vue-countup-v3';
+import { faGameConsoleHandheld } from '@fal';
 // import { cloneDeep } from 'lodash';
 
 const locale = useLocaleStore();
@@ -140,10 +141,12 @@ const queryBuilderProps = computed(() => {
         : {};
 
     data._updates = updates.value;
-
+    console.log(data)
     return data;
 });
 
+
+console.log('sdfd',queryBuilderProps)
 
 const queryBuilderData = ref(queryBuilderProps.value);
 queryBuilderData.value.elementFilter = {

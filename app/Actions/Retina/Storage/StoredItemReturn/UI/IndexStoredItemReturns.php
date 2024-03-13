@@ -36,7 +36,7 @@ class IndexStoredItemReturns extends RetinaAction
         $this->initialisation($request);
         $this->parent = $this->customer->fulfilmentCustomer;
 
-        return $this->handle($this->customer->fulfilmentCustomer, 'stored item_returns');
+        return $this->handle($this->customer->fulfilmentCustomer, 'stored_item_returns');
     }
 
     public function handle(FulfilmentCustomer $parent, $prefix = null): LengthAwarePaginator
