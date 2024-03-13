@@ -145,6 +145,10 @@ class ShowStoredItem extends OrgAction
                     ]
                 ],
 
+                StoredItemTabsEnum::SHOWCASE->value => $this->tab == StoredItemTabsEnum::SHOWCASE->value ?
+                    fn () => GetStoredItemShowcase::run($storedItem)
+                    : Inertia::lazy(fn () => GetStoredItemShowcase::run($storedItem)),
+
                 StoredItemTabsEnum::PALLETS->value => $this->tab == StoredItemTabsEnum::PALLETS->value ?
                     fn () => PalletsResource::collection(IndexStoredItemPallets::run($storedItem))
                     : Inertia::lazy(fn () => PalletsResource::collection(IndexStoredItemPallets::run($storedItem))),

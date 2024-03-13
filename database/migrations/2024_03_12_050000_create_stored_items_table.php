@@ -29,13 +29,7 @@ return new class () extends Migration {
                 $table->string('type')->index();
                 $table->unsignedInteger('fulfilment_customer_id')->index();
                 $table->foreign('fulfilment_customer_id')->references('id')->on('fulfilment_customers');
-                $table->unsignedInteger('location_id')->index()->nullable();
-                $table->foreign('location_id')->references('id')->on('locations');
-                $table->decimal('quantity')->default(0);
-                $table->decimal('damaged_quantity')->default(0);
                 $table->string('notes');
-                $table->unsignedInteger('stored_item_return_id')->index()->nullable();
-                $table->foreign('stored_item_return_id')->references('id')->on('stored_item_returns');
                 $table->boolean('return_requested')->default(false);
                 $table->dateTimeTz('received_at')->nullable();
                 $table->dateTimeTz('booked_in_at')->nullable();

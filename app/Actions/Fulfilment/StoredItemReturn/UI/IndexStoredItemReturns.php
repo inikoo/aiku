@@ -13,9 +13,10 @@ use App\Http\Resources\Fulfilment\StoredItemResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
+use App\Models\Fulfilment\StoredItemReturn;
 use App\Models\Inventory\Warehouse;
-use App\Models\StoredItemReturn;
 use App\Models\SysAdmin\Organisation;
+use App\Services\QueryBuilder;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Str;
@@ -23,7 +24,6 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
-use App\Services\QueryBuilder;
 
 class IndexStoredItemReturns extends OrgAction
 {
