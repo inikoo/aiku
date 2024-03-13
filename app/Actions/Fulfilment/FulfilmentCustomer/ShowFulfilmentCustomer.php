@@ -71,6 +71,7 @@ class ShowFulfilmentCustomer extends OrgAction
             unset($navigation[CustomerFulfilmentTabsEnum::PALLETS->value]);
         }
         if (!$fulfilmentCustomer->items_storage) {
+            unset($navigation[CustomerFulfilmentTabsEnum::STORED_ITEM_RETURNS->value]);
             unset($navigation[CustomerFulfilmentTabsEnum::STORED_ITEMS->value]);
         }
         if (!$fulfilmentCustomer->dropshipping) {
