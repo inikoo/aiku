@@ -26,14 +26,22 @@ class GetStoredItemShowcase
 
     public function getDashboardData(StoredItem $parent): array
     {
-        $stats = [];
+        // $stats = [];
 
-        $stats['pallets'] = [
-            'label' => __('Pallet'),
-            'count' => $parent->pallets()->count()
-        ];
+        // $stats['pallets'] = [
+        //     'label' => __('Pallet'),
+        //     'count' => $parent->pallets()->count()
+        // ];
 
-        $stats['pallets']['data'] = $parent->pallets->map(function (Pallet $pallet) {
+        // $stats['pallets']['data'] = $parent->pallets->map(function (Pallet $pallet) {
+        //     return [
+        //         'label' => $pallet->reference,
+        //         'value' => (int) $pallet->pivot->quantity
+        //     ];
+        // });
+
+        $stats          = [];
+        $stats['stats'] = $parent->pallets->map(function (Pallet $pallet) {
             return [
                 'label' => $pallet->reference,
                 'value' => (int) $pallet->pivot->quantity
