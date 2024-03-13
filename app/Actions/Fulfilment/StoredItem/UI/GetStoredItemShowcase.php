@@ -8,6 +8,7 @@
 namespace App\Actions\Fulfilment\StoredItem\UI;
 
 use App\Http\Resources\Fulfilment\StoredItemResource;
+use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\StoredItem;
 use Lorisleiva\Actions\Concerns\AsObject;
 
@@ -32,10 +33,10 @@ class GetStoredItemShowcase
             'count' => $parent->pallets()->count()
         ];
 
-        $stats['pallets']['data'] = $parent->pallets->map(function ($pallet) {
+        $stats['pallets']['data'] = $parent->pallets->map(function (Pallet $pallet) {
             return [
-                'label' => $pallet->name,
-                'value' => $pallet->pivot->quantity
+                'label' => $pallet->reference,
+                'value' => (int) $pallet->pivot->quantity
             ];
         });
 
