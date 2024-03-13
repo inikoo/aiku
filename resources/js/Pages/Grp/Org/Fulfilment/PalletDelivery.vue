@@ -23,14 +23,14 @@ import { trans } from "laravel-vue-i18n"
 import { routeType } from '@/types/route'
 import { PageHeading as PageHeadingTypes } from  '@/types/PageHeading'
 import BoxStatsPalletDelivery from "@/Components/Pallet/BoxStatsPalletDelivery.vue"
-
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { library } from "@fortawesome/fontawesome-svg-core"
-import { faSeedling, faShare, faSpellCheck, faCheck, faCheckDouble, faUser, faTruckCouch, faPallet, faPlus } from '@fal'
 import { PalletDelivery } from '@/types/Pallet'
 import { Table } from '@/types/Table'
 import { Tabs as TSTabs } from '@/types/Tabs'
 import { useLayoutStore } from '@/Stores/layout'
+
+// import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { library } from "@fortawesome/fontawesome-svg-core"
+import { faSeedling, faShare, faSpellCheck, faCheck, faCheckDouble, faUser, faTruckCouch, faPallet, faPlus } from '@fal'
 library.add(faSeedling, faShare, faSpellCheck, faCheck, faCheckDouble, faUser, faTruckCouch, faPallet, faPlus)
 
 const props = defineProps<{
@@ -124,7 +124,6 @@ const handleFormSubmitAddMultiplePallet = (data: {}, closedPopover: Function) =>
   }
 } */
 
-const tableKey = ref(1)  // To re-render Table after click Confirm (so the Table retrieve the new props)
 
 // Button: Confirm
 const handleClickConfirm = async (action: { method: any, name: string, parameters: { palletDelivery: number } }) => {
@@ -144,6 +143,7 @@ const handleClickConfirm = async (action: { method: any, name: string, parameter
     })
 }
 
+const tableKey = ref(1)  // To re-render Table after click Confirm (so the Table retrieve the new props)
 const changeTableKey = () => {
     tableKey.value = tableKey.value + 1
 }
@@ -157,6 +157,7 @@ const component = computed(() => {
 
 })
 
+// Method: open modal Upload
 const onUploadOpen = (action) => {
     dataModal.value.isModalOpen = true
     dataModal.value.uploadRoutes = action.route
@@ -170,6 +171,7 @@ watch(() => props.data, (newValue) => {
 </script>
 
 <template>
+    <!-- <pre>{{ data.data }}</pre> -->
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead">
         <!-- Button: Upload -->

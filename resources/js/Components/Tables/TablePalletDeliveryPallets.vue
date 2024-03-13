@@ -120,6 +120,7 @@ const onSaved = async (pallet: { form : {}}, fieldName: string) => {
 
         <!-- Column: Actions -->
 		<template #cell(actions)="{ item: pallet }">
+            <!-- State: in process -->
 			<div v-if="props.state == 'in-process'">
 				<Link
 					:href="route(pallet.deleteRoute.name, pallet.deleteRoute.parameters)"
@@ -133,6 +134,7 @@ const onSaved = async (pallet: { form : {}}, fieldName: string) => {
 				</Link>
 			</div>
 
+            <!-- State: not received -->
 			<div v-else-if="pallet.state == 'not-received'">
 				<ButtonEditTable
 					class="mx-2"
@@ -147,34 +149,33 @@ const onSaved = async (pallet: { form : {}}, fieldName: string) => {
 					@onSuccess="() => emits('renderTableKey')" />
 			</div>
             
-			<div v-else-if="props.state == 'received'">
-				<div class="flex">
-					<ButtonEditTable
-						class="mx-2"
-						:type="pallet.state == 'not-received' ? 'secondary' : 'negative'"
-						:icon="['fal', 'times']"
-						tooltip="Set as not received"
-						:size="'xs'"
-						:key="pallet.index"
-						routeName="notReceivedRoute"
-						:data="pallet"
-						@onSuccess="() => emits('renderTableKey')" />
+            <!-- State: Received -->
+			<div v-else-if="props.state == 'received'" class="flex">
+                <ButtonEditTable
+                    class="mx-2"
+                    :type="pallet.state == 'not-received' ? 'secondary' : 'negative'"
+                    :icon="['fal', 'times']"
+                    tooltip="Set as not received"
+                    :size="'xs'"
+                    :key="pallet.index"
+                    routeName="notReceivedRoute"
+                    :data="pallet"
+                    @onSuccess="() => emits('renderTableKey')" />
 
-					<!-- <ButtonEditTable
-                        :type="pallet.state == 'booked-in' ? 'primary' : 'tertiary'"
-                        :icon="['fal', 'inventory']"
-                        :tooltip="'Booked In'"
-                        :key="pallet.index"
-                        :size="'xs'"
-                        routeName="bookInRoute"
-                        :data="pallet"
-                        @onSuccess="() => emits('renderTableKey')"
-                        /> -->
-					<LocationFieldDelivery
-						:pallet="pallet"
-						@renderTableKey="() => emits('renderTableKey')"
-						:locationRoute="locationRoute" />
-				</div>
+                <!-- <ButtonEditTable
+                    :type="pallet.state == 'booked-in' ? 'primary' : 'tertiary'"
+                    :icon="['fal', 'inventory']"
+                    :tooltip="'Booked In'"
+                    :key="pallet.index"
+                    :size="'xs'"
+                    routeName="bookInRoute"
+                    :data="pallet"
+                    @onSuccess="() => emits('renderTableKey')"
+                    /> -->
+                <LocationFieldDelivery
+                    :pallet="pallet"
+                    @renderTableKey="() => emits('renderTableKey')"
+                    :locationRoute="locationRoute" />
 			</div>
 		</template>
 	</Table>

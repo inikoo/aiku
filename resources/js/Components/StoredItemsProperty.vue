@@ -97,7 +97,7 @@ const sendToServer = async (data) => {
             <div class="flex gap-x-1 gap-y-1.5 flex-wrap">
                 <div v-for="item of pallet.stored_items" class="cursor-pointer">
                     <Tag @onClose="(event) => { event.stopPropagation(), onDelete(item) }" :theme="item.id"
-                        :label="`${item.reference} (${item.quantity})`"
+                        :label="`${item.reference}`"
                         :closeButton="state == 'in-process' ? true : false" :stringToColor="true"
                         @click="() => state == 'in-process' ? setFormOnEdit(item) : null"
                     >
@@ -116,7 +116,7 @@ const sendToServer = async (data) => {
 
 
         <Modal :isOpen="isModalOpen" @onClose="isModalOpen = false" width="w-1/2">
-            <Button class="sr-only" />
+            <div class="sr-only" />
             <div class="space-y-4">
                 <CreateStoredItems :storedItemsRoute="storedItemsRoute" :form="form" @onSave="sendToServer"
                     :stored_items="pallet.stored_items" />

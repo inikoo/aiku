@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import Multiselect from "@vueform/multiselect"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { ref, onMounted, defineProps, defineEmits, onUnmounted } from 'vue'
+import { ref, onMounted, defineProps, onUnmounted } from 'vue'
 import axios from "axios"
 import { notify } from "@kyvg/vue3-notification"
 import { isNull } from 'lodash'
@@ -23,6 +23,7 @@ const props = withDefaults(defineProps<{
     label?: string
     valueProp?: string
     closeOnSelect?: boolean
+    closeOnDeselect?: boolean
     clearOnSearch?: boolean
     object?: boolean
     value: any
@@ -49,7 +50,10 @@ const props = withDefaults(defineProps<{
 
 })
 
-const emits = defineEmits()
+const emits = defineEmits<{
+    (e: 'updateVModel'): void
+}>()
+
 let timeoutId: any
 const optionData = ref([])
 const q = ref('')
@@ -145,12 +149,12 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <Multiselect ref="_multiselectRef" v-model="value[fieldName]" :placeholder="props.placeholder"
+    <Multiselect ref="_multiselectRef" v-model="value[fieldName]" @update:modelValue="emits('updateVModel')" :placeholder="props.placeholder"
         :trackBy="props.trackBy" :label="props.label" :valueProp="props.valueProp" :object="props.object"
         :clearOnSearch="props.clearOnSearch" :close-on-select="props.closeOnSelect" :searchable="props.searchable"
         :caret="props.caret" :canClear="props.canClear" :options="optionData" :mode="props.mode" :on-create="props.onCreate"
         :create-option="props.createOption" :noResultsText="loading ? 'loading...' : 'No Result'" @open="getOptions()"
-        @search-change="SearchChange" @change="props.onChange">
+        @search-change="SearchChange" @change="props.onChange" :closeOnDeselect="closeOnDeselect">
         <template
             #tag="{ option, handleTagRemove, disabled }: { option: tag, handleTagRemove: Function, disabled: boolean }">
             <div class="px-0.5 py-[3px]">

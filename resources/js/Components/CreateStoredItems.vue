@@ -83,7 +83,7 @@ const onSaved = async () => {
 			<SelectQuery
 				:urlRoute="route(storedItemsRoute.index.name, storedItemsRoute.index.parameters)"
 				:value="form"
-				:placeholder="'Select items'"
+				:placeholder="'Select or add item'"
 				:required="true"
 				:trackBy="'reference'"
 				:label="'reference'"
@@ -92,9 +92,11 @@ const onSaved = async () => {
 				:clearOnSearch="false"
 				:fieldName="'id'"
 				:createOption="true"
-				:onCreate="createPallet" />
+				:onCreate="createPallet"
+                @updateVModel="() => form.errors.id = ''"
+            />
 		</div>
-		<p v-if="get(form, ['errors', 'id'])" class="mt-2 text-sm text-red-600">
+		<p v-if="get(form, ['errors', 'id'])" class="mt-2 text-sm text-red-500">
 			{{ form.errors.id }}
 		</p>
 	</div>
@@ -111,6 +113,7 @@ const onSaved = async () => {
 				autocomplete="quantity"
 				:required="true"
 				:min="1"
+                @update:modelValue="form.errors.quantity = ''"
 				class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
 		</div>
 		<p v-if="get(form, ['errors', 'quantity'])" class="mt-2 text-sm text-red-600">
