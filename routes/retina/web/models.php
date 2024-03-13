@@ -31,7 +31,7 @@ Route::name('pallet-return.')->prefix('pallet-return/{palletReturn:id}')->group(
     Route::post('pallet', [StorePalletToReturn::class, 'fromRetina'])->name('pallet.store');
     Route::post('submit', [SubmitPalletReturn::class, 'fromRetina'])->name('submit');
     Route::post('cancel', [CancelPalletReturn::class, 'fromRetina'])->name('cancel');
-    Route::delete('pallet', [DeletePalletFromReturn::class, 'fromRetina'])->name('pallet.delete');
+    Route::delete('pallet/{pallet}', [DeletePalletFromReturn::class, 'fromRetina'])->name('pallet.delete');
 });
 
 Route::post('pallet-delivery', [StorePalletDelivery::class, 'fromRetina'])->name('pallet-delivery.store');
