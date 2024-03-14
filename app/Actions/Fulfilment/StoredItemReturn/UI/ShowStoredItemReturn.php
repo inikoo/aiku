@@ -258,9 +258,9 @@ class ShowStoredItemReturn extends OrgAction
                     ],
                 ],
 
-                'palletRoute' => [
+                'storedItemRoute' => [
                     'index' => [
-                        'name'       => 'grp.org.fulfilments.show.crm.customers.show.stored-pallets.index',
+                        'name'       => 'grp.org.fulfilments.show.crm.customers.show.stored-item-returns.stored-items.booked-in.index',
                         'parameters' => [
                             'organisation'       => $storedItemReturn->organisation->slug,
                             'fulfilment'         => $storedItemReturn->fulfilment->slug,

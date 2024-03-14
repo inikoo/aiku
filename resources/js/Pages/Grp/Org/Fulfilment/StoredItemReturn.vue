@@ -30,7 +30,7 @@
       pageHead: PageHeadingTypes
       updateRoute: routeType
       uploadRoutes: routeType
-      palletRoute: {
+      storedItemRoute: {
           index: routeType,
           store: routeType
       }
@@ -79,8 +79,8 @@
       <Modal :isOpen="openModal" @onClose="openModal = false">
           <div class="min-h-72 max-h-96 px-2 overflow-auto">
               <TableReturn
-                  :dataRoute="palletRoute.index"
-                  :saveRoute="palletRoute.store"
+                  :dataRoute="storedItemRoute.index"
+                  :saveRoute="storedItemRoute.store"
                   @onClose="() => openModal = false"
                   :descriptor="StoredItemReturnDescriptor"
               />

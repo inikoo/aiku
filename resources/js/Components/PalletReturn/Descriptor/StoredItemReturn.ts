@@ -1,10 +1,11 @@
 export default {
     useSearch : true,
     title : 'Stored Item',
+    key : 'stored_items',
     column : [
         {
             label : "Name",
-            key   : 'name'
+            key   : 'reference'
         },
         {
             label : "Quantity",

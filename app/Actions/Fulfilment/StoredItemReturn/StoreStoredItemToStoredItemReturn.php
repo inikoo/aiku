@@ -30,9 +30,9 @@ class StoreStoredItemToStoredItemReturn extends OrgAction
     public function handle(StoredItemReturn $storedItemReturn, array $modelData): StoredItemReturn
     {
         foreach (Arr::get($modelData, 'stored_items') as $storedItem) {
-            $storedItemReturn->items()->sync([
-                Arr::get($storedItem, 'id') => [
-                    'quantity' => Arr::get($storedItem, 'quantity')
+            $storedItemReturn->items()->syncWithoutDetaching([
+                $storedItem => [
+                    'quantity' => 0
                 ],
             ]);
         }
@@ -115,7 +115,7 @@ class StoreStoredItemToStoredItemReturn extends OrgAction
         $routeName = $request->route()->getName();
 
         return match ($routeName) {
-            'grp.models.fulfilment-customer.pallet-return.pallet.store' => Redirect::route('grp.org.fulfilments.show.crm.customers.show.pallet-returns.show', [
+            'grp.models.fulfilment-customer.stored-item-return.stored-item.store' => Redirect::route('grp.org.fulfilments.show.crm.customers.show.stored-item-returns.show', [
                 'organisation'               => $storedItemReturn->organisation->slug,
                 'fulfilment'                 => $storedItemReturn->fulfilment->slug,
                 'fulfilmentCustomer'         => $storedItemReturn->fulfilmentCustomer->slug,

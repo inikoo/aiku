@@ -24,7 +24,7 @@ const props = defineProps<{
 const emits = defineEmits()
 const dataList = ref([])
 const loading = ref(false)
-const form = useForm({ pallets: [] })
+const form = useForm({ [props.descriptor.key]: [] })
 const checkedAll = ref(false)
 const tableFilter = useForm({
 	search: null,
@@ -40,7 +40,7 @@ const getData = async () => {
 	try {
 		const response = await axios.get(
 			route(props.dataRoute.name, props.dataRoute.parameters),
-			{ params: { ['pallets_filter[global]']: tableFilter.search } } // Changed from { search: tableFilter.filter }
+			{ params: { [`${props.descriptor.key}_filter[global]`]: tableFilter.search } } // Changed from { search: tableFilter.filter }
 		)
 		console.log(response.data.data)
 		dataList.value = response.data.data
@@ -62,13 +62,13 @@ const selectAll = () => {
 		dataList.value.forEach((item) => value.push(item.id))
 		checkedAll.value = true
 	} else checkedAll.value = false
-	form.pallets = value
+	form[props.descriptor.key] = value
 }
 
 const onChecked = (value) => {
-	if (form.data().pallets.length > dataList.value.length && form.data().pallets.length != 0)
+	if (form.data()[props.descriptor.key].length > dataList.value.length && form.data()[props.descriptor.key].length != 0)
 		checkedAll.value = false
-	if (form.data().pallets.length == dataList.value.length && form.data().pallets.length != 0)
+	if (form.data()[props.descriptor.key].length == dataList.value.length && form.data()[props.descriptor.key].length != 0)
 		checkedAll.value = true
 	else checkedAll.value = false
 }
@@ -83,7 +83,7 @@ const onSubmitPallet = () => {
 			loading.value = false
 		},
 		onSuccess: () => {
-			form.reset("pallets")
+			form.reset(`${props.descriptor.key}`)
 			checkedAll.value = false
 			getData()
 			closeModal()
@@ -110,7 +110,7 @@ onMounted(getData)
 			</div>
 		</div>
 		<div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
-			<Button :style="'create'" :label="`add ${descriptor.title}`" :disabled="!form.pallets.length" :key="form.pallets.length"
+			<Button :style="'create'" :label="`add ${descriptor.title}`" :disabled="!form[props.descriptor.key].length" :key="form[props.descriptor.key].length"
 				@click="onSubmitPallet"></Button>
 		</div>
 	</div>
@@ -136,7 +136,7 @@ onMounted(getData)
 							<tr v-for="(pallet, index) in dataList" :key="pallet.id">
 								<td
 									:class="[index !== dataList.length - 1 ? 'border-b border-gray-200' : '', 'whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8']">
-									<input type="checkbox" :id="pallet.id" :value="pallet.id" v-model="form.pallets"
+									<input type="checkbox" :id="pallet.id" :value="pallet.id" v-model="form[props.descriptor.key]"
 										@change="onChecked"
 										class="h-6 w-6 rounded cursor-pointer border-gray-300 hover:border-indigo-500 text-indigo-600 focus:ring-gray-600" />
 								</td>

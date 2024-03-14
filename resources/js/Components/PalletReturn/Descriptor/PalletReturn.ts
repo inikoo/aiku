@@ -1,6 +1,7 @@
 export default {
     useSearch : true,
     title : 'Pallet',
+    key : 'pallets',
     column : [
         {
             label : "Reference",
