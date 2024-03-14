@@ -35,6 +35,7 @@ use App\Actions\Fulfilment\StoredItem\MoveStoredItem;
 use App\Actions\Fulfilment\StoredItem\StoreStoredItem;
 use App\Actions\Fulfilment\StoredItem\SyncStoredItemToPallet;
 use App\Actions\Fulfilment\StoredItemReturn\StoreStoredItemReturn;
+use App\Actions\Fulfilment\StoredItemReturn\StoreStoredItemToStoredItemReturn;
 use App\Actions\Fulfilment\StoredItemReturn\UpdateStateStoredItemReturn;
 use App\Actions\HumanResources\Employee\DeleteEmployee;
 use App\Actions\HumanResources\Employee\StoreEmployee;
@@ -120,6 +121,8 @@ Route::name('fulfilment-customer.')->prefix('fulfilment-customer/{fulfilmentCust
     });
 
     Route::prefix('stored-item-return/{storedItemReturn}')->name('stored-item-return.')->group(function () {
+        Route::delete('stored-item/{storedItem}', DeletePalletFromReturn::class)->name('stored-item.delete'); // TODO: Create delete action
+        Route::post('stored-item', StoreStoredItemToStoredItemReturn::class)->name('stored-item.store');
         Route::post('state/{state}', UpdateStateStoredItemReturn::class)->name('state.update')->whereIn('state', StoredItemReturnStateEnum::values());
     });
 });

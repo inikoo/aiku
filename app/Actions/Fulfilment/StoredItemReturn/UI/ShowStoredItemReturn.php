@@ -113,9 +113,9 @@ class ShowStoredItemReturn extends OrgAction
                                 [
                                     'type'  => 'button',
                                     'style' => 'create',
-                                    'label' => __('add pallet'),
+                                    'label' => __('add stored item'),
                                     'route' => [
-                                        'name'       => 'grp.models.fulfilment-customer.pallet-return.pallet.store',
+                                        'name'       => 'grp.models.fulfilment-customer.stored-item-return.stored-item.store',
                                         'parameters' => [
                                             'organisation'           => $storedItemReturn->organisation->slug,
                                             'fulfilment'             => $storedItemReturn->fulfilment->slug,
@@ -268,7 +268,7 @@ class ShowStoredItemReturn extends OrgAction
                         ]
                     ],
                     'store' => [
-                        'name'       => 'grp.models.fulfilment-customer.pallet-return.pallet.store',
+                        'name'       => 'grp.models.fulfilment-customer.stored-item-return.stored-item.store',
                         'parameters' => [
                             'organisation'       => $storedItemReturn->organisation->slug,
                             'fulfilment'         => $storedItemReturn->fulfilment->slug,

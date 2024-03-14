@@ -1,0 +1,129 @@
+<?php
+/*
+ * Author: Artha <artha@aw-advantage.com>
+ * Created: Wed, 24 Jan 2024 16:14:16 Central Indonesia Time, Sanur, Bali, Indonesia
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
+
+namespace App\Actions\Fulfilment\StoredItemReturn;
+
+use App\Actions\OrgAction;
+use App\Models\CRM\WebUser;
+use App\Models\Fulfilment\FulfilmentCustomer;
+use App\Models\Fulfilment\StoredItemReturn;
+use App\Models\SysAdmin\Organisation;
+use Illuminate\Console\Command;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Redirect;
+use Lorisleiva\Actions\ActionRequest;
+use Lorisleiva\Actions\Concerns\AsCommand;
+
+class StoreStoredItemToStoredItemReturn extends OrgAction
+{
+    use AsCommand;
+
+    public $commandSignature = 'stored-item:store-to-return {storedItemReturn}';
+
+    private StoredItemReturn $parent;
+
+    public function handle(StoredItemReturn $storedItemReturn, array $modelData): StoredItemReturn
+    {
+        foreach (Arr::get($modelData, 'stored_items') as $storedItem) {
+            $storedItemReturn->items()->sync([
+                Arr::get($storedItem, 'id') => [
+                    'quantity' => Arr::get($storedItem, 'quantity')
+                ],
+            ]);
+        }
+
+        return $storedItemReturn;
+    }
+
+    public function authorize(ActionRequest $request): bool
+    {
+        if ($this->asAction) {
+            return true;
+        }
+
+        if ($request->user() instanceof WebUser) {
+            // TODO: Raul please do the permission for the web user
+            return true;
+        }
+
+        return $request->user()->hasPermissionTo("fulfilment.{$this->fulfilment->id}.edit");
+    }
+
+    public function rules(): array
+    {
+        return [
+            'stored_items' => ['required', 'array']
+        ];
+    }
+
+    public function asController(Organisation $organisation, FulfilmentCustomer $fulfilmentCustomer, StoredItemReturn $storedItemReturn, ActionRequest $request): StoredItemReturn
+    {
+        $this->parent = $storedItemReturn;
+        $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $request);
+
+        return $this->handle($storedItemReturn, $this->validatedData);
+    }
+
+    public function fromRetina(StoredItemReturn $storedItemReturn, ActionRequest $request): StoredItemReturn
+    {
+        /** @var FulfilmentCustomer $fulfilmentCustomer */
+        $this->parent       = $storedItemReturn;
+        $fulfilmentCustomer = $request->user()->customer->fulfilmentCustomer;
+        $this->fulfilment   = $fulfilmentCustomer->fulfilment;
+
+        $this->initialisation($request->get('website')->organisation, $request);
+        return $this->handle($storedItemReturn, $this->validatedData);
+    }
+
+    public function action(StoredItemReturn $storedItemReturn, array $modelData, int $hydratorsDelay = 0): StoredItemReturn
+    {
+        $this->asAction       = true;
+        $this->hydratorsDelay = $hydratorsDelay;
+        $this->parent         = $storedItemReturn;
+        $this->initialisationFromFulfilment($storedItemReturn->fulfilment, $modelData);
+
+        return $this->handle($storedItemReturn, $this->validatedData);
+    }
+
+
+    public function asCommand(Command $command): int
+    {
+        $storedItemReturn = StoredItemReturn::where('reference', $command->argument('palletDelivery'))->firstOrFail();
+
+        $this->handle($storedItemReturn, [
+            'group_id'               => $storedItemReturn->group_id,
+            'organisation_id'        => $storedItemReturn->organisation_id,
+            'fulfilment_id'          => $storedItemReturn->fulfilment_id,
+            'fulfilment_customer_id' => $storedItemReturn->fulfilment_customer_id,
+            'warehouse_id'           => $storedItemReturn->warehouse_id,
+            'slug'                   => now()->timestamp
+        ]);
+
+        echo "Pallet created from delivery: $storedItemReturn->reference\n";
+
+        return 0;
+    }
+
+
+    public function htmlResponse(StoredItemReturn $storedItemReturn, ActionRequest $request): RedirectResponse
+    {
+        $routeName = $request->route()->getName();
+
+        return match ($routeName) {
+            'grp.models.fulfilment-customer.pallet-return.pallet.store' => Redirect::route('grp.org.fulfilments.show.crm.customers.show.pallet-returns.show', [
+                'organisation'               => $storedItemReturn->organisation->slug,
+                'fulfilment'                 => $storedItemReturn->fulfilment->slug,
+                'fulfilmentCustomer'         => $storedItemReturn->fulfilmentCustomer->slug,
+                'storedItemReturn'           => $storedItemReturn->reference
+            ]),
+            default => Redirect::route('retina.storage.pallet-returns.show', [
+                'storedItemReturn'     => $storedItemReturn->reference
+            ])
+        };
+    }
+}
