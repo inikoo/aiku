@@ -131,7 +131,7 @@ class ShowFulfilmentCustomer extends OrgAction
                                     'type'    => 'button',
                                     'style'   => 'primary',
                                     'tooltip' => __('Return new stored item return'),
-                                    'label'   => __('New Stored Item Return'),
+                                    'label'   => __('Stored Item Return'),
                                     'route'   => [
                                         'method'     => 'post',
                                         'name'       => 'grp.models.fulfilment-customer.stored-item-return.store',

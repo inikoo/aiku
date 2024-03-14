@@ -148,10 +148,10 @@ class StoreStoredItemReturn extends OrgAction
                 'organisation'               => $palletReturn->organisation->slug,
                 'fulfilment'                 => $palletReturn->fulfilment->slug,
                 'fulfilmentCustomer'         => $palletReturn->fulfilmentCustomer->slug,
-                'palletStoredItem'           => $palletReturn->reference
+                'storedItemReturn'           => $palletReturn->reference
             ])),
             default => Inertia::location(route('retina.storage.stored-item-returns.show', [
-                'palletStoredItem'         => $palletReturn->reference
+                'storedItemReturn'         => $palletReturn->reference
             ]))
         };
     }
