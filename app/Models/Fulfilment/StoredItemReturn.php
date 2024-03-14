@@ -13,6 +13,8 @@ use App\Models\CRM\Customer;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -48,6 +50,7 @@ use Spatie\Sluggable\SlugOptions;
  * * @property-read \App\Models\Fulfilment\Fulfilment $fulfilment
  * * @property-read \App\Models\Fulfilment\FulfilmentCustomer $fulfilmentCustomer
  * * @property-read Organisation $organisation
+ * * @property-read \App\Models\Fulfilment\StoredItem $items
  * * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\Pallet> $pallets
  * * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
  * * @property-read Warehouse|null $warehouse
@@ -82,5 +85,30 @@ class StoredItemReturn extends Model
             ->generateSlugsFrom('reference')
             ->doNotGenerateSlugsOnUpdate()
             ->saveSlugsTo('slug')->slugsShouldBeNoLongerThan(64);
+    }
+
+    public function warehouse(): BelongsTo
+    {
+        return $this->belongsTo(Warehouse::class);
+    }
+
+    public function organisation(): BelongsTo
+    {
+        return $this->belongsTo(Organisation::class);
+    }
+
+    public function fulfilment(): BelongsTo
+    {
+        return $this->belongsTo(Fulfilment::class);
+    }
+
+    public function fulfilmentCustomer(): BelongsTo
+    {
+        return $this->belongsTo(FulfilmentCustomer::class);
+    }
+
+    public function items(): BelongsToMany
+    {
+        return $this->belongsToMany(StoredItem::class, 'stored_item_return_stored_items');
     }
 }

@@ -144,19 +144,19 @@ class StoreStoredItemReturn extends OrgAction
         $routeName = $request->route()->getName();
 
         return match ($routeName) {
-            'grp.models.fulfilment-customer.pallet-return.store' => Inertia::location(route('grp.org.fulfilments.show.crm.customers.show.pallet-returns.show', [
-                'organisation'           => $palletReturn->organisation->slug,
-                'fulfilment'             => $palletReturn->fulfilment->slug,
-                'fulfilmentCustomer'     => $palletReturn->fulfilmentCustomer->slug,
-                'palletReturn'           => $palletReturn->reference
+            'grp.models.fulfilment-customer.stored-item-return.store' => Inertia::location(route('grp.org.fulfilments.show.crm.customers.show.stored-item-returns.show', [
+                'organisation'               => $palletReturn->organisation->slug,
+                'fulfilment'                 => $palletReturn->fulfilment->slug,
+                'fulfilmentCustomer'         => $palletReturn->fulfilmentCustomer->slug,
+                'palletStoredItem'           => $palletReturn->reference
             ])),
-            default => Inertia::location(route('retina.storage.pallet-returns.show', [
-                'palletReturn'         => $palletReturn->reference
+            default => Inertia::location(route('retina.storage.stored-item-returns.show', [
+                'palletStoredItem'         => $palletReturn->reference
             ]))
         };
     }
 
-    public string $commandSignature = 'pallet-returns:create {fulfillment-customer}';
+    public string $commandSignature = 'stored-item-returns:create {fulfillment-customer}';
 
     public function asCommand(Command $command): int
     {

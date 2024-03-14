@@ -24,6 +24,7 @@ use App\Actions\Fulfilment\PalletReturn\UI\IndexPalletReturns;
 use App\Actions\Fulfilment\PalletReturn\UI\ShowPalletReturn;
 use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItems;
 use App\Actions\Fulfilment\StoredItem\UI\ShowStoredItem;
+use App\Actions\Fulfilment\StoredItemReturn\UI\ShowStoredItemReturn;
 use App\Actions\Helpers\Uploads\HistoryUploads;
 use App\Actions\Inventory\Location\UI\IndexLocations;
 use App\Actions\OMS\Order\UI\ShowOrder;
@@ -71,5 +72,9 @@ Route::prefix('{fulfilmentCustomer}')->as('show')->group(function () {
         Route::get('', [IndexPalletReturns::class, 'inFulfilmentCustomer'])->name('index');
         Route::get('{palletReturn}', [ShowPalletReturn::class, 'inFulfilmentCustomer'])->name('show');
         Route::get('{palletReturn}/pallets/{pallet}', [ShowPallet::class, 'inFulfilmentCustomer'])->name('pallets.show');
+    });
+
+    Route::prefix('stored-item-returns')->as('.stored-item-returns.')->group(function () {
+        Route::get('{storedItemReturn}', [ShowStoredItemReturn::class, 'inFulfilmentCustomer'])->name('show');
     });
 });

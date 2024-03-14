@@ -13,7 +13,7 @@
   import { faSignOutAlt } from '@fal';
   import StoredItemMovement from '@/Components/StoredItemMovement/StoredItemMovement.vue'
   import { routeType } from '@/types/route';
-  
+
   library.add(
       faTrashAlt,faSignOutAlt
   )
@@ -28,7 +28,7 @@
     }
     updateRoute: routeType
   }>()
-  
+
   function palletRoutes(pallet: Pallet) {
       switch (route().current()) {
           case  'grp.org.fulfilments.show.operations.pallets.index':
@@ -47,7 +47,7 @@
                       route().params['warehouse'],
                       pallet['slug']
                   ]);
-  
+
           case  'grp.org.warehouses.show.infrastructure.locations.show':
               return route(
                   'grp.org.warehouses.show.infrastructure.locations.show.pallets.show',
@@ -66,14 +66,14 @@
                       route().params['fulfilmentCustomer'],
                       pallet['slug']
                   ]);
-  
+
           default:
               return [];
       }
   }
-  
+
   </script>
-  
+
   <template>
       <Table :resource="data" :name="tab" class="mt-5">
           <template #cell(referencex)="{ item: pallet }">
@@ -81,7 +81,7 @@
                   {{ pallet['reference'] }}
               </Link>
           </template>
-  
+
           <template #cell(state)="{ item: pallet }">
               <Icon :data="pallet['state_icon']" class="px-1"/>
           </template>
@@ -94,4 +94,3 @@
 		</template>
       </Table>
   </template>
-  

@@ -14,6 +14,7 @@ use App\Http\Resources\Fulfilment\StoredItemResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\StoredItem;
+use App\Models\Fulfilment\StoredItemReturn;
 use App\Models\SysAdmin\Organisation;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -27,7 +28,7 @@ use App\Services\QueryBuilder;
 
 class IndexStoredItems extends OrgAction
 {
-    public function handle(Organisation|FulfilmentCustomer $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Organisation|FulfilmentCustomer|StoredItemReturn $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -39,10 +40,10 @@ class IndexStoredItems extends OrgAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        return QueryBuilder::for(StoredItem::class)
+        return QueryBuilder::for($parent instanceof StoredItemReturn ? $parent->items() : StoredItem::class)
             ->defaultSort('slug')
             ->when($parent, function ($query) use ($parent) {
-                if(class_basename($parent) == "FulfilmentCustomer") {
+                if($parent instanceof FulfilmentCustomer) {
                     $query->where('fulfilment_customer_id', $parent->id);
                 }
             })

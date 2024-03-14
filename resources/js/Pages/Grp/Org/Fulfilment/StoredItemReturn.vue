@@ -20,11 +20,12 @@
   import { routeType } from '@/types/route'
   import { PageHeading as PageHeadingTypes } from  '@/types/PageHeading'
   import palletReturnDescriptor from "@/Components/PalletReturn/Descriptor/PalletReturn.ts"
-  
+  import TablePalletStoredItem from "@/Components/Tables/TablePalletStoredItem.vue";
+
   const props = defineProps<{
       title: string
       tabs: object
-      pallets?: object
+      items?: object
       data?: object
       history?: object
       pageHead: PageHeadingTypes
@@ -39,16 +40,16 @@
   const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab)
   const timeline = ref({ ...props.data.data })
   const openModal = ref(false)
-  
+
   const component = computed(() => {
       const components = {
-          pallets: TablePalletReturnsDelivery,
+          items: TablePalletStoredItem,
           history: TableHistories,
       }
       return components[currentTab.value]
   })
-  
-  
+
+
   watch(
       props,
       (newValue) => {
@@ -56,11 +57,11 @@
       },
       { deep: true }
   )
-  
+
   </script>
-  
+
   <template>
-  
+
       <Head :title="capitalize(title)" />
       <PageHeading :data="pageHead">
           <template #button-group-add-pallet="{ action: action }">
@@ -69,23 +70,22 @@
                   :tooltip="action.button.tooltip" @click="() => (openModal = true)" />
           </template>
       </PageHeading>
-  
-      <div class="border-b border-gray-200"> 
+
+      <div class="border-b border-gray-200">
           <Timeline :options="timeline.timeline" :state="timeline.state" :slidesPerView="Object.entries(timeline.timeline).length" />
       </div>
-  
+
       <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
       <component :is="component" :data="props[currentTab]" :state="timeline.state" :tab="currentTab" />
-  
+
       <Modal :isOpen="openModal" @onClose="openModal = false">
           <div class="min-h-72 max-h-96 px-2 overflow-auto">
-              <TablePalletReturn 
+              <TablePalletReturn
                   :dataRoute="palletRoute.index"
                   :saveRoute="palletRoute.store"
-                  @onClose="() => openModal = false" 
+                  @onClose="() => openModal = false"
                   :descriptor="palletReturnDescriptor"
               />
           </div>
       </Modal>
   </template>
-  
