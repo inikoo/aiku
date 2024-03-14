@@ -35,6 +35,7 @@ use App\Actions\Fulfilment\StoredItem\MoveStoredItem;
 use App\Actions\Fulfilment\StoredItem\StoreStoredItem;
 use App\Actions\Fulfilment\StoredItem\SyncStoredItemToPallet;
 use App\Actions\Fulfilment\StoredItemReturn\StoreStoredItemReturn;
+use App\Actions\Fulfilment\StoredItemReturn\UpdateStateStoredItemReturn;
 use App\Actions\HumanResources\Employee\DeleteEmployee;
 use App\Actions\HumanResources\Employee\StoreEmployee;
 use App\Actions\HumanResources\Employee\UpdateEmployee;
@@ -51,6 +52,7 @@ use App\Actions\UI\Profile\UpdateProfile;
 use App\Actions\Web\Website\LaunchWebsite;
 use App\Actions\Web\Website\StoreWebsite;
 use App\Actions\Web\Website\UpdateWebsite;
+use App\Enums\Fulfilment\StoredItemReturn\StoredItemReturnStateEnum;
 use Illuminate\Support\Facades\Route;
 
 Route::patch('/profile', UpdateProfile::class)->name('profile.update');
@@ -106,13 +108,20 @@ Route::name('fulfilment-customer.')->prefix('fulfilment-customer/{fulfilmentCust
 
 
     Route::post('pallet-return', StorePalletReturn::class)->name('pallet-return.store');
-    Route::delete('pallet-return/{palletReturn}/pallet/{pallet}', DeletePalletFromReturn::class)->name('pallet-return.pallet.delete');
-    Route::post('pallet-return/{palletReturn}/pallet', StorePalletToReturn::class)->name('pallet-return.pallet.store');
-    Route::post('pallet-return/{palletReturn}/submit', SubmitPalletReturn::class)->name('pallet-return.submit');
-    Route::post('pallet-return/{palletReturn}/delivery', PickingPalletReturn::class)->name('pallet-return.picking');
-    Route::post('pallet-return/{palletReturn}/confirm', ConfirmPalletReturn::class)->name('pallet-return.confirm');
-    Route::post('pallet-return/{palletReturn}/received', PickedPalletReturn::class)->name('pallet-return.picked');
-    Route::post('pallet-return/{palletReturn}/dispatched', DispatchedPalletReturn::class)->name('pallet-return.dispatched');
+
+    Route::prefix('pallet-return/{palletReturn}')->name('pallet-return')->group(function () {
+        Route::delete('pallet/{pallet}', DeletePalletFromReturn::class)->name('pallet.delete');
+        Route::post('pallet', StorePalletToReturn::class)->name('pallet.store');
+        Route::post('submit', SubmitPalletReturn::class)->name('submit');
+        Route::post('delivery', PickingPalletReturn::class)->name('picking');
+        Route::post('confirm', ConfirmPalletReturn::class)->name('confirm');
+        Route::post('received', PickedPalletReturn::class)->name('picked');
+        Route::post('dispatched', DispatchedPalletReturn::class)->name('dispatched');
+    });
+
+    Route::prefix('stored-item-return/{storedItemReturn}')->name('stored-item-return.')->group(function () {
+        Route::post('state/{state}', UpdateStateStoredItemReturn::class)->name('state.update')->whereIn('state', StoredItemReturnStateEnum::values());
+    });
 });
 
 Route::name('shop.')->prefix('shop/{shop:id}')->group(function () {

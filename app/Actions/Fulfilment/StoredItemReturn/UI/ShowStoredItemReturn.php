@@ -134,12 +134,13 @@ class ShowStoredItemReturn extends OrgAction
                             'key'     => 'action',
                             'route'   => [
                                 'method'     => 'post',
-                                'name'       => 'grp.models.fulfilment-customer.pallet-return.submit',
+                                'name'       => 'grp.models.fulfilment-customer.stored-item-return.state.update',
                                 'parameters' => [
                                     'organisation'           => $storedItemReturn->organisation->slug,
                                     'fulfilment'             => $storedItemReturn->fulfilment->slug,
                                     'fulfilmentCustomer'     => $storedItemReturn->fulfilmentCustomer->id,
-                                    'storedItemReturn'       => $storedItemReturn->reference
+                                    'storedItemReturn'       => $storedItemReturn->reference,
+                                    'state'                  => StoredItemReturnStateEnum::SUBMITTED->value
                                 ]
                             ]
                         ] : [],
@@ -152,12 +153,13 @@ class ShowStoredItemReturn extends OrgAction
                             'key'     => 'action',
                             'route'   => [
                                 'method'     => 'post',
-                                'name'       => 'grp.models.fulfilment-customer.pallet-return.confirm',
+                                'name'       => 'grp.models.fulfilment-customer.stored-item-return.state.update',
                                 'parameters' => [
                                     'organisation'           => $storedItemReturn->organisation->slug,
                                     'fulfilment'             => $storedItemReturn->fulfilment->slug,
                                     'fulfilmentCustomer'     => $storedItemReturn->fulfilmentCustomer->id,
-                                    'storedItemReturn'       => $storedItemReturn->reference
+                                    'storedItemReturn'       => $storedItemReturn->reference,
+                                    'state'                  => StoredItemReturnStateEnum::CONFIRMED->value
                                 ]
                             ]
                         ] : [],
@@ -169,12 +171,13 @@ class ShowStoredItemReturn extends OrgAction
                             'key'     => 'action',
                             'route'   => [
                                 'method'     => 'post',
-                                'name'       => 'grp.models.fulfilment-customer.pallet-return.picking',
+                                'name'       => 'grp.models.fulfilment-customer.stored-item-return.state.update',
                                 'parameters' => [
                                     'organisation'           => $storedItemReturn->organisation->slug,
                                     'fulfilment'             => $storedItemReturn->fulfilment->slug,
                                     'fulfilmentCustomer'     => $storedItemReturn->fulfilmentCustomer->id,
-                                    'storedItemReturn'       => $storedItemReturn->reference
+                                    'storedItemReturn'       => $storedItemReturn->reference,
+                                    'state'                  => StoredItemReturnStateEnum::PICKING->value
                                 ]
                             ]
                         ] : [],
@@ -186,12 +189,13 @@ class ShowStoredItemReturn extends OrgAction
                             'key'     => 'action',
                             'route'   => [
                                 'method'     => 'post',
-                                'name'       => 'grp.models.fulfilment-customer.pallet-return.picked',
+                                'name'       => 'grp.models.fulfilment-customer.stored-item-return.state.update',
                                 'parameters' => [
                                     'organisation'           => $storedItemReturn->organisation->slug,
                                     'fulfilment'             => $storedItemReturn->fulfilment->slug,
                                     'fulfilmentCustomer'     => $storedItemReturn->fulfilmentCustomer->id,
-                                    'storedItemReturn'       => $storedItemReturn->reference
+                                    'storedItemReturn'       => $storedItemReturn->reference,
+                                    'state'                  => StoredItemReturnStateEnum::PICKED->value
                                 ]
                             ]
                         ] : [],
@@ -203,12 +207,13 @@ class ShowStoredItemReturn extends OrgAction
                             'key'     => 'action',
                             'route'   => [
                                 'method'     => 'post',
-                                'name'       => 'grp.models.fulfilment-customer.pallet-return.dispatched',
+                                'name'       => 'grp.models.fulfilment-customer.stored-item-return.state.update',
                                 'parameters' => [
                                     'organisation'           => $storedItemReturn->organisation->slug,
                                     'fulfilment'             => $storedItemReturn->fulfilment->slug,
                                     'fulfilmentCustomer'     => $storedItemReturn->fulfilmentCustomer->id,
-                                    'storedItemReturn'       => $storedItemReturn->reference
+                                    'storedItemReturn'       => $storedItemReturn->reference,
+                                    'state'                  => StoredItemReturnStateEnum::DISPATCHED->value
                                 ]
                             ]
                         ] : [],
