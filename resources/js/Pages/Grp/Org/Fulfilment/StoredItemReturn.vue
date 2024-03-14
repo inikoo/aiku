@@ -20,6 +20,7 @@
   import { PageHeading as PageHeadingTypes } from  '@/types/PageHeading'
   import StoredItemReturnDescriptor from "@/Components/PalletReturn/Descriptor/StoredItemReturn"
   import TableReturn from '@/Components/PalletReturn/tablePalletReturn.vue'
+  import TableStoredItemReturnStoredItems from "@/Components/Tables/TableStoredItemReturnStoredItems.vue";
 
   const props = defineProps<{
       title: string
@@ -42,7 +43,7 @@
 
   const component = computed(() => {
       const components = {
-          items: TableStoredItems,
+          items: TableStoredItemReturnStoredItems,
           history: TableHistories,
       }
       return components[currentTab.value]

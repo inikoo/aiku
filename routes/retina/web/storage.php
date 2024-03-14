@@ -14,6 +14,7 @@ use App\Actions\Retina\Storage\PalletDelivery\UI\ShowPalletDelivery;
 use App\Actions\Retina\Storage\PalletReturn\UI\IndexPalletReturns;
 use App\Actions\Retina\Storage\PalletReturn\UI\ShowPalletReturn;
 use App\Actions\Retina\Storage\StoredItemReturn\UI\IndexStoredItemReturns;
+use App\Actions\Retina\Storage\StoredItemReturn\UI\ShowStoredItemReturn;
 use App\Actions\Retina\Storage\StoredItems\UI\IndexStoredItems;
 use App\Actions\UI\Retina\Storage\ShowStorageDashboard;
 
@@ -38,4 +39,5 @@ Route::get('stored-items', IndexStoredItems::class)->name('stored-items.index');
 
 Route::prefix('stored-item-returns')->as('stored-item-returns.')->group(function () {
     Route::get('stored-items', IndexStoredItemReturns::class)->name('index');
+    Route::get('{storedItemReturn}', ShowStoredItemReturn::class)->name('show');
 });

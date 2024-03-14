@@ -22,7 +22,9 @@
                   'grp.org.fulfilments.show.crm.customers.show.stored-item-returns.show',
                   [route().params['organisation'], route().params['fulfilment'], route().params['fulfilmentCustomer'], storedItem.slug]);
           case 'retina.storage.stored-item-returns.index':
-              return null;
+              return route(
+                  'retina.storage.stored-item-returns.show',
+                  [storedItem.slug]);
           default:
               return route(
                   'grp.fulfilment.stored-items.show',
