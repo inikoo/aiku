@@ -128,7 +128,7 @@ const onSaved = async (pallet: { form : {}}, fieldName: string) => {
 					as="div"
 					:onSuccess="() => emits('renderTableKey')"
                     v-tooltip="'Delete this pallet'"
-                    class="w-fit"    
+                    class="w-fit"
                 >
                     <Button icon="far fa-trash-alt" type="negative" />
 				</Link>
@@ -148,9 +148,9 @@ const onSaved = async (pallet: { form : {}}, fieldName: string) => {
 					:data="pallet"
 					@onSuccess="() => emits('renderTableKey')" />
 			</div>
-            
+
             <!-- State: Received -->
-			<div v-else-if="props.state == 'received'" class="flex">
+			<div v-else-if="props.state == 'received' || props.state == 'not-received'" class="flex">
                 <ButtonEditTable
                     class="mx-2"
                     :type="pallet.state == 'not-received' ? 'secondary' : 'negative'"

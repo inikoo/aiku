@@ -117,7 +117,7 @@ class ShowFulfilmentCustomer extends OrgAction
                                     'type'    => 'button',
                                     'style'   => 'primary',
                                     'tooltip' => __('Create new delivery order'),
-                                    'label'   => __('Return Delivery Pallet'),
+                                    'label'   => __('Delivery Pallet'),
                                     'options' => [
                                         'warehouses' => WarehouseResource::collection($fulfilmentCustomer->fulfilment->warehouses)
                                     ],
