@@ -79,7 +79,7 @@ class IndexStoredItemReturns extends RetinaAction
                 ->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon')
                 ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'customer reference', label: __('customer reference'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'stored items', label: __('stored items'), canBeHidden: false, sortable: true, searchable: true);
+                ->column(key: 'items', label: __('items'), canBeHidden: false, sortable: true, searchable: true);
         };
     }
 

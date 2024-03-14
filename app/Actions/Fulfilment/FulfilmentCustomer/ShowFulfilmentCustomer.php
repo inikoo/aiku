@@ -218,7 +218,8 @@ class ShowFulfilmentCustomer extends OrgAction
                 )
             )->table(
                 IndexStoredItemReturns::make()->tableStructure(
-                    parent: $fulfilmentCustomer
+                    parent: $fulfilmentCustomer,
+                    prefix: CustomerFulfilmentTabsEnum::STORED_ITEM_RETURNS->value
                 )
             );
     }

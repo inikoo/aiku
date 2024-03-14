@@ -12,6 +12,8 @@ import { library } from "@fortawesome/fontawesome-svg-core"
 import TableStoredItemReturn from "@/Components/Tables/TableStoredItemReturn.vue"
 import TablePalletReturns from "@/Components/Tables/TablePalletReturns.vue"
 import Table from "@/Components/Table/Table.vue"
+import TagPallete from "@/Components/TagPallete.vue";
+import Icon from "@/Components/Icon.vue";
 library.add()
 
 
@@ -34,9 +36,7 @@ console.log(props)
 <template>
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead" />
-    <Table :resource="data" name="stored_item_returns">
-    </Table>
-<!--     <TablePallets :data="data"  tab="stored_item_returns" /> -->
+    <TableStoredItemReturn :data="data" app="retina" />
 </template>
 
 

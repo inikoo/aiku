@@ -36,6 +36,7 @@ class StoredItemReturnsResource extends JsonResource
             'state_label'        => $storedItemReturn->state->labels()[$storedItemReturn->state->value],
             'state_icon'         => $storedItemReturn->state->stateIcon()[$storedItemReturn->state->value],
             'customer_reference' => $storedItemReturn->customer_reference,
+            'items'              => $storedItemReturn->items()->count(),
         ];
     }
 }
