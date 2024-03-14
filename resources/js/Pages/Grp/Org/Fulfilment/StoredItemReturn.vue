@@ -18,7 +18,8 @@
   import TableStoredItems from "@/Components/Tables/TableStoredItems.vue"
   import { routeType } from '@/types/route'
   import { PageHeading as PageHeadingTypes } from  '@/types/PageHeading'
-  import palletReturnDescriptor from "@/Components/PalletReturn/Descriptor/PalletReturn.ts"
+  import StoredItemReturnDescriptor from "@/Components/PalletReturn/Descriptor/StoredItemReturn"
+  import TableReturn from '@/Components/PalletReturn/tablePalletReturn.vue'
 
   const props = defineProps<{
       title: string
@@ -59,10 +60,9 @@
   </script>
 
   <template>
-
       <Head :title="capitalize(title)" />
       <PageHeading :data="pageHead">
-          <template #button-group-add-pallet="{ action: action }">
+          <template #button-group-add-stored-item="{ action: action }">
               <Button :style="action.button.style" :label="action.button.label" :icon="action.button.icon"
                   :iconRight="action.button.iconRight" :key="`ActionButton${action.button.label}${action.button.style}`"
                   :tooltip="action.button.tooltip" @click="() => (openModal = true)" />
@@ -78,11 +78,11 @@
 
       <Modal :isOpen="openModal" @onClose="openModal = false">
           <div class="min-h-72 max-h-96 px-2 overflow-auto">
-              <TablePalletReturn
+              <TableReturn
                   :dataRoute="palletRoute.index"
                   :saveRoute="palletRoute.store"
                   @onClose="() => openModal = false"
-                  :descriptor="palletReturnDescriptor"
+                  :descriptor="StoredItemReturnDescriptor"
               />
           </div>
       </Modal>

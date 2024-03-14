@@ -110,7 +110,7 @@ onMounted(getData)
 			</div>
 		</div>
 		<div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
-			<Button :style="'create'" label="Add Pallet" :disabled="!form.pallets.length" :key="form.pallets.length"
+			<Button :style="'create'" :label="`add ${descriptor.title}`" :disabled="!form.pallets.length" :key="form.pallets.length"
 				@click="onSubmitPallet"></Button>
 		</div>
 	</div>
