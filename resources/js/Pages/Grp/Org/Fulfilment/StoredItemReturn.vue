@@ -15,12 +15,10 @@
   import Timeline from "@/Components/Utils/Timeline.vue"
   import Button from "@/Components/Elements/Buttons/Button.vue"
   import Modal from "@/Components/Utils/Modal.vue"
-  import TablePalletReturn from "@/Components/PalletReturn/tablePalletReturn.vue"
-  import TablePalletReturnsDelivery from "@/Components/Tables/TablePalletReturnsDelivery.vue"
+  import TableStoredItems from "@/Components/Tables/TableStoredItems.vue"
   import { routeType } from '@/types/route'
   import { PageHeading as PageHeadingTypes } from  '@/types/PageHeading'
   import palletReturnDescriptor from "@/Components/PalletReturn/Descriptor/PalletReturn.ts"
-  import TablePalletStoredItem from "@/Components/Tables/TablePalletStoredItem.vue";
 
   const props = defineProps<{
       title: string
@@ -43,7 +41,7 @@
 
   const component = computed(() => {
       const components = {
-          items: TablePalletStoredItem,
+          items: TableStoredItems,
           history: TableHistories,
       }
       return components[currentTab.value]
