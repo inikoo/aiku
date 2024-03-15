@@ -110,7 +110,7 @@ Route::name('fulfilment-customer.')->prefix('fulfilment-customer/{fulfilmentCust
 
     Route::post('pallet-return', StorePalletReturn::class)->name('pallet-return.store');
 
-    Route::prefix('pallet-return/{palletReturn}')->name('pallet-return')->group(function () {
+    Route::prefix('pallet-return/{palletReturn}')->name('pallet-return.')->group(function () {
         Route::delete('pallet/{pallet}', DeletePalletFromReturn::class)->name('pallet.delete');
         Route::post('pallet', StorePalletToReturn::class)->name('pallet.store');
         Route::post('submit', SubmitPalletReturn::class)->name('submit');
