@@ -13,7 +13,7 @@ enum AppointmentEventEnum: string
 {
     use EnumHelperTrait;
 
-    case CALLBACK  = 'callback';
+    case TELEPHONE = 'telephone';
     case IN_PERSON = 'in_person';
 
     public static function labels(): array

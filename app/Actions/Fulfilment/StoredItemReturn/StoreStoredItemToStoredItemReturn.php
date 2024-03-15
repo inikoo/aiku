@@ -10,6 +10,7 @@ namespace App\Actions\Fulfilment\StoredItemReturn;
 use App\Actions\OrgAction;
 use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\FulfilmentCustomer;
+use App\Models\Fulfilment\StoredItem;
 use App\Models\Fulfilment\StoredItemReturn;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Console\Command;
@@ -30,6 +31,12 @@ class StoreStoredItemToStoredItemReturn extends OrgAction
     public function handle(StoredItemReturn $storedItemReturn, array $modelData): StoredItemReturn
     {
         $storedItemReturn->items()->syncWithoutDetaching(Arr::get($modelData, 'stored_items'));
+
+        foreach ($modelData['stored_items'] as $key => $storedItem) {
+            /** @var StoredItem $storedItem */
+            $storedItemModel = StoredItem::find($key);
+            $storedItemModel->pallets()->detach([$key]);
+        }
 
         return $storedItemReturn;
     }

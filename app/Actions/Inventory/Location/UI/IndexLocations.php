@@ -51,9 +51,17 @@ class IndexLocations extends OrgAction
     public function inWarehouse(Organisation $organisation, Warehouse $warehouse, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $warehouse;
-        $this->initialisation($organisation, $request)->withTab(WarehouseTabsEnum::values());
+        $this->initialisationFromWarehouse($warehouse, $request)->withTab(WarehouseTabsEnum::values());
 
         return $this->handle(parent: $warehouse);
+    }
+
+    public function inWarehouseArea(Organisation $organisation, Warehouse $warehouse, WarehouseArea $warehouseArea, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = $warehouseArea;
+        $this->initialisationFromWarehouse($warehouse, $request)->withTab(WarehouseTabsEnum::values());
+
+        return $this->handle(parent: $warehouseArea);
     }
 
 
