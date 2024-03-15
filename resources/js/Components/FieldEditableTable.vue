@@ -19,16 +19,24 @@ import { cloneDeep } from "lodash"
 
 library.add( faTrashAlt, faSignOutAlt, faTimesCircle, faSpinnerThird, faCheckCircle )
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
     data: {
         [key: string]: string
     }
     fieldName: string
     placeholder?: string
-}>()
+    type?:string
+    min?:number
+    max?:number
+}>(), {
+    type : 'text',
+    min:0,
+    max:0
+})
 
 const emits = defineEmits<{
     (e: 'onSave', data: {}, fieldName: string): void
+    (e: 'input', event: {}): void
 }>()
 
 
@@ -50,15 +58,24 @@ const onSaveInput = (value: string) => {
     }
 }
 
+const onInput=(event)=>{
+    pallet.value.form.errors[props.fieldName] = ''
+    emits('input', event)
+}
+
 </script>
 
 <template>
-    <PureInput v-model="pallet.form[fieldName]"
+    <PureInput 
+        v-model="pallet.form[fieldName]"
         @blur="(value) => onSaveInput(value)"
         @onEnter="(value) => onSaveInput(value)"
-        @input="() => pallet.form.errors[fieldName] = ''"
+        @input="onInput"
         :suffix="true"
         :placeholder="placeholder"
+        :type="type"
+        :minValue="min"
+        :maxValue="max"
     >
         <template #suffix>
             <div class="flex justify-center items-center px-2 absolute inset-y-0 right-0 gap-x-1 cursor-pointer">

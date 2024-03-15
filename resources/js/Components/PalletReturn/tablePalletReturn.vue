@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { get, defaultTo, fromPairs } from "lodash"
+import { get, defaultTo, fromPairs, before } from "lodash"
 import axios from "axios"
 import { onMounted, ref, defineProps } from "vue"
-import { useForm } from "@inertiajs/vue3"
+import { useForm,router } from "@inertiajs/vue3"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import { notify } from "@kyvg/vue3-notification"
 import PureInput from "@/Components/Pure/PureInput.vue"
@@ -19,6 +19,7 @@ const props = defineProps<{
 	dataRoute: routeType
 	saveRoute: routeType
 	descriptor: object
+	beforeSubmit:Function
 }>()
 
 const emits = defineEmits()
@@ -73,8 +74,10 @@ const onChecked = (value) => {
 	else checkedAll.value = false
 }
 
-const onSubmitPallet = () => {
-	form.post(route(props.saveRoute.name, props.saveRoute.parameters), {
+const onSubmitPallet = async () => {
+	let eventData = form[props.descriptor.key]
+    if(props.beforeSubmit) eventData = props.beforeSubmit(form[props.descriptor.key],dataList.value)
+	router.post(route(props.saveRoute.name, props.saveRoute.parameters), { [props.descriptor.key] : eventData }, {
 		preserveScroll: true,
 		onBefore: () => {
 			loading.value = true
@@ -129,7 +132,10 @@ onMounted(getData)
 								</th>
 								<th v-for="(item, index) in descriptor.column" :key="`header-${item.key}`" scope="col"
 									class="sticky top-0 z-10 hidden border-b border-gray-300 bg-white bg-opacity-75 px-3 py-3.5 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:table-cell">
-									{{ item.label }}</th>
+									<slot :name="`head-${item.key}`" :data="{ headData : item , index : index }">
+										{{ item.label }}
+									</slot>
+								</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -140,9 +146,13 @@ onMounted(getData)
 										@change="onChecked"
 										class="h-6 w-6 rounded cursor-pointer border-gray-300 hover:border-indigo-500 text-indigo-600 focus:ring-gray-600" />
 								</td>
-								<td v-for="(column, columnIndex) in descriptor.column" :key="`header-${column.key}`"
+								<td v-for="(column, columnIndex) in descriptor.column" :key="`column-${pallet.id}`"
 									:class="[index !== dataList.length - 1 ? 'border-b border-gray-200' : '', 'whitespace-nowrap hidden px-3 py-4 text-sm text-gray-500 sm:table-cell']">
-									{{ defaultTo(get(pallet, [column.key]), "-") }}</td>
+									<slot :name="`column-${column.key}`" :data="{ columnData : pallet, index : columnIndex }">
+										{{ defaultTo(get(pallet, [column.key]), "-") }}
+									</slot>
+									
+								</td>
 							</tr>
 						</tbody>
 					</table>

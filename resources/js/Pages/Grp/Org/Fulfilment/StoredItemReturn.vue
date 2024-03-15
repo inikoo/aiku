@@ -21,6 +21,7 @@
   import StoredItemReturnDescriptor from "@/Components/PalletReturn/Descriptor/StoredItemReturn"
   import TableReturn from '@/Components/PalletReturn/tablePalletReturn.vue'
   import TableStoredItemReturnStoredItems from "@/Components/Tables/TableStoredItemReturnStoredItems.vue";
+  import FieldEditableTable from "@/Components/FieldEditableTable.vue"
 
   const props = defineProps<{
       title: string
@@ -48,6 +49,16 @@
       }
       return components[currentTab.value]
   })
+
+  const submitDataStoredItem = (formData, list) => {
+    console.log(list)
+    const finalValue = {};
+    for (let v of formData) {
+        const dataSelected = list.find((item) => item.id == v);
+        finalValue[v] = { quantity : dataSelected.total_quantity}
+    }
+    return finalValue;
+};
 
 
   watch(
@@ -84,7 +95,20 @@
                   :saveRoute="storedItemRoute.store"
                   @onClose="() => openModal = false"
                   :descriptor="StoredItemReturnDescriptor"
-              />
+                  :beforeSubmit="submitDataStoredItem"
+              >
+              <template #column-quantity="{ data : dataColumn }">
+                <FieldEditableTable 
+                    :data="dataColumn.columnData"  
+                    fieldName="total_quantity" 
+                    placeholder="Enter pallet Quantity"
+                    type="number"
+                    @input="(e)=>dataColumn.columnData.total_quantity = e"
+                    :min="1"
+                    :max="dataColumn.columnData.total_quantity"
+                />
+              </template>
+              </TableReturn>
           </div>
       </Modal>
   </template>
