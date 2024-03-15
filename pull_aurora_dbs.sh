@@ -7,7 +7,7 @@
 scp export_aurora_db.sh devels:paso_au/
 #scp aurora_migration_base.sh devels:paso_au/
 #scp aurora_migration_crm.sh devels:paso_au/
-echo "dumping sql 🍬"
+echo "copying sql 🍬"
 ssh devels 'cd paso_au; ./export_aurora_db.sh'
 scp devels:paso_au/*.bz2 devops/paso_au/
 cd devops/paso_au
@@ -24,7 +24,7 @@ echo "es done 🎉"
 mysql sk_base <  sk_base.sql;
 echo "sk done 🎉"
 mysql dw_base <  dw_base.sql;
-echo "sw done 🎉"
+echo "dw done 🎉"
 
 
 
