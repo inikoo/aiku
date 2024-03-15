@@ -60,6 +60,4 @@ aurora_migration_base_tmp.sh
 aurora_migration_crm.sh
 /backup_load.sh
 push.sh
-
-
-
+/devops/paso_au/
